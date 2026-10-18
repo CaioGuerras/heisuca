@@ -133,6 +133,7 @@ export type Fonte = {
   Id: string; Container?: string; RunTimeTicks?: number; SupportsDirectPlay: boolean; SupportsDirectStream: boolean;
   SupportsTranscoding: boolean; TranscodingUrl?: string; MediaStreams: Fluxo[];
   DefaultAudioStreamIndex?: number; DefaultSubtitleStreamIndex?: number;
+  MediaAttachments?: { Codec?: string; MimeType?: string; FileName?: string; DeliveryUrl?: string }[];
 };
 export type Reproducao = { PlaySessionId: string; MediaSources: Fonte[]; ErrorCode?: string };
 

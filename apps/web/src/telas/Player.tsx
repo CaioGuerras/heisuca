@@ -18,6 +18,7 @@ const relogio = (seg: number) => {
   const h = Math.floor(seg / 3600), m = Math.floor(seg / 60) % 60, s = Math.floor(seg % 60);
   return (h ? `${h}:${String(m).padStart(2, '0')}` : String(m)) + `:${String(s).padStart(2, '0')}`;
 };
+const eAss = (f?: Fluxo) => !!f && (f.Codec === 'ass' || f.Codec === 'ssa');
 const nomeFluxo = (f: Fluxo) => f.DisplayTitle || f.Title || f.Language || `Faixa ${f.Index}`;
 // faixa de áudio que o navegador toca por conta própria (a padrão do arquivo, senão a primeira)
 const audioDoArquivo = (fonte: Fonte) => {
@@ -177,6 +178,22 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
     return () => v.removeEventListener('loadedmetadata', ligarFaixa);
   }, [e]);
 
+  // legenda ASS: desenhada pelo JASSUB (wasm de ~2 MB, carregado só aqui) com as fontes anexadas ao arquivo
+  useEffect(() => {
+    const v = video.current;
+    const l = e?.fonte.MediaStreams.find(x => x.Index === e.legenda);
+    if (!v || !e || !eAss(l) || l!.DeliveryMethod !== 'External' || !l!.DeliveryUrl) return;
+    let fim = false, r: { destroy(): Promise<void> } | null = null;
+    const fontes = (e.fonte.MediaAttachments || [])
+      .filter(a => a.DeliveryUrl && /font|ttf|otf|woff/i.test(`${a.MimeType} ${a.FileName} ${a.Codec}`))
+      .map(a => urlServidor(s, a.DeliveryUrl!));
+    import('jassub').then(({ default: J }) => {
+      if (fim) return;
+      r = new J({ video: v, subUrl: urlServidor(s, l!.DeliveryUrl!), fonts: fontes, maxRenderHeight: 1080 });
+    }); // falha aqui vira unhandledrejection e cai no log do nginx (main.tsx)
+    return () => { fim = true; r?.destroy().catch(() => undefined); };
+  }, [e]);
+
   // controles somem sozinhos enquanto toca
   function mexeu() {
     setVisivel(true);
@@ -217,7 +234,8 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
   const fonte = e?.fonte;
   const audios = fonte?.MediaStreams.filter(x => x.Type === 'Audio') || [];
   const legendas = fonte?.MediaStreams.filter(x => x.Type === 'Subtitle') || [];
-  const externas = legendas.filter(x => x.DeliveryMethod === 'External' && x.DeliveryUrl);
+  // texto simples vira <track>; ASS vai para o JASSUB (efeito acima)
+  const externas = legendas.filter(x => x.DeliveryMethod === 'External' && x.DeliveryUrl && !eAss(x));
   const posTicks = () => Math.round((video.current?.currentTime || 0) * TICKS);
   function escolherAudio(i: number) { setMenu(false); if (e && i !== e.audio) carregar({ audio: i, legenda: e.legenda, ticks: posTicks() }); }
   function escolherLegenda(i: number) {
@@ -226,7 +244,7 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
     const nova = legendas.find(x => x.Index === i);
     const atualGravada = legendas.find(x => x.Index === e.legenda)?.DeliveryMethod === 'Encode';
     // texto por fora troca na hora; legenda gravada no vídeo (ou sair dela) pede nova carga
-    if (!atualGravada && (i === -1 || (nova?.DeliveryMethod === 'External' && externas.includes(nova)))) {
+    if (!atualGravada && (i === -1 || (nova?.DeliveryMethod === 'External' && nova.DeliveryUrl))) {
       const x = { ...e, legenda: i }; est.current = x; setE(x);
     } else carregar({ audio: e.audio, legenda: i, ticks: posTicks() });
   }

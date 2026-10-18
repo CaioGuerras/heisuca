@@ -9,6 +9,14 @@ const mse = (tipo: string) => {
 };
 const ok = (tipo: string) => toca(tipo) || mse(tipo);
 
+// ASS desenhada no navegador (JASSUB: WebAssembly + worker de módulo, Chrome 80+/Safari 15+). Sem isso, o servidor grava.
+function workerDeModulo(): boolean {
+  let ok = false;
+  try { new Worker('data:,', { get type() { ok = true; return 'module'; } } as WorkerOptions).terminate(); } catch { /* só testa */ }
+  return ok;
+}
+export const assNoNavegador = typeof WebAssembly === 'object' && typeof Worker === 'function' && workerDeModulo();
+
 export function perfilDoAparelho() {
   const video = ['h264'];
   if (ok('video/mp4; codecs="hvc1.1.6.L120.90"') || ok('video/mp4; codecs="hev1.1.6.L120.90"')) video.push('hevc');
@@ -47,6 +55,7 @@ export function perfilDoAparelho() {
     // texto vira WebVTT por fora (sem converter o vídeo); imagem (PGS/VobSub) precisa ser gravada no vídeo
     SubtitleProfiles: [
       { Format: 'vtt', Method: 'External' },
+      ...(assNoNavegador ? [{ Format: 'ass', Method: 'External' }, { Format: 'ssa', Method: 'External' }] : []),
       { Format: 'pgssub', Method: 'Encode' },
       { Format: 'dvdsub', Method: 'Encode' },
       { Format: 'dvbsub', Method: 'Encode' },

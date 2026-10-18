@@ -38,9 +38,13 @@ Escrito do zero. Vira também o app das TVs Samsung (Tizen) e LG (webOS): a mesm
 - **M5:** paridade com o site atual (apps.html, Como usar, push) e o OK do Caio para trocar o endereço.
 
 ## Pendências
-- **ASS no navegador (JASSUB, MIT):** anime usa muito ASS e hoje isso grava a legenda no vídeo (conversão pesada na
-  Whatbox, sem aceleração). Próximo passo do player: perfil `{Format: 'ass', Method: 'External'}` + JASSUB onde houver
-  WebAssembly; TV antiga segue gravando.
+- **ASS no navegador (feito 18/10):** JASSUB 2.5 (código MIT; libass/freetype/fribidi embutidos, LGPL e outras, usados sem
+  modificação), mesmo caminho do jellyfin-web. Perfil `{ass|ssa, External}` só onde há WebAssembly + worker de módulo
+  (`assNoNavegador`); TV antiga segue com a legenda gravada pelo servidor. Fontes = anexos do MKV (`MediaAttachments`).
+  wasm (~900 KB gzip) carrega só ao escolher ASS; nginx serve `application/wasm` (bloco `types` no `publicar-teste`).
+  Bancada: `testes/bancada_ass.py <id> <segundos>` (escolher um trecho com fala).
+- **Regra (Caio, 18/10):** não reinventar. Antes de desenhar algo, ver como os players da pesquisa resolvem e reaproveitar
+  biblioteca/solução que já roda bem; o código de cola é nosso.
 - Limite de 2 telas (plugin StreamLimit) barra a 3ª reprodução em sequência rápida da mesma conta (o gate conta sessões
   recém-paradas): na bancada, rodar uma tela por vez (`SO=tv`).
 - Inter (OFL, `@fontsource-variable/inter`, só latin) entrou no M2. Repositório: `CaioGuerras/heisuca` (privado).

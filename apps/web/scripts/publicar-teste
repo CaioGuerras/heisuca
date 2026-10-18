@@ -26,6 +26,8 @@ BLOCO = INI + f"""    location = /__heisuca {{ return 301 /__heisuca/; }}
     location ^~ /__heisuca/assets/ {{
         alias {DEST}/assets/;
         gzip_static on;
+        # o mime.types do nginx da VPS não tem wasm (JASSUB precisa de application/wasm para compilar em fluxo)
+        types {{ application/javascript js mjs; text/css css; font/woff2 woff2; application/wasm wasm; application/json json map; }}
         add_header Cache-Control "public, max-age=31536000, immutable" always;
         add_header X-Content-Type-Options "nosniff" always;
         include /etc/nginx/snippets/cgflix_seguranca.conf;
@@ -56,7 +58,7 @@ def main():
     env = dict(os.environ, VITE_SO_USUARIO=os.environ.get("VITE_SO_USUARIO", "caioguerras,teste-cgflix"))
     subprocess.run(["npm", "run", "build"], cwd=WEB, env=env, check=True)
     subprocess.run(["find", "dist", "-type", "f", "(", "-name", "*.js", "-o", "-name", "*.css", "-o", "-name", "*.html",
-                    "-o", "-name", "*.svg", "-o", "-name", "*.json", ")", "-exec", "gzip", "-9", "-k", "-f", "{}", "+"], cwd=WEB, check=True)
+                    "-o", "-name", "*.svg", "-o", "-name", "*.json", "-o", "-name", "*.wasm", ")", "-exec", "gzip", "-9", "-k", "-f", "{}", "+"], cwd=WEB, check=True)
     vps(f"mkdir -p {DEST}")
     subprocess.run(["rsync", "-a", "--delete", "-e", "ssh -p 22022 -o BatchMode=yes", f"{WEB}/dist/", f"root@143.95.215.156:{DEST}/"], check=True)
     vps(f"chmod -R a+rX /var/www/heisuca")

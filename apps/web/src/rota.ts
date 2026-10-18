@@ -2,7 +2,8 @@
 import { useEffect, useState } from 'preact/hooks';
 import { ehTV, sairDoApp } from './tv';
 
-export type Rota = { tela: 'inicio' } | { tela: 'titulo'; id: string } | { tela: 'ver'; id: string; inicio?: number };
+export type Rota = { tela: 'inicio' } | { tela: 'titulo'; id: string } | { tela: 'ver'; id: string; inicio?: number }
+  | { tela: 'busca' } | { tela: 'fav' } | { tela: 'pedidos' } | { tela: 'biblioteca'; id: string };
 
 function ler(): Rota {
   const [caminho, busca = ''] = location.hash.slice(1).split('?');
@@ -12,6 +13,10 @@ function ler(): Rota {
     const t = Number(new URLSearchParams(busca).get('t'));
     return { tela: 'ver', id: p[1], inicio: Number.isFinite(t) && t > 0 ? t : undefined };
   }
+  if (p[0] === 'b' && p[1]) return { tela: 'biblioteca', id: p[1] };
+  if (p[0] === 'busca') return { tela: 'busca' };
+  if (p[0] === 'fav') return { tela: 'fav' };
+  if (p[0] === 'pedidos') return { tela: 'pedidos' };
   return { tela: 'inicio' };
 }
 
@@ -29,6 +34,9 @@ export function useRota(): Rota {
 let pilha = 0;
 const ir = (h: string) => { pilha++; location.hash = h; };
 export const irTitulo = (id: string) => ir(`#/t/${id}`);
+export const irBiblioteca = (id: string) => ir(`#/b/${id}`);
+// destinos das abas trocam a tela sem empilhar (Voltar do controle/navegador volta ao Início)
+export const irAba = (aba: '' | 'busca' | 'fav' | 'pedidos') => { location.hash = aba ? `#/${aba}` : ''; };
 export const irVer = (id: string, ticks?: number) => ir(`#/ver/${id}${ticks ? `?t=${ticks}` : ''}`);
 export function voltar() { if (pilha > 0) { pilha--; history.back(); } else location.hash = ''; }
 

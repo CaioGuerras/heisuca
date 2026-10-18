@@ -62,7 +62,7 @@ async function pedir(s: Sessao, metodo: string, caminho: string, corpo?: unknown
 
 const obter = <T,>(s: Sessao, caminho: string): Promise<T> => pedir(s, 'GET', caminho).then(r => r.json());
 
-const CAMPOS = 'fields=Overview,PrimaryImageAspectRatio&enableImageTypes=Primary,Backdrop,Thumb';
+const CAMPOS = 'fields=Overview,PrimaryImageAspectRatio&enableImageTypes=Primary,Backdrop,Thumb,Logo';
 
 export const bibliotecas = (s: Sessao) =>
   obter<{ Items: Item[] }>(s, `/UserViews?userId=${s.usuarioId}`).then(d => d.Items);
@@ -158,3 +158,59 @@ export const relatar = (s: Sessao, fase: 'inicio' | 'progresso' | 'fim', r: Rela
 
 export const pararConversao = (s: Sessao, sessaoReproducao: string) =>
   pedir(s, 'DELETE', `/Videos/ActiveEncodings?deviceId=${idAparelho()}&playSessionId=${sessaoReproducao}`, undefined, true).catch(() => undefined);
+
+// ---- navegação: bibliotecas, busca, favoritos, Em alta, Em breve (mesmas fontes do site atual) ----
+const CAMPOS_GRADE = 'fields=PrimaryImageAspectRatio,Overview&enableImageTypes=Primary,Backdrop,Logo';
+
+export const daBiblioteca = (s: Sessao, bibliotecaId: string, inicio = 0, limite = 60) =>
+  obter<{ Items: Item[]; TotalRecordCount: number }>(s, `/Items?userId=${s.usuarioId}&parentId=${bibliotecaId}&recursive=true` +
+    `&includeItemTypes=Movie,Series,BoxSet&sortBy=DateCreated,SortName&sortOrder=Descending&startIndex=${inicio}&limit=${limite}&${CAMPOS_GRADE}`);
+
+export const buscarAcervo = (s: Sessao, termo: string) =>
+  obter<{ Items: Item[] }>(s, `/Items?userId=${s.usuarioId}&searchTerm=${encodeURIComponent(termo)}&recursive=true` +
+    `&includeItemTypes=Movie,Series&limit=40&${CAMPOS_GRADE}`).then(d => d.Items);
+
+export const favoritos = (s: Sessao) =>
+  obter<{ Items: Item[] }>(s, `/Items?userId=${s.usuarioId}&filters=IsFavorite&recursive=true&includeItemTypes=Movie,Series,Episode` +
+    `&sortBy=SortName&${CAMPOS_GRADE}`).then(d => d.Items);
+
+export const porIds = (s: Sessao, ids: string[]) => ids.length
+  ? obter<{ Items: Item[] }>(s, `/Items?userId=${s.usuarioId}&ids=${ids.join(',')}&${CAMPOS_GRADE}`).then(d => d.Items)
+  : Promise.resolve([] as Item[]);
+
+// Top 10 do que temos, na ordem das tendências da semana (cgf-em-alta, cron diário; o site atual usa o mesmo arquivo)
+export async function emAlta(s: Sessao): Promise<{ titulo: string; itens: Item[] }> {
+  const j = await fetch(`${s.servidor}/cgflix/emalta.json?t=${Math.floor(Date.now() / 1800000)}`).then(r => r.json()) as { titulo?: string; itens?: { id: string }[] };
+  const ids = (j.itens || []).map(i => i.id).filter(id => /^[0-9a-f]{32}$/.test(id));
+  const itens = await porIds(s, ids);
+  const ordem = new Map(ids.map((id, n) => [id, n]));
+  return { titulo: j.titulo || 'Em alta no Brasil', itens: itens.sort((a, b) => (ordem.get(a.Id) ?? 99) - (ordem.get(b.Id) ?? 99)) };
+}
+
+// Em breve: calendário do Sonarr/Radarr pelo plugin Home Screen Sections; o mapa embreve.json (cgf-embreve) diz, por id,
+// o item do Jellyfin (temos → título) ou o TMDB (não temos → pedir). Mesma lógica do site atual.
+export type EmBreve = { nome: string; sub: string; capa: string; jf?: string; tmdb?: number; tipo: 'tv' | 'movie' };
+type Secao = { Items?: { Name?: string; SeriesName?: string; PremiereDate?: string; ProviderIds?: Record<string, string>; Id?: string; ImageTags?: Record<string, string> }[] };
+let mapaEmBreve: Promise<{ m: Record<string, { jf: string | null; tmdb?: number }>; s: Record<string, { jf: string | null; tmdb?: number; nome?: string }> }> | null = null;
+export async function emBreve(s: Sessao, tipo: 'tv' | 'movie'): Promise<EmBreve[]> {
+  mapaEmBreve ??= fetch(`${s.servidor}/cgflix/embreve.json?t=${Math.floor(Date.now() / 600000)}`).then(r => r.json());
+  const [mapa, sec] = await Promise.all([mapaEmBreve,
+    obter<Secao>(s, `/HomeScreen/Section/${tipo === 'tv' ? 'UpcomingShows' : 'UpcomingMovies'}?UserId=${s.usuarioId}`)]);
+  const vistos = new Set<string>();
+  return (sec.Items || []).flatMap(i => {
+    const p = i.ProviderIds || {}, chave = tipo === 'tv' ? p.SonarrSeriesId : p.RadarrMovieId;
+    const v = chave ? (tipo === 'tv' ? mapa.s : mapa.m)[chave] : undefined;
+    if (!v || vistos.has(chave!)) return [];
+    vistos.add(chave!);
+    const nome = (tipo === 'tv' && mapa.s[chave!]?.nome) || i.SeriesName || i.Name || '';
+    const poster = tipo === 'tv' ? p.SonarrPoster : p.RadarrPoster;  // capa do Sonarr/Radarr guardada pelo plugin
+    const capa = poster && poster.startsWith('/HomeScreen/CachedImage/') ? s.servidor + poster
+      : v.jf ? `${s.servidor}/Items/${v.jf}/Images/Primary?fillHeight=360&quality=90` : '';
+    const quando = i.PremiereDate ? new Date(i.PremiereDate).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : '';
+    const sub = [quando, tipo === 'tv' ? (p.EpisodeInfo || '').split(' - ')[0] : ''].filter(Boolean).join(' · ');
+    return [{ nome, sub, capa, jf: v.jf || undefined, tmdb: v.tmdb, tipo }];
+  });
+}
+
+export const autorizarQuickConnect = (s: Sessao, codigo: string) =>
+  pedir(s, 'POST', `/QuickConnect/Authorize?code=${encodeURIComponent(codigo)}&userId=${s.usuarioId}`);

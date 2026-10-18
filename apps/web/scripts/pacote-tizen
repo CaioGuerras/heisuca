@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+"""Pacote .wgt de TESTE do Heisuca para TV Samsung (Tizen), publicado em
+https://netflix.docaio.com.br/__heisuca/pacotes/heisuca-tizen-teste.wgt (só o Caio instala; regra R1).
+
+A build vai dentro do pacote (as APIs tizen.* só existem para conteúdo local) e fala com o servidor por
+VITE_SERVIDOR (o Jellyfin responde CORS com *). Sem assinatura: o Apps2Samsung/Jellyfin2Samsung assina ao instalar,
+como no cgflix-tv. ID próprio (HsTeste001), então convive com o CGFLIX TV na mesma TV.
+Desfazer: apagar o arquivo na VPS (/var/www/heisuca/pacotes/) e desinstalar da TV.
+"""
+import hashlib, os, re, subprocess, sys, zipfile
+from pathlib import Path
+
+WEB = Path(__file__).resolve().parent.parent
+SAIDA = WEB / "dist-tizen"
+WGT = WEB / "heisuca-tizen-teste.wgt"
+VERSAO = "0.3.0"  # M3
+DEST = "/var/www/heisuca/pacotes"
+CONFIG = f"""<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns:tizen="http://tizen.org/ns/widgets" xmlns="http://www.w3.org/ns/widgets" id="http://docaio.com.br/heisuca-teste" version="{VERSAO}" viewmodes="fullscreen">
+    <access origin="*" subdomains="true"></access>
+    <tizen:application id="HsTeste001.Heisuca" package="HsTeste001" required_version="3.0"/>
+    <content src="index.html"/>
+    <feature name="http://tizen.org/feature/screen.size.all"/>
+    <icon src="icon.png"/>
+    <tizen:metadata key="http://tizen.org/metadata/app_ui_type/base_screen_resolution" value="fullscreen"/>
+    <name>Heisuca (teste)</name>
+    <tizen:privilege name="http://tizen.org/privilege/tv.inputdevice"/>
+    <tizen:profile name="tv"/>
+    <tizen:setting screen-orientation="landscape" context-menu="disable" background-support="disable" encryption="disable" install-location="auto" hwkey-event="enable"/>
+</widget>
+"""
+
+
+def so_legacy(index):
+    """Na TV só a build legacy, em script clássico: módulo ES vindo de file:// pode ser barrado pelo motor do widget
+    (o jellyfin-tizen e o Moonfin também carregam script clássico). SystemJS não põe crossorigin em arquivo local."""
+    h = index.read_text()
+    h = re.sub(r'<script type="module"[^>]*>.*?</script>\s*', "", h, flags=re.S)
+    h = re.sub(r'<script nomodule>.*?</script>\s*', "", h, flags=re.S)  # correção do Safari 10.1, inútil aqui
+    h = h.replace(" nomodule", "").replace(" crossorigin", "")
+    assert "type=\"module\"" not in h and "vite-legacy-entry" in h, "index.html inesperado"
+    index.write_text(h)
+
+
+def main():
+    env = dict(os.environ, VITE_SERVIDOR=os.environ.get("VITE_SERVIDOR", "https://netflix.docaio.com.br"),
+               VITE_SO_USUARIO=os.environ.get("VITE_SO_USUARIO", "caioguerras,teste-cgflix"))
+    subprocess.run(["npx", "tsc", "-b"], cwd=WEB, check=True)
+    subprocess.run(["npx", "vite", "build", "--outDir", str(SAIDA), "--emptyOutDir"], cwd=WEB, env=env, check=True)
+    so_legacy(SAIDA / "index.html")
+    with zipfile.ZipFile(WGT, "w", zipfile.ZIP_DEFLATED) as z:
+        z.writestr("config.xml", CONFIG)
+        z.write(WEB / "public" / "icon-512.png", "icon.png")
+        for f in sorted(SAIDA.rglob("*")):
+            if f.is_file():
+                z.write(f, f.relative_to(SAIDA).as_posix())
+    sha = hashlib.sha256(WGT.read_bytes()).hexdigest()
+    print(f"{WGT.name}: {WGT.stat().st_size // 1024} KB, sha256 {sha}")
+    if "--sem-enviar" in sys.argv:
+        return 0
+    vps = ["ssh", "-p", "22022", "-o", "BatchMode=yes", "root@143.95.215.156"]
+    subprocess.run(vps + [f"mkdir -p {DEST}"], check=True)
+    subprocess.run(["scp", "-P", "22022", "-o", "BatchMode=yes", str(WGT), f"root@143.95.215.156:{DEST}/{WGT.name}"], check=True)
+    subprocess.run(vps + [f"chmod -R a+rX /var/www/heisuca"], check=True)
+    print(f"https://netflix.docaio.com.br/__heisuca/pacotes/{WGT.name}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

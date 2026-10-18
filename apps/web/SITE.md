@@ -32,8 +32,22 @@ Escrito do zero. Vira também o app das TVs Samsung (Tizen) e LG (webOS): a mesm
   início/progresso (10 s)/fim e encerra a conversão (`DELETE /Videos/ActiveEncodings`). Próximo episódio no fim.
   Erros do navegador vão ao log do nginx da VPS: `grep __heisuca/__erro /var/log/nginx/access.log` (token mascarado).
   Bancada: `testes/bancada_m2.py` (desktop/celular/TV) e `testes/bancada_m2_trocas.py <id>` (retomar, SRT, áudio, assistido).
-- **M3:** TV de verdade: destaque fixo e fileiras rolando por dentro, tecla Voltar (Tizen/webOS), pacote Tizen com outro ID
-  (teste), teste no Chrome 83 da bancada (`cgflix-c83`) e AVPlay.
+- **M3a (feito 18/10 noite):** TV (`src/tv.ts`, classe `tv` pelo agente do navegador). Destaque fixo com o fundo na tela
+  toda; a fileira focada sobe para o topo de uma janela fixa e o cartão focado fica na margem esquerda, só por
+  `transform` (`posicionar` em `telas/Inicio.tsx`; `[data-rola-sozinho]` tira o `scrollIntoView` do `foco.ts`; zera
+  scrollTop porque o Chromium 56 ignora `preventScroll`). Fundo troca 300 ms depois da navegação parar. Foco inicial no
+  1º cartão e volta do título no mesmo cartão. Voltar na raiz: 1º leva ao começo, 2º fecha o app (`sairDoApp`: Tizen
+  `application.exit()`, webOS `window.close()` — o pacote webOS vai precisar de `disableBackHistoryAPI`). Teclas de
+  mídia registradas no Tizen (como o `tizen.js` do jellyfin-tizen). Hover só com ponteiro que se mexeu (cartão
+  deslizando sob o Magic Remote parado trocava o destaque).
+  **Pacote Tizen de teste:** `scripts/pacote-tizen` → https://netflix.docaio.com.br/__heisuca/pacotes/heisuca-tizen-teste.wgt
+  (ID `HsTeste001.Heisuca`, convive com o CGFLIX TV; sem assinatura, o Apps2Samsung/Jellyfin2Samsung assina ao instalar).
+  Build dentro do pacote com `VITE_SERVIDOR` (Jellyfin responde CORS `*`) e só a build legacy em script clássico
+  (`so_legacy`: módulo ES vindo de file:// pode ser barrado no widget). Bancada: `testes/bancada_m3.py site|pacote`
+  (o modo pacote abre a build do .wgt por file://; copiar `dist-tizen/` para `/root/cgflix-bench/heisuca/tizen_dist/`).
+- **M3b:** AVPlay no Tizen (referência: `TizenVideo` do stremio-video, MIT), teste no Chrome 83 da bancada (`cgflix-c83`),
+  Tizen 3.0 = Chromium 47 (a build legacy mira 56: conferir na TV 2017 ou subir `required_version` para 4.0), [C] Caio
+  instala o .wgt na TV.
 - **M4:** busca, Quick Connect, perfis/kids (Ichigo/Sorairo com a abertura kids), Pedidos (Seerr), PWA.
 - **M5:** paridade com o site atual (apps.html, Como usar, push) e o OK do Caio para trocar o endereço.
 

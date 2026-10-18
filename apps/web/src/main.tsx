@@ -3,6 +3,7 @@ import { App } from './app';
 import { ligarFoco } from './foco';
 import { ligarVoltar } from './rota';
 import { avisarErro } from './aviso';
+import { ligarTV } from './tv';
 import './marca/base.css';
 import './marca/temas/shikkoku.css';
 import './marca/temas/hisui.css';
@@ -13,7 +14,7 @@ import './estilo.css';
 
 const tema = new URLSearchParams(location.search).get('tema') || localStorage.getItem('heisuca.tema') || 'shikkoku';
 document.documentElement.dataset.tema = tema;
-if (/Tizen|Web0S|SMART-TV/i.test(navigator.userAgent)) document.documentElement.classList.add('tv');
+ligarTV();
 ligarFoco();
 ligarVoltar();
 

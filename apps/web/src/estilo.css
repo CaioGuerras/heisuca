@@ -64,6 +64,17 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .tv .cartao { width: 220px; } .tv .cartao img { width: 220px; height: 330px; } .tv .progresso { top: 316px; }
 .tv .cartao:focus { transform: scale(var(--hs-foco-escala-tv)); }
 .tv .fileira-trilho, .tv .topo { padding-left: var(--hs-espaco-tv-margem); padding-right: var(--hs-espaco-tv-margem); }
+/* TV: destaque fixo (fundo na tela toda) e fileiras andando por dentro de uma janela fixa, só por transform */
+.tv .inicio { height: 100vh; overflow: hidden; }
+.tv .destaque { position: absolute; inset: 0; height: auto; }
+.tv .destaque::after { background: linear-gradient(to top, var(--hs-tema-cor-fundo) 42%, transparent 75%),
+  linear-gradient(to right, var(--hs-tema-cor-fundo) 0%, transparent 65%); }
+.tv .destaque-texto { top: 14vh; bottom: auto; left: var(--hs-espaco-tv-margem); width: 40vw; }
+.tv .fileiras { position: absolute; left: 0; right: 0; top: 50vh; bottom: 0; margin: 0; padding: 0; overflow: hidden; }
+.tv .fileiras-pista { position: relative; transition: transform var(--hs-tempo-cartao) var(--hs-curva-padrao); will-change: transform; }
+.tv .fileira-trilho { overflow: visible; padding-top: var(--hs-espaco-4); padding-bottom: var(--hs-espaco-4);
+  transition: transform var(--hs-tempo-cartao) var(--hs-curva-padrao); }
+.tv .fileira h2 { margin-left: var(--hs-espaco-tv-margem); }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } .destaque-img { animation: none; } }
 

@@ -32,7 +32,8 @@ export function ligarFoco(): void {
     if (alvo) {
       ev.preventDefault();
       alvo.focus({ preventScroll: true });
-      alvo.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+      // [data-rola-sozinho]: a tela posiciona por transform (TV); rolar aqui desalinharia
+      if (!alvo.closest('[data-rola-sozinho]')) alvo.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
     }
   });
 }

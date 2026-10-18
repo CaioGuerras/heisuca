@@ -1,5 +1,6 @@
 // Rotas por # (o nginx só serve index.html; nada a configurar). #/t/<id> = título, #/ver/<id>?t=<ticks> = player.
 import { useEffect, useState } from 'preact/hooks';
+import { ehTV, sairDoApp } from './tv';
 
 export type Rota = { tela: 'inicio' } | { tela: 'titulo'; id: string } | { tela: 'ver'; id: string; inicio?: number };
 
@@ -37,7 +38,17 @@ export function ligarVoltar(): void {
     const k = ev.keyCode, alvo = ev.target as HTMLElement;
     if (k === 8 && (alvo.tagName === 'INPUT' || alvo.tagName === 'TEXTAREA')) return;
     if (k !== 8 && k !== 27 && k !== 461 && k !== 10009) return;
-    if (!location.hash || location.hash === '#') return;
+    if (!location.hash || location.hash === '#') {
+      // raiz na TV: 1º Voltar leva o foco ao começo; o 2º fecha o app (Tizen/webOS não fecham sozinhos)
+      if (!ehTV || k === 8) return;
+      ev.preventDefault();
+      if (!(naRaiz && naRaiz())) sairDoApp();
+      return;
+    }
     ev.preventDefault(); voltar();
   });
 }
+
+// a tela inicial registra aqui o "voltar ao começo"; devolve false quando já está no começo
+let naRaiz: (() => boolean) | null = null;
+export function aoVoltarNaRaiz(f: (() => boolean) | null) { naRaiz = f; }

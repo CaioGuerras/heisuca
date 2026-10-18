@@ -1,0 +1,45 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --hs-fonte-texto: Inter, system-ui, sans-serif; /** OFL-1.1 */
+  --hs-fonte-titulo: Sora, Inter, sans-serif; /** OFL-1.1; logotipo HEISUCA */
+  --hs-fonte-kids: Fredoka, Inter, sans-serif; /** OFL; títulos do modo kids */
+  --hs-fonte-kanji: 'Shippori Mincho', serif; /** OFL; selo ≥ 48 px e textos japoneses */
+  --hs-fonte-kanji-pequeno: 'Noto Sans JP', sans-serif; /** OFL; selo ≤ 32 px (peso 900) */
+  --hs-peso-fino: 250;
+  --hs-peso-normal: 400;
+  --hs-peso-medio: 500;
+  --hs-peso-forte: 600;
+  --hs-peso-negrito: 700;
+  --hs-tamanho-legenda: 12px;
+  --hs-tamanho-pequeno: 14px;
+  --hs-tamanho-texto: 16px;
+  --hs-tamanho-subtitulo: 20px;
+  --hs-tamanho-titulo: 28px;
+  --hs-tamanho-destaque: 40px;
+  --hs-tamanho-tv-texto: 24px; /** TV a 3 m: texto nunca abaixo disso */
+  --hs-tamanho-tv-titulo: 48px;
+  --hs-espaco-1: 4px;
+  --hs-espaco-2: 8px;
+  --hs-espaco-3: 12px;
+  --hs-espaco-4: 16px;
+  --hs-espaco-6: 24px;
+  --hs-espaco-8: 32px;
+  --hs-espaco-12: 48px;
+  --hs-espaco-tv-margem: 48px; /** área segura de overscan */
+  --hs-raio-pequeno: 6px;
+  --hs-raio-medio: 12px;
+  --hs-raio-grande: 20px;
+  --hs-raio-selo: 10%; /** cantos do selo 炳 */
+  --hs-raio-total: 999px;
+  --hs-tempo-toque: 0.12s;
+  --hs-tempo-cartao: 0.2s;
+  --hs-tempo-tela: 0.32s;
+  --hs-curva-padrao: cubic-bezier(0.2, 0, 0, 1);
+  --hs-curva-saida: cubic-bezier(0.3, 0, 1, 1);
+  --hs-foco-escala-tv: 1.06;
+  --hs-foco-borda: 3px;
+  --hs-marca-kanji-do-selo: #fff8f0; /** 炳素華 sobre a cor do selo de cada tema */
+}

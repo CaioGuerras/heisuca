@@ -1,0 +1,17 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-tema="shinju"] {
+  --hs-tema-cor-fundo: #f6f3ee;
+  --hs-tema-cor-superficie: #ffffff;
+  --hs-tema-cor-primaria: #7a6a55;
+  --hs-tema-cor-acento: #856529;
+  --hs-tema-cor-texto: #1e1b18;
+  --hs-tema-cor-texto-2: #5e574e;
+  --hs-tema-cor-botao-fundo: #7a6a55;
+  --hs-tema-cor-botao-texto: #ffffff;
+  --hs-tema-cor-foco: #7a6a55;
+  --hs-tema-cor-selo: #7a6a55; /** fundo do selo 炳素華; kanji = #fff8f0 */
+  --hs-tema-fonte-titulo: Sora, Inter, sans-serif;
+}

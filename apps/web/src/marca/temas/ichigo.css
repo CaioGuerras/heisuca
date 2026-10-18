@@ -1,0 +1,17 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-tema="ichigo"] {
+  --hs-tema-cor-fundo: #fff5f3;
+  --hs-tema-cor-superficie: #ffffff;
+  --hs-tema-cor-primaria: #d62d45;
+  --hs-tema-cor-acento: #24803a;
+  --hs-tema-cor-texto: #2b1b1e;
+  --hs-tema-cor-texto-2: #6b4c52;
+  --hs-tema-cor-botao-fundo: #d62d45;
+  --hs-tema-cor-botao-texto: #ffffff;
+  --hs-tema-cor-foco: #d62d45;
+  --hs-tema-cor-selo: #d62d45; /** fundo do selo 炳素華; kanji = #fff8f0 */
+  --hs-tema-fonte-titulo: Fredoka, Inter, sans-serif;
+}

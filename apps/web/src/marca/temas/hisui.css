@@ -1,0 +1,17 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-tema="hisui"] {
+  --hs-tema-cor-fundo: #111719;
+  --hs-tema-cor-superficie: #1a2327;
+  --hs-tema-cor-primaria: #10b981;
+  --hs-tema-cor-acento: #6ee7b7;
+  --hs-tema-cor-texto: #eef5f2;
+  --hs-tema-cor-texto-2: #9db0a9;
+  --hs-tema-cor-botao-fundo: #10b981;
+  --hs-tema-cor-botao-texto: #0b1512;
+  --hs-tema-cor-foco: #10b981;
+  --hs-tema-cor-selo: #05805c; /** fundo do selo 炳素華; kanji = #fff8f0 */
+  --hs-tema-fonte-titulo: Sora, Inter, sans-serif;
+}

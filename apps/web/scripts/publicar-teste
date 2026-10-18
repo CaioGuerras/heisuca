@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+"""Publica a build de TESTE do site em https://netflix.docaio.com.br/__heisuca/ (VPS).
+
+Mesmo domínio do Jellyfin: a API e as imagens saem do mesmo endereço, sem CORS. A build de teste só aceita os logins
+de VITE_SO_USUARIO (o Caio e a conta da bancada) até o Caio aprovar (regra R1, NOVA_FASE §2).
+Desfazer: ./publicar-teste --remover (tira o bloco do nginx; a pasta /var/www/heisuca fica).
+"""
+import os, re, subprocess, sys, time
+from pathlib import Path
+
+WEB = Path(__file__).resolve().parent.parent
+VPS = ["ssh", "-p", "22022", "-o", "BatchMode=yes", "root@143.95.215.156"]
+SITE = "/etc/nginx/sites-available/jellyfin"
+DEST = "/var/www/heisuca/teste"
+INI, FIM = "    # >>> HEISUCA teste\n", "    # <<< HEISUCA teste\n"
+BLOCO = INI + f"""    location = /__heisuca {{ return 301 /__heisuca/; }}
+    location ^~ /__heisuca/ {{
+        alias {DEST}/;
+        index index.html;
+        gzip_static on;
+        add_header Cache-Control "no-cache" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Robots-Tag "noindex" always;
+        include /etc/nginx/snippets/cgflix_seguranca.conf;
+    }}
+    location ^~ /__heisuca/assets/ {{
+        alias {DEST}/assets/;
+        gzip_static on;
+        add_header Cache-Control "public, max-age=31536000, immutable" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        include /etc/nginx/snippets/cgflix_seguranca.conf;
+    }}
+""" + FIM
+
+
+def vps(cmd, entrada=None):
+    return subprocess.run(VPS + [cmd], input=entrada, capture_output=True, text=True)
+
+
+def trocar_nginx(com_bloco):
+    conf = vps(f"cat {SITE}").stdout
+    conf = re.sub(re.escape(INI) + ".*?" + re.escape(FIM), "", conf, flags=re.S)
+    if com_bloco:
+        i = conf.index("    location /socket {")
+        conf = conf[:i] + BLOCO + conf[i:]
+    bak = f"/root/nginx_jellyfin.bak_{time.strftime('%Y%m%d_%H%M%S')}_heisuca"
+    r = vps(f"cp -p {SITE} {bak} && cat > {SITE} && (nginx -t -q && systemctl reload nginx && echo RECARREGADO) || "
+            f"(cp -p {bak} {SITE}; echo FALHOU_RESTAURADO)", conf)
+    print(r.stdout.strip(), r.stderr.strip()[-300:], f"\nbackup do nginx: vps:{bak}")
+    return "RECARREGADO" in r.stdout
+
+
+def main():
+    if "--remover" in sys.argv:
+        return 0 if trocar_nginx(False) else 1
+    env = dict(os.environ, VITE_SO_USUARIO=os.environ.get("VITE_SO_USUARIO", "caioguerras,teste-cgflix"))
+    subprocess.run(["npm", "run", "build"], cwd=WEB, env=env, check=True)
+    subprocess.run(["find", "dist", "-type", "f", "(", "-name", "*.js", "-o", "-name", "*.css", "-o", "-name", "*.html",
+                    "-o", "-name", "*.svg", "-o", "-name", "*.json", ")", "-exec", "gzip", "-9", "-k", "-f", "{}", "+"], cwd=WEB, check=True)
+    vps(f"mkdir -p {DEST}")
+    subprocess.run(["rsync", "-a", "--delete", "-e", "ssh -p 22022 -o BatchMode=yes", f"{WEB}/dist/", f"root@143.95.215.156:{DEST}/"], check=True)
+    vps(f"chmod -R a+rX /var/www/heisuca")
+    return 0 if trocar_nginx(True) else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

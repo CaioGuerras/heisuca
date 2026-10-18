@@ -1,0 +1,17 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-tema="shikkoku"] {
+  --hs-tema-cor-fundo: #0e0b14;
+  --hs-tema-cor-superficie: #1a1424;
+  --hs-tema-cor-primaria: #9d74ff;
+  --hs-tema-cor-acento: #c4b5fd;
+  --hs-tema-cor-texto: #f4f1fa;
+  --hs-tema-cor-texto-2: #a99fbb;
+  --hs-tema-cor-botao-fundo: #7444e0;
+  --hs-tema-cor-botao-texto: #ffffff;
+  --hs-tema-cor-foco: #9d74ff;
+  --hs-tema-cor-selo: #7444e0; /** fundo do selo 炳素華; kanji = #fff8f0 */
+  --hs-tema-fonte-titulo: Sora, Inter, sans-serif;
+}

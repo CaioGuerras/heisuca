@@ -1,0 +1,17 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-tema="sorairo"] {
+  --hs-tema-cor-fundo: #f1f7fd;
+  --hs-tema-cor-superficie: #ffffff;
+  --hs-tema-cor-primaria: #1f6fc5;
+  --hs-tema-cor-acento: #8a5f00;
+  --hs-tema-cor-texto: #14263a;
+  --hs-tema-cor-texto-2: #4a5e73;
+  --hs-tema-cor-botao-fundo: #1f6fc5;
+  --hs-tema-cor-botao-texto: #ffffff;
+  --hs-tema-cor-foco: #1f6fc5;
+  --hs-tema-cor-selo: #1f6fc5; /** fundo do selo 炳素華; kanji = #fff8f0 */
+  --hs-tema-fonte-titulo: Fredoka, Inter, sans-serif;
+}

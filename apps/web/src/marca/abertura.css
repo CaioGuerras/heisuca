@@ -1,0 +1,40 @@
+
+
+/* Linha do tempo (ms): selo 150–670 · HEISUCA 560–1080 · luz 900–1320 · ヘイスカ 820–1220 · slogan 1080–1500
+   · segura até 2300 · saída 320 (curva de saída). Total ≈ 2,6 s; o app pode encerrar antes (heisucaFim()). */
+.abertura { position: fixed; inset: 0; display: grid; place-items: center; background: var(--hs-tema-cor-fundo);
+  animation: hs-segura 2300ms linear both; }
+.marca { width: min(92vw, 164vh); height: auto; }
+.selo-fundo { fill: var(--hs-tema-cor-selo); }
+.selo-moldura { fill: none; stroke: var(--hs-marca-kanji-do-selo); }
+.selo-kanji path { fill: var(--hs-marca-kanji-do-selo); }
+.palavra path, .kata path { fill: var(--hs-tema-cor-texto); }
+.luz { fill: var(--hs-tema-cor-primaria); }
+.slogan { font-family: var(--hs-fonte-titulo); font-weight: 300; font-size: 13.5px; letter-spacing: .04em; fill: var(--hs-tema-cor-texto); }
+
+.carimbo, .palavra, .luz, .kata, .slogan { transform-box: fill-box; animation-fill-mode: both; }
+/* o selo desce como um carimbo: grande e inclinado, passa um pouco do ponto e assenta */
+.carimbo { transform-origin: 50% 50%; animation: hs-carimbo 520ms var(--hs-curva-padrao) 150ms both; }
+.selo-kanji { animation: hs-tinta 360ms ease-out 380ms both; }
+.palavra { animation: hs-entra 520ms var(--hs-curva-padrao) 560ms both; }
+.kata { animation: hs-aparece-65 400ms var(--hs-curva-padrao) 820ms both; }
+.luz { transform-origin: 0 50%; animation: hs-luz 420ms var(--hs-curva-padrao) 900ms both; }
+.slogan { animation: hs-sobe 420ms var(--hs-curva-padrao) 1080ms both; }
+.abertura.saindo { animation: hs-sai var(--hs-tempo-tela) var(--hs-curva-saida) both; }
+.abertura.fim { display: none; }
+
+@keyframes hs-segura { from { opacity: 1; } to { opacity: 1; } }
+@keyframes hs-carimbo { 0% { opacity: 0; transform: scale(1.22) rotate(-4deg); }
+  55% { opacity: 1; transform: scale(.975) rotate(.4deg); } 100% { opacity: 1; transform: none; } }
+@keyframes hs-tinta { from { opacity: .35; } to { opacity: 1; } }
+@keyframes hs-entra { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
+@keyframes hs-aparece-65 { from { opacity: 0; } to { opacity: .65; } }
+@keyframes hs-luz { from { opacity: 0; transform: scaleX(0); } to { opacity: 1; transform: none; } }
+@keyframes hs-sobe { from { opacity: 0; transform: translateY(6px); } to { opacity: .72; transform: none; } }
+@keyframes hs-sai { from { opacity: 1; } to { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {  /* sem escala nem deslocamento: tudo junto, só opacidade */
+  .carimbo, .selo-kanji, .palavra, .luz { animation: hs-sai 200ms linear reverse both; }
+  .kata { animation: hs-aparece-65 200ms linear both; } .slogan { animation: hs-sobe 200ms linear both; transform: none; }
+  .abertura { animation-duration: 1200ms; }
+}

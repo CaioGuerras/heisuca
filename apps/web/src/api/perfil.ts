@@ -17,6 +17,13 @@ function workerDeModulo(): boolean {
 }
 export const assNoNavegador = typeof WebAssembly === 'object' && typeof Worker === 'function' && workerDeModulo();
 
+// MKV que tocou só o áudio: lembrado por aparelho (o player marca; o perfil deixa de pedir MKV direto)
+const SEM_MKV = 'hs-sem-mkv', TRINTA_DIAS = 30 * 86_400_000;
+export function marcarMkvFalhou() { try { localStorage.setItem(SEM_MKV, String(Date.now())); } catch { /* modo privado */ } }
+function mkvFalhou(): boolean {
+  try { return Date.now() - Number(localStorage.getItem(SEM_MKV) || 0) < TRINTA_DIAS; } catch { return false; }
+}
+
 export function perfilDoAparelho() {
   const video = ['h264'];
   if (ok('video/mp4; codecs="hvc1.1.6.L120.90"') || ok('video/mp4; codecs="hev1.1.6.L120.90"')) video.push('hevc');
@@ -29,8 +36,9 @@ export function perfilDoAparelho() {
   if (ok('audio/mp4; codecs="ac-3"')) audio.push('ac3');
   if (ok('audio/mp4; codecs="ec-3"')) audio.push('eac3');
 
-  // MKV: Chrome/Edge e as TVs Samsung/LG tocam (o canPlayType não diz); Safari não. Se falhar, o player cai no servidor.
-  const mkv = /Chrome|Edg\/|Tizen|Web0S/.test(navigator.userAgent) && !/Version\/[\d.]+ (Mobile\/\S+ )?Safari/.test(navigator.userAgent);
+  // MKV: só onde o navegador diz que toca (Chrome/Edge novos dizem; o Chromium 128 não), mais as TVs Samsung/LG, como no
+  // jellyfin-web. Aparelho que já abriu MKV sem mostrar o vídeo (Chrome do Android, 18/10) fica 30 dias sem.
+  const mkv = !mkvFalhou() && (toca('video/x-matroska') || /Tizen|Web0S/.test(navigator.userAgent));
   const recipientes = ['mp4', 'm4v', ...(mkv ? ['mkv'] : []), ...(video.includes('vp9') ? ['webm'] : [])];
   // HLS em fMP4: o Jellyfin só remonta HEVC nesse formato (em .ts converteria o vídeo inteiro)
   const hlsVideo = video.filter(c => c === 'h264' || c === 'hevc');

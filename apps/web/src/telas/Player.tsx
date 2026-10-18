@@ -4,7 +4,8 @@ import {
   infoReproducao, item, pararConversao, relatar, seguinte, urlDireta, urlServidor,
   type Fluxo, type Fonte, type Item, type Relato, type Sessao,
 } from '../api/jellyfin';
-import { hlsNativo, perfilDoAparelho } from '../api/perfil';
+import { hlsNativo, marcarMkvFalhou, perfilDoAparelho } from '../api/perfil';
+import { avisarErro } from '../aviso';
 import { Icone } from '../comp/Icone';
 import { irVer, voltar } from '../rota';
 
@@ -167,6 +168,28 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
     for (const k in ev) v.addEventListener(k, ev[k]);
     return () => { for (const k in ev) v.removeEventListener(k, ev[k]); };
   }, []);
+
+  // tocar direto pode abrir o arquivo e tocar só o áudio, sem erro (MKV no Chrome do Android, 18/10): 3 s tocando sem
+  // nenhum quadro de vídeo = vai pelo servidor (remonta em HLS, sem converter o vídeo) a partir do mesmo ponto
+  useEffect(() => {
+    const v = video.current;
+    if (!v || !e || e.hls || !e.fonte.MediaStreams.some(x => x.Type === 'Video')) return;
+    let t = 0;
+    const conferir = () => {
+      clearTimeout(t);
+      t = window.setTimeout(() => {
+        if (v.paused || est.current !== e) return;
+        const quadros = v.getVideoPlaybackQuality?.().totalVideoFrames;
+        if (v.videoWidth > 0 && quadros !== 0) return;
+        const codec = e.fonte.MediaStreams.find(x => x.Type === 'Video')?.Codec;
+        avisarErro(`sem quadro no direto: ${e.fonte.Container}/${codec} largura=${v.videoWidth} quadros=${quadros} ${navigator.userAgent}`);
+        if (e.fonte.Container === 'mkv') marcarMkvFalhou();
+        carregar({ audio: e.audio, legenda: e.legenda, ticks: Math.round(v.currentTime * TICKS), semDireto: true });
+      }, 3000);
+    };
+    v.addEventListener('playing', conferir);
+    return () => { clearTimeout(t); v.removeEventListener('playing', conferir); };
+  }, [e]);
 
   // legendas de texto: <track> por fora; liga só a escolhida
   useEffect(() => {

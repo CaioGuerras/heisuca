@@ -43,6 +43,13 @@ Escrito do zero. Vira também o app das TVs Samsung (Tizen) e LG (webOS): a mesm
   (`assNoNavegador`); TV antiga segue com a legenda gravada pelo servidor. Fontes = anexos do MKV (`MediaAttachments`).
   wasm (~900 KB gzip) carrega só ao escolher ASS; nginx serve `application/wasm` (bloco `types` no `publicar-teste`).
   Bancada: `testes/bancada_ass.py <id> <segundos>` (escolher um trecho com fala).
+- **Guarda "toca sem quadro" (18/10 noite):** o Chrome do Android abriu o MKV do One Piece, tocou e mostrou só a legenda
+  (o JASSUB desenha por quadro; sem quadro, só no avanço), sem erro, então o "cai no servidor" não disparou. Agora:
+  MKV direto só onde `canPlayType('video/x-matroska')` responde (Chrome 154 sim, Chromium 128 não) ou Tizen/webOS, como no
+  jellyfin-web; e 3 s tocando direto com `videoWidth` 0 ou `totalVideoFrames` 0 → recarrega em HLS do mesmo ponto (só
+  remonta: `TranscodeReasons=ContainerNotSupported`), avisa no log (`sem quadro no direto`) e marca o aparelho por 30 dias
+  (`localStorage hs-sem-mkv`). Bancada: `testes/bancada_guarda.py <id> chrome 0|1` (1 finge zero quadros). O Chromium do
+  Playwright não tem H.264: na bancada, só o canal `chrome` vale para tocar.
 - **Regra (Caio, 18/10):** não reinventar. Antes de desenhar algo, ver como os players da pesquisa resolvem e reaproveitar
   biblioteca/solução que já roda bem; o código de cola é nosso.
 - Limite de 2 telas (plugin StreamLimit) barra a 3ª reprodução em sequência rápida da mesma conta (o gate conta sessões

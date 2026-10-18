@@ -2,8 +2,9 @@ import { useEffect, useState } from 'preact/hooks';
 import { bibliotecas, continuar, fundo, novidades, sair, type Item, type Sessao } from '../api/jellyfin';
 import { Fileira } from '../comp/Fileira';
 import { Icone } from '../comp/Icone';
+import { irTitulo, irVer } from '../rota';
 
-type Linha = { titulo: string; itens: Item[] };
+type Linha = { titulo: string; itens: Item[]; tocar?: boolean };
 
 export function Inicio({ s }: { s: Sessao }) {
   const [linhas, setLinhas] = useState<Linha[]>([]);
@@ -23,7 +24,7 @@ export function Inicio({ s }: { s: Sessao }) {
         const [cont, libs] = await Promise.all([continuar(s), bibliotecas(s)]);
         const vids = libs.filter(l => l.CollectionType === 'movies' || l.CollectionType === 'tvshows');
         const nov = await Promise.all(vids.map(l => novidades(s, l.Id).then(itens => ({ titulo: `Novidades em ${l.Name}`, itens }))));
-        const todas = [{ titulo: 'Continuar assistindo', itens: cont }, ...nov].filter(l => l.itens.length);
+        const todas = [{ titulo: 'Continuar assistindo', itens: cont, tocar: true }, ...nov].filter(l => l.itens.length);
         setLinhas(todas);
         setDestaque(todas[0]?.itens[0] ?? null);
       } catch (e) { setErro(e instanceof Error ? e.message : String(e)); }
@@ -50,7 +51,8 @@ export function Inicio({ s }: { s: Sessao }) {
       </div>
       {erro && <p class="erro">{erro}</p>}
       <div class="fileiras">
-        {linhas.map(l => <Fileira key={l.titulo} s={s} titulo={l.titulo} itens={l.itens} aoFocar={setDestaque} />)}
+        {linhas.map(l => <Fileira key={l.titulo} s={s} titulo={l.titulo} itens={l.itens} aoFocar={setDestaque}
+          aoAbrir={i => l.tocar ? irVer(i.Id, i.UserData?.PlaybackPositionTicks) : irTitulo(i.Id)} />)}
       </div>
     </div>
   );

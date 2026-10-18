@@ -22,13 +22,25 @@ Escrito do zero. Vira também o app das TVs Samsung (Tizen) e LG (webOS): a mesm
 ## Marcos
 - **M1 (feito 18/10):** abertura carimbo (1× por sessão, tecla/toque pula), login, início (destaque com fundo +
   Continuar assistindo + Novidades por biblioteca), 5 temas (`?tema=`), celular e TV. 0 erros no console nas 3 telas.
-- **M2:** página do título (filme/série/temporadas/episódios) e **player** (PlaybackInfo → direct play ou HLS com hls.js;
-  legendas; retomar; marcar assistido; reportar progresso).
+- **M2 (feito 18/10):** rotas por `#` (`src/rota.ts`: `#/t/<id>`, `#/ver/<id>?t=<ticks>`; Esc/Voltar do controle).
+  Página do título (`telas/Titulo.tsx`: filme e série, logo, temporadas, episódios, "Continuar T1E3", marcar assistido).
+  Player próprio (`telas/Player.tsx` + `api/perfil.ts`): perfil do aparelho perguntado ao `<video>`; toca direto quando dá
+  (MKV no Chrome/Edge/Tizen/webOS), senão HLS fMP4 com `hls.js/light` carregado só quando precisa; se tocar direto
+  falhar, cai sozinho no servidor. Áudio: o navegador não troca faixa, então áudio fora do padrão do arquivo vai por HLS
+  (remonta, não converte o vídeo). Legendas de texto como WebVTT por fora (troca na hora); de imagem (PGS) e **ASS**
+  gravadas no vídeo (o Jellyfin não converte ASS→VTT: `SupportsSubtitleConversionTo`). Retoma do ponto salvo, relata
+  início/progresso (10 s)/fim e encerra a conversão (`DELETE /Videos/ActiveEncodings`). Próximo episódio no fim.
+  Erros do navegador vão ao log do nginx da VPS: `grep __heisuca/__erro /var/log/nginx/access.log` (token mascarado).
+  Bancada: `testes/bancada_m2.py` (desktop/celular/TV) e `testes/bancada_m2_trocas.py <id>` (retomar, SRT, áudio, assistido).
 - **M3:** TV de verdade: destaque fixo e fileiras rolando por dentro, tecla Voltar (Tizen/webOS), pacote Tizen com outro ID
   (teste), teste no Chrome 83 da bancada (`cgflix-c83`) e AVPlay.
 - **M4:** busca, Quick Connect, perfis/kids (Ichigo/Sorairo com a abertura kids), Pedidos (Seerr), PWA.
 - **M5:** paridade com o site atual (apps.html, Como usar, push) e o OK do Caio para trocar o endereço.
 
 ## Pendências
-- Fonte Inter não vem no kit (`animacoes/fontes`): hoje cai no `system-ui`. Trazer o woff2 da Inter (OFL) no M2.
-- Repositório no GitHub (`CaioGuerras/heisuca`, privado) ainda não criado: hoje é git local em `~/heisuca`.
+- **ASS no navegador (JASSUB, MIT):** anime usa muito ASS e hoje isso grava a legenda no vídeo (conversão pesada na
+  Whatbox, sem aceleração). Próximo passo do player: perfil `{Format: 'ass', Method: 'External'}` + JASSUB onde houver
+  WebAssembly; TV antiga segue gravando.
+- Limite de 2 telas (plugin StreamLimit) barra a 3ª reprodução em sequência rápida da mesma conta (o gate conta sessões
+  recém-paradas): na bancada, rodar uma tela por vez (`SO=tv`).
+- Inter (OFL, `@fontsource-variable/inter`, só latin) entrou no M2. Repositório: `CaioGuerras/heisuca` (privado).

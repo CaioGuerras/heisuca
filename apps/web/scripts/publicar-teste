@@ -34,7 +34,7 @@ BLOCO = INI + f"""    location = /__heisuca {{ return 301 /__heisuca/; }}
     }}
     location ^~ /__heisuca/pacotes/ {{
         alias /var/www/heisuca/pacotes/;
-        types {{ application/widget wgt; }}
+        types {{ application/widget wgt; application/vnd.android.package-archive apk; }}
         add_header Cache-Control "no-cache" always;
         add_header X-Robots-Tag "noindex" always;
         include /etc/nginx/snippets/cgflix_seguranca.conf;

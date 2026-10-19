@@ -5,10 +5,10 @@
 
 /* arte até o topo, dissolvendo na cor da página (sem faixa separando) */
 .titulo-arte { position: absolute; z-index: 0; top: 0; left: 0; right: 0; height: var(--arte-h); overflow: hidden; border-radius: 0; }
-.titulo-arte > .img { position: absolute; inset: 0; background-color: transparent !important; }
+.titulo-arte > .img { position: absolute; inset: 0 0 3px; background-color: transparent !important; }
 .titulo-arte img { object-position: center 22%; }
 .titulo-arte::after { content: ''; position: absolute; inset: 0;
-  background: linear-gradient(180deg, var(--hs-pagina-0) 0%, var(--hs-pagina-0) 34%, color-mix(in srgb, var(--hs-pagina) 55%, transparent) 62%, var(--hs-pagina) 97%); }
+  background: linear-gradient(180deg, var(--hs-pagina-0) 0%, var(--hs-pagina-0) 34%, color-mix(in srgb, var(--hs-pagina) 55%, transparent) 62%, var(--hs-pagina) 94%); }
 .titulo > .titulo-arte.esqueleto { border-radius: 0; }
 
 .titulo-cabeca { position: relative; }

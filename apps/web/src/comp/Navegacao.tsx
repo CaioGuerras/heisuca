@@ -20,7 +20,7 @@ export function Topo({ s, centro, aoServidor, fundo = false, semBusca = false }:
   return (
     <header class={`topo${fundo ? ' com-fundo' : ''}`}>
       <button class="topo-servidor" onClick={aoServidor} aria-label={`Servidor ${s.nomeServidor || ''}. Trocar de servidor`}>
-        <Avatar s={s} tamanho={30} /><span class="uma-linha">{s.nomeServidor || 'Servidor'}</span>
+        <Avatar s={s} tamanho={28} /><span class="uma-linha">{s.nomeServidor || 'Servidor'}</span>
       </button>
       <div class="topo-centro">{centro}</div>
       {!semBusca ? <button class="redondo topo-busca" onClick={() => irAba('busca')} aria-label="Buscar"><Icone nome="search" tamanho={24} /></button>
@@ -44,7 +44,7 @@ export function Ilha({ s, r, aoUsuario }: { s: Sessao; r: Rota; aoUsuario: (el: 
       {item(r.tela === 'biblioteca', 'video_library', 'Biblioteca', () => irAba(lib ? `b/${lib}` : 'b'))}
       {item(r.tela === 'fav', 'favorite', 'Favoritos', () => irAba('fav'))}
       <button ref={eu} class="ilha-item ilha-eu" onClick={() => eu.current && aoUsuario(eu.current)} aria-haspopup="dialog" aria-label={`Usuário ${s.nome}`}>
-        <Avatar s={s} tamanho={24} /><span class="uma-linha">{nome}</span>
+        <Avatar s={s} tamanho={22} /><span class="uma-linha">{nome}</span>
       </button>
     </nav>
   );

@@ -66,14 +66,16 @@ export function paletaDe(base: RGB | null): Paleta {
   const croma = (f: number, min: number, max: number) => Math.min(max, Math.max(min, b.c * f));
   let pagina: RGB, superficie: RGB, texto: RGB, texto2: RGB;
   if (escuro) {
-    pagina = misturar(deLch({ l: 0.205, c: croma(0.55, 0.012, 0.045), h: b.h }), prim, 0.1);
+    pagina = misturar(deLch({ l: 0.215, c: croma(0.7, 0.014, 0.06), h: b.h }), prim, 0.1);
     superficie = misturar(deLch({ l: 0.27, c: croma(0.5, 0.012, 0.045), h: b.h }), prim, 0.1);
     texto = hex(varTema('texto'));
     texto2 = comContraste({ l: 0.74, c: Math.min(b.c * 0.3, 0.03), h: b.h }, superficie, 4.6);
   } else {
-    pagina = misturar(deLch({ l: 0.86, c: croma(0.5, 0.01, 0.05), h: b.h }), prim, 0.06);
-    superficie = misturar(deLch({ l: 0.925, c: croma(0.4, 0.008, 0.04), h: b.h }), prim, 0.05);
-    texto = comContraste({ l: 0.24, c: 0.02, h: b.h }, pagina, 10);
+    // ref/vidhub/…home_topo: o claro do VidHub é um pastel de verdade (InuYasha ≈ L 0,68), não um papel quase branco.
+    // Ficamos um pouco mais claros que ele (0,80) e com mais croma que a v1, para a cor do pôster aparecer.
+    pagina = misturar(deLch({ l: 0.8, c: croma(0.85, 0.014, 0.075), h: b.h }), prim, 0.04);
+    superficie = misturar(deLch({ l: 0.93, c: croma(0.4, 0.008, 0.04), h: b.h }), prim, 0.05);
+    texto = comContraste({ l: 0.2, c: 0.02, h: b.h }, pagina, 10);
     texto2 = comContraste({ l: 0.46, c: Math.min(b.c * 0.4, 0.035), h: b.h }, pagina, 4.6);
   }
   // garantia: o texto principal nunca abaixo de 7:1 nem o secundário abaixo de 4,5:1 sobre a página
@@ -88,7 +90,7 @@ export function aplicarPaleta(p: Paleta, alvo: HTMLElement = document.documentEl
   v('--hs-pagina', css(p.pagina)); v('--hs-superficie', css(p.superficie));
   v('--hs-texto', css(p.texto)); v('--hs-texto-2', css(p.texto2));
   v('--hs-linha', css(p.texto, 0.12)); v('--hs-pagina-0', css(p.pagina, 0));
-  v('--hs-vidro', p.escuro ? css(misturar(p.pagina, [255, 255, 255], 0.1), 0.62) : css([255, 255, 255], 0.6));
+  v('--hs-vidro', p.escuro ? css(misturar(p.pagina, [255, 255, 255], 0.1), 0.62) : css([255, 255, 255], 0.74));
   v('--hs-vidro-borda', p.escuro ? css([255, 255, 255], 0.08) : css([255, 255, 255], 0.7));
   if (alvo === document.documentElement) document.querySelector('meta[name="theme-color"]')?.setAttribute('content', css(p.pagina));
 }

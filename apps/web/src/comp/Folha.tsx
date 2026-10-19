@@ -1,13 +1,14 @@
 // Janela contida (PLANO §5: o seletor de temporada nunca empurra nem cobre a página de qualquer jeito).
 //  variante "folha": sobe de baixo no celular, caixa centralizada no computador.
 //  variante "balao": cresce a partir do elemento que a abriu (o menu do usuário nasce da foto na ilha; §9).
+//  variante "lateral": menu que entra pela direita (as bibliotecas, na tela Biblioteca; §6).
 // Fecha no ✕, no Esc, tocando fora ou pelo próprio conteúdo. Rolagem própria; a página por trás não rola.
 import type { ComponentChildren } from 'preact';
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { Icone } from './Icone';
 import './folha.css';
 
-type Props = { aberta: boolean; fechar: () => void; titulo?: string; ancora?: HTMLElement | null; variante?: 'folha' | 'balao';
+type Props = { aberta: boolean; fechar: () => void; titulo?: string; ancora?: HTMLElement | null; variante?: 'folha' | 'balao' | 'lateral';
   classe?: string; semCabeca?: boolean; children: ComponentChildren };
 
 export function Folha({ aberta, fechar, titulo, ancora, variante = 'folha', classe = '', semCabeca = false, children }: Props) {

@@ -128,6 +128,11 @@ export const daBiblioteca = (s: Sessao, bibliotecaId: string, inicio = 0, limite
   obter<{ Items: Item[]; TotalRecordCount: number }>(s, `/Items?userId=${s.usuarioId}&parentId=${bibliotecaId}&recursive=true` +
     `&includeItemTypes=Movie,Series,BoxSet&sortBy=SortName&sortOrder=Ascending&startIndex=${inicio}&limit=${limite}&${CAMPOS}`);
 
+// títulos de uma coleção (BoxSet), na ordem de lançamento (tela Título da coleção)
+export const daColecao = (s: Sessao, colecaoId: string) =>
+  obter<{ Items: Item[]; TotalRecordCount: number }>(s, `/Items?userId=${s.usuarioId}&parentId=${colecaoId}` +
+    `&sortBy=PremiereDate,ProductionYear,SortName&sortOrder=Ascending&${CAMPOS}`).then(d => d.Items);
+
 // favoritos de uma biblioteca (a tela Favoritos separa por biblioteca: PLANO §7)
 export const favoritosDe = (s: Sessao, bibliotecaId: string, limite = 30) =>
   obter<{ Items: Item[]; TotalRecordCount: number }>(s, `/Items?userId=${s.usuarioId}&parentId=${bibliotecaId}&recursive=true&filters=IsFavorite` +

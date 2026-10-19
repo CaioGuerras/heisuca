@@ -1,0 +1,160 @@
+/* Título (PLANO §5; ref/vidhub/…foto42–44). Medidas do celular tiradas do print (576 px de imagem = 412 px de tela):
+   logo em ~55% da altura, Reproduzir largo com ~28 px de margem, ♡ ⚑ logo abaixo, sinopse pequena. */
+.titulo { --arte-h: min(78vh, 760px); position: relative; min-height: 100vh; padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px)); }
+.titulo-voltar { position: fixed; z-index: 32; top: var(--hs-topo-respiro); left: var(--hs-margem); color: var(--hs-texto); }
+
+/* arte até o topo, dissolvendo na cor da página (sem faixa separando) */
+.titulo-arte { position: absolute; z-index: 0; top: 0; left: 0; right: 0; height: var(--arte-h); overflow: hidden; border-radius: 0; }
+.titulo-arte > .img { position: absolute; inset: 0 0 3px; background-color: transparent !important; }
+.titulo-arte img { object-position: center 22%; }
+.titulo-arte::after { content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, var(--hs-pagina-0) 0%, var(--hs-pagina-0) 34%, color-mix(in srgb, var(--hs-pagina) 55%, transparent) 62%, var(--hs-pagina) 94%); }
+.titulo > .titulo-arte.esqueleto { border-radius: 0; }
+
+.titulo-cabeca { position: relative; }
+.titulo-marca { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center;
+  padding: calc(var(--arte-h) * .6) var(--hs-margem) 0; }
+.titulo-logo { max-width: min(68vw, 420px); max-height: 84px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 12px rgb(0 0 0 / .28));
+  animation: titulo-entra .6s var(--hs-curva-padrao) both; }
+.titulo-nome { margin: 0; font-family: var(--hs-tema-fonte-titulo); font-size: 34px; font-weight: 600; line-height: 1.1; letter-spacing: -.01em; }
+.titulo-meta { margin: 0; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; row-gap: 4px; font-size: 11.5px; font-weight: 600; }
+.titulo-meta > span + span::before { content: '|'; margin: 0 7px; opacity: .45; font-weight: 400; }
+.titulo-meta > .selo-idade::before { content: none; }
+.titulo-meta > .selo-idade { margin-left: 9px; }
+.titulo-estrela { color: #f5c518; }
+
+/* linha pequena + Reproduzir: grudam no topo ao rolar */
+.titulo-acao { position: sticky; top: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 8px var(--hs-margem) 6px; margin-top: 2px; }
+.titulo-acao::before { content: ''; position: absolute; z-index: -1; inset: 0 0 -26px; opacity: 0; transition: opacity .2s; pointer-events: none;
+  background: linear-gradient(var(--hs-pagina) 72%, var(--hs-pagina-0)); }
+.titulo-acao.grudado { padding-top: var(--hs-topo-respiro); }
+.titulo-acao.grudado::before { opacity: 1; }
+.titulo-pequena { margin: 0; display: flex; flex-wrap: wrap; justify-content: center; font-size: 11px; color: var(--hs-texto-2); font-variant-numeric: tabular-nums; }
+.titulo-pequena > span + span::before { content: '·'; margin: 0 7px; }
+.titulo-play { width: 100%; max-width: 520px; min-height: 46px; padding: 0 22px; border-radius: var(--hs-raio-total);
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; font-weight: 600; letter-spacing: .02em;
+  color: var(--hs-texto); background: rgb(255 255 255 / .58); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .55), 0 6px 22px rgb(0 0 0 / .08);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4); backdrop-filter: blur(18px) saturate(1.4);
+  transition: transform var(--hs-tempo-toque) var(--hs-curva-padrao), margin .25s var(--hs-curva-padrao); }
+[data-tema="shikkoku"] .titulo-play { background: rgb(255 255 255 / .15); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .12), 0 6px 22px rgb(0 0 0 / .2); }
+.titulo-play:active { transform: scale(.98); }
+@media (hover: hover) and (pointer: fine) { .titulo-play:hover { background: rgb(255 255 255 / .72); } [data-tema="shikkoku"] .titulo-play:hover { background: rgb(255 255 255 / .22); } }
+/* no celular, grudado, abre espaço para o ← que fica por cima */
+@media (max-width: 719px) { .titulo-acao.grudado .titulo-play { width: calc(100% - 54px); margin-left: 54px; } }
+
+.titulo-botoes { position: relative; z-index: 1; display: flex; justify-content: center; gap: 34px; margin-top: 4px; }
+.titulo-botao { width: 48px; height: 44px; display: grid; place-items: center; color: var(--hs-texto); border-radius: 12px; }
+.titulo-botao:active .icone { transform: scale(.88); }
+.titulo-botao[aria-pressed="true"] { color: var(--hs-realce); }
+[data-tema="shikkoku"] .titulo-botao[aria-pressed="true"] { color: var(--hs-texto); }
+
+.titulo-sinopse { position: relative; z-index: 1; margin: 8px auto 0; padding: 0 var(--hs-margem); max-width: 980px; font-size: 12px; line-height: 1.5;
+  color: var(--hs-texto-2); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; cursor: pointer; }
+.titulo-sinopse.aberta { -webkit-line-clamp: unset; display: block; }
+.titulo-sinopse strong { color: var(--hs-texto); font-weight: 700; }
+
+/* temporada + episódios */
+.titulo-eps { margin-top: 22px; }
+.titulo-eps-cabeca { display: flex; align-items: center; justify-content: space-between; padding: 0 var(--hs-margem); margin-bottom: 10px; }
+.titulo-temp { display: inline-flex; align-items: center; gap: 2px; font-size: var(--hs-titulo-secao); font-weight: 700; letter-spacing: -.01em; color: var(--hs-texto); padding: 4px 0; }
+.titulo-temp:disabled { cursor: default; }
+.titulo-trilho { display: flex; gap: var(--hs-vao); overflow-x: auto; padding: 5px var(--hs-margem) 6px; scrollbar-width: none;
+  scroll-snap-type: x proximity; scroll-padding-inline: var(--hs-margem); overscroll-behavior-x: contain; }
+.titulo-trilho::-webkit-scrollbar { display: none; }
+.titulo-trilho > * { scroll-snap-align: start; }
+.titulo-ep { flex: none; width: var(--hs-cartao-paisagem); display: flex; flex-direction: column; gap: 6px; text-align: left; color: var(--hs-texto);
+  -webkit-touch-callout: none; user-select: none; }
+.titulo-ep-arte { position: relative; display: block; aspect-ratio: 16 / 9; border-radius: var(--hs-raio-cartao); overflow: hidden;
+  transition: transform var(--hs-tempo-cartao) var(--hs-curva-padrao); }
+.titulo-ep-arte > .img { position: absolute; inset: 0; }
+.titulo-ep.atual .titulo-ep-arte { box-shadow: 0 0 0 2px var(--hs-pagina), 0 0 0 4px var(--hs-texto); }
+.titulo-ep:active .titulo-ep-arte { transform: scale(.97); }
+@media (hover: hover) and (pointer: fine) { .titulo-ep:hover .titulo-ep-arte { transform: translateY(-2px); } }
+.titulo-ep-nome { font-size: 13px; font-weight: 500; padding: 0 2px; }
+.titulo-paginas { display: flex; gap: 8px; padding: 10px var(--hs-margem) 0; flex-wrap: wrap; }
+.titulo-paginas button { min-width: 52px; height: 32px; padding: 0 14px; border-radius: var(--hs-raio-total); font-size: 12.5px; font-weight: 600;
+  color: var(--hs-texto-2); box-shadow: inset 0 0 0 1px var(--hs-linha); font-variant-numeric: tabular-nums; }
+.titulo-paginas button.atual { color: var(--hs-texto); background: var(--hs-linha); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--hs-texto) 22%, transparent); }
+.titulo-vazio { padding: 0 var(--hs-margem); font-size: 14px; margin: 4px 0 0; }
+
+/* seletor de temporada e lista do "Ver tudo": folha contida (comp/Folha) */
+.titulo-folha .opcao-linha[aria-current] strong { font-weight: 700; }
+.titulo-folha .opcao-linha small { font-weight: 400; }
+.titulo-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.titulo-linha { width: 100%; display: flex; gap: 12px; align-items: flex-start; padding: 8px; border-radius: 14px; text-align: left; color: var(--hs-texto); }
+.titulo-linha:hover, .titulo-linha:focus-visible { background: var(--hs-linha); outline: none; }
+.titulo-linha.atual { background: var(--hs-linha); }
+.titulo-linha-arte { position: relative; flex: none; width: 128px; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; }
+.titulo-linha-arte > .img { position: absolute; inset: 0; }
+.titulo-linha-texto { min-width: 0; display: flex; flex-direction: column; gap: 2px; font-size: 12px; color: var(--hs-texto-2); line-height: 1.35; }
+.titulo-linha-texto strong { font-size: 14px; color: var(--hs-texto); font-weight: 600; }
+.titulo-linha-texto small { font-size: 11.5px; }
+@media (min-width: 720px) { .titulo-folha-eps { width: min(620px, 92vw) !important; } }
+
+/* blocos de baixo */
+.titulo-bloco { margin-top: 26px; }
+.titulo-bloco > .titulo-secao { padding: 0 var(--hs-margem); margin-bottom: 12px; }
+
+/* elenco: quadrado arredondado, nome e personagem embaixo (nunca letra por cima da foto) */
+.titulo-elenco .fileira-trilho { gap: 12px; }
+.titulo-pessoa { flex: none; width: 76px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; }
+.titulo-pessoa-foto { position: relative; width: 76px; height: 76px; border-radius: 16px; overflow: hidden; display: block; margin-bottom: 5px; background: var(--hs-linha); }
+.titulo-pessoa-foto > .img { position: absolute; inset: 0; }
+.titulo-pessoa-foto img { object-position: center 18%; }
+.titulo-silhueta { position: absolute; inset: 0; display: grid; place-items: end center; color: var(--hs-texto-2); opacity: .45; padding-bottom: 6px; }
+.titulo-silhueta .icone { width: 58px !important; height: 58px !important; }
+.titulo-pessoa-nome { font-size: 11.5px; font-weight: 700; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.titulo-pessoa-papel { font-size: 11px; color: var(--hs-texto-2); line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+.titulo-generos { list-style: none; margin: 0; padding: 0 var(--hs-margem); display: flex; flex-wrap: wrap; gap: 10px; }
+.titulo-generos li { padding: 8px 18px; border-radius: var(--hs-raio-total); background: var(--hs-linha); font-size: 13.5px; font-weight: 500; }
+
+/* Info mídia: tabela fina, dois cartões (Vídeo e Áudio), sem o caminho do arquivo */
+.titulo-midia { display: flex; gap: 12px; overflow-x: auto; padding: 0 var(--hs-margem) 4px; scrollbar-width: none; scroll-snap-type: x proximity;
+  scroll-padding-inline: var(--hs-margem); }
+.titulo-midia::-webkit-scrollbar { display: none; }
+.titulo-midia-cartao { flex: none; width: min(78vw, 300px); padding: 14px 16px 8px; border-radius: 18px; scroll-snap-align: start;
+  background: color-mix(in srgb, var(--hs-superficie) 70%, transparent); box-shadow: inset 0 0 0 1px var(--hs-linha); }
+.titulo-midia-cartao h3 { margin: 0 0 6px; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; }
+.titulo-midia-cartao dl { margin: 0; }
+.titulo-midia-cartao dl > div { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; padding: 8px 0; border-top: 1px solid var(--hs-linha); }
+.titulo-midia-cartao dl > div:first-child { border-top: 0; }
+.titulo-midia-cartao dt { font-size: 12.5px; color: var(--hs-texto-2); font-weight: 400; white-space: nowrap; }
+.titulo-midia-cartao dd { margin: 0; font-size: 12.5px; font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* coleção: grade de pôsteres */
+.titulo-grade { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px var(--hs-vao); padding: 0 var(--hs-margem); }
+.titulo-grade .cartao-poster { width: auto; }
+
+.titulo-erro { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; padding: 0 var(--hs-margem); }
+
+@keyframes titulo-entra { from { opacity: 0; transform: translateY(8px); } }
+
+@media (min-width: 600px) {
+  .titulo-meta, .titulo-pequena { font-size: 13px; }
+  .titulo-sinopse { font-size: 13.5px; }
+  .titulo-pessoa, .titulo-pessoa-foto { width: 96px; }
+  .titulo-pessoa-foto { height: 96px; border-radius: 20px; }
+  .titulo-grade { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+}
+@media (min-width: 1024px) {
+  .titulo { --arte-h: min(86vh, 900px); }
+  .titulo-logo { max-height: 140px; max-width: 540px; }
+  .titulo-marca { padding-top: calc(var(--arte-h) * .5); }
+  .titulo-meta { font-size: 14.5px; }
+  .titulo-pequena { font-size: 13.5px; }
+  .titulo-play { min-height: 50px; font-size: 16px; }
+  .titulo-sinopse { text-align: center; font-size: 14.5px; max-width: 860px; }
+  .titulo-ep-nome { font-size: 14px; }
+  .titulo-pessoa, .titulo-pessoa-foto { width: 112px; }
+  .titulo-pessoa-foto { height: 112px; }
+  .titulo-pessoa-nome { font-size: 13px; } .titulo-pessoa-papel { font-size: 12px; }
+  .titulo-midia { flex-wrap: wrap; overflow: visible; }
+  .titulo-midia-cartao { width: 340px; }
+  .titulo-midia-cartao dt, .titulo-midia-cartao dd { font-size: 13.5px; }
+  .titulo-grade { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+}
+
+/* o conteúdo fica acima da arte (a arte é posicionada e, no computador, vai até onde começam os episódios) */
+.titulo-eps, .titulo-bloco, .titulo .fileira { position: relative; z-index: 1; }

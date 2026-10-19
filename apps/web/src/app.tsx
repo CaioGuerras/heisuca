@@ -12,11 +12,13 @@ import { TrocarServidor } from './comp/TrocarServidor';
 import { registrarServidores } from './estado/casca';
 import { useRota } from './rota';
 import { Abertura } from './telas/Abertura';
+import { Biblioteca } from './telas/Biblioteca';
 import { Entrada } from './telas/Entrada';
 import { Favoritos } from './telas/Favoritos';
 import { Inicio } from './telas/Inicio';
 import { EmConstrucao } from './telas/Pagina';
 import { Player } from './telas/Player';
+import { Titulo } from './telas/Titulo';
 import { Transicao } from './telas/Transicao';
 import './estilo/listas.css';
 
@@ -59,8 +61,8 @@ function Casca({ s, trocar, entrar, sair }: { s: Sessao; trocar: (s: Sessao) => 
 
   const comIlha = r.tela === 'inicio' || r.tela === 'biblioteca' || r.tela === 'fav';
   const tela = r.tela === 'ver' ? <Player key={r.id} s={s} id={r.id} inicio={r.inicio} />
-    : r.tela === 'titulo' ? <EmConstrucao titulo="Título" />
-    : r.tela === 'biblioteca' ? <EmConstrucao titulo="Biblioteca" />
+    : r.tela === 'titulo' ? <Titulo key={r.id} s={s} id={r.id} />
+    : r.tela === 'biblioteca' ? <Biblioteca s={s} id={r.id} />
     : r.tela === 'fav' ? <Favoritos s={s} />
     : r.tela === 'busca' ? <EmConstrucao titulo="Buscar" />
     : r.tela === 'conta' ? <EmConstrucao titulo="Minha conta" />

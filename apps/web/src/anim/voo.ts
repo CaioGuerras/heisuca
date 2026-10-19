@@ -22,3 +22,9 @@ export const esmaecer = (el: Element | null, de: number, para: number, ms = 320,
   el && !reduzido() && (el as HTMLElement).animate
     ? (el as HTMLElement).animate([{ opacity: de }, { opacity: para }], { duration: ms, delay: atraso, easing: CURVA, fill: 'forwards' }).finished.catch(() => undefined)
     : Promise.resolve();
+
+// Web Animations com o que fica no fim (fill: forwards) e a curva da casa; "reduzir movimento" não chega aqui (quem chama decide)
+export const animar = (el: Element | null, quadros: Keyframe[], o: number | KeyframeAnimationOptions, atraso = 0): Promise<unknown> =>
+  el && (el as HTMLElement).animate
+    ? (el as HTMLElement).animate(quadros, { easing: CURVA, fill: 'forwards', ...(typeof o === 'number' ? { duration: o, delay: atraso } : o) }).finished.catch(() => undefined)
+    : Promise.resolve();

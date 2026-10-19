@@ -1,10 +1,9 @@
-.transicao { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; background: var(--hs-tema-cor-fundo);
-  transition: background-color .5s var(--hs-curva-padrao), opacity .4s var(--hs-curva-padrao) .5s; }
-.transicao-logo { width: min(340px, 78vw); }
-/* respira: o selo pulsa devagar e o traço de luz atravessa o HEISUCA (rascunho; a sessão A refina) */
-.transicao.respira .selo-fundo { animation: tr-respira 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
-.transicao.respira .palavra { animation: tr-brilho 1.6s ease-in-out infinite; }
-@keyframes tr-respira { 50% { opacity: .82; } }
-@keyframes tr-brilho { 50% { opacity: .7; } }
-.transicao.revela { background-color: var(--hs-transicao-cor, var(--hs-tema-cor-fundo)); opacity: 0; pointer-events: none; }
-.transicao.revela .transicao-logo { transform: scale(1.08); opacity: 0; transition: transform .5s var(--hs-curva-padrao), opacity .45s; }
+/* 2ª animação (Transicao.tsx). A camada cobre a casca (que monta a home por baixo) até o selo se abrir sobre ela. */
+.transicao { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; background: var(--hs-tema-cor-fundo); }
+.transicao-logo { position: relative; width: min(540px, 80vw, 92vh); will-change: transform; }
+/* o campo do selo: nasce com o tamanho exato do selo e se abre até cobrir a tela (clip-path) */
+.transicao-campo { position: absolute; inset: 0; visibility: hidden; will-change: clip-path; }
+/* o traço de luz e o recorte da palavra (a abertura ao contrário) */
+.transicao .logo-marca .luz { display: inline; opacity: 0; }
+.transicao .palavra, .transicao .selo-kanji, .transicao .carimbo { transform-box: fill-box; transform-origin: 50% 50%; }
+.transicao .luz { transform-box: fill-box; transform-origin: 0 50%; }

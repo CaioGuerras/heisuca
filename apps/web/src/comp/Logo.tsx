@@ -24,6 +24,9 @@ export function Logo({ modo = 'marca', classe = '', aoMontar }: { modo?: 'abertu
         s.setAttribute('viewBox', `${x} ${y} ${Math.max(...cx.map(c => c.x2)) + f - x} ${Math.max(...cx.map(c => c.y2)) + f - y}`);
       }
     }
+    // abertura: recorta só as laterais vazias do quadro 640×360 (o desenho aprovado não muda; a logo fica centrada e,
+    // no celular em pé, ocupa a largura em vez de ~60% dela). Um leve deslocamento à direita compensa o peso do selo.
+    if (s && modo === 'abertura') s.setAttribute('viewBox', '90 50 450 260');
     aoMontar?.(el);
   }, [modo]);
   return <div ref={raiz} class={`logo logo-${modo} ${classe}`} dangerouslySetInnerHTML={{ __html: svg }} />;

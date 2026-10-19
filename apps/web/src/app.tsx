@@ -20,7 +20,7 @@ import { Player } from './telas/Player';
 import { Transicao } from './telas/Transicao';
 import './estilo/listas.css';
 
-type Fase = { nome: 'abertura' } | { nome: 'entrada'; de?: DOMRect | null; srv?: Servidor | null } | { nome: 'transicao'; de?: DOMRect | null } | { nome: 'casca' };
+type Fase = { nome: 'abertura' } | { nome: 'entrada'; de?: DOMRect | null; srv?: Servidor | null; volta?: boolean } | { nome: 'transicao'; de?: DOMRect | null } | { nome: 'casca' };
 const ABRIU = 'heisuca.abriu';
 const abriu = () => { try { return sessionStorage.getItem(ABRIU) === '1'; } catch { return true; } };
 
@@ -35,12 +35,13 @@ export function App() {
     setFase(s ? { nome: 'transicao', de } : { nome: 'entrada', de });
   }} />;
   if (fase.nome === 'entrada' || !s) return <Entrada de={fase.nome === 'entrada' ? fase.de : null} servidorInicial={fase.nome === 'entrada' ? fase.srv : undefined}
-    pronto={(nova, de) => { setS(nova); setFase({ nome: 'transicao', de }); }} />;
+    pronto={(nova, de) => { setS(nova); setFase({ nome: 'transicao', de }); }}
+    voltar={fase.nome === 'entrada' && fase.volta && s ? () => setFase({ nome: 'casca' }) : undefined} />;
   return (
     <>
       <Casca key={`${s.servidor}|${s.usuarioId}`} s={s}
         trocar={nova => { setS(nova); setFase({ nome: 'transicao', de: null }); }}
-        entrar={srv => setFase({ nome: 'entrada', srv })}
+        entrar={srv => setFase({ nome: 'entrada', srv, volta: true })}
         sair={() => { sairDoSeerr(s).finally(() => { esquecerSessao(); setS(null); setFase({ nome: 'entrada' }); }); }} />
       {fase.nome === 'transicao' && <Transicao s={s} de={fase.de} fim={() => setFase({ nome: 'casca' })} />}
     </>

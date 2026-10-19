@@ -19,3 +19,8 @@
   color: var(--hs-texto); box-shadow: inset 0 0 0 1px var(--hs-linha); transition: background-color .2s, color .2s; }
 .mu-tema:hover { background: var(--hs-linha); }
 .mu-tema.ativo { background: var(--hs-tema-cor-botao-fundo); color: var(--hs-tema-cor-botao-texto); box-shadow: none; font-weight: 600; }
+/* servidor: discreto, junto de Sair (rodada 2) */
+.mu-servidor { min-height: 46px; }
+.mu-servidor .mu-icone { color: var(--hs-texto-2); }
+.mu-servidor .opcao-texto strong { font-size: 14px; color: var(--hs-texto-2); }
+.mu-servidor .opcao-texto small { font-size: 12px; }

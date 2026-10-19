@@ -1,16 +1,15 @@
 // Início (PLANO §4; ref/vidhub/…home_topo, …home_rolada, …foto67).
-//  Topo sem barra (pílula do servidor + busca). Destaque sem bordas: a arte vai até o topo e se dissolve na cor tirada do
+//  Topo sem barra (logo Heisuca à esquerda + busca; o servidor foi para o menu do usuário, Caio 19/10 noite). Destaque sem bordas: a arte vai até o topo e se dissolve na cor tirada do
 //  pôster; no centro a logo, `★ nota | anos | gêneros | [classificação]`, a sinopse 「Título」 em 2 linhas e os pontinhos.
-//  Ao rolar, a logo sobe com a página e encaixa no topo, entre a pílula e a busca (…home_rolada).
-//  Fileiras: Continuar · Próximo · Em alta no Brasil · Mídia · uma por biblioteca · Em breve (no fim).
+//  Ao rolar, a logo sobe com a página e encaixa no topo, entre a marca e a busca (…home_rolada).
+//  Fileiras: Continuar (em andamento + próximos, numa só) · Em alta no Brasil · uma por biblioteca · Em breve (no fim).
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { fundo, hashDe, logo, type EmBreve, type Item, type Sessao } from '../api/jellyfin';
 import { usePaleta } from '../cor/paleta';
-import { anos, CartaoBiblioteca, CartaoEmBreve, CartaoPaisagem, CartaoPoster, CartaoTop10, EsqueletoCartoes, nota } from '../comp/Cartoes';
+import { anos, CartaoEmBreve, CartaoPaisagem, CartaoPoster, CartaoTop10, EsqueletoCartoes, nota } from '../comp/Cartoes';
 import { Fileira } from '../comp/Fileira';
 import { Imagem } from '../comp/Imagem';
 import { Topo } from '../comp/Navegacao';
-import { abrirServidores } from '../estado/casca';
 import { hashDoDestaque, prepararInicio, type DadosInicio } from '../dados/inicio';
 import { irAba, irTitulo, irVer } from '../rota';
 import './inicio.css';
@@ -39,19 +38,19 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
     return () => clearInterval(t);
   }, [lista.length, n, encaixou]);
 
-  // a logo sobe com a página até o meio do topo e fica ali, encolhendo para caber entre a pílula e a busca
+  // a logo sobe com a página até o meio do topo e fica ali, encolhendo para caber entre a marca e a busca
   useLayoutEffect(() => {
     let quadro = 0, preso = false;
     const medir = () => {
       quadro = 0;
       const c = casa.current, m = marca.current;
       if (!c || !m) return;
-      const pilula = document.querySelector('.topo-servidor')?.getBoundingClientRect();
+      const esq = document.querySelector('.topo-marca')?.getBoundingClientRect();
       const busca = document.querySelector('.topo-busca')?.getBoundingClientRect();
-      if (!pilula || !busca) return;
-      const r = c.getBoundingClientRect(), alvo = pilula.top + pilula.height / 2, centro = r.top + r.height / 2;
+      if (!esq || !busca) return;
+      const r = c.getBoundingClientRect(), alvo = busca.top + busca.height / 2, centro = r.top + r.height / 2;
       const w = m.offsetWidth || 1, h = m.offsetHeight || 1;
-      const cabe = Math.max(0.3, Math.min(1, (Math.min(busca.left - innerWidth / 2, innerWidth / 2 - pilula.right) * 2 - 20) / w, (pilula.height * 1.6) / h));
+      const cabe = Math.max(0.3, Math.min(1, (Math.min(busca.left - innerWidth / 2, innerWidth / 2 - esq.right) * 2 - 40) / w, (busca.height * 1.5) / h));
       const ida = Math.min(1, Math.max(0, (alvo + 140 - centro) / 140));    // nos últimos 140 px antes de encaixar
       const sobe = Math.max(0, alvo - centro);
       m.style.transform = sobe || ida ? `translateY(${sobe}px) scale(${1 - (1 - cabe) * ida})` : '';
@@ -70,7 +69,7 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
   const emBreve = d ? [...d.emBreve.tv, ...d.emBreve.movie] : [];
   return (
     <div class="inicio">
-      <Topo s={s} aoServidor={abrirServidores} fundo={encaixou} />
+      <Topo fundo={encaixou} />
       <section class="destaque" aria-roledescription="carrossel" aria-label="Destaques"
         onPointerEnter={e => { if (e.pointerType === 'mouse') parado.current = true; }}
         onPointerLeave={e => { if (e.pointerType === 'mouse') parado.current = false; }}
@@ -115,19 +114,16 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
       {!d && <Fileira titulo="Continuar"><EsqueletoCartoes tipo="paisagem" n={3} /></Fileira>}
       {d && d.continuar.length > 0 && (
         <Fileira titulo="Continuar">
-          {d.continuar.map((i, k) => <CartaoPaisagem key={i.Id} s={s} i={i} tempo prioridade={k < 2} aoAbrir={x => irVer(x.Id, x.UserData?.PlaybackPositionTicks)} />)}
+          {d.continuar.map((i, k) => {
+            const pos = i.UserData?.PlaybackPositionTicks;
+            return <CartaoPaisagem key={i.Id} s={s} i={i} tempo={!!pos} prioridade={k < 2} aoAbrir={x => irVer(x.Id, pos || undefined)} />;
+          })}
         </Fileira>
-      )}
-      {d && d.proximo.length > 0 && (
-        <Fileira titulo="Próximo">{d.proximo.map(i => <CartaoPaisagem key={i.Id} s={s} i={i} aoAbrir={x => irVer(x.Id)} />)}</Fileira>
       )}
       {d && d.emAlta.itens.length > 0 && (
         <Fileira titulo={d.emAlta.titulo || 'Em alta'} classe="fileira-top10">
           {d.emAlta.itens.slice(0, 10).map((i, k) => <CartaoTop10 key={i.Id} s={s} i={i} n={k + 1} aoAbrir={x => irTitulo(x.Id)} />)}
         </Fileira>
-      )}
-      {d && d.midia.length > 0 && (
-        <Fileira titulo="Mídia">{d.midia.map(b => <CartaoBiblioteca key={b.Id} s={s} b={b} aoAbrir={x => irAba(`b/${x.Id}`)} />)}</Fileira>
       )}
       {d && d.porBiblioteca.map(({ biblioteca: b, itens }) => (
         <Fileira key={b.Id} titulo={b.Name} verTudo={() => irAba(`b/${b.Id}`)}>

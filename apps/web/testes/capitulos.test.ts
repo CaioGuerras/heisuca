@@ -42,6 +42,14 @@ test('créditos no último capítulo: próximo episódio, ou nada sem sucessor',
   assert.equal(puloEm(TESTE, 85, false), null);
 });
 
+test('filme: créditos no último capítulo encerram; no meio, pulam para o capítulo seguinte', () => {
+  assert.deepEqual(puloEm(TESTE, 85, false, true), { tipo: 'creditos', ate: 'fim' });
+  assert.deepEqual(puloEm(TESTE, 10, false, true), { tipo: 'abertura', ate: 38 });
+  assert.equal(puloEm(TESTE, 50, false, true), null);
+  const c = [cap('Intro', 0), cap('Chapter 2', 90), cap('End Credits', 1300), cap('Post-credits', 1400)];
+  assert.deepEqual(puloEm(c, 1350, false, true), { tipo: 'creditos', ate: 1400 });
+});
+
 test('créditos no meio (cena pós-créditos) pulam para o capítulo seguinte', () => {
   const c = [cap('Intro', 0), cap('Chapter 2', 90), cap('End Credits', 1300), cap('Post-credits', 1400)];
   assert.deepEqual(puloEm(c, 1350, false), { tipo: 'creditos', ate: 1400 });

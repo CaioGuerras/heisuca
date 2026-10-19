@@ -1,11 +1,12 @@
 // Tudo o que a home mostra, carregado de uma vez e guardado: a 2ª animação (transição) espera isto ficar pronto, e a
-// home já nasce montada por baixo dela (PLANO §3.1 e §3.3). Ordem das fileiras: PLANO §4.
+// home já nasce montada por baixo dela (PLANO §3.1 e §3.3). Ordem das fileiras: PLANO §4, com a rodada 2 do Caio (19/10
+// noite): Continuar e Próximo viram uma fileira só, e a fileira "Mídia" sai (as bibliotecas estão na ilha e no "Ver tudo").
 import { bibliotecasDeVideo, continuar, emAlta, emBreve, fundo, hashDe, logo, novidades, paraDestaque, proximos,
   type EmBreve, type Item, type Sessao } from '../api/jellyfin';
 
 export type DadosInicio = {
-  destaque: Item[]; continuar: Item[]; proximo: Item[]; emAlta: { titulo: string; itens: Item[] };
-  midia: Item[]; porBiblioteca: { biblioteca: Item; itens: Item[] }[]; emBreve: { tv: EmBreve[]; movie: EmBreve[] };
+  destaque: Item[]; continuar: Item[]; emAlta: { titulo: string; itens: Item[] };
+  porBiblioteca: { biblioteca: Item; itens: Item[] }[]; emBreve: { tv: EmBreve[]; movie: EmBreve[] };
 };
 
 const cache = new Map<string, Promise<DadosInicio>>();
@@ -21,14 +22,15 @@ export function prepararInicio(s: Sessao, renovar = false): Promise<DadosInicio>
     // destaque (PLANO §4, v1.2 [C]): primeiro os do Em alta que têm fundo e logo, completando com os últimos adicionados até 9
     const temArte = (i: Item) => !!(i.BackdropImageTags?.length && i.ImageTags?.Logo);
     const destaque = [...alta.itens.filter(temArte), ...recentes].filter((i, k, l) => l.findIndex(x => x.Id === i.Id) === k).slice(0, 9);
-    // Próximo sem repetir o que já está em Continuar (PLANO §4 [P])
-    const naFila = new Set(cont.map(i => i.SeriesId || i.Id));
-    const proximo = prox.filter(i => !naFila.has(i.SeriesId || i.Id) && !cont.some(c => c.Id === i.Id));
+    // Continuar (Caio 19/10 noite): primeiro os em andamento (com tempo e barra), depois o próximo episódio das séries em
+    // andamento, sem repetir série (nem filme)
+    const vistas = new Set<string>();
+    const continuarTudo = [...cont, ...prox].filter(i => { const k = i.SeriesId || i.Id; if (vistas.has(k)) return false; vistas.add(k); return true; });
     const porBiblioteca = (await Promise.all(libs.filter(b => b.CollectionType !== 'boxsets').map(b =>
       novidades(s, b.Id).then(itens => ({ biblioteca: b, itens })).catch(() => ({ biblioteca: b, itens: [] as Item[] })))))
       .filter(x => x.itens.length);
     const [tv, movie] = await Promise.all([emBreve(s, 'tv').catch(() => []), emBreve(s, 'movie').catch(() => [])]);
-    return { destaque, continuar: cont, proximo, emAlta: alta, midia: libs, porBiblioteca, emBreve: { tv, movie } };
+    return { destaque, continuar: continuarTudo, emAlta: alta, porBiblioteca, emBreve: { tv, movie } };
   })();
   cache.set(chave, p);
   p.catch(() => cache.delete(chave));

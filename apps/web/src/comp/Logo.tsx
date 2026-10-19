@@ -8,11 +8,23 @@ import './Logo.css';
 // partes que formam a logo (o traço de luz e o slogan só existem na abertura)
 export const PARTES = ['.selo', '.palavra', '.kata'];
 
-export function Logo({ modo = 'marca', classe = '', aoMontar }: { modo?: 'abertura' | 'marca'; classe?: string; aoMontar?: (el: HTMLElement) => void }) {
+// semKata: só o selo + HEISUCA (a marca pequena do topo das telas; rodada 2 do Caio, 19/10 noite)
+export function Logo({ modo = 'marca', classe = '', semKata = false, aoMontar }:
+  { modo?: 'abertura' | 'marca'; classe?: string; semKata?: boolean; aoMontar?: (el: HTMLElement) => void }) {
   const raiz = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     const el = raiz.current!, s = el.querySelector('svg');
-    if (s && modo === 'marca') {
+    if (s && modo === 'marca' && semKata) {
+      // a marca pequena do topo: o selo e, ao lado, o HEISUCA maior e centrado na altura do selo (no desenho grande a
+      // palavra fica alta e pequena perto do selo vertical; em 30 px de altura ela sumiria)
+      const sb = (s.querySelector('.selo-fundo') as SVGGraphicsElement).getBBox(), m = (s.querySelector('.selo') as SVGGElement).transform.baseVal.consolidate()?.matrix;
+      const sx = sb.x + (m?.e ?? 0), sy = sb.y + (m?.f ?? 0);
+      const pal = s.querySelector('.palavra') as SVGGElement, pb = pal.getBBox(), k = 1.75;
+      const x0 = sx + sb.width + sb.width * 0.42, topo = sy + sb.height / 2 - (pb.height * k) / 2;
+      pal.setAttribute('transform', `translate(${x0 - k * pb.x} ${topo - k * pb.y}) scale(${k})`);
+      const f = 3;
+      s.setAttribute('viewBox', `${sx - f} ${sy - f} ${x0 + pb.width * k + f - (sx - f)} ${sb.height + 2 * f}`);
+    } else if (s && modo === 'marca') {
       // recorta o viewBox na logo (selo + HEISUCA + ヘイスカ), com folga para a "tinta" não encostar na borda.
       // getBBox não conta o transform do próprio grupo (o .selo tem translate): somamos o deslocamento.
       const cx = PARTES.map(p => s.querySelector(p) as SVGGraphicsElement | null).filter(Boolean).map(g => {
@@ -28,8 +40,8 @@ export function Logo({ modo = 'marca', classe = '', aoMontar }: { modo?: 'abertu
     // no celular em pé, ocupa a largura em vez de ~60% dela). Um leve deslocamento à direita compensa o peso do selo.
     if (s && modo === 'abertura') s.setAttribute('viewBox', '90 50 450 260');
     aoMontar?.(el);
-  }, [modo]);
-  return <div ref={raiz} class={`logo logo-${modo} ${classe}`} dangerouslySetInnerHTML={{ __html: svg }} />;
+  }, [modo, semKata]);
+  return <div ref={raiz} class={`logo logo-${modo}${semKata ? ' logo-sem-kata' : ''} ${classe}`} dangerouslySetInnerHTML={{ __html: svg }} />;
 }
 
 // retângulo (na tela) que a logo ocupa: a união do selo, do HEISUCA e do ヘイスカ

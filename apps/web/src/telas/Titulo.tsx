@@ -155,7 +155,8 @@ function Pagina({ s, it }: { s: Sessao; it: Item }) {
   let rotulo = 'Reproduzir', alvo: Item | null = colecao ? null : serie ? atual : it, inicio: number | undefined;
   if (serie && atual) {
     const pos = dEp.PlaybackPositionTicks || 0;
-    if (pos > 0 || (dIt.PlayedPercentage || 0) > 0) rotulo = `Continuar ${rotuloEp(atual)}`;
+    // "Continuar" só quando o episódio tem posição salva; senão "Reproduzir T1:E3" (Caio 19/10 noite, dúvida 17)
+    rotulo = `${pos > 0 ? 'Continuar' : 'Reproduzir'} ${rotuloEp(atual)}`;
     if (pos > 0) inicio = pos;
   } else if (!serie && !colecao && (dIt.PlaybackPositionTicks || 0) > 0) {
     inicio = dIt.PlaybackPositionTicks; rotulo = `Continuar de ${relogio(inicio! / TICKS)}`;

@@ -14,6 +14,9 @@ import { puloEm, textoDoPulo } from '../player/capitulos';
 import { PainelFaixas } from '../player/PainelFaixas';
 import { voltar } from '../rota';
 
+// fim do episódio: passa sozinho para o próximo depois desta contagem (Caio 19/10 noite, dúvida 19)
+const CONTAGEM = 10;
+
 type Metodo = Relato['PlayMethod'];
 type Carga = { audio?: number; legenda?: number; ticks?: number; semDireto?: boolean };
 type Estado = { fonte: Fonte; sessao: string; metodo: Metodo; audio?: number; legenda: number; url: string; hls: boolean };
@@ -54,6 +57,8 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
   const [ant, setAnt] = useState<Item | null>(null);
   const [podeBuscar, setPodeBuscar] = useState(false);
   const [cheia, setCheia] = useState(false);
+  const [conta, setConta] = useState<number | null>(null);
+  const [volume, setVolume] = useState({ nivel: 1, mudo: false });
   const esconder = useRef<number>(0);
   const playBtn = useRef<HTMLButtonElement>(null);
   const toque = useRef({ tipo: 'mouse', visivel: true });
@@ -172,6 +177,7 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
       canplay: () => setEspera(false),
       timeupdate: () => setPos(v.currentTime),
       durationchange: () => setDur(v.duration),
+      volumechange: () => setVolume({ nivel: v.volume, mudo: v.muted }),
       seeked: () => { const r = relato(); if (r && iniciou.current) relatar(s, 'progresso', r); },
       ended: () => { const r = relato(); if (r) relatar(s, 'fim', r); iniciou.current = false; setFim(true); setVisivel(true); },
       error: () => {
@@ -258,6 +264,16 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
   const mudo = () => { const v = video.current!; v.muted = !v.muted; avisar(v.muted ? 'Som desligado' : 'Som ligado'); };
   // outro episódio: troca a rota sem empilhar (Voltar continua levando ao título; o Player remonta e encerra o anterior)
   const trocar = (ep: Item) => location.replace(`#/ver/${ep.Id}`);
+  // contagem do fim do episódio: começa quando o vídeo acaba e há próximo; "Cancelar" para e deixa o cartão com Assistir
+  useEffect(() => { setConta(fim && prox ? CONTAGEM : null); }, [fim, prox]);
+  useEffect(() => {
+    if (conta === null || !prox) return;
+    if (conta <= 0) { trocar(prox); return; }
+    const t = setTimeout(() => setConta(c => (c === null ? null : c - 1)), 1000);
+    return () => clearTimeout(t);
+  }, [conta]);
+  // volume (só no computador; no celular o volume é o do aparelho e a barra some pelo CSS)
+  const mudarVolume = (n: number) => { const v = video.current!; v.volume = n; v.muted = n === 0; };
   const tela = () => {
     const el = document.documentElement as HTMLElement & { webkitRequestFullscreen?: () => void };
     const v = video.current as HTMLVideoElement & { webkitEnterFullscreen?: () => void };
@@ -346,10 +362,12 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
   const nome = it ? (serie ? it.SeriesName : it.Name) : '';
   const ep = serie && it ? [`T${it.ParentIndexNumber ?? '?'}:E${it.IndexNumber ?? '?'}`, it.Name].filter(Boolean).join(' · ') : '';
   // Pular abertura/créditos: só dentro do capítulo, pelo nome dele (player/capitulos.ts)
-  const pulo = !fim && !erro ? puloEm(it?.Chapters, pos, !!prox) : null;
+  const pulo = !fim && !erro ? puloEm(it?.Chapters, pos, !!prox, it?.Type === 'Movie') : null;
   const fazerPulo = () => {
     if (!pulo) return;
     if (pulo.ate === 'proximo') { if (prox) trocar(prox); }
+    // filme: os créditos encerram e voltam ao título (o Player desmonta e encerra a reprodução)
+    else if (pulo.ate === 'fim') { video.current?.pause(); location.replace(`#/t/${id}`); }
     else { video.current!.currentTime = pulo.ate; mexeu(); }
   };
   const carregando = espera && !erro;
@@ -399,9 +417,13 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
         <div class="player-proximo">
           {paisagem(s, prox, 320) && <img src={paisagem(s, prox, 320)} alt="" />}
           <div>
-            <small>Próximo episódio</small>
+            <small aria-live="polite">{conta !== null ? `Próximo episódio em ${conta} s` : 'Próximo episódio'}</small>
             <strong class="uma-linha">T{prox.ParentIndexNumber}:E{prox.IndexNumber} · {prox.Name}</strong>
-            <button class="player-pilula" ref={el => el?.focus()} onClick={() => trocar(prox)}><Icone nome="play_arrow" cheio tamanho={20} />Assistir</button>
+            <span class="player-proximo-acoes">
+              <button class={`player-pilula${conta !== null ? ' contando' : ''}`} ref={el => el?.focus()} onClick={() => trocar(prox)}
+                style={{ '--contagem': `${CONTAGEM}s` } as Record<string, string>}><Icone nome="play_arrow" cheio tamanho={20} />Assistir</button>
+              {conta !== null && <button class="player-cancelar" onClick={() => setConta(null)}>Cancelar</button>}
+            </span>
           </div>
         </div>
       )}
@@ -417,6 +439,16 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
           aria-expanded={menu} aria-label="Áudio e legendas" title="Áudio e legendas">
           <Icone nome="subtitles" tamanho={26} />
         </button>
+        <div class="player-volume">
+          <button class="player-icone" onClick={() => mudarVolume(volume.mudo || volume.nivel === 0 ? (volume.nivel || 1) : 0)}
+            aria-label={volume.mudo ? 'Ligar o som' : 'Desligar o som'} title={volume.mudo ? 'Ligar o som (M)' : 'Desligar o som (M)'}>
+            <Icone nome={volume.mudo || volume.nivel === 0 ? 'volume_off' : volume.nivel < 0.5 ? 'volume_down' : 'volume_up'} tamanho={24} />
+          </button>
+          <input class="player-barra player-vol" type="range" min={0} max={1} step={0.05} value={volume.mudo ? 0 : volume.nivel}
+            aria-label="Volume" aria-valuetext={`${Math.round((volume.mudo ? 0 : volume.nivel) * 100)}%`}
+            style={{ '--feito': `${(volume.mudo ? 0 : volume.nivel) * 100}%` } as Record<string, string>}
+            onInput={ev => mudarVolume(Number(ev.currentTarget.value))} />
+        </div>
         <button class="player-icone" onClick={tela} aria-label={cheia ? 'Sair da tela cheia' : 'Tela cheia'} title={cheia ? 'Sair da tela cheia (F)' : 'Tela cheia (F)'}>
           <Icone nome={cheia ? 'fullscreen_exit' : 'fullscreen'} tamanho={26} />
         </button>

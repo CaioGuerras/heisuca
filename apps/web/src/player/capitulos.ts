@@ -2,8 +2,9 @@
 // nome reconhecido, não há botão. Função pura (sem DOM nem API) para o teste em testes/capitulos.test.ts.
 export type Trecho = 'abertura' | 'creditos';
 export type CapituloBruto = { Name?: string | null; StartPositionTicks: number };
-// para onde o botão leva: um ponto do vídeo (início do capítulo seguinte) ou o próximo episódio
-export type Pulo = { tipo: Trecho; ate: number } | { tipo: Trecho; ate: 'proximo' };
+// para onde o botão leva: um ponto do vídeo (início do capítulo seguinte), o próximo episódio ou o fim (filme: encerra e
+// volta ao título; Caio 19/10 noite, dúvida 20)
+export type Pulo = { tipo: Trecho; ate: number } | { tipo: Trecho; ate: 'proximo' | 'fim' };
 
 const TICKS = 10_000_000;
 
@@ -26,8 +27,9 @@ export function tipoDoCapitulo(nome?: string | null): Trecho | null {
  * @param capitulos  `item.Chapters` (em ticks), em qualquer ordem
  * @param seg        posição atual em segundos
  * @param temProximo série com episódio seguinte: créditos no último capítulo levam a ele
+ * @param filme      filme: créditos no último capítulo encerram (o player volta ao título)
  */
-export function puloEm(capitulos: CapituloBruto[] | undefined, seg: number, temProximo: boolean): Pulo | null {
+export function puloEm(capitulos: CapituloBruto[] | undefined, seg: number, temProximo: boolean, filme = false): Pulo | null {
   if (!capitulos?.length || !Number.isFinite(seg)) return null;
   const c = [...capitulos].sort((a, b) => a.StartPositionTicks - b.StartPositionTicks);
   // capítulo em que estamos: o último que já começou
@@ -38,8 +40,9 @@ export function puloEm(capitulos: CapituloBruto[] | undefined, seg: number, temP
   if (!tipo) return null;
   const seguinte = c[i + 1];
   if (seguinte) return { tipo, ate: seguinte.StartPositionTicks / TICKS };
-  // último capítulo: só os créditos de um episódio com sucessor têm para onde ir
-  return tipo === 'creditos' && temProximo ? { tipo, ate: 'proximo' } : null;
+  // último capítulo: os créditos de um episódio com sucessor levam a ele; os de um filme encerram
+  if (tipo !== 'creditos') return null;
+  return temProximo ? { tipo, ate: 'proximo' } : filme ? { tipo, ate: 'fim' } : null;
 }
 
 export const textoDoPulo = (t: Trecho) => (t === 'abertura' ? 'Pular abertura' : 'Pular créditos');

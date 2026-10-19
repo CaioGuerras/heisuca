@@ -4,6 +4,9 @@
 .logo-marca .luz, .logo-marca .slogan { display: none; }
 .logo-marca .carimbo, .logo-marca .selo-kanji, .logo-marca .palavra, .logo-marca .kata { animation: none !important; }
 .logo-marca .kata { opacity: .65; }
+.logo-sem-kata .kata { display: none; }
+/* a palavra é reposicionada pelo atributo transform (Logo.tsx), em coordenadas do desenho */
+.logo-sem-kata .palavra { transform-box: view-box; transform-origin: 0 0; }
 .logo-marca svg.marca { width: 100%; }
 /* abertura pulada no meio (toque): tudo vai direto ao estado final antes de a logo voar */
 .abertura.parada .carimbo, .abertura.parada .selo-kanji, .abertura.parada .palavra, .abertura.parada .kata,

@@ -6,13 +6,15 @@
 .topo::before { content: ''; position: absolute; inset: 0 0 -28px; z-index: -1; opacity: 0; transition: opacity .25s;
   background: linear-gradient(var(--hs-pagina) 55%, var(--hs-pagina-0)); pointer-events: none; }
 .topo.com-fundo::before { opacity: 1; }
-.topo-servidor { justify-self: start; max-width: 100%; display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 13px 0 3px;
-  border-radius: var(--hs-raio-total); background: var(--hs-vidro); -webkit-backdrop-filter: blur(18px) saturate(1.4); backdrop-filter: blur(18px) saturate(1.4);
-  box-shadow: inset 0 0 0 1px var(--hs-vidro-borda); font-size: 12.5px; font-weight: 500; color: var(--hs-texto); }
+/* a marca no canto (rodada 2): pequena, na cor do tema (selo); a palavra na cor do texto da página, que acompanha o pôster */
+.topo-marca { justify-self: start; display: inline-flex; align-items: center; height: 36px; padding: 0 2px; border-radius: 8px; }
+.topo-marca .logo svg.marca { width: auto; height: 30px; }
+.topo-marca .palavra path { fill: var(--hs-texto); }
+.topo-marca:focus-visible { outline: 2px solid var(--hs-realce); outline-offset: 2px; }
 .topo-centro { min-width: 0; display: flex; justify-content: center; }
 .topo .topo-busca { justify-self: end; color: var(--hs-texto); width: 36px; height: 36px; }
 .topo-busca .icone { width: 21px !important; height: 21px !important; }
-@media (min-width: 1024px) { .topo-servidor { height: 42px; font-size: 14px; } .topo .topo-busca { width: 42px; height: 42px; } .topo-busca .icone { width: 24px !important; height: 24px !important; } }
+@media (min-width: 1024px) { .topo-marca { height: 42px; } .topo-marca .logo svg.marca { height: 36px; } .topo .topo-busca { width: 42px; height: 42px; } .topo-busca .icone { width: 24px !important; height: 24px !important; } }
 .topo-vazio { justify-self: end; width: 44px; }
 .avatar { border-radius: 50%; object-fit: cover; flex: none; }
 .avatar-vazio { display: inline-grid; place-items: center; background: var(--hs-linha); color: var(--hs-texto-2); }
@@ -33,3 +35,7 @@
 /* espaço para o conteúdo não ficar atrás da ilha */
 .com-ilha { padding-bottom: calc(var(--hs-ilha-respiro) + var(--hs-ilha-altura) + 24px); }
 @media (min-width: 1024px) { .ilha { width: 360px; } .ilha-item { font-size: 11.5px; } }
+/* no Início, antes de rolar, a marca fica sobre a arte do destaque (que pode ser escura mesmo no Verde): palavra clara com
+   sombra leve; ao rolar, o topo ganha o véu da página e a palavra volta à cor do texto */
+.tela-inicio .topo:not(.com-fundo) .topo-marca .palavra path { fill: #fff; }
+.tela-inicio .topo:not(.com-fundo) .topo-marca svg { filter: drop-shadow(0 1px 3px rgb(0 0 0 / .45)); }

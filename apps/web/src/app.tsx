@@ -27,7 +27,7 @@ const Titulo = sobDemanda(() => import('./telas/Titulo'), 'Titulo');
 const Player = sobDemanda(() => import('./telas/Player'), 'Player');
 const Busca = sobDemanda(() => import('./telas/Busca'), 'Busca');
 
-type Fase = { nome: 'abertura' } | { nome: 'entrada'; de?: DOMRect | null; srv?: Servidor | null; volta?: boolean } | { nome: 'transicao'; de?: DOMRect | null; clique?: number } | { nome: 'casca' };
+type Fase = { nome: 'abertura' } | { nome: 'entrada'; de?: DOMRect | null; srv?: Servidor | null; volta?: boolean } | { nome: 'transicao'; de?: DOMRect | null; clique?: number; curta?: boolean } | { nome: 'casca' };
 const ABRIU = 'heisuca.abriu';
 const abriu = () => { try { return sessionStorage.getItem(ABRIU) === '1'; } catch { return true; } };
 
@@ -39,7 +39,7 @@ export function App() {
 
   if (fase.nome === 'abertura') return <Abertura fim={de => {
     try { sessionStorage.setItem(ABRIU, '1'); } catch { /* nada */ }
-    setFase(s ? { nome: 'transicao', de } : { nome: 'entrada', de });
+    setFase(s ? { nome: 'transicao', de, curta: true } : { nome: 'entrada', de });
   }} />;
   if (fase.nome === 'entrada' || !s) return <Entrada de={fase.nome === 'entrada' ? fase.de : null} servidorInicial={fase.nome === 'entrada' ? fase.srv : undefined}
     pronto={(nova, de, clique) => { setS(nova); setFase({ nome: 'transicao', de, clique }); }}
@@ -51,7 +51,7 @@ export function App() {
         atualizar={nova => { guardarSessao(nova); setS(nova); }}
         entrar={srv => setFase({ nome: 'entrada', srv, volta: true })}
         sair={() => { sairDoSeerr(s).finally(() => { esquecerSessao(); setS(null); setFase({ nome: 'entrada' }); }); }} />
-      {fase.nome === 'transicao' && <Transicao s={s} de={fase.de} clique={fase.clique} fim={() => setFase({ nome: 'casca' })} />}
+      {fase.nome === 'transicao' && <Transicao s={s} de={fase.de} clique={fase.clique} curta={fase.curta} fim={() => setFase({ nome: 'casca' })} />}
     </>
   );
 }

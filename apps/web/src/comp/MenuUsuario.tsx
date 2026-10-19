@@ -2,10 +2,14 @@
 // Itens: Minha conta (cabeçalho) · Como usar (no topo enquanto houver passo sem marcar; completo, sai do menu e vira link no
 // Sobre) · Tema · Baixar os apps · Sobre · Apoiar o Heisuca · Sair. Saem do app completo: Favoritos/Bibliotecas (na ilha),
 // Baixados, Configurações, Trocar usuário e Meus pedidos (fica na Busca, junto de "Disponível para pedir"; revisão de 19/10).
+// Servidor (rodada 2 do Caio, 19/10 noite): saiu da pílula do topo e fica aqui, discreto, junto de Sair: "Trocar servidor"
+// (ou "Adicionar servidor" quando só há um) abre o Trocar servidor da casca.
 // Tema: abre ali mesmo, dentro do balão, só com os nomes (sem amostra de cor; §2.1); a tela muda na hora.
 import type { JSX } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import type { Sessao } from '../api/jellyfin';
+import { servidoresSalvos } from '../api/servidor';
+import { abrirServidores } from '../estado/casca';
 import { escolhaAtual, escolherTema, type Escolha } from '../tema';
 import { irPagina } from '../rota';
 import { Folha } from './Folha';
@@ -49,7 +53,16 @@ export function MenuUsuario({ s, ancora, fechar, sair }: { s: Sessao; ancora: HT
       linha('info', 'Sobre', () => ir('sobre')),
     ],
     [linha('volunteer_activism', 'Apoiar o Heisuca', () => ir('apoiar'), 'mu-apoiar')],
-    [linha('logout', 'Sair', () => { fechar(); sair(); })],
+    [
+      <li key="servidor">
+        <button class="opcao-linha mu-item mu-servidor" onClick={() => { fechar(); setTimeout(abrirServidores, 220); }}>
+          <Icone nome="dns" tamanho={22} classe="mu-icone" />
+          <span class="opcao-texto"><strong>{servidoresSalvos().length > 1 ? 'Trocar servidor' : 'Adicionar servidor'}</strong>
+            {s.nomeServidor && <small class="uma-linha">{s.nomeServidor}</small>}</span>
+        </button>
+      </li>,
+      linha('logout', 'Sair', () => { fechar(); sair(); }),
+    ],
   ].filter(g => g.length);
   return (
     <Folha aberta={!!ancora} fechar={fechar} ancora={ancora} variante="balao" semCabeca titulo="Menu do usuário" classe="mu">

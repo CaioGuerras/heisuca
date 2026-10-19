@@ -21,7 +21,7 @@ const VOO = 760, REVELA = 1250;
 // curva da abertura do selo: começa contida e se solta (o "expirar" do carimbo)
 const ABRE = 'cubic-bezier(0.38, 0, 0.12, 1)';
 
-export function Transicao({ s, de, fim }: { s: Sessao; de?: DOMRect | null; fim: () => void }) {
+export function Transicao({ s, de, clique, fim }: { s: Sessao; de?: DOMRect | null; clique?: number; fim: () => void }) {
   const raiz = useRef<HTMLDivElement>(null), logo = useRef<HTMLDivElement>(null), campo = useRef<HTMLDivElement>(null);
   const voo = useRef<Promise<void>>(Promise.resolve());
   useLayoutEffect(() => {
@@ -31,7 +31,8 @@ export function Transicao({ s, de, fim }: { s: Sessao; de?: DOMRect | null; fim:
       : animar(l, [{ opacity: 0, transform: 'scale(.94)' }, { opacity: 1, transform: 'none' }], 520).then(() => undefined);
   }, []);
   useEffect(() => {
-    const r = raiz.current!, l = logo.current!, c = campo.current!, t0 = performance.now();
+    // o relógio começa no clique em Iniciar sessão (login + esmaecer já contam); sem clique (sessão salva), agora
+    const r = raiz.current!, l = logo.current!, c = campo.current!, t0 = clique ?? performance.now();
     const svg = l.querySelector('svg')!, q = (sel: string) => svg.querySelector(sel) as SVGGraphicsElement;
     let acabou = false;
     const pronto = prepararInicio(s).then(d => decodificarPrimeiras(s, d).then(() => d)).catch(() => null);
@@ -81,18 +82,18 @@ async function inversa(l: HTMLElement, q: (sel: string) => SVGGraphicsElement): 
   const pb = palavra.getBBox(), lb = luz.getBBox();
   const ate = ((pb.x + pb.width - lb.x - lb.width) / lb.width) * 100;
   animar(kata, [{ opacity: 0.65, transform: 'none' }, { opacity: 0, transform: 'translateY(4px)' }], 380);
-  await animar(luz, [{ opacity: 0, transform: 'scaleX(0)' }, { opacity: 1, transform: 'none' }], 300, 160);
+  await animar(luz, [{ opacity: 0, transform: 'scaleX(0)' }, { opacity: 1, transform: 'none' }], 260, 120);
   // a palavra se apaga atrás da luz (recorte da esquerda para a direita, acompanhando o traço)
-  const travessia = { duration: 640, easing: 'cubic-bezier(0.45, 0, 0.25, 1)' };
+  const travessia = { duration: 560, easing: 'cubic-bezier(0.45, 0, 0.25, 1)' };
   animar(palavra, [{ clipPath: 'inset(-20% -2% -20% 0)', opacity: 1 }, { clipPath: 'inset(-20% -2% -20% 100%)', opacity: 0.6 }], travessia);
   await animar(luz, [{ transform: 'none', opacity: 1 }, { transform: `translateX(${ate}%)`, opacity: 1, offset: 0.85 },
-    { transform: `translateX(${ate}%) scaleX(0)`, opacity: 0 }], { ...travessia, duration: 720 });
+    { transform: `translateX(${ate}%) scaleX(0)`, opacity: 0 }], { ...travessia, duration: 640 });
   // o selo, sozinho, desliza para o centro da tela
   // (a escala é em torno do centro da logo: o centro do selo se afasta dele na mesma proporção)
   const sb = selo.getBoundingClientRect(), lr = l.getBoundingClientRect(), k = 1.12;
   const lx = lr.left + lr.width / 2, ly = lr.top + lr.height / 2;
   const dx = innerWidth / 2 - lx - k * (sb.left + sb.width / 2 - lx), dy = innerHeight / 2 - ly - k * (sb.top + sb.height / 2 - ly);
-  await animar(l, [{ transform: 'none' }, { transform: `translate(${dx}px, ${dy}px) scale(${k})` }], 620);
+  await animar(l, [{ transform: 'none' }, { transform: `translate(${dx}px, ${dy}px) scale(${k})` }], 540);
   return q('.carimbo').animate([{ transform: 'scale(1)' }, { transform: 'scale(1.035)' }, { transform: 'scale(1)' }],
     { duration: 2200, easing: 'ease-in-out', iterations: Infinity });
 }

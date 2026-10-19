@@ -10,6 +10,7 @@ import { usePaleta } from '../cor/paleta';
 import { Folha } from '../comp/Folha';
 import { Icone } from '../comp/Icone';
 import { areaDaLogo, Logo } from '../comp/Logo';
+import { prepararInicio } from '../dados/inicio';
 import './entrada.css';
 
 // build de teste (regra R1): só os logins listados entram (o Caio e a conta da bancada)
@@ -18,7 +19,7 @@ const liberado = (nome: string) => !SO.length || SO.includes(nome.trim().toLower
 
 // voltar: só quando a entrada abre de dentro do site (Trocar servidor → Adicionar / servidor sem sessão); no primeiro acesso não há
 export function Entrada({ de, servidorInicial, pronto, voltar }: {
-  de?: DOMRect | null; servidorInicial?: Servidor | null; pronto: (s: Sessao, logo: DOMRect) => void; voltar?: () => void;
+  de?: DOMRect | null; servidorInicial?: Servidor | null; pronto: (s: Sessao, logo: DOMRect, clique: number) => void; voltar?: () => void;
 }) {
   const inicial = servidorInicial === undefined ? ultimoServidor() : servidorInicial;
   const [endereco, setEndereco] = useState(inicial?.url.replace(/^https:\/\//, '') || '');
@@ -66,25 +67,28 @@ export function Entrada({ de, servidorInicial, pronto, voltar }: {
   }, [endereco]);
 
   // o formulário e o Quick Connect esmaecem primeiro; só a logo fica, e é dela que a 2ª animação parte
-  const terminou = async (s: Sessao) => {
+  // clique = quando a pessoa pediu para entrar: os 3–5 s da 2ª animação contam daqui (PLANO §3.1), não de quando ela monta
+  const terminou = async (s: Sessao, clique = performance.now()) => {
     if (!liberado(s.nome)) { setErro({ campo: 'geral', msg: 'Esta versão de teste ainda não está aberta.' }); return false; }
+    prepararInicio(s);   // a home começa a carregar já, enquanto o formulário esmaece
     const r = raiz.current!;
     r.classList.add('saindo');
     await Promise.all([esmaecer(r.querySelector('.entrada-form'), 1, 0, 240), esmaecer(r.querySelector('.entrada-topo'), 1, 0, 240)]);
-    pronto(s, areaDaLogo(logo.current!));
+    pronto(s, areaDaLogo(logo.current!), clique);
     return true;
   };
 
   async function enviar(ev: Event) {
     ev.preventDefault();
     if (indo) return;
+    const clique = performance.now();
     setErro(null);
     if (!liberado(usuario)) { setErro({ campo: 'geral', msg: 'Esta versão de teste ainda não está aberta.' }); return; }
     setIndo(true);
     try {
       const x = srv || await conferir();
       if (!x) { setIndo(false); return; }
-      await terminou(await entrarComSenha(x, usuario, senha));
+      await terminou(await entrarComSenha(x, usuario, senha), clique);
     } catch (e) {
       setErro(e instanceof ErroEntrada ? { campo: e.campo, msg: e.message } : { campo: 'geral', msg: 'Não deu para entrar agora. Tente de novo.' });
     } finally { setIndo(false); }

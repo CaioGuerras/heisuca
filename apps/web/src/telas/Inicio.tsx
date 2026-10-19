@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { continuar, emAlta, emBreve, fundo, logo, novidades, type EmBreve, type Item, type Sessao } from '../api/jellyfin';
 import { Fileira, FileiraEmBreve } from '../comp/Fileira';
-import { Icone } from '../comp/Icone';
-import { iconeBiblioteca, listaBibliotecas } from '../comp/Navegacao';
+import { listaBibliotecas } from '../comp/Navegacao';
 import type { Alvo } from '../comp/Pedido';
-import { aoVoltarNaRaiz, irBiblioteca, irTitulo, irVer } from '../rota';
+import { aoVoltarNaRaiz, irTitulo, irVer } from '../rota';
 import { ehTV } from '../tv';
 
 type Linha = { titulo: string; itens: Item[]; tocar?: boolean; top10?: boolean; continuar?: boolean };
@@ -26,7 +25,6 @@ function posicionar(caixa: HTMLElement, pista: HTMLElement, alvo: HTMLElement) {
 }
 
 export function Inicio({ s, pedir }: { s: Sessao; pedir: (a: Alvo) => void }) {
-  const [libs, setLibs] = useState<Item[]>([]);
   const [linhas, setLinhas] = useState<Linha[]>([]);
   const [destaques, setDestaques] = useState<Item[]>([]);
   const [slideAtual, setSlideAtual] = useState(0);
@@ -39,7 +37,6 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (a: Alvo) => void }) {
   const carregarDados = async () => {
     try {
       const [cont, todas, alta] = await Promise.all([continuar(s), listaBibliotecas(s), emAlta(s).catch(() => null)]);
-      setLibs(todas);
       const vids = todas.filter(l => l.CollectionType === 'movies' || l.CollectionType === 'tvshows')
         .sort((a, b) => (ORDEM_LIB.indexOf(a.Name) + 99) % 99 - (ORDEM_LIB.indexOf(b.Name) + 99) % 99);
       const nov = await Promise.all(
@@ -52,8 +49,7 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (a: Alvo) => void }) {
       ].filter(l => l.itens.length);
       setLinhas(lista);
 
-      // Hero rotation items: mix of Em Alta items and Top novelty items
-      const heroItens = alta?.itens.slice(0, 5) || (lista[0]?.itens.slice(0, 5) ?? []);
+      const heroItens = alta?.itens.slice(0, 7) || (lista[0]?.itens.slice(0, 7) ?? []);
       setDestaques(heroItens);
     } catch (e) {
       setErro(e instanceof Error ? e.message : String(e));
@@ -66,7 +62,6 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (a: Alvo) => void }) {
     carregarDados();
   }, [s.token]);
 
-  // Rotação suave do carrossel do Hero
   useEffect(() => {
     if (!destaques.length || ehTV) return;
     const proximoSlide = () => {
@@ -78,7 +73,6 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (a: Alvo) => void }) {
     return () => clearInterval(timerRotacao.current);
   }, [destaques.length]);
 
-  // Navegação na TV
   useEffect(() => {
     if (!ehTV || !linhas.length || !caixa.current || !pista.current) return;
     const c = caixa.current, p = pista.current;
@@ -110,80 +104,72 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (a: Alvo) => void }) {
   const img = destaque ? fundo(s, destaque, 1920) : '';
   const lg = destaque ? logo(s, destaque, 600) : '';
   const nome = destaque ? (destaque.Type === 'Episode' ? destaque.SeriesName : destaque.Name) : '';
+  const nota = destaque?.CommunityRating ? destaque.CommunityRating.toFixed(1) : null;
+  const ano = destaque?.ProductionYear;
   const retomar = destaque?.UserData?.PlaybackPositionTicks;
-  const metaHero = [
-    destaque?.ProductionYear,
-    destaque?.OfficialRating,
-    destaque?.Genres?.slice(0, 3).join(', '),
-  ].filter(Boolean);
 
   return (
-    <div class="inicio">
-      {/* Hero Rotativo */}
+    <div class="inicio vidhub-home">
+      {/* Hero Cinematográfico VidHub: Centralizado, sem botões grosseiros, sem chips de biblioteca */}
       <div
-        class="destaque"
+        class="destaque vidhub-hero"
         aria-live="polite"
         onMouseEnter={() => { pausaRotacao.current = true; }}
         onMouseLeave={() => { pausaRotacao.current = false; }}
+        onClick={() => destaque && (retomar ? irVer(destaque.Id, retomar) : irTitulo(destaque.Id))}
+        role="banner"
+        title={nome ? `Ver detalhes de ${nome}` : ''}
       >
         {img && <img key={img} class="destaque-img" src={img} alt="" />}
         <div class="destaque-gradiente" />
-        <div class="destaque-texto" key={destaque?.Id}>
-          {lg ? <img class="destaque-logo" src={lg} alt={nome} /> : <h1>{nome}</h1>}
-          {metaHero.length > 0 && <p class="destaque-meta">{metaHero.join(' · ')}</p>}
-          <p class="destaque-sinopse">{destaque?.Overview}</p>
-          {destaque && !ehTV && (
-            <div class="destaque-acoes">
-              <button
-                class="botao botao-play"
-                onClick={() => retomar ? irVer(destaque.Id, retomar) : irTitulo(destaque.Id)}
-              >
-                <Icone nome="play_arrow" cheio />
-                {retomar ? 'Continuar' : 'Assistir'}
-              </button>
-              <button class="botao-sec" onClick={() => irTitulo(destaque.Id)}>
-                <Icone nome="info" />
-                Detalhes
-              </button>
+
+        <div class="destaque-conteudo-central destaque-texto" key={destaque?.Id}>
+          {lg ? (
+            <>
+              <img class="destaque-logo" src={lg} alt={nome} />
+              <h1 class="sr-only">{nome}</h1>
+            </>
+          ) : (
+            <h1 class="destaque-titulo-vidhub">{nome}</h1>
+          )}
+
+          <div class="destaque-meta-vidhub">
+            {nota && <span class="destaque-nota">★ {nota}</span>}
+            {nota && ano && <span class="destaque-divisor">|</span>}
+            {ano && <span>{ano}</span>}
+          </div>
+
+          {destaque?.Overview && (
+            <p class="destaque-sinopse-vidhub">{destaque.Overview}</p>
+          )}
+
+          {/* Dots Indicadores Centralizados */}
+          {destaques.length > 1 && (
+            <div class="destaque-dots-vidhub" role="tablist" aria-label="Slides em destaque">
+              {destaques.map((d, idx) => (
+                <button
+                  key={d.Id}
+                  type="button"
+                  role="tab"
+                  class={idx === slideAtual ? 'dot-vidhub ativo' : 'dot-vidhub'}
+                  aria-selected={idx === slideAtual}
+                  aria-label={`Slide ${idx + 1}: ${d.Name}`}
+                  onClick={ev => {
+                    ev.stopPropagation();
+                    setSlideAtual(idx);
+                  }}
+                />
+              ))}
             </div>
           )}
         </div>
-
-        {/* Indicadores do carrossel (dots) */}
-        {destaques.length > 1 && !ehTV && (
-          <div class="destaque-dots" role="tablist" aria-label="Slides em destaque">
-            {destaques.map((d, idx) => (
-              <button
-                key={d.Id}
-                type="button"
-                role="tab"
-                class={idx === slideAtual ? 'dot ativo' : 'dot'}
-                aria-selected={idx === slideAtual}
-                aria-label={`Slide ${idx + 1}: ${d.Name}`}
-                onClick={() => setSlideAtual(idx)}
-              />
-            ))}
-          </div>
-        )}
       </div>
 
       {erro && <p class="erro">{erro}</p>}
 
+      {/* Fileiras de Conteúdo: começa diretamente no Continuar Assistindo */}
       <div class="fileiras" ref={caixa} data-rola-sozinho={ehTV ? '' : undefined}>
         <div class="fileiras-pista" ref={pista}>
-          {/* Atalhos rápidos das bibliotecas */}
-          {libs.length > 0 && (
-            <nav class="atalhos" aria-label="Bibliotecas">
-              {libs.map(b => (
-                <button data-foco class="atalho" key={b.Id} onClick={() => irBiblioteca(b.Id)}>
-                  <Icone nome={iconeBiblioteca(b)} />
-                  {b.Name}
-                </button>
-              ))}
-            </nav>
-          )}
-
-          {/* Fileiras de Conteúdo */}
           {linhas.map(l => (
             <Fileira
               key={l.titulo}

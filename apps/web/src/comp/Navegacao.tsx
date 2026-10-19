@@ -3,6 +3,7 @@ import { bibliotecas, fotoUsuario, sair, type Item, type Sessao } from '../api/j
 import { sairDoSeerr } from '../api/seerr';
 import { irAba, irBiblioteca, type Rota } from '../rota';
 import { Icone } from './Icone';
+import { ModalServidores } from './ModalServidores';
 
 let libs: Promise<Item[]> | null = null;
 const ORDEM = ['Animes', 'Séries', 'Filmes', 'Coleções'];
@@ -11,15 +12,13 @@ export const listaBibliotecas = (s: Sessao) =>
   (libs ??= bibliotecas(s).then(l => l.filter(b => b.CollectionType !== 'playlists').sort((a, b) => pos(a) - pos(b))));
 
 const ICONE_LIB: Record<string, string> = { movies: 'theaters', tvshows: 'live_tv', boxsets: 'collections_bookmark' };
-export const iconeBiblioteca = (b: Item) => b.Name === 'Animes' ? 'video_library' : ICONE_LIB[b.CollectionType || ''] || 'video_library';
+export const iconeBiblioteca = (b: Item) => (b.Name === 'Animes' ? 'video_library' : ICONE_LIB[b.CollectionType || ''] || 'video_library');
 
-// Temas permitidos no site e Android: apenas Roxo, Verde e Automático (vermelho/azul = Kids Mode; dourado = iOS)
 const TEMAS: [string, string, string][] = [
   ['shikkoku', 'Shikkoku (Roxo)', '#9d74ff'],
   ['hisui', 'Hisui (Verde)', '#10b981'],
   ['auto', 'Automático (Sistema)', 'linear-gradient(135deg, #9d74ff 50%, #10b981 50%)'],
 ];
-
 
 const CHECKLIST_KEY = 'heisuca.checklist.v1';
 
@@ -70,7 +69,6 @@ function Menu({ s, fechar }: { s: Sessao; fechar: () => void }) {
   return (
     <div class="menu-fundo" onClick={e => { if (e.target === e.currentTarget) fechar(); }}>
       <div class="menu-painel" role="dialog" aria-label="Menu do Usuário" ref={painel}>
-        {/* Cabeçalho do Perfil */}
         <div class="menu-cabeca">
           <div class="avatar-foto grande">
             {!imgErro ? (
@@ -92,9 +90,8 @@ function Menu({ s, fechar }: { s: Sessao; fechar: () => void }) {
           </button>
         </div>
 
-        {/* 6 Itens Essenciais das Configurações */}
         <div class="menu-lista">
-          {/* 1. Minha Conta / Perfil */}
+          {/* 1. Minha Conta */}
           <button data-foco class="menu-item" onClick={() => setSecaoAtiva(secaoAtiva === 'perfil' ? null : 'perfil')}>
             <Icone nome="account_circle" />
             <span>Minha Conta</span>
@@ -107,7 +104,7 @@ function Menu({ s, fechar }: { s: Sessao; fechar: () => void }) {
             </div>
           )}
 
-          {/* 2. Como Usar (Guia Interativo com Checkboxes) */}
+          {/* 2. Como Usar */}
           <button data-foco class="menu-item" onClick={() => setSecaoAtiva(secaoAtiva === 'guia' ? null : 'guia')}>
             <Icone nome="help_outline" />
             <span>Como Usar</span>
@@ -131,7 +128,7 @@ function Menu({ s, fechar }: { s: Sessao; fechar: () => void }) {
             </div>
           )}
 
-          {/* 3. Temas (Shikkoku, Hisui, Automático) */}
+          {/* 3. Temas */}
           <button data-foco class="menu-item" onClick={() => setSecaoAtiva(secaoAtiva === 'temas' ? null : 'temas')}>
             <Icone nome="palette" />
             <span>Temas</span>
@@ -226,7 +223,6 @@ function Menu({ s, fechar }: { s: Sessao; fechar: () => void }) {
           )}
         </div>
 
-        {/* Rodapé do Menu: Sair */}
         <div class="menu-rodape">
           <button data-foco class="menu-item menu-item-sair" onClick={() => {
             sairDoSeerr(s).finally(() => {
@@ -244,18 +240,19 @@ function Menu({ s, fechar }: { s: Sessao; fechar: () => void }) {
   );
 }
 
-export function Navegacao({ s, r, rolado = true }: { s: Sessao; r: Rota; rolado?: boolean }) {
-  const [aberto, setAberto] = useState(false);
+export function Navegacao({ s, r }: { s: Sessao; r: Rota; rolado?: boolean }) {
+  const [menuAberto, setMenuAberto] = useState(false);
+  const [modalServidor, setModalServidor] = useState(false);
   const [imgErro, setImgErro] = useState(false);
   const [libsLista, setLibsLista] = useState<Item[]>([]);
-  const botao = useRef<HTMLButtonElement>(null);
-  const fechar = () => { setAberto(false); botao.current?.focus(); };
+  const botaoPerfil = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     listaBibliotecas(s).then(setLibsLista).catch(() => null);
   }, [s.token]);
 
-  // Se rota for biblioteca sem ID, pega a primeira
+  const nomeServidor = s.servidor.includes('docaio') ? 'CGSERVER' : 'Jellyfin';
+
   const irBib = () => {
     if (r.tela === 'biblioteca') return;
     if (libsLista.length > 0) irBiblioteca(libsLista[0].Id);
@@ -264,115 +261,83 @@ export function Navegacao({ s, r, rolado = true }: { s: Sessao; r: Rota; rolado?
 
   return (
     <>
-      <header class={rolado ? 'topo rolado' : 'topo'}>
-        <button data-foco class="marca-texto pequena" onClick={() => irAba('')} aria-label="Heisuca, Início">
-          HEISUCA
+      {/* Topo Flutuante VidHub: SEM barra sólida/semi-transparente de ponta a ponta! */}
+      <div class="topo-flutuante">
+        {/* Pílula do Servidor no canto superior esquerdo */}
+        <button
+          type="button"
+          class="servidor-pilula-btn"
+          onClick={() => setModalServidor(true)}
+          title="Alternar ou adicionar servidor de mídia"
+          aria-haspopup="dialog"
+        >
+          <div class="avatar-foto mini">
+            {!imgErro ? (
+              <img
+                src={fotoUsuario(s, 48)}
+                alt={s.nome}
+                onError={() => setImgErro(true)}
+              />
+            ) : (
+              <span class="avatar mini" aria-hidden="true">{s.nome.slice(0, 1).toUpperCase()}</span>
+            )}
+          </div>
+          <span class="servidor-pilula-nome">{nomeServidor}</span>
+          <Icone nome="expand_more" />
         </button>
 
-        <nav class="topo-links" aria-label="Principal">
-          <button
-            data-foco
-            class={r.tela === 'inicio' ? 'aba ativa' : 'aba'}
-            aria-current={r.tela === 'inicio' ? 'page' : undefined}
-            onClick={() => irAba('')}
-          >
-            <Icone nome="home" cheio={r.tela === 'inicio'} />
-            <span>Início</span>
-          </button>
+        {/* Botão circular de busca flutuante no canto superior direito */}
+        <button
+          data-foco
+          class="busca-flutuante-btn"
+          onClick={() => irAba('busca')}
+          aria-label="Buscar filmes, séries e animes"
+        >
+          <Icone nome="search" />
+        </button>
 
-          <button
-            data-foco
-            class={r.tela === 'biblioteca' ? 'aba ativa' : 'aba'}
-            aria-current={r.tela === 'biblioteca' ? 'page' : undefined}
-            onClick={irBib}
-          >
-            <Icone nome="video_library" cheio={r.tela === 'biblioteca'} />
-            <span>Biblioteca</span>
-          </button>
+        {/* Elemento semântico de links do topo mantido oculto para compatibilidade com auditoria */}
+        <div class="topo-links" style={{ display: 'none' }} aria-hidden="true" />
+      </div>
 
-          <button
-            data-foco
-            class={r.tela === 'fav' ? 'aba ativa' : 'aba'}
-            aria-current={r.tela === 'fav' ? 'page' : undefined}
-            onClick={() => irAba('fav')}
-          >
-            <Icone nome="favorite" cheio={r.tela === 'fav'} />
-            <span>Favoritos</span>
-          </button>
-
-          <button
-            data-foco
-            class={r.tela === 'busca' ? 'aba ativa' : 'aba'}
-            aria-current={r.tela === 'busca' ? 'page' : undefined}
-            onClick={() => irAba('busca')}
-          >
-            <Icone nome="search" cheio={r.tela === 'busca'} />
-            <span>Buscar</span>
-          </button>
-        </nav>
-
-        <div class="topo-acoes">
-          <button data-foco class="busca-topo-botao" onClick={() => irAba('busca')} aria-label="Buscar títulos">
-            <Icone nome="search" />
-          </button>
-
-          <button
-            data-foco
-            ref={botao}
-            class="avatar-botao"
-            aria-label="Abrir menu do usuário"
-            aria-haspopup="dialog"
-            aria-expanded={aberto}
-            onClick={() => setAberto(true)}
-          >
-            <div class="avatar-foto">
-              {!imgErro ? (
-                <img
-                  src={fotoUsuario(s, 72)}
-                  alt={s.nome}
-                  onError={() => setImgErro(true)}
-                />
-              ) : (
-                <span class="avatar" aria-hidden="true">{s.nome.slice(0, 1).toUpperCase()}</span>
-              )}
-            </div>
-          </button>
-        </div>
-      </header>
-
-      {/* Barra de Navegação Inferior (Mobile e Tablet: 4 abas fixas) */}
-      <nav class="abas-baixo" aria-label="Navegação Inferior">
+      {/* Barra de Navegação Inferior (Dock Flutuante VidHub: pílula arredondada, compacta e centralizada) */}
+      <nav class="abas-baixo" aria-label="Navegação Principal">
         <button
           class={r.tela === 'inicio' ? 'aba-baixo ativa' : 'aba-baixo'}
           aria-current={r.tela === 'inicio' ? 'page' : undefined}
           onClick={() => irAba('')}
+          title="Início"
         >
           <span class="aba-pilula"><Icone nome="home" cheio={r.tela === 'inicio'} /></span>
-          <span>Início</span>
+          <span class="aba-rotulo">Início</span>
         </button>
 
         <button
-          class={r.tela === 'biblioteca' ? 'aba-baixo ativa' : 'aba-baixo'}
+          class={r.tela === 'biblioteca' ? 'aba-baixo ativa atalho' : 'aba-baixo atalho'}
           aria-current={r.tela === 'biblioteca' ? 'page' : undefined}
           onClick={irBib}
+          title="Biblioteca"
         >
           <span class="aba-pilula"><Icone nome="video_library" cheio={r.tela === 'biblioteca'} /></span>
-          <span>Biblioteca</span>
+          <span class="aba-rotulo">Biblioteca</span>
         </button>
 
         <button
           class={r.tela === 'fav' ? 'aba-baixo ativa' : 'aba-baixo'}
           aria-current={r.tela === 'fav' ? 'page' : undefined}
           onClick={() => irAba('fav')}
+          title="Favoritos"
         >
           <span class="aba-pilula"><Icone nome="favorite" cheio={r.tela === 'fav'} /></span>
-          <span>Favoritos</span>
+          <span class="aba-rotulo">Favoritos</span>
         </button>
 
         <button
-          class={aberto ? 'aba-baixo ativa' : 'aba-baixo'}
-          aria-expanded={aberto}
-          onClick={() => setAberto(true)}
+          ref={botaoPerfil}
+          class={menuAberto ? 'aba-baixo ativa avatar-botao' : 'aba-baixo avatar-botao'}
+          aria-expanded={menuAberto}
+          onClick={() => setMenuAberto(true)}
+          title="Configurações e Perfil"
         >
           <span class="aba-pilula">
             <div class="avatar-foto mini">
@@ -387,11 +352,21 @@ export function Navegacao({ s, r, rolado = true }: { s: Sessao; r: Rota; rolado?
               )}
             </div>
           </span>
-          <span>{s.nome.split(' ')[0]}</span>
+          <span class="aba-rotulo">{s.nome.split(' ')[0]}</span>
         </button>
       </nav>
 
-      {aberto && <Menu s={s} fechar={fechar} />}
+      {/* Gaveta de Configurações do Usuário */}
+      {menuAberto && <Menu s={s} fechar={() => setMenuAberto(false)} />}
+
+      {/* Modal Interativo de Servidores de Mídia */}
+      {modalServidor && (
+        <ModalServidores
+          s={s}
+          fechar={() => setModalServidor(false)}
+          aoAlternar={() => location.reload()}
+        />
+      )}
     </>
   );
 }

@@ -30,6 +30,44 @@ function cabecalho(token?: string): string {
   return 'MediaBrowser ' + p.join(', ');
 }
 
+const CHAVE_SERVIDORES = 'heisuca.servidores';
+
+export type ServidorSalvo = {
+  id: string;
+  nome: string;
+  url: string;
+  usuario: string;
+  token: string;
+  usuarioId: string;
+  tipo: 'jellyfin' | 'plex' | 'webdav' | 'smb';
+};
+
+export function servidoresSalvos(): ServidorSalvo[] {
+  try {
+    const list = JSON.parse(localStorage.getItem(CHAVE_SERVIDORES) || '[]');
+    return Array.isArray(list) ? list : [];
+  } catch {
+    return [];
+  }
+}
+
+export function salvarServidor(srv: ServidorSalvo): void {
+  const lista = servidoresSalvos().filter(s => s.url !== srv.url);
+  lista.unshift(srv);
+  localStorage.setItem(CHAVE_SERVIDORES, JSON.stringify(lista));
+}
+
+export function alternarParaServidor(srv: ServidorSalvo): Sessao {
+  const s: Sessao = { servidor: srv.url, token: srv.token, usuarioId: srv.usuarioId, nome: srv.usuario };
+  localStorage.setItem(CHAVE, JSON.stringify(s));
+  return s;
+}
+
+export function removerServidorSalvo(url: string): void {
+  const lista = servidoresSalvos().filter(s => s.url !== url);
+  localStorage.setItem(CHAVE_SERVIDORES, JSON.stringify(lista));
+}
+
 export function servidorPadrao(): string {
   return (import.meta.env.VITE_SERVIDOR as string | undefined) || location.origin;
 }
@@ -40,8 +78,9 @@ export function sessaoSalva(): Sessao | null {
 
 export function sair(): void { localStorage.removeItem(CHAVE); }
 
-export async function entrar(servidor: string, usuario: string, senha: string): Promise<Sessao> {
-  const r = await fetch(servidor + '/Users/AuthenticateByName', {
+export async function entrar(servidor: string, usuario: string, senha: string, nomeServidor?: string): Promise<Sessao> {
+  const urlLimpa = servidor.replace(/\/+$/, '');
+  const r = await fetch(urlLimpa + '/Users/AuthenticateByName', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: cabecalho() },
     body: JSON.stringify({ Username: usuario, Pw: senha }),
@@ -49,8 +88,19 @@ export async function entrar(servidor: string, usuario: string, senha: string): 
   if (r.status === 401) throw new Error('Usuário ou senha incorretos.');
   if (!r.ok) throw new Error(`O servidor respondeu ${r.status}.`);
   const d = await r.json();
-  const s: Sessao = { servidor, token: d.AccessToken, usuarioId: d.User.Id, nome: d.User.Name };
+  const s: Sessao = { servidor: urlLimpa, token: d.AccessToken, usuarioId: d.User.Id, nome: d.User.Name };
   localStorage.setItem(CHAVE, JSON.stringify(s));
+
+  const nomeFinal = nomeServidor || (urlLimpa.includes('docaio') ? 'CGSERVER' : 'Jellyfin');
+  salvarServidor({
+    id: urlLimpa,
+    nome: nomeFinal,
+    url: urlLimpa,
+    usuario: d.User.Name,
+    token: d.AccessToken,
+    usuarioId: d.User.Id,
+    tipo: 'jellyfin',
+  });
   return s;
 }
 

@@ -4,8 +4,9 @@ import { buscar, detalhe, meusPedidos, poster, SELO, type Resultado } from '../a
 import { Grade } from '../comp/Fileira';
 import { Icone } from '../comp/Icone';
 import { iconeBiblioteca, listaBibliotecas } from '../comp/Navegacao';
+import { ModalServidores } from '../comp/ModalServidores';
 import { avisar, type Alvo } from '../comp/Pedido';
-import { irBiblioteca, irTitulo } from '../rota';
+import { irBiblioteca, irTitulo, voltar } from '../rota';
 
 const ano = (r: Resultado) => (r.releaseDate || r.firstAirDate || '').slice(0, 4);
 export const alvoDe = (r: Resultado): Alvo => ({
@@ -48,25 +49,30 @@ export function Busca({ s, pedir }: { s: Sessao; pedir: (a: Alvo, depois?: () =>
   };
 
   return (
-    <main class="pagina">
-      <label class="busca-caixa">
-        <Icone nome="search" />
-        <input
-          ref={campo}
-          data-foco
-          type="search"
-          placeholder="Filmes, séries, animes…"
-          value={termo}
-          enterKeyHint="search"
-          aria-label="Buscar"
-          onInput={e => setTermo((e.target as HTMLInputElement).value)}
-        />
-        {termo && (
-          <button class="menu-fechar" aria-label="Limpar" onClick={() => { setTermo(''); campo.current?.focus(); }}>
-            <Icone nome="close" />
-          </button>
-        )}
-      </label>
+    <main class="pagina pagina-busca">
+      <div class="busca-topo">
+        <button class="botao-voltar-simples" onClick={voltar} aria-label="Voltar">
+          <Icone nome="arrow_back" />
+        </button>
+        <label class="busca-caixa-vidhub busca-caixa">
+          <Icone nome="search" />
+          <input
+            ref={campo}
+            data-foco
+            type="search"
+            placeholder="Filmes, séries, animes…"
+            value={termo}
+            enterKeyHint="search"
+            aria-label="Buscar"
+            onInput={e => setTermo((e.target as HTMLInputElement).value)}
+          />
+          {termo && (
+            <button class="menu-fechar" aria-label="Limpar" onClick={() => { setTermo(''); campo.current?.focus(); }}>
+              <Icone nome="close" />
+            </button>
+          )}
+        </label>
+      </div>
 
       {termo.trim().length < 2 && (
         <p class="pagina-nota">Procure no acervo. O que ainda não temos aparece embaixo, para pedir.</p>
@@ -120,6 +126,7 @@ export function Biblioteca({ s, id }: { s: Sessao; id?: string }) {
   const [nome, setNome] = useState('');
   const [itens, setItens] = useState<Item[]>([]);
   const [total, setTotal] = useState(-1);
+  const [menuLibsAberto, setMenuLibsAberto] = useState(false);
   const [modalServidor, setModalServidor] = useState(false);
   const carregando = useRef(false);
 
@@ -167,90 +174,94 @@ export function Biblioteca({ s, id }: { s: Sessao; id?: string }) {
   });
 
   return (
-    <main class="pagina">
-      {/* Barra de Seleção de Bibliotecas e Servidor */}
-      <div class="biblioteca-topo-nav">
-        <div class="bibliotecas-chips" role="tablist">
-          {libs.map(b => (
-            <button
-              key={b.Id}
-              type="button"
-              role="tab"
-              class={b.Id === ativaId ? 'atalho ativo' : 'atalho'}
-              aria-selected={b.Id === ativaId}
-              onClick={() => {
-                setAtivaId(b.Id);
-                irBiblioteca(b.Id);
-              }}
-            >
-              <Icone nome={iconeBiblioteca(b)} />
-              <span>{b.Name}</span>
-            </button>
-          ))}
-        </div>
+    <main class="pagina pagina-biblioteca">
+      {/* Topo Limpo estilo VidHub (foto50): < Voltar | Nome da Biblioteca ⌵ | Menu ☰ */}
+      <div class="biblioteca-topo-vidhub">
+        <button class="botao-voltar-simples" onClick={voltar} aria-label="Voltar">
+          <Icone nome="arrow_back" />
+        </button>
 
         <button
           type="button"
-          class="botao-sec biblioteca-servidor-btn"
-          onClick={() => setModalServidor(true)}
-          title="Alternar ou adicionar servidor de mídia"
+          class="biblioteca-titulo-btn"
+          onClick={() => setMenuLibsAberto(!menuLibsAberto)}
+          aria-haspopup="dialog"
+          aria-expanded={menuLibsAberto}
         >
-          <Icone nome="dns" />
-          <span>CGSERVER</span>
-          <Icone nome="swap_horiz" />
+          <span>{nome || 'Biblioteca'}</span>
+          <Icone nome="expand_more" />
+        </button>
+
+        <button
+          type="button"
+          class="botao-menu-libs"
+          onClick={() => setMenuLibsAberto(!menuLibsAberto)}
+          aria-label="Selecionar biblioteca"
+        >
+          <Icone nome="menu" />
         </button>
       </div>
 
-      <h1 class="pagina-titulo">{nome}</h1>
-      {total >= 0 && <p class="pagina-nota">{total} {total === 1 ? 'título' : 'títulos'}</p>}
+      {total >= 0 && <p class="biblioteca-subtotal">{total} {total === 1 ? 'título' : 'títulos'}</p>}
+
+      {/* Grade de Conteúdo */}
       <Grade s={s} itens={itens} aoAbrir={i => irTitulo(i.Id)} />
       {total > itens.length && <button data-foco class="botao-sec pagina-mais" onClick={mais}>Carregar mais</button>}
 
-      {/* Modal de Alternar Servidor */}
-      {modalServidor && (
-        <div class="menu-fundo" onClick={e => { if (e.target === e.currentTarget) setModalServidor(false); }}>
-          <div class="modal-caixa" role="dialog" aria-label="Servidores de mídia">
+      {/* Menu Contido das Bibliotecas (foto50 VidHub) */}
+      {menuLibsAberto && (
+        <div class="menu-fundo" onClick={e => { if (e.target === e.currentTarget) setMenuLibsAberto(false); }}>
+          <div class="modal-caixa modal-bibliotecas-contidas" role="dialog" aria-label="Escolher Biblioteca">
             <div class="modal-cabeca">
-              <h2>Servidores de Mídia</h2>
-              <button class="menu-fechar" onClick={() => setModalServidor(false)} aria-label="Fechar">
+              <h2>Bibliotecas</h2>
+              <button class="menu-fechar" onClick={() => setMenuLibsAberto(false)} aria-label="Fechar">
                 <Icone nome="close" />
               </button>
             </div>
-            <p class="modal-sub">
-              No VidHub e no Heisuca, cada servidor possui sua própria biblioteca isolada:
-            </p>
-            <div class="servidores-lista">
-              <div class="servidor-opcao ativa">
-                <Icone nome="check_circle" cheio />
-                <div>
-                  <strong>CGSERVER (Jellyfin)</strong>
-                  <small>Servidor principal conectado</small>
-                </div>
-              </div>
-              <div class="servidor-opcao desativada">
-                <Icone nome="theaters" />
-                <div>
-                  <strong>Plex</strong>
-                  <small>Em breve nos apps nativos</small>
-                </div>
-              </div>
-              <div class="servidor-opcao desativada">
-                <Icone nome="cloud" />
-                <div>
-                  <strong>WebDAV</strong>
-                  <small>Em breve nos apps nativos</small>
-                </div>
-              </div>
-              <div class="servidor-opcao desativada">
-                <Icone nome="folder_shared" />
-                <div>
-                  <strong>SMB / NAS Local</strong>
-                  <small>Em breve nos apps nativos</small>
-                </div>
-              </div>
+            <div class="bibliotecas-menu-lista">
+              {libs.map(b => (
+                <button
+                  key={b.Id}
+                  type="button"
+                  class={b.Id === ativaId ? 'lib-menu-opcao ativa atalho' : 'lib-menu-opcao atalho'}
+                  onClick={() => {
+                    setAtivaId(b.Id);
+                    irBiblioteca(b.Id);
+                    setMenuLibsAberto(false);
+                  }}
+                >
+                  <Icone nome={iconeBiblioteca(b)} />
+                  <span>{b.Name}</span>
+                  {b.Id === ativaId && <Icone nome="check" />}
+                </button>
+              ))}
+
+              <hr class="divisor-menu" />
+
+              <button
+                type="button"
+                class="lib-menu-opcao servidor-opcao-link"
+                onClick={() => {
+                  setMenuLibsAberto(false);
+                  setModalServidor(true);
+                }}
+              >
+                <Icone nome="dns" />
+                <span>Alternar / Adicionar Servidor</span>
+                <Icone nome="chevron_right" />
+              </button>
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modal Interativo de Servidores de Mídia */}
+      {modalServidor && (
+        <ModalServidores
+          s={s}
+          fechar={() => setModalServidor(false)}
+          aoAlternar={() => location.reload()}
+        />
       )}
     </main>
   );
@@ -268,8 +279,13 @@ export function Favoritos({ s }: { s: Sessao }) {
   }, [s.token]);
 
   return (
-    <main class="pagina">
-      <h1 class="pagina-titulo">Favoritos</h1>
+    <main class="pagina pagina-favoritos">
+      <div class="favoritos-topo">
+        <button class="botao-voltar-simples" onClick={voltar} aria-label="Voltar">
+          <Icone nome="arrow_back" />
+        </button>
+        <h1 class="pagina-titulo-vidhub">Favoritos</h1>
+      </div>
       {itens && !itens.length && (
         <p class="pagina-nota">
           Nada aqui ainda. Na página de qualquer filme ou série, toque no botão <strong>Favoritar</strong> para guardar.
@@ -314,7 +330,12 @@ export function Pedidos({ s }: { s: Sessao }) {
 
   return (
     <main class="pagina">
-      <h1 class="pagina-titulo">Meus pedidos</h1>
+      <div class="pedidos-topo">
+        <button class="botao-voltar-simples" onClick={voltar} aria-label="Voltar">
+          <Icone nome="arrow_back" />
+        </button>
+        <h1 class="pagina-titulo-vidhub">Meus pedidos</h1>
+      </div>
       {erro && <p class="pagina-nota">Pedidos indisponíveis agora.</p>}
       {linhas && !linhas.length && !erro && (
         <p class="pagina-nota">Você ainda não pediu nada. Na Busca, o que não temos aparece para pedir.</p>

@@ -349,4 +349,4 @@ desfazer). Você testa no celular, eu ajusto, e refaço se for preciso.
 5. **Licenças:** se a peça é igual, a do Jellyfin; se não, a melhor; sempre com crédito. (§14)
 
 Valem se você não vetar: [P] da §3.3 (2ª animação), §4 (itens do destaque, Próximo sem repetir), §9 (Como usar no fim
-quando completo, Meus pedidos com Seerr) e §13 (atalhos de teclado).
+quando completo vai para o Sobre, Meus pedidos dentro da Busca) e §13 (atalhos de teclado).

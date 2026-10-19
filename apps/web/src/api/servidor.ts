@@ -59,7 +59,8 @@ export function candidatos(entrada: string): string[] {
   return c;
 }
 
-const local = (u: string) => /^http:\/\/(localhost|127\.|\[::1\]|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/i.test(u);
+// só localhost é "confiável" para o navegador; http://192.168… (rede de casa) é bloqueado num site em https (conteúdo misto)
+const local = (u: string) => /^http:\/\/(localhost|127\.\d+\.\d+\.\d+|\[::1\])(:\d+)?(\/|$)/i.test(u);
 
 async function comPrazo(url: string, ms = 7000, init?: RequestInit): Promise<Response> {
   const c = new AbortController(); const t = setTimeout(() => c.abort(), ms);
@@ -72,7 +73,7 @@ export async function descobrir(entrada: string): Promise<Servidor> {
   if (!c.length) throw new ErroEntrada('servidor', 'Digite o endereço do servidor.');
   // site em https não fala com servidor http (o navegador bloqueia: "conteúdo misto")
   if (location.protocol === 'https:' && c[0].startsWith('http://') && !local(c[0]))
-    throw new ErroEntrada('servidor', 'Este navegador só se conecta a servidores com https://. Use o endereço https do servidor ou um app Heisuca.');
+    throw new ErroEntrada('servidor', 'Pelo navegador, só dá para entrar em servidores com https://. Use o endereço https do servidor ou um app Heisuca.');
   for (const url of c) {
     try {
       const r = await comPrazo(`${url}/System/Info/Public`);
@@ -129,8 +130,8 @@ export async function esperarQuickConnect(srv: Servidor, p: PedidoQC, cancelado:
       const r = await comPrazo(`${srv.url}/QuickConnect/Connect?Secret=${encodeURIComponent(p.segredo)}`, 8000, { headers: { Authorization: cabecalho() } });
       if (r.status === 404 || r.status === 400) throw new ErroEntrada('geral', 'O código venceu. Peça outro.');
       if (!r.ok) continue;
-      const d = await r.json() as { Authenticated?: boolean };
-      if (!d.Authenticated) continue;
+      const d = await r.json() as { Authenticated?: boolean; authenticated?: boolean };
+      if (!(d.Authenticated ?? d.authenticated)) continue;
       const a = await comPrazo(`${srv.url}/Users/AuthenticateWithQuickConnect`, 10000, {
         method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: cabecalho() }, body: JSON.stringify({ Secret: p.segredo }),
       });

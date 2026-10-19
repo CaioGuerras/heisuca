@@ -17,6 +17,9 @@ nos 4 perfis (celular/computador × Roxo/Verde), no Início e nos Favoritos.
 - **Ao rolar, a logo sobe e encaixa no topo**: ela acompanha a página até o meio da pílula e fica ali, encolhendo nos
   últimos 140 px para caber entre a pílula e a busca (a conta usa as posições reais da pílula e da busca, então vale para
   qualquer nome de servidor e no computador). Movimento por `transform` num `requestAnimationFrame`, sem re-renderizar.
+- **Itens do destaque** (pedido da revisão da sessão principal; PLANO v1.2 §4 [C]): primeiro os do **Em alta** que têm fundo
+  e logo, completando com os últimos adicionados até 9 (sem repetir); servidor sem Em alta → só os últimos adicionados.
+  No servidor falso o destaque agora abre em Crystal Lake (1º do Em alta). Código em `dados/inicio.ts`. → [C7].
 - **Carrossel**: troca a cada 8 s; para com o mouse em cima, com o dedo em cima e **enquanto a logo está encaixada** (a cor
   da página não muda debaixo de quem está lendo as fileiras). Arrastar para o lado troca; pontinhos têm área de toque maior.
 - **Fileiras**: Continuar · Próximo · Em alta no Brasil (Top 10) · Mídia · uma por biblioteca com "Ver tudo ›" · **Em breve**
@@ -69,7 +72,9 @@ título. Desfavoritar todos pelo menu leva ao estado vazio. Teclado: Tab passa p
    bem visível e o texto é preto puro). No Roxo o desfoque aparece mais. → [C3].
 6. **Ordem das seções dos Favoritos**: segue a ordem das bibliotecas no servidor (no falso: Filmes antes de Séries; no print
    do VidHub, Séries antes). O título da seção é o nome da biblioteca ("Filmes"), não "Favorito Filmes" (PLANO §7).
-7. **Ao rolar**, o VidHub mostra a logo no topo e a linha de dados ainda visível embaixo dela; no nosso, quando a logo
+7. **Próximo sem repetir o que está em Continuar** (PLANO §4 [P]): diferença **proposital**. O VidHub repete (no print,
+   American Hostage aparece em Continuar e em Próximo); nós tiramos a repetição.
+8. **Ao rolar**, o VidHub mostra a logo no topo e a linha de dados ainda visível embaixo dela; no nosso, quando a logo
    encaixa, o véu do topo cobre a linha de dados logo em seguida (a 450 px ainda se vê a sinopse). Achei melhor do que
    deixar texto passando por trás da pílula.
 
@@ -93,6 +98,7 @@ título. Desfavoritar todos pelo menu leva ao estado vazio. Teclado: Tab passa p
   com o texto em preto puro (AA garantido também, mas o cinza do "2026"/"Ver tudo" some)?
 - **[C4]** "Ver tudo ›" nos Favoritos: grade na própria tela (como fiz) ou outra coisa?
 - **[C5]** Juntei "Séries em breve" e "Filmes em breve" numa fileira só, "Em breve". Prefere separadas?
+- **[C7]** Destaque com o Em alta primeiro (e depois os últimos adicionados), em vez de só os últimos adicionados. Confirma?
 - **[C6]** O carrossel para enquanto a logo está encaixada no topo (para a cor não mudar durante a leitura). Ok?
 
 ## O que mexi fora dos meus arquivos
@@ -107,4 +113,5 @@ título. Desfavoritar todos pelo menu leva ao estado vazio. Teclado: Tab passa p
 - `src/cor/paleta.ts`: claridade/croma (acima) e vidro do Verde.
 - `src/estado/usuario.ts`: **acrescentei** `useMudancas()` (re-render em qualquer troca de visto/favorito). Nada mudou no resto.
 - `src/app.tsx`: só a linha da rota `fav` (+ import).
-- `dados/inicio.ts` ficou como estava.
+- `dados/inicio.ts` (é meu): a lista do destaque passa a juntar Em alta + últimos adicionados; a interface `DadosInicio` não mudou.
+- Puxei o `site-v2` (ed325ec, 9f79bc2, Plano v1.2) com `git pull --rebase`, sem conflito.

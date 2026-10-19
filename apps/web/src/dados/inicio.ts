@@ -14,10 +14,13 @@ export function prepararInicio(s: Sessao, renovar = false): Promise<DadosInicio>
   const chave = `${s.servidor}|${s.usuarioId}`;
   if (!renovar && cache.has(chave)) return cache.get(chave)!;
   const p = (async (): Promise<DadosInicio> => {
-    const [destaque, cont, prox, alta, libs] = await Promise.all([
+    const [recentes, cont, prox, alta, libs] = await Promise.all([
       paraDestaque(s).catch(() => []), continuar(s).catch(() => []), proximos(s).catch(() => []),
       emAlta(s).catch(() => ({ titulo: '', itens: [] as Item[] })), bibliotecasDeVideo(s).catch(() => []),
     ]);
+    // destaque (PLANO §4, v1.2 [C]): primeiro os do Em alta que têm fundo e logo, completando com os últimos adicionados até 9
+    const temArte = (i: Item) => !!(i.BackdropImageTags?.length && i.ImageTags?.Logo);
+    const destaque = [...alta.itens.filter(temArte), ...recentes].filter((i, k, l) => l.findIndex(x => x.Id === i.Id) === k).slice(0, 9);
     // Próximo sem repetir o que já está em Continuar (PLANO §4 [P])
     const naFila = new Set(cont.map(i => i.SeriesId || i.Id));
     const proximo = prox.filter(i => !naFila.has(i.SeriesId || i.Id) && !cont.some(c => c.Id === i.Id));

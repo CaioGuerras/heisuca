@@ -353,7 +353,9 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
 
   return (
     <main class={`player${visivel ? '' : ' oculto'}${carregando ? ' esperando' : ''}`} onMouseMove={mexeu}>
-      <video ref={video} playsInline preload="auto"
+      {/* crossOrigin: legenda <track> e vídeo direto vindos de outro endereço (servidor ≠ site) só carregam com CORS;
+          sem isto o navegador recusa o .vtt em silêncio (achado da sessão E, 19/10). O Jellyfin responde CORS "*". */}
+      <video ref={video} crossOrigin="anonymous" playsInline preload="auto"
         onPointerDown={ev => { toque.current = { tipo: ev.pointerType, visivel }; }}
         onClick={() => {
           // mouse: clique pausa/toca; toque: mostra ou esconde os controles (como nos apps de streaming)

@@ -53,11 +53,17 @@ with sync_playwright() as p:
         primeiro = round(time.time() - t0, 1)
         time.sleep(4)
         q2 = pg.evaluate("(() => { const v = document.querySelector('video'); return { w: v.videoWidth, h: v.videoHeight, t: Math.round(v.currentTime*10)/10, q: v.getVideoPlaybackQuality?.().totalVideoFrames || 0, perdidos: v.getVideoPlaybackQuality?.().droppedVideoFrames || 0, src: (v.currentSrc || '').slice(0, 5), pausado: v.paused } })()")
+        # legenda de texto por fora (<track>): liga a 1ª e confere se as falas carregaram (site e servidor em endereços diferentes)
+        leg = pg.evaluate("""async () => { const v = document.querySelector('video'); const t = [...v.textTracks];
+          if (!t.length) return { faixas: 0 }; t.forEach((x, i) => x.mode = i ? 'disabled' : 'showing');
+          await new Promise(r => setTimeout(r, 6000));
+          const el = [...document.querySelectorAll('track')].map(x => ({ estado: x.readyState, modo: x.track.mode, falas: x.track.cues ? x.track.cues.length : null, host: (x.src || '').split('/')[2] }));
+          return { faixas: t.length, rotulo: t[0].label, falas: t[0].cues ? t[0].cues.length : null, modo: t[0].mode, elementos: el, crossorigin: v.crossOrigin }; }""")
         pg.mouse.move(400, 200); time.sleep(0.3); pg.screenshot(path=f"{SAIDA}/player_{perfil}.png")
         pg.evaluate("location.hash = ''"); time.sleep(2.5)
         parou = pg.evaluate("!document.querySelector('video')")
         res[perfil] = {"episodio": ep["nome"], "tocou": ok, "primeiro_quadro_s": primeiro, "depois_4s": q2, "metodo": "HLS (servidor)" if q2["src"] == "blob:" else "direto",
-                       "parou_ao_sair": parou, "pedidos": pedidos[:6], "erros": erros}
+                       "parou_ao_sair": parou, "legenda_texto": leg, "pedidos": pedidos[:6], "erros": erros}
         ctx.close(); time.sleep(3)
     b.close()
 srv.shutdown()

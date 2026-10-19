@@ -8,4 +8,5 @@
 /* abertura pulada no meio (toque): tudo vai direto ao estado final antes de a logo voar */
 .abertura.parada .carimbo, .abertura.parada .selo-kanji, .abertura.parada .palavra, .abertura.parada .kata,
 .abertura.parada .luz, .abertura.parada .slogan { animation-duration: 1ms !important; animation-delay: 0s !important; }
-.abertura .logo { width: min(92vw, 164vh); }
+.abertura .logo { width: min(64.7vw, 115.3vh); }   /* = o tamanho de antes (92vw no quadro 640) no computador */
+@media (orientation: portrait) { .abertura .logo { width: min(88vw, 520px); } }

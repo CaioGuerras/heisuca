@@ -5,7 +5,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import type { Sessao } from '../api/jellyfin';
 import { descobrir, entrarComSenha, ErroEntrada, esperarQuickConnect, iniciarQuickConnect, quickConnectLigado, ultimoServidor,
   type PedidoQC, type Servidor } from '../api/servidor';
-import { voar } from '../anim/voo';
+import { esmaecer, voar } from '../anim/voo';
 import { Folha } from '../comp/Folha';
 import { Icone } from '../comp/Icone';
 import { areaDaLogo, Logo } from '../comp/Logo';
@@ -60,8 +60,12 @@ export function Entrada({ de, servidorInicial, pronto }: { de?: DOMRect | null; 
     return () => clearTimeout(t);
   }, [endereco]);
 
-  const terminou = (s: Sessao) => {
+  // o formulário e o Quick Connect esmaecem primeiro; só a logo fica, e é dela que a 2ª animação parte
+  const terminou = async (s: Sessao) => {
     if (!liberado(s.nome)) { setErro({ campo: 'geral', msg: 'Esta versão de teste ainda não está aberta.' }); return false; }
+    const r = raiz.current!;
+    r.classList.add('saindo');
+    await Promise.all([esmaecer(r.querySelector('.entrada-form'), 1, 0, 240), esmaecer(r.querySelector('.entrada-topo'), 1, 0, 240)]);
     pronto(s, areaDaLogo(logo.current!));
     return true;
   };
@@ -75,7 +79,7 @@ export function Entrada({ de, servidorInicial, pronto }: { de?: DOMRect | null; 
     try {
       const x = srv || await conferir();
       if (!x) { setIndo(false); return; }
-      terminou(await entrarComSenha(x, usuario, senha));
+      await terminou(await entrarComSenha(x, usuario, senha));
     } catch (e) {
       setErro(e instanceof ErroEntrada ? { campo: e.campo, msg: e.message } : { campo: 'geral', msg: 'Não deu para entrar agora. Tente de novo.' });
     } finally { setIndo(false); }
@@ -100,9 +104,9 @@ export function Entrada({ de, servidorInicial, pronto }: { de?: DOMRect | null; 
     <main class="entrada" ref={raiz}>
       <header class="entrada-topo">
         <span />
-        <button class="redondo entrada-qc" disabled={!srv || !qcLigado} onClick={abrirQc}
+        <button type="button" class="redondo entrada-qc" disabled={!srv || !qcLigado} onClick={abrirQc}
           aria-label="Entrar com Quick Connect" title={srv && qcLigado ? 'Entrar com Quick Connect' : 'Digite o endereço do servidor'}>
-          <Icone nome="mobile_lock_portrait" tamanho={24} />
+          <Icone nome="mobile_lock_portrait" tamanho={22} />
         </button>
       </header>
       <div class="entrada-centro">
@@ -114,7 +118,11 @@ export function Entrada({ de, servidorInicial, pronto }: { de?: DOMRect | null; 
               placeholder="Digite o endereço do servidor" value={endereco} aria-invalid={erro?.campo === 'servidor'}
               onInput={e => setEndereco(e.currentTarget.value)} onBlur={() => { if (!srv && endereco.trim()) conferir(); }} />
           </label>
-          {srv ? <p class="entrada-servidor"><Icone nome="check_circle" cheio tamanho={16} />{srv.nome}</p> : erroDe('servidor')}
+          {/* a linha existe sempre (vazia até o servidor responder): o ✓ ou o erro entram sem empurrar a logo */}
+          <p class={`entrada-servidor${srv ? '' : ' vazia'}${erro?.campo === 'servidor' ? ' com-erro' : ''}`} aria-live="polite">
+            {srv ? <><Icone nome="check_circle" cheio tamanho={15} />{srv.nome}</>
+              : erro?.campo === 'servidor' ? <span role="alert">{erro.msg}</span> : null}
+          </p>
           <label class="campo">
             <span class="visualmente-oculto">Usuário</span>
             <input autocomplete="username" autocapitalize="off" spellcheck={false} enterKeyHint="next" placeholder="Usuário"

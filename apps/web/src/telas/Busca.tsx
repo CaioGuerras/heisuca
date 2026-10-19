@@ -2,6 +2,7 @@
 //  Topo: ← Buscar; campo em pílula com 🔍 e ✕. Busca a partir de 2 letras, 300 ms depois de parar de digitar.
 //  Do acervo: pôster, título, `BR-14 • 2015 • 2h 28m • 6,6★`, sinopse em 3 linhas, `<servidor> • <biblioteca>`.
 //  "Disponível para pedir": só se o servidor tiver Seerr (temSeerr); "+ Pedir" abre a FolhaPedido (série escolhe temporadas).
+//  "Meus pedidos ›" mora aqui (saiu do menu do usuário): discreto, no título da seção e sob o campo enquanto não há busca.
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { bibliotecasDeVideo, capa, hashDe, obter, type Item, type Sessao } from '../api/jellyfin';
 import { buscar as buscarSeerr, poster, SELO, temSeerr, type Resultado } from '../api/seerr';
@@ -10,7 +11,7 @@ import { nota } from '../comp/Cartoes';
 import { Icone } from '../comp/Icone';
 import { Imagem } from '../comp/Imagem';
 import { FolhaPedido, type Alvo } from '../comp/Pedido';
-import { irTitulo, voltar } from '../rota';
+import { irPagina, irTitulo, voltar } from '../rota';
 import './busca.css';
 
 const ESPERA = 300, MINIMO = 2;
@@ -105,6 +106,7 @@ export function Busca({ s }: { s: Sessao }) {
 
       <div class="busca-corpo" aria-live="polite" aria-busy={carregando ? 'true' : 'false'}>
         {!ativo && texto.trim().length === 1 && <p class="busca-dica texto-2">Digite mais uma letra.</p>}
+        {!ativo && seerr && <MeusPedidos classe="busca-pedidos-solto" />}
         {nada && <div class="busca-vazio"><Icone nome="search_off" tamanho={40} /><p>Nada encontrado para “{termo}”.</p></div>}
         {ativo && doAcervo && acervo.erro && <p class="busca-dica texto-2">Não deu para buscar no servidor agora. Tente de novo.</p>}
 
@@ -129,7 +131,7 @@ export function Busca({ s }: { s: Sessao }) {
 
         {seerr && ativo && (paraPedir === null ? doAcervo !== null : paraPedir.length > 0) && (
           <section class="busca-pedir" aria-label="Disponível para pedir">
-            <h2 class="titulo-secao">Disponível para pedir</h2>
+            <div class="busca-pedir-cabeca"><h2 class="titulo-secao">Disponível para pedir</h2><MeusPedidos /></div>
             <p class="texto-2">Ainda não temos. Peça e avisamos quando chegar.</p>
             {pedir.erro && <p class="texto-2">Pedidos indisponíveis agora.</p>}
             <ul class="busca-lista">
@@ -160,3 +162,7 @@ export function Busca({ s }: { s: Sessao }) {
     </main>
   );
 }
+
+const MeusPedidos = ({ classe = '' }: { classe?: string }) => (
+  <button class={`busca-meus ${classe}`} onClick={() => irPagina('pedidos')}>Meus pedidos<Icone nome="chevron_right" tamanho={18} /></button>
+);

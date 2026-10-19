@@ -252,6 +252,7 @@ const BIBLIOTECAS = [
   ['Inter', 'OFL-1.1', 'a letra do texto'], ['Sora', 'OFL-1.1', 'a letra dos títulos'],
 ];
 export function Sobre() {
+  const completa = ler(AJUDA_COMPLETA) === '1';
   return (
     <Pagina titulo="Sobre" classe="sobre">
       <section class="sobre-marca">
@@ -271,6 +272,9 @@ export function Sobre() {
         </ul>
         <p class="sobre-gente"><span class="texto-2">Com a ajuda de</span> Rosiel Victor <span class="texto-2">·</span> Locadora</p>
       </section>
+      {/* com os passos todos marcados, o Como usar sai do menu e fica aqui (revisão de 19/10: "vai pra dentro das configurações") */}
+      {completa && <button class="cartao-pagina sobre-ajuda" onClick={() => irPagina('ajuda')}><Icone nome="help" tamanho={24} />
+        <span><strong>Como usar</strong><small class="texto-2">Os passos e as dúvidas</small></span><Icone nome="chevron_right" tamanho={22} /></button>}
       <p class="sobre-dedicatoria">Para a família, que sempre se reuniu diante da tela.</p>
     </Pagina>
   );

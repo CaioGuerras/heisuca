@@ -118,6 +118,13 @@
 .sobre-creditos li + li { border-top: 1px solid var(--hs-linha); }
 .sobre-creditos span { flex: 1; min-width: 0; font-size: 13.5px; }
 .sobre-creditos small { font-size: 12px; color: var(--hs-texto-2); letter-spacing: .02em; }
+.sobre-ajuda { width: 100%; margin-top: 12px; display: flex; align-items: center; gap: 14px; text-align: left; color: var(--hs-texto); }
+.sobre-ajuda:hover { background: var(--hs-linha); }
+.sobre-ajuda > span { flex: 1; display: flex; flex-direction: column; gap: 1px; }
+.sobre-ajuda strong { font-weight: 600; font-size: 15.5px; }
+.sobre-ajuda small { font-size: 13px; }
+.sobre-ajuda .icone:first-child { color: var(--hs-realce); }
+.sobre-ajuda .icone:last-child { color: var(--hs-texto-2); }
 .sobre-gente { margin: 14px 0 0; font-size: 14.5px; }
 .sobre-dedicatoria { margin: 32px 0 8px; text-align: center; font-family: var(--hs-fonte-titulo); font-weight: 300; font-style: italic;
   font-size: 15px; color: var(--hs-texto-2); }

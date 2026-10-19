@@ -39,6 +39,12 @@ button.busca-item:hover, button.busca-item:focus-visible { background: var(--hs-
 /* disponível para pedir */
 .busca-pedir { margin-top: 30px; }
 .busca-pedir > p { margin: 4px 0 12px; font-size: 14.5px; }
+.busca-pedir-cabeca { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+/* "Meus pedidos ›": discreto (saiu do menu do usuário) */
+.busca-meus { display: inline-flex; align-items: center; gap: 2px; min-height: 36px; padding: 0 4px 0 10px; border-radius: var(--hs-raio-total);
+  font-size: 14px; font-weight: 500; color: var(--hs-texto-2); flex: none; }
+.busca-meus:hover { color: var(--hs-texto); background: var(--hs-linha); }
+.busca-pedidos-solto { margin: 6px 0 0 -6px; }
 .pedir-item { display: flex; align-items: center; gap: 14px; padding: 6px 0; }
 .pedir-capa { width: 46px; aspect-ratio: 2 / 3; border-radius: 8px; object-fit: cover; flex: none; background: var(--hs-linha); }
 .pedir-sem { display: grid; place-items: center; color: var(--hs-texto-2); }

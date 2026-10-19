@@ -1,11 +1,11 @@
 // Menu do usuário (PLANO §9; base ref/app_completo/…menu_usuario, enxugado): nasce da foto na ilha (balão).
-// Itens: Minha conta (cabeçalho) · Como usar (no topo até completar) · Meus pedidos (só com Seerr) · Tema · Baixar os apps ·
-// Sobre · Apoiar o Heisuca · Sair. Saem do app completo: Favoritos/Bibliotecas (na ilha), Baixados, Configurações, Trocar usuário.
+// Itens: Minha conta (cabeçalho) · Como usar (no topo enquanto houver passo sem marcar; completo, sai do menu e vira link no
+// Sobre) · Tema · Baixar os apps · Sobre · Apoiar o Heisuca · Sair. Saem do app completo: Favoritos/Bibliotecas (na ilha),
+// Baixados, Configurações, Trocar usuário e Meus pedidos (fica na Busca, junto de "Disponível para pedir"; revisão de 19/10).
 // Tema: abre ali mesmo, dentro do balão, só com os nomes (sem amostra de cor; §2.1); a tela muda na hora.
 import type { JSX } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import type { Sessao } from '../api/jellyfin';
-import { temSeerr } from '../api/seerr';
 import { escolhaAtual, escolherTema, type Escolha } from '../tema';
 import { irPagina } from '../rota';
 import { Folha } from './Folha';
@@ -18,10 +18,8 @@ const ajudaCompleta = () => { try { return localStorage.getItem(AJUDA_COMPLETA) 
 const NOMES: Record<Escolha, string> = { roxo: 'Roxo', verde: 'Verde', auto: 'Automático' };
 
 export function MenuUsuario({ s, ancora, fechar, sair }: { s: Sessao; ancora: HTMLElement | null; fechar: () => void; sair: () => void }) {
-  const [seerr, setSeerr] = useState(false);
   const [temas, setTemas] = useState(false);
   const [escolha, setEscolha] = useState(escolhaAtual);
-  useEffect(() => { temSeerr(s).then(setSeerr); }, [s.servidor]);
   useEffect(() => { if (!ancora) setTemas(false); }, [ancora]);
   const ir = (p: Parameters<typeof irPagina>[0]) => { fechar(); irPagina(p); };
   const completa = ajudaCompleta();
@@ -31,7 +29,7 @@ export function MenuUsuario({ s, ancora, fechar, sair }: { s: Sessao; ancora: HT
   );
   // grupos separados por linha fina (como no app completo); grupo vazio não deixa linha sobrando
   const grupos: JSX.Element[][] = [
-    [!completa && linha('help', 'Como usar', () => ir('ajuda')), seerr && linha('playlist_add_check', 'Meus pedidos', () => ir('pedidos'))].filter(Boolean) as JSX.Element[],
+    completa ? [] : [linha('help', 'Como usar', () => ir('ajuda'))],
     [
       <li key="tema">
         <button class="opcao-linha mu-item" aria-expanded={temas} onClick={() => setTemas(t => !t)}>
@@ -49,7 +47,6 @@ export function MenuUsuario({ s, ancora, fechar, sair }: { s: Sessao; ancora: HT
       </li>,
       linha('download', 'Baixar os apps', () => ir('apps')),
       linha('info', 'Sobre', () => ir('sobre')),
-      ...(completa ? [linha('help', 'Como usar', () => ir('ajuda'))] : []),
     ],
     [linha('volunteer_activism', 'Apoiar o Heisuca', () => ir('apoiar'), 'mu-apoiar')],
     [linha('logout', 'Sair', () => { fechar(); sair(); })],

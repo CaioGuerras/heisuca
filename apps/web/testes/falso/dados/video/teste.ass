@@ -1,0 +1,25 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1280
+PlayResY: 720
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, OutlineColour, BackColour, Bold, Italic, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV
+Style: Default,Arial,48,&H00FFFFFF,&H00000000,&H64000000,0,0,1,3,1,2,40,40,40
+
+[Events]
+Format: Layer, Start, End, Style, Text
+Dialogue: 0,0:00:04.00,0:00:07.00,Default,{\c&H66CCFF&}Legenda ASS aos 4 s
+Dialogue: 0,0:00:10.00,0:00:13.00,Default,{\c&H66CCFF&}Legenda ASS aos 10 s
+Dialogue: 0,0:00:16.00,0:00:19.00,Default,{\c&H66CCFF&}Legenda ASS aos 16 s
+Dialogue: 0,0:00:22.00,0:00:25.00,Default,{\c&H66CCFF&}Legenda ASS aos 22 s
+Dialogue: 0,0:00:28.00,0:00:31.00,Default,{\c&H66CCFF&}Legenda ASS aos 28 s
+Dialogue: 0,0:00:34.00,0:00:37.00,Default,{\c&H66CCFF&}Legenda ASS aos 34 s
+Dialogue: 0,0:00:40.00,0:00:43.00,Default,{\c&H66CCFF&}Legenda ASS aos 40 s
+Dialogue: 0,0:00:46.00,0:00:49.00,Default,{\c&H66CCFF&}Legenda ASS aos 46 s
+Dialogue: 0,0:00:52.00,0:00:55.00,Default,{\c&H66CCFF&}Legenda ASS aos 52 s
+Dialogue: 0,0:00:58.00,0:00:61.00,Default,{\c&H66CCFF&}Legenda ASS aos 58 s
+Dialogue: 0,0:00:64.00,0:00:67.00,Default,{\c&H66CCFF&}Legenda ASS aos 64 s
+Dialogue: 0,0:00:70.00,0:00:73.00,Default,{\c&H66CCFF&}Legenda ASS aos 70 s
+Dialogue: 0,0:00:76.00,0:00:79.00,Default,{\c&H66CCFF&}Legenda ASS aos 76 s
+Dialogue: 0,0:00:82.00,0:00:85.00,Default,{\c&H66CCFF&}Legenda ASS aos 82 s

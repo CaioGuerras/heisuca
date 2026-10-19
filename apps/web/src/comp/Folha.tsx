@@ -30,24 +30,27 @@ export function Folha({ aberta, fechar, titulo, ancora, variante = 'folha', clas
     const m = 10, emBaixo = a.top > innerHeight / 2;
     const left = Math.min(Math.max(m, a.left + a.width / 2 - c.width / 2), innerWidth - c.width - m);
     const top = emBaixo ? Math.max(m, a.top - c.height - 10) : Math.min(a.bottom + 10, innerHeight - c.height - m);
-    setPos({ left, top, transformOrigin: `${a.left + a.width / 2 - left}px ${emBaixo ? c.height + 10 : -10}px` });
+    // origem da animação no ponto real da âncora (vale também quando a caixa encostou na borda da tela)
+    setPos({ left, top, transformOrigin: `${a.left + a.width / 2 - left}px ${(emBaixo ? a.top : a.bottom) - top}px` });
   }, [visivel, ancora, variante]);
 
   useEffect(() => {
     if (!visivel) return;
-    const d = document.documentElement, antes = d.style.overflow;
-    d.style.overflow = 'hidden';
+    // html e body: o Safari do iOS só para de rolar a página de trás com o body travado
+    const d = document.documentElement, b = document.body, antes = d.style.overflow, antesB = b.style.overflow;
+    d.style.overflow = 'hidden'; b.style.overflow = 'hidden';
     const tecla = (e: KeyboardEvent) => {
       if (e.key === 'Escape') { e.stopPropagation(); fechar(); return; }
       if (e.key !== 'Tab' || !caixa.current) return;
       const f = Array.from(caixa.current.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')).filter(x => !x.hasAttribute('disabled'));
       if (!f.length) return;
       const i = f.indexOf(document.activeElement as HTMLElement);
+      if (i === -1) { e.preventDefault(); (e.shiftKey ? f[f.length - 1] : f[0]).focus(); return; }
       if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); } else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
     };
     addEventListener('keydown', tecla, true);
     requestAnimationFrame(() => caixa.current?.querySelector<HTMLElement>('[autofocus], .folha-corpo button, .folha-corpo input, button')?.focus({ preventScroll: true }));
-    return () => { d.style.overflow = antes; removeEventListener('keydown', tecla, true); };
+    return () => { d.style.overflow = antes; b.style.overflow = antesB; removeEventListener('keydown', tecla, true); };
   }, [visivel]);
 
   if (!visivel) return null;

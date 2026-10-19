@@ -1,4 +1,8 @@
-# Heisuca Web — plano tela por tela (v1.1, 19/10/2026) — APROVADO pelo Caio (19/10 tarde), com as decisões da §16
+# Heisuca Web — plano tela por tela (v1.2, 19/10/2026) — APROVADO pelo Caio (19/10 tarde), com as decisões da §16
+
+> v1.2 (19/10 noite): ajustes da revisão independente dos Minions (Gemini) contra as mensagens originais do Caio: voltar na
+> entrada aberta pela casca (§3.2), trocar servidor também na Biblioteca (§6), Meus pedidos dentro da Busca e fora do menu (§8–§9),
+> Como usar completo vai para dentro do Sobre (§9), destaque com o Em alta primeiro (§4 [C]), motor do player (§13).
 
 Nada aqui é código. Cada regra traz a origem: o print (`ref/<pasta>/<arquivo>`) ou a fala do Caio (data e hora).
 **[C]** = decisão do Caio pendente; **[P]** = proposta minha (vale se o Caio não vetar); **[V]** = conferido em 19/10.
@@ -74,7 +78,8 @@ Coleta bruta e histórico: `COLETA.md`. Prints: `ref/` (vidhub, app_completo, si
 - **Servidor lembrado** (decidido 19/10): a tela de entrada já vem com o endereço preenchido.
 
 ### 3.2 Tela única de entrada (base: `streamyfin/…servidor` e `streamyfin/…login`, com os cortes do Caio)
-- Topo: à direita, o ícone de **Quick Connect** (discreto). À esquerda, nada: na tela única não há "voltar".
+- Topo: à direita, o ícone de **Quick Connect** (discreto). À esquerda, **← voltar só quando a entrada foi aberta de dentro do
+  site** ("Adicionar servidor" ou servidor sem sessão guardada): desiste e volta para onde estava. No primeiro acesso, sem voltar.
 - A **logo** no lugar em que a abertura pousou.
 - Campo **"Digite o endereço do servidor"**. Quando o servidor responde, aparece embaixo, bem discreto, **"✓ <nome do
   servidor>"** (vindo do próprio servidor). Isso substitui o "Iniciar sessão em CGFLIX" e a URL, que o Caio cortou.
@@ -116,7 +121,8 @@ Sem modo TV no site. A TV terá app próprio. O teste é **por recurso** (o que 
   - os pontinhos do carrossel.
 
   A troca é automática e para quando o dedo ou o mouse está em cima. Os itens são **[P]** os ~9 últimos adicionados
-  que tenham arte e logo.
+  que tenham arte e logo. **v1.2 [C]:** quando o servidor publica o Em alta, o destaque usa primeiro os do Em alta que têm fundo e
+  logo e completa com os últimos adicionados (os últimos adicionados nem sempre são os mais bonitos para o cartão de visitas).
 - **Ao rolar:** a logo sobe e encaixa no topo, entre a pílula e a busca (`vidhub/…home_rolada`).
 - **Fileiras, nesta ordem:**
   1. **Continuar**: 16:9, ▶ no centro, `26:44 / 40:39`, barra de progresso, título + `S1:E1 - nome`;
@@ -162,6 +168,8 @@ Sem modo TV no site. A TV terá app próprio. O teste é **por recurso** (o que 
 
 ## 6. Biblioteca (`vidhub/…foto50`, `…foto51`; Caio 18/10 22:24)
 - Topo: ← | nome da biblioteca no centro | ícone à direita que abre o **menu lateral direito com as bibliotecas**, para trocar direto.
+  O menu termina com uma linha discreta do servidor atual + "Trocar" (abre o Trocar servidor): o Caio pediu em 18/10 22:17 que a
+  Biblioteca "abrigue as libs sincronizadas e uma opção trocar de servidor".
 - **Somem** as abas Séries/Episódios/Gêneros/Pastas. **Sem ordenar e sem filtrar** (decidido 19/10). Ordem alfabética,
   como no print.
 - Grade: 3 colunas no celular, mais no computador. Pôster 2:3, nota no canto inferior direito, ✓ visto no canto superior
@@ -181,14 +189,15 @@ Sem modo TV no site. A TV terá app próprio. O teste é **por recurso** (o que 
 - **Detecção do Seerr** (decidido 19/10): [V] o CGSERVER responde `/__seerr/api/v1/status` na mesma origem. Se o
   endereço não responder, a busca fica só no acervo. O login no Seerr é por Quick Connect, sem segunda senha: o código do
   `master` já faz isso (`api/seerr.ts`).
+- **"Meus pedidos ›"** fica aqui, discreto, junto da seção "Disponível para pedir" (só com Seerr), e não no menu do usuário (v1.2).
 
 ## 9. Menu do usuário (`app_completo/…menu_usuario`, enxugado; Caio 18/10 22:24 e 19/10 13:00)
 - **Abre a partir da foto na ilha**: cresce do ícone, e não de baixo para cima (pedido de 18/10 21:00). No computador, igual.
 - Itens:
   1. Cabeçalho: foto + nome + "Minha conta: foto e senha ›";
-  2. **Como usar**: no topo enquanto houver passo sem marcar; com tudo marcado, desce para o fim, junto do Sobre
-     (18/10 21:00; **[P]**, porque o site não tem tela de configurações);
-  3. **Meus pedidos**: só com Seerr (**[P]**, está no menu do app completo);
+  2. **Como usar**: no topo enquanto houver passo sem marcar; com tudo marcado, **sai do menu e passa a aparecer dentro do Sobre**
+     (18/10 21:00: "a opção sai do topo do menu e vai pra dentro das configurações"; o site não tem configurações, e o Sobre é a
+     página secundária; v1.2);
   4. **Tema**: abre a escolha Roxo · Verde · Automático;
   5. **Baixar os apps**;
   6. **Sobre**;
@@ -259,6 +268,9 @@ endereço netflix.docaio e o "áudio em português por padrão".
 
   Onde não há capítulo, não há botão. O Intro Skipper (que ouve o áudio de cada episódio) cobriria o resto, mas lê o acervo
   inteiro no Drive: fica para depois, com medição de custo e o seu OK.
+- **Motor (v1.2, 19/10): MKV nunca vai direto no navegador; vai remontado em HLS fMP4 pelo servidor** (pesquisa F: o Chrome diz
+  que toca MKV e descarta o vídeo em silêncio; foi a tela preta com só a legenda em tela cheia da foto 19). Testado no Chrome da
+  bancada com o servidor de verdade: Aoashi 1080p, 1º quadro em ~4 s, 0 quadros perdidos, para ao sair. Sem o selo "Pelo servidor".
 - **Motor que fica** (do `master`, testado em 18/10): perfil do aparelho perguntado ao navegador, toca direto quando dá,
   senão HLS fMP4 (remonta, sem converter o vídeo), guarda "toca sem quadro" (o caso do One Piece no Chrome do Android),
   ASS pelo JASSUB, retomar, relatório de progresso e próximo episódio.
@@ -337,4 +349,4 @@ desfazer). Você testa no celular, eu ajusto, e refaço se for preciso.
 5. **Licenças:** se a peça é igual, a do Jellyfin; se não, a melhor; sempre com crédito. (§14)
 
 Valem se você não vetar: [P] da §3.3 (2ª animação), §4 (itens do destaque, Próximo sem repetir), §9 (Como usar no fim
-quando completo, Meus pedidos com Seerr) e §13 (atalhos de teclado).
+quando completo vai para o Sobre, Meus pedidos dentro da Busca) e §13 (atalhos de teclado).

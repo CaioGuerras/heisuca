@@ -47,7 +47,7 @@ with sync_playwright() as p:
             pg.wait_for_selector(".entrada-servidor", timeout=10000)
             pg.fill(".entrada input[autocomplete=username]", "caioguerras")
             pg.click(".entrada-botao")
-            pg.wait_for_selector(".transicao", state="detached", timeout=20000)
+            pg.wait_for_selector(".transicao", timeout=20000); pg.wait_for_selector(".transicao", state="detached", timeout=20000)
             for n, rota in enumerate(o.rotas.split(",")):
                 pg.evaluate(f"location.hash = {json.dumps(rota)}"); time.sleep(o.espera)
                 if o.antes: pg.evaluate(o.antes); time.sleep(0.8)

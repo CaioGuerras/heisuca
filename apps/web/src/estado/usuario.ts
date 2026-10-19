@@ -19,7 +19,12 @@ async function trocar(i: Item, parcial: Dados, chamada: () => Promise<Item['User
   const antes = trocas.get(i.Id);
   trocas.set(i.Id, { ...(antes || {}), ...parcial }); avisar();      // otimista
   try { const d = await chamada(); trocas.set(i.Id, { ...(trocas.get(i.Id) || {}), ...(d || {}), ...parcial }); avisar(); }
-  catch (e) { if (antes) trocas.set(i.Id, antes); else trocas.delete(i.Id); avisar(); throw e; }
+  catch (e) {
+    const atual: Dados = { ...(trocas.get(i.Id) || {}) };
+    for (const k of Object.keys(parcial) as (keyof Dados)[]) { if (antes && k in antes) (atual as Record<string, unknown>)[k] = antes[k]; else delete atual[k]; }
+    if (Object.keys(atual).length) trocas.set(i.Id, atual); else trocas.delete(i.Id);
+    avisar(); throw e;
+  }
 }
 export const alternarVisto = (s: Sessao, i: Item) => { const v = !dadosDe(i).Played; return trocar(i, { Played: v }, () => marcarAssistido(s, i.Id, v)).then(() => v); };
 export const alternarFavorito = (s: Sessao, i: Item) => { const v = !dadosDe(i).IsFavorite; return trocar(i, { IsFavorite: v }, () => favoritar(s, i.Id, v)).then(() => v); };

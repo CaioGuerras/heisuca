@@ -14,7 +14,7 @@ export async function voar(el: HTMLElement, de: DOMRect, ms = 720): Promise<void
   // ponto P do elemento (origem no canto) vai para O + s·(P − O) + t; queremos para.x → de.x
   const tx = de.left - caixa.left - s * (para.left - caixa.left), ty = de.top - caixa.top - s * (para.top - caixa.top);
   el.style.transformOrigin = '0 0';
-  await el.animate([{ transform: `translate(${tx}px, ${ty}px) scale(${s})` }, { transform: 'none' }], { duration: ms, easing: CURVA }).finished.catch(() => undefined);
+  await el.animate([{ transform: `translate(${tx}px, ${ty}px) scale(${s})` }, { transform: 'none' }], { duration: ms, easing: CURVA, fill: 'backwards' }).finished.catch(() => undefined);
   el.style.transformOrigin = '';
 }
 

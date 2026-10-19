@@ -25,6 +25,13 @@
   animation: balao-cresce .26s var(--hs-curva-padrao) both; }
 .folha-balao.saindo .folha { animation: balao-encolhe .18s ease-in both; }
 
+/* lateral: menu que entra pela direita, na altura toda */
+.folha-lateral .folha { top: 0; right: 0; bottom: 0; width: min(320px, 86vw); border-radius: 22px 0 0 22px;
+  padding-top: env(safe-area-inset-top, 0px); animation: lateral-entra .26s var(--hs-curva-padrao) both; }
+.folha-lateral.saindo .folha { animation: lateral-sai .2s ease-in both; }
+@keyframes lateral-entra { from { transform: translateX(100%); } }
+@keyframes lateral-sai { to { transform: translateX(100%); } }
+
 @keyframes folha-fundo { from { opacity: 0; } }
 @keyframes folha-fundo-sai { to { opacity: 0; } }
 @keyframes folha-sobe { from { transform: translateY(100%); } }

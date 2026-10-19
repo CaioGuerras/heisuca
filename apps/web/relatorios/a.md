@@ -44,6 +44,15 @@ na nuvem eu apontei `PLAYWRIGHT_BROWSERS_PATH` para uma pasta com links para o C
 - O que já existia continua igual: endereço sem `https://`, `/jellyfin`, Quick Connect só depois que o servidor responde,
   erros sob o campo culpado, senha vazia.
 
+### 2b. Entrada aberta de dentro do site (revisão da sessão principal)
+- Quando a pessoa já está logada e escolhe **Trocar servidor → Adicionar servidor** (ou um servidor sem sessão guardada),
+  a entrada mostra um **"←" no canto superior esquerdo** (e **Esc** no computador) para desistir e voltar para onde estava,
+  com a sessão atual intacta. No primeiro acesso não há "←". Prop nova `voltar?: () => void` em `Entrada`; a casca
+  (`app.tsx`) passa `volta: true` na fase de entrada aberta por ela.
+- Nesse caminho a página ainda estava na cor do pôster da home; a entrada agora chama `usePaleta(null)` e volta à cor do tema.
+- Print: `testes/comparacoes/a/entrada_pela_casca_cel.jpg` (Roxo e Verde).
+- Testado: 1º acesso sem "←"; pela casca com "←"; o "←" e o Esc voltam para a home sem erro no console.
+
 ### 3. 2ª animação (`Transicao.tsx`, `transicao.css`): "a inversa da primeira"
 Linha do tempo (contada a partir do clique em Iniciar sessão):
 
@@ -113,5 +122,7 @@ Linha do tempo (contada a partir do clique em Iniciar sessão):
 ## O que mexi fora dos meus arquivos
 - `src/anim/voo.ts` é meu (anim/*): acrescentei `animar()` (Web Animations com `fill: forwards` e a curva da casa). Nada
   do que já existia mudou.
+- `src/app.tsx`: só o necessário para o "←" (campo `volta` na fase de entrada e a função `voltar` passada à `Entrada`).
 - `testes/sequencia_entrada.py` (novo): grava a sequência em vídeo e em quadros.
+- Juntei o `site-v2` no meu ramo (merge, não rebase, porque o ramo já estava publicado), com as correções da Folha e dos scripts de prints.
 - Nenhum componente comum foi alterado.

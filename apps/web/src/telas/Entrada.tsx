@@ -6,6 +6,7 @@ import type { Sessao } from '../api/jellyfin';
 import { descobrir, entrarComSenha, ErroEntrada, esperarQuickConnect, iniciarQuickConnect, quickConnectLigado, ultimoServidor,
   type PedidoQC, type Servidor } from '../api/servidor';
 import { esmaecer, voar } from '../anim/voo';
+import { usePaleta } from '../cor/paleta';
 import { Folha } from '../comp/Folha';
 import { Icone } from '../comp/Icone';
 import { areaDaLogo, Logo } from '../comp/Logo';
@@ -15,7 +16,10 @@ import './entrada.css';
 const SO = ((import.meta.env.VITE_SO_USUARIO as string | undefined) || '').split(',').map(x => x.trim().toLowerCase()).filter(Boolean);
 const liberado = (nome: string) => !SO.length || SO.includes(nome.trim().toLowerCase());
 
-export function Entrada({ de, servidorInicial, pronto }: { de?: DOMRect | null; servidorInicial?: Servidor | null; pronto: (s: Sessao, logo: DOMRect) => void }) {
+// voltar: só quando a entrada abre de dentro do site (Trocar servidor → Adicionar / servidor sem sessão); no primeiro acesso não há
+export function Entrada({ de, servidorInicial, pronto, voltar }: {
+  de?: DOMRect | null; servidorInicial?: Servidor | null; pronto: (s: Sessao, logo: DOMRect) => void; voltar?: () => void;
+}) {
   const inicial = servidorInicial === undefined ? ultimoServidor() : servidorInicial;
   const [endereco, setEndereco] = useState(inicial?.url.replace(/^https:\/\//, '') || '');
   const [srv, setSrv] = useState<Servidor | null>(inicial);
@@ -28,6 +32,7 @@ export function Entrada({ de, servidorInicial, pronto }: { de?: DOMRect | null; 
   const logo = useRef<HTMLDivElement>(null);
   const raiz = useRef<HTMLElement>(null);
   const procura = useRef(0);
+  usePaleta(null);   // a entrada é na cor do tema (vinda da casca, a página ainda estaria na cor do pôster da home)
 
   // a logo chega voando da abertura; o formulário aparece depois que ela pousa
   useLayoutEffect(() => {
@@ -85,6 +90,14 @@ export function Entrada({ de, servidorInicial, pronto }: { de?: DOMRect | null; 
     } finally { setIndo(false); }
   }
 
+  // Esc também desiste (computador), se não houver a folha do Quick Connect aberta
+  useEffect(() => {
+    if (!voltar) return;
+    const tecla = (e: KeyboardEvent) => { if (e.key === 'Escape' && !qc) voltar(); };
+    addEventListener('keydown', tecla);
+    return () => removeEventListener('keydown', tecla);
+  }, [voltar, qc]);
+
   // Quick Connect: pede o código e espera alguém autorizar em outro aparelho
   useEffect(() => {
     if (!qc || !srv) return;
@@ -103,7 +116,7 @@ export function Entrada({ de, servidorInicial, pronto }: { de?: DOMRect | null; 
   return (
     <main class="entrada" ref={raiz}>
       <header class="entrada-topo">
-        <span />
+        {voltar ? <button type="button" class="redondo entrada-voltar" onClick={voltar} aria-label="Voltar"><Icone nome="arrow_back" tamanho={22} /></button> : <span />}
         <button type="button" class="redondo entrada-qc" disabled={!srv || !qcLigado} onClick={abrirQc}
           aria-label="Entrar com Quick Connect" title={srv && qcLigado ? 'Entrar com Quick Connect' : 'Digite o endereço do servidor'}>
           <Icone nome="mobile_lock_portrait" tamanho={22} />

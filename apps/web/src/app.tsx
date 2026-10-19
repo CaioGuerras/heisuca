@@ -13,6 +13,7 @@ import { registrarServidores } from './estado/casca';
 import { useRota } from './rota';
 import { Abertura } from './telas/Abertura';
 import { Entrada } from './telas/Entrada';
+import { Favoritos } from './telas/Favoritos';
 import { Inicio } from './telas/Inicio';
 import { EmConstrucao } from './telas/Pagina';
 import { Player } from './telas/Player';
@@ -59,7 +60,7 @@ function Casca({ s, trocar, entrar, sair }: { s: Sessao; trocar: (s: Sessao) => 
   const tela = r.tela === 'ver' ? <Player key={r.id} s={s} id={r.id} inicio={r.inicio} />
     : r.tela === 'titulo' ? <EmConstrucao titulo="Título" />
     : r.tela === 'biblioteca' ? <EmConstrucao titulo="Biblioteca" />
-    : r.tela === 'fav' ? <EmConstrucao titulo="Favoritos" />
+    : r.tela === 'fav' ? <Favoritos s={s} />
     : r.tela === 'busca' ? <EmConstrucao titulo="Buscar" />
     : r.tela === 'conta' ? <EmConstrucao titulo="Minha conta" />
     : r.tela === 'ajuda' ? <EmConstrucao titulo="Como usar" />

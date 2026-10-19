@@ -28,3 +28,8 @@ async function trocar(i: Item, parcial: Dados, chamada: () => Promise<Item['User
 }
 export const alternarVisto = (s: Sessao, i: Item) => { const v = !dadosDe(i).Played; return trocar(i, { Played: v }, () => marcarAssistido(s, i.Id, v)).then(() => v); };
 export const alternarFavorito = (s: Sessao, i: Item) => { const v = !dadosDe(i).IsFavorite; return trocar(i, { IsFavorite: v }, () => favoritar(s, i.Id, v)).then(() => v); };
+// re-renderiza quem precisa saber de qualquer troca (ex.: Favoritos esconde o que acabou de ser desfavoritado)
+export function useMudancas(): void {
+  const [, set] = useState(0);
+  useEffect(() => { const f = () => set(n => n + 1); ouvintes.add(f); return () => { ouvintes.delete(f); }; }, []);
+}

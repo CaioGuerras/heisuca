@@ -1,0 +1,18 @@
+/* Favoritos (ref/vidhub/…favoritos, celular de 412 px: 1 px do print = 0,34 px). O fundo é o BlurHash do 1º favorito,
+   ampliado (desfoque sem custo), coberto pela cor da página para o texto ficar sempre legível (a paleta mede o AA). */
+.favoritos { position: relative; min-height: 100svh; padding-top: calc(var(--hs-topo-respiro) + 34px); }
+.favoritos-fundo { position: fixed; inset: -40px; z-index: -1; background-size: cover; background-position: center;
+  filter: blur(28px) saturate(1.1); transform: translateZ(0); }
+.favoritos-fundo::after { content: ''; position: absolute; inset: 0; background: color-mix(in srgb, var(--hs-pagina) 76%, transparent); }
+[data-tema="shikkoku"] .favoritos-fundo { filter: blur(28px) saturate(1.1) brightness(.75); }
+[data-tema="hisui"] .favoritos-fundo { filter: blur(28px) saturate(1.2) brightness(1.6) contrast(.7); }
+[data-tema="hisui"] .favoritos-fundo::after { background: color-mix(in srgb, var(--hs-pagina) 80%, transparent); }
+/* a paleta mede o AA contra a cor lisa da página; aqui o fundo tem o pôster por baixo, então o texto secundário vai
+   mais perto do principal (conta feita para o pior caso: pôster todo preto no Verde, todo branco no Roxo) */
+.favoritos .cartao-sub, .favoritos .fileira-tudo, .favoritos-vazio { color: color-mix(in srgb, var(--hs-texto-2) 55%, var(--hs-texto)); }
+.favoritos .fileira:first-of-type { margin-top: 6px; }
+.favoritos-vazio { margin: 34svh auto 0; padding: 0 var(--hs-margem); max-width: 320px; text-align: center; color: var(--hs-texto-2); font-size: 15px; }
+.favoritos-grade-corpo { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--hs-cartao-poster), 1fr)); gap: 14px var(--hs-vao);
+  padding: 2px var(--hs-margem) 6px; }
+.favoritos-grade-corpo .cartao-poster { width: auto; }
+@media (min-width: 1024px) { .favoritos { padding-top: calc(var(--hs-topo-respiro) + 50px); } .favoritos-grade-corpo { gap: 22px var(--hs-vao); } }

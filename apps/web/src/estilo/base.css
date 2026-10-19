@@ -22,22 +22,22 @@
   --hs-margem: 14px;
   --hs-vao: 10px;
   --hs-cartao-paisagem: 180px;   /* Continuar, Próximo, Mídia (16:9) */
-  --hs-cartao-poster: 84px;      /* fileiras de biblioteca (2:3) */
-  --hs-titulo-secao: 18px;
-  --hs-ilha-altura: 56px;
+  --hs-cartao-poster: 80px;      /* fileiras de biblioteca (2:3) */
+  --hs-titulo-secao: 16px;
+  --hs-ilha-altura: 50px;
   --hs-ilha-respiro: calc(18px + env(safe-area-inset-bottom, 0px));
   --hs-topo-respiro: calc(10px + env(safe-area-inset-top, 0px));
-  --hs-raio-cartao: 12px;
+  --hs-raio-cartao: 9px;
   --hs-tempo-cor: 600ms;
   --hs-sombra: 0 8px 28px rgb(0 0 0 / .18);
   color-scheme: dark;
 }
 [data-tema="hisui"] { color-scheme: light; --hs-sombra: 0 8px 28px rgb(20 30 25 / .12); --hs-erro: #b3261e; }
 @media (min-width: 600px) {
-  :root { --hs-margem: 28px; --hs-vao: 12px; --hs-cartao-paisagem: 240px; --hs-cartao-poster: 120px; --hs-titulo-secao: 20px; }
+  :root { --hs-margem: 28px; --hs-vao: 12px; --hs-cartao-paisagem: 240px; --hs-cartao-poster: 120px; --hs-titulo-secao: 19px; --hs-raio-cartao: 11px; }
 }
 @media (min-width: 1024px) {
-  :root { --hs-margem: 48px; --hs-vao: 16px; --hs-cartao-paisagem: 300px; --hs-cartao-poster: 160px; --hs-titulo-secao: 22px; --hs-ilha-altura: 62px; }
+  :root { --hs-margem: 48px; --hs-vao: 16px; --hs-cartao-paisagem: 300px; --hs-cartao-poster: 160px; --hs-titulo-secao: 22px; --hs-ilha-altura: 60px; --hs-raio-cartao: 12px; }
 }
 
 *, *::before, *::after { box-sizing: border-box; }

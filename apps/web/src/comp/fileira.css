@@ -1,6 +1,7 @@
-.fileira { margin-top: 22px; }
-.fileira-cabeca { display: flex; align-items: center; justify-content: space-between; padding: 0 var(--hs-margem); margin-bottom: 10px; }
-.fileira-tudo { display: inline-flex; align-items: center; gap: 0; font-size: 14px; color: var(--hs-texto-2); padding: 6px 0 6px 8px; }
+.fileira { margin-top: 20px; }
+.fileira-cabeca { display: flex; align-items: center; justify-content: space-between; padding: 0 var(--hs-margem); margin-bottom: 8px; }
+.fileira-tudo { display: inline-flex; align-items: center; gap: 0; font-size: 13px; color: var(--hs-texto-2); padding: 6px 0 6px 8px; margin-right: -4px; }
+@media (min-width: 1024px) { .fileira { margin-top: 30px; } .fileira-tudo { font-size: 15px; } }
 .fileira-corpo { position: relative; }
 .fileira-trilho { display: flex; align-items: flex-start; gap: var(--hs-vao); overflow-x: auto; overflow-y: hidden;
   padding: 2px var(--hs-margem) 6px; scroll-padding-inline: var(--hs-margem); scroll-snap-type: x proximity;

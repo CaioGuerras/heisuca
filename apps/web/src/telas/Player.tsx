@@ -2,13 +2,17 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import './player.css';
 import type Hls from 'hls.js/light';
 import {
-  infoReproducao, item, pararConversao, relatar, seguinte, urlDireta, urlServidor,
-  type Fluxo, type Fonte, type Item, type Relato, type Sessao,
+  anterior, baixarLegenda, buscarLegendas, euMesmo, infoReproducao, item, paisagem, pararConversao, relatar, seguinte,
+  urlDireta, urlServidor, type Fluxo, type Fonte, type Item, type LegendaRemota, type Relato, type Sessao,
 } from '../api/jellyfin';
 import { hlsNativo, marcarMkvFalhou, perfilDoAparelho } from '../api/perfil';
 import { avisarErro } from '../aviso';
+import { avisar } from '../comp/Aviso';
 import { Icone } from '../comp/Icone';
-import { irVer, voltar } from '../rota';
+import { Carregando } from '../player/Carregando';
+import { puloEm, textoDoPulo } from '../player/capitulos';
+import { PainelFaixas } from '../player/PainelFaixas';
+import { voltar } from '../rota';
 
 type Metodo = Relato['PlayMethod'];
 type Carga = { audio?: number; legenda?: number; ticks?: number; semDireto?: boolean };
@@ -47,6 +51,9 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
   const [erro, setErro] = useState('');
   const [prox, setProx] = useState<Item | null>(null);
   const [fim, setFim] = useState(false);
+  const [ant, setAnt] = useState<Item | null>(null);
+  const [podeBuscar, setPodeBuscar] = useState(false);
+  const [cheia, setCheia] = useState(false);
   const esconder = useRef<number>(0);
   const playBtn = useRef<HTMLButtonElement>(null);
   const toque = useRef({ tipo: 'mouse', visivel: true });
@@ -66,14 +73,15 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
     hls.current?.destroy(); hls.current = null;
   }
 
+  const corpo = (o: Carga) => ({
+    DeviceProfile: perfilDoAparelho(), MaxStreamingBitrate: 140_000_000, AutoOpenLiveStream: true,
+    AudioStreamIndex: o.audio, SubtitleStreamIndex: o.legenda,
+    EnableDirectPlay: !o.semDireto, EnableDirectStream: true, EnableTranscoding: true,
+  });
+
   async function carregar(c: Carga) {
     setEspera(true); setErro('');
     try {
-      const corpo = (o: Carga) => ({
-        DeviceProfile: perfilDoAparelho(), MaxStreamingBitrate: 140_000_000, AutoOpenLiveStream: true,
-        AudioStreamIndex: o.audio, SubtitleStreamIndex: o.legenda,
-        EnableDirectPlay: !o.semDireto, EnableDirectStream: true, EnableTranscoding: true,
-      });
       let info = await infoReproducao(s, id, corpo(c));
       let fonte = info.MediaSources[0];
       if (!fonte) throw new Error(info.ErrorCode === 'NotAllowed'
@@ -129,7 +137,15 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
 
   // abre: dados do item (título no topo, próximo episódio) e a primeira carga
   useEffect(() => {
-    item(s, id).then(i => { setIt(i); if (i.Type === 'Episode' && i.SeriesId) seguinte(s, i).then(setProx).catch(() => undefined); }).catch(() => undefined);
+    item(s, id).then(i => {
+      setIt(i);
+      if (i.Type === 'Episode' && i.SeriesId) {
+        seguinte(s, i).then(setProx).catch(() => undefined);
+        anterior(s, i).then(setAnt).catch(() => undefined);
+      }
+    }).catch(() => undefined);
+    // "Buscar legendas…" só para quem pode gerenciar legendas no servidor (PLANO §13)
+    euMesmo(s).then(u => setPodeBuscar(!!u.Policy?.EnableSubtitleManagement)).catch(() => undefined);
     carregar({ ticks: inicio });
     const sair = () => encerrar();
     addEventListener('pagehide', sair);
@@ -218,7 +234,9 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
     return () => { fim = true; r?.destroy().catch(() => undefined); };
   }, [e]);
 
-  // controles somem sozinhos enquanto toca
+  // ---- interface (PLANO §13; desenho: vidhub/…foto46–49, painel: app_completo/…foto25) ----
+
+  // controles somem sozinhos enquanto toca (o cursor some junto: .player.oculto)
   function mexeu() {
     setVisivel(true);
     clearTimeout(esconder.current);
@@ -226,30 +244,51 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
   }
   useEffect(() => { mexeu(); }, [tocando, menu]);
   useEffect(() => { if (visivel && !menu) playBtn.current?.focus({ preventScroll: true }); }, [visivel === true && !menu]);
+  useEffect(() => {
+    const f = () => setCheia(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', f);
+    return () => document.removeEventListener('fullscreenchange', f);
+  }, []);
 
   const alternar = () => { const v = video.current!; v.paused ? v.play() : v.pause(); };
   const pular = (seg: number) => { const v = video.current!; v.currentTime = Math.max(0, Math.min(v.duration || 0, v.currentTime + seg)); };
+  const mudo = () => { const v = video.current!; v.muted = !v.muted; avisar(v.muted ? 'Som desligado' : 'Som ligado'); };
+  // outro episódio: troca a rota sem empilhar (Voltar continua levando ao título; o Player remonta e encerra o anterior)
+  const trocar = (ep: Item) => location.replace(`#/ver/${ep.Id}`);
+  const tela = () => {
+    const el = document.documentElement as HTMLElement & { webkitRequestFullscreen?: () => void };
+    const v = video.current as HTMLVideoElement & { webkitEnterFullscreen?: () => void };
+    if (document.fullscreenElement) document.exitFullscreen();
+    else if (el.requestFullscreen) el.requestFullscreen().catch(() => undefined);
+    else v.webkitEnterFullscreen?.();
+  };
 
-  // teclado e controle remoto
+  // teclado (computador) e controle remoto: espaço/K tocar e pausar, ←/→ 10 s, F tela cheia, M mudo, Esc sai da tela
+  // cheia ou volta. Com o painel aberto, só o Esc/Voltar (fecha o painel); o resto é do painel.
   useEffect(() => {
     const f = (ev: KeyboardEvent) => {
-      const k = ev.keyCode;
-      if (VOLTAR.has(k) && !(k === 8 && (ev.target as HTMLElement).tagName === 'INPUT' && (ev.target as HTMLInputElement).type !== 'range')) {
-        ev.preventDefault(); ev.stopImmediatePropagation();
-        if (menu) setMenu(false); else voltar();
+      if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+      const k = ev.keyCode, alvo = ev.target as HTMLInputElement;
+      const pare = () => { ev.preventDefault(); ev.stopImmediatePropagation(); };
+      if (VOLTAR.has(k) && !(k === 8 && alvo.tagName === 'INPUT' && alvo.type !== 'range')) {
+        pare();
+        if (menu) setMenu(false);
+        else if (document.fullscreenElement) document.exitFullscreen();
+        else voltar();
         return;
       }
-      if (PLAY.has(k)) { video.current?.play(); mexeu(); return; }
-      if (PAUSA.has(k)) { video.current?.pause(); mexeu(); return; }
-      if (!visivel) {
-        // controles escondidos: setas pulam 10 s, OK pausa; qualquer outra tecla só mostra os controles
-        ev.preventDefault(); ev.stopImmediatePropagation();
-        if (AVANCAR.has(k)) pular(10); else if (RECUAR.has(k)) pular(-10); else if (PLAY_PAUSA.has(k)) alternar();
-        mexeu();
-        return;
-      }
-      if (k === 417) pular(30); else if (k === 412) pular(-10); else if (k === 10252 || k === 179) alternar();
-      mexeu();
+      if (menu) return;
+      if (PLAY.has(k)) video.current?.play();
+      else if (PAUSA.has(k)) video.current?.pause();
+      else if (k === 13) { if (visivel) { mexeu(); return; } alternar(); }   // Enter num botão segue o normal; escondido, OK pausa
+      else if (PLAY_PAUSA.has(k) || k === 75) alternar();
+      else if (k === 417) pular(30);
+      else if (AVANCAR.has(k)) pular(10);
+      else if (RECUAR.has(k)) pular(-10);
+      else if (k === 70) tela();
+      else if (k === 77) mudo();
+      else { mexeu(); return; }                       // Tab, Enter num botão etc.: segue o normal e mostra os controles
+      pare(); mexeu();
     };
     addEventListener('keydown', f, true);
     return () => removeEventListener('keydown', f, true);
@@ -272,19 +311,48 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
       const x = { ...e, legenda: i }; est.current = x; setE(x);
     } else carregar({ audio: e.audio, legenda: i, ticks: posTicks() });
   }
-  const tela = () => {
-    const el = document.documentElement as HTMLElement & { webkitRequestFullscreen?: () => void };
-    const v = video.current as HTMLVideoElement & { webkitEnterFullscreen?: () => void };
-    if (document.fullscreenElement) document.exitFullscreen();
-    else if (el.requestFullscreen) el.requestFullscreen().catch(() => undefined);
-    else v.webkitEnterFullscreen?.();
-  };
 
-  const nome = it ? (it.Type === 'Episode' ? it.SeriesName : it.Name) : '';
-  const sub = it?.Type === 'Episode' ? `T${it.ParentIndexNumber}E${it.IndexNumber} · ${it.Name}` : '';
+  // Buscar legendas: baixa no servidor, pede a lista de novo (PlaybackInfo) e liga a faixa que apareceu
+  async function baixarRemota(r: LegendaRemota) {
+    const x = est.current;
+    if (!x) return;
+    await baixarLegenda(s, id, r.Id);
+    const antes = new Set(x.fonte.MediaStreams.filter(f => f.Type === 'Subtitle').map(f => f.Index));
+    const info = await infoReproducao(s, id, corpo({ audio: x.audio, legenda: x.legenda, semDireto: x.hls }));
+    const lista = info.MediaSources[0]?.MediaStreams;
+    if (!lista) throw new Error('sem lista de faixas');
+    const nova = lista.filter(f => f.Type === 'Subtitle' && !antes.has(f.Index)).pop();
+    setMenu(false);
+    const atual = est.current;
+    if (!atual) return;
+    if (!nova) {
+      // a mesma legenda baixada de novo (o servidor só substitui o arquivo): nada novo para ligar
+      avisar('Essa legenda já estava na lista');
+      return;
+    }
+    avisar('Legenda baixada e ligada');
+    const atualGravada = atual.fonte.MediaStreams.find(f => f.Index === atual.legenda)?.DeliveryMethod === 'Encode';
+    if (!atualGravada && nova.DeliveryMethod === 'External' && nova.DeliveryUrl && !eAss(nova)) {
+      // texto por fora: entra como <track> sem recarregar o vídeo
+      const y = { ...atual, fonte: { ...atual.fonte, MediaStreams: lista }, legenda: nova.Index };
+      est.current = y; setE(y);
+    } else carregar({ audio: atual.audio, legenda: nova.Index, ticks: posTicks() });
+  }
+
+  const serie = it?.Type === 'Episode';
+  const nome = it ? (serie ? it.SeriesName : it.Name) : '';
+  const ep = serie && it ? [`T${it.ParentIndexNumber ?? '?'}:E${it.IndexNumber ?? '?'}`, it.Name].filter(Boolean).join(' · ') : '';
+  // Pular abertura/créditos: só dentro do capítulo, pelo nome dele (player/capitulos.ts)
+  const pulo = !fim && !erro ? puloEm(it?.Chapters, pos, !!prox) : null;
+  const fazerPulo = () => {
+    if (!pulo) return;
+    if (pulo.ate === 'proximo') { if (prox) trocar(prox); }
+    else { video.current!.currentTime = pulo.ate; mexeu(); }
+  };
+  const carregando = espera && !erro;
 
   return (
-    <main class={`player${visivel ? '' : ' oculto'}`} onMouseMove={mexeu}>
+    <main class={`player${visivel ? '' : ' oculto'}${carregando ? ' esperando' : ''}`} onMouseMove={mexeu}>
       <video ref={video} playsInline preload="auto"
         onPointerDown={ev => { toque.current = { tipo: ev.pointerType, visivel }; }}
         onClick={() => {
@@ -292,64 +360,67 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
           const t = toque.current;
           if (t.tipo === 'mouse') { if (t.visivel) alternar(); mexeu(); }
           else if (t.visivel) setVisivel(false); else mexeu();
-        }}>
+        }}
+        onDblClick={() => { if (toque.current.tipo === 'mouse') tela(); }}>
         {e && externas.map(x => (
           <track key={`${e.sessao}-${x.Index}`} id={`l${x.Index}`} kind="subtitles" label={nomeFluxo(x)}
             srcLang={x.Language || 'und'} src={urlServidor(s, x.DeliveryUrl!)} />
         ))}
       </video>
 
-      {espera && !erro && <div class="player-espera" aria-label="Carregando"><span /></div>}
-      {erro && <div class="player-erro" role="alert"><p>{erro}</p><button data-foco class="botao" onClick={() => carregar({ ticks: posTicks(), semDireto: true })}>Tentar de novo</button></div>}
+      {carregando && <Carregando />}
+      {erro && <div class="player-erro" role="alert"><p>{erro}</p><button class="player-pilula" onClick={() => carregar({ ticks: posTicks(), semDireto: true })}>Tentar de novo</button></div>}
 
       <header class="player-topo">
-        <button data-foco class="aba" onClick={voltar} aria-label="Voltar"><Icone nome="arrow_back" /></button>
-        <div><strong>{nome}</strong>{sub && <small>{sub}</small>}</div>
+        <button class="player-icone" onClick={voltar} aria-label="Voltar"><Icone nome="arrow_back" tamanho={26} /></button>
+        <h1 class="uma-linha">{nome}{ep && <span> {ep}</span>}</h1>
       </header>
+
+      {!carregando && !erro && (
+        <div class="player-centro">
+          {serie && <button class="player-icone" disabled={!ant} onClick={() => ant && trocar(ant)} aria-label="Episódio anterior"><Icone nome="skip_previous" cheio tamanho={30} /></button>}
+          <button class="player-icone" onClick={() => pular(-10)} aria-label="Voltar 10 segundos"><Icone nome="replay_10" tamanho={34} /></button>
+          <button ref={playBtn} class="player-icone player-play" onClick={alternar} aria-label={tocando ? 'Pausar' : 'Tocar'}>
+            <Icone nome={tocando ? 'pause' : 'play_arrow'} cheio tamanho={46} />
+          </button>
+          <button class="player-icone" onClick={() => pular(10)} aria-label="Avançar 10 segundos"><Icone nome="forward_10" tamanho={34} /></button>
+          {serie && <button class="player-icone" disabled={!prox} onClick={() => prox && trocar(prox)} aria-label="Próximo episódio"><Icone nome="skip_next" cheio tamanho={30} /></button>}
+        </div>
+      )}
+
+      {pulo && !menu && <button class="player-pular" onClick={fazerPulo}>{textoDoPulo(pulo.tipo)}</button>}
 
       {fim && prox && (
         <div class="player-proximo">
-          <small>Próximo episódio</small>
-          <strong>T{prox.ParentIndexNumber}E{prox.IndexNumber} · {prox.Name}</strong>
-          <button data-foco class="botao" ref={el => el?.focus()} onClick={() => irVer(prox.Id)}><Icone nome="skip_next" cheio />Assistir</button>
+          {paisagem(s, prox, 320) && <img src={paisagem(s, prox, 320)} alt="" />}
+          <div>
+            <small>Próximo episódio</small>
+            <strong class="uma-linha">T{prox.ParentIndexNumber}:E{prox.IndexNumber} · {prox.Name}</strong>
+            <button class="player-pilula" ref={el => el?.focus()} onClick={() => trocar(prox)}><Icone nome="play_arrow" cheio tamanho={20} />Assistir</button>
+          </div>
         </div>
       )}
 
       <footer class="player-base">
-        <input data-foco class="player-barra" type="range" min={0} max={dur || 0} step={10} value={pos} aria-label="Posição"
+        <span class="player-tempo">{relogio(pos)}</span>
+        <input class="player-barra" type="range" min={0} max={dur || 0} step={1} value={pos} aria-label="Posição"
+          aria-valuetext={`${relogio(pos)} de ${relogio(dur)}`}
           style={{ '--feito': `${dur ? pos / dur * 100 : 0}%` } as Record<string, string>}
           onInput={ev => { const v = video.current!; v.currentTime = Number(ev.currentTarget.value); }} />
-        <div class="player-controles">
-          <button data-foco class="aba" onClick={() => pular(-10)} aria-label="Voltar 10 segundos"><Icone nome="replay_10" tamanho={28} /></button>
-          <button data-foco ref={playBtn} class="aba player-play" onClick={alternar} aria-label={tocando ? 'Pausar' : 'Tocar'}>
-            <Icone nome={tocando ? 'pause' : 'play_arrow'} cheio tamanho={36} />
-          </button>
-          <button data-foco class="aba" onClick={() => pular(10)} aria-label="Avançar 10 segundos"><Icone nome="forward_10" tamanho={28} /></button>
-          <span class="player-tempo">{relogio(pos)} / {relogio(dur)}</span>
-          <span class="player-espaco" />
-          {e && e.metodo !== 'DirectPlay' && <span class="player-selo" title="O servidor está preparando este vídeo para o seu aparelho">Pelo servidor</span>}
-          {(audios.length > 1 || legendas.length > 0) && (
-            <button data-foco class={menu ? 'aba ativa' : 'aba'} onClick={() => setMenu(!menu)} aria-expanded={menu} aria-label="Áudio e legendas">
-              <Icone nome="subtitles" tamanho={28} />
-            </button>
-          )}
-          <button data-foco class="aba" onClick={tela} aria-label="Tela cheia"><Icone nome="fullscreen" tamanho={28} /></button>
-        </div>
+        <span class="player-tempo">{relogio(dur)}</span>
+        <button class={menu ? 'player-icone ativo' : 'player-icone'} disabled={!e} onClick={() => setMenu(!menu)}
+          aria-expanded={menu} aria-label="Áudio e legendas" title="Áudio e legendas">
+          <Icone nome="subtitles" tamanho={26} />
+        </button>
+        <button class="player-icone" onClick={tela} aria-label={cheia ? 'Sair da tela cheia' : 'Tela cheia'} title={cheia ? 'Sair da tela cheia (F)' : 'Tela cheia (F)'}>
+          <Icone nome={cheia ? 'fullscreen_exit' : 'fullscreen'} tamanho={26} />
+        </button>
       </footer>
 
       {menu && e && (
-        <div class="player-menu" role="dialog" aria-label="Áudio e legendas">
-          {audios.length > 1 && <section><h3>Áudio</h3>
-            {audios.map(a => <button data-foco key={a.Index} class={a.Index === e.audio ? 'opcao ativa' : 'opcao'} onClick={() => escolherAudio(a.Index)}>
-              {nomeFluxo(a)}</button>)}
-          </section>}
-          <section><h3>Legendas</h3>
-            <button data-foco class={e.legenda === -1 ? 'opcao ativa' : 'opcao'} onClick={() => escolherLegenda(-1)}>Desligadas</button>
-            {legendas.map(l => <button data-foco key={l.Index} class={l.Index === e.legenda ? 'opcao ativa' : 'opcao'} onClick={() => escolherLegenda(l.Index)}>
-              {nomeFluxo(l)}{l.IsForced ? ' (forçada)' : ''}
-              {l.DeliveryMethod === 'Encode' && <small class="opcao-nota"> · o servidor grava no vídeo</small>}</button>)}
-          </section>
-        </div>
+        <PainelFaixas audios={audios} legendas={legendas} audio={e.audio} legenda={e.legenda}
+          escolherAudio={escolherAudio} escolherLegenda={escolherLegenda} fechar={() => setMenu(false)}
+          podeBuscar={podeBuscar} buscar={l => buscarLegendas(s, id, l)} baixar={baixarRemota} />
       )}
     </main>
   );

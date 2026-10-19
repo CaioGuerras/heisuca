@@ -1,50 +1,154 @@
-/* provisório: CSS do player do M2, até a sessão E redesenhar (PLANO §13) */
-.player .aba { display: inline-flex; gap: 8px; align-items: center; padding: 8px 12px; border-radius: 999px; color: #fff; }
-.player .botao { display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 999px; background: var(--hs-tema-cor-botao-fundo); color: var(--hs-tema-cor-botao-texto); font-weight: 600; }
-@keyframes hs-gira { to { transform: rotate(360deg); } }
-.player { position: fixed; inset: 0; background: #000; color: #fff; overflow: hidden; }
+/* Player (PLANO §13). Sempre preto; a cor do tema entra só como toque (progresso, item escolhido).
+   Desenho: vidhub/…foto46–49 (topo, barra fina com o tempo, "Pular início" no canto); painel: app_completo/…foto25. */
+.player { position: fixed; inset: 0; z-index: 30; background: #000; color: #fff; overflow: hidden; font-family: var(--hs-fonte-texto);
+  --pl-margem: max(20px, env(safe-area-inset-left, 0px)); --pl-fundo-painel: rgb(22 19 30 / .97); --pl-linha: rgb(255 255 255 / .1);
+  --pl-texto-2: rgb(255 255 255 / .66); }
+@media (min-width: 900px) { .player { --pl-margem: 40px; } }
 .player video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #000; }
-.player video::cue { font-family: var(--hs-fonte-texto); font-size: 1.1em; background: rgba(0,0,0,.6); }
+.player video::cue { font-family: var(--hs-fonte-texto); font-size: 1.1em; background: rgb(0 0 0 / .6); }
 .player.oculto { cursor: none; }
-.player-topo, .player-base { position: absolute; left: 0; right: 0; z-index: 2; padding: var(--hs-espaco-4) var(--hs-espaco-8);
-  transition: opacity var(--hs-tempo-tela) var(--hs-curva-padrao); }
-.player.oculto .player-topo, .player.oculto .player-base { opacity: 0; pointer-events: none; }
-.player-topo { top: 0; display: flex; align-items: center; gap: var(--hs-espaco-4); background: linear-gradient(rgba(0,0,0,.75), transparent); }
-.player-topo div { display: flex; flex-direction: column; min-width: 0; }
-.player-topo small { color: rgba(255,255,255,.75); }
-.player-base { bottom: 0; background: linear-gradient(transparent, rgba(0,0,0,.85)); }
-.player-controles { display: flex; align-items: center; gap: var(--hs-espaco-2); }
-.player .aba { color: #fff; }
-.player-play { padding: var(--hs-espaco-2); }
-.player-tempo { font-variant-numeric: tabular-nums; margin-left: var(--hs-espaco-2); font-size: var(--hs-tamanho-pequeno); }
-.player-espaco { flex: 1; }
-.player-selo { font-size: var(--hs-tamanho-legenda); padding: 2px var(--hs-espaco-2); border: 1px solid rgba(255,255,255,.4); border-radius: var(--hs-raio-pequeno); color: rgba(255,255,255,.8); }
-.player-barra { -webkit-appearance: none; appearance: none; width: 100%; height: 20px; margin: 0 0 var(--hs-espaco-2); background: transparent; cursor: pointer; }
-.player-barra::-webkit-slider-runnable-track { height: 4px; border-radius: 2px;
-  background: linear-gradient(to right, var(--hs-tema-cor-primaria) var(--feito), rgba(255,255,255,.3) var(--feito)); }
-.player-barra::-moz-range-track { height: 4px; border-radius: 2px; background: rgba(255,255,255,.3); }
-.player-barra::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--hs-tema-cor-primaria); }
-.player-barra::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; margin-top: -5px; border-radius: 50%; background: #fff; }
-.player-barra::-moz-range-thumb { width: 14px; height: 14px; border: 0; border-radius: 50%; background: #fff; }
-.player-barra:focus-visible, .tv .player-barra:focus { outline-offset: 0; }
-.player-espera { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; z-index: 1; }
-.player-espera span { width: 48px; height: 48px; border-radius: 50%; border: 3px solid rgba(255,255,255,.25); border-top-color: #fff; animation: hs-gira 0.9s linear infinite; }
-@keyframes hs-gira { to { transform: rotate(360deg); } }
-.player-erro { position: absolute; inset: 0; z-index: 3; display: grid; place-content: center; justify-items: center; gap: var(--hs-espaco-4); text-align: center; padding: var(--hs-espaco-8); }
-.player-menu { position: absolute; z-index: 4; right: var(--hs-espaco-8); bottom: 120px; width: min(360px, 90vw); max-height: 60vh; overflow-y: auto;
-  background: rgba(20,20,20,.94); border-radius: var(--hs-raio-grande); padding: var(--hs-espaco-4); display: flex; flex-direction: column; gap: var(--hs-espaco-4); }
-.player-menu h3 { margin: 0 0 var(--hs-espaco-2); font-size: var(--hs-tamanho-pequeno); color: rgba(255,255,255,.7); font-weight: var(--hs-peso-medio); }
-.opcao { display: block; width: 100%; text-align: left; padding: var(--hs-espaco-2) var(--hs-espaco-3); border-radius: var(--hs-raio-medio); color: #fff; }
-.opcao:hover, .opcao:focus { background: rgba(255,255,255,.12); }
-.opcao.ativa { color: var(--hs-tema-cor-primaria); font-weight: var(--hs-peso-forte); }
-.opcao.ativa::before { content: "✓ "; }
-.opcao-nota { color: rgba(255,255,255,.6); font-weight: var(--hs-peso-normal); }
-.player-proximo { position: absolute; z-index: 3; right: var(--hs-espaco-8); bottom: 140px; display: flex; flex-direction: column; gap: var(--hs-espaco-2);
-  background: rgba(20,20,20,.9); border-radius: var(--hs-raio-grande); padding: var(--hs-espaco-4) var(--hs-espaco-6); }
-.player-proximo small { color: rgba(255,255,255,.7); }
+.player button { color: inherit; -webkit-tap-highlight-color: transparent; }
+.player button:disabled { opacity: .32; cursor: default; }
+.player :focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
+/* botão de ícone, sem fundo (como no VidHub): só o desenho branco com sombra leve para ler sobre qualquer imagem */
+.player-icone { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; flex: none;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / .45)); transition: background-color .15s, transform var(--hs-tempo-toque) var(--hs-curva-padrao); }
+.player-icone:not(:disabled):hover { background: rgb(255 255 255 / .12); }
+.player-icone:not(:disabled):active { transform: scale(.92); }
+.player-icone.ativo { color: var(--hs-tema-cor-primaria); }
+.player-pilula { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 0 20px;
+  border-radius: var(--hs-raio-total); background: #fff; color: #111 !important; font-weight: 600; font-size: 14px; }
+
+/* camadas que somem juntas */
+.player-topo, .player-base, .player-centro { position: absolute; z-index: 2; transition: opacity var(--hs-tempo-tela) var(--hs-curva-padrao); }
+.player.oculto .player-topo, .player.oculto .player-base, .player.oculto .player-centro { opacity: 0; pointer-events: none; }
+.player.oculto .player-centro button { pointer-events: none; }
+
+/* topo: ← + "Deadwood T1:E1 · nome" (vidhub/…foto46) */
+.player-topo { top: 0; left: 0; right: 0; display: flex; align-items: center; gap: 8px;
+  padding: max(10px, env(safe-area-inset-top, 0px)) var(--pl-margem) 34px calc(var(--pl-margem) - 10px);
+  background: linear-gradient(rgb(0 0 0 / .62), rgb(0 0 0 / .28) 55%, transparent); }
+.player-topo h1 { margin: 0; min-width: 0; font-size: 15px; font-weight: 600; letter-spacing: .005em; text-shadow: 0 1px 3px rgb(0 0 0 / .5); }
+.player-topo h1 span { font-weight: 400; color: rgb(255 255 255 / .8); }
+
+/* centro: ⏮ −10 ⏯ +10 ⏭ */
+.player-centro { left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; gap: clamp(14px, 4vw, 40px);
+  pointer-events: none; }
+.player-centro button { pointer-events: auto; }
+.player-centro .player-icone { width: 52px; height: 52px; }
+.player-play { width: 72px !important; height: 72px !important; background: rgb(0 0 0 / .28); }
+.player-play:not(:disabled):hover { background: rgb(0 0 0 / .4); }
+
+/* base: tempo · barra fina · duração · Áudio e legendas · tela cheia */
+.player-base { left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 12px;
+  padding: 40px calc(var(--pl-margem) - 8px) max(10px, env(safe-area-inset-bottom, 0px)) var(--pl-margem);
+  background: linear-gradient(transparent, rgb(0 0 0 / .32) 45%, rgb(0 0 0 / .66)); }
+.player-tempo { flex: none; min-width: 3.4em; font-size: 12px; font-variant-numeric: tabular-nums; color: rgb(255 255 255 / .92);
+  text-shadow: 0 1px 2px rgb(0 0 0 / .5); }
+.player-tempo:first-child { text-align: left; }
+.player-tempo:nth-child(3) { text-align: right; margin-right: 4px; }
+.player-barra { -webkit-appearance: none; appearance: none; flex: 1; min-width: 0; height: 24px; margin: 0; background: transparent; cursor: pointer;
+  --trilho: rgb(255 255 255 / .28); }
+.player-barra::-webkit-slider-runnable-track { height: 3px; border-radius: 2px;
+  background: linear-gradient(to right, var(--hs-tema-cor-primaria) var(--feito), var(--trilho) var(--feito)); transition: height .12s; }
+.player-barra::-moz-range-track { height: 3px; border-radius: 2px; background: var(--trilho); }
+.player-barra::-moz-range-progress { height: 3px; border-radius: 2px; background: var(--hs-tema-cor-primaria); }
+.player-barra::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; margin-top: -4.5px; border-radius: 50%; background: #fff;
+  box-shadow: 0 0 0 0 rgb(255 255 255 / .25); transition: box-shadow .15s; }
+.player-barra::-moz-range-thumb { width: 12px; height: 12px; border: 0; border-radius: 50%; background: #fff; }
+.player-barra:hover::-webkit-slider-thumb, .player-barra:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 6px rgb(255 255 255 / .2); }
+.player-barra:focus-visible { outline: none; }
+
+/* Pular abertura / Pular créditos: canto inferior esquerdo, acima da barra (vidhub/…foto48), só dentro do capítulo */
+.player-pular { position: absolute; z-index: 3; left: var(--pl-margem); bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  padding: 9px 16px; border-radius: 10px; font-size: 13px; font-weight: 500; letter-spacing: .01em;
+  background: rgb(28 26 34 / .72); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / .14); animation: pl-surge .3s var(--hs-curva-padrao) both;
+  transition: background-color .15s, bottom var(--hs-tempo-tela) var(--hs-curva-padrao); }
+.player-pular:hover { background: rgb(52 48 62 / .85); }
+.player.oculto .player-pular { bottom: calc(28px + env(safe-area-inset-bottom, 0px)); }
+@keyframes pl-surge { from { opacity: 0; transform: translateY(6px); } }
+
+/* carregamento: o selo carimba e respira (player/Carregando.tsx) */
+.player-carregando { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; pointer-events: none; }
+.player-carregando > div { width: 38px; line-height: 0; }
+.player-carregando svg { display: block; width: 100%; height: auto; }
+.player-carregando .palavra, .player-carregando .kata, .player-carregando .luz, .player-carregando .slogan { display: none; }
+.player-carregando > div { animation: pl-respira 1.8s ease-in-out .75s infinite; }
+/* só opacidade: um transform em CSS no grupo .selo apagaria o translate do próprio SVG */
+@keyframes pl-respira { 50% { opacity: .5; transform: scale(.95); } }
+@media (prefers-reduced-motion: reduce) { .player-carregando .selo { animation-duration: 2.6s; } }
+.player.esperando .player-centro { display: none; }
+
+.player-erro { position: absolute; inset: 0; z-index: 3; display: grid; place-content: center; justify-items: center; gap: 16px;
+  text-align: center; padding: 32px; max-width: 520px; margin: auto; }
+.player-erro p { margin: 0; line-height: 1.5; }
+
+/* fim do episódio: cartão discreto no canto, acima da barra */
+.player-proximo { position: absolute; z-index: 3; right: var(--pl-margem); bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  display: flex; gap: 14px; align-items: center; width: min(400px, calc(100vw - 2 * var(--pl-margem))); padding: 10px;
+  border-radius: 14px; background: rgb(22 19 30 / .86); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / .1), 0 10px 30px rgb(0 0 0 / .4); animation: pl-surge .35s var(--hs-curva-padrao) both; }
+.player-proximo img { width: 132px; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 8px; flex: none; background: #222; }
+.player-proximo > div { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; }
+.player-proximo small { font-size: 12px; color: var(--pl-texto-2); }
+.player-proximo strong { font-size: 14px; font-weight: 600; max-width: 100%; }
+.player-proximo .player-pilula { margin-top: 4px; min-height: 34px; padding: 0 16px 0 12px; font-size: 13px; }
+
+/* ---- painel Áudio e legendas ---- */
+.painel-fundo { position: absolute; inset: 0; z-index: 10; display: grid; place-items: center; padding: 16px;
+  background: rgb(0 0 0 / .42); animation: pl-esmaece .2s ease both; }
+@keyframes pl-esmaece { from { opacity: 0; } }
+.painel { display: flex; flex-direction: column; width: min(820px, 100%); max-height: min(560px, calc(100dvh - 32px));
+  background: var(--pl-fundo-painel); border-radius: 18px; box-shadow: 0 20px 60px rgb(0 0 0 / .5), inset 0 0 0 1px rgb(255 255 255 / .06);
+  overflow: hidden; animation: pl-abre .24s var(--hs-curva-padrao) both; }
+@keyframes pl-abre { from { opacity: 0; transform: translateY(10px) scale(.985); } }
+.painel-cabeca { display: flex; align-items: center; gap: 12px; padding: 14px 12px 14px 20px; border-bottom: 1px solid var(--pl-linha); flex: none; }
+.painel-cabeca h2 { flex: 1; margin: 0; font-size: 17px; font-weight: 600; }
+.painel-fechar, .painel-voltar { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; }
+.painel-voltar { margin-left: -10px; margin-right: -6px; }
+.painel-fechar:hover, .painel-voltar:hover { background: rgb(255 255 255 / .1); }
+.painel-corpo { display: grid; grid-template-columns: 1fr 1fr; min-height: 0; flex: 1; }
+.painel-coluna { overflow-y: auto; overscroll-behavior: contain; padding: 6px 8px 14px; min-height: 0; scrollbar-width: thin; }
+.painel-coluna + .painel-coluna { border-left: 1px solid var(--pl-linha); }
+.painel-coluna h3 { margin: 10px 12px 6px; font-size: 13px; font-weight: 500; color: var(--pl-texto-2); }
+.painel-opcao { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 10px 12px; border-radius: 10px;
+  min-height: 52px; transition: background-color .12s; }
+.painel-opcao:hover, .painel-opcao:focus-visible { background: rgb(255 255 255 / .08); outline: none; }
+.painel-opcao > span:first-child { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.painel-opcao strong { font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }
+.painel-opcao small { font-size: 12px; color: var(--pl-texto-2); overflow-wrap: anywhere; }
+.painel-opcao.ativa strong { font-weight: 600; }
+.painel-opcao.ativa .icone { color: var(--hs-tema-cor-primaria); }
+.painel-opcao:disabled { opacity: .4; }
+.painel-buscar { margin-top: 6px; border-top: 1px solid var(--pl-linha); border-radius: 0 0 10px 10px; padding-top: 14px; }
+.painel-buscar .icone, .painel-resultado .icone { color: var(--pl-texto-2); }
+.painel-resultado strong { font-size: 13px; }
+.painel-nota { margin: 6px 12px 10px; font-size: 13px; color: var(--pl-texto-2); }
+.player .girando svg { animation: pl-gira 1s linear infinite; }
+@keyframes pl-gira { to { transform: rotate(360deg); } }
+/* tema claro (Verde): o player continua escuro; a primária verde escura não lê sobre preto, usa a clara do Hisui */
+[data-tema="hisui"] .player { --hs-tema-cor-primaria: #34d399; }
+
+/* celular em pé: uma coluna rolável, o painel sobe de baixo */
 @media (max-width: 599px) {
-  .player-topo, .player-base { padding: var(--hs-espaco-3) var(--hs-espaco-4); }
-  .player-tempo { display: none; }
-  .player-menu { right: var(--hs-espaco-4); left: var(--hs-espaco-4); width: auto; bottom: 100px; }
+  .painel-fundo { place-items: end stretch; padding: 0; }
+  .painel { width: 100%; max-height: 82dvh; border-radius: 18px 18px 0 0; padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .painel-corpo { display: block; overflow-y: auto; overscroll-behavior: contain; }
+  .painel-coluna { overflow: visible; }
+  .painel-coluna + .painel-coluna { border-left: 0; border-top: 1px solid var(--pl-linha); }
+  .player-centro { gap: 10px; }
+  .player-centro .player-icone { width: 46px; height: 46px; }
+  .player-proximo img { width: 104px; }
+}
+/* celular deitado (pouca altura): tudo mais junto */
+@media (max-height: 480px) {
+  .player-topo { padding-bottom: 24px; }
+  .player-base { padding-top: 28px; }
+  .painel { max-height: calc(100dvh - 24px); }
+  .painel-fundo { padding: 12px; }
+  .painel-cabeca { padding-top: 8px; padding-bottom: 8px; }
+  .painel-opcao { min-height: 46px; padding-top: 7px; padding-bottom: 7px; }
+  .player-pular, .player-proximo { bottom: calc(60px + env(safe-area-inset-bottom, 0px)); }
 }

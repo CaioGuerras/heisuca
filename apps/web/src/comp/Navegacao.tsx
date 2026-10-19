@@ -1,9 +1,5 @@
-// Navegação no modelo dos nossos apps (SITE_REMODELAGEM.md; CGFLIX TV P13/P14):
-// - destinos: Início, Buscar (com "Disponível para pedir") e Favoritos. Sem aba de Pedidos: a busca já pede (Caio, P13).
-// - celular (< 840 px): barra de abas embaixo; computador/tablet/TV: links no topo.
-// - o resto (bibliotecas, Meus pedidos, tema, Sair) mora no menu do botão do canto (avatar) e só abre quando ele é escolhido.
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { bibliotecas, sair, type Item, type Sessao } from '../api/jellyfin';
+import { bibliotecas, fotoUsuario, sair, type Item, type Sessao } from '../api/jellyfin';
 import { sairDoSeerr } from '../api/seerr';
 import { irAba, irBiblioteca, type Rota } from '../rota';
 import { Icone } from './Icone';
@@ -17,52 +13,232 @@ export const listaBibliotecas = (s: Sessao) =>
 const ICONE_LIB: Record<string, string> = { movies: 'theaters', tvshows: 'live_tv', boxsets: 'collections_bookmark' };
 export const iconeBiblioteca = (b: Item) => b.Name === 'Animes' ? 'video_library' : ICONE_LIB[b.CollectionType || ''] || 'video_library';
 
-const TEMAS: [string, string][] = [['shikkoku', 'Shikkoku'], ['hisui', 'Hisui'], ['ichigo', 'Ichigo'], ['sorairo', 'Sorairo'], ['shinju', 'Shinju']];
-const DESTINOS = [
-  { aba: '' as const, tela: 'inicio', rot: 'Início', ic: 'home' },
-  { aba: 'busca' as const, tela: 'busca', rot: 'Buscar', ic: 'search' },
-  { aba: 'fav' as const, tela: 'fav', rot: 'Favoritos', ic: 'favorite' },
+// Temas permitidos no site e Android: apenas Roxo, Verde e Automático (vermelho/azul = Kids Mode; dourado = iOS)
+const TEMAS: [string, string, string][] = [
+  ['shikkoku', 'Shikkoku (Roxo)', '#9d74ff'],
+  ['hisui', 'Hisui (Verde)', '#10b981'],
+  ['auto', 'Automático (Sistema)', 'linear-gradient(135deg, #9d74ff 50%, #10b981 50%)'],
 ];
 
+
+const CHECKLIST_KEY = 'heisuca.checklist.v1';
+
 function Menu({ s, fechar }: { s: Sessao; fechar: () => void }) {
-  const [lista, setLista] = useState<Item[]>([]);
-  const [tema, setTema] = useState(document.documentElement.dataset.tema || 'shikkoku');
+  const [tema, setTema] = useState(() => localStorage.getItem('heisuca.tema') || 'shikkoku');
+  const [secaoAtiva, setSecaoAtiva] = useState<string | null>(null);
+  const [checklist, setChecklist] = useState<Record<string, boolean>>(() => {
+    try { return JSON.parse(localStorage.getItem(CHECKLIST_KEY) || '{}'); } catch { return {}; }
+  });
+  const [imgErro, setImgErro] = useState(false);
   const painel = useRef<HTMLDivElement>(null);
-  useEffect(() => { listaBibliotecas(s).then(setLista).catch(() => null); }, []);
+
   useEffect(() => {
     painel.current?.querySelector<HTMLElement>('button')?.focus();
-    const tecla = (e: KeyboardEvent) => { if (e.key === 'Escape' || e.keyCode === 10009 || e.keyCode === 461) { e.preventDefault(); e.stopPropagation(); fechar(); } };
+    const tecla = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' || e.keyCode === 10009 || e.keyCode === 461) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (secaoAtiva) setSecaoAtiva(null);
+        else fechar();
+      }
+    };
     addEventListener('keydown', tecla, true);
     return () => removeEventListener('keydown', tecla, true);
-  }, []);
-  const trocarTema = (t: string) => { document.documentElement.dataset.tema = t; localStorage.setItem('heisuca.tema', t); setTema(t); };
-  const ir = (f: () => void) => () => { fechar(); f(); };
+  }, [secaoAtiva]);
+
+  const trocarTema = (t: string) => {
+    const aplicavel = t === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'shikkoku' : 'hisui') : t;
+    document.documentElement.dataset.tema = aplicavel;
+    localStorage.setItem('heisuca.tema', t);
+    setTema(t);
+  };
+
+  const alternarCheck = (id: string) => {
+    const novo = { ...checklist, [id]: !checklist[id] };
+    setChecklist(novo);
+    localStorage.setItem(CHECKLIST_KEY, JSON.stringify(novo));
+  };
+
+  const tarefasGuia = [
+    { id: 'catalogo', label: 'Explorar o catálogo e fileiras' },
+    { id: 'favoritos', label: 'Salvar filmes e séries nos Favoritos' },
+    { id: 'tema', label: 'Escolher entre tema Shikkoku e Hisui' },
+    { id: 'apps', label: 'Conhecer os apps nativos (Android/TV)' },
+  ];
+  const tarefasConcluidas = tarefasGuia.every(t => checklist[t.id]);
+
   return (
     <div class="menu-fundo" onClick={e => { if (e.target === e.currentTarget) fechar(); }}>
-      <div class="menu-painel" role="dialog" aria-label="Menu" ref={painel}>
+      <div class="menu-painel" role="dialog" aria-label="Menu do Usuário" ref={painel}>
+        {/* Cabeçalho do Perfil */}
         <div class="menu-cabeca">
-          <span class="avatar grande" aria-hidden="true">{s.nome.slice(0, 1).toUpperCase()}</span>
-          <strong>{s.nome}</strong>
-          <button data-foco class="menu-fechar" aria-label="Fechar" onClick={fechar}><Icone nome="close" /></button>
-        </div>
-        <p class="menu-secao">Bibliotecas</p>
-        {lista.map(b => (
-          <button data-foco class="menu-item" key={b.Id} onClick={ir(() => irBiblioteca(b.Id))}>
-            <Icone nome={iconeBiblioteca(b)} /><span>{b.Name}</span><Icone nome="chevron_right" />
+          <div class="avatar-foto grande">
+            {!imgErro ? (
+              <img
+                src={fotoUsuario(s, 96)}
+                alt={s.nome}
+                onError={() => setImgErro(true)}
+              />
+            ) : (
+              <span class="avatar grande" aria-hidden="true">{s.nome.slice(0, 1).toUpperCase()}</span>
+            )}
+          </div>
+          <div class="menu-usuario-info">
+            <strong>{s.nome}</strong>
+            <small>Heisuca Web</small>
+          </div>
+          <button data-foco class="menu-fechar" aria-label="Fechar menu" onClick={fechar}>
+            <Icone nome="close" />
           </button>
-        ))}
-        <p class="menu-secao">Conta</p>
-        <button data-foco class="menu-item" onClick={ir(() => irAba('pedidos'))}><Icone nome="playlist_add_check" /><span>Meus pedidos</span><Icone nome="chevron_right" /></button>
-        <div class="menu-temas" role="group" aria-label="Tema">
-          <Icone nome="palette" />
-          {TEMAS.map(([id, nome]) => (
-            <button data-foco key={id} class={id === tema ? 'tema-bola ativa' : 'tema-bola'} data-tema-amostra={id} aria-pressed={id === tema}
-              title={nome} aria-label={`Tema ${nome}`} onClick={() => trocarTema(id)} />
-          ))}
         </div>
-        <button data-foco class="menu-item" onClick={() => { sairDoSeerr(s).finally(() => { sair(); location.hash = ''; location.reload(); }); }}>
-          <Icone nome="logout" /><span>Sair</span>
-        </button>
+
+        {/* 6 Itens Essenciais das Configurações */}
+        <div class="menu-lista">
+          {/* 1. Minha Conta / Perfil */}
+          <button data-foco class="menu-item" onClick={() => setSecaoAtiva(secaoAtiva === 'perfil' ? null : 'perfil')}>
+            <Icone nome="account_circle" />
+            <span>Minha Conta</span>
+            <Icone nome={secaoAtiva === 'perfil' ? 'expand_less' : 'chevron_right'} />
+          </button>
+          {secaoAtiva === 'perfil' && (
+            <div class="menu-subpainel">
+              <p>Usuário ativo: <strong>{s.nome}</strong></p>
+              <p class="menu-dica">Para trocar sua foto de perfil ou senha, acesse o painel Jellyfin em sua conta.</p>
+            </div>
+          )}
+
+          {/* 2. Como Usar (Guia Interativo com Checkboxes) */}
+          <button data-foco class="menu-item" onClick={() => setSecaoAtiva(secaoAtiva === 'guia' ? null : 'guia')}>
+            <Icone nome="help_outline" />
+            <span>Como Usar</span>
+            {tarefasConcluidas && <small class="selo-verde">✓ Completo</small>}
+            <Icone nome={secaoAtiva === 'guia' ? 'expand_less' : 'chevron_right'} />
+          </button>
+          {secaoAtiva === 'guia' && (
+            <div class="menu-subpainel checklist">
+              <p class="menu-dica">Guia rápido para aproveitar ao máximo o Heisuca:</p>
+              {tarefasGuia.map(t => (
+                <label key={t.id} class="check-item">
+                  <input
+                    type="checkbox"
+                    checked={!!checklist[t.id]}
+                    onChange={() => alternarCheck(t.id)}
+                  />
+                  <span class={checklist[t.id] ? 'riscado' : ''}>{t.label}</span>
+                </label>
+              ))}
+              {tarefasConcluidas && <p class="sucesso-msg">Tudo pronto! Você já domina o Heisuca.</p>}
+            </div>
+          )}
+
+          {/* 3. Temas (Shikkoku, Hisui, Automático) */}
+          <button data-foco class="menu-item" onClick={() => setSecaoAtiva(secaoAtiva === 'temas' ? null : 'temas')}>
+            <Icone nome="palette" />
+            <span>Temas</span>
+            <Icone nome={secaoAtiva === 'temas' ? 'expand_less' : 'chevron_right'} />
+          </button>
+          {secaoAtiva === 'temas' && (
+            <div class="menu-subpainel">
+              <p class="menu-dica">Selecione o estilo visual do Heisuca:</p>
+              <div class="temas-seletor" role="radiogroup" aria-label="Temas">
+                {TEMAS.map(([id, nome, cor]) => (
+                  <button
+                    key={id}
+                    type="button"
+                    class={tema === id ? 'tema-opcao ativa' : 'tema-opcao'}
+                    onClick={() => trocarTema(id)}
+                    aria-checked={tema === id}
+                    role="radio"
+                  >
+                    <span class="tema-cor-amostra" style={{ background: cor }} />
+                    <span>{nome}</span>
+                    {tema === id && <Icone nome="check" />}
+                  </button>
+                ))}
+              </div>
+              <small class="menu-nota-kids">
+                Os temas Ichigo (Vermelho) e Sorairo (Azul) são exclusivos do Modo Kids. Shinju (Dourado) é exclusivo do iOS.
+              </small>
+            </div>
+          )}
+
+          {/* 4. Download dos Apps */}
+          <button data-foco class="menu-item" onClick={() => setSecaoAtiva(secaoAtiva === 'apps' ? null : 'apps')}>
+            <Icone nome="download" />
+            <span>Download dos Apps</span>
+            <Icone nome={secaoAtiva === 'apps' ? 'expand_less' : 'chevron_right'} />
+          </button>
+          {secaoAtiva === 'apps' && (
+            <div class="menu-subpainel apps-download">
+              <p class="menu-dica">Experimente a máxima fidelidade visual com os apps nativos:</p>
+              <a class="botao-app-dl" href="/__heisuca/pacotes/heisuca-android.apk" target="_blank" rel="noreferrer">
+                <Icone nome="android" />
+                <div>
+                  <strong>Android Mobile & TV</strong>
+                  <small>APK oficial com decodificação direta de hardware</small>
+                </div>
+              </a>
+              <a class="botao-app-dl" href="/__heisuca/pacotes/heisuca-tizen.wgt" target="_blank" rel="noreferrer">
+                <Icone nome="tv" />
+                <div>
+                  <strong>Samsung Smart TV (Tizen)</strong>
+                  <small>Pacote .wgt para TVs Samsung 2017+</small>
+                </div>
+              </a>
+              <div class="app-item-info">
+                <Icone nome="apple" />
+                <div>
+                  <strong>Apple iOS & Mac</strong>
+                  <small>Em fase de testes no TestFlight com tema Shinju exclusivo</small>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 5. Sobre o Heisuca */}
+          <button data-foco class="menu-item" onClick={() => setSecaoAtiva(secaoAtiva === 'sobre' ? null : 'sobre')}>
+            <Icone nome="info" />
+            <span>Sobre o Heisuca</span>
+            <Icone nome={secaoAtiva === 'sobre' ? 'expand_less' : 'chevron_right'} />
+          </button>
+          {secaoAtiva === 'sobre' && (
+            <div class="menu-subpainel">
+              <p><strong>Heisuca Web v0.1.1</strong></p>
+              <p class="menu-dica"><em>"Nada entre você e o filme."</em></p>
+              <p class="menu-nota-kids">
+                Interface de luxo minimalista, motor otimizado para streaming contínuo sem transcode forçado e suporte nativo a legendas estilizadas via JASSUB.
+              </p>
+              <p class="menu-nota-kids">Licença: GNU GPL-3.0</p>
+            </div>
+          )}
+
+          {/* 6. Apoiar o Heisuca */}
+          <button data-foco class="menu-item" onClick={() => setSecaoAtiva(secaoAtiva === 'apoiar' ? null : 'apoiar')}>
+            <Icone nome="favorite" />
+            <span>Apoiar o Heisuca</span>
+            <Icone nome={secaoAtiva === 'apoiar' ? 'expand_less' : 'chevron_right'} />
+          </button>
+          {secaoAtiva === 'apoiar' && (
+            <div class="menu-subpainel">
+              <p>O Heisuca é mantido para oferecer a melhor experiência sem anúncios nem rastreamento.</p>
+              <p class="menu-dica">Fale com o Caio no Telegram para contribuir com a infraestrutura e novos recursos.</p>
+            </div>
+          )}
+        </div>
+
+        {/* Rodapé do Menu: Sair */}
+        <div class="menu-rodape">
+          <button data-foco class="menu-item menu-item-sair" onClick={() => {
+            sairDoSeerr(s).finally(() => {
+              sair();
+              location.hash = '';
+              location.reload();
+            });
+          }}>
+            <Icone nome="logout" />
+            <span>Sair</span>
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -70,30 +246,151 @@ function Menu({ s, fechar }: { s: Sessao; fechar: () => void }) {
 
 export function Navegacao({ s, r, rolado = true }: { s: Sessao; r: Rota; rolado?: boolean }) {
   const [aberto, setAberto] = useState(false);
+  const [imgErro, setImgErro] = useState(false);
+  const [libsLista, setLibsLista] = useState<Item[]>([]);
   const botao = useRef<HTMLButtonElement>(null);
   const fechar = () => { setAberto(false); botao.current?.focus(); };
+
+  useEffect(() => {
+    listaBibliotecas(s).then(setLibsLista).catch(() => null);
+  }, [s.token]);
+
+  // Se rota for biblioteca sem ID, pega a primeira
+  const irBib = () => {
+    if (r.tela === 'biblioteca') return;
+    if (libsLista.length > 0) irBiblioteca(libsLista[0].Id);
+    else irAba('biblioteca' as any);
+  };
+
   return (
     <>
       <header class={rolado ? 'topo rolado' : 'topo'}>
-        <button data-foco class="marca-texto pequena" onClick={() => irAba('')} aria-label="Heisuca, Início">HEISUCA</button>
-        <nav class="topo-links" aria-label="Principal">
-          {DESTINOS.map(d => (
-            <button data-foco key={d.tela} class={r.tela === d.tela ? 'aba ativa' : 'aba'} aria-current={r.tela === d.tela ? 'page' : undefined} onClick={() => irAba(d.aba)}>
-              <Icone nome={d.ic} cheio={r.tela === d.tela} /><span>{d.rot}</span>
-            </button>
-          ))}
-        </nav>
-        <button data-foco ref={botao} class="avatar-botao" aria-label="Abrir menu" aria-haspopup="dialog" aria-expanded={aberto} onClick={() => setAberto(true)}>
-          <span class="avatar" aria-hidden="true">{s.nome.slice(0, 1).toUpperCase()}</span>
+        <button data-foco class="marca-texto pequena" onClick={() => irAba('')} aria-label="Heisuca, Início">
+          HEISUCA
         </button>
-      </header>
-      <nav class="abas-baixo" aria-label="Principal">
-        {DESTINOS.map(d => (
-          <button key={d.tela} class={r.tela === d.tela ? 'aba-baixo ativa' : 'aba-baixo'} aria-current={r.tela === d.tela ? 'page' : undefined} onClick={() => irAba(d.aba)}>
-            <span class="aba-pilula"><Icone nome={d.ic} cheio={r.tela === d.tela} /></span><span>{d.rot}</span>
+
+        <nav class="topo-links" aria-label="Principal">
+          <button
+            data-foco
+            class={r.tela === 'inicio' ? 'aba ativa' : 'aba'}
+            aria-current={r.tela === 'inicio' ? 'page' : undefined}
+            onClick={() => irAba('')}
+          >
+            <Icone nome="home" cheio={r.tela === 'inicio'} />
+            <span>Início</span>
           </button>
-        ))}
+
+          <button
+            data-foco
+            class={r.tela === 'biblioteca' ? 'aba ativa' : 'aba'}
+            aria-current={r.tela === 'biblioteca' ? 'page' : undefined}
+            onClick={irBib}
+          >
+            <Icone nome="video_library" cheio={r.tela === 'biblioteca'} />
+            <span>Biblioteca</span>
+          </button>
+
+          <button
+            data-foco
+            class={r.tela === 'fav' ? 'aba ativa' : 'aba'}
+            aria-current={r.tela === 'fav' ? 'page' : undefined}
+            onClick={() => irAba('fav')}
+          >
+            <Icone nome="favorite" cheio={r.tela === 'fav'} />
+            <span>Favoritos</span>
+          </button>
+
+          <button
+            data-foco
+            class={r.tela === 'busca' ? 'aba ativa' : 'aba'}
+            aria-current={r.tela === 'busca' ? 'page' : undefined}
+            onClick={() => irAba('busca')}
+          >
+            <Icone nome="search" cheio={r.tela === 'busca'} />
+            <span>Buscar</span>
+          </button>
+        </nav>
+
+        <div class="topo-acoes">
+          <button data-foco class="busca-topo-botao" onClick={() => irAba('busca')} aria-label="Buscar títulos">
+            <Icone nome="search" />
+          </button>
+
+          <button
+            data-foco
+            ref={botao}
+            class="avatar-botao"
+            aria-label="Abrir menu do usuário"
+            aria-haspopup="dialog"
+            aria-expanded={aberto}
+            onClick={() => setAberto(true)}
+          >
+            <div class="avatar-foto">
+              {!imgErro ? (
+                <img
+                  src={fotoUsuario(s, 72)}
+                  alt={s.nome}
+                  onError={() => setImgErro(true)}
+                />
+              ) : (
+                <span class="avatar" aria-hidden="true">{s.nome.slice(0, 1).toUpperCase()}</span>
+              )}
+            </div>
+          </button>
+        </div>
+      </header>
+
+      {/* Barra de Navegação Inferior (Mobile e Tablet: 4 abas fixas) */}
+      <nav class="abas-baixo" aria-label="Navegação Inferior">
+        <button
+          class={r.tela === 'inicio' ? 'aba-baixo ativa' : 'aba-baixo'}
+          aria-current={r.tela === 'inicio' ? 'page' : undefined}
+          onClick={() => irAba('')}
+        >
+          <span class="aba-pilula"><Icone nome="home" cheio={r.tela === 'inicio'} /></span>
+          <span>Início</span>
+        </button>
+
+        <button
+          class={r.tela === 'biblioteca' ? 'aba-baixo ativa' : 'aba-baixo'}
+          aria-current={r.tela === 'biblioteca' ? 'page' : undefined}
+          onClick={irBib}
+        >
+          <span class="aba-pilula"><Icone nome="video_library" cheio={r.tela === 'biblioteca'} /></span>
+          <span>Biblioteca</span>
+        </button>
+
+        <button
+          class={r.tela === 'fav' ? 'aba-baixo ativa' : 'aba-baixo'}
+          aria-current={r.tela === 'fav' ? 'page' : undefined}
+          onClick={() => irAba('fav')}
+        >
+          <span class="aba-pilula"><Icone nome="favorite" cheio={r.tela === 'fav'} /></span>
+          <span>Favoritos</span>
+        </button>
+
+        <button
+          class={aberto ? 'aba-baixo ativa' : 'aba-baixo'}
+          aria-expanded={aberto}
+          onClick={() => setAberto(true)}
+        >
+          <span class="aba-pilula">
+            <div class="avatar-foto mini">
+              {!imgErro ? (
+                <img
+                  src={fotoUsuario(s, 48)}
+                  alt={s.nome}
+                  onError={() => setImgErro(true)}
+                />
+              ) : (
+                <span class="avatar mini" aria-hidden="true">{s.nome.slice(0, 1).toUpperCase()}</span>
+              )}
+            </div>
+          </span>
+          <span>{s.nome.split(' ')[0]}</span>
+        </button>
       </nav>
+
       {aberto && <Menu s={s} fechar={fechar} />}
     </>
   );

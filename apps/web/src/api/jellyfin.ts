@@ -3,6 +3,7 @@ const VERSAO = '0.1.0';
 const CHAVE = 'heisuca.sessao';
 
 export type Sessao = { servidor: string; token: string; usuarioId: string; nome: string };
+export type Pessoa = { Id: string; Name: string; Role?: string; Type?: string; PrimaryImageTag?: string };
 export type Item = {
   Id: string; Name: string; Type: string; SeriesName?: string; SeriesId?: string; ProductionYear?: number;
   Overview?: string; ImageTags?: Record<string, string>; BackdropImageTags?: string[];
@@ -10,7 +11,11 @@ export type Item = {
   IndexNumber?: number; ParentIndexNumber?: number; CollectionType?: string; SeasonId?: string;
   OfficialRating?: string; CommunityRating?: number; RunTimeTicks?: number; Genres?: string[]; Taglines?: string[];
   ChildCount?: number; ImageBlurHashes?: unknown; ParentLogoItemId?: string; ParentLogoImageTag?: string;
-  UserData?: { PlayedPercentage?: number; Played?: boolean; PlaybackPositionTicks?: number; UnplayedItemCount?: number };
+  UserData?: { PlayedPercentage?: number; Played?: boolean; PlaybackPositionTicks?: number; UnplayedItemCount?: number; IsFavorite?: boolean };
+  People?: Pessoa[];
+  MediaStreams?: Fluxo[];
+  MediaSources?: Fonte[];
+  Width?: number; Height?: number; Container?: string;
 };
 
 function idAparelho(): string {
@@ -100,15 +105,24 @@ export function miniatura(s: Sessao, i: Item, largura = 480): string {
 }
 
 // ---- página do título ----
-const CAMPOS_TITULO = 'fields=Overview,Genres,Taglines,PrimaryImageAspectRatio,ChildCount&enableImageTypes=Primary,Backdrop,Thumb,Logo';
+const CAMPOS_TITULO = 'fields=Overview,Genres,Taglines,PrimaryImageAspectRatio,ChildCount,People,MediaStreams,MediaSources&enableImageTypes=Primary,Backdrop,Thumb,Logo';
 
 export const item = (s: Sessao, id: string) => obter<Item>(s, `/Items/${id}?userId=${s.usuarioId}&${CAMPOS_TITULO}`);
+
+export function fotoPessoa(s: Sessao, p: { Id?: string; Name: string; PrimaryImageTag?: string }, tamanho = 160): string {
+  if (p.Id && p.PrimaryImageTag) return `${s.servidor}/Items/${p.Id}/Images/Primary?fillWidth=${tamanho}&quality=85&tag=${p.PrimaryImageTag}`;
+  return `${s.servidor}/Persons/${encodeURIComponent(p.Name)}/Images/Primary?fillWidth=${tamanho}&quality=85`;
+}
+
+export function fotoUsuario(s: Sessao, tamanho = 120): string {
+  return `${s.servidor}/Users/${s.usuarioId}/Images/Primary?fillWidth=${tamanho}&quality=90`;
+}
 
 export const temporadas = (s: Sessao, serieId: string) =>
   obter<{ Items: Item[] }>(s, `/Shows/${serieId}/Seasons?userId=${s.usuarioId}&fields=ChildCount`).then(d => d.Items);
 
 export const episodios = (s: Sessao, serieId: string, temporadaId: string) =>
-  obter<{ Items: Item[] }>(s, `/Shows/${serieId}/Episodes?userId=${s.usuarioId}&seasonId=${temporadaId}&fields=Overview&enableImageTypes=Primary,Backdrop,Thumb`)
+  obter<{ Items: Item[] }>(s, `/Shows/${serieId}/Episodes?userId=${s.usuarioId}&seasonId=${temporadaId}&fields=Overview,MediaStreams&enableImageTypes=Primary,Backdrop,Thumb`)
     .then(d => d.Items);
 
 export const proximoDaSerie = (s: Sessao, serieId: string) =>
@@ -122,6 +136,9 @@ export const seguinte = (s: Sessao, ep: Item) =>
 
 export const marcarAssistido = (s: Sessao, id: string, sim: boolean) =>
   pedir(s, sim ? 'POST' : 'DELETE', `/UserPlayedItems/${id}?userId=${s.usuarioId}`).then(r => r.json());
+
+export const marcarFavorito = (s: Sessao, id: string, sim: boolean) =>
+  pedir(s, sim ? 'POST' : 'DELETE', `/UserFavoriteItems/${id}?userId=${s.usuarioId}`).then(r => r.json());
 
 // ---- reprodução ----
 export type Fluxo = {

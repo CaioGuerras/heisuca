@@ -1,7 +1,8 @@
 // A casca do app: abertura → (entrada) → transição → telas (PLANO §3.1). A logo voa entre as três primeiras.
+import type { JSX } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import { quandoExpirar, type EmBreve, type Sessao } from './api/jellyfin';
-import { esquecerSessao, sessaoAtual, type Servidor } from './api/servidor';
+import { esquecerSessao, guardarSessao, sessaoAtual, type Servidor } from './api/servidor';
 import { sairDoSeerr } from './api/seerr';
 import { Aviso } from './comp/Aviso';
 import { MenuContexto } from './comp/MenuContexto';
@@ -16,11 +17,15 @@ import { Biblioteca } from './telas/Biblioteca';
 import { Entrada } from './telas/Entrada';
 import { Favoritos } from './telas/Favoritos';
 import { Inicio } from './telas/Inicio';
-import { EmConstrucao } from './telas/Pagina';
-import { Player } from './telas/Player';
-import { Titulo } from './telas/Titulo';
+import './comp/instalar';
 import { Transicao } from './telas/Transicao';
+import { sobDemanda } from './sobDemanda';
 import './estilo/listas.css';
+
+// título, player e busca vêm sob demanda (o pacote inicial fica com o que a home precisa)
+const Titulo = sobDemanda(() => import('./telas/Titulo'), 'Titulo');
+const Player = sobDemanda(() => import('./telas/Player'), 'Player');
+const Busca = sobDemanda(() => import('./telas/Busca'), 'Busca');
 
 type Fase = { nome: 'abertura' } | { nome: 'entrada'; de?: DOMRect | null; srv?: Servidor | null; volta?: boolean } | { nome: 'transicao'; de?: DOMRect | null; clique?: number } | { nome: 'casca' };
 const ABRIU = 'heisuca.abriu';
@@ -43,6 +48,7 @@ export function App() {
     <>
       <Casca key={`${s.servidor}|${s.usuarioId}`} s={s}
         trocar={nova => { setS(nova); setFase({ nome: 'transicao', de: null }); }}
+        atualizar={nova => { guardarSessao(nova); setS(nova); }}
         entrar={srv => setFase({ nome: 'entrada', srv, volta: true })}
         sair={() => { sairDoSeerr(s).finally(() => { esquecerSessao(); setS(null); setFase({ nome: 'entrada' }); }); }} />
       {fase.nome === 'transicao' && <Transicao s={s} de={fase.de} clique={fase.clique} fim={() => setFase({ nome: 'casca' })} />}
@@ -50,12 +56,17 @@ export function App() {
   );
 }
 
-function Casca({ s, trocar, entrar, sair }: { s: Sessao; trocar: (s: Sessao) => void; entrar: (srv: Servidor | null) => void; sair: () => void }) {
+function Casca({ s, trocar, atualizar, entrar, sair }: { s: Sessao; trocar: (s: Sessao) => void; atualizar: (s: Sessao) => void;
+  entrar: (srv: Servidor | null) => void; sair: () => void }) {
   const r = useRota();
   const [menu, setMenu] = useState<HTMLElement | null>(null);
   const [servidores, setServidores] = useState(false);
   const [pedido, setPedido] = useState<Alvo | null>(null);
   useEffect(() => { registrarServidores(() => setServidores(true)); return () => registrarServidores(null); }, []);
+  useEffect(() => {
+    const ocioso = (window as unknown as { requestIdleCallback?: (f: () => void) => void }).requestIdleCallback || ((f: () => void) => setTimeout(f, 1500));
+    ocioso(() => { Titulo.pre(); Player.pre(); Busca.pre(); });
+  }, []);
   useEffect(() => { setMenu(null); }, [r]);
   const pedirEmBreve = (e: EmBreve) => { if (e.tmdb) setPedido({ tipo: e.tipo, id: e.tmdb, nome: e.nome }); };
 
@@ -64,13 +75,13 @@ function Casca({ s, trocar, entrar, sair }: { s: Sessao; trocar: (s: Sessao) => 
     : r.tela === 'titulo' ? <Titulo key={r.id} s={s} id={r.id} />
     : r.tela === 'biblioteca' ? <Biblioteca s={s} id={r.id} />
     : r.tela === 'fav' ? <Favoritos s={s} />
-    : r.tela === 'busca' ? <EmConstrucao titulo="Buscar" />
-    : r.tela === 'conta' ? <EmConstrucao titulo="Minha conta" />
-    : r.tela === 'ajuda' ? <EmConstrucao titulo="Como usar" />
-    : r.tela === 'apps' ? <EmConstrucao titulo="Baixar os apps" />
-    : r.tela === 'sobre' ? <EmConstrucao titulo="Sobre" />
-    : r.tela === 'pedidos' ? <EmConstrucao titulo="Meus pedidos" />
-    : r.tela === 'apoiar' ? <EmConstrucao titulo="Apoiar o Heisuca" />
+    : r.tela === 'busca' ? <Busca s={s} />
+    : r.tela === 'conta' ? <Paginas abrir={P => <P.Conta s={s} aoMudar={atualizar} />} />
+    : r.tela === 'ajuda' ? <Paginas abrir={P => <P.ComoUsar s={s} />} />
+    : r.tela === 'apps' ? <Paginas abrir={P => <P.Apps />} />
+    : r.tela === 'sobre' ? <Paginas abrir={P => <P.Sobre />} />
+    : r.tela === 'pedidos' ? <Paginas abrir={P => <P.MeusPedidos s={s} />} />
+    : r.tela === 'apoiar' ? <Paginas abrir={P => <P.Apoiar />} />
     : <Inicio s={s} pedir={pedirEmBreve} />;
   return (
     <div class={`casca tela-${r.tela}${comIlha ? ' com-ilha' : ''}`}>
@@ -83,4 +94,13 @@ function Casca({ s, trocar, entrar, sair }: { s: Sessao; trocar: (s: Sessao) => 
       <Aviso />
     </div>
   );
+}
+
+// páginas do menu do usuário (Minha conta, Como usar, Apps, Sobre, Pedidos, Apoiar): abertas raramente, carregam sob demanda
+type ModPaginas = typeof import('./telas/Paginas');
+let paginas: ModPaginas | null = null;
+function Paginas({ abrir }: { abrir: (P: ModPaginas) => JSX.Element }) {
+  const [m, setM] = useState(paginas);
+  useEffect(() => { if (!m) import('./telas/Paginas').then(x => { paginas = x; setM(x); }); }, []);
+  return m ? abrir(m) : null;
 }

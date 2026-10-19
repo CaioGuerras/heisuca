@@ -1,6 +1,21 @@
+/* menu do usuário (ref/app_completo/…menu_usuario): cabeçalho com a foto; ícones na cor do tema; grupos com linha fina */
 .mu .folha-corpo { padding: 8px 8px 10px; }
-.mu-conta { width: 100%; display: flex; align-items: center; gap: 14px; padding: 10px; border-radius: 16px; text-align: left; color: var(--hs-texto); }
+.mu-conta { width: 100%; display: flex; align-items: center; gap: 14px; padding: 10px 10px 12px; border-radius: 16px; text-align: left; color: var(--hs-texto); }
 .mu-conta:hover, .mu-conta:focus-visible { background: var(--hs-linha); outline: none; }
-.mu-conta .opcao-texto strong { font-size: 17px; }
-.mu-seta { color: var(--hs-texto-2); }
-.mu-extra { color: var(--hs-texto-2); font-size: 13px; margin-right: -6px; }
+.mu-conta .opcao-texto strong { font-size: 18px; font-weight: 700; }
+.mu-conta .opcao-texto small { font-size: 13.5px; }
+.mu-seta { color: var(--hs-texto-2); transition: transform .2s; }
+.mu-seta.aberta { transform: rotate(180deg); }
+.mu-item { min-height: 50px; gap: 16px; padding-left: 12px; }
+.mu-icone { color: var(--hs-realce); }
+.mu-item .opcao-texto strong { font-weight: 500; letter-spacing: .01em; }
+.mu-extra { color: var(--hs-texto-2); font-size: 13px; }
+.mu-apoiar .mu-icone { color: #e0559b; }
+[data-tema="hisui"] .mu-apoiar .mu-icone { color: #c0306f; }
+.mu .lista-opcoes hr { margin: 6px 4px; }
+/* escolha do tema, dentro do balão: só os nomes; a tela muda na hora */
+.mu-temas { display: flex; gap: 6px; padding: 2px 8px 8px 50px; }
+.mu-tema { flex: 1; min-height: 38px; padding: 0 8px; border-radius: var(--hs-raio-total); font-size: 14px; font-weight: 500;
+  color: var(--hs-texto); box-shadow: inset 0 0 0 1px var(--hs-linha); transition: background-color .2s, color .2s; }
+.mu-tema:hover { background: var(--hs-linha); }
+.mu-tema.ativo { background: var(--hs-tema-cor-botao-fundo); color: var(--hs-tema-cor-botao-texto); box-shadow: none; font-weight: 600; }

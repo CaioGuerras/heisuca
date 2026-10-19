@@ -31,8 +31,11 @@ export function Folha({ aberta, fechar, titulo, ancora, variante = 'folha', clas
     const m = 10, emBaixo = a.top > innerHeight / 2;
     const left = Math.min(Math.max(m, a.left + a.width / 2 - c.width / 2), innerWidth - c.width - m);
     const top = emBaixo ? Math.max(m, a.top - c.height - 10) : Math.min(a.bottom + 10, innerHeight - c.height - m);
-    // origem da animação no ponto real da âncora (vale também quando a caixa encostou na borda da tela)
-    setPos({ left, top, transformOrigin: `${a.left + a.width / 2 - left}px ${(emBaixo ? a.top : a.bottom) - top}px` });
+    // nascido de baixo: preso pela base, para crescer para cima se o conteúdo aumentar (a escolha do tema abre dentro do menu).
+    // A origem da animação fica no ponto real da âncora (vale também quando a caixa encostou na borda da tela).
+    const base = Math.max(m, innerHeight - a.top + 10), x = `${a.left + a.width / 2 - left}px`;
+    setPos(emBaixo ? { left, bottom: base, top: 'auto', transformOrigin: `${x} calc(100% + ${a.top - (innerHeight - base)}px)` }
+      : { left, top, transformOrigin: `${x} ${a.bottom - top}px` });
   }, [visivel, ancora, variante]);
 
   useEffect(() => {

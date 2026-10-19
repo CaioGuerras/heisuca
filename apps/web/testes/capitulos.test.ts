@@ -14,7 +14,7 @@ test('nomes reais do acervo viram abertura', () => {
 
 test('nomes reais do acervo viram créditos', () => {
   for (const n of ['Credits', 'credits', 'End Credits', 'END CREDITS', 'ED', 'ed', 'ED 1', 'ED2', 'Ending', 'Ending 01',
-    'Encerramento', 'encerramento 2', 'End-Credits'])
+    'Encerramento', 'encerramento 2', 'End-Credits', 'Créditos', 'Creditos finais'])
     assert.equal(tipoDoCapitulo(n), 'creditos', n);
 });
 

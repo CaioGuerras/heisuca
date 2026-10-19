@@ -9,7 +9,7 @@ const TICKS = 10_000_000;
 
 // nomes contados no acervo (PLANO §13), comparados sem maiúsculas, sem acento e sem número no fim ("OP 1", "ED2", "Opening 01")
 const ABERTURA = new Set(['intro', 'opening', 'op', 'opening credits', 'title sequence', 'abertura']);
-const CREDITOS = new Set(['credits', 'end credits', 'ed', 'ending', 'encerramento']);
+const CREDITOS = new Set(['credits', 'end credits', 'ed', 'ending', 'encerramento', 'creditos', 'creditos finais', 'credito']);
 
 export function tipoDoCapitulo(nome?: string | null): Trecho | null {
   if (!nome) return null;

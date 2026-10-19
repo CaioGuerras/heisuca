@@ -31,6 +31,19 @@ export function PainelFaixas(p: Props) {
   const [baixando, setBaixando] = useState('');
   const [falhou, setFalhou] = useState('');
 
+  // Tab não sai do painel (aria-modal): do último volta ao primeiro e vice-versa
+  useEffect(() => {
+    const tecla = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab' || !caixa.current) return;
+      const f = Array.from(caixa.current.querySelectorAll<HTMLElement>('button:not([disabled]), [href], input, [tabindex]:not([tabindex="-1"])'));
+      if (!f.length) return;
+      const i = f.indexOf(document.activeElement as HTMLElement);
+      if (i === -1 || (e.shiftKey && i === 0) || (!e.shiftKey && i === f.length - 1)) { e.preventDefault(); (e.shiftKey ? f[f.length - 1] : f[0]).focus(); }
+    };
+    addEventListener('keydown', tecla, true);
+    return () => removeEventListener('keydown', tecla, true);
+  }, []);
+
   // foco no item escolhido (teclado) ao abrir e ao trocar de vista
   useEffect(() => {
     const el = caixa.current?.querySelector<HTMLElement>('.painel-opcao.ativa, .painel-fechar');

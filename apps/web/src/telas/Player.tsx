@@ -246,8 +246,11 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
   useEffect(() => { if (visivel && !menu) playBtn.current?.focus({ preventScroll: true }); }, [visivel === true && !menu]);
   useEffect(() => {
     const f = () => setCheia(!!document.fullscreenElement);
+    // iPhone: a tela cheia é a do próprio <video> (webkitEnterFullscreen), com eventos próprios
+    const v = video.current, entra = () => setCheia(true), sai = () => setCheia(false);
     document.addEventListener('fullscreenchange', f);
-    return () => document.removeEventListener('fullscreenchange', f);
+    v?.addEventListener('webkitbeginfullscreen', entra); v?.addEventListener('webkitendfullscreen', sai);
+    return () => { document.removeEventListener('fullscreenchange', f); v?.removeEventListener('webkitbeginfullscreen', entra); v?.removeEventListener('webkitendfullscreen', sai); };
   }, []);
 
   const alternar = () => { const v = video.current!; v.paused ? v.play() : v.pause(); };

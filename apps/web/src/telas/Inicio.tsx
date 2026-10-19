@@ -51,7 +51,7 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
       if (!pilula || !busca) return;
       const r = c.getBoundingClientRect(), alvo = pilula.top + pilula.height / 2, centro = r.top + r.height / 2;
       const w = m.offsetWidth || 1, h = m.offsetHeight || 1;
-      const cabe = Math.min(1, (Math.min(busca.left - innerWidth / 2, innerWidth / 2 - pilula.right) * 2 - 20) / w, (pilula.height * 1.6) / h);
+      const cabe = Math.max(0.3, Math.min(1, (Math.min(busca.left - innerWidth / 2, innerWidth / 2 - pilula.right) * 2 - 20) / w, (pilula.height * 1.6) / h));
       const ida = Math.min(1, Math.max(0, (alvo + 140 - centro) / 140));    // nos últimos 140 px antes de encaixar
       const sobe = Math.max(0, alvo - centro);
       m.style.transform = sobe || ida ? `translateY(${sobe}px) scale(${1 - (1 - cabe) * ida})` : '';

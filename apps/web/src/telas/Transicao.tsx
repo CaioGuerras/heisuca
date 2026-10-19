@@ -13,6 +13,7 @@ import { corDaBase, paletaDe } from '../cor/paleta';
 import { css, deLch, misturar, paraLch, type RGB } from '../cor/oklch';
 import { decodificarPrimeiras, hashDoDestaque, prepararInicio } from '../dados/inicio';
 import { Logo } from '../comp/Logo';
+import { avisarErro } from '../aviso';
 import './transicao.css';
 
 // tempo total (do clique até a home), já com a revelação no fim (Caio 19/10: 3 a 5 s)
@@ -41,8 +42,8 @@ export function Transicao({ s, de, clique, fim }: { s: Sessao; de?: DOMRect | nu
     const menos = reduzido();
     const revela = menos ? 450 : REVELA;
 
+    let respira: Animation | null = null;
     (async () => {
-      let respira: Animation | null = null;
       if (!menos) {
         await voo.current;
         if (acabou) return;
@@ -62,9 +63,10 @@ export function Transicao({ s, de, clique, fim }: { s: Sessao; de?: DOMRect | nu
         respira?.pause();   // o selo para onde está, e o campo nasce exatamente sobre ele
         await abrirSelo(r, c, q, p.pagina, corDaBase(hashDoDestaque(d?.destaque[0])), p.escuro);
       }
-      if (!acabou) fim();
-    })();
-    return () => { acabou = true; };
+    })().catch(e => avisarErro(`transição: ${e instanceof Error ? e.message : String(e)}`))
+      // aconteça o que acontecer na animação, a pessoa nunca fica presa aqui: a home abre
+      .finally(() => { if (!acabou) fim(); });
+    return () => { acabou = true; respira?.cancel(); };
   }, []);
   return (
     <div class="transicao" ref={raiz} aria-label="Carregando" role="status">
@@ -80,7 +82,7 @@ async function inversa(l: HTMLElement, q: (sel: string) => SVGGraphicsElement): 
   const palavra = q('.palavra'), luz = q('.luz'), kata = q('.kata'), selo = q('.selo-fundo');
   // a luz anda até o fim do HEISUCA: em múltiplos da própria largura (transform-box: fill-box)
   const pb = palavra.getBBox(), lb = luz.getBBox();
-  const ate = ((pb.x + pb.width - lb.x - lb.width) / lb.width) * 100;
+  const ate = ((pb.x + pb.width - lb.x - lb.width) / Math.max(1, lb.width)) * 100;
   animar(kata, [{ opacity: 0.65, transform: 'none' }, { opacity: 0, transform: 'translateY(4px)' }], 380);
   await animar(luz, [{ opacity: 0, transform: 'scaleX(0)' }, { opacity: 1, transform: 'none' }], 260, 120);
   // a palavra se apaga atrás da luz (recorte da esquerda para a direita, acompanhando o traço)

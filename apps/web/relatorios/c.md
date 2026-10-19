@@ -35,7 +35,7 @@
   para `#/b/<id>` sem empilhar. A ilha aparece. Cor da página tirada do pôster do 1º item.
 
 ## Conferência
-- `npx tsc -b` e `npm run build` sem erro. Bundle principal **65,5 KB gzip** (limite 70), já com o `site-v2` atual (A e B juntas); só a C somava ~0,9 KB.
+- `npx tsc -b` e `npm run build` sem erro. Bundle principal **65,5 KB gzip** (limite 70), já com o `site-v2` atual (A e B juntas).
 - Console sem erro nas 18 cenas × 4 contextos (celular 412×915 e computador 1440×900, Roxo e Verde).
 - Prints: `python3 testes/prints_c.py --chromium …` (cenas: Deadwood topo/rolado/baixo/temporada/ver tudo, One Piece,
   HSOTD, InuYasha, Aoashi, Masterplan, coleção Alien, Biblioteca, menu lateral, rolada e `#/b`).

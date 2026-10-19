@@ -1,0 +1,6 @@
+.pagina { min-height: 100vh; padding: 0 0 calc(32px + env(safe-area-inset-bottom, 0px)); }
+.pagina-topo { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 14px;
+  padding: var(--hs-topo-respiro) var(--hs-margem) 12px; background: linear-gradient(var(--hs-pagina) 70%, var(--hs-pagina-0)); }
+.pagina-topo h1 { margin: 0; font-size: 20px; font-weight: 700; }
+.pagina-topo .redondo { color: var(--hs-texto); }
+.pagina-corpo { padding: 8px var(--hs-margem); max-width: 760px; margin: 0 auto; }

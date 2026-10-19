@@ -1,0 +1,15 @@
+.pedido { display: grid; gap: 14px; padding: 4px 8px 6px; }
+.pedido-cabeca { display: flex; gap: 14px; align-items: center; }
+.pedido-cabeca img { width: 64px; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 10px; flex: none; }
+.pedido-cabeca div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pedido-cabeca strong { font-size: 17px; }
+.pedido-cabeca small { color: var(--hs-texto-2); }
+.pedido-sinopse { margin: 0; font-size: 14px; color: var(--hs-texto-2); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.pedido-temps { border: 0; margin: 0; padding: 0; display: grid; gap: 4px; }
+.pedido-temps legend { font-weight: 700; margin-bottom: 6px; }
+.pedido-temp { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 6px; border-radius: 10px; }
+.pedido-temp input { width: 20px; height: 20px; accent-color: var(--hs-realce); }
+.pedido-temp span { flex: 1; }
+.pedido-temp small { color: var(--hs-texto-2); }
+.pedido-botao { width: 100%; height: 50px; }
+.pedido-botao:disabled { opacity: .55; }

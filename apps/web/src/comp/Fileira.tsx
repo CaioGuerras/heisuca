@@ -1,57 +1,33 @@
-import { capa, type EmBreve, type Item, type Sessao } from '../api/jellyfin';
+// Fileira horizontal: título + "Ver tudo ›" (opcional) e o trilho que rola de lado. No computador (ponteiro fino), setas
+// aparecem ao passar o mouse, porque mouse não "arrasta" a fileira como o dedo. [P] do PLANO §4 (computador).
+import type { ComponentChildren } from 'preact';
+import { useEffect, useRef, useState } from 'preact/hooks';
+import { Icone } from './Icone';
+import './fileira.css';
 
-// só ponteiro que se mexeu de verdade: na TV o cartão desliza para baixo do ponteiro parado (Magic Remote da LG) e o
-// mouseenter trocaria o destaque sozinho
-let px = -1, py = -1;
-const mexeu = (ev: MouseEvent) => { const m = ev.clientX !== px || ev.clientY !== py; px = ev.clientX; py = ev.clientY; return m; };
-
-export function Cartao({ s, i, aoFocar, aoAbrir, numero }: { s: Sessao; i: Item; aoFocar?: (i: Item) => void; aoAbrir: (i: Item) => void; numero?: number }) {
-  const progresso = i.UserData?.PlayedPercentage;
-  const sub = i.Type === 'Episode' ? `${i.SeriesName} · T${i.ParentIndexNumber}E${i.IndexNumber}` : i.ProductionYear;
+export function Fileira({ titulo, verTudo, children, classe = '' }:
+  { titulo: string; verTudo?: () => void; children: ComponentChildren; classe?: string }) {
+  const trilho = useRef<HTMLDivElement>(null);
+  const [ponta, setPonta] = useState({ ini: true, fim: false });
+  useEffect(() => {
+    const t = trilho.current; if (!t) return;
+    const f = () => setPonta({ ini: t.scrollLeft < 8, fim: t.scrollLeft + t.clientWidth > t.scrollWidth - 8 });
+    f(); t.addEventListener('scroll', f, { passive: true });
+    const ro = new ResizeObserver(f); ro.observe(t);
+    return () => { t.removeEventListener('scroll', f); ro.disconnect(); };
+  }, []);
+  const rolar = (dir: number) => { const t = trilho.current; if (t) t.scrollBy({ left: dir * t.clientWidth * 0.85, behavior: 'smooth' }); };
   return (
-    <button data-foco class={numero ? 'cartao com-numero' : 'cartao'} onFocus={() => aoFocar?.(i)} onMouseMove={ev => aoFocar && mexeu(ev) && aoFocar(i)}
-      onClick={() => aoAbrir(i)} title={i.Name}>
-      {numero ? <span class="cartao-numero" aria-hidden="true">{numero}</span> : null}
-      <img loading="lazy" decoding="async" src={capa(s, i)} alt="" />
-      {progresso ? <span class="progresso"><span style={{ width: `${progresso}%` }} /></span> : null}
-      <span class="cartao-nome">{i.Type === 'Episode' ? i.SeriesName : i.Name}</span>
-      <span class="cartao-sub">{sub}</span>
-    </button>
-  );
-}
-
-export function Fileira({ s, titulo, itens, aoFocar, aoAbrir, top10 }: { s: Sessao; titulo: string; itens: Item[]; aoFocar?: (i: Item) => void; aoAbrir: (i: Item) => void; top10?: boolean }) {
-  if (!itens.length) return null;
-  return (
-    <section class={top10 ? 'fileira top10' : 'fileira'}>
-      <h2>{titulo}</h2>
-      <div class="fileira-trilho">
-        {itens.map((i, n) => <Cartao key={i.Id} s={s} i={i} aoFocar={aoFocar} aoAbrir={aoAbrir} numero={top10 ? n + 1 : undefined} />)}
+    <section class={`fileira ${classe}`}>
+      <header class="fileira-cabeca">
+        <h2 class="titulo-secao">{titulo}</h2>
+        {verTudo && <button class="fileira-tudo" onClick={verTudo}>Ver tudo<Icone nome="chevron_right" tamanho={20} /></button>}
+      </header>
+      <div class="fileira-corpo">
+        {!ponta.ini && <button class="fileira-seta esq" aria-label="Voltar" onClick={() => rolar(-1)}><Icone nome="chevron_left" tamanho={28} /></button>}
+        <div class="fileira-trilho" ref={trilho}>{children}</div>
+        {!ponta.fim && <button class="fileira-seta dir" aria-label="Avançar" onClick={() => rolar(1)}><Icone nome="chevron_right" tamanho={28} /></button>}
       </div>
     </section>
   );
-}
-
-// Em breve: temos → abre o título; não temos → folha de pedido (mesma regra do site atual)
-export function FileiraEmBreve({ titulo, itens, aoAbrir }: { titulo: string; itens: EmBreve[]; aoAbrir: (e: EmBreve) => void }) {
-  if (!itens.length) return null;
-  return (
-    <section class="fileira">
-      <h2>{titulo}</h2>
-      <div class="fileira-trilho">
-        {itens.map(e => (
-          <button data-foco class="cartao" key={`${e.tipo}${e.jf || e.tmdb}`} onClick={() => aoAbrir(e)} title={e.nome}>
-            <img loading="lazy" decoding="async" src={e.capa} alt="" />
-            <span class="cartao-selo">{e.jf ? 'Novo episódio' : 'Em breve'}</span>
-            <span class="cartao-nome">{e.nome}</span>
-            <span class="cartao-sub">{e.sub}</span>
-          </button>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-export function Grade({ s, itens, aoAbrir }: { s: Sessao; itens: Item[]; aoAbrir: (i: Item) => void }) {
-  return <div class="grade">{itens.map(i => <Cartao key={i.Id} s={s} i={i} aoAbrir={aoAbrir} />)}</div>;
 }

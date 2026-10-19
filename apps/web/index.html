@@ -2,12 +2,46 @@
 <html lang="pt-BR" data-tema="shikkoku">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#0e0b14" />
+    <meta name="color-scheme" content="dark light" />
     <link rel="icon" href="./favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
     <title>Heisuca</title>
+    <script>
+      // ES5 de propósito: roda em qualquer navegador, antes do app.
+      // 1) tema antes do primeiro quadro (sem piscar): Roxo, Verde ou Automático (segue o aparelho)
+      // 2) navegador sem o mínimo (TV antiga, TV box): não abre um site rebaixado; mostra "use o app" (PLANO §3.4)
+      (function () {
+        var d = document.documentElement, e = '';
+        try { e = localStorage.getItem('heisuca.tema') || ''; } catch (x) {}
+        var escuro = !window.matchMedia || window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var t = e === 'verde' ? 'hisui' : e === 'auto' ? (escuro ? 'shikkoku' : 'hisui') : 'shikkoku';
+        d.setAttribute('data-tema', t);
+        d.style.colorScheme = t === 'hisui' ? 'light' : 'dark';
+        var s = document.createElement('script'), c = window.CSS && CSS.supports;
+        var ok = ('noModule' in s) && c && CSS.supports('aspect-ratio', '1 / 1') && CSS.supports('display', 'grid') &&
+          CSS.supports('gap', '1px') && typeof window.IntersectionObserver === 'function' && typeof window.fetch === 'function';
+        if (ok) return;
+        window.heisucaSemSuporte = true;
+        var tv = /SmartTV|SMART-TV|Tizen|Web0S|webOS|NetCast|HbbTV|BRAVIA|AFT[A-Z]|Android TV|GoogleTV|CrKey|VIDAA|Roku/i.test(navigator.userAgent);
+        document.addEventListener('DOMContentLoaded', function () {
+          var a = document.getElementById('app');
+          a.className = 'sem-suporte';
+          a.innerHTML = '<h1>HEISUCA</h1><p>' + (tv
+            ? 'Na TV, o Heisuca é pelo app próprio (em breve).'
+            : 'Este navegador é antigo demais para o Heisuca. Atualize o navegador ou use um mais novo, como o Chrome, o Edge, o Firefox ou o Safari.') + '</p>';
+        });
+      })();
+    </script>
+    <style>
+      .sem-suporte { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        padding: 32px; text-align: center; background: #0e0b14; color: #f4f1fa; font: 18px/1.5 system-ui, sans-serif; }
+      .sem-suporte h1 { font-weight: 300; letter-spacing: .35em; margin: 0 0 16px; }
+      .sem-suporte p { max-width: 520px; margin: 0; color: #c9c1d6; }
+    </style>
   </head>
   <body>
     <div id="app"></div>

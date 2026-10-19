@@ -1,0 +1,10 @@
+.transicao { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; background: var(--hs-tema-cor-fundo);
+  transition: background-color .5s var(--hs-curva-padrao), opacity .4s var(--hs-curva-padrao) .5s; }
+.transicao-logo { width: min(340px, 78vw); }
+/* respira: o selo pulsa devagar e o traço de luz atravessa o HEISUCA (rascunho; a sessão A refina) */
+.transicao.respira .selo-fundo { animation: tr-respira 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.transicao.respira .palavra { animation: tr-brilho 1.6s ease-in-out infinite; }
+@keyframes tr-respira { 50% { opacity: .82; } }
+@keyframes tr-brilho { 50% { opacity: .7; } }
+.transicao.revela { background-color: var(--hs-transicao-cor, var(--hs-tema-cor-fundo)); opacity: 0; pointer-events: none; }
+.transicao.revela .transicao-logo { transform: scale(1.08); opacity: 0; transition: transform .5s var(--hs-curva-padrao), opacity .45s; }

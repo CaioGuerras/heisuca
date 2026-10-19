@@ -1,0 +1,5 @@
+
+# site-v2: dados do servidor falso e prints de referência ficam no ramo falso-dados (git archive origin/falso-dados | tar -x)
+apps/web/testes/falso/dados/
+apps/web/plano/ref/
+apps/web/testes/comparacoes/**/*.png

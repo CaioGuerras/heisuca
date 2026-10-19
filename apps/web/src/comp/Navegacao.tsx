@@ -1,100 +1,51 @@
-// Navegação no modelo dos nossos apps (SITE_REMODELAGEM.md; CGFLIX TV P13/P14):
-// - destinos: Início, Buscar (com "Disponível para pedir") e Favoritos. Sem aba de Pedidos: a busca já pede (Caio, P13).
-// - celular (< 840 px): barra de abas embaixo; computador/tablet/TV: links no topo.
-// - o resto (bibliotecas, Meus pedidos, tema, Sair) mora no menu do botão do canto (avatar) e só abre quando ele é escolhido.
-import { useEffect, useRef, useState } from 'preact/hooks';
-import { bibliotecas, sair, type Item, type Sessao } from '../api/jellyfin';
-import { sairDoSeerr } from '../api/seerr';
-import { irAba, irBiblioteca, type Rota } from '../rota';
+// Topo flutuante e ilha inferior (PLANO §4; ref/vidhub/…home_topo, …foto67, …favoritos).
+//  Topo: SEM barra. À esquerda a pílula [foto + nome do servidor] (abre "Trocar servidor"); à direita a busca redonda.
+//        O meio recebe a logo do título quando a tela rola (a home passa em `centro`). Sem 3 pontinhos.
+//  Ilha: flutuante, centralizada, de vidro: Início · Biblioteca · Favoritos · [foto] Usuário.
+import type { ComponentChildren } from 'preact';
+import { useRef } from 'preact/hooks';
+import { fotoUsuario, type Sessao } from '../api/jellyfin';
+import { irAba, ultimaBiblioteca, type Rota } from '../rota';
 import { Icone } from './Icone';
+import './navegacao.css';
 
-let libs: Promise<Item[]> | null = null;
-const ORDEM = ['Animes', 'Séries', 'Filmes', 'Coleções'];
-const pos = (b: Item) => { const n = ORDEM.indexOf(b.Name); return n < 0 ? 99 : n; };
-export const listaBibliotecas = (s: Sessao) =>
-  (libs ??= bibliotecas(s).then(l => l.filter(b => b.CollectionType !== 'playlists').sort((a, b) => pos(a) - pos(b))));
+export function Avatar({ s, tamanho = 28 }: { s: Sessao; tamanho?: number }) {
+  const f = fotoUsuario(s, tamanho * 3);
+  return f ? <img class="avatar" src={f} alt="" width={tamanho} height={tamanho} />
+    : <span class="avatar avatar-vazio" style={{ width: tamanho, height: tamanho }} aria-hidden="true"><Icone nome="person" cheio tamanho={tamanho * 0.7} /></span>;
+}
 
-const ICONE_LIB: Record<string, string> = { movies: 'theaters', tvshows: 'live_tv', boxsets: 'collections_bookmark' };
-export const iconeBiblioteca = (b: Item) => b.Name === 'Animes' ? 'video_library' : ICONE_LIB[b.CollectionType || ''] || 'video_library';
-
-const TEMAS: [string, string][] = [['shikkoku', 'Shikkoku'], ['hisui', 'Hisui'], ['ichigo', 'Ichigo'], ['sorairo', 'Sorairo'], ['shinju', 'Shinju']];
-const DESTINOS = [
-  { aba: '' as const, tela: 'inicio', rot: 'Início', ic: 'home' },
-  { aba: 'busca' as const, tela: 'busca', rot: 'Buscar', ic: 'search' },
-  { aba: 'fav' as const, tela: 'fav', rot: 'Favoritos', ic: 'favorite' },
-];
-
-function Menu({ s, fechar }: { s: Sessao; fechar: () => void }) {
-  const [lista, setLista] = useState<Item[]>([]);
-  const [tema, setTema] = useState(document.documentElement.dataset.tema || 'shikkoku');
-  const painel = useRef<HTMLDivElement>(null);
-  useEffect(() => { listaBibliotecas(s).then(setLista).catch(() => null); }, []);
-  useEffect(() => {
-    painel.current?.querySelector<HTMLElement>('button')?.focus();
-    const tecla = (e: KeyboardEvent) => { if (e.key === 'Escape' || e.keyCode === 10009 || e.keyCode === 461) { e.preventDefault(); e.stopPropagation(); fechar(); } };
-    addEventListener('keydown', tecla, true);
-    return () => removeEventListener('keydown', tecla, true);
-  }, []);
-  const trocarTema = (t: string) => { document.documentElement.dataset.tema = t; localStorage.setItem('heisuca.tema', t); setTema(t); };
-  const ir = (f: () => void) => () => { fechar(); f(); };
+export function Topo({ s, centro, aoServidor, fundo = false, semBusca = false }:
+  { s: Sessao; centro?: ComponentChildren; aoServidor: () => void; fundo?: boolean; semBusca?: boolean }) {
   return (
-    <div class="menu-fundo" onClick={e => { if (e.target === e.currentTarget) fechar(); }}>
-      <div class="menu-painel" role="dialog" aria-label="Menu" ref={painel}>
-        <div class="menu-cabeca">
-          <span class="avatar grande" aria-hidden="true">{s.nome.slice(0, 1).toUpperCase()}</span>
-          <strong>{s.nome}</strong>
-          <button data-foco class="menu-fechar" aria-label="Fechar" onClick={fechar}><Icone nome="close" /></button>
-        </div>
-        <p class="menu-secao">Bibliotecas</p>
-        {lista.map(b => (
-          <button data-foco class="menu-item" key={b.Id} onClick={ir(() => irBiblioteca(b.Id))}>
-            <Icone nome={iconeBiblioteca(b)} /><span>{b.Name}</span><Icone nome="chevron_right" />
-          </button>
-        ))}
-        <p class="menu-secao">Conta</p>
-        <button data-foco class="menu-item" onClick={ir(() => irAba('pedidos'))}><Icone nome="playlist_add_check" /><span>Meus pedidos</span><Icone nome="chevron_right" /></button>
-        <div class="menu-temas" role="group" aria-label="Tema">
-          <Icone nome="palette" />
-          {TEMAS.map(([id, nome]) => (
-            <button data-foco key={id} class={id === tema ? 'tema-bola ativa' : 'tema-bola'} data-tema-amostra={id} aria-pressed={id === tema}
-              title={nome} aria-label={`Tema ${nome}`} onClick={() => trocarTema(id)} />
-          ))}
-        </div>
-        <button data-foco class="menu-item" onClick={() => { sairDoSeerr(s).finally(() => { sair(); location.hash = ''; location.reload(); }); }}>
-          <Icone nome="logout" /><span>Sair</span>
-        </button>
-      </div>
-    </div>
+    <header class={`topo${fundo ? ' com-fundo' : ''}`}>
+      <button class="topo-servidor" onClick={aoServidor} aria-label={`Servidor ${s.nomeServidor || ''}. Trocar de servidor`}>
+        <Avatar s={s} tamanho={30} /><span class="uma-linha">{s.nomeServidor || 'Servidor'}</span>
+      </button>
+      <div class="topo-centro">{centro}</div>
+      {!semBusca ? <button class="redondo topo-busca" onClick={() => irAba('busca')} aria-label="Buscar"><Icone nome="search" tamanho={24} /></button>
+        : <span class="topo-vazio" />}
+    </header>
   );
 }
 
-export function Navegacao({ s, r, rolado = true }: { s: Sessao; r: Rota; rolado?: boolean }) {
-  const [aberto, setAberto] = useState(false);
-  const botao = useRef<HTMLButtonElement>(null);
-  const fechar = () => { setAberto(false); botao.current?.focus(); };
+export function Ilha({ s, r, aoUsuario }: { s: Sessao; r: Rota; aoUsuario: (el: HTMLElement) => void }) {
+  const eu = useRef<HTMLButtonElement>(null);
+  const lib = ultimaBiblioteca();
+  const item = (ativo: boolean, icone: string, rotulo: string, ir: () => void) => (
+    <button class={`ilha-item${ativo ? ' ativo' : ''}`} aria-current={ativo ? 'page' : undefined} onClick={ir}>
+      <Icone nome={icone} cheio={ativo} tamanho={24} /><span>{rotulo}</span>
+    </button>
+  );
+  const nome = s.nome.split(/[\s._-]/)[0] || s.nome;
   return (
-    <>
-      <header class={rolado ? 'topo rolado' : 'topo'}>
-        <button data-foco class="marca-texto pequena" onClick={() => irAba('')} aria-label="Heisuca, Início">HEISUCA</button>
-        <nav class="topo-links" aria-label="Principal">
-          {DESTINOS.map(d => (
-            <button data-foco key={d.tela} class={r.tela === d.tela ? 'aba ativa' : 'aba'} aria-current={r.tela === d.tela ? 'page' : undefined} onClick={() => irAba(d.aba)}>
-              <Icone nome={d.ic} cheio={r.tela === d.tela} /><span>{d.rot}</span>
-            </button>
-          ))}
-        </nav>
-        <button data-foco ref={botao} class="avatar-botao" aria-label="Abrir menu" aria-haspopup="dialog" aria-expanded={aberto} onClick={() => setAberto(true)}>
-          <span class="avatar" aria-hidden="true">{s.nome.slice(0, 1).toUpperCase()}</span>
-        </button>
-      </header>
-      <nav class="abas-baixo" aria-label="Principal">
-        {DESTINOS.map(d => (
-          <button key={d.tela} class={r.tela === d.tela ? 'aba-baixo ativa' : 'aba-baixo'} aria-current={r.tela === d.tela ? 'page' : undefined} onClick={() => irAba(d.aba)}>
-            <span class="aba-pilula"><Icone nome={d.ic} cheio={r.tela === d.tela} /></span><span>{d.rot}</span>
-          </button>
-        ))}
-      </nav>
-      {aberto && <Menu s={s} fechar={fechar} />}
-    </>
+    <nav class="ilha" aria-label="Navegação">
+      {item(r.tela === 'inicio', 'home', 'Início', () => irAba(''))}
+      {item(r.tela === 'biblioteca', 'video_library', 'Biblioteca', () => irAba(lib ? `b/${lib}` : 'b'))}
+      {item(r.tela === 'fav', 'favorite', 'Favoritos', () => irAba('fav'))}
+      <button ref={eu} class="ilha-item ilha-eu" onClick={() => eu.current && aoUsuario(eu.current)} aria-haspopup="dialog" aria-label={`Usuário ${s.nome}`}>
+        <Avatar s={s} tamanho={24} /><span class="uma-linha">{nome}</span>
+      </button>
+    </nav>
   );
 }

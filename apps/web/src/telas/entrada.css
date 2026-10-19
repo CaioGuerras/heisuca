@@ -1,0 +1,27 @@
+/* Entrada: o mínimo (logo, três campos, um botão). Base: ref/streamyfin, com os cortes do Caio (19/10). */
+.entrada { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; background: var(--hs-pagina); }
+.entrada-topo { display: flex; justify-content: space-between; align-items: center; padding: var(--hs-topo-respiro) var(--hs-margem) 0; min-height: 64px; }
+.entrada-qc { color: var(--hs-texto); transition: opacity .2s, transform var(--hs-tempo-toque) var(--hs-curva-padrao); }
+.entrada-qc:disabled { opacity: .35; cursor: default; }
+.entrada-centro { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 34px;
+  padding: 0 24px calc(12vh + env(safe-area-inset-bottom, 0px)); }
+.entrada-logo { width: min(232px, 62vw); }
+.entrada-form { width: min(400px, 100%); display: grid; gap: 12px; opacity: 0; transform: translateY(10px);
+  transition: opacity .42s var(--hs-curva-padrao), transform .42s var(--hs-curva-padrao); }
+.entrada.pronta .entrada-form { opacity: 1; transform: none; }
+.campo input { width: 100%; height: 52px; padding: 0 16px; border-radius: 14px; border: 1px solid transparent; background: var(--hs-superficie);
+  color: var(--hs-texto); font-size: 16px; transition: border-color .2s, background-color .2s; }
+.campo input::placeholder { color: var(--hs-texto-2); }
+.campo input:focus { border-color: var(--hs-realce); outline: none; }
+.campo input[aria-invalid="true"] { border-color: var(--hs-erro); }
+.entrada-servidor { display: flex; align-items: center; gap: 6px; margin: -4px 6px 2px; font-size: 13px; color: var(--hs-texto-2); }
+.entrada-servidor .icone { color: var(--hs-realce); }
+.entrada-erro { margin: -4px 6px 2px; font-size: 13px; color: var(--hs-erro); }
+.entrada-botao { width: 100%; height: 52px; margin-top: 8px; font-size: 16px; }
+.entrada-botao:disabled { opacity: .7; }
+.qc { text-align: center; padding: 4px 8px 16px; }
+.qc p { margin: 0 0 8px; color: var(--hs-texto-2); }
+.qc-codigo { font-size: 42px !important; font-weight: 700; letter-spacing: .28em; color: var(--hs-texto) !important; font-variant-numeric: tabular-nums; margin: 14px 0 !important; }
+.qc-espera { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
+.girando { animation: girar 1s linear infinite; }
+@keyframes girar { to { transform: rotate(360deg); } }

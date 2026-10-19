@@ -1,0 +1,11 @@
+/* logo estática (entrada, transição): sem as animações da abertura, no estado final delas */
+.logo { line-height: 0; }
+.logo svg { display: block; width: 100%; height: auto; }
+.logo-marca .luz, .logo-marca .slogan { display: none; }
+.logo-marca .carimbo, .logo-marca .selo-kanji, .logo-marca .palavra, .logo-marca .kata { animation: none !important; }
+.logo-marca .kata { opacity: .65; }
+.logo-marca svg.marca { width: 100%; }
+/* abertura pulada no meio (toque): tudo vai direto ao estado final antes de a logo voar */
+.abertura.parada .carimbo, .abertura.parada .selo-kanji, .abertura.parada .palavra, .abertura.parada .kata,
+.abertura.parada .luz, .abertura.parada .slogan { animation-duration: 1ms !important; animation-delay: 0s !important; }
+.abertura .logo { width: min(92vw, 164vh); }

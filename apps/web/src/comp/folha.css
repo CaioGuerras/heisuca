@@ -1,0 +1,35 @@
+.folha-fundo { position: fixed; inset: 0; z-index: 50; background: rgb(0 0 0 / .42); animation: folha-fundo .2s ease-out both; }
+.folha-fundo.saindo { animation: folha-fundo-sai .2s ease-in both; }
+.folha { position: fixed; display: flex; flex-direction: column; background: var(--hs-superficie); color: var(--hs-texto);
+  box-shadow: 0 24px 64px rgb(0 0 0 / .4); overflow: hidden; }
+.folha-cabeca { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 14px 6px 20px; }
+.folha-cabeca h2 { margin: 0; font-size: 17px; font-weight: 700; }
+.folha-fechar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--hs-linha); flex: none; }
+.folha-corpo { overflow-y: auto; overscroll-behavior: contain; padding: 6px 12px calc(14px + env(safe-area-inset-bottom, 0px)); }
+
+/* folha: de baixo no celular */
+.folha-folha .folha { left: 0; right: 0; bottom: 0; max-height: min(82vh, 720px); border-radius: 22px 22px 0 0;
+  animation: folha-sobe .28s var(--hs-curva-padrao) both; }
+.folha-folha.saindo .folha { animation: folha-desce .2s ease-in both; }
+.folha-alca { width: 38px; height: 5px; border-radius: 3px; background: var(--hs-linha); margin: 8px auto 0; flex: none; }
+/* folha: caixa no centro no computador */
+@media (min-width: 720px) {
+  .folha-folha .folha { left: 50%; top: 50%; bottom: auto; right: auto; width: min(480px, 92vw); max-height: min(78vh, 680px);
+    border-radius: 20px; transform: translate(-50%, -50%); animation: folha-surge .22s var(--hs-curva-padrao) both; }
+  .folha-folha.saindo .folha { animation: folha-some .18s ease-in both; }
+  .folha-alca { display: none; }
+}
+/* balão: nasce do elemento que abriu */
+.folha-balao { background: rgb(0 0 0 / .22); }
+.folha-balao .folha { width: min(320px, calc(100vw - 20px)); max-height: min(78vh, 640px); border-radius: 20px;
+  animation: balao-cresce .26s var(--hs-curva-padrao) both; }
+.folha-balao.saindo .folha { animation: balao-encolhe .18s ease-in both; }
+
+@keyframes folha-fundo { from { opacity: 0; } }
+@keyframes folha-fundo-sai { to { opacity: 0; } }
+@keyframes folha-sobe { from { transform: translateY(100%); } }
+@keyframes folha-desce { to { transform: translateY(100%); } }
+@keyframes folha-surge { from { opacity: 0; transform: translate(-50%, -48%) scale(.97); } }
+@keyframes folha-some { to { opacity: 0; transform: translate(-50%, -48%) scale(.97); } }
+@keyframes balao-cresce { from { opacity: 0; transform: scale(.6); } }
+@keyframes balao-encolhe { to { opacity: 0; transform: scale(.7); } }

@@ -20,6 +20,19 @@ export const poster = (s: Sessao, p?: string) => p && POSTER.test(p) ? `${s.serv
 
 class Erro extends Error { status: number; constructor(status: number) { super(`seerr ${status}`); this.status = status; } }
 const api = (s: Sessao) => `${s.servidor}/__seerr/api/v1`;
+
+// O servidor tem Seerr? Convenção: o Seerr publicado na mesma origem, em /__seerr/ (como no CGSERVER). Sem isso, a busca
+// fica só no acervo e "Meus pedidos" some (PLANO §8). Uma consulta por servidor.
+const comSeerr = new Map<string, Promise<boolean>>();
+export function temSeerr(s: Sessao): Promise<boolean> {
+  let p = comSeerr.get(s.servidor);
+  if (!p) {
+    p = fetch(`${api(s)}/status`, { credentials: 'omit' }).then(r => r.ok ? r.json() : null)
+      .then((d: { version?: string } | null) => !!d?.version).catch(() => false);
+    comSeerr.set(s.servidor, p);
+  }
+  return p;
+}
 async function req<T>(s: Sessao, caminho: string, metodo = 'GET', corpo?: unknown): Promise<T> {
   const r = await fetch(api(s) + caminho, {
     method: metodo, credentials: 'include',
@@ -79,5 +92,5 @@ export async function meusPedidos(s: Sessao): Promise<Pedido[]> {
   return seerr<{ results: Pedido[] }>(s, `/request?take=50&skip=0&sort=added&requestedBy=${u.id}`).then(d => d.results);
 }
 
-export const mensagemDeErro = (e: unknown) => e instanceof Erro && e.status === 403 ? 'Sua conta não pode fazer pedidos. Fale com o Caio.'
+export const mensagemDeErro = (e: unknown) => e instanceof Erro && e.status === 403 ? 'Sua conta não pode fazer pedidos. Fale com quem administra o servidor.'
   : e instanceof Erro && e.status === 409 ? 'Isso já foi pedido.' : 'Não deu para pedir agora. Tente de novo.';

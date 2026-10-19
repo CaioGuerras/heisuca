@@ -1,0 +1,10 @@
+/* listas de opções (menus, servidores, temporadas): linha alta, ícone à esquerda, marca à direita */
+.lista-opcoes { list-style: none; margin: 0; padding: 0; }
+.opcao-linha { width: 100%; min-height: 54px; display: flex; align-items: center; gap: 14px; padding: 8px 10px; border-radius: 14px; text-align: left; color: var(--hs-texto); }
+.opcao-linha:hover, .opcao-linha:focus-visible { background: var(--hs-linha); outline: none; }
+.opcao-linha[aria-current] { font-weight: 700; }
+.opcao-texto { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.opcao-texto strong { font-weight: 600; font-size: 15.5px; }
+.opcao-texto small { font-size: 12.5px; color: var(--hs-texto-2); }
+.opcao-marca { color: var(--hs-realce); }
+.lista-opcoes hr, .separador { border: 0; height: 1px; background: var(--hs-linha); margin: 6px 10px; }

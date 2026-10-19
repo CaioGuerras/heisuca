@@ -1,0 +1,32 @@
+/* Início: destaque sem bordas que se dissolve na cor da página (ref/vidhub/…home_topo) */
+.destaque { position: relative; height: clamp(430px, 64vh, 640px); display: flex; flex-direction: column; justify-content: flex-end;
+  align-items: center; padding: 0 var(--hs-margem) 14px; touch-action: pan-y; }
+.destaque-artes { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
+.destaque-arte { position: absolute !important; inset: 0; opacity: 0; transition: opacity .9s var(--hs-curva-padrao); background: transparent !important; }
+.destaque-arte.atual { opacity: 1; }
+.destaque-arte img { object-position: center 20%; }
+.destaque-artes::after { content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, var(--hs-pagina-0) 0%, var(--hs-pagina-0) 38%, var(--hs-pagina) 96%); }
+.destaque-texto { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;
+  max-width: 640px; color: var(--hs-texto); animation: destaque-entra .7s var(--hs-curva-padrao) both; }
+.destaque-logo { max-width: min(64vw, 380px); max-height: 72px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 10px rgb(0 0 0 / .25)); }
+.destaque-nome { font-family: var(--hs-tema-fonte-titulo); font-size: 34px; font-weight: 600; line-height: 1.1; }
+.destaque-meta { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0; font-size: 11.5px; font-weight: 600; }
+.destaque-estrela { color: #f5c518; }
+.destaque-meta > span + span::before { content: '|'; margin: 0 7px; opacity: .45; font-weight: 400; }
+.destaque-meta > span:first-child { color: inherit; }
+.selo-idade { border: 1px solid currentColor; border-radius: 4px; padding: 0 4px; font-size: 10.5px; line-height: 1.5; }
+.destaque-sinopse { font-size: 11.5px; line-height: 1.45; color: var(--hs-texto-2); max-width: 560px; }
+.destaque-pontos { position: relative; z-index: 1; display: flex; gap: 7px; margin-top: 12px; }
+.destaque-pontos button { width: 6px; height: 6px; border-radius: 3px; background: var(--hs-texto); opacity: .28; transition: width .3s var(--hs-curva-padrao), opacity .3s; }
+.destaque-pontos button.atual { width: 16px; opacity: .85; }
+@keyframes destaque-entra { from { opacity: 0; transform: translateY(8px); } }
+.topo-logo { max-height: 34px; max-width: 46vw; width: auto; object-fit: contain; animation: destaque-entra .35s var(--hs-curva-padrao) both; }
+.topo-nome { font-family: var(--hs-tema-fonte-titulo); font-weight: 600; max-width: 46vw; }
+.inicio .fileira:first-of-type { margin-top: 10px; }
+@media (min-width: 600px) { .destaque { height: 70vh; max-height: 820px; } }
+@media (min-width: 1024px) {
+  .destaque { height: 82vh; max-height: 900px; padding-bottom: 28px; }
+  .destaque-logo { max-height: 140px; max-width: 520px; }
+  .destaque-meta, .destaque-sinopse { font-size: 14.5px; }
+}

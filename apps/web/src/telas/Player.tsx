@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
+import './player.css';
 import type Hls from 'hls.js/light';
 import {
   infoReproducao, item, pararConversao, relatar, seguinte, urlDireta, urlServidor,

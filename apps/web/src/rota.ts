@@ -1,11 +1,14 @@
-// Rotas por # (o nginx só serve index.html; nada a configurar). #/t/<id> = título, #/ver/<id>?t=<ticks> = player.
+// Rotas por # (o servidor web só entrega o index.html; nada a configurar no nginx).
 import { useEffect, useState } from 'preact/hooks';
-import { ehTV, sairDoApp } from './tv';
 
-export type Rota = { tela: 'inicio' } | { tela: 'titulo'; id: string } | { tela: 'ver'; id: string; inicio?: number }
-  | { tela: 'busca' } | { tela: 'fav' } | { tela: 'pedidos' } | { tela: 'biblioteca'; id: string };
+export type Rota =
+  | { tela: 'inicio' } | { tela: 'biblioteca'; id?: string } | { tela: 'fav' } | { tela: 'busca' }
+  | { tela: 'titulo'; id: string } | { tela: 'ver'; id: string; inicio?: number }
+  | { tela: 'conta' } | { tela: 'ajuda' } | { tela: 'apps' } | { tela: 'sobre' } | { tela: 'pedidos' } | { tela: 'apoiar' };
 
-function ler(): Rota {
+const SIMPLES = ['fav', 'busca', 'conta', 'ajuda', 'apps', 'sobre', 'pedidos', 'apoiar'] as const;
+
+export function ler(): Rota {
   const [caminho, busca = ''] = location.hash.slice(1).split('?');
   const p = caminho.split('/').filter(Boolean);
   if (p[0] === 't' && p[1]) return { tela: 'titulo', id: p[1] };
@@ -13,50 +16,31 @@ function ler(): Rota {
     const t = Number(new URLSearchParams(busca).get('t'));
     return { tela: 'ver', id: p[1], inicio: Number.isFinite(t) && t > 0 ? t : undefined };
   }
-  if (p[0] === 'b' && p[1]) return { tela: 'biblioteca', id: p[1] };
-  if (p[0] === 'busca') return { tela: 'busca' };
-  if (p[0] === 'fav') return { tela: 'fav' };
-  if (p[0] === 'pedidos') return { tela: 'pedidos' };
+  if (p[0] === 'b') return { tela: 'biblioteca', id: p[1] };
+  if ((SIMPLES as readonly string[]).includes(p[0])) return { tela: p[0] } as Rota;
   return { tela: 'inicio' };
 }
 
 export function useRota(): Rota {
   const [r, setR] = useState(ler);
   useEffect(() => {
-    const f = () => { setR(ler()); scrollTo(0, 0); };
+    const f = () => { setR(ler()); if (!history.state?.semRolar) scrollTo(0, 0); };
     addEventListener('hashchange', f);
     return () => removeEventListener('hashchange', f);
   }, []);
   return r;
 }
 
-// quantas telas o próprio app empilhou: Voltar só usa history.back() dentro do app (link direto volta ao início)
+// quantas telas o próprio app empilhou: Voltar só usa history.back() dentro do app (link direto volta ao Início)
 let pilha = 0;
 const ir = (h: string) => { pilha++; location.hash = h; };
 export const irTitulo = (id: string) => ir(`#/t/${id}`);
-export const irBiblioteca = (id: string) => ir(`#/b/${id}`);
-// destinos das abas trocam a tela sem empilhar (Voltar do controle/navegador volta ao Início)
-export const irAba = (aba: '' | 'busca' | 'fav' | 'pedidos') => { location.hash = aba ? `#/${aba}` : ''; };
 export const irVer = (id: string, ticks?: number) => ir(`#/ver/${id}${ticks ? `?t=${ticks}` : ''}`);
+export const irPagina = (p: typeof SIMPLES[number]) => ir(`#/${p}`);
+// destinos da ilha trocam a tela sem empilhar (Voltar do navegador volta ao Início)
+export const irAba = (aba: '' | 'busca' | 'fav' | `b/${string}` | 'b') => { location.hash = aba ? `#/${aba}` : ''; };
 export function voltar() { if (pilha > 0) { pilha--; history.back(); } else location.hash = ''; }
 
-// Voltar do teclado e dos controles (Esc, Backspace fora de campo, Tizen 10009, webOS 461). O player trata o dele antes.
-export function ligarVoltar(): void {
-  addEventListener('keydown', ev => {
-    const k = ev.keyCode, alvo = ev.target as HTMLElement;
-    if (k === 8 && (alvo.tagName === 'INPUT' || alvo.tagName === 'TEXTAREA')) return;
-    if (k !== 8 && k !== 27 && k !== 461 && k !== 10009) return;
-    if (!location.hash || location.hash === '#') {
-      // raiz na TV: 1º Voltar leva o foco ao começo; o 2º fecha o app (Tizen/webOS não fecham sozinhos)
-      if (!ehTV || k === 8) return;
-      ev.preventDefault();
-      if (!(naRaiz && naRaiz())) sairDoApp();
-      return;
-    }
-    ev.preventDefault(); voltar();
-  });
-}
-
-// a tela inicial registra aqui o "voltar ao começo"; devolve false quando já está no começo
-let naRaiz: (() => boolean) | null = null;
-export function aoVoltarNaRaiz(f: (() => boolean) | null) { naRaiz = f; }
+// biblioteca aberta por último (a aba Biblioteca volta nela)
+export const ultimaBiblioteca = () => { try { return localStorage.getItem('heisuca.biblioteca') || ''; } catch { return ''; } };
+export const lembrarBiblioteca = (id: string) => { try { localStorage.setItem('heisuca.biblioteca', id); } catch { /* nada */ } };

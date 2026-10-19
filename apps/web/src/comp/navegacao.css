@@ -1,0 +1,32 @@
+/* topo flutuante: só as pílulas, sem barra (erro do v1: barra semi-transparente de ponta a ponta) */
+.topo { position: fixed; z-index: 30; left: 0; right: 0; top: 0; padding: var(--hs-topo-respiro) var(--hs-margem) 10px;
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; pointer-events: none; }
+.topo > * { pointer-events: auto; }
+/* quando a tela rola, um véu na cor da própria página (não é barra: some em degradê) para o conteúdo não brigar com as pílulas */
+.topo::before { content: ''; position: absolute; inset: 0 0 -28px; z-index: -1; opacity: 0; transition: opacity .25s;
+  background: linear-gradient(var(--hs-pagina) 55%, var(--hs-pagina-0)); pointer-events: none; }
+.topo.com-fundo::before { opacity: 1; }
+.topo-servidor { justify-self: start; max-width: 100%; display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px 0 5px;
+  border-radius: var(--hs-raio-total); background: var(--hs-vidro); -webkit-backdrop-filter: blur(18px) saturate(1.4); backdrop-filter: blur(18px) saturate(1.4);
+  box-shadow: inset 0 0 0 1px var(--hs-vidro-borda); font-size: 14px; font-weight: 600; color: var(--hs-texto); }
+.topo-centro { min-width: 0; display: flex; justify-content: center; }
+.topo-busca { justify-self: end; color: var(--hs-texto); }
+.topo-vazio { justify-self: end; width: 44px; }
+.avatar { border-radius: 50%; object-fit: cover; flex: none; }
+.avatar-vazio { display: inline-grid; place-items: center; background: var(--hs-linha); color: var(--hs-texto-2); }
+
+/* ilha inferior: compacta, centralizada, flutuando (ref/vidhub: ~70% da largura no celular) */
+.ilha { position: fixed; z-index: 30; left: 50%; bottom: var(--hs-ilha-respiro); transform: translateX(-50%);
+  width: min(calc(100vw - 2 * var(--hs-margem) - 24px), 304px); height: var(--hs-ilha-altura);
+  display: grid; grid-template-columns: repeat(4, 1fr); align-items: center; padding: 0 6px; border-radius: var(--hs-raio-total);
+  background: var(--hs-vidro); -webkit-backdrop-filter: blur(22px) saturate(1.5); backdrop-filter: blur(22px) saturate(1.5);
+  box-shadow: inset 0 0 0 1px var(--hs-vidro-borda), var(--hs-sombra); }
+.ilha-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 0; height: 100%;
+  color: var(--hs-texto-2); font-size: 10px; font-weight: 500; transition: color .2s; }
+.ilha-item span:last-child { max-width: 100%; }
+.ilha-item.ativo { color: var(--hs-texto); font-weight: 700; }
+.ilha-item:active .icone, .ilha-item:active .avatar { transform: scale(.9); }
+.ilha-eu .avatar { box-shadow: 0 0 0 1.5px var(--hs-vidro-borda); }
+/* espaço para o conteúdo não ficar atrás da ilha */
+.com-ilha { padding-bottom: calc(var(--hs-ilha-respiro) + var(--hs-ilha-altura) + 24px); }
+@media (min-width: 1024px) { .ilha { width: 360px; } .ilha-item { font-size: 11.5px; } }

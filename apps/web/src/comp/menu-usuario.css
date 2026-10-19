@@ -1,0 +1,6 @@
+.mu .folha-corpo { padding: 8px 8px 10px; }
+.mu-conta { width: 100%; display: flex; align-items: center; gap: 14px; padding: 10px; border-radius: 16px; text-align: left; color: var(--hs-texto); }
+.mu-conta:hover, .mu-conta:focus-visible { background: var(--hs-linha); outline: none; }
+.mu-conta .opcao-texto strong { font-size: 17px; }
+.mu-seta { color: var(--hs-texto-2); }
+.mu-extra { color: var(--hs-texto-2); font-size: 13px; margin-right: -6px; }

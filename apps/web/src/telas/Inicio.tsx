@@ -1,124 +1,102 @@
-// Início no modelo dos nossos apps (PADROES_CGFLIX_TV.md §1–2): hero com logo, atalhos das bibliotecas (Animes, Séries,
-// Filmes, Coleções) e as fileiras Continuar · Em alta no Brasil (Top 10) · Animes · Séries · Filmes · Em breve (por último,
-// Caio no 2º teste da TV). A navegação (abas, menu do avatar) fica em comp/Navegacao.
+// Início (PLANO §4; ref/vidhub/…home_topo, …home_rolada, …foto67). Base funcional da fundação; a sessão B leva ao
+// acabamento com o comparador lado a lado. Ordem: destaque · Continuar · Próximo · Em alta · Mídia · bibliotecas · Em breve.
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { continuar, emAlta, emBreve, fundo, logo, novidades, type EmBreve, type Item, type Sessao } from '../api/jellyfin';
-import { Fileira, FileiraEmBreve } from '../comp/Fileira';
-import { Icone } from '../comp/Icone';
-import { iconeBiblioteca, listaBibliotecas } from '../comp/Navegacao';
-import type { Alvo } from '../comp/Pedido';
-import { aoVoltarNaRaiz, irBiblioteca, irTitulo, irVer } from '../rota';
-import { ehTV } from '../tv';
+import { fundo, hashDe, logo, type EmBreve, type Item, type Sessao } from '../api/jellyfin';
+import { usePaleta } from '../cor/paleta';
+import { CartaoBiblioteca, CartaoEmBreve, CartaoPaisagem, CartaoPoster, CartaoTop10, EsqueletoCartoes, nota } from '../comp/Cartoes';
+import { Fileira } from '../comp/Fileira';
+import { Imagem } from '../comp/Imagem';
+import { Topo } from '../comp/Navegacao';
+import { abrirServidores } from '../estado/casca';
+import { hashDoDestaque, prepararInicio, type DadosInicio } from '../dados/inicio';
+import { irAba, irTitulo, irVer } from '../rota';
+import './inicio.css';
 
-type Linha = { titulo: string; itens: Item[]; tocar?: boolean; top10?: boolean };
-const ORDEM_LIB = ['Animes', 'Séries', 'Filmes'];
+const TROCA = 8000;
+const anosDe = (i: Item) => {
+  const a = i.ProductionYear, b = i.EndDate ? new Date(i.EndDate).getFullYear() : undefined;
+  return a ? (i.Type === 'Series' && b && b !== a ? `${a} - ${b}` : String(a)) : '';
+};
 
-// onde o foco estava (fileira, cartão), para voltar do título no mesmo lugar
-let ultimo: [number, number] = [0, 0];
+export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void }) {
+  const [d, setD] = useState<DadosInicio | null>(null);
+  const [n, setN] = useState(0);
+  const [vistos, setVistos] = useState<Set<number>>(new Set([0]));
+  const [rolou, setRolou] = useState(false);
+  const parado = useRef(false), destaque = useRef<HTMLElement>(null), toque = useRef<number | null>(null);
 
-// TV: a fileira focada sobe para o topo da área das fileiras e o cartão focado fica na margem esquerda. Só transform
-// (regra de desempenho da TV); offsetTop/offsetLeft não mudam com transform. scrollTop/Left = 0 porque o Chromium 56 do
-// Tizen 3 ignora focus({ preventScroll }).
-function posicionar(caixa: HTMLElement, pista: HTMLElement, alvo: HTMLElement) {
-  const cartao = alvo.closest('.cartao') as HTMLElement | null;
-  if (!cartao) { pista.style.transform = ''; caixa.scrollTop = 0; return; }  // atalhos das bibliotecas: volta ao topo
-  const fileira = cartao.closest('.fileira') as HTMLElement | null;
-  const trilho = cartao.parentElement as HTMLElement | null;
-  if (!fileira || !trilho) return;
-  const primeiro = trilho.firstElementChild as HTMLElement;
-  ultimo = [Array.prototype.indexOf.call(pista.children, fileira), Array.prototype.indexOf.call(trilho.children, cartao)];
-  pista.style.transform = `translateY(${-fileira.offsetTop}px)`;
-  trilho.style.transform = `translateX(${primeiro.offsetLeft - cartao.offsetLeft}px)`;
-  caixa.scrollTop = 0; caixa.scrollLeft = 0; trilho.scrollLeft = 0;
-}
+  useEffect(() => { prepararInicio(s).then(setD).catch(() => setD(null)); }, [s.token]);
+  const lista = d?.destaque || [];
+  const atual = lista[n];
+  usePaleta(hashDoDestaque(atual));
 
-export function Inicio({ s, pedir }: { s: Sessao; pedir: (a: Alvo) => void }) {
-  const [libs, setLibs] = useState<Item[]>([]);
-  const [linhas, setLinhas] = useState<Linha[]>([]);
-  const [breve, setBreve] = useState<{ tv: EmBreve[]; movie: EmBreve[] }>({ tv: [], movie: [] });
-  const [destaque, setDestaque] = useState<Item | null>(null);
-  const [erro, setErro] = useState('');
-  const caixa = useRef<HTMLDivElement>(null), pista = useRef<HTMLDivElement>(null);
-  // troca do fundo espera a navegação parar: decodificar um fundo 1080p a cada seta pesa na TV
-  const espera = useRef(0);
-  const focar = (i: Item) => { clearTimeout(espera.current); espera.current = setTimeout(() => setDestaque(i), ehTV ? 300 : 150) as unknown as number; };
-
+  const ir = (k: number) => { if (!lista.length) return; const x = (k + lista.length) % lista.length; setN(x); setVistos(v => new Set(v).add(x)); };
   useEffect(() => {
-    (async () => {
-      try {
-        const [cont, todas, alta] = await Promise.all([continuar(s), listaBibliotecas(s), emAlta(s).catch(() => null)]);
-        setLibs(todas);
-        const vids = todas.filter(l => l.CollectionType === 'movies' || l.CollectionType === 'tvshows')
-          .sort((a, b) => (ORDEM_LIB.indexOf(a.Name) + 99) % 99 - (ORDEM_LIB.indexOf(b.Name) + 99) % 99);
-        const nov = await Promise.all(vids.map(l => novidades(s, l.Id).then(itens => ({ titulo: `Novidades em ${l.Name}`, itens })).catch(() => ({ titulo: l.Name, itens: [] }))));
-        const lista: Linha[] = [{ titulo: 'Continuar assistindo', itens: cont, tocar: true },
-          ...(alta ? [{ titulo: alta.titulo, itens: alta.itens, top10: true }] : []), ...nov].filter(l => l.itens.length);
-        setLinhas(lista);
-        setDestaque(alta?.itens[0] ?? lista[0]?.itens[0] ?? null);
-      } catch (e) { setErro(e instanceof Error ? e.message : String(e)); }
-      const [tv, movie] = await Promise.all([emBreve(s, 'tv').catch(() => []), emBreve(s, 'movie').catch(() => [])]);
-      setBreve({ tv, movie });
-    })();
-  }, [s.token]);
-
+    if (lista.length < 2) return;
+    const t = setInterval(() => { if (!parado.current && !document.hidden) ir(n + 1); }, TROCA);
+    return () => clearInterval(t);
+  }, [lista.length, n]);
   useEffect(() => {
-    if (!ehTV || !linhas.length || !caixa.current || !pista.current) return;
-    const c = caixa.current, p = pista.current;
-    const primeiro = () => c.querySelector<HTMLElement>('.cartao');
-    const f = (ev: FocusEvent) => posicionar(c, p, ev.target as HTMLElement);
-    c.addEventListener('focusin', f);
-    const a = document.activeElement;
-    if (!a || a === document.body) {
-      const fl = p.children[ultimo[0]]?.querySelector('.fileira-trilho')?.children[ultimo[1]] as HTMLElement | undefined;
-      (fl || primeiro())?.focus();
-    }
-    aoVoltarNaRaiz(() => {
-      const um = primeiro();
-      if (!um || document.activeElement === um) return false;
-      um.focus();
-      c.querySelectorAll<HTMLElement>('.fileira-trilho').forEach(t => { t.style.transform = ''; });
-      p.style.transform = '';
-      return true;
-    });
-    return () => { c.removeEventListener('focusin', f); aoVoltarNaRaiz(null); };
-  }, [linhas]);
+    const f = () => { const h = destaque.current?.offsetHeight || 400; setRolou(scrollY > h * 0.55); };
+    f(); addEventListener('scroll', f, { passive: true });
+    return () => removeEventListener('scroll', f);
+  }, []);
 
-  const abrirBreve = (e: EmBreve) => { if (e.jf) irTitulo(e.jf); else if (e.tmdb) pedir({ tipo: e.tipo, id: e.tmdb, nome: e.nome }); };
-  const img = destaque ? fundo(s, destaque) : '';
-  const lg = destaque ? logo(s, destaque) : '';
-  const nome = destaque ? (destaque.Type === 'Episode' ? destaque.SeriesName : destaque.Name) : '';
-  const retomar = destaque?.UserData?.PlaybackPositionTicks;
+  const lg = atual ? logo(s, atual, 600) : '';
+  const meta = atual ? [nota(atual) && <><span class="destaque-estrela">★</span> {nota(atual)}</>, anosDe(atual), atual.Genres?.slice(0, 3).join(', ')].filter(Boolean) : [];
   return (
     <div class="inicio">
-      <div class="destaque" aria-live="polite">
-        {img && <img key={img} class="destaque-img" src={img} alt="" />}
-        <div class="destaque-texto" key={destaque?.Id}>
-          {lg ? <img class="destaque-logo" src={lg} alt={nome} /> : <h1>{nome}</h1>}
-          <p>{destaque?.Overview}</p>
-          {destaque && !ehTV && (
-            <div class="destaque-acoes">
-              <button class="botao" onClick={() => retomar ? irVer(destaque.Id, retomar) : irTitulo(destaque.Id)}>
-                <Icone nome="play_arrow" cheio />{retomar ? 'Continuar' : 'Assistir'}
-              </button>
-              <button class="botao-sec" onClick={() => irTitulo(destaque.Id)}><Icone nome="info" />Detalhes</button>
-            </div>
-          )}
+      <Topo s={s} aoServidor={abrirServidores} fundo={rolou}
+        centro={rolou && atual ? (lg ? <img class="topo-logo" src={lg} alt={atual.Name} /> : <span class="topo-nome uma-linha">{atual.Name}</span>) : null} />
+      <section class="destaque" ref={destaque} aria-roledescription="carrossel" aria-label="Destaques"
+        onPointerEnter={e => { if (e.pointerType === 'mouse') parado.current = true; }} onPointerLeave={() => { parado.current = false; }}
+        onPointerDown={e => { toque.current = e.clientX; }}
+        onPointerUp={e => { if (toque.current === null) return; const dx = e.clientX - toque.current; toque.current = null; if (Math.abs(dx) > 50) ir(n + (dx < 0 ? 1 : -1)); }}>
+        <div class="destaque-artes">
+          {lista.map((i, k) => vistos.has(k) && (
+            <Imagem key={i.Id} classe={`destaque-arte${k === n ? ' atual' : ''}`} src={fundo(s, i, Math.min(1920, Math.round(innerWidth * devicePixelRatio)))}
+              hash={hashDe(i, 'Backdrop')} prioridade={k === 0} />
+          ))}
+          {!lista.length && <span class="destaque-arte atual esqueleto" />}
         </div>
-      </div>
-      {erro && <p class="erro">{erro}</p>}
-      <div class="fileiras" ref={caixa} data-rola-sozinho={ehTV ? '' : undefined}>
-        <div class="fileiras-pista" ref={pista}>
-          {libs.length > 0 && (
-            <nav class="atalhos" aria-label="Bibliotecas">
-              {libs.map(b => <button data-foco class="atalho" key={b.Id} onClick={() => irBiblioteca(b.Id)}><Icone nome={iconeBiblioteca(b)} />{b.Name}</button>)}
-            </nav>
-          )}
-          {linhas.map(l => <Fileira key={l.titulo} s={s} titulo={l.titulo} itens={l.itens} aoFocar={focar} top10={l.top10}
-            aoAbrir={i => l.tocar ? irVer(i.Id, i.UserData?.PlaybackPositionTicks) : irTitulo(i.Id)} />)}
-          <FileiraEmBreve titulo="Séries em breve" itens={breve.tv} aoAbrir={abrirBreve} />
-          <FileiraEmBreve titulo="Filmes em breve" itens={breve.movie} aoAbrir={abrirBreve} />
-        </div>
-      </div>
+        {atual && (
+          <button class="destaque-texto" key={atual.Id} onClick={() => irTitulo(atual.Id)} aria-label={`Abrir ${atual.Name}`}>
+            {lg ? <img class="destaque-logo" src={lg} alt={atual.Name} /> : <span class="destaque-nome">{atual.Name}</span>}
+            {meta.length > 0 && <span class="destaque-meta">{meta.map((m, k) => <span key={k}>{m}</span>)}{atual.OfficialRating && <span class="selo-idade">{atual.OfficialRating}</span>}</span>}
+            {atual.Overview && <span class="destaque-sinopse duas-linhas">「{atual.Name}」 {atual.Overview}</span>}
+          </button>
+        )}
+        {lista.length > 1 && (
+          <div class="destaque-pontos" role="tablist">
+            {lista.map((i, k) => <button key={i.Id} role="tab" aria-selected={k === n} aria-label={`Destaque ${k + 1}`} class={k === n ? 'atual' : ''} onClick={() => ir(k)} />)}
+          </div>
+        )}
+      </section>
+
+      {!d && <Fileira titulo="Continuar"><EsqueletoCartoes tipo="paisagem" n={3} /></Fileira>}
+      {d && d.continuar.length > 0 && (
+        <Fileira titulo="Continuar">
+          {d.continuar.map((i, k) => <CartaoPaisagem key={i.Id} s={s} i={i} tempo prioridade={k < 2} aoAbrir={x => irVer(x.Id, x.UserData?.PlaybackPositionTicks)} />)}
+        </Fileira>
+      )}
+      {d && d.proximo.length > 0 && (
+        <Fileira titulo="Próximo">{d.proximo.map(i => <CartaoPaisagem key={i.Id} s={s} i={i} aoAbrir={x => irVer(x.Id)} />)}</Fileira>
+      )}
+      {d && d.emAlta.itens.length > 0 && (
+        <Fileira titulo={d.emAlta.titulo} classe="fileira-top10">
+          {d.emAlta.itens.map((i, k) => <CartaoTop10 key={i.Id} s={s} i={i} n={k + 1} aoAbrir={x => irTitulo(x.Id)} />)}
+        </Fileira>
+      )}
+      {d && d.midia.length > 0 && (
+        <Fileira titulo="Mídia">{d.midia.map(b => <CartaoBiblioteca key={b.Id} s={s} b={b} aoAbrir={x => irAba(`b/${x.Id}`)} />)}</Fileira>
+      )}
+      {d && d.porBiblioteca.map(({ biblioteca: b, itens }) => (
+        <Fileira key={b.Id} titulo={b.Name} verTudo={() => irAba(`b/${b.Id}`)}>
+          {itens.map(i => <CartaoPoster key={i.Id} s={s} i={i} aoAbrir={x => irTitulo(x.Type === 'Episode' && x.SeriesId ? x.SeriesId : x.Id)} />)}
+        </Fileira>
+      ))}
+      {d && d.emBreve.tv.length > 0 && <Fileira titulo="Séries em breve">{d.emBreve.tv.map((e, k) => <CartaoEmBreve key={k} e={e} aoAbrir={x => x.jf ? irTitulo(x.jf) : pedir(x)} />)}</Fileira>}
+      {d && d.emBreve.movie.length > 0 && <Fileira titulo="Filmes em breve">{d.emBreve.movie.map((e, k) => <CartaoEmBreve key={k} e={e} aoAbrir={x => x.jf ? irTitulo(x.jf) : pedir(x)} />)}</Fileira>}
     </div>
   );
 }

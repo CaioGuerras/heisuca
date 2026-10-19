@@ -1,0 +1,43 @@
+/* Cartões. Medidas do celular tiradas de ref/vidhub/…home_rolada (412 px de largura): pôster ~84 px, 16:9 ~180 px. */
+.img { display: block; position: relative; overflow: hidden; background: var(--hs-linha); }
+.img img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .35s var(--hs-curva-padrao); }
+.img img.ok { opacity: 1; }
+
+.cartao { display: flex; flex-direction: column; gap: 3px; text-align: left; flex: none; color: var(--hs-texto);
+  -webkit-touch-callout: none; user-select: none; }
+.cartao-arte { position: relative; display: block; border-radius: var(--hs-raio-cartao); overflow: hidden;
+  transition: transform var(--hs-tempo-cartao) var(--hs-curva-padrao), box-shadow var(--hs-tempo-cartao); }
+.cartao-arte > .img { position: absolute; inset: 0; }
+.cartao:active .cartao-arte { transform: scale(.97); }
+@media (hover: hover) and (pointer: fine) { .cartao:hover .cartao-arte { transform: translateY(-2px); box-shadow: var(--hs-sombra); } }
+.cartao-nome { font-size: 13px; font-weight: 600; margin-top: 5px; line-height: 1.25; }
+.cartao-sub { font-size: 11.5px; color: var(--hs-texto-2); line-height: 1.25; }
+@media (min-width: 600px) { .cartao-nome { font-size: 14px; } .cartao-sub { font-size: 12.5px; } }
+
+.cartao-poster { width: var(--hs-cartao-poster); }
+.cartao-poster .cartao-arte { aspect-ratio: 2 / 3; }
+.cartao-paisagem, .cartao-biblioteca { width: var(--hs-cartao-paisagem); }
+.cartao-paisagem .cartao-arte, .cartao-biblioteca .cartao-arte { aspect-ratio: 16 / 9; }
+
+/* selinhos sobre a arte */
+.cartao-nota { position: absolute; right: 6px; bottom: 5px; font-size: 11px; font-weight: 700; color: #fff;
+  text-shadow: 0 1px 3px rgb(0 0 0 / .7); font-variant-numeric: tabular-nums; }
+.cartao-visto { position: absolute; top: 6px; right: 6px; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center;
+  background: rgb(255 255 255 / .82); color: #111; }
+.cartao-selo { position: absolute; left: 6px; top: 6px; padding: 2px 7px; border-radius: 999px; font-size: 10.5px; font-weight: 700;
+  background: var(--hs-realce); color: var(--hs-tema-cor-botao-texto); }
+.cartao-play { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 42px; height: 42px; border-radius: 50%;
+  display: grid; place-items: center; color: #fff; background: rgb(0 0 0 / .18); box-shadow: inset 0 0 0 2px rgb(255 255 255 / .92); }
+.cartao-tempo { position: absolute; right: 8px; bottom: 9px; font-size: 11px; font-weight: 600; color: #fff;
+  text-shadow: 0 1px 3px rgb(0 0 0 / .8); font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+.cartao-barra { position: absolute; left: 10px; right: 10px; bottom: 5px; height: 3px; border-radius: 3px; background: rgb(255 255 255 / .35); }
+.cartao-barra > span { display: block; height: 100%; border-radius: inherit; background: #fff; }
+.cartao-biblioteca-nome { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--hs-tema-fonte-titulo);
+  font-size: 22px; font-weight: 600; color: #fff; text-shadow: 0 2px 8px rgb(0 0 0 / .5); }
+
+/* Top 10: número em contorno, alinhado à base do pôster, encostando nele (ref/app_completo/…foto21) */
+.cartao-top10 { flex-direction: row; align-items: flex-end; width: calc(var(--hs-cartao-poster) * 1.62); }
+.cartao-top10 .cartao-arte { width: var(--hs-cartao-poster); aspect-ratio: 2 / 3; flex: none; }
+.cartao-numero { flex: 1; text-align: right; margin-right: -4px; font-family: var(--hs-tema-fonte-titulo); font-weight: 700;
+  font-size: calc(var(--hs-cartao-poster) * .95); line-height: .78; color: transparent; letter-spacing: -.06em;
+  -webkit-text-stroke: 2px var(--hs-realce); paint-order: stroke; }

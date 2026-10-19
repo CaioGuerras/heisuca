@@ -1,0 +1,9 @@
+/* menu do botão direito: ref/vidhub/…foto51 (caixa escura arredondada, rótulo à esquerda, ícone à direita) */
+.mc-fundo { position: fixed; inset: 0; z-index: 70; }
+.mc { position: fixed; width: 236px; padding: 6px; border-radius: 16px; background: var(--hs-superficie); color: var(--hs-texto);
+  box-shadow: 0 18px 48px rgb(0 0 0 / .35), inset 0 0 0 1px var(--hs-linha); animation: mc-entra .16s var(--hs-curva-padrao); }
+.mc-titulo { margin: 6px 12px 4px; font-size: 12px; color: var(--hs-texto-2); }
+.mc-opcao { width: 100%; min-height: 46px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 0 12px; border-radius: 10px; font-size: 15px; text-align: left; }
+.mc-opcao:hover, .mc-opcao:focus-visible { background: var(--hs-linha); outline: none; }
+@keyframes mc-entra { from { opacity: 0; transform: scale(.92); } }

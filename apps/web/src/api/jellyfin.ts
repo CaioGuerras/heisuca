@@ -1,6 +1,6 @@
 // Cliente Jellyfin mínimo, escrito do zero (só fetch). Cada função é um endpoint da API REST oficial (10.9+).
 // Regra do PLANO §1.7: só aparece dado que o servidor tem; nada de valor inventado na falta.
-const VERSAO = '0.2.0';
+export const VERSAO = '0.2.0';
 
 export type Sessao = {
   servidor: string; token: string; usuarioId: string; nome: string;

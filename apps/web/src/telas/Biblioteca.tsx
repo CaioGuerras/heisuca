@@ -8,6 +8,7 @@ import { usePaleta } from '../cor/paleta';
 import { CartaoPoster, EsqueletoCartoes } from '../comp/Cartoes';
 import { Folha } from '../comp/Folha';
 import { Icone } from '../comp/Icone';
+import { abrirServidores } from '../estado/casca';
 import { irAba, irTitulo, lembrarBiblioteca, ultimaBiblioteca, voltar } from '../rota';
 import './biblioteca.css';
 
@@ -55,6 +56,16 @@ export function Biblioteca({ s, id }: { s: Sessao; id?: string }) {
               </button>
             </li>
           ))}
+          {/* por último, discreto: o servidor atual e "Trocar" (Caio 18/10: a Biblioteca abriga as libs e a troca de servidor) */}
+          <li><hr class="separador" /></li>
+          <li>
+            <button class="opcao-linha biblioteca-servidor" onClick={() => { setMenu(false); setTimeout(abrirServidores, 220); }}
+              aria-label={`Servidor ${s.nomeServidor || ''}. Trocar de servidor`}>
+              <Icone nome="dns" tamanho={22} />
+              <span class="opcao-texto"><small class="uma-linha">{s.nomeServidor || 'Servidor'}</small></span>
+              <span class="biblioteca-trocar">Trocar</span>
+            </button>
+          </li>
         </ul>
       </Folha>
     </main>

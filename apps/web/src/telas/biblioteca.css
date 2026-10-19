@@ -12,6 +12,9 @@
 .biblioteca-sentinela { height: 1px; }
 .biblioteca-menu .opcao-linha .icone { color: var(--hs-texto-2); }
 .biblioteca-menu .opcao-linha[aria-current] .icone { color: var(--hs-texto); }
+.biblioteca-servidor { min-height: 46px; }
+.biblioteca-servidor .opcao-texto small { font-size: 13.5px; }
+.biblioteca-trocar { font-size: 13px; font-weight: 600; color: var(--hs-texto-2); padding: 4px 10px; border-radius: var(--hs-raio-total); box-shadow: inset 0 0 0 1px var(--hs-linha); }
 @media (min-width: 600px) {
   .biblioteca-topo { grid-template-columns: 44px 1fr 44px; }
   .biblioteca-topo h1 { font-size: 19px; }

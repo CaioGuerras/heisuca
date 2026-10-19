@@ -26,6 +26,8 @@
 
 **Biblioteca** (`src/telas/Biblioteca.tsx`, `biblioteca.css`), rota `#/b/<id>`:
 - Topo `← | nome | ☰`; o ☰ abre o **menu lateral direito** com as bibliotecas de vídeo (ícone por tipo, ✓ na atual) e troca direto.
+- O menu lateral termina com uma linha discreta do servidor atual (`dns` + nome que o servidor informa + "Trocar"), que abre o
+  "Trocar servidor" da fundação (`abrirServidores()`), conforme o pedido do Caio de 18/10 repassado pela sessão principal.
 - Sem abas e sem ordenar/filtrar: ordem alfabética (`daBiblioteca`). Grade 2:3 em 3 colunas no celular, `auto-fill` no
   computador (8 colunas a 1440 px); nota, ✓ visto, título + anos (o `CartaoPoster` da fundação, com botão direito).
 - Carrega de 60 em 60 ao rolar (IntersectionObserver com folga de 900 px); para no total ou numa página vazia/curta.
@@ -41,7 +43,7 @@
   - `cel_titulo_topo.jpg` (× `vidhub/…foto42`), `cel_titulo_rolado.jpg` (× `…foto43`), `cel_titulo_temporada.jpg`
     (seletor aberto, Deadwood e One Piece × o reprovado `…foto72`), `cel_titulo_baixo.jpg` (elenco/Info mídia × `…foto71`),
     `cel_titulo_outros.jpg`, `cel_titulo_filme_colecao.jpg`, `cel_titulo_vertudo.jpg`;
-  - `cel_biblioteca.jpg` (× `…foto50`), `cel_biblioteca_menu.jpg` (menu lateral × `…foto51`);
+  - `cel_biblioteca.jpg` (× `…foto50`), `cel_biblioteca_menu.jpg` (menu lateral × `…foto51`), `cel_biblioteca_trocar.jpg` (linha do servidor e o Trocar servidor aberto);
   - `desk_{roxo,verde}_*.jpg`: título topo, rolado, temporada aberta, baixo, filme, coleção, biblioteca e menu lateral.
 - Teclado no computador: tudo é botão; as folhas prendem o foco e fecham no Esc; o foco volta para quem abriu.
 
@@ -84,4 +86,5 @@
 - `src/comp/Folha.tsx` + `folha.css`: **acrescentei** a variante `'lateral'` (menu que entra pela direita). Nada do que existia mudou.
 - `src/comp/Icone.tsx`: acrescentei `videocam` e `music_note` no glob.
 - `src/api/jellyfin.ts`: acrescentei `daColecao` (filhos de um BoxSet em ordem de lançamento).
+- Rebase no `site-v2` atual (f17be63); o único conflito foi em `app.tsx` (a linha do Favoritos da sessão B), resolvido mantendo as duas.
 - `testes/prints_c.py` (novo): prints com ações por cena (rolar, clicar), com espera da transição.

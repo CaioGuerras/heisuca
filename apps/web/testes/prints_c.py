@@ -29,6 +29,7 @@ CENAS = [
     ("alien_topo", f"#/t/{ALIEN}", []),
     ("biblioteca", f"#/b/{ANIMES}", []),
     ("biblioteca_menu", f"#/b/{ANIMES}", [("clicar", ".biblioteca-topo .redondo:last-child")]),
+    ("biblioteca_trocar", f"#/b/{ANIMES}", [("clicar", ".biblioteca-topo .redondo:last-child"), ("clicar", ".biblioteca-servidor"), ("esperar", 0.6)]),
     ("biblioteca_rolada", f"#/b/{ANIMES}", [("rolar", 99999), ("esperar", 1.5), ("rolar", 99999)]),
     ("biblioteca_sem_id", "#/b", []),
 ]

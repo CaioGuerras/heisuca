@@ -62,7 +62,7 @@ def trocar_nginx(com_bloco):
 def main():
     if "--remover" in sys.argv:
         return 0 if trocar_nginx(False) else 1
-    env = dict(os.environ, VITE_SO_USUARIO=os.environ.get("VITE_SO_USUARIO", "caioguerras,teste-cgflix"))
+    env = dict(os.environ, VITE_SO_USUARIO=os.environ.get("VITE_SO_USUARIO", "caioguerras,teste-cgflix,clara,clarapinto"))
     subprocess.run(["npm", "run", "build"], cwd=WEB, env=env, check=True)
     subprocess.run(["find", "dist", "-type", "f", "(", "-name", "*.js", "-o", "-name", "*.css", "-o", "-name", "*.html",
                     "-o", "-name", "*.svg", "-o", "-name", "*.json", "-o", "-name", "*.wasm", ")", "-exec", "gzip", "-9", "-k", "-f", "{}", "+"], cwd=WEB, check=True)

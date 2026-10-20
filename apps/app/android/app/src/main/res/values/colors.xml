@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ic_launcher_background">#07060a</color>
-    <color name="ic_launcher_background_heitor">#f4fcee</color> <!-- CGFLIX: ícone do tema Heitor -->
-    <color name="splash_background">#f4fcee</color> <!-- CGFLIX: aparelho claro = Heitor -->
-    <color name="splash_dark">#07060a</color>
-    <color name="splash_oled">#07060a</color>
-    <color name="splash_light">#f4fcee</color> <!-- CGFLIX: Heitor -->
+    <!-- Heisuca: paleta oficial Shikkoku (#1A1424) e variantes adaptativas -->
+    <color name="ic_launcher_background">#1A1424</color>
+    <color name="ic_launcher_background_hisui">#1A2327</color>
+    <color name="ic_launcher_background_ichigo">#FFFFFF</color>
+    <color name="ic_launcher_background_shinju">#FFFFFF</color>
+    <color name="ic_launcher_background_sorairo">#FFFFFF</color>
+    <color name="ic_launcher_background_heitor">#f4fcee</color>
+    <color name="splash_background">#0E0B14</color>
+    <color name="splash_dark">#0E0B14</color>
+    <color name="splash_oled">#000000</color>
+    <color name="splash_light">#0E0B14</color>
 </resources>

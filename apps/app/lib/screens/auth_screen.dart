@@ -22,6 +22,7 @@ import '../heisuca/heisuca_logo.dart';
 import '../heisuca/heisuca_theme.dart';
 import '../heisuca/heisuca_add_webdav_screen.dart';
 import '../heisuca/heisuca_add_smb_screen.dart';
+import '../heisuca/heisuca_select_service_screen.dart';
 import '../cgflix/cgflix_logo.dart';
 import '../cgflix/cgflix_slogan.dart';
 import '../i18n/strings.g.dart';
@@ -450,6 +451,15 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 10),
+          FocusableButton(
+            onPressed: busy ? null : () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HeisucaSelectServiceScreen())),
+            child: TextButton.icon(
+              onPressed: busy ? null : () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HeisucaSelectServiceScreen())),
+              icon: const Icon(Icons.hub_outlined, size: 16),
+              label: const Text('Portal Multi-Serviço (Todas as Fontes)'),
+            ),
           ),
         ] else ...[
           // Fluxo do Plex: navegador ou QR code (na TV o QR vem primeiro).

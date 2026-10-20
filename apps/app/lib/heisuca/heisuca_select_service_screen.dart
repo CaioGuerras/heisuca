@@ -1,9 +1,16 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'heisuca_theme.dart';
 import 'heisuca_logo.dart';
 import 'heisuca_service_type.dart';
+import 'heisuca_add_webdav_screen.dart';
+import 'heisuca_add_smb_screen.dart';
+import '../media/media_browser_dialect.dart';
+import '../screens/settings/add_jellyfin_screen.dart';
+import '../navigation/profile_session_screen.dart';
+import '../utils/navigation_transitions.dart';
 
-/// Tela de entrada cinematográfica do Heisuca com suporte Multi-Serviço
+/// Portal de entrada cinematográfico do Heisuca com suporte Multi-Serviço
 class HeisucaSelectServiceScreen extends StatelessWidget {
   final ValueChanged<HeisucaServiceType>? onSelectService;
 
@@ -11,6 +18,61 @@ class HeisucaSelectServiceScreen extends StatelessWidget {
     super.key,
     this.onSelectService,
   });
+
+  void _handleServiceSelection(BuildContext context, HeisucaServiceType type) {
+    if (onSelectService != null) {
+      onSelectService!(type);
+      return;
+    }
+
+    switch (type) {
+      case HeisucaServiceType.jellyfin:
+        Navigator.push<bool>(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const AddJellyfinScreen(dialect: MediaBrowserDialect.jellyfin),
+          ),
+        ).then((added) {
+          if (added == true && context.mounted) {
+            unawaited(Navigator.pushReplacement(context, fadeRoute(const ProfileSessionScreen())));
+          }
+        });
+        break;
+
+      case HeisucaServiceType.plex:
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Conexão Plex selecionada. Redirecionando para autenticação Plex...'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        Navigator.pop(context, HeisucaServiceType.plex);
+        break;
+
+      case HeisucaServiceType.webdav:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const HeisucaAddWebDavScreen()),
+        );
+        break;
+
+      case HeisucaServiceType.smb:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const HeisucaAddSmbScreen()),
+        );
+        break;
+
+      case HeisucaServiceType.local:
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Arquivos Locais: selecione a pasta ou mídia no armazenamento do aparelho.'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +134,7 @@ class HeisucaSelectServiceScreen extends StatelessWidget {
                       padding: const EdgeInsets.only(bottom: 12.0),
                       child: _ServiceCard(
                         type: type,
-                        onTap: () => onSelectService?.call(type),
+                        onTap: () => _handleServiceSelection(context, type),
                       ),
                     );
                   },

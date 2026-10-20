@@ -296,12 +296,33 @@ export function Sobre() {
       <section class="cartao-pagina sobre-bloco">
         <h2>Agradecimentos</h2>
         <div class="sobre-dedicatorias">
-          <p class="sobre-agradecimento">
-            Ao <strong>Rosiel Victor</strong> (<a href="https://all.dev.br" target="_blank" rel="noopener noreferrer">all.dev.br</a>), por sempre apoiar a fazer essas coisas rsrs.
-          </p>
-          <p class="sobre-agradecimento">
-            Ao pessoal da <strong>Locadora</strong> (<a href="https://locadora.cc" target="_blank" rel="noopener noreferrer">locadora.cc</a>), por até rir às vezes mas sempre me encorajar a evoluir, mesmo que cheio de HnR no site.
-          </p>
+          <div class="sobre-card-tributo">
+            <div class="sobre-tributo-cabeca">
+              <span class="sobre-tributo-icone"><Icone nome="favorite" cheio tamanho={20} /></span>
+              <div class="sobre-tributo-info">
+                <h3>Rosiel Victor</h3>
+                <p class="texto-2">Por sempre apoiar a fazer essas coisas rsrs.</p>
+              </div>
+            </div>
+            <a class="pilula pilula-clara sobre-tributo-botao" href="https://all.dev.br" target="_blank" rel="noopener noreferrer">
+              <span>all.dev.br</span>
+              <Icone nome="open_in_new" tamanho={16} />
+            </a>
+          </div>
+
+          <div class="sobre-card-tributo">
+            <div class="sobre-tributo-cabeca">
+              <span class="sobre-tributo-icone"><Icone nome="movie" cheio tamanho={20} /></span>
+              <div class="sobre-tributo-info">
+                <h3>Comunidade Locadora</h3>
+                <p class="texto-2">Por até rir às vezes mas sempre me encorajar a evoluir, mesmo que cheio de HnR no site.</p>
+              </div>
+            </div>
+            <a class="pilula pilula-clara sobre-tributo-botao" href="https://locadora.cc" target="_blank" rel="noopener noreferrer">
+              <span>locadora.cc</span>
+              <Icone nome="open_in_new" tamanho={16} />
+            </a>
+          </div>
         </div>
       </section>
 

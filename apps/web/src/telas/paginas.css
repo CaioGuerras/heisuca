@@ -128,10 +128,17 @@
 .sobre-versao { margin: 16px 0 0; font-size: 13.5px; }
 .sobre-bloco + .sobre-bloco, .sobre-retratil { margin-top: 12px; }
 .sobre-bloco > p { margin: 6px 0 0; font-size: 14.5px; line-height: 1.5; }
-.sobre-dedicatorias { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
-.sobre-agradecimento { margin: 0; font-size: 14.5px; line-height: 1.6; }
-.sobre-agradecimento a { color: var(--hs-tema-cor-primaria); text-decoration: underline; text-underline-offset: 3px; font-weight: 500; }
-.sobre-agradecimento a:hover { opacity: .85; }
+.sobre-dedicatorias { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+.sobre-card-tributo { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 16px;
+  border-radius: 14px; background: var(--hs-pagina); box-shadow: inset 0 0 0 1px var(--hs-linha); flex-wrap: wrap; }
+.sobre-tributo-cabeca { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 220px; }
+.sobre-tributo-icone { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; flex: none;
+  background: var(--hs-linha); color: var(--hs-realce); }
+.sobre-tributo-info h3 { margin: 0; font-size: 15.5px; font-weight: 650; color: var(--hs-texto); }
+.sobre-tributo-info p { margin: 2px 0 0; font-size: 13.5px; line-height: 1.45; }
+.sobre-tributo-botao { flex: none; min-height: 40px; padding: 0 14px; font-size: 13.5px; font-weight: 600; gap: 6px;
+  text-decoration: none; display: inline-flex; align-items: center; }
+.sobre-tributo-botao:hover { background: var(--hs-linha); text-decoration: none; }
 
 /* detalhes retráteis de código e bibliotecas */
 .sobre-retratil { display: block; }

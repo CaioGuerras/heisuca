@@ -122,7 +122,19 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
     if (x.hls) {
       const { default: H } = await import('hls.js/light');
       if (H.isSupported()) {
-        const h = new H({ startPosition: seg > 0 ? seg : -1, maxBufferLength: 30, maxMaxBufferLength: 60, maxBufferSize: 60 * 1000 * 1000, backBufferLength: 30 });
+        const h = new H({
+          startPosition: seg > 0 ? seg : -1,
+          // partida rápida: não baixa um pedaço só para medir a banda antes de começar
+          testBandwidth: false,
+          // estimativa inicial de banda (20 Mb/s): servidor caseiro com banda folgada; o ABR corrige após os 1os pedaços
+          abrEwmaDefaultEstimate: 20_000_000,
+          // nível inicial automático, escolhido pela estimativa acima (o Jellyfin costuma mandar um nível só)
+          startLevel: -1,
+          // já pede o 1º pedaço enquanto o <video> ainda prepara o MediaSource
+          startFragPrefetch: true,
+          // buffer limitado (medido: sem teto chegava a 193 MB em 20 s)
+          maxBufferLength: 30, maxMaxBufferLength: 60, maxBufferSize: 60 * 1000 * 1000, backBufferLength: 30,
+        });
         hls.current = h;
         h.on(H.Events.ERROR, (_ev, d) => {
           if (!d.fatal) return;

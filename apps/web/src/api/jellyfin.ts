@@ -51,10 +51,13 @@ export async function pedir(s: Sessao, metodo: string, caminho: string, corpo?: 
 export const obter = <T,>(s: Sessao, caminho: string): Promise<T> => pedir(s, 'GET', caminho).then(r => r.json());
 
 // ---- imagens (o servidor redimensiona; o tag faz o cache do navegador valer para sempre) ----
+// Sempre WebP: o site exige Safari 15+/Chrome/Edge/Firefox atuais, todos leem WebP; o Jellyfin 10.11 converte na hora
+// (e guarda em cache). Mesma qualidade do JPEG, arquivo bem menor; logos mantêm a transparência (WebP tem alfa).
+const WEBP = 'format=Webp';
 type Medida = { largura?: number; altura?: number; qualidade?: number };
 export function imagem(s: Sessao, id: string, tipo: string, tag?: string, m: Medida = {}, indice?: number): string {
   const q = [m.largura && `fillWidth=${Math.round(m.largura)}`, m.altura && `fillHeight=${Math.round(m.altura)}`,
-    `quality=${m.qualidade ?? 85}`, tag && `tag=${tag}`].filter(Boolean).join('&');
+    `quality=${m.qualidade ?? 85}`, WEBP, tag && `tag=${tag}`].filter(Boolean).join('&');
   return `${s.servidor}/Items/${id}/Images/${tipo}${indice !== undefined ? `/${indice}` : ''}?${q}`;
 }
 // pôster 2:3 (episódio cai no pôster da série)
@@ -85,7 +88,7 @@ export function paisagem(s: Sessao, i: Item, largura = 480): string {
 export const fotoPessoa = (s: Sessao, p: Pessoa, largura = 160) =>
   p.PrimaryImageTag ? imagem(s, p.Id, 'Primary', p.PrimaryImageTag, { largura, qualidade: 85 }) : '';
 export const fotoUsuario = (s: Sessao, largura = 96) =>
-  s.fotoTag ? `${s.servidor}/Users/${s.usuarioId}/Images/Primary?fillWidth=${largura}&quality=90&tag=${s.fotoTag}` : '';
+  s.fotoTag ? `${s.servidor}/Users/${s.usuarioId}/Images/Primary?fillWidth=${largura}&quality=90&${WEBP}&tag=${s.fotoTag}` : '';
 
 // BlurHash que o servidor já guarda de cada imagem (a cor da tela sai daqui; PLANO §2.2)
 export function hashDe(i: Item | null | undefined, tipo: keyof Hashes = 'Backdrop'): string | undefined {
@@ -265,7 +268,7 @@ export async function emBreve(s: Sessao, tipo: 'tv' | 'movie'): Promise<EmBreve[
     const nome = (tipo === 'tv' && mapa.s[chave!]?.nome) || i.SeriesName || i.Name || '';
     const poster = tipo === 'tv' ? p.SonarrPoster : p.RadarrPoster;  // capa do Sonarr/Radarr guardada pelo plugin
     const capa = poster && poster.startsWith('/HomeScreen/CachedImage/') ? s.servidor + poster
-      : v.jf ? `${s.servidor}/Items/${v.jf}/Images/Primary?fillHeight=360&quality=90` : '';
+      : v.jf ? `${s.servidor}/Items/${v.jf}/Images/Primary?fillHeight=360&quality=90&${WEBP}` : '';
     const quando = i.PremiereDate ? new Date(i.PremiereDate).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : '';
     const sub = [quando, tipo === 'tv' ? (p.EpisodeInfo || '').split(' - ')[0] : ''].filter(Boolean).join(' · ');
     return [{ nome, sub, capa, jf: v.jf || undefined, tmdb: v.tmdb, tipo }];

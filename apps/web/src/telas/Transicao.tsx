@@ -23,7 +23,7 @@ import { avisarErro } from '../aviso';
 import './transicao.css';
 
 // tempo total (do clique até a home), já com a revelação no fim (Caio 19/10: 3 a 5 s)
-export const MINIMO = 3000, MAXIMO = 5000;
+export const MINIMO = 2500, MAXIMO = 5000;
 // logo depois da abertura (~2,5 s): a transição curta, para o total (abertura + transição) ficar em ~5 s
 const MINIMO_CURTA = 2500;
 const VOO = 760, REVELA = 1250;

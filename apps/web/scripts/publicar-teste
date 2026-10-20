@@ -11,7 +11,7 @@ from pathlib import Path
 WEB = Path(__file__).resolve().parent.parent
 VPS = ["ssh", "-p", "22022", "-o", "BatchMode=yes", "root@143.95.215.156"]
 SITE = "/etc/nginx/sites-available/jellyfin"
-DEST = "/var/www/heisuca/teste"
+DEST = "/var/www/heisuca/site"
 INI, FIM = "    # >>> HEISUCA teste\n", "    # <<< HEISUCA teste\n"
 BLOCO = INI + f"""    location = /__heisuca {{ return 301 /__heisuca/; }}
     location ^~ /__heisuca/ {{

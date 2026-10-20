@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CGFLIX (TV): a TV fica sempre Isis, então o "splash_icon_heitor" da TV é o emblema roxo.
+      ícone ANIMADO da Splash Screen API (Android 12+). O "C" se desenha com o gradiente
+     roxo e o play cresce no fim (~1 s); depois a intro em Flutter continua a abertura. -->
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <aapt:attr name="android:drawable">
+        <vector
+            android:width="108dp"
+            android:height="108dp"
+            android:viewportWidth="1000"
+            android:viewportHeight="1000">
+            <group android:scaleX="0.62" android:scaleY="0.62" android:pivotX="500" android:pivotY="500">
+                <path
+                    android:name="c"
+                    android:pathData="M760.9,281A340,340 0,1 0,760.9,719"
+                    android:strokeWidth="128"
+                    android:strokeLineCap="round"
+                    android:trimPathEnd="0">
+                    <aapt:attr name="android:strokeColor">
+                        <gradient android:startX="160" android:startY="160" android:endX="840" android:endY="840" android:type="linear">
+                            <item android:offset="0" android:color="#f3e8ff"/>
+                            <item android:offset="0.3" android:color="#c084fc"/>
+                            <item android:offset="0.7" android:color="#9333ea"/>
+                            <item android:offset="1" android:color="#581c87"/>
+                        </gradient>
+                    </aapt:attr>
+                </path>
+                <group
+                    android:name="play"
+                    android:pivotX="540"
+                    android:pivotY="500"
+                    android:scaleX="0"
+                    android:scaleY="0">
+                    <path
+                        android:pathData="M452,368L452,632L668,500Z"
+                        android:fillColor="#ede9fe"
+                        android:strokeColor="#ede9fe"
+                        android:strokeWidth="54"
+                        android:strokeLineJoin="round"/>
+                </group>
+            </group>
+        </vector>
+    </aapt:attr>
+    <target android:name="c">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:propertyName="trimPathEnd"
+                android:duration="700"
+                android:valueFrom="0"
+                android:valueTo="1"
+                android:valueType="floatType"
+                android:interpolator="@android:interpolator/fast_out_slow_in"/>
+        </aapt:attr>
+    </target>
+    <target android:name="play">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:propertyName="scaleX"
+                    android:startOffset="550"
+                    android:duration="350"
+                    android:valueFrom="0"
+                    android:valueTo="1"
+                    android:valueType="floatType"
+                    android:interpolator="@android:interpolator/overshoot"/>
+                <objectAnimator
+                    android:propertyName="scaleY"
+                    android:startOffset="550"
+                    android:duration="350"
+                    android:valueFrom="0"
+                    android:valueTo="1"
+                    android:valueType="floatType"
+                    android:interpolator="@android:interpolator/overshoot"/>
+            </set>
+        </aapt:attr>
+    </target>
+</animated-vector>

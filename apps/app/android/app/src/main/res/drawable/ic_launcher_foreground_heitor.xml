@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CGFLIX: emblema "C com play" (cgflix-brand/cgflix-emblema.svg) no ícone adaptativo, com
+     ~70% da zona segura e nada fora dela. Tema Heitor. Gerado por cgflix-brand/gerar_icone_android.py. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="1000"
+    android:viewportHeight="1000">
+    <group android:scaleX="0.529" android:scaleY="0.529" android:pivotX="500" android:pivotY="500">
+        <path
+            android:pathData="M760.9,281A340,340 0,1 0,760.9,719"
+            android:strokeWidth="128"
+            android:strokeLineCap="round">
+            <aapt:attr name="android:strokeColor">
+                <gradient android:startX="160" android:startY="160" android:endX="840" android:endY="840" android:type="linear">
+                    <item android:offset="0" android:color="#8be3a1"/>
+                    <item android:offset="0.3" android:color="#34c759"/>
+                    <item android:offset="0.7" android:color="#1a9443"/>
+                    <item android:offset="1" android:color="#00531d"/>
+                </gradient>
+            </aapt:attr>
+        </path>
+        <path
+            android:pathData="M452,368L452,632L668,500Z"
+            android:fillColor="#1c261c"
+            android:strokeColor="#1c261c"
+            android:strokeWidth="54"
+            android:strokeLineJoin="round"/>
+    </group>
+</vector>

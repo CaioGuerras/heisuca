@@ -12,6 +12,7 @@ import { aoMudarInstalar, instalar, jaInstalado, podeInstalar } from '../comp/in
 import { Logo } from '../comp/Logo';
 import { AJUDA_COMPLETA } from '../comp/MenuUsuario';
 import { irPagina, irTitulo } from '../rota';
+import pixQrSvg from '../marca/pix_qrcode.svg';
 import { Pagina } from './Pagina';
 import './paginas.css';
 
@@ -62,27 +63,46 @@ export function Conta({ s, aoMudar }: { s: Sessao; aoMudar: (s: Sessao) => void 
 
   return (
     <Pagina titulo="Minha conta" classe="conta">
-      <section class="conta-perfil">
-        {foto ? <img class="conta-foto" src={foto} alt="Sua foto" width={120} height={120} />
-          : <span class="conta-foto conta-sem-foto" aria-hidden="true"><Icone nome="person" cheio tamanho={64} /></span>}
-        <h2 class="conta-nome">{s.nome}</h2>
+      <section class="cartao-pagina conta-cartao-perfil">
+        <div class="conta-foto-envoltura">
+          {foto ? <img class="conta-foto" src={foto} alt="Sua foto" width={112} height={112} />
+            : <span class="conta-foto conta-sem-foto" aria-hidden="true"><Icone nome="person" cheio tamanho={56} /></span>}
+        </div>
+        <div class="conta-info">
+          <h2 class="conta-nome">{s.nome}</h2>
+          <span class="conta-selo-usuario">Perfil do Heisuca</span>
+        </div>
         <div class="conta-acoes">
-          <button class="pilula pilula-clara" disabled={!!ocupado} onClick={() => arquivo.current?.click()}>
-            <Icone nome="photo_camera" cheio tamanho={22} />{ocupado === 'foto' ? 'Enviando…' : 'Trocar foto'}</button>
-          {s.fotoTag && <button class="pilula conta-remover" disabled={!!ocupado} onClick={remover}><Icone nome="delete" cheio tamanho={22} />Remover foto</button>}
+          <button class="pilula pilula-tema" disabled={!!ocupado} onClick={() => arquivo.current?.click()}>
+            <Icone nome="photo_camera" cheio tamanho={20} />{ocupado === 'foto' ? 'Enviando…' : 'Trocar foto'}
+          </button>
+          {s.fotoTag && (
+            <button class="pilula conta-remover" disabled={!!ocupado} onClick={remover}>
+              <Icone nome="delete" cheio tamanho={20} />Remover foto
+            </button>
+          )}
           <input ref={arquivo} type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden onChange={escolher} />
         </div>
       </section>
-      <hr class="conta-linha" />
-      <form class="conta-senha" onSubmit={salvar} noValidate>
-        <h2>Trocar senha</h2>
-        <p class="texto-2">A senha vale para todos os aparelhos. Depois da troca, os outros aparelhos pedem para entrar de novo.</p>
+
+      <form class="cartao-pagina conta-cartao-senha" onSubmit={salvar} noValidate>
+        <div class="conta-secao-cabeca">
+          <span class="conta-secao-icone"><Icone nome="lock" tamanho={22} /></span>
+          <div>
+            <h2>Segurança e senha</h2>
+            <p class="texto-2">A senha vale para todos os aparelhos. Depois da troca, os outros aparelhos pedem para entrar de novo.</p>
+          </div>
+        </div>
         {/* o navegador associa a senha ao usuário certo */}
         <input type="text" autocomplete="username" value={s.nome} hidden readOnly />
-        {campo('atual', 'Senha atual (vazia se você não tem)', 'current-password')}
-        {campo('nova', 'Nova senha', 'new-password')}
-        {campo('confirma', 'Confirmar nova senha', 'new-password')}
-        <button type="submit" class="pilula pilula-clara conta-salvar" disabled={!!ocupado}>{ocupado === 'senha' ? 'Salvando…' : 'Salvar nova senha'}</button>
+        <div class="conta-campos">
+          {campo('atual', 'Senha atual (vazia se você não tem)', 'current-password')}
+          {campo('nova', 'Nova senha', 'new-password')}
+          {campo('confirma', 'Confirmar nova senha', 'new-password')}
+        </div>
+        <button type="submit" class="pilula pilula-tema conta-salvar" disabled={!!ocupado}>
+          {ocupado === 'senha' ? 'Salvando…' : 'Salvar nova senha'}
+        </button>
       </form>
     </Pagina>
   );
@@ -219,26 +239,39 @@ const EM_BREVE = [
   { icone: 'mobile', nome: 'iPhone e iPad', sub: 'iOS e iPadOS' },
 ];
 export function Apps() {
+  const aqui = deste();
   return (
     <Pagina titulo="Baixar os apps" classe="apps">
-      <p class="texto-2 apps-intro">O Heisuca terá apps próprios para cada aparelho. Enquanto eles não chegam, o site pode ser instalado como app.</p>
-      <section class="cartao-pagina apps-site">
+      <p class="texto-2 apps-intro">O Heisuca é feito para acompanhar você em qualquer tela. Instale agora no seu navegador ou acompanhe o lançamento dos apps nativos.</p>
+      <section class="cartao-pagina apps-site apps-card-destaque">
         <div class="apps-cabeca">
-          <span class="apps-icone"><Icone nome="install_desktop" tamanho={26} /></span>
-          <div><h2>Instalar o site como app</h2><small class="texto-2">Celular, tablet e computador</small></div>
-          <span class="selo-disponivel">Disponível</span>
+          <span class="apps-icone apps-icone-ativo"><Icone nome="install_desktop" tamanho={26} /></span>
+          <div>
+            <h2>Instalar o Heisuca neste aparelho</h2>
+            <small class="texto-2">Acesso direto da tela de início, em tela cheia e sem barras do navegador</small>
+          </div>
+          <span class="selo-disponivel">Disponível agora</span>
         </div>
         <PassosInstalar />
       </section>
-      <h2 class="titulo-secao apps-titulo">Apps</h2>
+      <h2 class="titulo-secao apps-titulo">Apps em desenvolvimento</h2>
       <ul class="apps-grade">
-        {EM_BREVE.map(a => (
-          <li key={a.nome} class="cartao-pagina apps-app">
-            <span class="apps-icone"><Icone nome={a.icone} tamanho={26} /></span>
-            <div><h3>{a.nome}</h3><small class="texto-2">{a.sub}</small></div>
-            <span class="selo-em-breve">Em breve</span>
-          </li>
-        ))}
+        {EM_BREVE.map(a => {
+          const ehAparelhoAtual = a.nome.toLowerCase().includes(aqui);
+          return (
+            <li key={a.nome} class={`cartao-pagina apps-app${ehAparelhoAtual ? ' apps-app-atual' : ''}`}>
+              <span class="apps-icone"><Icone nome={a.icone} tamanho={26} /></span>
+              <div class="apps-app-info">
+                <div class="apps-nome-linha">
+                  <h3>{a.nome}</h3>
+                  {ehAparelhoAtual && <span class="apps-badge-atual">Seu aparelho</span>}
+                </div>
+                <small class="texto-2">{a.sub}</small>
+              </div>
+              <span class="selo-em-breve">Em breve</span>
+            </li>
+          );
+        })}
       </ul>
     </Pagina>
   );
@@ -349,15 +382,64 @@ export function MeusPedidos({ s }: { s: Sessao }) {
   );
 }
 
-// ---------------------------------------------------------------- Apoiar o Heisuca ("Em breve" até existir a doação)
+// ---------------------------------------------------------------- Apoiar o Heisuca
+const PAYLOAD_PIX = '00020126360014br.gov.bcb.pix0114+55229815996475204000053039865802BR5906CGFLIX6014RIO DE JANEIRO62070503***6304030A';
+const CHAVE_PIX_TELEFONE = '+5522981599647';
+
 export function Apoiar() {
+  const copiarPix = () => {
+    navigator.clipboard.writeText(PAYLOAD_PIX)
+      .then(() => avisar('Código Pix Copia e Cola copiado! Cole no app do seu banco.'))
+      .catch(() => avisar('Não deu para copiar o código Pix.'));
+  };
+
+  const copiarChave = () => {
+    navigator.clipboard.writeText(CHAVE_PIX_TELEFONE)
+      .then(() => avisar('Chave Pix copiada (+55 22 98159-9647)!'))
+      .catch(() => avisar('Não deu para copiar a chave Pix.'));
+  };
+
   return (
     <Pagina titulo="Apoiar o Heisuca" classe="apoiar">
-      <div class="pagina-vazia">
-        <Icone nome="volunteer_activism" tamanho={44} />
-        <p class="selo-em-breve">Em breve</p>
-        <p class="texto-2">A forma de apoiar o Heisuca ainda está sendo preparada.</p>
-      </div>
+      <section class="cartao-pagina apoiar-hero">
+        <div class="apoiar-coracao" aria-hidden="true">
+          <Icone nome="favorite" cheio tamanho={36} />
+        </div>
+        <h2>Ajude a manter o Heisuca vivo</h2>
+        <p class="texto-2">
+          O Heisuca é independente, gratuito e feito com carinho para quem ama cinema e boas histórias.
+          Se você gosta do projeto e quer dar uma força para custear os servidores e manter as melhorias contínuas,
+          qualquer contribuição faz toda a diferença.
+        </p>
+      </section>
+
+      <section class="cartao-pagina apoiar-card-pix">
+        <div class="apoiar-qr-container">
+          <div class="apoiar-qr-moldura">
+            <img class="apoiar-qr-img" src={pixQrSvg} alt="QR Code Pix Heisuca" width={260} height={260} />
+          </div>
+        </div>
+
+        <p class="apoiar-instrucao texto-2">
+          No app do seu banco, escolha <strong>Pix</strong> e aponte a câmera para o QR Code ou use o Pix Copia e Cola. O valor é você quem escolhe.
+        </p>
+
+        <div class="apoiar-botoes">
+          <button class="pilula pilula-tema apoiar-botao" onClick={copiarPix}>
+            <Icone nome="content_copy" tamanho={20} />
+            <span>Copiar Pix Copia e Cola</span>
+          </button>
+          <button class="pilula pilula-clara apoiar-botao" onClick={copiarChave}>
+            <Icone nome="key" tamanho={20} />
+            <span>Copiar chave (telefone)</span>
+          </button>
+        </div>
+
+        <div class="apoiar-rodape-dados">
+          <p><strong>Chave (telefone):</strong> +55 22 98159-9647</p>
+          <p><strong>Titular:</strong> CGFLIX · Rio de Janeiro</p>
+        </div>
+      </section>
     </Pagina>
   );
 }

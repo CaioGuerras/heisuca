@@ -106,13 +106,30 @@
 .apps-app .apps-icone { color: var(--hs-texto-2); }
 
 /* ---- Sobre (§9) ---- */
-.sobre-marca { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 20px 0 26px; }
-.sobre-logo { width: min(260px, 70vw); }
-.sobre-slogan { margin: 18px 0 4px; font-family: var(--hs-fonte-titulo); font-weight: 300; font-size: 17px; letter-spacing: .03em; }
-.sobre-versao { margin: 0; font-size: 13.5px; }
-.sobre-bloco + .sobre-bloco { margin-top: 12px; }
+.sobre-marca { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 24px 0 28px; }
+.sobre-logo { width: min(320px, 84vw); }
+.sobre-versao { margin: 16px 0 0; font-size: 13.5px; }
+.sobre-bloco + .sobre-bloco, .sobre-retratil { margin-top: 12px; }
 .sobre-bloco > p { margin: 6px 0 0; font-size: 14.5px; line-height: 1.5; }
-.sobre-bloco .ajuda-acao { gap: 6px; }
+.sobre-dedicatorias { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
+.sobre-agradecimento { margin: 0; font-size: 14.5px; line-height: 1.6; }
+.sobre-agradecimento a { color: var(--hs-tema-cor-primaria); text-decoration: underline; text-underline-offset: 3px; font-weight: 500; }
+.sobre-agradecimento a:hover { opacity: .85; }
+
+/* detalhes retráteis de código e bibliotecas */
+.sobre-retratil { display: block; }
+.sobre-retratil-sumario { display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; user-select: none; list-style: none; }
+.sobre-retratil-sumario::-webkit-details-marker { display: none; }
+.sobre-retratil-sumario > span { display: flex; flex-direction: column; gap: 2px; }
+.sobre-retratil-sumario strong { font-size: 15px; font-weight: 600; }
+.sobre-retratil-sumario small { font-size: 13px; }
+.sobre-retratil-sumario .icone { color: var(--hs-texto-2); transition: transform .2s var(--hs-curva-padrao); }
+details[open] .sobre-retratil-sumario .icone { transform: rotate(180deg); }
+.sobre-retratil-corpo { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--hs-linha); animation: pl-abre .2s ease; }
+.sobre-subbloco + .sobre-subbloco { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--hs-linha); }
+.sobre-subbloco h3 { margin: 0 0 6px; font-size: 14px; font-weight: 600; color: var(--hs-texto-2); }
+.sobre-subbloco .ajuda-acao { margin-top: 10px; gap: 6px; }
+
 .sobre-creditos { list-style: none; margin: 10px 0 0; padding: 0; }
 .sobre-creditos li { display: flex; align-items: baseline; gap: 8px; padding: 8px 0; font-size: 14.5px; }
 .sobre-creditos li + li { border-top: 1px solid var(--hs-linha); }
@@ -125,7 +142,6 @@
 .sobre-ajuda small { font-size: 13px; }
 .sobre-ajuda .icone:first-child { color: var(--hs-realce); }
 .sobre-ajuda .icone:last-child { color: var(--hs-texto-2); }
-.sobre-gente { margin: 14px 0 0; font-size: 14.5px; }
 .sobre-dedicatoria { margin: 32px 0 8px; text-align: center; font-family: var(--hs-fonte-titulo); font-weight: 300; font-style: italic;
   font-size: 15px; color: var(--hs-texto-2); }
 

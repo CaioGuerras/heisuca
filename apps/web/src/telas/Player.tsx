@@ -244,6 +244,7 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
     let fim = false, r: { destroy(): Promise<void> } | null = null;
     const fontes = (e.fonte.MediaAttachments || [])
       .filter(a => a.DeliveryUrl && /font|ttf|otf|woff/i.test(`${a.MimeType} ${a.FileName} ${a.Codec}`))
+      .slice(0, 8)
       .map(a => urlServidor(s, a.DeliveryUrl!));
     import('jassub').then(({ default: J }) => {
       if (fim) return;

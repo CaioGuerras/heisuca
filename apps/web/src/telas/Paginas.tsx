@@ -256,22 +256,45 @@ export function Sobre() {
   return (
     <Pagina titulo="Sobre" classe="sobre">
       <section class="sobre-marca">
-        <Logo classe="sobre-logo" />
-        <p class="sobre-slogan">Nada entre você e o filme.</p>
+        <Logo classe="sobre-logo" comSlogan />
         <p class="texto-2 sobre-versao">Versão {VERSAO}</p>
       </section>
+
       <section class="cartao-pagina sobre-bloco">
-        <h2>Código aberto</h2>
-        <p class="texto-2">O Heisuca é software livre, sob a licença GPL-3.0: qualquer pessoa pode ver, estudar e melhorar o código.</p>
-        <a class="ajuda-acao" href={CODIGO} target="_blank" rel="noopener noreferrer"><Icone nome="code" tamanho={20} />Ver o código<Icone nome="open_in_new" tamanho={18} /></a>
+        <h2>Agradecimentos</h2>
+        <div class="sobre-dedicatorias">
+          <p class="sobre-agradecimento">
+            Ao <strong>Rosiel Victor</strong> (<a href="https://all.dev.br" target="_blank" rel="noopener noreferrer">all.dev.br</a>), por sempre apoiar a fazer essas coisas rsrs.
+          </p>
+          <p class="sobre-agradecimento">
+            Ao pessoal da <strong>Locadora</strong> (<a href="https://locadora.cc" target="_blank" rel="noopener noreferrer">locadora.cc</a>), por até rir às vezes mas sempre me encorajar a evoluir, mesmo que cheio de HnR no site.
+          </p>
+        </div>
       </section>
-      <section class="cartao-pagina sobre-bloco">
-        <h2>Créditos</h2>
-        <ul class="sobre-creditos">
-          {BIBLIOTECAS.map(([nome, lic, uso]) => <li key={nome}><strong>{nome}</strong><span class="texto-2">{uso}</span><small>{lic}</small></li>)}
-        </ul>
-        <p class="sobre-gente"><span class="texto-2">Com a ajuda de</span> Rosiel Victor <span class="texto-2">·</span> Locadora</p>
-      </section>
+
+      <details class="cartao-pagina sobre-retratil">
+        <summary class="sobre-retratil-sumario">
+          <span>
+            <strong>Código aberto e créditos</strong>
+            <small class="texto-2">Licença GPL-3.0, repositório e bibliotecas utilizadas</small>
+          </span>
+          <Icone nome="expand_more" tamanho={22} />
+        </summary>
+        <div class="sobre-retratil-corpo">
+          <div class="sobre-subbloco">
+            <h3>Código aberto</h3>
+            <p class="texto-2">O Heisuca é software livre, sob a licença GPL-3.0: qualquer pessoa pode ver, estudar e melhorar o código.</p>
+            <a class="ajuda-acao" href={CODIGO} target="_blank" rel="noopener noreferrer"><Icone nome="code" tamanho={20} />Ver o código no GitHub<Icone nome="open_in_new" tamanho={18} /></a>
+          </div>
+          <div class="sobre-subbloco">
+            <h3>Bibliotecas e licenças</h3>
+            <ul class="sobre-creditos">
+              {BIBLIOTECAS.map(([nome, lic, uso]) => <li key={nome}><strong>{nome}</strong><span class="texto-2">{uso}</span><small>{lic}</small></li>)}
+            </ul>
+          </div>
+        </div>
+      </details>
+
       {/* com os passos todos marcados, o Como usar sai do menu e fica aqui (revisão de 19/10: "vai pra dentro das configurações") */}
       {completa && <button class="cartao-pagina sobre-ajuda" onClick={() => irPagina('ajuda')}><Icone nome="help" tamanho={24} />
         <span><strong>Como usar</strong><small class="texto-2">Os passos e as dúvidas</small></span><Icone nome="chevron_right" tamanho={22} /></button>}

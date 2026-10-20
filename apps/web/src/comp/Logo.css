@@ -1,9 +1,11 @@
 /* logo estática (entrada, transição): sem as animações da abertura, no estado final delas */
 .logo { line-height: 0; }
 .logo svg { display: block; width: 100%; height: auto; }
-.logo-marca .luz, .logo-marca .slogan { display: none; }
-.logo-marca .carimbo, .logo-marca .selo-kanji, .logo-marca .palavra, .logo-marca .kata { animation: none !important; }
+.logo-marca:not(.logo-com-slogan) .luz, .logo-marca:not(.logo-com-slogan) .slogan { display: none; }
+.logo-marca .carimbo, .logo-marca .selo-kanji, .logo-marca .palavra, .logo-marca .kata,
+.logo-marca .luz, .logo-marca .slogan { animation: none !important; }
 .logo-marca .kata { opacity: .65; }
+.logo-com-slogan .slogan { opacity: .78; font-family: var(--hs-fonte-titulo); }
 .logo-sem-kata .kata { display: none; }
 /* a palavra é reposicionada pelo atributo transform (Logo.tsx), em coordenadas do desenho */
 .logo-sem-kata .palavra { transform-box: view-box; transform-origin: 0 0; }

@@ -29,6 +29,7 @@
   --hs-topo-respiro: calc(10px + env(safe-area-inset-top, 0px));
   --hs-raio-cartao: 9px;
   --hs-tempo-cor: 600ms;
+  --hs-curva-mola: cubic-bezier(0.16, 1, 0.3, 1);
   --hs-sombra: 0 8px 28px rgb(0 0 0 / .18);
   color-scheme: dark;
 }
@@ -59,10 +60,13 @@ a { color: inherit; }
 .visualmente-oculto { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* tipografia */
+h1, h2, h3, .titulo-secao, .destaque-titulo { text-wrap: balance; }
+p, .sinopse, .destaque-sinopse { text-wrap: pretty; }
 .titulo-secao { font-family: var(--hs-fonte-texto); font-size: var(--hs-titulo-secao); font-weight: 700; letter-spacing: -.01em; margin: 0; }
 .texto-2 { color: var(--hs-texto-2); }
 .uma-linha { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .duas-linhas { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.tnum, .cartao-tempo, .cartao-nota, .player-tempo, .titulo-pequena { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
 
 /* botões */
 .pilula {

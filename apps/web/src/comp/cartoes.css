@@ -6,10 +6,16 @@
 .cartao { display: flex; flex-direction: column; gap: 3px; text-align: left; flex: none; color: var(--hs-texto);
   -webkit-touch-callout: none; user-select: none; }
 .cartao-arte { position: relative; display: block; border-radius: var(--hs-raio-cartao); overflow: hidden;
-  transition: transform var(--hs-tempo-cartao) var(--hs-curva-padrao), box-shadow var(--hs-tempo-cartao); }
+  transition: transform var(--hs-tempo-cartao) var(--hs-curva-mola), box-shadow var(--hs-tempo-cartao) var(--hs-curva-padrao);
+  will-change: transform; }
 .cartao-arte > .img { position: absolute; inset: 0; }
 .cartao:active .cartao-arte { transform: scale(.97); }
-@media (hover: hover) and (pointer: fine) { .cartao:hover .cartao-arte { transform: translateY(-2px); box-shadow: var(--hs-sombra); } }
+@media (hover: hover) and (pointer: fine) {
+  .cartao:hover .cartao-arte {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 14px 28px -6px rgb(0 0 0 / .4), 0 0 0 1px rgb(255 255 255 / .12);
+  }
+}
 .cartao-nome { font-size: 12px; font-weight: 600; margin-top: 4px; line-height: 1.25; }
 .cartao-sub { font-size: 10.5px; color: var(--hs-texto-2); line-height: 1.25; }
 @media (min-width: 600px) { .cartao-nome { font-size: 14px; } .cartao-sub { font-size: 12.5px; } }

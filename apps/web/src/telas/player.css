@@ -25,10 +25,19 @@
 .player.oculto .player-topo, .player.oculto .player-base, .player.oculto .player-centro { opacity: 0; pointer-events: none; }
 .player.oculto .player-centro button { pointer-events: none; }
 
-/* topo: ← + "Deadwood T1:E1 · nome" (vidhub/…foto46) */
+/* topo: ← + "Deadwood T1:E1 · nome" (vidhub/…foto46) com scrim easing natural */
 .player-topo { top: 0; left: 0; right: 0; display: flex; align-items: center; gap: 8px;
-  padding: max(10px, env(safe-area-inset-top, 0px)) var(--pl-margem) 34px calc(var(--pl-margem) - 10px);
-  background: linear-gradient(rgb(0 0 0 / .62), rgb(0 0 0 / .28) 55%, transparent); }
+  padding: max(10px, env(safe-area-inset-top, 0px)) var(--pl-margem) 40px calc(var(--pl-margem) - 10px);
+  background: linear-gradient(to bottom,
+    rgb(0 0 0 / .75) 0%,
+    rgb(0 0 0 / .68) 12%,
+    rgb(0 0 0 / .54) 26%,
+    rgb(0 0 0 / .36) 42%,
+    rgb(0 0 0 / .19) 60%,
+    rgb(0 0 0 / .07) 78%,
+    rgb(0 0 0 / .01) 91%,
+    transparent 100%
+  ); }
 .player-topo h1 { margin: 0; min-width: 0; font-size: 15px; font-weight: 600; letter-spacing: .005em; text-shadow: 0 1px 3px rgb(0 0 0 / .5); }
 .player-topo h1 span { font-weight: 400; color: rgb(255 255 255 / .8); }
 
@@ -40,11 +49,20 @@
 .player-play { width: 72px !important; height: 72px !important; background: rgb(0 0 0 / .28); }
 .player-play:not(:disabled):hover { background: rgb(0 0 0 / .4); }
 
-/* base: tempo · barra fina · duração · Áudio e legendas · tela cheia */
+/* base: tempo · barra fina · duração · Áudio e legendas · tela cheia com scrim easing natural */
 .player-base { left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 12px;
-  padding: 40px calc(var(--pl-margem) - 8px) max(10px, env(safe-area-inset-bottom, 0px)) var(--pl-margem);
-  background: linear-gradient(transparent, rgb(0 0 0 / .32) 45%, rgb(0 0 0 / .66)); }
-.player-tempo { flex: none; min-width: 3.4em; font-size: 12px; font-variant-numeric: tabular-nums; color: rgb(255 255 255 / .92);
+  padding: 50px calc(var(--pl-margem) - 8px) max(10px, env(safe-area-inset-bottom, 0px)) var(--pl-margem);
+  background: linear-gradient(to top,
+    rgb(0 0 0 / .85) 0%,
+    rgb(0 0 0 / .76) 14%,
+    rgb(0 0 0 / .60) 30%,
+    rgb(0 0 0 / .40) 48%,
+    rgb(0 0 0 / .21) 66%,
+    rgb(0 0 0 / .08) 83%,
+    rgb(0 0 0 / .01) 94%,
+    transparent 100%
+  ); }
+.player-tempo { flex: none; min-width: 3.4em; font-size: 12px; font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; color: rgb(255 255 255 / .92);
   text-shadow: 0 1px 2px rgb(0 0 0 / .5); }
 .player-tempo:first-child { text-align: left; }
 .player-tempo:nth-child(3) { text-align: right; margin-right: 4px; }
@@ -55,9 +73,12 @@
 .player-barra::-moz-range-track { height: 3px; border-radius: 2px; background: var(--trilho); }
 .player-barra::-moz-range-progress { height: 3px; border-radius: 2px; background: var(--hs-tema-cor-primaria); }
 .player-barra::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; margin-top: -4.5px; border-radius: 50%; background: #fff;
-  box-shadow: 0 0 0 0 rgb(255 255 255 / .25); transition: box-shadow .15s; }
+  box-shadow: 0 0 0 0 rgb(255 255 255 / .25); transition: box-shadow .18s ease, transform .18s var(--hs-curva-padrao); }
 .player-barra::-moz-range-thumb { width: 12px; height: 12px; border: 0; border-radius: 50%; background: #fff; }
-.player-barra:hover::-webkit-slider-thumb, .player-barra:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 6px rgb(255 255 255 / .2); }
+.player-barra:hover::-webkit-slider-thumb, .player-barra:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 14px 2px var(--hs-tema-cor-primaria), 0 0 0 4px rgb(255 255 255 / .2);
+  transform: scale(1.25);
+}
 .player-barra:focus-visible { outline: none; }
 
 /* Pular abertura / Pular créditos: canto inferior esquerdo, acima da barra (vidhub/…foto48), só dentro do capítulo */

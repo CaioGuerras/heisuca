@@ -1,4 +1,4 @@
-name: heisuca
+name: plezy
 description: "Heisuca. Nada entre você e o filme. Cliente cinematográfico multiplataforma para Jellyfin, Plex, WebDAV e SMB."
 publish_to: "none"
 version: 2.0.0+1

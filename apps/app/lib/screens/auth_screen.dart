@@ -18,6 +18,10 @@ import '../services/plex_auth_service.dart';
 import '../services/settings_service.dart';
 import '../services/storage_service.dart';
 import '../providers/account_preferences_controller.dart';
+import '../heisuca/heisuca_logo.dart';
+import '../heisuca/heisuca_theme.dart';
+import '../heisuca/heisuca_add_webdav_screen.dart';
+import '../heisuca/heisuca_add_smb_screen.dart';
 import '../cgflix/cgflix_logo.dart';
 import '../cgflix/cgflix_slogan.dart';
 import '../i18n/strings.g.dart';
@@ -285,14 +289,18 @@ class _AuthScreenState extends State<AuthScreen> {
                           mainAxisAlignment: .center,
                           crossAxisAlignment: .center,
                           children: [
-                            const CgflixEmblem(size: 120),
-                            const SizedBox(height: 24),
+                            const HeisucaLogo(height: 52),
+                            const SizedBox(height: 12),
                             Text(
-                              t.app.title,
-                              style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: .bold),
+                              'Nada entre você e o filme.',
+                              style: TextStyle(
+                                fontFamily: HeisucaTheme.fonteTexto,
+                                fontSize: 14.5,
+                                color: Colors.white.withOpacity(0.6),
+                                letterSpacing: 0.2,
+                              ),
                               textAlign: TextAlign.center,
                             ),
-                            const CgflixSlogan(), // CGFLIX
                           ],
                         ),
                       ),
@@ -315,15 +323,19 @@ class _AuthScreenState extends State<AuthScreen> {
                       mainAxisSize: .min,
                       crossAxisAlignment: .stretch,
                       children: [
-                        const CgflixEmblem(size: 120),
-                        const SizedBox(height: 24),
+                        const HeisucaLogo(height: 52),
+                        const SizedBox(height: 12),
                         Text(
-                          t.app.title,
-                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: .bold),
+                          'Nada entre você e o filme.',
+                          style: TextStyle(
+                            fontFamily: HeisucaTheme.fonteTexto,
+                            fontSize: 14.5,
+                            color: Colors.white.withOpacity(0.6),
+                            letterSpacing: 0.2,
+                          ),
                           textAlign: TextAlign.center,
                         ),
-                        const CgflixSlogan(), // CGFLIX
-                        const SizedBox(height: 48),
+                        const SizedBox(height: 36),
                         _buildAuthBody(),
                       ],
                     ),
@@ -410,6 +422,34 @@ class _AuthScreenState extends State<AuthScreen> {
               icon: const BackendBadge(backend: MediaBackend.plex, size: 18),
               label: Text(t.auth.signInWithPlex),
             ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: FocusableButton(
+                  onPressed: busy ? null : () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HeisucaAddWebDavScreen())),
+                  child: OutlinedButton.icon(
+                    onPressed: busy ? null : () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HeisucaAddWebDavScreen())),
+                    style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
+                    icon: const Icon(Icons.cloud_outlined, size: 18),
+                    label: const Text('WebDAV / Nuvem'),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: FocusableButton(
+                  onPressed: busy ? null : () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HeisucaAddSmbScreen())),
+                  child: OutlinedButton.icon(
+                    onPressed: busy ? null : () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HeisucaAddSmbScreen())),
+                    style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
+                    icon: const Icon(Icons.folder_shared_outlined, size: 18),
+                    label: const Text('Rede (SMB)'),
+                  ),
+                ),
+              ),
+            ],
           ),
         ] else ...[
           // Fluxo do Plex: navegador ou QR code (na TV o QR vem primeiro).

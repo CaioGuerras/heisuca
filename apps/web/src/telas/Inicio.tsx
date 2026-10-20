@@ -10,7 +10,7 @@ import { anos, CartaoEmBreve, CartaoPaisagem, CartaoPoster, CartaoTop10, Esquele
 import { Fileira } from '../comp/Fileira';
 import { Imagem } from '../comp/Imagem';
 import { Topo } from '../comp/Navegacao';
-import { hashDoDestaque, prepararInicio, type DadosInicio } from '../dados/inicio';
+import { carregarSecundario, hashDoDestaque, prepararInicio, type DadosInicio } from '../dados/inicio';
 import { irAba, irTitulo, irVer } from '../rota';
 import './inicio.css';
 
@@ -24,7 +24,14 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
   const parado = useRef(false), toque = useRef<number | null>(null);
   const casa = useRef<HTMLSpanElement>(null), marca = useRef<HTMLSpanElement>(null);
 
-  useEffect(() => { prepararInicio(s).then(setD).catch(() => setD(null)); }, [s.token]);
+  useEffect(() => {
+    prepararInicio(s).then(critico => {
+      setD(critico);
+      carregarSecundario(s).then(sec => {
+        setD(prev => prev ? { ...prev, ...sec } : null);
+      });
+    }).catch(() => setD(null));
+  }, [s.token]);
   const lista = d?.destaque || [];
   const atual = lista[n];
   usePaleta(hashDoDestaque(atual));

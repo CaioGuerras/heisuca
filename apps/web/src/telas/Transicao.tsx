@@ -1,17 +1,16 @@
-// 2ª animação (PLANO §3.3; Caio 19/10: "inversa da primeira ou algo assim", fluida, 3 a 5 s). Depois de "Iniciar sessão"
+// 2ª animação (PLANO §3.3; Caio 19/10: "inversa da primeira ou algo assim", fluida, 2 a 4 s). Depois de "Iniciar sessão"
 // (ou com a sessão já salva), enquanto a home carrega por baixo:
 //   1. a logo cresce do lugar dela até o centro da tela (voo FLIP);
 //   2. a abertura ao contrário: o ヘイスカ some, o traço de luz atravessa o HEISUCA e o apaga, e o selo fica sozinho no centro;
-//   3. o selo respira enquanto a home não fica pronta (dados + imagens do 1º destaque decodificadas);
+//   3. o selo respira enquanto a home não fica pronta (dados críticos + imagens do 1º destaque decodificadas);
 //   4. o selo se abre até cobrir a tela, passando da cor do tema para a cor tirada do pôster do 1º destaque, e se desfaz
 //      sobre a home, que já está nessa cor.
 // Rodada 2 (Caio 19/10 noite): no fim, retângulo no celular e um círculo nascendo do selo no computador; e, quando vem
 // logo depois da abertura (sessão salva), a parte "a luz apaga a palavra" é pulada (a palavra só esmaece enquanto o selo vai
 // ao centro), para o total ficar em ~5 s.
 // "Reduzir movimento": a logo aparece parada, e no fim só um esmaecimento para a cor do pôster.
-// Sessão G (Caio 20/10: "um pouco abrupta"): as fases se sobrepõem um pouco (a seguinte começa quando a anterior já está
-// pousando), as curvas são de entrada e saída suaves e o selo respira um instante no centro antes de se abrir. O desenho
-// é o mesmo; o total segue entre 3 e 5 s.
+// Sessão G/H (Caio 20/10): transição com sobreposição suave entre as fases, curvas de entrada/saída contínuas e calibração
+// refinada para entrada rápida mantendo a nobreza e respiração do selo.
 import { useEffect, useLayoutEffect, useRef } from 'preact/hooks';
 import type { Sessao } from '../api/jellyfin';
 import { animar, CURVA, reduzido, voar } from '../anim/voo';
@@ -22,19 +21,19 @@ import { Logo } from '../comp/Logo';
 import { avisarErro } from '../aviso';
 import './transicao.css';
 
-// tempo total (do clique até a home), já com a revelação no fim (Caio 19/10: 3 a 5 s)
-export const MINIMO = 2500, MAXIMO = 5000;
-// logo depois da abertura (~2,5 s): a transição curta, para o total (abertura + transição) ficar em ~5 s
-const MINIMO_CURTA = 2500;
-const VOO = 760, REVELA = 1250;
+// tempo total (do clique até a home), já com a revelação no fim
+export const MINIMO = 2000, MAXIMO = 4500;
+// logo depois da abertura: a transição curta com sessão salva
+const MINIMO_CURTA = 1800;
+const VOO = 600, REVELA = 950;
 // curva da abertura do selo: começa contida e se solta (o "expirar" do carimbo), pousando devagar
 const ABRE = 'cubic-bezier(0.45, 0, 0.15, 1)';
 // entrada e saída suaves (sem arranque seco no começo de cada fase)
 const SUAVE = 'cubic-bezier(0.42, 0, 0.2, 1)';
 // a fase seguinte começa quando a anterior já fez esta fração (sobreposição leve entre as fases)
 const EMENDA = 0.7;
-// o selo respira ao menos isto no centro antes de se abrir (se ainda couber nos 5 s)
-const POUSO = 320;
+// o selo respira ao menos isto no centro antes de se abrir (se ainda couber no tempo)
+const POUSO = 200;
 
 export function Transicao({ s, de, clique, curta = false, fim }: { s: Sessao; de?: DOMRect | null; clique?: number; curta?: boolean; fim: () => void }) {
   const raiz = useRef<HTMLDivElement>(null), logo = useRef<HTMLDivElement>(null), campo = useRef<HTMLDivElement>(null);
@@ -43,7 +42,7 @@ export function Transicao({ s, de, clique, curta = false, fim }: { s: Sessao; de
   useLayoutEffect(() => {
     const l = logo.current!;
     if (reduzido()) return;
-    const ms = de ? VOO : 520;
+    const ms = de ? VOO : 460;
     const todo = de ? voar(l, de, VOO)
       : animar(l, [{ opacity: 0, transform: 'scale(.94)' }, { opacity: 1, transform: 'none' }], { duration: ms, easing: SUAVE });
     voo.current = Promise.race([todo, new Promise(ok => setTimeout(ok, ms * EMENDA))]);
@@ -95,30 +94,30 @@ export function Transicao({ s, de, clique, curta = false, fim }: { s: Sessao; de
   );
 }
 
-// a abertura ao contrário (≈ 1,3 s): o ヘイスカ some, o traço de luz nasce sob o "H", atravessa a palavra e a apaga;
+// a abertura ao contrário: o ヘイスカ some, o traço de luz nasce sob o "H", atravessa a palavra e a apaga;
 // o selo vai para o centro. Devolve a respiração do selo (que segue até a home ficar pronta).
 // curta (logo depois da abertura): sem o traço de luz; HEISUCA e ヘイスカ só esmaecem enquanto o selo vai ao centro.
 async function inversa(l: HTMLElement, q: (sel: string) => SVGGraphicsElement, curta = false): Promise<Animation> {
   const palavra = q('.palavra'), luz = q('.luz'), kata = q('.kata'), selo = q('.selo-fundo');
   if (curta) {
     (luz as SVGElement).style.visibility = 'hidden';   // o traço fica de fora (a animação dele na abertura o deixaria aceso)
-    animar(kata, [{ opacity: 0.65 }, { opacity: 0 }], { duration: 340, easing: SUAVE });
-    animar(palavra, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateX(6px)' }], { duration: 420, easing: SUAVE });
+    animar(kata, [{ opacity: 0.65 }, { opacity: 0 }], { duration: 280, easing: SUAVE });
+    animar(palavra, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateX(6px)' }], { duration: 340, easing: SUAVE });
     await ateOCentro(l, selo);
     return respirar(q);
   }
   // a luz anda até o fim do HEISUCA: em múltiplos da própria largura (transform-box: fill-box)
   const pb = palavra.getBBox(), lb = luz.getBBox();
   const ate = ((pb.x + pb.width - lb.x - lb.width) / Math.max(1, lb.width)) * 100;
-  animar(kata, [{ opacity: 0.65, transform: 'none' }, { opacity: 0, transform: 'translateY(4px)' }], { duration: 420, easing: SUAVE });
-  await animar(luz, [{ opacity: 0, transform: 'scaleX(0)' }, { opacity: 1, transform: 'none' }], { duration: 300, delay: 60, easing: SUAVE });
+  animar(kata, [{ opacity: 0.65, transform: 'none' }, { opacity: 0, transform: 'translateY(4px)' }], { duration: 320, easing: SUAVE });
+  await animar(luz, [{ opacity: 0, transform: 'scaleX(0)' }, { opacity: 1, transform: 'none' }], { duration: 240, delay: 40, easing: SUAVE });
   // a palavra se apaga atrás da luz (recorte da esquerda para a direita, acompanhando o traço)
-  const travessia = { duration: 600, easing: 'cubic-bezier(0.4, 0, 0.3, 1)' };
+  const travessia = { duration: 480, easing: 'cubic-bezier(0.4, 0, 0.3, 1)' };
   animar(palavra, [{ clipPath: 'inset(-20% -2% -20% 0)', opacity: 1 }, { clipPath: 'inset(-20% -2% -20% 100%)', opacity: 0.6 }], travessia);
   animar(luz, [{ transform: 'none', opacity: 1 }, { transform: `translateX(${ate}%)`, opacity: 1, offset: 0.85 },
-    { transform: `translateX(${ate}%) scaleX(0)`, opacity: 0 }], { ...travessia, duration: 680 });
+    { transform: `translateX(${ate}%) scaleX(0)`, opacity: 0 }], { ...travessia, duration: 520 });
   // o selo começa a ir para o centro enquanto a luz ainda se apaga no fim da palavra
-  await new Promise(ok => setTimeout(ok, 680 * EMENDA));
+  await new Promise(ok => setTimeout(ok, 520 * EMENDA));
   await ateOCentro(l, selo);
   return respirar(q);
 }
@@ -129,7 +128,7 @@ async function ateOCentro(l: HTMLElement, selo: SVGGraphicsElement) {
   const sb = selo.getBoundingClientRect(), lr = l.getBoundingClientRect(), k = 1.12;
   const lx = lr.left + lr.width / 2, ly = lr.top + lr.height / 2;
   const dx = innerWidth / 2 - lx - k * (sb.left + sb.width / 2 - lx), dy = innerHeight / 2 - ly - k * (sb.top + sb.height / 2 - ly);
-  await animar(l, [{ transform: 'none' }, { transform: `translate(${dx}px, ${dy}px) scale(${k})` }], { duration: 620, easing: SUAVE });
+  await animar(l, [{ transform: 'none' }, { transform: `translate(${dx}px, ${dy}px) scale(${k})` }], { duration: 480, easing: SUAVE });
 }
 
 function respirar(q: (sel: string) => SVGGraphicsElement): Animation {
@@ -147,7 +146,7 @@ async function abrirSelo(r: HTMLElement, c: HTMLElement, q: (sel: string) => SVG
   const lch = base && paraLch(base);
   const final = css(pagina), meio = lch && lch.c > 0.02
     ? css(misturar(deLch({ l: escuro ? 0.42 : 0.74, c: Math.min(0.13, lch.c * 1.4 + 0.03), h: lch.h }), pagina, 0.25)) : final;
-  const ms = 1000;
+  const ms = 800;
   // computador: um círculo nasce do centro do selo (escondido atrás dele) e cresce até cobrir a tela; o quadrado do selo
   // esmaece por cima no começo. Celular: o próprio selo (retângulo arredondado) se abre até as bordas.
   const circulo = matchMedia('(min-width: 1024px)').matches;
@@ -161,7 +160,7 @@ async function abrirSelo(r: HTMLElement, c: HTMLElement, q: (sel: string) => SVG
   c.style.visibility = 'visible';
   if (circulo) animar(fundo, [{ opacity: 1 }, { opacity: 0 }], { duration: ms * 0.3, easing: 'ease-in', fill: 'forwards' });
   else (fundo as SVGElement).style.opacity = '0';
-  animar(q('.selo-moldura'), [{ opacity: 1 }, { opacity: 0 }], { duration: 320, easing: SUAVE });
+  animar(q('.selo-moldura'), [{ opacity: 1 }, { opacity: 0 }], { duration: 260, easing: SUAVE });
   animar(q('.selo-kanji'), [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(1.18)' }], { duration: ms * 0.55, easing: CURVA });
   animar(c, [
     { clipPath: c.style.clipPath, backgroundColor: cor },
@@ -170,6 +169,6 @@ async function abrirSelo(r: HTMLElement, c: HTMLElement, q: (sel: string) => SVG
   ], { duration: ms, easing: ABRE });
   // a home aparece enquanto o campo termina de se abrir (sem pausa num quadro liso): o esmaecimento começa mais cedo e
   // é mais longo, para a camada se desfazer sobre a home sem "corte"
-  await new Promise(ok => setTimeout(ok, ms * 0.6));
-  await animar(r, [{ opacity: 1 }, { opacity: 0 }], { duration: 640, easing: 'cubic-bezier(0.33, 0, 0.2, 1)' });
+  await new Promise(ok => setTimeout(ok, ms * 0.55));
+  await animar(r, [{ opacity: 1 }, { opacity: 0 }], { duration: 500, easing: 'cubic-bezier(0.33, 0, 0.2, 1)' });
 }

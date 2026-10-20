@@ -79,7 +79,7 @@ export function CartaoTop10({ s, i, n, aoAbrir }: Base & { n: number }) {
   return (
     <button class="cartao cartao-top10" onClick={() => aoAbrir(i)} {...acoes} aria-label={`${n}º, ${nomeDe(i)}`}>
       <span class="cartao-numero" aria-hidden="true">{n}</span>
-      <span class="cartao-arte"><Imagem src={capa(s, i, 360)} hash={hashDe(i, 'Primary')} /></span>
+      <span class="cartao-arte"><Imagem src={capa(s, i, 360)} hash={hashDe(i, 'Primary')} prioridade /></span>
     </button>
   );
 }

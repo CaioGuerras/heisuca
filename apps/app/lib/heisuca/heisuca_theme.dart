@@ -57,7 +57,7 @@ class HeisucaTheme {
         bodyLarge: TextStyle(fontFamily: fonteTexto, fontWeight: FontWeight.w400, fontSize: 15, height: 1.5),
         bodyMedium: TextStyle(fontFamily: fonteTexto, fontWeight: FontWeight.w400, fontSize: 13.5, height: 1.4),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: superficie,
         elevation: 0,
         shape: RoundedRectangleBorder(

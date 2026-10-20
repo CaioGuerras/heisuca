@@ -412,11 +412,11 @@ function InfoMidia({ video, audios }: { video?: Fluxo; audios: Fluxo[] }) {
     ['Taxa de bits', taxa(video.BitRate)],
   ] : [];
   const cartoes = [
-    { titulo: 'Vídeo', icone: 'videocam', linhas: linhasVideo.filter(l => l[1]) },
+    { titulo: 'Vídeo', icone: 'videocam', linhas: linhasVideo.filter(l => l[1].trim()) },
     ...audios.map((a, k) => ({
       titulo: audios.length > 1 ? `Áudio ${k + 1}` : 'Áudio', icone: 'music_note',
       linhas: ([['Idioma', idioma(a)], ['Codec', codec(a.Codec)], ['Canais', canais(a)],
-        ['Padrão', a.IsDefault === undefined ? '' : a.IsDefault ? 'Sim' : 'Não']] as [string, string][]).filter(l => l[1]),
+        ['Padrão', a.IsDefault === undefined ? '' : a.IsDefault ? 'Sim' : 'Não']] as [string, string][]).filter(l => l[1].trim()),
     })),
   ].filter(c => c.linhas.length);
   if (!cartoes.length) return null;

@@ -111,17 +111,16 @@
 .titulo-generos li { padding: 8px 18px; border-radius: var(--hs-raio-total); background: var(--hs-linha); font-size: 13.5px; font-weight: 500; }
 
 /* Info mídia: tabela fina, dois cartões (Vídeo e Áudio), sem o caminho do arquivo */
-.titulo-midia { display: flex; gap: 12px; overflow-x: auto; padding: 0 var(--hs-margem) 4px; scrollbar-width: none; scroll-snap-type: x proximity;
-  scroll-padding-inline: var(--hs-margem); }
-.titulo-midia::-webkit-scrollbar { display: none; }
-.titulo-midia-cartao { flex: none; width: min(78vw, 300px); padding: 14px 16px 8px; border-radius: 18px; scroll-snap-align: start;
+/* celular: cartões empilhados (Vídeo em cima, Áudios embaixo), largura toda, sem rolagem lateral (Caio 20/10) */
+.titulo-midia { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 0 var(--hs-margem); }
+.titulo-midia-cartao { min-width: 0; padding: 14px 16px 8px; border-radius: 18px;
   background: color-mix(in srgb, var(--hs-superficie) 70%, transparent); box-shadow: inset 0 0 0 1px var(--hs-linha); }
 .titulo-midia-cartao h3 { margin: 0 0 6px; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; }
 .titulo-midia-cartao dl { margin: 0; }
 .titulo-midia-cartao dl > div { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; padding: 8px 0; border-top: 1px solid var(--hs-linha); }
 .titulo-midia-cartao dl > div:first-child { border-top: 0; }
 .titulo-midia-cartao dt { font-size: 12.5px; color: var(--hs-texto-2); font-weight: 400; white-space: nowrap; }
-.titulo-midia-cartao dd { margin: 0; font-size: 12.5px; font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; }
+.titulo-midia-cartao dd { margin: 0; min-width: 0; overflow-wrap: anywhere; font-size: 12.5px; font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; }
 
 /* coleção: grade de pôsteres */
 .titulo-grade { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px var(--hs-vao); padding: 0 var(--hs-margem); }
@@ -137,6 +136,7 @@
   .titulo-pessoa, .titulo-pessoa-foto { width: 96px; }
   .titulo-pessoa-foto { height: 96px; border-radius: 20px; }
   .titulo-grade { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  .titulo-midia { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
 }
 @media (min-width: 1024px) {
   .titulo { --arte-h: min(86vh, 900px); }
@@ -150,8 +150,9 @@
   .titulo-pessoa, .titulo-pessoa-foto { width: 112px; }
   .titulo-pessoa-foto { height: 112px; }
   .titulo-pessoa-nome { font-size: 13px; } .titulo-pessoa-papel { font-size: 12px; }
-  .titulo-midia { flex-wrap: wrap; overflow: visible; }
-  .titulo-midia-cartao { width: 340px; }
+  /* computador: lado a lado, cabendo na largura (quebra a linha quando há muitos áudios) */
+  .titulo-midia { display: flex; flex-wrap: wrap; }
+  .titulo-midia-cartao { flex: 1 1 240px; max-width: 340px; }
   .titulo-midia-cartao dt, .titulo-midia-cartao dd { font-size: 13.5px; }
   .titulo-grade { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
 }

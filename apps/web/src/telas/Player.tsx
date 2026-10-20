@@ -122,7 +122,7 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
     if (x.hls) {
       const { default: H } = await import('hls.js/light');
       if (H.isSupported()) {
-        const h = new H({ startPosition: seg > 0 ? seg : -1, maxBufferLength: 30, backBufferLength: 60 });
+        const h = new H({ startPosition: seg > 0 ? seg : -1, maxBufferLength: 30, maxMaxBufferLength: 60, maxBufferSize: 60 * 1000 * 1000, backBufferLength: 30 });
         hls.current = h;
         h.on(H.Events.ERROR, (_ev, d) => {
           if (!d.fatal) return;

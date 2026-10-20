@@ -225,7 +225,6 @@ abstract final class HeisucaTypography {
     letterSpacing: 0.0,
     fontFeatures: [
       ui.FontFeature.tabularFigures(),
-      ui.FontFeature.enable('cv05'), // l minúsculo com cauda para máxima legibilidade
     ],
     color: Color(0xFFF4F1FA),
   );
@@ -271,20 +270,12 @@ class HeisucaNobleBadge extends StatelessWidget {
 
 /// Física de Rolagem Orgânica (Estilo iOS ProMotion).
 /// Calibrada para 120Hz/144Hz com mola sub-amortecida (zeta ~ 0.88-0.94) e resposta tátil rápida.
-class ProMotionScrollPhysics extends ScrollPhysics {
-  final double frictionFactor;
-
-  const ProMotionScrollPhysics({
-    super.parent,
-    this.frictionFactor = 0.015,
-  });
+class ProMotionScrollPhysics extends BouncingScrollPhysics {
+  const ProMotionScrollPhysics({super.parent});
 
   @override
   ProMotionScrollPhysics applyTo(ScrollPhysics? ancestor) {
-    return ProMotionScrollPhysics(
-      parent: buildParent(ancestor),
-      frictionFactor: frictionFactor,
-    );
+    return ProMotionScrollPhysics(parent: buildParent(ancestor));
   }
 
   @override
@@ -293,59 +284,4 @@ class ProMotionScrollPhysics extends ScrollPhysics {
         stiffness: 170.0,
         damping: 16.0,
       );
-
-  @override
-  double frictionFactorAt(ScrollMetrics position, double offset) {
-    final overscrollPast = math.max(
-      position.minScrollExtent - position.pixels,
-      position.pixels - position.maxScrollExtent,
-    );
-    if (overscrollPast <= 0.0) return 1.0;
-    return 1.0 / (1.0 + (overscrollPast / 180.0));
-  }
-
-  @override
-  Simulation? createBallisticSimulation(ScrollMetrics position, double velocity) {
-    final tolerance = toleranceFor(position);
-
-    if (position.outOfRange) {
-      double? target;
-      if (position.pixels > position.maxScrollExtent) {
-        target = position.maxScrollExtent;
-      } else if (position.pixels < position.minScrollExtent) {
-        target = position.minScrollExtent;
-      }
-      if (target != null) {
-        return ScrollSpringSimulation(
-          spring,
-          position.pixels,
-          target,
-          velocity,
-          tolerance: tolerance,
-        );
-      }
-    }
-
-    if (velocity.abs() < tolerance.velocity) {
-      return null;
-    }
-
-    return BouncingScrollSimulation(
-      spring: spring,
-      position: position.pixels,
-      velocity: velocity,
-      leadingExtent: position.minScrollExtent,
-      trailingExtent: position.maxScrollExtent,
-      tolerance: tolerance,
-    );
-  }
-
-  @override
-  double get dragStartDistanceMotionThreshold => 2.5;
-
-  @override
-  double get minFlingVelocity => 50.0;
-
-  @override
-  double get maxFlingVelocity => 12000.0;
 }

@@ -1,7 +1,7 @@
 /* Player (PLANO §13). Sempre preto; a cor do tema entra só como toque (progresso, item escolhido).
    Desenho: vidhub/…foto46–49 (topo, barra fina com o tempo, "Pular início" no canto); painel: app_completo/…foto25. */
 .player { position: fixed; inset: 0; z-index: 30; background: #000; color: #fff; overflow: hidden; font-family: var(--hs-fonte-texto);
-  filter: opacity(0.999); isolation: isolate;
+  isolation: isolate;
   --pl-margem: max(20px, env(safe-area-inset-left, 0px)); --pl-fundo-painel: rgb(22 19 30 / .97); --pl-linha: rgb(255 255 255 / .1);
   --pl-texto-2: rgb(255 255 255 / .66); }
 @media (min-width: 900px) { .player { --pl-margem: 40px; } }

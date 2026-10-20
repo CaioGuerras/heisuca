@@ -25,6 +25,18 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Liberar espaco em disco na VM
+        working-directory: /
+        run: |
+          echo "Espaco antes da limpeza:"
+          df -h /
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          echo "Espaco apos a limpeza:"
+          df -h /
+
       - name: Setup Java 21
         uses: actions/setup-java@v4
         with:
@@ -69,17 +81,19 @@ jobs:
             echo "Sem keystore nos secrets: assinando com debug."
           fi
 
-      - name: Compilar APKs de Release
-        run: flutter build apk --release --split-per-abi --dart-define=GIT_COMMIT=${{ github.sha }}
+      - name: Compilar APK Release (arm64-v8a)
+        run: flutter build apk --release --target-platform android-arm64 --split-per-abi --dart-define=GIT_COMMIT=${{ github.sha }}
 
       - name: Organizar e Renomear APKs
         run: |
           mkdir -p dist
-          for abi in arm64-v8a armeabi-v7a x86_64; do
-            if [ -f "build/app/outputs/flutter-apk/app-$abi-release.apk" ]; then
-              cp "build/app/outputs/flutter-apk/app-$abi-release.apk" "dist/heisuca-$abi.apk"
-            fi
-          done
+          if [ -f "build/app/outputs/flutter-apk/app-arm64-v8a-release.apk" ]; then
+            cp "build/app/outputs/flutter-apk/app-arm64-v8a-release.apk" "dist/heisuca-arm64-v8a.apk"
+          elif [ -f "build/app/outputs/flutter-apk/app-release.apk" ]; then
+            cp "build/app/outputs/flutter-apk/app-release.apk" "dist/heisuca-arm64-v8a.apk"
+          else
+            cp build/app/outputs/flutter-apk/*.apk dist/heisuca-arm64-v8a.apk
+          fi
           ls -lh dist
 
       - name: Publicar Artifact Heisuca APK

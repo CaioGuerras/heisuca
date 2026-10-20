@@ -1,4 +1,5 @@
 import '../cgflix/cgflix_navigation.dart';
+import '../cgflix/cgflix_user_menu.dart';
 import '../cgflix/home/cgflix_home_screen.dart';
 import '../heisuca/heisuca_floating_island.dart';
 import 'dart:async';

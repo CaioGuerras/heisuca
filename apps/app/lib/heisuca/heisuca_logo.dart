@@ -33,13 +33,13 @@ class HeisucaLogo extends StatelessWidget {
 
     return Row(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         selo,
         const SizedBox(width: 10),
         Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'HEISUCA',

@@ -1,0 +1,89 @@
+name: CGFLIX Windows
+
+# Compilação do CGFLIX Desktop (Windows):
+# Gera o pacote portátil (cgflix-windows-x64-portable.zip) e o instalador (cgflix-windows-installer.exe).
+# Roda sob demanda (workflow_dispatch) ou em tags v*.
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+env:
+  FLUTTER_VERSION: "3.47.1"
+
+concurrency:
+  group: cgflix-windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-windows:
+    name: Compilar CGFLIX Windows (x64)
+    runs-on: windows-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          channel: "stable"
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Dependências
+        shell: pwsh
+        run: flutter pub get --enforce-lockfile --no-example
+
+      - name: Instalar Engine com DirectComposition (120Hz/DComp)
+        shell: pwsh
+        run: |
+          flutter precache --windows
+          .\windows\tool\install-patched-engine.ps1
+
+      - name: Compilar Windows Release (x64)
+        shell: pwsh
+        run: |
+          flutter build windows --release --dart-define=GIT_COMMIT=${{ github.sha }}
+
+      - name: Verificar Bundle
+        shell: pwsh
+        run: |
+          $bundleDir = "build/windows/x64/runner/Release"
+          if (-not (Test-Path $bundleDir)) {
+            throw "Diretório de build não encontrado: $bundleDir"
+          }
+          Get-ChildItem $bundleDir | Select-Object Name
+
+      - name: Pacote Portátil (.zip) e Instalador (.exe)
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist
+          .\windows\build-installer.ps1 -OutputDir dist -Version "1.6.2" -X64BuildDir "build/windows/x64/runner/Release"
+          Get-ChildItem dist
+
+      - name: Upload Artifact Instalador Oficial
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: cgflix-windows-installer
+          path: dist/cgflix-windows-installer.exe
+          if-no-files-found: error
+
+      - name: Upload Artifact Portátil
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: cgflix-windows-x64-portable
+          path: dist/cgflix-windows-x64-portable.zip
+          if-no-files-found: error
+
+      - name: Anexar à Release (se for tag)
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --title "CGFLIX $GITHUB_REF_NAME" --generate-notes
+          gh release upload "$GITHUB_REF_NAME" dist/cgflix-windows-installer.exe dist/cgflix-windows-x64-portable.zip --clobber

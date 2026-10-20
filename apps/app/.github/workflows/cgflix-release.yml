@@ -1,0 +1,109 @@
+name: CGFLIX Release
+
+# Release do CGFLIX: em tags v* compila o APK e anexa à Release. Fica separado do
+# cgflix-android.yml porque o CI do repositório proíbe segredos e permissão de
+# escrita em workflows acionados por PR. Sem keystore nos secrets, assina com a
+# chave de debug (instala normalmente, mas não serve para a Play Store).
+on:
+  push:
+    tags: ["v*"]
+
+env:
+  # Mesma versão do Flutter usada pelo upstream (build.yml / ci.yml).
+  FLUTTER_VERSION: "3.47.1"
+
+concurrency:
+  group: cgflix-release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    name: APK de release (tag)
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write # anexar o APK à Release
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Java
+        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          channel: "stable"
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Cache do Gradle
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: cgflix-${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
+      - name: Dependências
+        run: flutter pub get --enforce-lockfile --no-example
+
+      # Opcional: se os 4 secrets existirem, o APK sai assinado com a chave própria.
+      - name: Assinatura (se houver keystore nos secrets)
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 --decode > android/app/upload-keystore.jks
+            {
+              echo "storePassword=$STORE_PASSWORD"
+              echo "keyPassword=$KEY_PASSWORD"
+              echo "keyAlias=$KEY_ALIAS"
+              echo "storeFile=upload-keystore.jks"
+            } > android/key.properties
+            echo "Assinando com o keystore dos secrets."
+          else
+            echo "Sem keystore: assinando com a chave de debug."
+          fi
+
+      # Sem Sentry nem verificação de atualização do upstream (não definimos esses flags).
+      - name: Compilar APK
+        # Etapa 1E: Trakt com o app "CGFLIX" do trakt.tv (secrets). Sem os secrets, os valores vão
+        # vazios e o Trakt fica escondido no app (nunca usa o client id do Plezy).
+        env:
+          TRAKT_CLIENT_ID: ${{ secrets.CGFLIX_TRAKT_CLIENT_ID }}
+          TRAKT_CLIENT_SECRET: ${{ secrets.CGFLIX_TRAKT_CLIENT_SECRET }}
+        run: flutter build apk --release --split-per-abi --dart-define=GIT_COMMIT=${{ github.sha }} --dart-define=TRAKT_CLIENT_ID="$TRAKT_CLIENT_ID" --dart-define=TRAKT_CLIENT_SECRET="$TRAKT_CLIENT_SECRET"
+
+      - name: Limpar keystore
+        if: always()
+        run: rm -f android/app/upload-keystore.jks android/key.properties
+
+      - name: Nomear APKs
+        run: |
+          mkdir -p dist
+          for abi in arm64-v8a armeabi-v7a x86_64; do
+            cp "build/app/outputs/flutter-apk/app-$abi-release.apk" "dist/cgflix-$abi.apk"
+          done
+          ls -lh dist
+
+      - name: Publicar artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: cgflix-apk
+          path: dist/*.apk
+          if-no-files-found: error
+
+      - name: Anexar à Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --title "CGFLIX $GITHUB_REF_NAME" --generate-notes
+          gh release upload "$GITHUB_REF_NAME" dist/*.apk --clobber

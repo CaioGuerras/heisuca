@@ -1,0 +1,245 @@
+name: CGFLIX Android
+
+# APK e AAB de release do CGFLIX, ASSINADOS com a chave do CGFLIX (artifacts `cgflix-apk` e `cgflix-aab`).
+# Roda a cada push no main e nos ramos cgflix/** (os ramos dos PRs), e à mão. NÃO roda no evento
+# pull_request de propósito: a regra de segurança do CI (scripts/checks/check_workflow_security.py) proíbe
+# segredos em workflow de PR, e a assinatura precisa do keystore dos secrets. O check aparece no PR do
+# mesmo jeito, porque o push do ramo roda no mesmo commit. A Release com tag continua em cgflix-release.yml.
+on:
+  push:
+    branches: [main, "cgflix/**"]
+  workflow_dispatch:
+
+env:
+  # Mesma versão do Flutter usada pelo upstream (build.yml / ci.yml).
+  FLUTTER_VERSION: "3.47.1"
+
+concurrency:
+  group: cgflix-android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    name: APK de release
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Java
+        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          channel: "stable"
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Cache do Gradle
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: cgflix-${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
+      - name: Dependências
+        run: flutter pub get --enforce-lockfile --no-example
+
+      # 07/10: o APK e o AAB deste workflow saíam com a chave de DEBUG (sem key.properties); mesmo passo do cgflix-release.yml
+      - name: Assinatura (se houver keystore nos secrets)
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 --decode > android/app/upload-keystore.jks
+            {
+              echo "storePassword=$STORE_PASSWORD"
+              echo "keyPassword=$KEY_PASSWORD"
+              echo "keyAlias=$KEY_ALIAS"
+              echo "storeFile=upload-keystore.jks"
+            } > android/key.properties
+            echo "Assinando com o keystore dos secrets."
+          else
+            echo "Sem keystore: assinando com a chave de debug."
+          fi
+
+      # Sem Sentry nem verificação de atualização do upstream (não definimos esses flags).
+
+      # Sem Sentry nem verificação de atualização do upstream (não definimos esses flags).
+      - name: Compilar APK
+        # Etapa 1E: Trakt com o app "CGFLIX" do trakt.tv (secrets). Sem os secrets, os valores vão
+        # vazios e o Trakt fica escondido no app (nunca usa o client id do Plezy).
+        env:
+          TRAKT_CLIENT_ID: ${{ secrets.CGFLIX_TRAKT_CLIENT_ID }}
+          TRAKT_CLIENT_SECRET: ${{ secrets.CGFLIX_TRAKT_CLIENT_SECRET }}
+        run: flutter build apk --release --split-per-abi --dart-define=GIT_COMMIT=${{ github.sha }} --dart-define=TRAKT_CLIENT_ID="$TRAKT_CLIENT_ID" --dart-define=TRAKT_CLIENT_SECRET="$TRAKT_CLIENT_SECRET"
+
+      - name: Nomear APKs
+        run: |
+          mkdir -p dist
+          for abi in arm64-v8a armeabi-v7a x86_64; do
+            cp "build/app/outputs/flutter-apk/app-$abi-release.apk" "dist/cgflix-$abi.apk"
+          done
+          ls -lh dist
+
+      - name: Publicar artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: cgflix-apk
+          path: dist/*.apk
+          if-no-files-found: error
+
+      # Play Store (07/10): mesmo build e mesma assinatura do APK, no formato que a Play aceita
+      - name: Compilar AAB (Play Store)
+        # Etapa 1E: Trakt com o app "CGFLIX" do trakt.tv (secrets). Sem os secrets, os valores vão
+        # vazios e o Trakt fica escondido no app (nunca usa o client id do Plezy).
+        # 1.5.0: CGFLIX_APOIO=play tira o Pix do pacote da Play (a política da Play proíbe Pix/link
+        # externo para coisa digital); o "Apoie o CGFLIX" some até entrar o Play Billing.
+        env:
+          TRAKT_CLIENT_ID: ${{ secrets.CGFLIX_TRAKT_CLIENT_ID }}
+          TRAKT_CLIENT_SECRET: ${{ secrets.CGFLIX_TRAKT_CLIENT_SECRET }}
+        run: flutter build appbundle --release --dart-define=CGFLIX_APOIO=play --dart-define=GIT_COMMIT=${{ github.sha }} --dart-define=TRAKT_CLIENT_ID="$TRAKT_CLIENT_ID" --dart-define=TRAKT_CLIENT_SECRET="$TRAKT_CLIENT_SECRET"
+
+      - name: Publicar artifact do AAB
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: cgflix-aab
+          path: build/app/outputs/bundle/release/*.aab
+          if-no-files-found: error
+
+      - name: Limpar keystore
+        if: always()
+        run: rm -f android/app/upload-keystore.jks android/key.properties
+
+  # Etapa 1D: roteiro de navegação num emulador Android 34 com tela do motorola edge 70
+  # (1080×2400, ~400 dpi). Usa o app de teste test/cgflix/emulador/app_navegacao.dart (peças
+  # reais do CGFLIX, dados falsos, sem login em servidor nenhum). Gira para paisagem e volta em
+  # cada tela, guarda as capturas e falha com tela preta, overflow ou exceção no logcat.
+  # Só ferramentas do próprio Android SDK do runner (sem action de terceiros).
+  emulador:
+    name: Emulador (navegação, paisagem e capturas)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    # Refino 2b: o emulador do runner cai ("adb perdeu o emulador") também no main (11/10 13:23Z).
+    # A tentativa com a imagem ATD não caiu e andou o roteiro inteiro, mas a captura de tela dela
+    # sai preta. Até o runner estabilizar, o job não bloqueia: o resultado continua visível e as
+    # capturas saem no artifact quando ele passa (passou na run 110 da 1.6.1).
+    continue-on-error: true
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Java
+        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          channel: "stable"
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Cache do Gradle
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: cgflix-emulador-${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
+      - name: Dependências
+        run: flutter pub get --enforce-lockfile --no-example
+
+      - name: Testes do roteiro (sem emulador)
+        run: python3 scripts/cgflix/test_emulador_navegacao.py
+
+      - name: Compilar APK de debug do roteiro
+        run: flutter build apk --debug --target-platform android-x64 -t test/cgflix/emulador/app_navegacao.dart
+
+      # Refino 2: o Gradle fica na memória depois do build e, com o emulador de 4 GB, o runner
+      # enchia o swap e matava o emulador no meio do roteiro ("no devices"). Desliga antes.
+      - name: Liberar memória (desliga o Gradle)
+        run: |
+          (cd android && ./gradlew --stop) || true
+          pkill -f GradleDaemon || true
+          pkill -f kotlin-daemon || true
+          free -m
+
+      - name: Ligar KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Emulador Android 34 (perfil do edge 70)
+        run: |
+          SDKBIN="$ANDROID_HOME/cmdline-tools/latest/bin"
+          # Pasta das AVDs fixa (as ferramentas novas usam outro lugar por padrão).
+          export ANDROID_AVD_HOME="$HOME/.android/avd"
+          mkdir -p "$ANDROID_AVD_HOME"
+          echo "ANDROID_AVD_HOME=$ANDROID_AVD_HOME" >> "$GITHUB_ENV"
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+          export PATH="$ANDROID_HOME/platform-tools:$PATH"
+          "$SDKBIN/sdkmanager" --licenses < <(yes) > /dev/null
+          "$SDKBIN/sdkmanager" "platform-tools" "emulator" "system-images;android-34;google_apis;x86_64" > /dev/null
+          echo no | "$SDKBIN/avdmanager" create avd -n edge70 -k "system-images;android-34;google_apis;x86_64" \
+            -p "$ANDROID_AVD_HOME/edge70.avd" --force
+          ls "$ANDROID_AVD_HOME"
+          {
+            echo "hw.lcd.width=1080"
+            echo "hw.lcd.height=2400"
+            echo "hw.lcd.density=400"
+            echo "hw.keyboard=yes"
+            echo "hw.ramSize=4096"
+          } >> "$ANDROID_AVD_HOME/edge70.avd/config.ini"
+          nohup "$ANDROID_HOME/emulator/emulator" -avd edge70 -no-window -no-audio -no-boot-anim -no-snapshot \
+            -gpu swiftshader_indirect -camera-back none > emulator.log 2>&1 &
+          adb wait-for-device
+          booted=""
+          for _ in $(seq 1 120); do
+            if [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1" ]; then booted=1; break; fi
+            sleep 5
+          done
+          if [ -z "$booted" ]; then echo "O emulador não terminou de ligar."; tail -50 emulator.log; exit 1; fi
+          adb shell settings put global window_animation_scale 0
+          adb shell settings put global transition_animation_scale 0
+          adb shell settings put global animator_duration_scale 0
+          adb shell input keyevent 82
+          adb shell wm size
+          adb shell wm density
+
+      - name: Roteiro de navegação (Início → Filmes/Séries/Animes → Busca com pedidos → título → menu → Meus pedidos → Baixados)
+        run: python3 -u scripts/cgflix/emulador_navegacao.py --apk build/app/outputs/flutter-apk/app-debug.apk --out build/cgflix-capturas
+
+      # Refino 2: quando o emulador cai no meio do roteiro ("no devices"), o motivo fica no log dele.
+      - name: Log do emulador (só se falhar)
+        if: failure()
+        run: |
+          tail -80 emulator.log || true
+          free -m || true
+
+      - name: Publicar capturas (retrato e paisagem) e logcat
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: cgflix-capturas
+          path: build/cgflix-capturas/
+          if-no-files-found: warn

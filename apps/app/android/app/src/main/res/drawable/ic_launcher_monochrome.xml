@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CGFLIX: camada monocromática (ícones temáticos do Android 13+): o mesmo emblema e a mesma
+     escala da frente; o sistema pinta com a cor do papel de parede. Gerado por
+     cgflix-brand/gerar_icone_android.py. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="1000"
+    android:viewportHeight="1000">
+    <group android:scaleX="0.529" android:scaleY="0.529" android:pivotX="500" android:pivotY="500">
+        <path
+            android:pathData="M760.9,281A340,340 0,1 0,760.9,719"
+            android:strokeColor="#000000"
+            android:strokeWidth="128"
+            android:strokeLineCap="round"/>
+        <path
+            android:pathData="M452,368L452,632L668,500Z"
+            android:fillColor="#000000"
+            android:strokeColor="#000000"
+            android:strokeWidth="54"
+            android:strokeLineJoin="round"/>
+    </group>
+</vector>

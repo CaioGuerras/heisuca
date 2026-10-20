@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#07060a</color>
+    <color name="ic_launcher_background_heitor">#f4fcee</color> <!-- CGFLIX: ícone do tema Heitor -->
+    <color name="splash_background">#f4fcee</color> <!-- CGFLIX: aparelho claro = Heitor -->
+    <color name="splash_dark">#07060a</color>
+    <color name="splash_oled">#07060a</color>
+    <color name="splash_light">#f4fcee</color> <!-- CGFLIX: Heitor -->
+</resources>

@@ -376,21 +376,20 @@ class CgflixWideCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             DecoratedBox(
-              decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), boxShadow: context.cgflix.cardShadow),
-              child: ClipRRect(
+              decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-              boxShadow: context.cgflix.isLight
-                  ? context.cgflix.cardShadow
-                  : [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.40),
-                        blurRadius: 14,
-                        offset: const Offset(0, 6),
-                        spreadRadius: -3,
-                      ),
-                    ],
-            ),
-            child: DecoratedBox(
+                boxShadow: context.cgflix.isLight
+                    ? context.cgflix.cardShadow
+                    : [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.40),
+                          blurRadius: 14,
+                          offset: const Offset(0, 6),
+                          spreadRadius: -3,
+                        ),
+                      ],
+              ),
+              child: DecoratedBox(
               position: DecorationPosition.foreground,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
@@ -471,6 +470,7 @@ class CgflixWideCard extends StatelessWidget {
                   ),
                 ),
               ),
+            ),
             ),
             const SizedBox(height: 6),
             SizedBox(

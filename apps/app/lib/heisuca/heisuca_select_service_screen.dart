@@ -27,16 +27,12 @@ class HeisucaSelectServiceScreen extends StatelessWidget {
 
     switch (type) {
       case HeisucaServiceType.jellyfin:
-        Navigator.push<bool>(
+        Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => const AddJellyfinScreen(dialect: MediaBrowserDialect.jellyfin),
+            builder: (_) => const HeisucaLoginScreen(),
           ),
-        ).then((added) {
-          if (added == true && context.mounted) {
-            unawaited(Navigator.pushReplacement(context, fadeRoute(const ProfileSessionScreen())));
-          }
-        });
+        );
         break;
 
       case HeisucaServiceType.plex:

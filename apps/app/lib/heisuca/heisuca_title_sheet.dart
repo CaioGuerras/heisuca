@@ -79,7 +79,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
                         OptimizedMediaImage(
                           client: client,
                           imagePath: backdropPath,
-                          imageType: ImageType.backdrop,
+                          imageType: ImageType.art,
                           fit: BoxFit.cover,
                         )
                       else

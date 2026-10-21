@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../media/media_browser_dialect.dart';
+import '../screens/settings/add_jellyfin_screen.dart';
 import 'heisuca_design_system.dart';
 import 'heisuca_logo.dart';
 import 'heisuca_theme.dart';
@@ -216,6 +218,12 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                     HeisucaSpringPressable(
                       onTap: () {
                         HapticFeedback.lightImpact();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const AddJellyfinScreen(dialect: MediaBrowserDialect.jellyfin),
+                          ),
+                        );
                       },
                       child: Container(
                         height: 46.0,
@@ -311,7 +319,12 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
               HeisucaSpringPressable(
                 onTap: () {
                   HapticFeedback.lightImpact();
-                  widget.onLoginSuccess?.call();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AddJellyfinScreen(dialect: MediaBrowserDialect.jellyfin),
+                    ),
+                  );
                 },
                 child: Container(
                   height: 56.0,

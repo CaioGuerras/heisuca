@@ -20,6 +20,7 @@ import '../services/storage_service.dart';
 import '../providers/account_preferences_controller.dart';
 import '../heisuca/heisuca_logo.dart';
 import '../heisuca/heisuca_theme.dart';
+import '../heisuca/heisuca_login_screen.dart';
 import '../heisuca/heisuca_add_webdav_screen.dart';
 import '../heisuca/heisuca_add_smb_screen.dart';
 import '../heisuca/heisuca_select_service_screen.dart';
@@ -270,6 +271,9 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (!PlatformDetector.isTV()) {
+      return const HeisucaLoginScreen();
+    }
     // Use two-column layout on desktop, single column on mobile
     final isDesktop = MediaQuery.sizeOf(context).width > 700;
 

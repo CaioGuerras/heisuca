@@ -15,6 +15,8 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'connection/connection.dart';
 import 'connection/connection_bootstrap.dart';
 import 'connection/connection_registry.dart';
+import 'heisuca/heisuca_opening_splash.dart';
+import 'heisuca/heisuca_login_screen.dart';
 import 'navigation/profile_navigation_scope.dart';
 import 'navigation/profile_session_screen.dart';
 import 'profiles/active_profile_binder.dart';
@@ -2149,14 +2151,14 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
       appLogger.e('Setup: failed to load connections; returning to auth', error: e, stackTrace: st);
       unawaited(Sentry.captureException(e, stackTrace: st));
       if (mounted) {
-        unawaited(Navigator.pushReplacement(context, fadeRoute(const AuthScreen())));
+        unawaited(Navigator.pushReplacement(context, fadeRoute(const HeisucaLoginScreen())));
       }
       return;
     }
 
     if (allConnections.isEmpty) {
       if (mounted) {
-        unawaited(Navigator.pushReplacement(context, fadeRoute(const AuthScreen())));
+        unawaited(Navigator.pushReplacement(context, fadeRoute(const HeisucaLoginScreen())));
       }
       return;
     }
@@ -2205,7 +2207,7 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
 
     if (activeProfile.active == null && activeProfile.profiles.isEmpty) {
       appLogger.w('Setup: stored connections exist but no profiles resolved after bootstrap; returning to auth');
-      unawaited(Navigator.pushReplacement(context, fadeRoute(const AuthScreen())));
+      unawaited(Navigator.pushReplacement(context, fadeRoute(const HeisucaLoginScreen())));
       return;
     }
 
@@ -2366,65 +2368,8 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final coralColor = context.cgflix.accent; // CGFLIX: roxo/verde do tema em vez do laranja do Plex
-    final height = MediaQuery.sizeOf(context).height;
-    // The stacked layout below hangs its two rows off fixed ±170/180 offsets from the middle, which
-    // needs roughly 700 logical pixels of height. A car at a large interface scale — and a phone in
-    // landscape — has less than that, and the rows would collide or fall outside the Stack's clip.
-    if (height < 700) {
-      return ColoredBox(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const CgflixIntroEmblem(size: 160), // CGFLIX: abertura animada
-                  const CgflixSlogan(delay: cgflixSloganDelay, topPadding: 0), // CGFLIX
-                  _buildStatusText(context),
-                  const SizedBox(height: 16),
-                  Center(
-                    child: _serverStatus.isEmpty
-                        ? SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: coralColor),
-                          )
-                        : _buildServerStatusList(context),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-    return ColoredBox(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      child: Stack(
-        children: [
-          Center(child: const CgflixIntroEmblem(size: 288)), // CGFLIX: abertura animada
-          Positioned(
-            left: 0,
-            right: 0,
-            top: height * 0.5 + 132,
-            child: const CgflixSlogan(delay: cgflixSloganDelay),
-          ), // CGFLIX
-          Positioned(left: 0, right: 0, bottom: height * 0.5 - 170, child: _buildStatusText(context)),
-          Positioned(
-            left: 0,
-            right: 0,
-            top: height * 0.5 + 180,
-            child: Center(
-              child: _serverStatus.isEmpty
-                  ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: coralColor))
-                  : _buildServerStatusList(context),
-            ),
-          ),
-        ],
-      ),
+    return HeisucaOpeningSplash(
+      onAnimationFinished: () {},
     );
   }
 }

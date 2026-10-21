@@ -22,6 +22,7 @@ import '../services/storage_service.dart';
 import '../utils/app_logger.dart';
 import '../utils/device_identity.dart';
 import '../utils/navigation_transitions.dart';
+import 'heisuca_add_plex_screen.dart';
 import 'heisuca_add_smb_screen.dart';
 import 'heisuca_add_webdav_screen.dart';
 import 'heisuca_design_system.dart';
@@ -230,6 +231,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
     HapticFeedback.lightImpact();
     showModalBottomSheet<void>(
       context: context,
+      isScrollControlled: true,
       backgroundColor: const Color(0xFF140F22),
       barrierColor: Colors.black.withOpacity(0.65),
       shape: const RoundedRectangleBorder(
@@ -237,7 +239,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
       ),
       builder: (ctx) {
         return SafeArea(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -265,7 +267,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                 ),
                 const SizedBox(height: 6.0),
                 const Text(
-                  'Conecte suas pastas locais ou outros servidores de mídia.',
+                  'Conecte suas contas de streaming, pastas locais ou outros servidores.',
                   style: TextStyle(
                     fontFamily: HeisucaTheme.fonteTexto,
                     fontSize: 14.0,
@@ -273,6 +275,35 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 20.0),
+                _SourceTile(
+                  icon: Icons.movie_filter_rounded,
+                  title: 'Conta Plex',
+                  subtitle: 'Acesse servidores locais ou compartilhados via Plex PIN ou QR Code',
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => HeisucaAddPlexScreen(
+                          onLoginSuccess: widget.onLoginSuccess,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 12.0),
+                _SourceTile(
+                  icon: Icons.dns_rounded,
+                  title: 'Outro Servidor Jellyfin / Emby',
+                  subtitle: 'Conectar a uma URL personalizada de servidor de mídia',
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    setState(() {
+                      _serverController.text = '';
+                    });
+                  },
+                ),
+                const SizedBox(height: 12.0),
                 _SourceTile(
                   icon: Icons.folder_shared_rounded,
                   title: 'Pasta de Rede Local (SMB / Samba)',

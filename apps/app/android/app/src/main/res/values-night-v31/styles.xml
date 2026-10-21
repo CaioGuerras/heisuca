@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Heisuca: Tema nativo de inicialização para Android 12+ (API 31+) em modo escuro -->
     <style name="LaunchTheme" parent="@android:style/Theme.Black.NoTitleBar">
         <item name="android:windowBackground">@color/splash_background</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
-        <item name="android:windowSplashScreenAnimationDuration">900</item> <!-- CGFLIX: ícone animado -->
+        <item name="android:windowSplashScreenBackground">@color/splash_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_selo</item>
+        <item name="android:windowSplashScreenAnimationDuration">600</item>
         <item name="android:defaultFocusHighlightEnabled">false</item>
         <item name="android:colorControlHighlight">@android:color/transparent</item>
     </style>
@@ -15,29 +17,33 @@
 
     <style name="SplashTheme.Dark" parent="@android:style/Theme.Black.NoTitleBar">
         <item name="android:windowBackground">@color/splash_dark</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
-        <item name="android:windowSplashScreenAnimationDuration">900</item> <!-- CGFLIX: ícone animado -->
+        <item name="android:windowSplashScreenBackground">@color/splash_dark</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_selo</item>
+        <item name="android:windowSplashScreenAnimationDuration">600</item>
         <item name="android:defaultFocusHighlightEnabled">false</item>
         <item name="android:colorControlHighlight">@android:color/transparent</item>
     </style>
     <style name="SplashTheme.Oled" parent="@android:style/Theme.Black.NoTitleBar">
         <item name="android:windowBackground">@color/splash_oled</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
-        <item name="android:windowSplashScreenAnimationDuration">900</item> <!-- CGFLIX: ícone animado -->
+        <item name="android:windowSplashScreenBackground">@color/splash_oled</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_selo</item>
+        <item name="android:windowSplashScreenAnimationDuration">600</item>
         <item name="android:defaultFocusHighlightEnabled">false</item>
         <item name="android:colorControlHighlight">@android:color/transparent</item>
     </style>
     <style name="SplashTheme.Light" parent="@android:style/Theme.Black.NoTitleBar">
         <item name="android:windowBackground">@color/splash_light</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon_heitor</item> <!-- CGFLIX: marca Heitor -->
-        <item name="android:windowSplashScreenAnimationDuration">900</item> <!-- CGFLIX: ícone animado -->
+        <item name="android:windowSplashScreenBackground">@color/splash_light</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_selo</item>
+        <item name="android:windowSplashScreenAnimationDuration">600</item>
         <item name="android:defaultFocusHighlightEnabled">false</item>
         <item name="android:colorControlHighlight">@android:color/transparent</item>
     </style>
     <style name="SplashTheme.System" parent="@android:style/Theme.Black.NoTitleBar">
         <item name="android:windowBackground">@color/splash_background</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
-        <item name="android:windowSplashScreenAnimationDuration">900</item> <!-- CGFLIX: ícone animado -->
+        <item name="android:windowSplashScreenBackground">@color/splash_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_selo</item>
+        <item name="android:windowSplashScreenAnimationDuration">600</item>
         <item name="android:defaultFocusHighlightEnabled">false</item>
         <item name="android:colorControlHighlight">@android:color/transparent</item>
     </style>

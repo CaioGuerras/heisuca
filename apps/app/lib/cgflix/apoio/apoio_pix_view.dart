@@ -9,6 +9,8 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../utils/snackbar_helper.dart';
 import '../../widgets/app_icon.dart';
+import '../cgflix_logo.dart';
+import '../cgflix_palette.dart';
 import 'apoio.dart';
 import 'apoio_pix.dart';
 import 'br_code.dart';
@@ -23,7 +25,7 @@ class ApoioPixLivre implements Apoio {
   Widget conteudo(BuildContext context) => const ApoioPixView();
 }
 
-/// Payload "copia e cola" do CGFLIX (calculado uma vez).
+/// Payload "copia e cola" do Heisuca (calculado uma vez).
 final String cgflixPixCopiaECola = BrCode.estatico(chave: ApoioPix.chave, nome: ApoioPix.nome, cidade: ApoioPix.cidade);
 
 class ApoioPixView extends StatelessWidget {
@@ -32,24 +34,57 @@ class ApoioPixView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final palette = context.cgflix;
     final muted = theme.colorScheme.onSurfaceVariant;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Center(
-          // QR sempre escuro sobre branco (é o que os bancos leem melhor), nos dois temas.
+          // QR Code Pix estilizado com correção de erro nível H e selo Heisuca centralizado.
           child: Container(
             key: const ValueKey('cgflix-apoio-qr'),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
-            child: QrImageView(
-              data: cgflixPixCopiaECola,
-              semanticsLabel: 'QR Code do Pix',
-              size: 232,
-              padding: const EdgeInsets.all(8),
-              backgroundColor: Colors.white,
-              eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: Colors.black),
-              dataModuleStyle: const QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square, color: Colors.black),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: palette.accent.withValues(alpha: 0.35), width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: palette.accent.withValues(alpha: 0.22),
+                  blurRadius: 28,
+                  offset: const Offset(0, 10),
+                  spreadRadius: -4,
+                ),
+              ],
+            ),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                QrImageView(
+                  data: cgflixPixCopiaECola,
+                  semanticsLabel: 'QR Code do Pix Heisuca',
+                  size: 236,
+                  padding: const EdgeInsets.all(6),
+                  backgroundColor: Colors.white,
+                  errorCorrectionLevel: QrErrorCorrectLevel.H,
+                  eyeStyle: const QrEyeStyle(
+                    eyeShape: QrEyeShape.circle,
+                    color: Color(0xFF140D26),
+                  ),
+                  dataModuleStyle: const QrDataModuleStyle(
+                    dataModuleShape: QrDataModuleShape.circle,
+                    color: Color(0xFF140D26),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const CgflixEmblem(size: 40),
+                ),
+              ],
             ),
           ),
         ),

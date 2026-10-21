@@ -1,11 +1,20 @@
-// Cartões e linhas da Início do CGFLIX: pôster, cartão largo com progresso, Top 10 e
-// esqueletos com brilho discreto (no lugar dos círculos de carregamento).
-import 'package:flutter/material.dart';
+// Cartões e linhas da Início do Heisuca Flagship:
+// - Física de Mola Tátil (120Hz ElasticOutCurve + HapticFeedback)
+// - Pôsteres 2:3 e Cards 16:9 com Squircle 12dp, borda especular hairline (0.75dp) e sombra profunda
+// - Números Tabulares (FontFeature.tabularFigures) no Continuar Assistindo
+// - Top 10 alinhado na base com gradiente metálico
+import 'dart:ui' show FontFeature;
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:material_symbols_icons/symbols.dart';
+
+import '../../heisuca/heisuca_design_system.dart';
 import '../../media/media_item.dart';
 import '../../media/media_kind.dart';
 import '../../media/media_server_client.dart';
 import '../../utils/media_image_helper.dart';
+import '../../widgets/app_icon.dart';
 import '../../widgets/optimized_media_image.dart';
 import '../cgflix_palette.dart';
 import '../cgflix_style.dart';
@@ -145,23 +154,29 @@ class CgflixRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.only(bottom: 22),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(cgflixRowSidePadding, 4, cgflixRowSidePadding, 10),
+            padding: const EdgeInsets.fromLTRB(cgflixRowSidePadding, 4, cgflixRowSidePadding, 11),
             child: Text(
               title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontFamily: 'Sora',
+                    fontSize: 17.5,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.35,
+                  ),
             ),
           ),
           SizedBox(
             height: height,
             child: ListView.separated(
               key: PageStorageKey<String>('cgflix-row:$storageKey'),
+              physics: const ProMotionScrollPhysics(),
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: cgflixRowSidePadding),
               itemCount: itemCount,
@@ -178,7 +193,7 @@ class CgflixRow extends StatelessWidget {
 // ---------------------------------------------------------------------------
 // Cartões
 
-/// Encolhe um pouco ao tocar (resposta imediata, sem corte seco).
+/// Encolhe com física de mola elástica (120Hz) e disparo tátil sutil ao tocar.
 class CgflixPressable extends StatefulWidget {
   const CgflixPressable({super.key, required this.child, this.onTap, this.onLongPress, this.semanticLabel});
   final Widget child;
@@ -192,9 +207,6 @@ class CgflixPressable extends StatefulWidget {
 
 class _CgflixPressableState extends State<CgflixPressable> {
   bool _pressed = false;
-
-  /// Refino 2b: teclado, mouse e controle (Chromebook, TV box que não se diz TV) também abrem o
-  /// cartão; o foco aparece como um contorno de 3 dp na cor do anel de foco do tema.
   bool _focused = false;
 
   void _set(bool value) {
@@ -206,14 +218,18 @@ class _CgflixPressableState extends State<CgflixPressable> {
     return Semantics(
       button: true,
       label: widget.semanticLabel,
-      // Leitor de tela: avisa que tocar e segurar abre mais opções.
       onLongPressHint: widget.onLongPress == null ? null : 'mais opções',
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTapDown: (_) => _set(true),
         onTapUp: (_) => _set(false),
         onTapCancel: () => _set(false),
-        onTap: widget.onTap,
+        onTap: widget.onTap == null
+            ? null
+            : () {
+                HapticFeedback.selectionClick();
+                widget.onTap!();
+              },
         onLongPress: widget.onLongPress == null
             ? null
             : () {
@@ -226,9 +242,9 @@ class _CgflixPressableState extends State<CgflixPressable> {
           onShowFocusHighlight: (v) => setState(() => _focused = v),
           actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onTap?.call())},
           child: AnimatedScale(
-            scale: _pressed ? 0.95 : 1,
-            duration: CgflixMotion.fast,
-            curve: CgflixMotion.curve,
+            scale: _pressed ? 0.945 : 1.0,
+            duration: _pressed ? const Duration(milliseconds: 110) : const Duration(milliseconds: 340),
+            curve: _pressed ? Curves.easeOutCubic : const ElasticOutCurve(0.85),
             child: DecoratedBox(
               position: DecorationPosition.foreground,
               decoration: BoxDecoration(
@@ -265,8 +281,9 @@ class CgflixPosterCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final height = width * 1.5;
+    final isLight = context.cgflix.isLight;
     Widget image = ClipRRect(
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(12),
       child: ColoredBox(
         color: context.cgflix.surface,
         child: OptimizedMediaImage.poster(
@@ -278,10 +295,31 @@ class CgflixPosterCard extends StatelessWidget {
         ),
       ),
     );
-    // Heitor: sombra suave no lugar do brilho roxo (na Isis a lista é vazia).
     image = DecoratedBox(
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), boxShadow: context.cgflix.cardShadow),
-      child: image,
+      position: DecorationPosition.foreground,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isLight ? Colors.black.withValues(alpha: 0.08) : Colors.white.withValues(alpha: 0.11),
+          width: 0.75,
+        ),
+      ),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: isLight
+              ? context.cgflix.cardShadow
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.42),
+                    blurRadius: 14,
+                    offset: const Offset(0, 6),
+                    spreadRadius: -3,
+                  ),
+                ],
+        ),
+        child: image,
+      ),
     );
     if (heroTag != null) image = Hero(tag: heroTag!, child: image);
     return CgflixPressable(
@@ -340,7 +378,31 @@ class CgflixWideCard extends StatelessWidget {
             DecoratedBox(
               decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), boxShadow: context.cgflix.cardShadow),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(12),
+              boxShadow: context.cgflix.isLight
+                  ? context.cgflix.cardShadow
+                  : [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.40),
+                        blurRadius: 14,
+                        offset: const Offset(0, 6),
+                        spreadRadius: -3,
+                      ),
+                    ],
+            ),
+            child: DecoratedBox(
+              position: DecorationPosition.foreground,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: context.cgflix.isLight
+                      ? Colors.black.withValues(alpha: 0.08)
+                      : Colors.white.withValues(alpha: 0.11),
+                  width: 0.75,
+                ),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
                 child: SizedBox(
                   width: cgflixWideWidth,
                   height: cgflixWideHeight,
@@ -358,6 +420,41 @@ class CgflixWideCard extends StatelessWidget {
                           fadeInDuration: CgflixMotion.fast,
                         ),
                       ),
+                      // Scrim sutil inferior e selo de play rápido
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        height: 44,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.black.withValues(alpha: 0.0),
+                                Colors.black.withValues(alpha: 0.65),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        left: 8,
+                        bottom: progress != null ? 9 : 7,
+                        child: Container(
+                          width: 26,
+                          height: 26,
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.55),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white.withValues(alpha: 0.25), width: 0.75),
+                          ),
+                          child: const Center(
+                            child: AppIcon(Symbols.play_arrow_rounded, fill: 1, size: 16, color: Colors.white),
+                          ),
+                        ),
+                      ),
                       if (progress != null)
                         Positioned(
                           left: 0,
@@ -365,7 +462,7 @@ class CgflixWideCard extends StatelessWidget {
                           bottom: 0,
                           child: LinearProgressIndicator(
                             value: progress,
-                            minHeight: 3,
+                            minHeight: 3.5,
                             color: context.cgflix.accent,
                             backgroundColor: context.cgflix.progressTrack,
                           ),
@@ -396,7 +493,10 @@ class CgflixWideCard extends StatelessWidget {
                           subtitle,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.bodySmall?.copyWith(color: context.cgflix.textMuted),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: context.cgflix.textMuted,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
                         ),
                     ],
                   ),

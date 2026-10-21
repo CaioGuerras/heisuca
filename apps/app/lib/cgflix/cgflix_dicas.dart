@@ -23,7 +23,7 @@ enum CgflixDica {
     'Pular abertura e créditos',
     'Pula a abertura e, no fim, vai para o próximo episódio.',
     'Quando o servidor sabe onde fica a abertura, aparece o botão "Pular abertura". '
-        'No modo "Automático", o CGFLIX pula sozinho depois de alguns segundos. '
+        'No modo "Automático", o Heisuca pula sozinho depois de alguns segundos. '
         'Nos créditos do fim, o botão leva direto ao próximo episódio. '
         'Para ver tudo, escolha "Desligado".',
   ),
@@ -38,7 +38,7 @@ enum CgflixDica {
   qualidade(
     Symbols.high_quality_rounded,
     'Qualidade e dados móveis',
-    'O CGFLIX toca o arquivo original, na melhor qualidade.',
+    'O Heisuca toca o arquivo original, na melhor qualidade.',
     'O vídeo sempre toca do jeito que está no servidor, sem perder qualidade. '
         'No 4G ou 5G isso gasta bastante internet: um filme pode passar de 2 GB. '
         'Se o seu plano é pequeno, assista no Wi-Fi ou baixe antes.',
@@ -63,9 +63,9 @@ enum CgflixDica {
   verNaTv(
     Symbols.cast_rounded,
     'Ver na TV',
-    'Instale o CGFLIX na TV box ou espelhe a tela do celular.',
-    'O CGFLIX ainda não manda o vídeo para a TV como o Chromecast. '
-        'O melhor jeito é instalar o CGFLIX na TV box ou na Android TV e entrar com o código (Quick Connect). '
+    'Instale o Heisuca na TV box ou espelhe a tela do celular.',
+    'O Heisuca ainda não manda o vídeo para a TV como o Chromecast. '
+        'O melhor jeito é instalar o Heisuca na TV box ou na Android TV e entrar com o código (Quick Connect). '
         'Outra opção é espelhar a tela do celular pela função do Android ("Transmitir tela" ou "Smart View").',
   ),
   meusPedidos(
@@ -74,7 +74,7 @@ enum CgflixDica {
     'Peça o que não achou e acompanhe até chegar.',
     'Não achou um filme ou série na busca? Toque em "Pedir", em "Disponível para pedir". '
         'Em Meus pedidos você acompanha cada um: Pedido, Baixando e Disponível. '
-        'Quando chegar, aparece no CGFLIX como qualquer outro título.',
+        'Quando chegar, aparece no Heisuca como qualquer outro título.',
   ),
   minhaConta(
     Symbols.account_circle_rounded,
@@ -105,7 +105,7 @@ enum CgflixDica {
     'O vídeo continua numa janelinha enquanto você usa outro app.',
     'Toque no botão da janelinha na tela do vídeo, ou saia do app com o vídeo tocando quando '
         '"Abrir a janelinha ao sair" estiver ligado. '
-        'Arraste a janelinha para onde quiser; toque nela para voltar ao CGFLIX.',
+        'Arraste a janelinha para onde quiser; toque nela para voltar ao Heisuca.',
   );
 
   const CgflixDica(this.icone, this.titulo, this.resumo, this.texto);
@@ -344,7 +344,7 @@ class _CgflixDicaPlayerState extends State<CgflixDicaPlayer> {
   }
 }
 
-/// Linha "Dicas do CGFLIX" do Sobre.
+/// Linha "Dicas do Heisuca" do Sobre.
 class CgflixDicasAboutTile extends StatelessWidget {
   const CgflixDicasAboutTile({super.key});
 
@@ -354,7 +354,7 @@ class CgflixDicasAboutTile extends StatelessWidget {
       key: const ValueKey('cgflix-dicas'),
       minTileHeight: 56,
       leading: const AppIcon(Symbols.lightbulb_rounded, fill: 0),
-      title: const Text('Dicas do CGFLIX'),
+      title: const Text('Dicas do Heisuca'),
       subtitle: const Text('Como usar as funções do app, em poucas palavras'),
       trailing: const AppIcon(Symbols.chevron_right_rounded, fill: 1),
       onTap: () => Navigator.of(context).push(
@@ -367,7 +367,7 @@ class CgflixDicasAboutTile extends StatelessWidget {
   }
 }
 
-/// Todas as dicas numa tela (Sobre › Dicas do CGFLIX), com "Ver de novo a dica do player".
+/// Todas as dicas numa tela (Sobre › Dicas do Heisuca), com "Ver de novo a dica do player".
 class CgflixDicasScreen extends StatelessWidget {
   const CgflixDicasScreen({super.key});
 
@@ -375,7 +375,7 @@ class CgflixDicasScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Dicas do CGFLIX')),
+      appBar: AppBar(title: const Text('Dicas do Heisuca')),
       body: SafeArea(
         top: false,
         child: ListView(

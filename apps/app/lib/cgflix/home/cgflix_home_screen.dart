@@ -13,6 +13,7 @@ import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 
+import '../../heisuca/heisuca_design_system.dart';
 import '../../i18n/strings.g.dart';
 import '../../media/media_item.dart';
 import '../../mixins/refreshable.dart';
@@ -228,7 +229,7 @@ class _CgflixHomeScreenState extends State<CgflixHomeScreen>
               child: CustomScrollView(
                 key: const PageStorageKey('cgflix-home'),
                 controller: _scrollController,
-                physics: const AlwaysScrollableScrollPhysics(),
+                physics: const ProMotionScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                 slivers: repository == null
                     ? [
                         SliverToBoxAdapter(child: _HeroSkeleton(height: heroHeight)),
@@ -293,8 +294,8 @@ class _CgflixHomeScreenState extends State<CgflixHomeScreen>
             ),
           ),
       _GenreRows(key: ValueKey('genres:$key'), repository: repository, filter: filter),
-      // Folga no fim para a última linha não colar na borda.
-      SliverToBoxAdapter(child: SizedBox(height: MediaQuery.paddingOf(context).bottom + 32)),
+      // Folga no fim para a última linha não ficar sob a Ilha Flutuante Heisuca (64dp + 14dp).
+      SliverToBoxAdapter(child: SizedBox(height: MediaQuery.paddingOf(context).bottom + 96)),
     ];
   }
 }

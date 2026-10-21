@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import '../cgflix/cgflix_palette.dart';
 import 'heisuca_theme.dart';
 
 /// Ilha Flutuante de Navegação Inferior Heisuca (Floating Island)
@@ -13,10 +14,12 @@ class HeisucaFloatingIsland extends StatefulWidget {
     super.key,
     required this.currentIndex,
     required this.onDestinationSelected,
+    this.onLibrariesLongPress,
   });
 
   final int currentIndex;
   final ValueChanged<int> onDestinationSelected;
+  final VoidCallback? onLibrariesLongPress;
 
   @override
   State<HeisucaFloatingIsland> createState() => _HeisucaFloatingIslandState();
@@ -80,8 +83,19 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.paddingOf(context).bottom;
     final screenWidth = MediaQuery.sizeOf(context).width;
-    final islandWidth = (screenWidth - 48.0).clamp(280.0, 420.0);
+    final islandWidth = (screenWidth - 44.0).clamp(280.0, 420.0);
     final itemWidth = islandWidth / _items.length;
+    final palette = context.cgflix;
+    final isLight = palette.isLight;
+
+    final glassBg = isLight
+        ? const Color(0xFFF6FBF7).withValues(alpha: 0.82)
+        : const Color(0xFF0E0B14).withValues(alpha: 0.72);
+    final borderSpecular = isLight
+        ? const Color(0xFF006E28).withValues(alpha: 0.18)
+        : Colors.white.withValues(alpha: 0.14);
+    final pillColor = palette.accent.withValues(alpha: isLight ? 0.15 : 0.24);
+    final pillBorder = palette.accentSoft.withValues(alpha: isLight ? 0.40 : 0.32);
 
     return Positioned(
       bottom: bottomInset + 14.0,
@@ -93,10 +107,10 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
           borderRadius: BorderRadius.circular(32.0),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.40),
-              blurRadius: 28.0,
-              offset: const Offset(0, 10),
-              spreadRadius: -6.0,
+              color: Colors.black.withValues(alpha: isLight ? 0.14 : 0.52),
+              blurRadius: 32.0,
+              offset: const Offset(0, 12),
+              spreadRadius: -4.0,
             ),
           ],
         ),
@@ -106,28 +120,28 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
             filter: ImageFilter.blur(sigmaX: 18.0, sigmaY: 18.0),
             child: Container(
               decoration: BoxDecoration(
-                color: const Color(0xFF0E0B14).withOpacity(0.68),
+                color: glassBg,
                 borderRadius: BorderRadius.circular(32.0),
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.12),
+                  color: borderSpecular,
                   width: 0.75,
                 ),
               ),
               child: Stack(
                 children: [
-                  // Pílula deslizante de foco com física elástica
+                  // Pílula deslizante de foco com física de mola real
                   Positioned(
-                    left: _currentPosition * itemWidth + (itemWidth - 48.0) / 2,
-                    top: 10.0,
-                    width: 48.0,
-                    height: 44.0,
+                    left: _currentPosition * itemWidth + (itemWidth - 56.0) / 2,
+                    top: 9.0,
+                    width: 56.0,
+                    height: 46.0,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: HeisucaTheme.roxoPrimaria.withOpacity(0.20),
-                        borderRadius: BorderRadius.circular(22.0),
+                        color: pillColor,
+                        borderRadius: BorderRadius.circular(23.0),
                         border: Border.all(
-                          color: const Color(0xFFC4B5FD).withOpacity(0.25),
-                          width: 0.5,
+                          color: pillBorder,
+                          width: 0.75,
                         ),
                       ),
                     ),
@@ -142,10 +156,16 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
                           icon: item.icon,
                           label: item.label,
                           isSelected: isSelected,
+                          isLight: isLight,
+                          activeColor: isLight ? palette.accent : const Color(0xFFF4F1FA),
+                          mutedColor: isLight
+                              ? const Color(0xFF3E4A42).withValues(alpha: 0.75)
+                              : const Color(0xFFA99FBB).withValues(alpha: 0.72),
                           onTap: () {
                             HapticFeedback.lightImpact();
                             widget.onDestinationSelected(index);
                           },
+                          onLongPress: index == 1 ? widget.onLibrariesLongPress : null,
                         ),
                       );
                     }),
@@ -165,13 +185,21 @@ class _IslandButton extends StatefulWidget {
     required this.icon,
     required this.label,
     required this.isSelected,
+    required this.isLight,
+    required this.activeColor,
+    required this.mutedColor,
     required this.onTap,
+    this.onLongPress,
   });
 
   final IconData icon;
   final String label;
   final bool isSelected;
+  final bool isLight;
+  final Color activeColor;
+  final Color mutedColor;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
 
   @override
   State<_IslandButton> createState() => _IslandButtonState();
@@ -182,16 +210,18 @@ class _IslandButtonState extends State<_IslandButton> {
 
   @override
   Widget build(BuildContext context) {
+    final fg = widget.isSelected ? widget.activeColor : widget.mutedColor;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTapDown: (_) => setState(() => _scale = 0.90),
+      onTapDown: (_) => setState(() => _scale = 0.88),
       onTapUp: (_) => setState(() => _scale = 1.0),
       onTapCancel: () => setState(() => _scale = 1.0),
       onTap: widget.onTap,
+      onLongPress: widget.onLongPress,
       child: AnimatedScale(
         scale: _scale,
-        duration: const Duration(milliseconds: 120),
-        curve: const Cubic(0.2, 0, 0, 1),
+        duration: const Duration(milliseconds: 140),
+        curve: const ElasticOutCurve(0.9),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -199,17 +229,17 @@ class _IslandButtonState extends State<_IslandButton> {
               widget.icon,
               size: 24.0,
               fill: widget.isSelected ? 1.0 : 0.0,
-              weight: widget.isSelected ? 600.0 : 300.0,
-              color: widget.isSelected ? const Color(0xFFF4F1FA) : const Color(0xFFA99FBB).withOpacity(0.70),
+              weight: widget.isSelected ? 600.0 : 350.0,
+              color: fg,
             ),
             const SizedBox(height: 2.0),
             Text(
               widget.label,
               style: TextStyle(
                 fontFamily: HeisucaTheme.fonteTexto,
-                fontSize: 10.0,
+                fontSize: 10.5,
                 fontWeight: widget.isSelected ? FontWeight.w600 : FontWeight.w400,
-                color: widget.isSelected ? const Color(0xFFF4F1FA) : const Color(0xFFA99FBB).withOpacity(0.70),
+                color: fg,
               ),
             ),
           ],

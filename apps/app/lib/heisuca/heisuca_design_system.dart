@@ -269,19 +269,94 @@ class HeisucaNobleBadge extends StatelessWidget {
 }
 
 /// Física de Rolagem Orgânica (Estilo iOS ProMotion).
-/// Calibrada para 120Hz/144Hz com mola sub-amortecida (zeta ~ 0.88-0.94) e resposta tátil rápida.
+/// Calibrada para 120Hz/144Hz com mola criticamente amortecida (mass: 1.0, stiffness: 115.0, damping: 18.5)
+/// e limiar de arranque imediato para painéis LTPO de alta taxa de atualização.
 class ProMotionScrollPhysics extends BouncingScrollPhysics {
-  const ProMotionScrollPhysics({super.parent});
+  const ProMotionScrollPhysics({
+    super.parent,
+    super.decelerationRate = ScrollDecelerationRate.normal,
+  });
 
   @override
   ProMotionScrollPhysics applyTo(ScrollPhysics? ancestor) {
-    return ProMotionScrollPhysics(parent: buildParent(ancestor));
+    return ProMotionScrollPhysics(
+      parent: buildParent(ancestor),
+      decelerationRate: decelerationRate,
+    );
   }
 
   @override
   SpringDescription get spring => const SpringDescription(
-        mass: 0.45,
-        stiffness: 170.0,
-        damping: 16.0,
+        mass: 1.0,
+        stiffness: 115.0,
+        damping: 18.5,
       );
+
+  @override
+  double get minFlingVelocity => 50.0;
+
+  @override
+  double get maxFlingVelocity => 9000.0;
+
+  @override
+  double get dragStartDistanceMotionThreshold => 3.5;
+}
+
+/// ScrollBehavior global do Heisuca: ativa ProMotionScrollPhysics em todas as listas a 120Hz/144Hz.
+class HeisucaScrollBehavior extends MaterialScrollBehavior {
+  const HeisucaScrollBehavior();
+
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) {
+    return const ProMotionScrollPhysics(parent: AlwaysScrollableScrollPhysics());
+  }
+}
+
+/// Wrapper de física de mola tátil para Cartões de Pôster, 16:9 e Top 10 (120Hz Spring Micro-interaction).
+class HeisucaSpringPressable extends StatefulWidget {
+  const HeisucaSpringPressable({
+    super.key,
+    required this.child,
+    this.onTap,
+    this.onLongPress,
+    this.onSecondaryTap,
+    this.pressedScale = 0.955,
+  });
+
+  final Widget child;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
+  final VoidCallback? onSecondaryTap;
+  final double pressedScale;
+
+  @override
+  State<HeisucaSpringPressable> createState() => _HeisucaSpringPressableState();
+}
+
+class _HeisucaSpringPressableState extends State<HeisucaSpringPressable> {
+  bool _pressed = false;
+
+  void _setPressed(bool v) {
+    if (_pressed == v || !mounted) return;
+    setState(() => _pressed = v);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTapDown: (_) => _setPressed(true),
+      onTapUp: (_) => _setPressed(false),
+      onTapCancel: () => _setPressed(false),
+      onTap: widget.onTap,
+      onLongPress: widget.onLongPress,
+      onSecondaryTap: widget.onSecondaryTap,
+      child: AnimatedScale(
+        scale: _pressed ? widget.pressedScale : 1.0,
+        duration: _pressed ? const Duration(milliseconds: 110) : const Duration(milliseconds: 340),
+        curve: _pressed ? Curves.easeOutCubic : const ElasticOutCurve(0.85),
+        child: widget.child,
+      ),
+    );
+  }
 }

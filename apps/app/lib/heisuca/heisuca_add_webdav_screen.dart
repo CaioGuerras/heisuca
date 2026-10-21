@@ -1,7 +1,10 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'heisuca_theme.dart';
+import 'services/local_stream_proxy.dart';
 
-/// Tela de conexão WebDAV do Heisuca
+/// Tela de conexão WebDAV do Heisuca com probe PROPFIND real e inicialização do LocalStreamProxy
 class HeisucaAddWebDavScreen extends StatefulWidget {
   const HeisucaAddWebDavScreen({super.key});
 
@@ -27,23 +30,61 @@ class _HeisucaAddWebDavScreenState extends State<HeisucaAddWebDavScreen> {
     super.dispose();
   }
 
-  void _conectar() async {
+  Future<void> _conectar() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _conectando = true);
 
-    // Simulação do handshake e probe de WebDAV PROPFIND
-    await Future.delayed(const Duration(milliseconds: 800));
+    final rawBase = _urlController.text.trim();
+    final rawPath = _pathController.text.trim();
+    final user = _userController.text.trim();
+    final pass = _passController.text;
 
-    if (!mounted) return;
-    setState(() => _conectando = false);
+    try {
+      final baseUri = Uri.parse(rawBase.contains('://') ? rawBase : 'https://$rawBase');
+      final targetUri = baseUri.resolve(rawPath.isEmpty ? '/' : rawPath);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Servidor WebDAV configurado com sucesso!'),
-        backgroundColor: HeisucaTheme.roxoPrimaria,
-      ),
-    );
-    Navigator.of(context).pop();
+      final client = HttpClient()..connectionTimeout = const Duration(seconds: 10);
+      try {
+        final req = await client.openUrl('PROPFIND', targetUri);
+        req.headers.set('Depth', '1');
+        req.headers.set(HttpHeaders.contentTypeHeader, 'application/xml; charset=utf-8');
+        if (user.isNotEmpty) {
+          final auth = base64Encode(utf8.encode('$user:$pass'));
+          req.headers.set(HttpHeaders.authorizationHeader, 'Basic $auth');
+        }
+        final resp = await req.close();
+        final status = resp.statusCode;
+        await resp.drain<void>();
+        if (status != 207 && (status < 200 || status >= 400)) {
+          throw HttpException('Servidor respondeu HTTP $status no PROPFIND');
+        }
+      } finally {
+        client.close();
+      }
+
+      // Garante o proxy HTTP loopback local (127.0.0.1) ativo para Range 206 no libmpv
+      final proxyPort = await LocalStreamProxy.instance.start();
+
+      if (!mounted) return;
+      setState(() => _conectando = false);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('WebDAV conectado (PROPFIND OK • Proxy 127.0.0.1:$proxyPort ativo)'),
+          backgroundColor: HeisucaTheme.roxoPrimaria,
+        ),
+      );
+      Navigator.of(context).pop();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _conectando = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Falha ao conectar ao WebDAV: $e'),
+          backgroundColor: Colors.redAccent.shade700,
+        ),
+      );
+    }
   }
 
   @override

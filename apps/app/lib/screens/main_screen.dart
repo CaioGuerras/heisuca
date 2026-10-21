@@ -2373,6 +2373,10 @@ class _MainScreenState extends State<MainScreen>
           ),
           HeisucaFloatingIsland(
             currentIndex: tabIndex,
+            onLibrariesLongPress: () {
+              Feedback.forLongPress(context);
+              _showLibraryQuickPicker(context);
+            },
             onDestinationSelected: (i) {
               if (i == 0) _selectTab(NavigationTabId.discover);
               if (i == 1) _selectTab(NavigationTabId.libraries);

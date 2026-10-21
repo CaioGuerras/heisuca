@@ -57,14 +57,17 @@ List<Widget> cgflixAppearanceGroups(BuildContext context, List<Widget> children)
   ];
 }
 
-/// Sem barra de abas: só a raiz. Conectado é a Início; sem conexão sobra Baixados (o upstream
-/// já tira as abas que exigem servidor).
+/// Abas habilitadas para a Ilha Flutuante Heisuca no celular/tablet:
+/// Conectado: Início (discover), Biblioteca (libraries), Busca (search) e Baixados (downloads).
 List<NavigationTab> cgflixMobileTabs(List<NavigationTab> visibleTabs) {
-  for (final id in const [NavigationTabId.discover, NavigationTabId.downloads]) {
-    final tab = visibleTabs.where((t) => t.id == id).firstOrNull;
-    if (tab != null) return [tab];
-  }
-  return visibleTabs.take(1).toList();
+  const allowed = {
+    NavigationTabId.discover,
+    NavigationTabId.libraries,
+    NavigationTabId.search,
+    NavigationTabId.downloads,
+  };
+  final filtered = visibleTabs.where((t) => allowed.contains(t.id)).toList();
+  return filtered.isNotEmpty ? filtered : visibleTabs.take(1).toList();
 }
 
 // ---------------------------------------------------------------------------
@@ -258,7 +261,7 @@ class CgflixUserMenuButton extends StatelessWidget {
       message: 'Menu: perfil, Baixados e Configurações',
       child: Semantics(
         button: true,
-        label: 'Menu do CGFLIX: perfil, Baixados, Configurações e Sair',
+        label: 'Menu do Heisuca: perfil, Baixados, Configurações e Sair',
         excludeSemantics: true,
         child: Material(
           type: MaterialType.transparency,

@@ -272,7 +272,7 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
           SettingNavigationTile(
             key: const ValueKey('cgflix-config-dicas'),
             icon: Symbols.lightbulb_rounded,
-            title: 'Dicas do CGFLIX',
+            title: 'Dicas do Heisuca',
             subtitle: 'Como usar as funções do app, em poucas palavras',
             destinationBuilder: (_) => const CgflixDicasScreen(),
           ),

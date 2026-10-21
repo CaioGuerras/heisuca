@@ -3,6 +3,7 @@ import '../cgflix/cgflix_palette.dart';
 import '../cgflix/cgflix_detail.dart';
 import '../cgflix/cgflix_trakt.dart';
 import '../cgflix/search/cgflix_sources.dart';
+import '../heisuca/heisuca_design_system.dart';
 import 'dart:async';
 import 'dart:math' as math;
 import '../media/ids.dart';
@@ -4648,16 +4649,39 @@ class _MediaDetailScreenState extends State<MediaDetailScreen>
                     const scrimAlphas = [0.20, 0.234, 0.325, 0.453, 0.60, 0.747, 0.875, 0.985, 0.998, 1.0];
                     const scrimXs = [0.0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 0.9375, 1.0];
                     const solidStop = 0.94;
-                    return RasterizedGradient(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          for (final a in scrimAlphas) bgColor.withValues(alpha: a),
-                          bgColor,
-                        ],
-                        stops: [for (final x in scrimXs) solidStop * x, 1.0],
-                      ),
+                    return Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        RasterizedGradient(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              for (final a in scrimAlphas) bgColor.withValues(alpha: a),
+                              bgColor,
+                            ],
+                            stops: [for (final x in scrimXs) solidStop * x, 1.0],
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Container(
+                            height: 220,
+                            decoration: BoxDecoration(
+                              gradient: RadialGradient(
+                                center: const Alignment(0.0, 0.85),
+                                radius: 1.15,
+                                colors: [
+                                  OklchColor.fromColor(context.cgflix.accent)
+                                      .toCalibratedAmbientColor(isDarkTheme: !context.cgflix.isLight)
+                                      .withValues(alpha: context.cgflix.isLight ? 0.20 : 0.34),
+                                  bgColor.withValues(alpha: 0.0),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     );
                   },
                 ),

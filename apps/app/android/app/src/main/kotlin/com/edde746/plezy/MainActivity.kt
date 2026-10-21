@@ -567,6 +567,7 @@ class MainActivity : FlutterActivity() {
     systemBarsInsetsHost = wrapper
 
     if (isAndroidTvDevice()) installTextEditorProxy()
+    requestHighRefreshRate()
 
     // Handle Watch Next deep link from initial launch. A restored activity or a
     // relaunch from Recents carries the original launch intent, whose tap was
@@ -574,6 +575,42 @@ class MainActivity : FlutterActivity() {
     val launchedFromHistory = (intent?.flags ?: 0) and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0
     if (savedInstanceState == null && !launchedFromHistory) {
       handleWatchNextIntent(intent)
+    }
+  }
+
+  override fun onResume() {
+    super.onResume()
+    requestHighRefreshRate()
+  }
+
+  /**
+   * Heisuca Flagship: locks the highest refresh rate (120Hz / 144Hz) matching
+   * the active native panel resolution on handheld devices so custom package
+   * names are never throttled to 60Hz by vendor display managers (Motorola Hello UI,
+   * Samsung OneUI, Xiaomi HyperOS). Android TV is excluded so DisplayMatching
+   * can switch to 24p cinema modes unimpeded.
+   */
+  private fun requestHighRefreshRate() {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || isAndroidTvDevice() || isLowRamClass()) return
+    try {
+      val currentDisplay = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        display
+      } else {
+        @Suppress("DEPRECATION")
+        windowManager.defaultDisplay
+      } ?: return
+      val currentMode = currentDisplay.mode ?: return
+      val highestRateMode = currentDisplay.supportedModes
+        .filter { it.physicalWidth == currentMode.physicalWidth && it.physicalHeight == currentMode.physicalHeight }
+        .maxByOrNull { it.refreshRate } ?: return
+      if (highestRateMode.refreshRate > 60.5f && window.attributes.preferredDisplayModeId != highestRateMode.modeId) {
+        val params = window.attributes
+        params.preferredDisplayModeId = highestRateMode.modeId
+        params.preferredRefreshRate = highestRateMode.refreshRate
+        window.attributes = params
+      }
+    } catch (e: Exception) {
+      Log.w(TAG, "Failed to request high refresh rate", e)
     }
   }
 

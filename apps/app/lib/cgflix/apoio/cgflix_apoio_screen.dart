@@ -8,9 +8,9 @@ import '../../widgets/focusable_list_tile.dart';
 import '../../widgets/settings_section.dart';
 import 'apoio.dart';
 
-const cgflixApoioTitulo = 'Apoie o CGFLIX';
+const cgflixApoioTitulo = 'Apoie o Heisuca';
 const cgflixApoioTexto =
-    'O CGFLIX é grátis e vai continuar grátis. Se você gosta de usar, pode dar uma força para manter o projeto.';
+    'O Heisuca é gratuito, livre de anúncios e feito com dedicação. Se você gosta da experiência, pode dar uma força para manter e evoluir o projeto.';
 
 /// Rosa do coração do apoio: o mesmo nos dois temas (fora do tom do tema, como no Lite).
 const cgflixApoioRosa = Color(0xFFEC4899);
@@ -94,7 +94,7 @@ class CgflixApoioAboutLine extends StatelessWidget {
         style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
         onPressed: () => cgflixAbrirApoio(context),
         icon: const AppIcon(Symbols.favorite_rounded, fill: 1, size: 18, color: cgflixApoioRosa),
-        label: const Text('Gostou? Apoie o CGFLIX'),
+        label: const Text('Gostou? Apoie o Heisuca'),
       ),
     );
   }

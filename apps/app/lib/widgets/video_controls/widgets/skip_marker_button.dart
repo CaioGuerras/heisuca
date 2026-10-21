@@ -1,3 +1,5 @@
+import 'dart:ui' show FontFeature;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show KeyDownEvent, LogicalKeyboardKey;
 import 'package:material_symbols_icons/symbols.dart';
@@ -93,7 +95,12 @@ class SkipMarkerButton extends StatelessWidget {
                   children: [
                     Text(
                       buttonText,
-                      style: const TextStyle(color: Colors.black, fontSize: 16, fontWeight: .w600),
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.w700,
+                        fontFeatures: [FontFeature.tabularFigures()],
+                      ),
                     ),
                     const SizedBox(width: 8),
                     AppIcon(buttonIcon, fill: 1, color: Colors.black, size: 20),

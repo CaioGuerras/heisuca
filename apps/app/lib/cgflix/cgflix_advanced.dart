@@ -60,7 +60,7 @@ class CgflixAdvancedFeatures extends StatelessWidget {
           title: 'Controle remoto',
           // Explica o limite: não é um controle universal de TV.
           subtitle:
-              'Controla OUTRO aparelho com o CGFLIX aberto, na mesma rede Wi-Fi e na mesma conta. '
+              'Controla OUTRO aparelho com o Heisuca aberto, na mesma rede Wi-Fi e na mesma conta. '
               'Não reconhece TV comum.',
           onTap: openRemote,
         ),

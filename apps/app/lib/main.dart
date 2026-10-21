@@ -88,6 +88,7 @@ import 'cgflix/cgflix_intro.dart';
 import 'cgflix/cgflix_locale.dart';
 import 'cgflix/cgflix_slogan.dart';
 import 'cgflix/cgflix_theme.dart';
+import 'heisuca/heisuca_design_system.dart';
 import 'i18n/app_locale_utils.dart';
 import 'i18n/strings.g.dart';
 import 'widgets/app_icon.dart';
@@ -1861,6 +1862,7 @@ class _AppShell extends StatelessWidget {
                   child: MaterialApp(
                     title: t.app.title,
                     debugShowCheckedModeBanner: false,
+                    scrollBehavior: const HeisucaScrollBehavior(),
                     locale: cgflixMaterialLocale(context), // CGFLIX: Material no idioma do app
                     supportedLocales: cgflixSupportedLocales, // CGFLIX
                     localizationsDelegates: cgflixLocalizationsDelegates, // CGFLIX

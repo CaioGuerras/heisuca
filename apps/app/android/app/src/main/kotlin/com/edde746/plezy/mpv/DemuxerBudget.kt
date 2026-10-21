@@ -68,13 +68,13 @@ data class DemuxerBudget(val aheadBytes: Long, val backBytes: Long) {
 
     /** Tier boundaries. */
     private const val TIGHT_TIER_MAX_MB = 256
-    private const val MID_TIER_MAX_MB = 512
+    private const val MID_TIER_MAX_MB = 384
 
     /** The tiers in ascending order; [widenedToward] climbs this ladder. */
     private val TIERS = listOf(
       DemuxerBudget(aheadBytes = 32 * MIB, backBytes = 16 * MIB),
       DemuxerBudget(aheadBytes = 64 * MIB, backBytes = 32 * MIB),
-      DemuxerBudget(aheadBytes = 100 * MIB, backBytes = 48 * MIB)
+      DemuxerBudget(aheadBytes = 150 * MIB, backBytes = 75 * MIB)
     )
 
     /** How often the core samples memory while a budget is narrowed. */

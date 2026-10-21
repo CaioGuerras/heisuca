@@ -1,8 +1,11 @@
 // Prévia de um título (painel inferior), como no site: fundo, logo, ano · classificação ·
 // duração/temporadas · ★ nota, gêneros, sinopse curta e Assistir / Minha lista / Detalhes.
+import 'dart:ui' show FontFeature;
+
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import '../../heisuca/heisuca_design_system.dart';
 import '../../media/media_item.dart';
 import '../../media/media_kind.dart';
 import '../../media/media_server_client.dart';
@@ -142,11 +145,10 @@ class _CgflixPreviewState extends State<_CgflixPreview> {
                   ),
                   DecoratedBox(
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
+                      gradient: CubicScrimGradient.create(
+                        baseColor: context.cgflix.surface,
+                        begin: const Alignment(0.0, -0.2),
                         end: Alignment.bottomCenter,
-                        colors: context.cgflix.sheetVeil,
-                        stops: const [0, 0.45, 1],
                       ),
                     ),
                   ),
@@ -166,7 +168,11 @@ class _CgflixPreviewState extends State<_CgflixPreview> {
                           title,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontFamily: 'Sora',
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.4,
+                          ),
                         ),
                       ),
                     ),
@@ -200,7 +206,10 @@ class _CgflixPreviewState extends State<_CgflixPreview> {
                   if (meta.isNotEmpty)
                     Text(
                       meta.join('  ·  '),
-                      style: theme.textTheme.bodyMedium?.copyWith(color: context.cgflix.textMuted),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: context.cgflix.textMuted,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
                     ),
                   if (genres.isNotEmpty) ...[
                     const SizedBox(height: 4),

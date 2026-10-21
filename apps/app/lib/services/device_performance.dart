@@ -84,6 +84,16 @@ class DevicePerformance {
   /// effects-tier gate that the override can force.
   static bool get isLowEndHardware => _singleton.instance?._autoReduced ?? false;
 
+  /// Flagship tier (~7 GiB+ reported physical RAM, i.e., 8 GB / 12 GB / 16 GB
+  /// smartphones such as Motorola Edge 60 Pro). Unlocks full 250 MB VRAM/RAM
+  /// decoded image cache and 12x parallel HTTP/2 artwork pipelines.
+  static const int _flagshipMemThresholdBytes = 6800 << 20;
+  static bool get isFlagshipHardware {
+    if (isReduced) return false;
+    final mem = _singleton.instance?._totalMemBytes;
+    return mem == null || mem >= _flagshipMemThresholdBytes;
+  }
+
   /// Primary gate for effect chokepoints. Safe before init (full tier).
   static bool get isReduced {
     final instance = _singleton.instance;
@@ -176,6 +186,11 @@ class DevicePerformance {
       // 2× the pixels per entry (64MB baseline → 128MB at 4K).
       cache.maximumSize = 500;
       cache.maximumSizeBytes = ((64 << 20) * displayBudgetFactor()).round();
+    } else if (isFlagshipHardware) {
+      // Heisuca Flagship (8GB-12GB+ RAM): 250MB decoded image cache & 1500 entries
+      // to eliminate all re-decode hitching during 120Hz/144Hz scrolling.
+      cache.maximumSize = 1500;
+      cache.maximumSizeBytes = 250 << 20; // 250MB
     } else {
       cache.maximumSize = 800;
       cache.maximumSizeBytes = 100 << 20; // 100MB

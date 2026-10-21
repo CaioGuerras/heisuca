@@ -17,7 +17,8 @@ import 'device_performance.dart';
 final _artworkHttpClient = MediaServerHttpClient();
 
 @visibleForTesting
-int artworkRequestConcurrencyForTier({required bool reduced}) => reduced ? 3 : 6;
+int artworkRequestConcurrencyForTier({required bool reduced}) =>
+    reduced ? 3 : (DevicePerformance.isFlagshipHardware ? 12 : 6);
 
 // Top-level fields are initialized lazily. The first artwork request happens
 // after DevicePerformance has resolved the hardware tier during bootstrap.

@@ -54,10 +54,42 @@ bool _isPortuguese(MediaStream stream) {
   return (dubbed: dubbed, subtitled: subtitled);
 }
 
-/// Selos para a linha de gêneros do topo da página (vazio quando não há informação das faixas).
+/// Selos para a linha de gêneros do topo da página (Dublado, Legendado, 4K UHD, HDR, Dolby Vision, Atmos).
 List<Widget> cgflixLanguageBadges(MediaItem? item) {
   final flags = cgflixLanguageFlags(item);
-  return [if (flags.dubbed) const _Badge('Dublado'), if (flags.subtitled) const _Badge('Legendado')];
+  final badges = <String>[
+    if (flags.dubbed) 'DUBLADO',
+    if (flags.subtitled) 'LEGENDADO',
+  ];
+  final version = item?.mediaVersions?.firstOrNull;
+  if (version != null) {
+    final res = version.videoResolution?.toUpperCase() ?? '';
+    if (res.contains('4K') || res.contains('2160')) {
+      badges.add('4K UHD');
+    } else if (res.contains('1080')) {
+      badges.add('FULL HD');
+    }
+    for (final part in version.parts) {
+      for (final s in part.streams) {
+        if (s.kind == MediaStreamKind.video) {
+          final dt = (s.displayTitle ?? '').toUpperCase();
+          if (dt.contains('DOLBY VISION') || dt.contains('DOVI')) {
+            if (!badges.contains('DOLBY VISION')) badges.add('DOLBY VISION');
+          } else if (dt.contains('HDR10+')) {
+            if (!badges.contains('HDR10+')) badges.add('HDR10+');
+          } else if (dt.contains('HDR')) {
+            if (!badges.contains('HDR')) badges.add('HDR');
+          }
+          final codec = (s.codec ?? '').toUpperCase();
+          if (codec == 'AV1' && !badges.contains('AV1')) badges.add('AV1');
+        } else if (s.kind == MediaStreamKind.audio) {
+          final dt = (s.displayTitle ?? '').toUpperCase();
+          if (dt.contains('ATMOS') && !badges.contains('ATMOS')) badges.add('ATMOS');
+        }
+      }
+    }
+  }
+  return [for (final label in badges) _Badge(label)];
 }
 
 class _Badge extends StatelessWidget {
@@ -66,15 +98,20 @@ class _Badge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(6),
-      border: Border.all(color: context.cgflix.badgeBorder),
+      border: Border.all(color: context.cgflix.badgeBorder, width: 0.75),
       color: context.cgflix.badge,
     ),
     child: Text(
       label,
-      style: TextStyle(color: context.cgflix.onBadge, fontSize: 12, fontWeight: FontWeight.w700),
+      style: TextStyle(
+        color: context.cgflix.onBadge,
+        fontSize: 10.5,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 0.6,
+      ),
     ),
   );
 }

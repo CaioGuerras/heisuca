@@ -124,21 +124,48 @@ class _CgflixIntroEmblemState extends State<CgflixIntroEmblem> with SingleTicker
   Widget build(BuildContext context) {
     if (!_animate) return CgflixEmblem(size: widget.size);
     return Semantics(
-      label: 'CGFLIX',
+      label: 'Heisuca',
       child: RepaintBoundary(
-        child: CustomPaint(size: Size.square(widget.size), painter: CgflixIntroPainter(_controller, context.cgflix)),
+        child: SizedBox.square(
+          dimension: widget.size,
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              final t = _controller.value;
+              final reveal = Curves.easeOutBack.transform(((t - 0.18) / 0.55).clamp(0.0, 1.0));
+              final opacity = Curves.easeOutCubic.transform((t / 0.45).clamp(0.0, 1.0));
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  CustomPaint(
+                    size: Size.square(widget.size),
+                    painter: CgflixIntroPainter(_controller, context.cgflix),
+                  ),
+                  Opacity(
+                    opacity: opacity,
+                    child: Transform.scale(
+                      scale: 0.76 + (0.24 * reveal),
+                      child: child,
+                    ),
+                  ),
+                ],
+              );
+            },
+            child: CgflixEmblem(size: widget.size * 0.84),
+          ),
+        ),
       ),
     );
   }
 }
 
-/// Desenha o emblema no progresso [t] (0..1): "C" de 0 a 0,55, brilho varrendo de 0,2 a 0,8,
-/// play crescendo de 0,5 a 0,75, leve respiro do conjunto no fim.
+/// Desenha a moldura octogonal de laca Heisuca (炳素華) no progresso [t] (0..1):
+/// halo radial + contorno chanfrado de 0 a 0,60, varredura especular de 0,25 a 0,85 e respiro final.
 class CgflixIntroPainter extends CustomPainter {
   CgflixIntroPainter(this.animation, [this.palette = CgflixPalette.isis]) : super(repaint: animation);
   final Animation<double> animation;
 
-  /// Cores da marca do tema (Isis: roxo; Heitor: verde com o play escuro).
+  /// Cores da marca do tema (Shikkoku: roxo; Hisui: verde).
   final CgflixPalette palette;
 
   static const _arcStops = [0.0, 0.3, 0.7, 1.0];
@@ -151,24 +178,32 @@ class CgflixIntroPainter extends CustomPainter {
     final t = animation.value;
     final scale = size.width / 1000;
     canvas.save();
-    // Respiro final: cresce 4% e volta, como quem "assenta" a marca.
     final breathe = 1 + 0.04 * math.sin(math.pi * _interval(t, 0.7, 1.0, Curves.easeInOut));
     canvas.translate(size.width / 2, size.height / 2);
     canvas.scale(scale * breathe);
     canvas.translate(-500, -500);
 
-    // "C": arco de 340 de raio, desenhado do topo, contornando pela esquerda até embaixo.
-    final arc = Path()
-      ..moveTo(760.9, 281)
-      ..arcToPoint(const Offset(760.9, 719), radius: const Radius.circular(340), largeArc: true, clockwise: false);
-    final draw = _interval(t, 0.0, 0.55, Curves.easeOutCubic);
-    final metric = arc.computeMetrics().first;
+    // Moldura octogonal chanfrada do selo Heisuca (hanko de laca).
+    final seal = Path()
+      ..moveTo(310, 140)
+      ..lineTo(690, 140)
+      ..lineTo(860, 310)
+      ..lineTo(860, 690)
+      ..lineTo(690, 860)
+      ..lineTo(310, 860)
+      ..lineTo(140, 690)
+      ..lineTo(140, 310)
+      ..close();
+
+    final draw = _interval(t, 0.0, 0.60, Curves.easeOutCubic);
+    final metric = seal.computeMetrics().first;
     final partial = metric.extractPath(0, metric.length * draw);
-    const bounds = Rect.fromLTWH(160, 160, 680, 680);
+    const bounds = Rect.fromLTWH(140, 140, 720, 720);
     final stroke = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 128
+      ..strokeWidth = 36
       ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
       ..shader = LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
@@ -176,30 +211,38 @@ class CgflixIntroPainter extends CustomPainter {
         stops: _arcStops,
       ).createShader(bounds);
 
-    // Brilho da marca por trás (aparece e some).
-    final glow = _interval(t, 0.15, 0.6, Curves.easeOut) * (1 - _interval(t, 0.75, 1.0, Curves.easeIn) * 0.6);
+    // Halo cinematográfico por trás (aparece e assenta suavemente).
+    final glow = _interval(t, 0.10, 0.65, Curves.easeOut) * (1 - _interval(t, 0.75, 1.0, Curves.easeIn) * 0.5);
     if (draw > 0 && glow > 0) {
+      canvas.drawCircle(
+        const Offset(500, 500),
+        340,
+        Paint()
+          ..color = palette.brandGlow.withValues(alpha: palette.brandGlow.a * glow * 0.55)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 90),
+      );
       canvas.drawPath(
         partial,
         Paint()
           ..style = PaintingStyle.stroke
-          ..strokeWidth = 170
+          ..strokeWidth = 96
           ..strokeCap = StrokeCap.round
+          ..strokeJoin = StrokeJoin.round
           ..color = palette.brandGlow.withValues(alpha: palette.brandGlow.a * glow)
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 60),
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 50),
       );
     }
     if (draw > 0) canvas.drawPath(partial, stroke);
 
-    // Brilho que varre: faixa clara diagonal passando pelo "C" já desenhado.
-    final sweep = _interval(t, 0.2, 0.85, Curves.easeInOut);
+    // Varredura especular diagonal sobre a moldura de laca.
+    final sweep = _interval(t, 0.22, 0.88, Curves.easeInOut);
     if (draw > 0 && sweep > 0 && sweep < 1) {
       final x = -400 + 1800 * sweep;
       canvas.drawPath(
         partial,
         Paint()
           ..style = PaintingStyle.stroke
-          ..strokeWidth = 128
+          ..strokeWidth = 44
           ..strokeCap = StrokeCap.round
           ..blendMode = BlendMode.plus
           ..shader = LinearGradient(
@@ -212,37 +255,6 @@ class CgflixIntroPainter extends CustomPainter {
             ],
           ).createShader(Rect.fromLTWH(x - 160, 0, 320, 1000)),
       );
-    }
-
-    // Play: cresce com um leve passo além (overshoot).
-    final pop = _interval(t, 0.5, 0.75, Curves.easeOutBack);
-    if (pop > 0) {
-      canvas.save();
-      canvas.translate(540, 500);
-      canvas.scale(pop);
-      canvas.translate(-540, -500);
-      final triangle = Path()
-        ..moveTo(452, 368)
-        ..lineTo(452, 632)
-        ..lineTo(668, 500)
-        ..close();
-      final fill = Paint()
-        ..shader = LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: palette.brandPlay,
-          stops: const [0.0, 0.55, 1.0],
-        ).createShader(const Rect.fromLTWH(420, 340, 280, 320));
-      canvas.drawPath(triangle, fill);
-      canvas.drawPath(
-        triangle,
-        Paint()
-          ..shader = fill.shader
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 54
-          ..strokeJoin = StrokeJoin.round,
-      );
-      canvas.restore();
     }
     canvas.restore();
   }

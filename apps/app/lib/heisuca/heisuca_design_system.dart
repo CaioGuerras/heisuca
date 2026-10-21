@@ -268,9 +268,9 @@ class HeisucaNobleBadge extends StatelessWidget {
   }
 }
 
-/// Física de Rolagem Orgânica (Estilo iOS ProMotion).
-/// Calibrada para 120Hz/144Hz com mola criticamente amortecida (mass: 1.0, stiffness: 115.0, damping: 18.5)
-/// e limiar de arranque imediato para painéis LTPO de alta taxa de atualização.
+/// Física de Rolagem Orgânica (Heisuca Spring Physics / ProMotion).
+/// Calibrada para 120Hz/144Hz com mola criticamente amortecida (mass: 1.0, stiffness: 180.0, damping: 20.0)
+/// e limiar de arranque imediato (3.0dp) para painéis LTPO/pOLED de alta taxa de amostragem de toque.
 class ProMotionScrollPhysics extends BouncingScrollPhysics {
   const ProMotionScrollPhysics({
     super.parent,
@@ -288,31 +288,35 @@ class ProMotionScrollPhysics extends BouncingScrollPhysics {
   @override
   SpringDescription get spring => const SpringDescription(
         mass: 1.0,
-        stiffness: 115.0,
-        damping: 18.5,
+        stiffness: 180.0,
+        damping: 20.0,
       );
 
   @override
-  double get minFlingVelocity => 50.0;
+  double get minFlingVelocity => 40.0;
 
   @override
-  double get maxFlingVelocity => 9000.0;
+  double get maxFlingVelocity => 9500.0;
 
   @override
-  double get dragStartDistanceMotionThreshold => 3.5;
+  double get dragStartDistanceMotionThreshold => 3.0;
 }
 
-/// ScrollBehavior global do Heisuca: ativa ProMotionScrollPhysics em todas as listas a 120Hz/144Hz.
+/// Alias oficial da física de mola Heisuca.
+typedef HeisucaSpringPhysics = ProMotionScrollPhysics;
+
+/// ScrollBehavior global do Heisuca: ativa HeisucaSpringPhysics em todas as listas a 120Hz/144Hz.
 class HeisucaScrollBehavior extends MaterialScrollBehavior {
   const HeisucaScrollBehavior();
 
   @override
   ScrollPhysics getScrollPhysics(BuildContext context) {
-    return const ProMotionScrollPhysics(parent: AlwaysScrollableScrollPhysics());
+    return const HeisucaSpringPhysics(parent: AlwaysScrollableScrollPhysics());
   }
 }
 
-/// Wrapper de física de mola tátil para Cartões de Pôster, 16:9 e Top 10 (120Hz Spring Micro-interaction).
+/// Wrapper de física de mola tátil para Cartões de Pôster, 16:9 e Botões (144Hz Spring Micro-interaction).
+/// Implementa pré-tensão elástica aos 200ms e disparo tátil instantâneo.
 class HeisucaSpringPressable extends StatefulWidget {
   const HeisucaSpringPressable({
     super.key,
@@ -320,7 +324,8 @@ class HeisucaSpringPressable extends StatefulWidget {
     this.onTap,
     this.onLongPress,
     this.onSecondaryTap,
-    this.pressedScale = 0.955,
+    this.pressedScale = 0.960,
+    this.enableHaptics = true,
   });
 
   final Widget child;
@@ -328,6 +333,7 @@ class HeisucaSpringPressable extends StatefulWidget {
   final VoidCallback? onLongPress;
   final VoidCallback? onSecondaryTap;
   final double pressedScale;
+  final bool enableHaptics;
 
   @override
   State<HeisucaSpringPressable> createState() => _HeisucaSpringPressableState();
@@ -335,6 +341,42 @@ class HeisucaSpringPressable extends StatefulWidget {
 
 class _HeisucaSpringPressableState extends State<HeisucaSpringPressable> {
   bool _pressed = false;
+  bool _inPreTension = false;
+  DateTime? _downTime;
+
+  void _onPointerDown(PointerDownEvent event) {
+    _downTime = DateTime.now();
+    _setPressed(true);
+    if (widget.enableHaptics) {
+      HapticFeedback.lightImpact();
+    }
+    // Dispara pré-tensão aos 200ms se long-press estiver ativo
+    if (widget.onLongPress != null) {
+      Future.delayed(const Duration(milliseconds: 200), () {
+        if (_pressed && mounted) {
+          setState(() => _inPreTension = true);
+        }
+      });
+    }
+  }
+
+  void _onPointerUp(PointerUpEvent event) {
+    _resetPress();
+  }
+
+  void _onPointerCancel(PointerCancelEvent event) {
+    _resetPress();
+  }
+
+  void _resetPress() {
+    if (!_pressed && !_inPreTension) return;
+    if (mounted) {
+      setState(() {
+        _pressed = false;
+        _inPreTension = false;
+      });
+    }
+  }
 
   void _setPressed(bool v) {
     if (_pressed == v || !mounted) return;
@@ -343,19 +385,75 @@ class _HeisucaSpringPressableState extends State<HeisucaSpringPressable> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTapDown: (_) => _setPressed(true),
-      onTapUp: (_) => _setPressed(false),
-      onTapCancel: () => _setPressed(false),
-      onTap: widget.onTap,
-      onLongPress: widget.onLongPress,
-      onSecondaryTap: widget.onSecondaryTap,
-      child: AnimatedScale(
-        scale: _pressed ? widget.pressedScale : 1.0,
-        duration: _pressed ? const Duration(milliseconds: 110) : const Duration(milliseconds: 340),
-        curve: _pressed ? Curves.easeOutCubic : const ElasticOutCurve(0.85),
-        child: widget.child,
+    // Escala: normal 1.0 -> toque 0.96 -> pré-tensão aos 200ms 0.925
+    final targetScale = _inPreTension
+        ? (widget.pressedScale * 0.965)
+        : (_pressed ? widget.pressedScale : 1.0);
+
+    return Listener(
+      onPointerDown: _onPointerDown,
+      onPointerUp: _onPointerUp,
+      onPointerCancel: _onPointerCancel,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: widget.onTap,
+        onLongPress: () {
+          if (widget.enableHaptics) {
+            HapticFeedback.mediumImpact();
+          }
+          widget.onLongPress?.call();
+        },
+        onSecondaryTap: widget.onSecondaryTap,
+        child: AnimatedScale(
+          scale: targetScale,
+          duration: _pressed
+              ? const Duration(milliseconds: 110)
+              : const Duration(milliseconds: 280),
+          curve: _pressed ? Curves.easeOutCubic : const ElasticOutCurve(0.85),
+          child: widget.child,
+        ),
+      ),
+    );
+  }
+}
+
+/// Pílula Magnética com Deformação Física (Morphing Liquid Pill).
+/// Estica sua largura proporcionalmente à velocidade de trânsito entre abas.
+class HeisucaMagneticMorphPill extends StatelessWidget {
+  const HeisucaMagneticMorphPill({
+    super.key,
+    required this.width,
+    required this.height,
+    required this.color,
+    this.velocityStretch = 0.0,
+    this.borderRadius,
+  });
+
+  final double width;
+  final double height;
+  final Color color;
+  final double velocityStretch;
+  final BorderRadius? borderRadius;
+
+  @override
+  Widget build(BuildContext context) {
+    final effectiveWidth = width * (1.0 + velocityStretch.clamp(0.0, 0.35));
+    final r = borderRadius ?? BorderRadius.circular(height / 2);
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 50),
+      width: effectiveWidth,
+      height: height,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: r,
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.35),
+            blurRadius: 16.0,
+            spreadRadius: 1.0,
+          ),
+        ],
       ),
     );
   }

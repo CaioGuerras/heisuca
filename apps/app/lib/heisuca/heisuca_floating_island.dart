@@ -35,7 +35,8 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
     (icon: Symbols.home_rounded, label: 'Início'),
     (icon: Symbols.video_library_rounded, label: 'Biblioteca'),
     (icon: Symbols.search_rounded, label: 'Buscar'),
-    (icon: Symbols.person_rounded, label: 'Usuário'),
+    (icon: Symbols.star_rounded, label: 'Favoritos'),
+    (icon: Symbols.person_rounded, label: 'Você'),
   ];
 
   @override
@@ -129,22 +130,31 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
               ),
               child: Stack(
                 children: [
-                  // Pílula deslizante de foco com física de mola real
-                  Positioned(
-                    left: _currentPosition * itemWidth + (itemWidth - 56.0) / 2,
-                    top: 9.0,
-                    width: 56.0,
-                    height: 46.0,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: pillColor,
-                        borderRadius: BorderRadius.circular(23.0),
-                        border: Border.all(
-                          color: pillBorder,
-                          width: 0.75,
+                  // Pílula magnética deslizante com deformação por mola (Morphing Liquid Pill)
+                  Builder(
+                    builder: (context) {
+                      final velocityDiff = (_targetPosition - _currentPosition).abs();
+                      final dynamicStretch = (velocityDiff * 14.0).clamp(0.0, 16.0);
+                      final dynamicWidth = 56.0 + dynamicStretch;
+                      final dynamicLeft = _currentPosition * itemWidth + (itemWidth - dynamicWidth) / 2;
+
+                      return Positioned(
+                        left: dynamicLeft,
+                        top: 9.0,
+                        width: dynamicWidth,
+                        height: 46.0,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: pillColor,
+                            borderRadius: BorderRadius.circular(23.0),
+                            border: Border.all(
+                              color: pillBorder,
+                              width: 0.75,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
                   // Linha com os botões de navegação
                   Row(

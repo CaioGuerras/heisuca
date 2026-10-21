@@ -2,6 +2,7 @@ import '../cgflix/cgflix_navigation.dart';
 import '../cgflix/cgflix_user_menu.dart';
 import '../cgflix/home/cgflix_home_screen.dart';
 import '../heisuca/heisuca_floating_island.dart';
+import '../heisuca/heisuca_home_screen.dart';
 import 'dart:async';
 import '../media/ids.dart';
 import '../media/media_server_client.dart';
@@ -1257,8 +1258,8 @@ class _MainScreenState extends State<MainScreen>
 
     return switch (tab) {
       NavigationTabId.discover =>
-        cgflixUseYouTab(context) // CGFLIX: no celular a Início é a do CGFLIX
-            ? CgflixHomeScreen(key: _screenKeys[tab])
+        cgflixUseYouTab(context) // CGFLIX: no celular a Início é Heisuca Flagship
+            ? HeisucaHomeScreen(key: _screenKeys[tab])
             : DiscoverScreen(key: _screenKeys[tab]),
       NavigationTabId.explore => ExploreScreen(key: _screenKeys[tab]),
       NavigationTabId.libraries => LibrariesScreen(

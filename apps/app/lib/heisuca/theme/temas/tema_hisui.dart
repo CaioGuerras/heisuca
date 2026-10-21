@@ -22,5 +22,5 @@ class TemaHisui {
     static const temaCorSuperficie = Color(0xFFFFFDF8);
     static const temaCorTexto = Color(0xFF1C2421);
     static const temaCorTexto2 = Color(0xFF55625D);
-    static const temaFonteTitulo = ''Sora'';
+    static const temaFonteTitulo = 'Sora';
 }

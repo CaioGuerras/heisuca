@@ -183,7 +183,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
         widget.onLoginSuccess!();
       } else {
         await Navigator.of(context).pushAndRemoveUntil(
-          fadeRoute(const ProfileSessionScreen()),
+          fadeRoute(const ProfileSessionScreen(initialPromptHandled: true)),
           (route) => false,
         );
       }
@@ -858,7 +858,7 @@ class _HeisucaQuickConnectModalState extends State<_HeisucaQuickConnectModal> {
       if (!mounted) return;
       Navigator.of(context).pop();
       await Navigator.of(context).pushAndRemoveUntil(
-        fadeRoute(const ProfileSessionScreen()),
+        fadeRoute(const ProfileSessionScreen(initialPromptHandled: true)),
         (route) => false,
       );
     } catch (e) {

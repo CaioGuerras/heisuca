@@ -22,5 +22,5 @@ class TemaSorairo {
     static const temaCorSuperficie = Color(0xFFFFFFFF);
     static const temaCorTexto = Color(0xFF14263A);
     static const temaCorTexto2 = Color(0xFF4A5E73);
-    static const temaFonteTitulo = ''Fredoka'';
+    static const temaFonteTitulo = 'Fredoka';
 }

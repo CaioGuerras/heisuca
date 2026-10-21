@@ -18,7 +18,7 @@ class HeisucaSettingsScreen extends StatefulWidget {
 
 class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final HeisucaDeviceService _deviceService = HeisucaDeviceService();
+  final HeisucaDeviceService _deviceService = HeisucaDeviceService.instance;
 
   // Preferências Básicas
   bool _preferOriginalQuality = true;
@@ -44,7 +44,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
 
   @override
   Widget build(BuildContext context) {
-    final profile = _deviceService.currentProfile;
+    final profile = _deviceService.profile;
 
     return Scaffold(
       backgroundColor: HeisucaTheme.roxoFundo,
@@ -130,7 +130,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                             ),
                           ),
                           Text(
-                            profile.deviceModel,
+                            profile.deviceName,
                             style: const TextStyle(
                               fontFamily: HeisucaTheme.fonteTitulo,
                               fontSize: 15.0,
@@ -140,7 +140,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                           ),
                           const SizedBox(height: 2.0),
                           Text(
-                            '${profile.chipset} • ${profile.ramGb}GB RAM • ${profile.maxRefreshRate}Hz pOLED',
+                            '${profile.chipset} • ${profile.totalRamGb}GB RAM • ${profile.maxRefreshRateHz}Hz pOLED',
                             style: const TextStyle(
                               fontFamily: HeisucaTheme.fonteTexto,
                               fontSize: 10.5,

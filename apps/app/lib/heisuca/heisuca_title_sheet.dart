@@ -223,7 +223,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
                           ),
                           child: Center(
                             child: Icon(
-                              _isFavorite ? Symbols.favorite_rounded : Symbols.favorite_outline_rounded,
+                              _isFavorite ? Symbols.favorite_rounded : Symbols.favorite_border_rounded,
                               color: _isFavorite ? const Color(0xFFFF5252) : const Color(0xFFF4F1FA),
                               size: 20.0,
                             ),

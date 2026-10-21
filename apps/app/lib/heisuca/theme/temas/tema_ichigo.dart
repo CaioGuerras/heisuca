@@ -22,5 +22,5 @@ class TemaIchigo {
     static const temaCorSuperficie = Color(0xFFFFFFFF);
     static const temaCorTexto = Color(0xFF2B1B1E);
     static const temaCorTexto2 = Color(0xFF6B4C52);
-    static const temaFonteTitulo = ''Fredoka'';
+    static const temaFonteTitulo = 'Fredoka';
 }

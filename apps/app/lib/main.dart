@@ -86,9 +86,7 @@ import 'utils/media_server_http_client.dart';
 import 'utils/media_server_timeouts.dart';
 import 'utils/orientation_helper.dart';
 import 'utils/watch_state_notifier.dart';
-import 'cgflix/cgflix_intro.dart';
 import 'cgflix/cgflix_locale.dart';
-import 'cgflix/cgflix_slogan.dart';
 import 'cgflix/cgflix_theme.dart';
 import 'heisuca/heisuca_design_system.dart';
 import 'i18n/app_locale_utils.dart';
@@ -2024,6 +2022,11 @@ class SetupScreen extends StatefulWidget {
 
 class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
   String _statusMessage = '';
+
+  // Heisuca: a troca de tela espera a abertura terminar (teto de 3 s se o callback não vier).
+  final Completer<void> _aberturaConcluida = Completer<void>();
+  Future<void> _aguardarAbertura() =>
+      _aberturaConcluida.future.timeout(const Duration(seconds: 3), onTimeout: () {});
   bool _enteringOffline = false;
 
   // Per-server connection status: serverId -> (name, connected?)
@@ -2151,14 +2154,18 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
       appLogger.e('Setup: failed to load connections; returning to auth', error: e, stackTrace: st);
       unawaited(Sentry.captureException(e, stackTrace: st));
       if (mounted) {
-        unawaited(Navigator.pushReplacement(context, fadeRoute(const HeisucaLoginScreen())));
+        unawaited(_aguardarAbertura().then((_) {
+        if (mounted) Navigator.pushReplacement(context, fadeRoute(const HeisucaLoginScreen()));
+      }));
       }
       return;
     }
 
     if (allConnections.isEmpty) {
       if (mounted) {
-        unawaited(Navigator.pushReplacement(context, fadeRoute(const HeisucaLoginScreen())));
+        unawaited(_aguardarAbertura().then((_) {
+        if (mounted) Navigator.pushReplacement(context, fadeRoute(const HeisucaLoginScreen()));
+      }));
       }
       return;
     }
@@ -2207,7 +2214,9 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
 
     if (activeProfile.active == null && activeProfile.profiles.isEmpty) {
       appLogger.w('Setup: stored connections exist but no profiles resolved after bootstrap; returning to auth');
-      unawaited(Navigator.pushReplacement(context, fadeRoute(const HeisucaLoginScreen())));
+      unawaited(_aguardarAbertura().then((_) {
+        if (mounted) Navigator.pushReplacement(context, fadeRoute(const HeisucaLoginScreen()));
+      }));
       return;
     }
 
@@ -2267,7 +2276,7 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
     await downloadProvider.refreshMetadataFromCache();
     if (!mounted) return;
 
-    await CgflixIntro.finished(); // CGFLIX: não corta a abertura no meio
+    await _aguardarAbertura(); // Heisuca: não corta a abertura no meio
     if (!mounted) return;
     AndroidExitDiagnostics.markStartupPhase(AndroidStartupPhase.mainScreen);
     unawaited(Navigator.pushReplacement(context, fadeRoute(ProfileSessionScreen(initialPromptHandled: shouldPrompt))));
@@ -2369,7 +2378,9 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
   @override
   Widget build(BuildContext context) {
     return HeisucaOpeningSplash(
-      onAnimationFinished: () {},
+      onAnimationFinished: () {
+        if (!_aberturaConcluida.isCompleted) _aberturaConcluida.complete();
+      },
     );
   }
 }

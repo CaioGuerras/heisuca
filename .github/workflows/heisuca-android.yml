@@ -2,7 +2,7 @@ name: Heisuca Android Build
 
 on:
   push:
-    branches: ["gemini/**"]
+    branches: ["gemini/**", "claude/**"]
   workflow_dispatch:
 
 env:

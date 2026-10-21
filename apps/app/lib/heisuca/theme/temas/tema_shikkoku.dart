@@ -22,5 +22,5 @@ class TemaShikkoku {
     static const temaCorSuperficie = Color(0xFF1A1424);
     static const temaCorTexto = Color(0xFFF4F1FA);
     static const temaCorTexto2 = Color(0xFFA99FBB);
-    static const temaFonteTitulo = ''Sora'';
+    static const temaFonteTitulo = 'Sora';
 }

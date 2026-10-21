@@ -22,5 +22,5 @@ class TemaShinju {
     static const temaCorSuperficie = Color(0xFFFFFFFF);
     static const temaCorTexto = Color(0xFF1E1B18);
     static const temaCorTexto2 = Color(0xFF5E574E);
-    static const temaFonteTitulo = ''Sora'';
+    static const temaFonteTitulo = 'Sora';
 }

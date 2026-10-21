@@ -115,7 +115,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                     Navigator.pop(ctx);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const HeisucaAddWebdavScreen()),
+                      MaterialPageRoute(builder: (_) => const HeisucaAddWebDavScreen()),
                     );
                   },
                 ),

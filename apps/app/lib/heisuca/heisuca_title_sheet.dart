@@ -2,14 +2,11 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:provider/provider.dart';
 
 import '../cgflix/cgflix_detail.dart';
 import '../cgflix/home/cgflix_actions.dart';
 import '../media/media_item.dart';
 import '../media/media_kind.dart';
-import '../media/media_server_client.dart';
-import '../providers/multi_server_provider.dart';
 import '../utils/media_image_helper.dart';
 import '../widgets/optimized_media_image.dart';
 import 'heisuca_design_system.dart';
@@ -49,21 +46,17 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
   @override
   Widget build(BuildContext context) {
     final item = widget.item;
-    final client = context.read<MultiServerProvider>().getClientForServer(item.serverId);
+    final client = cgflixClientFor(context, item);
     final isShow = item.kind == MediaKind.show;
     final screenHeight = MediaQuery.sizeOf(context).height;
     final flags = cgflixLanguageFlags(item);
-
-    final backdropUrl = client != null
-        ? (item.backdropUrl(client) ?? item.posterUrl(client))
-        : null;
-
+    final backdropPath = cgflixWidePath(item);
     final playLabel = isShow ? 'Continuar Temporada' : 'Assistir Agora';
 
     return Container(
       height: screenHeight * 0.90,
       decoration: BoxDecoration(
-        color: HeisucaTheme.shikkoku,
+        color: HeisucaTheme.roxoFundo,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(26.0)),
         border: Border.all(color: Colors.white.withOpacity(0.10), width: 0.8),
       ),
@@ -82,27 +75,28 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
                     fit: StackFit.expand,
                     children: [
                       // Imagem Backdrop
-                      if (backdropUrl != null)
-                        Image.network(
-                          backdropUrl,
+                      if (backdropPath != null && client != null)
+                        OptimizedMediaImage(
+                          client: client,
+                          imagePath: backdropPath,
+                          imageType: ImageType.backdrop,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(color: const Color(0xFF1B1526)),
                         )
                       else
                         Container(color: const Color(0xFF1B1526)),
 
                       // Scrim Cúbico Suave sem Mach Banding
                       Container(
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
-                            stops: [0.0, 0.45, 0.80, 1.0],
+                            stops: const [0.0, 0.45, 0.80, 1.0],
                             colors: [
                               Colors.transparent,
-                              Color(0x440B0910),
-                              Color(0xDD0B0910),
-                              HeisucaTheme.shikkoku,
+                              const Color(0x440B0910),
+                              const Color(0xDD0B0910),
+                              HeisucaTheme.roxoFundo,
                             ],
                           ),
                         ),
@@ -118,7 +112,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              item.title,
+                              item.title ?? '',
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
@@ -136,7 +130,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
                                   _buildTag('${item.year}'),
                                   const SizedBox(width: 6.0),
                                 ],
-                                _buildTag(flags.dubled ? 'DUBLADO' : 'LEGENDADO'),
+                                _buildTag(flags.dubbed ? 'DUBLADO' : 'LEGENDADO'),
                                 const SizedBox(width: 6.0),
                                 _buildTag('4K HDR'),
                                 const SizedBox(width: 8.0),
@@ -174,7 +168,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
                           onTap: () {
                             HapticFeedback.lightImpact();
                             Navigator.pop(context);
-                            cgflixOpenItem(context, item, playDirectly: true);
+                            cgflixPlay(context, item);
                           },
                           child: Container(
                             height: 48.0,
@@ -269,7 +263,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
                       HeisucaSpringPressable(
                         onTap: () {
                           HapticFeedback.lightImpact();
-                          HeisucaSeerrSheet.show(context, title: item.title, year: item.year);
+                          HeisucaSeerrSheet.show(context, title: item.title ?? '', year: item.year);
                         },
                         child: Container(
                           width: 48.0,
@@ -311,8 +305,8 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
                       ),
                       const SizedBox(height: 6.0),
                       Text(
-                        item.overview?.isNotEmpty == true
-                            ? item.overview!
+                        item.summary?.isNotEmpty == true
+                            ? item.summary!
                             : 'Paul Atreides se une a Chani e aos Fremen enquanto busca vingança contra os conspiradores que destruíram sua família. Uma jornada mítica e cinematográfica.',
                         style: TextStyle(
                           fontFamily: HeisucaTheme.fonteTexto,

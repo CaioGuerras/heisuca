@@ -47,7 +47,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
     final profile = _deviceService.currentProfile;
 
     return Scaffold(
-      backgroundColor: HeisucaTheme.shikkoku,
+      backgroundColor: HeisucaTheme.roxoFundo,
       body: SafeArea(
         bottom: false,
         child: Column(

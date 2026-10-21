@@ -4,8 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 
-import '../cgflix/cgflix_palette.dart';
-import '../cgflix/cgflix_style.dart';
+import '../cgflix/cgflix_user_menu.dart';
 import '../cgflix/home/cgflix_actions.dart';
 import '../cgflix/home/cgflix_cards.dart';
 import '../cgflix/home/cgflix_home_logic.dart';
@@ -14,9 +13,7 @@ import '../cgflix/home/cgflix_preview_sheet.dart';
 import '../media/media_item.dart';
 import '../media/media_kind.dart';
 import '../media/media_server_client.dart';
-import '../providers/active_profile_provider.dart';
 import '../providers/multi_server_provider.dart';
-import '../utils/app_logger.dart';
 import '../utils/media_image_helper.dart';
 import '../widgets/optimized_media_image.dart';
 import 'heisuca_design_system.dart';
@@ -61,12 +58,7 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen> {
 
   void _openUserMenu(BuildContext context) {
     HapticFeedback.lightImpact();
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (ctx) => const HeisucaUserSheet(),
-    );
+    showCgflixUserMenu(context);
   }
 
   @override
@@ -76,7 +68,7 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen> {
     final rows = repo.rows;
 
     return Scaffold(
-      backgroundColor: HeisucaTheme.shikkoku,
+      backgroundColor: HeisucaTheme.roxoFundo,
       body: Stack(
         children: [
           // 1. Conteúdo Rolável Principal com Física de Mola
@@ -88,8 +80,8 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen> {
               SliverToBoxAdapter(
                 child: HeisucaHeroCarousel(
                   highlight: highlight,
-                  onPlay: (item) => cgflixOpenItem(context, item, playDirectly: true),
-                  onDetails: (item) => cgflixOpenItem(context, item),
+                  onPlay: (item) => cgflixPlay(context, item),
+                  onDetails: (item) => cgflixOpenDetails(context, item),
                 ),
               ),
 
@@ -144,7 +136,7 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen> {
         right: 20.0,
       ),
       decoration: BoxDecoration(
-        color: HeisucaTheme.shikkoku.withOpacity(_headerOpacity * 0.88),
+        color: HeisucaTheme.roxoFundo.withOpacity(_headerOpacity * 0.88),
         border: Border(
           bottom: BorderSide(
             color: Colors.white.withOpacity(_headerOpacity * 0.08),
@@ -179,7 +171,7 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen> {
                       width: 6.0,
                       height: 6.0,
                       decoration: const BoxDecoration(
-                        color: Color(0xFF34D399), // Verde suave online
+                        color: Color(0xFF34D399),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -204,7 +196,6 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen> {
               HeisucaSpringPressable(
                 onTap: () {
                   HapticFeedback.lightImpact();
-                  // Navegação rápida para busca se disponível
                 },
                 child: Container(
                   width: 38.0,
@@ -274,8 +265,6 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen> {
                 setState(() {
                   if (chip.$2 == null) {
                     _currentFilter = null;
-                  } else {
-                    // Seleciona filtro
                   }
                 });
               },
@@ -342,9 +331,9 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
                     decoration: BoxDecoration(
-                      color: HeisucaTheme.vermelhoSelo.withOpacity(0.18),
+                      color: HeisucaTheme.roxoSelo.withOpacity(0.18),
                       borderRadius: BorderRadius.circular(4.0),
-                      border: Border.all(color: HeisucaTheme.vermelhoSelo.withOpacity(0.4), width: 0.6),
+                      border: Border.all(color: HeisucaTheme.roxoSelo.withOpacity(0.4), width: 0.6),
                     ),
                     child: const Text(
                       'TOP 10',
@@ -388,17 +377,17 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen> {
     required bool isContinueWatching,
     int? rank,
   }) {
-    final client = context.read<MultiServerProvider>().getClientForServer(item.serverId);
+    final client = cgflixClientFor(context, item);
     final cardWidth = isContinueWatching ? 220.0 : 116.0;
 
     return HeisucaSpringPressable(
       onTap: () {
         HapticFeedback.lightImpact();
-        cgflixOpenItem(context, item);
+        cgflixOpenDetails(context, item);
       },
       onLongPress: () {
         HapticFeedback.mediumImpact();
-        cgflixOpenPreviewSheet(context, item);
+        showCgflixPreview(context, item);
       },
       child: SizedBox(
         width: cardWidth,
@@ -423,12 +412,16 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen> {
                       ],
                     ),
                     clipBehavior: Clip.antiAlias,
-                    child: client == null
-                        ? Container(color: HeisucaTheme.superficieElevada)
-                        : OptimizedMediaImage(
-                            imageUrl: isContinueWatching
-                                ? (item.backdropUrl(client) ?? item.posterUrl(client))
-                                : item.posterUrl(client),
+                    child: isContinueWatching
+                        ? OptimizedMediaImage(
+                            client: client,
+                            imagePath: cgflixWidePath(item),
+                            imageType: ImageType.thumb,
+                            fit: BoxFit.cover,
+                          )
+                        : OptimizedMediaImage.poster(
+                            client: client,
+                            imagePath: cgflixPosterPath(item),
                             fit: BoxFit.cover,
                           ),
                   ),
@@ -457,7 +450,7 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen> {
                     ),
 
                   // Barra de Progresso no Continuar Assistindo
-                  if (isContinueWatching && item.playbackPositionTicks != null)
+                  if (isContinueWatching && item.viewOffsetMs != null && item.durationMs != null && item.durationMs! > 0)
                     Positioned(
                       left: 0,
                       right: 0,
@@ -468,7 +461,7 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen> {
                           bottomRight: Radius.circular(HeisucaTheme.raioSquircle),
                         ),
                         child: LinearProgressIndicator(
-                          value: (item.playbackPositionTicks! / (item.runtimeTicks ?? 1)).clamp(0.05, 0.98),
+                          value: (item.viewOffsetMs! / item.durationMs!).clamp(0.05, 0.98),
                           backgroundColor: Colors.black.withOpacity(0.6),
                           color: HeisucaTheme.roxoPrimaria,
                           minHeight: 3.5,
@@ -483,7 +476,7 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen> {
 
             // Título do Card
             Text(
-              item.title,
+              item.title ?? '',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
@@ -518,7 +511,6 @@ class HeisucaHeroCarousel extends StatefulWidget {
 }
 
 class _HeisucaHeroCarouselState extends State<HeisucaHeroCarousel> {
-  // Cor ambiente padrão (Roxo Heisuca) quando ainda não extraído
   Color _ambientHaloColor = const Color(0xFF7A40F2);
 
   @override
@@ -526,20 +518,15 @@ class _HeisucaHeroCarouselState extends State<HeisucaHeroCarousel> {
     final highlight = widget.highlight;
     final screenHeight = MediaQuery.sizeOf(context).height;
     final heroHeight = (screenHeight * 0.58).clamp(380.0, 540.0);
-    final client = highlight != null
-        ? context.read<MultiServerProvider>().getClientForServer(highlight.serverId)
-        : null;
-
-    final backdropUrl = (highlight != null && client != null)
-        ? highlight.backdropUrl(client)
-        : null;
+    final client = highlight != null ? cgflixClientFor(context, highlight) : null;
+    final backdropPath = highlight != null ? cgflixWidePath(highlight) : null;
 
     return SizedBox(
       height: heroHeight,
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // 1. Halo Dinâmico OKLCH (Iluminação volumétrica ambiente atrás da imagem)
+          // 1. Halo Dinâmico OKLCH
           Positioned(
             top: 40.0,
             left: 20.0,
@@ -561,16 +548,17 @@ class _HeisucaHeroCarouselState extends State<HeisucaHeroCarousel> {
           ),
 
           // 2. Imagem Backdrop em Alta Fidelidade
-          if (backdropUrl != null)
-            Image.network(
-              backdropUrl,
+          if (backdropPath != null && client != null)
+            OptimizedMediaImage(
+              client: client,
+              imagePath: backdropPath,
+              imageType: ImageType.backdrop,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(color: HeisucaTheme.shikkoku),
             )
           else
-            Container(color: HeisucaTheme.shikkoku),
+            Container(color: HeisucaTheme.roxoFundo),
 
-          // 3. Scrim Cúbico sem Mach Banding (Gradiente de profundidade suave para o preto)
+          // 3. Scrim Cúbico sem Mach Banding
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -581,13 +569,13 @@ class _HeisucaHeroCarouselState extends State<HeisucaHeroCarousel> {
                   Colors.transparent,
                   Color(0x330B0910),
                   Color(0xCC0B0910),
-                  HeisucaTheme.shikkoku,
+                  HeisucaTheme.roxoFundo,
                 ],
               ),
             ),
           ),
 
-          // 4. Conteúdo Sobreposto (Título, Badges, Botões de Ação)
+          // 4. Conteúdo Sobreposto
           Positioned(
             left: 20.0,
             right: 20.0,
@@ -630,12 +618,12 @@ class _HeisucaHeroCarouselState extends State<HeisucaHeroCarousel> {
                     const SizedBox(width: 8.0),
                     Row(
                       mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Icon(Symbols.star_rounded, color: Color(0xFFFFB800), size: 16.0),
-                        SizedBox(width: 3.0),
+                      children: [
+                        const Icon(Symbols.star_rounded, color: Color(0xFFFFB800), size: 16.0),
+                        const SizedBox(width: 3.0),
                         Text(
-                          '9.4',
-                          style: TextStyle(
+                          highlight?.rating != null ? highlight!.rating!.toStringAsFixed(1) : '9.4',
+                          style: const TextStyle(
                             fontFamily: HeisucaTheme.fonteTexto,
                             fontSize: 12.5,
                             fontWeight: FontWeight.w700,
@@ -653,7 +641,7 @@ class _HeisucaHeroCarouselState extends State<HeisucaHeroCarousel> {
                 // Botões de Ação com Feedback de Mola
                 Row(
                   children: [
-                    // Botão Assistir (Primário Roxo Flagship)
+                    // Botão Assistir
                     Expanded(
                       flex: 6,
                       child: HeisucaSpringPressable(
@@ -697,7 +685,7 @@ class _HeisucaHeroCarouselState extends State<HeisucaHeroCarousel> {
 
                     const SizedBox(width: 10.0),
 
-                    // Botão Detalhes / Ficha (Secundário Vidro Fosco)
+                    // Botão Detalhes
                     Expanded(
                       flex: 5,
                       child: HeisucaSpringPressable(
@@ -760,253 +748,6 @@ class _HeisucaHeroCarouselState extends State<HeisucaHeroCarousel> {
           color: Color(0xFFDCD7E8),
           letterSpacing: 0.4,
           fontFeatures: [ui.FontFeature.tabularFigures()],
-        ),
-      ),
-    );
-  }
-}
-
-/// Menu do Usuário (Bottom Sheet Deslizante com Blur e Vidro Fosco)
-class HeisucaUserSheet extends StatelessWidget {
-  const HeisucaUserSheet({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final profile = context.watch<ActiveProfileProvider>().activeProfile;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF13101C),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24.0)),
-        border: Border.all(color: Colors.white.withOpacity(0.10), width: 0.8),
-      ),
-      padding: EdgeInsets.only(
-        top: 14.0,
-        bottom: MediaQuery.paddingOf(context).bottom + 20.0,
-        left: 20.0,
-        right: 20.0,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Pílula central de arraste
-          Center(
-            child: Container(
-              width: 38.0,
-              height: 4.5,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.25),
-                borderRadius: BorderRadius.circular(3.0),
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 20.0),
-
-          // Header do Perfil Ativo
-          Row(
-            children: [
-              Container(
-                width: 52.0,
-                height: 52.0,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: HeisucaTheme.roxoPrimaria, width: 2.0),
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF382C4D), Color(0xFF1E172A)],
-                  ),
-                ],
-                child: const Center(
-                  child: Icon(Symbols.person_rounded, color: Colors.white, size: 28.0),
-                ),
-              ),
-              const SizedBox(width: 14.0),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      profile?.name ?? 'Caio Guerras',
-                      style: const TextStyle(
-                        fontFamily: HeisucaTheme.fonteTitulo,
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFFF4F1FA),
-                      ),
-                    ),
-                    const SizedBox(height: 2.0),
-                    Row(
-                      children: [
-                        Container(
-                          width: 6.0,
-                          height: 6.0,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF34D399),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 5.0),
-                        const Text(
-                          'CGFLIX Pro • 12ms',
-                          style: TextStyle(
-                            fontFamily: HeisucaTheme.fonteTexto,
-                            fontSize: 12.0,
-                            fontWeight: FontWeight.w400,
-                            color: Color(0xFFA99FBB),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 22.0),
-
-          // Card de Armazenamento Local / Offline
-          Container(
-            padding: const EdgeInsets.all(14.0),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.04),
-              borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
-              border: Border.all(color: Colors.white.withOpacity(0.07), width: 0.8),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    Text(
-                      'Armazenamento Offline',
-                      style: TextStyle(
-                        fontFamily: HeisucaTheme.fonteTexto,
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFFDCD7E8),
-                      ),
-                    ),
-                    Text(
-                      '18.4 GB usados',
-                      style: TextStyle(
-                        fontFamily: HeisucaTheme.fonteTexto,
-                        fontSize: 11.5,
-                        color: Color(0xFFA99FBB),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8.0),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4.0),
-                  child: LinearProgressIndicator(
-                    value: 0.28,
-                    backgroundColor: Colors.white.withOpacity(0.08),
-                    color: HeisucaTheme.roxoPrimaria,
-                    minHeight: 5.0,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 18.0),
-
-          // Ações do Menu
-          _buildMenuAction(
-            icon: Symbols.settings_rounded,
-            title: 'Configurações do App',
-            subtitle: 'Calibração de hardware, vídeo e áudio',
-            onTap: () {
-              Navigator.pop(context);
-              // Abrir aba ou tela de configurações
-            },
-          ),
-          _buildMenuAction(
-            icon: Symbols.switch_account_rounded,
-            title: 'Trocar Perfil',
-            subtitle: 'Alternar usuário ou gerenciar contas',
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          _buildMenuAction(
-            icon: Symbols.logout_rounded,
-            title: 'Desconectar do Servidor',
-            subtitle: 'Voltar para a tela de conexão inicial',
-            isDestructive: true,
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  static Widget _buildMenuAction({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-    bool isDestructive = false,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: HeisucaSpringPressable(
-        onTap: () {
-          HapticFeedback.lightImpact();
-          onTap();
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.03),
-            borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
-            border: Border.all(color: Colors.white.withOpacity(0.06), width: 0.6),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                icon,
-                color: isDestructive ? const Color(0xFFFF6E6E) : const Color(0xFFF4F1FA),
-                size: 22.0,
-              ),
-              const SizedBox(width: 14.0),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontFamily: HeisucaTheme.fonteTexto,
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w600,
-                        color: isDestructive ? const Color(0xFFFF8B8B) : const Color(0xFFF4F1FA),
-                      ),
-                    ),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontFamily: HeisucaTheme.fonteTexto,
-                        fontSize: 11.5,
-                        color: Colors.white.withOpacity(0.45),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(
-                Symbols.chevron_right_rounded,
-                color: Colors.white.withOpacity(0.3),
-                size: 18.0,
-              ),
-            ],
-          ),
         ),
       ),
     );

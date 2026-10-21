@@ -95,7 +95,7 @@ class HeisucaContextMenu extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  item.title,
+                  item.title ?? '',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
@@ -165,7 +165,7 @@ class HeisucaContextMenu extends StatelessWidget {
             color: const Color(0xFFA78BFA),
             onTap: () {
               Navigator.pop(context);
-              HeisucaSeerrSheet.show(context, title: item.title, year: item.year);
+              HeisucaSeerrSheet.show(context, title: item.title ?? '', year: item.year);
             },
           ),
         ],

@@ -40,7 +40,7 @@ class _HeisucaSearchScreenState extends State<HeisucaSearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: HeisucaTheme.shikkoku,
+      backgroundColor: HeisucaTheme.roxoFundo,
       body: SafeArea(
         bottom: false,
         child: Column(

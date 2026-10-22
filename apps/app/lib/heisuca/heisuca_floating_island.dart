@@ -35,7 +35,6 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
     (icon: Symbols.home_rounded, label: 'Início'),
     (icon: Symbols.video_library_rounded, label: 'Biblioteca'),
     (icon: Symbols.search_rounded, label: 'Buscar'),
-    (icon: Symbols.star_rounded, label: 'Favoritos'),
     (icon: Symbols.person_rounded, label: 'Você'),
   ];
 

@@ -46,7 +46,6 @@ class CgflixHomeScreen extends StatefulWidget {
 
 class _CgflixHomeScreenState extends State<CgflixHomeScreen>
     with Refreshable, FullRefreshable, TabVisibilityAware, WidgetsBindingObserver {
-  final _fallbackKey = GlobalKey();
   final _scrollController = ScrollController();
   late final DiscoverProvider _discover;
   late final MultiServerProvider _servers;
@@ -139,29 +138,16 @@ class _CgflixHomeScreenState extends State<CgflixHomeScreen>
     });
   }
 
-  bool get _hasOnlineServer => _servers.serverManager.visibleOnlineClients.isNotEmpty;
-
-  /// Sem Jellyfin, mas com Plex: a Início original cuida de tudo.
-  bool get _useFallback => _repository == null && _hasOnlineServer;
-
   // --- ganchos do MainScreen -------------------------------------------------
 
   @override
   void refresh() {
-    if (_useFallback) {
-      if (_fallbackKey.currentState case final Refreshable s) s.refresh();
-      return;
-    }
     if (_discover.refreshIfStale()) return;
     unawaited(_discover.refreshContinueWatching());
   }
 
   @override
   void fullRefresh() {
-    if (_useFallback) {
-      if (_fallbackKey.currentState case final FullRefreshable s) s.fullRefresh();
-      return;
-    }
     unawaited(_discover.load());
     if (mounted) setState(() => _generation++);
     unawaited(_loadChips());
@@ -175,14 +161,12 @@ class _CgflixHomeScreenState extends State<CgflixHomeScreen>
 
   @override
   void onTabShown() {
-    if (_fallbackKey.currentState case final TabVisibilityAware s) s.onTabShown();
     setState(() => _tabVisible = true);
     _discover.refreshIfStale();
   }
 
   @override
   void onTabHidden() {
-    if (_fallbackKey.currentState case final TabVisibilityAware s) s.onTabHidden();
     setState(() => _tabVisible = false);
   }
 
@@ -190,7 +174,7 @@ class _CgflixHomeScreenState extends State<CgflixHomeScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final active = state == AppLifecycleState.resumed;
     if (active != _appActive) setState(() => _appActive = active);
-    if (active && !_useFallback) unawaited(_discover.refreshContinueWatching());
+    if (active) unawaited(_discover.refreshContinueWatching());
   }
 
   Future<void> _pullToRefresh() async {
@@ -208,7 +192,6 @@ class _CgflixHomeScreenState extends State<CgflixHomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    if (_useFallback) return DiscoverScreen(key: _fallbackKey);
     final repository = _repository;
     final media = MediaQuery.of(context);
     final heroHeight = cgflixHeroHeight(media.size);
@@ -230,13 +213,9 @@ class _CgflixHomeScreenState extends State<CgflixHomeScreen>
                 key: const PageStorageKey('cgflix-home'),
                 controller: _scrollController,
                 physics: const ProMotionScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                slivers: repository == null
-                    ? [
-                        SliverToBoxAdapter(child: _HeroSkeleton(height: heroHeight)),
-                        const SliverToBoxAdapter(child: CgflixSkeletonRow(wide: true)),
-                        const SliverToBoxAdapter(child: CgflixSkeletonRow()),
-                      ]
-                    : _buildSlivers(repository, heroHeight),
+                slivers: repository != null
+                    ? _buildSlivers(repository, heroHeight)
+                    : _buildDiscoverSlivers(heroHeight),
               ),
             ),
           ),
@@ -244,6 +223,65 @@ class _CgflixHomeScreenState extends State<CgflixHomeScreen>
         ],
       ),
     );
+  }
+
+  List<Widget> _buildDiscoverSlivers(double heroHeight) {
+    final heroItems = _discover.onDeck.isNotEmpty
+        ? _discover.onDeck.take(5).toList()
+        : (_discover.hubs.isNotEmpty ? _discover.hubs.first.items.take(5).toList() : <MediaItem>[]);
+
+    return [
+      if (heroItems.isNotEmpty)
+        SliverToBoxAdapter(
+          child: CgflixHero(
+            items: heroItems,
+            height: heroHeight,
+            paused: !_tabVisible || !_appActive,
+          ),
+        )
+      else if (_discover.isLoading)
+        SliverToBoxAdapter(child: _HeroSkeleton(height: heroHeight)),
+
+      if (_discover.onDeck.isNotEmpty)
+        SliverToBoxAdapter(
+          child: CgflixRow(
+            title: 'Continuar assistindo',
+            storageKey: 'continue_watching',
+            height: cgflixPosterHeight,
+            itemCount: _discover.onDeck.length,
+            itemBuilder: (context, index) {
+              final item = _discover.onDeck[index];
+              final tag = _heroTag('continue_watching', item);
+              return CgflixPosterCard(
+                item: item,
+                client: cgflixClientFor(context, item),
+                heroTag: tag,
+                onTap: () => showCgflixPreview(context, item, heroTag: tag),
+                onLongPress: () => showCgflixPreview(context, item, heroTag: tag),
+              );
+            },
+          ),
+        ),
+
+      for (final hub in _discover.hubs)
+        if (hub.items.isNotEmpty)
+          SliverToBoxAdapter(
+            child: _ItemsRow(
+              title: hub.title,
+              items: hub.items,
+              storageKey: 'hub_${hub.id ?? hub.title}',
+            ),
+          ),
+
+      if (_discover.isLoading && _discover.hubs.isEmpty && _discover.onDeck.isEmpty) ...[
+        SliverToBoxAdapter(child: _HeroSkeleton(height: heroHeight)),
+        const SliverToBoxAdapter(child: CgflixSkeletonRow(wide: true)),
+        const SliverToBoxAdapter(child: CgflixSkeletonRow()),
+      ],
+
+      // Folga no fim para a última linha não ficar sob a Ilha Flutuante Heisuca (64dp + 14dp).
+      SliverToBoxAdapter(child: SizedBox(height: MediaQuery.paddingOf(context).bottom + 96)),
+    ];
   }
 
   List<Widget> _buildSlivers(CgflixHomeRepository repository, double heroHeight) {

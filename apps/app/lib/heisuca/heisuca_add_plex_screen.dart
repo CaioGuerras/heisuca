@@ -11,7 +11,12 @@ import '../profiles/active_profile_provider.dart';
 import '../profiles/plex_home_service.dart';
 import '../profiles/profile.dart';
 import '../profiles/profile_connection_registry.dart';
+import '../profiles/profile_selection_policy.dart';
+import '../providers/account_preferences_controller.dart';
 import '../screens/auth/plex_pin_auth_flow.dart';
+import '../screens/auth_screen.dart';
+import '../screens/profile/profile_switch_screen.dart';
+import '../services/settings_service.dart';
 import '../services/storage_service.dart';
 import '../utils/app_logger.dart';
 import '../utils/navigation_transitions.dart';
@@ -70,18 +75,42 @@ class _HeisucaAddPlexScreenState extends State<HeisucaAddPlexScreen> {
       final activeProfiles = context.read<ActiveProfileProvider>();
       await activeProfiles.initialize();
 
-      final users = plexHome.current[connection.id];
-      if (users != null && users.length == 1 && !users.single.protected) {
-        final profile = Profile.virtualPlexHome(
-          connectionId: connection.id,
-          homeUser: users.single,
-        );
+      var profile = initialPlexHomeProfileFromCache(plexHome, connection);
+      if (profile != null) {
         await activeProfiles.activate(profile);
+      } else {
+        await activeProfiles.clearActiveProfile();
       }
 
       if (!mounted) return;
       context.read<ActiveProfileBinder>().start();
 
+      final settings = await SettingsService.getInstance();
+      if (!mounted) return;
+
+      final promptHandled = shouldPromptForInitialProfileSelection(
+        activeProfile: activeProfiles.active,
+        hasProfiles: activeProfiles.profiles.isNotEmpty,
+        accountHasHomeUsers: plexHome.current[connection.id]?.isNotEmpty == true,
+        requireProfileSelectionOnOpen: activeProfiles.requiresSelectionOnOpen(settings),
+      );
+
+      if (promptHandled || activeProfiles.active == null) {
+        final selected = await Navigator.of(context).push<bool>(
+          MaterialPageRoute(builder: (_) => const ProfileSwitchScreen(requireSelection: true)),
+        );
+        if (!mounted) return;
+        if (selected != true || activeProfiles.active == null) {
+          setState(() {
+            _isLoading = false;
+          });
+          return;
+        }
+      }
+
+      await context.read<AccountPreferencesController>().ensureActiveLoaded();
+
+      if (!mounted) return;
       HapticFeedback.mediumImpact();
       if (widget.onLoginSuccess != null) {
         widget.onLoginSuccess!();

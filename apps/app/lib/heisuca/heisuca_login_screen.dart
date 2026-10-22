@@ -36,7 +36,7 @@ class HeisucaLoginScreen extends StatefulWidget {
   const HeisucaLoginScreen({
     super.key,
     this.onLoginSuccess,
-    this.initialServerUrl = 'https://netflix.docaio.com.br',
+    this.initialServerUrl = '',
   });
 
   final VoidCallback? onLoginSuccess;
@@ -358,121 +358,33 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
             children: [
               const SizedBox(height: 24.0),
 
-              // 1. Marca Heisuca no Topo
-              const Center(
-                child: HeisucaLogo(height: 48, comSlogan: true),
-              ),
-
-              const SizedBox(height: 38.0),
-
-              // 2. Card de Conexão Rápida (Quick Connect)
-              Container(
-                padding: const EdgeInsets.all(20.0),
-                decoration: BoxDecoration(
-                  color: surf,
-                  borderRadius: BorderRadius.circular(24.0),
-                  border: Border.all(color: line, width: 1.4),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 40.0,
-                          height: 40.0,
-                          decoration: BoxDecoration(
-                            color: accent.withOpacity(0.18),
-                            borderRadius: BorderRadius.circular(12.0),
-                          ),
-                          child: const Icon(Icons.qr_code_2_rounded, color: accent, size: 24.0),
-                        ),
-                        const SizedBox(width: 14.0),
-                        const Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Conexão Rápida',
-                                style: TextStyle(
-                                  fontFamily: HeisucaTheme.fonteTitulo,
-                                  fontSize: 17.0,
-                                  fontWeight: FontWeight.w700,
-                                  color: text,
-                                ),
-                              ),
-                              SizedBox(height: 2.0),
-                              Text(
-                                'Entrar com código sem digitar senha',
-                                style: TextStyle(
-                                  fontFamily: HeisucaTheme.fonteTexto,
-                                  fontSize: 13.0,
-                                  color: text2,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16.0),
-                    HeisucaSpringPressable(
-                      onTap: _showQuickConnectModal,
-                      child: Container(
-                        height: 46.0,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF221A33),
-                          borderRadius: BorderRadius.circular(14.0),
-                          border: Border.all(color: accent.withOpacity(0.4), width: 1.2),
-                        ),
-                        child: const Text(
-                          'Usar Conexão Rápida ›',
-                          style: TextStyle(
-                            fontFamily: HeisucaTheme.fonteTitulo,
-                            fontSize: 14.5,
-                            fontWeight: FontWeight.w600,
-                            color: accent,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 28.0),
-
-              // Separador "OU ACESSO DIRETO"
-              const Row(
+              // 1. Marca Heisuca no Topo com botão discreto de Conexão Rápida no canto superior direito (Foto 286)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(child: Divider(color: line, thickness: 1)),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 14.0),
-                    child: Text(
-                      'OU ACESSO DIRETO',
-                      style: TextStyle(
-                        fontFamily: HeisucaTheme.fonteTexto,
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 1.0,
-                        color: text2,
-                      ),
+                  const SizedBox(width: 44.0), // Equilíbrio óptico com o ícone da direita
+                  const Expanded(
+                    child: Center(
+                      child: HeisucaLogo(height: 48, comSlogan: true),
                     ),
                   ),
-                  Expanded(child: Divider(color: line, thickness: 1)),
+                  IconButton(
+                    icon: const Icon(Icons.qr_code_2_rounded, color: accent, size: 26.0),
+                    tooltip: 'Conexão Rápida',
+                    onPressed: _showQuickConnectModal,
+                  ),
                 ],
               ),
 
-              const SizedBox(height: 24.0),
+              const SizedBox(height: 36.0),
 
-              // 3. Campo: Servidor
-              const _InputLabel(label: 'SERVIDOR HEISUCA'),
+              // 2. Campo: Servidor
+              const _InputLabel(label: 'SERVIDOR'),
               const SizedBox(height: 8.0),
               _GlassTextField(
                 controller: _serverController,
                 prefixIcon: Icons.dns_outlined,
-                hintText: 'https://netflix.docaio.com.br',
+                hintText: 'https://seuservidor.com',
                 enabled: !_isLoading,
               ),
 

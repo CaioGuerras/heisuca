@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 
+import '../cgflix/cgflix_palette.dart';
 import '../cgflix/home/cgflix_actions.dart';
 import '../media/media_item.dart';
 import '../media/media_kind.dart';
@@ -16,6 +17,7 @@ import 'heisuca_title_sheet.dart';
 /// Tela de Biblioteca Flagship do Heisuca (炳素華)
 /// Filosofia: "Nada entre você e o filme."
 /// Grid Cinematográfico 2:3, Pílulas de Filtro Táteis e Física de Mola.
+/// Totalmente compatível com Shikkoku Escuro e Hisui Claro (zero fundos roxos indesejados).
 class HeisucaLibraryScreen extends StatefulWidget {
   const HeisucaLibraryScreen({super.key});
 
@@ -29,8 +31,18 @@ class _HeisucaLibraryScreenState extends State<HeisucaLibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.cgflix;
+    final isLight = palette.isLight;
+
+    final bg = isLight ? const Color(0xFFF7F3EC) : const Color(0xFF0E0B16);
+    final textTitle = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
+    final textMuted = isLight ? const Color(0xFF64748B) : const Color(0xFFA99FBB);
+    final accentColor = isLight ? const Color(0xFF047857) : const Color(0xFF7444E0);
+    final filterBg = isLight ? const Color(0xFFE2E8F0) : Colors.white.withOpacity(0.04);
+    final filterBorder = isLight ? const Color(0xFFCBD5E1) : Colors.white.withOpacity(0.08);
+
     return Scaffold(
-      backgroundColor: HeisucaTheme.roxoFundo,
+      backgroundColor: bg,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -42,23 +54,23 @@ class _HeisucaLibraryScreenState extends State<HeisucaLibraryScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Biblioteca',
                     style: TextStyle(
                       fontFamily: HeisucaTheme.fonteTitulo,
                       fontSize: 24.0,
                       fontWeight: FontWeight.w800,
                       letterSpacing: -0.3,
-                      color: Color(0xFFF4F1FA),
+                      color: textTitle,
                     ),
                   ),
                   Row(
                     children: [
-                      _buildHeaderButton(Symbols.swap_vert_rounded, () {
+                      _buildHeaderButton(Symbols.swap_vert_rounded, isLight, textTitle, () {
                         HapticFeedback.lightImpact();
                       }),
                       const SizedBox(width: 8.0),
-                      _buildHeaderButton(Symbols.filter_list_rounded, () {
+                      _buildHeaderButton(Symbols.filter_list_rounded, isLight, textTitle, () {
                         HapticFeedback.lightImpact();
                       }),
                     ],
@@ -88,13 +100,13 @@ class _HeisucaLibraryScreenState extends State<HeisucaLibraryScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 7.0),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? HeisucaTheme.roxoPrimaria.withOpacity(0.24)
-                            : Colors.white.withOpacity(0.04),
+                            ? accentColor.withOpacity(isLight ? 0.18 : 0.24)
+                            : filterBg,
                         borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
                         border: Border.all(
                           color: isSelected
-                              ? HeisucaTheme.roxoPrimaria.withOpacity(0.8)
-                              : Colors.white.withOpacity(0.08),
+                              ? accentColor.withOpacity(0.8)
+                              : filterBorder,
                           width: 0.8,
                         ),
                       ),
@@ -104,7 +116,7 @@ class _HeisucaLibraryScreenState extends State<HeisucaLibraryScreen> {
                           fontFamily: HeisucaTheme.fonteTexto,
                           fontSize: 12.5,
                           fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
-                          color: isSelected ? const Color(0xFFF4F1FA) : const Color(0xFFA99FBB),
+                          color: isSelected ? (isLight ? const Color(0xFF047857) : const Color(0xFFF4F1FA)) : textMuted,
                         ),
                       ),
                     ),
@@ -128,7 +140,7 @@ class _HeisucaLibraryScreenState extends State<HeisucaLibraryScreen> {
                 ),
                 itemCount: 18,
                 itemBuilder: (ctx, idx) {
-                  return _buildPosterTile(ctx, idx);
+                  return _buildPosterTile(ctx, idx, isLight, textTitle);
                 },
               ),
             ),
@@ -138,7 +150,10 @@ class _HeisucaLibraryScreenState extends State<HeisucaLibraryScreen> {
     );
   }
 
-  Widget _buildPosterTile(BuildContext context, int index) {
+  Widget _buildPosterTile(BuildContext context, int index, bool isLight, Color textTitle) {
+    final cardBg = isLight ? Colors.white : const Color(0xFF1E172A);
+    final borderColor = isLight ? const Color(0xFFE2E8F0) : Colors.white.withOpacity(0.08);
+
     return HeisucaSpringPressable(
       onTap: () {
         HapticFeedback.lightImpact();
@@ -153,18 +168,22 @@ class _HeisucaLibraryScreenState extends State<HeisucaLibraryScreen> {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
-                color: const Color(0xFF1E172A),
-                border: Border.all(color: Colors.white.withOpacity(0.08), width: 0.75),
+                color: cardBg,
+                border: Border.all(color: borderColor, width: 0.75),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.35),
+                    color: Colors.black.withOpacity(isLight ? 0.05 : 0.35),
                     blurRadius: 6.0,
                     offset: const Offset(0, 3),
                   ),
                 ],
               ),
               child: Center(
-                child: Icon(Symbols.movie_rounded, color: Colors.white.withOpacity(0.18), size: 28.0),
+                child: Icon(
+                  Symbols.movie_rounded,
+                  color: isLight ? const Color(0xFF94A3B8) : Colors.white.withOpacity(0.18),
+                  size: 28.0,
+                ),
               ),
             ),
           ),
@@ -173,11 +192,11 @@ class _HeisucaLibraryScreenState extends State<HeisucaLibraryScreen> {
             'Título ${index + 1}',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: HeisucaTheme.fonteTexto,
               fontSize: 11.5,
               fontWeight: FontWeight.w500,
-              color: Color(0xFFE4DFEE),
+              color: textTitle,
             ),
           ),
         ],
@@ -185,19 +204,22 @@ class _HeisucaLibraryScreenState extends State<HeisucaLibraryScreen> {
     );
   }
 
-  Widget _buildHeaderButton(IconData icon, VoidCallback onTap) {
+  Widget _buildHeaderButton(IconData icon, bool isLight, Color iconColor, VoidCallback onTap) {
     return HeisucaSpringPressable(
       onTap: onTap,
       child: Container(
         width: 38.0,
         height: 38.0,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.06),
+          color: isLight ? const Color(0xFFE2E8F0) : Colors.white.withOpacity(0.06),
           borderRadius: BorderRadius.circular(10.0),
-          border: Border.all(color: Colors.white.withOpacity(0.08), width: 0.6),
+          border: Border.all(
+            color: isLight ? const Color(0xFFCBD5E1) : Colors.white.withOpacity(0.08),
+            width: 0.6,
+          ),
         ),
         child: Center(
-          child: Icon(icon, color: const Color(0xFFF4F1FA), size: 20.0),
+          child: Icon(icon, color: iconColor, size: 20.0),
         ),
       ),
     );

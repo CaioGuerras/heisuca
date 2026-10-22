@@ -597,7 +597,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                                         ),
                                         SizedBox(width: 12.0),
                                         Text(
-                                          'Conectando ao Servidor...',
+                                          'Iniciando sessão...',
                                           style: TextStyle(
                                             fontFamily: HeisucaTheme.fonteTitulo,
                                             fontSize: 16.0,
@@ -608,7 +608,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                                       ],
                                     )
                                   : const Text(
-                                      'Conectar ao Servidor',
+                                      'Iniciar sessão',
                                       style: TextStyle(
                                         fontFamily: HeisucaTheme.fonteTitulo,
                                         fontSize: 16.5,
@@ -630,7 +630,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                             onPressed: _showSourcesBottomSheet,
                             icon: Icon(Icons.add_circle_outline_rounded, size: 18.0, color: text2),
                             label: Text(
-                              'Outros servidores e pastas locais',
+                              '+ Outros servidores e pastas locais',
                               style: TextStyle(
                                 fontFamily: HeisucaTheme.fonteTexto,
                                 fontSize: 14.0,

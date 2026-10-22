@@ -3,8 +3,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plezy/cgflix/cgflix_palette.dart';
 import 'package:plezy/cgflix/cgflix_theme.dart';
+import 'package:plezy/heisuca/heisuca_library_screen.dart';
 import 'package:plezy/heisuca/heisuca_login_screen.dart';
 import 'package:plezy/heisuca/heisuca_logo.dart';
+import 'package:plezy/heisuca/heisuca_search_screen.dart';
 import 'package:plezy/heisuca/heisuca_settings_screen.dart';
 import 'package:plezy/heisuca/heisuca_title_sheet.dart';
 import 'package:plezy/i18n/strings.g.dart';
@@ -73,8 +75,8 @@ void main() {
       expect(find.text('SERVIDOR'), findsOneWidget);
       expect(find.text('USUÁRIO'), findsOneWidget);
       expect(find.text('SENHA'), findsOneWidget);
-      expect(find.text('Conectar ao Servidor'), findsOneWidget);
-      expect(find.text('Outros servidores e pastas locais'), findsOneWidget);
+      expect(find.text('Iniciar sessão'), findsOneWidget);
+      expect(find.text('+ Outros servidores e pastas locais'), findsOneWidget);
       expect(find.byIcon(Icons.qr_code_2_rounded), findsOneWidget);
     });
 
@@ -82,12 +84,12 @@ void main() {
       await _montar(tester, CgflixThemeVariant.heitor, const HeisucaLoginScreen());
       expect(find.text('HEISUCA'), findsOneWidget);
       expect(find.text('SERVIDOR'), findsOneWidget);
-      expect(find.text('Conectar ao Servidor'), findsOneWidget);
+      expect(find.text('Iniciar sessão'), findsOneWidget);
     });
 
     testWidgets('abre modal de outras fontes com servidores identificados', (tester) async {
       await _montar(tester, CgflixThemeVariant.isis, const HeisucaLoginScreen());
-      await tester.tap(find.text('Outros servidores e pastas locais'));
+      await tester.tap(find.text('+ Outros servidores e pastas locais'));
       await tester.pumpAndSettle();
 
       expect(find.text('Adicionar Fontes e Servidores'), findsOneWidget);
@@ -136,12 +138,15 @@ void main() {
   });
 
   group('HeisucaSettingsScreen', () {
-    testWidgets('monta abas Geral e Avançado com reconhecimento de aparelho', (tester) async {
+    testWidgets('monta abas Geral e Avançado com reconhecimento de aparelho e seletor de tema', (tester) async {
       await _montar(tester, CgflixThemeVariant.isis, const HeisucaSettingsScreen());
       expect(find.text('Configurações'), findsOneWidget);
       expect(find.text('Aparelho Reconhecido'), findsOneWidget);
       expect(find.text('Geral'), findsOneWidget);
       expect(find.text('Avançado'), findsOneWidget);
+      expect(find.text('Aparência e Tema'), findsOneWidget);
+      expect(find.text('Shikkoku'), findsOneWidget);
+      expect(find.text('Hisui'), findsOneWidget);
       expect(find.text('Qualidade Original Direta'), findsOneWidget);
 
       await tester.tap(find.text('Avançado'));
@@ -149,6 +154,18 @@ void main() {
 
       expect(find.text('Decodificação Zero-Copy Vulkan'), findsOneWidget);
       expect(find.text('Buffer de Memória RAM'), findsOneWidget);
+    });
+  });
+
+  group('HeisucaLibraryScreen & HeisucaSearchScreen', () {
+    testWidgets('monta biblioteca e busca adaptando a ambos os temas', (tester) async {
+      await _montar(tester, CgflixThemeVariant.heitor, const HeisucaLibraryScreen());
+      expect(find.text('Biblioteca'), findsOneWidget);
+      expect(find.text('Todos'), findsOneWidget);
+
+      await _montar(tester, CgflixThemeVariant.heitor, const HeisucaSearchScreen());
+      expect(find.text('No seu Acervo'), findsOneWidget);
+      expect(find.text('Disponível no Seerr'), findsOneWidget);
     });
   });
 }

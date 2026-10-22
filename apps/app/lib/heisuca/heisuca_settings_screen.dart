@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:provider/provider.dart';
 
 import '../cgflix/cgflix_palette.dart';
+import '../providers/theme_provider.dart';
+import '../services/settings_service.dart' as settings;
 import 'heisuca_design_system.dart';
 import 'heisuca_theme.dart';
 import 'services/heisuca_device_service.dart';
@@ -253,6 +256,48 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
       physics: const HeisucaSpringPhysics(),
       padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 10.0, bottom: 120.0),
       children: [
+        _buildSectionHeader('Aparência e Tema', isLight),
+        const SizedBox(height: 8.0),
+        Row(
+          children: [
+            // Shikkoku (Escuro OLED)
+            Expanded(
+              child: _buildThemeOptionCard(
+                title: 'Shikkoku',
+                subtitle: 'Escuro OLED',
+                previewBg: const Color(0xFF0B0910),
+                sealColor: const Color(0xFF7444E0),
+                sealText: '炳',
+                isSelected: !isLight,
+                isLight: isLight,
+                onTap: () async {
+                  HapticFeedback.selectionClick();
+                  await context.read<ThemeProvider>().setThemeMode(settings.ThemeMode.oled);
+                },
+              ),
+            ),
+            const SizedBox(width: 12.0),
+            // Hisui (Claro Esmeralda)
+            Expanded(
+              child: _buildThemeOptionCard(
+                title: 'Hisui',
+                subtitle: 'Claro Esmeralda',
+                previewBg: const Color(0xFFF7F3EC),
+                sealColor: const Color(0xFF047857),
+                sealText: '炳',
+                isSelected: isLight,
+                isLight: isLight,
+                onTap: () async {
+                  HapticFeedback.selectionClick();
+                  await context.read<ThemeProvider>().setThemeMode(settings.ThemeMode.light);
+                },
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 18.0),
+
         _buildSectionHeader('Reprodução e Vídeo', isLight),
         _buildSwitchTile(
           title: 'Qualidade Original Direta',
@@ -524,6 +569,140 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
               },
               activeColor: activeColor,
               activeTrackColor: activeColor.withOpacity(0.35),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildThemeOptionCard({
+    required String title,
+    required String subtitle,
+    required Color previewBg,
+    required Color sealColor,
+    required String sealText,
+    required bool isSelected,
+    required bool isLight,
+    required VoidCallback onTap,
+  }) {
+    final cardBg = isLight ? Colors.white : Colors.white.withOpacity(0.04);
+    final borderColor = isSelected
+        ? (isLight ? const Color(0xFF047857) : const Color(0xFF9D74FF))
+        : (isLight ? const Color(0xFFE2E8F0) : Colors.white.withOpacity(0.08));
+    final titleColor = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
+    final subtitleColor = isLight ? const Color(0xFF64748B) : const Color(0xFFA99FBB);
+
+    return HeisucaSpringPressable(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(12.0),
+        decoration: BoxDecoration(
+          color: cardBg,
+          borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
+          border: Border.all(
+            color: borderColor,
+            width: isSelected ? 2.0 : 0.8,
+          ),
+          boxShadow: isLight
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(isSelected ? 0.08 : 0.03),
+                    blurRadius: 10.0,
+                    offset: const Offset(0, 3),
+                  ),
+                ]
+              : null,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Preview mini box
+            Container(
+              height: 48.0,
+              decoration: BoxDecoration(
+                color: previewBg,
+                borderRadius: BorderRadius.circular(8.0),
+                border: Border.all(
+                  color: isLight ? const Color(0xFFCBD5E1) : Colors.white.withOpacity(0.12),
+                  width: 0.8,
+                ),
+              ),
+              child: Center(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 22.0,
+                      height: 22.0,
+                      decoration: BoxDecoration(
+                        color: sealColor,
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      child: Center(
+                        child: Text(
+                          sealText,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8.0),
+                    Text(
+                      'HEISUCA',
+                      style: TextStyle(
+                        fontFamily: HeisucaTheme.fonteTitulo,
+                        fontSize: 11.0,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.2,
+                        color: isSelected && !isLight
+                            ? const Color(0xFFF4F1FA)
+                            : (isLight ? const Color(0xFF134E4A) : Colors.white70),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 10.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontFamily: HeisucaTheme.fonteTitulo,
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w700,
+                          color: titleColor,
+                        ),
+                      ),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontFamily: HeisucaTheme.fonteTexto,
+                          fontSize: 10.5,
+                          color: subtitleColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (isSelected)
+                  Icon(
+                    Icons.check_circle_rounded,
+                    color: isLight ? const Color(0xFF047857) : const Color(0xFF9D74FF),
+                    size: 18.0,
+                  ),
+              ],
             ),
           ],
         ),

@@ -85,6 +85,15 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
     }
   }
 
+  void _playTarget(MediaItem target) {
+    HapticFeedback.lightImpact();
+    final host = widget.hostContext;
+    Navigator.of(context).pop();
+    if (host.mounted) {
+      cgflixPlay(host, target);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final item = widget.item;
@@ -236,9 +245,9 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
                       Expanded(
                         child: HeisucaSpringPressable(
                           onTap: () {
-                            HapticFeedback.lightImpact();
-                            Navigator.pop(context);
-                            cgflixPlay(widget.hostContext, widget.episode ?? widget.item);
+                            final target = widget.episode ??
+                                (_episodes.isNotEmpty ? _episodes.first : widget.item);
+                            _playTarget(target);
                           },
                           child: Container(
                             height: 48.0,
@@ -494,11 +503,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
       child: HeisucaSpringPressable(
-        onTap: () {
-          HapticFeedback.lightImpact();
-          Navigator.pop(context);
-          cgflixPlay(widget.hostContext, episode);
-        },
+        onTap: () => _playTarget(episode),
         child: Container(
           padding: const EdgeInsets.all(10.0),
           decoration: BoxDecoration(
@@ -590,11 +595,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
       child: HeisucaSpringPressable(
-        onTap: () {
-          HapticFeedback.lightImpact();
-          Navigator.pop(context);
-          cgflixPlay(widget.hostContext, widget.item);
-        },
+        onTap: () => _playTarget(widget.item),
         child: Container(
           padding: const EdgeInsets.all(10.0),
           decoration: BoxDecoration(

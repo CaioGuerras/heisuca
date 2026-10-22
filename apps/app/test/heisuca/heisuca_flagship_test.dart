@@ -3,6 +3,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plezy/cgflix/cgflix_palette.dart';
 import 'package:plezy/cgflix/cgflix_theme.dart';
+import 'package:plezy/heisuca/heisuca_context_menu.dart';
+import 'package:plezy/heisuca/heisuca_floating_island.dart';
 import 'package:plezy/heisuca/heisuca_library_screen.dart';
 import 'package:plezy/heisuca/heisuca_login_screen.dart';
 import 'package:plezy/heisuca/heisuca_logo.dart';
@@ -166,6 +168,77 @@ void main() {
       await _montar(tester, CgflixThemeVariant.heitor, const HeisucaSearchScreen());
       expect(find.text('No seu Acervo'), findsOneWidget);
       expect(find.text('Disponível no Seerr'), findsOneWidget);
+    });
+  });
+
+  group('HeisucaFloatingIsland', () {
+    testWidgets('exibe abas Início, Biblioteca, Buscar e Você com resposta ao toque', (tester) async {
+      int selecionado = 0;
+      await _montar(
+        tester,
+        CgflixThemeVariant.isis,
+        Scaffold(
+          body: Stack(
+            children: [
+              StatefulBuilder(
+                builder: (ctx, setState) => HeisucaFloatingIsland(
+                  currentIndex: selecionado,
+                  onDestinationSelected: (i) => setState(() => selecionado = i),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      expect(find.text('Início'), findsOneWidget);
+      expect(find.text('Biblioteca'), findsOneWidget);
+      expect(find.text('Buscar'), findsOneWidget);
+      expect(find.text('Você'), findsOneWidget);
+
+      await tester.tap(find.text('Biblioteca'));
+      await tester.pumpAndSettle();
+      expect(selecionado, 1);
+    });
+  });
+
+  group('HeisucaContextMenu', () {
+    final itemSerie = MediaItem.jellyfin(
+      id: 'show_1',
+      kind: MediaKind.show,
+      title: 'Xógum: A Gloriosa Saga do Japão',
+      summary: 'No Japão de 1600, Lord Toranaga luta por sua vida.',
+      year: 2024,
+    );
+
+    testWidgets('monta menu de contexto flutuante sem fundo roxo no tema claro', (tester) async {
+      await _montar(
+        tester,
+        CgflixThemeVariant.heitor,
+        Builder(
+          builder: (ctx) => Scaffold(
+            body: Center(
+              child: ElevatedButton(
+                onPressed: () => HeisucaContextMenu.show(
+                  ctx,
+                  item: itemSerie,
+                  isContinueRow: true,
+                ),
+                child: const Text('Toque Longo'),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Toque Longo'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Xógum: A Gloriosa Saga do Japão'), findsOneWidget);
+      expect(find.text('Ir para a série'), findsOneWidget);
+      expect(find.text('Marcar como visto'), findsOneWidget);
+      expect(find.text('Favoritar'), findsOneWidget);
+      expect(find.text('Baixar episódios'), findsOneWidget);
     });
   });
 }

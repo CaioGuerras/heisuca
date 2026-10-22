@@ -1,7 +1,6 @@
 import 'dart:async' show StreamSubscription, Timer, unawaited;
 import 'dart:io' show Platform;
 
-import '../../cgflix/cgflix_dicas.dart'; // CGFLIX
 import '../../media/ids.dart';
 
 import 'package:flutter/gestures.dart'
@@ -1463,8 +1462,6 @@ class _PlexVideoControlsState extends State<PlexVideoControls>
                         ),
                       ),
                     ),
-                  if (isMobile && !_isScreenLocked)
-                    const Positioned.fill(child: CgflixDicaPlayer()), // CGFLIX: dica única
                   // Skip intro/credits button (auto-dismisses after 7s, then only shows with controls)
                   if (_isSkipMarkerButtonVisible)
                     AnimatedPositioned(

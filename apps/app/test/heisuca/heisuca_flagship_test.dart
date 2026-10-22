@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:plezy/cgflix/cgflix_palette.dart';
 import 'package:plezy/cgflix/cgflix_theme.dart';
 import 'package:plezy/heisuca/heisuca_context_menu.dart';
@@ -8,8 +9,10 @@ import 'package:plezy/heisuca/heisuca_floating_island.dart';
 import 'package:plezy/heisuca/heisuca_library_screen.dart';
 import 'package:plezy/heisuca/heisuca_login_screen.dart';
 import 'package:plezy/heisuca/heisuca_logo.dart';
+import 'package:plezy/heisuca/heisuca_profile_screen.dart';
 import 'package:plezy/heisuca/heisuca_search_screen.dart';
 import 'package:plezy/heisuca/heisuca_settings_screen.dart';
+import 'package:plezy/heisuca/heisuca_state_store.dart';
 import 'package:plezy/heisuca/heisuca_title_sheet.dart';
 import 'package:plezy/i18n/strings.g.dart';
 import 'package:plezy/media/media_item.dart';
@@ -239,6 +242,78 @@ void main() {
       expect(find.text('Marcar como visto'), findsOneWidget);
       expect(find.text('Favoritar'), findsOneWidget);
       expect(find.text('Baixar episódios'), findsOneWidget);
+      // Confirma que opção indesejada do Seerr não está presente no menu de contexto
+      expect(find.text('Pedir no Seerr'), findsNothing);
+    });
+  });
+
+  group('HeisucaProfileScreen', () {
+    testWidgets('monta Menu Você nativo Heisuca sem resquícios do CGFLIX', (tester) async {
+      await _montar(tester, CgflixThemeVariant.isis, const HeisucaProfileScreen());
+
+      expect(find.text('Você'), findsOneWidget);
+      expect(find.text('MÍDIA & BIBLIOTECA'), findsOneWidget);
+      expect(find.text('Baixados & Offline'), findsOneWidget);
+      expect(find.text('Favoritos'), findsOneWidget);
+      expect(find.text('Todas as Bibliotecas'), findsOneWidget);
+      expect(find.text('PREFERÊNCIAS & SISTEMA'), findsOneWidget);
+      expect(find.text('Configurações Heisuca'), findsOneWidget);
+      expect(find.text('Sobre o Heisuca'), findsOneWidget);
+      expect(find.text('CONTA & ACESSO'), findsOneWidget);
+      expect(find.text('Trocar Usuário / Servidor'), findsOneWidget);
+      expect(find.text('Sair da Conta'), findsOneWidget);
+
+      // Descontaminação estrita: NÃO deve conter apoio nem opções legadas do CGFLIX
+      expect(find.text('Apoie o CGFLIX'), findsNothing);
+    });
+  });
+
+  group('HeisucaTitleSheet (Tela Cheia e Ficha Técnica)', () {
+    final itemFilme = MediaItem.jellyfin(
+      id: 'movie_1',
+      kind: MediaKind.movie,
+      title: 'Duna: Parte 2',
+      summary: 'Paul Atreides busca vingança contra os conspiradores.',
+      year: 2024,
+      rating: 8.6,
+    );
+
+    testWidgets('monta ficha técnica com botão de voltar e sem badges 4K falsos', (tester) async {
+      await _montar(
+        tester,
+        CgflixThemeVariant.isis,
+        Builder(
+          builder: (ctx) => Scaffold(
+            body: Center(
+              child: ElevatedButton(
+                onPressed: () => HeisucaTitleSheet.show(ctx, itemFilme),
+                child: const Text('Abrir Ficha'),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Abrir Ficha'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Duna: Parte 2'), findsOneWidget);
+      expect(find.text('Assistir Agora'), findsOneWidget);
+      expect(find.text('Sinopse'), findsOneWidget);
+      expect(find.text('Paul Atreides busca vingança contra os conspiradores.'), findsOneWidget);
+      expect(find.byIcon(Symbols.arrow_back_rounded), findsOneWidget);
+
+      // Como o item não possui versão 4K informada, NÃO deve exibir tag 4K falsa
+      expect(find.text('4K HDR'), findsNothing);
+      expect(find.text('4K UHD'), findsNothing);
+
+      // Não deve ter botão "Pedir no Seerr"
+      expect(find.text('Pedir no Seerr'), findsNothing);
+
+      // Tocar no botão de voltar deve fechar a ficha com fluidez
+      await tester.tap(find.byIcon(Symbols.arrow_back_rounded));
+      await tester.pumpAndSettle();
+      expect(find.text('Abrir Ficha'), findsOneWidget);
     });
   });
 }

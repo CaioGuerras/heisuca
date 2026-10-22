@@ -7,7 +7,7 @@ import '../cgflix/cgflix_palette.dart';
 import '../media/media_item.dart';
 import '../media/media_kind.dart';
 import 'heisuca_design_system.dart';
-import 'heisuca_seerr_sheet.dart';
+import 'heisuca_state_store.dart';
 import 'heisuca_theme.dart';
 
 /// Menu de Toque Longo 500ms Flagship Heisuca (Esboço 04B).
@@ -103,155 +103,161 @@ class HeisucaContextMenu extends StatelessWidget {
     final title = isEpisode ? (item.grandparentTitle ?? item.displayTitle) : item.displayTitle;
     final subtitle = isEpisode ? item.displayTitle : null;
 
-    return Container(
-      width: 310.0,
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(20.0),
-        border: Border.all(color: borderColor, width: 0.8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isLight ? 0.18 : 0.50),
-            blurRadius: 28.0,
-            spreadRadius: 4.0,
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Título do Item
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontFamily: HeisucaTheme.fonteTitulo,
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.w700,
-                  color: titleColor,
-                ),
+    final store = HeisucaStateStore.instance;
+
+    return ListenableBuilder(
+      listenable: store,
+      builder: (context, _) {
+        final isFav = store.isFavorite(item);
+        final isWatch = store.isWatched(item);
+
+        return Container(
+          width: 310.0,
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(20.0),
+            border: Border.all(color: borderColor, width: 0.8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isLight ? 0.18 : 0.50),
+                blurRadius: 28.0,
+                spreadRadius: 4.0,
               ),
-              if (subtitle != null && subtitle.isNotEmpty) ...[
-                const SizedBox(height: 2.0),
-                Text(
-                  subtitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontFamily: HeisucaTheme.fonteTexto,
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w500,
-                    color: subColor,
-                  ),
-                ),
-              ],
             ],
           ),
-          const SizedBox(height: 10.0),
-          Divider(color: borderColor, height: 1.0),
-          const SizedBox(height: 6.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Título do Item
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: HeisucaTheme.fonteTitulo,
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.w700,
+                      color: titleColor,
+                    ),
+                  ),
+                  if (subtitle != null && subtitle.isNotEmpty) ...[
+                    const SizedBox(height: 2.0),
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontFamily: HeisucaTheme.fonteTexto,
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w500,
+                        color: subColor,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              Divider(color: borderColor, height: 1.0),
+              const SizedBox(height: 6.0),
 
-          // Se for na fileira Continuar (Quadro 1 do Esboço 04B):
-          if (isContinueRow) ...[
-            _buildActionTile(
-              label: isShow ? 'Ir para a série' : 'Ir para o filme',
-              icon: Symbols.arrow_outward_rounded,
-              textColor: textActionColor,
-              iconColor: iconActionColor,
-              rowBg: rowBgColor,
-              onTap: () {
-                Navigator.pop(context);
-                onOpenDetails?.call();
-              },
-            ),
-          ] else ...[
-            if (onPlay != null)
+              // Se for na fileira Continuar (Quadro 1 do Esboço 04B):
+              if (isContinueRow) ...[
+                _buildActionTile(
+                  label: isShow ? 'Ir para a série' : 'Ir para o filme',
+                  icon: Symbols.arrow_outward_rounded,
+                  textColor: textActionColor,
+                  iconColor: iconActionColor,
+                  rowBg: rowBgColor,
+                  onTap: () {
+                    Navigator.pop(context);
+                    onOpenDetails?.call();
+                  },
+                ),
+              ] else ...[
+                if (onPlay != null)
+                  _buildActionTile(
+                    label: 'Assistir agora',
+                    icon: Symbols.play_arrow_rounded,
+                    textColor: textActionColor,
+                    iconColor: iconActionColor,
+                    rowBg: rowBgColor,
+                    onTap: () {
+                      Navigator.pop(context);
+                      onPlay?.call();
+                    },
+                  ),
+                _buildActionTile(
+                  label: 'Ver detalhes',
+                  icon: Symbols.info_rounded,
+                  textColor: textActionColor,
+                  iconColor: iconActionColor,
+                  rowBg: rowBgColor,
+                  onTap: () {
+                    Navigator.pop(context);
+                    onOpenDetails?.call();
+                  },
+                ),
+              ],
+
+              // Marcar como visto / não visto (ícone ⚑)
               _buildActionTile(
-                label: 'Assistir agora',
-                icon: Symbols.play_arrow_rounded,
+                label: isWatch ? 'Marcar como não visto' : 'Marcar como visto',
+                icon: Symbols.flag_rounded,
+                iconFill: isWatch ? 1.0 : 0.0,
                 textColor: textActionColor,
-                iconColor: iconActionColor,
+                iconColor: isLight ? const Color(0xFF059669) : const Color(0xFF34D399),
                 rowBg: rowBgColor,
                 onTap: () {
                   Navigator.pop(context);
-                  onPlay?.call();
+                  if (onToggleWatched != null) {
+                    onToggleWatched?.call();
+                  } else {
+                    store.toggleWatched(context, item);
+                  }
                 },
               ),
-            _buildActionTile(
-              label: 'Ver detalhes',
-              icon: Symbols.info_rounded,
-              textColor: textActionColor,
-              iconColor: iconActionColor,
-              rowBg: rowBgColor,
-              onTap: () {
-                Navigator.pop(context);
-                onOpenDetails?.call();
-              },
-            ),
-          ],
 
-          // Marcar como visto / não visto (ícone ⚑)
-          _buildActionTile(
-            label: item.isWatched ? 'Marcar como não visto' : 'Marcar como visto',
-            icon: Symbols.flag_rounded,
-            textColor: textActionColor,
-            iconColor: isLight ? const Color(0xFF059669) : const Color(0xFF34D399),
-            rowBg: rowBgColor,
-            onTap: () {
-              Navigator.pop(context);
-              onToggleWatched?.call();
-            },
+              // Favoritar / Tirar dos favoritos (ícone ♡ / ♥)
+              _buildActionTile(
+                label: isFav ? 'Tirar dos favoritos' : 'Favoritar',
+                icon: Symbols.favorite_rounded,
+                iconFill: isFav ? 1.0 : 0.0,
+                textColor: textActionColor,
+                iconColor: const Color(0xFFFF5252),
+                rowBg: rowBgColor,
+                onTap: () {
+                  Navigator.pop(context);
+                  if (onToggleFavorite != null) {
+                    onToggleFavorite?.call();
+                  } else {
+                    store.toggleFavorite(context, item);
+                  }
+                },
+              ),
+
+              // Baixar (ícone ↓)
+              _buildActionTile(
+                label: isShow && isEpisode
+                    ? 'Baixar episódio'
+                    : (isShow ? 'Baixar episódios' : 'Baixar filme'),
+                icon: Symbols.download_rounded,
+                textColor: textActionColor,
+                iconColor: isLight ? const Color(0xFF0284C7) : const Color(0xFF38BDF8),
+                rowBg: rowBgColor,
+                onTap: () {
+                  Navigator.pop(context);
+                  onDownload?.call();
+                },
+              ),
+            ],
           ),
-
-          // Favoritar (ícone ♡)
-          _buildActionTile(
-            label: 'Favoritar',
-            icon: Symbols.favorite_rounded,
-            textColor: textActionColor,
-            iconColor: const Color(0xFFFF5252),
-            rowBg: rowBgColor,
-            onTap: () {
-              Navigator.pop(context);
-              onToggleFavorite?.call();
-            },
-          ),
-
-          // Baixar (ícone ↓)
-          _buildActionTile(
-            label: isShow && isEpisode
-                ? 'Baixar episódio'
-                : (isShow ? 'Baixar episódios' : 'Baixar filme'),
-            icon: Symbols.download_rounded,
-            textColor: textActionColor,
-            iconColor: isLight ? const Color(0xFF0284C7) : const Color(0xFF38BDF8),
-            rowBg: rowBgColor,
-            onTap: () {
-              Navigator.pop(context);
-              onDownload?.call();
-            },
-          ),
-
-          // Pedir no Seerr (apenas em pôsteres normais quando relevante)
-          if (!isContinueRow)
-            _buildActionTile(
-              label: 'Pedir no Seerr',
-              icon: Symbols.cloud_download_rounded,
-              textColor: textActionColor,
-              iconColor: isLight ? const Color(0xFF7C3AED) : const Color(0xFFA78BFA),
-              rowBg: rowBgColor,
-              onTap: () {
-                Navigator.pop(context);
-                HeisucaSeerrSheet.show(context, title: title, year: item.year);
-              },
-            ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -259,6 +265,7 @@ class HeisucaContextMenu extends StatelessWidget {
   Widget _buildActionTile({
     required String label,
     required IconData icon,
+    double? iconFill,
     required Color textColor,
     required Color iconColor,
     required Color rowBg,
@@ -290,7 +297,7 @@ class HeisucaContextMenu extends StatelessWidget {
                   ),
                 ),
               ),
-              Icon(icon, color: iconColor, size: 20.0),
+              Icon(icon, color: iconColor, size: 20.0, fill: iconFill),
             ],
           ),
         ),

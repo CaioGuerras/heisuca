@@ -14,13 +14,13 @@ import '../utils/download_utils.dart';
 import '../utils/media_image_helper.dart';
 import '../widgets/optimized_media_image.dart';
 import 'heisuca_design_system.dart';
-import 'heisuca_seerr_sheet.dart';
+import 'heisuca_state_store.dart';
 import 'heisuca_theme.dart';
 
-/// Ficha Cinematográfica do Título Flagship Heisuca (炳素華)
-/// Filosofia: "Nada entre você e o filme."
-/// Hero Widescreen, Scrim Easing Cúbico, Metadados Nobres e Ações com Física de Mola.
-/// Totalmente compatível com Shikkoku Escuro e Hisui Claro (sem vazamento de cores legadas).
+/// Tela Flagship de Informações / Ficha Técnica do Título Heisuca (炳素華) — Esboço 04
+/// Abre em tela cheia com botão flutuante de voltar [←] no topo esquerdo.
+/// Sem badges falsos de 4K HDR. Sem "Pedir no Seerr".
+/// Alternância imediata e reativa de Favoritos com [HeisucaStateStore].
 class HeisucaTitleSheet extends StatefulWidget {
   const HeisucaTitleSheet({
     super.key,
@@ -33,15 +33,28 @@ class HeisucaTitleSheet extends StatefulWidget {
   final MediaItem item;
   final MediaItem? episode;
 
+  /// Abre a ficha técnica em tela cheia com transição suave cinematográfica.
   static Future<void> show(BuildContext context, MediaItem item, {MediaItem? episode}) {
-    return showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => HeisucaTitleSheet(
-        hostContext: context,
-        item: item,
-        episode: episode,
+    return Navigator.of(context).push(
+      PageRouteBuilder<void>(
+        pageBuilder: (ctx, animation, secondaryAnimation) => HeisucaTitleSheet(
+          hostContext: context,
+          item: item,
+          episode: episode,
+        ),
+        transitionsBuilder: (ctx, animation, secondaryAnimation, child) {
+          final curved = CurvedAnimation(parent: animation, curve: Curves.easeOutCubic);
+          return FadeTransition(
+            opacity: curved,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0.0, 0.06),
+                end: Offset.zero,
+              ).animate(curved),
+              child: child,
+            ),
+          );
+        },
       ),
     );
   }
@@ -51,7 +64,6 @@ class HeisucaTitleSheet extends StatefulWidget {
 }
 
 class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
-  late bool _isFavorite;
   bool _isDownloading = false;
   List<MediaItem> _episodes = [];
   bool _loadingEpisodes = false;
@@ -59,7 +71,6 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
   @override
   void initState() {
     super.initState();
-    _isFavorite = widget.item.isFavorite ?? false;
     if (widget.item.kind == MediaKind.show) {
       _loadEpisodes();
     }
@@ -87,11 +98,41 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
 
   void _playTarget(MediaItem target) {
     HapticFeedback.lightImpact();
-    final host = widget.hostContext;
-    Navigator.of(context).pop();
-    if (host.mounted) {
-      cgflixPlay(host, target);
+    cgflixPlay(context, target);
+  }
+
+  String? _extractRealResolution(MediaItem item) {
+    final versions = item.mediaVersions;
+    if (versions != null && versions.isNotEmpty) {
+      final v = versions.first;
+      final res = v.videoResolution?.toUpperCase() ?? '';
+      final h = v.height ?? 0;
+      if (res.contains('4K') || res.contains('2160') || h >= 2160) {
+        return '4K UHD';
+      } else if (res.contains('1080') || h >= 1080) {
+        return '1080p';
+      } else if (res.contains('720') || h >= 720) {
+        return '720p';
+      }
     }
+    return null;
+  }
+
+  String? _extractAudioChannels(MediaItem item) {
+    final versions = item.mediaVersions;
+    if (versions != null && versions.isNotEmpty) {
+      for (final part in versions.first.parts) {
+        for (final stream in part.streams) {
+          final ch = stream.channels;
+          if (ch != null) {
+            if (ch >= 8) return '7.1';
+            if (ch >= 6) return '5.1';
+            if (ch == 2) return 'Stereo';
+          }
+        }
+      }
+    }
+    return null;
   }
 
   @override
@@ -99,7 +140,6 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
     final item = widget.item;
     final client = cgflixClientFor(context, item);
     final isShow = item.kind == MediaKind.show;
-    final screenHeight = MediaQuery.sizeOf(context).height;
     final flags = cgflixLanguageFlags(item);
     final backdropPath = cgflixWidePath(item);
     final playLabel = isShow ? 'Continuar Temporada' : 'Assistir Agora';
@@ -108,14 +148,9 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
     final isLight = palette.isLight;
 
     final sheetBg = isLight ? const Color(0xFFF7F3EC) : const Color(0xFF0E0B16);
-    final borderColor = isLight
-        ? const Color(0xFF047857).withOpacity(0.18)
-        : Colors.white.withOpacity(0.10);
     final titleColor = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
     final textMuted = isLight ? const Color(0xFF64748B) : const Color(0xFFA99FBB);
-    final summaryColor = isLight
-        ? const Color(0xFF334155)
-        : Colors.white.withOpacity(0.70);
+    final summaryColor = isLight ? const Color(0xFF334155) : Colors.white.withOpacity(0.75);
 
     final buttonSecondaryBg = isLight
         ? const Color(0xFF047857).withOpacity(0.08)
@@ -132,24 +167,22 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
         ? const Color(0xFF047857).withOpacity(0.30)
         : const Color(0xFF7A40F2).withOpacity(0.35);
 
-    return Container(
-      height: screenHeight * 0.90,
-      decoration: BoxDecoration(
-        color: sheetBg,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(26.0)),
-        border: Border.all(color: borderColor, width: 0.8),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Stack(
+    final realRes = _extractRealResolution(item);
+    final realAudio = _extractAudioChannels(item);
+    final store = HeisucaStateStore.instance;
+
+    return Scaffold(
+      backgroundColor: sheetBg,
+      body: Stack(
         children: [
-          // 1. Conteúdo Rolável da Ficha
+          // 1. Conteúdo Rolável Completo da Ficha Técnica
           CustomScrollView(
-            physics: const HeisucaSpringPhysics(),
+            physics: const HeisucaSpringPhysics(parent: AlwaysScrollableScrollPhysics()),
             slivers: [
               // Hero Header Widescreen com Backdrop e Scrim Cúbico
               SliverToBoxAdapter(
                 child: SizedBox(
-                  height: 320.0,
+                  height: 360.0,
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
@@ -164,13 +197,13 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
                       else
                         Container(color: isLight ? const Color(0xFFE2E8F0) : const Color(0xFF1B1526)),
 
-                      // Scrim Cúbico Suave sem Mach Banding
+                      // Scrim Cúbico Suave
                       Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
-                            stops: const [0.0, 0.45, 0.80, 1.0],
+                            stops: const [0.0, 0.40, 0.75, 1.0],
                             colors: [
                               Colors.transparent,
                               isLight ? const Color(0x33F7F3EC) : const Color(0x440B0910),
@@ -181,17 +214,17 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
                         ),
                       ),
 
-                      // Título e Metadados Sobrepostos
+                      // Informações no fundo do Backdrop
                       Positioned(
                         left: 20.0,
                         right: 20.0,
-                        bottom: 16.0,
+                        bottom: 12.0,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              item.title ?? '',
+                              item.displayTitle,
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
@@ -203,28 +236,36 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
                               ),
                             ),
                             const SizedBox(height: 8.0),
-                            Row(
+                            Wrap(
+                              spacing: 6.0,
+                              runSpacing: 4.0,
+                              crossAxisAlignment: WrapCrossAlignment.center,
                               children: [
-                                if (item.year != null) ...[
+                                if (item.year != null)
                                   _buildTag('${item.year}', isLight),
-                                  const SizedBox(width: 6.0),
-                                ],
-                                _buildTag(flags.dubbed ? 'DUBLADO' : 'LEGENDADO', isLight),
-                                const SizedBox(width: 6.0),
-                                _buildTag('4K HDR', isLight),
-                                const SizedBox(width: 8.0),
-                                const Icon(Symbols.star_rounded, color: Color(0xFFFFB800), size: 16.0),
-                                const SizedBox(width: 3.0),
-                                Text(
-                                  item.rating != null ? item.rating!.toStringAsFixed(1) : '9.1',
-                                  style: TextStyle(
-                                    fontFamily: HeisucaTheme.fonteTexto,
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w700,
-                                    color: titleColor,
-                                    fontFeatures: const [ui.FontFeature.tabularFigures()],
+                                if (flags.dubbed)
+                                  _buildTag('DUBLADO', isLight)
+                                else if (flags.subtitled)
+                                  _buildTag('LEGENDADO', isLight),
+                                if (realRes != null)
+                                  _buildTag(realRes, isLight),
+                                if (realAudio != null)
+                                  _buildTag(realAudio, isLight),
+                                if (item.rating != null) ...[
+                                  const SizedBox(width: 2.0),
+                                  const Icon(Symbols.star_rounded, color: Color(0xFFFFB800), size: 16.0),
+                                  const SizedBox(width: 2.0),
+                                  Text(
+                                    item.rating!.toStringAsFixed(1),
+                                    style: TextStyle(
+                                      fontFamily: HeisucaTheme.fonteTexto,
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: titleColor,
+                                      fontFeatures: const [ui.FontFeature.tabularFigures()],
+                                    ),
                                   ),
-                                ),
+                                ],
                               ],
                             ),
                           ],
@@ -235,10 +276,10 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
                 ),
               ),
 
-              // Botões de Ação Principais
+              // Botões de Ação Imediata
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 14.0),
                   child: Row(
                     children: [
                       // Botão Assistir / Continuar
@@ -264,21 +305,17 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Symbols.play_arrow_rounded, color: Colors.white, size: 22.0),
-                                const SizedBox(width: 6.0),
-                                Flexible(
-                                  child: Text(
-                                    playLabel,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontFamily: HeisucaTheme.fonteTexto,
-                                      fontSize: 14.0,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.white,
-                                    ),
+                                const Icon(Symbols.play_arrow_rounded, color: Colors.white, size: 24.0),
+                                const SizedBox(width: 8.0),
+                                Text(
+                                  playLabel,
+                                  style: const TextStyle(
+                                    fontFamily: HeisucaTheme.fonteTexto,
+                                    fontSize: 15.0,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                    letterSpacing: -0.2,
                                   ),
                                 ),
                               ],
@@ -289,29 +326,35 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
 
                       const SizedBox(width: 10.0),
 
-                      // Botão Favorito / Lista
-                      HeisucaSpringPressable(
-                        onTap: () async {
-                          HapticFeedback.selectionClick();
-                          final next = await cgflixToggleMyList(context, widget.item, _isFavorite);
-                          if (mounted) setState(() => _isFavorite = next);
-                        },
-                        child: Container(
-                          width: 48.0,
-                          height: 48.0,
-                          decoration: BoxDecoration(
-                            color: buttonSecondaryBg,
-                            borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
-                            border: Border.all(color: buttonSecondaryBorder, width: 0.8),
-                          ),
-                          child: Center(
-                            child: Icon(
-                              _isFavorite ? Symbols.favorite_rounded : Symbols.favorite_border_rounded,
-                              color: _isFavorite ? const Color(0xFFFF5252) : iconColor,
-                              size: 20.0,
+                      // Botão Favorito / Lista (Reativo com HeisucaStateStore)
+                      ListenableBuilder(
+                        listenable: store,
+                        builder: (ctx, _) {
+                          final isFav = store.isFavorite(widget.item);
+                          return HeisucaSpringPressable(
+                            onTap: () {
+                              HapticFeedback.selectionClick();
+                              store.toggleFavorite(context, widget.item);
+                            },
+                            child: Container(
+                              width: 48.0,
+                              height: 48.0,
+                              decoration: BoxDecoration(
+                                color: buttonSecondaryBg,
+                                borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
+                                border: Border.all(color: buttonSecondaryBorder, width: 0.8),
+                              ),
+                              child: Center(
+                                child: Icon(
+                                  Symbols.favorite_rounded,
+                                  fill: isFav ? 1.0 : 0.0,
+                                  color: isFav ? const Color(0xFFFF5252) : iconColor,
+                                  size: 22.0,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
+                          );
+                        },
                       ),
 
                       const SizedBox(width: 10.0),
@@ -323,13 +366,13 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
                           final mClient = cgflixClientFor(context, widget.item);
                           if (mClient != null) {
                             final downloadProvider = Provider.of<DownloadProvider>(context, listen: false);
-                            setState(() => _isDownloading = true);
                             await queueDownloadWithFeedback(
-                              widget.hostContext,
-                              metadata: widget.episode ?? widget.item,
+                              context,
+                              metadata: widget.item,
                               client: mClient,
                               downloadProvider: downloadProvider,
                             );
+                            if (mounted) setState(() => _isDownloading = true);
                           }
                         },
                         child: Container(
@@ -344,33 +387,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
                             child: Icon(
                               _isDownloading ? Symbols.download_done_rounded : Symbols.download_rounded,
                               color: _isDownloading ? const Color(0xFF34D399) : iconColor,
-                              size: 20.0,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(width: 10.0),
-
-                      // Botão Pedir no Seerr
-                      HeisucaSpringPressable(
-                        onTap: () {
-                          HapticFeedback.lightImpact();
-                          HeisucaSeerrSheet.show(context, title: item.title ?? '', year: item.year);
-                        },
-                        child: Container(
-                          width: 48.0,
-                          height: 48.0,
-                          decoration: BoxDecoration(
-                            color: buttonSecondaryBg,
-                            borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
-                            border: Border.all(color: buttonSecondaryBorder, width: 0.8),
-                          ),
-                          child: Center(
-                            child: Icon(
-                              Symbols.cloud_download_rounded,
-                              color: iconColor,
-                              size: 20.0,
+                              size: 22.0,
                             ),
                           ),
                         ),
@@ -380,40 +397,39 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
                 ),
               ),
 
-              // Sinopse
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 14.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Sinopse',
-                        style: TextStyle(
-                          fontFamily: HeisucaTheme.fonteTitulo,
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.w700,
-                          color: titleColor,
+              // Sinopse Real
+              if (item.summary?.isNotEmpty == true)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Sinopse',
+                          style: TextStyle(
+                            fontFamily: HeisucaTheme.fonteTitulo,
+                            fontSize: 16.5,
+                            fontWeight: FontWeight.w700,
+                            color: titleColor,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 6.0),
-                      Text(
-                        item.summary?.isNotEmpty == true
-                            ? item.summary!
-                            : 'Paul Atreides se une a Chani e aos Fremen enquanto busca vingança contra os conspiradores que destruíram sua família. Uma jornada mítica e cinematográfica.',
-                        style: TextStyle(
-                          fontFamily: HeisucaTheme.fonteTexto,
-                          fontSize: 13.5,
-                          height: 1.5,
-                          color: summaryColor,
+                        const SizedBox(height: 6.0),
+                        Text(
+                          item.summary!,
+                          style: TextStyle(
+                            fontFamily: HeisucaTheme.fonteTexto,
+                            fontSize: 13.5,
+                            height: 1.5,
+                            color: summaryColor,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
 
-              // Se for série: Lista de Episódios
+              // Se for série: Lista Real de Episódios
               if (isShow) ...[
                 SliverToBoxAdapter(
                   child: Padding(
@@ -422,10 +438,10 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Temporada 1',
+                          'Episódios',
                           style: TextStyle(
                             fontFamily: HeisucaTheme.fonteTitulo,
-                            fontSize: 16.0,
+                            fontSize: 16.5,
                             fontWeight: FontWeight.w700,
                             color: titleColor,
                           ),
@@ -433,7 +449,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
                         Text(
                           _episodes.isNotEmpty
                               ? '${_episodes.length} Episódios'
-                              : (_loadingEpisodes ? 'Carregando...' : '10 Episódios'),
+                              : (_loadingEpisodes ? 'Carregando...' : ''),
                           style: TextStyle(
                             fontFamily: HeisucaTheme.fonteTexto,
                             fontSize: 12.5,
@@ -451,33 +467,68 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
                       childCount: _episodes.length,
                     ),
                   )
-                else
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (ctx, idx) => _buildFallbackEpisodeTile(ctx, idx + 1, isLight),
-                      childCount: _loadingEpisodes ? 2 : 4,
+                else if (_loadingEpisodes)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24.0),
+                      child: Center(
+                        child: SizedBox(
+                          width: 24.0,
+                          height: 24.0,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.0,
+                            color: isLight ? const Color(0xFF047857) : const Color(0xFF7A40F2),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
               ],
 
-              const SliverToBoxAdapter(
-                child: SizedBox(height: 40.0),
+              // Espaçamento de Rodapé
+              SliverToBoxAdapter(
+                child: SizedBox(height: MediaQuery.paddingOf(context).bottom + 40.0),
               ),
             ],
           ),
 
-          // Pílula Superior de Fechamento / Arraste
+          // 2. Botão Flutuante de Voltar [←] no Canto Superior Esquerdo
           Positioned(
-            top: 10.0,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Container(
-                width: 36.0,
-                height: 4.5,
-                decoration: BoxDecoration(
-                  color: isLight ? const Color(0xFFCBD5E1) : Colors.white.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(2.5),
+            top: MediaQuery.paddingOf(context).top + 8.0,
+            left: 16.0,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(22.0),
+              child: BackdropFilter(
+                filter: ui.ImageFilter.blur(sigmaX: 16.0, sigmaY: 16.0),
+                child: InkWell(
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    Navigator.of(context).pop();
+                  },
+                  borderRadius: BorderRadius.circular(22.0),
+                  child: Container(
+                    width: 44.0,
+                    height: 44.0,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: isLight ? Colors.white.withOpacity(0.85) : Colors.black.withOpacity(0.55),
+                      borderRadius: BorderRadius.circular(22.0),
+                      border: Border.all(
+                        color: isLight ? Colors.black.withOpacity(0.08) : Colors.white.withOpacity(0.12),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(isLight ? 0.08 : 0.35),
+                          blurRadius: 12.0,
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Symbols.arrow_back_rounded,
+                      color: isLight ? const Color(0xFF134E4A) : Colors.white,
+                      size: 24.0,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -490,7 +541,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
   Widget _buildRealEpisodeTile(BuildContext context, MediaItem episode, bool isLight) {
     final epNum = episode.index ?? 1;
     final epTitle = episode.title ?? 'Episódio $epNum';
-    final durationMin = episode.durationMs != null ? '${(episode.durationMs! / 60000).round()} min' : '45 min';
+    final durationMin = episode.durationMs != null ? '${(episode.durationMs! / 60000).round()} min' : null;
     final thumbPath = episode.thumbPath;
     final client = cgflixClientFor(context, episode);
 
@@ -522,13 +573,11 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
           ),
           child: Row(
             children: [
-              // Thumbnail 16:9 do Episódio
               ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),
-                child: Container(
+                child: SizedBox(
                   width: 90.0,
                   height: 52.0,
-                  color: isLight ? const Color(0xFFE2E8F0) : const Color(0xFF1E172A),
                   child: thumbPath != null && client != null
                       ? OptimizedMediaImage(
                           client: client,
@@ -536,14 +585,17 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
                           imageType: ImageType.thumb,
                           fit: BoxFit.cover,
                         )
-                      : Center(
-                          child: Text(
-                            'E$epNum',
-                            style: TextStyle(
-                              fontFamily: HeisucaTheme.fonteTexto,
-                              fontSize: 14.0,
-                              fontWeight: FontWeight.w700,
-                              color: isLight ? const Color(0xFF047857) : const Color(0xFFA99FBB),
+                      : Container(
+                          color: isLight ? const Color(0xFFE2E8F0) : const Color(0xFF1E172A),
+                          child: Center(
+                            child: Text(
+                              'E$epNum',
+                              style: TextStyle(
+                                fontFamily: HeisucaTheme.fonteTexto,
+                                fontSize: 13.0,
+                                fontWeight: FontWeight.w700,
+                                color: isLight ? const Color(0xFF047857) : const Color(0xFFA99FBB),
+                              ),
                             ),
                           ),
                         ),
@@ -565,88 +617,17 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
                         color: titleColor,
                       ),
                     ),
-                    const SizedBox(height: 3.0),
-                    Text(
-                      '$durationMin • 4K HDR Atmos',
-                      style: TextStyle(
-                        fontFamily: HeisucaTheme.fonteTexto,
-                        fontSize: 11.5,
-                        color: subtitleColor,
+                    if (durationMin != null) ...[
+                      const SizedBox(height: 3.0),
+                      Text(
+                        durationMin,
+                        style: TextStyle(
+                          fontFamily: HeisucaTheme.fonteTexto,
+                          fontSize: 11.5,
+                          color: subtitleColor,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(Symbols.play_circle_rounded, color: playIconColor, size: 28.0),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFallbackEpisodeTile(BuildContext context, int epNum, bool isLight) {
-    final tileBg = isLight ? Colors.white : Colors.white.withOpacity(0.03);
-    final borderColor = isLight ? const Color(0xFFE2E8F0) : Colors.white.withOpacity(0.06);
-    final titleColor = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
-    final subtitleColor = isLight ? const Color(0xFF64748B) : Colors.white.withOpacity(0.45);
-    final playIconColor = isLight ? const Color(0xFF047857) : const Color(0xFF7A40F2);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
-      child: HeisucaSpringPressable(
-        onTap: () => _playTarget(widget.item),
-        child: Container(
-          padding: const EdgeInsets.all(10.0),
-          decoration: BoxDecoration(
-            color: tileBg,
-            borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
-            border: Border.all(color: borderColor, width: 0.6),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 90.0,
-                height: 52.0,
-                decoration: BoxDecoration(
-                  color: isLight ? const Color(0xFFE2E8F0) : const Color(0xFF1E172A),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: Center(
-                  child: Text(
-                    'E$epNum',
-                    style: TextStyle(
-                      fontFamily: HeisucaTheme.fonteTexto,
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.w700,
-                      color: isLight ? const Color(0xFF047857) : const Color(0xFFA99FBB),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12.0),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Episódio $epNum',
-                      style: TextStyle(
-                        fontFamily: HeisucaTheme.fonteTexto,
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w600,
-                        color: titleColor,
-                      ),
-                    ),
-                    const SizedBox(height: 3.0),
-                    Text(
-                      '54 min • 4K HDR Atmos',
-                      style: TextStyle(
-                        fontFamily: HeisucaTheme.fonteTexto,
-                        fontSize: 11.5,
-                        color: subtitleColor,
-                      ),
-                    ),
+                    ],
                   ],
                 ),
               ),

@@ -1,8 +1,7 @@
 import '../cgflix/cgflix_navigation.dart';
-import '../cgflix/cgflix_user_menu.dart';
-import '../cgflix/home/cgflix_home_screen.dart';
 import '../heisuca/heisuca_floating_island.dart';
 import '../heisuca/heisuca_home_screen.dart';
+import '../heisuca/heisuca_profile_screen.dart';
 import 'dart:async';
 import '../media/ids.dart';
 import '../media/media_server_client.dart';
@@ -2382,7 +2381,13 @@ class _MainScreenState extends State<MainScreen>
               if (i == 0) _selectTab(NavigationTabId.discover);
               if (i == 1) _selectTab(NavigationTabId.libraries);
               if (i == 2) _selectTab(NavigationTabId.search);
-              if (i == 3) showCgflixUserMenu(context);
+              if (i == 3) {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const HeisucaProfileScreen(),
+                  ),
+                );
+              }
             },
           ),
         ],

@@ -137,6 +137,30 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
     setState(() => _tabVisible = false);
   }
 
+  MediaItem? _activeHeroItem;
+
+  void _onHeroActiveChanged(MediaItem item) {
+    if (_activeHeroItem?.id != item.id) {
+      setState(() => _activeHeroItem = item);
+    }
+  }
+
+  static Color resolveHeroAmbientColor(MediaItem? item, {required bool isLight}) {
+    if (item == null) {
+      return isLight ? const Color(0xFF047857) : const Color(0xFF7A40F2);
+    }
+    final seed = (item.displayTitle + (item.genres?.join() ?? '')).hashCode.abs();
+    final hues = [
+      isLight ? const Color(0xFF0D9488) : const Color(0xFF06B6D4), // Cyan / Teal
+      isLight ? const Color(0xFFD97706) : const Color(0xFFF59E0B), // Solar Amber
+      isLight ? const Color(0xFF7C3AED) : const Color(0xFF8B5CF6), // Royal Purple
+      isLight ? const Color(0xFFE11D48) : const Color(0xFFF43F5E), // Crimson Rose
+      isLight ? const Color(0xFF2563EB) : const Color(0xFF3B82F6), // Sapphire Blue
+      isLight ? const Color(0xFF059669) : const Color(0xFF10B981), // Jade Emerald
+    ];
+    return hues[seed % hues.length];
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final active = state == AppLifecycleState.resumed;
@@ -158,11 +182,39 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
     final media = MediaQuery.of(context);
     final heroHeight = (media.size.height * 0.54).clamp(380.0, 560.0);
     final repo = _repository;
+    final isLight = context.cgflix.isLight;
+    final heroAmbient = resolveHeroAmbientColor(_activeHeroItem, isLight: isLight);
 
     return Scaffold(
       backgroundColor: context.cgflix.background,
       body: Stack(
         children: [
+          // Iluminação Atmosférica Flagship dominante (Esboço 03B)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: media.size.height * 0.70,
+            child: IgnorePointer(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 650),
+                curve: Curves.easeOutCubic,
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    center: const Alignment(0.0, -0.65),
+                    radius: 1.45,
+                    colors: [
+                      heroAmbient.withOpacity(isLight ? 0.28 : 0.42),
+                      heroAmbient.withOpacity(isLight ? 0.08 : 0.16),
+                      Colors.transparent,
+                    ],
+                    stops: const [0.0, 0.55, 1.0],
+                  ),
+                ),
+              ),
+            ),
+          ),
+
           // Conteúdo rolável com indicador de atualização e física ProMotion
           RefreshIndicator(
             color: context.cgflix.accent,
@@ -204,6 +256,7 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
                   items: data.items,
                   height: heroHeight,
                   paused: !_tabVisible || !_appActive,
+                  onActiveItemChanged: _onHeroActiveChanged,
                 ),
         ),
       ),
@@ -270,6 +323,7 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
             items: heroItems,
             height: heroHeight,
             paused: !_tabVisible || !_appActive,
+            onActiveItemChanged: _onHeroActiveChanged,
           ),
         )
       else if (_discover.isLoading)
@@ -431,11 +485,13 @@ class _HeisucaHero extends StatefulWidget {
     required this.items,
     required this.height,
     this.paused = false,
+    this.onActiveItemChanged,
   });
 
   final List<MediaItem> items;
   final double height;
   final bool paused;
+  final ValueChanged<MediaItem>? onActiveItemChanged;
 
   @override
   State<_HeisucaHero> createState() => _HeisucaHeroState();
@@ -449,6 +505,7 @@ class _HeisucaHeroState extends State<_HeisucaHero> {
   void initState() {
     super.initState();
     _startTimer();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _notifyActive());
   }
 
   @override
@@ -457,6 +514,13 @@ class _HeisucaHeroState extends State<_HeisucaHero> {
     if (_currentIndex >= widget.items.length) _currentIndex = 0;
     if (oldWidget.paused != widget.paused || oldWidget.items.length != widget.items.length) {
       _startTimer();
+      WidgetsBinding.instance.addPostFrameCallback((_) => _notifyActive());
+    }
+  }
+
+  void _notifyActive() {
+    if (widget.items.isNotEmpty && mounted) {
+      widget.onActiveItemChanged?.call(widget.items[_currentIndex % widget.items.length]);
     }
   }
 
@@ -472,6 +536,7 @@ class _HeisucaHeroState extends State<_HeisucaHero> {
     _timer = Timer.periodic(const Duration(seconds: 8), (_) {
       if (mounted && widget.items.isNotEmpty) {
         setState(() => _currentIndex = (_currentIndex + 1) % widget.items.length);
+        _notifyActive();
       }
     });
   }
@@ -482,6 +547,7 @@ class _HeisucaHeroState extends State<_HeisucaHero> {
     setState(() {
       _currentIndex = (_currentIndex + delta + widget.items.length) % widget.items.length;
     });
+    _notifyActive();
     _startTimer();
   }
 
@@ -564,20 +630,20 @@ class _HeisucaHeroState extends State<_HeisucaHero> {
               ),
             ),
 
-            // 4. Halo Atmosférico em OKLCH na base
+            // 4. Halo Atmosférico em OKLCH na base adaptado ao item em destaque
             IgnorePointer(
               child: Align(
                 alignment: Alignment.bottomCenter,
                 child: Container(
-                  height: 180.0,
+                  height: 200.0,
                   decoration: BoxDecoration(
                     gradient: RadialGradient(
                       center: const Alignment(0.0, 0.95),
-                      radius: 1.2,
+                      radius: 1.25,
                       colors: [
-                        OklchColor.fromColor(palette.accent)
+                        OklchColor.fromColor(_HeisucaHomeScreenState.resolveHeroAmbientColor(item, isLight: isLight))
                             .toCalibratedAmbientColor(isDarkTheme: !isLight)
-                            .withValues(alpha: isLight ? 0.18 : 0.30),
+                            .withValues(alpha: isLight ? 0.25 : 0.40),
                         palette.background.withValues(alpha: 0.0),
                       ],
                     ),
@@ -859,8 +925,6 @@ class _HeisucaContinueWatchingRow extends StatelessWidget {
                       isContinueRow: true,
                       onPlay: () => cgflixPlay(ctx, item),
                       onOpenDetails: () => HeisucaTitleSheet.show(ctx, item),
-                      onToggleWatched: () => WatchActions.setWatched(ctx, item, watched: !item.isWatched),
-                      onToggleFavorite: () => cgflixToggleMyList(ctx, item, item.isFavorite ?? false),
                       onDownload: () {
                         final mClient = cgflixClientFor(ctx, item);
                         if (mClient != null) {
@@ -978,8 +1042,6 @@ class _HeisucaTop10Row extends StatelessWidget {
                       item: item,
                       onPlay: () => cgflixPlay(ctx, item),
                       onOpenDetails: () => HeisucaTitleSheet.show(ctx, item),
-                      onToggleWatched: () => WatchActions.setWatched(ctx, item, watched: !item.isWatched),
-                      onToggleFavorite: () => cgflixToggleMyList(ctx, item, item.isFavorite ?? false),
                       onDownload: () {
                         final mClient = cgflixClientFor(ctx, item);
                         if (mClient != null) {
@@ -1065,8 +1127,6 @@ class _HeisucaShelfRow extends StatelessWidget {
                       item: item,
                       onPlay: () => cgflixPlay(ctx, item),
                       onOpenDetails: () => HeisucaTitleSheet.show(ctx, item),
-                      onToggleWatched: () => WatchActions.setWatched(ctx, item, watched: !item.isWatched),
-                      onToggleFavorite: () => cgflixToggleMyList(ctx, item, item.isFavorite ?? false),
                       onDownload: () {
                         final mClient = cgflixClientFor(ctx, item);
                         if (mClient != null) {

@@ -1285,7 +1285,7 @@ String? _catalogRankBadge(CatalogItem item) {
 // partial key, where the detail screen's 4k mapping renders nothing.
 String? _catalogAvailabilityBadge(CatalogServerState? state) {
   if (state == null) return null;
-  if (state.availability4k == CatalogAvailability.available) return t.explore.badge.availableIn4k;
+  // Não exibir badges falsos de 4K nas capas
   if (state.availability == CatalogAvailability.available) return t.explore.badge.available;
 
   final availableSeasons = state.availableSeasons;
@@ -1302,11 +1302,8 @@ String? _catalogAvailabilityBadge(CatalogServerState? state) {
 
 String? _catalogRequestBadge(CatalogServerState? state) {
   if (state == null) return null;
-  final request = state.request4k ?? state.request;
+  final request = state.request ?? state.request4k;
   if (request == null) return null;
-  // Narrower 4k wording than requestStateLabel: on cards only an approved 4k
-  // request reads as requested4k; pending/processing keep their plain keys.
-  if (state.request4k != null && request == CatalogRequestState.approved) return t.explore.badge.requested4k;
   return requestStateLabel(request, is4k: false);
 }
 

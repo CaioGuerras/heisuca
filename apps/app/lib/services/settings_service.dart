@@ -555,6 +555,8 @@ class SettingsService extends BaseSharedPreferencesService {
 
   static const enableDebugLogging = BoolPref('enable_debug_logging', onWrite: setLoggerLevel);
   static const crashReporting = BoolPref('crash_reporting', defaultValue: true);
+  // Preferência local do Heisuca; desligada preserva a seleção do servidor.
+  static const heisucaPreferPortugueseAudio = BoolPref('heisuca_prefer_portuguese_audio');
   static const enableHardwareDecoding = BoolPref('enable_hardware_decoding', defaultValue: true);
   static const enableHDR = BoolPref('enable_hdr', defaultValue: true);
   // Linux native video plane only. Defaults to the compositor: photographed on a
@@ -1367,6 +1369,7 @@ class SettingsService extends BaseSharedPreferencesService {
   static final List<Pref<Object?>> _resetAndPortablePrefs = [
     enableDebugLogging,
     enableHardwareDecoding,
+    heisucaPreferPortugueseAudio,
     enableHDR,
     hdrToneMapping,
     viewMode,
@@ -1647,3 +1650,4 @@ class SettingsService extends BaseSharedPreferencesService {
     await PlexImageCacheManager.instance.emptyCache();
   }
 }
+

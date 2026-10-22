@@ -2,7 +2,7 @@ name: Heisuca Android Build
 
 on:
   push:
-    branches: ["gemini/**", "claude/**"]
+    branches: ["gemini/**", "claude/**", "codex/heisuca-**"]
   workflow_dispatch:
 
 env:
@@ -61,6 +61,9 @@ jobs:
       - name: Obter dependências Flutter
         run: flutter pub get --no-example
 
+      - name: Validar análise e testes antes do APK
+        run: bash scripts/heisuca-checar.sh
+
       - name: Configurar Assinatura (se houver secrets)
         env:
           KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -102,3 +105,4 @@ jobs:
           name: heisuca-apk
           path: apps/app/dist/*.apk
           retention-days: 14
+

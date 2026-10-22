@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../cgflix/cgflix_palette.dart';
 import 'heisuca_design_system.dart';
 import 'heisuca_theme.dart';
 
@@ -69,11 +70,20 @@ class _HeisucaOpeningSplashState extends State<HeisucaOpeningSplash>
 
   @override
   Widget build(BuildContext context) {
-    const bgDark = Color(0xFF0E0B16);
-    const accentPurple = Color(0xFF9D74FF);
+    final palette = context.cgflix;
+    final isLight = palette.isLight;
+
+    final bg = isLight ? const Color(0xFFF7F3EC) : const Color(0xFF0E0B16);
+    final accent = isLight ? const Color(0xFF047857) : const Color(0xFF9D74FF);
+    final glowColor = isLight ? const Color(0xFF059669) : const Color(0xFF7444E0);
+    final seloAsset = isLight
+        ? 'assets/heisuca/selo_pequeno_hisui.svg'
+        : 'assets/heisuca/selo_pequeno_shikkoku.svg';
+    final textColor = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
+    final sloganColor = isLight ? const Color(0xFF047857) : const Color(0xFFA99FBB);
 
     return Scaffold(
-      backgroundColor: bgDark,
+      backgroundColor: bg,
       body: AnimatedBuilder(
         animation: _controller,
         builder: (context, child) {
@@ -90,8 +100,8 @@ class _HeisucaOpeningSplashState extends State<HeisucaOpeningSplash>
                       center: Alignment.center,
                       radius: 0.85,
                       colors: [
-                        accentPurple.withOpacity(0.40),
-                        const Color(0xFF7444E0).withOpacity(0.15),
+                        accent.withOpacity(0.40),
+                        glowColor.withOpacity(0.15),
                         Colors.transparent,
                       ],
                       stops: const [0.0, 0.50, 1.0],
@@ -113,7 +123,7 @@ class _HeisucaOpeningSplashState extends State<HeisucaOpeningSplash>
                         borderRadius: BorderRadius.circular(22.0),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF7444E0).withOpacity(0.40 * _sealScale.value),
+                            color: glowColor.withOpacity(0.40 * _sealScale.value),
                             blurRadius: 28.0,
                             spreadRadius: 2.0,
                           ),
@@ -122,7 +132,7 @@ class _HeisucaOpeningSplashState extends State<HeisucaOpeningSplash>
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(22.0),
                         child: SvgPicture.asset(
-                          'assets/heisuca/selo_pequeno_shikkoku.svg',
+                          seloAsset,
                           fit: BoxFit.contain,
                         ),
                       ),
@@ -136,14 +146,14 @@ class _HeisucaOpeningSplashState extends State<HeisucaOpeningSplash>
                     opacity: _textFade.value,
                     child: Transform.translate(
                       offset: Offset(0, 10.0 * (1.0 - _textFade.value)),
-                      child: const Text(
+                      child: Text(
                         'HEISUCA',
                         style: TextStyle(
                           fontFamily: HeisucaTheme.fonteTitulo,
                           fontSize: 28.0,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 4.5,
-                          color: Color(0xFFF4F1FA),
+                          color: textColor,
                         ),
                       ),
                     ),
@@ -161,7 +171,7 @@ class _HeisucaOpeningSplashState extends State<HeisucaOpeningSplash>
                         fontSize: 14.0,
                         fontWeight: FontWeight.w400,
                         letterSpacing: 0.4,
-                        color: const Color(0xFFA99FBB).withOpacity(0.85),
+                        color: sloganColor.withOpacity(0.85),
                       ),
                     ),
                   ),

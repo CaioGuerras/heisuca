@@ -23,6 +23,7 @@ import '../widgets/settings_section.dart';
 import '../widgets/app_icon.dart';
 import 'cgflix_logo.dart';
 import '../heisuca/heisuca_logo.dart';
+import '../heisuca/heisuca_settings_screen.dart';
 import 'cgflix_palette.dart';
 import 'cgflix_style.dart';
 import 'cgflix_user_menu.dart';
@@ -81,7 +82,7 @@ abstract final class CgflixPages {
 
   /// Bibliotecas do upstream (1.5.0: no menu do usuário).
   static WidgetBuilder libraries = (_) => const LibrariesScreen();
-  static Route<void> Function() settings = buildSettingsRoute;
+  static Route<void> Function() settings = () => MaterialPageRoute<void>(builder: (_) => const HeisucaSettingsScreen());
 
   /// "Meus pedidos" (Seerr), em tela nativa.
   static WidgetBuilder myRequests = (_) => const CgflixMyRequestsScreen();

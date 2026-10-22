@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../cgflix/cgflix_palette.dart';
 import 'heisuca_theme.dart';
 
 /// Renderizador oficial da marca Heisuca (炳素華)
+/// Adapta-se automaticamente ao tema ativo (Shikkoku / Hisui)
 class HeisucaLogo extends StatelessWidget {
   final double? width;
   final double? height;
@@ -19,12 +21,23 @@ class HeisucaLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.cgflix;
+    final isLight = palette.isLight;
+    final h = height ?? 36.0;
+
+    final seloAsset = isLight
+        ? 'assets/heisuca/selo_pequeno_hisui.svg'
+        : 'assets/heisuca/selo_pequeno_shikkoku.svg';
+
+    final textColor = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
+    final sloganColor = isLight ? const Color(0xFF047857) : Colors.white.withOpacity(0.60);
+
     final selo = ClipRRect(
-      borderRadius: BorderRadius.circular((height ?? 36) * 0.22),
+      borderRadius: BorderRadius.circular(h * 0.22),
       child: SvgPicture.asset(
-        'assets/heisuca/selo_pequeno_shikkoku.svg',
-        width: height,
-        height: height,
+        seloAsset,
+        width: h,
+        height: h,
         fit: BoxFit.contain,
       ),
     );
@@ -45,10 +58,10 @@ class HeisucaLogo extends StatelessWidget {
               'HEISUCA',
               style: TextStyle(
                 fontFamily: HeisucaTheme.fonteTitulo,
-                fontSize: (height ?? 36) * 0.48,
+                fontSize: h * 0.48,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 2.2,
-                color: const Color(0xFFF4F1FA),
+                color: textColor,
               ),
             ),
             if (comSlogan) ...[
@@ -59,7 +72,7 @@ class HeisucaLogo extends StatelessWidget {
                   fontFamily: HeisucaTheme.fonteTexto,
                   fontSize: 10.5,
                   fontWeight: FontWeight.w400,
-                  color: Colors.white.withOpacity(0.60),
+                  color: sloganColor,
                   letterSpacing: 0.2,
                 ),
               ),

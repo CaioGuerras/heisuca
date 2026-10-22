@@ -30,8 +30,11 @@ import '../media/media_kind.dart';
 import '../mixins/refreshable.dart';
 import '../mixins/tab_visibility_aware.dart';
 import '../providers/discover_provider.dart';
+import '../providers/download_provider.dart';
 import '../providers/multi_server_provider.dart';
 import '../services/jellyfin_client.dart';
+import '../services/watch_actions.dart';
+import '../utils/download_utils.dart';
 import '../utils/media_image_helper.dart';
 import '../widgets/optimized_media_image.dart';
 import 'heisuca_context_menu.dart';
@@ -646,6 +649,7 @@ class _HeroInformationBlock extends StatelessWidget {
           height: 72.0,
           fallbackWidth: 320.0,
           alignment: Alignment.bottomCenter,
+          logoToneTarget: isLight ? const Color(0xFF134E4A) : null,
           fallbackBuilder: (ctx) => Text(
             item.displayTitle,
             textAlign: TextAlign.center,
@@ -855,9 +859,19 @@ class _HeisucaContinueWatchingRow extends StatelessWidget {
                       isContinueRow: true,
                       onPlay: () => cgflixPlay(ctx, item),
                       onOpenDetails: () => HeisucaTitleSheet.show(ctx, item),
-                      onToggleWatched: () => HapticFeedback.lightImpact(),
-                      onToggleFavorite: () => HapticFeedback.lightImpact(),
-                      onDownload: () => HapticFeedback.lightImpact(),
+                      onToggleWatched: () => WatchActions.setWatched(ctx, item, watched: !item.isWatched),
+                      onToggleFavorite: () => cgflixToggleMyList(ctx, item, item.isFavorite ?? false),
+                      onDownload: () {
+                        final mClient = cgflixClientFor(ctx, item);
+                        if (mClient != null) {
+                          queueDownloadWithFeedback(
+                            ctx,
+                            metadata: item,
+                            client: mClient,
+                            downloadProvider: Provider.of<DownloadProvider>(ctx, listen: false),
+                          );
+                        }
+                      },
                     );
                   },
                 );
@@ -964,9 +978,19 @@ class _HeisucaTop10Row extends StatelessWidget {
                       item: item,
                       onPlay: () => cgflixPlay(ctx, item),
                       onOpenDetails: () => HeisucaTitleSheet.show(ctx, item),
-                      onToggleWatched: () => HapticFeedback.lightImpact(),
-                      onToggleFavorite: () => HapticFeedback.lightImpact(),
-                      onDownload: () => HapticFeedback.lightImpact(),
+                      onToggleWatched: () => WatchActions.setWatched(ctx, item, watched: !item.isWatched),
+                      onToggleFavorite: () => cgflixToggleMyList(ctx, item, item.isFavorite ?? false),
+                      onDownload: () {
+                        final mClient = cgflixClientFor(ctx, item);
+                        if (mClient != null) {
+                          queueDownloadWithFeedback(
+                            ctx,
+                            metadata: item,
+                            client: mClient,
+                            downloadProvider: Provider.of<DownloadProvider>(ctx, listen: false),
+                          );
+                        }
+                      },
                     );
                   },
                 );
@@ -1041,9 +1065,19 @@ class _HeisucaShelfRow extends StatelessWidget {
                       item: item,
                       onPlay: () => cgflixPlay(ctx, item),
                       onOpenDetails: () => HeisucaTitleSheet.show(ctx, item),
-                      onToggleWatched: () => HapticFeedback.lightImpact(),
-                      onToggleFavorite: () => HapticFeedback.lightImpact(),
-                      onDownload: () => HapticFeedback.lightImpact(),
+                      onToggleWatched: () => WatchActions.setWatched(ctx, item, watched: !item.isWatched),
+                      onToggleFavorite: () => cgflixToggleMyList(ctx, item, item.isFavorite ?? false),
+                      onDownload: () {
+                        final mClient = cgflixClientFor(ctx, item);
+                        if (mClient != null) {
+                          queueDownloadWithFeedback(
+                            ctx,
+                            metadata: item,
+                            client: mClient,
+                            downloadProvider: Provider.of<DownloadProvider>(ctx, listen: false),
+                          );
+                        }
+                      },
                     );
                   },
                 );

@@ -88,6 +88,15 @@ Future<void> cgflixPlay(BuildContext context, MediaItem item) async {
       } catch (e) {
         appLogger.w('CGFLIX: próximo episódio não encontrado', error: e);
       }
+      try {
+        final episodes = await client.fetchPlayableDescendants(item.id).timeout(const Duration(seconds: 10));
+        if (episodes.isNotEmpty && context.mounted) {
+          await navigateToVideoPlayer(context, metadata: episodes.first);
+          return;
+        }
+      } catch (e) {
+        appLogger.w('CGFLIX: falha ao buscar episódios da série', error: e);
+      }
     }
   }
   if (context.mounted) await cgflixOpenDetails(context, item);

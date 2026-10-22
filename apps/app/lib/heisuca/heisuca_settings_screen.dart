@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import '../cgflix/cgflix_palette.dart';
 import 'heisuca_design_system.dart';
 import 'heisuca_theme.dart';
 import 'services/heisuca_device_service.dart';
@@ -9,6 +10,7 @@ import 'services/heisuca_device_service.dart';
 /// Tela de Configurações Flagship do Heisuca (炳素華)
 /// Filosofia: "Simples para quem assiste, preciso para quem calibra."
 /// Reconhecimento de Hardware automático, configurações básicas visíveis e aba técnica Avançada isolada.
+/// Totalmente adaptada para os temas Shikkoku (Escuro) e Hisui (Claro).
 class HeisucaSettingsScreen extends StatefulWidget {
   const HeisucaSettingsScreen({super.key});
 
@@ -45,9 +47,19 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
   @override
   Widget build(BuildContext context) {
     final profile = _deviceService.profile;
+    final palette = context.cgflix;
+    final isLight = palette.isLight;
+
+    final bg = isLight ? const Color(0xFFF7F3EC) : const Color(0xFF0E0B16);
+    final cardBg = isLight ? Colors.white : Colors.white.withOpacity(0.04);
+    final borderColor = isLight ? const Color(0xFFE2E8F0) : Colors.white.withOpacity(0.08);
+    final titleColor = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
+    final subtitleColor = isLight ? const Color(0xFF64748B) : const Color(0xFFA99FBB);
+    final accentColor = isLight ? const Color(0xFF047857) : const Color(0xFF7A40F2);
+    final tabBg = isLight ? const Color(0xFFE2E8F0) : Colors.white.withOpacity(0.04);
 
     return Scaffold(
-      backgroundColor: HeisucaTheme.roxoFundo,
+      backgroundColor: bg,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -59,16 +71,33 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Configurações',
-                    style: TextStyle(
-                      fontFamily: HeisucaTheme.fonteTitulo,
-                      fontSize: 24.0,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.3,
-                      color: Color(0xFFF4F1FA),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        IconButton(
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          icon: Icon(Icons.arrow_back_rounded, color: titleColor),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                        const SizedBox(width: 10.0),
+                        Flexible(
+                          child: Text(
+                            'Configurações',
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontFamily: HeisucaTheme.fonteTitulo,
+                              fontSize: 22.0,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.3,
+                              color: titleColor,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
+                  const SizedBox(width: 8.0),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.5),
                     decoration: BoxDecoration(
@@ -82,7 +111,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                         fontFamily: HeisucaTheme.fonteTexto,
                         fontSize: 10.0,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF6EE7B7),
+                        color: Color(0xFF059669),
                         letterSpacing: 0.6,
                       ),
                     ),
@@ -97,9 +126,18 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
               child: Container(
                 padding: const EdgeInsets.all(14.0),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.04),
+                  color: cardBg,
                   borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
-                  border: Border.all(color: Colors.white.withOpacity(0.08), width: 0.8),
+                  border: Border.all(color: borderColor, width: 0.8),
+                  boxShadow: isLight
+                      ? [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 10.0,
+                            offset: const Offset(0, 3),
+                          ),
+                        ]
+                      : null,
                 ),
                 child: Row(
                   children: [
@@ -107,12 +145,12 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                       width: 44.0,
                       height: 44.0,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF7A40F2).withOpacity(0.18),
+                        color: accentColor.withOpacity(0.18),
                         borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(color: const Color(0xFF7A40F2).withOpacity(0.4), width: 0.8),
+                        border: Border.all(color: accentColor.withOpacity(0.4), width: 0.8),
                       ),
-                      child: const Center(
-                        child: Icon(Symbols.smartphone_rounded, color: Color(0xFF7A40F2), size: 24.0),
+                      child: Center(
+                        child: Icon(Symbols.smartphone_rounded, color: accentColor, size: 24.0),
                       ),
                     ),
                     const SizedBox(width: 12.0),
@@ -120,31 +158,31 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Aparelho Reconhecido',
                             style: TextStyle(
                               fontFamily: HeisucaTheme.fonteTexto,
                               fontSize: 11.5,
                               fontWeight: FontWeight.w500,
-                              color: Color(0xFFA99FBB),
+                              color: subtitleColor,
                             ),
                           ),
                           Text(
                             profile.deviceName,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: HeisucaTheme.fonteTitulo,
                               fontSize: 15.0,
                               fontWeight: FontWeight.w700,
-                              color: Color(0xFFF4F1FA),
+                              color: titleColor,
                             ),
                           ),
                           const SizedBox(height: 2.0),
                           Text(
                             '${profile.chipset} • ${profile.totalRamGb}GB RAM • ${profile.maxRefreshRateHz}Hz pOLED',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: HeisucaTheme.fonteTexto,
                               fontSize: 10.5,
-                              color: Color(0xFF8E859E),
+                              color: isLight ? const Color(0xFF64748B) : const Color(0xFF8E859E),
                             ),
                           ),
                         ],
@@ -160,13 +198,13 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
               margin: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
               height: 40.0,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.04),
+                color: tabBg,
                 borderRadius: BorderRadius.circular(10.0),
               ),
               child: TabBar(
                 controller: _tabController,
                 indicator: BoxDecoration(
-                  color: const Color(0xFF7A40F2),
+                  color: accentColor,
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 indicatorSize: TabBarIndicatorSize.tab,
@@ -182,7 +220,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                   fontWeight: FontWeight.w500,
                 ),
                 labelColor: Colors.white,
-                unselectedLabelColor: const Color(0xFFA99FBB),
+                unselectedLabelColor: subtitleColor,
                 tabs: const [
                   Tab(text: 'Geral'),
                   Tab(text: 'Avançado'),
@@ -197,10 +235,10 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                 physics: const HeisucaSpringPhysics(),
                 children: [
                   // Aba 1: Geral (Configurações simples e seguras)
-                  _buildGeneralTab(),
+                  _buildGeneralTab(isLight),
 
                   // Aba 2: Avançado (Área técnica isolada)
-                  _buildAdvancedTab(),
+                  _buildAdvancedTab(isLight),
                 ],
               ),
             ),
@@ -210,39 +248,47 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
     );
   }
 
-  Widget _buildGeneralTab() {
+  Widget _buildGeneralTab(bool isLight) {
     return ListView(
       physics: const HeisucaSpringPhysics(),
       padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 10.0, bottom: 120.0),
       children: [
-        _buildSectionHeader('Reprodução e Vídeo'),
+        _buildSectionHeader('Reprodução e Vídeo', isLight),
         _buildSwitchTile(
           title: 'Qualidade Original Direta',
           subtitle: 'Priorizar Direct Play sem transcodificação',
           value: _preferOriginalQuality,
+          isLight: isLight,
           onChanged: (v) => setState(() => _preferOriginalQuality = v),
         ),
         _buildSwitchTile(
           title: 'Pular Abertura Automático',
           subtitle: 'Avança os créditos iniciais automaticamente',
           value: _autoSkipOpening,
+          isLight: isLight,
           onChanged: (v) => setState(() => _autoSkipOpening = v),
         ),
 
         const SizedBox(height: 18.0),
 
-        _buildSectionHeader('Áudio e Legendas'),
+        _buildSectionHeader('Áudio e Legendas', isLight),
         _buildSwitchTile(
           title: 'Preferir Áudio em Português',
           subtitle: 'Selecionar dublagem brasileira automaticamente',
           value: _preferPortuguese,
+          isLight: isLight,
           onChanged: (v) => setState(() => _preferPortuguese = v),
         ),
       ],
     );
   }
 
-  Widget _buildAdvancedTab() {
+  Widget _buildAdvancedTab(bool isLight) {
+    final accentColor = isLight ? const Color(0xFF047857) : const Color(0xFF7A40F2);
+    final cardBg = isLight ? Colors.white : Colors.white.withOpacity(0.03);
+    final borderColor = isLight ? const Color(0xFFE2E8F0) : Colors.white.withOpacity(0.06);
+    final titleColor = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
+
     return ListView(
       physics: const HeisucaSpringPhysics(),
       padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 10.0, bottom: 120.0),
@@ -256,16 +302,16 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
             border: Border.all(color: const Color(0xFFF59E0B).withOpacity(0.3), width: 0.6),
           ),
           child: Row(
-            children: const [
-              Icon(Symbols.warning_rounded, color: Color(0xFFFBBF24), size: 20.0),
-              SizedBox(width: 10.0),
+            children: [
+              const Icon(Symbols.warning_rounded, color: Color(0xFFFBBF24), size: 20.0),
+              const SizedBox(width: 10.0),
               Expanded(
                 child: Text(
                   'As opções abaixo afetam diretamente o motor libmpv e a GPU. Altere apenas se necessário.',
                   style: TextStyle(
                     fontFamily: HeisucaTheme.fonteTexto,
                     fontSize: 11.5,
-                    color: Color(0xFFFDE68A),
+                    color: isLight ? const Color(0xFF92400E) : const Color(0xFFFDE68A),
                   ),
                 ),
               ),
@@ -275,29 +321,40 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
 
         const SizedBox(height: 16.0),
 
-        _buildSectionHeader('Motor de Renderização GPU'),
+        _buildSectionHeader('Motor de Renderização GPU', isLight),
         _buildSwitchTile(
           title: 'Decodificação Zero-Copy Vulkan',
           subtitle: 'HardwareBuffer direto para a GPU sem cópias de memória',
           value: _useZeroCopyVulkan,
+          isLight: isLight,
           onChanged: (v) => setState(() => _useZeroCopyVulkan = v),
         ),
         _buildSwitchTile(
           title: 'Taxa de Atualização Máxima (144Hz)',
           subtitle: 'Sincronização vertical contra stuttering em 24fps/60fps',
           value: _force144Hz,
+          isLight: isLight,
           onChanged: (v) => setState(() => _force144Hz = v),
         ),
 
         const SizedBox(height: 16.0),
 
-        _buildSectionHeader('Buffer de Memória RAM'),
+        _buildSectionHeader('Buffer de Memória RAM', isLight),
         Container(
           padding: const EdgeInsets.all(14.0),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.03),
+            color: cardBg,
             borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
-            border: Border.all(color: Colors.white.withOpacity(0.06), width: 0.6),
+            border: Border.all(color: borderColor, width: 0.6),
+            boxShadow: isLight
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.03),
+                      blurRadius: 8.0,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -305,22 +362,25 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Tamanho do Buffer de Vídeo',
+                  Expanded(
+                    child: Text(
+                      'Tamanho do Buffer de Vídeo',
+                      style: TextStyle(
+                        fontFamily: HeisucaTheme.fonteTexto,
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w600,
+                        color: titleColor,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8.0),
+                  Text(
+                    '$_ramBufferSizeMb MB',
                     style: TextStyle(
                       fontFamily: HeisucaTheme.fonteTexto,
                       fontSize: 13.5,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFFF4F1FA),
-                    ),
-                  ),
-                  Text(
-                    '$_ramBufferSizeMb MB',
-                    style: const TextStyle(
-                      fontFamily: HeisucaTheme.fonteTexto,
-                      fontSize: 13.5,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF7A40F2),
+                      color: accentColor,
                     ),
                   ),
                 ],
@@ -331,8 +391,8 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                 min: 64,
                 max: 512,
                 divisions: 7,
-                activeColor: const Color(0xFF7A40F2),
-                inactiveColor: Colors.white.withOpacity(0.1),
+                activeColor: accentColor,
+                inactiveColor: isLight ? const Color(0xFFCBD5E1) : Colors.white.withOpacity(0.1),
                 onChanged: (v) {
                   HapticFeedback.selectionClick();
                   setState(() => _ramBufferSizeMb = v.toInt());
@@ -360,18 +420,21 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
           child: Container(
             height: 44.0,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.06),
+              color: isLight ? const Color(0xFFE2E8F0) : Colors.white.withOpacity(0.06),
               borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
-              border: Border.all(color: Colors.white.withOpacity(0.10), width: 0.8),
+              border: Border.all(
+                color: isLight ? const Color(0xFFCBD5E1) : Colors.white.withOpacity(0.10),
+                width: 0.8,
+              ),
             ),
-            child: const Center(
+            child: Center(
               child: Text(
                 'Restaurar Configuração Recomendada',
                 style: TextStyle(
                   fontFamily: HeisucaTheme.fonteTexto,
                   fontSize: 13.5,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFFF4F1FA),
+                  color: isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA),
                 ),
               ),
             ),
@@ -381,16 +444,16 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(String title, bool isLight) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0, top: 4.0),
       child: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: HeisucaTheme.fonteTitulo,
           fontSize: 14.5,
           fontWeight: FontWeight.w700,
-          color: Color(0xFFA99FBB),
+          color: isLight ? const Color(0xFF047857) : const Color(0xFFA99FBB),
         ),
       ),
     );
@@ -400,16 +463,32 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
     required String title,
     required String subtitle,
     required bool value,
+    required bool isLight,
     required ValueChanged<bool> onChanged,
   }) {
+    final cardBg = isLight ? Colors.white : Colors.white.withOpacity(0.03);
+    final borderColor = isLight ? const Color(0xFFE2E8F0) : Colors.white.withOpacity(0.06);
+    final titleColor = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
+    final subtitleColor = isLight ? const Color(0xFF64748B) : Colors.white.withOpacity(0.45);
+    final activeColor = isLight ? const Color(0xFF047857) : const Color(0xFF7A40F2);
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.03),
+          color: cardBg,
           borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
-          border: Border.all(color: Colors.white.withOpacity(0.06), width: 0.6),
+          border: Border.all(color: borderColor, width: 0.6),
+          boxShadow: isLight
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: 8.0,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
         ),
         child: Row(
           children: [
@@ -419,11 +498,11 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: HeisucaTheme.fonteTexto,
                       fontSize: 13.5,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFFF4F1FA),
+                      color: titleColor,
                     ),
                   ),
                   Text(
@@ -431,7 +510,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                     style: TextStyle(
                       fontFamily: HeisucaTheme.fonteTexto,
                       fontSize: 11.5,
-                      color: Colors.white.withOpacity(0.45),
+                      color: subtitleColor,
                     ),
                   ),
                 ],
@@ -443,8 +522,8 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                 HapticFeedback.lightImpact();
                 onChanged(v);
               },
-              activeColor: const Color(0xFF7A40F2),
-              activeTrackColor: const Color(0xFF7A40F2).withOpacity(0.35),
+              activeColor: activeColor,
+              activeTrackColor: activeColor.withOpacity(0.35),
             ),
           ],
         ),

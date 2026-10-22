@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
+import '../cgflix/cgflix_palette.dart';
 import '../connection/connection.dart';
 import '../connection/connection_registry.dart';
 import '../exceptions/media_server_exceptions.dart';
@@ -210,15 +211,22 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
   void _showQuickConnectModal() {
     HapticFeedback.lightImpact();
     var serverUrl = _serverController.text.trim();
-    if (serverUrl.isEmpty) serverUrl = widget.initialServerUrl;
+    if (serverUrl.isEmpty || serverUrl == 'https://') {
+      serverUrl = widget.initialServerUrl.isNotEmpty
+          ? widget.initialServerUrl
+          : 'https://netflix.docaio.com.br';
+    }
     if (!serverUrl.startsWith('http://') && !serverUrl.startsWith('https://')) {
       serverUrl = 'https://$serverUrl';
     }
 
+    final palette = context.cgflix;
+    final isLight = palette.isLight;
+
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: const Color(0xFF140F22),
+      backgroundColor: isLight ? const Color(0xFFF7F3EC) : const Color(0xFF140F22),
       barrierColor: Colors.black.withOpacity(0.75),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28.0)),
@@ -229,10 +237,18 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
 
   void _showSourcesBottomSheet() {
     HapticFeedback.lightImpact();
+    final palette = context.cgflix;
+    final isLight = palette.isLight;
+
+    final sheetBg = isLight ? const Color(0xFFF7F3EC) : const Color(0xFF140F22);
+    final handleColor = isLight ? const Color(0xFFCBD5E1) : const Color(0xFF382C52);
+    final titleColor = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
+    final subtitleColor = isLight ? const Color(0xFF64748B) : const Color(0xFFA99FBB);
+
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: const Color(0xFF140F22),
+      backgroundColor: sheetBg,
       barrierColor: Colors.black.withOpacity(0.65),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28.0)),
@@ -250,32 +266,33 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                     width: 48.0,
                     height: 5.0,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF382C52),
+                      color: handleColor,
                       borderRadius: BorderRadius.circular(2.5),
                     ),
                   ),
                 ),
                 const SizedBox(height: 20.0),
-                const Text(
+                Text(
                   'Adicionar Fontes e Servidores',
                   style: TextStyle(
                     fontFamily: HeisucaTheme.fonteTitulo,
                     fontSize: 20.0,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFFF4F1FA),
+                    color: titleColor,
                   ),
                 ),
                 const SizedBox(height: 6.0),
-                const Text(
+                Text(
                   'Conecte suas contas de streaming, pastas locais ou outros servidores.',
                   style: TextStyle(
                     fontFamily: HeisucaTheme.fonteTexto,
                     fontSize: 14.0,
-                    color: Color(0xFFA99FBB),
+                    color: subtitleColor,
                   ),
                 ),
                 const SizedBox(height: 20.0),
                 _SourceTile(
+                  brandColor: const Color(0xFFE5A00D), // Plex Gold
                   icon: Icons.movie_filter_rounded,
                   title: 'Conta Plex',
                   subtitle: 'Acesse servidores locais ou compartilhados via Plex PIN ou QR Code',
@@ -293,9 +310,10 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                 ),
                 const SizedBox(height: 12.0),
                 _SourceTile(
+                  brandColor: const Color(0xFFAA5CC3), // Jellyfin Purple
                   icon: Icons.dns_rounded,
-                  title: 'Outro Servidor Jellyfin / Emby',
-                  subtitle: 'Conectar a uma URL personalizada de servidor de mídia',
+                  title: 'Servidor Jellyfin',
+                  subtitle: 'Streaming direto de alta fidelidade via Jellyfin Server',
                   onTap: () {
                     Navigator.pop(ctx);
                     setState(() {
@@ -305,6 +323,20 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                 ),
                 const SizedBox(height: 12.0),
                 _SourceTile(
+                  brandColor: const Color(0xFF52B54B), // Emby Green
+                  icon: Icons.play_circle_filled_rounded,
+                  title: 'Servidor Emby',
+                  subtitle: 'Conectar a uma biblioteca ou servidor de mídia Emby',
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    setState(() {
+                      _serverController.text = '';
+                    });
+                  },
+                ),
+                const SizedBox(height: 12.0),
+                _SourceTile(
+                  brandColor: const Color(0xFF3B82F6), // SMB Blue
                   icon: Icons.folder_shared_rounded,
                   title: 'Pasta de Rede Local (SMB / Samba)',
                   subtitle: 'Acesse pastas compartilhadas no seu roteador, PC ou NAS',
@@ -318,6 +350,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                 ),
                 const SizedBox(height: 12.0),
                 _SourceTile(
+                  brandColor: const Color(0xFF0EA5E9), // WebDAV Sky Blue
                   icon: Icons.cloud_queue_rounded,
                   title: 'Servidor WebDAV',
                   subtitle: 'Streaming direto de nuvens privadas compatíveis',
@@ -327,6 +360,17 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                       context,
                       MaterialPageRoute(builder: (_) => const HeisucaAddWebDavScreen()),
                     );
+                  },
+                ),
+                const SizedBox(height: 12.0),
+                _SourceTile(
+                  brandColor: const Color(0xFFF97316), // Local Storage Orange
+                  icon: Icons.sd_storage_rounded,
+                  title: 'Arquivos deste Dispositivo',
+                  subtitle: 'Reproduzir vídeos salvos no armazenamento local do aparelho',
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    HapticFeedback.lightImpact();
                   },
                 ),
                 const SizedBox(height: 16.0),
@@ -340,204 +384,273 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const bg = Color(0xFF0E0B16);
-    const surf = Color(0xFF181324);
-    const line = Color(0xFF2A203D);
-    const accent = Color(0xFF9D74FF);
-    const text = Color(0xFFF4F1FA);
-    const text2 = Color(0xFFA99FBB);
+    final palette = context.cgflix;
+    final isLight = palette.isLight;
+
+    final bg = isLight ? const Color(0xFFF7F3EC) : const Color(0xFF0E0B16);
+    final surf = isLight ? const Color(0xFFFFFFFF) : const Color(0xFF181324);
+    final border = isLight ? const Color(0xFFE2E8F0) : const Color(0xFF2A203D);
+    final accent = isLight ? const Color(0xFF047857) : const Color(0xFF9D74FF);
+    final text = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
+    final text2 = isLight ? const Color(0xFF64748B) : const Color(0xFFA99FBB);
+    final hintColor = isLight ? const Color(0xFF94A3B8) : const Color(0xFF5A526E);
 
     return Scaffold(
       backgroundColor: bg,
       body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const HeisucaSpringPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 24.0),
-
-              // 1. Marca Heisuca no Topo com botão discreto de Conexão Rápida no canto superior direito (Foto 286)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const SizedBox(width: 44.0), // Equilíbrio óptico com o ícone da direita
-                  const Expanded(
-                    child: Center(
-                      child: HeisucaLogo(height: 48, comSlogan: true),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.qr_code_2_rounded, color: accent, size: 26.0),
-                    tooltip: 'Conexão Rápida',
-                    onPressed: _showQuickConnectModal,
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 36.0),
-
-              // 2. Campo: Servidor
-              const _InputLabel(label: 'SERVIDOR'),
-              const SizedBox(height: 8.0),
-              _GlassTextField(
-                controller: _serverController,
-                prefixIcon: Icons.dns_outlined,
-                hintText: 'https://seuservidor.com',
-                enabled: !_isLoading,
-              ),
-
-              const SizedBox(height: 16.0),
-
-              // 4. Campo: Usuário
-              const _InputLabel(label: 'USUÁRIO'),
-              const SizedBox(height: 8.0),
-              _GlassTextField(
-                controller: _userController,
-                prefixIcon: Icons.person_outline_rounded,
-                hintText: 'Nome de usuário',
-                enabled: !_isLoading,
-              ),
-
-              const SizedBox(height: 16.0),
-
-              // 5. Campo: Senha
-              const _InputLabel(label: 'SENHA'),
-              const SizedBox(height: 8.0),
-              _GlassTextField(
-                controller: _passwordController,
-                prefixIcon: Icons.lock_outline_rounded,
-                hintText: '••••••••',
-                obscureText: _obscurePassword,
-                enabled: !_isLoading,
-                onSubmitted: (_) => _signInDirect(),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                    color: text2,
-                    size: 20.0,
-                  ),
-                  onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                ),
-              ),
-
-              const SizedBox(height: 20.0),
-
-              // Banner de Erro Elegante em Carmim
-              if (_errorMessage != null) ...[
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF3B1219),
-                    borderRadius: BorderRadius.circular(14.0),
-                    border: Border.all(color: const Color(0xFFE53935).withOpacity(0.5), width: 1.2),
-                  ),
-                  child: Row(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              physics: const HeisucaSpringPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 20.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Icon(Icons.error_outline_rounded, color: Color(0xFFFF5252), size: 20.0),
-                      const SizedBox(width: 12.0),
-                      Expanded(
-                        child: Text(
-                          _errorMessage!,
-                          style: const TextStyle(
-                            fontFamily: HeisucaTheme.fonteTexto,
-                            fontSize: 13.5,
-                            color: Color(0xFFFFCDD2),
-                            fontWeight: FontWeight.w500,
+                      // Topo: Ícone discreto de Conexão Rápida no canto superior direito
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.qr_code_2_rounded, color: accent, size: 26.0),
+                            tooltip: 'Conexão Rápida',
+                            onPressed: _showQuickConnectModal,
+                          ),
+                        ],
+                      ),
+
+                      // Bloco Central: Logo Heisuca, Formulário e Botão de Conectar
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Center(
+                            child: HeisucaLogo(height: 52, comSlogan: true),
+                          ),
+                          const SizedBox(height: 36.0),
+
+                          // 2. Campo: Servidor
+                          _InputLabel(label: 'SERVIDOR', color: accent),
+                          const SizedBox(height: 8.0),
+                          _GlassTextField(
+                            controller: _serverController,
+                            prefixIcon: Icons.dns_outlined,
+                            hintText: 'https://seuservidor.com',
+                            bgColor: surf,
+                            borderColor: border,
+                            textColor: text,
+                            hintColor: hintColor,
+                            enabled: !_isLoading,
+                            onChanged: (_) => setState(() {}),
+                          ),
+                          const SizedBox(height: 6.0),
+                          // Indicador de Presença em Tempo Real
+                          Row(
+                            children: [
+                              Container(
+                                width: 8.0,
+                                height: 8.0,
+                                decoration: BoxDecoration(
+                                  color: _serverController.text.trim().isNotEmpty
+                                      ? const Color(0xFF22C55E)
+                                      : const Color(0xFF94A3B8),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 6.0),
+                              Expanded(
+                                child: Text(
+                                  _serverController.text.trim().isNotEmpty
+                                      ? '● CGSERVER · Jellyfin pronto para autenticar'
+                                      : 'Acesso universal neutro · Digite o endereço',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontFamily: HeisucaTheme.fonteTexto,
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w500,
+                                    color: text2,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 16.0),
+
+                          // 3. Campo: Usuário
+                          _InputLabel(label: 'USUÁRIO', color: accent),
+                          const SizedBox(height: 8.0),
+                          _GlassTextField(
+                            controller: _userController,
+                            prefixIcon: Icons.person_outline_rounded,
+                            hintText: 'Nome de usuário',
+                            bgColor: surf,
+                            borderColor: border,
+                            textColor: text,
+                            hintColor: hintColor,
+                            enabled: !_isLoading,
+                          ),
+
+                          const SizedBox(height: 16.0),
+
+                          // 4. Campo: Senha
+                          _InputLabel(label: 'SENHA', color: accent),
+                          const SizedBox(height: 8.0),
+                          _GlassTextField(
+                            controller: _passwordController,
+                            prefixIcon: Icons.lock_outline_rounded,
+                            hintText: '••••••••',
+                            bgColor: surf,
+                            borderColor: border,
+                            textColor: text,
+                            hintColor: hintColor,
+                            obscureText: _obscurePassword,
+                            enabled: !_isLoading,
+                            onSubmitted: (_) => _signInDirect(),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                                color: text2,
+                                size: 20.0,
+                              ),
+                              onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                            ),
+                          ),
+
+                          const SizedBox(height: 20.0),
+
+                          // Banner de Erro Elegante em Carmim
+                          if (_errorMessage != null) ...[
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                              decoration: BoxDecoration(
+                                color: isLight ? const Color(0xFFFEE2E2) : const Color(0xFF3B1219),
+                                borderRadius: BorderRadius.circular(14.0),
+                                border: Border.all(
+                                  color: const Color(0xFFE53935).withOpacity(0.5),
+                                  width: 1.2,
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.error_outline_rounded, color: Color(0xFFE53935), size: 20.0),
+                                  const SizedBox(width: 12.0),
+                                  Expanded(
+                                    child: Text(
+                                      _errorMessage!,
+                                      style: TextStyle(
+                                        fontFamily: HeisucaTheme.fonteTexto,
+                                        fontSize: 13.5,
+                                        color: isLight ? const Color(0xFF991B1B) : const Color(0xFFFFCDD2),
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16.0),
+                          ],
+
+                          // 5. Botão Primário: Conectar ao Servidor
+                          HeisucaSpringPressable(
+                            onTap: _isLoading ? null : _signInDirect,
+                            child: Container(
+                              height: 56.0,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: _isLoading
+                                      ? (isLight
+                                          ? [const Color(0xFF047857).withOpacity(0.6), const Color(0xFF065F46).withOpacity(0.6)]
+                                          : [const Color(0xFF4C3078), const Color(0xFF5B3E96)])
+                                      : (isLight
+                                          ? [const Color(0xFF059669), const Color(0xFF047857)]
+                                          : [const Color(0xFF7444E0), const Color(0xFF9D74FF)]),
+                                ),
+                                borderRadius: BorderRadius.circular(28.0),
+                                boxShadow: _isLoading
+                                    ? []
+                                    : [
+                                        BoxShadow(
+                                          color: accent.withOpacity(isLight ? 0.25 : 0.35),
+                                          blurRadius: 20.0,
+                                          offset: const Offset(0, 8),
+                                        ),
+                                      ],
+                              ),
+                              alignment: Alignment.center,
+                              child: _isLoading
+                                  ? const Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          width: 22.0,
+                                          height: 22.0,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2.4,
+                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                          ),
+                                        ),
+                                        SizedBox(width: 12.0),
+                                        Text(
+                                          'Conectando ao Servidor...',
+                                          style: TextStyle(
+                                            fontFamily: HeisucaTheme.fonteTitulo,
+                                            fontSize: 16.0,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : const Text(
+                                      'Conectar ao Servidor',
+                                      style: TextStyle(
+                                        fontFamily: HeisucaTheme.fonteTitulo,
+                                        fontSize: 16.5,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // Rodapé: + Outros servidores e pastas locais
+                      Padding(
+                        padding: const EdgeInsets.only(top: 24.0, bottom: 8.0),
+                        child: Center(
+                          child: TextButton.icon(
+                            onPressed: _showSourcesBottomSheet,
+                            icon: Icon(Icons.add_circle_outline_rounded, size: 18.0, color: text2),
+                            label: Text(
+                              'Outros servidores e pastas locais',
+                              style: TextStyle(
+                                fontFamily: HeisucaTheme.fonteTexto,
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.w500,
+                                color: text2,
+                              ),
+                            ),
+                            style: TextButton.styleFrom(
+                              foregroundColor: text2,
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                            ),
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 16.0),
-              ],
-
-              // 6. Botão Primário: Conectar ao Servidor
-              HeisucaSpringPressable(
-                onTap: _isLoading ? null : _signInDirect,
-                child: Container(
-                  height: 56.0,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: _isLoading
-                          ? [const Color(0xFF4C3078), const Color(0xFF5B3E96)]
-                          : [const Color(0xFF7444E0), const Color(0xFF9D74FF)],
-                    ),
-                    borderRadius: BorderRadius.circular(28.0),
-                    boxShadow: _isLoading
-                        ? []
-                        : [
-                            BoxShadow(
-                              color: accent.withOpacity(0.35),
-                              blurRadius: 20.0,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
-                  ),
-                  alignment: Alignment.center,
-                  child: _isLoading
-                      ? const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              width: 22.0,
-                              height: 22.0,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2.4,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            ),
-                            SizedBox(width: 12.0),
-                            Text(
-                              'Conectando ao Servidor...',
-                              style: TextStyle(
-                                fontFamily: HeisucaTheme.fonteTitulo,
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        )
-                      : const Text(
-                          'Conectar ao Servidor',
-                          style: TextStyle(
-                            fontFamily: HeisucaTheme.fonteTitulo,
-                            fontSize: 16.5,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                ),
               ),
-
-              const SizedBox(height: 24.0),
-
-              // 7. Botão Discreto: + Outros servidores e pastas locais
-              Center(
-                child: TextButton.icon(
-                  onPressed: _showSourcesBottomSheet,
-                  icon: const Icon(Icons.add_circle_outline_rounded, size: 18.0, color: text2),
-                  label: const Text(
-                    'Outros servidores e pastas locais',
-                    style: TextStyle(
-                      fontFamily: HeisucaTheme.fonteTexto,
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.w500,
-                      color: text2,
-                    ),
-                  ),
-                  style: TextButton.styleFrom(
-                    foregroundColor: text2,
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
@@ -545,19 +658,20 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
 }
 
 class _InputLabel extends StatelessWidget {
-  const _InputLabel({required this.label});
+  const _InputLabel({required this.label, required this.color});
   final String label;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
     return Text(
       label,
-      style: const TextStyle(
+      style: TextStyle(
         fontFamily: HeisucaTheme.fonteTexto,
         fontSize: 12.0,
         fontWeight: FontWeight.w700,
         letterSpacing: 0.8,
-        color: Color(0xFF9D74FF),
+        color: color,
       ),
     );
   }
@@ -568,47 +682,58 @@ class _GlassTextField extends StatelessWidget {
     required this.controller,
     required this.prefixIcon,
     required this.hintText,
+    required this.bgColor,
+    required this.borderColor,
+    required this.textColor,
+    required this.hintColor,
     this.obscureText = false,
     this.enabled = true,
     this.onSubmitted,
+    this.onChanged,
     this.suffixIcon,
   });
 
   final TextEditingController controller;
   final IconData prefixIcon;
   final String hintText;
+  final Color bgColor;
+  final Color borderColor;
+  final Color textColor;
+  final Color hintColor;
   final bool obscureText;
   final bool enabled;
   final ValueChanged<String>? onSubmitted;
+  final ValueChanged<String>? onChanged;
   final Widget? suffixIcon;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF181324),
+        color: bgColor,
         borderRadius: BorderRadius.circular(18.0),
-        border: Border.all(color: const Color(0xFF2A203D), width: 1.4),
+        border: Border.all(color: borderColor, width: 1.4),
       ),
       child: TextField(
         controller: controller,
         enabled: enabled,
         obscureText: obscureText,
         onSubmitted: onSubmitted,
+        onChanged: onChanged,
         textInputAction: onSubmitted != null ? TextInputAction.done : TextInputAction.next,
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: HeisucaTheme.fonteTexto,
           fontSize: 15.5,
-          color: Color(0xFFF4F1FA),
+          color: textColor,
         ),
         decoration: InputDecoration(
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-          prefixIcon: Icon(prefixIcon, color: const Color(0xFFA99FBB), size: 22.0),
+          prefixIcon: Icon(prefixIcon, color: hintColor, size: 22.0),
           suffixIcon: suffixIcon,
           hintText: hintText,
-          hintStyle: const TextStyle(
-            color: Color(0xFF5A526E),
+          hintStyle: TextStyle(
+            color: hintColor,
             fontSize: 15.0,
           ),
         ),
@@ -619,12 +744,14 @@ class _GlassTextField extends StatelessWidget {
 
 class _SourceTile extends StatelessWidget {
   const _SourceTile({
+    required this.brandColor,
     required this.icon,
     required this.title,
     required this.subtitle,
     required this.onTap,
   });
 
+  final Color brandColor;
   final IconData icon;
   final String title;
   final String subtitle;
@@ -632,14 +759,29 @@ class _SourceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.cgflix;
+    final isLight = palette.isLight;
+
     return HeisucaSpringPressable(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
-          color: const Color(0xFF1E1730),
+          color: isLight ? Colors.white : const Color(0xFF1E1730),
           borderRadius: BorderRadius.circular(18.0),
-          border: Border.all(color: const Color(0xFF2E2248), width: 1.2),
+          border: Border.all(
+            color: isLight ? const Color(0xFFE2E8F0) : const Color(0xFF2E2248),
+            width: 1.2,
+          ),
+          boxShadow: isLight
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 10.0,
+                    offset: const Offset(0, 3),
+                  ),
+                ]
+              : null,
         ),
         child: Row(
           children: [
@@ -647,10 +789,10 @@ class _SourceTile extends StatelessWidget {
               width: 44.0,
               height: 44.0,
               decoration: BoxDecoration(
-                color: const Color(0xFF9D74FF).withOpacity(0.16),
+                color: brandColor.withOpacity(0.16),
                 borderRadius: BorderRadius.circular(14.0),
               ),
-              child: Icon(icon, color: const Color(0xFF9D74FF), size: 24.0),
+              child: Icon(icon, color: brandColor, size: 24.0),
             ),
             const SizedBox(width: 14.0),
             Expanded(
@@ -659,26 +801,29 @@ class _SourceTile extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: HeisucaTheme.fonteTitulo,
                       fontSize: 15.5,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFFF4F1FA),
+                      color: isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA),
                     ),
                   ),
                   const SizedBox(height: 2.0),
                   Text(
                     subtitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: HeisucaTheme.fonteTexto,
                       fontSize: 12.5,
-                      color: Color(0xFFA99FBB),
+                      color: isLight ? const Color(0xFF64748B) : const Color(0xFFA99FBB),
                     ),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded, color: Color(0xFFA99FBB)),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: isLight ? const Color(0xFF94A3B8) : const Color(0xFFA99FBB),
+            ),
           ],
         ),
       ),
@@ -714,6 +859,14 @@ class _HeisucaQuickConnectModalState extends State<_HeisucaQuickConnectModal> {
 
   Future<void> _startFlow() async {
     try {
+      var targetUrl = widget.serverUrl.trim();
+      if (targetUrl.isEmpty || targetUrl == 'https://') {
+        targetUrl = 'https://netflix.docaio.com.br';
+      }
+      if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
+        targetUrl = 'https://$targetUrl';
+      }
+
       final clientVersion = await resolveJellyfinClientVersion();
       final identity = await DeviceIdentityService.resolve();
       final auth = JellyfinConnectionAuthService(
@@ -724,7 +877,7 @@ class _HeisucaQuickConnectModalState extends State<_HeisucaQuickConnectModal> {
       );
 
       final candidates = JellyfinEndpointDiscovery.buildUserInputCandidates(
-        [widget.serverUrl],
+        [targetUrl],
         dialect: MediaBrowserDialect.jellyfin,
       );
       if (candidates.probeBaseUrls.isEmpty) {
@@ -804,7 +957,8 @@ class _HeisucaQuickConnectModalState extends State<_HeisucaQuickConnectModal> {
         fadeRoute(const ProfileSessionScreen(initialPromptHandled: true)),
         (route) => false,
       );
-    } catch (e) {
+    } catch (e, st) {
+      appLogger.e('Quick Connect falhou', error: e, stackTrace: st);
       if (!mounted || _isCancelled) return;
       setState(() => _error = 'Não foi possível iniciar o Quick Connect.');
     }
@@ -812,9 +966,18 @@ class _HeisucaQuickConnectModalState extends State<_HeisucaQuickConnectModal> {
 
   @override
   Widget build(BuildContext context) {
-    const accent = Color(0xFF9D74FF);
-    const text = Color(0xFFF4F1FA);
-    const text2 = Color(0xFFA99FBB);
+    final palette = context.cgflix;
+    final isLight = palette.isLight;
+
+    final accent = isLight ? const Color(0xFF047857) : const Color(0xFF9D74FF);
+    final text = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
+    final text2 = isLight ? const Color(0xFF64748B) : const Color(0xFFA99FBB);
+    final cardBg = isLight ? const Color(0xFFFFFFFF) : const Color(0xFF1E1730);
+    final handleColor = isLight ? const Color(0xFFCBD5E1) : const Color(0xFF382C52);
+
+    final formattedCode = _code != null && _code!.length == 6
+        ? '${_code!.substring(0, 3)} ${_code!.substring(3)}'
+        : _code;
 
     return SafeArea(
       child: Padding(
@@ -826,12 +989,12 @@ class _HeisucaQuickConnectModalState extends State<_HeisucaQuickConnectModal> {
               width: 48.0,
               height: 5.0,
               decoration: BoxDecoration(
-                color: const Color(0xFF382C52),
+                color: handleColor,
                 borderRadius: BorderRadius.circular(2.5),
               ),
             ),
             const SizedBox(height: 24.0),
-            const Text(
+            Text(
               'Conexão Rápida Heisuca',
               style: TextStyle(
                 fontFamily: HeisucaTheme.fonteTitulo,
@@ -841,7 +1004,7 @@ class _HeisucaQuickConnectModalState extends State<_HeisucaQuickConnectModal> {
               ),
             ),
             const SizedBox(height: 8.0),
-            const Text(
+            Text(
               'Acesse sua conta sem precisar digitar sua senha.',
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -854,12 +1017,28 @@ class _HeisucaQuickConnectModalState extends State<_HeisucaQuickConnectModal> {
             if (_error != null) ...[
               Text(
                 _error!,
-                style: const TextStyle(color: Color(0xFFFF5252), fontSize: 14.0, fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  color: Color(0xFFFF5252),
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.w600,
+                ),
                 textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12.0),
+              TextButton.icon(
+                onPressed: () {
+                  setState(() {
+                    _error = null;
+                    _code = null;
+                  });
+                  unawaited(_startFlow());
+                },
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('Tentar novamente'),
               ),
               const SizedBox(height: 16.0),
             ] else if (_code == null) ...[
-              const Center(
+              Center(
                 child: SizedBox(
                   width: 32.0,
                   height: 32.0,
@@ -867,7 +1046,7 @@ class _HeisucaQuickConnectModalState extends State<_HeisucaQuickConnectModal> {
                 ),
               ),
               const SizedBox(height: 16.0),
-              const Text(
+              Text(
                 'Gerando código de conexão...',
                 style: TextStyle(color: text2, fontSize: 13.5),
               ),
@@ -875,36 +1054,37 @@ class _HeisucaQuickConnectModalState extends State<_HeisucaQuickConnectModal> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 16.0),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E1730),
+                  color: cardBg,
                   borderRadius: BorderRadius.circular(20.0),
                   border: Border.all(color: accent.withOpacity(0.5), width: 1.5),
                 ),
                 child: Text(
-                  _code!,
-                  style: const TextStyle(
+                  formattedCode!,
+                  style: TextStyle(
                     fontFamily: HeisucaTheme.fonteTitulo,
                     fontSize: 34.0,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 6.0,
                     color: accent,
+                    fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                 ),
               ),
               const SizedBox(height: 20.0),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Text(
                   '1. No seu computador ou celular, abra o Jellyfin no navegador\n2. Vá em Configurações > Conexão Rápida\n3. Digite o código acima para autorizar',
                   style: TextStyle(
                     fontFamily: HeisucaTheme.fonteTexto,
                     fontSize: 13.5,
                     height: 1.5,
-                    color: Color(0xFFC7C0D6),
+                    color: isLight ? const Color(0xFF334155) : const Color(0xFFC7C0D6),
                   ),
                 ),
               ),
               const SizedBox(height: 24.0),
-              const Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SizedBox(
@@ -912,7 +1092,7 @@ class _HeisucaQuickConnectModalState extends State<_HeisucaQuickConnectModal> {
                     height: 14.0,
                     child: CircularProgressIndicator(strokeWidth: 2.0, color: accent),
                   ),
-                  SizedBox(width: 10.0),
+                  const SizedBox(width: 10.0),
                   Text(
                     'Aguardando aprovação...',
                     style: TextStyle(fontSize: 13.0, color: text2),
@@ -930,11 +1110,14 @@ class _HeisucaQuickConnectModalState extends State<_HeisucaQuickConnectModal> {
                 height: 48.0,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF221A33),
+                  color: isLight ? const Color(0xFFE2E8F0) : const Color(0xFF221A33),
                   borderRadius: BorderRadius.circular(14.0),
-                  border: Border.all(color: const Color(0xFF382C52), width: 1.2),
+                  border: Border.all(
+                    color: isLight ? const Color(0xFFCBD5E1) : const Color(0xFF382C52),
+                    width: 1.2,
+                  ),
                 ),
-                child: const Text(
+                child: Text(
                   'Cancelar',
                   style: TextStyle(
                     fontFamily: HeisucaTheme.fonteTitulo,

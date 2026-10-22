@@ -97,7 +97,7 @@
         <activity-alias
             android:name=".IconeHeitor"
             android:targetActivity=".MainActivity"
-            android:icon="@mipmap/ic_launcher_heitor"
+            android:icon="@mipmap/ic_launcher_hisui"
             android:enabled="false"
             android:exported="true">
             <intent-filter>

@@ -18,6 +18,9 @@ import 'widgets/play_pause_stream_builder.dart';
 import 'widgets/live_timeline_bar.dart';
 import 'widgets/video_controls_header.dart';
 import 'widgets/video_timeline_bar.dart';
+import 'models/track_controls_state.dart';
+import '../../heisuca/player/heisuca_player_hud.dart';
+import '../../cgflix/cgflix_palette.dart';
 
 /// Mobile video controls layout for Plex video player
 ///
@@ -87,9 +90,13 @@ class MobileVideoControls extends StatefulWidget {
   /// Returns true when a global touch position belongs to the parent edge-adjustment zone.
   final bool Function(Offset globalPosition)? isInEdgeAdjustmentZone;
 
+  /// Heisuca (celular): estado real das faixas para o HUD do Esboço 07A. Nulo = régua original.
+  final TrackControlsState? heisucaTrackState;
+
   const MobileVideoControls({
     super.key,
     required this.player,
+    this.heisucaTrackState,
     required this.metadata,
     required this.chapters,
     required this.chaptersLoaded,
@@ -328,7 +335,8 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
           style: VideoHeaderStyle.multiLine,
           onCancelAutoHide: widget.onCancelAutoHide,
           onStartAutoHide: widget.onStartAutoHide,
-          trailing: null,
+          trailing: widget.heisucaTrackState == null || !widget.canControl ? null
+              : HeisucaPlayerQuickActions(player: widget.player, state: widget.heisucaTrackState!, compact: isPortraitPhone),
           onBack: widget.onBack,
           showClock: !isPortraitPhone,
         ),
@@ -360,7 +368,7 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
             if (!widget.isLive) ...[
               CircularControlButton(
                 semanticLabel: 'Voltar ${widget.seekTimeSmall} segundos',
-                icon: Symbols.replay_rounded,
+                icon: heisucaSeekIcon(widget.seekTimeSmall, forward: false),
                 iconSize: 40,
                 onPressed: () => _seekRelative(-widget.seekTimeSmall),
               ),
@@ -370,6 +378,9 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
               semanticLabel: isPlaying ? t.videoControls.pauseButton : t.videoControls.playButton,
               icon: isPlaying ? Symbols.pause_rounded : Symbols.play_arrow_rounded,
               iconSize: 72,
+              background: widget.heisucaTrackState != null
+                  ? context.cgflix.accent.withValues(alpha: .9)
+                  : null,
               onPressed: () {
                 widget.onPlayPause();
                 if (isPlaying) {
@@ -383,7 +394,7 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
               const SizedBox(width: 24),
               CircularControlButton(
                 semanticLabel: 'Avançar ${widget.seekTimeSmall} segundos',
-                icon: Icons.forward_10,
+                icon: heisucaSeekIcon(widget.seekTimeSmall, forward: true),
                 iconSize: 40,
                 onPressed: () => _seekRelative(widget.seekTimeSmall),
               ),
@@ -425,6 +436,19 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
         if (widget.onNext != null) IconButton(tooltip: 'Próximo', onPressed: widget.onNext,
           icon: const Icon(Icons.skip_next, color: Colors.white)),
       ])));
+
+  /// Celular (07A): linha de texto com áudio, legendas, episódios e ajustes. Sem estado: régua original.
+  Widget _buildBottomActions() {
+    final state = widget.heisucaTrackState;
+    if (state == null || !widget.canControl) return _buildActionDock();
+    return Align(alignment: Alignment.centerLeft, child: HeisucaPlayerTabs(
+      player: widget.player,
+      state: state,
+      episodesLabel: widget.showQueueTab ? 'Episódios' : 'Capítulos',
+      onEpisodes: _hasStripContent ? () { widget.onCancelAutoHide?.call(); _stripAnim.forward(); } : null,
+      onNext: widget.onNext,
+    ));
+  }
 
   Widget _buildBottomBar(BuildContext _) {
     if (widget.isLive) {
@@ -482,7 +506,7 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
           enabled: widget.canControl,
           showFinishTime: true,
           thumbnailDataBuilder: widget.thumbnailDataBuilder,
-        ), const SizedBox(height: 6), _buildActionDock()]),
+        ), const SizedBox(height: 4), _buildBottomActions()]),
       ),
     );
   }

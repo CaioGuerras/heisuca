@@ -1,0 +1,104 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:plezy/cgflix/cgflix_theme.dart';
+import 'package:plezy/i18n/strings.g.dart';
+import 'package:plezy/mpv/mpv.dart';
+import 'package:plezy/services/settings_service.dart';
+import 'package:plezy/widgets/overlay_sheet.dart';
+import 'package:plezy/widgets/video_controls/mobile_video_controls.dart';
+import 'package:plezy/widgets/video_controls/models/track_controls_state.dart';
+import 'package:plezy/watch_together/providers/watch_together_provider.dart';
+import '../test_helpers/watch_together_fakes.dart';
+import '../test_helpers/media_items.dart';
+import '../test_helpers/prefs.dart';
+import '../visual/heisuca_snapshot.dart';
+
+/// Player falso com as faixas de um anime real do acervo (áudio JA/PT, legenda ASS em português).
+class _AnimePlayer extends FakeSyncPlayer {
+  _AnimePlayer() : super(position: const Duration(minutes: 18, seconds: 42), hasRenderedFrame: true, playing: true);
+  static const ja = AudioTrack(id: '1', language: 'jpn', codec: 'eac3', channels: 6);
+  static const pt = AudioTrack(id: '2', language: 'por', codec: 'aac', channels: 2);
+  static const sub = SubtitleTrack(id: '3', language: 'por', codec: 'ass', title: 'Brazil');
+  @override
+  PlayerState get state => super.state.copyWith(
+    tracks: const Tracks(audio: [ja, pt], subtitle: [sub]),
+    track: const TrackSelection(audio: ja, subtitle: sub));
+}
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  Future<({List<String> calls, List<double> rates})> pumpHud(WidgetTester tester, {bool snapshot = false}) async {
+    resetSharedPreferencesForTest();
+    SettingsService.resetForTesting();
+    await SettingsService.getInstance();
+    // O idioma é biblioteca adiada: carrega fora do relógio falso do teste.
+    await tester.runAsync(() async { await LocaleSettings.setLocale(AppLocale.pt); await initializeDateFormatting('pt'); });
+    // Edge 60 Pro em paisagem: 2712×1220 px ≈ 986×444 dp.
+    tester.view.physicalSize = const Size(986 * 2, 444 * 2);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+    final player = _AnimePlayer();
+    final watch = WatchTogetherProvider();
+    addTearDown(player.dispose);
+    addTearDown(watch.dispose);
+    final calls = <String>[];
+    final rates = <double>[];
+    final state = TrackControlsState(
+      boxFitMode: 0,
+      subtitlesVisible: true,
+      onCycleBoxFitMode: () => calls.add('proporção'),
+      onTogglePIPMode: () => calls.add('janelinha'),
+      onToggleRotationLock: () => calls.add('rotação'),
+      onToggleScreenLock: () => calls.add('travar'),
+      onRateRequested: (r) async => rates.add(r),
+    );
+    await tester.pumpWidget(ChangeNotifierProvider.value(value: watch, child: MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: cgflixAppTheme(CgflixThemeVariant.isis).copyWith(platform: TargetPlatform.android),
+      home: Scaffold(backgroundColor: const Color(0xff2a3550), body: OverlaySheetHost(child: MobileVideoControls(
+        player: player, heisucaTrackState: state,
+        metadata: testMediaItem(id: 'ep', title: 'Shaula / Herói'),
+        chapters: const [], chaptersLoaded: true, seekTimeSmall: 10,
+        trackChapterControls: const Text('RÉGUA ANTIGA'),
+        onSeek: (_) {}, onSeekEnd: (_) {}, onSeekRequested: (_) async {}, onPlayPause: () {},
+        onNext: () => calls.add('próximo'),
+      ))))));
+    await tester.pump();
+    return (calls: calls, rates: rates);
+  }
+
+  testWidgets('HUD 07A: pílulas no topo, linha de texto embaixo, callbacks reais', (tester) async {
+    final r = await pumpHud(tester);
+    expect(tester.takeException(), isNull);
+    expect(find.text('RÉGUA ANTIGA'), findsNothing, reason: 'a régua apertada saiu do celular');
+    expect(find.textContaining('Japonês 5.1'), findsOneWidget, reason: 'idioma e canais, como no 07A');
+    expect(find.textContaining('Português (ASS)'), findsOneWidget);
+    expect(find.text('Ajustes'), findsOneWidget);
+    expect(find.text('Próximo'), findsOneWidget);
+    expect(find.byIcon(Symbols.replay_10_rounded), findsOneWidget);
+    expect(find.byIcon(Symbols.forward_10_rounded), findsOneWidget);
+    await tester.tap(find.text('Original'));
+    await tester.tap(find.byIcon(Symbols.picture_in_picture_alt_rounded));
+    await tester.tap(find.byIcon(Symbols.lock_rounded));
+    await tester.tap(find.text('Próximo'));
+    expect(r.calls, ['proporção', 'janelinha', 'travar', 'próximo']);
+    await tester.tap(find.text('1,0x'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('1,5x').last);
+    await tester.pumpAndSettle();
+    expect(r.rates, [1.5]);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('captura visual do HUD (HEISUCA_SNAPSHOT=1)', skip: !heisucaSnapshotEnabled, (tester) async {
+    await heisucaLoadFonts();
+    await pumpHud(tester);
+    await tester.pump(const Duration(milliseconds: 300));
+    await expectLater(find.byType(MaterialApp), matchesGoldenFile('../visual/out/player_hud.png'));
+    await tester.pumpWidget(const SizedBox());
+  });
+}

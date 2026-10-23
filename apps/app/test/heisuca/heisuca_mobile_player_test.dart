@@ -40,9 +40,9 @@ void main() {
       )))));
     await tester.pump();
     expect(tester.takeException(), isNull);
-    await tester.tap(find.byIcon(Symbols.replay_rounded));
+    await tester.tap(find.byIcon(Symbols.replay_10_rounded));
     await tester.pump();
-    await tester.tap(find.byIcon(Icons.forward_10));
+    await tester.tap(find.byIcon(Symbols.forward_10_rounded));
     await tester.pump();
     expect(seeks, [const Duration(seconds: 10), const Duration(seconds: 30)]);
     expect(completed, seeks);

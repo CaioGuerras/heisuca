@@ -18,6 +18,13 @@ Future<void> heisucaLoadFonts() async {
   final sdk = Platform.environment['FLUTTER_ROOT'] ?? '${Platform.environment['HOME']}/sdk/flutter';
   await load('Inter', ['Regular', 'Medium', 'SemiBold', 'Bold', 'ExtraBold'].map((w) => 'assets/fonts/Inter-$w.ttf').toList());
   await load('MaterialIcons', ['$sdk/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf']);
+  final pub = '${Platform.environment['HOME']}/.pub-cache/hosted/pub.dev';
+  final symbols = Directory(pub).listSync().whereType<Directory>().where((d) => d.path.contains('material_symbols_icons-')).firstOrNull;
+  if (symbols != null) {
+    for (final style in ['Rounded', 'Outlined']) {
+      await load('packages/material_symbols_icons/MaterialSymbols$style', ['${symbols.path}/lib/fonts/MaterialSymbols$style.ttf']);
+    }
+  }
   await load('Roboto', ['$sdk/bin/cache/artifacts/material_fonts/Roboto-Regular.ttf']);
 }
 

@@ -1334,6 +1334,12 @@ class _PlexVideoControlsState extends State<PlexVideoControls>
                                                     final hasStripContent = _chapters.isNotEmpty || canShowQueue;
                                                     return MobileVideoControls(
                                                       player: widget.player,
+                                                      heisucaTrackState: PlatformDetector.isPhone(context)
+                                                          ? _buildTrackControlsState(
+                                                              playbackState: playbackState,
+                                                              onToggleAlwaysOnTop: _toggleAlwaysOnTop,
+                                                            )
+                                                          : null,
                                                       metadata: widget.metadata,
                                                       chapters: _chapters,
                                                       chaptersLoaded: _chaptersLoaded,

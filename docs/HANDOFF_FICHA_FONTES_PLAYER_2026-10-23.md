@@ -6,7 +6,12 @@ Retorno do Caio no 2.0.4 (ficha, player, fontes, modo kids, fluidez). Detalhe co
 [`REVISAO_CLAUDE_2026-10-23.md`](REVISAO_CLAUDE_2026-10-23.md). Resumo: ficha no Esboço 04 com medidas do site
 (2.0.5); HUD do player no 07A (2.0.6); adicionar fonte corrigido e modo infantil Ichigo/Sorairo com PIN (2.0.7);
 taxa alta da UI reaplicada após o player e conexão rápida sem servidor embutido (2.0.8). Rota `/__kids/` do nginx
-da VPS restaurada (`cgf-kids testar` OK). Capturas de revisão: `HEISUCA_SNAPSHOT=1 flutter test ... --update-goldens`
+da VPS restaurada (`cgf-kids testar` OK). **APK 2.0.8+9:** run https://github.com/CaioGuerras/heisuca/actions/runs/40020461980 (verde), artifact
+https://github.com/CaioGuerras/heisuca/actions/runs/40020461980/artifacts/12531331371 (expira 06/11/2026). ZIP sha256
+`f16a4dab92bddba849b92d247431c8f656e9289ccca5222bb78a333bff726889` (= digest do Actions); APK 98.537.014 bytes, sha256
+`0757b08035586b83d2c892f06453607512fdba2e94fd1737fc50c3715c782353`; pacote `app.heisuca.player.teste.home`, versionCode
+2009, certificado `19160423…f95c` (atualiza por cima). Conferido com androguard; instalação física não executada.
+Capturas de revisão: `HEISUCA_SNAPSHOT=1 flutter test ... --update-goldens`
 (saem em `apps/app/test/visual/out/`, fora do git). Mesma branch e mesmo certificado de teste.
 
 

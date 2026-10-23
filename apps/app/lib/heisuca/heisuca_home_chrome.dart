@@ -64,10 +64,12 @@ class _HeisucaHomeChromeState extends State<HeisucaHomeChrome> {
   Widget build(BuildContext context) {
     final top = MediaQuery.paddingOf(context).top;
     final width = MediaQuery.sizeOf(context).width;
-    final foreground = context.cgflix.isLight ? const Color(0xFF163830) : const Color(0xFFF4F1FA);
+    final foreground = context.cgflix.isLight ? const Color(0xFF1C2421) : const Color(0xFFF4F1FA);
     final rect = _anchor;
     final naturalWidth = math.min(width * 0.54, 210.0);
-    final room = (width - 2 * 132).clamp(60.0, naturalWidth);
+    final brandWidth = 28 * 637.981715 / 206;
+    final sideGap = math.min(width / 2 - 14 - brandWidth, width / 2 - 14 - 48);
+    final room = (sideGap * 2 - 40).clamp(naturalWidth * 0.3, naturalWidth);
     final dockScale = (room / naturalWidth).clamp(0.3, 1.0);
     final center = rect?.center.dy ?? top + 30;
     final target = top + 30;

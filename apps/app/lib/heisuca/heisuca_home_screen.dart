@@ -695,7 +695,7 @@ class _HeisucaContinueWatchingRow extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: cgflixWideHeight + CgflixWideCard.titleBlockHeight,
+            height: 180 * 9 / 16 + CgflixWideCard.titleBlockHeight,
             child: ListView.separated(
               key: const PageStorageKey('heisuca-continue-watching-list'),
               physics: const ProMotionScrollPhysics(),
@@ -706,6 +706,7 @@ class _HeisucaContinueWatchingRow extends StatelessWidget {
               itemBuilder: (ctx, index) {
                 final item = items[index];
                 return CgflixWideCard(
+                  width: 180, siteStyle: true,
                   item: item,
                   client: cgflixClientFor(ctx, item),
                   onTap: () {
@@ -790,29 +791,12 @@ class _HeisucaTop10Row extends StatelessWidget {
                     letterSpacing: -0.3,
                   ),
                 ),
-                const SizedBox(width: 8.0),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
-                  decoration: BoxDecoration(
-                    color: context.cgflix.accent.withValues(alpha: 0.18),
-                    borderRadius: BorderRadius.circular(4.0),
-                    border: Border.all(color: context.cgflix.accent.withValues(alpha: 0.4), width: 0.8),
-                  ),
-                  child: Text(
-                    'TOP 10',
-                    style: TextStyle(
-                      fontFamily: HeisucaTheme.fonteTitulo,
-                      fontSize: 10.0,
-                      fontWeight: FontWeight.w800,
-                      color: context.cgflix.accent,
-                    ),
-                  ),
-                ),
+
               ],
             ),
           ),
           SizedBox(
-            height: cgflixPosterHeight,
+            height: 134.4,
             child: ListView.separated(
               key: const PageStorageKey('heisuca-top10-list'),
               physics: const ProMotionScrollPhysics(),
@@ -823,6 +807,7 @@ class _HeisucaTop10Row extends StatelessWidget {
               itemBuilder: (ctx, index) {
                 final item = items[index];
                 return CgflixTop10Card(
+                  siteStyle: true,
                   rank: index + 1,
                   item: item,
                   client: cgflixClientFor(ctx, item),
@@ -903,7 +888,7 @@ class _HeisucaShelfRow extends StatelessWidget {
                 return _HomePosterWithCaption(
                   item: item,
                   child: CgflixPosterCard(
-                  width: 82,
+                  width: 80,
                   item: item,
                   client: cgflixClientFor(ctx, item),
                   onTap: () {
@@ -1019,7 +1004,7 @@ class _HomePosterWithCaption extends StatelessWidget {
   final MediaItem item;
   final Widget child;
   @override
-  Widget build(BuildContext context) => SizedBox(width: 82, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  Widget build(BuildContext context) => SizedBox(width: 80, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
     Stack(children: [child,
       if (item.rating != null && item.rating! > 0) Positioned(right: 4, bottom: 4,
         child: DecoratedBox(decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(4)),
@@ -1070,10 +1055,10 @@ class _UpcomingRow extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16), itemCount: items.length,
           separatorBuilder: (_, __) => const SizedBox(width: 8), itemBuilder: (context, index) {
             final item = items[index];
-            return SizedBox(width: 82, child: InkWell(onTap: () => _open(context, item), child: Column(
+            return SizedBox(width: 80, child: InkWell(onTap: () => _open(context, item), child: Column(
               crossAxisAlignment: CrossAxisAlignment.start, children: [
                 ClipRRect(borderRadius: BorderRadius.circular(9), child: Stack(children: [
-                  OptimizedMediaImage(client: repository.client, imagePath: item.imagePath, width: 82, height: 123),
+                  OptimizedMediaImage(client: repository.client, imagePath: item.imagePath, width: 80, height: 120),
                   Positioned(top: 4, left: 4, right: 4, child: DecoratedBox(
                     decoration: BoxDecoration(color: context.cgflix.accent, borderRadius: BorderRadius.circular(8)),
                     child: Padding(padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),

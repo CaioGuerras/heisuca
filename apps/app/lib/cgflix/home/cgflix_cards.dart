@@ -340,6 +340,8 @@ class CgflixWideCard extends StatelessWidget {
     this.onTap,
     this.onLongPress,
     this.showProgress = true,
+    this.width = cgflixWideWidth,
+    this.siteStyle = false,
   });
 
   final MediaItem item;
@@ -347,6 +349,15 @@ class CgflixWideCard extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final bool showProgress;
+  final double width;
+  final bool siteStyle;
+  double get artHeight => width * 9 / 16;
+
+  String _clock(int milliseconds) {
+    final seconds = milliseconds ~/ 1000;
+    final minutes = seconds ~/ 60;
+    return '$minutes:${(seconds % 60).toString().padLeft(2, '0')}';
+  }
 
   static const double titleBlockHeight = 50;
 
@@ -371,7 +382,7 @@ class CgflixWideCard extends StatelessWidget {
       onLongPress: onLongPress,
       semanticLabel: title,
       child: SizedBox(
-        width: cgflixWideWidth,
+        width: width,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -403,8 +414,8 @@ class CgflixWideCard extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: SizedBox(
-                  width: cgflixWideWidth,
-                  height: cgflixWideHeight,
+                  width: width,
+                  height: artHeight,
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
@@ -413,8 +424,8 @@ class CgflixWideCard extends StatelessWidget {
                         child: OptimizedMediaImage(
                           client: client,
                           imagePath: cgflixWidePath(item),
-                          width: cgflixWideWidth,
-                          height: cgflixWideHeight,
+                          width: width,
+                          height: artHeight,
                           imageType: ImageType.thumb,
                           fadeInDuration: CgflixMotion.fast,
                         ),
@@ -438,32 +449,28 @@ class CgflixWideCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Positioned(
-                        left: 8,
-                        bottom: progress != null ? 9 : 7,
-                        child: Container(
-                          width: 26,
-                          height: 26,
-                          decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.55),
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white.withValues(alpha: 0.25), width: 0.75),
-                          ),
-                          child: const Center(
-                            child: AppIcon(Symbols.play_arrow_rounded, fill: 1, size: 16, color: Colors.white),
-                          ),
-                        ),
-                      ),
+                      if (siteStyle) Align(alignment: Alignment.center, child: Container(
+                        width: 42, height: 42, decoration: BoxDecoration(shape: BoxShape.circle,
+                          color: Colors.black26, border: Border.all(color: Colors.white, width: 2)),
+                        child: const AppIcon(Symbols.play_arrow_rounded, fill: 1, size: 30, color: Colors.white),
+                      )) else Positioned(left: 8, bottom: progress != null ? 9 : 7,
+                        child: Container(width: 26, height: 26, decoration: const BoxDecoration(
+                          color: Colors.black54, shape: BoxShape.circle),
+                          child: const Center(child: AppIcon(Symbols.play_arrow_rounded, fill: 1, size: 16, color: Colors.white)))),
+                      if (siteStyle && (item.viewOffsetMs ?? 0) > 0 && (item.durationMs ?? 0) > 0)
+                        Positioned(right: 8, bottom: 12, child: Text('${_clock(item.viewOffsetMs!)} / ${_clock(item.durationMs!)}',
+                          style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600,
+                            fontFeatures: [FontFeature.tabularFigures()]))),
                       if (progress != null)
                         Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
+                          left: siteStyle ? 10 : 0,
+                          right: siteStyle ? 10 : 0,
+                          bottom: siteStyle ? 5 : 0,
                           child: LinearProgressIndicator(
                             value: progress,
                             minHeight: 3.5,
-                            color: context.cgflix.accent,
-                            backgroundColor: context.cgflix.progressTrack,
+                            color: siteStyle ? Colors.white : context.cgflix.accent,
+                            backgroundColor: siteStyle ? Colors.white38 : context.cgflix.progressTrack,
                           ),
                         ),
                     ],
@@ -486,7 +493,7 @@ class CgflixWideCard extends StatelessWidget {
                         title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                        style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600, fontSize: siteStyle ? 12 : null),
                       ),
                       if (subtitle != null && subtitle.isNotEmpty)
                         Text(
@@ -495,6 +502,7 @@ class CgflixWideCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: context.cgflix.textMuted,
+                            fontSize: siteStyle ? 10.5 : null,
                             fontFeatures: const [FontFeature.tabularFigures()],
                           ),
                         ),
@@ -520,8 +528,10 @@ class CgflixTop10Card extends StatelessWidget {
     this.heroTag,
     this.onTap,
     this.onLongPress,
+    this.siteStyle = false,
   });
 
+  final bool siteStyle;
   final int rank;
   final MediaItem item;
   final MediaServerClient? client;
@@ -535,30 +545,30 @@ class CgflixTop10Card extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final number = '$rank';
-    const baseStyle = TextStyle(fontSize: 128, height: 1, fontWeight: FontWeight.w900, letterSpacing: -10);
+    final baseStyle = TextStyle(fontSize: siteStyle ? 72 : 128, height: siteStyle ? 0.74 : 1, fontWeight: FontWeight.w900, letterSpacing: siteStyle ? -4.3 : -10);
     final strokeStyle = baseStyle.copyWith(
       foreground: Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 3
+        ..strokeWidth = siteStyle ? 1.5 : 3
         ..color = context.cgflix.rankStroke,
     );
     return Semantics(
       // O número grande não é lido; a posição vai junto do nome do título.
       label: 'Em alta, posição $rank',
       child: SizedBox(
-        width: widthFor(rank),
-        height: cgflixPosterHeight,
+        width: siteStyle ? 148.8 : widthFor(rank),
+        height: siteStyle ? 134.4 : cgflixPosterHeight,
         child: Stack(
           clipBehavior: Clip.none,
           children: [
             Positioned(
               left: 0,
-              bottom: -10,
+              bottom: siteStyle ? 0 : -10,
               child: ExcludeSemantics(
                 child: Stack(
                   children: [
                     // Preenchimento da cor do fundo por baixo do contorno: o número "vaza" o fundo.
-                    Text(number, style: baseStyle.copyWith(color: context.cgflix.background)),
+                    if (!siteStyle) Text(number, style: baseStyle.copyWith(color: context.cgflix.background)),
                     Text(number, style: strokeStyle),
                   ],
                 ),
@@ -569,6 +579,7 @@ class CgflixTop10Card extends StatelessWidget {
               top: 0,
               bottom: 0,
               child: CgflixPosterCard(
+                width: siteStyle ? 89.6 : cgflixPosterWidth,
                 item: item,
                 client: client,
                 heroTag: heroTag,
@@ -582,3 +593,4 @@ class CgflixTop10Card extends StatelessWidget {
     );
   }
 }
+

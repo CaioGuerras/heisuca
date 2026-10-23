@@ -28,13 +28,10 @@ class HeisucaLogo extends StatelessWidget {
     final h = height ?? 36.0;
 
     if (siteHeader) {
-      return Row(mainAxisSize: MainAxisSize.min, children: [
-        SvgPicture.asset('assets/heisuca/selo_vertical_site.svg', height: h, width: h * 0.354),
-        const SizedBox(width: 5),
-        Text('HEISUCA', style: TextStyle(fontFamily: HeisucaTheme.fonteTitulo,
-          fontSize: h * 0.39, fontWeight: FontWeight.w400, letterSpacing: 3.0,
-          color: isLight ? const Color(0xFF163830) : const Color(0xFFF4F1FA))),
-      ]);
+      return SvgPicture.asset(
+        isLight ? 'assets/heisuca/marca_site_hisui.svg' : 'assets/heisuca/marca_site_shikkoku.svg',
+        height: h,
+      );
     }
 
     final seloAsset = isLight

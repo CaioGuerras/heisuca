@@ -50,7 +50,7 @@ em vez das bibliotecas; falta Em breve. O site é a referência para corrigir is
   de nome. A autenticação existente usa Quick Connect e sessão da própria pessoa.
 - `heisuca_seerr_sheet.dart`: remove atraso/sucesso fictício e seletor de qualidade
   desconectado; passa pelo mesmo CgflixRequestSection e backend real já existente.
-- Marca de topo usa o selo vertical extraído do SVG oficial do site. Ilha mais compacta,
+- Marca de topo usa selo E palavra extraídos do SVG oficial do site, com a mesma transformação geométrica e recorte da versão web e variantes Shikkoku/Hisui. Ilha mais compacta,
   Favoritos reais no terceiro destino, busca no topo e nome/avatar do perfil.
 - Workflow exige análise/testes antes do APK; alterações apenas documentais não iniciam
   outra compilação. Assim o resultado pode ser registrado sem cancelar o build de código.
@@ -63,6 +63,16 @@ editável só no ExoPlayer e automático no libmpv; SMB indisponível sem coleta
 WebDAV apenas teste PROPFIND, sem anunciar biblioteca adicionada ou iniciar proxy.
 128 testes aprovados, análise sem erros bloqueantes (258 avisos/infos ainda existentes).
 APK anterior: https://github.com/CaioGuerras/heisuca/actions/runs/39882985093/artifacts/12471389349
+
+## Ajuste final de paridade
+
+Após a primeira execução aprovar análise/testes, a revisão comparou os tokens CSS:
+primária Shikkoku #9d74ff, fundo #0e0b14, selo #7444e0; Hisui usa selo #05805c.
+A marca passou a usar caminhos vetoriais oficiais em vez de texto aproximado. Os cartões
+seguem as medidas móveis do site: pôster 80 px, Continuar 180 px, Top 10 proporcional,
+play central e progresso/tempo reais em branco. Removido o badge TOP 10 extra do app.
+Os componentes compartilhados preservam o estilo antigo por padrão; só a Home ativa
+`siteStyle`. A versão do app foi elevada para 2.0.2+3.
 
 ## Validação desta etapa
 

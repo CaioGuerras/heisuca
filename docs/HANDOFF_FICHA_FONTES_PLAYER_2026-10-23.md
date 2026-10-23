@@ -58,6 +58,11 @@ apenas a fonte selecionada aos listeners de navegação. Trocar fonte remonta o 
 consumidores/navegador, descartando respostas e telas antigas, sem trocar credenciais.
 Isso também descarta estado temporário das abas e da sessão musical desse subtree.
 
+A troca manual marca o prompt inicial como já tratado no novo navegador, evitando
+pedir novamente o perfil. O filtro tem proprietário e é limpo no dispose do escopo;
+um escopo antigo não pode apagar a seleção de outro. Sem seleção ativa, consultas
+explícitas de servidores mantêm o comportamento anterior (incluindo desktop).
+
 A seleção offline permanece selecionada. A Home mostra aviso, retry e seletor, sem
 fallback para outro Jellyfin. Fonte removida do conjunto esperado é invalidada depois
 do binding. Não há opção Todos nesta etapa. Plex não oferece o favorito por coração
@@ -88,10 +93,10 @@ paridade pixel a pixel com todos os esboços, nem suporte HDR/ASS validado em ap
 
 ## Validação e entrega
 
-Código: `0c2df181d25d40a60a250ca000211e5e62826584`.
-Run: https://github.com/CaioGuerras/heisuca/actions/runs/39959931134
-Análise e suíte passaram; compilação nativa em andamento. Completar número de testes,
-artifact e certificado após a conclusão. O portão inclui test/heisuca, regressões da Home/Seerr/bootstrap/seleção de
+Código: `4f42c29fdff9f977628a3be53479cfc1f29a74e4`.
+Run: https://github.com/CaioGuerras/heisuca/actions/runs/39961563161
+Execução concluída com sucesso: **294 testes passaram**, análise sem erros bloqueantes,
+com 230 avisos/infos. O portão inclui test/heisuca, regressões da Home/Seerr/bootstrap/seleção de
 faixas e agora test/widgets/video_controls_test.dart.
 
 Primeira rodada: análise sem erros bloqueantes, 230 avisos/infos, 185 testes passaram,
@@ -101,13 +106,22 @@ verificação do conteúdo e acrescenta scrollUntilVisible, não ignora a falha.
 
 Testes adicionais: seleção de fonte não muda clientes de download nem autorização;
 fonte offline não cai em outro servidor; on-deck E7/paginação/docking nos dois temas;
-persistência por perfil/remoção da fonte; seek real e dock em paisagem. O passo de análise/testes da última rodada terminou com sucesso; registrar a contagem
-final a partir do log completo ao concluir o job.
+persistência por perfil/remoção da fonte, limpeza do escopo e prompt inicial; seek real
+e dock em paisagem. Os erros de bootstrap nos logs são cenários deliberados dos testes.
 
 Package de teste permanece `app.heisuca.player.teste.home`, label Heisuca Teste, com a
-chave cacheada da mesma branch. Esperado o mesmo certificado SHA-256 do 2.0.2:
+chave cacheada da mesma branch. Confirmado o mesmo certificado SHA-256 do 2.0.2:
 `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`.
-Conferir o APK efetivo. Cache não substitui assinatura durável de produção.
+APK efetivo baixado, hash do ZIP conferido com Actions e certificado extraído da
+assinatura v2 conferido com o anterior. O CI também verificou assinatura, pacote e
+providers privados no binário. Cache não substitui assinatura durável de produção.
+
+APK arm64-v8a: 98.387.569 bytes (98,4 MB), versão 2.0.3+4.
+SHA-256 APK: `99bd9cabc2cada5aee437b7bf392ed7ecf167a9c3279d350e528652c6cc28261`.
+Artifact ZIP: https://github.com/CaioGuerras/heisuca/actions/runs/39961563161/artifacts/12506130922
+Expira em 06/11/2026. Extrair `heisuca-arm64-v8a.apk` e instalar sobre Heisuca Teste
+2.0.2; pacote e certificado são compatíveis com atualização. Instalação física não
+foi executada nesta sessão. Não desinstalar para testar uma atualização normal.
 
 ## Teste no aparelho e continuidade
 
@@ -115,6 +129,24 @@ Ainda depende de Caio: fidelidade da arte/logo com dados reais, texto ampliado, 
 Jellyfin/Plex/servidores da mesma conta, servidor offline/reconectado, temporada 0,
 ASS/libass, seleção de áudio/legenda, retomada, PiP/rotação/background e próximo episódio.
 Os testes usam clientes/players de teste, não a conta de mídia de Caio.
+
+Roteiro de aceite no aparelho:
+
+1. Instalar sobre Heisuca Teste 2.0.2, confirmar versão 2.0.3 e login preservado.
+2. Abrir série parcialmente assistida: alvo de Continuar, episódio selecionado,
+   temporada e progresso devem corresponder ao servidor. Rolar a ficha para conferir
+   o botão encaixado no topo e voltar da reprodução para conferir atualização.
+3. Trocar temporada e grupos 1–10/11–20; abrir Ver tudo e Especiais quando existirem.
+   Conferir filme sem temporadas, título sem logo e conteúdo sem extras.
+4. Você > Fonte atual: alternar entre duas fontes, conferir Home/Biblioteca/Busca e
+   favoritos; fechar/reabrir o app, trocar perfil e retornar. A escolha deve persistir
+   por perfil, sem pergunta extra de perfil causada apenas pela troca de fonte.
+5. Desligar a fonte selecionada: manter seu nome, mostrar indisponibilidade e permitir
+   reconectar ou escolher outra. Downloads existentes conservam sua origem.
+6. Configurações > Avançado: mudar uma preferência aplicável ao motor em uso, sair e
+   voltar; conferir persistência e efeito. Preferências indisponíveis seguem o motor.
+7. Reproduzir: seek, áudio, legenda, proporção, próximo episódio, rotação e PiP.
+   Validar legendas ASS reais e texto ampliado. Não aceitar sucesso visual sem efeito.
 
 O ai-memory NÃO está conectado a este ambiente. Documentação em git não equivale a
 importação. No host do usuário, ler este handoff e a análise, importar no escopo que o

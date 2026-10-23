@@ -1,5 +1,68 @@
 # Heisuca Android — ficha, fontes, ajustes e player — 23/10/2026
 
+## Retorno de Caio após teste no aparelho — 23/10/2026 — PENDENTE PARA CLAUDE
+
+**Instrução expressa:** “não tente corrigir, apenas reporte, o Claude vai atuar”.
+Este registro altera apenas documentação. Não houve investigação da causa, correção,
+novo teste ou novo APK após este retorno. A aprovação automatizada abaixo NÃO significa
+que a navegação de temporadas foi aprovada no aparelho.
+
+Contexto: retorno após a entrega do APK 2.0.3+4 (código
+`4f42c29fdff9f977628a3be53479cfc1f29a74e4`). A versão instalada não aparece nos prints.
+Caio relata que temporadas de animes não aparecem ou aparecem incorretamente.
+
+### Evidências dos prints enviados
+
+- **16840.png — Re:ZERO:** a ficha mostra logo, data 2026-09-30, duração 41 min,
+  botão “Assistir” e sinopse “Enquanto Emilia tenta passar pelo teste do topo,
+  Subaru e os demais continuam lutando.” Depois aparecem extras, relacionados e
+  informações da mídia, sem seção de temporadas/episódios visível entre esses blocos.
+  A arte e a sinopse parecem específicas de um episódio, mas isso é uma hipótese;
+  o print não identifica o tipo/ID do item nem a rota de entrada.
+- **16841.png — One Piece:** o cabeçalho informa “24 temporadas”, mas o seletor da
+  temporada atual exibe apenas “One Piece”. A faixa mostra “1. One Piece” (65 min)
+  e “2. One Piece” (56 min), com grupo “1–8”. O botão indica “Assistir T1:E1” e o
+  próximo item “T1:E1 · One Piece”. Há inconsistência aparente entre a identificação
+  da série, os nomes genéricos e a organização apresentada; não é possível concluir
+  pelo print a quantidade correta de episódios daquela temporada nem sua duração.
+- **16842.png — One Piece, seletor aberto:** a folha “Temporadas” mostra “Especiais”
+  e várias entradas repetidas “One Piece”, sem número ou nome distinto da temporada.
+  Uma entrada está selecionada. Isso impede identificar visualmente qual temporada
+  está sendo escolhida. O print não mostra a lista inteira.
+- Observação secundária no print de One Piece: a nota aparece como texto cru
+  “audience 8.8”. Não é a reclamação principal, mas fica registrada para revisão visual.
+
+### Esperado e impacto
+
+A ficha da série deve disponibilizar as temporadas e seus episódios corretamente.
+O seletor deve distinguir temporadas por número/nome, inclusive Especiais, e os
+cartões devem apresentar os episódios correspondentes. O defeito prejudica a escolha
+do conteúdo e pode comprometer a confiança no alvo de reprodução; reprodução errada
+não foi demonstrada pelos prints.
+
+### Pistas de investigação para Claude — não são diagnóstico
+
+Conferir o tipo e os IDs do item que chega à ficha (série/temporada/episódio), sua
+origem/servidor e relações pai/série. Comparar a resposta real de metadados,
+fetchChildren e on-deck com os objetos convertidos e os rótulos apresentados.
+Verificar se nomes genéricos da série estão substituindo nomes/índices das temporadas
+ou episódios e se algum caminho abre episódio como ficha de série. Não assumir que
+o servidor está errado, que há mistura de adaptações de One Piece ou que a causa é
+somente visual sem comparar os dados.
+
+Pontos da implementação para localizar: `apps/app/lib/heisuca/heisuca_title_sheet.dart`,
+`apps/app/lib/utils/media_navigation_helper.dart` e mapeamento do cliente de mídia.
+Os testes anteriores usam fixtures e não cobriram estes casos reais. Claude deve
+reproduzir Re:ZERO e One Piece, conferir seleção/episódios/alvo de reprodução e
+acrescentar cobertura representativa ao corrigir.
+
+Os três prints foram anexados à conversa do ChatGPT; este registro transcreve as
+evidências, mas os arquivos de imagem não foram copiados para o repositório.
+ai-memory continua não importado por esta sessão.
+
+---
+
+
 ## Pedido e referência
 
 Caio aprovou preliminarmente a Home 2.0.2+3 e autorizou implementar a etapa seguinte.

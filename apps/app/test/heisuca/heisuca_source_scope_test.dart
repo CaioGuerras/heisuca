@@ -34,15 +34,19 @@ void main() {
       ChangeNotifierProvider<MultiServerProvider>.value(value: servers),
       ChangeNotifierProvider<ActiveProfileProvider>.value(value: profile),
     ], child: MaterialApp(home: HeisucaSourceScope(key: ValueKey(owner), profileId: owner,
-      child: const Scaffold(body: HeisucaSourceTile()))));
+      child: Scaffold(body: Builder(builder: (ctx) => Column(children: [
+        const HeisucaSourceTile(), Text('skip-prompt:${HeisucaSourceScope.skipInitialPromptOf(ctx)}'),
+      ]))))));
     await tester.pumpWidget(app('caio'));
     await tester.pumpAndSettle();
     expect(manager.navigationServerId, 'a');
+    expect(find.text('skip-prompt:false'), findsOneWidget);
     await tester.tap(find.text('Fonte atual'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Servidor B'));
     await tester.pumpAndSettle();
     expect(manager.navigationServerId, 'b');
+    expect(find.text('skip-prompt:true'), findsOneWidget);
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getString('heisuca.navigation.source.caio'), 'b');
     manager.updateServerStatus(ServerId('b'), false);
@@ -61,5 +65,6 @@ void main() {
     expect(manager.visibleOnlineClients.keys, contains('a'));
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
+    expect(manager.navigationServerId, isNull);
   });
 }

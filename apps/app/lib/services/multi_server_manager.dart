@@ -274,6 +274,16 @@ class MultiServerManager {
   /// Seleção de navegação, independente da autorização e das tarefas offline.
   /// null mantém a agregação original nas plataformas sem o seletor Heisuca.
   String? navigationServerId;
+  Object? _navigationOwner;
+  void setNavigationSource(Object owner, String serverId) {
+    _navigationOwner = owner;
+    navigationServerId = serverId;
+  }
+  void clearNavigationSource(Object owner) {
+    if (!identical(owner, _navigationOwner)) return;
+    _navigationOwner = null;
+    navigationServerId = null;
+  }
   Map<String, MediaServerClient> get navigationOnlineClients => {
     for (final entry in visibleOnlineClients.entries)
       if (navigationServerId == null || entry.key == navigationServerId) entry.key: entry.value,

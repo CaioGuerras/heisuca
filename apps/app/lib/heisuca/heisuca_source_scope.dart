@@ -11,6 +11,9 @@ import '../screens/profile/profile_switch_screen.dart';
 /// Remontar os consumidores descarta resultados pendentes da navegação anterior.
 class HeisucaSourceScope extends StatefulWidget {
   const HeisucaSourceScope({super.key, required this.profileId, required this.child});
+  /// Trocar fonte não é abrir uma nova sessão de usuário.
+  static bool skipInitialPromptOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_SourceSelection>()?.changedByUser ?? false;
   final String? profileId;
   final Widget child;
   @override
@@ -22,7 +25,7 @@ class _HeisucaSourceScopeState extends State<HeisucaSourceScope> {
   late final ActiveProfileProvider _profiles = context.read<ActiveProfileProvider>();
   SharedPreferences? _prefs;
   String? _selected;
-  bool _loaded = false;
+  bool _loaded = false, _changedByUser = false;
   String get _key => 'heisuca.navigation.source.${widget.profileId ?? "local"}';
   @override
   void initState() {
@@ -51,7 +54,7 @@ class _HeisucaSourceScopeState extends State<HeisucaSourceScope> {
       }
     }
     // Durante binding, a identidade salva continua restritiva, nunca libera todos.
-    _servers.serverManager.navigationServerId = _selected ?? '__heisuca_no_source__';
+    _servers.serverManager.setNavigationSource(this, _selected ?? '__heisuca_no_source__');
     setState(() {});
   }
   Future<void> _select(String id) async {
@@ -59,10 +62,12 @@ class _HeisucaSourceScopeState extends State<HeisucaSourceScope> {
     final saved = await _prefs!.setString(_key, id);
     if (!mounted || !saved) return;
     _selected = id;
+    _changedByUser = true;
     _changed();
   }
   @override
   void dispose() {
+    _servers.serverManager.clearNavigationSource(this);
     _servers.removeListener(_changed);
     _profiles.removeListener(_changed);
     super.dispose();
@@ -70,17 +75,18 @@ class _HeisucaSourceScopeState extends State<HeisucaSourceScope> {
   @override
   Widget build(BuildContext context) {
     if (!_loaded) return const ColoredBox(color: Color(0xff0e0b14));
-    return _SourceSelection(selected: _selected, select: _select,
+    return _SourceSelection(selected: _selected, select: _select, changedByUser: _changedByUser,
       child: KeyedSubtree(key: ValueKey('navigation:$_selected'), child: widget.child));
   }
 }
 
 class _SourceSelection extends InheritedWidget {
-  const _SourceSelection({required this.selected, required this.select, required super.child});
+  const _SourceSelection({required this.selected, required this.select, required this.changedByUser, required super.child});
   final String? selected;
+  final bool changedByUser;
   final Future<void> Function(String) select;
   @override
-  bool updateShouldNotify(_SourceSelection oldWidget) => selected != oldWidget.selected;
+  bool updateShouldNotify(_SourceSelection oldWidget) => selected != oldWidget.selected || changedByUser != oldWidget.changedByUser;
 }
 
 class HeisucaSourceTile extends StatelessWidget {

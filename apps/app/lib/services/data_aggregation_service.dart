@@ -147,7 +147,9 @@ class DataAggregationService {
   /// before the visibility filter promotes them.
   Map<String, MediaServerClient> _clientsFor(Set<String>? serverIds) {
     if (serverIds == null) return _serverManager.navigationOnlineClients;
-    final clients = _serverManager.navigationOnlineClients;
+    final clients = _serverManager.navigationServerId == null
+        ? _serverManager.onlineClients
+        : _serverManager.navigationOnlineClients;
     return {
       for (final entry in clients.entries)
         if (serverIds.contains(entry.key)) entry.key: entry.value,

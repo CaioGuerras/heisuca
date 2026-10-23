@@ -413,7 +413,8 @@ class _ProfileSessionNavigatorState extends State<_ProfileSessionNavigator> {
       settings: settings,
       builder: (context) =>
           widget.profileShellBuilder?.call(context) ??
-          MainScreen(isOfflineMode: widget.isOfflineMode, initialPromptHandled: widget.initialPromptHandled),
+          MainScreen(isOfflineMode: widget.isOfflineMode,
+            initialPromptHandled: widget.initialPromptHandled || HeisucaSourceScope.skipInitialPromptOf(context)),
     );
   }
 }

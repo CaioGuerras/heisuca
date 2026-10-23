@@ -197,3 +197,10 @@ Caio avaliar. Não disparar mensagens Telegram/e-mail a usuários. O servidor n�
 vídeo: preservar reprodução direta/remux e libass. Não embutir endereço/token/conta.
 Não alegar funcionamento de hardware por modelo comercial. Licença/créditos do upstream
 continuam obrigatórios. Commits e documentação em PT-BR.
+
+## Continuação implementada — 23/10/2026
+
+Caio autorizou implementar ficha, fontes, ajustes e player após aprovar a Home.
+O estado atual, mudanças e evidências estão em [HANDOFF_FICHA_FONTES_PLAYER_2026-10-23.md](HANDOFF_FICHA_FONTES_PLAYER_2026-10-23.md).
+Ler esse documento antes de repetir as pendências de player/ficha listadas acima.
+O script importar-ai-memory.sh agora importa e lê de volta os três documentos; não foi executado no servidor de Caio.

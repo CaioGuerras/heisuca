@@ -22,3 +22,7 @@ Antes da próxima alteração, ler `docs/PROXIMA_ETAPA_TITULO_FONTES_AJUSTES_202
 ficha de conteúdo inspirada no VidHub, referências visuais recuperadas e seus nomes
 corrigidos, configurações completas, player e seleção independente de fonte/perfil.
 Esse documento é análise/proposta; não significa que tais integrações já foram feitas.
+
+Etapa implementada: ficha, fontes, ajustes e HUD do player em 2.0.3+4.
+Leia primeiro `docs/HANDOFF_FICHA_FONTES_PLAYER_2026-10-23.md` para estado de build,
+validação e limites. A proposta anterior é histórica, não a lista do que ainda falta.

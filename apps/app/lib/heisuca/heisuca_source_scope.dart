@@ -101,7 +101,7 @@ class HeisucaSourceTile extends StatelessWidget {
             final other = servers.getClientForServer(ServerId(serverId));
             final online = servers.isServerOnline(ServerId(serverId));
             return ListTile(leading: Icon(online ? Icons.dns : Icons.cloud_off),
-              title: Text(other?.serverName ?? 'Servidor salvo'),
+              title: Text(other?.serverName ?? servers.serverManager.serverDisplayName(ServerId(serverId))),
               subtitle: Text('${other?.backend.name ?? "Fonte"} · ${online ? "Conectado" : "Offline"}'),
               trailing: serverId == source.selected ? const Icon(Icons.check) : null,
               onTap: () { Navigator.pop(sheetContext); source.select(serverId); });

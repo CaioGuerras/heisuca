@@ -35,7 +35,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
   MediaItem? _season;
   bool _loading = true, _loadingEpisodes = false, _expanded = false, _queuing = false;
   String? _error, _episodeError;
-  int _episodeGeneration = 0, _group = 0;
+  int _episodeGeneration = 0, _loadGeneration = 0, _group = 0;
   final _scroll = ScrollController();
   final _playAnchor = GlobalKey();
   bool _docked = false;
@@ -59,12 +59,14 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
   }
 
   Future<void> _load() async {
+    final generation = ++_loadGeneration;
+    ++_episodeGeneration;
     setState(() { _loading = true; _error = null; });
     try {
       final client = cgflixClientFor(context, _item);
       if (client == null) throw StateError('offline');
       final result = await client.fetchItemWithOnDeck(_item.id);
-      if (!mounted) return;
+      if (!mounted || generation != _loadGeneration) return;
       setState(() {
         _item = result.item ?? _item;
         _target = widget.episode ?? result.onDeckEpisode ?? (_item.kind == MediaKind.show ? null : _item);
@@ -72,7 +74,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
       });
       if (_item.kind == MediaKind.show) {
         final seasons = await client.fetchChildren(_item.id);
-        if (!mounted) return;
+        if (!mounted || generation != _loadGeneration) return;
         _seasons = seasons.where((s) => s.kind == MediaKind.season).toList()
           ..sort((a,b) => (a.index ?? 0).compareTo(b.index ?? 0));
         final selected = _seasons.where((s) => s.id == _target?.parentId ||
@@ -80,8 +82,8 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
             _seasons.where((s) => (s.index ?? 0) > 0).firstOrNull ?? _seasons.firstOrNull;
         if (selected != null) await _loadSeason(selected);
       }
-    } catch (_) { if (mounted) setState(() => _error = 'Não foi possível atualizar o título. Tente novamente.'); }
-    finally { if (mounted) setState(() => _loading = false); }
+    } catch (_) { if (mounted && generation == _loadGeneration) setState(() => _error = 'Não foi possível atualizar o título. Tente novamente.'); }
+    finally { if (mounted && generation == _loadGeneration) setState(() => _loading = false); }
   }
 
   Future<void> _loadSeason(MediaItem season) async {
@@ -103,7 +105,15 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
     finally { if (mounted && generation == _episodeGeneration) setState(() => _loadingEpisodes = false); }
   }
 
-  void _play() { final target = _target; if (target != null) cgflixPlay(context, target); }
+  void _play() { final target = _target; if (target != null) _playEpisode(target); }
+  Future<void> _playEpisode(MediaItem target) async {
+    await cgflixPlay(context, target);
+    if (mounted) await _load();
+  }
+  Future<void> _markWatched() async {
+    await HeisucaStateStore.instance.toggleWatched(context, _target ?? _item);
+    if (mounted) await _load();
+  }
   String get _playLabel => cgflixPlayButtonLabel(_item, _target, (item) => item);
   bool get _hideSpoilers => SettingsService.instanceOrNull?.read(SettingsService.hideSpoilers) ?? true;
 
@@ -191,7 +201,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
                 color: fg, onPressed: client?.capabilities.userFavorites == true ? () => store.toggleFavorite(context, _item) : null),
               IconButton(tooltip: store.isWatched(_target ?? _item) ? 'Marcar como não visto' : 'Marcar como visto',
                 icon: Icon(store.isWatched(_target ?? _item) ? Icons.check_circle : Icons.check_circle_outline), color: fg,
-                onPressed: () => store.toggleWatched(context, _target ?? _item)),
+                onPressed: _markWatched),
               IconButton(tooltip: _queuing ? 'Adicionando à fila' : 'Baixar', icon: Icon(_queuing ? Icons.hourglass_top : Icons.download_outlined),
                 color: fg, onPressed: _queuing ? null : _download),
             ])),
@@ -218,10 +228,10 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
               if (_episodeError != null) TextButton(onPressed: _season == null ? null : () => _loadSeason(_season!), child: Text('$_episodeError Tentar novamente')),
               if (!_loadingEpisodes && _episodes.isEmpty && _episodeError == null) const Text('Nenhum episódio disponível nesta temporada.'),
               if (_episodes.isNotEmpty) ...[
-                SizedBox(height: 210, child: ListView.separated(scrollDirection: Axis.horizontal,
-                  key: ValueKey('${_season?.id}:$_group'), itemCount: _episodes.skip(_group * 10).take(10).length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 12),
-                  itemBuilder: (_, i) => _episodeCard(_episodes[_group * 10 + i]))),
+                SizedBox(height: 210, child: _EpisodeStrip(
+                  key: ValueKey('${_season?.id}:$_group'),
+                  initialIndex: _episodes.skip(_group * 10).take(10).toList().indexWhere((ep) => ep.id == _target?.id),
+                  children: _episodes.skip(_group * 10).take(10).map(_episodeCard).toList())),
                 Wrap(spacing: 8, children: [for (var i = 0; i < (_episodes.length / 10).ceil(); i++)
                   ChoiceChip(label: Text('${i * 10 + 1}–${((i + 1) * 10).clamp(0, _episodes.length)}'),
                     selected: _group == i, onSelected: (_) => setState(() => _group = i))]),
@@ -280,7 +290,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
     final client = cgflixClientFor(context, ep);
     final hidden = _hideSpoilers && !ep.isWatched;
     final progress = (ep.durationMs ?? 0) > 0 ? ((ep.viewOffsetMs ?? 0) / ep.durationMs!).clamp(0.0, 1.0) : 0.0;
-    return SizedBox(width: 236, child: InkWell(borderRadius: BorderRadius.circular(20), onTap: () => cgflixPlay(context, ep),
+    return SizedBox(width: 236, child: InkWell(borderRadius: BorderRadius.circular(20), onTap: () => _playEpisode(ep),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(20),
           border: Border.all(color: ep.id == _target?.id ? context.cgflix.accent : Colors.transparent, width: 2)),
@@ -301,7 +311,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
         for (final ep in _episodes) ListTile(leading: Text('${ep.index ?? ""}'),
           title: Text(_hideSpoilers && !ep.isWatched ? 'Episódio ${ep.index ?? ""}' : ep.displayTitle),
           trailing: Icon(ep.isWatched ? Icons.check_circle : Icons.play_circle_outline),
-          onTap: () { Navigator.pop(ctx); cgflixPlay(context, ep); }),
+          onTap: () { Navigator.pop(ctx); _playEpisode(ep); }),
       ]))));
 
   Future<List<MediaItem>> _loadSupplement(bool extras) async {
@@ -355,4 +365,22 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
 
   String _ratingLabel(String source) => const {'imdb': 'IMDb', 'tmdb': 'TMDB', 'rottenTomatoesCritic': 'Tomatometer',
     'rottenTomatoesAudience': 'Público', 'mal': 'MyAnimeList', 'anilist': 'AniList', 'trakt': 'Trakt', 'simkl': 'Simkl'}[source] ?? source;
+}
+
+/// Cada página começa no episódio de continuação; o controller pertence ao widget.
+class _EpisodeStrip extends StatefulWidget {
+  const _EpisodeStrip({super.key, required this.initialIndex, required this.children});
+  final int initialIndex;
+  final List<Widget> children;
+  @override
+  State<_EpisodeStrip> createState() => _EpisodeStripState();
+}
+class _EpisodeStripState extends State<_EpisodeStrip> {
+  late final _controller = ScrollController(initialScrollOffset: 248.0 * (widget.initialIndex < 0 ? 0 : widget.initialIndex));
+  @override
+  void dispose() { _controller.dispose(); super.dispose(); }
+  @override
+  Widget build(BuildContext context) => ListView.separated(controller: _controller, scrollDirection: Axis.horizontal,
+    itemCount: widget.children.length, separatorBuilder: (_, __) => const SizedBox(width: 12),
+    itemBuilder: (_, i) => widget.children[i]);
 }

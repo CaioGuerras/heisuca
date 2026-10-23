@@ -43,6 +43,7 @@ class TrackChapterControls extends StatelessWidget {
 
   /// Whether to hide the chapters and queue buttons (mobile uses content strip instead)
   final bool hideChaptersAndQueue;
+  final bool mobileDock;
 
   const TrackChapterControls({
     super.key,
@@ -58,6 +59,7 @@ class TrackChapterControls extends StatelessWidget {
     this.onNavigateUp,
     this.onNavigateDown,
     this.hideChaptersAndQueue = false,
+    this.mobileDock = false,
   });
 
   KeyEventResult _handleButtonKeyEvent(FocusNode _, KeyEvent event, int index, int totalButtons) {
@@ -128,7 +130,7 @@ class TrackChapterControls extends StatelessWidget {
       onPressed: onPressed,
     );
     // No celular os comandos têm legenda visível e continuam usando os painéis reais.
-    if (hideChaptersAndQueue) return Column(mainAxisSize: MainAxisSize.min, children: [
+    if (mobileDock) return Column(mainAxisSize: MainAxisSize.min, children: [
       button,
       Padding(padding: const EdgeInsets.only(left: 6, right: 6, bottom: 6),
         child: Text(tooltip ?? semanticLabel, style: const TextStyle(color: Colors.white, fontSize: 10))),
@@ -445,7 +447,7 @@ class TrackChapterControls extends StatelessWidget {
   }
 
   String _getBoxFitTooltip(int mode) {
-    if (hideChaptersAndQueue) return switch (mode) {
+    if (mobileDock) return switch (mode) {
       1 => 'Preencher (corta bordas)', 2 => 'Esticar (deforma)', _ => 'Original / Ajustar',
     };
     switch (mode) {

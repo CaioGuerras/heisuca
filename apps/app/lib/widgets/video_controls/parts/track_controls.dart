@@ -250,6 +250,8 @@ extension _PlexVideoControlsTrackMethods on _PlexVideoControlsState {
       onSeekRequested: widget.onSeekRequested,
       onSeekCompleted: widget.onSeekCompleted,
       hideChaptersAndQueue: hideChaptersAndQueue,
+      mobileDock: PlatformDetector.isMobile(context),
     );
   }
 }
+

@@ -139,7 +139,8 @@ void main() {
 
       expect(find.text('Duna: Parte 2'), findsOneWidget);
       expect(find.text('Assistir'), findsOneWidget);
-      expect(find.text('Sinopse'), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('Sinopse'), 180, scrollable: find.byType(Scrollable).first);
+      expect(find.text('Sinopse').hitTestable(), findsOneWidget);
     });
   });
 
@@ -347,7 +348,8 @@ void main() {
 
       expect(find.text('Duna: Parte 2'), findsOneWidget);
       expect(find.text('Assistir'), findsOneWidget);
-      expect(find.text('Sinopse'), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('Sinopse'), 180, scrollable: find.byType(Scrollable).first);
+      expect(find.text('Sinopse').hitTestable(), findsOneWidget);
       expect(find.text('Paul Atreides busca vingança contra os conspiradores.'), findsOneWidget);
       expect(find.byIcon(Icons.arrow_back), findsOneWidget);
 

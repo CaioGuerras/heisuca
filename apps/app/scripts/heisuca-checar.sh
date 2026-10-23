@@ -5,5 +5,5 @@ export PATH="/home/caioguerras/sdk/flutter/bin:$HOME/sdk/flutter/bin:$PATH"
 cd "$(dirname "$0")/.."
 flutter pub get --no-example
 flutter analyze --no-fatal-infos --no-fatal-warnings lib
-flutter test test/heisuca test/services/track_selection_service_test.dart test/cgflix/cgflix_home_test.dart test/cgflix/cgflix_cards_test.dart test/cgflix/cgflix_seerr_test.dart test/startup_bootstrap_test.dart
+flutter test test/heisuca test/services/track_selection_service_test.dart test/cgflix/cgflix_home_test.dart test/cgflix/cgflix_cards_test.dart test/cgflix/cgflix_seerr_test.dart test/startup_bootstrap_test.dart test/widgets/video_controls_test.dart
 printf '%s\n' 'APROVADO: análise e testes concluídos.'

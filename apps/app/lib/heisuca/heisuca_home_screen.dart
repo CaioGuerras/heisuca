@@ -27,6 +27,7 @@ import '../media/media_library.dart';
 import '../cgflix/requests/cgflix_requests_ui.dart';
 import 'heisuca_home_chrome.dart';
 import 'heisuca_home_style.dart';
+import 'heisuca_source_scope.dart';
 import 'heisuca_upcoming.dart';
 import '../mixins/refreshable.dart';
 import '../mixins/tab_visibility_aware.dart';
@@ -173,6 +174,19 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
     final repo = _repository;
     final isLight = context.cgflix.isLight;
     final pageColor = heisucaPageColor(_activeHeroItem, isLight: isLight);
+
+    if (_servers.serverManager.navigationServerId != null &&
+        _servers.serverManager.navigationOnlineClients.isEmpty) {
+      return Scaffold(backgroundColor: pageColor, body: SafeArea(child: Center(child: Padding(
+        padding: const EdgeInsets.all(24), child: Column(mainAxisSize: MainAxisSize.min, children: [
+          const Icon(Icons.cloud_off_outlined, size: 48), const SizedBox(height: 16),
+          const Text('Esta fonte está indisponível', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8), const Text('Tente reconectar ou escolha outro servidor.'),
+          const HeisucaSourceTile(),
+          TextButton(onPressed: () => _servers.serverManager.reconnectOfflineServers(forceRediscovery: true),
+            child: const Text('Tentar novamente')),
+        ])))));
+    }
 
     return Scaffold(
       backgroundColor: pageColor,

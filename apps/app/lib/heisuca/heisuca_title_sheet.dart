@@ -40,6 +40,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
   final _playAnchor = GlobalKey();
   bool _docked = false;
   Future<MediaFileInfo?>? _fileInfo;
+  Future<List<MediaItem>>? _extras, _related;
 
   @override
   void initState() {
@@ -187,7 +188,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
             SizedBox(key: _playAnchor, child: _playButton()),
             ListenableBuilder(listenable: store, builder: (_, __) => Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               IconButton(tooltip: 'Favorito', icon: Icon(store.isFavorite(_item) ? Icons.favorite : Icons.favorite_border),
-                color: fg, onPressed: () => store.toggleFavorite(context, _item)),
+                color: fg, onPressed: client?.capabilities.userFavorites == true ? () => store.toggleFavorite(context, _item) : null),
               IconButton(tooltip: store.isWatched(_target ?? _item) ? 'Marcar como não visto' : 'Marcar como visto',
                 icon: Icon(store.isWatched(_target ?? _item) ? Icons.check_circle : Icons.check_circle_outline), color: fg,
                 onPressed: () => store.toggleWatched(context, _target ?? _item)),
@@ -244,6 +245,8 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
             ],
             if (_item.genres?.isNotEmpty == true) ...[_heading('Gêneros'),
               Wrap(spacing: 8, runSpacing: 8, children: [for (final genre in _item.genres!) Chip(label: Text(genre))])],
+            if (!isShow) _supplement('Extras e trailers', extras: true),
+            _supplement('Títulos relacionados', extras: false),
             _heading('Informações da mídia'),
             ExpansionTile(title: const Text('Vídeo, áudio, legendas e arquivo'),
               onExpansionChanged: (open) { if (open && _fileInfo == null && _target != null) setState(() =>
@@ -300,6 +303,33 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
           trailing: Icon(ep.isWatched ? Icons.check_circle : Icons.play_circle_outline),
           onTap: () { Navigator.pop(ctx); cgflixPlay(context, ep); }),
       ]))));
+
+  Future<List<MediaItem>> _loadSupplement(bool extras) async {
+    final client = cgflixClientFor(context, _item);
+    if (client == null) throw StateError('Fonte indisponível');
+    if (extras) return client.fetchExtras(_item.id);
+    final hubs = await client.fetchRelatedHubs(_item.id);
+    final items = <String, MediaItem>{};
+    for (final hub in hubs) { for (final item in hub.items) { items[item.globalKey] = item; } }
+    return items.values.toList();
+  }
+
+  Widget _supplement(String title, {required bool extras}) {
+    final future = extras ? _extras : _related;
+    void load() => setState(() {
+      if (extras) { _extras = _loadSupplement(true); } else { _related = _loadSupplement(false); }
+    });
+    return ExpansionTile(title: Text(title), onExpansionChanged: (open) { if (open && future == null) load(); },
+      children: [if (future != null) FutureBuilder<List<MediaItem>>(future: future, builder: (_, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) return const LinearProgressIndicator(minHeight: 2);
+        if (snapshot.hasError) return TextButton(onPressed: load, child: const Text('Tentar novamente'));
+        final items = snapshot.data ?? [];
+        if (items.isEmpty) return const ListTile(title: Text('Nenhum item disponível.'));
+        return Column(children: [for (final item in items) ListTile(title: Text(item.displayTitle),
+          leading: Icon(extras ? Icons.play_circle_outline : Icons.movie_outlined),
+          onTap: () { if (extras) { cgflixPlay(context, item); } else { HeisucaTitleSheet.show(context, item); } })]);
+      })]);
+  }
 
   Widget _versionInfo(MediaFileVersion version) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
     ListTile(title: Text(version.title ?? 'Versão disponível'), subtitle: Text([

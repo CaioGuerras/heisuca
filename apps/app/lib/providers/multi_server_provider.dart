@@ -161,7 +161,8 @@ class MultiServerProvider extends ChangeNotifier with DisposableChangeNotifierMi
       // the "is anything actually new to me?" decision (their loaded sets can
       // differ from _previousOnlineServerIds after a load error or a profile
       // switch that cleared them), so notify unconditionally and let them decide.
-      final immutableOnline = Set<String>.unmodifiable(currentOnline);
+      final immutableOnline = Set<String>.unmodifiable(
+        currentOnline.where((id) => _serverManager.navigationServerId == null || id == _serverManager.navigationServerId));
       for (final listener in List.of(_onlineServersListeners)) {
         listener(immutableOnline);
       }
@@ -364,3 +365,4 @@ class MultiServerProvider extends ChangeNotifier with DisposableChangeNotifierMi
     super.dispose();
   }
 }
+

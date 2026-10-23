@@ -91,7 +91,7 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
   }
 
   void _onServersChanged() {
-    final client = _servers.serverManager.visibleOnlineClients.values
+    final client = _servers.serverManager.navigationOnlineClients.values
         .whereType<JellyfinClient>()
         .firstOrNull;
     final same = client != null &&

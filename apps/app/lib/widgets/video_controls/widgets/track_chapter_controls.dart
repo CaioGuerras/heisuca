@@ -113,7 +113,7 @@ class TrackChapterControls extends StatelessWidget {
     bool? checked,
     bool isActive = false,
   }) {
-    return VideoControlButton(
+    final button = VideoControlButton(
       icon: icon,
       tooltip: tooltip,
       semanticLabel: semanticLabel,
@@ -127,6 +127,13 @@ class TrackChapterControls extends StatelessWidget {
       onFocusChange: onFocusChange,
       onPressed: onPressed,
     );
+    // No celular os comandos têm legenda visível e continuam usando os painéis reais.
+    if (hideChaptersAndQueue) return Column(mainAxisSize: MainAxisSize.min, children: [
+      button,
+      Padding(padding: const EdgeInsets.only(left: 6, right: 6, bottom: 6),
+        child: Text(tooltip ?? semanticLabel, style: const TextStyle(color: Colors.white, fontSize: 10))),
+    ]);
+    return button;
   }
 
   @override
@@ -438,6 +445,9 @@ class TrackChapterControls extends StatelessWidget {
   }
 
   String _getBoxFitTooltip(int mode) {
+    if (hideChaptersAndQueue) return switch (mode) {
+      1 => 'Preencher (corta bordas)', 2 => 'Esticar (deforma)', _ => 'Original / Ajustar',
+    };
     switch (mode) {
       case 0:
         return t.videoControls.letterbox;
@@ -450,3 +460,4 @@ class TrackChapterControls extends StatelessWidget {
     }
   }
 }
+

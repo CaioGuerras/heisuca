@@ -1,665 +1,328 @@
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
-
 import '../cgflix/cgflix_detail.dart';
 import '../cgflix/cgflix_palette.dart';
 import '../cgflix/home/cgflix_actions.dart';
 import '../media/media_item.dart';
 import '../media/media_kind.dart';
+import '../media/media_file_info.dart';
 import '../providers/download_provider.dart';
+import '../services/settings_service.dart';
 import '../utils/download_utils.dart';
 import '../utils/media_image_helper.dart';
 import '../widgets/optimized_media_image.dart';
-import 'heisuca_design_system.dart';
+import 'heisuca_home_style.dart';
 import 'heisuca_state_store.dart';
-import 'heisuca_theme.dart';
 
-/// Tela Flagship de Informações / Ficha Técnica do Título Heisuca (炳素華) — Esboço 04
-/// Abre em tela cheia com botão flutuante de voltar [←] no topo esquerdo.
-/// Sem badges falsos de 4K HDR. Sem "Pedir no Seerr".
-/// Alternância imediata e reativa de Favoritos com [HeisucaStateStore].
+/// Ficha ligada ao acervo e ao player reais; nunca escolhe um episódio pelo índice visual.
 class HeisucaTitleSheet extends StatefulWidget {
-  const HeisucaTitleSheet({
-    super.key,
-    required this.hostContext,
-    required this.item,
-    this.episode,
-  });
-
+  const HeisucaTitleSheet({super.key, required this.hostContext, required this.item, this.episode});
   final BuildContext hostContext;
   final MediaItem item;
   final MediaItem? episode;
-
-  /// Abre a ficha técnica em tela cheia com transição suave cinematográfica.
-  static Future<void> show(BuildContext context, MediaItem item, {MediaItem? episode}) {
-    return Navigator.of(context).push(
-      PageRouteBuilder<void>(
-        pageBuilder: (ctx, animation, secondaryAnimation) => HeisucaTitleSheet(
-          hostContext: context,
-          item: item,
-          episode: episode,
-        ),
-        transitionsBuilder: (ctx, animation, secondaryAnimation, child) {
-          final curved = CurvedAnimation(parent: animation, curve: Curves.easeOutCubic);
-          return FadeTransition(
-            opacity: curved,
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0.0, 0.06),
-                end: Offset.zero,
-              ).animate(curved),
-              child: child,
-            ),
-          );
-        },
-      ),
-    );
-  }
-
+  static Future<void> show(BuildContext context, MediaItem item, {MediaItem? episode}) =>
+      Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) =>
+          HeisucaTitleSheet(hostContext: context, item: item, episode: episode)));
   @override
   State<HeisucaTitleSheet> createState() => _HeisucaTitleSheetState();
 }
 
 class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
-  bool _isDownloading = false;
-  List<MediaItem> _episodes = [];
-  bool _loadingEpisodes = false;
+  late MediaItem _item = widget.item;
+  MediaItem? _target;
+  List<MediaItem> _seasons = [], _episodes = [];
+  MediaItem? _season;
+  bool _loading = true, _loadingEpisodes = false, _expanded = false, _queuing = false;
+  String? _error, _episodeError;
+  int _episodeGeneration = 0, _group = 0;
+  final _scroll = ScrollController();
+  final _playAnchor = GlobalKey();
+  bool _docked = false;
+  Future<MediaFileInfo?>? _fileInfo;
 
   @override
   void initState() {
     super.initState();
-    if (widget.item.kind == MediaKind.show) {
-      _loadEpisodes();
-    }
+    _scroll.addListener(_onScroll);
+    _load();
+  }
+  @override
+  void dispose() { _scroll.dispose(); super.dispose(); }
+
+  void _onScroll() {
+    final box = _playAnchor.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return;
+    final docked = box.localToGlobal(Offset(0, box.size.height)).dy < MediaQuery.paddingOf(context).top + 56;
+    if (_docked != docked) setState(() => _docked = docked);
   }
 
-  Future<void> _loadEpisodes() async {
-    setState(() => _loadingEpisodes = true);
+  Future<void> _load() async {
+    setState(() { _loading = true; _error = null; });
     try {
-      final client = cgflixClientFor(context, widget.item);
-      if (client != null) {
-        final eps = await client.fetchPlayableDescendants(widget.item.id);
-        if (mounted) {
-          setState(() {
-            _episodes = eps;
-            _loadingEpisodes = false;
-          });
-        }
-      } else {
-        if (mounted) setState(() => _loadingEpisodes = false);
+      final client = cgflixClientFor(context, _item);
+      if (client == null) throw StateError('offline');
+      final result = await client.fetchItemWithOnDeck(_item.id);
+      if (!mounted) return;
+      setState(() {
+        _item = result.item ?? _item;
+        _target = widget.episode ?? result.onDeckEpisode ?? (_item.kind == MediaKind.show ? null : _item);
+        _fileInfo = null;
+      });
+      if (_item.kind == MediaKind.show) {
+        final seasons = await client.fetchChildren(_item.id);
+        if (!mounted) return;
+        _seasons = seasons.where((s) => s.kind == MediaKind.season).toList()
+          ..sort((a,b) => (a.index ?? 0).compareTo(b.index ?? 0));
+        final selected = _seasons.where((s) => s.id == _target?.parentId ||
+            (_target != null && s.index == _target!.parentIndex)).firstOrNull ??
+            _seasons.where((s) => (s.index ?? 0) > 0).firstOrNull ?? _seasons.firstOrNull;
+        if (selected != null) await _loadSeason(selected);
       }
-    } catch (_) {
-      if (mounted) setState(() => _loadingEpisodes = false);
-    }
+    } catch (_) { if (mounted) setState(() => _error = 'Não foi possível atualizar o título. Tente novamente.'); }
+    finally { if (mounted) setState(() => _loading = false); }
   }
 
-  void _playTarget(MediaItem target) {
-    HapticFeedback.lightImpact();
-    cgflixPlay(context, target);
+  Future<void> _loadSeason(MediaItem season) async {
+    final generation = ++_episodeGeneration;
+    setState(() { _season = season; _episodes = []; _group = 0; _loadingEpisodes = true; _episodeError = null; });
+    try {
+      final client = cgflixClientFor(context, _item);
+      if (client == null) throw StateError('offline');
+      final episodes = await client.fetchChildren(season.id);
+      if (!mounted || generation != _episodeGeneration) return;
+      episodes.sort((a,b) => (a.index ?? 0).compareTo(b.index ?? 0));
+      setState(() {
+        _episodes = episodes.where((e) => e.kind == MediaKind.episode).toList();
+        _target ??= _episodes.where((e) => e.isUnwatchedOrInProgress).firstOrNull ?? _episodes.firstOrNull;
+        final index = _episodes.indexWhere((e) => e.id == _target?.id);
+        _group = index < 0 ? 0 : index ~/ 10;
+      });
+    } catch (_) { if (mounted && generation == _episodeGeneration) setState(() => _episodeError = 'Não foi possível carregar os episódios.'); }
+    finally { if (mounted && generation == _episodeGeneration) setState(() => _loadingEpisodes = false); }
   }
 
-  String? _extractRealResolution(MediaItem item) {
-    final versions = item.mediaVersions;
-    if (versions != null && versions.isNotEmpty) {
-      final v = versions.first;
-      final res = v.videoResolution?.toUpperCase() ?? '';
-      final h = v.height ?? 0;
-      if (res.contains('4K') || res.contains('2160') || h >= 2160) {
-        return '4K UHD';
-      } else if (res.contains('1080') || h >= 1080) {
-        return '1080p';
-      } else if (res.contains('720') || h >= 720) {
-        return '720p';
-      }
-    }
-    return null;
+  void _play() { final target = _target; if (target != null) cgflixPlay(context, target); }
+  String get _playLabel => cgflixPlayButtonLabel(_item, _target, (item) => item);
+  bool get _hideSpoilers => SettingsService.instanceOrNull?.read(SettingsService.hideSpoilers) ?? true;
+
+  Future<void> _chooseSeason() async {
+    final season = await showModalBottomSheet<MediaItem>(context: context, showDragHandle: true,
+      builder: (ctx) => SafeArea(child: ListView(shrinkWrap: true, children: [
+        const ListTile(title: Text('Temporadas')),
+        for (final s in _seasons) ListTile(title: Text(s.index == 0 ? 'Especiais' : s.displayTitle),
+          trailing: s.id == _season?.id ? const Icon(Icons.check) : null,
+          onTap: () => Navigator.pop(ctx, s)),
+      ])));
+    if (season != null && mounted) await _loadSeason(season);
   }
 
-  String? _extractAudioChannels(MediaItem item) {
-    final versions = item.mediaVersions;
-    if (versions != null && versions.isNotEmpty) {
-      for (final part in versions.first.parts) {
-        for (final stream in part.streams) {
-          final ch = stream.channels;
-          if (ch != null) {
-            if (ch >= 8) return '7.1';
-            if (ch >= 6) return '5.1';
-            if (ch == 2) return 'Stereo';
-          }
-        }
-      }
+  Future<void> _download() async {
+    MediaItem? target = _item;
+    if (_item.kind == MediaKind.show) {
+      target = await showModalBottomSheet<MediaItem>(context: context, showDragHandle: true,
+        builder: (ctx) => SafeArea(child: ListView(shrinkWrap: true, children: [
+          const ListTile(title: Text('Baixar para assistir offline')),
+          if (_season != null) ListTile(leading: const Icon(Icons.download), title: Text('Temporada: ${_season!.displayTitle}'),
+            onTap: () => Navigator.pop(ctx, _season)),
+          for (final episode in _episodes) ListTile(title: Text('${episode.index ?? ""}. ${episode.displayTitle}'),
+            onTap: () => Navigator.pop(ctx, episode)),
+        ])));
     }
-    return null;
+    if (!mounted || target == null) return;
+    final client = cgflixClientFor(context, target);
+    if (client == null) return;
+    setState(() => _queuing = true);
+    try {
+      await queueDownloadWithFeedback(context, metadata: target, client: client,
+        downloadProvider: context.read<DownloadProvider>());
+    } finally { if (mounted) setState(() => _queuing = false); }
   }
+
+  Widget _playButton({bool compact = false}) => FilledButton.icon(
+    onPressed: _target == null ? null : _play, icon: const Icon(Icons.play_arrow),
+    label: Text(_playLabel, maxLines: 1, overflow: TextOverflow.ellipsis),
+    style: FilledButton.styleFrom(minimumSize: Size(compact ? 0 : double.infinity, compact ? 44 : 56),
+      backgroundColor: context.cgflix.isLight ? Colors.white.withValues(alpha: .88) : Colors.white.withValues(alpha: .92),
+      foregroundColor: const Color(0xff202020), shape: const StadiumBorder()));
 
   @override
   Widget build(BuildContext context) {
-    final item = widget.item;
-    final client = cgflixClientFor(context, item);
-    final isShow = item.kind == MediaKind.show;
-    final flags = cgflixLanguageFlags(item);
-    final backdropPath = cgflixWidePath(item);
-    final playLabel = isShow ? 'Continuar Temporada' : 'Assistir Agora';
-
-    final palette = context.cgflix;
-    final isLight = palette.isLight;
-
-    final sheetBg = isLight ? const Color(0xFFF7F3EC) : const Color(0xFF0E0B16);
-    final titleColor = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
-    final textMuted = isLight ? const Color(0xFF64748B) : const Color(0xFFA99FBB);
-    final summaryColor = isLight ? const Color(0xFF334155) : Colors.white.withOpacity(0.75);
-
-    final buttonSecondaryBg = isLight
-        ? const Color(0xFF047857).withOpacity(0.08)
-        : Colors.white.withOpacity(0.08);
-    final buttonSecondaryBorder = isLight
-        ? const Color(0xFF047857).withOpacity(0.18)
-        : Colors.white.withOpacity(0.14);
-    final iconColor = isLight ? const Color(0xFF047857) : const Color(0xFFF4F1FA);
-
-    final btnGradient = isLight
-        ? const [Color(0xFF059669), Color(0xFF047857)]
-        : const [Color(0xFF7A40F2), Color(0xFF5A25D0)];
-    final btnShadow = isLight
-        ? const Color(0xFF047857).withOpacity(0.30)
-        : const Color(0xFF7A40F2).withOpacity(0.35);
-
-    final realRes = _extractRealResolution(item);
-    final realAudio = _extractAudioChannels(item);
+    final client = cgflixClientFor(context, _item);
+    final bg = heisucaPageColor(_item, isLight: context.cgflix.isLight);
+    final fg = context.cgflix.isLight ? const Color(0xff133c33) : Colors.white;
+    final isShow = _item.kind == MediaKind.show;
+    final height = (MediaQuery.sizeOf(context).height * .72).clamp(440.0, 760.0);
+    final art = cgflixWidePath(_item) ?? _item.thumbPath;
     final store = HeisucaStateStore.instance;
-
-    return Scaffold(
-      backgroundColor: sheetBg,
-      body: Stack(
-        children: [
-          // 1. Conteúdo Rolável Completo da Ficha Técnica
-          CustomScrollView(
-            physics: const HeisucaSpringPhysics(parent: AlwaysScrollableScrollPhysics()),
-            slivers: [
-              // Hero Header Widescreen com Backdrop e Scrim Cúbico
-              SliverToBoxAdapter(
-                child: SizedBox(
-                  height: 360.0,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      // Imagem Backdrop
-                      if (backdropPath != null && client != null)
-                        OptimizedMediaImage(
-                          client: client,
-                          imagePath: backdropPath,
-                          imageType: ImageType.art,
-                          fit: BoxFit.cover,
-                        )
-                      else
-                        Container(color: isLight ? const Color(0xFFE2E8F0) : const Color(0xFF1B1526)),
-
-                      // Scrim Cúbico Suave
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            stops: const [0.0, 0.40, 0.75, 1.0],
-                            colors: [
-                              Colors.transparent,
-                              isLight ? const Color(0x33F7F3EC) : const Color(0x440B0910),
-                              isLight ? const Color(0xCCF7F3EC) : const Color(0xDD0B0910),
-                              sheetBg,
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      // Informações no fundo do Backdrop
-                      Positioned(
-                        left: 20.0,
-                        right: 20.0,
-                        bottom: 12.0,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              item.displayTitle,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontFamily: HeisucaTheme.fonteTitulo,
-                                fontSize: 26.0,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: -0.4,
-                                color: titleColor,
-                              ),
-                            ),
-                            const SizedBox(height: 8.0),
-                            Wrap(
-                              spacing: 6.0,
-                              runSpacing: 4.0,
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              children: [
-                                if (item.year != null)
-                                  _buildTag('${item.year}', isLight),
-                                if (flags.dubbed)
-                                  _buildTag('DUBLADO', isLight)
-                                else if (flags.subtitled)
-                                  _buildTag('LEGENDADO', isLight),
-                                if (realRes != null)
-                                  _buildTag(realRes, isLight),
-                                if (realAudio != null)
-                                  _buildTag(realAudio, isLight),
-                                if (item.rating != null) ...[
-                                  const SizedBox(width: 2.0),
-                                  const Icon(Symbols.star_rounded, color: Color(0xFFFFB800), size: 16.0),
-                                  const SizedBox(width: 2.0),
-                                  Text(
-                                    item.rating!.toStringAsFixed(1),
-                                    style: TextStyle(
-                                      fontFamily: HeisucaTheme.fonteTexto,
-                                      fontSize: 12.5,
-                                      fontWeight: FontWeight.w700,
-                                      color: titleColor,
-                                      fontFeatures: const [ui.FontFeature.tabularFigures()],
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              // Botões de Ação Imediata
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 14.0),
-                  child: Row(
-                    children: [
-                      // Botão Assistir / Continuar
-                      Expanded(
-                        child: HeisucaSpringPressable(
-                          onTap: () {
-                            final target = widget.episode ??
-                                (_episodes.isNotEmpty ? _episodes.first : widget.item);
-                            _playTarget(target);
-                          },
-                          child: Container(
-                            height: 48.0,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(colors: btnGradient),
-                              borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: btnShadow,
-                                  blurRadius: 14.0,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Symbols.play_arrow_rounded, color: Colors.white, size: 24.0),
-                                const SizedBox(width: 8.0),
-                                Text(
-                                  playLabel,
-                                  style: const TextStyle(
-                                    fontFamily: HeisucaTheme.fonteTexto,
-                                    fontSize: 15.0,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white,
-                                    letterSpacing: -0.2,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(width: 10.0),
-
-                      // Botão Favorito / Lista (Reativo com HeisucaStateStore)
-                      ListenableBuilder(
-                        listenable: store,
-                        builder: (ctx, _) {
-                          final isFav = store.isFavorite(widget.item);
-                          return HeisucaSpringPressable(
-                            onTap: () {
-                              HapticFeedback.selectionClick();
-                              store.toggleFavorite(context, widget.item);
-                            },
-                            child: Container(
-                              width: 48.0,
-                              height: 48.0,
-                              decoration: BoxDecoration(
-                                color: buttonSecondaryBg,
-                                borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
-                                border: Border.all(color: buttonSecondaryBorder, width: 0.8),
-                              ),
-                              child: Center(
-                                child: Icon(
-                                  Symbols.favorite_rounded,
-                                  fill: isFav ? 1.0 : 0.0,
-                                  color: isFav ? const Color(0xFFFF5252) : iconColor,
-                                  size: 22.0,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-
-                      const SizedBox(width: 10.0),
-
-                      // Botão Download Offline
-                      HeisucaSpringPressable(
-                        onTap: () async {
-                          HapticFeedback.lightImpact();
-                          final mClient = cgflixClientFor(context, widget.item);
-                          if (mClient != null) {
-                            final downloadProvider = Provider.of<DownloadProvider>(context, listen: false);
-                            await queueDownloadWithFeedback(
-                              context,
-                              metadata: widget.item,
-                              client: mClient,
-                              downloadProvider: downloadProvider,
-                            );
-                            if (mounted) setState(() => _isDownloading = true);
-                          }
-                        },
-                        child: Container(
-                          width: 48.0,
-                          height: 48.0,
-                          decoration: BoxDecoration(
-                            color: buttonSecondaryBg,
-                            borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
-                            border: Border.all(color: buttonSecondaryBorder, width: 0.8),
-                          ),
-                          child: Center(
-                            child: Icon(
-                              _isDownloading ? Symbols.download_done_rounded : Symbols.download_rounded,
-                              color: _isDownloading ? const Color(0xFF34D399) : iconColor,
-                              size: 22.0,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              // Sinopse Real
-              if (item.summary?.isNotEmpty == true)
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Sinopse',
-                          style: TextStyle(
-                            fontFamily: HeisucaTheme.fonteTitulo,
-                            fontSize: 16.5,
-                            fontWeight: FontWeight.w700,
-                            color: titleColor,
-                          ),
-                        ),
-                        const SizedBox(height: 6.0),
-                        Text(
-                          item.summary!,
-                          style: TextStyle(
-                            fontFamily: HeisucaTheme.fonteTexto,
-                            fontSize: 13.5,
-                            height: 1.5,
-                            color: summaryColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-              // Se for série: Lista Real de Episódios
-              if (isShow) ...[
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Episódios',
-                          style: TextStyle(
-                            fontFamily: HeisucaTheme.fonteTitulo,
-                            fontSize: 16.5,
-                            fontWeight: FontWeight.w700,
-                            color: titleColor,
-                          ),
-                        ),
-                        Text(
-                          _episodes.isNotEmpty
-                              ? '${_episodes.length} Episódios'
-                              : (_loadingEpisodes ? 'Carregando...' : ''),
-                          style: TextStyle(
-                            fontFamily: HeisucaTheme.fonteTexto,
-                            fontSize: 12.5,
-                            color: textMuted,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                if (_episodes.isNotEmpty)
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (ctx, idx) => _buildRealEpisodeTile(ctx, _episodes[idx], isLight),
-                      childCount: _episodes.length,
-                    ),
-                  )
-                else if (_loadingEpisodes)
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 24.0),
-                      child: Center(
-                        child: SizedBox(
-                          width: 24.0,
-                          height: 24.0,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.0,
-                            color: isLight ? const Color(0xFF047857) : const Color(0xFF7A40F2),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+    final metadata = <String>[
+      if (_item.rating != null) '★ ${_item.rating!.toStringAsFixed(1)}',
+      if (_item.originallyAvailableAt != null) _item.originallyAvailableAt!,
+      if (_item.studio?.isNotEmpty == true) _item.studio!,
+      if (_item.contentRating != null) _item.contentRating!,
+      if (isShow && _seasons.isNotEmpty) '${_seasons.length} temporadas',
+      if ((_target?.durationMs ?? _item.durationMs) case final duration?) '${duration ~/ 60000} min',
+    ];
+    return Theme(data: Theme.of(context).copyWith(textTheme: Theme.of(context).textTheme.apply(bodyColor: fg, displayColor: fg)),
+      child: Scaffold(backgroundColor: bg, body: Stack(children: [
+        CustomScrollView(controller: _scroll, slivers: [
+          SliverToBoxAdapter(child: SizedBox(height: height, child: Stack(fit: StackFit.expand, children: [
+            if (art != null && client != null) ShaderMask(blendMode: BlendMode.dstIn,
+              shaderCallback: heisucaHeroMask.createShader,
+              child: OptimizedMediaImage(client: client, imagePath: art, imageType: ImageType.art, fit: BoxFit.cover)),
+            Positioned(bottom: 16, left: 24, right: 24, child: Column(mainAxisSize: MainAxisSize.min, children: [
+              if (_item.clearLogoPath != null && client != null)
+                SizedBox(height: 110, child: ClearLogoImage(client: client, logoPath: _item.clearLogoPath,
+                  width: MediaQuery.sizeOf(context).width - 48, height: 110,
+                  fallbackWidth: MediaQuery.sizeOf(context).width - 48, alignment: Alignment.center,
+                  fallbackBuilder: (_) => Text(_item.displayTitle, textAlign: TextAlign.center, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold))))
+              else Text(_item.displayTitle, textAlign: TextAlign.center, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 18),
+              Text(metadata.join('  ·  '), textAlign: TextAlign.center, style: TextStyle(color: fg, height: 1.6)),
+              const SizedBox(height: 8),
+              Wrap(alignment: WrapAlignment.center, spacing: 6, runSpacing: 6, children: cgflixLanguageBadges(_target ?? _item)),
+            ])),
+          ]))),
+          SliverPadding(padding: const EdgeInsets.symmetric(horizontal: 20), sliver: SliverList.list(children: [
+            SizedBox(key: _playAnchor, child: _playButton()),
+            ListenableBuilder(listenable: store, builder: (_, __) => Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              IconButton(tooltip: 'Favorito', icon: Icon(store.isFavorite(_item) ? Icons.favorite : Icons.favorite_border),
+                color: fg, onPressed: () => store.toggleFavorite(context, _item)),
+              IconButton(tooltip: store.isWatched(_target ?? _item) ? 'Marcar como não visto' : 'Marcar como visto',
+                icon: Icon(store.isWatched(_target ?? _item) ? Icons.check_circle : Icons.check_circle_outline), color: fg,
+                onPressed: () => store.toggleWatched(context, _target ?? _item)),
+              IconButton(tooltip: _queuing ? 'Adicionando à fila' : 'Baixar', icon: Icon(_queuing ? Icons.hourglass_top : Icons.download_outlined),
+                color: fg, onPressed: _queuing ? null : _download),
+            ])),
+            if (_error != null) ListTile(title: Text(_error!), trailing: TextButton(onPressed: _load, child: const Text('Tentar novamente'))),
+            if (_loading) const LinearProgressIndicator(minHeight: 2),
+            if (_item.summary?.isNotEmpty == true) ...[
+              _heading('Sinopse'),
+              Text(_item.summary!, maxLines: _expanded ? null : 4, overflow: _expanded ? null : TextOverflow.ellipsis,
+                style: const TextStyle(height: 1.5)),
+              Align(alignment: Alignment.centerLeft, child: TextButton(onPressed: () => setState(() => _expanded = !_expanded),
+                child: Text(_expanded ? 'Menos' : 'Mais'))),
+            ],
+            if (isShow && _target != null) Text('Próximo: T${_target!.parentIndex ?? 1}:E${_target!.index ?? 1}'
+              '${_hideSpoilers && !_target!.isWatched ? "" : " · ${_target!.displayTitle}"}', style: const TextStyle(fontWeight: FontWeight.w600)),
+            if (_item.ratings?.isNotEmpty == true) Padding(padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Wrap(spacing: 16, runSpacing: 8, children: [for (final rating in _item.ratings!)
+                Text('${_ratingLabel(rating.source)} ${rating.source.toLowerCase().contains("rotten") ? "${(rating.value * 10).round()}%" : rating.value.toStringAsFixed(1)}')])),
+            if (isShow) ...[
+              const SizedBox(height: 20),
+              Row(children: [Expanded(child: TextButton.icon(onPressed: _seasons.isEmpty ? null : _chooseSeason,
+                icon: const Icon(Icons.expand_more), label: Text(_season?.displayTitle ?? 'Temporadas'))),
+                TextButton(onPressed: _episodes.isEmpty ? null : _allEpisodes, child: const Text('Ver tudo'))]),
+              if (_loadingEpisodes) const LinearProgressIndicator(minHeight: 2),
+              if (_episodeError != null) TextButton(onPressed: _season == null ? null : () => _loadSeason(_season!), child: Text('$_episodeError Tentar novamente')),
+              if (!_loadingEpisodes && _episodes.isEmpty && _episodeError == null) const Text('Nenhum episódio disponível nesta temporada.'),
+              if (_episodes.isNotEmpty) ...[
+                SizedBox(height: 210, child: ListView.separated(scrollDirection: Axis.horizontal,
+                  key: ValueKey('${_season?.id}:$_group'), itemCount: _episodes.skip(_group * 10).take(10).length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 12),
+                  itemBuilder: (_, i) => _episodeCard(_episodes[_group * 10 + i]))),
+                Wrap(spacing: 8, children: [for (var i = 0; i < (_episodes.length / 10).ceil(); i++)
+                  ChoiceChip(label: Text('${i * 10 + 1}–${((i + 1) * 10).clamp(0, _episodes.length)}'),
+                    selected: _group == i, onSelected: (_) => setState(() => _group = i))]),
               ],
-
-              // Espaçamento de Rodapé
-              SliverToBoxAdapter(
-                child: SizedBox(height: MediaQuery.paddingOf(context).bottom + 40.0),
-              ),
             ],
-          ),
-
-          // 2. Botão Flutuante de Voltar [←] no Canto Superior Esquerdo
-          Positioned(
-            top: MediaQuery.paddingOf(context).top + 8.0,
-            left: 16.0,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(22.0),
-              child: BackdropFilter(
-                filter: ui.ImageFilter.blur(sigmaX: 16.0, sigmaY: 16.0),
-                child: InkWell(
-                  onTap: () {
-                    HapticFeedback.lightImpact();
-                    Navigator.of(context).pop();
-                  },
-                  borderRadius: BorderRadius.circular(22.0),
-                  child: Container(
-                    width: 44.0,
-                    height: 44.0,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: isLight ? Colors.white.withOpacity(0.85) : Colors.black.withOpacity(0.55),
-                      borderRadius: BorderRadius.circular(22.0),
-                      border: Border.all(
-                        color: isLight ? Colors.black.withOpacity(0.08) : Colors.white.withOpacity(0.12),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(isLight ? 0.08 : 0.35),
-                          blurRadius: 12.0,
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      Symbols.arrow_back_rounded,
-                      color: isLight ? const Color(0xFF134E4A) : Colors.white,
-                      size: 24.0,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRealEpisodeTile(BuildContext context, MediaItem episode, bool isLight) {
-    final epNum = episode.index ?? 1;
-    final epTitle = episode.title ?? 'Episódio $epNum';
-    final durationMin = episode.durationMs != null ? '${(episode.durationMs! / 60000).round()} min' : null;
-    final thumbPath = episode.thumbPath;
-    final client = cgflixClientFor(context, episode);
-
-    final tileBg = isLight ? Colors.white : Colors.white.withOpacity(0.03);
-    final borderColor = isLight ? const Color(0xFFE2E8F0) : Colors.white.withOpacity(0.06);
-    final titleColor = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
-    final subtitleColor = isLight ? const Color(0xFF64748B) : Colors.white.withOpacity(0.45);
-    final playIconColor = isLight ? const Color(0xFF047857) : const Color(0xFF7A40F2);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
-      child: HeisucaSpringPressable(
-        onTap: () => _playTarget(episode),
-        child: Container(
-          padding: const EdgeInsets.all(10.0),
-          decoration: BoxDecoration(
-            color: tileBg,
-            borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
-            border: Border.all(color: borderColor, width: 0.6),
-            boxShadow: isLight
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.03),
-                      blurRadius: 8.0,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                : null,
-          ),
-          child: Row(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8.0),
-                child: SizedBox(
-                  width: 90.0,
-                  height: 52.0,
-                  child: thumbPath != null && client != null
-                      ? OptimizedMediaImage(
-                          client: client,
-                          imagePath: thumbPath,
-                          imageType: ImageType.thumb,
-                          fit: BoxFit.cover,
-                        )
-                      : Container(
-                          color: isLight ? const Color(0xFFE2E8F0) : const Color(0xFF1E172A),
-                          child: Center(
-                            child: Text(
-                              'E$epNum',
-                              style: TextStyle(
-                                fontFamily: HeisucaTheme.fonteTexto,
-                                fontSize: 13.0,
-                                fontWeight: FontWeight.w700,
-                                color: isLight ? const Color(0xFF047857) : const Color(0xFFA99FBB),
-                              ),
-                            ),
-                          ),
-                        ),
-                ),
-              ),
-              const SizedBox(width: 12.0),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      epTitle,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontFamily: HeisucaTheme.fonteTexto,
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w600,
-                        color: titleColor,
-                      ),
-                    ),
-                    if (durationMin != null) ...[
-                      const SizedBox(height: 3.0),
-                      Text(
-                        durationMin,
-                        style: TextStyle(
-                          fontFamily: HeisucaTheme.fonteTexto,
-                          fontSize: 11.5,
-                          color: subtitleColor,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              Icon(Symbols.play_circle_rounded, color: playIconColor, size: 28.0),
+            if (_item.roles?.isNotEmpty == true) ...[
+              _heading('Elenco'),
+              SizedBox(height: 180, child: ListView.separated(scrollDirection: Axis.horizontal, itemCount: _item.roles!.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 12), itemBuilder: (_, i) {
+                  final role = _item.roles![i];
+                  return SizedBox(width: 104, child: Column(children: [
+                    ClipRRect(borderRadius: BorderRadius.circular(24), child: SizedBox(width: 96, height: 96,
+                      child: role.thumbPath != null && client != null ? OptimizedMediaImage(client: client,
+                        imagePath: role.thumbPath!, imageType: ImageType.thumb, fit: BoxFit.cover) :
+                        ColoredBox(color: fg.withValues(alpha: .1), child: Center(child: Text(role.tag.isEmpty ? '?' : role.tag[0], style: const TextStyle(fontSize: 28)))))),
+                    const SizedBox(height: 6), Text(role.tag, textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
+                    if (role.role != null) Text(role.role!, textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 12, color: fg.withValues(alpha: .7))),
+                  ]));
+                })),
             ],
-          ),
-        ),
-      ),
-    );
+            if (_item.genres?.isNotEmpty == true) ...[_heading('Gêneros'),
+              Wrap(spacing: 8, runSpacing: 8, children: [for (final genre in _item.genres!) Chip(label: Text(genre))])],
+            _heading('Informações da mídia'),
+            ExpansionTile(title: const Text('Vídeo, áudio, legendas e arquivo'),
+              onExpansionChanged: (open) { if (open && _fileInfo == null && _target != null) setState(() =>
+                _fileInfo = cgflixClientFor(context, _target!)?.getFileInfo(_target!)); },
+              children: [if (_fileInfo != null) FutureBuilder<MediaFileInfo?>(future: _fileInfo, builder: (_, snapshot) {
+                if (snapshot.connectionState != ConnectionState.done) return const LinearProgressIndicator(minHeight: 2);
+                if (snapshot.hasError) return TextButton(onPressed: () => setState(() => _fileInfo =
+                  cgflixClientFor(context, _target!)?.getFileInfo(_target!)), child: const Text('Tentar novamente'));
+                final versions = snapshot.data?.versions ?? [];
+                if (versions.isEmpty) return const ListTile(title: Text('Informações não fornecidas pelo servidor.'));
+                return Column(children: [for (final version in versions) _versionInfo(version)]);
+              }) else const ListTile(title: Text('Selecione um episódio disponível.'))]),
+            SizedBox(height: MediaQuery.paddingOf(context).bottom + 40),
+          ])),
+        ]),
+        Positioned(top: MediaQuery.paddingOf(context).top + 6, left: 12, right: 12,
+          child: Row(children: [IconButton.filledTonal(tooltip: 'Voltar', onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back)),
+            const SizedBox(width: 12), if (_docked) Expanded(child: _playButton(compact: true)) else const Spacer(),
+            if (!_docked) PopupMenuButton<String>(tooltip: 'Mais opções', iconColor: fg,
+              onSelected: (value) { if (value == 'refresh') _load(); else _download(); },
+              itemBuilder: (_) => [const PopupMenuItem(value: 'refresh', child: Text('Atualizar informações')),
+                const PopupMenuItem(value: 'download', child: Text('Baixar'))]),
+          ])),
+      ])));
   }
 
-  Widget _buildTag(String text, bool isLight) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.5),
-      decoration: BoxDecoration(
-        color: isLight ? const Color(0xFF047857).withOpacity(0.12) : Colors.white.withOpacity(0.10),
-        borderRadius: BorderRadius.circular(4.0),
-        border: Border.all(
-          color: isLight ? const Color(0xFF047857).withOpacity(0.24) : Colors.white.withOpacity(0.14),
-          width: 0.6,
-        ),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontFamily: HeisucaTheme.fonteTexto,
-          fontSize: 9.5,
-          fontWeight: FontWeight.w700,
-          color: isLight ? const Color(0xFF047857) : const Color(0xFFDCD7E8),
-          letterSpacing: 0.4,
-        ),
-      ),
-    );
+  Widget _heading(String title) => Padding(padding: const EdgeInsets.only(top: 28, bottom: 14),
+    child: Text(title, style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w700)));
+
+  Widget _episodeCard(MediaItem ep) {
+    final client = cgflixClientFor(context, ep);
+    final hidden = _hideSpoilers && !ep.isWatched;
+    final progress = (ep.durationMs ?? 0) > 0 ? ((ep.viewOffsetMs ?? 0) / ep.durationMs!).clamp(0.0, 1.0) : 0.0;
+    return SizedBox(width: 236, child: InkWell(borderRadius: BorderRadius.circular(20), onTap: () => cgflixPlay(context, ep),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: ep.id == _target?.id ? context.cgflix.accent : Colors.transparent, width: 2)),
+          padding: const EdgeInsets.all(3), child: ClipRRect(borderRadius: BorderRadius.circular(16), child: AspectRatio(aspectRatio: 16/9,
+            child: !hidden && ep.thumbPath != null && client != null ? OptimizedMediaImage(client: client,
+              imagePath: ep.thumbPath!, imageType: ImageType.thumb, fit: BoxFit.cover) :
+              ColoredBox(color: Colors.black26, child: Center(child: Text('E${ep.index ?? ""}')))))),
+        if (progress > 0) LinearProgressIndicator(value: progress, minHeight: 3),
+        const SizedBox(height: 6), Text('${ep.index ?? ""}. ${hidden ? "Episódio ${ep.index ?? ""}" : ep.displayTitle}',
+          maxLines: 2, overflow: TextOverflow.ellipsis),
+        Text([if (ep.durationMs != null) '${ep.durationMs! ~/ 60000} min', if (ep.isWatched) 'Visto'].join(' · '), style: const TextStyle(fontSize: 12)),
+      ])));
   }
+
+  Future<void> _allEpisodes() => showModalBottomSheet<void>(context: context, isScrollControlled: true, showDragHandle: true,
+    builder: (ctx) => SafeArea(child: SizedBox(height: MediaQuery.sizeOf(ctx).height * .75,
+      child: ListView(children: [ListTile(title: Text(_season?.displayTitle ?? 'Episódios')),
+        for (final ep in _episodes) ListTile(leading: Text('${ep.index ?? ""}'),
+          title: Text(_hideSpoilers && !ep.isWatched ? 'Episódio ${ep.index ?? ""}' : ep.displayTitle),
+          trailing: Icon(ep.isWatched ? Icons.check_circle : Icons.play_circle_outline),
+          onTap: () { Navigator.pop(ctx); cgflixPlay(context, ep); }),
+      ]))));
+
+  Widget _versionInfo(MediaFileVersion version) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+    ListTile(title: Text(version.title ?? 'Versão disponível'), subtitle: Text([
+      if (version.width != null && version.height != null) '${version.width} × ${version.height}',
+      if (version.videoCodec != null) version.videoCodec!, if (version.container != null) version.container!,
+      if (version.bitrateKbps != null) '${version.bitrateKbps} kbps',
+    ].join(' · '))),
+    for (final part in version.parts) ...[
+      for (final stream in part.streams) ListTile(title: Text(stream.displayTitle ?? stream.title ?? stream.kind.name), subtitle: Text([
+        if (stream.codec != null) 'Codec: ${stream.codec}', if (stream.language != null) 'Idioma: ${stream.language}',
+        if (stream.channels != null) 'Canais: ${stream.channels}', if (stream.sampleRate != null) '${stream.sampleRate} Hz',
+        if (stream.frameRate != null) '${stream.frameRate} fps', if (stream.bitDepth != null) '${stream.bitDepth} bits',
+        if (stream.pixelFormat != null) stream.pixelFormat!, if (stream.isDefault == true) 'Padrão',
+        if (stream.isForced == true) 'Forçada',
+      ].join(' · '))),
+      if (part.filePath != null) ExpansionTile(title: const Text('Caminho do arquivo'), children: [
+        Padding(padding: const EdgeInsets.all(16), child: SelectableText(part.filePath!)),
+        TextButton.icon(onPressed: () => Clipboard.setData(ClipboardData(text: part.filePath!)),
+          icon: const Icon(Icons.copy), label: const Text('Copiar caminho')),
+      ]),
+    ],
+  ]);
+
+  String _ratingLabel(String source) => const {'imdb': 'IMDb', 'tmdb': 'TMDB', 'rottenTomatoesCritic': 'Tomatometer',
+    'rottenTomatoesAudience': 'Público', 'mal': 'MyAnimeList', 'anilist': 'AniList', 'trakt': 'Trakt', 'simkl': 'Simkl'}[source] ?? source;
 }

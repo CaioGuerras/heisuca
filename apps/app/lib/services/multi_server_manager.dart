@@ -271,6 +271,14 @@ class MultiServerManager {
 
   Set<String>? get visibleServerIds => _visibleServerIds;
 
+  /// Seleção de navegação, independente da autorização e das tarefas offline.
+  /// null mantém a agregação original nas plataformas sem o seletor Heisuca.
+  String? navigationServerId;
+  Map<String, MediaServerClient> get navigationOnlineClients => {
+    for (final entry in visibleOnlineClients.entries)
+      if (navigationServerId == null || entry.key == navigationServerId) entry.key: entry.value,
+  };
+
   final _visibilityController = StreamController<void>.broadcast();
 
   /// Fires when [visibleServerIds] changes. Kept off [statusStream], whose
@@ -1663,3 +1671,4 @@ class MultiServerManager {
     }
   }
 }
+

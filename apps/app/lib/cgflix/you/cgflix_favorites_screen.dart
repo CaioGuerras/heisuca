@@ -27,7 +27,7 @@ class CgflixFavoritesSource {
     } on ProviderNotFoundException {
       return null;
     }
-    final client = servers?.serverManager.visibleOnlineClients.values.whereType<JellyfinClient>().firstOrNull;
+    final client = servers?.serverManager.navigationOnlineClients.values.whereType<JellyfinClient>().firstOrNull;
     if (client == null) return null;
     return CgflixFavoritesSource(
       client: client,
@@ -151,3 +151,4 @@ class _CgflixFavoritesScreenState extends State<CgflixFavoritesScreen> {
     );
   }
 }
+

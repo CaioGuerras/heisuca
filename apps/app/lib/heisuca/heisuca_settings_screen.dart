@@ -9,6 +9,9 @@ import '../models/transcode_quality_preset.dart';
 import '../utils/quality_preset_labels.dart';
 import '../services/settings_service.dart' as settings;
 import 'heisuca_design_system.dart';
+import '../screens/settings/playback_settings_screen.dart';
+import '../screens/settings/settings_screen.dart';
+import 'heisuca_source_scope.dart';
 import 'heisuca_theme.dart';
 import 'services/heisuca_device_service.dart';
 
@@ -393,6 +396,13 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
     );
   }
 
+  Widget _settingsLink(IconData icon, String title, String subtitle, Widget page) => ListTile(
+    leading: Icon(icon), title: Text(title), subtitle: Text(subtitle), trailing: const Icon(Icons.chevron_right),
+    onTap: () async {
+      await Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => page));
+      if (mounted) setState(() {});
+    });
+
   Widget _buildAdvancedTab(bool isLight) {
     final usesExoPlayer = _settings?.read(settings.SettingsService.useExoPlayer) ?? false;
     final accentColor = isLight ? const Color(0xFF047857) : const Color(0xFF7A40F2);
@@ -404,6 +414,20 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
       physics: const HeisucaSpringPhysics(),
       padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 10.0, bottom: 120.0),
       children: [
+        _settingsLink(Icons.play_circle_outline, 'Ao assistir',
+          'Gestos, PiP, retomada, abertura e próximo episódio', const PlaybackSettingsScreen()),
+        _settingsLink(Icons.tune, 'Vídeo e áudio avançados',
+          'Motor, HDR, taxa de quadros, canais e normalização', const PlaybackSettingsScreen(cgflixTechnical: true)),
+        _settingsLink(Icons.subtitles_outlined, 'Áudio e legendas',
+          'Idiomas, estilo, posição e legendas ASS', const SettingsScreen(heisucaSection: HeisucaSettingsSection.subtitles)),
+        _settingsLink(Icons.download_outlined, 'Downloads',
+          'Pasta, Wi-Fi e remoção de episódios assistidos', const SettingsScreen(heisucaSection: HeisucaSettingsSection.downloads)),
+        const HeisucaSourceTile(),
+        _settingsLink(Icons.dns_outlined, 'Gerenciar conexões',
+          'Adicionar e administrar serviços do perfil', const SettingsScreen(heisucaSection: HeisucaSettingsSection.sources)),
+        _settingsLink(Icons.monitor_heart_outlined, 'Diagnóstico e backup',
+          'Logs, desempenho, cache e exportação de ajustes', const SettingsScreen(heisucaSection: HeisucaSettingsSection.diagnostics)),
+        const SizedBox(height: 24),
         // Alerta educativo sobre opções avançadas
         Container(
           padding: const EdgeInsets.all(12.0),
@@ -432,7 +456,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
 
         const SizedBox(height: 16.0),
 
-        _buildSectionHeader('Motor de Renderização GPU', isLight),
+        _buildSectionHeader('Decodificação de vídeo', isLight),
         if (!usesExoPlayer) _buildSwitchTile(
           title: 'Decodificação por Hardware',
           subtitle: 'Permite usar o decodificador do aparelho quando compatível.',

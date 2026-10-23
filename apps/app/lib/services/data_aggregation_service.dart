@@ -146,8 +146,8 @@ class DataAggregationService {
   /// profile's expected servers, which can come online a status emission
   /// before the visibility filter promotes them.
   Map<String, MediaServerClient> _clientsFor(Set<String>? serverIds) {
-    if (serverIds == null) return _serverManager.visibleOnlineClients;
-    final clients = _serverManager.onlineClients;
+    if (serverIds == null) return _serverManager.navigationOnlineClients;
+    final clients = _serverManager.navigationOnlineClients;
     return {
       for (final entry in clients.entries)
         if (serverIds.contains(entry.key)) entry.key: entry.value,
@@ -934,3 +934,4 @@ class DataAggregationService {
     return grouped;
   }
 }
+

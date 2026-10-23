@@ -230,6 +230,7 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
           const Spacer(),
           _buildPlaybackControls(context),
           const Spacer(),
+          if (widget.isLive) _buildActionDock(),
           _buildBottomBar(context),
         ],
       );
@@ -327,7 +328,7 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
           style: VideoHeaderStyle.multiLine,
           onCancelAutoHide: widget.onCancelAutoHide,
           onStartAutoHide: widget.onStartAutoHide,
-          trailing: widget.trackChapterControls,
+          trailing: null,
           onBack: widget.onBack,
           showClock: !isPortraitPhone,
         ),
@@ -358,10 +359,10 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
           children: [
             if (!widget.isLive) ...[
               CircularControlButton(
-                semanticLabel: t.videoControls.previousButton,
-                icon: Symbols.skip_previous_rounded,
-                iconSize: 48,
-                onPressed: widget.onPrevious,
+                semanticLabel: 'Voltar ${widget.seekTimeSmall} segundos',
+                icon: Symbols.replay_rounded,
+                iconSize: 40,
+                onPressed: () => _seekRelative(-widget.seekTimeSmall),
               ),
               const SizedBox(width: 24),
             ],
@@ -381,10 +382,10 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
             if (!widget.isLive) ...[
               const SizedBox(width: 24),
               CircularControlButton(
-                semanticLabel: t.videoControls.nextButton,
-                icon: Symbols.skip_next_rounded,
-                iconSize: 48,
-                onPressed: widget.onNext,
+                semanticLabel: 'Avançar ${widget.seekTimeSmall} segundos',
+                icon: Icons.forward_10,
+                iconSize: 40,
+                onPressed: () => _seekRelative(widget.seekTimeSmall),
               ),
             ],
           ],
@@ -392,6 +393,38 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
       },
     );
   }
+
+  Future<void> _seekRelative(int seconds) async {
+    final maximum = widget.player.state.duration.inMilliseconds;
+    if (maximum <= 0) return;
+    final milliseconds = (widget.player.state.position.inMilliseconds + seconds * 1000).clamp(0, maximum);
+    final target = Duration(milliseconds: milliseconds);
+    widget.onCancelAutoHide?.call();
+    try {
+      if (widget.onSeekRequested != null) {
+        await widget.onSeekRequested!(target);
+        widget.onSeekCompleted?.call(target);
+      } else {
+        widget.onSeekEnd(target);
+      }
+    } finally { if (mounted) widget.onStartAutoHide?.call(); }
+  }
+
+  Widget _buildActionDock() => DecoratedBox(
+    decoration: BoxDecoration(color: Colors.black.withValues(alpha: .32), borderRadius: BorderRadius.circular(24),
+      border: Border.all(color: Colors.white.withValues(alpha: .12))),
+    child: SingleChildScrollView(scrollDirection: Axis.horizontal, padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        widget.trackChapterControls,
+        if (_hasStripContent) TextButton.icon(
+          onPressed: () { widget.onCancelAutoHide?.call(); _stripAnim.forward(); },
+          icon: const Icon(Icons.video_library_outlined, color: Colors.white),
+          label: Text(widget.showQueueTab ? 'Episódios' : 'Capítulos', style: const TextStyle(color: Colors.white))),
+        if (widget.onPrevious != null) IconButton(tooltip: 'Anterior', onPressed: widget.onPrevious,
+          icon: const Icon(Icons.skip_previous, color: Colors.white)),
+        if (widget.onNext != null) IconButton(tooltip: 'Próximo', onPressed: widget.onNext,
+          icon: const Icon(Icons.skip_next, color: Colors.white)),
+      ])));
 
   Widget _buildBottomBar(BuildContext _) {
     if (widget.isLive) {
@@ -436,7 +469,7 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
       top: false, // Only respect bottom safe area when in portrait
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: VideoTimelineBar(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [VideoTimelineBar(
           player: widget.player,
           chapters: widget.chapters,
           chaptersLoaded: widget.chaptersLoaded,
@@ -449,7 +482,7 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
           enabled: widget.canControl,
           showFinishTime: true,
           thumbnailDataBuilder: widget.thumbnailDataBuilder,
-        ),
+        ), const SizedBox(height: 6), _buildActionDock()]),
       ),
     );
   }
@@ -468,3 +501,4 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
     return SafeArea(top: isPortrait && top, bottom: isPortrait && bottom, child: child);
   }
 }
+

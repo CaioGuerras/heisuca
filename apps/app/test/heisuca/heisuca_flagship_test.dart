@@ -138,7 +138,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Duna: Parte 2'), findsOneWidget);
-      expect(find.text('Assistir Agora'), findsOneWidget);
+      expect(find.text('Assistir'), findsOneWidget);
       expect(find.text('Sinopse'), findsOneWidget);
     });
   });
@@ -159,7 +159,9 @@ void main() {
       await tester.tap(find.text('Avançado'));
       await tester.pumpAndSettle();
 
+      await tester.scrollUntilVisible(find.text('Decodificação por Hardware'), 300, scrollable: find.byType(Scrollable).last);
       expect(find.text('Decodificação por Hardware'), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('Buffer de Memória RAM'), 300, scrollable: find.byType(Scrollable).last);
       expect(find.text('Buffer de Memória RAM'), findsOneWidget);
     });
   });
@@ -191,6 +193,7 @@ void main() {
     await tester.tap(find.text('Avançado'));
     await tester.pumpAndSettle();
     final buffer = find.byKey(const ValueKey('heisuca-buffer'));
+    await tester.scrollUntilVisible(buffer, 300, scrollable: find.byType(Scrollable).last);
     expect(tester.widget<DropdownButton<settings.PlaybackBufferTier>>(buffer).onChanged, isNull);
     await tester.pumpWidget(const SizedBox());
     await service.write(settings.SettingsService.useExoPlayer, true);
@@ -199,7 +202,7 @@ void main() {
     await tester.tap(find.text('Avançado'));
     await tester.pumpAndSettle();
     expect(find.text('Decodificação por Hardware'), findsNothing);
-    await tester.ensureVisible(buffer);
+    await tester.scrollUntilVisible(buffer, 300, scrollable: find.byType(Scrollable).last);
     await tester.tap(buffer);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Grande').last);
@@ -305,7 +308,7 @@ void main() {
       expect(find.text('Configurações Heisuca'), findsOneWidget);
       expect(find.text('Sobre o Heisuca'), findsOneWidget);
       expect(find.text('CONTA & ACESSO'), findsOneWidget);
-      expect(find.text('Trocar Usuário / Servidor'), findsOneWidget);
+      expect(find.text('Trocar perfil'), findsOneWidget);
       expect(find.text('Sair da Conta'), findsOneWidget);
 
       // Descontaminação estrita: NÃO deve conter apoio nem opções legadas do CGFLIX
@@ -343,10 +346,10 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Duna: Parte 2'), findsOneWidget);
-      expect(find.text('Assistir Agora'), findsOneWidget);
+      expect(find.text('Assistir'), findsOneWidget);
       expect(find.text('Sinopse'), findsOneWidget);
       expect(find.text('Paul Atreides busca vingança contra os conspiradores.'), findsOneWidget);
-      expect(find.byIcon(Symbols.arrow_back_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.arrow_back), findsOneWidget);
 
       // Como o item não possui versão 4K informada, NÃO deve exibir tag 4K falsa
       expect(find.text('4K HDR'), findsNothing);
@@ -356,7 +359,7 @@ void main() {
       expect(find.text('Pedir no Seerr'), findsNothing);
 
       // Tocar no botão de voltar deve fechar a ficha com fluidez
-      await tester.tap(find.byIcon(Symbols.arrow_back_rounded));
+      await tester.tap(find.byIcon(Icons.arrow_back));
       await tester.pumpAndSettle();
       expect(find.text('Abrir Ficha'), findsOneWidget);
     });

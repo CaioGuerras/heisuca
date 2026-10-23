@@ -70,14 +70,19 @@ import 'settings_utils.dart';
 import 'tracker_service_info.dart';
 import '../../widgets/loading_indicator_box.dart';
 
+enum HeisucaSettingsSection { downloads, subtitles, diagnostics, sources }
+
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({
     super.key,
+    this.heisucaSection,
     this.downloadDirectoryWritableChecker,
     this.settingsExporter,
     this.settingsImporter,
     this.backgroundWorkDiagnosticsService,
   });
+
+  final HeisucaSettingsSection? heisucaSection;
 
   @visibleForTesting
   final Future<bool> Function(Directory directory)? downloadDirectoryWritableChecker;
@@ -212,10 +217,25 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
           child: CustomScrollView(
             primary: false,
             slivers: [
-              ExcludeFocus(child: CustomAppBar(title: Text(t.settings.title), pinned: true)),
+              ExcludeFocus(child: CustomAppBar(title: Text(switch (widget.heisucaSection) {
+                HeisucaSettingsSection.downloads => "Downloads",
+                HeisucaSettingsSection.subtitles => "Áudio e legendas",
+                HeisucaSettingsSection.diagnostics => "Diagnóstico e backup",
+                HeisucaSettingsSection.sources => "Fontes e conexões",
+                null => t.settings.title,
+              }), pinned: true)),
               SliverList(
                 delegate: SliverChildListDelegate([
-                  ..._cgflixMainList(sheetContext, accounts: accounts, hasLibraries: hasLibraries),
+                  ...switch (widget.heisucaSection) {
+                    HeisucaSettingsSection.downloads => _cgflixDownloadsChildren(),
+                    HeisucaSettingsSection.subtitles => <Widget>[
+                      if (accounts.isNotEmpty) _buildAccountPreferencesTile(sheetContext),
+                      const CgflixSubtitleStyleTile(), const CgflixAdvancedSubtitles(),
+                    ],
+                    HeisucaSettingsSection.diagnostics => <Widget>[_buildAdvancedSection(), _buildBackupSection()],
+                    HeisucaSettingsSection.sources => <Widget>[_buildConnectionsSection(sheetContext, hasLibraries: hasLibraries)],
+                    null => _cgflixMainList(sheetContext, accounts: accounts, hasLibraries: hasLibraries),
+                  },
                   const SizedBox(height: 24),
                 ]),
               ),
@@ -1118,3 +1138,4 @@ class _RelayUrlDialogState extends State<_RelayUrlDialog> {
     );
   }
 }
+

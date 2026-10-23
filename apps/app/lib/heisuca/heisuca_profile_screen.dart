@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'heisuca_source_scope.dart';
 import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
@@ -32,7 +33,7 @@ class HeisucaProfileScreen extends StatelessWidget {
   bool _isServerOnline(BuildContext context) {
     try {
       final servers = Provider.of<MultiServerProvider?>(context, listen: false);
-      return servers?.serverManager.visibleOnlineClients.isNotEmpty ?? false;
+      return servers?.serverManager.navigationOnlineClients.isNotEmpty ?? false;
     } catch (_) {
       return false;
     }
@@ -41,12 +42,12 @@ class HeisucaProfileScreen extends StatelessWidget {
   String _getServerName(BuildContext context) {
     try {
       final servers = Provider.of<MultiServerProvider?>(context, listen: false);
-      final clients = servers?.serverManager.visibleOnlineClients;
+      final clients = servers?.serverManager.navigationOnlineClients;
       if (clients != null && clients.isNotEmpty) {
-        return clients.values.first.serverName ?? 'CGSERVER';
+        return clients.values.first.serverName ?? 'Servidor';
       }
     } catch (_) {}
-    return 'CGSERVER';
+    return 'Fonte offline';
   }
 
   @override
@@ -362,10 +363,11 @@ class HeisucaProfileScreen extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
+                      const HeisucaSourceTile(),
                       _buildProfileTile(
                         icon: Symbols.switch_account_rounded,
-                        title: 'Trocar Usuário / Servidor',
-                        subtitle: 'Alternar entre perfis salvos ou adicionar servidor',
+                        title: 'Trocar perfil',
+                        subtitle: 'Alternar entre usuários salvos',
                         textColor: textTitle,
                         subColor: textSub,
                         iconColor: isLight ? const Color(0xFF047857) : const Color(0xFFE2E8F0),
@@ -492,3 +494,4 @@ class HeisucaProfileScreen extends StatelessWidget {
     );
   }
 }
+

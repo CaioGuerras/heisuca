@@ -11,11 +11,37 @@ import '../providers/download_provider.dart';
 import '../services/settings_service.dart';
 import '../utils/download_utils.dart';
 import '../utils/media_image_helper.dart';
+import '../utils/rating_utils.dart';
 import '../widgets/optimized_media_image.dart';
 import 'heisuca_home_style.dart';
 import 'heisuca_state_store.dart';
 
+/// Série dona de um episódio/temporada; null para filmes e séries.
+String? heisucaSeriesIdFor(MediaItem item) => switch (item.kind) {
+  MediaKind.episode => item.grandparentId,
+  MediaKind.season => item.grandparentId ?? item.parentId,
+  _ => null,
+};
+
+/// Rótulo próprio da temporada. `displayTitle` devolve o nome da SÉRIE para temporadas
+/// e episódios (é título de cabeçalho), por isso nunca serve de rótulo aqui.
+String heisucaSeasonLabel(MediaItem season) {
+  if (season.index == 0) return 'Especiais';
+  final own = season.title?.trim();
+  if (own != null && own.isNotEmpty && own != season.grandparentTitle && own != season.parentTitle) return own;
+  return season.index != null ? 'Temporada ${season.index}' : 'Temporada';
+}
+
+/// Nome próprio do episódio; cai em "Episódio N" quando o servidor só repete o nome da série.
+String heisucaEpisodeLabel(MediaItem episode) {
+  final own = episode.title?.trim();
+  if (own != null && own.isNotEmpty && own != episode.grandparentTitle) return own;
+  return episode.index != null ? 'Episódio ${episode.index}' : 'Episódio';
+}
+
 /// Ficha ligada ao acervo e ao player reais; nunca escolhe um episódio pelo índice visual.
+/// Episódio ou temporada recebidos (Home, Em breve, novidades) abrem a ficha da SÉRIE,
+/// com aquele episódio como alvo ou aquela temporada selecionada.
 class HeisucaTitleSheet extends StatefulWidget {
   const HeisucaTitleSheet({super.key, required this.hostContext, required this.item, this.episode});
   final BuildContext hostContext;
@@ -33,6 +59,8 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
   MediaItem? _target;
   List<MediaItem> _seasons = [], _episodes = [];
   MediaItem? _season;
+  String? _preferredSeasonId;
+  bool _entryApplied = false;
   bool _loading = true, _loadingEpisodes = false, _expanded = false, _queuing = false;
   String? _error, _episodeError;
   int _episodeGeneration = 0, _loadGeneration = 0, _group = 0;
@@ -65,11 +93,27 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
     try {
       final client = cgflixClientFor(context, _item);
       if (client == null) throw StateError('offline');
-      final result = await client.fetchItemWithOnDeck(_item.id);
+      final entry = widget.item;
+      final seriesId = _item.kind == MediaKind.show ? null : heisucaSeriesIdFor(entry);
+      final result = await client.fetchItemWithOnDeck(seriesId ?? _item.id);
       if (!mounted || generation != _loadGeneration) return;
+      final fetched = result.item;
+      // Só troca para a série se o servidor confirmou que é uma série; senão mantém o item recebido.
+      final asSeries = seriesId != null && fetched?.kind == MediaKind.show;
+      if (seriesId != null && !asSeries) {
+        final own = await client.fetchItemWithOnDeck(entry.id);
+        if (!mounted || generation != _loadGeneration) return;
+        setState(() { _item = own.item ?? entry; _target = _item; _fileInfo = null; });
+        return;
+      }
       setState(() {
-        _item = result.item ?? _item;
-        _target = widget.episode ?? result.onDeckEpisode ?? (_item.kind == MediaKind.show ? null : _item);
+        _item = fetched ?? _item;
+        _target = widget.episode ??
+            // Primeira abertura: o episódio tocado. Recargas (após assistir/marcar) seguem o on-deck.
+            (asSeries && entry.kind == MediaKind.episode && !_entryApplied ? entry : null) ??
+            result.onDeckEpisode ?? (_item.kind == MediaKind.show ? null : _item);
+        if (asSeries && entry.kind == MediaKind.season && !_entryApplied) _preferredSeasonId = entry.id;
+        _entryApplied = true;
         _fileInfo = null;
       });
       if (_item.kind == MediaKind.show) {
@@ -77,7 +121,10 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
         if (!mounted || generation != _loadGeneration) return;
         _seasons = seasons.where((s) => s.kind == MediaKind.season).toList()
           ..sort((a,b) => (a.index ?? 0).compareTo(b.index ?? 0));
-        final selected = _seasons.where((s) => s.id == _target?.parentId ||
+        final preferred = _preferredSeasonId;
+        _preferredSeasonId = null; // só vale para a primeira abertura
+        final selected = _seasons.where((s) => s.id == preferred).firstOrNull ??
+            _seasons.where((s) => s.id == _target?.parentId ||
             (_target != null && s.index == _target!.parentIndex)).firstOrNull ??
             _seasons.where((s) => (s.index ?? 0) > 0).firstOrNull ?? _seasons.firstOrNull;
         if (selected != null) await _loadSeason(selected);
@@ -114,14 +161,23 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
     await HeisucaStateStore.instance.toggleWatched(context, _target ?? _item);
     if (mounted) await _load();
   }
-  String get _playLabel => cgflixPlayButtonLabel(_item, _target, (item) => item);
+  String get _playLabel {
+    final target = _target;
+    // Episódio escolhido na Home e ainda não iniciado: é "Assistir", não "Continuar".
+    if (target != null && target.id == widget.item.id && target.kind == MediaKind.episode &&
+        (target.viewOffsetMs ?? 0) == 0 && !target.isWatched) {
+      final code = cgflixEpisodeCode(target);
+      return code.isEmpty ? 'Assistir' : 'Assistir $code';
+    }
+    return cgflixPlayButtonLabel(_item, _target, (item) => item);
+  }
   bool get _hideSpoilers => SettingsService.instanceOrNull?.read(SettingsService.hideSpoilers) ?? true;
 
   Future<void> _chooseSeason() async {
     final season = await showModalBottomSheet<MediaItem>(context: context, showDragHandle: true,
       builder: (ctx) => SafeArea(child: ListView(shrinkWrap: true, children: [
         const ListTile(title: Text('Temporadas')),
-        for (final s in _seasons) ListTile(title: Text(s.index == 0 ? 'Especiais' : s.displayTitle),
+        for (final s in _seasons) ListTile(title: Text(heisucaSeasonLabel(s)),
           trailing: s.id == _season?.id ? const Icon(Icons.check) : null,
           onTap: () => Navigator.pop(ctx, s)),
       ])));
@@ -134,9 +190,9 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
       target = await showModalBottomSheet<MediaItem>(context: context, showDragHandle: true,
         builder: (ctx) => SafeArea(child: ListView(shrinkWrap: true, children: [
           const ListTile(title: Text('Baixar para assistir offline')),
-          if (_season != null) ListTile(leading: const Icon(Icons.download), title: Text('Temporada: ${_season!.displayTitle}'),
+          if (_season != null) ListTile(leading: const Icon(Icons.download), title: Text('Temporada: ${heisucaSeasonLabel(_season!)}'),
             onTap: () => Navigator.pop(ctx, _season)),
-          for (final episode in _episodes) ListTile(title: Text('${episode.index ?? ""}. ${episode.displayTitle}'),
+          for (final episode in _episodes) ListTile(title: Text('${episode.index ?? ""}. ${heisucaEpisodeLabel(episode)}'),
             onTap: () => Navigator.pop(ctx, episode)),
         ])));
     }
@@ -171,7 +227,11 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
       if (_item.originallyAvailableAt != null) _item.originallyAvailableAt!,
       if (_item.studio?.isNotEmpty == true) _item.studio!,
       if (_item.contentRating != null) _item.contentRating!,
-      if (isShow && _seasons.isNotEmpty) '${_seasons.length} temporadas',
+      if (isShow) ...switch (_seasons.where((s) => (s.index ?? 1) > 0).length) {
+        0 => const <String>[],
+        1 => const ['1 temporada'],
+        final n => ['$n temporadas'],
+      },
       if ((_target?.durationMs ?? _item.durationMs) case final duration?) '${duration ~/ 60000} min',
     ];
     return Theme(data: Theme.of(context).copyWith(textTheme: Theme.of(context).textTheme.apply(bodyColor: fg, displayColor: fg)),
@@ -215,14 +275,15 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
                 child: Text(_expanded ? 'Menos' : 'Mais'))),
             ],
             if (isShow && _target != null) Text('Próximo: T${_target!.parentIndex ?? 1}:E${_target!.index ?? 1}'
-              '${_hideSpoilers && !_target!.isWatched ? "" : " · ${_target!.displayTitle}"}', style: const TextStyle(fontWeight: FontWeight.w600)),
+              '${_hideSpoilers && !_target!.isWatched ? "" : " · ${heisucaEpisodeLabel(_target!)}"}', style: const TextStyle(fontWeight: FontWeight.w600)),
             if (_item.ratings?.isNotEmpty == true) Padding(padding: const EdgeInsets.symmetric(vertical: 16),
               child: Wrap(spacing: 16, runSpacing: 8, children: [for (final rating in _item.ratings!)
-                Text('${_ratingLabel(rating.source)} ${rating.source.toLowerCase().contains("rotten") ? "${(rating.value * 10).round()}%" : rating.value.toStringAsFixed(1)}')])),
+                if (ratingSourceLabel(rating.source) != null && !(rating.source == 'audience' && _item.rating != null))
+                Text('${ratingSourceLabel(rating.source)} ${rating.source.toLowerCase().contains("rotten") ? "${(rating.value * 10).round()}%" : rating.value.toStringAsFixed(1)}')])),
             if (isShow) ...[
               const SizedBox(height: 20),
               Row(children: [Expanded(child: TextButton.icon(onPressed: _seasons.isEmpty ? null : _chooseSeason,
-                icon: const Icon(Icons.expand_more), label: Text(_season?.displayTitle ?? 'Temporadas'))),
+                icon: const Icon(Icons.expand_more), label: Text(_season != null ? heisucaSeasonLabel(_season!) : 'Temporadas'))),
                 TextButton(onPressed: _episodes.isEmpty ? null : _allEpisodes, child: const Text('Ver tudo'))]),
               if (_loadingEpisodes) const LinearProgressIndicator(minHeight: 2),
               if (_episodeError != null) TextButton(onPressed: _season == null ? null : () => _loadSeason(_season!), child: Text('$_episodeError Tentar novamente')),
@@ -299,7 +360,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
               imagePath: ep.thumbPath!, imageType: ImageType.thumb, fit: BoxFit.cover) :
               ColoredBox(color: Colors.black26, child: Center(child: Text('E${ep.index ?? ""}')))))),
         if (progress > 0) LinearProgressIndicator(value: progress, minHeight: 3),
-        const SizedBox(height: 6), Text('${ep.index ?? ""}. ${hidden ? "Episódio ${ep.index ?? ""}" : ep.displayTitle}',
+        const SizedBox(height: 6), Text('${ep.index ?? ""}. ${hidden ? "Episódio ${ep.index ?? ""}" : heisucaEpisodeLabel(ep)}',
           maxLines: 2, overflow: TextOverflow.ellipsis),
         Text([if (ep.durationMs != null) '${ep.durationMs! ~/ 60000} min', if (ep.isWatched) 'Visto'].join(' · '), style: const TextStyle(fontSize: 12)),
       ])));
@@ -307,9 +368,9 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
 
   Future<void> _allEpisodes() => showModalBottomSheet<void>(context: context, isScrollControlled: true, showDragHandle: true,
     builder: (ctx) => SafeArea(child: SizedBox(height: MediaQuery.sizeOf(ctx).height * .75,
-      child: ListView(children: [ListTile(title: Text(_season?.displayTitle ?? 'Episódios')),
+      child: ListView(children: [ListTile(title: Text(_season != null ? heisucaSeasonLabel(_season!) : 'Episódios')),
         for (final ep in _episodes) ListTile(leading: Text('${ep.index ?? ""}'),
-          title: Text(_hideSpoilers && !ep.isWatched ? 'Episódio ${ep.index ?? ""}' : ep.displayTitle),
+          title: Text(_hideSpoilers && !ep.isWatched ? 'Episódio ${ep.index ?? ""}' : heisucaEpisodeLabel(ep)),
           trailing: Icon(ep.isWatched ? Icons.check_circle : Icons.play_circle_outline),
           onTap: () { Navigator.pop(ctx); _playEpisode(ep); }),
       ]))));
@@ -363,8 +424,6 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
     ],
   ]);
 
-  String _ratingLabel(String source) => const {'imdb': 'IMDb', 'tmdb': 'TMDB', 'rottenTomatoesCritic': 'Tomatometer',
-    'rottenTomatoesAudience': 'Público', 'mal': 'MyAnimeList', 'anilist': 'AniList', 'trakt': 'Trakt', 'simkl': 'Simkl'}[source] ?? source;
 }
 
 /// Cada página começa no episódio de continuação; o controller pertence ao widget.

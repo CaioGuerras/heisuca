@@ -9,6 +9,8 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../media/media_item.dart';
 import '../../media/media_library.dart';
+import '../../media/media_kind.dart';
+import '../../heisuca/heisuca_upcoming.dart';
 import '../../services/jellyfin_client.dart';
 import '../../utils/app_logger.dart';
 import 'cgflix_home_logic.dart';
@@ -41,6 +43,7 @@ class CgflixHomeRepository {
   void forgetMemory() {
     _memory.clear();
     _continueMemory.clear();
+    _upcoming = null;
   }
 
   Future<void>? _cacheLoad;
@@ -150,6 +153,36 @@ class CgflixHomeRepository {
     if (query == null) return Stream.value(const CgflixRowData(items: []));
     final key = '${genre == null ? kind.name : '${kind.name}:$genre'}${filter?.cacheSuffix ?? ''}';
     return _cachedThenNetwork(key, () async => (raw: await client.cgflixFetchRawItems(query), title: null));
+  }
+
+  /// Home Heisuca: uma fileira por biblioteca, preservando a ordem do servidor.
+  Future<List<MediaLibrary>> videoLibraries() async => (await client.fetchLibraries())
+      .where((library) => !library.hidden && const [MediaKind.movie, MediaKind.show, MediaKind.unknown].contains(library.kind))
+      .toList();
+
+  Stream<CgflixRowData> watchLibrary(MediaLibrary library) => _cachedThenNetwork(
+    'library:${library.id}',
+    () async => (raw: await client.cgflixFetchLatestRaw(library.id), title: library.title),
+  );
+
+  Future<List<HeisucaUpcoming>>? _upcoming;
+  Future<List<HeisucaUpcoming>> upcoming() => _upcoming ??= _fetchUpcoming();
+
+  Future<List<HeisucaUpcoming>> _fetchUpcoming() async {
+    try {
+      final result = await Future.wait([
+        client.cgflixGetJson('/cgflix/embreve.json'),
+        client.cgflixGetJson('/HomeScreen/Section/UpcomingShows?UserId=${Uri.encodeQueryComponent(client.cgflixUserId)}').catchError((_) => null),
+        client.cgflixGetJson('/HomeScreen/Section/UpcomingMovies?UserId=${Uri.encodeQueryComponent(client.cgflixUserId)}').catchError((_) => null),
+      ]);
+      return [
+        ...heisucaParseUpcoming(result[0], result[1], isMovie: false),
+        ...heisucaParseUpcoming(result[0], result[2], isMovie: true),
+      ];
+    } catch (error) {
+      appLogger.i('Heisuca: calendário Em breve indisponível', error: error);
+      return const [];
+    }
   }
 
   /// Destaque do topo.
@@ -270,3 +303,4 @@ class CgflixHomeRepository {
     }
   }
 }
+

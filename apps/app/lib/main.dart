@@ -864,7 +864,9 @@ class _StartupBootstrapState<T> extends State<StartupBootstrap<T>> {
     // what turned a black Android TV splash into a flashbang (#1833).
     return Scaffold(
       backgroundColor: widget.transparentWhileLoading ? Colors.transparent : null,
-      body: const Center(child: CircularProgressIndicator(key: startupBootstrapProgressKey)),
+      body: widget.transparentWhileLoading
+          ? const SizedBox.expand(key: startupBootstrapProgressKey)
+          : const Center(child: CircularProgressIndicator(key: startupBootstrapProgressKey)),
     );
   }
 }

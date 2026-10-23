@@ -22,6 +22,17 @@ extension CgflixJellyfinQueries on JellyfinClient {
     return _itemsArray(response.data);
   }
 
+  /// Mesma rota Items/Latest do site, sem transformar novidades em gêneros.
+  Future<List<Map<String, dynamic>>> cgflixFetchLatestRaw(String libraryId) async {
+    final response = await _http.get('/Items/Latest', queryParameters: {
+      'UserId': connection.userId, 'ParentId': libraryId, 'Limit': '20',
+      'Fields': '$_hubRowFields,Genres', ...jellyfinImageQueryParameters,
+    }, timeout: const Duration(seconds: 12));
+    throwIfHttpError(response);
+    final data = response.data;
+    return data is List ? data.whereType<Map<String, dynamic>>().toList() : _itemsArray(data);
+  }
+
   /// Continuar assistindo + Próximos episódios só da biblioteca [libraryId] (Etapa 1E). Usa as
   /// mesmas consultas do upstream (`Resume` e `/Shows/NextUp` com `ParentId`) e a mesma junção.
   Future<List<MediaItem>> cgflixFetchContinueWatchingIn(String libraryId, {int count = 20}) async {
@@ -150,3 +161,4 @@ extension CgflixJellyfinQueries on JellyfinClient {
 
   static bool _cgflixRouteMissing(int status) => status == 404 || status == 405;
 }
+

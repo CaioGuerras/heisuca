@@ -10,6 +10,7 @@ class HeisucaLogo extends StatelessWidget {
   final double? height;
   final bool comSlogan;
   final bool apenasSelo;
+  final bool siteHeader;
 
   const HeisucaLogo({
     super.key,
@@ -17,6 +18,7 @@ class HeisucaLogo extends StatelessWidget {
     this.height = 36,
     this.comSlogan = false,
     this.apenasSelo = false,
+    this.siteHeader = false,
   });
 
   @override
@@ -24,6 +26,16 @@ class HeisucaLogo extends StatelessWidget {
     final palette = context.cgflix;
     final isLight = palette.isLight;
     final h = height ?? 36.0;
+
+    if (siteHeader) {
+      return Row(mainAxisSize: MainAxisSize.min, children: [
+        SvgPicture.asset('assets/heisuca/selo_vertical_site.svg', height: h, width: h * 0.354),
+        const SizedBox(width: 5),
+        Text('HEISUCA', style: TextStyle(fontFamily: HeisucaTheme.fonteTitulo,
+          fontSize: h * 0.39, fontWeight: FontWeight.w400, letterSpacing: 3.0,
+          color: isLight ? const Color(0xFF163830) : const Color(0xFFF4F1FA))),
+      ]);
+    }
 
     final seloAsset = isLight
         ? 'assets/heisuca/selo_pequeno_hisui.svg'
@@ -83,3 +95,4 @@ class HeisucaLogo extends StatelessWidget {
     );
   }
 }
+

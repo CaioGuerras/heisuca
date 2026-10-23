@@ -220,7 +220,7 @@ void main() {
   });
 
   group('HeisucaFloatingIsland', () {
-    testWidgets('exibe abas Início, Biblioteca, Buscar e Você com resposta ao toque', (tester) async {
+    testWidgets('exibe abas Início, Biblioteca, Favoritos e Você com resposta ao toque', (tester) async {
       int selecionado = 0;
       await _montar(
         tester,
@@ -241,7 +241,7 @@ void main() {
 
       expect(find.text('Início'), findsOneWidget);
       expect(find.text('Biblioteca'), findsOneWidget);
-      expect(find.text('Buscar'), findsOneWidget);
+      expect(find.text('Favoritos'), findsOneWidget);
       expect(find.text('Você'), findsOneWidget);
 
       await tester.tap(find.text('Biblioteca'));

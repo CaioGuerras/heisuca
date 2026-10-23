@@ -15,8 +15,12 @@ class HeisucaFloatingIsland extends StatefulWidget {
     required this.currentIndex,
     required this.onDestinationSelected,
     this.onLibrariesLongPress,
+    this.userLabel = 'Você',
+    this.userAvatar,
   });
 
+  final String userLabel;
+  final Widget? userAvatar;
   final int currentIndex;
   final ValueChanged<int> onDestinationSelected;
   final VoidCallback? onLibrariesLongPress;
@@ -34,7 +38,7 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
   static const _items = [
     (icon: Symbols.home_rounded, label: 'Início'),
     (icon: Symbols.video_library_rounded, label: 'Biblioteca'),
-    (icon: Symbols.search_rounded, label: 'Buscar'),
+    (icon: Symbols.favorite_rounded, label: 'Favoritos'),
     (icon: Symbols.person_rounded, label: 'Você'),
   ];
 
@@ -83,7 +87,7 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.paddingOf(context).bottom;
     final screenWidth = MediaQuery.sizeOf(context).width;
-    final islandWidth = (screenWidth - 44.0).clamp(280.0, 420.0);
+    final islandWidth = (screenWidth - 56.0).clamp(240.0, 290.0);
     final itemWidth = islandWidth / _items.length;
     final palette = context.cgflix;
     final isLight = palette.isLight;
@@ -101,7 +105,7 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
       bottom: bottomInset + 14.0,
       left: (screenWidth - islandWidth) / 2,
       width: islandWidth,
-      height: 64.0,
+      height: 54.0,
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(32.0),
@@ -139,7 +143,7 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
 
                       return Positioned(
                         left: dynamicLeft,
-                        top: 9.0,
+                        top: 4.0,
                         width: dynamicWidth,
                         height: 46.0,
                         child: Container(
@@ -163,7 +167,8 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
                       return Expanded(
                         child: _IslandButton(
                           icon: item.icon,
-                          label: item.label,
+                          label: index == 3 ? widget.userLabel : item.label,
+                          avatar: index == 3 ? widget.userAvatar : null,
                           isSelected: isSelected,
                           isLight: isLight,
                           activeColor: isLight ? palette.accent : const Color(0xFFF4F1FA),
@@ -198,9 +203,11 @@ class _IslandButton extends StatefulWidget {
     required this.activeColor,
     required this.mutedColor,
     required this.onTap,
+    this.avatar,
     this.onLongPress,
   });
 
+  final Widget? avatar;
   final IconData icon;
   final String label;
   final bool isSelected;
@@ -234,7 +241,7 @@ class _IslandButtonState extends State<_IslandButton> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            widget.avatar ?? Icon(
               widget.icon,
               size: 24.0,
               fill: widget.isSelected ? 1.0 : 0.0,
@@ -244,6 +251,8 @@ class _IslandButtonState extends State<_IslandButton> {
             const SizedBox(height: 2.0),
             Text(
               widget.label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontFamily: HeisucaTheme.fonteTexto,
                 fontSize: 10.5,
@@ -257,3 +266,4 @@ class _IslandButtonState extends State<_IslandButton> {
     );
   }
 }
+

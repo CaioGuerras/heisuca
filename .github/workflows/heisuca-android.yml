@@ -3,6 +3,7 @@ name: Heisuca Android Build
 on:
   push:
     branches: ["gemini/**", "claude/**", "codex/heisuca-**"]
+    paths-ignore: ["docs/**", "AGENTS.md", "apps/app/CLAUDE.md"]
   workflow_dispatch:
 
 env:

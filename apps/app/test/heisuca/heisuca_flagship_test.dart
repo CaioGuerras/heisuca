@@ -183,6 +183,30 @@ void main() {
     expect(tester.widget<Switch>(introSwitch).value, isTrue);
   });
 
+  testWidgets('buffer respeita o motor ativo e salva o perfil do ExoPlayer', (tester) async {
+    final service = await settings.SettingsService.getInstance();
+    await service.write(settings.SettingsService.useExoPlayer, false);
+    await _montar(tester, CgflixThemeVariant.isis, const HeisucaSettingsScreen());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Avançado'));
+    await tester.pumpAndSettle();
+    final buffer = find.byKey(const ValueKey('heisuca-buffer'));
+    expect(tester.widget<DropdownButton<settings.PlaybackBufferTier>>(buffer).onChanged, isNull);
+    await tester.pumpWidget(const SizedBox());
+    await service.write(settings.SettingsService.useExoPlayer, true);
+    await _montar(tester, CgflixThemeVariant.isis, const HeisucaSettingsScreen());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Avançado'));
+    await tester.pumpAndSettle();
+    expect(find.text('Decodificação por Hardware'), findsNothing);
+    await tester.ensureVisible(buffer);
+    await tester.tap(buffer);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Grande').last);
+    await tester.pumpAndSettle();
+    expect(service.read(settings.SettingsService.playbackBufferTier), settings.PlaybackBufferTier.large);
+  });
+
   group('HeisucaLibraryScreen & HeisucaSearchScreen', () {
     testWidgets('monta biblioteca e busca adaptando a ambos os temas', (tester) async {
       await _montar(tester, CgflixThemeVariant.heitor, const HeisucaLibraryScreen());

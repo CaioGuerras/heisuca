@@ -338,7 +338,7 @@ class MainActivity : FlutterActivity() {
     activityManager.getMemoryInfo(memoryInfo)
     val screen = windowManager.defaultDisplay
     return mapOf(
-      "deviceName" to getDeviceName(),
+      "deviceName" to "${Build.MANUFACTURER} ${Build.MODEL}".trim(),
       "chipset" to if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) Build.SOC_MODEL else null,
       "totalMemBytes" to memoryInfo.totalMem,
       "maxRefreshRateHz" to screen.supportedModes.maxOfOrNull { it.refreshRate }

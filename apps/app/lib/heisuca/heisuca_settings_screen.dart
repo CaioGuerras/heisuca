@@ -394,6 +394,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
   }
 
   Widget _buildAdvancedTab(bool isLight) {
+    final usesExoPlayer = _settings?.read(settings.SettingsService.useExoPlayer) ?? false;
     final accentColor = isLight ? const Color(0xFF047857) : const Color(0xFF7A40F2);
     final cardBg = isLight ? Colors.white : Colors.white.withOpacity(0.03);
     final borderColor = isLight ? const Color(0xFFE2E8F0) : Colors.white.withOpacity(0.06);
@@ -432,7 +433,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
         const SizedBox(height: 16.0),
 
         _buildSectionHeader('Motor de Renderização GPU', isLight),
-        _buildSwitchTile(
+        if (!usesExoPlayer) _buildSwitchTile(
           title: 'Decodificação por Hardware',
           subtitle: 'Permite usar o decodificador do aparelho quando compatível.',
           value: _settings?.read(settings.SettingsService.enableHardwareDecoding) ?? true,
@@ -496,16 +497,24 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                 ],
               ),
               const SizedBox(height: 8.0),
+              Text(
+                usesExoPlayer
+                    ? 'Perfis de buffer do ExoPlayer.'
+                    : 'O libmpv gerencia o buffer automaticamente conforme a memória do aparelho.',
+                style: TextStyle(color: titleColor, fontSize: 12),
+              ),
               DropdownButton<settings.PlaybackBufferTier>(
                 key: const ValueKey('heisuca-buffer'),
                 isExpanded: true,
-                value: _settings?.read(settings.SettingsService.playbackBufferTier) ?? settings.PlaybackBufferTier.auto,
+                value: usesExoPlayer
+                    ? (_settings?.read(settings.SettingsService.playbackBufferTier) ?? settings.PlaybackBufferTier.auto)
+                    : settings.PlaybackBufferTier.auto,
                 items: const [
                   DropdownMenuItem(value: settings.PlaybackBufferTier.auto, child: Text('Automático')),
                   DropdownMenuItem(value: settings.PlaybackBufferTier.large, child: Text('Grande')),
                   DropdownMenuItem(value: settings.PlaybackBufferTier.extraLarge, child: Text('Muito grande')),
                 ],
-                onChanged: (value) {
+                onChanged: !usesExoPlayer ? null : (value) {
                   if (value != null) _save(settings.SettingsService.playbackBufferTier, value);
                 },
               ),

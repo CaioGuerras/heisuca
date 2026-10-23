@@ -16,15 +16,15 @@ enum HeisucaServiceType {
   ),
   webdav(
     nome: 'WebDAV / Nuvem',
-    descricao: 'Acesso direto a seedboxes, Nextcloud, Alist ou armazenamento WebDAV.',
+    descricao: 'Teste de acesso ao servidor; catálogo e reprodução ainda indisponíveis.',
     icone: Icons.cloud_outlined,
-    badge: 'Nuvem',
+    badge: 'Em desenvolvimento',
   ),
   smb(
     nome: 'Rede Local / SMB',
-    descricao: 'Compartilhamento Windows, NAS (Synology/TrueNAS) ou roteador USB.',
+    descricao: 'Acesso direto a pastas de rede ainda indisponível nesta versão.',
     icone: Icons.folder_shared_outlined,
-    badge: 'Rede',
+    badge: 'Em desenvolvimento',
   ),
   local(
     nome: 'Arquivos Locais',
@@ -45,3 +45,4 @@ enum HeisucaServiceType {
     required this.badge,
   });
 }
+

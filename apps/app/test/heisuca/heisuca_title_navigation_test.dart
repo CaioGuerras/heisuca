@@ -6,6 +6,8 @@ import 'package:plezy/cgflix/cgflix_theme.dart';
 import 'package:plezy/heisuca/heisuca_title_sheet.dart';
 import 'package:plezy/media/ids.dart';
 import 'package:plezy/media/media_backend.dart';
+import 'package:plezy/media/media_file_info.dart';
+import 'package:plezy/media/media_hub.dart';
 import 'package:plezy/media/media_item.dart';
 import 'package:plezy/media/media_kind.dart';
 import 'package:plezy/media/media_server_client.dart';
@@ -31,6 +33,8 @@ class _Client extends MediaServerClient {
   @override Future<({MediaItem? item, MediaItem? onDeckEpisode})> fetchItemWithOnDeck(String id,
       {void Function(MediaItem)? onItemReady}) async => (item: show, onDeckEpisode: episodes[6]);
   @override Future<List<MediaItem>> fetchChildren(String id) async => id == show.id ? [season] : episodes;
+  @override Future<MediaFileInfo?> getFileInfo(MediaItem item) async => null;
+  @override Future<List<MediaHub>> fetchRelatedHubs(String id, {int count = 10}) async => const [];
   @override dynamic noSuchMethod(Invocation invocation) => null;
 }
 

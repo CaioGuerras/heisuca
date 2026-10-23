@@ -15,6 +15,8 @@ import 'package:plezy/heisuca/heisuca_settings_screen.dart';
 import 'package:plezy/heisuca/heisuca_state_store.dart';
 import 'package:plezy/heisuca/heisuca_title_sheet.dart';
 import 'package:plezy/i18n/strings.g.dart';
+import 'package:plezy/media/media_file_info.dart';
+import 'package:plezy/media/media_hub.dart';
 import 'package:plezy/media/media_item.dart';
 import 'package:plezy/media/media_kind.dart';
 import 'package:plezy/providers/theme_provider.dart';
@@ -139,8 +141,10 @@ void main() {
 
       expect(find.text('Duna: Parte 2'), findsOneWidget);
       expect(find.text('Assistir'), findsOneWidget);
-      await tester.scrollUntilVisible(find.text('Sinopse'), 180, scrollable: find.byType(Scrollable).first);
-      expect(find.text('Sinopse').hitTestable(), findsOneWidget);
+      // Sinopse sem título de seção (Esboço 04/site): confere o próprio texto, visível ao rolar.
+      final synopsis = find.textContaining('Paul Atreides');
+      await tester.scrollUntilVisible(synopsis, 180, scrollable: find.byType(Scrollable).first);
+      expect(synopsis.hitTestable(), findsOneWidget);
     });
   });
 
@@ -348,10 +352,10 @@ void main() {
 
       expect(find.text('Duna: Parte 2'), findsOneWidget);
       expect(find.text('Assistir'), findsOneWidget);
-      await tester.scrollUntilVisible(find.text('Sinopse'), 180, scrollable: find.byType(Scrollable).first);
-      expect(find.text('Sinopse').hitTestable(), findsOneWidget);
-      expect(find.text('Paul Atreides busca vingança contra os conspiradores.'), findsOneWidget);
-      expect(find.byIcon(Icons.arrow_back), findsOneWidget);
+      final synopsis = find.text('Paul Atreides busca vingança contra os conspiradores.');
+      await tester.scrollUntilVisible(synopsis, 180, scrollable: find.byType(Scrollable).first);
+      expect(synopsis.hitTestable(), findsOneWidget);
+      expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);
 
       // Como o item não possui versão 4K informada, NÃO deve exibir tag 4K falsa
       expect(find.text('4K HDR'), findsNothing);
@@ -361,7 +365,7 @@ void main() {
       expect(find.text('Pedir no Seerr'), findsNothing);
 
       // Tocar no botão de voltar deve fechar a ficha com fluidez
-      await tester.tap(find.byIcon(Icons.arrow_back));
+      await tester.tap(find.byIcon(Icons.arrow_back_rounded));
       await tester.pumpAndSettle();
       expect(find.text('Abrir Ficha'), findsOneWidget);
     });

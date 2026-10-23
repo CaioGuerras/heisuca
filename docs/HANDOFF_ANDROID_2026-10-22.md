@@ -2,6 +2,12 @@
 
 ## Comece aqui, Claude
 
+**Atualização de 23/10:** Caio informou que a Home ficou correta em testes preliminares.
+A próxima pauta é ficha do conteúdo, configurações completas, player e troca de serviço.
+Ler [a análise e proposta atual](PROXIMA_ETAPA_TITULO_FONTES_AJUSTES_2026-10-23.md),
+que também corrige o índice das imagens do dossiê antigo. Não declarar essas próximas
+integrações como prontas; esta atualização não muda o código do APK abaixo.
+
 Caio testou o APK do commit `5947c76f63c9a4830812a63be2689bc0ac32b7e1` e relatou melhora.
 Agora quer a Home no padrão EXATO do site, não no padrão dos esboços Android antigos.
 Também pediu contexto compartilhado no ai-memory, resolução das pendências e novo APK.

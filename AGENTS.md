@@ -14,3 +14,11 @@ O ai-memory roda em outro ambiente. A documentação neste repositório não sig
 que foi importada. O handoff explica como o agente conectado deve gravá-la e conferir
 por leitura. Não marcar uma importação, teste físico ou validação visual como concluída
 sem executá-los.
+
+## Retorno de Caio em 23/10/2026
+
+A Home do APK 2.0.2 ficou correta nos testes preliminares dele. Preservar esse resultado.
+Antes da próxima alteração, ler `docs/PROXIMA_ETAPA_TITULO_FONTES_AJUSTES_2026-10-23.md`:
+ficha de conteúdo inspirada no VidHub, referências visuais recuperadas e seus nomes
+corrigidos, configurações completas, player e seleção independente de fonte/perfil.
+Esse documento é análise/proposta; não significa que tais integrações já foram feitas.

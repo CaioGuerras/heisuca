@@ -1,5 +1,8 @@
 # Estado funcional do Heisuca Android
 
+> Registro da primeira etapa (PR #1). Para o estado posterior da Home, APK 2.0.2,
+> identidade de teste e pendências atuais, leia [HANDOFF_ANDROID_2026-10-22.md](HANDOFF_ANDROID_2026-10-22.md).
+
 Correção iniciada em 22/10/2026, sobre `gemini/heisuca-plex-home`, commit
 `0580ca6093f40795092fb3bf99daf75e1b361401`. PR: https://github.com/CaioGuerras/heisuca/pull/1
 

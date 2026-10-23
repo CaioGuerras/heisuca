@@ -111,11 +111,29 @@ um problema de seleção de tarefa com falha funcional do app.
 
 ## Validação desta etapa
 
-Código validado: `afac8d7da580c6b0ee7548a30ebb396d2ae9daf2`.
-Run: https://github.com/CaioGuerras/heisuca/actions/runs/39887617388
-Análise e testes passaram; compilação Android em andamento na última consulta.
-Atualizar com número de testes/artifact após ler os logs e a execução concluída.
-Commits posteriores apenas em docs não alteram o código deste APK.
+Código do APK validado: `6a526bdc449a76034ce1a31d2b67934176036dd1`.
+PR: https://github.com/CaioGuerras/heisuca/pull/2 (draft, sem merge).
+Execução concluída com SUCESSO em 23/10/2026 UTC (noite de 22/10 no Brasil):
+https://github.com/CaioGuerras/heisuca/actions/runs/39892410268
+
+- 185 testes Flutter aprovados; análise sem erros bloqueantes, com 240 avisos/infos.
+- APK Release arm64-v8a, versão 2.0.2+3, 98.254.933 bytes (98,3 MB).
+- Assinatura verificada com apksigner; pacote, nome e providers privados/grants
+  conferidos no manifesto binário com aapt, além da conferência do manifesto fonte.
+- Artifact aprovado (ZIP com heisuca-arm64-v8a.apk), retenção até 06/11/2026:
+  https://github.com/CaioGuerras/heisuca/actions/runs/39892410268/artifacts/12476266298
+- SHA-256 do APK extraído: `f5abdd37fda147efba669a2d5cf2b625490267b0a14962ac5d53add639276905`.
+- SHA-256 do certificado desta variante:
+  `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`.
+- Instalado como Heisuca Teste / app.heisuca.player.teste.home, separado do anterior;
+  exige novo login. A coexistência foi preparada e conferida no manifesto, mas não
+  instalada fisicamente nesta sessão. Não mandar desinstalar o app antigo.
+- A chave de teste foi salva no cache da branch ao concluir a execução.
+- O teste JVM mencionado acima NÃO foi executado. Não confundir os 185 testes Flutter
+  e as verificações de XML/APK com uma execução de suites JVM.
+
+Commits posteriores apenas em docs não alteram o código deste APK. Não houve teste
+físico, login no servidor de Caio ou comparação pixel a pixel de uma execução no aparelho.
 Testes adicionados: máscara/paleta, BlurHash inválido, calendário, deduplicação, logo
 encaixada ao rolar, busca acessível e consulta Items/Latest/cache. O portão inclui os
 suites Home/Seerr existentes e bootstrap, além dos testes da primeira etapa.

@@ -66,8 +66,11 @@ APK anterior: https://github.com/CaioGuerras/heisuca/actions/runs/39882985093/ar
 
 ## Validação desta etapa
 
-Estado no início da compilação: pendente. Atualizar esta seção com commit, run, testes,
-resultado e artifact depois de consultar o Actions, sem inventar resultado futuro.
+Código validado: `afac8d7da580c6b0ee7548a30ebb396d2ae9daf2`.
+Run: https://github.com/CaioGuerras/heisuca/actions/runs/39887617388
+Análise e testes passaram; compilação Android em andamento na última consulta.
+Atualizar com número de testes/artifact após ler os logs e a execução concluída.
+Commits posteriores apenas em docs não alteram o código deste APK.
 Testes adicionados: máscara/paleta, BlurHash inválido, calendário, deduplicação, logo
 encaixada ao rolar, busca acessível e consulta Items/Latest/cache. O portão inclui os
 suites Home/Seerr existentes e bootstrap, além dos testes da primeira etapa.
@@ -113,6 +116,10 @@ Claude no servidor deve atualizar este checkout/branch e usar seu MCP ai-memory:
 Referências oficiais verificadas nesta sessão: https://github.com/akitaonrails/ai-memory/blob/main/docs/cookbook.md
 (“save a durable page”, “save context for next session”) e docs/usage.md (handoff entre agentes).
 Este arquivo e AGENTS.md garantem contexto em git mesmo antes dessa importação.
+Também está preparado `docs/importar-ai-memory.sh`, com `write-page --body -` e leitura
+integral de volta, conforme a CLI oficial consultada. No host conectado, após confirmar
+os nomes existentes: `bash docs/importar-ai-memory.sh WORKSPACE_EXISTENTE PROJETO_EXISTENTE`.
+O script não foi executado contra o daemon remoto nesta sessão.
 
 ## Regras de operação
 

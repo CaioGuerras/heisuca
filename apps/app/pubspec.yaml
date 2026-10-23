@@ -1,7 +1,7 @@
 name: plezy
 description: "Heisuca. Nada entre você e o filme. Cliente cinematográfico multiplataforma para Jellyfin, Plex, WebDAV e SMB."
 publish_to: "none"
-version: 2.0.6+7
+version: 2.0.7+8
 
 environment:
   # Dart floor stays 3.12: freezed 3.x emits `final` constructor parameters,
@@ -147,6 +147,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/heisuca/
+    - assets/heisuca/kids/
     - assets/cgflix_emblema.svg
     - assets/cgflix_emblema_heitor.svg
     - assets/plezy.png
@@ -188,4 +189,8 @@ flutter:
           weight: 700
         - asset: assets/fonts/Inter-ExtraBold.ttf
           weight: 800
+    # Heisuca: Fredoka só nos títulos do modo infantil (OFL, assets/fonts/Fredoka-LICENSE.txt)
+    - family: Fredoka
+      fonts:
+        - asset: assets/fonts/Fredoka-VF.ttf
 

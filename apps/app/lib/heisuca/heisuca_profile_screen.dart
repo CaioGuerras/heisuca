@@ -1,6 +1,8 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'heisuca_source_scope.dart';
+import 'kids/heisuca_kids.dart';
+import 'kids/heisuca_kids_flow.dart';
 import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
@@ -59,13 +61,16 @@ class HeisucaProfileScreen extends StatelessWidget {
     final online = _isServerOnline(context);
     final serverName = _getServerName(context);
 
-    final bg = isLight ? const Color(0xFFF7F3EC) : const Color(0xFF0E0B16);
-    final cardBg = isLight ? Colors.white : Colors.white.withOpacity(0.045);
-    final cardBorder = isLight ? const Color(0xFFE2E8F0) : Colors.white.withOpacity(0.08);
-    final textTitle = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
-    final textSub = isLight ? const Color(0xFF64748B) : const Color(0xFFA99FBB);
+    // Heisuca: no modo infantil a tela usa a paleta do perfil (Ichigo/Sorairo) e fica enxuta.
+    final kids = heisucaKidsActive(context);
+    final kidsRecord = HeisucaKids.instance.forParent(active?.id);
+    final bg = kids ? palette.background : isLight ? const Color(0xFFF7F3EC) : const Color(0xFF0E0B16);
+    final cardBg = kids ? palette.surface : isLight ? Colors.white : Colors.white.withOpacity(0.045);
+    final cardBorder = kids ? palette.divider : isLight ? const Color(0xFFE2E8F0) : Colors.white.withOpacity(0.08);
+    final textTitle = kids ? palette.onGlass : isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
+    final textSub = kids ? palette.textMuted : isLight ? const Color(0xFF64748B) : const Color(0xFFA99FBB);
     final accentGreen = isLight ? const Color(0xFF047857) : const Color(0xFF10B981);
-    final dividerColor = isLight ? const Color(0xFFF1F5F9) : Colors.white.withOpacity(0.05);
+    final dividerColor = kids ? palette.divider : isLight ? const Color(0xFFF1F5F9) : Colors.white.withOpacity(0.05);
 
     return Scaffold(
       backgroundColor: bg,
@@ -237,6 +242,7 @@ class HeisucaProfileScreen extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
+                      if (!kids) ...[
                       _buildProfileTile(
                         icon: Symbols.download_rounded,
                         title: 'Baixados & Offline',
@@ -250,6 +256,7 @@ class HeisucaProfileScreen extends StatelessWidget {
                         },
                       ),
                       Divider(color: dividerColor, height: 1.0, indent: 56.0),
+                      ],
                       _buildProfileTile(
                         icon: Symbols.favorite_rounded,
                         iconFill: 1.0,
@@ -290,6 +297,7 @@ class HeisucaProfileScreen extends StatelessWidget {
               ),
             ),
 
+            if (!kids) ...[
             const SliverToBoxAdapter(child: SizedBox(height: 20.0)),
 
             // Seção 2: Sistema e Ajustes
@@ -310,7 +318,7 @@ class HeisucaProfileScreen extends StatelessWidget {
                       _buildProfileTile(
                         icon: Symbols.tune_rounded,
                         title: 'Configurações Heisuca',
-                        subtitle: 'Hardware, GPU 144Hz, Vídeo, Áudio e Legendas',
+                        subtitle: 'Reprodução, vídeo, áudio, legendas e fontes',
                         textColor: textTitle,
                         subColor: textSub,
                         iconColor: isLight ? const Color(0xFF047857) : const Color(0xFFC084FC),
@@ -346,11 +354,12 @@ class HeisucaProfileScreen extends StatelessWidget {
               ),
             ),
 
+            ],
             const SliverToBoxAdapter(child: SizedBox(height: 20.0)),
 
             // Seção 3: Conta & Sessão
             SliverToBoxAdapter(
-              child: _buildSectionHeader('Conta & Acesso', isLight, textSub),
+              child: _buildSectionHeader(kids ? 'Modo infantil' : 'Conta & Acesso', isLight, textSub),
             ),
             SliverToBoxAdapter(
               child: Padding(
@@ -362,7 +371,28 @@ class HeisucaProfileScreen extends StatelessWidget {
                     border: Border.all(color: cardBorder, width: 0.8),
                   ),
                   child: Column(
-                    children: [
+                    children: kids ? [
+                      _buildProfileTile(
+                        icon: Symbols.lock_open_rounded,
+                        title: 'Sair do modo infantil',
+                        subtitle: 'Pede o PIN do responsável',
+                        textColor: textTitle,
+                        subColor: textSub,
+                        iconColor: palette.accent,
+                        onTap: () { HapticFeedback.lightImpact(); heisucaExitKids(context); },
+                      ),
+                    ] : [
+                      _buildProfileTile(
+                        icon: Symbols.child_care_rounded,
+                        title: 'Modo infantil',
+                        subtitle: kidsRecord != null ? 'Entrar no perfil ${kidsRecord.name}'
+                            : 'Só desenhos e filmes de família, filtrados pelo servidor',
+                        textColor: textTitle,
+                        subColor: textSub,
+                        iconColor: const Color(0xFFE85A6D),
+                        onTap: () { HapticFeedback.lightImpact(); heisucaEnterKids(context); },
+                      ),
+                      Divider(color: dividerColor, height: 1.0, indent: 56.0),
                       const HeisucaSourceTile(),
                       _buildProfileTile(
                         icon: Symbols.switch_account_rounded,

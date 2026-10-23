@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -13,6 +14,18 @@ import '../test_helpers/prefs.dart';
 
 class _Profile extends ChangeNotifier implements ActiveProfileProvider {
   @override bool get isBinding => false;
+  @override String? get activeId => 'caio';
+  @override dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+/// Perfil em rebind (logo depois de adicionar um servidor): só assenta quando [settle] for chamado.
+class _BindingProfile extends ChangeNotifier implements ActiveProfileProvider {
+  bool binding = true;
+  final _done = Completer<bool>();
+  void settle() { binding = false; _done.complete(true); notifyListeners(); }
+  @override bool get isBinding => binding;
+  @override Future<bool> awaitBindingSettle() => binding ? _done.future : Future.value(true);
+  @override String? get activeId => 'caio';
   @override dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
@@ -66,5 +79,38 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
     expect(manager.navigationServerId, isNull);
+  });
+
+  testWidgets('escolha feita durante o rebind não é descartada: aplica quando o binding assenta', (tester) async {
+    final manager = MultiServerManager();
+    final servers = MultiServerProvider(manager, DataAggregationService(manager));
+    final profile = _BindingProfile();
+    addTearDown(manager.dispose);
+    addTearDown(servers.dispose);
+    addTearDown(profile.dispose);
+    manager.debugRegisterClientForTesting(testJellyfinClient(connection: testJellyfinConnection(machineId: 'a', serverName: 'Servidor A')));
+    manager.debugRegisterClientForTesting(testJellyfinClient(connection: testJellyfinConnection(machineId: 'novo', serverName: 'Servidor Novo')));
+    servers.setExpectedVisibleServerIds({'a', 'novo'});
+    servers.setVisibleServerIds({'a', 'novo'});
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('heisuca.navigation.source.caio', 'a');
+    await tester.pumpWidget(MultiProvider(providers: [
+      ChangeNotifierProvider<MultiServerProvider>.value(value: servers),
+      ChangeNotifierProvider<ActiveProfileProvider>.value(value: profile),
+    ], child: const MaterialApp(home: HeisucaSourceScope(profileId: 'caio', child: Scaffold(body: HeisucaSourceTile())))));
+    await tester.pumpAndSettle();
+    expect(manager.navigationServerId, 'a');
+    await tester.tap(find.text('Fonte atual'));
+    await tester.pumpAndSettle();
+    expect(find.text('Adicionar fonte'), findsOneWidget, reason: 'porta única para adicionar fonte');
+    await tester.tap(find.text('Servidor Novo'));
+    await tester.pumpAndSettle();
+    expect(manager.navigationServerId, 'a', reason: 'ainda em rebind');
+    profile.settle();
+    await tester.pumpAndSettle();
+    expect(manager.navigationServerId, 'novo');
+    expect(prefs.getString('heisuca.navigation.source.caio'), 'novo');
+    expect(find.textContaining('Jellyfin · Servidor Novo'), findsOneWidget, reason: 'backend com nome legível');
+    await tester.pumpWidget(const SizedBox());
   });
 }

@@ -3,6 +3,7 @@
 //   - escolha de temporadas ao pedir uma série (padrão: todas);
 //   - CgflixMyRequestsScreen: "Meus pedidos" (menu do usuário).
 // Se o Seerr não responder, a seção vira um aviso pequeno ("Pedidos indisponíveis agora").
+import '../../heisuca/kids/heisuca_kids_flow.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -151,6 +152,8 @@ class _CgflixRequestSectionState extends State<CgflixRequestSection> {
 
   @override
   Widget build(BuildContext context) {
+    // Heisuca: no modo infantil não há pedidos (o filtro do servidor não alcança o Seerr).
+    if (heisucaKidsActive(context)) return const SizedBox.shrink();
     final Widget child = switch (_state) {
       _SectionState.loading => const _SectionSkeleton(key: ValueKey('carregando')),
       _SectionState.unavailable => Padding(

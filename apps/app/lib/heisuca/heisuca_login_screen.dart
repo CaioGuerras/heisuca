@@ -24,8 +24,6 @@ import '../utils/app_logger.dart';
 import '../utils/device_identity.dart';
 import '../utils/navigation_transitions.dart';
 import 'heisuca_add_plex_screen.dart';
-import 'heisuca_add_smb_screen.dart';
-import 'heisuca_add_webdav_screen.dart';
 import 'heisuca_design_system.dart';
 import 'heisuca_logo.dart';
 import 'heisuca_theme.dart';
@@ -339,39 +337,24 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                   brandColor: const Color(0xFF3B82F6), // SMB Blue
                   icon: Icons.folder_shared_rounded,
                   title: 'Pasta de Rede Local (SMB / Samba)',
-                  subtitle: 'Acesse pastas compartilhadas no seu roteador, PC ou NAS',
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const HeisucaAddSmbScreen()),
-                    );
-                  },
+                  subtitle: 'Em breve · ainda não reproduz por aqui',
+                  onTap: null,
                 ),
                 const SizedBox(height: 12.0),
                 _SourceTile(
                   brandColor: const Color(0xFF0EA5E9), // WebDAV Sky Blue
                   icon: Icons.cloud_queue_rounded,
                   title: 'Servidor WebDAV',
-                  subtitle: 'Streaming direto de nuvens privadas compatíveis',
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const HeisucaAddWebDavScreen()),
-                    );
-                  },
+                  subtitle: 'Em breve · ainda não reproduz por aqui',
+                  onTap: null,
                 ),
                 const SizedBox(height: 12.0),
                 _SourceTile(
                   brandColor: const Color(0xFFF97316), // Local Storage Orange
                   icon: Icons.sd_storage_rounded,
                   title: 'Arquivos deste Dispositivo',
-                  subtitle: 'Reproduzir vídeos salvos no armazenamento local do aparelho',
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    HapticFeedback.lightImpact();
-                  },
+                  subtitle: 'Em breve · ainda não reproduz por aqui',
+                  onTap: null,
                 ),
                 const SizedBox(height: 16.0),
               ],
@@ -748,21 +731,22 @@ class _SourceTile extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.subtitle,
-    required this.onTap,
+    this.onTap,
   });
 
   final Color brandColor;
   final IconData icon;
   final String title;
   final String subtitle;
-  final VoidCallback onTap;
+  /// Nulo = ainda não implementado: aparece esmaecido com "Em breve" (nada de tela que finge conectar).
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final palette = context.cgflix;
     final isLight = palette.isLight;
 
-    return HeisucaSpringPressable(
+    return Opacity(opacity: onTap == null ? .45 : 1, child: HeisucaSpringPressable(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(16.0),
@@ -827,7 +811,7 @@ class _SourceTile extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ));
   }
 }
 

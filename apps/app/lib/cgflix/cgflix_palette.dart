@@ -7,7 +7,16 @@
 import 'package:flutter/material.dart';
 
 /// Os dois temas do CGFLIX (nomes de família, escolhidos pelo dono).
-enum CgflixThemeVariant { isis, heitor }
+enum CgflixThemeVariant {
+  isis,
+  heitor,
+  /// Infantil menina: morangos e melancias (claro).
+  ichigo,
+  /// Infantil menino: nuvens, estrelas e aviõezinhos (claro).
+  sorairo;
+
+  bool get isKids => this == ichigo || this == sorairo;
+}
 
 /// Isis: o esquema que o app já tinha (tema "mono" do upstream no modo OLED + cores do site),
 /// escrito à mão. Fundo preto puro (#000) por causa das telas OLED; superfícies #120e1a.
@@ -87,6 +96,81 @@ const cgflixHeitorScheme = ColorScheme(
   inverseSurface: Color(0xFF2B322A),
   onInverseSurface: Color(0xFFECF4E6),
   inversePrimary: Color(0xFF6BDF83),
+);
+
+/// Esquemas Material do modo infantil (mesmo esqueleto do Heitor, cores dos tokens oficiais).
+const cgflixIchigoScheme = ColorScheme(
+  brightness: Brightness.light,
+  primary: Color(0xFFD62D45),
+  onPrimary: Color(0xFFFFFFFF),
+  primaryContainer: Color(0xFFE85A6D),
+  onPrimaryContainer: Color(0xFF4A0712),
+  secondary: Color(0xFF24803A),
+  onSecondary: Color(0xFFFFFFFF),
+  secondaryContainer: Color(0xFFFFD3D9),
+  onSecondaryContainer: Color(0xFF3A0B12),
+  tertiary: Color(0xFF006495),
+  onTertiary: Color(0xFFFFFFFF),
+  tertiaryContainer: Color(0xFFCBE6FF),
+  onTertiaryContainer: Color(0xFF001E30),
+  error: Color(0xFFBA1A1A),
+  onError: Color(0xFFFFFFFF),
+  errorContainer: Color(0xFFFFDAD6),
+  onErrorContainer: Color(0xFF410002),
+  surface: Color(0xFFFFF5F3),
+  onSurface: Color(0xFF2B1B1E),
+  onSurfaceVariant: Color(0xFF6B4C52),
+  surfaceDim: Color(0xFFF0D9DB),
+  surfaceBright: Color(0xFFFFF5F3),
+  surfaceContainerLowest: Color(0xFFFFFFFF),
+  surfaceContainerLow: Color(0xFFFFEDEE),
+  surfaceContainer: Color(0xFFFDE7E9),
+  surfaceContainerHigh: Color(0xFFFDE4E6),
+  surfaceContainerHighest: Color(0xFFF8DCDF),
+  outline: Color(0xFFB88A92),
+  outlineVariant: Color(0xFFF2C9CE),
+  shadow: Color(0xFF000000),
+  scrim: Color(0xFF000000),
+  inverseSurface: Color(0xFF3B2A2D),
+  onInverseSurface: Color(0xFFFFF0F1),
+  inversePrimary: Color(0xFFFF9AA8),
+);
+
+const cgflixSorairoScheme = ColorScheme(
+  brightness: Brightness.light,
+  primary: Color(0xFF1F6FC5),
+  onPrimary: Color(0xFFFFFFFF),
+  primaryContainer: Color(0xFF4A9BEF),
+  onPrimaryContainer: Color(0xFF0A2A55),
+  secondary: Color(0xFF8A5F00),
+  onSecondary: Color(0xFFFFFFFF),
+  secondaryContainer: Color(0xFFCFE4FB),
+  onSecondaryContainer: Color(0xFF0B1F3A),
+  tertiary: Color(0xFF006495),
+  onTertiary: Color(0xFFFFFFFF),
+  tertiaryContainer: Color(0xFFCBE6FF),
+  onTertiaryContainer: Color(0xFF001E30),
+  error: Color(0xFFBA1A1A),
+  onError: Color(0xFFFFFFFF),
+  errorContainer: Color(0xFFFFDAD6),
+  onErrorContainer: Color(0xFF410002),
+  surface: Color(0xFFF1F7FD),
+  onSurface: Color(0xFF14263A),
+  onSurfaceVariant: Color(0xFF4A5E73),
+  surfaceDim: Color(0xFFD3DFEC),
+  surfaceBright: Color(0xFFF1F7FD),
+  surfaceContainerLowest: Color(0xFFFFFFFF),
+  surfaceContainerLow: Color(0xFFE9F2FB),
+  surfaceContainer: Color(0xFFE4EEF9),
+  surfaceContainerHigh: Color(0xFFE1ECF8),
+  surfaceContainerHighest: Color(0xFFDAE6F3),
+  outline: Color(0xFF8399B0),
+  outlineVariant: Color(0xFFC4D6EA),
+  shadow: Color(0xFF000000),
+  scrim: Color(0xFF000000),
+  inverseSurface: Color(0xFF26364A),
+  onInverseSurface: Color(0xFFEEF5FD),
+  inversePrimary: Color(0xFF9CC8F5),
 );
 
 /// Camadas do CGFLIX que o [ColorScheme] não descreve. Cada tema ajusta cada camada (foto,
@@ -213,7 +297,7 @@ class CgflixPalette extends ThemeExtension<CgflixPalette> {
   /// SVG do emblema (assets/).
   final String emblemAsset;
 
-  bool get isLight => variant == CgflixThemeVariant.heitor;
+  bool get isLight => variant != CgflixThemeVariant.isis;
 
   static const isis = CgflixPalette(
     variant: CgflixThemeVariant.isis,
@@ -308,9 +392,107 @@ class CgflixPalette extends ThemeExtension<CgflixPalette> {
     emblemAsset: 'assets/heisuca/selo_pequeno_hisui.svg',
   );
 
+  /// Modo infantil (decisão de 18/10): só entram pelo perfil infantil, nunca no seletor de tema.
+  /// Cores dos tokens oficiais da marca (pesquisa_apps/marca/tokens/temas/{ichigo,sorairo}).
+  static const ichigo = CgflixPalette(
+    variant: CgflixThemeVariant.ichigo,
+    background: Color(0xFFFFF5F3),
+    surface: Color(0xFFFFFFFF),
+    surfaceHigh: Color(0xFFFDE4E6),
+    accent: Color(0xFFD62D45),
+    accentSoft: Color(0xFFD62D45),
+    action: Color(0xFFD62D45),
+    onAction: Color(0xFFFFFFFF),
+    progress: Color(0xFFE85A6D),
+    progressTrack: Color(0x4D2B1B1E),
+    textMuted: Color(0xFF6B4C52),
+    divider: Color(0xFFF2C9CE),
+    heroVeil: [Color(0xCCFFF5F3), Color(0x1AFFF5F3), Color(0x33FFF5F3), Color(0xF0FFF5F3), Color(0xFFFFF5F3)],
+    topVeil: [Color(0xEBFFF5F3), Color(0xA6FFF5F3), Color(0x00FFF5F3)],
+    sheetVeil: [Color(0x00FFFFFF), Color(0x00FFFFFF), Color(0xFFFFFFFF)],
+    glass: Color(0xC7FFFFFF),
+    glassBorder: Color(0xFFB88A92),
+    onGlass: Color(0xFF2B1B1E),
+    chipSelected: Color(0xFFFFD3D9),
+    chipSelectedBorder: Color(0xFFD62D45),
+    pressed: Color(0x1F2B1B1E),
+    hovered: Color(0x0F2B1B1E),
+    focused: Color(0x33D62D45),
+    focusRing: Color(0xFFD62D45),
+    secondaryAction: Color(0xFFFDE4E6),
+    onSecondaryAction: Color(0xFF2B1B1E),
+    photoButton: Color(0x8A000000),
+    onPhotoButton: Color(0xFFFFFFFF),
+    badge: Color(0xFFE85A6D),
+    badgeBorder: Color(0xFFE85A6D),
+    onBadge: Color(0xFFFFFFFF),
+    success: Color(0xFFD62D45),
+    danger: Color(0xFFBA1A1A),
+    dedication: Color(0xFF24803A),
+    rankStroke: Color(0xFFD62D45),
+    cardShadow: [
+      BoxShadow(color: Color(0x1F3A0B12), blurRadius: 12, offset: Offset(0, 4)),
+      BoxShadow(color: Color(0x143A0B12), blurRadius: 2, offset: Offset(0, 1)),
+    ],
+    brandArc: [Color(0xFFFF9AA8), Color(0xFFE85A6D), Color(0xFFD62D45), Color(0xFF8F1428)],
+    brandPlay: [Color(0xFF4A2A30), Color(0xFF32181D), Color(0xFF2B1B1E)],
+    brandGlow: Color(0x47E85A6D),
+    brandShine: Color(0x8CFFFFFF),
+    emblemAsset: 'assets/heisuca/selo_pequeno_ichigo.svg',
+  );
+
+  static const sorairo = CgflixPalette(
+    variant: CgflixThemeVariant.sorairo,
+    background: Color(0xFFF1F7FD),
+    surface: Color(0xFFFFFFFF),
+    surfaceHigh: Color(0xFFE1ECF8),
+    accent: Color(0xFF1F6FC5),
+    accentSoft: Color(0xFF1F6FC5),
+    action: Color(0xFF1F6FC5),
+    onAction: Color(0xFFFFFFFF),
+    progress: Color(0xFF4A9BEF),
+    progressTrack: Color(0x4D14263A),
+    textMuted: Color(0xFF4A5E73),
+    divider: Color(0xFFC4D6EA),
+    heroVeil: [Color(0xCCF1F7FD), Color(0x1AF1F7FD), Color(0x33F1F7FD), Color(0xF0F1F7FD), Color(0xFFF1F7FD)],
+    topVeil: [Color(0xEBF1F7FD), Color(0xA6F1F7FD), Color(0x00F1F7FD)],
+    sheetVeil: [Color(0x00FFFFFF), Color(0x00FFFFFF), Color(0xFFFFFFFF)],
+    glass: Color(0xC7FFFFFF),
+    glassBorder: Color(0xFF8399B0),
+    onGlass: Color(0xFF14263A),
+    chipSelected: Color(0xFFCFE4FB),
+    chipSelectedBorder: Color(0xFF1F6FC5),
+    pressed: Color(0x1F14263A),
+    hovered: Color(0x0F14263A),
+    focused: Color(0x331F6FC5),
+    focusRing: Color(0xFF1F6FC5),
+    secondaryAction: Color(0xFFE1ECF8),
+    onSecondaryAction: Color(0xFF14263A),
+    photoButton: Color(0x8A000000),
+    onPhotoButton: Color(0xFFFFFFFF),
+    badge: Color(0xFF4A9BEF),
+    badgeBorder: Color(0xFF4A9BEF),
+    onBadge: Color(0xFFFFFFFF),
+    success: Color(0xFF1F6FC5),
+    danger: Color(0xFFBA1A1A),
+    dedication: Color(0xFF8A5F00),
+    rankStroke: Color(0xFF1F6FC5),
+    cardShadow: [
+      BoxShadow(color: Color(0x1F0B1F3A), blurRadius: 12, offset: Offset(0, 4)),
+      BoxShadow(color: Color(0x140B1F3A), blurRadius: 2, offset: Offset(0, 1)),
+    ],
+    brandArc: [Color(0xFF9CC8F5), Color(0xFF4A9BEF), Color(0xFF1F6FC5), Color(0xFF0F3F7A)],
+    brandPlay: [Color(0xFF24384F), Color(0xFF172839), Color(0xFF14263A)],
+    brandGlow: Color(0x474A9BEF),
+    brandShine: Color(0x8CFFFFFF),
+    emblemAsset: 'assets/heisuca/selo_pequeno_sorairo.svg',
+  );
+
   static CgflixPalette forVariant(CgflixThemeVariant variant) => switch (variant) {
     CgflixThemeVariant.isis => isis,
     CgflixThemeVariant.heitor => heitor,
+    CgflixThemeVariant.ichigo => ichigo,
+    CgflixThemeVariant.sorairo => sorairo,
   };
 
   /// Paleta do tema atual. Sem o tema do CGFLIX (testes de peças soltas), cai na Isis.

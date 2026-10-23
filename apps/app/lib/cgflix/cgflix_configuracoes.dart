@@ -28,7 +28,7 @@ const cgflixIsisOnPrimaryContainer = Color(0xFFF3E8FF);
 
 /// Esquema das Configurações: o do tema ativo, com o roxo da Isis no `primary`.
 ColorScheme cgflixSettingsScheme(ColorScheme scheme, CgflixThemeVariant variant) => switch (variant) {
-  CgflixThemeVariant.heitor => scheme,
+  CgflixThemeVariant.heitor || CgflixThemeVariant.ichigo || CgflixThemeVariant.sorairo => scheme,
   CgflixThemeVariant.isis => scheme.copyWith(
     primary: cgflixIsisPrimary,
     onPrimary: cgflixIsisOnPrimary,

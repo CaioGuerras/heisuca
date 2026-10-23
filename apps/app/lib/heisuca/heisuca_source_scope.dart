@@ -6,6 +6,8 @@ import '../media/ids.dart';
 import '../profiles/active_profile_provider.dart';
 import '../providers/multi_server_provider.dart';
 import '../screens/profile/profile_switch_screen.dart';
+import '../screens/settings/add_connection_screen.dart';
+import 'kids/heisuca_kids_flow.dart';
 
 /// A fonte não altera login, perfil nem a resolução de clientes para downloads.
 /// Remontar os consumidores descarta resultados pendentes da navegação anterior.
@@ -58,7 +60,10 @@ class _HeisucaSourceScopeState extends State<HeisucaSourceScope> {
     setState(() {});
   }
   Future<void> _select(String id) async {
-    if (!_servers.expectedServerIds.contains(id) || _profiles.isBinding) return;
+    // Logo depois de adicionar um servidor o perfil ainda está em rebind: antes a escolha era
+    // descartada em silêncio (parecia "não funcionou"). Agora espera o binding assentar.
+    if (_profiles.isBinding) await _profiles.awaitBindingSettle();
+    if (!mounted || !_servers.expectedServerIds.contains(id) || _profiles.isBinding) return;
     final saved = await _prefs!.setString(_key, id);
     if (!mounted || !saved) return;
     _selected = id;
@@ -95,11 +100,12 @@ class HeisucaSourceTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final source = context.dependOnInheritedWidgetOfExactType<_SourceSelection>();
     final servers = context.watch<MultiServerProvider?>();
-    if (servers == null) return const SizedBox.shrink();
+    // Modo infantil: a folha leva a "Gerenciar perfis" (troca sem PIN); some por inteiro.
+    if (servers == null || heisucaKidsActive(context)) return const SizedBox.shrink();
     final id = source?.selected;
     final client = id == null ? null : servers.getClientForServer(ServerId(id));
     return ListTile(leading: const Icon(Icons.dns_outlined), title: const Text('Fonte atual'),
-      subtitle: Text(client == null ? 'Selecionar servidor' : '${client.backend.name} · ${client.serverName ?? "Servidor"}'),
+      subtitle: Text(client == null ? 'Selecionar servidor' : '${heisucaBackendLabel(client.backend.name)} · ${client.serverName ?? "Servidor"}'),
       trailing: const Icon(Icons.expand_more), onTap: source == null ? null : () => showModalBottomSheet<void>(
         context: context, showDragHandle: true, builder: (sheetContext) => SafeArea(child: ListView(shrinkWrap: true, children: [
           const ListTile(title: Text('Escolha uma fonte'), subtitle: Text('As bibliotecas ficam separadas por servidor.')),
@@ -108,13 +114,67 @@ class HeisucaSourceTile extends StatelessWidget {
             final online = servers.isServerOnline(ServerId(serverId));
             return ListTile(leading: Icon(online ? Icons.dns : Icons.cloud_off),
               title: Text(other?.serverName ?? servers.serverManager.serverDisplayName(ServerId(serverId))),
-              subtitle: Text('${other?.backend.name ?? "Fonte"} · ${online ? "Conectado" : "Offline"}'),
+              subtitle: Text('${heisucaBackendLabel(other?.backend.name ?? "Fonte")} · ${online ? "Conectado" : "Offline"}'),
               trailing: serverId == source.selected ? const Icon(Icons.check) : null,
               onTap: () { Navigator.pop(sheetContext); source.select(serverId); });
           }),
+          ListTile(leading: const Icon(Icons.add_circle_outline_rounded), title: const Text('Adicionar fonte'),
+            subtitle: const Text('Outro servidor Jellyfin, Emby ou conta Plex'),
+            onTap: () { Navigator.pop(sheetContext); heisucaAddSource(context); }),
           ListTile(leading: const Icon(Icons.manage_accounts), title: const Text('Gerenciar perfis e conexões'),
             onTap: () { Navigator.pop(sheetContext); Navigator.of(context, rootNavigator: true).push(
               MaterialPageRoute<void>(builder: (_) => const ProfileSwitchScreen())); }),
         ]))));
   }
+}
+
+
+/// Rótulo de backend legível ("Jellyfin", "Plex", "Emby") em vez do nome do enum.
+String heisucaBackendLabel(String name) => switch (name) {
+  'plex' => 'Plex', 'jellyfin' => 'Jellyfin', 'emby' => 'Emby', _ => name,
+};
+
+/// Porta única para adicionar fonte (menu Você, Fonte atual e Configurações).
+/// Usa o fluxo real do upstream (AddConnectionScreen: Plex, Jellyfin, Emby). Quando dá certo,
+/// espera o rebind do perfil e o servidor novo aparecer, e então PASSA a mostrá-lo; se uma
+/// conta Plex trouxe vários servidores, pergunta qual. Nada de sucesso sem servidor de verdade.
+Future<void> heisucaAddSource(BuildContext context) async {
+  final servers = context.read<MultiServerProvider>();
+  final profiles = context.read<ActiveProfileProvider>();
+  final selection = context.getInheritedWidgetOfExactType<_SourceSelection>();
+  final navigator = Navigator.of(context, rootNavigator: true);
+  final messenger = ScaffoldMessenger.maybeOf(context);
+  final before = {...servers.expectedServerIds};
+  final added = await navigator.push<bool>(
+    MaterialPageRoute(builder: (_) => AddConnectionScreen(targetProfile: profiles.active)));
+  if (added != true) return;
+  if (profiles.isBinding) await profiles.awaitBindingSettle();
+  // A conta Plex descobre os servidores depois do login; dá um tempo curto para chegarem.
+  List<String> fresh() => servers.expectedServerIds.where((id) => !before.contains(id)).toList();
+  final deadline = DateTime.now().add(const Duration(seconds: 12));
+  while (fresh().isEmpty && DateTime.now().isBefore(deadline)) {
+    await Future<void>.delayed(const Duration(milliseconds: 300));
+  }
+  final news = fresh();
+  String name(String id) => servers.getClientForServer(ServerId(id))?.serverName ??
+      servers.serverManager.serverDisplayName(ServerId(id));
+  if (news.isEmpty) {
+    messenger?.showSnackBar(const SnackBar(content: Text(
+      'Conexão salva, mas nenhum servidor novo respondeu ainda. Ele aparece em Fonte atual quando conectar.')));
+    return;
+  }
+  var chosen = news.length == 1 ? news.single : null;
+  if (chosen == null && navigator.mounted) {
+    chosen = await showModalBottomSheet<String>(context: navigator.context, showDragHandle: true,
+      builder: (sheet) => SafeArea(child: ListView(shrinkWrap: true, children: [
+        const ListTile(title: Text('Qual servidor você quer ver agora?',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700))),
+        for (final id in news) ListTile(leading: const Icon(Icons.dns_rounded), title: Text(name(id)),
+          subtitle: Text(heisucaBackendLabel(servers.getClientForServer(ServerId(id))?.backend.name ?? 'Fonte')),
+          onTap: () => Navigator.pop(sheet, id)),
+      ])));
+  }
+  if (chosen == null) return;
+  await selection?.select(chosen);
+  messenger?.showSnackBar(SnackBar(content: Text('Agora você está vendo: ${name(chosen)}')));
 }

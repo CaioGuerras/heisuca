@@ -24,6 +24,7 @@ const cgflixFontFamily = 'Inter';
 ThemeData cgflixAppTheme([CgflixThemeVariant variant = CgflixThemeVariant.isis]) => switch (variant) {
   CgflixThemeVariant.isis => monoTheme(dark: true, oled: true),
   CgflixThemeVariant.heitor => monoTheme(dark: false),
+  CgflixThemeVariant.ichigo || CgflixThemeVariant.sorairo => monoTheme(dark: false, kids: variant),
 };
 
 /// TV fica sempre na Isis (tema claro na TV está fora do escopo).
@@ -167,8 +168,10 @@ class _CgflixPredictiveBackState extends State<_CgflixPredictiveBack> with Widge
 
 /// Marca do CGFLIX sobre o tema do upstream. [oled] = Isis; o tema claro do upstream vira o
 /// Heitor; o "escuro" comum do upstream (sem uso no CGFLIX) só ganha a fonte e as transições.
-ThemeData cgflixBrandTheme(ThemeData theme, {required bool oled}) {
-  final palette = oled ? CgflixPalette.isis : (theme.brightness == Brightness.light ? CgflixPalette.heitor : null);
+/// [kids] troca o claro do Heitor pela paleta infantil (Ichigo/Sorairo), com o mesmo desenho.
+ThemeData cgflixBrandTheme(ThemeData theme, {required bool oled, CgflixThemeVariant? kids}) {
+  final palette = kids != null ? CgflixPalette.forVariant(kids)
+      : oled ? CgflixPalette.isis : (theme.brightness == Brightness.light ? CgflixPalette.heitor : null);
   final accent = palette?.accent ?? CgflixPalette.isis.accent;
   final branded = theme.copyWith(
     textTheme: theme.textTheme.apply(fontFamily: cgflixFontFamily),
@@ -190,6 +193,8 @@ ThemeData cgflixBrandTheme(ThemeData theme, {required bool oled}) {
   return switch (palette?.variant) {
     CgflixThemeVariant.isis => _isis(branded),
     CgflixThemeVariant.heitor => _heitor(branded),
+    CgflixThemeVariant.ichigo => _heitor(branded, s: cgflixIchigoScheme, p: CgflixPalette.ichigo),
+    CgflixThemeVariant.sorairo => _heitor(branded, s: cgflixSorairoScheme, p: CgflixPalette.sorairo),
     null => branded,
   };
 }
@@ -218,9 +223,7 @@ ThemeData _isis(ThemeData branded) {
 ///   - campos com borda `outline` e foco com anel `primary` de 2 dp;
 ///   - aba/navegação ativa com fundo `secondaryContainer` e ícone preenchido em `primary`;
 ///   - barras do sistema com ícones escuros.
-ThemeData _heitor(ThemeData branded) {
-  const s = cgflixHeitorScheme;
-  const p = CgflixPalette.heitor;
+ThemeData _heitor(ThemeData branded, {ColorScheme s = cgflixHeitorScheme, CgflixPalette p = CgflixPalette.heitor}) {
   final clickable = WidgetStateProperty.resolveWith<MouseCursor>(
     (states) => states.contains(WidgetState.disabled) ? MouseCursor.defer : SystemMouseCursors.click,
   );

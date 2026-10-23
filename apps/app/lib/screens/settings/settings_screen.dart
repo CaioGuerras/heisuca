@@ -20,6 +20,7 @@ import '../../focus/focus_memory_tracker.dart';
 import '../../focus/focusable_text_field.dart';
 import '../../focus/input_mode_tracker.dart';
 import '../../i18n/strings.g.dart';
+import '../../heisuca/heisuca_source_scope.dart';
 import '../main_screen.dart';
 import '../../mixins/mounted_set_state_mixin.dart';
 import '../../mixins/refreshable.dart';
@@ -459,6 +460,8 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
             // CGFLIX (refino 2b): na tela, um resumo que um leigo entende; o perfil fica para o leitor de tela.
             subtitle: 'Entrar em outro servidor Plex, Jellyfin ou Emby',
             onTap: () {
+              // Heisuca: mesma porta do menu Você; ao adicionar, já passa a mostrar a fonte nova.
+              if (widget.heisucaSection != null) { heisucaAddSource(context); return; }
               final active = context.read<ActiveProfileProvider>().active;
               Navigator.push(context, MaterialPageRoute(builder: (_) => AddConnectionScreen(targetProfile: active)));
             },

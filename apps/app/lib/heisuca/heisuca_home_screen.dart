@@ -29,6 +29,7 @@ import 'heisuca_home_chrome.dart';
 import 'heisuca_home_style.dart';
 import 'heisuca_source_scope.dart';
 import 'heisuca_upcoming.dart';
+import 'kids/heisuca_kids_flow.dart';
 import '../mixins/refreshable.dart';
 import '../mixins/tab_visibility_aware.dart';
 import '../providers/discover_provider.dart';
@@ -282,7 +283,9 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
           ),
         ]),
       )),
-      SliverToBoxAdapter(child: _StreamSection<List<HeisucaUpcoming>>(
+      // Modo infantil: o calendário vem do Sonarr/Radarr do servidor inteiro (não passa pelo filtro do
+      // usuário infantil) e traria pôster de título adulto. Some no kids.
+      if (!heisucaKidsActive(context)) SliverToBoxAdapter(child: _StreamSection<List<HeisucaUpcoming>>(
         key: ValueKey('upcoming:$key'), stream: () => repo.upcoming().asStream(),
         loading: const CgflixSkeletonRow(), builder: (items) => _UpcomingRow(repository: repo, items: items),
       )),

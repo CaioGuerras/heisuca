@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'heisuca/kids/heisuca_kids.dart';
+import 'heisuca/kids/heisuca_kids_theme.dart';
 import 'dart:io' show Directory, Platform, ProcessInfo;
 import 'dart:ui' show AppExitResponse;
 import 'package:flutter/foundation.dart';
@@ -208,6 +210,7 @@ Future<StartupThemeResolution> _resolveStartupTheme() async {
   final settings = await SettingsService.getInstance();
   await TvDetectionService.getInstance(forceTv: settings.read(SettingsService.forceTvMode));
   await cgflixFixThemePref(settings); // CGFLIX: Isis / Heitor / Automático
+  await HeisucaKids.instance.load(); // Heisuca: perfil infantil força o tema dele desde a abertura
   final mode = settings.read(SettingsService.themeMode);
   return (themeMode: cgflixMaterialThemeMode(mode), darkTheme: cgflixDarkTheme()); // CGFLIX
 }
@@ -1645,6 +1648,7 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
         // can manage stored Jellyfin/Plex connections without re-creating
         // the registry per-call site.
         Provider<SettingsService>.value(value: widget.settings),
+        ChangeNotifierProvider<HeisucaKids>.value(value: HeisucaKids.instance), // Heisuca: modo infantil
         Provider<StorageService>.value(value: widget.storage),
         Provider<AppDatabase>.value(value: _appDatabase),
         Provider<ConnectionRegistry>(create: (_) => ConnectionRegistry(_appDatabase)),
@@ -1868,8 +1872,9 @@ class _AppShell extends StatelessWidget {
                     locale: cgflixMaterialLocale(context), // CGFLIX: Material no idioma do app
                     supportedLocales: cgflixSupportedLocales, // CGFLIX
                     localizationsDelegates: cgflixLocalizationsDelegates, // CGFLIX
-                    theme: cgflixLightTheme(), // CGFLIX: Heitor (claro, verde)
-                    darkTheme: cgflixDarkTheme(), // CGFLIX: Isis (escuro, roxo)
+                    // Heisuca: no modo infantil o tema é o do perfil (Ichigo/Sorairo), nos dois modos.
+                    theme: heisucaKidsTheme(context) ?? cgflixLightTheme(), // CGFLIX: Heitor (claro, verde)
+                    darkTheme: heisucaKidsTheme(context) ?? cgflixDarkTheme(), // CGFLIX: Isis (escuro, roxo)
                     themeMode: cgflixMaterialThemeMode(themeProvider.themeMode), // CGFLIX
                     navigatorKey: rootNavigatorKey,
                     navigatorObservers: [BackKeySuppressorObserver()],
@@ -2241,7 +2246,9 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
     final settings = await SettingsService.getInstance();
     if (!mounted) return;
     final hasNoActive = activeProfile.active == null && activeProfile.profiles.isNotEmpty;
-    final shouldPrompt = hasNoActive || activeProfile.requiresSelectionOnOpen(settings);
+    // Heisuca: perfil infantil ativo nunca abre "quem está assistindo" (seria a saída sem PIN).
+    final kidsActive = HeisucaKids.instance.isKids(activeProfile.activeId);
+    final shouldPrompt = hasNoActive || (!kidsActive && activeProfile.requiresSelectionOnOpen(settings));
 
     var bindingSucceeded = activeProfile.lastBindingSucceeded;
     if (shouldPrompt) {

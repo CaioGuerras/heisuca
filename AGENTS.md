@@ -34,3 +34,9 @@ episódio (`displayTitle` é o nome da série; não usar como rótulo). Ver a se
 topo de `docs/HANDOFF_FICHA_FONTES_PLAYER_2026-10-23.md`. Aguarda teste do Caio no aparelho.
 Portão local: `apps/app/scripts/heisuca-checar.sh` com Flutter 3.47.1 em `~/sdk/flutter`.
 Commitar na própria branch `codex/heisuca-*`: a chave de teste do cache é por branch.
+
+## Claude em 23/10/2026 noite — 2.0.8+9
+
+Ler `docs/REVISAO_CLAUDE_2026-10-23.md` (estado por pilar: feito × aparelho × pendente). Modo infantil em
+`lib/heisuca/kids/` (servidor: cgflix-kids na VPS, rota `/__kids/`). Temas Ichigo/Sorairo só pelo perfil infantil.
+Guarda de player neutro: `test/heisuca/heisuca_neutral_server_test.dart` (nenhum docaio.com.br no código).

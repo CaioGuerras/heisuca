@@ -209,10 +209,11 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
   void _showQuickConnectModal() {
     HapticFeedback.lightImpact();
     var serverUrl = _serverController.text.trim();
+    if (serverUrl.isEmpty || serverUrl == 'https://') serverUrl = widget.initialServerUrl.trim();
+    // Player neutro (Caio, 21/10; regra do fork): nenhum servidor embutido. Sem endereço, pede.
     if (serverUrl.isEmpty || serverUrl == 'https://') {
-      serverUrl = widget.initialServerUrl.isNotEmpty
-          ? widget.initialServerUrl
-          : 'https://netflix.docaio.com.br';
+      setState(() => _errorMessage = 'Digite o endereço do servidor para usar a conexão rápida.');
+      return;
     }
     if (!serverUrl.startsWith('http://') && !serverUrl.startsWith('https://')) {
       serverUrl = 'https://$serverUrl';
@@ -845,7 +846,7 @@ class _HeisucaQuickConnectModalState extends State<_HeisucaQuickConnectModal> {
     try {
       var targetUrl = widget.serverUrl.trim();
       if (targetUrl.isEmpty || targetUrl == 'https://') {
-        targetUrl = 'https://netflix.docaio.com.br';
+        throw StateError('Sem endereço do servidor');
       }
       if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
         targetUrl = 'https://$targetUrl';

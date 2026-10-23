@@ -1,5 +1,15 @@
 # Heisuca Android — ficha, fontes, ajustes e player — 23/10/2026
 
+## Polimento do Claude — 23/10/2026 noite — 2.0.8+9 (AGUARDA TESTE NO APARELHO)
+
+Retorno do Caio no 2.0.4 (ficha, player, fontes, modo kids, fluidez). Detalhe completo, por pilar, em
+[`REVISAO_CLAUDE_2026-10-23.md`](REVISAO_CLAUDE_2026-10-23.md). Resumo: ficha no Esboço 04 com medidas do site
+(2.0.5); HUD do player no 07A (2.0.6); adicionar fonte corrigido e modo infantil Ichigo/Sorairo com PIN (2.0.7);
+taxa alta da UI reaplicada após o player e conexão rápida sem servidor embutido (2.0.8). Rota `/__kids/` do nginx
+da VPS restaurada (`cgf-kids testar` OK). Capturas de revisão: `HEISUCA_SNAPSHOT=1 flutter test ... --update-goldens`
+(saem em `apps/app/test/visual/out/`, fora do git). Mesma branch e mesmo certificado de teste.
+
+
 ## Correção do Claude — 23/10/2026 — 2.0.4+5 (AGUARDA TESTE NO APARELHO)
 
 Commit `04c8e07` em `codex/heisuca-home-site` (mesma branch: a chave de teste do cache

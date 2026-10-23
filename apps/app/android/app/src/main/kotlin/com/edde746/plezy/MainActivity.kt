@@ -605,7 +605,8 @@ class MainActivity : FlutterActivity() {
    * Samsung OneUI, Xiaomi HyperOS). Android TV is excluded so DisplayMatching
    * can switch to 24p cinema modes unimpeded.
    */
-  private fun requestHighRefreshRate() {
+  // Heisuca: público para o FrameRateManager reaplicar depois de restaurar o modo da tela.
+  fun requestHighRefreshRate() {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || isAndroidTvDevice() || isLowRamClass()) return
     try {
       val currentDisplay = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {

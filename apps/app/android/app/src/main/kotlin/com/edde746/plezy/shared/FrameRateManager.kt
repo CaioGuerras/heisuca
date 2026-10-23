@@ -139,6 +139,9 @@ class FrameRateManager(
     attrs.preferredDisplayModeId = 0
     window.attributes = attrs
     PlayerDebugLog.d(TAG) { "restorePreferredDisplayMode: applied, after currentMode=${currentModeDescription()}" }
+    // Heisuca: no celular a interface fica na taxa máxima do painel (MainActivity.requestHighRefreshRate);
+    // zerar o modo aqui a devolvia ao padrão do fabricante (60 Hz em alguns) até o app voltar do 2º plano.
+    (activity as? com.edde746.plezy.MainActivity)?.requestHighRefreshRate()
   }
 
   private fun cancelPendingRestore() {

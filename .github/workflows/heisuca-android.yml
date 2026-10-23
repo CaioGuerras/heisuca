@@ -92,6 +92,9 @@ jobs:
             echo "Sem keystore nos secrets: assinando com debug."
           fi
 
+      - name: Conferir isolamento dos providers no manifesto
+        run: python3 scripts/heisuca-validar-apk.py --source-only
+
       - name: Compilar APK Release (arm64-v8a)
         run: |
           preview_args=()
@@ -99,9 +102,6 @@ jobs:
             preview_args+=(-PheisucaPreview=true)
           fi
           flutter build apk --release --target-platform android-arm64 --split-per-abi -PtargetAbi=arm64-v8a "${preview_args[@]}" --dart-define=GIT_COMMIT=${{ github.sha }}
-
-      - name: Validar providers nativos
-        run: ./android/gradlew -p android :app:testReleaseUnitTest --tests com.edde746.plezy.watchnext.SystemShelfArtworkManifestTest -PtargetAbi=arm64-v8a -PheisucaPreview=true
 
       - name: Conferir pacote, providers e assinatura do APK
         run: python3 scripts/heisuca-validar-apk.py build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
@@ -117,6 +117,15 @@ jobs:
             cp build/app/outputs/flutter-apk/*.apk dist/heisuca-arm64-v8a.apk
           fi
           ls -lh dist
+
+      - name: Guardar APK para diagnóstico se uma conferência falhar
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: heisuca-diagnostico-nao-aprovado
+          path: apps/app/build/app/outputs/flutter-apk/*.apk
+          if-no-files-found: ignore
+          retention-days: 3
 
       - name: Publicar Artifact Heisuca APK
         uses: actions/upload-artifact@v4

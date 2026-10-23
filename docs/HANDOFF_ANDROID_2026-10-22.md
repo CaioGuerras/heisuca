@@ -94,7 +94,20 @@ ser limpo/expirar e não substitui configurar uma chave de assinatura durável p
 Claude deve continuar nesta branch para reaproveitar o cache, ou configurar a assinatura
 com autorização/contexto apropriados. Nunca salvar uma chave privada de produção no git.
 O workflow verifica assinatura, package, label e providers do APK efetivo antes de
-publicar o artifact, além de executar o teste JVM do manifesto.
+publicar o artifact, e confere os providers privados/grants no manifesto fonte E no manifesto binário.
+
+A primeira execução dessa variante (39889881411, fb52b918) passou análise e 185 testes,
+compilou o APK (98,3 MB), mas NÃO publicou artifact: a tarefa extra testReleaseUnitTest
+não existia. Foi um erro de configuração do workflow desta sessão. AGP 9 só cria unidades
+para testBuildType (debug aqui), conforme documentação oficial das mudanças de defaults:
+https://developer.android.com/build/releases/agp-9-0-0-release-notes#behavior-changes
+O teste JVM de fonte não foi executado nesta sessão. O fluxo corrigido preserva as
+mesmas verificações de isolamento via XML e as amplia ao APK efetivo via aapt/apksigner;
+não há continue-on-error nem conversão de falha em sucesso. Artifacts de diagnóstico,
+se houver erro depois de compilar, ficam explicitamente marcados como NÃO APROVADOS.
+Para suites JVM completas no futuro, usar o build type habilitado ou configurar
+plezy.testBuildType/onlyEnableUnitTestForTheTestedBuildType explicitamente, sem confundir
+um problema de seleção de tarefa com falha funcional do app.
 
 ## Validação desta etapa
 

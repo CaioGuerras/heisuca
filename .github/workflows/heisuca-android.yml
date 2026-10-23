@@ -59,6 +59,13 @@ jobs:
             ~/.gradle/wrapper
           key: heisuca-clean-${{ runner.os }}-gradle-${{ hashFiles('apps/app/**/*.gradle*', 'apps/app/**/gradle-wrapper.properties') }}
 
+      - name: Preservar chave de teste nesta branch
+        if: startsWith(github.ref_name, 'codex/heisuca-')
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: heisuca-home-debug-key-v1
+
       - name: Obter dependências Flutter
         run: flutter pub get --no-example
 
@@ -86,7 +93,18 @@ jobs:
           fi
 
       - name: Compilar APK Release (arm64-v8a)
-        run: flutter build apk --release --target-platform android-arm64 --split-per-abi -PtargetAbi=arm64-v8a --dart-define=GIT_COMMIT=${{ github.sha }}
+        run: |
+          preview_args=()
+          if [[ "$GITHUB_REF_NAME" == codex/heisuca-* ]]; then
+            preview_args+=(-PheisucaPreview=true)
+          fi
+          flutter build apk --release --target-platform android-arm64 --split-per-abi -PtargetAbi=arm64-v8a "${preview_args[@]}" --dart-define=GIT_COMMIT=${{ github.sha }}
+
+      - name: Validar providers nativos
+        run: ./android/gradlew -p android :app:testReleaseUnitTest --tests com.edde746.plezy.watchnext.SystemShelfArtworkManifestTest -PtargetAbi=arm64-v8a -PheisucaPreview=true
+
+      - name: Conferir pacote, providers e assinatura do APK
+        run: python3 scripts/heisuca-validar-apk.py build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
 
       - name: Organizar e Renomear APKs
         run: |

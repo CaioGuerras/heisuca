@@ -15,7 +15,7 @@ import org.w3c.dom.Element
 class SystemShelfArtworkManifestTest {
   private companion object {
     const val ANDROID_NAMESPACE = "http://schemas.android.com/apk/res/android"
-    const val AUTHORITY = "br.com.docaio.cgflix.systemshelf.artwork"
+    const val AUTHORITY = "\${applicationId}.systemshelf.artwork"
     val MANIFEST_CANDIDATES = listOf(
       "src/main/AndroidManifest.xml",
       "app/src/main/AndroidManifest.xml",
@@ -56,3 +56,4 @@ class SystemShelfArtworkManifestTest {
     throw AssertionError("AndroidManifest.xml not found from ${System.getProperty("user.dir")}")
   }
 }
+

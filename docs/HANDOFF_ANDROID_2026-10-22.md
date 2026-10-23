@@ -74,6 +74,28 @@ play central e progresso/tempo reais em branco. Removido o badge TOP 10 extra do
 Os componentes compartilhados preservam o estilo antigo por padrão; só a Home ativa
 `siteStyle`. A versão do app foi elevada para 2.0.2+3.
 
+## Identidade e assinatura do APK de avaliação
+
+Foi baixado o APK anterior de 5947c76 e lido seu certificado público v2:
+SHA-256 `2474b51d778c36719b5ad428ca053a0fa253fc47e52085335b0c5e851320dfd7`,
+CN Android Debug, criado em 23/10 01:28:34 UTC. O log da execução confirma que não há
+keystore nos secrets. Não há acesso à chave privada anterior; o certificado não permite
+recuperá-la. Uma chave debug nova não é uma estratégia de atualização confiável.
+
+Para não exigir desinstalar o app de Caio, o workflow das branches codex/heisuca-* passa
+`-PheisucaPreview=true`. O APK tem applicationId `app.heisuca.player.teste.home`, nome
+`Heisuca Teste` e dados separados do app anterior (`app.heisuca.player.teste`). Exige novo
+login, sem apagar o anterior. Providers FileProvider e SystemShelf passam a acompanhar
+applicationId; o manifesto antigo fixava br.com.docaio.cgflix e impediria coexistência.
+ExternalPlayerChannel e SystemShelfArtworkProvider usam a identidade efetiva do app.
+
+A chave DEBUG é preservada no cache desta branch para os próximos testes. Cache pode
+ser limpo/expirar e não substitui configurar uma chave de assinatura durável por secrets.
+Claude deve continuar nesta branch para reaproveitar o cache, ou configurar a assinatura
+com autorização/contexto apropriados. Nunca salvar uma chave privada de produção no git.
+O workflow verifica assinatura, package, label e providers do APK efetivo antes de
+publicar o artifact, além de executar o teste JVM do manifesto.
+
 ## Validação desta etapa
 
 Código validado: `afac8d7da580c6b0ee7548a30ebb396d2ae9daf2`.

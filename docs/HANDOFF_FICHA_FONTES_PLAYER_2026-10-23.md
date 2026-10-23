@@ -1,6 +1,53 @@
 # Heisuca Android — ficha, fontes, ajustes e player — 23/10/2026
 
-## Retorno de Caio após teste no aparelho — 23/10/2026 — PENDENTE PARA CLAUDE
+## Correção do Claude — 23/10/2026 — 2.0.4+5 (AGUARDA TESTE NO APARELHO)
+
+Commit `04c8e07` em `codex/heisuca-home-site` (mesma branch: a chave de teste do cache
+do Actions é por branch; outra branch quebraria a atualização por cima). Sem merge/release.
+
+**Diagnóstico confrontado com o Jellyfin real do CGSERVER (leitura, usuário caioguerras):**
+
+- **Re:ZERO:** o print é o EPISÓDIO T4:E19 "Shaula / Herói" (30/09/2026, 41 min, sinopse
+  "Enquanto Emilia…"). Banners, Top 10, faixas e Em breve da Home chamam
+  `HeisucaTitleSheet.show(item)` sem olhar o tipo; com `kind=episode` a ficha não monta a
+  seção de temporadas. Servidor correto: 4 temporadas, 73 episódios.
+- **One Piece:** o servidor devolve `Especiais`, `Temporada 1`…`Temporada 23` (ChildCount 24
+  conta Especiais) e nomes próprios dos episódios. A ficha usava `MediaItem.displayTitle`,
+  que para temporada/episódio devolve o nome da SÉRIE (é título de cabeçalho) → "One Piece"
+  repetido. A T1 tem 8 episódios de 52–65 min segundo o próprio servidor (RunTimeTicks);
+  isso é dado do acervo, não do app — não foi investigado se são edições especiais.
+- "Assistir T1:E1" estava certo: NextUp do servidor = T1:E1, 0 episódios vistos.
+- Testes antigos não pegavam porque o fixture não tinha SeriesName/SeriesId.
+
+**Mudanças (`heisuca_title_sheet.dart`):** episódio/temporada recebidos abrem a série
+(`SeriesId`/`grandparentId`, temporada `grandparentId ?? parentId`), com aquele episódio como
+alvo ou aquela temporada selecionada; se o servidor não confirmar a série, mantém o item.
+Recargas após assistir/marcar seguem o on-deck. Rótulos `heisucaSeasonLabel` /
+`heisucaEpisodeLabel` (nome próprio; "Temporada N"/"Episódio N" se repetir a série).
+Contagem sem Especiais. Nota via `ratingSourceLabel` (sem "audience" cru, sem repetir a ★).
+Episódio tocado e não iniciado mostra "Assistir T4:E19". O play entrega o alvo exato a
+`navigateToVideoPlayer` (conferido no código; reprodução não testada em aparelho).
+
+**Testes:** `test/heisuca/heisuca_title_seasons_real_test.dart` com JSON no formato real pelo
+`JellyfinMappers`: 6 testes que FALHAM no código anterior e passam agora. Portão local
+(Flutter 3.47.1 em ~/sdk/flutter): 300 testes, análise sem erros bloqueantes.
+
+**Entrega:** run https://github.com/CaioGuerras/heisuca/actions/runs/39976107470 (verde).
+APK: https://github.com/CaioGuerras/heisuca/actions/runs/39976107470/artifacts/12512705592
+(expira 06/11/2026). ZIP sha256 `82ed43f9778659fe7205705e75a20483250f1c45eddd4df8f4e59290f438da81`
+(= digest do Actions); APK `heisuca-arm64-v8a.apk` 98.387.569 bytes, sha256
+`398e97dd5dfa2c32ea2efdbbf693cdf34a39f2cef965d638a1aa22c171aeafda`. Conferido aqui com
+androguard: pacote `app.heisuca.player.teste.home`, 2.0.4 (versionCode 2005), assinatura v2,
+certificado `19160423…f95c` (o mesmo do 2.0.2/2.0.3: atualiza por cima). O libapp.so contém o
+commit e literais novos. Instalação física não executada.
+
+**Depende do Caio no aparelho:** abrir Re:ZERO pelo card da Home (deve abrir a série na
+Temporada 4, alvo T4:E19) e pela Biblioteca (série, T1:E1); One Piece: seletor com
+Especiais/Temporada N, trocar temporada, Ver tudo, tocar e conferir o episódio que abre.
+
+---
+
+## Retorno de Caio após teste no aparelho — 23/10/2026 — TRATADO NA SEÇÃO ACIMA
 
 **Instrução expressa:** “não tente corrigir, apenas reporte, o Claude vai atuar”.
 Este registro altera apenas documentação. Não houve investigação da causa, correção,

@@ -26,3 +26,11 @@ Esse documento é análise/proposta; não significa que tais integrações já f
 Etapa implementada: ficha, fontes, ajustes e HUD do player em 2.0.3+4.
 Leia primeiro `docs/HANDOFF_FICHA_FONTES_PLAYER_2026-10-23.md` para estado de build,
 validação e limites. A proposta anterior é histórica, não a lista do que ainda falta.
+
+## Claude em 23/10/2026 — 2.0.4+5
+
+Corrigida a ficha para episódio vindo da Home (abre a série) e os rótulos de temporada/
+episódio (`displayTitle` é o nome da série; não usar como rótulo). Ver a seção do Claude no
+topo de `docs/HANDOFF_FICHA_FONTES_PLAYER_2026-10-23.md`. Aguarda teste do Caio no aparelho.
+Portão local: `apps/app/scripts/heisuca-checar.sh` com Flutter 3.47.1 em `~/sdk/flutter`.
+Commitar na própria branch `codex/heisuca-*`: a chave de teste do cache é por branch.

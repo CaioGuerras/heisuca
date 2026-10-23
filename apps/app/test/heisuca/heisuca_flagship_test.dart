@@ -18,6 +18,7 @@ import 'package:plezy/i18n/strings.g.dart';
 import 'package:plezy/media/media_item.dart';
 import 'package:plezy/media/media_kind.dart';
 import 'package:plezy/providers/theme_provider.dart';
+import 'package:plezy/services/settings_service.dart' as settings;
 import 'package:provider/provider.dart';
 
 import '../test_helpers/prefs.dart';
@@ -146,20 +147,64 @@ void main() {
     testWidgets('monta abas Geral e Avançado com reconhecimento de aparelho e seletor de tema', (tester) async {
       await _montar(tester, CgflixThemeVariant.isis, const HeisucaSettingsScreen());
       expect(find.text('Configurações'), findsOneWidget);
-      expect(find.text('Aparelho Reconhecido'), findsOneWidget);
+      expect(find.text('Identificação indisponível'), findsOneWidget);
+      expect(find.textContaining('Motorola Edge'), findsNothing);
       expect(find.text('Geral'), findsOneWidget);
       expect(find.text('Avançado'), findsOneWidget);
       expect(find.text('Aparência e Tema'), findsOneWidget);
       expect(find.text('Shikkoku'), findsOneWidget);
       expect(find.text('Hisui'), findsOneWidget);
-      expect(find.text('Qualidade Original Direta'), findsOneWidget);
+      expect(find.text('Qualidade de reprodução'), findsOneWidget);
 
       await tester.tap(find.text('Avançado'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Decodificação Zero-Copy Vulkan'), findsOneWidget);
+      expect(find.text('Decodificação por Hardware'), findsOneWidget);
       expect(find.text('Buffer de Memória RAM'), findsOneWidget);
     });
+  });
+
+  testWidgets('abertura salva a preferência usada pelo player e sobrevive à reabertura', (tester) async {
+    final service = await settings.SettingsService.getInstance();
+    await service.write(settings.SettingsService.skipIntroMode, settings.SkipMarkerMode.button);
+    await _montar(tester, CgflixThemeVariant.isis, const HeisucaSettingsScreen());
+    await tester.pumpAndSettle();
+    final introSwitch = find.descendant(
+      of: find.ancestor(of: find.text('Pular Abertura Automático'), matching: find.byType(Row)).first,
+      matching: find.byType(Switch),
+    );
+    await tester.ensureVisible(introSwitch);
+    await tester.tap(introSwitch);
+    await tester.pumpAndSettle();
+    expect(service.read(settings.SettingsService.skipIntroMode), settings.SkipMarkerMode.auto);
+    await tester.pumpWidget(const SizedBox());
+    await _montar(tester, CgflixThemeVariant.isis, const HeisucaSettingsScreen());
+    await tester.pumpAndSettle();
+    expect(tester.widget<Switch>(introSwitch).value, isTrue);
+  });
+
+  testWidgets('buffer respeita o motor ativo e salva o perfil do ExoPlayer', (tester) async {
+    final service = await settings.SettingsService.getInstance();
+    await service.write(settings.SettingsService.useExoPlayer, false);
+    await _montar(tester, CgflixThemeVariant.isis, const HeisucaSettingsScreen());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Avançado'));
+    await tester.pumpAndSettle();
+    final buffer = find.byKey(const ValueKey('heisuca-buffer'));
+    expect(tester.widget<DropdownButton<settings.PlaybackBufferTier>>(buffer).onChanged, isNull);
+    await tester.pumpWidget(const SizedBox());
+    await service.write(settings.SettingsService.useExoPlayer, true);
+    await _montar(tester, CgflixThemeVariant.isis, const HeisucaSettingsScreen());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Avançado'));
+    await tester.pumpAndSettle();
+    expect(find.text('Decodificação por Hardware'), findsNothing);
+    await tester.ensureVisible(buffer);
+    await tester.tap(buffer);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Grande').last);
+    await tester.pumpAndSettle();
+    expect(service.read(settings.SettingsService.playbackBufferTier), settings.PlaybackBufferTier.large);
   });
 
   group('HeisucaLibraryScreen & HeisucaSearchScreen', () {
@@ -317,3 +362,4 @@ void main() {
     });
   });
 }
+

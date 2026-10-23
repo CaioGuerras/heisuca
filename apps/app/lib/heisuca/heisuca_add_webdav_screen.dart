@@ -2,9 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'heisuca_theme.dart';
-import 'services/local_stream_proxy.dart';
 
-/// Tela de conexão WebDAV do Heisuca com probe PROPFIND real e inicialização do LocalStreamProxy
+/// Diagnóstico WebDAV: ainda não adiciona uma fonte ao catálogo.
 class HeisucaAddWebDavScreen extends StatefulWidget {
   const HeisucaAddWebDavScreen({super.key});
 
@@ -55,26 +54,22 @@ class _HeisucaAddWebDavScreenState extends State<HeisucaAddWebDavScreen> {
         final resp = await req.close();
         final status = resp.statusCode;
         await resp.drain<void>();
-        if (status != 207 && (status < 200 || status >= 400)) {
+        if (status != 207) {
           throw HttpException('Servidor respondeu HTTP $status no PROPFIND');
         }
       } finally {
         client.close();
       }
 
-      // Garante o proxy HTTP loopback local (127.0.0.1) ativo para Range 206 no libmpv
-      final proxyPort = await LocalStreamProxy.instance.start();
-
       if (!mounted) return;
       setState(() => _conectando = false);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('WebDAV conectado (PROPFIND OK • Proxy 127.0.0.1:$proxyPort ativo)'),
+          content: Text('Servidor WebDAV respondeu ao teste. A biblioteca ainda não foi adicionada; esta versão não possui catálogo WebDAV.'),
           backgroundColor: HeisucaTheme.roxoPrimaria,
         ),
       );
-      Navigator.of(context).pop();
     } catch (e) {
       if (!mounted) return;
       setState(() => _conectando = false);
@@ -91,7 +86,7 @@ class _HeisucaAddWebDavScreenState extends State<HeisucaAddWebDavScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Conectar WebDAV', style: TextStyle(fontFamily: HeisucaTheme.fonteTitulo, fontSize: 18, fontWeight: FontWeight.w600)),
+        title: const Text('Testar WebDAV', style: TextStyle(fontFamily: HeisucaTheme.fonteTitulo, fontSize: 18, fontWeight: FontWeight.w600)),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -109,7 +104,7 @@ class _HeisucaAddWebDavScreenState extends State<HeisucaAddWebDavScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Conecte seu Nextcloud, Alist, seedbox ou servidor WebDAV com streaming direto via libmpv.',
+                  'Teste o acesso ao seu servidor. Adicionar arquivos à biblioteca e reproduzir por WebDAV ainda não está disponível.',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Colors.white.withOpacity(0.55),
                   ),
@@ -169,7 +164,7 @@ class _HeisucaAddWebDavScreenState extends State<HeisucaAddWebDavScreen> {
                             child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
                           )
                         : const Text(
-                            'Conectar e Listar Biblioteca',
+                            'Testar acesso',
                             style: TextStyle(
                               fontFamily: HeisucaTheme.fonteTitulo,
                               fontWeight: FontWeight.w600,
@@ -259,3 +254,4 @@ class _CampoTexto extends StatelessWidget {
     );
   }
 }
+

@@ -11,6 +11,7 @@ import '../utils/app_logger.dart';
 import '../utils/language_codes.dart';
 import '../utils/subtitle_forced_semantics.dart';
 import 'subtitle_preference.dart';
+import 'settings_service.dart';
 
 // These functions match MPV tracks to Plex tracks by properties (language,
 // codec, title, etc.) instead of list index, since the two may be ordered
@@ -974,6 +975,18 @@ class TrackSelectionService {
       appLogger.d('Audio carry declined: ${preferredAudioTrack.language}/${preferredAudioTrack.title}');
     }
 
+    // Heisuca: uma escolha manual continua prioritária. Sem faixa em português,
+    // mantém o fluxo de seleção do servidor e do perfil sem inventar uma faixa.
+    final settings = SettingsService.instanceOrNull;
+    if (settings?.read(SettingsService.heisucaPreferPortugueseAudio) == true) {
+      final portuguese = _findTrackByPreferredLanguage<AudioTrack>(
+        availableTracks, 'por', (track) => track.language,
+      );
+      if (portuguese != null) {
+        return TrackSelectionResult(portuguese, TrackSelectionPriority.profile);
+      }
+    }
+
     // Priority 2: Check server-selected track from media info
     final info = plexMediaInfo;
     if (info != null && availableTracks.isNotEmpty) {
@@ -1301,3 +1314,4 @@ class TrackSelectionService {
     return true;
   }
 }
+

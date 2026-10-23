@@ -330,6 +330,21 @@ class MainActivity : FlutterActivity() {
     )
   }
 
+  /** Dados do sistema para a tela Heisuca; não certificam HDR nem o decoder. */
+  @Suppress("DEPRECATION")
+  private fun getHeisucaDeviceProfile(): Map<String, Any?> {
+    val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+    val memoryInfo = ActivityManager.MemoryInfo()
+    activityManager.getMemoryInfo(memoryInfo)
+    val screen = windowManager.defaultDisplay
+    return mapOf(
+      "deviceName" to "${Build.MANUFACTURER} ${Build.MODEL}".trim(),
+      "chipset" to if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) Build.SOC_MODEL else null,
+      "totalMemBytes" to memoryInfo.totalMem,
+      "maxRefreshRateHz" to screen.supportedModes.maxOfOrNull { it.refreshRate }
+    )
+  }
+
   private fun initializeStartupPhaseStore() {
     var shouldMarkNativeOnCreate = false
     synchronized(startupPhaseLock) {
@@ -894,6 +909,7 @@ class MainActivity : FlutterActivity() {
         "getTvDetection" -> result.success(getAndroidTvDetection())
         "getDeviceName" -> result.success(getDeviceName())
         "getPerformanceSignals" -> result.success(getPerformanceSignals())
+        "getHeisucaDeviceProfile" -> result.success(getHeisucaDeviceProfile())
         "getVideoDecodeCapabilities" -> result.success(MediaCodecQuery.hardwareVideoDecodeSupport())
         "getBackgroundWorkSignals" -> result.success(
           BackgroundWorkClassifier.toMap(BackgroundWorkDiagnostics.read(this))
@@ -1232,3 +1248,4 @@ class MainActivity : FlutterActivity() {
     return builder.build()
   }
 }
+

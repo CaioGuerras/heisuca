@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 
 import '../cgflix/cgflix_palette.dart';
 import '../providers/theme_provider.dart';
+import '../models/transcode_quality_preset.dart';
+import '../utils/quality_preset_labels.dart';
 import '../services/settings_service.dart' as settings;
 import 'heisuca_design_system.dart';
 import 'heisuca_theme.dart';
@@ -25,24 +27,73 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
   late TabController _tabController;
   final HeisucaDeviceService _deviceService = HeisucaDeviceService.instance;
 
-  // Preferências Básicas
-  bool _preferOriginalQuality = true;
-  bool _autoSkipOpening = true;
-  bool _preferPortuguese = true;
-
-  // Preferências Avançadas
-  bool _useZeroCopyVulkan = true;
-  int _ramBufferSizeMb = 256;
-  bool _force144Hz = true;
+  settings.SettingsService? _settings;
+  bool _saving = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _deviceService.addListener(_deviceChanged);
+    _deviceService.initialize();
+    _loadSettings();
+  }
+
+  void _deviceChanged() {
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _loadSettings() async {
+    try {
+      final service = await settings.SettingsService.getInstance();
+      if (mounted) setState(() => _settings = service);
+    } catch (_) {
+      _showSaveError();
+    }
+  }
+
+  void _showSaveError() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Não foi possível acessar as configurações. Tente novamente.')),
+    );
+  }
+
+  Future<void> _save<T>(settings.Pref<T> pref, T value) async {
+    final service = _settings;
+    if (service == null || _saving) return;
+    setState(() => _saving = true);
+    try {
+      await service.write(pref, value);
+    } catch (_) {
+      _showSaveError();
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  Future<void> _restore() async {
+    final service = _settings;
+    if (service == null || _saving) return;
+    setState(() => _saving = true);
+    try {
+      // Restaura somente as preferências desta tela, preservando conta e tema.
+      await service.reset(settings.SettingsService.defaultQualityPreset);
+      await service.reset(settings.SettingsService.skipIntroMode);
+      await service.reset(settings.SettingsService.heisucaPreferPortugueseAudio);
+      await service.reset(settings.SettingsService.enableHardwareDecoding);
+      await service.reset(settings.SettingsService.matchContentFrameRate);
+      await service.reset(settings.SettingsService.playbackBufferTier);
+    } catch (_) {
+      _showSaveError();
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
   }
 
   @override
   void dispose() {
+    _deviceService.removeListener(_deviceChanged);
     _tabController.dispose();
     super.dispose();
   }
@@ -109,7 +160,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                       border: Border.all(color: const Color(0xFF34D399).withOpacity(0.35), width: 0.6),
                     ),
                     child: const Text(
-                      'OTIMIZADO',
+                      'HEISUCA',
                       style: TextStyle(
                         fontFamily: HeisucaTheme.fonteTexto,
                         fontSize: 10.0,
@@ -162,7 +213,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Aparelho Reconhecido',
+                            profile.deviceName == null ? 'Aparelho' : 'Aparelho Reconhecido',
                             style: TextStyle(
                               fontFamily: HeisucaTheme.fonteTexto,
                               fontSize: 11.5,
@@ -171,7 +222,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                             ),
                           ),
                           Text(
-                            profile.deviceName,
+                            profile.deviceName ?? 'Identificação indisponível',
                             style: TextStyle(
                               fontFamily: HeisucaTheme.fonteTitulo,
                               fontSize: 15.0,
@@ -181,7 +232,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                           ),
                           const SizedBox(height: 2.0),
                           Text(
-                            '${profile.chipset} • ${profile.totalRamGb}GB RAM • ${profile.maxRefreshRateHz}Hz pOLED',
+                            profile.hardwareSummary,
                             style: TextStyle(
                               fontFamily: HeisucaTheme.fonteTexto,
                               fontSize: 10.5,
@@ -233,7 +284,9 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
 
             // Conteúdo das Abas
             Expanded(
-              child: TabBarView(
+              child: AbsorbPointer(
+                absorbing: _settings == null || _saving,
+                child: TabBarView(
                 controller: _tabController,
                 physics: const HeisucaSpringPhysics(),
                 children: [
@@ -243,6 +296,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                   // Aba 2: Avançado (Área técnica isolada)
                   _buildAdvancedTab(isLight),
                 ],
+              ),
               ),
             ),
           ],
@@ -299,19 +353,30 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
         const SizedBox(height: 18.0),
 
         _buildSectionHeader('Reprodução e Vídeo', isLight),
-        _buildSwitchTile(
-          title: 'Qualidade Original Direta',
-          subtitle: 'Priorizar Direct Play sem transcodificação',
-          value: _preferOriginalQuality,
-          isLight: isLight,
-          onChanged: (v) => setState(() => _preferOriginalQuality = v),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          title: const Text('Qualidade de reprodução'),
+          subtitle: const Text('Original prioriza reprodução direta. Reduzir exige transcodificação no servidor.'),
+        ),
+        DropdownButton<TranscodeQualityPreset>(
+          key: const ValueKey('heisuca-quality'),
+          isExpanded: true,
+          value: _settings?.read(settings.SettingsService.defaultQualityPreset) ?? TranscodeQualityPreset.original,
+          items: TranscodeQualityPreset.displayOrder.map((quality) => DropdownMenuItem(
+            value: quality,
+            child: Text(qualityPresetLabel(quality)),
+          )).toList(),
+          onChanged: (value) {
+            if (value != null) _save(settings.SettingsService.defaultQualityPreset, value);
+          },
         ),
         _buildSwitchTile(
           title: 'Pular Abertura Automático',
-          subtitle: 'Avança os créditos iniciais automaticamente',
-          value: _autoSkipOpening,
+          subtitle: 'Usa os marcadores disponíveis no vídeo; sem eles, não avança.',
+          value: _settings?.read(settings.SettingsService.skipIntroMode) == settings.SkipMarkerMode.auto,
           isLight: isLight,
-          onChanged: (v) => setState(() => _autoSkipOpening = v),
+          onChanged: (value) => _save(settings.SettingsService.skipIntroMode,
+              value ? settings.SkipMarkerMode.auto : settings.SkipMarkerMode.button),
         ),
 
         const SizedBox(height: 18.0),
@@ -319,16 +384,17 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
         _buildSectionHeader('Áudio e Legendas', isLight),
         _buildSwitchTile(
           title: 'Preferir Áudio em Português',
-          subtitle: 'Selecionar dublagem brasileira automaticamente',
-          value: _preferPortuguese,
+          subtitle: 'Prefere uma faixa em português disponível; preserva a seleção manual.',
+          value: _settings?.read(settings.SettingsService.heisucaPreferPortugueseAudio) ?? false,
           isLight: isLight,
-          onChanged: (v) => setState(() => _preferPortuguese = v),
+          onChanged: (v) => _save(settings.SettingsService.heisucaPreferPortugueseAudio, v),
         ),
       ],
     );
   }
 
   Widget _buildAdvancedTab(bool isLight) {
+    final usesExoPlayer = _settings?.read(settings.SettingsService.useExoPlayer) ?? false;
     final accentColor = isLight ? const Color(0xFF047857) : const Color(0xFF7A40F2);
     final cardBg = isLight ? Colors.white : Colors.white.withOpacity(0.03);
     final borderColor = isLight ? const Color(0xFFE2E8F0) : Colors.white.withOpacity(0.06);
@@ -352,7 +418,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
               const SizedBox(width: 10.0),
               Expanded(
                 child: Text(
-                  'As opções abaixo afetam diretamente o motor libmpv e a GPU. Altere apenas se necessário.',
+                  'As alterações serão usadas nas próximas reproduções. O suporte depende do aparelho e do vídeo.',
                   style: TextStyle(
                     fontFamily: HeisucaTheme.fonteTexto,
                     fontSize: 11.5,
@@ -367,19 +433,19 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
         const SizedBox(height: 16.0),
 
         _buildSectionHeader('Motor de Renderização GPU', isLight),
-        _buildSwitchTile(
-          title: 'Decodificação Zero-Copy Vulkan',
-          subtitle: 'HardwareBuffer direto para a GPU sem cópias de memória',
-          value: _useZeroCopyVulkan,
+        if (!usesExoPlayer) _buildSwitchTile(
+          title: 'Decodificação por Hardware',
+          subtitle: 'Permite usar o decodificador do aparelho quando compatível.',
+          value: _settings?.read(settings.SettingsService.enableHardwareDecoding) ?? true,
           isLight: isLight,
-          onChanged: (v) => setState(() => _useZeroCopyVulkan = v),
+          onChanged: (v) => _save(settings.SettingsService.enableHardwareDecoding, v),
         ),
         _buildSwitchTile(
-          title: 'Taxa de Atualização Máxima (144Hz)',
-          subtitle: 'Sincronização vertical contra stuttering em 24fps/60fps',
-          value: _force144Hz,
+          title: 'Ajustar Frequência ao Vídeo',
+          subtitle: 'Solicita uma frequência compatível com o vídeo, quando disponível.',
+          value: _settings?.read(settings.SettingsService.matchContentFrameRate) ?? false,
           isLight: isLight,
-          onChanged: (v) => setState(() => _force144Hz = v),
+          onChanged: (v) => _save(settings.SettingsService.matchContentFrameRate, v),
         ),
 
         const SizedBox(height: 16.0),
@@ -420,7 +486,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                   ),
                   const SizedBox(width: 8.0),
                   Text(
-                    '$_ramBufferSizeMb MB',
+                    'Perfil do motor',
                     style: TextStyle(
                       fontFamily: HeisucaTheme.fonteTexto,
                       fontSize: 13.5,
@@ -431,16 +497,25 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                 ],
               ),
               const SizedBox(height: 8.0),
-              Slider(
-                value: _ramBufferSizeMb.toDouble(),
-                min: 64,
-                max: 512,
-                divisions: 7,
-                activeColor: accentColor,
-                inactiveColor: isLight ? const Color(0xFFCBD5E1) : Colors.white.withOpacity(0.1),
-                onChanged: (v) {
-                  HapticFeedback.selectionClick();
-                  setState(() => _ramBufferSizeMb = v.toInt());
+              Text(
+                usesExoPlayer
+                    ? 'Perfis de buffer do ExoPlayer.'
+                    : 'O libmpv gerencia o buffer automaticamente conforme a memória do aparelho.',
+                style: TextStyle(color: titleColor, fontSize: 12),
+              ),
+              DropdownButton<settings.PlaybackBufferTier>(
+                key: const ValueKey('heisuca-buffer'),
+                isExpanded: true,
+                value: usesExoPlayer
+                    ? (_settings?.read(settings.SettingsService.playbackBufferTier) ?? settings.PlaybackBufferTier.auto)
+                    : settings.PlaybackBufferTier.auto,
+                items: const [
+                  DropdownMenuItem(value: settings.PlaybackBufferTier.auto, child: Text('Automático')),
+                  DropdownMenuItem(value: settings.PlaybackBufferTier.large, child: Text('Grande')),
+                  DropdownMenuItem(value: settings.PlaybackBufferTier.extraLarge, child: Text('Muito grande')),
+                ],
+                onChanged: !usesExoPlayer ? null : (value) {
+                  if (value != null) _save(settings.SettingsService.playbackBufferTier, value);
                 },
               ),
             ],
@@ -451,17 +526,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
 
         // Botão Restaurar Configuração Recomendada
         HeisucaSpringPressable(
-          onTap: () {
-            HapticFeedback.mediumImpact();
-            setState(() {
-              _preferOriginalQuality = true;
-              _autoSkipOpening = true;
-              _preferPortuguese = true;
-              _useZeroCopyVulkan = true;
-              _ramBufferSizeMb = 256;
-              _force144Hz = true;
-            });
-          },
+          onTap: _restore,
           child: Container(
             height: 44.0,
             decoration: BoxDecoration(
@@ -563,7 +628,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
             ),
             Switch(
               value: value,
-              onChanged: (v) {
+              onChanged: _settings == null || _saving ? null : (v) {
                 HapticFeedback.lightImpact();
                 onChanged(v);
               },
@@ -710,3 +775,4 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
     );
   }
 }
+

@@ -20,6 +20,7 @@ import 'widgets/video_controls_header.dart';
 import 'widgets/video_timeline_bar.dart';
 import 'models/track_controls_state.dart';
 import '../../heisuca/player/heisuca_player_hud.dart';
+import '../../heisuca/player/heisuca_series_episodes.dart'; // CGFLIX
 import '../../cgflix/cgflix_palette.dart';
 
 /// Mobile video controls layout for Plex video player
@@ -80,6 +81,7 @@ class MobileVideoControls extends StatefulWidget {
 
   /// Callback when a queue item is selected from the content strip
   final Function(MediaItem)? onQueueItemSelected;
+  final Function(MediaItem)? onSeriesEpisodeSelected; // CGFLIX: seleção fora da temporada da fila
 
   /// Shared controller for chrome visibility (used to reset strip on hide)
   final PlayerChromeController? chromeController;
@@ -127,6 +129,7 @@ class MobileVideoControls extends StatefulWidget {
     this.serverId,
     this.showQueueTab = false,
     this.onQueueItemSelected,
+    this.onSeriesEpisodeSelected,
     this.chromeController,
     this.onStripVisibilityChanged,
     this.isInEdgeAdjustmentZone,
@@ -332,6 +335,10 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
         padding: const EdgeInsets.all(16),
         child: VideoControlsHeader(
           metadata: widget.metadata,
+          // CGFLIX: o logo abre temporadas da série; filme continua somente título.
+          title: widget.heisucaTrackState == null ? null : HeisucaPlayerTitle(metadata: widget.metadata,
+            onEpisodes: widget.canControl && widget.onSeriesEpisodeSelected != null && heisucaPlayerSeriesId(widget.metadata) != null
+              ? _showSeriesEpisodes : null),
           style: VideoHeaderStyle.multiLine,
           onCancelAutoHide: widget.onCancelAutoHide,
           onStartAutoHide: widget.onStartAutoHide,
@@ -344,6 +351,21 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
     );
 
     return DesktopAppBarHelper.wrapWithGestureDetector(topBar, opaque: true);
+  }
+
+  // CGFLIX: usa a mesma navegação real e as mesmas permissões da fila.
+  Future<void> _showSeriesEpisodes() async {
+    widget.onCancelAutoHide?.call();
+    widget.onStripVisibilityChanged?.call(true);
+    try {
+      final selected = await showHeisucaSeriesEpisodes(context, widget.metadata);
+      if (mounted && selected != null) widget.onSeriesEpisodeSelected?.call(selected);
+    } finally {
+      if (mounted) {
+        widget.onStripVisibilityChanged?.call(false);
+        widget.onStartAutoHide?.call();
+      }
+    }
   }
 
   Widget _buildPlaybackControls(BuildContext _) {
@@ -433,7 +455,7 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
           label: Text(widget.showQueueTab ? 'Episódios' : 'Capítulos', style: const TextStyle(color: Colors.white))),
         if (widget.onPrevious != null) IconButton(tooltip: 'Anterior', onPressed: widget.onPrevious,
           icon: const Icon(Icons.skip_previous, color: Colors.white)),
-        if (widget.onNext != null) IconButton(tooltip: 'Próximo', onPressed: widget.onNext,
+        if (widget.onNext != null && widget.heisucaTrackState == null) IconButton(tooltip: 'Próximo', onPressed: widget.onNext,
           icon: const Icon(Icons.skip_next, color: Colors.white)),
       ])));
 
@@ -441,12 +463,11 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
   Widget _buildBottomActions() {
     final state = widget.heisucaTrackState;
     if (state == null || !widget.canControl) return _buildActionDock();
-    return Align(alignment: Alignment.centerLeft, child: HeisucaPlayerTabs(
+    return Align(alignment: Alignment.centerRight, child: HeisucaPlayerTabs(
       player: widget.player,
       state: state,
       episodesLabel: widget.showQueueTab ? 'Episódios' : 'Capítulos',
       onEpisodes: _hasStripContent ? () { widget.onCancelAutoHide?.call(); _stripAnim.forward(); } : null,
-      onNext: widget.onNext,
     ));
   }
 

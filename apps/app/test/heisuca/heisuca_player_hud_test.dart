@@ -71,22 +71,22 @@ void main() {
     return (calls: calls, rates: rates);
   }
 
-  testWidgets('HUD 07A: pílulas no topo, linha de texto embaixo, callbacks reais', (tester) async {
+  testWidgets('HUD: ações reais, ajustes à direita e sem botão Próximo', (tester) async {
     final r = await pumpHud(tester);
     expect(tester.takeException(), isNull);
     expect(find.text('RÉGUA ANTIGA'), findsNothing, reason: 'a régua apertada saiu do celular');
     expect(find.textContaining('Japonês 5.1'), findsOneWidget, reason: 'idioma e canais, como no 07A');
     expect(find.textContaining('Português (ASS)'), findsOneWidget);
     expect(find.text('Ajustes'), findsOneWidget);
-    expect(find.text('Próximo'), findsOneWidget);
+    // Caio, 24/10: Próximo saiu do HUD; cartão de fim e avanço automático permanecem no player.
+    expect(find.text('Próximo'), findsNothing);
     expect(find.byIcon(Symbols.replay_10_rounded), findsOneWidget);
     expect(find.byIcon(Symbols.forward_10_rounded), findsOneWidget);
     await tester.tap(find.text('Original'));
     await tester.tap(find.byIcon(Symbols.picture_in_picture_alt_rounded));
     await tester.tap(find.byIcon(Symbols.lock_rounded));
-    await tester.tap(find.text('Próximo'));
-    expect(r.calls, ['proporção', 'janelinha', 'travar', 'próximo']);
-    await tester.tap(find.text('1,0x'));
+    expect(r.calls, ['proporção', 'janelinha', 'travar']);
+    await tester.tap(find.textContaining('1,0x'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('1,5x').last);
     await tester.pumpAndSettle();

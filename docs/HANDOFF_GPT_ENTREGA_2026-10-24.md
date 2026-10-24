@@ -91,3 +91,20 @@ Não houve alteração de VPS, Sonarr ou configuração Jellyfin.
 
 O run verde acima valida o portão do workflow, não a suíte completa dos 16 testes
 fora dele. Não declarar os sete itens entregues enquanto a tabela indicar pendências.
+
+## Item 2 — player — 2.0.15+16 — enviado para validação
+Ainda não aprovado; não testado em aparelho.
+- Novo `lib/heisuca/player/heisuca_series_episodes.dart`: logo de série/filme com reserva
+  em texto, código e nome próprio do episódio, seletor com abas de temporada, miniaturas,
+  duração, progresso, ocultação de spoilers e rolagem no episódio atual.
+- `lib/heisuca/player/heisuca_player_hud.dart`: remove Próximo do HUD e agrupa áudio,
+  legendas, velocidade e ajustes à direita; proporção/PiP/rotação/trava continuam no topo.
+- Ganchos mínimos em `mobile_video_controls.dart`, `video_controls.dart` e
+  `widgets/video_controls_header.dart`: reaproveitam callback real de navegação e
+  permissões; não alteram avanço automático nem cartão de próximo episódio.
+- Testes `heisuca_player_hud_test.dart` atualizados com motivo da decisão de Caio;
+  novo `heisuca_series_episodes_test.dart` cobre título, seleção entre temporadas,
+  rolagem atual e verifica referências ao protótipo antigo no código do ramo.
+- Protótipo antigo ainda preservado até o teste de referências confirmar a remoção.
+  Se confirmado, limpeza será feita em commit próprio conforme o handoff.
+- Commit/run verde/APK: pendentes. Não declarar os próximos itens entregues.

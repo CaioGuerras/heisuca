@@ -76,19 +76,6 @@ class HeisucaPlayerQuickActions extends StatelessWidget {
   /// Retrato: só ícones, para caber ao lado do título.
   final bool compact;
 
-  Future<void> _chooseRate(BuildContext context, double current) async {
-    state.onCancelAutoHide?.call();
-    final box = context.findRenderObject() as RenderBox?;
-    final origin = box?.localToGlobal(Offset.zero) ?? Offset.zero;
-    final size = box?.size ?? Size.zero;
-    final rate = await showMenu<double>(context: context, color: const Color(0xF0141018),
-      position: RelativeRect.fromLTRB(origin.dx, origin.dy + size.height + 4, origin.dx + size.width, 0),
-      items: [for (final r in _speeds) CheckedPopupMenuItem(value: r, checked: (r - current).abs() < .01,
-        child: Text(r == 1 ? '1,0x (normal)' : heisucaRateLabel(r), style: const TextStyle(color: Colors.white)))]);
-    state.onStartAutoHide?.call();
-    if (rate == null) return;
-    if (state.onRateRequested != null) { await state.onRateRequested!(rate); } else { await player.setRate(rate); }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,14 +85,6 @@ class HeisucaPlayerQuickActions extends StatelessWidget {
         label: compact ? null : heisucaBoxFitLabel(state.boxFitMode),
         semanticLabel: 'Proporção da imagem: ${heisucaBoxFitLabel(state.boxFitMode)}',
         onTap: state.onCycleBoxFitMode),
-      if (!state.isLive) StreamBuilder<double>(stream: player.streams.rate, initialData: player.state.rate,
-        builder: (context, snap) {
-          final rate = snap.data ?? 1;
-          return Builder(builder: (pillContext) => HeisucaPlayerPill(
-            label: compact && rate == 1 ? null : heisucaRateLabel(rate),
-            icon: compact && rate == 1 ? Symbols.speed_rounded : null,
-            active: rate != 1, semanticLabel: 'Velocidade', onTap: () => _chooseRate(pillContext, rate)));
-        }),
       if (state.onTogglePIPMode != null) HeisucaPlayerPill(icon: Symbols.picture_in_picture_alt_rounded,
         semanticLabel: 'Janelinha', onTap: state.onTogglePIPMode),
       if (state.onToggleRotationLock != null) HeisucaPlayerPill(
@@ -119,7 +98,7 @@ class HeisucaPlayerQuickActions extends StatelessWidget {
   }
 }
 
-/// Linha de baixo do 07A: valores de áudio e legenda em destaque, depois Episódios, Ajustes e Próximo.
+/// Caio, 24/10: áudio/legendas, velocidade e ajustes no grupo à direita; episódios ficam no logo.
 class HeisucaPlayerTabs extends StatelessWidget {
   const HeisucaPlayerTabs({super.key, required this.player, required this.state, this.onEpisodes, this.episodesLabel, this.onNext});
   final Player player;
@@ -171,16 +150,38 @@ class HeisucaPlayerTabs extends StatelessWidget {
         final audio = audioValue(tracks, selection);
         final hasSubs = state.hasSubtitleControls(tracks);
         void openTracks() => _openSheet(context, state, (_) => TrackSheet(player: player, trackControlsState: state));
-        return SingleChildScrollView(scrollDirection: Axis.horizontal, child: Row(spacing: 18, children: [
+        return LayoutBuilder(builder: (context, box) => SingleChildScrollView(scrollDirection: Axis.horizontal,
+          child: ConstrainedBox(constraints: BoxConstraints(minWidth: box.maxWidth),
+            child: Row(mainAxisAlignment: MainAxisAlignment.end, mainAxisSize: MainAxisSize.min, spacing: 12, children: [
           if (audio != null) tab(text: 'Áudio', value: audio, onTap: openTracks, semantic: 'Áudio: $audio. Trocar faixas'),
           if (hasSubs) tab(text: 'Legendas', value: subtitleValue(tracks, selection, visible: state.subtitlesVisible),
             onTap: openTracks, semantic: 'Legendas. Trocar faixas'),
           if (audio == null && !hasSubs) tab(text: 'Áudio e legendas', onTap: openTracks, semantic: 'Áudio e legendas'),
-          if (onEpisodes != null) tab(text: episodesLabel ?? 'Episódios', onTap: onEpisodes!, semantic: episodesLabel ?? 'Episódios'),
+          if (!state.isLive) StreamBuilder<double>(stream: player.streams.rate, initialData: player.state.rate,
+            builder: (context, snapshot) {
+              final rate = snapshot.data ?? 1.0;
+              return tab(text: 'Velocidade', value: heisucaRateLabel(rate),
+                onTap: () => heisucaChooseRate(context, player, state, rate), semantic: 'Velocidade');
+            }),
           tab(text: 'Ajustes', onTap: () => _openSheet(context, state, (_) => VideoSettingsSheet(player: player, trackControlsState: state)),
             semantic: 'Ajustes do vídeo'),
-          if (onNext != null) tab(text: 'Próximo', icon: Symbols.skip_next_rounded, onTap: onNext!, semantic: 'Próximo episódio'),
-        ]));
+
+        ]))));
       }));
   }
 }
+
+Future<void> heisucaChooseRate(BuildContext context, Player player, TrackControlsState state, double current) async {
+    state.onCancelAutoHide?.call();
+    final box = context.findRenderObject() as RenderBox?;
+    final origin = box?.localToGlobal(Offset.zero) ?? Offset.zero;
+    final size = box?.size ?? Size.zero;
+    final rate = await showMenu<double>(context: context, color: const Color(0xF0141018),
+      position: RelativeRect.fromLTRB(origin.dx, origin.dy + size.height + 4, origin.dx + size.width, 0),
+      items: [for (final r in _speeds) CheckedPopupMenuItem(value: r, checked: (r - current).abs() < .01,
+        child: Text(r == 1 ? '1,0x (normal)' : heisucaRateLabel(r), style: const TextStyle(color: Colors.white)))]);
+    state.onStartAutoHide?.call();
+    if (rate == null) return;
+    if (state.onRateRequested != null) { await state.onRateRequested!(rate); } else { await player.setRate(rate); }
+  }
+

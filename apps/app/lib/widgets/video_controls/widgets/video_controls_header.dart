@@ -25,6 +25,7 @@ enum VideoHeaderStyle {
 /// Supports both single-line (macOS) and multi-line (other platforms) layouts.
 class VideoControlsHeader extends StatelessWidget {
   final MediaItem metadata;
+  final Widget? title; // CGFLIX: título/logo da marca sem duplicar os indicadores.
   final VideoHeaderStyle style;
 
   /// Optional trailing widget (e.g., track/chapter controls)
@@ -43,6 +44,7 @@ class VideoControlsHeader extends StatelessWidget {
   const VideoControlsHeader({
     super.key,
     required this.metadata,
+    this.title,
     this.style = VideoHeaderStyle.multiLine,
     this.trailing,
     this.onBack,
@@ -59,9 +61,9 @@ class VideoControlsHeader extends StatelessWidget {
         AppBarBackButton(style: BackButtonStyle.video, onPressed: onBack ?? () => Navigator.of(context).pop(true)),
         const SizedBox(width: 16),
         Expanded(
-          child: style == VideoHeaderStyle.singleLine
+          child: title ?? (style == VideoHeaderStyle.singleLine
               ? _buildSingleLineTitle(itemTitle)
-              : _buildMultiLineTitle(itemTitle),
+              : _buildMultiLineTitle(itemTitle)),
         ),
         Selector<WatchTogetherProvider, bool>(
           selector: (_, p) => p.isInSession,

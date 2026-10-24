@@ -1372,6 +1372,8 @@ class _PlexVideoControlsState extends State<PlexVideoControls>
                                                       serverId: widget.metadata.serverId,
                                                       showQueueTab: canShowQueue,
                                                       onQueueItemSelected: canShowQueue ? _onQueueItemSelected : null,
+                                                      // CGFLIX: todas as temporadas, mesmo sem fila ativa.
+                                                      onSeriesEpisodeSelected: widget.canNavigateMediaItems ? _onQueueItemSelected : null,
                                                       chromeController: widget.chromeController,
                                                       onStripVisibilityChanged: (visible) {
                                                         if (visible) {

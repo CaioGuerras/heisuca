@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../cgflix/cgflix_palette.dart';
-import '../cgflix/cgflix_navigation.dart';
 import '../cgflix/home/cgflix_actions.dart';
 import '../media/library_query.dart';
 import '../media/media_item.dart';
@@ -15,7 +14,8 @@ import '../providers/hidden_libraries_provider.dart';
 import 'heisuca_media_category.dart';
 import 'heisuca_poster_tile.dart';
 import 'heisuca_source_scope.dart';
-import 'kids/heisuca_kids_flow.dart';
+import '../cgflix/you/cgflix_favorites_screen.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 /// Biblioteca Heisuca: grade de pôsteres, filtros em pílulas e dados paginados da fonte ativa.
 class HeisucaLibraryScreen extends StatefulWidget {
@@ -117,7 +117,6 @@ class _HeisucaLibraryScreenState extends State<HeisucaLibraryScreen> with Refres
   Widget build(BuildContext context) {
     final p = context.cgflix;
     return Scaffold(backgroundColor: p.background, appBar: AppBar(title: const Text('Biblioteca'), actions: [
-      if (!heisucaKidsActive(context)) IconButton(tooltip: 'Baixados', onPressed: () => cgflixOpenDownloads(context), icon: const Icon(Icons.download_outlined)),
       PopupMenuButton<String>(tooltip: 'Ordenar', icon: const Icon(Icons.sort), onSelected: (field) {
         _sort = LibrarySort(field: field, direction: field == 'title' ? LibrarySortDirection.ascending : LibrarySortDirection.descending); _reload();
       }, itemBuilder: (_) => const [PopupMenuItem(value: 'title', child: Text('Título A–Z')), PopupMenuItem(value: 'addedAt', child: Text('Adicionados recentemente')), PopupMenuItem(value: 'rating', child: Text('Nota'))]),
@@ -129,6 +128,10 @@ class _HeisucaLibraryScreenState extends State<HeisucaLibraryScreen> with Refres
           for (final source in _sources) Padding(padding: const EdgeInsets.only(right: 8), child: ChoiceChip(
             label: Text(source.library.title), selected: source == _selected,
             onSelected: (_) { if (source != _selected) _choose(source); })),
+          // Caio, 24/10: Favoritos saiu da pílula (virou Baixados) e fica aqui, depois das bibliotecas.
+          if (CgflixFavoritesSource.of(context) case final fav?) ActionChip(
+            avatar: const Icon(Symbols.favorite_rounded, size: 18), label: const Text('Favoritos'),
+            onPressed: () => cgflixOpenFavorites(context, fav)),
         ])),
       Padding(padding: const EdgeInsets.fromLTRB(16, 6, 16, 10), child: TextField(controller: _search,
         decoration: const InputDecoration(hintText: 'Buscar nesta biblioteca', prefixIcon: Icon(Icons.search)),

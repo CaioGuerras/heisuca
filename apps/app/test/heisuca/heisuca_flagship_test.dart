@@ -246,7 +246,7 @@ void main() {
   });
 
   group('HeisucaFloatingIsland', () {
-    testWidgets('exibe abas Início, Biblioteca, Favoritos e Você com resposta ao toque', (tester) async {
+    testWidgets('exibe abas Início, Biblioteca, Baixados e Você só com ícones e resposta ao toque', (tester) async {
       int selecionado = 0;
       await _montar(
         tester,
@@ -265,12 +265,14 @@ void main() {
         ),
       );
 
-      expect(find.text('Início'), findsOneWidget);
-      expect(find.text('Biblioteca'), findsOneWidget);
-      expect(find.text('Favoritos'), findsOneWidget);
-      expect(find.text('Você'), findsOneWidget);
+      // Caio, 24/10: sem nome embaixo do ícone; o nome fica para o leitor de tela.
+      for (final nome in ['Início', 'Biblioteca', 'Baixados', 'Você']) {
+        expect(find.text(nome), findsNothing);
+        expect(find.bySemanticsLabel(nome), findsOneWidget);
+      }
+      expect(find.bySemanticsLabel('Favoritos'), findsNothing);
 
-      await tester.tap(find.text('Biblioteca'));
+      await tester.tap(find.bySemanticsLabel('Biblioteca'));
       await tester.pumpAndSettle();
       expect(selecionado, 1);
     });
@@ -327,11 +329,14 @@ void main() {
       expect(find.text('Baixados & Offline'), findsOneWidget);
       expect(find.text('Favoritos'), findsOneWidget);
       expect(find.text('Todas as Bibliotecas'), findsOneWidget);
-      expect(find.text('PREFERÊNCIAS & SISTEMA'), findsOneWidget);
+      // Caio, 24/10: menu por assunto.
+      for (final secao in ['CONTA', 'FAMÍLIA', 'APP']) {
+        expect(find.text(secao), findsOneWidget);
+      }
       expect(find.text('Configurações Heisuca'), findsOneWidget);
       expect(find.text('Sobre o Heisuca'), findsOneWidget);
-      expect(find.text('CONTA & ACESSO'), findsOneWidget);
       expect(find.text('Trocar perfil'), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('Sair da Conta'), 300, scrollable: find.byType(Scrollable).first);
       expect(find.text('Sair da Conta'), findsOneWidget);
 
       // Descontaminação estrita: NÃO deve conter apoio nem opções legadas do CGFLIX

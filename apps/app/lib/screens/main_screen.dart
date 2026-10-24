@@ -1,6 +1,7 @@
 import '../heisuca/heisuca_library_screen.dart';
 import '../cgflix/cgflix_navigation.dart';
 import '../heisuca/heisuca_floating_island.dart';
+import '../heisuca/kids/heisuca_kids_flow.dart';
 import '../heisuca/heisuca_home_screen.dart';
 import '../heisuca/heisuca_profile_screen.dart';
 import '../cgflix/you/cgflix_favorites_screen.dart';
@@ -2360,7 +2361,7 @@ class _MainScreenState extends State<MainScreen>
     final tabIndex = switch (_currentTab) {
       NavigationTabId.discover => 0,
       NavigationTabId.libraries => 1,
-      NavigationTabId.search => 2,
+      NavigationTabId.downloads => 2,
       _ => 0,
     };
 
@@ -2382,6 +2383,7 @@ class _MainScreenState extends State<MainScreen>
           HeisucaFloatingIsland(
             currentIndex: tabIndex,
             userLabel: activeProfile?.displayName.split(RegExp(r'[\s._-]')).first ?? 'Você',
+            kids: heisucaKidsActive(context),
             userAvatar: activeProfile == null ? null : ProfileAvatar(profile: activeProfile, size: 23, avatarUrl: profiles?.avatarUrlFor(activeProfile.id)),
             onLibrariesLongPress: () {
               Feedback.forLongPress(context);
@@ -2390,7 +2392,8 @@ class _MainScreenState extends State<MainScreen>
             onDestinationSelected: (i) {
               if (i == 0) _selectTab(NavigationTabId.discover);
               if (i == 1) _selectTab(NavigationTabId.libraries);
-              if (i == 2) {
+              if (i == 2 && !heisucaKidsActive(context, listen: false)) _selectTab(NavigationTabId.downloads);
+              if (i == 2 && heisucaKidsActive(context, listen: false)) {
                 final source = CgflixFavoritesSource.of(context);
                 if (source != null) {
                   cgflixOpenFavorites(context, source);

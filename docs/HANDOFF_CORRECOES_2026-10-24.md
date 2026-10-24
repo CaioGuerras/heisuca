@@ -1,5 +1,35 @@
 # Heisuca Android — retorno após Claude 2.0.8 — 24/10/2026
 
+## Claude retomou em 24/10 — estado atual: 2.0.10+11 (AGUARDA TESTE NO APARELHO)
+
+O Codex/GPT parou com o código da rodada pronto e o **build reprovado** (3 runs com falha/cancelados; o último,
+40043854184 em `afec0ac`: 349 testes ok, 1 falha). Claude, a partir de `2106db4`:
+
+- **Build destravado (`6990283`):** a falha era do teste do buffer, que procurava o controle sem rolar a lista
+  preguiçosa da aba Avançado. O controle estava certo. Biometria isolada em `@RequiresApi(28)` para o lint NewApi
+  do release (minSdk 25). Run 40048315939 **verde** (2.0.9+10): o Kotlin novo compila e passa no lint.
+- **Revisão das mudanças do GPT:** detecção de tablet (menor lado ≥ 600 dp) está certa e explica o "player com
+  estilo antigo" (com tamanho de exibição menor, o Edge virava tablet e caía na régua antiga). Buffer mpv com teto
+  (≤ 512 MB ou metade do heap), splash claro (mesmo selo, cor Hisui) e workflow: sem problemas.
+- **Ficha lenta (`cd9a012`, 2.0.10+11):** medido no servidor: o Jellyfin responde a cadeia da ficha em 8–130 ms,
+  mas pelo endereço público cada ida custa ~250 ms (conexão reaproveitada) e a ficha fazia 5 em fila ≈ 1,7 s de
+  espera. Agora temporadas e episódios da temporada conhecida saem junto com o item; ancestrais e NextUp em
+  paralelo; recarga ao voltar do player é silenciosa. Teste prova o paralelismo.
+- **Apotecária lenta (servidor, sem mudança):** o episódio fica no gdrive10. O log do rclone mostra o arquivo
+  removido do cache VFS com `maxAge=0` 4 min depois do play (cache de 10 GB cheio, despejo imediato): todo play a
+  partir da nuvem começa a frio. Ajustar cache/tiering é mudança de armazenamento ([C], pede OK do Caio).
+- **Imagens na 1ª abertura:** 1ª busca de cada imagem 0,35–0,95 s (o Jellyfin redimensiona); a VPS já guarda 30
+  dias (proxy_cache). Proposta [C]: aquecer o cache da VPS com as imagens da Home dos perfis.
+- **Parallax (pergunta do Caio):** faz sentido com moderação, só no topo (arte do destaque e da ficha rolando mais
+  devagar), barato com Transform e desligado em "reduzir movimento". Nada de inclinação em cartões. Depois de validar
+  o player e a fluidez no aparelho.
+- **APK 2.0.10+11:** run https://github.com/CaioGuerras/heisuca/actions/runs/40049863934 (verde), artifact
+  https://github.com/CaioGuerras/heisuca/actions/runs/40049863934/artifacts/12543147457 (expira 07/11/2026). ZIP sha256
+  `f3c75ca4…7516` (= digest do Actions); APK 98.612.338 bytes, sha256 `5e846610…f9fc`; versionCode 2011; certificado
+  `19160423…f95c` (atualiza por cima); permissões de biometria presentes. Conferido com androguard; sem teste físico.
+- **Plex ao vivo:** o Caio adicionou o Plex dele e confirmou que funciona como o Jellyfin; não testado por automação.
+
+
 ## Ponto de partida e autorização
 
 Caio pediu ao Codex para assumir as correções após testar as atualizações do Claude

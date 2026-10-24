@@ -46,3 +46,8 @@ Commitar na própria branch `codex/heisuca-*`: a chave de teste do cache é por 
 Ler `docs/REVISAO_CLAUDE_2026-10-23.md` (estado por pilar: feito × aparelho × pendente). Modo infantil em
 `lib/heisuca/kids/` (servidor: cgflix-kids na VPS, rota `/__kids/`). Temas Ichigo/Sorairo só pelo perfil infantil.
 Guarda de player neutro: `test/heisuca/heisuca_neutral_server_test.dart` (nenhum docaio.com.br no código).
+
+## Claude em 24/10/2026 — 2.0.10+11
+
+Estado e próximos passos no topo de `docs/HANDOFF_CORRECOES_2026-10-24.md` (build do GPT destravado, ficha
+paralelizada, diagnósticos de servidor: cache rclone cheio e imagens a frio). Aguarda teste do Caio no aparelho.

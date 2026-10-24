@@ -52,3 +52,13 @@ o ícone instalado não foi trocado e não houve merge ou release.
 Correção de contrato: rota de pessoa confirmada em https://developer.plex.tv/pms/;
 teste HTTP simulado verifica `/library/people/42`, GUID externo e ausência de TMDB.
 O run intermediário 40102571153 foi substituído por esta correção antes da validação final.
+
+## Correções do portão do item 1
+Run vermelho: https://github.com/CaioGuerras/heisuca/actions/runs/40102809456
+Resultado: 351 aprovados, 2 falhas, 3 ignorados. Análise de lib sem erro novo.
+Uma falha nova era a assinatura dos fakes de paginação: start/size são int? no contrato
+real. Corrigida no teste. A outra já estava na base: a guarda de neutralidade rejeitava
+a constante do relay próprio da versão 2.0.12. Ajustado o teste com exceção EXATA
+(arquivo, declaração e URL /junto), sem permitir endereço de mídia/login embutido.
+Essa falha não estava na lista dos 16 recebida do Claude. Nenhum código de servidor alterado.
+Nova execução necessária; ainda não aprovado e sem APK validado.

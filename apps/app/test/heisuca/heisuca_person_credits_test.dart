@@ -25,10 +25,10 @@ class _Pages extends MediaServerClient {
   @override ServerId get serverId => ServerId('server');
   @override MediaBackend get backend => MediaBackend.jellyfin;
   @override Future<LibraryPage<MediaItem>> fetchPersonMediaPage(String personId,
-      {int start = 0, int size = 200, AbortController? abort}) async {
-    offsets.add(start);
-    return LibraryPage(items: [MediaItem.jellyfin(id: '$start', kind: MediaKind.movie, serverId: 'server')],
-      totalCount: 3, offset: start);
+      {int? start, int? size, AbortController? abort}) async {
+    offsets.add(start ?? 0);
+    return LibraryPage(items: [MediaItem.jellyfin(id: '${start ?? 0}', kind: MediaKind.movie, serverId: 'server')],
+      totalCount: 3, offset: start ?? 0);
   }
   @override dynamic noSuchMethod(Invocation invocation) => null;
 }
@@ -43,8 +43,8 @@ class _Source extends _Pages {
     MediaPerson(id: '$name-person', name: 'Sadie Sink', backend: backend, serverId: serverId),
   ];
   @override Future<LibraryPage<MediaItem>> fetchPersonMediaPage(String personId,
-      {int start = 0, int size = 200, AbortController? abort}) async {
-    offsets.add(start);
+      {int? start, int? size, AbortController? abort}) async {
+    offsets.add(start ?? 0);
     return LibraryPage(items: [MediaItem(id: name, serverId: name, backend: backend,
       kind: movie ? MediaKind.movie : MediaKind.show,
       title: movie ? 'Filme da Sadie' : 'Stranger Things')], totalCount: 1);

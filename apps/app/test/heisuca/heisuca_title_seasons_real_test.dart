@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -54,6 +55,9 @@ final _rezeroFile = parseJellyfinFileInfoFromJson({'MediaSources': [{
 }]})!;
 
 class _Client extends MediaServerClient {
+  /// Quando definido, segura a resposta do item até o teste completar (prova o paralelismo).
+  Completer<void>? holdItem;
+  final childRequests = <String>[];
   _Client({required this.series, required this.seasons, required this.episodesBySeason, this.onDeck, this.fileInfo});
   final MediaFileInfo? fileInfo;
   final MediaItem series;
@@ -67,12 +71,15 @@ class _Client extends MediaServerClient {
   @override Future<({MediaItem? item, MediaItem? onDeckEpisode})> fetchItemWithOnDeck(String id,
       {void Function(MediaItem)? onItemReady}) async {
     itemRequests.add(id);
+    if (holdItem != null) await holdItem!.future;
     if (id == series.id) return (item: series, onDeckEpisode: onDeck);
     final all = episodesBySeason.values.expand((e) => e);
     return (item: all.where((e) => e.id == id).firstOrNull, onDeckEpisode: null);
   }
-  @override Future<List<MediaItem>> fetchChildren(String id) async =>
-      id == series.id ? seasons : episodesBySeason[id] ?? const [];
+  @override Future<List<MediaItem>> fetchChildren(String id) async {
+    childRequests.add(id);
+    return id == series.id ? seasons : episodesBySeason[id] ?? const [];
+  }
   @override String thumbnailUrl(String? path, {int? width, int? height, bool cover = true}) => '';
   @override Future<MediaFileInfo?> getFileInfo(MediaItem item) async => fileInfo;
   @override Future<List<MediaHub>> fetchRelatedHubs(String id, {int count = 10}) async => const [];
@@ -247,5 +254,31 @@ void main() {
     await tester.tap(find.text('Temporada 4'));
     await tester.pumpAndSettle();
     await expectLater(find.byType(MaterialApp), matchesGoldenFile('../visual/out/ficha_rezero_temporadas.png'));
+  });
+
+  testWidgets('ficha pede temporadas e a temporada do episódio junto com o item (sem fila)', (tester) async {
+    const name = 'Re:Zero - Começando uma Vida em Outro Mundo';
+    final series = _map(_series('rz', name));
+    final entry = _map(_episode('rz', name, 4, 19, 'Shaula / Herói'));
+    final client = _Client(series: series, seasons: [for (final i in [1, 2, 3, 4]) _map(_season('rz', name, i))],
+      episodesBySeason: {'rz-s4': [entry]})..holdItem = Completer<void>();
+    tester.view.physicalSize = const Size(412, 914);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final manager = MultiServerManager()..debugRegisterClientForTesting(client);
+    final servers = MultiServerProvider(manager, DataAggregationService(manager));
+    addTearDown(servers.dispose);
+    addTearDown(manager.dispose);
+    await tester.pumpWidget(ChangeNotifierProvider.value(value: servers, child: MaterialApp(
+      theme: cgflixAppTheme(CgflixThemeVariant.isis),
+      home: Builder(builder: (ctx) => HeisucaTitleSheet(hostContext: ctx, item: entry)))));
+    await tester.pump();
+    expect(client.itemRequests, ['rz']);
+    expect(client.childRequests, containsAll(['rz', 'rz-s4']), reason: 'pedidos já saíram com o item ainda pendente');
+    client.holdItem!.complete();
+    await tester.pumpAndSettle();
+    expect(client.childRequests.where((id) => id == 'rz-s4').length, 1, reason: 'a temporada antecipada não é pedida de novo');
+    expect(find.text('Temporada 4', skipOffstage: false), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
   });
 }

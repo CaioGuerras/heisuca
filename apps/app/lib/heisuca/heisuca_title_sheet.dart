@@ -120,12 +120,26 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
   Future<void> _load({bool refresh = false}) async {
     final generation = ++_loadGeneration;
     ++_episodeGeneration;
-    setState(() { _loading = true; _error = null; });
+    // Recarga (volta do player, marcar visto) é silenciosa: o conteúdo fica na tela, sem barra.
+    final silent = refresh || _seasons.isNotEmpty || _episodes.isNotEmpty;
+    setState(() { _loading = !silent; _error = null; });
     try {
       final client = cgflixClientFor(context, _item);
       if (client == null) throw StateError('offline');
       final entry = widget.item;
       final seriesId = _item.kind == MediaKind.show ? null : heisucaSeriesIdFor(entry);
+      // Em paralelo com o item (antes era tudo em fila: item → ancestrais → próximo → temporadas →
+      // episódios, ~5 idas ao servidor). Temporadas e a temporada já conhecida começam agora.
+      final knownSeries = seriesId ?? (_item.kind == MediaKind.show ? _item.id : null);
+      final seasonsFuture = knownSeries == null || (refresh && _seasons.isNotEmpty) ? null
+          : Future.sync(() => client.fetchChildren(knownSeries));
+      final knownSeasonId = _season?.id ?? (entry.kind == MediaKind.season ? entry.id
+          : entry.kind == MediaKind.episode ? entry.parentId : null);
+      if (knownSeasonId != null && knownSeries != null) {
+        _prefetchedEpisodes = (knownSeasonId, Future.sync(() => client.fetchChildren(knownSeasonId)));
+      }
+      seasonsFuture?.ignore();
+      _prefetchedEpisodes?.$2.ignore();
       final result = await client.fetchItemWithOnDeck(seriesId ?? _item.id, onItemReady: (ready) {
         if (!mounted || generation != _loadGeneration) return;
         if (seriesId == null || ready.kind == MediaKind.show) setState(() => _item = ready);
@@ -152,7 +166,8 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
         if (previousTarget != _target?.id) _fileInfo = null;
       });
       if (_item.kind == MediaKind.show) {
-        final seasons = refresh && _seasons.isNotEmpty ? _seasons : await client.fetchChildren(_item.id);
+        final seasons = refresh && _seasons.isNotEmpty ? _seasons
+            : await (seasonsFuture != null && knownSeries == _item.id ? seasonsFuture : client.fetchChildren(_item.id));
         if (!mounted || generation != _loadGeneration) return;
         _seasons = seasons.where((s) => s.kind == MediaKind.season).toList()
           ..sort((a,b) => (a.index ?? 0).compareTo(b.index ?? 0));
@@ -179,13 +194,18 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
     }
   }
 
+  (String, Future<List<MediaItem>>)? _prefetchedEpisodes;
+
   Future<void> _loadSeason(MediaItem season, {bool retain = false}) async {
     final generation = ++_episodeGeneration;
     setState(() { _season = season; if (!retain) { _episodes = []; _group = 0; } _loadingEpisodes = true; _episodeError = null; });
     try {
       final client = cgflixClientFor(context, _item);
       if (client == null) throw StateError('offline');
-      final episodes = await client.fetchChildren(season.id);
+      // Usa a busca antecipada do _load quando é a mesma temporada (não pede duas vezes).
+      final prefetched = _prefetchedEpisodes;
+      _prefetchedEpisodes = null;
+      final episodes = await (prefetched != null && prefetched.$1 == season.id ? prefetched.$2 : client.fetchChildren(season.id));
       if (!mounted || generation != _episodeGeneration) return;
       episodes.sort((a,b) => (a.index ?? 0).compareTo(b.index ?? 0));
       setState(() {

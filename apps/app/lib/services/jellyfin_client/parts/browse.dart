@@ -725,9 +725,10 @@ mixin _JellyfinBrowseMethods on _JellyfinClientInternals {
     final item = await fetchItem(id);
     if (item == null) return (item: null, onDeckEpisode: null);
     onItemReady?.call(item);
-    final stamped = isOfflineMode ? item : await _withLibraryFromAncestors(item);
-    if (item.kind != MediaKind.show) return (item: stamped, onDeckEpisode: null);
-    final nextUp = await _safeFetchItemsArray('/Shows/NextUp', {
+    // Heisuca: ancestrais e NextUp em paralelo (cada ida ao servidor custa ~250 ms pela VPS).
+    final stampedFuture = isOfflineMode ? Future.value(item) : _withLibraryFromAncestors(item);
+    if (item.kind != MediaKind.show) return (item: await stampedFuture, onDeckEpisode: null);
+    final nextUpFuture = _safeFetchItemsArray('/Shows/NextUp', {
       'seriesId': id,
       'userId': connection.userId,
       'Limit': '1',
@@ -735,6 +736,8 @@ mixin _JellyfinBrowseMethods on _JellyfinClientInternals {
       if (sendNextUpRewatching) 'EnableRewatching': 'true',
       ...jellyfinImageQueryParameters,
     });
+    final stamped = await stampedFuture;
+    final nextUp = await nextUpFuture;
     final onDeckEpisode = nextUp.isEmpty ? null : _mapItem(nextUp.first);
     return (item: stamped, onDeckEpisode: onDeckEpisode);
   }

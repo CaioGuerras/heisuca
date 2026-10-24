@@ -1,5 +1,11 @@
 # Heisuca — continuidade entre agentes
 
+## Estado mais recente — Codex 24/10/2026, 2.0.9+10
+
+Leia primeiro `docs/HANDOFF_CORRECOES_2026-10-24.md`: retorno após o Claude 2.0.8,
+correções, evidências de testes e limites. Não confundir código implementado com teste
+físico aprovado. O documento registra o status final do APK quando disponível.
+
 Antes de alterar Android, leia `apps/app/CLAUDE.md` e `docs/HANDOFF_ANDROID_2026-10-22.md`.
 A instrução atual de Caio é usar o SITE como referência de Home, incluindo composição,
 logo que encaixa no topo, bibliotecas e Em breve. O esboço Android antigo não prevalece

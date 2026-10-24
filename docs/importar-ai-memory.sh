@@ -10,8 +10,8 @@ command -v ai-memory >/dev/null
 handoff_dir="$(cd "$(dirname "$0")" && pwd)"
 handoff_readback="$(mktemp)"
 trap 'rm -f "$handoff_readback"' EXIT
-handoff_files=(HANDOFF_ANDROID_2026-10-22.md PROXIMA_ETAPA_TITULO_FONTES_AJUSTES_2026-10-23.md HANDOFF_FICHA_FONTES_PLAYER_2026-10-23.md)
-handoff_pages=(handoffs/heisuca-android-2026-10-22.md handoffs/heisuca-proposta-ficha-2026-10-23.md handoffs/heisuca-ficha-fontes-player-2026-10-23.md)
+handoff_files=(HANDOFF_ANDROID_2026-10-22.md PROXIMA_ETAPA_TITULO_FONTES_AJUSTES_2026-10-23.md HANDOFF_FICHA_FONTES_PLAYER_2026-10-23.md HANDOFF_CORRECOES_2026-10-24.md)
+handoff_pages=(handoffs/heisuca-android-2026-10-22.md handoffs/heisuca-proposta-ficha-2026-10-23.md handoffs/heisuca-ficha-fontes-player-2026-10-23.md handoffs/heisuca-correcoes-2026-10-24.md)
 for handoff_index in "${!handoff_files[@]}"; do
   handoff_source="$handoff_dir/${handoff_files[$handoff_index]}"
   handoff_page="${handoff_pages[$handoff_index]}"

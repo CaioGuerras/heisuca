@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../test_helpers/backend_client_fixtures.dart';
+import 'package:plezy/services/plex_client.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -102,6 +106,23 @@ void main() {
     expect(page.items.map((item) => item.title), containsAll(['Filme da Sadie', 'Stranger Things']));
     expect(a.offsets, [0]); expect(b.offsets, [0]);
     expect(tester.takeException(), isNull);
+  });
+
+  test('Plex consulta people, não metadata; tagKey não vira ID TMDB', () async {
+    final paths = <String>[];
+    var external = false;
+    final client = testPlexClient(handler: (request) async {
+      paths.add(request.url.path);
+      return http.Response(jsonEncode({'MediaContainer': {'Directory': [
+        {'id': 42, 'tagType': 6, 'tag': 'Sadie Sink', 'tagKey': '5d-person',
+          if (external) 'Guid': [{'id': 'tmdb://1495251'}]},
+      ]}}), 200, headers: {'content-type': 'application/json'});
+    });
+    addTearDown(client.close);
+    expect(heisucaPersonTmdbId(await client.cgflixPersonIdentity('42')), isNull);
+    external = true;
+    expect(heisucaPersonTmdbId(await client.cgflixPersonIdentity('42')), 1495251);
+    expect(paths, everyElement('/library/people/42'));
   });
 
 }

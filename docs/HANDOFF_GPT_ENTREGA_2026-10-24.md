@@ -14,9 +14,10 @@ Implementação enviada para validação; **ainda não aprovada** até o registr
 - `lib/cgflix/search/cgflix_sources.dart`: fontes autorizadas do adulto, escopo restrito kids,
   procura por nome nas fontes e paginação completa, agrupamento e melhor fonte da busca.
 - `lib/cgflix/search/cgflix_person_plex.dart` e um gancho em `services/plex_client.dart`:
-  lê GUID de metadado confirmado como pessoa; rejeita colisão entre tag id e ratingKey de filme.
+  consulta `/library/people/{id}` (contrato oficial PMS) e lê GUID externo da pessoa;
+  nunca consulta um ratingKey de filme com o tag id.
 - `lib/heisuca/heisuca_person_credits.dart`: resolve identidade ao abrir a ficha.
-  Jellyfin consulta `/Items/{personId}` e ProviderIds.Tmdb; Plex consulta metadado de pessoa
+  Jellyfin consulta `/Items/{personId}` e ProviderIds.Tmdb; Plex consulta o namespace people
   e GUID TMDB. Sem identidade confirmada, mostra apenas No acervo.
 - `lib/cgflix/requests/cgflix_seerr.dart`: contrato separado de créditos pessoais e
   consulta `/person/{id}/combined_credits`; somente cast, sem incluir crew.
@@ -29,8 +30,8 @@ Implementação enviada para validação; **ainda não aprovada** até o registr
 
 ### Limites
 Não testado em aparelho. Não foi realizado teste ao vivo com a conta de Caio,
-Sadie Sink ou Stranger Things. Servidores Plex que só fornecem tag id local e não
-metadado de pessoa com GUID TMDB continuam exibindo apenas No acervo; nenhum ID é
+Sadie Sink ou Stranger Things. Servidores Plex que só fornecem tag id/tagKey e não
+GUID externo TMDB da pessoa continuam exibindo apenas No acervo; nenhum ID é
 adivinhado por nome. No kids não há consulta de catálogo nem botão Pedir.
 Nenhuma configuração de servidor/VPS/Sonarr/Jellyfin foi alterada.
 
@@ -47,3 +48,7 @@ Não declarar ausência de falhas novas antes do resultado real.
 ## Itens 2 a 7
 Aguardam aprovação do item 1 no Actions. Não iniciados. Não foi acrescentada transmissão,
 o ícone instalado não foi trocado e não houve merge ou release.
+
+Correção de contrato: rota de pessoa confirmada em https://developer.plex.tv/pms/;
+teste HTTP simulado verifica `/library/people/42`, GUID externo e ausência de TMDB.
+O run intermediário 40102571153 foi substituído por esta correção antes da validação final.

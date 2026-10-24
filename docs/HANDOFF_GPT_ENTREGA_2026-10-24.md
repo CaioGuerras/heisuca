@@ -62,3 +62,8 @@ a constante do relay próprio da versão 2.0.12. Ajustado o teste com exceção 
 (arquivo, declaração e URL /junto), sem permitir endereço de mídia/login embutido.
 Essa falha não estava na lista dos 16 recebida do Claude. Nenhum código de servidor alterado.
 Nova execução necessária; ainda não aprovado e sem APK validado.
+
+Run https://github.com/CaioGuerras/heisuca/actions/runs/40103320121: 357 aprovados,
+1 falha, 3 ignorados. O cenário Jellyfin + Plex passou. Falha restante: preparação
+do teste HTTP Plex sem inicializar PlexApiCache; corrigido com AppDatabase em memória
+(e fechamento no teardown), seguindo o fixture existente de detalhes Plex.

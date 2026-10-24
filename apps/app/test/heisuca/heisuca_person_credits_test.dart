@@ -1,4 +1,7 @@
 import 'dart:convert';
+import 'package:drift/native.dart';
+import 'package:plezy/database/app_database.dart';
+import 'package:plezy/services/plex_api_cache.dart';
 import 'package:http/http.dart' as http;
 import '../test_helpers/backend_client_fixtures.dart';
 import 'package:plezy/services/plex_client.dart';
@@ -109,6 +112,9 @@ void main() {
   });
 
   test('Plex consulta people, não metadata; tagKey não vira ID TMDB', () async {
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    PlexApiCache.initialize(db);
+    addTearDown(db.close);
     final paths = <String>[];
     var external = false;
     final client = testPlexClient(handler: (request) async {

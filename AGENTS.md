@@ -1,5 +1,12 @@
 # Heisuca — continuidade entre agentes
 
+## Rodada atual — 24/10/2026
+
+Branch autorizada: `codex/heisuca-rodada-2410`, derivada da `codex/heisuca-home-site`.
+Leia primeiro `docs/HANDOFF_GPT_ENTREGA_2026-10-24.md`: item 1 validado no Actions,
+APK 2.0.14+15, limites de assinatura e itens restantes. Caio autorizou validar pelo
+Actions após commit/push, sem preparar Flutter local; só avançar após run verde.
+
 ## Estado mais recente — Codex 24/10/2026, 2.0.9+10
 
 Leia primeiro `docs/HANDOFF_CORRECOES_2026-10-24.md`: retorno após o Claude 2.0.8,

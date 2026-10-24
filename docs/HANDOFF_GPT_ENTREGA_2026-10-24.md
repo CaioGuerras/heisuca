@@ -1,77 +1,93 @@
 # Heisuca — entrega da rodada de 24/10/2026
 
-Branch de trabalho: `codex/heisuca-rodada-2410`, criada a partir de
-`381295b5e1e7951fa02cbb58a0c29c04772b93d0` da `codex/heisuca-home-site`.
+Branch: `codex/heisuca-rodada-2410`, criada de `381295b5e1e7951fa02cbb58a0c29c04772b93d0`
+da `codex/heisuca-home-site`. A branch original foi preservada. Sem merge, release ou alteração de servidor.
 
-## Regra atual de validação
-Caio autorizou em 24/10 usar GitHub Actions como validação: commit e push de um item,
-corrigir runs vermelhos e só avançar após run verde. Não preparar SDK local.
-O workflow executa `scripts/heisuca-checar.sh` antes do APK.
+## Validação autorizada por Caio
+Commit/push de cada item e validação pelo workflow `.github/workflows/heisuca-android.yml`.
+Run verde é obrigatório antes de avançar. Não preparar Flutter local.
+A documentação não significa importação no ai-memory.
 
-## Item 1 — ficha da pessoa — 2.0.14+15
-Implementação enviada para validação; **ainda não aprovada** até o registro de run verde abaixo.
+## Item 1 — ficha da pessoa — concluído no CI, não testado em aparelho
+Versão **2.0.14+15**.
+Código validado: `5c9b951fe88cb42bf3a15e1defc188c8582d9dc8`.
+Commit inicial: `47536ccdd5fd2d417d28d4fb8d395559a289568e`; ajustes:
+`961934e`, `c0a2156`, `b6799cd`, `5c9b951`.
 
-- `lib/cgflix/search/cgflix_sources.dart`: fontes autorizadas do adulto, escopo restrito kids,
-  procura por nome nas fontes e paginação completa, agrupamento e melhor fonte da busca.
-- `lib/cgflix/search/cgflix_person_plex.dart` e um gancho em `services/plex_client.dart`:
-  consulta `/library/people/{id}` (contrato oficial PMS) e lê GUID externo da pessoa;
-  nunca consulta um ratingKey de filme com o tag id.
-- `lib/heisuca/heisuca_person_credits.dart`: resolve identidade ao abrir a ficha.
-  Jellyfin consulta `/Items/{personId}` e ProviderIds.Tmdb; Plex consulta o namespace people
-  e GUID TMDB. Sem identidade confirmada, mostra apenas No acervo.
-- `lib/cgflix/requests/cgflix_seerr.dart`: contrato separado de créditos pessoais e
-  consulta `/person/{id}/combined_credits`; somente cast, sem incluir crew.
-- `lib/cgflix/requests/cgflix_requests_ui.dart`: reaproveita a escolha de temporadas,
-  pedido e estados existentes; permite título/consulta de créditos e exclusão do acervo.
-- `lib/screens/actor_media_screen.dart`: ganchos mínimos para as duas seções.
-- `test/heisuca/heisuca_person_credits_test.dart`: identidade, formatos de créditos,
-  deduplicação filme/série, exclusão com conflito de IDs e paginação.
-- `pubspec.yaml`: 2.0.14+15.
+- [Run verde 40103763989](https://github.com/CaioGuerras/heisuca/actions/runs/40103763989)
+- [APK ARM64 — artifact heisuca-apk](https://github.com/CaioGuerras/heisuca/actions/runs/40103763989/artifacts/12564630665)
+- Artifact publicado: 51.141.094 bytes; expira em 07/11/2026.
+- Digest ZIP: `6388124f77d29dbfe79ddef75f69fac0768aa43608f2f0c4ef1e605d5ad2490e`.
 
-### Limites
-Não testado em aparelho. Não foi realizado teste ao vivo com a conta de Caio,
-Sadie Sink ou Stranger Things. Servidores Plex que só fornecem tag id/tagKey e não
-GUID externo TMDB da pessoa continuam exibindo apenas No acervo; nenhum ID é
-adivinhado por nome. No kids não há consulta de catálogo nem botão Pedir.
-Nenhuma configuração de servidor/VPS/Sonarr/Jellyfin foi alterada.
+### Arquivos e comportamento
+- `lib/cgflix/search/cgflix_sources.dart`: consulta as fontes autorizadas online do adulto,
+  preserva escopo kids, pagina toda a filmografia, agrupa duplicatas e escolhe a melhor
+  fonte pelas regras existentes da busca.
+- `lib/cgflix/search/cgflix_person_plex.dart` e um gancho em `lib/services/plex_client.dart`:
+  identidade de pessoa em `/library/people/{id}`, namespace oficial PMS, sem confundir tag id
+  com ratingKey de filme. Referência: https://developer.plex.tv/pms/ — Get person details.
+- `lib/heisuca/heisuca_person_credits.dart`: consulta identidade separadamente ao abrir.
+  Jellyfin: `/Items/{personId}`, ProviderIds.Tmdb; Plex: GUID externo da pessoa.
+  Sem TMDB confirmado, apenas No acervo. Não adivinha TMDB por nome/tagKey.
+- `lib/cgflix/requests/cgflix_seerr.dart`: contrato separado de créditos pessoais,
+  `/person/{tmdbId}/combined_credits`, somente cast e formatos camelCase/snake_case.
+- `lib/cgflix/requests/cgflix_requests_ui.dart`: reaproveita tile, botão Pedir,
+  escolha de temporadas e estados de pedido; permite créditos e exclusão do acervo.
+- `lib/screens/actor_media_screen.dart`: ganchos mínimos para No acervo e Também atuou em.
+- `test/heisuca/heisuca_person_credits_test.dart`: identidade, parser, exclusão por IDs/tipo,
+  paginação, combinação Jellyfin + Plex e contrato HTTP de pessoa Plex.
+- `test/heisuca/heisuca_neutral_server_test.dart`: exceção EXATA para o relay autorizado
+  da versão 2.0.12, sem permitir URL de mídia/login embutida.
+- `pubspec.yaml`: incremento de versão.
 
-### Evidências
-Commit inicial: `47536ccdd5fd2d417d28d4fb8d395559a289568e`.
-Primeiro run: https://github.com/CaioGuerras/heisuca/actions/runs/40102367785
-(cancelado pela inclusão do teste Jellyfin + Plex antes da análise).
-Validação do commit de acompanhamento: aguardando novo run.
-Run verde: pendente. APK: pendente.
-Comandos no portão: `flutter analyze --no-fatal-infos --no-fatal-warnings lib` e
-`flutter test` com a lista de `scripts/heisuca-checar.sh`, incluindo `test/heisuca`.
-Não declarar ausência de falhas novas antes do resultado real.
+### Testes e evidências
+Comando do portão: `bash scripts/heisuca-checar.sh`.
+Executa `flutter analyze --no-fatal-infos --no-fatal-warnings lib` e a lista
+`flutter test` do script, incluindo `test/heisuca`, controles do player, bootstrap,
+Home, cartões, Seerr, filmografia, detalhes Plex e isolamento de favoritos Jellyfin.
+Resultado: **358 aprovados, 3 ignorados**. Análise sem erro novo; avisos preexistentes
+não foram apresentados como corrigidos.
 
-## Itens 2 a 7
-Aguardam aprovação do item 1 no Actions. Não iniciados. Não foi acrescentada transmissão,
-o ícone instalado não foi trocado e não houve merge ou release.
+Também passaram:
+- `./gradlew :app:testDebugUnitTest --tests com.edde746.plezy.mpv.HeisucaBufferBudgetTest -PtargetAbi=arm64-v8a -PheisucaPreview=true`.
+- Compilação Flutter Release ARM64 e `scripts/heisuca-validar-apk.py` no APK efetivo.
+- Conferência de pacote, providers e assinatura; upload do artifact; run encerrado verde.
 
-Correção de contrato: rota de pessoa confirmada em https://developer.plex.tv/pms/;
-teste HTTP simulado verifica `/library/people/42`, GUID externo e ausência de TMDB.
-O run intermediário 40102571153 foi substituído por esta correção antes da validação final.
+### Assinatura — limitação real da nova branch
+Certificado desta build: `c417c8649715f3a38716fa7a5d9eace6b6bdecde36848b2fcf7eabac6d51f92b`.
+Certificado da build verde anterior da branch original (run 40079091086):
+`19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`.
+O pacote de teste é o mesmo, mas a assinatura difere: **não é atualização direta**
+sobre a instalação assinada com a chave anterior. Não apagar dados/perfis para contornar
+isso. Para atualizar aquela instalação preservando dados, o responsável com acesso à
+chave anterior deve reassinar/compilar com ela. Nenhuma chave foi copiada para código
+ou logs. O cache de chave de teste desta nova branch foi salvo pelo workflow.
 
-## Correções do portão do item 1
-Run vermelho: https://github.com/CaioGuerras/heisuca/actions/runs/40102809456
-Resultado: 351 aprovados, 2 falhas, 3 ignorados. Análise de lib sem erro novo.
-Uma falha nova era a assinatura dos fakes de paginação: start/size são int? no contrato
-real. Corrigida no teste. A outra já estava na base: a guarda de neutralidade rejeitava
-a constante do relay próprio da versão 2.0.12. Ajustado o teste com exceção EXATA
-(arquivo, declaração e URL /junto), sem permitir endereço de mídia/login embutido.
-Essa falha não estava na lista dos 16 recebida do Claude. Nenhum código de servidor alterado.
-Nova execução necessária; ainda não aprovado e sem APK validado.
+### O que não foi testado
+Não testado em aparelho. Não foi feito teste ao vivo com a conta de Caio, Sadie Sink
+ou Stranger Things. O cenário correspondente foi validado com fixtures Jellyfin + Plex.
+Plex sem GUID externo TMDB da pessoa exibe só No acervo. Sem Seerr autenticável,
+não há catálogo para pedir. Kids não consulta catálogo externo nem oferece Pedir.
+Não houve alteração de VPS, Sonarr ou configuração Jellyfin.
 
-Run https://github.com/CaioGuerras/heisuca/actions/runs/40103320121: 357 aprovados,
-1 falha, 3 ignorados. O cenário Jellyfin + Plex passou. Falha restante: preparação
-do teste HTTP Plex sem inicializar PlexApiCache; corrigido com AppDatabase em memória
-(e fechamento no teardown), seguindo o fixture existente de detalhes Plex.
+### Histórico de falhas corrigidas neste item
+- Run 40102809456: 351 aprovados, 2 falhas, 3 ignorados. Fakes novos usavam int em
+  vez de int? para start/size. A outra falha já estava na base e fora da lista dos 16:
+  guarda neutra rejeitando relay próprio autorizado. Correção exata com motivo no teste.
+- Run 40103320121: 357 aprovados, 1 falha, 3 ignorados. Fixture HTTP Plex precisava de
+  PlexApiCache com banco em memória. Corrigido com teardown, sem afrouxar assertivas.
+- Runs iniciais 40102367785/40102571153 foram cancelados pela inclusão dos testes e
+  correção da rota oficial Plex antes da execução final.
 
-## Checkpoint de validação do item 1
-Código: `5c9b951fe88cb42bf3a15e1defc188c8582d9dc8`.
-Run: https://github.com/CaioGuerras/heisuca/actions/runs/40103763989
-O GitHub Actions confirmou sucesso em **Validar análise e testes antes do APK**,
-**Configurar Assinatura** e **Conferir isolamento dos providers no manifesto**.
-Os testes nativos e a compilação do APK ainda estão em execução.
-**Isso ainda não é run verde nem APK aprovado.** Não testado em aparelho.
+## Itens seguintes
+| Item | Estado |
+| --- | --- |
+| 2 — player | Próximo item; ainda não implementado nesta rodada |
+| 3 — medidor | Pendente |
+| 4 — refinos/variantes do ícone | Pendente; ícone instalado preservado |
+| 5 — remover MAL/AniList e manter Trakt | Pendente |
+| 6 — não implementar transmissão | Nenhuma transmissão acrescentada |
+| 7 — 16 testes anteriores | Lista lida; ainda não corrigidos nesta rodada |
+
+O run verde acima valida o portão do workflow, não a suíte completa dos 16 testes
+fora dele. Não declarar os sete itens entregues enquanto a tabela indicar pendências.

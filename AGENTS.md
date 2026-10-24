@@ -4,6 +4,8 @@
 
 1. **Ramo único: `codex/heisuca-home-site`.** Não crie ramo novo: o cache do GitHub Actions é separado por ramo, e um ramo
    novo gera outra chave de teste; o APK deixa de instalar por cima (aconteceu em 24/10). Nunca faça merge no `main`.
+0. **Ambiente do Codex:** o setup do ambiente roda `bash scripts/codex-setup.sh` (Flutter 3.47.1 em `$HOME/sdk/flutter`).
+   Em cada terminal novo: `export PATH="$HOME/sdk/flutter/bin:$PATH"`.
 2. **Validação = GitHub Actions** (`.github/workflows/heisuca-android.yml`, que roda `scripts/heisuca-checar.sh` e gera o
    APK). Se o ambiente tiver Flutter, rode `bash apps/app/scripts/heisuca-checar.sh` antes do push; se não tiver, não perca
    tempo montando: faça o push e leia o run.

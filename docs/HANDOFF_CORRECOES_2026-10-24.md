@@ -1,5 +1,25 @@
 # Heisuca Android — retorno após Claude 2.0.8 — 24/10/2026
 
+## Claude, 24/10 noite — 2.0.11+12 (AGUARDA TESTE NO APARELHO)
+
+APK: https://github.com/CaioGuerras/heisuca/actions/runs/40079091086/artifacts/12554228210 (expira 07/11; ZIP sha256
+`d2f0ac66…7cd9` = digest; APK sha256 `fc7ecc69…a700`; versionCode 2012; certificado 19160423…f95c).
+- **Adulto preso no conteúdo infantil:** a tela de emprestar conexão oferecia a do usuário `<nome>-kids`; emprestada,
+  o perfil adulto tinha duas conexões no mesmo servidor e o token infantil podia vencer. Agora nunca é oferecida e o
+  binder ignora e desvincula conexões infantis em perfil adulto (`heisucaIsKidsConnection`), consertando sozinho.
+- **Perfil infantil:** tela completa (nome, foto, tema Menina·Ichigo/Menino·Sorairo, classificação no servidor, PIN).
+  Na criação o tema não vem pré-marcado. **[C] Arquitetura:** o Caio lembra de ter descartado o usuário-sombra para
+  fazer "igual aos apps maiores"; não há registro escrito. Hoje o perfil é criado no app e o filtro é do servidor.
+- **Biblioteca:** um botão por biblioteca da fonte (testado com os 5 servidores Plex da conta do Caio: nomes variam),
+  sem lista suspensa; nome/ano/nota sob a capa (`HeisucaPosterTile`, também nos relacionados).
+- **Player:** chaves com bolinha visível; Iluminação ambiente ligada por padrão.
+- **VPS:** chave do cache de imagens sem o token (`cgf_img_args`): antes cada aparelho tinha cópia própria (9/10 GB).
+  Teste: 600 ms na 1ª, 155 ms nas seguintes com outro token. Aquecimento `~/cgflix/jellyfin/bin/cgf-heisuca-aquecer`
+  (cron :17, 946 imagens da Home na 1ª vez, depois só o novo). Backups em /root/*.bak_20261023_233331.
+- **Armazenamento:** `~/cgflix/storage/ESTUDO_CACHE_2026-10-24.md`. Leitura ~10× maior que o assistido e um leitor
+  não identificado (15,8 GB de One Piece em 2,5 h sem ninguém assistindo). Monitor `cgf-quem-le` por 24 h.
+
+
 ## Claude retomou em 24/10 — estado atual: 2.0.10+11 (AGUARDA TESTE NO APARELHO)
 
 O Codex/GPT parou com o código da rodada pronto e o **build reprovado** (3 runs com falha/cancelados; o último,

@@ -96,8 +96,13 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
     final client = cgflixClientFor(context, widget.item);
     final key = heisucaSeriesIdFor(widget.item) ?? widget.item.id;
     final cached = client == null ? null : _titleSnapshots[client]?[key];
-    if (cached != null && DateTime.now().difference(cached.at) < const Duration(minutes: 2)) {
-      _item = cached.item; _target = cached.target; _seasons = cached.seasons;
+    final entry = widget.item;
+    final sameSeason = entry.kind != MediaKind.season || cached?.season?.id == entry.id;
+    if (cached != null && sameSeason && DateTime.now().difference(cached.at) < const Duration(minutes: 2)) {
+      _item = cached.item;
+      // Um toque explícito em episódio vence o alvo antigo do cache imediatamente.
+      _target = widget.episode ?? (entry.kind == MediaKind.episode ? entry : cached.target);
+      _seasons = cached.seasons;
       _season = cached.season; _episodes = cached.episodes; _group = cached.group;
     }
     _load();

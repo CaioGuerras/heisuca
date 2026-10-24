@@ -92,6 +92,12 @@ void main() {
     await tester.pumpWidget(screen(first.show)); await tester.pump();
     expect(find.text('Continuar T1:E7'), findsOneWidget);
     await tester.pumpWidget(const SizedBox()); first.hold!.complete(); await tester.pump();
+    first.hold = Completer<void>();
+    final tappedEpisode = first.episodes[10].copyWith(grandparentId: first.show.id);
+    await tester.pumpWidget(screen(tappedEpisode)); await tester.pump();
+    expect(find.text('Assistir T1:E11'), findsOneWidget);
+    expect(find.text('Continuar T1:E7'), findsNothing);
+    await tester.pumpWidget(const SizedBox()); first.hold!.complete(); await tester.pump();
     final other = _Client()..hold = Completer<void>();
     manager.debugRegisterClientForTesting(other);
     await tester.pumpWidget(screen(other.show)); await tester.pump();

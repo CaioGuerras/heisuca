@@ -72,6 +72,10 @@ class DevicePerformance {
     SystemChannels.skia.invokeMethod<void>('Skia.setResourceCacheMaxBytes', 48 << 20).ignore();
   }
 
+  // CGFLIX: fatos para o medidor; null significa que o sistema não informou.
+  static bool? get processIs64Bit => _singleton.instance?._is64Bit;
+  static bool? get systemLowRam => _singleton.instance?._isLowRam;
+
   /// Total device RAM as reported by the platform, or null off-Android /
   /// before init. Used to scale memory-watchdog thresholds to the device.
   static int? get totalMemBytes => _singleton.instance?._totalMemBytes;

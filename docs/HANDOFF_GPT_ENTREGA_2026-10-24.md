@@ -119,3 +119,22 @@ Ainda não aprovado; não testado em aparelho.
   teste do `codex/heisuca-home-site` e gerou outra. Correção: `codex/heisuca-home-site` avançou (fast-forward, sem merge)
   até estes commits; o CI desse ramo usa a chave original e o APK volta a instalar por cima. Próximas rodadas trabalham
   direto em `codex/heisuca-home-site`.
+
+## Retomada — item 3 — 2.0.16+17
+Ramo efetivo: `codex/heisuca-home-site`; instrução atual de Caio prevalece sobre o histórico acima.
+
+- Você › App › Este aparelho: medidor acessível de três faixas, RAM, arquitetura do processo,
+  sinal Android de pouca RAM e pressão de memória atual; atualização manual e ao retornar ao app.
+- Vermelho: pressão de memória atual OU processo de 32 bits com RAM ≤ 2 GiB,
+  independente da preferência de efeitos. Âmbar: portão `DevicePerformance.isReduced` ativo.
+- Ajustes listados pelos portões reais: duração de animações, rotação de fundos, limites de
+  imagens/cache e requisições. O pré-carregamento da Início não é apresentado como desligado:
+  `_HeisucaHero._notifyActive` não tem esse portão. Parallax ainda pertence ao item 4.
+- Decodificação por hardware não inferida a partir da preferência: o mpv não está disponível
+  nesta tela fora da reprodução; orienta consultar as estatísticas do vídeo.
+- Teste de fronteira: 2 GiB, 2 GiB + 1 byte, 64 bits, sinais ausentes e pouca memória.
+- Validação local: `bash apps/app/scripts/heisuca-checar.sh` aprovado: 363 testes passaram,
+  3 ignorados; análise sem erro/aviso novo nos arquivos tocados. Primeira tentativa interrompida
+  por HTTP 503 ao baixar media_controls; repetição após setup concluído passou.
+- Commit/run/APK: aguardando validação no Actions; não declarar APK aprovado antes do verde.
+- Não testado em aparelho, nem com sessão de mídia real. Itens 4–9 ainda não iniciados.

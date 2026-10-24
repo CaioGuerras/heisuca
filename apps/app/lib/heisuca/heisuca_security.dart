@@ -12,8 +12,8 @@ class HeisucaSecurity extends ChangeNotifier {
   bool get appLocked => _prefs?.getBool('heisuca.security.app') ?? false;
   bool kidsEnabled(String parent) => _prefs?.getBool('heisuca.security.kids.$parent') ?? false;
   Future<void> load() async { _prefs = await SharedPreferences.getInstance(); }
-  Future<bool> available() async {
-    try { return await channel.invokeMethod<bool>('available') ?? false; } on PlatformException { return false; } on MissingPluginException { return false; }
+  Future<bool> available({bool deviceCredential = false}) async {
+    try { return await channel.invokeMethod<bool>('available', {'deviceCredential': deviceCredential}) ?? false; } on PlatformException { return false; } on MissingPluginException { return false; }
   }
   Future<bool> authenticate(String reason, {bool deviceCredential = false}) async {
     try { return await channel.invokeMethod<bool>('authenticate', {'reason': reason, 'deviceCredential': deviceCredential}) ?? false; }
@@ -63,8 +63,8 @@ class HeisucaSecurityScreen extends StatefulWidget {
 }
 class _HeisucaSecurityScreenState extends State<HeisucaSecurityScreen> {
   final _security = HeisucaSecurity.instance;
-  bool _available = false, _busy = false;
-  @override void initState() { super.initState(); _security.available().then((v) { if (mounted) setState(() => _available = v); }); }
+  bool _available = false, _appAvailable = false, _busy = false;
+  @override void initState() { super.initState(); _security.available().then((v) { if (mounted) setState(() => _available = v); }); _security.available(deviceCredential: true).then((v) { if (mounted) setState(() => _appAvailable = v); }); }
   Future<void> _change(bool value, bool app) async {
     if (_busy) return;
     setState(() => _busy = true);
@@ -76,8 +76,8 @@ class _HeisucaSecurityScreenState extends State<HeisucaSecurityScreen> {
     body: ListView(children: [
       const Padding(padding: EdgeInsets.all(20), child: Text('Usa as biometrias cadastradas no Android. Ative a saída infantil por biometria apenas se as biometrias cadastradas forem dos responsáveis. O PIN infantil continua disponível.')),
       if (!_available) const ListTile(title: Text('Cadastre uma biometria compatível nas configurações do Android.')),
-      SwitchListTile(title: const Text('Bloquear o app'), subtitle: const Text('Ao abrir e ao voltar do segundo plano. Android 11+ também permite a credencial do aparelho.'),
-        value: _security.appLocked, onChanged: _busy || (!_available && !_security.appLocked) ? null : (v) => _change(v, true)),
+      SwitchListTile(title: const Text('Bloquear o app'), subtitle: const Text('Ao abrir e ao voltar do segundo plano. Requer Android 10+; permite a credencial do aparelho como alternativa.'),
+        value: _security.appLocked, onChanged: _busy || (!_appAvailable && !_security.appLocked) ? null : (v) => _change(v, true)),
       SwitchListTile(title: const Text('Biometria para sair do modo infantil'), value: _security.kidsEnabled(widget.parentId),
         onChanged: _busy || !_available ? null : (v) => _change(v, false)),
     ]));

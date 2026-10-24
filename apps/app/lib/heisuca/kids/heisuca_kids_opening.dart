@@ -63,7 +63,7 @@ class _HeisucaKidsOpeningState extends State<HeisucaKidsOpening> with SingleTick
       return AnimatedBuilder(animation: _c, builder: (context, _) {
         final ms = _c.value * (_c.duration!.inMilliseconds);
         if (_reduced) {
-          final o = ms < 120 ? ms / 120 : ms > 480 ? (600 - ms) / 120 : 1.0;
+          final o = ms < 120 ? ms / 120 : ms > 480 && widget.onFinished != null ? (600 - ms) / 120 : 1.0;
           return Opacity(opacity: o.clamp(0, 1), child: _center(palette, vmin, name, 1, 1, 1));
         }
         final exit = widget.onFinished == null ? 0.0 : _w(ms, _hold, _hold + _exit, Curves.easeInCubic);

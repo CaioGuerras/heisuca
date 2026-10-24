@@ -12,6 +12,7 @@ import '../media/media_library.dart';
 import '../media/media_server_client.dart';
 import '../mixins/refreshable.dart';
 import '../providers/multi_server_provider.dart';
+import '../providers/hidden_libraries_provider.dart';
 import 'heisuca_media_category.dart';
 import 'heisuca_source_scope.dart';
 import 'kids/heisuca_kids_flow.dart';
@@ -69,9 +70,12 @@ class _HeisucaLibraryScreenState extends State<HeisucaLibraryScreen> with Refres
     _serverSignature = _servers.serverManager.navigationOnlineClients.keys.join('|');
     setState(() { _loading = true; _error = null; _items = []; _sources = []; _selected = null; });
     try {
+      final hidden = context.read<HiddenLibrariesProvider?>();
+      await hidden?.ensureInitialized();
+      if (!mounted || generation != _sourceGeneration) return;
       final lists = await Future.wait(clients.map((client) async => [
         for (final library in await client.fetchLibraries())
-          if (!library.hidden && (library.kind == MediaKind.movie || library.kind == MediaKind.show || library.kind == MediaKind.unknown))
+          if (!library.hidden && (!(hidden?.hiddenLibraryKeys.contains(library.globalKey) ?? false) || library.globalKey == _pendingKey) && (library.kind == MediaKind.movie || library.kind == MediaKind.show || library.kind == MediaKind.unknown))
             _LibrarySource(client, library),
       ]));
       if (!mounted || generation != _sourceGeneration) return;

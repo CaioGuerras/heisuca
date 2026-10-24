@@ -27,17 +27,18 @@ class HeisucaSecurityChannel(private val activity: Activity) {
   fun attach(messenger: BinaryMessenger) {
     MethodChannel(messenger, "app.heisuca/security").setMethodCallHandler { call, result ->
       when (call.method) {
-        "available" -> result.success(available())
+        "available" -> result.success(available() && (call.argument<Boolean>("deviceCredential") != true || Build.VERSION.SDK_INT >= 29))
         "authenticate" -> {
           if (Build.VERSION.SDK_INT < 28 || pending != null) { result.success(false); return@setMethodCallHandler }
           pending = result
           try {
             val builder = BiometricPrompt.Builder(activity).setTitle("Heisuca")
               .setSubtitle(call.argument<String>("reason") ?: "Confirme sua identidade")
-            val credential = call.argument<Boolean>("deviceCredential") == true && Build.VERSION.SDK_INT >= 30
+            val credential = call.argument<Boolean>("deviceCredential") == true && Build.VERSION.SDK_INT >= 29
             if (Build.VERSION.SDK_INT >= 30) builder.setAllowedAuthenticators(
               BiometricManager.Authenticators.BIOMETRIC_STRONG or
                 if (credential) BiometricManager.Authenticators.DEVICE_CREDENTIAL else 0)
+            if (credential && Build.VERSION.SDK_INT == 29) builder.setDeviceCredentialAllowed(true)
             if (!credential) builder.setNegativeButton("Cancelar", activity.mainExecutor) { _, _ -> finish(false, result) }
             val cancel = CancellationSignal(); signal = cancel
             builder.build().authenticate(cancel, activity.mainExecutor, object : BiometricPrompt.AuthenticationCallback() {

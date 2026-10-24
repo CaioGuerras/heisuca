@@ -10,7 +10,7 @@ import 'heisuca_kids.dart';
 
 /// Copia para o armazenamento privado: a foto continua válida depois de reiniciar.
 Future<String?> heisucaPickProfilePhoto() async {
-  final picked = await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
+  final picked = await FilePicker.pickFiles(type: FileType.image, withData: true);
   if (picked == null) return null;
   final bytes = picked.files.single.bytes;
   if (bytes == null || bytes.length > 8 * 1024 * 1024) throw StateError('Escolha uma foto de até 8 MB.');

@@ -32,15 +32,25 @@ class CgflixFavoritesSource {
     if (client == null) return null;
     return CgflixFavoritesSource(
       client: client,
-      load: () async => client.cgflixMapItems(
-        await client.cgflixFetchRawItems({
-          'Filters': 'IsFavorite',
-          'IncludeItemTypes': 'Movie,Series',
-          'SortBy': 'SortName',
-          'SortOrder': 'Ascending',
-          'Limit': '300',
-        }),
-      ),
+      load: () async {
+        final libraries = await client.fetchLibraries();
+        final groups = await Future.wait(libraries.map((library) async {
+          final items = <MediaItem>[];
+          while (true) {
+            final raw = await client.cgflixFetchRawItems({
+              'ParentId': library.id, 'Filters': 'IsFavorite',
+              'IncludeItemTypes': 'Movie,Series', 'SortBy': 'SortName',
+              'SortOrder': 'Ascending', 'Limit': '300', 'StartIndex': '${items.length}',
+            });
+            items.addAll(client.cgflixMapItems(raw).map((item) => item.copyWith(libraryTitle: library.title)));
+            if (raw.length < 300) break;
+          }
+          return items;
+        }));
+        final unique = <String, MediaItem>{};
+        for (final item in groups.expand((group) => group)) { unique[item.id] = item; }
+        return unique.values.toList()..sort((a, b) => a.displayTitle.toLowerCase().compareTo(b.displayTitle.toLowerCase()));
+      },
     );
   }
 

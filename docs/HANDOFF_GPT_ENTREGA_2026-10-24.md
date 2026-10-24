@@ -108,3 +108,14 @@ Ainda não aprovado; não testado em aparelho.
 - Protótipo antigo ainda preservado até o teste de referências confirmar a remoção.
   Se confirmado, limpeza será feita em commit próprio conforme o handoff.
 - Commit/run verde/APK: pendentes. Não declarar os próximos itens entregues.
+
+## Conferência do Claude (24/10, tarde)
+- O GPT parou no item 2 (a conversa dele atingiu o limite). Itens 3 a 7 **não foram iniciados**; nada ficou pela metade
+  além do que está descrito acima.
+- **Item 2 validado localmente** em `b62ee7a`: `flutter analyze` sem erro nem aviso novo (só 7 infos de estilo) e a lista
+  de testes do `scripts/heisuca-checar.sh` com **362 aprovados, 3 ignorados, 0 falhas**. Código conferido: sai o Próximo e a
+  aba Episódios da barra de baixo, os episódios abrem pelo logo/título, velocidade entra no grupo da direita.
+- **Assinatura:** o cache do GitHub Actions é separado por ramo, então `codex/heisuca-rodada-2410` não achou a chave de
+  teste do `codex/heisuca-home-site` e gerou outra. Correção: `codex/heisuca-home-site` avançou (fast-forward, sem merge)
+  até estes commits; o CI desse ramo usa a chave original e o APK volta a instalar por cima. Próximas rodadas trabalham
+  direto em `codex/heisuca-home-site`.

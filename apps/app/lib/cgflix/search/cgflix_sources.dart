@@ -8,6 +8,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 
 import '../../media/ids.dart';
+import '../../heisuca/kids/heisuca_kids_flow.dart';
 import '../../media/library_query.dart';
 import '../../media/media_item.dart';
 import '../../media/media_person.dart';
@@ -127,21 +128,21 @@ Future<LibraryPage<MediaItem>>? cgflixMergedPersonPage(
 }) {
   final multiServer = context.read<MultiServerProvider?>();
   if (multiServer == null) return null;
-  final clients = multiServer.serverManager.navigationOnlineClients;
+  // Caio, 24/10: adulto consulta todas as fontes autorizadas; kids conserva o escopo infantil.
+  final clients = heisucaKidsActive(context, listen: false)
+      ? multiServer.serverManager.navigationOnlineClients
+      : multiServer.serverManager.visibleOnlineClients;
   if (clients.length < 2) return null;
   if (start > 0) return Future.value(LibraryPage<MediaItem>(items: const [], totalCount: start, offset: start));
 
-  final known = CgflixSourceRegistry.peopleFor(buildGlobalKey(ServerId(serverId), 'person:$personId'));
   return () async {
-    final people = known.isNotEmpty
-        ? known
-        : await _findPersonEverywhere(clients, serverId, personId, personName, abort);
+    final people = await _findPersonEverywhere(clients, serverId, personId, personName, abort);
     // Primeiro o servidor que abriu a página, depois os outros (o agrupamento mantém essa ordem).
     final ordered = [
       ...people.where((p) => p.serverId.value == serverId && p.id == personId),
       ...people.where((p) => !(p.serverId.value == serverId && p.id == personId)),
     ];
-    if (ordered.isEmpty) {
+    if (ordered.isEmpty && clients.containsKey(serverId)) {
       ordered.add(
         MediaPerson(id: personId, name: personName, backend: clients[serverId]!.backend, serverId: ServerId(serverId)),
       );
@@ -150,8 +151,7 @@ Future<LibraryPage<MediaItem>>? cgflixMergedPersonPage(
       for (final person in ordered)
         if (clients[person.serverId.value] case final client?)
           client
-              .fetchPersonMediaPage(person.id, start: 0, size: size, abort: abort)
-              .then((page) => page.items)
+              .heisucaPersonMediaAll(person.id, size: size, abort: abort)
               // Um servidor lento/dormindo não segura a página inteira (o padrão do HTTP é 2 min).
               .timeout(const Duration(seconds: 10))
               .catchError((Object e) {
@@ -194,12 +194,31 @@ Future<List<MediaPerson>> _findPersonEverywhere(
         }),
   ]);
   final others = [for (final list in results) ...list.where((p) => cgflixSearchNormalize(p.name) == wanted).take(1)];
-  if (others.isEmpty) return const [];
+  final origin = clients[serverId];
+  if (origin == null) return others;
   final self = MediaPerson(
     id: personId,
     name: personName,
-    backend: clients[serverId]!.backend,
+    backend: origin.backend,
     serverId: ServerId(serverId),
   );
   return [self, ...others];
+}
+
+
+// Caio, 24/10: não trunca filmografias no primeiro lote do servidor.
+extension HeisucaPersonPagination on MediaServerClient {
+  Future<List<MediaItem>> heisucaPersonMediaAll(String personId, {int size = 200, AbortController? abort}) async {
+    final items = <MediaItem>[];
+    final seen = <String>{};
+    var offset = 0;
+    while (true) {
+      final page = await fetchPersonMediaPage(personId, start: offset, size: size, abort: abort);
+      final fresh = page.items.where((item) => seen.add(item.globalKey)).toList();
+      items.addAll(fresh);
+      offset += page.items.length;
+      if (page.items.isEmpty || fresh.isEmpty || offset >= page.totalCount) break;
+    }
+    return items;
+  }
 }

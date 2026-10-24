@@ -63,9 +63,12 @@ const cgflixRequestsUnavailableMessage = 'Pedidos indisponíveis agora';
 // Busca: "Disponível para pedir"
 
 class CgflixRequestSection extends StatefulWidget {
-  const CgflixRequestSection({super.key, required this.query, this.enabled = true});
+  const CgflixRequestSection({super.key, required this.query, this.enabled = true, this.loadItems, this.title = 'Disponível para pedir', this.includeItem});
   final String query;
   final bool enabled;
+  final Future<List<CgflixRequestable>> Function(CgflixRequestsBackend backend)? loadItems;
+  final String title;
+  final bool Function(CgflixRequestable item)? includeItem;
 
   @override
   State<CgflixRequestSection> createState() => _CgflixRequestSectionState();
@@ -94,7 +97,7 @@ class _CgflixRequestSectionState extends State<CgflixRequestSection> {
   void _load() {
     final request = ++_request;
     final query = widget.query.trim();
-    final backend = widget.enabled && query.length >= 2 ? CgflixRequests.of(context) : null;
+    final backend = widget.enabled && (widget.loadItems != null || query.length >= 2) ? CgflixRequests.of(context) : null;
     if (backend == null) {
       setState(() {
         _state = _SectionState.ready;
@@ -103,8 +106,7 @@ class _CgflixRequestSectionState extends State<CgflixRequestSection> {
       return;
     }
     if (_state != _SectionState.loading) setState(() => _state = _SectionState.loading);
-    backend
-        .search(query)
+    (widget.loadItems?.call(backend) ?? backend.search(query))
         .then((items) {
           if (!mounted || request != _request) return;
           setState(() {
@@ -154,6 +156,7 @@ class _CgflixRequestSectionState extends State<CgflixRequestSection> {
   Widget build(BuildContext context) {
     // Heisuca: no modo infantil não há pedidos (o filtro do servidor não alcança o Seerr).
     if (heisucaKidsActive(context)) return const SizedBox.shrink();
+    final visibleItems = _items.where((item) => widget.includeItem?.call(item) ?? true).toList();
     final Widget child = switch (_state) {
       _SectionState.loading => const _SectionSkeleton(key: ValueKey('carregando')),
       _SectionState.unavailable => Padding(
@@ -169,7 +172,7 @@ class _CgflixRequestSectionState extends State<CgflixRequestSection> {
           ],
         ),
       ),
-      _SectionState.ready when _items.isEmpty => const SizedBox.shrink(key: ValueKey('vazio')),
+      _SectionState.ready when visibleItems.isEmpty => const SizedBox.shrink(key: ValueKey('vazio')),
       _SectionState.ready => Column(
         key: const ValueKey('resultados'),
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -179,7 +182,7 @@ class _CgflixRequestSectionState extends State<CgflixRequestSection> {
             child: Semantics(
               header: true,
               child: Text(
-                'Disponível para pedir',
+                widget.title,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
               ),
             ),
@@ -191,7 +194,7 @@ class _CgflixRequestSectionState extends State<CgflixRequestSection> {
               style: TextStyle(color: context.cgflix.textMuted, fontSize: 13),
             ),
           ),
-          for (final item in _items)
+          for (final item in visibleItems)
             CgflixRequestTile(
               key: ValueKey('cgflix-pedir-${item.isMovie ? 'filme' : 'serie'}-${item.tmdbId}'),
               item: item,

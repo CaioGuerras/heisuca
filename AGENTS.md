@@ -1,11 +1,22 @@
 # Heisuca — continuidade entre agentes
 
-## Rodada atual — 24/10/2026
+## Regras fixas para agentes (Caio, 24/10/2026) — leia antes de tudo
 
-Branch autorizada: `codex/heisuca-rodada-2410`, derivada da `codex/heisuca-home-site`.
-Leia primeiro `docs/HANDOFF_GPT_ENTREGA_2026-10-24.md`: item 1 validado no Actions,
-APK 2.0.14+15, limites de assinatura e itens restantes. Caio autorizou validar pelo
-Actions após commit/push, sem preparar Flutter local; só avançar após run verde.
+1. **Ramo único: `codex/heisuca-home-site`.** Não crie ramo novo: o cache do GitHub Actions é separado por ramo, e um ramo
+   novo gera outra chave de teste; o APK deixa de instalar por cima (aconteceu em 24/10). Nunca faça merge no `main`.
+2. **Validação = GitHub Actions** (`.github/workflows/heisuca-android.yml`, que roda `scripts/heisuca-checar.sh` e gera o
+   APK). Se o ambiente tiver Flutter, rode `bash apps/app/scripts/heisuca-checar.sh` antes do push; se não tiver, não perca
+   tempo montando: faça o push e leia o run.
+3. **Um item por vez:** commit e push ao terminar cada item; só avance com o run **verde**. Commit que tem `[skip ci]` não
+   gera build: nunca deixe o código de um item só num commit `[skip ci]`.
+4. **Versão:** suba `version:` em `apps/app/pubspec.yaml` a cada item que gera APK (próxima: 2.0.16+17).
+5. **Registro:** atualize `docs/HANDOFF_GPT_ENTREGA_2026-10-24.md` a cada item (commit, link do run verde e do APK, o que
+   não foi testado em aparelho). Se a sessão acabar, o que já foi enviado fica salvo.
+6. Regras do fork em `apps/app/CLAUDE.md`; pedidos e desenho em `docs/HANDOFF_GPT_2026-10-24.md` e
+   `docs/PLANO_RODADA_2026-10-24.md`. Sem segredos no código. "Não testado em aparelho" quando for o caso.
+
+Estado em 24/10 à tarde: itens 1 e 2 do handoff concluídos (APK 2.0.15+16, run 40124421365 verde, mesma assinatura da
+instalação do Caio). Faltam os itens 3 a 7.
 
 ## Estado mais recente — Codex 24/10/2026, 2.0.9+10
 

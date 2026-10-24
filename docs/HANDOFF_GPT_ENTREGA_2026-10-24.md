@@ -136,5 +136,51 @@ Ramo efetivo: `codex/heisuca-home-site`; instrução atual de Caio prevalece sob
 - Validação local: `bash apps/app/scripts/heisuca-checar.sh` aprovado: 363 testes passaram,
   3 ignorados; análise sem erro/aviso novo nos arquivos tocados. Primeira tentativa interrompida
   por HTTP 503 ao baixar media_controls; repetição após setup concluído passou.
-- Commit/run/APK: aguardando validação no Actions; não declarar APK aprovado antes do verde.
+- Código: `f10ddc75a2c6010e2290b1959968d0918b938cc6` (sem skip ci).
+- [Run verde 40138140122](https://github.com/CaioGuerras/heisuca/actions/runs/40138140122), encerrado com `success`.
+- [APK ARM64 2.0.16+17 — heisuca-apk](https://github.com/CaioGuerras/heisuca/actions/runs/40138140122/artifacts/12578350343).
+  Artifact: 51.164.291 bytes, não expirado na conferência; digest ZIP
+  `bf4a91555c4fc9e6cab47fa8125f5e5b5049543ec901cf16e86198882905fc8c`.
+- CI passou também nos testes nativos do buffer mpv, compilação release e conferência
+  do pacote/providers/assinatura. Certificado SHA-256 confirmado nos logs:
+  `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`, igual ao original deste ramo.
 - Não testado em aparelho, nem com sessão de mídia real. Itens 4–9 ainda não iniciados.
+
+
+## Item 4 — parado na conferência, sem implementação
+Após o verde do item 3, conferi a base indicada no item 4 do handoff (linha 73):
+`cgflix/pesquisa_apps/marca` (selo C, cor do tema). Esse caminho não existe na árvore
+do ramo `codex/heisuca-home-site`. Comandos de conferência:
+
+```
+git ls-tree -d HEAD
+git ls-tree -r --name-only HEAD | rg 'pesquisa_apps|marca/'
+rg --files | rg 'pesquisa_apps/marca|icone|icon.*512|brand'
+```
+
+Há fontes alternativas com identidades distintas:
+- `apps/app/cgflix-brand/cgflix-icone.svg`: identidade histórica CGFLIX; o gerador
+  `gerar_icone_android.py` descreve explicitamente o emblema "C com play".
+- `apps/app/assets/heisuca/icone_shikkoku.svg` e demais temas: selo Heisuca 炳.
+
+O próprio pedido mistura exemplos com 炳 e a base descrita como selo C. Não escolhi
+uma dessas fontes como substituta do diretório ausente. Conforme a regra de Caio
+("Se o código real não bater com o desenho, pare e documente; não improvise"), parei
+antes de implementar o item 4. É necessário confirmar qual arquivo versionado é a
+base das três variantes, ou disponibilizar a fonte indicada. Nenhum ícone foi trocado;
+nenhum refino parcial do item 4 foi enviado. Não houve acesso a VPS/servidores.
+
+### Estado ao encerrar esta retomada
+| Item | Estado atual |
+| --- | --- |
+| 3 | Concluído no CI, 2.0.16+17; não testado em aparelho |
+| 4 | Bloqueado pela divergência de referência da marca acima |
+| 5 | Pendente; MAL/AniList ainda não removidos; Trakt não alterado |
+| 6 | Nenhuma transmissão criada; confirmação formal da etapa ainda pendente |
+| 7 | Pendente; não foi rodada/corrigida a suíte histórica dos 16 testes |
+| 8 | Pendente |
+| 9 | Pendente; Início Jellyfin preservada nesta retomada |
+
+Somente o ramo `codex/heisuca-home-site` foi alterado. Sem ramo novo, PR, merge ou release.
+O commit documental posterior ao verde usa skip ci; o código do item 3 já foi
+compilado e validado pelo run verde acima, em commit sem skip ci.

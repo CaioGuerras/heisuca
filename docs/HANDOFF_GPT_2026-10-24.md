@@ -68,9 +68,15 @@ App: `apps/app` (Flutter 3.47.1, fork do Plezy). Leia antes: `AGENTS.md`, `apps/
   `DevicePerformance.isReduced`.
 - **Transições:** pôster → ficha com Hero (a capa voa para a ficha); entre abas, fade-through; sheets com mola. **Uma curva e
   uma duração** definidas num lugar só (`lib/heisuca/heisuca_theme.dart` ou `heisuca_design_system.dart`), usadas em tudo.
-- **Ícone do app:** **não troque.** Faça 3 variantes (por exemplo: selo 炳 com relevo/gradiente sutil; fundo com textura de laca;
-  variante temática monocromática do Android 13), renderize PNGs de 512 px e um mockup lado a lado numa tela inicial
-  Android, em `docs/icone_variantes_2026-10-24/`. O Caio escolhe depois. Base: `cgflix/pesquisa_apps/marca` (selo C, cor do tema).
+- **Ícone do app:** **não troque.** Faça 3 variantes, renderize PNGs de 512 px e um mockup lado a lado numa tela inicial
+  Android, em `docs/icone_variantes_2026-10-24/`. O Caio escolhe depois.
+  **Base (corrigida em 24/10, noite): o selo 炳 do Heisuca**, que é o "esboço C, selo hanko" escolhido pelo Caio em 18/10.
+  Arquivos: os ícones atuais por tema em `apps/app/assets/heisuca/icone_*.svg` (ponto de partida: `icone_shikkoku.svg`),
+  o selo oficial em `docs/marca/C_selo.svg`, a versão pequena em `docs/marca/C_icone_pequeno.svg`, a folha por tema em
+  `docs/marca/FOLHA_C_TEMAS.png` e as regras em `docs/marca/LOGO.md` e `docs/marca/ICONES.md` (cor do selo segue o tema;
+  ≤ 32 px usa a versão pequena). **Não use** `apps/app/cgflix-brand/` ("C com play"): é a marca antiga do CGFLIX.
+  Ideias para as 3 variantes: selo com relevo/gradiente sutil; fundo com textura de laca; variante temática monocromática
+  do Android 13. O caminho `cgflix/pesquisa_apps/marca` citado antes fica fora deste repositório.
 
 ### 5. Remover MAL/AniList (decisão do Caio, 24/10)
 - Tirar da interface tudo de MyAnimeList e AniList (configurações, telas de login por QR, chamadas).

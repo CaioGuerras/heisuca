@@ -63,3 +63,16 @@ Base existente: `services/device_performance.dart` (níveis completo/reduzido, p
 ## Pendências técnicas
 - **16 testes já falhavam antes desta rodada** (navegação no topo em paisagem, abas do celular etc.; lista no fim da sessão de
   24/10). Corrigir ou atualizar numa etapa própria antes de crescer o app.
+
+## Pontos do Caio no 2.0.15 (24/10, tarde) — analisados, ainda não corrigidos
+1. **Logo do título no player só no Jellyfin.** O player usa `clearLogoPath` da série (Plex: imagem `clearLogo` do item).
+   Conferido no Plex do CGSERVER: Ranma ½ (`11406`) só tem `coverPoster`, `background`, `backgroundSquare`; **o Plex não
+   tem logo** desse título, então o app cai no nome escrito (comportamento programado). O Jellyfin tem o logo (fanart/TMDB).
+   Caminhos: buscar logo pelo TMDB/fanart quando o servidor não tiver (por `tmdb://`/`tvdb://` do item), ou completar as
+   imagens no próprio Plex. [C] Caio decide.
+2. **Início do Plex fora do padrão.** `heisuca_home_screen.dart` tem duas montagens: `_buildJellyfinSlivers` (padrão do
+   site, aprovado no 2.0.2: destaque, Continuar, Em alta, uma fileira por biblioteca, Em breve) e `_buildDiscoverSlivers`
+   (Plex, herdado do Plezy: hubs que o servidor sugere, como "Adicionado recentemente em…" e coleções promovidas, ex.
+   "Oh, The Horror!"). O Em breve depende do plugin HomeScreen do Jellyfin e do `/cgflix/embreve.json` mapeado para ids do
+   Jellyfin, por isso não existe no Plex. O plano do site (19/10) era "só Jellyfin"; o Plex entrou depois. Caminho: a mesma
+   montagem para as duas fontes (bibliotecas na ordem do servidor; Em breve casado por TMDB/TVDB). [C] Caio decide.

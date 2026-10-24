@@ -120,7 +120,7 @@ class _HeisucaDeviceScreenState extends State<HeisucaDeviceScreen>
                   const Text(
                     '• Animações que usam o portão de desempenho ficam sem duração.',
                   ),
-                  const Text('• Rotação automática de fundos desligada.'),
+                  const Text('• Rotação automática de fundos e parallax desligados.'),
                   const Text(
                     '• Imagens menores, cache limitado a 64 MiB e até 3 requisições de arte simultâneas.',
                   ),

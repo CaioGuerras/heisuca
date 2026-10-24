@@ -1,3 +1,4 @@
+import '../cgflix/home/cgflix_actions.dart';
 import 'package:flutter/material.dart';
 import '../cgflix/cgflix_palette.dart';
 import '../cgflix/home/cgflix_cards.dart';
@@ -20,7 +21,8 @@ class HeisucaPosterTile extends StatelessWidget {
   Widget build(BuildContext context) => SizedBox(width: width, child: Column(
     crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
       Stack(children: [
-        CgflixPosterCard(item: item, client: client, width: width, onTap: onTap),
+        CgflixPosterCard(item: item, client: client, width: width, heroTag: 'heisuca-poster-${context.hashCode}-${item.globalKey}', onTap: onTap == null ? null : () {
+ cgflixRememberHeroTag(item, 'heisuca-poster-${context.hashCode}-${item.globalKey}'); onTap!(); }),
         // Nota no canto, como nas fileiras da Home.
         if (item.rating != null && item.rating! > 0) Positioned(right: 4, bottom: 4, child: IgnorePointer(child: DecoratedBox(
           decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(4)),

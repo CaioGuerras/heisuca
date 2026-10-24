@@ -1,3 +1,4 @@
+import 'heisuca_motion.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -147,7 +148,7 @@ Future<void> heisucaAddSource(BuildContext context) async {
   }
   var chosen = news.length == 1 ? news.single : null;
   if (chosen == null && navigator.mounted) {
-    chosen = await showModalBottomSheet<String>(context: navigator.context, showDragHandle: true,
+    chosen = await showModalBottomSheet<String>(sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: navigator.context, showDragHandle: true,
       builder: (sheet) => SafeArea(child: ListView(shrinkWrap: true, children: [
         const ListTile(title: Text('Qual servidor você quer ver agora?',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700))),
@@ -167,7 +168,7 @@ Future<void> heisucaChooseSource(BuildContext context) async {
   final servers = context.read<MultiServerProvider?>();
   if (source == null || servers == null) return;
   await showModalBottomSheet<void>(
-        context: context, showDragHandle: true, builder: (sheetContext) => SafeArea(child: ListView(shrinkWrap: true, children: [
+        sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: context, showDragHandle: true, builder: (sheetContext) => SafeArea(child: ListView(shrinkWrap: true, children: [
           const ListTile(title: Text('Escolha uma fonte'), subtitle: Text('As bibliotecas ficam separadas por servidor.')),
           for (final serverId in servers.expectedServerIds) Builder(builder: (_) {
             final other = servers.getClientForServer(ServerId(serverId));

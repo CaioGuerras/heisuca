@@ -184,3 +184,27 @@ nenhum refino parcial do item 4 foi enviado. Não houve acesso a VPS/servidores.
 Somente o ramo `codex/heisuca-home-site` foi alterado. Sem ramo novo, PR, merge ou release.
 O commit documental posterior ao verde usa skip ci; o código do item 3 já foi
 compilado e validado pelo run verde acima, em commit sem skip ci.
+
+## Item 4 — retomada após correção da base — 2.0.17+18
+O bloqueio anterior foi resolvido pelo commit `148e78f` e pela instrução de Caio:
+base exclusiva no selo 炳, `docs/marca/` e `apps/app/assets/heisuca/icone_*.svg`.
+
+- `heisuca_motion.dart`: duração única de 420 ms, curva de mola criticamente amortecida,
+  sem ultrapassar os limites de opacidade; compartilhadas pela ficha, abas e sheets Heisuca.
+  Movimento reduzido no sistema ou `DevicePerformance.isReduced` zeram as transições.
+- Parallax de 25% na arte da Início e ficha, conservando máscara e metadados. Desligado
+  pelos mesmos portões. A montagem de fileiras e os dados Jellyfin não foram alterados.
+- Hero liga os pôsteres Heisuca à ficha real (`HeisucaTitleSheet`, uma rota de página,
+  apesar do nome); tag individual por cartão, limpa ao fechar a ficha.
+- Fade-through conserva as páginas montadas e desativa toque, semântica e tickers das
+  abas ocultas. Sem trocar o destino ou recriar a navegação do upstream desktop/TV.
+- Sheets de login, fontes, temporadas/episódios, pedidos e menu da Home usam a mola comum.
+- `docs/icone_variantes_2026-10-24/`: três PNGs 512×512, SVGs correspondentes, renderizador
+  e mockup Android lado a lado. Geometria vetorial do 炳 preservada; mockup é simulação.
+  Conferência visual do PNG executada. Nenhum recurso de ícone Android/iOS foi alterado.
+- Testes novos: curva monotônica/normalizada, troca de abas sem toque na saída,
+  parallax real de rolagem e desligamento por desempenho.
+- Portão local: `bash apps/app/scripts/heisuca-checar.sh` aprovado; 367 testes passaram,
+  3 ignorados, análise sem erro/aviso novo nos arquivos tocados. Commit/run/APK: aguardando CI.
+  Não testado em aparelho; fluidez, voo do
+  pôster e comportamento de gestos precisam de avaliação física de Caio.

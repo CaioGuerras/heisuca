@@ -9,6 +9,7 @@
 // - Menu de Toque Longo (500ms + haptics) para ações rápidas (Esboço 04B)
 // - Espaçamento inferior calibrado para a Ilha Flutuante (HeisucaFloatingIsland)
 import 'dart:async';
+import 'heisuca_motion.dart';
 import 'dart:ui' show FontFeature;
 
 import 'package:flutter/material.dart';
@@ -246,6 +247,7 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
                   height: heroHeight,
                   paused: !_tabVisible || !_appActive || _heroDocked,
                   logoAnchor: _logoAnchor,
+                  scrollController: _scrollController,
                   onActiveItemChanged: _onHeroActiveChanged,
                 ),
         ),
@@ -317,6 +319,7 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
             height: heroHeight,
             paused: !_tabVisible || !_appActive || _heroDocked,
                   logoAnchor: _logoAnchor,
+            scrollController: _scrollController,
             onActiveItemChanged: _onHeroActiveChanged,
           ),
         )
@@ -385,8 +388,10 @@ class _HeisucaHero extends StatefulWidget {
     this.paused = false,
     this.onActiveItemChanged,
     required this.logoAnchor,
+    required this.scrollController,
   });
 
+  final ScrollController scrollController;
   final GlobalKey logoAnchor;
   final List<MediaItem> items;
   final double height;
@@ -497,15 +502,15 @@ class _HeisucaHeroState extends State<_HeisucaHero> {
             ShaderMask(
               key: const ValueKey('heisuca-hero-mask'), blendMode: BlendMode.dstIn,
               shaderCallback: (bounds) => heisucaHeroMask.createShader(bounds),
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 900),
+              child: HeisucaParallax(controller: widget.scrollController, child: AnimatedSwitcher(
+                duration: HeisucaMotion.durationFor(context),
                 child: OptimizedMediaImage(
                   key: ValueKey('hero_art_${item.globalKey}'), client: client,
                   imagePath: item.artPath ?? (artCandidates.isEmpty ? null : artCandidates.first),
                   width: screenWidth, height: widget.height, imageType: ImageType.art,
-                  alignment: const Alignment(0, -0.64), fadeInDuration: const Duration(milliseconds: 300),
+                  alignment: const Alignment(0, -0.64), fadeInDuration: HeisucaMotion.durationFor(context),
                 ),
-              ),
+              )),
             ),
 
             // 5. Informações Nobres Centralizadas (Esboço 03B)
@@ -848,6 +853,7 @@ class _HeisucaTop10Row extends StatelessWidget {
                   client: cgflixClientFor(ctx, item),
                   onTap: () {
                     HapticFeedback.lightImpact();
+                    cgflixRememberHeroTag(item, 'heisuca-home-${ctx.hashCode}-${item.globalKey}');
                     HeisucaTitleSheet.show(ctx, item);
                   },
                   onLongPress: () {
@@ -923,11 +929,13 @@ class _HeisucaShelfRow extends StatelessWidget {
                 return _HomePosterWithCaption(
                   item: item,
                   child: CgflixPosterCard(
+                  heroTag: 'heisuca-home-${ctx.hashCode}-${item.globalKey}',
                   width: 80,
                   item: item,
                   client: cgflixClientFor(ctx, item),
                   onTap: () {
                     HapticFeedback.lightImpact();
+                    cgflixRememberHeroTag(item, 'heisuca-home-${ctx.hashCode}-${item.globalKey}');
                     HeisucaTitleSheet.show(ctx, item);
                   },
                   onLongPress: () {
@@ -1067,7 +1075,7 @@ class _UpcomingRow extends StatelessWidget {
       } catch (_) { /* Oferece o fluxo real de pedidos se o item não puder ser aberto. */ }
     }
     if (!context.mounted) return;
-    await showModalBottomSheet<void>(context: context, isScrollControlled: true, useSafeArea: true,
+    await showModalBottomSheet<void>(sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: context, isScrollControlled: true, useSafeArea: true,
       builder: (_) => SizedBox(height: MediaQuery.sizeOf(context).height * 0.72,
         child: SingleChildScrollView(padding: const EdgeInsets.all(20), child: Column(
           crossAxisAlignment: CrossAxisAlignment.start, children: [

@@ -1,3 +1,4 @@
+import 'heisuca_motion.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -223,7 +224,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
     final isLight = palette.isLight;
 
     showModalBottomSheet<void>(
-      context: context,
+      sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: context,
       isScrollControlled: true,
       backgroundColor: isLight ? const Color(0xFFF7F3EC) : const Color(0xFF140F22),
       barrierColor: Colors.black.withOpacity(0.75),
@@ -245,7 +246,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
     final subtitleColor = isLight ? const Color(0xFF64748B) : const Color(0xFFA99FBB);
 
     showModalBottomSheet<void>(
-      context: context,
+      sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: context,
       isScrollControlled: true,
       backgroundColor: sheetBg,
       barrierColor: Colors.black.withOpacity(0.65),

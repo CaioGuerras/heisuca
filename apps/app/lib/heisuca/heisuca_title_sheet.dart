@@ -1,3 +1,4 @@
+import 'heisuca_motion.dart';
 import 'dart:collection';
 import 'package:flutter/material.dart';
 import '../screens/actor_media_screen.dart';
@@ -50,13 +51,23 @@ String heisucaEpisodeLabel(MediaItem episode) {
 /// Episódio ou temporada recebidos (Home, Em breve, novidades) abrem a ficha da SÉRIE,
 /// com aquele episódio como alvo ou aquela temporada selecionada.
 class HeisucaTitleSheet extends StatefulWidget {
-  const HeisucaTitleSheet({super.key, required this.hostContext, required this.item, this.episode});
+  const HeisucaTitleSheet({super.key, required this.hostContext, required this.item, this.episode, this.heroTag});
   final BuildContext hostContext;
   final MediaItem item;
   final MediaItem? episode;
-  static Future<void> show(BuildContext context, MediaItem item, {MediaItem? episode}) =>
-      Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) =>
-          HeisucaTitleSheet(hostContext: context, item: item, episode: episode)));
+  final String? heroTag;
+  static Future<void> show(BuildContext context, MediaItem item, {MediaItem? episode}) async {
+    final tag = cgflixDetailHeroTag(item);
+    try {
+      await Navigator.of(context).push(PageRouteBuilder<void>(
+        transitionDuration: HeisucaMotion.durationFor(context), reverseTransitionDuration: HeisucaMotion.durationFor(context),
+        pageBuilder: (_, _, _) => HeisucaTitleSheet(hostContext: context, item: item, episode: episode, heroTag: tag),
+        transitionsBuilder: (_, animation, _, child) => FadeTransition(
+          opacity: animation.drive(CurveTween(curve: HeisucaMotion.curve)), child: child)));
+    } finally {
+      cgflixForgetHeroTag(item);
+    }
+  }
   @override
   State<HeisucaTitleSheet> createState() => _HeisucaTitleSheetState();
 }
@@ -243,7 +254,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
   bool _hidden(MediaItem ep) => _hideSpoilers && !ep.isWatched && !ep.hasActiveProgress;
 
   Future<void> _chooseSeason() async {
-    final season = await showModalBottomSheet<MediaItem>(context: context, showDragHandle: true, isScrollControlled: true,
+    final season = await showModalBottomSheet<MediaItem>(sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: context, showDragHandle: true, isScrollControlled: true,
       builder: (ctx) => SafeArea(child: ConstrainedBox(
         constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(ctx).height * .7),
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -259,7 +270,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
   Future<void> _download() async {
     MediaItem? target = _item;
     if (_item.kind == MediaKind.show) {
-      target = await showModalBottomSheet<MediaItem>(context: context, showDragHandle: true, isScrollControlled: true,
+      target = await showModalBottomSheet<MediaItem>(sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: context, showDragHandle: true, isScrollControlled: true,
         builder: (ctx) => SafeArea(child: ConstrainedBox(
           constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(ctx).height * .75),
           child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -402,7 +413,9 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
           SliverToBoxAdapter(child: SizedBox(height: height, child: Stack(fit: StackFit.expand, children: [
             if (art != null && client != null) ShaderMask(blendMode: BlendMode.dstIn,
               shaderCallback: heisucaHeroMask.createShader,
-              child: OptimizedMediaImage(client: client, imagePath: art, imageType: ImageType.art, fit: BoxFit.cover)),
+              child: HeisucaParallax(controller: _scroll, child: widget.heroTag == null
+                ? OptimizedMediaImage(client: client, imagePath: art, imageType: ImageType.art, fit: BoxFit.cover)
+                : Hero(tag: widget.heroTag!, child: OptimizedMediaImage(client: client, imagePath: art, imageType: ImageType.art, fit: BoxFit.cover)))),
             Positioned(bottom: 8, left: 24, right: 24, child: Column(mainAxisSize: MainAxisSize.min, children: [
               if (_item.clearLogoPath != null && client != null)
                 SizedBox(height: 104, child: ClearLogoImage(client: client, logoPath: _item.clearLogoPath,
@@ -566,7 +579,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
       ])));
   }
 
-  Future<void> _allEpisodes() => showModalBottomSheet<void>(context: context, isScrollControlled: true, showDragHandle: true,
+  Future<void> _allEpisodes() => showModalBottomSheet<void>(sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: context, isScrollControlled: true, showDragHandle: true,
     builder: (ctx) => SafeArea(child: SizedBox(height: MediaQuery.sizeOf(ctx).height * .8, child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         HeisucaSheetHeader(_season != null ? heisucaSeasonLabel(_season!) : 'Episódios',

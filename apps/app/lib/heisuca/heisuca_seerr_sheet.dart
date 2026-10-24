@@ -1,3 +1,4 @@
+import 'heisuca_motion.dart';
 import 'package:flutter/material.dart';
 import '../cgflix/requests/cgflix_requests_ui.dart';
 
@@ -9,7 +10,7 @@ class HeisucaSeerrSheet extends StatelessWidget {
   final int? year;
 
   static Future<void> show(BuildContext context, {required String title, int? year}) =>
-    showModalBottomSheet<void>(context: context, isScrollControlled: true, useSafeArea: true,
+    showModalBottomSheet<void>(sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: context, isScrollControlled: true, useSafeArea: true,
       builder: (_) => HeisucaSeerrSheet(title: title, year: year));
 
   @override

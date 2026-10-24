@@ -1,3 +1,4 @@
+import '../heisuca/heisuca_motion.dart'; // CGFLIX: entrada de abas sem perder estado.
 import '../heisuca/heisuca_library_screen.dart';
 import '../cgflix/cgflix_navigation.dart';
 import '../heisuca/heisuca_floating_island.dart';
@@ -1240,13 +1241,13 @@ class _MainScreenState extends State<MainScreen>
       children: [
         const AuthErrorBanner(),
         Expanded(
-          child: IndexedStack(
-            index: _currentIndex,
-            clipBehavior: Clip.none,
-            children: [
-              for (var i = 0; i < _screens.length; i++) TickerMode(enabled: i == _currentIndex, child: _screens[i]),
-            ],
-          ),
+          // CGFLIX: fade-through conserva estado e desativa tickers das abas ocultas.
+          child: cgflixUseYouTab(context)
+              ? HeisucaTabStack(index: _currentIndex, children: _screens)
+              : IndexedStack(index: _currentIndex, clipBehavior: Clip.none, children: [
+                  for (var i = 0; i < _screens.length; i++)
+                    TickerMode(enabled: i == _currentIndex, child: _screens[i]),
+                ]),
         ),
       ],
     );

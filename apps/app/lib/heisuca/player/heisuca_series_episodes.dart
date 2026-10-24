@@ -1,3 +1,4 @@
+import '../heisuca_motion.dart';
 import 'package:flutter/material.dart';
 import '../../cgflix/home/cgflix_actions.dart';
 import '../../media/media_item.dart';
@@ -15,7 +16,7 @@ String heisucaPlayerEpisodeLine(MediaItem item) => [
 ].join(' · ');
 
 Future<MediaItem?> showHeisucaSeriesEpisodes(BuildContext context, MediaItem current) {
-  return showModalBottomSheet<MediaItem>(context: context, isScrollControlled: true,
+  return showModalBottomSheet<MediaItem>(sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: context, isScrollControlled: true,
     backgroundColor: const Color(0xff141018), showDragHandle: true,
     builder: (_) => HeisucaSeriesEpisodes(current: current));
 }

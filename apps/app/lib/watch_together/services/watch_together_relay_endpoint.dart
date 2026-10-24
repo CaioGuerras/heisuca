@@ -1,3 +1,5 @@
+import '../../cgflix/cgflix_defaults.dart';
+
 /// Canonical HTTP(S) base endpoint for a Watch Together relay.
 ///
 /// A base may include a reverse-proxy path prefix. The concrete health and
@@ -5,7 +7,9 @@
 final class WatchTogetherRelayEndpoint {
   WatchTogetherRelayEndpoint._(this._baseUri);
 
-  static const String defaultBaseUrl = 'https://ice.plezy.app';
+  // CGFLIX: o Assistir juntos usa o relay próprio; o do Plezy fica só para o login dos trackers.
+  static const String upstreamRelayBaseUrl = 'https://ice.plezy.app';
+  static const String defaultBaseUrl = cgflixWatchTogetherRelay;
 
   static final WatchTogetherRelayEndpoint defaultEndpoint = WatchTogetherRelayEndpoint._(Uri.parse(defaultBaseUrl));
 

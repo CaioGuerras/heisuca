@@ -177,9 +177,9 @@ void main() {
     test('resolves defaults and canonical endpoint paths', () {
       for (final value in <String?>[null, '', '   ']) {
         final endpoint = WatchTogetherRelayEndpoint.resolve(value);
-        expect(endpoint.canonicalBaseUrl, 'https://ice.plezy.app');
-        expect(endpoint.healthUri.toString(), 'https://ice.plezy.app/health');
-        expect(endpoint.webSocketUri.toString(), 'wss://ice.plezy.app/relay');
+        expect(endpoint.canonicalBaseUrl, 'https://heisuca.docaio.com.br/junto'); // CGFLIX: relay próprio
+        expect(endpoint.healthUri.toString(), 'https://heisuca.docaio.com.br/junto/health');
+        expect(endpoint.webSocketUri.toString(), 'wss://heisuca.docaio.com.br/junto/relay');
       }
 
       final endpoint = WatchTogetherRelayEndpoint.resolve('  HTTP://Example.COM:8080/old/../prefix///  ');

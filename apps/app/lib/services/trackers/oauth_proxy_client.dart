@@ -20,7 +20,7 @@ import 'tracker_constants.dart';
 /// scheme is required — works identically on TVs without a browser.
 class OAuthProxyClient {
   /// Public base URL of the Plezy relay; colocated with Watch Together.
-  static String get baseUrl => WatchTogetherRelayEndpoint.defaultEndpoint.canonicalBaseUrl;
+  static String get baseUrl => WatchTogetherRelayEndpoint.upstreamRelayBaseUrl;
 
   final http.Client _http;
 

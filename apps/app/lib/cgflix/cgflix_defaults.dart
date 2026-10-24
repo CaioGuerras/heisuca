@@ -34,6 +34,11 @@ const int cgflixSearchResultLimit = 40;
 /// Mude para `false` para voltar à lista do upstream (uma linha por servidor).
 const bool cgflixUnifiedSearch = true;
 
+/// Assistir juntos: relay próprio na VPS (24/10, mesmo código do relay do Plezy, `apps/app/server`).
+/// Só passam comandos (play, pausa, posição), o vídeo não. O login do MAL/AniList segue no relay
+/// do Plezy (`upstreamRelayBaseUrl`), porque o nosso não expõe `/auth`.
+const String cgflixWatchTogetherRelay = 'https://heisuca.docaio.com.br/junto';
+
 /// Logs: o botão "Enviar logs" do upstream manda o diagnóstico para o servidor do Plezy
 /// (ice.plezy.app). Desligado: sem telemetria para terceiros. Copiar os logs continua.
 /// Variável (não const) só para os testes do upstream exercitarem o envio.

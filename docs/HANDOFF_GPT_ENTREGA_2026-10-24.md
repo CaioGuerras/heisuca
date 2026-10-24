@@ -67,3 +67,11 @@ Run https://github.com/CaioGuerras/heisuca/actions/runs/40103320121: 357 aprovad
 1 falha, 3 ignorados. O cenário Jellyfin + Plex passou. Falha restante: preparação
 do teste HTTP Plex sem inicializar PlexApiCache; corrigido com AppDatabase em memória
 (e fechamento no teardown), seguindo o fixture existente de detalhes Plex.
+
+## Checkpoint de validação do item 1
+Código: `5c9b951fe88cb42bf3a15e1defc188c8582d9dc8`.
+Run: https://github.com/CaioGuerras/heisuca/actions/runs/40103763989
+O GitHub Actions confirmou sucesso em **Validar análise e testes antes do APK**,
+**Configurar Assinatura** e **Conferir isolamento dos providers no manifesto**.
+Os testes nativos e a compilação do APK ainda estão em execução.
+**Isso ainda não é run verde nem APK aprovado.** Não testado em aparelho.

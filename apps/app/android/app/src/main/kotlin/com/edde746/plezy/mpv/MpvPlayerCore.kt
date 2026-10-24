@@ -2647,6 +2647,21 @@ class MpvPlayerCore private constructor(
       return
     }
 
+    if (name == "heisuca-buffer-tier") {
+      submitMpvOperation(writeOperations, "buffer preference", { onComplete?.invoke(it) }) {
+        val wanted = DemuxerBudget.forPreference(largeMemoryClassMB(), value)
+        if (wanted != null) {
+          // Não amplia um cache já reduzido por pressão de memória.
+          val current = appliedDemuxerBudget
+          val next = if (current != null && current != steadyDemuxerBudget) current.narrowedTo(wanted) else wanted
+          steadyDemuxerBudget = wanted
+          appliedDemuxerBudget = next
+          demuxerBudgetWrites(next) { key, v -> writeProperty(key, v) }
+        }
+      }
+      return
+    }
+
     if (name == "dv-conversion-mode") {
       applyDvConversionMode(value, onComplete)
       return

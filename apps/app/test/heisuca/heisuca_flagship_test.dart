@@ -1,3 +1,6 @@
+import 'package:plezy/providers/multi_server_provider.dart';
+import 'package:plezy/services/multi_server_manager.dart';
+import 'package:plezy/services/data_aggregation_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -190,7 +193,7 @@ void main() {
     expect(tester.widget<Switch>(introSwitch).value, isTrue);
   });
 
-  testWidgets('buffer respeita o motor ativo e salva o perfil do ExoPlayer', (tester) async {
+  testWidgets('buffer salva a preferência tanto em mpv como em ExoPlayer', (tester) async {
     final service = await settings.SettingsService.getInstance();
     await service.write(settings.SettingsService.useExoPlayer, false);
     await _montar(tester, CgflixThemeVariant.isis, const HeisucaSettingsScreen());
@@ -199,7 +202,12 @@ void main() {
     await tester.pumpAndSettle();
     final buffer = find.byKey(const ValueKey('heisuca-buffer'));
     await tester.scrollUntilVisible(buffer, 300, scrollable: find.byType(Scrollable).last);
-    expect(tester.widget<DropdownButton<settings.PlaybackBufferTier>>(buffer).onChanged, isNull);
+    expect(tester.widget<DropdownButton<settings.PlaybackBufferTier>>(buffer).onChanged, isNotNull);
+    await tester.tap(buffer);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Muito grande').last);
+    await tester.pumpAndSettle();
+    expect(service.read(settings.SettingsService.playbackBufferTier), settings.PlaybackBufferTier.extraLarge);
     await tester.pumpWidget(const SizedBox());
     await service.write(settings.SettingsService.useExoPlayer, true);
     await _montar(tester, CgflixThemeVariant.isis, const HeisucaSettingsScreen());
@@ -217,7 +225,11 @@ void main() {
 
   group('HeisucaLibraryScreen & HeisucaSearchScreen', () {
     testWidgets('monta biblioteca e busca adaptando a ambos os temas', (tester) async {
-      await _montar(tester, CgflixThemeVariant.heitor, const HeisucaLibraryScreen());
+      final manager = MultiServerManager();
+      final servers = MultiServerProvider(manager, DataAggregationService(manager));
+      addTearDown(servers.dispose); addTearDown(manager.dispose);
+      await _montar(tester, CgflixThemeVariant.heitor, ChangeNotifierProvider.value(value: servers, child: const HeisucaLibraryScreen()));
+      await tester.pumpAndSettle();
       expect(find.text('Biblioteca'), findsOneWidget);
       expect(find.text('Todos'), findsOneWidget);
 

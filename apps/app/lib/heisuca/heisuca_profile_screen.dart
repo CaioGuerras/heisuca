@@ -1,7 +1,11 @@
 import 'dart:ui' as ui;
+import '../cgflix/conta/cgflix_conta.dart';
+import '../cgflix/conta/cgflix_minha_conta_screen.dart';
 import 'package:flutter/material.dart';
 import 'heisuca_source_scope.dart';
+import 'heisuca_security.dart';
 import 'kids/heisuca_kids.dart';
+import 'kids/heisuca_kids_identity.dart';
 import 'kids/heisuca_kids_flow.dart';
 import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -315,6 +319,13 @@ class HeisucaProfileScreen extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
+                      if (CgflixConta.of(context) case final conta?) ...[
+                        _buildProfileTile(icon: Symbols.manage_accounts_rounded,
+                          title: 'Minha conta: foto e senha', subtitle: 'Na fonte selecionada',
+                          textColor: textTitle, subColor: textSub, iconColor: textTitle,
+                          onTap: () => cgflixAbrirMinhaConta(context, conta)),
+                        Divider(color: dividerColor, height: 1, indent: 56),
+                      ],
                       _buildProfileTile(
                         icon: Symbols.tune_rounded,
                         title: 'Configurações Heisuca',
@@ -393,6 +404,16 @@ class HeisucaProfileScreen extends StatelessWidget {
                         onTap: () { HapticFeedback.lightImpact(); heisucaEnterKids(context); },
                       ),
                       Divider(color: dividerColor, height: 1.0, indent: 56.0),
+                      if (active != null) _buildProfileTile(icon: Symbols.fingerprint_rounded,
+                        title: 'Segurança e biometria', subtitle: 'Bloqueio do app e saída infantil',
+                        textColor: textTitle, subColor: textSub, iconColor: textTitle,
+                        onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                          builder: (_) => HeisucaSecurityScreen(parentId: active.id)))),
+                      if (kidsRecord != null) _buildProfileTile(icon: Symbols.edit_rounded,
+                        title: 'Nome e foto do perfil infantil', subtitle: kidsRecord.name,
+                        textColor: textTitle, subColor: textSub, iconColor: textTitle,
+                        onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                          builder: (_) => HeisucaKidsIdentityScreen(record: kidsRecord)))),
                       const HeisucaSourceTile(),
                       _buildProfileTile(
                         icon: Symbols.switch_account_rounded,

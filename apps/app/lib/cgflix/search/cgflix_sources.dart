@@ -127,7 +127,7 @@ Future<LibraryPage<MediaItem>>? cgflixMergedPersonPage(
 }) {
   final multiServer = context.read<MultiServerProvider?>();
   if (multiServer == null) return null;
-  final clients = multiServer.serverManager.visibleOnlineClients;
+  final clients = multiServer.serverManager.navigationOnlineClients;
   if (clients.length < 2) return null;
   if (start > 0) return Future.value(LibraryPage<MediaItem>(items: const [], totalCount: start, offset: start));
 

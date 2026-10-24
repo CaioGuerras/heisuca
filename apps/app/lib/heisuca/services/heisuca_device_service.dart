@@ -7,8 +7,11 @@ class HeisucaDeviceProfile {
   final String? chipset;
   final int? totalMemBytes;
   final double? maxRefreshRateHz;
+  final double? currentRefreshRateHz;
+  final String? renderer;
+  final bool? lowMemory;
 
-  const HeisucaDeviceProfile({this.deviceName, this.chipset, this.totalMemBytes, this.maxRefreshRateHz});
+  const HeisucaDeviceProfile({this.deviceName, this.chipset, this.totalMemBytes, this.maxRefreshRateHz, this.currentRefreshRateHz, this.renderer, this.lowMemory});
 
   factory HeisucaDeviceProfile.fromMap(Map<Object?, Object?> data) {
     String? text(String key) {
@@ -19,6 +22,8 @@ class HeisucaDeviceProfile {
     final refresh = data['maxRefreshRateHz'];
     return HeisucaDeviceProfile(
       deviceName: text('deviceName'),
+      currentRefreshRateHz: (data['currentRefreshRateHz'] as num?)?.toDouble(),
+      renderer: text('renderer'), lowMemory: data['lowMemory'] as bool?,
       chipset: text('chipset'),
       totalMemBytes: memory is num && memory > 0 ? memory.toInt() : null,
       maxRefreshRateHz: refresh is num && refresh.isFinite && refresh > 0 ? refresh.toDouble() : null,

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
@@ -68,6 +69,10 @@ class ProfileAvatar extends StatelessWidget {
     // own picture" — same absent-or-blank rule the thumb itself uses below.
     final override = avatarUrl;
     final thumb = override != null && override.isNotEmpty ? override : p.avatarThumbUrl;
+    if (thumb != null && thumb.startsWith('file://')) {
+      return Image.file(File.fromUri(Uri.parse(thumb)), width: size, height: size, fit: BoxFit.cover,
+        cacheWidth: memCacheSize, cacheHeight: memCacheSize, errorBuilder: (_, __, ___) => _initialFallback(theme, p));
+    }
     if (thumb != null && thumb.isNotEmpty) {
       return Image(
         image: MediaImageHelper.serverArtworkProvider(imageUrl: thumb, memWidth: memCacheSize, memHeight: memCacheSize),

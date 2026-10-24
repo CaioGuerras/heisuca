@@ -106,25 +106,7 @@ class HeisucaSourceTile extends StatelessWidget {
     final client = id == null ? null : servers.getClientForServer(ServerId(id));
     return ListTile(leading: const Icon(Icons.dns_outlined), title: const Text('Fonte atual'),
       subtitle: Text(client == null ? 'Selecionar servidor' : '${heisucaBackendLabel(client.backend.name)} · ${client.serverName ?? "Servidor"}'),
-      trailing: const Icon(Icons.expand_more), onTap: source == null ? null : () => showModalBottomSheet<void>(
-        context: context, showDragHandle: true, builder: (sheetContext) => SafeArea(child: ListView(shrinkWrap: true, children: [
-          const ListTile(title: Text('Escolha uma fonte'), subtitle: Text('As bibliotecas ficam separadas por servidor.')),
-          for (final serverId in servers.expectedServerIds) Builder(builder: (_) {
-            final other = servers.getClientForServer(ServerId(serverId));
-            final online = servers.isServerOnline(ServerId(serverId));
-            return ListTile(leading: Icon(online ? Icons.dns : Icons.cloud_off),
-              title: Text(other?.serverName ?? servers.serverManager.serverDisplayName(ServerId(serverId))),
-              subtitle: Text('${heisucaBackendLabel(other?.backend.name ?? "Fonte")} · ${online ? "Conectado" : "Offline"}'),
-              trailing: serverId == source.selected ? const Icon(Icons.check) : null,
-              onTap: () { Navigator.pop(sheetContext); source.select(serverId); });
-          }),
-          ListTile(leading: const Icon(Icons.add_circle_outline_rounded), title: const Text('Adicionar fonte'),
-            subtitle: const Text('Outro servidor Jellyfin, Emby ou conta Plex'),
-            onTap: () { Navigator.pop(sheetContext); heisucaAddSource(context); }),
-          ListTile(leading: const Icon(Icons.manage_accounts), title: const Text('Gerenciar perfis e conexões'),
-            onTap: () { Navigator.pop(sheetContext); Navigator.of(context, rootNavigator: true).push(
-              MaterialPageRoute<void>(builder: (_) => const ProfileSwitchScreen())); }),
-        ]))));
+      trailing: const Icon(Icons.expand_more), onTap: source == null ? null : () => heisucaChooseSource(context));
   }
 }
 
@@ -177,4 +159,30 @@ Future<void> heisucaAddSource(BuildContext context) async {
   if (chosen == null) return;
   await selection?.select(chosen);
   messenger?.showSnackBar(SnackBar(content: Text('Agora você está vendo: ${name(chosen)}')));
+}
+
+Future<void> heisucaChooseSource(BuildContext context) async {
+  if (heisucaKidsActive(context, listen: false)) return;
+  final source = context.getInheritedWidgetOfExactType<_SourceSelection>();
+  final servers = context.read<MultiServerProvider?>();
+  if (source == null || servers == null) return;
+  await showModalBottomSheet<void>(
+        context: context, showDragHandle: true, builder: (sheetContext) => SafeArea(child: ListView(shrinkWrap: true, children: [
+          const ListTile(title: Text('Escolha uma fonte'), subtitle: Text('As bibliotecas ficam separadas por servidor.')),
+          for (final serverId in servers.expectedServerIds) Builder(builder: (_) {
+            final other = servers.getClientForServer(ServerId(serverId));
+            final online = servers.isServerOnline(ServerId(serverId));
+            return ListTile(leading: Icon(online ? Icons.dns : Icons.cloud_off),
+              title: Text(other?.serverName ?? servers.serverManager.serverDisplayName(ServerId(serverId))),
+              subtitle: Text('${heisucaBackendLabel(other?.backend.name ?? "Fonte")} · ${online ? "Conectado" : "Offline"}'),
+              trailing: serverId == source.selected ? const Icon(Icons.check) : null,
+              onTap: () { Navigator.pop(sheetContext); source.select(serverId); });
+          }),
+          ListTile(leading: const Icon(Icons.add_circle_outline_rounded), title: const Text('Adicionar fonte'),
+            subtitle: const Text('Outro servidor Jellyfin, Emby ou conta Plex'),
+            onTap: () { Navigator.pop(sheetContext); heisucaAddSource(context); }),
+          ListTile(leading: const Icon(Icons.manage_accounts), title: const Text('Gerenciar perfis e conexões'),
+            onTap: () { Navigator.pop(sheetContext); Navigator.of(context, rootNavigator: true).push(
+              MaterialPageRoute<void>(builder: (_) => const ProfileSwitchScreen())); }),
+        ])));
 }

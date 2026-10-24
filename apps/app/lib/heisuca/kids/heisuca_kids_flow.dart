@@ -18,6 +18,8 @@ import '../../screens/profile/pin_entry_dialog.dart';
 import '../../screens/settings/connection_persistence.dart';
 import '../../services/jellyfin_client.dart';
 import 'heisuca_kids.dart';
+import 'heisuca_kids_identity.dart';
+import '../heisuca_security.dart';
 import 'heisuca_kids_opening.dart';
 
 /// Modo infantil ativo agora? (o menu, a fonte e os pedidos se escondem por isto).
@@ -85,7 +87,7 @@ Future<void> heisucaEnterKids(BuildContext context) async {
     accessToken: session.token, deviceId: base.deviceId, dialect: base.dialect,
     createdAt: now, lastAuthenticatedAt: now,
   );
-  final kidsProfile = Profile.local(id: 'kids-${const Uuid().v4()}', displayName: setup.name,
+  final kidsProfile = Profile.local(id: 'kids-${const Uuid().v4()}', displayName: setup.name, avatarThumbUrl: setup.photo,
     sortOrder: now.millisecondsSinceEpoch, createdAt: now);
   await registry.upsert(kidsProfile);
   if (!context.mounted) return;
@@ -109,6 +111,12 @@ Future<bool> heisucaExitKids(BuildContext context) async {
     _say(context, 'O perfil do responsável não está mais neste aparelho.');
     return false;
   }
+  final security = HeisucaSecurity.instance;
+  if (security.kidsEnabled(record.parentProfileId) && await security.authenticate('Sair do modo infantil')) {
+    if (!context.mounted) return false;
+    return switchProfileFromUi(context, parent);
+  }
+  if (!context.mounted) return false;
   String? error;
   for (var attempt = 0; attempt < 3; attempt++) {
     final pin = await showPinEntryDialog(context, 'PIN do responsável', errorMessage: error);
@@ -127,9 +135,10 @@ Future<bool> heisucaExitKids(BuildContext context) async {
 
 @immutable
 class HeisucaKidsSetup {
-  const HeisucaKidsSetup({required this.variant, required this.ceiling, required this.name, required this.pin});
+  const HeisucaKidsSetup({required this.variant, required this.ceiling, required this.name, required this.pin, this.photo});
   final CgflixThemeVariant variant;
   final String ceiling, name, pin;
+  final String? photo;
 }
 
 class HeisucaKidsSetupScreen extends StatefulWidget {
@@ -140,7 +149,9 @@ class HeisucaKidsSetupScreen extends StatefulWidget {
 
 class _HeisucaKidsSetupScreenState extends State<HeisucaKidsSetupScreen> {
   final _pages = PageController();
-  final _name = TextEditingController(text: 'Criança');
+  final _name = TextEditingController();
+  String? _photo;
+  bool _finishing = false;
   int _step = 0;
   var _variant = CgflixThemeVariant.ichigo;
   var _ceiling = 'livre';
@@ -154,11 +165,15 @@ class _HeisucaKidsSetupScreenState extends State<HeisucaKidsSetupScreen> {
   }
 
   Future<void> _finish() async {
+    if (_finishing) return;
+    setState(() => _finishing = true);
     final pin = await captureAndConfirmPin(context, setLabel: 'Crie o PIN do responsável', confirmLabel: 'Repita o PIN',
       onMismatch: (ctx) => ScaffoldMessenger.maybeOf(ctx)?.showSnackBar(const SnackBar(content: Text('Os PINs não conferem.'))));
-    if (pin == null || !mounted) return;
+    if (!mounted) return;
+    setState(() => _finishing = false);
+    if (pin == null) return;
     final name = _name.text.trim().isEmpty ? 'Criança' : _name.text.trim();
-    Navigator.pop(context, HeisucaKidsSetup(variant: _variant, ceiling: _ceiling, name: name, pin: pin));
+    Navigator.pop(context, HeisucaKidsSetup(variant: _variant, ceiling: _ceiling, name: name, pin: pin, photo: _photo));
   }
 
   @override
@@ -199,7 +214,16 @@ class _HeisucaKidsSetupScreenState extends State<HeisucaKidsSetupScreen> {
             body: 'O servidor passa a mostrar só desenhos e filmes de família, até a classificação que você escolher. '
                 'Pedidos, downloads, configurações e troca de perfil ficam escondidos.\n\n'
                 'Para sair do modo infantil, o app pede o PIN do responsável.'),
-          page(title: 'Para quem é?', body: 'O tema muda o app inteiro. Dá para trocar depois.', children: [
+          page(title: 'Para quem é?', body: 'Escolha o nome, a foto e o tema do perfil infantil.', children: [
+            TextField(controller: _name, maxLength: 24, textCapitalization: TextCapitalization.words,
+              style: TextStyle(color: palette.onGlass),
+              decoration: const InputDecoration(labelText: 'Nome da criança', hintText: 'Como aparece no “Oi, …!”')),
+            OutlinedButton.icon(icon: const Icon(Icons.add_a_photo_outlined), label: Text(_photo == null ? 'Escolher foto' : 'Foto escolhida · trocar'),
+              onPressed: () async {
+                try { final photo = await heisucaPickProfilePhoto(); if (mounted && photo != null) setState(() => _photo = photo); }
+                catch (_) { if (context.mounted) _say(context, 'Escolha uma imagem de até 8 MB.'); }
+              }),
+            const SizedBox(height: 14),
             choice(selected: _variant == CgflixThemeVariant.ichigo, title: 'Ichigo', subtitle: 'Morangos, melancias e corações',
               asset: 'morango', onTap: () => setState(() => _variant = CgflixThemeVariant.ichigo)),
             choice(selected: _variant == CgflixThemeVariant.sorairo, title: 'Sorairo', subtitle: 'Nuvens, estrelas e aviõezinhos',
@@ -212,8 +236,7 @@ class _HeisucaKidsSetupScreenState extends State<HeisucaKidsSetupScreen> {
             choice(selected: _ceiling == '10', title: 'Até 10 anos', subtitle: 'Inclui títulos com classificação 10',
               onTap: () => setState(() => _ceiling = '10')),
             const SizedBox(height: 14),
-            TextField(controller: _name, maxLength: 24, textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(labelText: 'Nome do perfil (aparece no "Oi, …!")')),
+
           ]),
           page(title: 'Último passo: o PIN', body: 'Crie um PIN de 4 números. Só com ele o app sai do modo infantil. '
               'Guarde bem: sem o PIN, a saída exige entrar de novo no aparelho.'),
@@ -223,7 +246,10 @@ class _HeisucaKidsSetupScreenState extends State<HeisucaKidsSetupScreen> {
           const Spacer(),
           FilledButton(style: FilledButton.styleFrom(backgroundColor: palette.action, foregroundColor: palette.onAction,
               minimumSize: const Size(140, 48)),
-            onPressed: _step < 2 ? () => _go(_step + 1) : _finish,
+            onPressed: _finishing ? null : _step < 2 ? () {
+              if (_step == 1 && _name.text.trim().isEmpty) { _say(context, 'Informe o nome da criança.'); return; }
+              FocusScope.of(context).unfocus(); _go(_step + 1);
+            } : _finish,
             child: Text(_step < 2 ? 'Continuar' : 'Criar PIN e ativar')),
         ])),
       ])),

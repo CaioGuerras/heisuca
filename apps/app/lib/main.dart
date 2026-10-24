@@ -1,3 +1,4 @@
+import 'heisuca/heisuca_security.dart';
 import 'dart:async';
 import 'heisuca/kids/heisuca_kids.dart';
 import 'heisuca/kids/heisuca_kids_theme.dart';
@@ -210,6 +211,7 @@ Future<StartupThemeResolution> _resolveStartupTheme() async {
   final settings = await SettingsService.getInstance();
   await TvDetectionService.getInstance(forceTv: settings.read(SettingsService.forceTvMode));
   await cgflixFixThemePref(settings); // CGFLIX: Isis / Heitor / Automático
+  await HeisucaSecurity.instance.load();
   await HeisucaKids.instance.load(); // Heisuca: perfil infantil força o tema dele desde a abertura
   final mode = settings.read(SettingsService.themeMode);
   return (themeMode: cgflixMaterialThemeMode(mode), darkTheme: cgflixDarkTheme()); // CGFLIX
@@ -1894,7 +1896,7 @@ class _AppShell extends StatelessWidget {
                       const SingleActivator(LogicalKeyboardKey.gameButtonB): const DismissIntent(),
                     },
                     builder: (context, child) {
-                      final shell = cgflixSystemBars(context, rootShell(child)); // CGFLIX
+                      final shell = HeisucaAppLock(child: cgflixSystemBars(context, rootShell(child))); // CGFLIX
                       if (!agentControlEnabled) return shell;
                       return AgentControlScope(
                         commandContext: () => rootNavigatorKey.currentState?.overlay?.context,

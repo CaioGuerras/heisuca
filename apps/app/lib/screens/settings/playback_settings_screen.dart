@@ -99,7 +99,7 @@ class PlaybackSettingsScreen extends StatelessWidget {
                   if (PlatformDetector.supportsExternalPlayers()) _externalPlayerTile(),
                   if (!exoActive && !cgflixMpvConfigOnlyInAdvanced) _mpvConfigTile(), // CGFLIX: vai para Avançado
                   _hardwareDecodingTile(),
-                  if (exoActive) _playbackBufferTile(),
+                  if (Platform.isAndroid) _playbackBufferTile(),
                   if (exoActive) _tunneledPlaybackTile(),
                 ],
               ),

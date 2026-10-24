@@ -129,6 +129,15 @@ data class DemuxerBudget(val aheadBytes: Long, val backBytes: Long) {
       else -> TIERS[2]
     }
 
+    /** Preferência do usuário, limitada pelo heap; pressão de memória continua soberana. */
+    fun forPreference(heapMB: Int, tier: String): DemuxerBudget? {
+      val base = forHeapClassMB(heapMB) ?: return null
+      val factor = when (tier) { "large" -> 2L; "extra_large" -> 4L; else -> 1L }
+      if (factor == 1L) return base
+      val ceiling = maxOf(base.totalBytes, minOf(512L * MIB, heapMB.toLong() * MIB / 2))
+      return DemuxerBudget(minOf(base.aheadBytes * factor, ceiling - base.backBytes), base.backBytes)
+    }
+
     /**
      * The budget to hold while Android reports memory pressure at [level]
      * (a `ComponentCallbacks2.TRIM_MEMORY_*` value), or null when the level

@@ -400,6 +400,7 @@ class _HeisucaHero extends StatefulWidget {
 class _HeisucaHeroState extends State<_HeisucaHero> {
   int _currentIndex = 0;
   Timer? _timer;
+  final _preloaded = <String>{};
 
   @override
   void initState() {
@@ -421,6 +422,23 @@ class _HeisucaHeroState extends State<_HeisucaHero> {
   void _notifyActive() {
     if (widget.items.isNotEmpty && mounted) {
       widget.onActiveItemChanged?.call(widget.items[_currentIndex % widget.items.length]);
+      // Só o próximo destaque: não disputa rede/decodificação com toda a primeira tela.
+      if (widget.items.length > 1) {
+        final next = widget.items[(_currentIndex + 1) % widget.items.length];
+        final client = cgflixClientFor(context, next);
+        final width = MediaQuery.sizeOf(context).width;
+        final candidates = next.heroArtCandidates(containerAspectRatio: width / widget.height);
+        final path = next.artPath ?? candidates.firstOrNull;
+        if (client != null && path != null && _preloaded.add(next.globalKey)) {
+          final ratio = MediaImageHelper.artworkPixelRatio(context, imageType: ImageType.art);
+          final url = MediaImageHelper.getOptimizedImageUrl(client: client, thumbPath: path, maxWidth: width,
+            maxHeight: widget.height, pixelRatio: ratio, imageType: ImageType.art);
+          final (w, h) = MediaImageHelper.getMemCacheDimensions(displayWidth: (width * ratio).round(),
+            displayHeight: (widget.height * ratio).round(), imageType: ImageType.art);
+          if (url.isNotEmpty) unawaited(precacheImage(MediaImageHelper.serverArtworkProvider(imageUrl: url, memWidth: w, memHeight: h), context,
+            onError: (_, __) {}));
+        }
+      }
     }
   }
 

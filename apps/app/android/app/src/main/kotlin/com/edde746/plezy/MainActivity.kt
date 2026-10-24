@@ -49,6 +49,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.roundToInt
 
 class MainActivity : FlutterActivity() {
+  private val heisucaSecurity by lazy { HeisucaSecurityChannel(this) }
 
   companion object {
     private const val TAG = "MainActivity"
@@ -341,7 +342,10 @@ class MainActivity : FlutterActivity() {
       "deviceName" to "${Build.MANUFACTURER} ${Build.MODEL}".trim(),
       "chipset" to if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) Build.SOC_MODEL else null,
       "totalMemBytes" to memoryInfo.totalMem,
-      "maxRefreshRateHz" to screen.supportedModes.maxOfOrNull { it.refreshRate }
+      "maxRefreshRateHz" to screen.supportedModes.maxOfOrNull { it.refreshRate },
+      "currentRefreshRateHz" to screen.refreshRate,
+      "renderer" to selectedFlutterRenderer.diagnosticName,
+      "lowMemory" to memoryInfo.lowMemory
     )
   }
 
@@ -659,6 +663,7 @@ class MainActivity : FlutterActivity() {
   }
 
   override fun onDestroy() {
+    heisucaSecurity.dispose()
     externalPlayerChannel.dispose()
     systemBarsInsetsHost?.setOnApplyWindowInsetsListener(null)
     systemBarsInsetsHost = null
@@ -1002,6 +1007,7 @@ class MainActivity : FlutterActivity() {
       }
     }
 
+    heisucaSecurity.attach(flutterEngine.dartExecutor.binaryMessenger)
     externalPlayerChannel.attach(flutterEngine.dartExecutor.binaryMessenger)
     userCertificateChannel.attach(flutterEngine.dartExecutor.binaryMessenger)
 

@@ -5,6 +5,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 
 import '../../media/media_item.dart';
+import '../../heisuca/heisuca_media_category.dart';
 import '../../media/media_server_client.dart';
 import '../../providers/multi_server_provider.dart';
 import '../../screens/libraries/state_messages.dart';
@@ -63,6 +64,7 @@ class CgflixFavoritesScreen extends StatefulWidget {
 
 class _CgflixFavoritesScreenState extends State<CgflixFavoritesScreen> {
   late Future<List<MediaItem>> _future = _load();
+  HeisucaMediaCategory _category = HeisucaMediaCategory.all;
 
   Future<List<MediaItem>> _load() async {
     try {
@@ -122,7 +124,14 @@ class _CgflixFavoritesScreenState extends State<CgflixFavoritesScreen> {
               ),
             );
           }
-          return RefreshIndicator(
+          final visible = items.where((item) => _category == HeisucaMediaCategory.all || heisucaMediaCategory(item) == _category).toList();
+          return Column(children: [
+            SizedBox(height: 52, child: ListView(scrollDirection: Axis.horizontal, padding: const EdgeInsets.symmetric(horizontal: 16),
+              children: [for (final category in HeisucaMediaCategory.values) Padding(padding: const EdgeInsets.only(right: 8),
+                child: ChoiceChip(label: Text(category.label), selected: category == _category,
+                  onSelected: (_) => setState(() => _category = category)))])),
+            if (visible.isEmpty) const Expanded(child: Center(child: Text('Nenhum favorito nesta categoria.')))
+            else Expanded(child: RefreshIndicator(
             onRefresh: _refresh,
             child: GridView.builder(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
@@ -132,20 +141,21 @@ class _CgflixFavoritesScreenState extends State<CgflixFavoritesScreen> {
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 12,
               ),
-              itemCount: items.length,
+              itemCount: visible.length,
               itemBuilder: (context, i) => LayoutBuilder(
                 builder: (context, box) => CgflixPosterCard(
-                  item: items[i],
+                  item: visible[i],
                   client: widget.source.client,
                   width: box.maxWidth,
-                  onTap: () => cgflixOpenDetails(context, items[i]).then((_) {
+                  onTap: () => cgflixOpenDetails(context, visible[i]).then((_) {
                     // Saiu da Minha lista na página do título? Atualiza a grade.
                     if (mounted) _refresh();
                   }),
                 ),
               ),
             ),
-          );
+          )),
+          ]);
         },
       ),
     );

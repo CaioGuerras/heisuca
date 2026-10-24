@@ -1799,6 +1799,9 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
         await currentPlayer.setProperty('tunneled-playback', tunneledPlayback ? 'yes' : 'no');
         await currentPlayer.setProperty('exo-buffer-tier', playbackBufferTier.nativeValue);
       }
+      if (Platform.isAndroid && !useExoPlayer && playbackBufferTier.nativeValue != 'auto') {
+        await currentPlayer.setProperty('heisuca-buffer-tier', playbackBufferTier.nativeValue);
+      }
       if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
         final dvConversionMode = settingsService.read(SettingsService.dvConversionMode);
         await currentPlayer.setProperty('dv-conversion-mode', dvConversionMode.nativeValue);

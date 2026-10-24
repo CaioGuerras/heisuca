@@ -1,3 +1,4 @@
+import '../services/device_performance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -99,6 +100,27 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
     _deviceService.removeListener(_deviceChanged);
     _tabController.dispose();
     super.dispose();
+  }
+
+  Future<void> _deviceStatus() async {
+    await _deviceService.initialize();
+    if (!mounted) return;
+    final p = _deviceService.profile;
+    final settingsNow = _settings;
+    await showDialog<void>(context: context, builder: (ctx) => AlertDialog(title: const Text('Funções e desempenho'),
+      content: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text('Interface: ${p.renderer ?? "não informado pelo Android"}'),
+        Text('Tela agora: ${p.currentRefreshRateHz?.round().toString() ?? "não informado"} Hz · máximo: ${p.maxRefreshRateHz?.round().toString() ?? "não informado"} Hz'),
+        Text('Efeitos visuais: ${DevicePerformance.isReduced ? "reduzidos" : "completos"}'),
+        Text('Preferência de efeitos: ${settingsNow?.read(settings.SettingsService.visualEffects).name ?? "automática"}'),
+        Text('Reduzir movimento do sistema: ${MediaQuery.disableAnimationsOf(context) ? "ativo" : "desativado"}'),
+        Text('Pressão de memória: ${p.lowMemory == null ? "não informada" : p.lowMemory! ? "alta; buffers podem ser reduzidos" : "normal"}'),
+        Text('Cache de imagens: ${(PaintingBinding.instance.imageCache.maximumSizeBytes / (1024 * 1024)).round()} MiB'),
+        Text('Motor escolhido: ${settingsNow?.read(settings.SettingsService.useExoPlayer) == true ? "ExoPlayer" : "mpv"}'),
+        Text('Decodificação por hardware: ${settingsNow?.read(settings.SettingsService.enableHardwareDecoding) != false ? "solicitada" : "desativada"}'),
+        const SizedBox(height: 12),
+        const Text('HDR, Dolby Vision e decodificador efetivo dependem do arquivo e do motor. Confira as informações durante a reprodução; identificação do aparelho não confirma esses recursos.'),
+      ])), actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Fechar'))]));
   }
 
   @override
@@ -242,6 +264,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                               color: isLight ? const Color(0xFF64748B) : const Color(0xFF8E859E),
                             ),
                           ),
+                          TextButton(onPressed: _deviceStatus, child: const Text('Ver funções ativas')),
                         ],
                       ),
                     ),
@@ -524,21 +547,19 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
               Text(
                 usesExoPlayer
                     ? 'Perfis de buffer do ExoPlayer.'
-                    : 'O libmpv gerencia o buffer automaticamente conforme a memória do aparelho.',
+                    : 'Buffer mpv limitado à memória do aparelho. Aplicado na próxima reprodução; pode reduzir sob pressão de RAM.',
                 style: TextStyle(color: titleColor, fontSize: 12),
               ),
               DropdownButton<settings.PlaybackBufferTier>(
                 key: const ValueKey('heisuca-buffer'),
                 isExpanded: true,
-                value: usesExoPlayer
-                    ? (_settings?.read(settings.SettingsService.playbackBufferTier) ?? settings.PlaybackBufferTier.auto)
-                    : settings.PlaybackBufferTier.auto,
+                value: _settings?.read(settings.SettingsService.playbackBufferTier) ?? settings.PlaybackBufferTier.auto,
                 items: const [
                   DropdownMenuItem(value: settings.PlaybackBufferTier.auto, child: Text('Automático')),
                   DropdownMenuItem(value: settings.PlaybackBufferTier.large, child: Text('Grande')),
                   DropdownMenuItem(value: settings.PlaybackBufferTier.extraLarge, child: Text('Muito grande')),
                 ],
-                onChanged: !usesExoPlayer ? null : (value) {
+                onChanged: (value) {
                   if (value != null) _save(settings.SettingsService.playbackBufferTier, value);
                 },
               ),

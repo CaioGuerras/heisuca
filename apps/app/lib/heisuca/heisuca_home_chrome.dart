@@ -5,6 +5,8 @@ import '../media/media_item.dart';
 import '../media/media_server_client.dart';
 import '../widgets/optimized_media_image.dart';
 import 'heisuca_logo.dart';
+import 'heisuca_source_scope.dart';
+import 'kids/heisuca_kids_flow.dart';
 import 'heisuca_title_sheet.dart';
 
 /// A única logo do título acompanha sua posição real e para entre a marca e a busca.
@@ -85,7 +87,7 @@ class _HeisucaHomeChromeState extends State<HeisucaHomeChrome> {
         )))),
       Positioned(top: top + 6, left: 14, right: 14, height: 48,
         child: Row(children: [
-          Semantics(button: true, label: 'Heisuca: Início', child: InkWell(onTap: widget.onHome,
+          Semantics(button: true, label: 'Heisuca: trocar fonte', child: InkWell(onTap: heisucaKidsActive(context) ? null : () => heisucaChooseSource(context),
             child: const HeisucaLogo(height: 28, siteHeader: true))),
           const Spacer(),
           IconButton.filledTonal(tooltip: 'Buscar', onPressed: widget.onSearch,

@@ -1,3 +1,4 @@
+import '../heisuca/heisuca_library_screen.dart';
 import '../cgflix/cgflix_navigation.dart';
 import '../heisuca/heisuca_floating_island.dart';
 import '../heisuca/heisuca_home_screen.dart';
@@ -1263,7 +1264,10 @@ class _MainScreenState extends State<MainScreen>
             ? HeisucaHomeScreen(key: _screenKeys[tab], onOpenLibrary: _selectLibrary)
             : DiscoverScreen(key: _screenKeys[tab]),
       NavigationTabId.explore => ExploreScreen(key: _screenKeys[tab]),
-      NavigationTabId.libraries => LibrariesScreen(
+      NavigationTabId.libraries => cgflixUseYouTab(context) && !_isOffline
+          ? HeisucaLibraryScreen(key: _screenKeys[tab], initialLibraryKey: _selectedLibraryGlobalKey,
+              onLibrarySelected: _handleLibrariesScreenSelected)
+          : LibrariesScreen(
         key: _screenKeys[tab],
         onLibraryOrderChanged: _onLibraryOrderChanged,
         onLibrarySelected: _handleLibrariesScreenSelected,

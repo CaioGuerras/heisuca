@@ -17,7 +17,7 @@ const _figures = <(double, double, double, double, int, String, String)>[
 ];
 
 const _bounce = Cubic(.34, 1.45, .64, 1);
-const _hold = 2600, _exit = 360;
+const _hold = 1600, _exit = 240;
 
 class HeisucaKidsOpening extends StatefulWidget {
   const HeisucaKidsOpening({super.key, required this.variant, required this.name, this.onFinished});
@@ -27,7 +27,7 @@ class HeisucaKidsOpening extends StatefulWidget {
 
   /// Total da animação (o fluxo usa como tempo mínimo da cobertura enquanto troca a sessão).
   static Duration durationFor(BuildContext context) =>
-      MediaQuery.disableAnimationsOf(context) ? const Duration(milliseconds: 1600) : const Duration(milliseconds: _hold + _exit);
+      MediaQuery.disableAnimationsOf(context) ? const Duration(milliseconds: 600) : const Duration(milliseconds: _hold + _exit);
 
   @override
   State<HeisucaKidsOpening> createState() => _HeisucaKidsOpeningState();
@@ -63,10 +63,10 @@ class _HeisucaKidsOpeningState extends State<HeisucaKidsOpening> with SingleTick
       return AnimatedBuilder(animation: _c, builder: (context, _) {
         final ms = _c.value * (_c.duration!.inMilliseconds);
         if (_reduced) {
-          final o = ms < 240 ? ms / 240 : ms > 1360 ? (1600 - ms) / 240 : 1.0;
+          final o = ms < 120 ? ms / 120 : ms > 480 ? (600 - ms) / 120 : 1.0;
           return Opacity(opacity: o.clamp(0, 1), child: _center(palette, vmin, name, 1, 1, 1));
         }
-        final exit = _w(ms, _hold, _hold + _exit, Curves.easeInCubic);
+        final exit = widget.onFinished == null ? 0.0 : _w(ms, _hold, _hold + _exit, Curves.easeInCubic);
         return Stack(children: [
           for (final f in _figures) () {
             final (x, y, size, rot, delay, a, b) = f;

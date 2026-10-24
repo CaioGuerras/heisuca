@@ -1,4 +1,6 @@
+import 'dart:collection';
 import 'package:flutter/material.dart';
+import '../screens/actor_media_screen.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../cgflix/cgflix_detail.dart';
@@ -58,6 +60,18 @@ class HeisucaTitleSheet extends StatefulWidget {
   State<HeisucaTitleSheet> createState() => _HeisucaTitleSheetState();
 }
 
+// Cache curto em memória, pertencente ao cliente autenticado: nunca compartilha dados
+// entre sessões/servidores. A tela revalida progresso ao abrir e ao voltar do player.
+final _titleSnapshots = Expando<LinkedHashMap<String, _TitleSnapshot>>();
+class _TitleSnapshot {
+  _TitleSnapshot(this.item, this.target, this.seasons, this.season, this.episodes, this.group);
+  final DateTime at = DateTime.now();
+  final MediaItem item;
+  final MediaItem? target, season;
+  final List<MediaItem> seasons, episodes;
+  final int group;
+}
+
 class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
   late MediaItem _item = widget.item;
   MediaItem? _target;
@@ -79,6 +93,13 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
   void initState() {
     super.initState();
     _scroll.addListener(_onScroll);
+    final client = cgflixClientFor(context, widget.item);
+    final key = heisucaSeriesIdFor(widget.item) ?? widget.item.id;
+    final cached = client == null ? null : _titleSnapshots[client]?[key];
+    if (cached != null && DateTime.now().difference(cached.at) < const Duration(minutes: 2)) {
+      _item = cached.item; _target = cached.target; _seasons = cached.seasons;
+      _season = cached.season; _episodes = cached.episodes; _group = cached.group;
+    }
     _load();
   }
   @override
@@ -91,7 +112,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
     if (_docked != docked) setState(() => _docked = docked);
   }
 
-  Future<void> _load() async {
+  Future<void> _load({bool refresh = false}) async {
     final generation = ++_loadGeneration;
     ++_episodeGeneration;
     setState(() { _loading = true; _error = null; });
@@ -100,7 +121,10 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
       if (client == null) throw StateError('offline');
       final entry = widget.item;
       final seriesId = _item.kind == MediaKind.show ? null : heisucaSeriesIdFor(entry);
-      final result = await client.fetchItemWithOnDeck(seriesId ?? _item.id);
+      final result = await client.fetchItemWithOnDeck(seriesId ?? _item.id, onItemReady: (ready) {
+        if (!mounted || generation != _loadGeneration) return;
+        if (seriesId == null || ready.kind == MediaKind.show) setState(() => _item = ready);
+      });
       if (!mounted || generation != _loadGeneration) return;
       final fetched = result.item;
       // Só troca para a série se o servidor confirmou que é uma série; senão mantém o item recebido.
@@ -111,36 +135,48 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
         setState(() { _item = own.item ?? entry; _target = _item; _fileInfo = null; });
         return;
       }
+      final previousTarget = _target?.id;
       setState(() {
         _item = fetched ?? _item;
         _target = widget.episode ??
             // Primeira abertura: o episódio tocado. Recargas (após assistir/marcar) seguem o on-deck.
-            (asSeries && entry.kind == MediaKind.episode && !_entryApplied ? entry : null) ??
+            (_item.kind == MediaKind.show && entry.kind == MediaKind.episode && !_entryApplied ? entry : null) ??
             result.onDeckEpisode ?? (_item.kind == MediaKind.show ? null : _item);
-        if (asSeries && entry.kind == MediaKind.season && !_entryApplied) _preferredSeasonId = entry.id;
+        if (_item.kind == MediaKind.show && entry.kind == MediaKind.season && !_entryApplied) _preferredSeasonId = entry.id;
         _entryApplied = true;
-        _fileInfo = null;
+        if (previousTarget != _target?.id) _fileInfo = null;
       });
       if (_item.kind == MediaKind.show) {
-        final seasons = await client.fetchChildren(_item.id);
+        final seasons = refresh && _seasons.isNotEmpty ? _seasons : await client.fetchChildren(_item.id);
         if (!mounted || generation != _loadGeneration) return;
         _seasons = seasons.where((s) => s.kind == MediaKind.season).toList()
           ..sort((a,b) => (a.index ?? 0).compareTo(b.index ?? 0));
         final preferred = _preferredSeasonId;
         _preferredSeasonId = null; // só vale para a primeira abertura
-        final selected = _seasons.where((s) => s.id == preferred).firstOrNull ??
+        final selected = (refresh ? _season : null) ?? _seasons.where((s) => s.id == preferred).firstOrNull ??
             _seasons.where((s) => s.id == _target?.parentId ||
             (_target != null && s.index == _target!.parentIndex)).firstOrNull ??
             _seasons.where((s) => (s.index ?? 0) > 0).firstOrNull ?? _seasons.firstOrNull;
-        if (selected != null) await _loadSeason(selected);
+        if (selected != null) await _loadSeason(selected, retain: selected.id == _season?.id && _episodes.isNotEmpty);
       }
     } catch (_) { if (mounted && generation == _loadGeneration) setState(() => _error = 'Não foi possível atualizar o título. Tente novamente.'); }
-    finally { if (mounted && generation == _loadGeneration) setState(() => _loading = false); }
+    finally {
+      if (mounted && generation == _loadGeneration) {
+        setState(() => _loading = false);
+        final client = cgflixClientFor(context, _item);
+        if (client != null && _error == null) {
+          final cache = _titleSnapshots[client] ??= LinkedHashMap<String, _TitleSnapshot>();
+          cache.remove(_item.id);
+          cache[_item.id] = _TitleSnapshot(_item, _target, List.of(_seasons), _season, List.of(_episodes), _group);
+          while (cache.length > 12) { cache.remove(cache.keys.first); }
+        }
+      }
+    }
   }
 
-  Future<void> _loadSeason(MediaItem season) async {
+  Future<void> _loadSeason(MediaItem season, {bool retain = false}) async {
     final generation = ++_episodeGeneration;
-    setState(() { _season = season; _episodes = []; _group = 0; _loadingEpisodes = true; _episodeError = null; });
+    setState(() { _season = season; if (!retain) { _episodes = []; _group = 0; } _loadingEpisodes = true; _episodeError = null; });
     try {
       final client = cgflixClientFor(context, _item);
       if (client == null) throw StateError('offline');
@@ -160,11 +196,11 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
   void _play() { final target = _target; if (target != null) _playEpisode(target); }
   Future<void> _playEpisode(MediaItem target) async {
     await cgflixPlay(context, target);
-    if (mounted) await _load();
+    if (mounted) await _load(refresh: true);
   }
   Future<void> _markWatched() async {
     await HeisucaStateStore.instance.toggleWatched(context, _target ?? _item);
-    if (mounted) await _load();
+    if (mounted) await _load(refresh: true);
   }
   /// Regra do site (Caio, 19/10): "Continuar" só quando há posição salva; senão "Assistir T1:E3".
   String get _playLabel {
@@ -453,7 +489,13 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
               fontFeatures: const [FontFeature.tabularFigures()])))))));
   }
 
-  Widget _person(HeisucaTitleColors c, MediaServerClient? client, MediaRole role) => SizedBox(width: 78, child: Column(children: [
+  Widget _person(HeisucaTitleColors c, MediaServerClient? client, MediaRole role) => SizedBox(width: 78, child: InkWell(
+    borderRadius: BorderRadius.circular(16),
+    onTap: role.id == null || role.id!.isEmpty || client == null ? null : () => Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => ActorMediaScreen(actorName: role.tag, personId: role.id!,
+        actorThumb: role.thumbPath, characterName: role.role, serverId: client.serverId.value,
+        serverName: client.serverName, backend: client.backend))),
+    child: Column(children: [
     ClipRRect(borderRadius: BorderRadius.circular(16), child: SizedBox(width: 76, height: 76, child: ColoredBox(color: c.line,
       child: role.thumbPath != null && client != null
         ? OptimizedMediaImage(client: client, imagePath: role.thumbPath!, imageType: ImageType.thumb, fit: BoxFit.cover)
@@ -463,7 +505,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
       style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, height: 1.2, color: c.text)),
     if (role.role?.isNotEmpty == true) Text(role.role!.replaceAll('(voice)', '(voz)'), textAlign: TextAlign.center, maxLines: 2,
       overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 11, height: 1.2, color: c.text2)),
-  ]));
+  ])));
 
   Widget _episodeCard(HeisucaTitleColors c, MediaItem ep) {
     final client = cgflixClientFor(context, ep);

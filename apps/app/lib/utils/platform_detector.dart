@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
@@ -330,16 +329,11 @@ class PlatformDetector {
   );
 
   /// Detects if the device is likely a tablet based on screen size
-  /// Uses diagonal screen size to determine if device is a tablet
+  /// Uses the shortest logical screen dimension (600 dp breakpoint).
   static bool isTablet(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    final diagonal = sqrt(size.width * size.width + size.height * size.height);
-
-    // Logical pixels are density-independent at ~160 per inch, so the diagonal
-    // converts to inches directly; devicePixelRatio is already factored out.
-    final diagonalInches = diagonal / 160.0;
-
-    return diagonalInches >= 7.0;
+    // dp não é uma medida física em polegadas. A menor dimensão é estável na rotação.
+    return size.shortestSide >= 600;
   }
 
   static bool isPhone(BuildContext context) {

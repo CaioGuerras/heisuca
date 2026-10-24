@@ -205,6 +205,54 @@ base exclusiva no selo 炳, `docs/marca/` e `apps/app/assets/heisuca/icone_*.svg
 - Testes novos: curva monotônica/normalizada, troca de abas sem toque na saída,
   parallax real de rolagem e desligamento por desempenho.
 - Portão local: `bash apps/app/scripts/heisuca-checar.sh` aprovado; 367 testes passaram,
-  3 ignorados, análise sem erro/aviso novo nos arquivos tocados. Commit/run/APK: aguardando CI.
+  3 ignorados, análise sem erro/aviso novo nos arquivos tocados.
+- Código: `97d9e5e9624cb8cb7ab637bf05018efe82d0684c`, commit sem skip ci.
+- [Run verde 40143220353](https://github.com/CaioGuerras/heisuca/actions/runs/40143220353),
+  encerrado com `success`. Testes nativos, compilação ARM64 e conferência do APK aprovados.
+- [APK 2.0.17+18 — heisuca-apk](https://github.com/CaioGuerras/heisuca/actions/runs/40143220353/artifacts/12579653876).
+  Artifact: 51.165.821 bytes. Digest ZIP:
+  `9f7b28a5b5c6848be2ae00c7a2da73c4d3af1ba100f26dd223b1c5fe2f1e0d42`.
+  Certificado SHA-256 confirmado nos logs: `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`.
   Não testado em aparelho; fluidez, voo do
   pôster e comportamento de gestos precisam de avaliação física de Caio.
+
+
+## Item 5 — divergência encontrada na conferência após o verde do item 4
+**Parado antes de implementar.** O desenho descreve a retirada de MAL/AniList e do
+OAuth proxy como caminho para que nenhuma chamada do app vá para `ice.plezy.app`.
+O código real tem outros consumidores desse domínio, além do proxy:
+
+| Caminho | Evidência estática | Situação |
+| --- | --- | --- |
+| `lib/services/discord_rpc_service.dart:56` | `_posterUploadUrl = 'https://ice.plezy.app/posters'` | Upload das capas do Discord RPC |
+| `lib/services/discord_rpc_service.dart:157` | Agenda `_uploadThumbnailAndUpdatePresence` | Fluxo de presença chama o upload |
+| `lib/services/discord_rpc_service.dart:366` | `httpClient.post(_posterUploadUrl, body: imageBytes, …)` | POST real, não apenas documentação |
+| `lib/services/log_upload_service.dart:6` e `:51` | `logUploadEndpoint` e POST do diagnóstico | Endpoint ainda presente |
+| `lib/screens/settings/logs_screen.dart:483` | Botão condicionado a `cgflixAllowLogUpload` | Desativado por padrão; não foi observado envio |
+| `lib/watch_together/services/watch_together_relay_endpoint.dart:11` | `upstreamRelayBaseUrl` | Uso pelo OAuth proxy, já previsto no item 5 |
+
+Comando de conferência: `rg -n 'ice.plezy.app' apps/app/lib` e leitura dos métodos
+`_uploadThumbnail`/`_uploadThumbnailAndUpdatePresence` do Discord. Não foi feita chamada
+real a esses serviços, nem teste com Discord/contas no aparelho. Discord RPC é integração
+de desktop; esta descoberta não comprova envio no Android.
+
+Remover só MAL/AniList deixa o POST de capas no Discord. Retirar também esse POST exige
+especificar como a presença Discord deve ficar (por exemplo, sem capa hospedada) e
+tratar a API de envio de diagnóstico; isso não está descrito no desenho do item 5.
+Não redirecionei as chamadas para a VPS nem inventei endpoint ou fluxo substituto.
+Parei conforme a regra de Caio: "Se algo não bater, pare e documente". Nenhum código do
+item 5 foi alterado. Trakt foi preservado; MAL/AniList ainda não foram removidos.
+
+### Estado atual desta continuação
+| Item | Estado |
+| --- | --- |
+| 4 | Concluído no CI, 2.0.17+18; três variantes apenas em docs; não testado em aparelho |
+| 5 | Parado pela divergência dos outros consumidores do domínio descrita acima |
+| 6 | Pendente na sequência; nenhuma transmissão criada |
+| 7 | Pendente; os 16 testes históricos ainda não foram corrigidos |
+| 8 | Pendente |
+| 9 | Pendente; montagem/dados da Início Jellyfin não foram alterados nesta continuação |
+
+Somente `codex/heisuca-home-site` foi usado. Sem ramo novo, PR, merge, release ou
+alteração de servidor. O registro documental posterior ao run verde usa skip ci;
+o código do item 4 está no commit validado sem skip ci acima.

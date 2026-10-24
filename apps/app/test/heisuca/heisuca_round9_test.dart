@@ -1,8 +1,9 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plezy/heisuca/heisuca_media_category.dart';
+import 'package:plezy/cgflix/cgflix_theme.dart';
+import 'package:plezy/cgflix/you/cgflix_favorites_screen.dart';
+import 'package:plezy/cgflix/home/cgflix_cards.dart';
 import 'package:plezy/heisuca/heisuca_security.dart';
 import 'package:plezy/media/media_item.dart';
 import 'package:plezy/media/media_kind.dart';
@@ -46,9 +47,11 @@ void main() {
     allow = true;
     await tester.tap(find.text('Desbloquear')); await tester.pumpAndSettle();
     expect(find.text('Acervo privado'), findsOneWidget);
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused); await tester.pump();
-    expect(find.text('Acervo privado'), findsNothing);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    // Android suspende frames em paused; confira a proteção no primeiro frame do retorno.
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pump();
+    expect(find.text('Acervo privado'), findsNothing);
     await tester.pumpWidget(const SizedBox());
   });
   testWidgets('campo invisível do PIN não herda borda colorida do tema', (tester) async {
@@ -61,4 +64,22 @@ void main() {
     expect(field.decoration!.enabledBorder, InputBorder.none);
     expect(tester.takeException(), isNull);
   });
+  testWidgets('favoritos filtram filmes, séries e animes sem misturar categorias', (tester) async {
+    final items = [
+      MediaItem.jellyfin(id: 'film', kind: MediaKind.movie, title: 'Filme'),
+      MediaItem.jellyfin(id: 'show', kind: MediaKind.show, title: 'Série', libraryTitle: 'Séries'),
+      MediaItem.jellyfin(id: 'anime', kind: MediaKind.show, title: 'Anime', libraryTitle: 'Animes'),
+    ];
+    await tester.pumpWidget(MaterialApp(theme: cgflixAppTheme(CgflixThemeVariant.isis),
+      home: CgflixFavoritesScreen(source: CgflixFavoritesSource(load: () async => items))));
+    await tester.pumpAndSettle();
+    expect(find.byType(CgflixPosterCard), findsNWidgets(3));
+    for (final category in [('Filmes', 'film'), ('Séries', 'show'), ('Animes', 'anime')]) {
+      await tester.tap(find.text(category.$1)); await tester.pumpAndSettle();
+      expect(find.byType(CgflixPosterCard), findsOneWidget);
+      expect(tester.widget<CgflixPosterCard>(find.byType(CgflixPosterCard)).item.id, category.$2);
+    }
+    expect(tester.takeException(), isNull);
+  });
+
 }

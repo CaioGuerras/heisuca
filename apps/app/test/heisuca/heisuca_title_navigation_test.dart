@@ -23,6 +23,7 @@ MediaItem _item(String id, MediaKind kind, {int? index, String? parentId, int? p
       parentId: parentId, parentIndex: parentIndex, durationMs: 1400000, viewOffsetMs: id == 'episode-7' ? 300000 : 0);
 
 class _Client extends MediaServerClient {
+  Completer<void>? hold;
   final show = _item('Série de teste', MediaKind.show);
   final season = _item('Temporada 1', MediaKind.season, index: 1);
   final episodes = List.generate(13, (i) => _item('episode-${i + 1}', MediaKind.episode,
@@ -31,7 +32,10 @@ class _Client extends MediaServerClient {
   @override ServerId get serverId => ServerId('source');
   @override MediaBackend get backend => MediaBackend.jellyfin;
   @override Future<({MediaItem? item, MediaItem? onDeckEpisode})> fetchItemWithOnDeck(String id,
-      {void Function(MediaItem)? onItemReady}) async => (item: show, onDeckEpisode: episodes[6]);
+      {void Function(MediaItem)? onItemReady}) async {
+    if (hold != null) await hold!.future;
+    return (item: show, onDeckEpisode: episodes[6]);
+  }
   @override Future<List<MediaItem>> fetchChildren(String id) async => id == show.id ? [season] : episodes;
   @override Future<MediaFileInfo?> getFileInfo(MediaItem item) async => null;
   @override Future<List<MediaHub>> fetchRelatedHubs(String id, {int count = 10}) async => const [];
@@ -74,4 +78,28 @@ void main() {
       await tester.pumpWidget(const SizedBox());
     });
   }
+  testWidgets('ficha reaberta mantém continuação enquanto revalida; outra sessão não herda cache', (tester) async {
+    final first = _Client();
+    final manager = MultiServerManager()..debugRegisterClientForTesting(first);
+    final servers = MultiServerProvider(manager, DataAggregationService(manager));
+    addTearDown(servers.dispose); addTearDown(manager.dispose);
+    Widget screen(MediaItem item) => ChangeNotifierProvider.value(value: servers, child: MaterialApp(
+      theme: cgflixAppTheme(CgflixThemeVariant.isis), home: Builder(builder: (ctx) => HeisucaTitleSheet(hostContext: ctx, item: item))));
+    await tester.pumpWidget(screen(first.show)); await tester.pumpAndSettle();
+    expect(find.text('Continuar T1:E7'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+    first.hold = Completer<void>();
+    await tester.pumpWidget(screen(first.show)); await tester.pump();
+    expect(find.text('Continuar T1:E7'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox()); first.hold!.complete(); await tester.pump();
+    final other = _Client()..hold = Completer<void>();
+    manager.debugRegisterClientForTesting(other);
+    await tester.pumpWidget(screen(other.show)); await tester.pump();
+    expect(find.text('Continuar T1:E7'), findsNothing);
+    other.hold!.complete(); await tester.pumpAndSettle();
+    expect(find.text('Continuar T1:E7'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
+
 }

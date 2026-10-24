@@ -107,12 +107,15 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
     if (!mounted) return;
     final p = _deviceService.profile;
     final settingsNow = _settings;
+    final effectsLabel = switch (settingsNow?.read(settings.SettingsService.visualEffects).name) {
+      'full' => 'completos', 'reduced' => 'reduzidos', _ => 'automática',
+    };
     await showDialog<void>(context: context, builder: (ctx) => AlertDialog(title: const Text('Funções e desempenho'),
       content: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text('Interface: ${p.renderer ?? "não informado pelo Android"}'),
         Text('Tela agora: ${p.currentRefreshRateHz?.round().toString() ?? "não informado"} Hz · máximo: ${p.maxRefreshRateHz?.round().toString() ?? "não informado"} Hz'),
         Text('Efeitos visuais: ${DevicePerformance.isReduced ? "reduzidos" : "completos"}'),
-        Text('Preferência de efeitos: ${settingsNow?.read(settings.SettingsService.visualEffects).name ?? "automática"}'),
+        Text('Preferência de efeitos: $effectsLabel'),
         Text('Reduzir movimento do sistema: ${MediaQuery.disableAnimationsOf(context) ? "ativo" : "desativado"}'),
         Text('Pressão de memória: ${p.lowMemory == null ? "não informada" : p.lowMemory! ? "alta; buffers podem ser reduzidos" : "normal"}'),
         Text('Cache de imagens: ${(PaintingBinding.instance.imageCache.maximumSizeBytes / (1024 * 1024)).round()} MiB'),

@@ -201,7 +201,8 @@ void main() {
     await tester.tap(find.text('Avançado'));
     await tester.pumpAndSettle();
     final buffer = find.byKey(const ValueKey('heisuca-buffer'));
-    await tester.scrollUntilVisible(buffer, 300, scrollable: find.byType(Scrollable).last);
+    await tester.ensureVisible(buffer);
+    await tester.pumpAndSettle();
     expect(tester.widget<DropdownButton<settings.PlaybackBufferTier>>(buffer).onChanged, isNotNull);
     await tester.tap(buffer);
     await tester.pumpAndSettle();
@@ -215,7 +216,8 @@ void main() {
     await tester.tap(find.text('Avançado'));
     await tester.pumpAndSettle();
     expect(find.text('Decodificação por Hardware'), findsNothing);
-    await tester.scrollUntilVisible(buffer, 300, scrollable: find.byType(Scrollable).last);
+    await tester.ensureVisible(buffer);
+    await tester.pumpAndSettle();
     await tester.tap(buffer);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Grande').last);

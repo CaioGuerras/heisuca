@@ -95,6 +95,11 @@ jobs:
       - name: Conferir isolamento dos providers no manifesto
         run: python3 scripts/heisuca-validar-apk.py --source-only
 
+      - name: Testar limites nativos do buffer mpv
+        run: |
+          cd android
+          ./gradlew :app:testDebugUnitTest --tests com.edde746.plezy.mpv.HeisucaBufferBudgetTest -PtargetAbi=arm64-v8a -PheisucaPreview=true
+
       - name: Compilar APK Release (arm64-v8a)
         run: |
           preview_args=()

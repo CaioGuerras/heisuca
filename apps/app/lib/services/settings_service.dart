@@ -809,7 +809,8 @@ class SettingsService extends BaseSharedPreferencesService {
     values: VisualEffectsSetting.values,
     defaultValue: VisualEffectsSetting.auto,
   );
-  static const ambientLighting = BoolPref('ambient_lighting');
+  // Heisuca (Caio, 24/10): ligada por padrão no flagship (efeito do mpv; o ExoPlayer não oferece).
+  static const ambientLighting = BoolPref('ambient_lighting', defaultValue: true);
   static const audioPassthrough = _AudioPassthroughPref();
   static const audioNormalization = BoolPref('audio_normalization');
 

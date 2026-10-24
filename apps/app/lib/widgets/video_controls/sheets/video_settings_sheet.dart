@@ -272,7 +272,8 @@ class _SettingsToggleItemState extends State<_SettingsToggleItem> {
           trailing: Switch(
             value: displayedValue,
             onChanged: isPending ? null : _write,
-            activeThumbColor: cgflixPlayerAccent,
+            activeTrackColor: cgflixPlayerAccent,
+            activeThumbColor: Colors.white,
           ),
           onTap: isPending ? null : () => _write(!displayedValue),
         );
@@ -975,7 +976,8 @@ class _VideoSettingsSheetState extends State<VideoSettingsSheet> {
                 _state.onToggleAmbientLighting?.call();
                 OverlaySheetController.of(context).close();
               },
-              activeThumbColor: cgflixPlayerAccent,
+              activeTrackColor: cgflixPlayerAccent,
+            activeThumbColor: Colors.white,
             ),
             onTap: () {
               _state.onToggleAmbientLighting?.call();

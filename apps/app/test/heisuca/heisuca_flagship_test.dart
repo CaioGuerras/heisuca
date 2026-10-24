@@ -237,7 +237,7 @@ void main() {
       await _montar(tester, CgflixThemeVariant.heitor, ChangeNotifierProvider.value(value: servers, child: const HeisucaLibraryScreen()));
       await tester.pumpAndSettle();
       expect(find.text('Biblioteca'), findsOneWidget);
-      expect(find.text('Todos'), findsOneWidget);
+      expect(find.text('Nenhum título disponível nesta seleção.'), findsOneWidget, reason: 'sem fonte, estado vazio (sem botões falsos)');
 
       await _montar(tester, CgflixThemeVariant.heitor, const HeisucaSearchScreen());
       expect(find.text('No seu Acervo'), findsOneWidget);

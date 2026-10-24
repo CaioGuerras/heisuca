@@ -42,6 +42,9 @@ void main() {
       theme: cgflixAppTheme(CgflixThemeVariant.isis), home: const HeisucaLibraryScreen())));
     await tester.pumpAndSettle();
     expect(a.calls, isEmpty); expect(b.calls.single.$1, 'films');
+    // Caio, 24/10: só botões (nada de lista que abre por cima) e o nome aparece sob a capa.
+    expect(find.byType(DropdownButton<String>), findsNothing);
+    expect(find.text('Título de B'), findsOneWidget);
     await tester.tap(find.text('Animes').first); await tester.pumpAndSettle();
     expect(b.calls.last.$1, 'anime');
     await tester.enterText(find.byType(TextField), 'Apotecária');

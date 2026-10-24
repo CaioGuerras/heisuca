@@ -33,7 +33,7 @@ void _say(BuildContext context, String text) =>
     ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(text)));
 
 /// Cliente Jellyfin da fonte em uso (o modo infantil é do servidor, não do aparelho).
-JellyfinClient? _jellyfinSource(MultiServerProvider servers) {
+JellyfinClient? heisucaKidsJellyfinSource(MultiServerProvider servers) {
   final manager = servers.serverManager;
   final selected = manager.navigationServerId;
   final online = manager.navigationOnlineClients.values.whereType<JellyfinClient>();
@@ -57,7 +57,7 @@ Future<void> heisucaEnterKids(BuildContext context) async {
     return;
   }
 
-  final client = _jellyfinSource(servers);
+  final client = heisucaKidsJellyfinSource(servers);
   if (client == null) {
     _say(context, 'O modo infantil precisa de um servidor Jellyfin conectado.');
     return;
@@ -153,7 +153,8 @@ class _HeisucaKidsSetupScreenState extends State<HeisucaKidsSetupScreen> {
   String? _photo;
   bool _finishing = false;
   int _step = 0;
-  var _variant = CgflixThemeVariant.ichigo;
+  // Sem tema pré-marcado (Caio, 24/10: "pegou o tema de menina automaticamente"): escolha obrigatória.
+  CgflixThemeVariant? _variant;
   var _ceiling = 'livre';
 
   @override
@@ -173,12 +174,12 @@ class _HeisucaKidsSetupScreenState extends State<HeisucaKidsSetupScreen> {
     setState(() => _finishing = false);
     if (pin == null) return;
     final name = _name.text.trim().isEmpty ? 'Criança' : _name.text.trim();
-    Navigator.pop(context, HeisucaKidsSetup(variant: _variant, ceiling: _ceiling, name: name, pin: pin, photo: _photo));
+    Navigator.pop(context, HeisucaKidsSetup(variant: _variant!, ceiling: _ceiling, name: name, pin: pin, photo: _photo));
   }
 
   @override
   Widget build(BuildContext context) {
-    final palette = CgflixPalette.forVariant(_variant);
+    final palette = CgflixPalette.forVariant(_variant ?? CgflixThemeVariant.heitor);
     final scheme = Theme.of(context).colorScheme;
     Widget page({required String title, required String body, List<Widget> children = const []}) => ListView(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 24), children: [
@@ -224,9 +225,11 @@ class _HeisucaKidsSetupScreenState extends State<HeisucaKidsSetupScreen> {
                 catch (_) { if (context.mounted) _say(context, 'Escolha uma imagem de até 8 MB.'); }
               }),
             const SizedBox(height: 14),
-            choice(selected: _variant == CgflixThemeVariant.ichigo, title: 'Ichigo', subtitle: 'Morangos, melancias e corações',
+            Text('Tema do app', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: palette.onGlass)),
+            const SizedBox(height: 10),
+            choice(selected: _variant == CgflixThemeVariant.ichigo, title: 'Menina · Ichigo', subtitle: 'Morangos, melancias e corações',
               asset: 'morango', onTap: () => setState(() => _variant = CgflixThemeVariant.ichigo)),
-            choice(selected: _variant == CgflixThemeVariant.sorairo, title: 'Sorairo', subtitle: 'Nuvens, estrelas e aviõezinhos',
+            choice(selected: _variant == CgflixThemeVariant.sorairo, title: 'Menino · Sorairo', subtitle: 'Nuvens, estrelas e aviõezinhos',
               asset: 'aviao', onTap: () => setState(() => _variant = CgflixThemeVariant.sorairo)),
             const SizedBox(height: 14),
             Text('Até qual classificação?', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: palette.onGlass)),
@@ -248,6 +251,7 @@ class _HeisucaKidsSetupScreenState extends State<HeisucaKidsSetupScreen> {
               minimumSize: const Size(140, 48)),
             onPressed: _finishing ? null : _step < 2 ? () {
               if (_step == 1 && _name.text.trim().isEmpty) { _say(context, 'Informe o nome da criança.'); return; }
+              if (_step == 1 && _variant == null) { _say(context, 'Escolha o tema: Menina (Ichigo) ou Menino (Sorairo).'); return; }
               FocusScope.of(context).unfocus(); _go(_step + 1);
             } : _finish,
             child: Text(_step < 2 ? 'Continuar' : 'Criar PIN e ativar')),

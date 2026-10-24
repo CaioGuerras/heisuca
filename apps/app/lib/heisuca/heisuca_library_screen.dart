@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../cgflix/cgflix_palette.dart';
 import '../cgflix/cgflix_navigation.dart';
 import '../cgflix/home/cgflix_actions.dart';
-import '../cgflix/home/cgflix_cards.dart';
 import '../media/library_query.dart';
 import '../media/media_item.dart';
 import '../media/media_kind.dart';
@@ -14,6 +13,7 @@ import '../mixins/refreshable.dart';
 import '../providers/multi_server_provider.dart';
 import '../providers/hidden_libraries_provider.dart';
 import 'heisuca_media_category.dart';
+import 'heisuca_poster_tile.dart';
 import 'heisuca_source_scope.dart';
 import 'kids/heisuca_kids_flow.dart';
 
@@ -41,7 +41,6 @@ class _HeisucaLibraryScreenState extends State<HeisucaLibraryScreen> with Refres
   List<_LibrarySource> _sources = [];
   _LibrarySource? _selected;
   List<MediaItem> _items = [];
-  HeisucaMediaCategory _category = HeisucaMediaCategory.all;
   bool _loading = true, _more = false, _hasMore = false;
   String? _error, _pendingKey;
   String _serverSignature = '';
@@ -57,7 +56,7 @@ class _HeisucaLibraryScreenState extends State<HeisucaLibraryScreen> with Refres
   void loadLibraryByKey(String key) { _pendingKey = key; _applyPending(); }
   void _applyPending() {
     final found = _sources.where((s) => s.library.globalKey == _pendingKey || s.key == _pendingKey).firstOrNull;
-    if (found != null) { _pendingKey = null; _category = HeisucaMediaCategory.all; _choose(found); }
+    if (found != null) { _pendingKey = null; _choose(found); }
   }
   void _serversChanged() {
     final signature = _servers.serverManager.navigationOnlineClients.keys.join('|');
@@ -90,12 +89,6 @@ class _HeisucaLibraryScreenState extends State<HeisucaLibraryScreen> with Refres
     if (_scroll.hasClients) _scroll.jumpTo(0);
     _reload();
   }
-  void _filter(HeisucaMediaCategory category) {
-    setState(() => _category = category);
-    final eligible = _sources.where((s) => category == HeisucaMediaCategory.all || s.category == category).toList();
-    if (eligible.isEmpty) { ++_generation; setState(() { _selected = null; _items = []; _loading = false; _hasMore = false; _error = null; }); }
-    else _choose(eligible.contains(_selected) ? _selected! : eligible.first);
-  }
   Future<void> _reload() async {
     ++_generation;
     setState(() { _items = []; _loading = true; _more = false; _error = null; _hasMore = true; });
@@ -123,21 +116,20 @@ class _HeisucaLibraryScreenState extends State<HeisucaLibraryScreen> with Refres
   @override
   Widget build(BuildContext context) {
     final p = context.cgflix;
-    final sources = _sources.where((s) => _category == HeisucaMediaCategory.all || s.category == _category).toList();
     return Scaffold(backgroundColor: p.background, appBar: AppBar(title: const Text('Biblioteca'), actions: [
       if (!heisucaKidsActive(context)) IconButton(tooltip: 'Baixados', onPressed: () => cgflixOpenDownloads(context), icon: const Icon(Icons.download_outlined)),
       PopupMenuButton<String>(tooltip: 'Ordenar', icon: const Icon(Icons.sort), onSelected: (field) {
         _sort = LibrarySort(field: field, direction: field == 'title' ? LibrarySortDirection.ascending : LibrarySortDirection.descending); _reload();
       }, itemBuilder: (_) => const [PopupMenuItem(value: 'title', child: Text('Título A–Z')), PopupMenuItem(value: 'addedAt', child: Text('Adicionados recentemente')), PopupMenuItem(value: 'rating', child: Text('Nota'))]),
     ]), body: Column(children: [
-      SizedBox(height: 50, child: ListView(scrollDirection: Axis.horizontal, padding: const EdgeInsets.symmetric(horizontal: 16), children: [
-        for (final category in HeisucaMediaCategory.values) Padding(padding: const EdgeInsets.only(right: 8), child: ChoiceChip(
-          label: Text(category.label), selected: _category == category, onSelected: (_) => _filter(category))),
-      ])),
-      if (sources.isNotEmpty) Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: DropdownButton<String>(
-        isExpanded: true, value: sources.contains(_selected) ? _selected!.key : null,
-        items: [for (final s in sources) DropdownMenuItem(value: s.key, child: Text(s.library.title, maxLines: 1, overflow: TextOverflow.ellipsis))],
-        onChanged: (key) { final s = sources.where((s) => s.key == key).firstOrNull; if (s != null) _choose(s); })),
+      // Caio, 24/10: só botões (sem lista que abre por cima). Um botão por biblioteca da fonte: no CGSERVER
+      // são Animes/Filmes/Séries; nos Plex dos amigos, os nomes que cada servidor tiver.
+      if (_sources.isNotEmpty) SizedBox(height: 50, child: ListView(scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16), children: [
+          for (final source in _sources) Padding(padding: const EdgeInsets.only(right: 8), child: ChoiceChip(
+            label: Text(source.library.title), selected: source == _selected,
+            onSelected: (_) { if (source != _selected) _choose(source); })),
+        ])),
       Padding(padding: const EdgeInsets.fromLTRB(16, 6, 16, 10), child: TextField(controller: _search,
         decoration: const InputDecoration(hintText: 'Buscar nesta biblioteca', prefixIcon: Icon(Icons.search)),
         onChanged: (_) { _debounce?.cancel(); _debounce = Timer(const Duration(milliseconds: 300), _reload); })),
@@ -148,8 +140,9 @@ class _HeisucaLibraryScreenState extends State<HeisucaLibraryScreen> with Refres
         if (_servers.serverManager.navigationOnlineClients.isEmpty) const HeisucaSourceTile(),
       ])) : RefreshIndicator(onRefresh: _reload, child: GridView.builder(controller: _scroll,
         physics: const AlwaysScrollableScrollPhysics(), padding: const EdgeInsets.fromLTRB(16, 4, 16, 100),
-        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 160, childAspectRatio: 2/3, crossAxisSpacing: 12, mainAxisSpacing: 14),
-        itemCount: _items.length, itemBuilder: (context, i) => LayoutBuilder(builder: (context, box) => CgflixPosterCard(
+        // Pôster 2:3 + bloco do título (CgflixPosterCard.titleBlockHeight): o nome não pode ser cortado.
+        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 160, childAspectRatio: 0.5, crossAxisSpacing: 12, mainAxisSpacing: 10),
+        itemCount: _items.length, itemBuilder: (context, i) => LayoutBuilder(builder: (context, box) => HeisucaPosterTile(
           item: _items[i], client: _selected?.client, width: box.maxWidth, onTap: () => cgflixOpenDetails(context, _items[i])))))),
       if (_more && !_loading) const LinearProgressIndicator(minHeight: 2),
     ]));

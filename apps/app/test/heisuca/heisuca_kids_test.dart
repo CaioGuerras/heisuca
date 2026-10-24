@@ -10,6 +10,7 @@ import 'package:plezy/heisuca/kids/heisuca_kids.dart';
 import 'package:plezy/heisuca/kids/heisuca_kids_opening.dart';
 import 'package:plezy/profiles/active_profile_provider.dart';
 import 'package:plezy/profiles/profile.dart';
+import 'package:plezy/connection/connection.dart';
 import 'package:plezy/services/jellyfin_client.dart';
 import '../test_helpers/prefs.dart';
 import '../visual/heisuca_snapshot.dart';
@@ -141,5 +142,14 @@ void main() {
       await expectLater(find.byType(HeisucaKidsOpening), matchesGoldenFile('../visual/out/kids_${variant.name}.png'));
     }
     await tester.pumpWidget(const SizedBox());
+  });
+
+  test('conexão do usuário infantil do servidor é reconhecida (não é emprestada nem ligada a adulto)', () {
+    JellyfinConnection conn(String user) => JellyfinConnection(id: 'm/$user', baseUrl: 'https://servidor.exemplo',
+      serverName: 'CGFLIX', serverMachineId: 'm', userId: user, userName: user, accessToken: 't', deviceId: 'd',
+      createdAt: DateTime(2026));
+    expect(heisucaIsKidsConnection(conn('caioguerras-kids')), isTrue);
+    expect(heisucaIsKidsConnection(conn('caioguerras')), isFalse);
+    expect(heisucaIsKidsConnection(conn('kidsfan')), isFalse);
   });
 }

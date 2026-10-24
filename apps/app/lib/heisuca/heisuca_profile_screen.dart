@@ -410,7 +410,7 @@ class HeisucaProfileScreen extends StatelessWidget {
                         onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
                           builder: (_) => HeisucaSecurityScreen(parentId: active.id)))),
                       if (kidsRecord != null) _buildProfileTile(icon: Symbols.edit_rounded,
-                        title: 'Nome e foto do perfil infantil', subtitle: kidsRecord.name,
+                        title: 'Perfil infantil', subtitle: '${kidsRecord.name} · nome, foto, tema, classificação e PIN',
                         textColor: textTitle, subColor: textSub, iconColor: textTitle,
                         onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
                           builder: (_) => HeisucaKidsIdentityScreen(record: kidsRecord)))),

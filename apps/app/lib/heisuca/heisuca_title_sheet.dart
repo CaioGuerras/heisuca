@@ -19,6 +19,7 @@ import '../media/media_role.dart';
 import '../media/media_server_client.dart';
 import '../media/media_stream.dart';
 import 'heisuca_home_style.dart';
+import 'heisuca_poster_tile.dart';
 import 'heisuca_title_parts.dart';
 import 'heisuca_state_store.dart';
 
@@ -618,7 +619,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
     const width = 104.0;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       HeisucaSectionTitle('Títulos relacionados', colors: c),
-      SizedBox(height: width * 1.5 + 44, child: snap.connectionState != ConnectionState.done
+      SizedBox(height: width * 1.5 + HeisucaPosterTile.textBlock + 10, child: snap.connectionState != ConnectionState.done
         ? ListView.separated(scrollDirection: Axis.horizontal, itemCount: 4,
             padding: const EdgeInsets.symmetric(horizontal: HeisucaTitleMetrics.margin),
             separatorBuilder: (_, __) => const SizedBox(width: HeisucaTitleMetrics.gap),
@@ -627,7 +628,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
         : ListView.separated(scrollDirection: Axis.horizontal, itemCount: items.length,
             padding: const EdgeInsets.symmetric(horizontal: HeisucaTitleMetrics.margin),
             separatorBuilder: (_, __) => const SizedBox(width: HeisucaTitleMetrics.gap),
-            itemBuilder: (context, i) => CgflixPosterCard(width: width, item: items[i], client: cgflixClientFor(context, items[i]),
+            itemBuilder: (context, i) => HeisucaPosterTile(width: width, item: items[i], client: cgflixClientFor(context, items[i]),
               onTap: () { HapticFeedback.lightImpact(); HeisucaTitleSheet.show(context, items[i]); }))),
     ]);
   });

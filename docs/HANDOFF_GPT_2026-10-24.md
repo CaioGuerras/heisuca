@@ -85,6 +85,27 @@ App: `apps/app` (Flutter 3.47.1, fork do Plezy). Leia antes: `AGENTS.md`, `apps/
 - Corrija ou atualize os 16 de `docs/TESTES_FALHANDO_2026-10-24.txt`, cada um com o motivo (código mudou de propósito ou
   bug real). Bug real é corrigido no código, não no teste.
 
+### 8. Logo do título quando o servidor não tem (decisão do Caio, 24/10)
+- Hoje: player, destaque e ficha usam `clearLogoPath`; o Plex do CGSERVER não tem logo de vários títulos (ex.: Ranma ½,
+  ratingKey 11406, só `coverPoster`/`background`), então aparece o nome escrito. Análise em `docs/PLANO_RODADA_2026-10-24.md`.
+- **Fazer:** um resolvedor único de logo, usado por player (`heisuca_series_episodes.dart`), destaque e ficha:
+  (1) logo do próprio servidor; (2) se faltar, o mesmo título no **Jellyfin do CGSERVER** conectado no app, casado por
+  TMDB/TVDB/IMDb (`ProviderIds`; no Plex vêm dos `Guid` `tmdb://`, `tvdb://`, `imdb://`), usando a imagem `Logo` de lá;
+  (3) senão, o texto. Guardar o resultado em cache por título. Nunca chave de API no app. Sem Jellyfin do CGSERVER
+  conectado, só (1) e (3).
+- Teste: fixture Plex sem logo + Jellyfin com logo para o mesmo TMDB → usa o do Jellyfin; sem correspondência → texto.
+
+### 9. Início igual nas duas fontes (decisão do Claude, autorizada pelo Caio, 24/10)
+- Hoje `heisuca_home_screen.dart` tem `_buildJellyfinSlivers` (padrão do site, aprovado no 2.0.2) e `_buildDiscoverSlivers`
+  (Plex, hubs herdados do Plezy). **Fazer:** a mesma montagem para Plex: destaque, Continuar, fileira por biblioteca na
+  ordem do servidor (sem os hubs genéricos do Plex, como "Oh, The Horror!").
+- **Em alta e Em breve:** vêm do CGSERVER (`/cgflix/emalta.json`, `/cgflix/embreve.json` e calendário Sonarr/Radarr).
+  Mostrar quando a fonte ativa é o CGSERVER: o Jellyfin dele **ou o Plex do CGSERVER** (servidor Plex chamado "CGFLIX",
+  `machineIdentifier` 056b61fd61d67e9656ec915d38e21294a99dbbba). No Plex, casar cada entrada pelo TMDB/TVDB com o item da
+  biblioteca Plex; o que não tiver item segue o fluxo atual (busca de pedidos). Em servidores Plex de outras pessoas, não
+  mostrar essas duas fileiras.
+- Manter o resultado aprovado do Jellyfin idêntico (testes de regressão da Início do Jellyfin).
+
 ## Fora do seu escopo (servidor; ficam com o Claude)
 - Conferir que o Sonarr não baixou o DanMachi de novo (correção dos formatos de 24/10).
 - Vigia de leitura sem play e de reimportação repetida; Attack on Titan reimportado 3×; análise MediaInfo dos episódios antigos.

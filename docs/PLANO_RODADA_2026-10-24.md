@@ -1,5 +1,7 @@
 # Plano da rodada: pedidos do Caio de 24/10/2026
 
+> Execução entregue ao GPT: `docs/HANDOFF_GPT_2026-10-24.md`.
+
 Feito nesta rodada (APK 2.0.13+14, ramo `codex/heisuca-home-site`): pílula só com ícones, com Baixados no lugar de
 Favoritos (no modo infantil continua Favoritos); botão Favoritos na Biblioteca; menu Você por assunto (Conta · Família ·
 Privacidade e segurança · App · Sair); Assistir juntos no relay próprio (2.0.12). Nada foi testado em aparelho.
@@ -34,7 +36,7 @@ O servidor não converte vídeo, e isso decide o desenho:
 - **Fase 2, Chromecast/Google TV:** só para arquivos que o Cast toca direto (MP4/H.264/AAC). MKV e legenda ASS não tocam
   sem conversão. O app avisa antes, em vez de falhar.
 - **DLNA (TVs Samsung/LG sem app):** depois, se fizer falta.
-- **[C]** Caio: começar pela Fase 1?
+- **Decisão do Caio (24/10): NÃO fazer.** O Android já transmite de forma nativa.
 
 ## 4. Medidor do aparelho
 Base existente: `services/device_performance.dart` (níveis completo/reduzido, por RAM, 32 bits e o sinal de pouca memória).
@@ -56,8 +58,7 @@ Base existente: `services/device_performance.dart` (níveis completo/reduzido, p
   Android 13. Mostrar 3 variantes renderizadas antes de trocar.
 
 ## 6. Trackers MAL/AniList
-- O login usa o relay do Plezy (`/auth`). **Recomendação:** esconder MAL/AniList (ninguém usa; o Trakt já cobre o histórico).
-  **[C]** Caio.
+- O login usa o relay do Plezy (`/auth`). **Decisão do Caio (24/10): remover MAL/AniList.** O Trakt continua.
 
 ## Pendências técnicas
 - **16 testes já falhavam antes desta rodada** (navegação no topo em paisagem, abas do celular etc.; lista no fim da sessão de

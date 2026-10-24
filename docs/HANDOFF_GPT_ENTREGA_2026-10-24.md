@@ -35,7 +35,10 @@ adivinhado por nome. No kids não há consulta de catálogo nem botão Pedir.
 Nenhuma configuração de servidor/VPS/Sonarr/Jellyfin foi alterada.
 
 ### Evidências
-Commit: registrar após publicação.
+Commit inicial: `47536ccdd5fd2d417d28d4fb8d395559a289568e`.
+Primeiro run: https://github.com/CaioGuerras/heisuca/actions/runs/40102367785
+(cancelado pela inclusão do teste Jellyfin + Plex antes da análise).
+Validação do commit de acompanhamento: aguardando novo run.
 Run verde: pendente. APK: pendente.
 Comandos no portão: `flutter analyze --no-fatal-infos --no-fatal-warnings lib` e
 `flutter test` com a lista de `scripts/heisuca-checar.sh`, incluindo `test/heisuca`.

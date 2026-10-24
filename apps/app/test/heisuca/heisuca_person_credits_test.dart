@@ -1,4 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:plezy/media/media_person.dart';
+import 'package:plezy/providers/multi_server_provider.dart';
+import 'package:plezy/services/multi_server_manager.dart';
+import 'package:plezy/services/data_aggregation_service.dart';
 import 'package:plezy/cgflix/requests/cgflix_seerr.dart';
 import 'package:plezy/cgflix/search/cgflix_sources.dart';
 import 'package:plezy/heisuca/heisuca_person_credits.dart';
@@ -21,6 +27,24 @@ class _Pages extends MediaServerClient {
       totalCount: 3, offset: start);
   }
   @override dynamic noSuchMethod(Invocation invocation) => null;
+}
+class _Source extends _Pages {
+  _Source(this.name, this.movie);
+  final String name;
+  final bool movie;
+  @override MediaBackend get backend => movie ? MediaBackend.jellyfin : MediaBackend.plex;
+  @override ServerId get serverId => ServerId(name);
+  @override Future<List<MediaPerson>> searchPeople(String query, {int limit = 20, AbortController? abort,
+      Set<String> excludedLibraryIds = const {}}) async => [
+    MediaPerson(id: '$name-person', name: 'Sadie Sink', backend: backend, serverId: serverId),
+  ];
+  @override Future<LibraryPage<MediaItem>> fetchPersonMediaPage(String personId,
+      {int start = 0, int size = 200, AbortController? abort}) async {
+    offsets.add(start);
+    return LibraryPage(items: [MediaItem(id: name, serverId: name, backend: backend,
+      kind: movie ? MediaKind.movie : MediaKind.show,
+      title: movie ? 'Filme da Sadie' : 'Stranger Things')], totalCount: 1);
+  }
 }
 void main() {
   test('identidade externa não interpreta ID local ou guid Plex como TMDB', () {
@@ -60,4 +84,24 @@ void main() {
     expect(items.length, 3);
     expect(client.offsets, [0, 1, 2]);
   });
+  testWidgets('No acervo inclui outra fonte mesmo com navegação restrita à origem', (tester) async {
+    final a = _Source('A', true), b = _Source('B', false);
+    final manager = MultiServerManager()..debugRegisterClientForTesting(a)..debugRegisterClientForTesting(b);
+    final multi = MultiServerProvider(manager, DataAggregationService(manager));
+    addTearDown(multi.dispose); addTearDown(manager.dispose);
+    manager.setNavigationSource(Object(), 'A');
+    Future<LibraryPage<MediaItem>>? result;
+    await tester.pumpWidget(ChangeNotifierProvider.value(value: multi, child: MaterialApp(
+      home: Builder(builder: (context) {
+        result ??= cgflixMergedPersonPage(context, serverId: 'A', personId: 'A-person',
+          personName: 'Sadie Sink', start: 0, size: 200);
+        return const SizedBox();
+      }))));
+    await tester.pumpAndSettle();
+    final page = await result!;
+    expect(page.items.map((item) => item.title), containsAll(['Filme da Sadie', 'Stranger Things']));
+    expect(a.offsets, [0]); expect(b.offsets, [0]);
+    expect(tester.takeException(), isNull);
+  });
+
 }

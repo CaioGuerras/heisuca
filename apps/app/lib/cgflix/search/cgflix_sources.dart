@@ -16,7 +16,6 @@ import '../../media/media_server_client.dart';
 import '../../providers/multi_server_provider.dart';
 import '../../screens/media_detail_screen.dart';
 import '../../utils/app_logger.dart';
-import '../../utils/global_key_utils.dart';
 import '../../utils/media_server_http_client.dart';
 import '../../widgets/app_icon.dart';
 import '../cgflix_palette.dart';
@@ -115,7 +114,7 @@ class CgflixSourcePicker extends StatelessWidget {
 // Página da pessoa
 
 /// Filmografia de todos os servidores onde a pessoa aparece, com os títulos agrupados como
-/// na busca. Devolve `null` quando a pessoa só existe num servidor (a tela segue o upstream).
+/// na busca. Sem clientes autorizados, conserva o tratamento de erro do upstream.
 /// Tudo vem numa página só (a filmografia de uma pessoa cabe folgada).
 Future<LibraryPage<MediaItem>>? cgflixMergedPersonPage(
   BuildContext context, {
@@ -132,7 +131,7 @@ Future<LibraryPage<MediaItem>>? cgflixMergedPersonPage(
   final clients = heisucaKidsActive(context, listen: false)
       ? multiServer.serverManager.navigationOnlineClients
       : multiServer.serverManager.visibleOnlineClients;
-  if (clients.length < 2) return null;
+  if (clients.isEmpty) return null;
   if (start > 0) return Future.value(LibraryPage<MediaItem>(items: const [], totalCount: start, offset: start));
 
   return () async {

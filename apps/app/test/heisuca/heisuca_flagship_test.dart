@@ -201,7 +201,9 @@ void main() {
     await tester.tap(find.text('Avançado'));
     await tester.pumpAndSettle();
     final buffer = find.byKey(const ValueKey('heisuca-buffer'));
-    await tester.ensureVisible(buffer);
+    // Lista preguiçosa: o controle só existe depois de rolar até ele (ensureVisible não acha o que não foi montado).
+    await tester.scrollUntilVisible(buffer, 200,
+      scrollable: find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)).last);
     await tester.pumpAndSettle();
     expect(tester.widget<DropdownButton<settings.PlaybackBufferTier>>(buffer).onChanged, isNotNull);
     await tester.tap(buffer);
@@ -216,7 +218,9 @@ void main() {
     await tester.tap(find.text('Avançado'));
     await tester.pumpAndSettle();
     expect(find.text('Decodificação por Hardware'), findsNothing);
-    await tester.ensureVisible(buffer);
+    // Lista preguiçosa: o controle só existe depois de rolar até ele (ensureVisible não acha o que não foi montado).
+    await tester.scrollUntilVisible(buffer, 200,
+      scrollable: find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)).last);
     await tester.pumpAndSettle();
     await tester.tap(buffer);
     await tester.pumpAndSettle();

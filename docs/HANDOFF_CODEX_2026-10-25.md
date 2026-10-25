@@ -13,11 +13,22 @@ independente. Um item por APK, na ordem abaixo (versão seguinte: 2.0.18+19), Ac
   pelo `HeisucaLogo`), nunca "HEISUCA" digitado. Declarar a fonte **Sora** (`assets/fonts/Sora-VF.ttf`) no `pubspec.yaml`,
   com a licença OFL ao lado, porque `HeisucaTheme.fonteTitulo` a usa e hoje cai na fonte do aparelho.
 - **Brilho da abertura** menor; slogan com contraste AA sobre o fundo.
-- **Listra abaixo do pôster:** no `HeisucaParallax` o degradê de baixo se move junto com a arte. A máscara/degradê fica
-  fixa no quadro; só a imagem se move, com sobra de arte suficiente para não abrir borda. Vale para Início e ficha.
+- **Listra abaixo do pôster: sai da etapa A e vira a etapa A2** (abaixo). Não bloqueia os outros itens da A.
 - **Favoritos da Biblioteca** sem ícone (os vizinhos não têm).
 - **Encaixe do título na ficha:** o logo/título da ficha encaixa no topo entre a marca e a busca, igual à Início
   (`heisuca_home_chrome.dart`). Um componente só para as duas telas, não duas cópias.
+
+## A2. Listra abaixo do pôster (retorno 13) — reproduzir antes de corrigir
+- O diagnóstico antigo (degradê dentro do `Transform`) estava errado; o Codex mostrou isso em `6e0b055`. Obrigado.
+- **Evidência:** `docs/evidencias/listra_ficha_rolada_2026-10-25.png` e `..._zoom4x.png` (print do Caio, Edge 60 Pro,
+  1220×2712 px). A listra é **uma única fileira de pixels físicos** com as cores da própria arte, na borda inferior da
+  área da imagem, só com a tela rolada; acima e abaixo o fundo é uniforme. Ocorre na ficha e na Início.
+- **Hipótese a confirmar:** borda subpixel. Com a rolagem parada em fração de pixel, a última fileira da camada da arte
+  (`ShaderMask → HeisucaParallax(ClipRect → Transform) → imagem`) é rasterizada fora da cobertura da máscara.
+- **Fazer:** um teste de widget/golden com o DPR do aparelho (~2,97) que rola a ficha e a Início para posições
+  fracionárias e confere, pixel a pixel, a fileira da borda inferior da área da arte. Com o teste falhando, achar a camada
+  responsável e corrigir na causa (ex.: alinhar a borda ao pixel físico, recortar depois de mascarar, ou garantir que a
+  máscara cubra a borda), mantendo o recorte aprovado da Início. O teste fica no repositório para não voltar.
 
 ## B. Item 5 do handoff antigo + independência, parte 1
 - Fazer o item 5 como decidido (sem chamadas ao Plezy), **removendo o Discord RPC inteiro** (serviço, ajustes, ganchos no

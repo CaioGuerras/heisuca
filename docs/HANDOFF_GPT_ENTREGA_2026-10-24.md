@@ -856,3 +856,17 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   APK no validador e os metadados do artifact, registrar. Só então iniciar K,
   próxima 2.0.29+30. K–O ainda não iniciadas. `aapt2 compile` repetido sobre os
   recursos finais também passou; árvore de código enviada integralmente.
+- **J encerrada no CI — 2.0.28+29:** código
+  `dce6e0239c17a53de81a9fb547b24583915154d0`, run
+  [40221928427](https://github.com/CaioGuerras/heisuca/actions/runs/40221928427)
+  observado como `completed/success`. APK:
+  [artifact 12610003513](https://github.com/CaioGuerras/heisuca/actions/runs/40221928427/artifacts/12610003513).
+  ZIP 51.176.149 bytes, SHA-256
+  `dfc5504a120fd129ee2fbc718978438db0664950324afec78e4ef378a6787b3a`.
+  **APK real:** 98.633.122 bytes, SHA-256
+  `b12b7666cedcec200b6fb439a6850bd0bb176bc8fe380b6efc58b19bca9225d7`.
+  Pacote `app.heisuca.player.teste.home`, nome Heisuca Teste; certificado
+  `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`
+  conferido no APK pelo validador, mesmo da F/G/H/I. Download local segue
+  bloqueado pelo proxy. Limites de aparelho permanecem os acima.
+  Próxima: K, 2.0.29+30.

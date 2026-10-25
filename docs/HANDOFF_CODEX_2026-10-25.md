@@ -83,7 +83,9 @@ Ver item 8 em `docs/HANDOFF_GPT_2026-10-24.md`.
 Ver `docs/ESBOCOS_PENDENTES_2026-10-25.md`: MediaSession e notificação MediaStyle para o vídeo, controles na tela de
 bloqueio (controles de mídia do sistema), notificação de progresso dos downloads, PiP com transição suave e legendas
 estilizadas. **Sem "ilha"/Live Updates**: o Google não permite para mídia nem download (ver guia).
-Depende da decisão **[C]** do Caio sobre continuar só com o som ao sair do app.
+**Decidido (Caio, 25/10):** opção "Continuar ouvindo ao sair", desligada por padrão; padrão ao sair = PiP. Ligada: só o
+som, com serviço em primeiro plano `mediaPlayback` (Android 17 exige app visível ou serviço em primeiro plano para tocar
+áudio). Pode ser feita depois da L.
 
 ## Depois (não agora)
 - Varredura do app inteiro contra `docs/GUIA_ANDROID_GOOGLE.md`, com lista de falhas e correções.

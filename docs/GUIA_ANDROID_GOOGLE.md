@@ -31,6 +31,23 @@ duas partes. **Leia primeiro as correções e verificações abaixo**: elas vale
 - Fontes não oficiais citadas pelo Gemini (Stack Overflow, Medium, dev.to, blogs) e links que ele não abriu estão
   marcados como `[verificar]`. Na dúvida, abrir a página oficial antes de virar regra.
 
+## Android 17 (API 37) — verificado em 25/10 na lista oficial
+Fonte: https://developer.android.com/about/versions/17/summary
+- **Live Updates:** ganhou o modelo `MetricStyle` (saúde, treino, timers, viagem) e cores semânticas (segurança, perigo,
+  atenção). **Continua sem uso para mídia ou download.**
+- **Áudio em segundo plano endurecido (todos os apps):** só toca áudio com o app **visível** ou com **serviço em primeiro
+  plano**. Para "Continuar ouvindo ao sair": serviço `foregroundServiceType="mediaPlayback"` + permissão
+  `FOREGROUND_SERVICE_MEDIA_PLAYBACK` + MediaSession. Detalhes em `/about/versions/17/changes/bg-audio` [verificar se PiP
+  conta como visível].
+- **Telas grandes (sw ≥ 600 dp), alvo 17+:** o sistema ignora travas de orientação, redimensionamento e proporção, sem
+  como recusar. Player e telas têm de funcionar em qualquer orientação/tamanho em tablet e dobrável.
+- **Limites de memória mais rígidos (todos os apps):** passar do limite derruba o app. Atenção ao buffer do player e ao
+  cache de imagens.
+- **`usesCleartextTraffic` vai ser descontinuado:** servidores em `http://` (comum em rede local) precisam de
+  `network_security_config`. Planejar antes de o alvo subir.
+- Notificações com `RemoteViews` próprias têm checagem de memória mais rígida (alvo 17+).
+- Sem mudanças anunciadas em PiP, voltar preditivo, edge-to-edge e notificação de mídia.
+
 ## Como usar este guia
 - Base da **varredura do app** (fazer depois da rodada atual): cada item dos checklists vira "ok / falha / não se aplica",
   com o arquivo e a correção. Junto com a auditoria antiga `apps/app/docs/cgflix/AUDITORIA_GOOGLE_1D.md`.

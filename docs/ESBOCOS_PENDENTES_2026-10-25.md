@@ -17,8 +17,9 @@ O esboço mostra 4 peças. Como fazer do jeito do Android (sem imitar o iPhone):
 | Notificação de download agrupada e silenciosa | Notificação de progresso agrupada, sem som, com pausar/cancelar (sem Live Update: não permitido para download) | conferir |
 | Tudo no tema claro Hisui | Cores da notificação seguem o tema do app | — |
 
-Decisões que o Caio precisa tomar: **[C]** o vídeo continua só com o som ao sair do app (como YouTube Premium) ou pausa
-(como Netflix)? Proposta: opção "Continuar ouvindo ao sair", desligada por padrão, e PiP como padrão.
+**Decisão do Caio (25/10):** opção **"Continuar ouvindo ao sair", desligada por padrão**; o padrão ao sair é a janelinha
+(PiP). Ligada, o vídeo segue só com o som, com serviço em primeiro plano `mediaPlayback` (exigido pelo Android 17 para
+qualquer áudio fora da tela), controles no painel e na tela de bloqueio.
 
 ## Pendências da auditoria Google (`apps/app/docs/cgflix/AUDITORIA_GOOGLE_1D.md`)
 - **Voltar preditivo:** foi feito na 1.6.1 (CGFLIX), a tela acompanhava o dedo. O movimento novo do item 4 (2.0.17) deve

@@ -36,7 +36,20 @@ independente. Um item por APK, na ordem abaixo (versão seguinte: 2.0.18+19), Ac
 - Remover recursos herdados sem uso (listar no registro o que saiu e por quê).
 
 ## C. Item 9 — Início igual nas duas fontes (decidido)
-Ver item 9 em `docs/HANDOFF_GPT_2026-10-24.md`.
+Ver item 9 em `docs/HANDOFF_GPT_2026-10-24.md`. **Contrato de dados definido em 25/10 (resposta a
+`docs/BLOQUEIO_ETAPA_C_2026-10-25.md`; opção 1, com vínculo declarado pelo servidor):**
+- Em alta e Em breve no Plex **dependem de uma conexão Jellyfin já salva no perfil** que publique os feeds
+  (`/cgflix/emalta.json` e `/cgflix/embreve.json` no endereço desse Jellyfin; o calendário vem das seções HomeScreen dessa
+  mesma sessão, como hoje). Nada de URL, token ou ID fixo no app.
+- **Vínculo Plex ↔ Jellyfin declarado pelo servidor:** os dois feeds agora trazem `"plex": ["<machineIdentifier>"]` (hoje
+  `056b61fd…dbbba`). O Plex ativo recebe as duas fileiras só se o `machineIdentifier` dele estiver nessa lista de algum
+  Jellyfin conectado no perfil. Assim funciona para qualquer administrador, sem regra fixa do CGSERVER.
+- **Casamento por ID:** `emalta.json` → cada item tem `tmdb` e, quando há, `tvdb` (além de `id` do Jellyfin);
+  `embreve.json` → `s` (séries) com `tmdb` e `tvdb`, `m` (filmes) com `tmdb`. No Plex, usar `PlexClient.findByExternalIds`;
+  item sem correspondência no Plex: Em alta pula; Em breve segue o fluxo atual (busca de pedidos).
+- Jellyfin vinculado desconectado, fora do ar, ou feed sem `plex`/sem o ID: as duas fileiras não aparecem no Plex (sem
+  erro, sem aviso). Início do Jellyfin inalterada.
+- Formato conferido pela URL pública em 25/10 05:22 (emalta: 10/10 com tmdb; embreve: 12/12 séries com tvdb).
 
 ## D. Item 8 — logo pelo app quando o servidor não tem (decidido)
 Ver item 8 em `docs/HANDOFF_GPT_2026-10-24.md`.

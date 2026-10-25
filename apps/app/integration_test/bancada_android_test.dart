@@ -24,7 +24,26 @@ import 'package:plezy/utils/semantics_tree_gate.dart';
 import 'package:plezy/widgets/focusable_media_card.dart';
 import 'package:plezy/widgets/video_controls/mobile_video_controls.dart';
 
-class _BancadaBinding extends IntegrationTestWidgetsFlutterBinding with PointerScrollAxisLock, SemanticsTreeGate {}
+class _BancadaBinding extends IntegrationTestWidgetsFlutterBinding with PointerScrollAxisLock, SemanticsTreeGate {
+  // Em debug o app abre um handle de semântica que dura a sessão (main.dart). Iniciado dentro do caso, ele
+  // contaria como vazamento no fim do teste; a bancada guarda os handles abertos durante app.main() e os solta.
+  bool captureAppSemantics = false;
+  final List<SemanticsHandle> appSemanticsHandles = [];
+
+  @override
+  SemanticsHandle ensureSemantics() {
+    final handle = super.ensureSemantics();
+    if (captureAppSemantics) appSemanticsHandles.add(handle);
+    return handle;
+  }
+
+  void releaseAppSemantics() {
+    for (final handle in appSemanticsHandles) {
+      handle.dispose();
+    }
+    appSemanticsHandles.clear();
+  }
+}
 
 void main() {
   final binding = PlezyWidgetsBinding.ensureInitialized(createBinding: _BancadaBinding.new) as _BancadaBinding;
@@ -32,9 +51,6 @@ void main() {
   late final Map<String, dynamic> config;
   // O test_api recusa declarar casos depois de um await em main() ("Can't call test() once tests have begun
   // running", run 40235597511): o caso é declarado de forma síncrona e a leitura assíncrona fica no setUpAll.
-  // O app mantém seu handle de semântica durante toda a sessão de debug.
-  // Inicia antes do caso, como aplicação real, sem recriar o binding do runner.
-  app.main();
   setUpAll(() async {
     support = await getApplicationSupportDirectory();
     config = jsonDecode(await File('${support.path}/heisuca-bancada-config.json').readAsString())
@@ -48,6 +64,10 @@ void main() {
     if ([server, user, itemId, title].any((value) => value.isEmpty) || user.toLowerCase().endsWith('-kids')) {
       throw StateError('Configuração privada da bancada indisponível.');
     }
+    // Inicia dentro do caso: ao começar, o framework troca a árvore pela tela "Test starting..." e um app iniciado
+    // antes some (run 40237449346: 90 s parado nela). O binding do runner não é recriado.
+    binding.captureAppSemantics = true;
+    app.main();
     final steps = <String>[];
     binding.reportData = {'passos': steps, 'testeEncerrado': false};
     Future<void> until(bool Function() ready, String stage, {int seconds = 90}) async {
@@ -82,6 +102,7 @@ void main() {
     Finder field(String name) =>
         find.descendant(of: find.byKey(ValueKey('heisuca-login-$name')), matching: find.byType(TextField));
     await until(() => find.byType(HeisucaLoginScreen).evaluate().isNotEmpty, 'login');
+    binding.captureAppSemantics = false;
     await tester.pump();
     // Host encerra o vídeo da abertura antes de entrar qualquer dado privado.
     await shot('01-login');
@@ -209,5 +230,6 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     binding.reportData!['testeEncerrado'] = true;
     await tester.pumpWidget(const SizedBox.shrink());
+    binding.releaseAppSemantics();
   }, timeout: const Timeout(Duration(minutes: 10)));
 }

@@ -770,3 +770,28 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`.
   Mesma assinatura da F/G. Conferência pelo CI; download local segue bloqueado
   pelo proxy. Não testado em aparelho nos termos acima. Próxima: I, 2.0.27+28.
+
+## Etapa I — Dicas atuais — 2.0.27+28 (em validação)
+
+- Nova orientação de navegação com Início, Biblioteca, Baixados e Você, conferidos
+  nos destinos reais da pílula. Downloads agora apontam para Baixados na barra
+  inferior e usam o rótulo real "Apagar baixados já assistidos".
+- Conta: caminho Você › Conta › Minha conta: foto e senha. O código real oferece
+  essa tela para Jellyfin; a dica deixa essa condição explícita e orienta a
+  conta Plex pelo site plex.tv, sem prometer edição no app para as duas fontes.
+- Uma só dica de TV: nossos apps Samsung/LG, opções compatíveis no Fire TV,
+  Google TV/Android TV, Roku e Apple TV; Quick Connect pelo site do Jellyfin,
+  plex.tv/link para Plex e espelhamento pelo sistema do celular/TV. Saiu a dica
+  duplicada "Entrar na TV" e a expressão "TV box". Nenhuma transmissão criada.
+- Ícones continuam Material Symbols. Não se alteraram telas nem rotas: as
+  mudanças são de conteúdo. Qualidade deixou de prometer que qualquer vídeo
+  sempre toca como original: orienta a preferência Original e uso de Wi-Fi.
+- **7 testes existentes das Dicas aprovados**: texto curto sem jargão, lista,
+  abrir/fechar ajuda, tema claro e dica dos gestos (toque, timer e movimento
+  reduzido). Ajustada a expectativa antiga "Dicas do CGFLIX" para a marca atual
+  já usada pela tela. Esse arquivo passa a integrar o portão obrigatório do CI.
+- Portão completo em andamento; registrar commit/run/artifact e hashes após
+  conferir. Não testado em aparelho: login real por código, apps de cada TV,
+  espelhamento e leitura com TalkBack físico. Início Jellyfin preservada.
+- Portão local completo da I: **440 aprovados, 3 ignorados + 8 Impeller
+  aprovados**, `APROVADO: análise e testes concluídos.`

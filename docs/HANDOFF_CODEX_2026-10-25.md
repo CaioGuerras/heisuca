@@ -39,7 +39,8 @@ Ver item 8 em `docs/HANDOFF_GPT_2026-10-24.md`.
 
 ## F. Movimento e navegação do jeito do Android (retorno 15)
 - Abas da pílula: **fade through** (sem direção), nunca corte seco.
-- Telas empurradas: transição e **voltar preditivo** como o Google recomenda (Flutter: `PredictiveBackPageTransitionsBuilder`,
+- Telas empurradas: transição e **voltar preditivo** como o Google recomenda. **Regressão:** o voltar preditivo foi feito
+  na 1.6.1 (`lib/cgflix/cgflix_theme.dart`, auditoria 1D) e o movimento do item 4 passou por cima; restaurar e unificar (Flutter: `PredictiveBackPageTransitionsBuilder`,
   `android:enableOnBackInvokedCallback="true"`), seguindo o gesto pela borda de onde o dedo veio. Sheets com o padrão
   Material 3. Conferir edge-to-edge e insets. Fonte: `docs/GUIA_ANDROID_GOOGLE.md`.
 
@@ -77,6 +78,11 @@ Ver item 8 em `docs/HANDOFF_GPT_2026-10-24.md`.
 - Renomear o pacote Android `com.edde746.plezy` e os canais `com.plezy/*` para `app.heisuca` (sem mudar o
   `applicationId`, para não perder a atualização por cima); tirar "Plezy" de nomes e textos; trocar o texto de crédito
   do Sobre por uma página padrão de licenças (GPL-3.0 e aviso do Plezy, obrigatório). Registrar no `CLAUDE.md`.
+
+## M. Esboço 04C — mídia fora do app (depois do guia do Google)
+Ver `docs/ESBOCOS_PENDENTES_2026-10-25.md`: MediaSession e notificação MediaStyle para o vídeo, controles na tela de
+bloqueio, Live Updates (Android 16) para o que toca e para downloads, PiP com transição suave e legendas estilizadas.
+Depende da decisão **[C]** do Caio sobre continuar só com o som ao sair do app.
 
 ## Depois (não agora)
 - Varredura do app inteiro contra `docs/GUIA_ANDROID_GOOGLE.md`, com lista de falhas e correções.

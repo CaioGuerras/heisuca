@@ -348,7 +348,7 @@ foram alterados nesta etapa; a montagem e os dados da Início Jellyfin foram pre
 - Não testado em aparelho. Não foi validado visualmente com conta real, Plex/Jellyfin
   reais ou vídeos de Caio. A2 e B–M ainda não iniciadas.
 
-## Rodada de 25/10 — etapa A2 — 2.0.19+20 — em validação
+## Rodada de 25/10 — etapa A2 — 2.0.19+20 — concluída no CI
 A2 foi iniciada somente após o run verde da etapa A.
 
 - Evidência real lida; confirmado o defeito de uma fileira física (linha 88 do recorte,
@@ -372,6 +372,12 @@ A2 foi iniciada somente após o run verde da etapa A.
 - Evidências, método e capturas sintéticas de antes/depois em
   `docs/evidencias/A2_REPRODUCAO_2026-10-25.md`. Não são capturas do aparelho nem do acervo.
 - Portão completo aprovado: análise sem erro/aviso novo, **379 testes aprovados e
-  3 ignorados** na suíte padrão, mais **8 aprovados com Impeller**. Commit/run/APK aguardando CI.
+  3 ignorados** na suíte padrão, mais **8 aprovados com Impeller**.
+- Código: `ec7bc5cf5a9de2c925b4435ee291736a09e91ff8`, sem skip ci.
+- [Run verde 40156049967](https://github.com/CaioGuerras/heisuca/actions/runs/40156049967), `success`.
+- [APK 2.0.19+20 — heisuca-apk](https://github.com/CaioGuerras/heisuca/actions/runs/40156049967/artifacts/12584731542).
+  Artifact: 51.226.218 bytes, não expirado na conferência. Digest ZIP:
+  `252f6f14b70cfb0d1abd1015461fa4f4d87024633a4530c51dd05ad3018ad9b3`.
+  Portão com Impeller, testes nativos, compilação ARM64 e validador do APK aprovados.
 - **Não testado em aparelho.** A reprodução equivalente no Flutter tester não confirma
   a correção física no Edge 60 Pro. B–M ainda não iniciadas.

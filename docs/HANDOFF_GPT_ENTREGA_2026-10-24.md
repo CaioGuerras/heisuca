@@ -627,3 +627,13 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
 - Repetição final do portão após congelar o código: **408 aprovados, 3 ignorados +
   8 Impeller aprovados**. G–M ainda não iniciadas; na L incluir também a retirada
   das traduções Discord que restaram em i18n, conforme a continuação pedida por Caio.
+
+- Complemento da F antes de avançar: o portão passa a incluir também
+  `player_route_exit_test.dart` e `video_player_navigation_test.dart`, para que
+  cancelamento/commit e a exclusão de dois donos nativos sejam verificados no CI
+  das etapas seguintes. Mesma versão da etapa; o primeiro run da F é substituído
+  pelo run deste complemento, sem marcar o run cancelado como aprovado.
+- Portão ampliado da F: **423 aprovados, 3 ignorados + 8 Impeller aprovados**,
+  incluindo os dois arquivos do player adicionados ao CI. Primeiro commit de código:
+  `96d3904797d0abd0283da61b3011fecb5813af53`; run inicial `40199848233` substituído
+  pelo complemento de cobertura. Não avançar à G até o run do complemento ficar verde.

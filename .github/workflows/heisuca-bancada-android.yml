@@ -36,7 +36,13 @@ jobs:
           cache: true
       - name: Preparar KVM e espaço
         run: |
-          sudo rm -rf /usr/share/dotnet /opt/ghc
+          # O runner padrão chega com ~14 GB livres; APK de depuração + Gradle + imagem do emulador não cabem
+          # (run 40228852177: "No space left on device" ao instalar a imagem). Só sai o que esta bancada não usa.
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/share/swift /usr/local/share/boost \
+            /usr/local/share/powershell /usr/local/share/chromium /usr/local/lib/node_modules \
+            /opt/hostedtoolcache/CodeQL /opt/hostedtoolcache/PyPy /opt/hostedtoolcache/go /opt/microsoft /opt/google
+          sudo docker image prune --all --force >/dev/null 2>&1 || true
+          df -h /
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules >/dev/null
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
@@ -54,6 +60,13 @@ jobs:
           ORG_GRADLE_PROJECT_heisucaPreview: "true"
           GRADLE_OPTS: -Dorg.gradle.caching=false -Dorg.gradle.jvmargs=-Xmx3g
         run: flutter build apk --debug --target integration_test/bancada_android_test.dart --target-platform android-x64
+      - name: Liberar espaço da compilação antes do emulador
+        run: |
+          # O percurso instala o APK pronto (executar.py: adb install e flutter drive --use-application-binary).
+          ./android/gradlew --stop -p android >/dev/null 2>&1 || true
+          rm -rf "$HOME/.gradle/caches" "$HOME/.gradle/wrapper/dists" build/app/intermediates build/app/tmp \
+            build/app/kotlin build/app/generated
+          df -h /
       - name: Emulador e percurso autenticado
         id: percurso
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d

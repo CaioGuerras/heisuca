@@ -520,7 +520,7 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
 - Não testado em aparelho nem com servidores reais. Fixtures HTTP comprovam a
   decisão/cliente/caminho, não o download visual do logo real de Ranma nem a fluidez.
 
-## Etapa E — 2.0.23+24 — em validação
+## Etapa E — 2.0.23+24 — concluída no CI
 
 - “Adicionar a …”, “Escolha uma fonte” e a fonte atual em Você usam componentes
   Heisuca: Sora/Inter, paleta do tema, áreas de toque generosas e marca própria de
@@ -560,6 +560,10 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
 - **28 testes finais aprovados** após o ajuste de cor/origem da busca. A análise dos
   arquivos tocados terminou sem erro/aviso (13 infos de estilo já existentes).
 - Portão completo: **397 aprovados, 3 ignorados**, mais **8 aprovados com Impeller**.
-  Commit/run/APK aguardando CI.
+- Código: `5eb816e791c5b8e40f51c623224617a3fecd698e` (sem skip ci).
+- [Run verde 40193402429](https://github.com/CaioGuerras/heisuca/actions/runs/40193402429), `success`.
+- [APK 2.0.23+24](https://github.com/CaioGuerras/heisuca/actions/runs/40193402429/artifacts/12598649958).
+- Artifact: 51.140.156 bytes, SHA-256 `e3d791297faefa8cba795498d996af0a9ceb7aae4e32bc28665d176a8bc7732b`.
+- Pacote/providers conferidos; mesma assinatura SHA-256 `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`.
 - Não testado em aparelho, TalkBack real, servidor real, teclado/controle físico,
   login real ou resposta de rede real. A Início Jellyfin não foi redesenhada.

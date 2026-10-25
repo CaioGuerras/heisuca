@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import '../media/ids.dart';
+import '../media/media_backend.dart';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
@@ -106,6 +107,14 @@ class MultiServerManager {
   final _connectProgressController = StreamController<({String serverId, bool online})>.broadcast();
 
   Stream<({String serverId, bool online})> get connectProgressStream => _connectProgressController.stream;
+
+  /// Atividade sem mudar o veredito on-line nem disparar recarga de bibliotecas.
+  final _connectionActivityController = StreamController<void>.broadcast();
+  Stream<void> get connectionActivityStream => _connectionActivityController.stream;
+  bool isServerConnecting(ServerId id) => _activeOptimizations.containsKey(id.value);
+  void _emitConnectionActivity() {
+    if (!_connectionActivityController.isClosed) _connectionActivityController.add(null);
+  }
 
   /// Servers whose token was rejected (HTTP 401). A re-auth flow should be
   /// offered for these — they remain "offline" until the user signs in again.
@@ -394,6 +403,10 @@ class MultiServerManager {
     }
     _emitStatus();
   }
+
+  /// Tipo conhecido mesmo quando o Plex salvo ainda não tem cliente on-line.
+  MediaBackend? backendForServer(ServerId id) =>
+      _clients[id]?.backend ?? (_plexServers.containsKey(id) ? MediaBackend.plex : null);
 
   String serverDisplayName(ServerId serverId) =>
       _clients[serverId]?.serverName ?? _plexServers[serverId]?.name ?? serverId;
@@ -1192,8 +1205,10 @@ class MultiServerManager {
     // Must not *return* the removed entry — whenComplete would then await this very future.
     final registered = task.whenComplete(() {
       _activeOptimizations.remove(serverId);
+      _emitConnectionActivity();
     });
     _activeOptimizations[serverId] = registered;
+    _emitConnectionActivity();
     return registered;
   }
 
@@ -1664,6 +1679,7 @@ class MultiServerManager {
   Future<void> shutdown({Duration drainTimeout = const Duration(seconds: 5)}) async {
     if (!_statusController.isClosed) unawaited(_statusController.close());
     if (!_connectProgressController.isClosed) unawaited(_connectProgressController.close());
+    if (!_connectionActivityController.isClosed) unawaited(_connectionActivityController.close());
     if (!_visibilityController.isClosed) unawaited(_visibilityController.close());
     await disconnectAllGracefully(drainTimeout: drainTimeout);
   }
@@ -1676,6 +1692,7 @@ class MultiServerManager {
     if (!_connectProgressController.isClosed) {
       _connectProgressController.close();
     }
+    if (!_connectionActivityController.isClosed) unawaited(_connectionActivityController.close());
     if (!_visibilityController.isClosed) {
       _visibilityController.close();
     }

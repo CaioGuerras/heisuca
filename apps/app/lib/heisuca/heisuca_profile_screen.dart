@@ -17,7 +17,6 @@ import '../cgflix/you/cgflix_favorites_screen.dart';
 import '../i18n/strings.g.dart';
 import '../profiles/active_profile_provider.dart';
 import '../profiles/profile_avatar.dart';
-import '../providers/multi_server_provider.dart';
 import '../screens/profile/profile_switch_screen.dart';
 import '../screens/profile/profile_teardown.dart';
 import '../screens/settings/about_screen.dart';
@@ -37,34 +36,12 @@ import 'heisuca_theme.dart';
 class HeisucaProfileScreen extends StatelessWidget {
   const HeisucaProfileScreen({super.key});
 
-  bool _isServerOnline(BuildContext context) {
-    try {
-      final servers = Provider.of<MultiServerProvider?>(context, listen: false);
-      return servers?.serverManager.navigationOnlineClients.isNotEmpty ?? false;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  String _getServerName(BuildContext context) {
-    try {
-      final servers = Provider.of<MultiServerProvider?>(context, listen: false);
-      final clients = servers?.serverManager.navigationOnlineClients;
-      if (clients != null && clients.isNotEmpty) {
-        return clients.values.first.serverName ?? 'Servidor';
-      }
-    } catch (_) {}
-    return 'Fonte offline';
-  }
-
   @override
   Widget build(BuildContext context) {
     final palette = context.cgflix;
     final isLight = palette.isLight;
     final profiles = context.watch<ActiveProfileProvider?>();
     final active = profiles?.active;
-    final online = _isServerOnline(context);
-    final serverName = _getServerName(context);
 
     // Heisuca: no modo infantil a tela usa a paleta do perfil (Ichigo/Sorairo) e fica enxuta.
     final kids = heisucaKidsActive(context);
@@ -94,7 +71,6 @@ class HeisucaProfileScreen extends StatelessWidget {
         : isLight
         ? const Color(0xFF64748B)
         : const Color(0xFFA99FBB);
-    final accentGreen = isLight ? const Color(0xFF047857) : const Color(0xFF10B981);
     final dividerColor = kids
         ? palette.divider
         : isLight
@@ -238,35 +214,7 @@ class HeisucaProfileScreen extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 5.0),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  width: 8.0,
-                                  height: 8.0,
-                                  decoration: BoxDecoration(
-                                    color: online ? accentGreen : const Color(0xFFEF4444),
-                                    shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: (online ? accentGreen : const Color(0xFFEF4444)).withOpacity(0.4),
-                                        blurRadius: 6.0,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 6.0),
-                                Text(
-                                  online ? '$serverName · Conectado' : 'Sem conexão',
-                                  style: TextStyle(
-                                    fontFamily: HeisucaTheme.fonteTexto,
-                                    fontSize: 13.0,
-                                    fontWeight: FontWeight.w500,
-                                    color: online ? accentGreen : const Color(0xFFEF4444),
-                                  ),
-                                ),
-                              ],
-                            ),
+                            const HeisucaCurrentSourceCaption(),
                           ],
                         ),
                       ),

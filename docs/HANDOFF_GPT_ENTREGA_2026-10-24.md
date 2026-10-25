@@ -519,3 +519,47 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
 - Pacote/providers conferidos; mesma assinatura SHA-256 `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`.
 - Não testado em aparelho nem com servidores reais. Fixtures HTTP comprovam a
   decisão/cliente/caminho, não o download visual do logo real de Ranma nem a fluidez.
+
+## Etapa E — 2.0.23+24 — em validação
+
+- “Adicionar a …”, “Escolha uma fonte” e a fonte atual em Você usam componentes
+  Heisuca: Sora/Inter, paleta do tema, áreas de toque generosas e marca própria de
+  fonte (três caminhos que chegam à origem). Retirados ListTile, ícones de hardware,
+  cartões/bordas genéricos e palavras visíveis “Conectado/Offline” dessas áreas.
+- Servidor e tipo aparecem na linha; status só por bolinha, com rótulo TalkBack:
+  verde on-line, âmbar conectando, cinza fora do ar, vermelho erro de acesso.
+  O cabeçalho de Você também mantém nome/tipo com o mesmo sinal acessível.
+- Reconexão vem da tarefa real do gerenciador. Um stream de atividade separado
+  atualiza os sinais sem falsear o status de saúde e sem recarregar bibliotecas
+  a cada início/fim de tarefa. O tipo Plex continua conhecido quando a conexão
+  salva ainda não tem cliente on-line. Bind inicial usa o estado real do perfil.
+- Mantidos os fluxos de autenticação Plex/Jellyfin/Emby, vínculo ao perfil, conexão
+  emprestada com PIN, espera do rebind e persistência/isolamento da seleção.
+  Modo infantil continua sem acesso à troca de fonte/perfis por esse caminho.
+- Busca real (`SearchScreen`, usada pela navegação): origem em cada título/pessoa,
+  nome quando única, “2 fontes” (ou N) quando há servidores distintos. Versões no
+  mesmo servidor contam uma vez; respeita fontes visíveis no perfil. Biblioteca
+  continua na mesma linha quando relevante. Cor de texto da nova origem sem a
+  redução de opacidade anterior; origem também no rótulo de acessibilidade.
+- Registro da busca agora retira associação antiga de um título/pessoa que a
+  consulta nova só encontrou numa fonte; evita manter “2 fontes” desatualizado.
+  Busca, ranking e agrupamento continuam unificados, sem duplicar cartões.
+- **58 testes direcionados aprovados**: fontes, seleção/rebind, autenticadores,
+  navegação D-pad, pessoa/busca, agrupamento e progresso de conexão.
+- **83 aprovados**: gerenciador e provider de servidores (incluindo ciclo de vida,
+  troca de clientes, reconexão e status). O teste novo confirma que “conectando”
+  não dispara snapshot de saúde falso; temas claro/escuro com texto 2× e semântica.
+- Capturas sintéticas Flutter/Linux, 412×914, PNG a 2×, fontes Sora/Inter e ícones
+  carregados: `docs/evidencias/e_fontes_{adicionar,escolher}_{isis,heitor}.png`.
+  Conferidas visualmente. A captura de escolher mostra o componente em uma página
+  de prévia, sem o scrim da rota modal; nomes/estados são fixtures, não servidores
+  consultados. Não são evidência de teste em aparelho.
+- Testes antigos de badges/linha de biblioteca foram ajustados ao sinal próprio e
+  ao separador novo. D-pad agora verifica os três destinos efetivamente alcançados,
+  em vez de contar uma classe de wrapper que saiu do desenho.
+- **28 testes finais aprovados** após o ajuste de cor/origem da busca. A análise dos
+  arquivos tocados terminou sem erro/aviso (13 infos de estilo já existentes).
+- Portão completo: **397 aprovados, 3 ignorados**, mais **8 aprovados com Impeller**.
+  Commit/run/APK aguardando CI.
+- Não testado em aparelho, TalkBack real, servidor real, teclado/controle físico,
+  login real ou resposta de rede real. A Início Jellyfin não foi redesenhada.

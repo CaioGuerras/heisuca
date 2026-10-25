@@ -30,7 +30,7 @@ import 'package:plezy/services/settings_service.dart';
 import 'package:plezy/theme/mono_theme.dart';
 import 'package:plezy/utils/platform_detector.dart';
 import 'package:plezy/utils/media_server_http_client.dart';
-import 'package:plezy/widgets/backend_badge.dart';
+import 'package:plezy/heisuca/heisuca_sources_ui.dart';
 import 'package:plezy/widgets/focusable_media_card.dart';
 import 'package:plezy/widgets/focusable_tab_chip.dart';
 import 'package:plezy/widgets/loading_indicator_box.dart';
@@ -470,9 +470,9 @@ void main() {
     expect(client.queries, ['movie']);
     // The source line always carries the full provenance: backend icon,
     // server name, then library name.
-    expect(find.text('Server • Movies'), findsOneWidget);
-    expect(find.text('Server • Anime'), findsOneWidget);
-    expect(find.byType(BackendBadge), findsNWidgets(2));
+    expect(find.text('Server · Movies'), findsOneWidget);
+    expect(find.text('Server · Anime'), findsOneWidget);
+    expect(find.byType(HeisucaSourceMark), findsNWidgets(2));
   });
 
   testWidgets('library name back-fills from loaded libraries when the row only carries an id', (tester) async {
@@ -488,8 +488,8 @@ void main() {
     (key.currentState! as SearchInputFocusable).submitSearchQuery('movie');
     await tester.pumpAndSettle();
 
-    expect(find.text('Server • Movies'), findsOneWidget);
-    expect(find.text('Server • Anime'), findsOneWidget);
+    expect(find.text('Server · Movies'), findsOneWidget);
+    expect(find.text('Server · Anime'), findsOneWidget);
   });
 
   testWidgets('no library label on a single-library server', (tester) async {
@@ -515,8 +515,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Movie 1'), findsOneWidget);
-    expect(find.text('Server • Movies'), findsNothing);
-    expect(find.byType(BackendBadge), findsNothing);
+    expect(find.text('Server · Movies'), findsNothing);
+    expect(find.text('Server'), findsOneWidget);
+    expect(find.byType(HeisucaSourceMark), findsOneWidget);
   });
 
   testWidgets('card refresh keeps the library stamp', (tester) async {
@@ -539,7 +540,7 @@ void main() {
 
     (key.currentState! as SearchInputFocusable).submitSearchQuery('movie');
     await tester.pumpAndSettle();
-    expect(find.text('Server • Movies'), findsOneWidget);
+    expect(find.text('Server · Movies'), findsOneWidget);
 
     // A fresh fetchItem carries no library context (a Jellyfin /Items/{id}
     // response has none); the merge must keep the stamp search applied.
@@ -557,7 +558,7 @@ void main() {
 
     expect(client.fetchedItemIds, ['movie_1']);
     expect(find.text('Movie 1 (Refreshed)'), findsOneWidget);
-    expect(find.text('Server • Movies'), findsOneWidget);
+    expect(find.text('Server · Movies'), findsOneWidget);
     final refreshed = tester.widget<FocusableMediaCard>(cardFinder).item as MediaItem;
     expect(refreshed.libraryId, '1');
     expect(refreshed.libraryTitle, 'Movies');

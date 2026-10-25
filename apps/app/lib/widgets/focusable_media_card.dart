@@ -46,6 +46,7 @@ class FocusableMediaCard extends StatefulWidget {
 
   /// Show server name in list view (multi-server)
   final bool showServerName;
+  final String? sourceLabel;
 
   /// Library name to attribute the item with in list view, resolved by the
   /// caller (see `LibrariesProvider.libraryLabelFor`). Null renders nothing.
@@ -99,6 +100,7 @@ class FocusableMediaCard extends StatefulWidget {
     this.fullBleedImage = false,
     this.cardShapeOverride,
     this.showServerName = false,
+    this.sourceLabel,
     this.libraryName,
     this.disableScale = false,
     this.focusNode,
@@ -158,6 +160,7 @@ class _FocusableMediaCardState extends State<FocusableMediaCard> {
         fullBleedImage: widget.fullBleedImage,
         cardShapeOverride: widget.cardShapeOverride,
         showServerName: widget.showServerName,
+        sourceLabel: widget.sourceLabel,
         libraryName: widget.libraryName,
       ),
     );

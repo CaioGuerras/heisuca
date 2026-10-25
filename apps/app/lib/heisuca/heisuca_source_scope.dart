@@ -1,4 +1,6 @@
 import 'heisuca_motion.dart';
+import 'heisuca_sources_ui.dart';
+import '../cgflix/cgflix_palette.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -105,9 +107,10 @@ class HeisucaSourceTile extends StatelessWidget {
     if (servers == null || heisucaKidsActive(context)) return const SizedBox.shrink();
     final id = source?.selected;
     final client = id == null ? null : servers.getClientForServer(ServerId(id));
-    return ListTile(leading: const Icon(Icons.dns_outlined), title: const Text('Fonte atual'),
-      subtitle: Text(client == null ? 'Selecionar servidor' : '${heisucaBackendLabel(client.backend.name)} · ${client.serverName ?? "Servidor"}'),
-      trailing: const Icon(Icons.expand_more), onTap: source == null ? null : () => heisucaChooseSource(context));
+    final name = client?.serverName ?? (id == null ? 'Escolher servidor' : servers.serverManager.serverDisplayName(ServerId(id)));
+    return HeisucaSourceRow(title: name, subtitle: 'Fonte atual · ${heisucaBackendLabel(client?.backend.name ?? (id == null ? null : servers.serverManager.backendForServer(ServerId(id))?.name) ?? "Fonte")}',
+      status: id == null ? null : heisucaSourceStatus(servers, id, binding: context.watch<ActiveProfileProvider?>()?.isBinding ?? false),
+      onTap: source == null ? null : () => heisucaChooseSource(context));
   }
 }
 
@@ -147,15 +150,13 @@ Future<void> heisucaAddSource(BuildContext context) async {
     return;
   }
   var chosen = news.length == 1 ? news.single : null;
-  if (chosen == null && navigator.mounted) {
+  if (chosen == null && navigator.mounted && context.mounted) {
     chosen = await showModalBottomSheet<String>(sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: navigator.context, showDragHandle: true,
-      builder: (sheet) => SafeArea(child: ListView(shrinkWrap: true, children: [
-        const ListTile(title: Text('Qual servidor você quer ver agora?',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700))),
-        for (final id in news) ListTile(leading: const Icon(Icons.dns_rounded), title: Text(name(id)),
-          subtitle: Text(heisucaBackendLabel(servers.getClientForServer(ServerId(id))?.backend.name ?? 'Fonte')),
-          onTap: () => Navigator.pop(sheet, id)),
-      ])));
+      builder: (sheet) => HeisucaSourceSheet(title: 'Qual fonte você quer ver?', children: [
+        for (final id in news) HeisucaSourceRow(title: name(id),
+          subtitle: heisucaBackendLabel(servers.getClientForServer(ServerId(id))?.backend.name ?? 'Fonte'),
+          status: heisucaSourceStatus(servers, id), onTap: () => Navigator.pop(sheet, id)),
+      ]));
   }
   if (chosen == null) return;
   await selection?.select(chosen);
@@ -167,23 +168,40 @@ Future<void> heisucaChooseSource(BuildContext context) async {
   final source = context.getInheritedWidgetOfExactType<_SourceSelection>();
   final servers = context.read<MultiServerProvider?>();
   if (source == null || servers == null) return;
-  await showModalBottomSheet<void>(
-        sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: context, showDragHandle: true, builder: (sheetContext) => SafeArea(child: ListView(shrinkWrap: true, children: [
-          const ListTile(title: Text('Escolha uma fonte'), subtitle: Text('As bibliotecas ficam separadas por servidor.')),
-          for (final serverId in servers.expectedServerIds) Builder(builder: (_) {
-            final other = servers.getClientForServer(ServerId(serverId));
-            final online = servers.isServerOnline(ServerId(serverId));
-            return ListTile(leading: Icon(online ? Icons.dns : Icons.cloud_off),
-              title: Text(other?.serverName ?? servers.serverManager.serverDisplayName(ServerId(serverId))),
-              subtitle: Text('${heisucaBackendLabel(other?.backend.name ?? "Fonte")} · ${online ? "Conectado" : "Offline"}'),
-              trailing: serverId == source.selected ? const Icon(Icons.check) : null,
-              onTap: () { Navigator.pop(sheetContext); source.select(serverId); });
+  await showModalBottomSheet<void>(sheetAnimationStyle: HeisucaMotion.sheetStyle(context),
+    context: context, showDragHandle: true, isScrollControlled: true, useSafeArea: true,
+    builder: (sheet) => ConstrainedBox(constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(sheet).height * .85),
+      child: ListenableBuilder(listenable: servers, builder: (_, _) => HeisucaSourceSheet(
+        title: 'Escolha uma fonte', subtitle: 'Cada servidor tem suas próprias bibliotecas.', children: [
+          for (final id in servers.expectedServerIds) Builder(builder: (_) {
+            final client = servers.getClientForServer(ServerId(id));
+            return HeisucaSourceRow(title: client?.serverName ?? servers.serverManager.serverDisplayName(ServerId(id)),
+              subtitle: heisucaBackendLabel(servers.serverManager.backendForServer(ServerId(id))?.name ?? 'Fonte'),
+              status: heisucaSourceStatus(servers, id, binding: sheet.watch<ActiveProfileProvider?>()?.isBinding ?? false), selected: id == source.selected,
+              onTap: () { Navigator.pop(sheet); source.select(id); });
           }),
-          ListTile(leading: const Icon(Icons.add_circle_outline_rounded), title: const Text('Adicionar fonte'),
-            subtitle: const Text('Outro servidor Jellyfin, Emby ou conta Plex'),
-            onTap: () { Navigator.pop(sheetContext); heisucaAddSource(context); }),
-          ListTile(leading: const Icon(Icons.manage_accounts), title: const Text('Gerenciar perfis e conexões'),
-            onTap: () { Navigator.pop(sheetContext); Navigator.of(context, rootNavigator: true).push(
+          HeisucaSourceRow(title: 'Adicionar fonte', subtitle: 'Jellyfin, Emby ou conta Plex',
+            leading: Icon(Icons.add_rounded, color: sheet.cgflix.accent),
+            onTap: () { Navigator.pop(sheet); heisucaAddSource(context); }),
+          HeisucaSourceRow(title: 'Perfis e conexões', subtitle: 'Gerenciar suas contas salvas',
+            onTap: () { Navigator.pop(sheet); Navigator.of(context, rootNavigator: true).push(
               MaterialPageRoute<void>(builder: (_) => const ProfileSwitchScreen())); }),
-        ])));
+        ]))));
+}
+
+/// Resumo no cabeçalho de Você: nome e tipo, com estado apenas na bolinha acessível.
+class HeisucaCurrentSourceCaption extends StatelessWidget {
+  const HeisucaCurrentSourceCaption({super.key});
+  @override Widget build(BuildContext context) {
+    final servers = context.watch<MultiServerProvider?>();
+    final id = context.dependOnInheritedWidgetOfExactType<_SourceSelection>()?.selected ?? servers?.serverManager.navigationServerId;
+    if (servers == null || id == null) return const SizedBox.shrink();
+    final client = servers.getClientForServer(ServerId(id));
+    return Row(children: [
+      const HeisucaSourceMark(size: 16), const SizedBox(width: 5),
+      Expanded(child: Text('${client?.serverName ?? servers.serverManager.serverDisplayName(ServerId(id))} · ${heisucaBackendLabel(servers.serverManager.backendForServer(ServerId(id))?.name ?? "Fonte")}',
+        maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, color: context.cgflix.textMuted))),
+      HeisucaSourceDot(status: heisucaSourceStatus(servers, id, binding: context.watch<ActiveProfileProvider?>()?.isBinding ?? false)),
+    ]);
+  }
 }

@@ -54,7 +54,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(manager.navigationServerId, 'a');
     expect(find.text('skip-prompt:false'), findsOneWidget);
-    await tester.tap(find.text('Fonte atual'));
+    await tester.tap(find.textContaining('Fonte atual ·'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Servidor B'));
     await tester.pumpAndSettle();
@@ -100,7 +100,7 @@ void main() {
     ], child: const MaterialApp(home: HeisucaSourceScope(profileId: 'caio', child: Scaffold(body: HeisucaSourceTile())))));
     await tester.pumpAndSettle();
     expect(manager.navigationServerId, 'a');
-    await tester.tap(find.text('Fonte atual'));
+    await tester.tap(find.textContaining('Fonte atual ·'));
     await tester.pumpAndSettle();
     expect(find.text('Adicionar fonte'), findsOneWidget, reason: 'porta única para adicionar fonte');
     await tester.tap(find.text('Servidor Novo'));
@@ -110,7 +110,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(manager.navigationServerId, 'novo');
     expect(prefs.getString('heisuca.navigation.source.caio'), 'novo');
-    expect(find.textContaining('Jellyfin · Servidor Novo'), findsOneWidget, reason: 'backend com nome legível');
+    expect(find.text('Servidor Novo'), findsOneWidget, reason: 'backend com nome legível');
     await tester.pumpWidget(const SizedBox());
   });
 }

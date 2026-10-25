@@ -849,3 +849,10 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   física; pacote e assinatura do APK serão conferidos no CI após o push.
 - Portão completo da J: **457 aprovados, 3 ignorados + 8 Impeller aprovados**,
   `APROVADO: análise e testes concluídos.` Capturas aprovadas da Home preservadas.
+- **Ponto de retomada J:** código enviado em
+  `dce6e0239c17a53de81a9fb547b24583915154d0` (sem `[skip ci]`), run
+  [40221928427](https://github.com/CaioGuerras/heisuca/actions/runs/40221928427)
+  pendente. Aguardar `completed/success`, conferir pacote/certificado/SHA-256 do
+  APK no validador e os metadados do artifact, registrar. Só então iniciar K,
+  próxima 2.0.29+30. K–O ainda não iniciadas. `aapt2 compile` repetido sobre os
+  recursos finais também passou; árvore de código enviada integralmente.

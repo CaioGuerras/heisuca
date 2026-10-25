@@ -115,8 +115,11 @@ def main():
     except BancadaIndisponivel as error:
         report.update({'status': 'instável', 'motivo': str(error)})
         result_code = 75
-    except Exception:
-        report.update({'status': 'falhou', 'motivo': 'O percurso da bancada não foi concluído; consulte o log sem dados privados.'})
+    except Exception as error:
+        # Mensagens próprias da bancada não carregam dados privados; outras exceções ficam só com o tipo.
+        detalhe = str(error) if isinstance(error, (RuntimeError, RestauracaoFalhou)) else ''
+        report.update({'status': 'falhou', 'motivo': 'O percurso da bancada não foi concluído; consulte o log sem dados privados.',
+            'erro': f'{type(error).__name__}: {detalhe}'.rstrip(': ')})
         result_code = 1
     finally:
         # Nenhum produtor do app pode escrever depois da restauração.
@@ -135,7 +138,10 @@ def main():
                 if estado(client.item(video['Id'])['UserData']) != estado(video['UserData']):
                     client.restaurar(video['Id'], video['UserData'])
                 report['restauracao'] = 'confirmada: progresso, assistido, contagem, data e preferências preservados'
-        except Exception:
+        except Exception as error:
+            detalhe = str(error) if isinstance(error, RestauracaoFalhou) else ''
+            report.update({'status_percurso': report.get('status'),
+                'erro_restauracao': f'{type(error).__name__}: {detalhe}'.rstrip(': ')})
             report.update({'status': 'restauração pendente', 'restauracao': 'não confirmada',
                 'motivo': 'A bancada recusou marcar verde sem confirmar a limpeza do que criou.',
                 'conta_posicao': names.index(name) + 1 if name in names else None,

@@ -10,11 +10,11 @@ REMOTE = '/sdcard/heisuca-bancada.mp4'
 def adb(*args, check=False):
     try:
         result = subprocess.run(['adb', *args], stdout=subprocess.PIPE,
-                                stderr=subprocess.DEVNULL, timeout=120 if args[0] == 'install' else 30)
+                                stderr=subprocess.DEVNULL, timeout=600 if args[0] == 'install' else 30)
     except (subprocess.TimeoutExpired, OSError):
         result = subprocess.CompletedProcess(args, 1, b'')
     if check and result.returncode:
-        raise RuntimeError('Operação nativa da bancada não foi concluída.')
+        raise RuntimeError(f'Operação nativa da bancada não foi concluída: adb {args[0]}.')
     return result
 
 

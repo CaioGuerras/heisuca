@@ -21,6 +21,13 @@ Baixados e Você. O perfil local do emulador é anonimizado antes das capturas,
 sem alterar nome/foto no servidor. Chaves estáveis de campos e abas só identificam
 os componentes; não mudam apresentação ou lógica de navegação.
 
+Marcos chegam ao host por arquivo JSON privado publicado por rename. O teste
+espera um ACK com o mesmo número, também publicado atomicamente. O host para e
+aguarda o processo de gravação, salva a captura nativa e envia Back quando pedido;
+só então confirma o marco. Em particular, a digitação só começa após confirmar
+que o vídeo do login vazio terminou. Não há conversão da superfície Flutter nem
+callbacks de screenshot do SDK (que no Android chegam somente ao final).
+
 Capturas pelo `adb screencap` incluem superfícies nativas. Vídeos separados por
 orientação/fase: abertura/login vazio, acervo/busca/ficha, player nativo e
 retorno/abas. Não se grava a digitação de endereço/usuário/senha. O relatório
@@ -77,8 +84,9 @@ imagem anônimos antes de registrar a Início.
 
 ## Validação local e limites
 
-Oito testes Python verificam rodízio, contas infantis, ocupação, erro de sondagem,
-seleção sem histórico, restauração efetiva, concorrência no item e redação do log.
+Treze testes Python verificam rodízio, contas infantis, ocupação, erro de sondagem,
+seleção sem histórico, restauração efetiva, concorrência no item e redação do log; também ordem de parada/captura/ACK,
+falha sem confirmação, Back nativo e rejeição de marcos inválidos.
 Teste Flutter verifica o binding composto. Análise estática inclui integração e
 driver. A execução Android autenticada depende do job; não foi rodada localmente,
 nem se afirma aprovação física. Segredos não são legíveis pelo token local: o CI

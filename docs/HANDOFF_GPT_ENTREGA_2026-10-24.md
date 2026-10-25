@@ -903,3 +903,30 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   confirmados. Falha de infraestrutura permanece instável, sem marcar verde.
   Falha de produto/harness ou limpeza exige correção/conferência antes de encerrar.
   L–O ainda não iniciadas; próxima versão L 2.0.30+31 quando K estiver resolvida.
+- **Correção da K antes de executar contas reais:** leitura do SDK Flutter
+  (`integration_test/src/_callback_io.dart`) mostrou que o Android não implementa
+  os argumentos de `takeScreenshot` e entrega screenshots ao driver só ao fim.
+  O controle ao vivo previsto não seria válido. Run da bancada `40227167082`
+  cancelado enquanto ainda estava em **Compilar APK da bancada**, antes de iniciar
+  emulador/login. O run do APK `40227167125` é independente e continua sob inspeção.
+  Não houve prova de percurso/restauração real nesse run, nem se o marca aprovado.
+- Ajuste em andamento: marcos do teste por arquivos privados com confirmação do
+  host; `adb` captura a superfície real e confirma parada do vídeo antes de
+  permitir digitação privada. Sem conversão da superfície Flutter nem dependência
+  de callback tardio. K segue 2.0.29+30; L–O não iniciadas. Próximo commit/run
+  deve substituir a bancada cancelada e passar o portão novamente.
+- Correção de protocolo implementada: marcos/ACK numerados em arquivos privados,
+  publicação atômica; captura e Back por adb enquanto o teste está em execução.
+  Login espera parada confirmada da gravação antes de digitar; não usa
+  `takeScreenshot`, argumentos Android não suportados nem conversão de superfície.
+  Driver básico só recolhe o resultado final. Motor reportado pelo método
+  `runtimePlayerType`, incluindo eventual fallback efetivo.
+- **13 testes Python aprovados**, incluindo parada antes do ACK, captura inválida
+  sem confirmação, Back apenas quando solicitado, marcos inválidos e falha ao
+  salvar vídeo sem interromper limpeza. Análise da integração/driver aprovada.
+  Run antigo da bancada confirmado `cancelled`; sem autenticação executada.
+- Portão após a correção: **458 testes Flutter aprovados, 3 ignorados, 8 Impeller
+  aprovados**, análise aprovada e `APROVADO` no script completo. Os testes Python
+  foram repetidos após a última alteração: **13 aprovados**. Em falha, o CI mostra
+  o fim do log já redigido para permitir diagnóstico sem depender do download.
+  Autenticação/capturas/restauração reais ainda aguardam o novo run.

@@ -11,16 +11,10 @@ import time
 
 from servidor import BancadaIndisponivel, RestauracaoFalhou, Servidor, selecionar, estado, limpar_log
 
-APP_ID = 'app.heisuca.player.teste.home'
+from capturas import APP_ID, Capturas, adb
+
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / '.bancada/evidencias'
-
-
-def adb(*args, check=False):
-    result = subprocess.run(['adb', *args], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-    if check and result.returncode:
-        raise BancadaIndisponivel('Emulador indisponível para uma operação da bancada.')
-    return result
 
 
 def main():
@@ -31,7 +25,7 @@ def main():
     report = {'status': 'instável', 'restauracao': 'não necessária'}
     client = video = name = None
     playback_possible = False
-    recording = None
+    captures = Capturas(OUT)
     result_code = 75
     def stop_group(pid):
         try: os.killpg(pid, signal.SIGTERM)
@@ -51,19 +45,19 @@ def main():
         # O APK não contém credenciais. Configuração vai por stdin ao diretório privado.
         adb('install', '-r', str(ROOT / 'build/app/outputs/flutter-apk/app-debug.apk'), check=True)
         config = json.dumps({'server': base, 'user': name, 'item': video['Id'], 'title': video['Name']}).encode()
-        injected = subprocess.run(['adb', 'exec-out', 'run-as', APP_ID, 'sh', '-c',
-            'mkdir -p files\numask 077\ncat > files/heisuca-bancada-config.json'],
+        adb('exec-out', 'run-as', APP_ID, 'mkdir', '-p', 'files', check=True)
+        injected = subprocess.run(['adb', 'exec-out', 'run-as', APP_ID, 'tee',
+            'files/heisuca-bancada-config.json'],
             input=config, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=30)
         if injected.returncode:
             raise BancadaIndisponivel('Configuração privada não chegou ao emulador.')
+        adb('exec-out', 'run-as', APP_ID, 'chmod', '600', 'files/heisuca-bancada-config.json', check=True)
         env = dict(os.environ)
         env.pop('HEISUCA_TESTE_SERVIDOR', None)
         env.pop('HEISUCA_TESTE_CONTAS', None)
         env['HEISUCA_BANCADA_EVIDENCIAS'] = str(OUT)
         protected = names + [client.token]
-        adb('shell', 'rm', '-f', '/sdcard/heisuca-bancada.mp4')
-        recording = subprocess.Popen(['adb', 'shell', 'screenrecord', '--time-limit', '180', '/sdcard/heisuca-bancada.mp4'],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        captures.start()
         playback_possible = True
         command = ['flutter', 'drive', '--driver', 'test_driver/bancada_android_test.dart',
             '--target', 'integration_test/bancada_android_test.dart', '--use-application-binary',
@@ -75,17 +69,28 @@ def main():
             deadline.daemon = True
             deadline.start()
             try:
-                for line in process.stdout:
-                    if line.startswith('result {'):
-                        line = 'Resposta do driver recebida.\n'
-                    safe = limpar_log(line, protected, base)
-                    if 'BANCADA_OCUPADA' in safe: report['ocupada'] = True
-                    log.write(safe[:2000])
-                    log.flush()
+                def read_log():
+                    for line in process.stdout:
+                        if line.startswith('result {'):
+                            line = 'Resposta do driver recebida.\n'
+                        safe = limpar_log(line, protected, base)
+                        if 'BANCADA_OCUPADA' in safe: report['ocupada'] = True
+                        log.write(safe[:2000])
+                        log.flush()
+                reader = threading.Thread(target=read_log, daemon=True)
+                reader.start()
+                while process.poll() is None:
+                    captures.poll()
+                    time.sleep(0.2)
                 code = process.wait()
+                reader.join(timeout=10)
             finally:
                 deadline.cancel()
-                if process.poll() is None: stop_group(process.pid)
+                if process.poll() is None:
+                    stop_group(process.pid)
+                    try: process.wait(timeout=10)
+                    except subprocess.TimeoutExpired: process.kill()
+                reader.join(timeout=10)
         if code:
             result_code = 75 if report.get('ocupada') else 1
             report['status'] = 'instável' if result_code == 75 else 'falhou'
@@ -116,12 +121,7 @@ def main():
     finally:
         # Nenhum produtor do app pode escrever depois da restauração.
         adb('shell', 'am', 'force-stop', APP_ID)
-        adb('shell', 'pkill', '-INT', 'screenrecord')
-        if recording:
-            try: recording.wait(timeout=10)
-            except subprocess.TimeoutExpired: recording.kill()
-        if result_code != 0:
-            adb('pull', '/sdcard/heisuca-bancada.mp4', str(OUT / 'video-interrompido.mp4'))
+        captures.close()
         app_session = adb('exec-out', 'run-as', APP_ID, 'cat', 'files/heisuca-bancada-session.json')
         try:
             if client and video:
@@ -150,6 +150,9 @@ def main():
         print(f'Bancada: {report["status"]}. Restauração: {report["restauracao"]}.')
         if report.get('video'):
             print('Prova do player: ' + json.dumps(report['video'], ensure_ascii=False))
+        if result_code != 0 and (OUT / 'execucao.log').exists():
+            print('Diagnóstico final (já redigido, sem credenciais):')
+            print(''.join((OUT / 'execucao.log').read_text().splitlines(keepends=True)[-60:]))
     return result_code
 
 

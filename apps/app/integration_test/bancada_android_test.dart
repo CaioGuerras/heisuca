@@ -29,7 +29,8 @@ class _BancadaBinding extends IntegrationTestWidgetsFlutterBinding with PointerS
 Future<void> main() async {
   final binding = PlezyWidgetsBinding.ensureInitialized(createBinding: _BancadaBinding.new) as _BancadaBinding;
   final support = await getApplicationSupportDirectory();
-  final config = jsonDecode(await File('${support.path}/heisuca-bancada-config.json').readAsString()) as Map<String, dynamic>;
+  final config =
+      jsonDecode(await File('${support.path}/heisuca-bancada-config.json').readAsString()) as Map<String, dynamic>;
   // O app mantém seu handle de semântica durante toda a sessão de debug.
   // Inicia antes do caso, como aplicação real, sem recriar o binding do runner.
   app.main();
@@ -51,15 +52,32 @@ Future<void> main() async {
       }
       await tester.pump(const Duration(milliseconds: 400));
     }
+
+    var sequence = 0;
     Future<void> shot(String name, {bool back = false}) async {
-      await binding.takeScreenshot(name, {'voltar': back});
+      await tester.pump(const Duration(milliseconds: 400));
+      final seq = ++sequence;
+      final pending = File('${support.path}/heisuca-bancada-event.tmp');
+      await pending.writeAsString(jsonEncode({'seq': seq, 'name': name, 'back': back}), flush: true);
+      await pending.rename('${support.path}/heisuca-bancada-event.json');
+      final deadline = DateTime.now().add(const Duration(seconds: 45));
+      final ack = File('${support.path}/heisuca-bancada-ack.json');
+      while (true) {
+        if (await ack.exists()) {
+          final data = jsonDecode(await ack.readAsString()) as Map<String, dynamic>;
+          if (data['seq'] == seq && data['ok'] == true) break;
+        }
+        if (DateTime.now().isAfter(deadline)) throw StateError('Captura não confirmada: $name.');
+        await tester.pump(const Duration(milliseconds: 200));
+      }
       steps.add(name);
     }
-    Finder field(String name) => find.descendant(of: find.byKey(ValueKey('heisuca-login-$name')), matching: find.byType(TextField));
+
+    Finder field(String name) =>
+        find.descendant(of: find.byKey(ValueKey('heisuca-login-$name')), matching: find.byType(TextField));
     await until(() => find.byType(HeisucaLoginScreen).evaluate().isNotEmpty, 'login');
-    await binding.convertFlutterSurfaceToImage();
     await tester.pump();
-    // Driver encerra o vídeo da abertura antes de entrar qualquer dado privado.
+    // Host encerra o vídeo da abertura antes de entrar qualquer dado privado.
     await shot('01-login');
     await tester.enterText(field('server'), server);
     await tester.enterText(field('user'), user);
@@ -68,21 +86,38 @@ Future<void> main() async {
     await tester.tap(find.text('Iniciar sessão'));
     await until(() => find.byType(HeisucaHomeScreen).evaluate().isNotEmpty, 'Início');
     final context = tester.element(find.byType(HeisucaHomeScreen).first);
-    final clients = context.read<MultiServerProvider>().serverManager.navigationOnlineClients.values.whereType<JellyfinClient>();
+    final clients = context
+        .read<MultiServerProvider>()
+        .serverManager
+        .navigationOnlineClients
+        .values
+        .whereType<JellyfinClient>();
     if (clients.length != 1) throw StateError('A bancada exige uma única fonte Jellyfin.');
     final connection = clients.single.connection;
     final directory = await getApplicationSupportDirectory();
     // Só no APK de teste, armazenamento privado; o host lê sem imprimir nem publicar.
-    await File('${directory.path}/heisuca-bancada-session.json').writeAsString(jsonEncode({
-      'token': connection.accessToken, 'user': connection.userId, 'device': connection.deviceId,
-    }), flush: true);
+    await File('${directory.path}/heisuca-bancada-session.json').writeAsString(
+      jsonEncode({'token': connection.accessToken, 'user': connection.userId, 'device': connection.deviceId}),
+      flush: true,
+    );
     // Perfil local anônimo: não altera nome nem foto no servidor da pessoa.
     final profiles = context.read<ActiveProfileProvider>();
     final active = profiles.active!;
     final avatar = File('${directory.path}/heisuca-bancada-avatar.png');
-    await avatar.writeAsBytes(base64Decode('iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAGUlEQVR4nGO8I2fEQApgIkn1qIZRDUNKAwDJTwFMq+x9qAAAAABJRU5ErkJggg=='));
-    await context.read<ProfileRegistry>().upsert(active.copyWith(displayName: 'Bancada Android', avatarThumbUrl: avatar.uri.toString()));
-    await until(() => profiles.active?.displayName == 'Bancada Android' && profiles.avatarUrlFor(active.id) == avatar.uri.toString(), 'perfil local anônimo');
+    await avatar.writeAsBytes(
+      base64Decode(
+        'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAGUlEQVR4nGO8I2fEQApgIkn1qIZRDUNKAwDJTwFMq+x9qAAAAABJRU5ErkJggg==',
+      ),
+    );
+    await context.read<ProfileRegistry>().upsert(
+      active.copyWith(displayName: 'Bancada Android', avatarThumbUrl: avatar.uri.toString()),
+    );
+    await until(
+      () =>
+          profiles.active?.displayName == 'Bancada Android' &&
+          profiles.avatarUrlFor(active.id) == avatar.uri.toString(),
+      'perfil local anônimo',
+    );
     await precacheImage(FileImage(avatar), context);
     await tester.pump(const Duration(milliseconds: 500));
     await shot('02-inicio');
@@ -90,12 +125,17 @@ Future<void> main() async {
     await until(() => find.byType(SearchScreen).evaluate().isNotEmpty, 'busca');
     await tester.enterText(find.byType(TextField).first, title);
     FocusManager.instance.primaryFocus?.unfocus();
-    final card = find.byWidgetPredicate((w) => w is FocusableMediaCard && w.item is MediaItem && (w.item as MediaItem).id == itemId);
+    final card = find.byWidgetPredicate(
+      (w) => w is FocusableMediaCard && w.item is MediaItem && (w.item as MediaItem).id == itemId,
+    );
     await until(() => card.evaluate().isNotEmpty, 'resultado da busca');
     await tester.ensureVisible(card.first);
     await shot('03-busca');
     await tester.tap(card.first);
-    await until(() => find.byType(HeisucaTitleSheet).evaluate().isNotEmpty && find.text('Assistir').evaluate().isNotEmpty, 'ficha');
+    await until(
+      () => find.byType(HeisucaTitleSheet).evaluate().isNotEmpty && find.text('Assistir').evaluate().isNotEmpty,
+      'ficha',
+    );
     await shot('04-ficha');
     // Sonda novamente imediatamente antes do play: não disputa uma sessão que começou depois do login.
     final http = HttpClient();
@@ -105,23 +145,45 @@ Future<void> main() async {
       final response = await request.close();
       if (response.statusCode != 200) throw StateError('Não foi possível conferir as sessões antes do vídeo.');
       final sessions = jsonDecode(await utf8.decoder.bind(response).join()) as List;
-      if (sessions.any((dynamic s) => (s['UserId'] as String? ?? '').replaceAll('-', '').toLowerCase() == connection.userId.replaceAll('-', '').toLowerCase() && s['NowPlayingItem'] != null)) {
+      if (sessions.any(
+        (dynamic s) =>
+            (s['UserId'] as String? ?? '').replaceAll('-', '').toLowerCase() ==
+                connection.userId.replaceAll('-', '').toLowerCase() &&
+            s['NowPlayingItem'] != null,
+      )) {
         throw StateError('BANCADA_OCUPADA: a conta ficou ocupada antes do vídeo.');
       }
-    } finally { http.close(force: true); }
+    } finally {
+      http.close(force: true);
+    }
     await tester.ensureVisible(find.text('Assistir').first);
     await tester.tap(find.text('Assistir').first);
     await until(() => find.byType(MobileVideoControls).evaluate().isNotEmpty, 'player nativo');
     final player = tester.widget<MobileVideoControls>(find.byType(MobileVideoControls).first).player;
-    await until(() => player.state.hasRenderedFrame && player.state.playing && player.currentPosition >= const Duration(seconds: 1), 'primeiro quadro real', seconds: 120);
+    await until(
+      () =>
+          player.state.hasRenderedFrame && player.state.playing && player.currentPosition >= const Duration(seconds: 1),
+      'primeiro quadro real',
+      seconds: 120,
+    );
     await shot('05-player-inicio');
     final start = player.currentPosition;
-    await until(() => player.currentPosition >= start + const Duration(seconds: 3), 'reprodução avançando', seconds: 30);
-    binding.reportData!['video'] = {'motor': player.playerType, 'quadroNativo': player.state.hasRenderedFrame,
-      'segundosAvancados': (player.currentPosition - start).inMilliseconds / 1000};
-    // O retorno é uma tecla Back real enviada pelo adb pelo driver.
+    await until(
+      () => player.currentPosition >= start + const Duration(seconds: 3),
+      'reprodução avançando',
+      seconds: 30,
+    );
+    binding.reportData!['video'] = {
+      'motor': await player.runtimePlayerType(),
+      'quadroNativo': player.state.hasRenderedFrame,
+      'segundosAvancados': (player.currentPosition - start).inMilliseconds / 1000,
+    };
+    // O retorno é uma tecla Back real enviada pelo adb pelo host.
     await shot('06-player', back: true);
-    await until(() => find.byType(VideoPlayerScreen).evaluate().isEmpty && find.byType(HeisucaTitleSheet).evaluate().isNotEmpty, 'voltar à ficha');
+    await until(
+      () => find.byType(VideoPlayerScreen).evaluate().isEmpty && find.byType(HeisucaTitleSheet).evaluate().isNotEmpty,
+      'voltar à ficha',
+    );
     await shot('07-ficha-retorno', back: true);
     await until(() => find.byType(SearchScreen).evaluate().isNotEmpty, 'voltar à busca');
     for (var attempt = 0; attempt < 3 && find.byType(SearchScreen).evaluate().isNotEmpty; attempt++) {

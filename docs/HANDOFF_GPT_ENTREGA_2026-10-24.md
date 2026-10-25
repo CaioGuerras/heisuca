@@ -489,7 +489,7 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   pedido e reprodução real. O formato público dos feeds foi informado no contrato
   do Claude/Caio; os testes desta etapa usam HTTP controlado, sem login real.
 
-## Etapa D — 2.0.22+23 — em validação
+## Etapa D — 2.0.22+23 — concluída no CI
 
 - Resolvedor único `HeisucaLogoResolver` e componente `HeisucaTitleLogo`: usados pelo
   cabeçalho compartilhado (destaque/ficha) e pelo título de série/filme do player.
@@ -511,6 +511,11 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   resolvedor e episódios, incluindo título provisório durante a carga da imagem.
   `ClearLogoImage` ganhou um placeholder opcional; o padrão dos demais consumidores
   não muda. Portão completo: **393 aprovados, 3 ignorados**, mais **8 aprovados
-  com Impeller**. Commit/run/APK aguardando CI.
+  com Impeller**.
+- Código: `ae1d90e960176853c0459628e522e912d1b7f88b` (sem skip ci).
+- [Run verde 40190335242](https://github.com/CaioGuerras/heisuca/actions/runs/40190335242), `success`.
+- [APK 2.0.22+23](https://github.com/CaioGuerras/heisuca/actions/runs/40190335242/artifacts/12597877876).
+- Artifact: 51.134.205 bytes, SHA-256 `68838050e6826f6dcc304c53f617dc8c99b74a78d947445a5962fcf0ce18a010`.
+- Pacote/providers conferidos; mesma assinatura SHA-256 `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`.
 - Não testado em aparelho nem com servidores reais. Fixtures HTTP comprovam a
   decisão/cliente/caminho, não o download visual do logo real de Ranma nem a fluidez.

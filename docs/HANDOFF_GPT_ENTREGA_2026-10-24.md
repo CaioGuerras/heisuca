@@ -801,3 +801,17 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   pendente. Aguardar `completed/success`, ler pacote/certificado/SHA-256 do APK
   no log do validador, registrar metadados do artifact. Só então iniciar J,
   próxima 2.0.28+29. J–O ainda não iniciadas.
+- **I encerrada no CI — 2.0.27+28:** código
+  `c5861f871e8c2691e1ae6255adc2cd2e72400a07`, run
+  [40218628281](https://github.com/CaioGuerras/heisuca/actions/runs/40218628281)
+  observado como `completed/success`. APK:
+  [artifact 12608852577](https://github.com/CaioGuerras/heisuca/actions/runs/40218628281/artifacts/12608852577).
+  ZIP 51.146.926 bytes, SHA-256
+  `f278d83ee68d86e51f5371fcd74e9218cb70f5aa33458859767e6eea508c37b4`.
+  **APK real:** 98.602.954 bytes, SHA-256
+  `60a98e3295cb9846fedecf800ce0f348e10b7a9350e155820b39919b877cc277`.
+  Pacote `app.heisuca.player.teste.home`, nome Heisuca Teste e certificado
+  `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`,
+  conferidos no validador do APK. Mesma assinatura da F/G/H. Download local
+  continua indisponível pelo proxy; limites físicos permanecem os acima.
+  Próxima etapa: J, 2.0.28+29.

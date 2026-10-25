@@ -1,4 +1,5 @@
 import '../heisuca_motion.dart';
+import '../heisuca_title_logo.dart';
 import 'package:flutter/material.dart';
 import '../../cgflix/home/cgflix_actions.dart';
 import '../../media/media_item.dart';
@@ -166,7 +167,6 @@ class _HeisucaPlayerTitleState extends State<HeisucaPlayerTitle> {
     final item = widget.metadata;
     final episode = item.kind == MediaKind.episode;
     final owner = _owner ?? item;
-    final logo = owner.clearLogoPath;
     final title = item.grandparentTitle ?? item.title ?? 'Heisuca';
     final fallback = Text(title, maxLines: 1, overflow: TextOverflow.ellipsis,
       style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16));
@@ -174,9 +174,10 @@ class _HeisucaPlayerTitleState extends State<HeisucaPlayerTitle> {
       child: InkWell(onTap: episode ? widget.onEpisodes : null, borderRadius: BorderRadius.circular(8),
         child: Padding(padding: const EdgeInsets.symmetric(vertical: 4), child: Column(
           crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-            if (logo == null) fallback else SizedBox(height: 40, child: OptimizedMediaImage(
-              client: cgflixClientFor(context, item), imagePath: logo, imageType: ImageType.logo,
-              fit: BoxFit.contain, alignment: Alignment.centerLeft, placeholder: (_, __) => fallback, errorWidget: (_, __, ___) => fallback)),
+            LayoutBuilder(builder: (context, constraints) => HeisucaTitleLogo(
+              item: owner, client: cgflixClientFor(context, item), width: constraints.maxWidth,
+              height: 40, compactFallback: true, fallbackWidth: constraints.maxWidth, alignment: Alignment.centerLeft,
+              fallbackBuilder: (_) => Align(alignment: Alignment.centerLeft, child: fallback))),
             if (episode) Text(heisucaPlayerEpisodeLine(item), maxLines: 1, overflow: TextOverflow.ellipsis,
               style: const TextStyle(color: Colors.white70, fontSize: 12)),
           ]))));

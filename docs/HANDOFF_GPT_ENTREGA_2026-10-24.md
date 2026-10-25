@@ -488,3 +488,29 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
 - Não testado: aparelho, Plex/Jellyfin reais, fluidez em hardware, abertura real do
   pedido e reprodução real. O formato público dos feeds foi informado no contrato
   do Claude/Caio; os testes desta etapa usam HTTP controlado, sem login real.
+
+## Etapa D — 2.0.22+23 — em validação
+
+- Resolvedor único `HeisucaLogoResolver` e componente `HeisucaTitleLogo`: usados pelo
+  cabeçalho compartilhado (destaque/ficha) e pelo título de série/filme do player.
+- Ordem: logo do próprio servidor, sem consulta adicional; senão, para Plex, lê os
+  IDs externos pelo cliente existente e procura o mesmo título num Jellyfin on-line
+  visível no perfil que declare o vínculo Plex nos feeds definidos em C. Confirma
+  TMDB/TVDB/IMDb pelo `findByExternalIds`; nome sozinho nunca autoriza usar o logo.
+  Sem vínculo, IDs, correspondência, imagem ou rede, mantém o texto.
+- Cache de resultados positivos/negativos por instância autenticada da fonte,
+  tipo/ID e conjunto de conexões do perfil, até dez minutos. Troca de conexões
+  invalida a consulta; widget não exibe resultado da requisição anterior enquanto
+  uma nova consulta está pendente. Nenhuma chave de API ou URL de mídia embutida.
+- Player conserva altura natural do texto quando não há logo e continua abrindo
+  o seletor de episódios pelo título; o logo confirmado usa o cliente Jellyfin
+  correto para imagem/autenticação, sem trocar a fonte da reprodução.
+- **15 testes direcionados aprovados**: resolvedor (prioridade, match, ausência,
+  cache, retirada de conexões), episódios/player, encaixe e golden Jellyfin.
+- **23 testes adicionais aprovados**: componente de logo/imagens otimizadas,
+  resolvedor e episódios, incluindo título provisório durante a carga da imagem.
+  `ClearLogoImage` ganhou um placeholder opcional; o padrão dos demais consumidores
+  não muda. Portão completo: **393 aprovados, 3 ignorados**, mais **8 aprovados
+  com Impeller**. Commit/run/APK aguardando CI.
+- Não testado em aparelho nem com servidores reais. Fixtures HTTP comprovam a
+  decisão/cliente/caminho, não o download visual do logo real de Ranma nem a fluidez.

@@ -8,6 +8,7 @@ void main() {
 
   Widget buildLogo({
     String? logoPath,
+    WidgetBuilder? placeholderBuilder,
     double width = 400,
     double height = 120,
     double? fallbackWidth,
@@ -22,6 +23,7 @@ void main() {
           child: ClearLogoImage(
             client: null,
             logoPath: logoPath,
+            placeholderBuilder: placeholderBuilder,
             width: width,
             height: height,
             fallbackWidth: fallbackWidth ?? width,
@@ -32,6 +34,12 @@ void main() {
       ),
     );
   }
+
+  testWidgets('player pode manter o título enquanto a imagem ainda carrega', (tester) async {
+    await tester.pumpWidget(buildLogo(logoPath: 'https://example.com/logo-pending.png',
+      placeholderBuilder: (_) => const Text('Título provisório')));
+    expect(find.text('Título provisório'), findsOneWidget);
+  });
 
   testWidgets('decodes with the aspect-preserving fit policy', (tester) async {
     await tester.pumpWidget(buildLogo(logoPath: 'https://example.com/logo.png'));

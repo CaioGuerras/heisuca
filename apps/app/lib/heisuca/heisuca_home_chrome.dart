@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../cgflix/cgflix_palette.dart';
 import '../media/media_item.dart';
 import '../media/media_server_client.dart';
-import '../widgets/optimized_media_image.dart';
+import 'heisuca_title_logo.dart';
 import 'heisuca_logo.dart';
 import 'heisuca_source_scope.dart';
 import 'kids/heisuca_kids_flow.dart';
@@ -112,7 +112,7 @@ class _HeisucaHomeChromeState extends State<HeisucaHomeChrome> {
         top: math.max(center, target) - tapHeight / 2, left: (width - logoWidth) / 2,
         width: logoWidth, height: tapHeight,
         child: GestureDetector(behavior: HitTestBehavior.opaque, onTap: widget.onTitleTap ?? () => HeisucaTitleSheet.show(context, widget.item!),
-          child: Center(child: SizedBox(height: logoHeight, child: ClearLogoImage(client: widget.client, logoPath: widget.item!.clearLogoPath,
+          child: Center(child: SizedBox(height: logoHeight, child: HeisucaTitleLogo(client: widget.client, item: widget.item!,
             width: logoWidth, height: logoHeight, fallbackWidth: logoWidth, alignment: Alignment.center,
             logoToneTarget: context.cgflix.isLight ? foreground : null,
             fallbackBuilder: (_) => Center(child: Text(widget.item!.displayTitle, maxLines: 2,

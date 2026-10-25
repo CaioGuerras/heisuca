@@ -477,6 +477,7 @@ class ClearLogoImage extends StatelessWidget {
     required this.height,
     required this.fallbackWidth,
     required this.fallbackBuilder,
+    this.placeholderBuilder,
     this.alignment = Alignment.centerLeft,
     this.fadeInDuration = const Duration(milliseconds: 300),
     this.logoToneTarget,
@@ -492,6 +493,7 @@ class ClearLogoImage extends StatelessWidget {
   /// Title slot width, at least [width]; see [fallbackWidthFor].
   final double fallbackWidth;
   final WidgetBuilder fallbackBuilder;
+  final WidgetBuilder? placeholderBuilder;
 
   /// Width of the title slot for a hero whose logo slot is [logoWidth] wide
   /// inside an [available]-wide content column: twice the logo, capped to
@@ -533,7 +535,7 @@ class ClearLogoImage extends StatelessWidget {
                 // Clear logos render on heroes where a mark's color is part of
                 // its identity: mixed-tone marks stay untouched.
                 logoToneRemapMixed: false,
-                placeholder: (context, _) => const SizedBox.shrink(),
+                placeholder: (context, _) => placeholderBuilder?.call(context) ?? const SizedBox.shrink(),
                 // Replaces the image under Align's loose constraints, so it can
                 // take the whole title slot rather than the logo's.
                 errorWidget: (context, _, _) => SizedBox.expand(child: fallbackBuilder(context)),

@@ -795,3 +795,9 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   espelhamento e leitura com TalkBack físico. Início Jellyfin preservada.
 - Portão local completo da I: **440 aprovados, 3 ignorados + 8 Impeller
   aprovados**, `APROVADO: análise e testes concluídos.`
+- **Ponto de retomada I:** código enviado em
+  `c5861f871e8c2691e1ae6255adc2cd2e72400a07` (sem `[skip ci]`), run
+  [40218628281](https://github.com/CaioGuerras/heisuca/actions/runs/40218628281)
+  pendente. Aguardar `completed/success`, ler pacote/certificado/SHA-256 do APK
+  no log do validador, registrar metadados do artifact. Só então iniciar J,
+  próxima 2.0.28+29. J–O ainda não iniciadas.

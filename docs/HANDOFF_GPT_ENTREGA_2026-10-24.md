@@ -930,3 +930,11 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   foram repetidos após a última alteração: **13 aprovados**. Em falha, o CI mostra
   o fim do log já redigido para permitir diagnóstico sem depender do download.
   Autenticação/capturas/restauração reais ainda aguardam o novo run.
+- **Retomada K após corrigir sincronização:** código
+  `dbd84d3aa09f60ab4dfdbc4814429c11fabdd1b6`, enviado no ramo autorizado.
+  Novos runs: [APK 40228852172](https://github.com/CaioGuerras/heisuca/actions/runs/40228852172)
+  e [bancada 40228852177](https://github.com/CaioGuerras/heisuca/actions/runs/40228852177).
+  Ambos pendentes de resultado e inspeção; não encerrar K nem iniciar L sem
+  resolver o percurso/limpeza (ou documentar instabilidade real de infraestrutura)
+  e conferir pacote, assinatura, artifact e SHA-256 do APK verde desse código.
+  Versão mantida **2.0.29+30**; L–O não iniciadas.

@@ -256,3 +256,59 @@ item 5 foi alterado. Trakt foi preservado; MAL/AniList ainda não foram removido
 Somente `codex/heisuca-home-site` foi usado. Sem ramo novo, PR, merge, release ou
 alteração de servidor. O registro documental posterior ao run verde usa skip ci;
 o código do item 4 está no commit validado sem skip ci acima.
+
+## Rodada de 25/10 — etapa A: conferência interrompida por divergência do diagnóstico
+Base inspecionada: `1566c46`, ramo `codex/heisuca-home-site`, versão vigente **2.0.17+18**.
+Leitura realizada na ordem pedida: AGENTS/Pilares; handoff A–M; correções e Android 17
+no guia; retorno de Caio; esboço 04C; handoff antigo e registro de entrega.
+
+### Evidência encontrada na etapa A
+O retorno 13 atribui a listra ao degradê que se move junto com a arte. A árvore real
+já mantém o ShaderMask fora da transformação do parallax:
+
+- `apps/app/lib/heisuca/heisuca_home_screen.dart:502–513`:
+  `ShaderMask → HeisucaParallax → AnimatedSwitcher → OptimizedMediaImage`.
+- `apps/app/lib/heisuca/heisuca_title_sheet.dart:414–418`:
+  `ShaderMask → HeisucaParallax → OptimizedMediaImage/Hero`.
+- `apps/app/lib/heisuca/heisuca_motion.dart:27–35`: o único `Transform.translate`
+  envolve o filho de imagem; deslocamento positivo de 25% da rolagem, limitado a 200 dp.
+  O ShaderMask não está nesse filho e não recebe essa translação.
+- A imagem da Início recebe exatamente `widget.height`; o helper usa ClipRect, sem
+  aumentar a área pintada. Falta sobra de arte para cobrir todo o quadro local durante
+  a translação. Isso é uma constatação geométrica, **não prova da causa da listra
+  inferior observada no vídeo do Caio**. O quadro do sliver continua rolando normalmente.
+
+Conferência por leitura e linhas numeradas (`nl -ba`); não foi feita reprodução em
+aparelho/emulador, nem comparação visual com os vídeos citados pelo retorno. Não
+atribuo a listra a outra causa sem reproduzir. É necessário reproduzir a borda e
+identificar qual camada a desenha antes de escolher a correção; apenas mover a máscara
+para fora do Transform repetiria a estrutura atual. Também é necessário preservar o
+recorte aprovado da Início ao definir a sobra de arte.
+
+Conforme a instrução de Caio ("Se o código real não bater com o desenho, pare e
+documente; não improvise") e os Pilares (corrigir na causa), parei a etapa A sem
+alterações de código. Não apliquei correções parciais de marca/fonte/ficha no mesmo item.
+
+### Outros fatos conferidos, sem implementação
+- `assets/fonts/Sora-VF.ttf` existe; a família Sora não está declarada no pubspec e a
+  licença OFL não está ao lado. A tabela de nomes da própria fonte identifica o projeto
+  Sora e a licença SIL OFL 1.1. Nenhuma fonte/licença foi substituída.
+- O coração de Favoritos ainda está no ActionChip da Biblioteca.
+- A ficha ainda tem cabeçalho próprio; a unificação com HeisucaHomeChrome não foi feita.
+- O texto da marca na abertura ainda é Text; não foi trocado pelo SVG.
+
+### Validação e estado
+Nenhuma etapa A–M concluída; B–M não iniciadas. Não foi alterada a Início Jellyfin,
+o player, os servidores, Discord, os ícones ou o fluxo em segundo plano. Sem PR,
+ramo novo, merge, release ou acesso à VPS.
+
+Não rodei Flutter/análise/testes nesta rodada: houve apenas inspeção e este registro.
+Sem incremento de versão e sem novo APK, pois a etapa A não foi implementada.
+O último código validado continua sendo `97d9e5e9624cb8cb7ab637bf05018efe82d0684c`:
+- [Run verde 40143220353](https://github.com/CaioGuerras/heisuca/actions/runs/40143220353),
+  `success` reconferido via GitHub CLI em 25/10.
+- [APK 2.0.17+18](https://github.com/CaioGuerras/heisuca/actions/runs/40143220353/artifacts/12579653876),
+  artifact `heisuca-apk` reconferido como não expirado. É o APK anterior, não uma entrega da rodada A–M.
+
+Este commit é exclusivamente documental e usa skip ci. Não há código de etapa nova
+somente em commit skip ci. A próxima versão de código permanece **2.0.18+19**.

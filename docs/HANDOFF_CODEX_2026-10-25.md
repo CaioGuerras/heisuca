@@ -40,7 +40,7 @@ Ver item 8 em `docs/HANDOFF_GPT_2026-10-24.md`.
 ## F. Movimento e navegação do jeito do Android (retorno 15)
 - Abas da pílula: **fade through** (sem direção), nunca corte seco.
 - Telas empurradas: transição e **voltar preditivo** como o Google recomenda. **Regressão:** o voltar preditivo foi feito
-  na 1.6.1 (`lib/cgflix/cgflix_theme.dart`, auditoria 1D) e o movimento do item 4 passou por cima; restaurar e unificar (Flutter: `PredictiveBackPageTransitionsBuilder`,
+  na 1.6.1 (`lib/cgflix/cgflix_theme.dart`, auditoria 1D) e o movimento do item 4 passou por cima; restaurar e unificar usando a transição **oficial** do Flutter (`PredictiveBackPageTransitionsBuilder`, padrão do Flutter 3.47) no lugar da versão feita à mão (`_CgflixPredictiveBack`), e fazer as telas Heisuca usarem o tema em vez de rotas próprias (Flutter: `PredictiveBackPageTransitionsBuilder`,
   `android:enableOnBackInvokedCallback="true"`), seguindo o gesto pela borda de onde o dedo veio. Sheets com o padrão
   Material 3. Conferir edge-to-edge e insets. Fonte: `docs/GUIA_ANDROID_GOOGLE.md`.
 
@@ -81,7 +81,8 @@ Ver item 8 em `docs/HANDOFF_GPT_2026-10-24.md`.
 
 ## M. Esboço 04C — mídia fora do app (depois do guia do Google)
 Ver `docs/ESBOCOS_PENDENTES_2026-10-25.md`: MediaSession e notificação MediaStyle para o vídeo, controles na tela de
-bloqueio, Live Updates (Android 16) para o que toca e para downloads, PiP com transição suave e legendas estilizadas.
+bloqueio (controles de mídia do sistema), notificação de progresso dos downloads, PiP com transição suave e legendas
+estilizadas. **Sem "ilha"/Live Updates**: o Google não permite para mídia nem download (ver guia).
 Depende da decisão **[C]** do Caio sobre continuar só com o som ao sair do app.
 
 ## Depois (não agora)

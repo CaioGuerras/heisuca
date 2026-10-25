@@ -84,6 +84,16 @@ App: `apps/app` (Flutter 3.47.1, fork do Plezy). Leia antes: `AGENTS.md`, `apps/
   `WatchTogetherRelayEndpoint.upstreamRelayBaseUrl` se ficar sem uso. **Trakt continua.**
 - Depois disso, nenhuma chamada do app vai para `ice.plezy.app` (confirme com grep e cite o resultado no handoff).
 
+**Decisão para a divergência do item 5 (Claude, 25/10; objetivo do Caio: nenhuma chamada ao servidor do Plezy):**
+- Remover MAL/AniList e o `oauth_proxy_client.dart`; apagar `WatchTogetherRelayEndpoint.upstreamRelayBaseUrl`.
+- **Discord RPC:** a presença continua (título, episódio, tempo), mas **sem upload de capa**: retirar `_posterUploadUrl` e o
+  POST em `discord_rpc_service.dart`; a imagem grande passa a ser o ícone do app (chave de asset da aplicação Discord,
+  ou nenhuma imagem). Nenhum endpoint substituto.
+- **Envio de diagnóstico:** já desligado (`cgflixAllowLogUpload = false`); retirar o endereço `ice.plezy.app` de
+  `log_upload_service.dart` (o botão "Copiar logs" continua). Os testes do upstream que exercitam o envio passam a usar
+  um endereço de teste injetado, não o do Plezy.
+- Critério de pronto: `rg -n 'ice.plezy.app' apps/app/lib` sem resultado; Trakt intacto.
+
 ### 6. Transmitir para TV: NÃO fazer (decisão do Caio, 24/10)
 - O Android já tem transmissão nativa. Não crie botão nem tela de transmissão.
 
@@ -111,6 +121,13 @@ App: `apps/app` (Flutter 3.47.1, fork do Plezy). Leia antes: `AGENTS.md`, `apps/
   biblioteca Plex; o que não tiver item segue o fluxo atual (busca de pedidos). Em servidores Plex de outras pessoas, não
   mostrar essas duas fileiras.
 - Manter o resultado aprovado do Jellyfin idêntico (testes de regressão da Início do Jellyfin).
+
+### 10. Ícone escolhido: variante 1 (Caio, 25/10)
+- O Caio escolheu `docs/icone_variantes_2026-10-24/01_relevo` (relevo e gradiente sutis). **Aplicar** no ícone instalado
+  do tema padrão (Shikkoku): ícone adaptativo do Android (fundo + primeiro plano), versão monocromática do Android 13
+  (a partir do selo, sem o relevo) e ícones de notificação/pequenos conforme `docs/marca/ICONES.md` (≤ 32 px usa a versão
+  pequena). Repetir o mesmo tratamento nos ícones dos outros temas (`icone_hisui`, `icone_ichigo`, `icone_sorairo`,
+  `icone_shinju`) se o app usa ícones alternativos por tema. Conferir em 48 px que o 炳 continua legível.
 
 ## Fora do seu escopo (servidor; ficam com o Claude)
 - Conferir que o Sonarr não baixou o DanMachi de novo (correção dos formatos de 24/10).

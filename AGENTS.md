@@ -3,7 +3,7 @@
 ## Regras fixas para agentes (Caio, 24/10/2026) — leia antes de tudo
 
 **Antes de qualquer tela: leia `docs/PILARES_HEISUCA.md`** (filosofia, visual, movimento, texto). Retorno mais recente do
-Caio: `docs/RETORNO_CAIO_2026-10-25.md`.
+Caio: `docs/RETORNO_CAIO_2026-10-25.md`. **Rodada atual: `docs/HANDOFF_CODEX_2026-10-25.md`.**
 
 1. **Ramo único: `codex/heisuca-home-site`.** Não crie ramo novo: o cache do GitHub Actions é separado por ramo, e um ramo
    novo gera outra chave de teste; o APK deixa de instalar por cima (aconteceu em 24/10). Nunca faça merge no `main`.

@@ -9,6 +9,16 @@ qualquer agente (Claude, Codex, Gemini). Se uma tarefa entra em conflito com ist
   das marcas de luxo e da Apple. A referência visual mais próxima é o **VidHub**; o Plezy é só a base técnica herdada.
 - Público: família e amigos no Brasil, pouco técnicos. Português do Brasil simples, sem jargão.
 
+## 1.1 Como trabalhamos (Caio, 25/10)
+- **Sem remendos.** Problema se corrige na causa, do jeito certo, mesmo que dê mais trabalho. Nada de contorno, condição
+  especial para esconder sintoma ou "por enquanto" que fica para sempre.
+- **Seguir o que o Google ensina para apps Android** (developer.android.com, Material 3, qualidade de apps, voltar
+  preditivo, edge-to-edge, acessibilidade, desempenho), **adaptado ao estilo Heisuca**. Resumo em
+  `docs/GUIA_ANDROID_GOOGLE.md`. Divergir do Google só com motivo escrito.
+- **Estudar outros apps é bem-vindo** (Plezy, VidHub, Infuse, Netflix, os players de referência): ver como resolvem e
+  aprender. Copiar código de fora só com licença compatível e registro.
+- **Fork independente:** não seguimos mais o upstream do Plezy; o código herdado vira nosso e evolui do nosso jeito.
+
 ## 2. Visual
 - **Uma linguagem só em todas as telas.** Nenhuma tela pode parecer "padrão do Android/Material" ou "herdada": listas
   genéricas com ícone cinza à esquerda, cartões com borda de sistema, AppBar crua, diálogos de sistema. Use os

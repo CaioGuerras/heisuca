@@ -16,18 +16,19 @@ Plano do Caio (resumo): Android primeiro; iPhone fica para depois; PC (Windows) 
 - Limite de **2 telas** por pessoa (plugin StreamLimiter): quando estoura, o servidor recusa o play; mostrar mensagem clara em PT.
 
 ## Regras do fork
-1. **Diferença mínima do original** (para puxar as atualizações do upstream toda semana sem conflito): marca, endereço sugerido
-   e padrões em arquivos próprios/isolados; não reformatar nem renomear o que não precisa.
+1. **Fork independente (Caio, 25/10/2026):** não seguimos mais o upstream do Plezy. O código herdado é nosso e pode ser
+   reorganizado, renomeado e reescrito para ficar certo (sem remendos). Estudar o Plezy e outros apps continua permitido.
+   A licença GPL-3.0 e o aviso de direitos autorais do Plezy ficam (obrigação legal), numa página padrão de licenças.
+   Leia `docs/PILARES_HEISUCA.md` antes de qualquer tela.
 2. **Sem servidor embutido nem pré-preenchido** (decisão da Etapa 1A, por segurança): o campo do Jellyfin começa vazio, com a dica neutra `https://seu.servidor.com`.
 3. Sem segredos, tokens, chaves ou telemetria no código, nos logs e nos workflows.
-4. Manter a licença e os créditos do projeto original (tela "Sobre" + README). Nome e logo do app passam a ser **CGFLIX**;
-   não usar o nome/logo do upstream como marca do app.
-5. Identidade visual: preto OLED `#07060a`, superfícies `#120e1a`, roxo `#9333ea` (destaque `#a855f7`, lilás `#c084fc`),
-   fonte Inter. Marca em `cgflix-brand/` (emblema "C com play", ícone quadrado, marca horizontal, PNG 512).
-6. Trabalhe num ramo e abra **Pull Request para o `main` deste repositório** (nunca para o upstream), com descrição em PT-BR:
-   o que mudou, como testar, riscos. Não faça merge sozinho.
+4. Licença GPL-3.0 e aviso de direitos autorais do Plezy numa página padrão de licenças (obrigação legal). A marca do app
+   é **Heisuca** (selo 炳, `docs/marca/`); nada do nome/logo do Plezy nem do "C com play" do CGFLIX antigo.
+5. Identidade visual: temas e regras em `docs/PILARES_HEISUCA.md` e `docs/marca/` (Shikkoku/Fukamurasaki padrão, Hisui,
+   Ichigo, Sorairo, Shinju); Sora para títulos, Inter para texto; a marca HEISUCA é SVG.
+6. Ramo único `codex/heisuca-home-site`, push direto (sem PR, sem ramo novo, sem merge no `main`); regras em `AGENTS.md`.
 
-## Etapa 0 (esta sessão): APK do CGFLIX compilando sozinho
+## Histórico — Etapa 0 (já concluída; NÃO executar): APK do CGFLIX compilando sozinho
 1. Ler o projeto (README, `pubspec.yaml`, `android/`, workflows existentes) e entender como o upstream gera o APK.
 2. Marca: nome exibido "CGFLIX", `applicationId` Android `br.com.docaio.cgflix` (sem conflitar com o Plezy instalado),
    ícone a partir de `cgflix-brand/cgflix-icone-512.png`/`cgflix-icone.svg` (adaptive icon), splash com fundo `#07060a`.

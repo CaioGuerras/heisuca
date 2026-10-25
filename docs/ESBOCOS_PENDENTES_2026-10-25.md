@@ -14,7 +14,7 @@ O esboço mostra 4 peças. Como fazer do jeito do Android (sem imitar o iPhone):
 | Mini player na notificação (barra com busca, −10/+10 s, saída de som) | **MediaSession + notificação MediaStyle** com serviço em primeiro plano (`mediaPlayback`) | só a música usa; o **vídeo pausa** ao sair do app (`setBackgroundMode(true)` só na música; auditoria 1D) |
 | Tela de bloqueio com controles | Vem da mesma MediaSession | não existe para vídeo |
 | PiP 16:9 com legendas ASS/SRT, entrada automática, virar só som ao fechar | PiP já entra sozinho; falta `setSourceRectHint` (transição suave), `setSeamlessResizeEnabled(false)`, legendas estilizadas dentro da janelinha e, ao fechar a janelinha com "continuar ouvindo" ligado, seguir só com o som e a notificação | parcial |
-| Notificação de download agrupada e silenciosa | Notificação de progresso agrupada, sem som, com pausar/cancelar; Live Update do progresso no Android 16 | conferir |
+| Notificação de download agrupada e silenciosa | Notificação de progresso agrupada, sem som, com pausar/cancelar (sem Live Update: não permitido para download) | conferir |
 | Tudo no tema claro Hisui | Cores da notificação seguem o tema do app | — |
 
 Decisões que o Caio precisa tomar: **[C]** o vídeo continua só com o som ao sair do app (como YouTube Premium) ou pausa

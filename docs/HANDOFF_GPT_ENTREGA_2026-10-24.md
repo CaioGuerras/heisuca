@@ -720,3 +720,33 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   Hash, pacote e assinatura conferidos no log do validador sobre o APK construído;
   o download local permanece indisponível pelo bloqueio do proxy. Limites de
   aparelho continuam os descritos acima. Próxima etapa: H, 2.0.26+27.
+
+## Etapa H — medidor no popup — 2.0.26+27 (em validação)
+
+- Medidor integrado ao caminho real Configurações › Aparelho reconhecido › Ver
+  funções ativas. Retirados `HeisucaDeviceScreen` e a entrada "Este aparelho" do
+  menu Você. O popup usa Sora/Inter, paleta do tema e três faixas discretas.
+- Lê a política existente (`DevicePerformance.isReduced/isFlagshipHardware`),
+  sem alterar os critérios, preferências, caches nem a reprodução. Apresenta
+  **Reduzido / Padrão / Topo de linha**, como a decisão atual da N3 pede também
+  para a H. O teste com 3,6 GiB mostra Padrão; o de 7,4 GiB mostra Topo de linha.
+  Memória desconhecida não recebe selo de hardware de topo. "Medir fluidez" fica
+  para a N; estes níveis não são resultado de uma medição de quadros.
+- Texto principal simples, motivo do nível e RAM quando informada. Cache,
+  processo, renderizador, frequência, preferência e decodificação ficam em
+  "Detalhes técnicos", recolhidos inicialmente. HDR/DV não são prometidos pelo
+  reconhecimento do aparelho. Reduzir movimento do sistema é distinguido do nível.
+- Prova antes/depois: teste pelo botão real, com resposta do canal nativo
+  controlada, falhou no popup anterior por não encontrar "Padrão"; passa no novo,
+  abrindo detalhes, rolando até Fechar e retornando às configurações. A primeira
+  tentativa sem controlar o canal só observou espera assíncrona, e **não** foi
+  usada como evidência da ausência do medidor.
+- **21 testes direcionados aprovados**, incluindo os três níveis, dados ausentes,
+  retirada da entrada no menu, detalhes recolhidos e popup claro/escuro em tela
+  320×568 com texto em dobro. Expansão não cria animação no modo reduzido; a
+  transição do diálogo usa os tokens comuns e duração zero quando necessário.
+- Portão completo em andamento; commit/run/artifact/hash serão registrados após
+  os resultados reais. Não testado em aparelho: Tab A9/Edge, TalkBack físico,
+  informações nativas reais e aprovação visual do Caio. Início Jellyfin preservada.
+- Portão local completo da H: **433 aprovados, 3 ignorados + 8 Impeller
+  aprovados**, `APROVADO: análise e testes concluídos.`

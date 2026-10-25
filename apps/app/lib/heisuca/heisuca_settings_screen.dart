@@ -1,4 +1,6 @@
 import '../services/device_performance.dart';
+import 'heisuca_device_status.dart';
+import 'heisuca_motion.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -110,20 +112,15 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
     final effectsLabel = switch (settingsNow?.read(settings.SettingsService.visualEffects).name) {
       'full' => 'completos', 'reduced' => 'reduzidos', _ => 'automática',
     };
-    await showDialog<void>(context: context, builder: (ctx) => AlertDialog(title: const Text('Funções e desempenho'),
-      content: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('Interface: ${p.renderer ?? "não informado pelo Android"}'),
-        Text('Tela agora: ${p.currentRefreshRateHz?.round().toString() ?? "não informado"} Hz · máximo: ${p.maxRefreshRateHz?.round().toString() ?? "não informado"} Hz'),
-        Text('Efeitos visuais: ${DevicePerformance.isReduced ? "reduzidos" : "completos"}'),
-        Text('Preferência de efeitos: $effectsLabel'),
-        Text('Reduzir movimento do sistema: ${MediaQuery.disableAnimationsOf(context) ? "ativo" : "desativado"}'),
-        Text('Pressão de memória: ${p.lowMemory == null ? "não informada" : p.lowMemory! ? "alta; buffers podem ser reduzidos" : "normal"}'),
-        Text('Cache de imagens: ${(PaintingBinding.instance.imageCache.maximumSizeBytes / (1024 * 1024)).round()} MiB'),
-        Text('Motor escolhido: ${settingsNow?.read(settings.SettingsService.useExoPlayer) == true ? "ExoPlayer" : "mpv"}'),
-        Text('Decodificação por hardware: ${settingsNow?.read(settings.SettingsService.enableHardwareDecoding) != false ? "solicitada" : "desativada"}'),
-        const SizedBox(height: 12),
-        const Text('HDR, Dolby Vision e decodificador efetivo dependem do arquivo e do motor. Confira as informações durante a reprodução; identificação do aparelho não confirma esses recursos.'),
-      ])), actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Fechar'))]));
+    await DevicePerformance.getInstance();
+    if (!mounted) return;
+    await showDialog<void>(context: context,
+      animationStyle: AnimationStyle(duration: HeisucaMotion.durationFor(context), curve: HeisucaMotion.curve),
+      builder: (_) => HeisucaDeviceStatusDialog(
+      profile: p, effectsPreference: effectsLabel,
+      exoPlayer: settingsNow?.read(settings.SettingsService.useExoPlayer) == true,
+      hardwareDecoding: settingsNow?.read(settings.SettingsService.enableHardwareDecoding) != false,
+    ));
   }
 
   @override

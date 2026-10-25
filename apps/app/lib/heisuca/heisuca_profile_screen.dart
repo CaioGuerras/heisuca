@@ -23,7 +23,6 @@ import '../screens/settings/about_screen.dart';
 import '../utils/dialogs.dart';
 import 'heisuca_design_system.dart';
 import 'heisuca_settings_screen.dart';
-import 'heisuca_device_screen.dart';
 import 'heisuca_theme.dart';
 
 /// Tela de Perfil e Hub "Você" Flagship do Heisuca (炳素華) — Esboço 03B & 05
@@ -365,17 +364,6 @@ class HeisucaProfileScreen extends StatelessWidget {
                   ),
                 ]),
               ...secao('App', [
-                _buildProfileTile(
-                  icon: Symbols.smartphone_rounded,
-                  title: 'Este aparelho',
-                  subtitle: 'Desempenho e recursos informados pelo sistema',
-                  textColor: textTitle,
-                  subColor: textSub,
-                  iconColor: textTitle,
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
-                    builder: (_) => const HeisucaDeviceScreen(),
-                  )),
-                ),
                 _buildProfileTile(
                   icon: Symbols.tune_rounded,
                   title: 'Configurações Heisuca',

@@ -2,6 +2,7 @@ import 'package:plezy/providers/multi_server_provider.dart';
 import 'package:plezy/services/multi_server_manager.dart';
 import 'package:plezy/services/data_aggregation_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -24,6 +25,7 @@ import 'package:plezy/media/media_item.dart';
 import 'package:plezy/media/media_kind.dart';
 import 'package:plezy/providers/theme_provider.dart';
 import 'package:plezy/services/settings_service.dart' as settings;
+import 'package:plezy/services/device_performance.dart';
 import 'package:provider/provider.dart';
 
 import '../test_helpers/prefs.dart';
@@ -152,6 +154,30 @@ void main() {
   });
 
   group('HeisucaSettingsScreen', () {
+    testWidgets('medidor real está no popup das configurações, com detalhes recolhidos', (tester) async {
+      const channel = MethodChannel('com.plezy/device');
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel,
+        (_) async => <String, Object>{'totalMemBytes': (3.6 * 1024 * 1024 * 1024).round(), 'renderer': 'Impeller'});
+      addTearDown(() => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, null));
+      DevicePerformance.debugReset(autoReduced: false, totalMemBytes: (3.6 * 1024 * 1024 * 1024).round());
+      addTearDown(DevicePerformance.debugReset);
+      await _montar(tester, CgflixThemeVariant.isis, const HeisucaSettingsScreen());
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Ver funções ativas'));
+      await tester.pumpAndSettle();
+      expect(find.text('Funções e desempenho'), findsOneWidget);
+      expect(find.text('Padrão'), findsOneWidget);
+      expect(find.text('Detalhes técnicos'), findsOneWidget);
+      expect(find.textContaining('Cache de imagens:'), findsNothing);
+      await tester.tap(find.text('Detalhes técnicos'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Cache de imagens:'), findsOneWidget);
+      await tester.ensureVisible(find.text('Fechar'));
+      await tester.tap(find.text('Fechar'));
+      await tester.pumpAndSettle();
+      expect(find.text('Funções e desempenho'), findsNothing);
+    });
+
     testWidgets('monta abas Geral e Avançado com reconhecimento de aparelho e seletor de tema', (tester) async {
       await _montar(tester, CgflixThemeVariant.isis, const HeisucaSettingsScreen());
       expect(find.text('Configurações'), findsOneWidget);
@@ -334,6 +360,7 @@ void main() {
         expect(find.text(secao), findsOneWidget);
       }
       expect(find.text('Configurações Heisuca'), findsOneWidget);
+      expect(find.text('Este aparelho'), findsNothing);
       expect(find.text('Sobre o Heisuca'), findsOneWidget);
       expect(find.text('Trocar perfil'), findsOneWidget);
       await tester.scrollUntilVisible(find.text('Sair da Conta'), 300, scrollable: find.byType(Scrollable).first);

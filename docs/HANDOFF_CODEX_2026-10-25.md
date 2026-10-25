@@ -66,10 +66,12 @@ Ver item 8 em `docs/HANDOFF_GPT_2026-10-24.md`.
 - Job no Actions com emulador Android rodando `integration_test` sobre o app: abertura, login, Início, ficha, busca, player
   (vídeo curto), troca de abas, voltar; salva **capturas e vídeo da tela** como artifact. Não bloqueia o APK quando o
   emulador falhar por infraestrutura (marca como instável, não como verde).
-- **Login de teste com rodízio** (autorizado pelo Caio): segredos do repositório `HEISUCA_TESTE_SERVIDOR`
-  (URL) e `HEISUCA_TESTE_CONTAS` (uma conta por linha, `usuario:senha`). O teste entra com a primeira conta que **não
-  tem sessão tocando** no servidor (consulta as sessões com o próprio token; se houver play ativo dessa conta, pula para
-  a próxima), para não disputar o limite de 2 telas. Nunca imprimir usuário/senha nos logs.
+- **Login de teste com rodízio** (autorizado pelo Caio, segredos já criados em 25/10): `HEISUCA_TESTE_SERVIDOR` (URL do
+  Jellyfin) e `HEISUCA_TESTE_CONTAS` (um **nome de usuário** por linha; **todas entram com senha vazia**). A primeira é a
+  conta de teste `teste-sem-senha`; as demais são contas da família sem senha. O teste entra com a primeira conta que
+  **não tem sessão tocando** no servidor (consulta as sessões com o próprio token), para não disputar o limite de 2 telas.
+  Em conta da família, ao terminar, **apaga o progresso e o "assistido" que o próprio teste criou** (o "Continuar" da
+  pessoa fica como estava). Nunca imprimir os nomes nos logs; nunca usar contas `-kids`.
 
 ## L. Independência, parte 2
 - Renomear o pacote Android `com.edde746.plezy` e os canais `com.plezy/*` para `app.heisuca` (sem mudar o

@@ -894,3 +894,12 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
 - APK da bancada é compilado antes do emulador, sem credenciais. Configuração
   chega por stdin ao armazenamento privado do app; não há defines secretos nem
   APK com dados de conta. Isso também reduz o pico de memória do job.
+- **Ponto de retomada K:** código enviado em
+  `407d02a26033a1f09c24a7da05c43f15dd400595` (sem `[skip ci]`). Runs pendentes:
+  [APK 40227167125](https://github.com/CaioGuerras/heisuca/actions/runs/40227167125)
+  e [bancada 40227167082](https://github.com/CaioGuerras/heisuca/actions/runs/40227167082).
+  Aguardar e inspecionar ambos: APK verde com pacote/certificado/SHA-256/artifact;
+  bancada com capturas/vídeos, quadro nativo/avanço e restauração realmente
+  confirmados. Falha de infraestrutura permanece instável, sem marcar verde.
+  Falha de produto/harness ou limpeza exige correção/conferência antes de encerrar.
+  L–O ainda não iniciadas; próxima versão L 2.0.30+31 quando K estiver resolvida.

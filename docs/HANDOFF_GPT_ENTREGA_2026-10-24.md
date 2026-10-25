@@ -382,7 +382,7 @@ A2 foi iniciada somente após o run verde da etapa A.
 - **Não testado em aparelho.** A reprodução equivalente no Flutter tester não confirma
   a correção física no Edge 60 Pro. B–M ainda não iniciadas.
 
-## Rodada de 25/10 — etapa B — 2.0.20+21 — em validação
+## Rodada de 25/10 — etapa B — 2.0.20+21 — concluída no CI
 Iniciada somente após o run verde de A2. A decisão atual de remover Discord inteiro
 prevalece sobre o trecho histórico do handoff que sugeria manter presença sem capa.
 
@@ -427,7 +427,10 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   5 trackers → 3, mais o servidor. As duas expectativas de nome CGFLIX na cópia foram
   atualizadas para a marca vigente Heisuca, sem mudar o conteúdo/separadores copiados.
 - Portão completo: **381 aprovados e 3 ignorados**, mais **8 aprovados com Impeller**.
-- Commit/run/APK: aguardando publicação e resultado do Actions.
+- Commit de código: `383f59ef4a3ac36b853f79e92968d7b51e3e4b37` (sem skip ci).
+- [Run verde 40159071302](https://github.com/CaioGuerras/heisuca/actions/runs/40159071302), `success`.
+- [APK 2.0.20+21 — heisuca-apk](https://github.com/CaioGuerras/heisuca/actions/runs/40159071302/artifacts/12586550852).
+- Artifact: 51.128.517 bytes; SHA-256 `c4686baa9e34cb0d68e19d3d91e2ac95a8fece22a6ad81d7a61b025716d1bbc9`.
 - Não testado em aparelho, em conta Trakt real nem em reprodução com servidor real.
   Os testes de rede usam clientes controlados; não foram feitos login/envio ao Plezy,
   Discord, MAL ou AniList. Etapas C–M ainda não iniciadas.

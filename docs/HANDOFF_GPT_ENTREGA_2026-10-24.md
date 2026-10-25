@@ -706,3 +706,17 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   run [40213852821](https://github.com/CaioGuerras/heisuca/actions/runs/40213852821)
   pendente. Aguardar verde e ler no log do validador o SHA-256 do APK e certificado;
   registrar artifact/metadados desse run. G segue 2.0.25+26; H–O não iniciadas.
+- **G encerrada no CI — 2.0.25+26:** complemento
+  `157327c6e33cebadf5245350a460740974470cb3`, run
+  [40213852821](https://github.com/CaioGuerras/heisuca/actions/runs/40213852821)
+  observado como `completed/success`. APK:
+  [artifact 12607098715](https://github.com/CaioGuerras/heisuca/actions/runs/40213852821/artifacts/12607098715).
+  ZIP 51.148.383 bytes, SHA-256
+  `53d44bcc66342f26e4d4fa2f1f1dcffc13c390b29b52084a58db921d965f360d`.
+  **APK real:** 98.605.838 bytes, SHA-256
+  `f8a05ceb5a2f41064d5c5e5f485ca6f15932c8dfc7466ee7333e75cfb590ec8f`.
+  Pacote `app.heisuca.player.teste.home`, nome Heisuca Teste, certificado
+  `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`.
+  Hash, pacote e assinatura conferidos no log do validador sobre o APK construído;
+  o download local permanece indisponível pelo bloqueio do proxy. Limites de
+  aparelho continuam os descritos acima. Próxima etapa: H, 2.0.26+27.

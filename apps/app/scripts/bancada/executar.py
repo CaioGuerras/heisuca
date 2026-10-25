@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Executa o teste no emulador e sempre encerra sessões/restaura o item do teste."""
+import base64
 import json
 import os
 from pathlib import Path
@@ -46,10 +47,13 @@ def main():
         adb('install', '-r', str(ROOT / 'build/app/outputs/flutter-apk/app-debug.apk'), check=True)
         config = json.dumps({'server': base, 'user': name, 'item': video['Id'], 'title': video['Name']}).encode()
         adb('exec-out', 'run-as', APP_ID, 'mkdir', '-p', 'files', check=True)
-        injected = subprocess.run(['adb', 'exec-out', 'run-as', APP_ID, 'tee',
-            'files/heisuca-bancada-config.json'],
-            input=config, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=30)
-        if injected.returncode:
+        # `adb exec-out` não repassa o fim da entrada ao processo remoto (o `tee` esperava para sempre:
+        # TimeoutExpired no run 40233769703). A configuração não tem senha; vai em base64 no argumento,
+        # direto para o diretório privado do app, e é conferida byte a byte.
+        encoded = base64.b64encode(config).decode()
+        adb('shell', f"run-as {APP_ID} sh -c 'echo {encoded} | base64 -d > files/heisuca-bancada-config.json'",
+            check=True)
+        if adb('exec-out', 'run-as', APP_ID, 'cat', 'files/heisuca-bancada-config.json').stdout != config:
             raise BancadaIndisponivel('Configuração privada não chegou ao emulador.')
         adb('exec-out', 'run-as', APP_ID, 'chmod', '600', 'files/heisuca-bancada-config.json', check=True)
         env = dict(os.environ)
@@ -128,8 +132,11 @@ def main():
         app_session = adb('exec-out', 'run-as', APP_ID, 'cat', 'files/heisuca-bancada-session.json')
         try:
             if client and video:
-                if app_session.returncode == 0:
-                    session = json.loads(app_session.stdout)
+                try:
+                    session = json.loads(app_session.stdout) if app_session.returncode == 0 else None
+                except ValueError:
+                    session = None  # sem arquivo de sessão: o adb devolve a mensagem de erro com código 0
+                if session:
                     if session.get('user', '').replace('-', '').lower() != client.user.replace('-', '').lower():
                         raise RestauracaoFalhou('Sessão do emulador não pertence à conta selecionada.')
                     Servidor(base, session['token'], session['user'], session['device']).logout()

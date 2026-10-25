@@ -22,16 +22,16 @@ class CapturaAoVivo(unittest.TestCase):
         recording.wait.side_effect = lambda **_: events.append('parado')
         self.c.recording = recording
         def native(*args, **kwargs):
+            if args[0] == 'shell' and 'heisuca-bancada-ack.tmp' in args[1]:
+                events.append('ack')
+                self.assertIn('parado', events)
+                self.assertTrue((self.c.output / '01-login.png').exists())
+                return subprocess.CompletedProcess(args, 0, b'')
             events.append(args[0])
             return subprocess.CompletedProcess(args, 0, PNG)
         adb.side_effect = native
-        def ack(*args, **kwargs):
-            events.append('ack')
-            self.assertIn('parado', events)
-            self.assertTrue((self.c.output / '01-login.png').exists())
-            return subprocess.CompletedProcess(args, 0)
-        run.side_effect = ack
         self.c.handle({'seq': 1, 'name': '01-login', 'back': False})
+        run.assert_not_called()  # nada de `tee` por stdin: o adb não repassa o fim da entrada
         self.assertIsNone(self.c.recording)
         self.assertLess(events.index('parado'), events.index('pull'))
         self.assertLess(events.index('exec-out'), events.index('ack'))
@@ -44,6 +44,7 @@ class CapturaAoVivo(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             self.c.handle({'seq': 1, 'name': '03-busca'})
         run.assert_not_called()
+        self.assertFalse(any('ack' in str(c.args) for c in adb.call_args_list))
         self.assertEqual(self.c.last, 0)
 
     @patch('capturas.subprocess.run')
@@ -72,3 +73,13 @@ class CapturaAoVivo(unittest.TestCase):
         adb.side_effect = native
         self.c.close()
         self.assertIsNone(self.c.recording)
+
+
+class EventoAusente(unittest.TestCase):
+    @patch('capturas.adb')
+    def test_sem_evento_o_adb_responde_texto_e_nao_derruba(self, adb):
+        adb.return_value = subprocess.CompletedProcess([], 0, b'cat: files/heisuca-bancada-event.json: No such file')
+        with tempfile.TemporaryDirectory() as tmp:
+            c = Capturas(Path(tmp))
+            c.poll()
+            self.assertEqual(c.last, 0)

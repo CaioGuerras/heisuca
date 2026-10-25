@@ -1,4 +1,5 @@
 """Capturas ao vivo: só confirma ao app depois de concluir operações nativas."""
+import base64
 import json
 import re
 import subprocess
@@ -44,7 +45,10 @@ class Capturas:
         result = adb('exec-out', 'run-as', APP_ID, 'cat', 'files/heisuca-bancada-event.json')
         if result.returncode:
             return
-        event = json.loads(result.stdout)
+        try:
+            event = json.loads(result.stdout)
+        except ValueError:
+            return  # sem evento ainda: o adb devolve a mensagem de erro com código 0
         if event['seq'] <= self.last:
             return
         self.handle(event)
@@ -65,11 +69,9 @@ class Capturas:
         (self.output / f'{name}.png').write_bytes(png)
         if event.get('back') is True:
             adb('shell', 'input', 'keyevent', '4', check=True)
-        ack = subprocess.run(['adb', 'exec-out', 'run-as', APP_ID, 'tee', 'files/heisuca-bancada-ack.tmp'],
-            input=json.dumps({'seq': seq, 'ok': True}).encode(), stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL, timeout=30)
-        if ack.returncode:
-            raise RuntimeError('Confirmação não chegou ao app.')
+        # `adb exec-out` não repassa o fim da entrada (um `tee` remoto espera para sempre); o ACK vai no argumento.
+        ack = base64.b64encode(json.dumps({'seq': seq, 'ok': True}).encode()).decode()
+        adb('shell', f"run-as {APP_ID} sh -c 'echo {ack} | base64 -d > files/heisuca-bancada-ack.tmp'", check=True)
         adb('exec-out', 'run-as', APP_ID, 'chmod', '600', 'files/heisuca-bancada-ack.tmp', check=True)
         adb('exec-out', 'run-as', APP_ID, 'mv', 'files/heisuca-bancada-ack.tmp',
             'files/heisuca-bancada-ack.json', check=True)

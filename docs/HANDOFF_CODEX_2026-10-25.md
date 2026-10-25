@@ -122,6 +122,29 @@ som, com serviço em primeiro plano `mediaPlayback` (Android 17 exige app visív
   verdade), N2 "+" em dobro, N3 níveis reais no medidor do popup (Reduzido/Padrão/Topo de linha) + "Medir fluidez" pelos
   tempos de quadro do próprio app. Mesmo rito das outras etapas (versão, portão, CI, registro).
 
+## O. Rodada 2 da pesquisa de players (aprovada pelo Caio em 25/10, depois da N)
+Fontes: `~/cgflix/pesquisa_apps/rodada2/CRUZAMENTO_HEISUCA_2026-10-25.md` e `GEMINI_NOVIDADES_2026-10-25.md` (os links
+do Gemini são redirecionamentos: conferir cada item no changelog/código de verdade antes de portar).
+- **O1. Base no Plezy:** descobrir de qual versão do Plezy (`edde746/plezy`, GPL-3.0) o código partiu (comparar
+  `apps/app` com as tags; a menor diferença indica a base) e registrar no `CLAUDE.md`/`AGENTS.md`. Ler os changelogs da base
+  até a 2.24.0 e trazer à mão (fork independente: escolher, não seguir) o que se aplica, por exemplo: legenda que some
+  depois de avançar ou trocar o áudio no mpv (2.23), pico de memória das miniaturas da barra de avanço (2.23), folha de
+  informações do arquivo no player com o **motivo da conversão** (2.24; é a lacuna nº 1), "tentar de novo" em lote e
+  downloads agrupados (2.24). Cada item trazido cita a versão/commit de origem no registro.
+- **O2. Lacunas aprovadas:** "Ainda está assistindo?" (depois de N episódios seguidos sem toque; pausa e pergunta),
+  baixar a temporada com estimativa de espaço e regra "manter os próximos N episódios", Dolby Vision perfil 7
+  (comportamento real do mpv/Media3 no aparelho, sem prometer o que o decodificador não faz).
+- **O3. Ideias do Streamyfin** (React Native, MPL-2.0: só ideia, implementar do zero): legenda liga sozinha quando o
+  aparelho está no silencioso (e volta ao normal quando sai); lembrar a faixa de áudio e legenda pela identidade da faixa
+  (idioma + tipo + título), não pela posição; pular também a recapitulação quando o servidor marcar o segmento.
+- **O4. Novidades de leitura fácil:** a cada versão, um changelog em português simples para quem usa ("O que mudou":
+  corrigido / novo / alterado, sem jargão), com uma primeira entrada que conta de onde partimos (Plezy <versão>, fork
+  independente). Mostrar no app (Configurações › Sobre › Novidades, e um aviso discreto na primeira abertura depois da
+  atualização) e publicar o mesmo texto junto do APK. Gerado de um arquivo no repo (`CHANGELOG_USUARIO.md` ou similar),
+  escrito à mão a cada etapa; não gerar a partir das mensagens de commit.
+- **Fora:** botão "Aleatório" (Caio não quer); downloads convertidos (vão para o app Lite); canais do Android TV e
+  login por QR (app de TV).
+
 ## Depois (não agora)
 - Varredura do app inteiro contra `docs/GUIA_ANDROID_GOOGLE.md`, com lista de falhas e correções.
 - Tema infantil escuro.

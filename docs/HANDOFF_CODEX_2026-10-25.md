@@ -123,7 +123,7 @@ som, com serviço em primeiro plano `mediaPlayback` (Android 17 exige app visív
   tempos de quadro do próprio app. Mesmo rito das outras etapas (versão, portão, CI, registro).
 
 ## O. Rodada 2 da pesquisa de players (aprovada pelo Caio em 25/10, depois da N)
-Fontes: `~/cgflix/pesquisa_apps/rodada2/CRUZAMENTO_HEISUCA_2026-10-25.md` e `GEMINI_NOVIDADES_2026-10-25.md` (os links
+Fontes: `docs/pesquisa_rodada2/CRUZAMENTO_HEISUCA_2026-10-25.md` e `docs/pesquisa_rodada2/GEMINI_NOVIDADES_2026-10-25.md` (os links
 do Gemini são redirecionamentos: conferir cada item no changelog/código de verdade antes de portar).
 - **O1. Base no Plezy:** descobrir de qual versão do Plezy (`edde746/plezy`, GPL-3.0) o código partiu (comparar
   `apps/app` com as tags; a menor diferença indica a base) e registrar no `CLAUDE.md`/`AGENTS.md`. Ler os changelogs da base

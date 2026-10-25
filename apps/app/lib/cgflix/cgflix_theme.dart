@@ -1,17 +1,17 @@
 // Tema do CGFLIX por cima do tema "mono" do upstream (Etapa 1C): fonte Inter, os temas Isis
-// (escuro, roxo) e Heitor (claro, verde; versão 1.4.0), transições de página de 250–350 ms com ease-out e barras do sistema
-// transparentes (ponta a ponta). O upstream chama daqui com um gancho de uma linha.
+// (escuro, roxo) e Heitor (claro, verde), transições oficiais do Flutter e barras
+// transparentes (ponta a ponta). O tema base chama daqui.
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../services/settings_service.dart' as settings;
+import '../services/device_performance.dart';
 import '../theme/mono_theme.dart';
 import '../theme/mono_tokens.dart';
 import '../utils/platform_detector.dart';
 import 'cgflix_app_icon.dart';
 import 'cgflix_configuracoes.dart';
 import 'cgflix_palette.dart';
-import 'cgflix_style.dart';
 
 export 'cgflix_palette.dart';
 
@@ -58,112 +58,17 @@ Future<void> cgflixFixThemePref(settings.SettingsService service) async {
   }
 }
 
-/// Troca de página no Android: entra deslizando de leve e aparecendo; a de baixo recua um
-/// pouco. 300 ms para ir, 250 ms para voltar. Refino 2b: com o voltar preditivo ligado
-/// (`android:enableOnBackInvokedCallback`), o gesto de voltar do Android 13+ arrasta a página
-/// junto com o dedo (ela encolhe um pouco e arredonda os cantos, como no sistema) e só fecha se
-/// a pessoa soltar; se desistir, volta para o lugar.
-class CgflixPageTransitionsBuilder extends PageTransitionsBuilder {
-  const CgflixPageTransitionsBuilder();
-
+/// A transição e o gesto pertencem ao Flutter. Só há o portão de movimento
+/// reduzido e a cor da marca; nenhuma implementação própria do gesto.
+class CgflixPageTransitionsBuilder extends PredictiveBackPageTransitionsBuilder {
+  const CgflixPageTransitionsBuilder({super.fallbackColor});
+  @override Duration get transitionDuration => DevicePerformance.isReduced ? Duration.zero : super.transitionDuration;
   @override
-  Duration get transitionDuration => CgflixMotion.medium;
-
-  @override
-  Duration get reverseTransitionDuration => CgflixMotion.fast;
-
-  @override
-  Widget buildTransitions<T>(
-    PageRoute<T> route,
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-    Widget child,
-  ) {
-    // "Remover animações" do Android: troca de página seca, sem deslizar.
-    if (MediaQuery.disableAnimationsOf(context)) return child;
-    return _CgflixPredictiveBack(
-      route: route,
-      builder: (context) {
-        if (route.popGestureInProgress) {
-          // Durante o gesto a animação segue o dedo (sem curva), como no voltar preditivo do sistema.
-          return SlideTransition(
-            position: Tween(begin: const Offset(0.08, 0), end: Offset.zero).animate(animation),
-            child: ScaleTransition(
-              scale: Tween<double>(begin: 0.9, end: 1).animate(animation),
-              child: ClipRRect(borderRadius: BorderRadius.circular(28), child: child),
-            ),
-          );
-        }
-        final enter = CurvedAnimation(parent: animation, curve: CgflixMotion.curve, reverseCurve: Curves.easeInCubic);
-        final under = CurvedAnimation(parent: secondaryAnimation, curve: CgflixMotion.curve);
-        return SlideTransition(
-          position: Tween(begin: Offset.zero, end: const Offset(-0.06, 0)).animate(under),
-          child: SlideTransition(
-            position: Tween(begin: const Offset(0.08, 0), end: Offset.zero).animate(enter),
-            child: FadeTransition(opacity: enter, child: child),
-          ),
-        );
-      },
-    );
+  Widget buildTransitions<T>(PageRoute<T> route, BuildContext context,
+      Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+    if (DevicePerformance.isReduced || MediaQuery.disableAnimationsOf(context)) return child;
+    return super.buildTransitions(route, context, animation, secondaryAnimation, child);
   }
-}
-
-/// Recebe o gesto de voltar preditivo do Android (Flutter → [WidgetsBindingObserver]) e passa para
-/// a rota, que move a animação junto com o dedo. Mesma lógica do `PredictiveBackPageTransitionsBuilder`
-/// do Flutter, com a transição do CGFLIX.
-class _CgflixPredictiveBack extends StatefulWidget {
-  const _CgflixPredictiveBack({required this.route, required this.builder});
-
-  final PageRoute<dynamic> route;
-  final WidgetBuilder builder;
-
-  @override
-  State<_CgflixPredictiveBack> createState() => _CgflixPredictiveBackState();
-}
-
-class _CgflixPredictiveBackState extends State<_CgflixPredictiveBack> with WidgetsBindingObserver {
-  bool get _enabled => widget.route.isCurrent && widget.route.popGestureEnabled;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  bool handleStartBackGesture(PredictiveBackEvent backEvent) {
-    if (backEvent.isButtonEvent || !_enabled) return false;
-    widget.route.handleStartBackGesture(progress: 1 - backEvent.progress);
-    setState(() {});
-    return true;
-  }
-
-  @override
-  void handleUpdateBackGestureProgress(PredictiveBackEvent backEvent) {
-    widget.route.handleUpdateBackGestureProgress(progress: 1 - backEvent.progress);
-  }
-
-  @override
-  void handleCancelBackGesture() {
-    widget.route.handleCancelBackGesture();
-    setState(() {});
-  }
-
-  @override
-  void handleCommitBackGesture() {
-    widget.route.handleCommitBackGesture();
-    setState(() {});
-  }
-
-  @override
-  Widget build(BuildContext context) => widget.builder(context);
 }
 
 /// Marca do CGFLIX sobre o tema do upstream. [oled] = Isis; o tema claro do upstream vira o
@@ -181,7 +86,7 @@ ThemeData cgflixBrandTheme(ThemeData theme, {required bool oled, CgflixThemeVari
       systemOverlayStyle: cgflixSystemOverlay(theme.brightness),
     ),
     pageTransitionsTheme: PageTransitionsTheme(
-      builders: {...theme.pageTransitionsTheme.builders, TargetPlatform.android: const CgflixPageTransitionsBuilder()},
+      builders: {...theme.pageTransitionsTheme.builders, TargetPlatform.android: CgflixPageTransitionsBuilder(fallbackColor: palette?.background ?? theme.scaffoldBackgroundColor)},
     ),
     progressIndicatorTheme: theme.progressIndicatorTheme.copyWith(color: accent),
     textSelectionTheme: theme.textSelectionTheme.copyWith(

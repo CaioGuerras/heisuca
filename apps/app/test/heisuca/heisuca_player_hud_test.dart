@@ -9,6 +9,7 @@ import 'package:plezy/mpv/mpv.dart';
 import 'package:plezy/services/settings_service.dart';
 import 'package:plezy/widgets/overlay_sheet.dart';
 import 'package:plezy/widgets/video_controls/mobile_video_controls.dart';
+import 'package:plezy/widgets/video_controls/widgets/timeline_slider.dart';
 import 'package:plezy/widgets/video_controls/models/track_controls_state.dart';
 import 'package:plezy/watch_together/providers/watch_together_provider.dart';
 import '../test_helpers/watch_together_fakes.dart';
@@ -31,7 +32,7 @@ class _AnimePlayer extends FakeSyncPlayer {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  Future<({List<String> calls, List<double> rates})> pumpHud(WidgetTester tester, {bool snapshot = false}) async {
+  Future<({List<String> calls, List<double> rates})> pumpHud(WidgetTester tester, {bool snapshot = false, EdgeInsets gestures = EdgeInsets.zero}) async {
     resetSharedPreferencesForTest();
     SettingsService.resetForTesting();
     await SettingsService.getInstance();
@@ -58,6 +59,7 @@ void main() {
     );
     await tester.pumpWidget(ChangeNotifierProvider.value(value: watch, child: MaterialApp(
       debugShowCheckedModeBanner: false,
+      builder: (context, child) => MediaQuery(data: MediaQuery.of(context).copyWith(systemGestureInsets: gestures), child: child!),
       theme: cgflixAppTheme(CgflixThemeVariant.isis).copyWith(platform: TargetPlatform.android),
       home: Scaffold(backgroundColor: const Color(0xff2a3550), body: OverlaySheetHost(child: MobileVideoControls(
         player: player, heisucaTrackState: state,
@@ -71,6 +73,15 @@ void main() {
     return (calls: calls, rates: rates);
   }
 
+  testWidgets('HUD mantém a régua e os botões fora da área de gesto do sistema', (tester) async {
+    await pumpHud(tester, gestures: const EdgeInsets.only(left: 24, right: 28, bottom: 24));
+    final timeline = tester.getRect(find.byType(TimelineSlider));
+    expect(timeline.left, greaterThanOrEqualTo(24));
+    expect(timeline.right, lessThanOrEqualTo(986 - 28));
+    expect(tester.getRect(find.text('Ajustes')).bottom, lessThanOrEqualTo(444 - 24));
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
   testWidgets('HUD: ações reais, ajustes à direita e sem botão Próximo', (tester) async {
     final r = await pumpHud(tester);
     expect(tester.takeException(), isNull);

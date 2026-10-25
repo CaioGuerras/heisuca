@@ -318,26 +318,7 @@ PageRoute<bool> mediaDetailRoute({
     initialSeasonId: initialSeasonId,
     initialEpisodeId: initialEpisodeId,
   );
-  if (!PlatformDetector.isTV()) return MaterialPageRoute<bool>(builder: (_) => page);
-
-  return PageRouteBuilder<bool>(
-    // Opaque so the covered route stops painting/building once the fade
-    // completes (the framework only offstages routes below after the
-    // transition settles, so push/pop fades still composite over live
-    // content). The detail screen paints a full-screen opaque background
-    // immediately, and the video player route is itself opaque and never
-    // sits below a detail route, so nothing can leak through.
-    opaque: true,
-    pageBuilder: (_, _, _) => page,
-    transitionsBuilder: (_, animation, _, child) {
-      return FadeTransition(
-        opacity: CurvedAnimation(parent: animation, curve: Curves.easeOutCubic, reverseCurve: Curves.easeInCubic),
-        child: child,
-      );
-    },
-    transitionDuration: AppDurations.animMedium,
-    reverseTransitionDuration: AppDurations.animMedium,
-  );
+  return MaterialPageRoute<bool>(builder: (_) => page);
 }
 
 class _MediaDetailScreenState extends State<MediaDetailScreen>

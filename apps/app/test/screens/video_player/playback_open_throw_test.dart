@@ -175,6 +175,9 @@ void main() {
 
         expect(find.byType(CircularProgressIndicator), findsNothing, reason: 'the spinner must not cover the view');
         expect(find.byType(SnackBar), findsNothing);
+        // A página anterior só sai da pintura quando a entrada oficial termina.
+        await pumpUntil(tester, () => key.currentContext != null &&
+          ModalRoute.of(key.currentContext!)!.animation!.status == AnimationStatus.completed);
         expect(find.text('Browse'), findsNothing, reason: 'the route must stay so the viewer can act on the failure');
         expect(key.currentState, isNotNull);
         final retry = find.widgetWithText(FilledButton, t.common.retry);

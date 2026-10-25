@@ -112,10 +112,8 @@ Future<T> heisucaRunUnderKidsOpening<T>(BuildContext context, {required CgflixTh
     required String name, required Future<T> Function() work}) async {
   final navigator = Navigator.of(context, rootNavigator: true);
   final minimum = Future<void>.delayed(HeisucaKidsOpening.durationFor(context));
-  final route = PageRouteBuilder<void>(opaque: true, barrierDismissible: false,
-    transitionDuration: const Duration(milliseconds: 200), reverseTransitionDuration: const Duration(milliseconds: 240),
-    pageBuilder: (_, __, ___) => PopScope(canPop: false, child: HeisucaKidsOpening(variant: variant, name: name)),
-    transitionsBuilder: (_, a, __, child) => FadeTransition(opacity: a, child: child));
+  final route = MaterialPageRoute<void>(fullscreenDialog: true,
+    builder: (_) => PopScope(canPop: false, child: HeisucaKidsOpening(variant: variant, name: name)));
   navigator.push(route);
   try {
     final result = await work();

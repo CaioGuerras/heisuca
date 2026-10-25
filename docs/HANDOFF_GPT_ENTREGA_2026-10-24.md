@@ -567,3 +567,63 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
 - Pacote/providers conferidos; mesma assinatura SHA-256 `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`.
 - Não testado em aparelho, TalkBack real, servidor real, teclado/controle físico,
   login real ou resposta de rede real. A Início Jellyfin não foi redesenhada.
+
+## Etapa F — 2.0.24+25 — em validação
+
+- Retirada a implementação manual `_CgflixPredictiveBack`. O builder da marca agora
+  herda `PredictiveBackPageTransitionsBuilder` e delega a ele toda a transição/gesto;
+  só aplica a cor da marca e o portão de movimento reduzido. A duração normal vem
+  do Flutter; no aparelho reduzido é zero. Android já tinha o opt-in no manifesto
+  e `main.dart` já chama `cgflixEnableEdgeToEdge`; ambos foram conferidos.
+- Ficha, abertura infantil, sessão/login, tocador de música e detalhe de TV passam
+  por `MaterialPageRoute`. Não há `PageRouteBuilder` no código do app. O helper de
+  sessão conserva `opaque=false`, exigido pela composição anterior, por uma subclasse
+  Material que não implementa animação nem gesto próprios.
+- Vídeo usa rota Material, textura ao vivo (`allowSnapshotting=false`) e tema escuro
+  também em volta da transição, em vez de eliminar a animação para evitar branco.
+  A **substituição de um vídeo por outro dentro do player** continua imediata:
+  é transferência de dono do canal nativo, não uma nova tela; o anterior tem de
+  desmontar antes do próximo. A entrada normal e a saída para o acervo usam o tema.
+  Os testes que recusam dois donos simultâneos continuaram passando.
+- O player não desativa mais swipe-back o tempo todo por causa da régua. No celular,
+  sem folha/painel, aviso ou confirmação de convidado, aceita o gesto oficial.
+  Painel/folha fecham antes; confirmações de convidado continuam necessárias. A saída
+  direta do celular com os controles visíveis foi preservada; TV/desktop conservam
+  a navegação de controles já existente. Nenhuma transmissão para TV foi criada.
+- Pop confirmado fecha produtores sincronicamente e inicia a limpeza do dono
+  capturado, sem prender o pop ao retorno nativo; cancelamento não pausa. A limpeza
+  continua acompanhada pela aposentadoria existente. Botões/TV e confirmações ainda
+  têm o orçamento de limpeza de 1 s, seguido da transição oficial. Repetição não
+  duplica pausa/dispose. Retirada de um player não remove uma rota que o cobre.
+- Régua/botões inferiores respeitam `SafeArea` com `systemGestureInsets` como mínimo,
+  incluindo paisagem. Não se bloqueia a borda inteira do sistema para arrastar a régua.
+- Abas: `FadeThroughTransition` do pacote oficial Flutter `animations` **2.2.0**
+  (`flutter/packages`, BSD-3-Clause, incluído pelo mecanismo de licenças do build).
+  A restrição 2.x mantém a API Material usada pelo app. Estados ficam montados;
+  controladores estáveis por chave conservam o quadro em trocas rápidas e retornos
+  durante a saída. Abas ocultas não recebem toque, semântica nem tickers do conteúdo.
+- Prova antes/depois da interrupção: teste de toque rápido falhou com opacidade
+  **1,0** de uma aba que ainda estava invisível (esperado 0); passou após separar
+  os controladores por aba. O teste permanece. Testes por quadro conferem saída,
+  passagem, entrada com escala e ausência de deslocamento horizontal.
+- Tokens M3: abas/utilitários `Durations.medium2` + `Easing.standard`; folhas
+  `medium4/short4` + `emphasizedDecelerate/emphasizedAccelerate`. Movimento reduzido
+  (aparelho/sistema) desliga os efeitos, inclusive o indicador da pílula.
+- **166 testes direcionados aprovados, 1 captura opcional ignorada**: rotas, música,
+  dono nativo, folhas e controles. **23 aprovados** após ajustar as verificações de
+  falha/recarga à duração oficial; não se presume descarte no mesmo frame do pop.
+  Os testes verificam início da saída dentro do orçamento e depois seu término.
+- **18 aprovados** no último ajuste: painel fecha sem pausar, gesto do player cancela
+  sem pausar e confirma apesar de pausa nativa pendente (duas bordas), aba interrompida,
+  ficha real com gesto por esquerda/direita, cancelamento/commit, aparelho reduzido e
+  preferência do sistema. Eventos usam o canal `flutter/backgesture`, não drag no conteúdo.
+- **252 testes de vídeo aprovados**, repetidos com o último ajuste já fixado.
+- Portão completo: **408 aprovados, 3 ignorados**, mais **8 aprovados com Impeller**.
+  Commit/run/APK aguardando CI.
+- Não testado: aparelho, gesto físico Android/OEM, textura real mpv/Exo durante a
+  transição, TV/controle físico, fluidez/FPS e comportamento visual com servidor real.
+  Provas são Flutter/Linux + canais controlados. Não se afirma aprovação física.
+  A composição e as duas capturas de regressão da Início Jellyfin foram preservadas.
+- Repetição final do portão após congelar o código: **408 aprovados, 3 ignorados +
+  8 Impeller aprovados**. G–M ainda não iniciadas; na L incluir também a retirada
+  das traduções Discord que restaram em i18n, conforme a continuação pedida por Caio.

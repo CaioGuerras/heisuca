@@ -61,11 +61,8 @@ class HeisucaTitleSheet extends StatefulWidget {
   static Future<void> show(BuildContext context, MediaItem item, {MediaItem? episode}) async {
     final tag = cgflixDetailHeroTag(item);
     try {
-      await Navigator.of(context).push(PageRouteBuilder<void>(
-        transitionDuration: HeisucaMotion.durationFor(context), reverseTransitionDuration: HeisucaMotion.durationFor(context),
-        pageBuilder: (_, _, _) => HeisucaTitleSheet(hostContext: context, item: item, episode: episode, heroTag: tag),
-        transitionsBuilder: (_, animation, _, child) => FadeTransition(
-          opacity: animation.drive(CurveTween(curve: HeisucaMotion.curve)), child: child)));
+      await Navigator.of(context).push(MaterialPageRoute<void>(
+        builder: (_) => HeisucaTitleSheet(hostContext: context, item: item, episode: episode, heroTag: tag)));
     } finally {
       cgflixForgetHeroTag(item);
     }

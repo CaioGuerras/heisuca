@@ -1,18 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../services/device_performance.dart';
-import 'layout_constants.dart';
+/// Compatibilidade do fluxo de sessão: mantém a composição transparente,
+/// mas deixa transição e gesto inteiramente com o tema da plataforma.
+Route<T> fadeRoute<T>(Widget page) => _SessionMaterialRoute<T>(builder: (_) => page);
 
-Route<T> fadeRoute<T>(Widget page) {
-  return PageRouteBuilder<T>(
-    // opaque must stay false: routes composite over the video player layer
-    // below the transparent root scaffold. The reduced tier only drops the
-    // fade (two full-screen layers blending for the whole transition).
-    opaque: false,
-    pageBuilder: (context, animation, secondaryAnimation) => page,
-    transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-        FadeTransition(opacity: animation, child: child),
-    transitionDuration: DevicePerformance.reducedDuration(AppDurations.animSlow),
-    reverseTransitionDuration: DevicePerformance.reducedDuration(AppDurations.animSlow),
-  );
+class _SessionMaterialRoute<T> extends MaterialPageRoute<T> {
+  _SessionMaterialRoute({required super.builder});
+  @override bool get opaque => false;
 }

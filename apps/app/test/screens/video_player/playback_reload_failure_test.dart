@@ -352,9 +352,13 @@ void main() {
             await tester.pump();
             await tester.binding.handlePopRoute();
             await tester.pump(const Duration(milliseconds: 999));
-            expect(screen.key.currentState, isNotNull, reason: 'the pending cleanup still owns the grace period');
             await tester.pump(const Duration(milliseconds: 1));
             await tester.pump();
+            if (screen.key.currentContext != null) {
+              expect(ModalRoute.of(screen.key.currentContext!)!.animation!.status, AnimationStatus.reverse,
+                reason: 'o limite de limpeza já aceitou sair; falta só a animação da rota');
+            }
+            await pumpUntil(tester, () => screen.key.currentState == null);
             expect(screen.key.currentState, isNull);
             expect(find.text('Browse'), findsOneWidget);
             expect(pending.isCompleted, isFalse);
@@ -536,6 +540,10 @@ void main() {
         await tester.binding.handlePopRoute();
         await tester.pump(const Duration(seconds: 1));
         await tester.pump();
+        if (successorKey.currentContext != null) {
+          expect(ModalRoute.of(successorKey.currentContext!)!.animation!.status, AnimationStatus.reverse);
+        }
+        await pumpUntil(tester, () => successorKey.currentState == null);
         expect(successorKey.currentState, isNull);
         expect(find.text('Browse'), findsOneWidget);
       },
@@ -583,6 +591,10 @@ void main() {
         await tester.binding.handlePopRoute();
         await tester.pump(const Duration(seconds: 1));
         await tester.pump();
+        if (successorKey.currentContext != null) {
+          expect(ModalRoute.of(successorKey.currentContext!)!.animation!.status, AnimationStatus.reverse);
+        }
+        await pumpUntil(tester, () => successorKey.currentState == null);
         expect(successorKey.currentState, isNull);
         expect(find.text('Browse'), findsOneWidget);
         expect(find.byType(AlertDialog, skipOffstage: false), findsNothing);
@@ -628,6 +640,10 @@ void main() {
         await tester.pump();
         await tester.pump(const Duration(seconds: 1));
         await tester.pump();
+        if (screen.key.currentContext != null) {
+          expect(ModalRoute.of(screen.key.currentContext!)!.animation!.status, AnimationStatus.reverse);
+        }
+        await pumpUntil(tester, () => screen.key.currentState == null);
         expect(screen.key.currentState, isNull);
         expect(watchTogether.isInSession, isFalse);
         expect(peer.releaseCalls, 1);

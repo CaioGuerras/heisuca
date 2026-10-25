@@ -471,7 +471,10 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
     ));
   }
 
-  Widget _buildBottomBar(BuildContext _) {
+  Widget _buildBottomBar(BuildContext context) => SafeArea(top: false,
+    minimum: MediaQuery.systemGestureInsetsOf(context), child: _buildBottomBarWithoutInsets(context));
+
+  Widget _buildBottomBarWithoutInsets(BuildContext _) {
     if (widget.isLive) {
       if (widget.captureBuffer != null) {
         // Live TV with time-shift: show seekable timeline

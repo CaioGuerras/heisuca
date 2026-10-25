@@ -2267,6 +2267,19 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
     return completer.future;
   }
 
+  // O gesto confirmado pode sair sem aguardar uma resposta do player nativo.
+  // Fecha produtores de forma síncrona; a aposentadoria já existente acompanha
+  // a limpeza até o fim, inclusive quando a resposta chega após a animação.
+  void _handleCommittedPlayerPop() {
+    if (_isReplacingWithVideo || _routeExitOperation != null) return;
+    final cleanup = _shutdownVideo(pauseForRouteExit: true);
+    _routeExitOperation = cleanup;
+    unawaited(cleanup.catchError((Object error, StackTrace stackTrace) {
+      appLogger.w('Player: limpeza após voltar', error: error, stackTrace: stackTrace);
+    }));
+    unawaited(_restoreSystemUiAndOrientation());
+  }
+
   /// Handle back button press
   /// For non-host participants in Watch Together, shows leave session confirmation
   Future<void> _handleBackButton({bool navigateHome = false}) async {
@@ -2341,6 +2354,10 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
         sheetController!.pop();
         return;
       }
+    }
+    if (navigationKey == PlayerNavigationKey.back && _chromeController.contentStripVisible) {
+      _chromeController.setContentStripVisible(false);
+      return;
     }
     _playerNavigationCoordinator.handle(navigationKey);
   }
@@ -3041,11 +3058,14 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
         // DirectionalFocusAction / ActivateAction can process them.
         return KeyEventResult.ignored;
       },
-      child: OverlaySheetHost(
-        // Host owns sheet + system back: a back with a sheet open closes it;
-        // with no sheet, exit the player. canPop:false keeps swipe-back disabled
-        // so it doesn't fight timeline scrubbing.
-        canPop: false,
+      child: ListenableBuilder(listenable: _chromeController, builder: (context, _) => OverlaySheetHost(
+        // Só estados efêmeros bloqueiam o pop; no celular a rota pode acompanhar
+        // o gesto oficial. O host já impede sair enquanto uma folha está aberta.
+        canPop: PlatformDetector.isMobile(context) && !_chromeController.contentStripVisible &&
+            !_episode.showPlayNextDialog && !_showStillWatchingPrompt &&
+            !context.select<WatchTogetherProvider?, bool>((session) => identical(session, _watchTogetherProvider) &&
+                session != null && session.isInSession && !session.isHost),
+        onPopped: _handleCommittedPlayerPop,
         onSystemBack: () {
           if (BackKeyCoordinator.consumeIfHandled()) return;
           BackKeyCoordinator.markHandled();
@@ -3066,7 +3086,7 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
             return _buildLoadingSpinner();
           },
         ),
-      ),
+      )),
     );
   }
 }

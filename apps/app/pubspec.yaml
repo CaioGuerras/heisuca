@@ -1,7 +1,7 @@
 name: plezy
 description: "Heisuca. Nada entre você e o filme. Cliente cinematográfico multiplataforma para Jellyfin, Plex, WebDAV e SMB."
 publish_to: "none"
-version: 2.0.23+24
+version: 2.0.24+25
 
 environment:
   # Dart floor stays 3.12: freezed 3.x emits `final` constructor parameters,
@@ -85,6 +85,7 @@ dependencies:
   xml: ^7.0.1
   string_similarity: ^2.2.0
   unorm_dart: ^0.3.2
+  animations: ^2.0.11
 
 dev_dependencies:
   archive: ^4.0.9

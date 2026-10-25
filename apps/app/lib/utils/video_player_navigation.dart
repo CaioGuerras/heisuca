@@ -41,14 +41,22 @@ const String kVideoPlayerRouteName = '/video_player';
 ///
 /// Commit through [push], not Navigator.push: a covered player still owns the
 /// native channel and must leave before another playback can take ownership.
-class VideoPlayerRoute extends PageRouteBuilder<bool> {
+class VideoPlayerRoute extends MaterialPageRoute<bool> {
   VideoPlayerRoute({required WidgetBuilder builder, this.watchTogetherLease})
     : super(
         settings: const RouteSettings(name: kVideoPlayerRouteName),
-        pageBuilder: (context, _, _) => cgflixAlwaysDark(builder(context)), // CGFLIX: player sempre escuro
-        transitionDuration: Duration.zero,
-        reverseTransitionDuration: Duration.zero,
+        builder: (context) => cgflixAlwaysDark(builder(context)),
+        allowSnapshotting: false,
       );
+
+  // Trocar o vídeo dentro do player é uma transferência de dono nativo, não
+  // uma nova tela. O dono anterior precisa ser desmontado antes do seguinte.
+  bool _replacesExistingVideo = false;
+  @override Duration get transitionDuration => _replacesExistingVideo ? Duration.zero : super.transitionDuration;
+  @override
+  Widget buildTransitions(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation, Widget child) => cgflixAlwaysDark(Builder(
+    builder: (darkContext) => super.buildTransitions(darkContext, animation, secondaryAnimation, child)));
 
   // Reserve at route commit, not screen initState: another launch can arrive
   // before the first frame. Navigator identity also isolates profile sessions.
@@ -69,6 +77,7 @@ class VideoPlayerRoute extends PageRouteBuilder<bool> {
   Future<bool?> push(NavigatorState navigator, {bool replaceCurrent = false}) {
     final previous = _activeRoutes[navigator];
     final replacingVideo = previous != null && previous.isActive;
+    _replacesExistingVideo = replacingVideo;
     if (replacingVideo) {
       previous._isReplacingWithVideo = true;
       dismissDialogsOwnedBy(previous);
@@ -262,11 +271,9 @@ Future<ResolvedMediaVersionPreference?> resolveSavedMediaVersionFor(MediaItem me
   return (index: index, sourceId: version.id.isEmpty ? null : version.id, signature: version.signature);
 }
 
-/// Navigates to the VideoPlayerScreen with instant transitions to prevent white flash.
-///
-/// This utility function provides a consistent way to navigate to the video player
-/// across the app, using PageRouteBuilder with zero-duration transitions to eliminate
-/// the white flash that occurs with MaterialPageRoute.
+/// Abre o player com a transição oficial do tema, mantendo a superfície escura
+/// e a textura ao vivo (sem snapshot). Substituição de um vídeo já aberto conserva
+/// a transferência imediata do dono nativo; a saída para o acervo segue o tema.
 ///
 /// Parameters:
 /// - [context]: The build context for navigation

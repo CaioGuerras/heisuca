@@ -1,3 +1,4 @@
+import 'heisuca_motion.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
@@ -68,6 +69,11 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
 
   void _animateTo(double target) {
     _targetPosition = target;
+    if (HeisucaMotion.reduced(context)) {
+      _springController.stop();
+      _springController.value = target;
+      return;
+    }
     const springDesc = SpringDescription(
       mass: 1.0,
       stiffness: 180.0,

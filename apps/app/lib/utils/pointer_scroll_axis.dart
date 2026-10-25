@@ -60,9 +60,10 @@ class PlezyWidgetsBinding extends WidgetsFlutterBinding with PointerScrollAxisLo
 
   /// Creates the binding on first call and returns it afterwards, mirroring
   /// [WidgetsFlutterBinding.ensureInitialized].
-  static WidgetsBinding ensureInitialized() {
+  static WidgetsBinding ensureInitialized({WidgetsBinding Function()? createBinding}) {
     if (!_initialized) {
-      PlezyWidgetsBinding();
+      // A bancada compõe os mesmos mixins com o binding oficial integration_test.
+      (createBinding ?? PlezyWidgetsBinding.new)();
       _initialized = true;
     }
     return WidgetsBinding.instance;

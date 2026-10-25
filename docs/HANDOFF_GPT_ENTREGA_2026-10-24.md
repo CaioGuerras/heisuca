@@ -870,3 +870,27 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   conferido no APK pelo validador, mesmo da F/G/H/I. Download local segue
   bloqueado pelo proxy. Limites de aparelho permanecem os acima.
   Próxima: K, 2.0.29+30.
+
+## Etapa K — bancada Android — 2.0.29+30 (em validação local)
+
+- Implementação e limites em `docs/BANCADA_ANDROID_2026-10-25.md`. Workflow
+  independente do APK, emulador API 35/x86_64; autenticação/app/player reais,
+  capturas nativas e quatro vídeos por fase/orientação, sem gravar credenciais.
+- Prioriza conta dedicada, faz rodízio nas livres, nunca usa `-kids`. Somente
+  filme sem histórico, reset oficial e comparação posterior de todos os campos
+  relevantes. Perfil local anônimo; perfil do servidor não é alterado. Limpeza
+  encerra só as duas sessões criadas pela bancada. Logs redigidos antes de gravar.
+- **8 testes de segurança Python aprovados**, **1 teste do binding aprovado**;
+  análise da integração/driver sem erros. Portão completo em andamento.
+- Código ainda sem commit/run da K. Execução Android com segredos reais **ainda
+  não ocorreu**. Não foi provada restauração no servidor real; a bancada só poderá
+  ficar verde depois dessa conferência. Não testado em aparelho, Android 17,
+  motor alternativo, fluidez física nem perda completa do runner.
+- G/H/I/J encerradas nos runs acima. L–O não iniciadas. Próxima ação: concluir
+  portão, commit/push da K, conferir workflow do APK e workflow da bancada.
+- Portão local final K: **8 testes Python + 458 Flutter aprovados, 3 ignorados,
+  mais 8 Impeller aprovados**, análise incluindo integração e driver, `APROVADO`.
+  YAML carregado e inputs conferidos no action fixado por SHA de commit.
+- APK da bancada é compilado antes do emulador, sem credenciais. Configuração
+  chega por stdin ao armazenamento privado do app; não há defines secretos nem
+  APK com dados de conta. Isso também reduz o pico de memória do job.

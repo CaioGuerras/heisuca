@@ -421,6 +421,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                           _InputLabel(label: 'SERVIDOR', color: accent),
                           const SizedBox(height: 8.0),
                           _GlassTextField(
+                            key: const ValueKey('heisuca-login-server'),
                             controller: _serverController,
                             prefixIcon: Icons.dns_outlined,
                             hintText: 'https://seuservidor.com',
@@ -470,6 +471,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                           _InputLabel(label: 'USUÁRIO', color: accent),
                           const SizedBox(height: 8.0),
                           _GlassTextField(
+                            key: const ValueKey('heisuca-login-user'),
                             controller: _userController,
                             prefixIcon: Icons.person_outline_rounded,
                             hintText: 'Nome de usuário',
@@ -486,6 +488,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                           _InputLabel(label: 'SENHA', color: accent),
                           const SizedBox(height: 8.0),
                           _GlassTextField(
+                            key: const ValueKey('heisuca-login-password'),
                             controller: _passwordController,
                             prefixIcon: Icons.lock_outline_rounded,
                             hintText: '••••••••',
@@ -664,6 +667,7 @@ class _InputLabel extends StatelessWidget {
 
 class _GlassTextField extends StatelessWidget {
   const _GlassTextField({
+    super.key,
     required this.controller,
     required this.prefixIcon,
     required this.hintText,

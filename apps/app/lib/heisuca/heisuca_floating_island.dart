@@ -177,6 +177,7 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
                       final isSelected = widget.currentIndex == index;
                       return Expanded(
                         child: _IslandButton(
+                          key: ValueKey('heisuca-nav-$index'),
                           icon: item.icon,
                           label: index == 3 ? widget.userLabel : item.label,
                           avatar: index == 3 ? widget.userAvatar : null,
@@ -207,6 +208,7 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
 
 class _IslandButton extends StatefulWidget {
   const _IslandButton({
+    super.key,
     required this.icon,
     required this.label,
     required this.isSelected,

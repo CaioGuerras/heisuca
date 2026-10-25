@@ -26,14 +26,20 @@ import 'package:plezy/widgets/video_controls/mobile_video_controls.dart';
 
 class _BancadaBinding extends IntegrationTestWidgetsFlutterBinding with PointerScrollAxisLock, SemanticsTreeGate {}
 
-Future<void> main() async {
+void main() {
   final binding = PlezyWidgetsBinding.ensureInitialized(createBinding: _BancadaBinding.new) as _BancadaBinding;
-  final support = await getApplicationSupportDirectory();
-  final config =
-      jsonDecode(await File('${support.path}/heisuca-bancada-config.json').readAsString()) as Map<String, dynamic>;
+  late final Directory support;
+  late final Map<String, dynamic> config;
+  // O test_api recusa declarar casos depois de um await em main() ("Can't call test() once tests have begun
+  // running", run 40235597511): o caso é declarado de forma síncrona e a leitura assíncrona fica no setUpAll.
   // O app mantém seu handle de semântica durante toda a sessão de debug.
   // Inicia antes do caso, como aplicação real, sem recriar o binding do runner.
   app.main();
+  setUpAll(() async {
+    support = await getApplicationSupportDirectory();
+    config = jsonDecode(await File('${support.path}/heisuca-bancada-config.json').readAsString())
+        as Map<String, dynamic>;
+  });
   testWidgets('abertura, login, acervo, vídeo nativo, abas e voltar', (tester) async {
     final server = config['server'] as String;
     final user = config['user'] as String;

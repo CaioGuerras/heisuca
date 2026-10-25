@@ -452,7 +452,7 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
 - A rodada completa **não foi concluída**. Retomar na C após esclarecer o contrato;
   D–M não iniciadas. Validação física de A/A2/B ainda pendente.
 
-## Retomada de 25/10 — etapa C — 2.0.21+22 — em validação
+## Retomada de 25/10 — etapa C — 2.0.21+22 — concluída no CI
 
 - Contrato incorporado do commit `8531b55`: o bloqueio anterior foi superado pela
   decisão explícita de usar um Jellyfin salvo no perfil e o vínculo `plex` de cada feed.
@@ -479,7 +479,12 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   Jellyfin), mais **1 golden aprovado** com duas capturas antes/depois. Teste adicional
   cobre feed indisponível e revalidação do vínculo ao atualizar.
 - Portão completo: **389 aprovados, 3 ignorados**, mais **8 aprovados com Impeller**.
-  Inclui os sete testes Plex e o golden Jellyfin desta etapa. Commit/run/APK aguardando CI.
+  Inclui os sete testes Plex e o golden Jellyfin desta etapa.
+- Código: `18668541dce07f1032f45331f9eff52853af7565` (sem skip ci).
+- [Run verde 40188133608](https://github.com/CaioGuerras/heisuca/actions/runs/40188133608), `success`.
+- [APK 2.0.21+22](https://github.com/CaioGuerras/heisuca/actions/runs/40188133608/artifacts/12597072881).
+- Artifact: 51.132.478 bytes, SHA-256 `4031cab01df685f9dc17a19e5a3006667a017a025decb3f57e20fdcb9ffdcfe9`.
+- Pacote/providers conferidos; assinatura SHA-256 `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c` (mesma de B).
 - Não testado: aparelho, Plex/Jellyfin reais, fluidez em hardware, abertura real do
   pedido e reprodução real. O formato público dos feeds foi informado no contrato
   do Claude/Caio; os testes desta etapa usam HTTP controlado, sem login real.

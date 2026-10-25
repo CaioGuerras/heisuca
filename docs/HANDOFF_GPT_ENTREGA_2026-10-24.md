@@ -750,3 +750,9 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   informações nativas reais e aprovação visual do Caio. Início Jellyfin preservada.
 - Portão local completo da H: **433 aprovados, 3 ignorados + 8 Impeller
   aprovados**, `APROVADO: análise e testes concluídos.`
+- **Ponto de retomada H:** código enviado em
+  `ee4af889a916ea50dab4321a0bee9f2843a50ccd` (sem `[skip ci]`), run
+  [40216216038](https://github.com/CaioGuerras/heisuca/actions/runs/40216216038)
+  pendente. Aguardar `completed/success`, conferir no log do validador o pacote,
+  certificado e SHA-256 do APK, obter os metadados do artifact e registrar.
+  Só então iniciar I (próxima 2.0.27+28). I–O ainda não iniciadas.

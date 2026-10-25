@@ -815,3 +815,37 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   conferidos no validador do APK. Mesma assinatura da F/G/H. Download local
   continua indisponível pelo proxy; limites físicos permanecem os acima.
   Próxima etapa: J, 2.0.28+29.
+
+## Etapa J — testes antigos e ícone escolhido — 2.0.28+29 (em validação)
+
+- Reproduzidos os 16 testes da lista antiga: 1 aprovado, 16 falhando no arquivo
+  de navegação. Motivo de cada caso e substituição em
+  `docs/J_TESTES_ANTIGOS_2026-10-25.md`. Testes passaram a usar o chrome real
+  aprovado; o menu mantido no offline conserva testes de despachantes/retorno.
+- Bug real demonstrado no chrome atual: alvo de toque da marca com **28 dp**,
+  seis falhas contra mínimo de 48 dp. Apenas a área invisível passou a 48 dp;
+  SVG continua com 28 dp, na mesma posição. **17 testes de navegação + 1 golden
+  da Home aprovados**; as capturas parada/rolada da Início são byte a byte as
+  mesmas. Nenhuma composição visual, recorte ou fileira da Home foi alterada.
+- Variante **01_relevo** aplicada aos recursos de launcher Shikkoku, mantendo os
+  gradientes exatos do SVG escolhido. Mesmo tratamento nos demais temas com as
+  cores canônicas. Fundos adaptativos sangrados, sem assar a máscara no primeiro
+  plano; selo inteiro na zona segura. Não muda applicationId nem aliases.
+- Monocromático oficial preservado, sem relevo. Ícones de notificação usam a
+  geometria gótica pequena, 24 dp em todas as densidades. O recurso alternativo
+  `ic_stat_notification` também foi atualizado para essa marca.
+- Novo gerador usa somente a variante escolhida, os SVGs `assets/heisuca/icone_*`
+  e os vetores oficiais em `docs/marca/android/`. Substitui o script antigo que
+  recriava notificações pelo asset do Plezy. Não usa `cgflix-brand`.
+- **95 recursos gerados e conferidos por `--verify`**; `aapt2 compile` aceitou o
+  conjunto de recursos. Inspecionada a prévia local `docs/evidencias/j_icones_48px.png`:
+  SVG, composição do XML sob máscara circular e mono em 48 px, aviso em 24 px.
+  Fonte SVG da prévia ao lado. São renderizações locais, não captura de aparelho.
+- O arquivo de navegação passa a integrar o portão obrigatório. Portão completo
+  em andamento; código ainda sem commit da J, sem run da J. G/H/I encerradas
+  nos runs registrados acima. K–O não iniciadas.
+- Não testado em aparelho: atualização/caches do launcher, ícones temáticos de
+  fabricantes, TalkBack físico e instalação Android. Não se afirma aprovação
+  física; pacote e assinatura do APK serão conferidos no CI após o push.
+- Portão completo da J: **457 aprovados, 3 ignorados + 8 Impeller aprovados**,
+  `APROVADO: análise e testes concluídos.` Capturas aprovadas da Home preservadas.

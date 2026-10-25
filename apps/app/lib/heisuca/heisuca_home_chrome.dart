@@ -95,7 +95,8 @@ class _HeisucaHomeChromeState extends State<HeisucaHomeChrome> {
       Positioned(top: top + 6, left: 14, right: 14, height: 48,
         child: Row(children: [
           Semantics(button: true, label: 'Heisuca: trocar fonte', child: InkWell(onTap: heisucaKidsActive(context) ? null : () => heisucaChooseSource(context),
-            child: const HeisucaLogo(height: 28, siteHeader: true))),
+            child: const SizedBox(height: 48, child: Center(widthFactor: 1,
+              child: HeisucaLogo(height: 28, siteHeader: true))))),
           const Spacer(),
           IconButton.filledTonal(tooltip: 'Buscar', onPressed: widget.onSearch,
             style: IconButton.styleFrom(backgroundColor: widget.pageColor.withValues(alpha: 0.55), foregroundColor: foreground),

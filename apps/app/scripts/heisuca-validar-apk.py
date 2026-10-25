@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Confere o APK efetivo, além do fonte: assinatura, identidade e providers."""
 import os
+import hashlib
 from pathlib import Path
 import re
 import subprocess
@@ -61,3 +62,7 @@ for suffix in ['fileprovider', 'systemshelf.artwork']:
     assert re.search(r'android:grantUriPermissions.*(?:0xffffffff\b|"true")', block), f'{suffix}: faltam grants no APK'
 
 print(f'APK conferido: {package}, {label}, {apk.stat().st_size} bytes')
+
+# O hash do artifact é do ZIP. Registrar também o APK real, sem depender do download.
+with apk.open('rb') as content:
+    print(f'SHA-256 do APK: {hashlib.file_digest(content, "sha256").hexdigest()}')

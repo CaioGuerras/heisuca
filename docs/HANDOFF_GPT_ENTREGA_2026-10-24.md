@@ -681,3 +681,24 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   do APK, registrar o resultado; só então iniciar H (próxima 2.0.26+27).
   H–O ainda não iniciadas. Na L remover Sentry inteiro e traduções Discord;
   N/O seguem o handoff atualizado pelo Claude, inclusive changelog manual.
+- Primeiro run da G **verde** em `cf884dd`:
+  [40211659360](https://github.com/CaioGuerras/heisuca/actions/runs/40211659360),
+  [artifact 12606780964](https://github.com/CaioGuerras/heisuca/actions/runs/40211659360/artifacts/12606780964),
+  ZIP 51.148.225 bytes, SHA-256 do **ZIP**
+  `6cea1117047045aef84b859fc274cccc6a61eb639c8b59710acc997de2a9be3d`.
+  O CI conferiu APK 98.605.838 bytes, pacote `app.heisuca.player.teste.home`,
+  nome Heisuca Teste e certificado
+  `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`.
+- Limite encontrado na conferência local: o proxy recusa o CONNECT do endereço
+  Azure Blob para o qual o GitHub redireciona o artifact (403), apesar da política
+  HTTP constar como irrestrita. CLI e API retornaram o mesmo bloqueio; não houve
+  download do APK nem se confundiu hash do ZIP com hash do APK.
+- Complemento da mesma G/versão: a validação do APK passa a imprimir também seu
+  SHA-256 diretamente no CI, junto das conferências reais de pacote e assinatura.
+  Isso permite registrar o hash em todas as etapas sem depender do download local.
+  Aguardar o run do complemento antes de H. Nenhuma mudança adicional na interface.
+- Documentos da O recebidos por pull em `b7f1678`: fontes agora em
+  `docs/pesquisa_rodada2/`; o caminho ausente foi resolvido pelo Caio.
+- Complemento: manifesto fonte e compilação sintática Python aprovados; portão
+  local novamente **427 aprovados, 3 ignorados + 8 Impeller aprovados**. O hash é
+  calculado por `hashlib.file_digest` sobre o mesmo APK conferido por apksigner/aapt.

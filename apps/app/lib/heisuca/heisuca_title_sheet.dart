@@ -404,8 +404,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
       child: Scaffold(backgroundColor: c.page, body: Stack(children: [
         CustomScrollView(controller: _scroll, physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()), slivers: [
           SliverToBoxAdapter(child: SizedBox(height: height, child: Stack(fit: StackFit.expand, children: [
-            if (art != null && client != null) ShaderMask(blendMode: BlendMode.dstIn,
-              shaderCallback: heisucaHeroMask.createShader,
+            if (art != null && client != null) HeisucaArtworkMask(
               child: HeisucaParallax(controller: _scroll, child: widget.heroTag == null
                 ? OptimizedMediaImage(client: client, imagePath: art, imageType: ImageType.art, fit: BoxFit.cover)
                 : Hero(tag: widget.heroTag!, child: OptimizedMediaImage(client: client, imagePath: art, imageType: ImageType.art, fit: BoxFit.cover)))),

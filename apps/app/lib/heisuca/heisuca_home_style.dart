@@ -10,6 +10,30 @@ const heisucaHeroMask = LinearGradient(
   stops: [0, 0.52, 0.74, 0.94],
 );
 
+/// Mascara toda a cobertura rasterizada da arte, inclusive a célula física da borda.
+/// No Impeller, o parallax pode pintar a última célula parcialmente fora do rect
+/// lógico do ShaderMask. O recorte externo sozinho não garante que dstIn a cubra.
+/// Estendemos somente a área de composição da máscara por um pixel físico;
+/// imagem, quadro e coordenadas do gradiente mantêm suas medidas originais.
+class HeisucaArtworkMask extends StatelessWidget {
+  const HeisucaArtworkMask({super.key, required this.child});
+  final Widget child;
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(builder: (context, constraints) {
+    assert(constraints.hasBoundedWidth && constraints.hasBoundedHeight);
+    final size = constraints.biggest;
+    final pixel = 1 / View.of(context).devicePixelRatio;
+    return ClipRect(child: OverflowBox(alignment: Alignment.topLeft,
+      minWidth: size.width, maxWidth: size.width,
+      minHeight: size.height + pixel, maxHeight: size.height + pixel,
+      child: ShaderMask(blendMode: BlendMode.dstIn,
+        shaderCallback: (_) => heisucaHeroMask.createShader(Offset.zero & size),
+        child: Align(alignment: Alignment.topLeft,
+          child: SizedBox.fromSize(size: size, child: child))),
+    ));
+  });
+}
+
 double heisucaHeroHeight(double viewportHeight) => (viewportHeight * 0.645).clamp(480.0, 660.0);
 
 String? heisucaArtworkHash(MediaItem? item) {

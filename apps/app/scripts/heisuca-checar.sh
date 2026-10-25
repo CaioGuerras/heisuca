@@ -6,4 +6,6 @@ cd "$(dirname "$0")/.."
 flutter pub get --no-example
 flutter analyze --no-fatal-infos --no-fatal-warnings lib
 flutter test test/heisuca test/services/track_selection_service_test.dart test/cgflix/cgflix_home_test.dart test/cgflix/cgflix_cards_test.dart test/cgflix/cgflix_seerr_test.dart test/startup_bootstrap_test.dart test/widgets/video_controls_test.dart test/screens/actor_media_screen_test.dart test/services/plex_library_details_test.dart test/services/jellyfin_favorites_isolation_test.dart
+# A2: a listra só foi reproduzida com Impeller; o teste padrão sozinho não detecta a regressão.
+flutter test --enable-impeller test/heisuca/heisuca_art_edge_test.dart
 printf '%s\n' 'APROVADO: análise e testes concluídos.'

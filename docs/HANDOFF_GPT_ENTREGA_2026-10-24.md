@@ -337,6 +337,41 @@ foram alterados nesta etapa; a montagem e os dados da Início Jellyfin foram pre
   só 184 dp de rolagem, insuficientes para alcançar o topo; o teste específico de encaixe
   usa conteúdo longo. Não foi afrouxada a verificação da continuação nem do topo.
 - `bash apps/app/scripts/heisuca-checar.sh`: **aprovado**, 371 testes passaram, 3 ignorados;
-  análise sem erro/aviso novo nos arquivos tocados. Commit/run/APK aguardando CI.
+  análise sem erro/aviso novo nos arquivos tocados.
+- Código: `e690292db7dd409374df1859e5116edf346fb435` (sem skip ci).
+- [Run verde 40153760344](https://github.com/CaioGuerras/heisuca/actions/runs/40153760344), `success`.
+- [APK 2.0.18+19 — heisuca-apk](https://github.com/CaioGuerras/heisuca/actions/runs/40153760344/artifacts/12584277212).
+  Artifact: 51.223.785 bytes, não expirado na conferência. Digest ZIP:
+  `b116c389b2c4ce50450fa8c9193190c936198d9b8dd15e10e7fa4a0dc00db96d`.
+  Testes nativos, compilação ARM64 e validação do pacote/providers/assinatura passaram.
+  Certificado SHA-256 confirmado: `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`.
 - Não testado em aparelho. Não foi validado visualmente com conta real, Plex/Jellyfin
   reais ou vídeos de Caio. A2 e B–M ainda não iniciadas.
+
+## Rodada de 25/10 — etapa A2 — 2.0.19+20 — em validação
+A2 foi iniciada somente após o run verde da etapa A.
+
+- Evidência real lida; confirmado o defeito de uma fileira física (linha 88 do recorte,
+  704 cores, fundo uniforme acima/abaixo). Não foi confundido com um degradê inteiro.
+- **Reprodução anterior à correção:** o teste padrão passou, mas os quatro casos com
+  Impeller falharam, com uma fileira colorida no mesmo limite da arte. Exemplo:
+  rolagem 32,125 dp, DPR 2,97, borda 1653,82875 px; 1220 pixels divergentes.
+- Controle sem parallax passou. ClipRect externo sozinho não resolveu; não foi adotado
+  como correção isolada. A causa reproduzida é cobertura subpixel da composição da máscara
+  com a imagem transformada no Impeller, não o gradiente dentro de Transform.
+- Novo `HeisucaArtworkMask` comum à ficha e Início garante cobertura da célula física
+  da borda, ampliando só a composição da máscara por um pixel físico. Imagem, quadro,
+  alinhamento e coordenadas do gradiente mantêm as medidas originais.
+- Primeira matriz corrigida: **4 passaram no Impeller**. Matriz final ampliada aprovada:
+  dois DPRs × dois quadros × parallax ligado/desligado, 184 quadros por renderizador.
+- Golden anterior verifica composição em repouso com tolerância máxima de 1/255 por
+  canal; a verificação da borda é exata. Comparação das capturas, fora da borda,
+  também teve diferença máxima de 1/255. Nenhuma troca de recorte ou montagem de fileiras.
+- Teste com Impeller adicionado ao `checar.sh` para impedir que a regressão volte verde
+  apenas porque o renderizador padrão não mostra o defeito.
+- Evidências, método e capturas sintéticas de antes/depois em
+  `docs/evidencias/A2_REPRODUCAO_2026-10-25.md`. Não são capturas do aparelho nem do acervo.
+- Portão completo aprovado: análise sem erro/aviso novo, **379 testes aprovados e
+  3 ignorados** na suíte padrão, mais **8 aprovados com Impeller**. Commit/run/APK aguardando CI.
+- **Não testado em aparelho.** A reprodução equivalente no Flutter tester não confirma
+  a correção física no Edge 60 Pro. B–M ainda não iniciadas.

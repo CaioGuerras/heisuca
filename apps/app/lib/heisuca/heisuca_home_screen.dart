@@ -499,9 +499,8 @@ class _HeisucaHeroState extends State<_HeisucaHero> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            ShaderMask(
-              key: const ValueKey('heisuca-hero-mask'), blendMode: BlendMode.dstIn,
-              shaderCallback: (bounds) => heisucaHeroMask.createShader(bounds),
+            HeisucaArtworkMask(
+              key: const ValueKey('heisuca-hero-mask'),
               child: HeisucaParallax(controller: widget.scrollController, child: AnimatedSwitcher(
                 duration: HeisucaMotion.durationFor(context),
                 child: OptimizedMediaImage(

@@ -77,12 +77,16 @@ class JellyfinEndpointProbeResult {
   final String? effectiveBaseUrl;
   final String? failureType;
 
+  /// Motivo técnico da falha (sem o endereço: o registro passa por `_sanitizeEndpointFields`).
+  final String? failureReason;
+
   const JellyfinEndpointProbeResult({
     required this.success,
     required this.latencyMs,
     this.serverInfo,
     this.effectiveBaseUrl,
     this.failureType,
+    this.failureReason,
   });
 }
 
@@ -231,7 +235,11 @@ class JellyfinEndpointDiscovery {
       candidates: candidates,
       preferredUrl: preferred,
       urlOf: (candidate) => candidate.url,
-      failureLogFields: (candidate, result) => {'failureType': result.failureType, 'latencyMs': result.latencyMs},
+      failureLogFields: (candidate, result) => {
+        'failureType': result.failureType,
+        if (result.failureReason != null) 'failureReason': result.failureReason,
+        'latencyMs': result.latencyMs,
+      },
       probe: (candidate, timeout) {
         final identityProbe = _probeWithLatency(
           candidate.url,
@@ -376,6 +384,7 @@ class JellyfinEndpointDiscovery {
         success: false,
         latencyMs: stopwatch.elapsedMilliseconds,
         failureType: e.runtimeType.toString(),
+        failureReason: e is MediaServerUrlException ? e.message : null,
       );
     }
   }
@@ -391,6 +400,7 @@ class JellyfinEndpointDiscovery {
           success: false,
           latencyMs: result.latencyMs,
           failureType: result.failureType,
+          failureReason: result.failureReason,
           serverInfo: info,
           effectiveBaseUrl: effectiveBaseUrl,
         );

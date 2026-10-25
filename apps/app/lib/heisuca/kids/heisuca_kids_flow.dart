@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
-import '../../cgflix/cgflix_palette.dart';
+import '../../cgflix/cgflix_theme.dart';
+import 'heisuca_kids_photo.dart';
 import '../../connection/connection.dart';
 import '../../profiles/active_profile_provider.dart';
 import '../../profiles/profile.dart';
@@ -52,7 +53,7 @@ Future<void> heisucaEnterKids(BuildContext context) async {
   final existing = kids.forParent(parent.id);
   final existingProfile = existing == null ? null : profiles.profiles.where((p) => p.id == existing.kidsProfileId).firstOrNull;
   if (existing != null && existingProfile != null) {
-    await heisucaRunUnderKidsOpening(context, variant: existing.variant, name: existing.name,
+    await heisucaRunUnderKidsOpening(context, variant: existing.variant, name: existing.name, photo: existingProfile.avatarThumbUrl,
       work: () => switchProfileFromUi(context, existingProfile));
     return;
   }
@@ -97,7 +98,7 @@ Future<void> heisucaEnterKids(BuildContext context) async {
   await kids.save(HeisucaKidsRecord(parentProfileId: parent.id, kidsProfileId: kidsProfile.id, variant: setup.variant,
     ceiling: setup.ceiling, pinHash: computePinHash(setup.pin), name: setup.name));
   if (!context.mounted) return;
-  await heisucaRunUnderKidsOpening(context, variant: setup.variant, name: setup.name,
+  await heisucaRunUnderKidsOpening(context, variant: setup.variant, name: setup.name, photo: kidsProfile.avatarThumbUrl,
     work: () => switchProfileFromUi(context, kidsProfile));
 }
 
@@ -142,7 +143,8 @@ class HeisucaKidsSetup {
 }
 
 class HeisucaKidsSetupScreen extends StatefulWidget {
-  const HeisucaKidsSetupScreen({super.key});
+  const HeisucaKidsSetupScreen({super.key, this.pickPhoto = heisucaPickProfilePhoto});
+  final Future<String?> Function() pickPhoto;
   @override
   State<HeisucaKidsSetupScreen> createState() => _HeisucaKidsSetupScreenState();
 }
@@ -180,7 +182,7 @@ class _HeisucaKidsSetupScreenState extends State<HeisucaKidsSetupScreen> {
   @override
   Widget build(BuildContext context) {
     final palette = CgflixPalette.forVariant(_variant ?? CgflixThemeVariant.heitor);
-    final scheme = Theme.of(context).colorScheme;
+
     Widget page({required String title, required String body, List<Widget> children = const []}) => ListView(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 24), children: [
         Text(title, style: TextStyle(fontFamily: 'Fredoka', fontVariations: const [FontVariation('wght', 600)],
@@ -205,7 +207,7 @@ class _HeisucaKidsSetupScreenState extends State<HeisucaKidsSetupScreen> {
             ])),
             if (selected) Icon(Icons.check_circle_rounded, color: palette.accent),
           ])))));
-    return Theme(data: Theme.of(context).copyWith(colorScheme: scheme.copyWith(primary: palette.accent)), child: Scaffold(
+    return Theme(data: cgflixAppTheme(_variant ?? CgflixThemeVariant.heitor), child: Scaffold(
       backgroundColor: palette.background,
       appBar: AppBar(backgroundColor: Colors.transparent, foregroundColor: palette.onGlass, elevation: 0,
         title: Text('Modo infantil · ${_step + 1} de 3', style: TextStyle(color: palette.onGlass, fontSize: 15))),
@@ -219,9 +221,11 @@ class _HeisucaKidsSetupScreenState extends State<HeisucaKidsSetupScreen> {
             TextField(controller: _name, maxLength: 24, textCapitalization: TextCapitalization.words,
               style: TextStyle(color: palette.onGlass),
               decoration: const InputDecoration(labelText: 'Nome da criança', hintText: 'Como aparece no “Oi, …!”')),
-            OutlinedButton.icon(icon: const Icon(Icons.add_a_photo_outlined), label: Text(_photo == null ? 'Escolher foto' : 'Foto escolhida · trocar'),
+            if (_photo != null) Center(child: Padding(padding: const EdgeInsets.symmetric(vertical: 12),
+              child: HeisucaKidsPhoto(uri: _photo, size: 96, fallback: const Icon(Icons.add_a_photo_outlined, size: 48)))),
+            OutlinedButton.icon(icon: const Icon(Icons.add_a_photo_outlined), label: Text(_photo == null ? 'Escolher foto' : 'Trocar foto'),
               onPressed: () async {
-                try { final photo = await heisucaPickProfilePhoto(); if (mounted && photo != null) setState(() => _photo = photo); }
+                try { final photo = await widget.pickPhoto(); if (mounted && photo != null) setState(() => _photo = photo); }
                 catch (_) { if (context.mounted) _say(context, 'Escolha uma imagem de até 8 MB.'); }
               }),
             const SizedBox(height: 14),

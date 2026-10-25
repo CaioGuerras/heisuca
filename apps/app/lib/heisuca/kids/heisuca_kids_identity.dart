@@ -7,6 +7,7 @@ import 'package:uuid/uuid.dart';
 import '../../profiles/active_profile_provider.dart';
 import '../../profiles/profile_registry.dart';
 import 'heisuca_kids.dart';
+import 'heisuca_kids_photo.dart';
 import 'heisuca_kids_flow.dart';
 import '../../profiles/profile.dart';
 import '../../services/jellyfin_client.dart';
@@ -30,7 +31,8 @@ Future<String?> heisucaPickProfilePhoto() async {
 /// Perfil infantil (menu do responsável): nome, foto, tema, classificação e PIN, com retorno visível.
 /// A classificação é aplicada no SERVIDOR (cgflix-kids), com a sessão do responsável.
 class HeisucaKidsIdentityScreen extends StatefulWidget {
-  const HeisucaKidsIdentityScreen({super.key, required this.record});
+  const HeisucaKidsIdentityScreen({super.key, required this.record, this.pickPhoto = heisucaPickProfilePhoto});
+  final Future<String?> Function() pickPhoto;
   final HeisucaKidsRecord record;
   @override State<HeisucaKidsIdentityScreen> createState() => _HeisucaKidsIdentityScreenState();
 }
@@ -55,7 +57,7 @@ class _HeisucaKidsIdentityScreenState extends State<HeisucaKidsIdentityScreen> {
   void _say(String text) => ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(text)));
 
   Future<void> _pick() async {
-    try { final p = await heisucaPickProfilePhoto(); if (mounted && p != null) setState(() => _photo = p); }
+    try { final p = await widget.pickPhoto(); if (mounted && p != null) setState(() => _photo = p); }
     catch (_) { if (mounted) _say('Não foi possível abrir a foto. Use uma imagem de até 8 MB.'); }
   }
 
@@ -115,10 +117,11 @@ class _HeisucaKidsIdentityScreenState extends State<HeisucaKidsIdentityScreen> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)))));
     final photo = _photo;
     return Scaffold(appBar: AppBar(title: const Text('Perfil infantil')), body: ListView(padding: const EdgeInsets.all(20), children: [
-      Center(child: GestureDetector(onTap: _saving ? null : _pick, child: CircleAvatar(radius: 48,
-        backgroundColor: scheme.onSurface.withValues(alpha: .08),
-        foregroundImage: photo == null ? null : (photo.startsWith('file:') ? FileImage(File.fromUri(Uri.parse(photo))) : NetworkImage(photo)) as ImageProvider,
-        child: const Icon(Icons.add_a_photo_outlined, size: 32)))),
+      Center(child: Semantics(button: true, label: photo == null ? 'Escolher foto' : 'Trocar foto',
+        child: InkWell(onTap: _saving ? null : _pick, customBorder: const CircleBorder(),
+          child: HeisucaKidsPhoto(uri: photo, size: 96, fallback: CircleAvatar(radius: 48,
+            backgroundColor: scheme.onSurface.withValues(alpha: .08),
+            child: const Icon(Icons.add_a_photo_outlined, size: 32)))))),
       Center(child: TextButton(onPressed: _saving ? null : _pick, child: Text(photo == null ? 'Escolher foto' : 'Trocar foto'))),
       const SizedBox(height: 8),
       TextField(controller: _name, maxLength: 24, textCapitalization: TextCapitalization.words,

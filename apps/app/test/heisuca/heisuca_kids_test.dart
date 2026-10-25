@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,6 +9,9 @@ import 'package:plezy/cgflix/cgflix_palette.dart';
 import 'package:plezy/cgflix/cgflix_theme.dart';
 import 'package:plezy/heisuca/heisuca_profile_screen.dart';
 import 'package:plezy/heisuca/kids/heisuca_kids.dart';
+import 'package:plezy/heisuca/kids/heisuca_kids_flow.dart';
+import 'package:plezy/heisuca/kids/heisuca_kids_identity.dart';
+import 'package:plezy/heisuca/kids/heisuca_kids_photo.dart';
 import 'package:plezy/heisuca/kids/heisuca_kids_opening.dart';
 import 'package:plezy/profiles/active_profile_provider.dart';
 import 'package:plezy/profiles/profile.dart';
@@ -83,6 +88,87 @@ void main() {
     expect(cgflixAppTheme(CgflixThemeVariant.ichigo).extension<CgflixPalette>()?.variant, CgflixThemeVariant.ichigo);
     expect(cgflixAppTheme(CgflixThemeVariant.sorairo).colorScheme.primary, const Color(0xFF1F6FC5));
     expect([for (final v in CgflixThemeVariant.values) if (!v.isKids) v], [CgflixThemeVariant.isis, CgflixThemeVariant.heitor]);
+  });
+
+  for (final variant in [CgflixThemeVariant.ichigo, CgflixThemeVariant.sorairo]) {
+    testWidgets('criação ${variant.name}: campo tem contraste antes do toque', (tester) async {
+      tester.view.physicalSize = const Size(412, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(MaterialApp(theme: cgflixAppTheme(CgflixThemeVariant.isis),
+        home: const HeisucaKidsSetupScreen()));
+      await tester.tap(find.text('Continuar'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(variant == CgflixThemeVariant.ichigo ? 'Menina · Ichigo' : 'Menino · Sorairo'));
+      await tester.pumpAndSettle();
+      final field = find.byType(TextField);
+      final theme = Theme.of(tester.element(field));
+      final background = CgflixPalette.forVariant(variant).background;
+      final label = theme.inputDecorationTheme.labelStyle?.color ?? theme.colorScheme.onSurfaceVariant;
+      final ratio = (label.computeLuminance() + .05) / (background.computeLuminance() + .05);
+      expect(ratio < 1 ? 1 / ratio : ratio, greaterThanOrEqualTo(4.5));
+      expect(theme.brightness, Brightness.light);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('foto local aparece na criação, na edição e na abertura', (tester) async {
+    final semantics = tester.ensureSemantics();
+    try {
+      tester.view.physicalSize = const Size(412, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final dir = Directory.systemTemp.createTempSync('heisuca-kids-');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final file = File('${dir.path}/foto.png')..writeAsBytesSync(base64Decode(
+        'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAGUlEQVR4nGO8I2fEQApgIkn1qIZRDUNKAwDJTwFMq+x9qAAAAABJRU5ErkJggg=='));
+      final uri = file.uri.toString();
+      Future<void> checkPhoto() async {
+        for (var attempt = 0; attempt < 10; attempt++) {
+          await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+          await tester.pump();
+          if (find.byType(RawImage).evaluate().isNotEmpty && tester.widget<RawImage>(find.byType(RawImage).first).image != null) break;
+        }
+        expect(find.byType(ClipOval), findsOneWidget);
+        final image = tester.widget<Image>(find.byType(Image).first);
+        final resized = image.image as ResizeImage;
+        expect((resized.imageProvider as FileImage).file.uri.toString(), uri);
+        expect(tester.widget<RawImage>(find.byType(RawImage).first).image, isNotNull);
+        expect(image.fit, BoxFit.cover);
+        expect(find.bySemanticsLabel(RegExp('Foto da criança')), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      }
+      await tester.pumpWidget(MaterialApp(theme: cgflixAppTheme(), home: HeisucaKidsSetupScreen(pickPhoto: () async => uri)));
+      await tester.tap(find.text('Continuar'));
+      await tester.pumpAndSettle();
+      await tester.runAsync(() async {
+        await tester.tap(find.text('Escolher foto'));
+        await tester.pump();
+      });
+      await checkPhoto();
+      final profiles = _Profiles(_child.copyWith(avatarThumbUrl: uri));
+      addTearDown(profiles.dispose);
+      await tester.runAsync(() => tester.pumpWidget(ChangeNotifierProvider<ActiveProfileProvider>.value(value: profiles,
+        child: MaterialApp(theme: cgflixAppTheme(CgflixThemeVariant.ichigo),
+          home: HeisucaKidsIdentityScreen(record: _record, pickPhoto: () async => uri)))));
+      await tester.pumpAndSettle();
+      await checkPhoto();
+      await tester.runAsync(() => tester.pumpWidget(MaterialApp(home: HeisucaKidsOpening(variant: CgflixThemeVariant.ichigo, name: 'Ana', photo: uri))));
+      await tester.pumpAndSettle();
+      await checkPhoto();
+      await tester.pumpWidget(const SizedBox());
+      imageCache.clear();
+      imageCache.clearLiveImages();
+    } finally { semantics.dispose(); }
+  });
+
+  testWidgets('foto ausente, inválida ou remota conserva a assinatura sem abrir rede', (tester) async {
+    for (final uri in [null, 'https://exemplo.invalid/foto.jpg', 'não é arquivo']) {
+      await tester.pumpWidget(MaterialApp(home: HeisucaKidsPhoto(uri: uri, size: 96,
+        fallback: const Text('Assinatura infantil'))));
+      expect(find.text('Assinatura infantil'), findsOneWidget);
+      expect(find.byType(Image), findsNothing);
+    }
   });
 
   test('mensagens da ativação no servidor em português', () {

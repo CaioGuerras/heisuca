@@ -647,3 +647,30 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   `40199848233` (cancelado) foi substituído. Vínculo Plex↔Jellyfin lido só dos feeds do servidor (`plex` em
   `emalta/embreve.json`), sem nome de servidor fixo. G–M seguem com o Codex; depois a etapa N
   (`docs/RETORNO_CAIO_2026-10-25_TARDE.md`).
+
+## Etapa G — modo infantil — 2.0.25+26 (em validação)
+
+- Retomada sobre `66d45a5`, após pull dos documentos do Claude. F permanece encerrada
+  no run `40200689682`; não foi refeita.
+- Causa do campo invisível: a criação trocava a paleta de fundo, mas herdava o tema
+  escuro do responsável, mudando apenas `primary`. Agora aplica o tema infantil
+  completo, o mesmo usado quando o perfil está ativo. Teste antes: contraste do
+  rótulo **1,071:1 (Ichigo)** e **1,079:1 (Sorairo)**, abaixo de 4,5:1; falhou nos dois.
+  Depois: os dois testes passam, antes de tocar no campo, partindo de tema escuro.
+- Foto em círculo na criação e edição, com um componente comum. A abertura recebe
+  a foto já salva no perfil, tanto no primeiro acesso quanto no retorno ao modo
+  infantil. Decodificação limitada ao tamanho físico exibido. Só aceita URI local;
+  sem foto, com URI inválida/remota ou erro de leitura, usa a assinatura infantil.
+- Abertura também respeita `DevicePerformance.isReduced`, além da preferência do
+  sistema. Tema infantil escuro continua fora desta etapa.
+- **13 testes infantis aprovados, 1 captura opcional ignorada**: imagem local
+  efetivamente decodificada nos três destinos, recorte circular, origem do arquivo,
+  semântica, rejeição de imagem remota e contraste dos dois temas.
+- Portão completo e Actions: em andamento; preencher commit, run, artifact,
+  SHA-256 do APK e certificado depois de conferir o resultado real.
+- Não testado em aparelho: seletor de fotos do Android, persistência após reiniciar,
+  troca de sessão com servidor real, TalkBack físico e aprovação visual do Caio.
+  Nenhuma alteração na Início do Jellyfin.
+- Portão local final: **427 aprovados, 3 ignorados + 8 Impeller aprovados**,
+  `APROVADO: análise e testes concluídos.` A prova da foto inclui o `RawImage`
+  decodificado, não apenas a presença do widget. Registro do CI segue após o push.

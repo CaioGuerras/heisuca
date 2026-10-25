@@ -5,6 +5,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../cgflix/cgflix_palette.dart';
+import '../../services/device_performance.dart';
+import 'heisuca_kids_photo.dart';
 
 /// (x %, y %, tamanho em vmin, giro em graus, atraso em ms, figura Ichigo, figura Sorairo) — copiado do kids.html.
 const _figures = <(double, double, double, double, int, String, String)>[
@@ -20,14 +22,15 @@ const _bounce = Cubic(.34, 1.45, .64, 1);
 const _hold = 1600, _exit = 240;
 
 class HeisucaKidsOpening extends StatefulWidget {
-  const HeisucaKidsOpening({super.key, required this.variant, required this.name, this.onFinished});
+  const HeisucaKidsOpening({super.key, required this.variant, required this.name, this.photo, this.onFinished});
   final CgflixThemeVariant variant;
   final String name;
+  final String? photo;
   final VoidCallback? onFinished;
 
   /// Total da animação (o fluxo usa como tempo mínimo da cobertura enquanto troca a sessão).
   static Duration durationFor(BuildContext context) =>
-      MediaQuery.disableAnimationsOf(context) ? const Duration(milliseconds: 600) : const Duration(milliseconds: _hold + _exit);
+      (DevicePerformance.isReduced || MediaQuery.disableAnimationsOf(context)) ? const Duration(milliseconds: 600) : const Duration(milliseconds: _hold + _exit);
 
   @override
   State<HeisucaKidsOpening> createState() => _HeisucaKidsOpeningState();
@@ -41,7 +44,7 @@ class _HeisucaKidsOpeningState extends State<HeisucaKidsOpening> with SingleTick
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_c.duration != null) return;
-    _reduced = MediaQuery.disableAnimationsOf(context);
+    _reduced = DevicePerformance.isReduced || MediaQuery.disableAnimationsOf(context);
     _c.duration = HeisucaKidsOpening.durationFor(context);
     _c.forward().whenComplete(() { if (mounted) widget.onFinished?.call(); });
   }
@@ -92,7 +95,8 @@ class _HeisucaKidsOpeningState extends State<HeisucaKidsOpening> with SingleTick
     return Center(child: Opacity(opacity: 1 - exit, child: Transform.scale(scale: 1 - exit * .12, child: Column(
       mainAxisSize: MainAxisSize.min, children: [
         Transform.scale(scale: selo, child: SizedBox.square(dimension: 22 * vmin,
-          child: SvgPicture.asset('assets/heisuca/kids/selo_${widget.variant.name}.svg', semanticsLabel: 'Heisuca infantil'))),
+          child: HeisucaKidsPhoto(uri: widget.photo, size: 22 * vmin,
+            fallback: SvgPicture.asset('assets/heisuca/kids/selo_${widget.variant.name}.svg', semanticsLabel: 'Heisuca infantil')))),
         SizedBox(height: 3 * vmin),
         Opacity(opacity: hi, child: Transform.translate(offset: Offset(0, (1 - hi) * 3 * vmin), child: Text('Oi$name!',
           textAlign: TextAlign.center,
@@ -109,11 +113,11 @@ class _HeisucaKidsOpeningState extends State<HeisucaKidsOpening> with SingleTick
 /// Mostra a abertura por cima de tudo (navegador raiz) enquanto [work] troca a sessão; só sai
 /// quando a animação termina E o trabalho acaba (cobertura do plano: esconde a troca).
 Future<T> heisucaRunUnderKidsOpening<T>(BuildContext context, {required CgflixThemeVariant variant,
-    required String name, required Future<T> Function() work}) async {
+    required String name, String? photo, required Future<T> Function() work}) async {
   final navigator = Navigator.of(context, rootNavigator: true);
   final minimum = Future<void>.delayed(HeisucaKidsOpening.durationFor(context));
   final route = MaterialPageRoute<void>(fullscreenDialog: true,
-    builder: (_) => PopScope(canPop: false, child: HeisucaKidsOpening(variant: variant, name: name)));
+    builder: (_) => PopScope(canPop: false, child: HeisucaKidsOpening(variant: variant, name: name, photo: photo)));
   navigator.push(route);
   try {
     final result = await work();

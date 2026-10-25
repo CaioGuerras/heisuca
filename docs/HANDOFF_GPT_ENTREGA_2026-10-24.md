@@ -312,3 +312,31 @@ O último código validado continua sendo `97d9e5e9624cb8cb7ab637bf05018efe82d06
 
 Este commit é exclusivamente documental e usa skip ci. Não há código de etapa nova
 somente em commit skip ci. A próxima versão de código permanece **2.0.18+19**.
+
+## Rodada de 25/10 — etapa A retomada — 2.0.18+19
+Base atualizada para `a972f34`: a listra foi separada na etapa A2, com evidências reais.
+O bloqueio anterior não se aplica aos demais ajustes da A. Parallax/máscara/arte não
+foram alterados nesta etapa; a montagem e os dados da Início Jellyfin foram preservados.
+
+- A abertura usa `HeisucaLogo(siteHeader: true)`: os mesmos SVGs oficiais por tema da
+  Início. O texto digitado da marca e o selo separado saíram desta abertura.
+- Brilho reduzido (halo e sombra), slogan em cor opaca com contraste AA nos dois temas.
+  O sinal de reduzir movimento e `DevicePerformance.isReduced` encerram a animação sem
+  espera animada. Não foi feita medição de desempenho em aparelho.
+- Sora variável declarada no pubspec; `Sora-LICENSE.txt` ao lado, com o copyright do
+  projeto Sora e SIL OFL 1.1, obtida do repositório oficial Google Fonts:
+  https://raw.githubusercontent.com/google/fonts/main/ofl/sora/OFL.txt .
+- Favoritos da Biblioteca sem coração, como os chips vizinhos.
+- A ficha usa o mesmo `HeisucaHomeChrome` da Início: título acompanha a âncora e encaixa
+  entre marca e busca, com retorno e ação de continuação disponíveis. O cabeçalho
+  duplicado da ficha foi removido. Parâmetros novos conservam os padrões da Início;
+  a região de toque do título tem pelo menos 48 dp de altura sem aumentar a arte.
+- Testes direcionados: **12 passaram**. Incluem SVG por tema, slogan AA, redução de
+  movimento, encaixe do título nos dois formatos, busca e continuidade/temporadas reais
+  com fixtures. A expectativa de encaixe na ficha curta foi corrigida: a fixture tem
+  só 184 dp de rolagem, insuficientes para alcançar o topo; o teste específico de encaixe
+  usa conteúdo longo. Não foi afrouxada a verificação da continuação nem do topo.
+- `bash apps/app/scripts/heisuca-checar.sh`: **aprovado**, 371 testes passaram, 3 ignorados;
+  análise sem erro/aviso novo nos arquivos tocados. Commit/run/APK aguardando CI.
+- Não testado em aparelho. Não foi validado visualmente com conta real, Plex/Jellyfin
+  reais ou vídeos de Caio. A2 e B–M ainda não iniciadas.

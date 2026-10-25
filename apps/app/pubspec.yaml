@@ -1,7 +1,7 @@
 name: plezy
 description: "Heisuca. Nada entre você e o filme. Cliente cinematográfico multiplataforma para Jellyfin, Plex, WebDAV e SMB."
 publish_to: "none"
-version: 2.0.17+18
+version: 2.0.18+19
 
 environment:
   # Dart floor stays 3.12: freezed 3.x emits `final` constructor parameters,
@@ -171,6 +171,10 @@ flutter:
   # Registered as UI font families so the Linux build, whose fontconfig may
   # lack CJK fonts, can fall back to the bundled subtitle fonts (mono_theme).
   fonts:
+    # Heisuca: Sora variável, SIL OFL 1.1 em assets/fonts/Sora-LICENSE.txt.
+    - family: Sora
+      fonts:
+        - asset: assets/fonts/Sora-VF.ttf
     - family: Go Noto Current
       fonts:
         - asset: assets/go-noto-current-regular.ttf

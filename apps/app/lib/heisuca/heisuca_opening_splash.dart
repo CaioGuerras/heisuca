@@ -1,9 +1,8 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../cgflix/cgflix_palette.dart';
-import 'heisuca_design_system.dart';
+import 'heisuca_logo.dart';
+import '../services/device_performance.dart';
 import 'heisuca_theme.dart';
 
 /// Tela de Abertura Única Heisuca (炳素華)
@@ -23,8 +22,7 @@ class HeisucaOpeningSplash extends StatefulWidget {
   State<HeisucaOpeningSplash> createState() => _HeisucaOpeningSplashState();
 }
 
-class _HeisucaOpeningSplashState extends State<HeisucaOpeningSplash>
-    with SingleTickerProviderStateMixin {
+class _HeisucaOpeningSplashState extends State<HeisucaOpeningSplash> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _haloFade;
   late Animation<double> _sealScale;
@@ -55,9 +53,20 @@ class _HeisucaOpeningSplashState extends State<HeisucaOpeningSplash>
       parent: _controller,
       curve: const Interval(0.65, 0.95, curve: Curves.easeOut),
     );
+  }
 
+  bool _started = false;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_started) return;
+    _started = true;
+    if (DevicePerformance.isReduced || MediaQuery.disableAnimationsOf(context)) {
+      _controller.duration = Duration.zero;
+    }
     _controller.forward().then((_) {
-      HapticFeedback.lightImpact();
+      if (!mounted) return;
+      if (!DevicePerformance.isReduced && !MediaQuery.disableAnimationsOf(context)) HapticFeedback.lightImpact();
       widget.onAnimationFinished();
     });
   }
@@ -76,11 +85,7 @@ class _HeisucaOpeningSplashState extends State<HeisucaOpeningSplash>
     final bg = isLight ? const Color(0xFFF7F3EC) : const Color(0xFF0E0B16);
     final accent = isLight ? const Color(0xFF047857) : const Color(0xFF9D74FF);
     final glowColor = isLight ? const Color(0xFF059669) : const Color(0xFF7444E0);
-    final seloAsset = isLight
-        ? 'assets/heisuca/selo_pequeno_hisui.svg'
-        : 'assets/heisuca/selo_pequeno_shikkoku.svg';
-    final textColor = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
-    final sloganColor = isLight ? const Color(0xFF047857) : const Color(0xFFA99FBB);
+    final sloganColor = isLight ? const Color(0xFF134E4A) : const Color(0xFFCBC0DE);
 
     return Scaffold(
       backgroundColor: bg,
@@ -93,85 +98,52 @@ class _HeisucaOpeningSplashState extends State<HeisucaOpeningSplash>
             children: [
               // 1. Halo Radial Luminoso Dinâmico
               Opacity(
-                opacity: _haloFade.value * 0.45,
+                opacity: _haloFade.value * 0.12,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     gradient: RadialGradient(
                       center: Alignment.center,
                       radius: 0.85,
-                      colors: [
-                        accent.withOpacity(0.40),
-                        glowColor.withOpacity(0.15),
-                        Colors.transparent,
-                      ],
+                      colors: [accent.withOpacity(0.40), glowColor.withOpacity(0.15), Colors.transparent],
                       stops: const [0.0, 0.50, 1.0],
                     ),
                   ),
                 ),
               ),
 
-              // 2. Selo Kanji Tradicional (炳素華)
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Transform.scale(
                     scale: _sealScale.value,
                     child: Container(
-                      width: 88.0,
-                      height: 120.0,
+                      padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(22.0),
                         boxShadow: [
                           BoxShadow(
-                            color: glowColor.withOpacity(0.40 * _sealScale.value),
-                            blurRadius: 28.0,
-                            spreadRadius: 2.0,
+                            color: glowColor.withValues(alpha: .10 * _sealScale.value.clamp(0, 1)),
+                            blurRadius: 14,
                           ),
                         ],
                       ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(22.0),
-                        child: SvgPicture.asset(
-                          seloAsset,
-                          fit: BoxFit.contain,
-                        ),
-                      ),
+                      child: Opacity(opacity: _textFade.value, child: const HeisucaLogo(height: 72, siteHeader: true)),
                     ),
                   ),
-
-                  const SizedBox(height: 28.0),
-
-                  // 3. Marca Nominal HEISUCA
-                  Opacity(
-                    opacity: _textFade.value,
-                    child: Transform.translate(
-                      offset: Offset(0, 10.0 * (1.0 - _textFade.value)),
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Opacity(
+                      opacity: _sloganFade.value,
                       child: Text(
-                        'HEISUCA',
+                        'Nada entre você e o filme.',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontFamily: HeisucaTheme.fonteTitulo,
-                          fontSize: 28.0,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 4.5,
-                          color: textColor,
+                          fontFamily: HeisucaTheme.fonteTexto,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          letterSpacing: .4,
+                          color: sloganColor,
                         ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 10.0),
-
-                  // 4. Slogan Cinematográfico
-                  Opacity(
-                    opacity: _sloganFade.value,
-                    child: Text(
-                      'Nada entre você e o filme.',
-                      style: TextStyle(
-                        fontFamily: HeisucaTheme.fonteTexto,
-                        fontSize: 14.0,
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: 0.4,
-                        color: sloganColor.withOpacity(0.85),
                       ),
                     ),
                   ),

@@ -56,7 +56,8 @@ void main() {
     expect(items.single.isMovie, isTrue);
   });
 
-  testWidgets('logo sobe com o conteúdo, encaixa sem barra e preserva busca', (tester) async {
+  for (final detail in [false, true]) {
+  testWidgets('logo sobe com o conteúdo, encaixa sem barra e preserva busca (ficha: $detail)', (tester) async {
     tester.view.physicalSize = const Size(412, 914);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -67,16 +68,18 @@ void main() {
     var docked = false;
     await tester.pumpWidget(MaterialApp(theme: cgflixAppTheme(CgflixThemeVariant.isis), home: Scaffold(body: Stack(children: [
       ListView(controller: controller, padding: EdgeInsets.zero, children: [
-        const SizedBox(height: 420), SizedBox(key: anchor, height: 56), const SizedBox(height: 1200),
+        const SizedBox(height: 420), SizedBox(key: anchor, height: detail ? 104 : 56), const SizedBox(height: 1200),
       ]),
       Positioned.fill(child: HeisucaHomeChrome(scrollController: controller, logoAnchor: anchor,
+        expandedLogoWidth: detail ? 364 : null, expandedLogoHeight: detail ? 104 : 56,
+        expandedTitleSize: detail ? 32 : 23, onBack: detail ? () {} : null,
         pageColor: const Color(0xFF232138), item: MediaItem.jellyfin(id: 'movie', kind: MediaKind.movie, title: 'Título real'),
         onSearch: () => searches++, onHome: () {}, onDockedChanged: (value) => docked = value)),
     ]))));
     await tester.pumpAndSettle();
     final logo = find.byKey(const ValueKey('heisuca-docking-logo'));
     final initial = tester.getRect(logo);
-    expect(initial.center.dy, closeTo(448, 1));
+    expect(initial.center.dy, closeTo(detail ? 472 : 448, 1));
     expect(find.byType(BackdropFilter), findsNothing);
     expect(find.byKey(const ValueKey('heisuca-top-veil')), findsNothing);
     controller.jumpTo(500);
@@ -90,4 +93,5 @@ void main() {
     await tester.tap(find.byTooltip('Buscar'));
     expect(searches, 1);
   });
+  }
 }

@@ -14,12 +14,18 @@ import 'heisuca_title_sheet.dart';
 class HeisucaHomeChrome extends StatefulWidget {
   const HeisucaHomeChrome({super.key, required this.scrollController, required this.logoAnchor,
     required this.pageColor, required this.onSearch, required this.onHome, required this.onDockedChanged,
-    this.item, this.client});
+    this.item, this.client, this.onBack, this.onTitleTap, this.belowHeaderAction, this.titleFontFamily,
+    this.expandedLogoWidth, this.expandedLogoHeight = 56, this.expandedTitleSize = 23});
   final ScrollController scrollController;
   final GlobalKey logoAnchor;
   final Color pageColor;
   final MediaItem? item;
   final MediaServerClient? client;
+  final VoidCallback? onBack, onTitleTap;
+  final Widget? belowHeaderAction;
+  final String? titleFontFamily;
+  final double? expandedLogoWidth;
+  final double expandedLogoHeight, expandedTitleSize;
   final VoidCallback onSearch;
   final VoidCallback onHome;
   final ValueChanged<bool> onDockedChanged;
@@ -68,7 +74,7 @@ class _HeisucaHomeChromeState extends State<HeisucaHomeChrome> {
     final width = MediaQuery.sizeOf(context).width;
     final foreground = context.cgflix.isLight ? const Color(0xFF1C2421) : const Color(0xFFF4F1FA);
     final rect = _anchor;
-    final naturalWidth = math.min(width * 0.54, 210.0);
+    final naturalWidth = widget.expandedLogoWidth ?? math.min(width * 0.54, 210.0);
     final brandWidth = 28 * 637.981715 / 206;
     final sideGap = math.min(width / 2 - 14 - brandWidth, width / 2 - 14 - 48);
     final room = (sideGap * 2 - 40).clamp(naturalWidth * 0.3, naturalWidth);
@@ -77,7 +83,8 @@ class _HeisucaHomeChromeState extends State<HeisucaHomeChrome> {
     final target = top + 30;
     final progress = ((target + 140 - center) / 140).clamp(0.0, 1.0);
     final scale = 1 - (1 - dockScale) * progress;
-    final logoWidth = naturalWidth * scale, logoHeight = 56 * scale;
+    final logoWidth = naturalWidth * scale, logoHeight = widget.expandedLogoHeight * scale;
+    final tapHeight = math.max(48.0, logoHeight);
 
     return Stack(clipBehavior: Clip.none, children: [
       if (_docked) Positioned(top: 0, left: 0, right: 0, height: top + 96,
@@ -94,18 +101,24 @@ class _HeisucaHomeChromeState extends State<HeisucaHomeChrome> {
             style: IconButton.styleFrom(backgroundColor: widget.pageColor.withValues(alpha: 0.55), foregroundColor: foreground),
             icon: const Icon(Icons.search_rounded, size: 24)),
         ])),
+      if (widget.onBack != null) Positioned(top: top + 62, left: 14, right: 14,
+        child: Row(children: [IconButton.filledTonal(tooltip: 'Voltar', onPressed: widget.onBack,
+          style: IconButton.styleFrom(backgroundColor: widget.pageColor.withValues(alpha: .55), foregroundColor: foreground),
+          icon: const Icon(Icons.arrow_back_rounded)),
+          if (widget.belowHeaderAction != null) ...[const SizedBox(width: 10), Expanded(child: widget.belowHeaderAction!)],
+        ])),
       if (widget.item != null && rect != null) Positioned(
         key: const ValueKey('heisuca-docking-logo'),
-        top: math.max(center, target) - logoHeight / 2, left: (width - logoWidth) / 2,
-        width: logoWidth, height: logoHeight,
-        child: GestureDetector(onTap: () => HeisucaTitleSheet.show(context, widget.item!),
-          child: ClearLogoImage(client: widget.client, logoPath: widget.item!.clearLogoPath,
+        top: math.max(center, target) - tapHeight / 2, left: (width - logoWidth) / 2,
+        width: logoWidth, height: tapHeight,
+        child: GestureDetector(behavior: HitTestBehavior.opaque, onTap: widget.onTitleTap ?? () => HeisucaTitleSheet.show(context, widget.item!),
+          child: Center(child: SizedBox(height: logoHeight, child: ClearLogoImage(client: widget.client, logoPath: widget.item!.clearLogoPath,
             width: logoWidth, height: logoHeight, fallbackWidth: logoWidth, alignment: Alignment.center,
             logoToneTarget: context.cgflix.isLight ? foreground : null,
             fallbackBuilder: (_) => Center(child: Text(widget.item!.displayTitle, maxLines: 2,
               textAlign: TextAlign.center, overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 23 * scale, fontWeight: FontWeight.w600, color: foreground))),
-          )),
+              style: TextStyle(fontFamily: widget.titleFontFamily, fontSize: widget.expandedTitleSize * scale, fontWeight: FontWeight.w600, color: foreground))),
+          )))),
       ),
     ]);
   }

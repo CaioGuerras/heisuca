@@ -1,3 +1,6 @@
+import 'heisuca_theme.dart';
+import 'heisuca_home_chrome.dart';
+import '../cgflix/cgflix_navigation.dart';
 import 'heisuca_motion.dart';
 import 'dart:collection';
 import 'package:flutter/material.dart';
@@ -15,7 +18,6 @@ import '../services/settings_service.dart';
 import '../utils/download_utils.dart';
 import '../utils/media_image_helper.dart';
 import '../widgets/optimized_media_image.dart';
-import '../cgflix/home/cgflix_cards.dart';
 import '../media/media_role.dart';
 import '../media/media_server_client.dart';
 import '../media/media_stream.dart';
@@ -95,7 +97,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
   String? _error, _episodeError;
   int _episodeGeneration = 0, _loadGeneration = 0, _group = 0;
   final _scroll = ScrollController();
-  final _playAnchor = GlobalKey();
+  final _logoAnchor = GlobalKey();
   bool _docked = false;
   Future<MediaFileInfo?>? _fileInfo;
   Future<List<MediaItem>>? _extras, _related;
@@ -104,7 +106,6 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
   @override
   void initState() {
     super.initState();
-    _scroll.addListener(_onScroll);
     final client = cgflixClientFor(context, widget.item);
     final key = heisucaSeriesIdFor(widget.item) ?? widget.item.id;
     final cached = client == null ? null : _titleSnapshots[client]?[key];
@@ -121,13 +122,6 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
   }
   @override
   void dispose() { _scroll.dispose(); super.dispose(); }
-
-  void _onScroll() {
-    final box = _playAnchor.currentContext?.findRenderObject() as RenderBox?;
-    if (box == null || !box.hasSize) return;
-    final docked = box.localToGlobal(Offset(0, box.size.height)).dy < MediaQuery.paddingOf(context).top + 56;
-    if (_docked != docked) setState(() => _docked = docked);
-  }
 
   Future<void> _load({bool refresh = false}) async {
     final generation = ++_loadGeneration;
@@ -403,7 +397,6 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
     final height = (size.height * .72).clamp(440.0, 760.0);
     final art = cgflixWidePath(_item) ?? _item.thumbPath;
     final store = HeisucaStateStore.instance;
-    final top = MediaQuery.paddingOf(context).top;
     if (!_loading) { _ensureFileInfo(); _ensureSupplements(); }
     final synopsis = _synopsis;
     final meta = _metaLine;
@@ -417,11 +410,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
                 ? OptimizedMediaImage(client: client, imagePath: art, imageType: ImageType.art, fit: BoxFit.cover)
                 : Hero(tag: widget.heroTag!, child: OptimizedMediaImage(client: client, imagePath: art, imageType: ImageType.art, fit: BoxFit.cover)))),
             Positioned(bottom: 8, left: 24, right: 24, child: Column(mainAxisSize: MainAxisSize.min, children: [
-              if (_item.clearLogoPath != null && client != null)
-                SizedBox(height: 104, child: ClearLogoImage(client: client, logoPath: _item.clearLogoPath,
-                  width: size.width - 48, height: 104, fallbackWidth: size.width - 48, alignment: Alignment.center,
-                  fallbackBuilder: (_) => _titleText(c)))
-              else _titleText(c),
+              SizedBox(key: _logoAnchor, height: 104, width: size.width - 48),
               if (meta != null) Padding(padding: const EdgeInsets.only(top: 14), child: Text(meta, textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, height: 1.5, color: c.text))),
               FutureBuilder<MediaFileInfo?>(future: _fileInfo, builder: (_, snap) {
@@ -437,7 +426,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
           ]))),
           SliverList.list(children: [
             Padding(padding: const EdgeInsets.fromLTRB(28, 14, 28, 0),
-              child: SizedBox(key: _playAnchor, child: _playButton(c))),
+              child: _playButton(c)),
             const SizedBox(height: 6),
             ListenableBuilder(listenable: store, builder: (_, __) => Row(mainAxisAlignment: MainAxisAlignment.center, spacing: 22, children: [
               IconButton(tooltip: store.isFavorite(_item) ? 'Remover dos favoritos' : 'Favoritar',
@@ -475,24 +464,19 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
             SizedBox(height: MediaQuery.paddingOf(context).bottom + 40),
           ]),
         ]),
-        // Topo: ← sempre; ao rolar, o botão encaixa ao lado sobre um véu da cor da página (site .titulo-acao.grudado).
-        Positioned(top: 0, left: 0, right: 0, child: IgnorePointer(ignoring: false, child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: EdgeInsets.fromLTRB(12, top + 6, 16, 14),
-          decoration: BoxDecoration(gradient: _docked ? LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter,
-            colors: [c.page, c.page, c.page.withValues(alpha: 0)], stops: const [0, .72, 1]) : null),
-          child: Row(children: [
-            IconButton.filledTonal(tooltip: 'Voltar', onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back_rounded)),
-            const SizedBox(width: 10),
-            Expanded(child: AnimatedSwitcher(duration: const Duration(milliseconds: 180),
-              child: _docked ? _playButton(c, compact: true) : const SizedBox.shrink())),
-          ]),
-        ))),
+        Positioned.fill(child: HeisucaHomeChrome(
+          scrollController: _scroll, logoAnchor: _logoAnchor, pageColor: c.page,
+          item: _item, client: client, expandedLogoWidth: size.width - 48,
+          expandedLogoHeight: 104, expandedTitleSize: 32, titleFontFamily: HeisucaTheme.fonteTitulo,
+          belowHeaderAction: _docked ? _playButton(c, compact: true) : null,
+          onSearch: () => cgflixOpenSearch(context),
+          onHome: () => _scroll.animateTo(0, duration: HeisucaMotion.durationFor(context), curve: HeisucaMotion.curve),
+          onTitleTap: () => _scroll.animateTo(0, duration: HeisucaMotion.durationFor(context), curve: HeisucaMotion.curve),
+          onBack: () => Navigator.pop(context),
+          onDockedChanged: (value) { if (mounted && value != _docked) setState(() => _docked = value); },
+        )),
       ])));
   }
-
-  Widget _titleText(HeisucaTitleColors c) => Text(_item.displayTitle, textAlign: TextAlign.center,
-    style: TextStyle(fontSize: 32, fontWeight: FontWeight.w600, height: 1.1, letterSpacing: -.3, color: c.text));
 
   List<Widget> _seasonSection(HeisucaTitleColors c) {
     final page = _episodes.skip(_group * 10).take(10).toList();

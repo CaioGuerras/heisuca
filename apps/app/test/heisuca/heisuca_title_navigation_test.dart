@@ -1,3 +1,4 @@
+import 'package:plezy/heisuca/heisuca_home_chrome.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -64,9 +65,14 @@ void main() {
         theme: cgflixAppTheme(variant), home: Builder(builder: (ctx) => HeisucaTitleSheet(hostContext: ctx, item: client.show)))));
       await tester.pumpAndSettle();
       expect(find.text('Continuar T1:E7'), findsOneWidget);
+      // Caio, 25/10: a ficha usa o mesmo encaixe da Início, preservando a continuação.
+      expect(find.byType(HeisucaHomeChrome), findsOneWidget);
+      final titleLogo = find.byKey(const ValueKey('heisuca-docking-logo'));
+      final initialLogo = tester.getRect(titleLogo);
       expect(tester.takeException(), isNull);
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -660));
       await tester.pumpAndSettle();
+      expect(tester.getRect(titleLogo).center.dy, lessThan(initialLogo.center.dy));
       expect(find.text('Continuar T1:E7').hitTestable(), findsOneWidget);
       await tester.scrollUntilVisible(find.text('11–13'), 180, scrollable: find.byType(Scrollable).first);
       await tester.tap(find.text('11–13'));

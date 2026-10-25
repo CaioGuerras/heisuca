@@ -15,7 +15,6 @@ import 'heisuca_media_category.dart';
 import 'heisuca_poster_tile.dart';
 import 'heisuca_source_scope.dart';
 import '../cgflix/you/cgflix_favorites_screen.dart';
-import 'package:material_symbols_icons/symbols.dart';
 
 /// Biblioteca Heisuca: grade de pôsteres, filtros em pílulas e dados paginados da fonte ativa.
 class HeisucaLibraryScreen extends StatefulWidget {
@@ -130,7 +129,7 @@ class _HeisucaLibraryScreenState extends State<HeisucaLibraryScreen> with Refres
             onSelected: (_) { if (source != _selected) _choose(source); })),
           // Caio, 24/10: Favoritos saiu da pílula (virou Baixados) e fica aqui, depois das bibliotecas.
           if (CgflixFavoritesSource.of(context) case final fav?) ActionChip(
-            avatar: const Icon(Symbols.favorite_rounded, size: 18), label: const Text('Favoritos'),
+            label: const Text('Favoritos'),
             onPressed: () => cgflixOpenFavorites(context, fav)),
         ])),
       Padding(padding: const EdgeInsets.fromLTRB(16, 6, 16, 10), child: TextField(controller: _search,

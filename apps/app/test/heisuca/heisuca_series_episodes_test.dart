@@ -75,7 +75,9 @@ void main() {
     expect(selected?.id, '2-1');
     expect(tester.takeException(), isNull);
   });
-  test('protótipo antigo não é referenciado pelo código real do app', () {
+  test('protótipo antigo removido não volta ao app', () {
+    // Caio, 25/10, B: protótipo sem uso retirado; o HUD real continua no player.
+    expect(File('lib/heisuca/heisuca_player_screen.dart').existsSync(), isFalse);
     final references = <String>[];
     for (final file in Directory('lib').listSync(recursive: true).whereType<File>()) {
       if (!file.path.endsWith('.dart') || file.path == 'lib/heisuca/heisuca_player_screen.dart') continue;

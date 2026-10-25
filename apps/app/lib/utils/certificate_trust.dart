@@ -36,8 +36,6 @@ abstract final class CertificateTrust {
     'plex.tv',
     'plezy.app',
     'trakt.tv',
-    'myanimelist.net',
-    'anilist.co',
     'simkl.com',
     'simkl.in',
     'jsdelivr.net',

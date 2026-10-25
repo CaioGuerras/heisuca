@@ -18,19 +18,16 @@ class TrackerConstants {
   static const Duration authRequestTimeout = Duration(seconds: 15);
   static const Duration refreshTimeout = Duration(seconds: 15);
   static const Duration revokeTimeout = Duration(seconds: 10);
-  static const Duration oauthProxyPollTimeout = Duration(seconds: 65);
-  static const Duration oauthProxyRetryDelay = Duration(seconds: 2);
 
-  /// Mirrors the relay's server-side OAuth session TTL. Rate-limited (429)
-  /// polls are retried until this deadline; past it the session can no longer
-  /// succeed, so the poller surfaces the failure instead.
-  static const Duration oauthProxySessionTimeout = Duration(minutes: 10);
 }
 
 /// Identifier used across the app to disambiguate per-service operations.
 /// The enum's `.name` forms part of the persistence key — do not rename
 /// without a migration.
 enum TrackerService { mal, anilist, simkl, trakt, mdblist }
+
+/// Integrações disponíveis. Os IDs legados do enum ficam para ler dados já salvos.
+const heisucaTrackerServices = {TrackerService.trakt, TrackerService.simkl, TrackerService.mdblist};
 
 /// Blacklist+[] syncs every library (the default); whitelist+[] syncs nothing.
 enum TrackerLibraryFilterMode { blacklist, whitelist }

@@ -398,7 +398,8 @@ void main() {
     // Copy and Upload stay live — the whole point of the failure screen is
     // that a stuck user can still get the diagnostic out.
     expect(find.byKey(startupFailureCopyKey), findsOneWidget);
-    expect(find.byKey(startupFailureUploadKey), findsOneWidget);
+    // Caio, 25/10: envio de diagnóstico removido; copiar permanece.
+    expect(find.text(t.startup.uploadDetails), findsNothing);
   });
 
   testWidgets('repair receives a context below the bootstrap MaterialApp that can show its dialogs', (tester) async {

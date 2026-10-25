@@ -90,7 +90,7 @@ class _RatingBottomSheetState extends State<RatingBottomSheet> {
       builder: (context, trackers, _) {
         final trackerSources = _trackerSources(context);
         _updateTrackerSourceMap(trackerSources);
-        _resolverNeedsFribb = trackers.isMalConnected || trackers.isAnilistConnected;
+        _resolverNeedsFribb = trackerSources.whereType<Tracker>().any((source) => source.needsFribb);
         _queueTrackerScoreLoad(trackerSources);
 
         final serverCaps = widget.serverClient?.capabilities;

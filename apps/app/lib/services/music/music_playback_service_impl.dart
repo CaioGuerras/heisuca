@@ -20,7 +20,6 @@ import '../../utils/notification_permission.dart';
 import '../../utils/platform_detector.dart';
 import '../car_ux_restrictions_service.dart';
 import '../companion_remote/companion_remote_receiver.dart';
-import '../discord_rpc_service.dart';
 import '../driver_distraction.dart';
 import '../media_control_router.dart';
 import '../media_controls_manager.dart';
@@ -807,7 +806,6 @@ class MusicPlaybackServiceImpl extends MusicPlaybackService with WidgetsBindingO
     if (player != null) {
       _mediaControls?.updatePlaybackState(isPlaying: player.state.isActive, position: position, speed: 1.0);
     }
-    DiscordRPCService.instance.updatePosition(position);
     if (_status == MusicPlaybackStatus.playing) _maybePersistPositionTick(position);
   }
 
@@ -826,8 +824,6 @@ class MusicPlaybackServiceImpl extends MusicPlaybackService with WidgetsBindingO
       unawaited(_tracker?.sendProgress(shouldBePlaying ? 'playing' : 'paused'));
       // Gated like the tracker: while an open is loading, the player's
       // playing flips belong to a track whose presence is not bound yet.
-      final rpc = DiscordRPCService.instance;
-      unawaited(shouldBePlaying ? rpc.resumePlayback() : rpc.pausePlayback());
     }
     final player = _player;
     if (player != null) {
@@ -976,7 +972,6 @@ class MusicPlaybackServiceImpl extends MusicPlaybackService with WidgetsBindingO
     if (player != null) {
       _mediaControls?.updatePlaybackState(isPlaying: false, position: player.currentPosition, speed: 1.0, force: true);
     }
-    unawaited(DiscordRPCService.instance.pausePlayback());
   }
 
   void _onPlayerError(PlayerError error) {
@@ -1008,7 +1003,8 @@ class MusicPlaybackServiceImpl extends MusicPlaybackService with WidgetsBindingO
   // ---------------------------------------------------------------------
 
   /// (Re)bind the per-track progress tracker, media-session metadata and
-  /// Discord presence — the music mirror of the video screen's
+  /// Controles de mídia e acompanhamento da faixa, como na tela de vídeo.
+  ///
   /// `_wirePerItemPlaybackServices`. The previous track must already be
   /// finalized.
   void _bindTrackServices(MediaItem track, MusicSource source) {
@@ -1062,14 +1058,7 @@ class MusicPlaybackServiceImpl extends MusicPlaybackService with WidgetsBindingO
       _syncControlsAvailability();
     }
 
-    if (metadataClient != null) {
-      final rpc = DiscordRPCService.instance;
-      unawaited(rpc.startPlayback(track, metadataClient));
-      // Callers set [_status] before binding; a restored session or a
-      // car-restricted open binds paused, and presence must not run a
-      // timer for a track that is not audible.
-      if (_status != MusicPlaybackStatus.playing) unawaited(rpc.pausePlayback());
-    }
+
   }
 
   /// Stop tracking and fire the final `stopped` report for the current
@@ -1781,7 +1770,6 @@ class MusicPlaybackServiceImpl extends MusicPlaybackService with WidgetsBindingO
     // The subscriptions above are gone before the player stops, so no
     // playing=false will reach [_onPlayingChanged]: clear presence here, and
     // before any await so a video claim's own presence lands after it.
-    unawaited(DiscordRPCService.instance.stopPlayback());
     final player = _player;
     _player = null;
     if (player != null && !player.disposed) {

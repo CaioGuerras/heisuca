@@ -1,3 +1,4 @@
+// Caio, 25/10: retirados somente casos dos serviços removidos; demais serviços e filas continuam cobertos.
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -13,11 +14,9 @@ import 'package:plezy/media/media_server_client.dart';
 import 'package:plezy/models/trackers/anime_lists_mapping.dart';
 import 'package:plezy/models/trackers/fribb_mapping_row.dart';
 import 'package:plezy/models/trackers/tracker_context.dart';
-import 'package:plezy/services/trackers/anilist/anilist_tracker.dart';
 import 'package:plezy/services/trackers/anime_episode_progress_resolver.dart';
 import 'package:plezy/services/trackers/anime_lists_mapping_store.dart';
 import 'package:plezy/services/trackers/fribb_mapping_store.dart';
-import 'package:plezy/services/trackers/mal/mal_tracker.dart';
 import 'package:plezy/services/trackers/simkl/simkl_tracker.dart';
 import 'package:plezy/services/trackers/tracker_constants.dart';
 import 'package:plezy/services/trackers/tracker_exceptions.dart';
@@ -143,10 +142,6 @@ class _Recorder {
   });
 }
 
-/// Stands in for an endpoint that cannot be reached at all, as opposed to one
-/// that answers with an error.
-http.Client _unreachableClient() => MockClient((_) async => throw http.ClientException('no route to host'));
-
 MediaItem _episodeItem(int number) => testMediaItem(
   id: 'episode-1-$number',
   backend: MediaBackend.plex,
@@ -157,18 +152,6 @@ MediaItem _episodeItem(int number) => testMediaItem(
   parentIndex: 1,
   index: number,
   grandparentId: 'show-1',
-);
-
-MediaItem _episodeItemOfShow(String showId, int number) => testMediaItem(
-  id: '$showId-episode-$number',
-  backend: MediaBackend.plex,
-  kind: MediaKind.episode,
-  title: 'Episode $number',
-  serverId: ServerId('server-1'),
-  libraryId: 'lib-1',
-  parentIndex: 1,
-  index: number,
-  grandparentId: showId,
 );
 
 MediaItem _movieItem({int? viewOffsetMs, int? durationMs}) => testMediaItem(
@@ -197,16 +180,8 @@ _FakeMediaServerClient _client({double watchedThreshold = 0.9}) => _FakeMediaSer
 TrackerSession _session() =>
     TrackerSession(accessToken: 'token', createdAt: DateTime.now().millisecondsSinceEpoch ~/ 1000);
 
-/// The list-status writes MAL received, newest last.
-List<int> _malProgressWrites(_Recorder recorder) => [
-  for (var i = 0; i < recorder.paths.length; i++)
-    if (recorder.paths[i].contains('my_list_status')) int.parse(recorder.bodies[i]['num_watched_episodes'].toString()),
-];
-
 void main() {
   final coordinator = TrackerCoordinator.instance;
-  final mal = MalTracker.instance;
-  final anilist = AnilistTracker.instance;
   final simkl = SimklTracker.instance;
   final trakt = TraktTracker.instance;
 
@@ -223,77 +198,28 @@ void main() {
       animeLists: const _FakeAnimeListsLookup(),
       animeProgress: const _FakeAnimeProgressLookup(),
     );
-    await anilist.setEnabled(false);
     await simkl.setEnabled(false);
     await trakt.setEnabled(false);
     await trakt.setWatchedSyncEnabled(false);
-    await mal.setEnabled(true);
   });
 
   tearDown(() async {
     coordinator.cancelInFlight();
     coordinator.debugUseResolverDependencies();
     coordinator.onActiveProfileChanged('');
-    mal.rebindSession(null, onSessionInvalidated: () {});
-    anilist.rebindSession(null, onSessionInvalidated: () {});
     simkl.rebindSession(null, onSessionInvalidated: () {});
     trakt.rebindSession(null, onSessionInvalidated: () {});
-    await mal.setEnabled(false);
     await trakt.setWatchedSyncEnabled(false);
   });
 
   group('failed watched writes are retried', () {
-    test('a failed series-progress write is replayed on the next flush', () async {
-      final recorder = _Recorder()..status = 500;
-      mal.rebindSession(_session(), onSessionInvalidated: () {}, httpClient: recorder.client);
 
-      await coordinator.markWatched(_episodeItem(5), _client());
-      expect(_malProgressWrites(recorder), [5], reason: 'the first attempt goes out and fails');
 
-      recorder.status = 200;
-      await coordinator.flushWriteQueue();
 
-      expect(_malProgressWrites(recorder), [5, 5], reason: 'the queued claim is replayed once the service recovers');
-    });
 
-    test('a replayed write that already succeeded is not sent twice', () async {
-      final recorder = _Recorder();
-      mal.rebindSession(_session(), onSessionInvalidated: () {}, httpClient: recorder.client);
 
-      await coordinator.markWatched(_episodeItem(5), _client());
-      await coordinator.flushWriteQueue();
 
-      expect(_malProgressWrites(recorder), [5]);
-    });
 
-    test('a newer completed claim drops the stale queued one', () async {
-      final recorder = _Recorder()..status = 500;
-      mal.rebindSession(_session(), onSessionInvalidated: () {}, httpClient: recorder.client);
-
-      // Episode 5 fails and is queued as a claim of 5.
-      await coordinator.markWatched(_episodeItem(5), _client());
-      recorder.status = 200;
-      // Episode 6 lands directly: the queued claim is now behind the counter.
-      await coordinator.markWatched(_episodeItem(6), _client());
-      await coordinator.flushWriteQueue();
-
-      expect(_malProgressWrites(recorder), [
-        5,
-        6,
-      ], reason: 'replaying the claim of 5 after 6 landed would walk the list backwards');
-    });
-
-    test('a queued claim still ahead of the applied progress survives', () async {
-      final recorder = _Recorder()..status = 500;
-      mal.rebindSession(_session(), onSessionInvalidated: () {}, httpClient: recorder.client);
-
-      await coordinator.markWatched(_episodeItem(6), _client());
-      recorder.status = 200;
-      await coordinator.markWatched(_episodeItem(5), _client());
-      await coordinator.flushWriteQueue();
-
-      expect(_malProgressWrites(recorder), [6, 5, 6], reason: 'the queued 6 is a pending advance, not a stale claim');
-    });
   });
 
   group('a failed container write', () {
@@ -312,7 +238,6 @@ void main() {
     );
 
     setUp(() async {
-      await mal.setEnabled(false);
       await simkl.setEnabled(true);
     });
 
@@ -379,7 +304,6 @@ void main() {
 
   group('a failure racing a newer write is not persisted', () {
     test('an older history failure never replaces a newer one', () async {
-      await mal.setEnabled(false);
       await trakt.setEnabled(true);
       await trakt.setWatchedSyncEnabled(true);
       final recorder = _Recorder()..status = 500;
@@ -398,71 +322,13 @@ void main() {
       expect(recorder.paths, ['/sync/history/remove'], reason: 'the newest intent for the row is the only one queued');
     });
 
-    test('a queued higher claim survives a newer lower one', () async {
-      final recorder = _Recorder()..status = 500;
-      mal.rebindSession(_session(), onSessionInvalidated: () {}, httpClient: recorder.client);
 
-      // Episode 6 first, then 5: progress claims are monotonic, so the queue must
-      // keep the higher one whichever order the failures arrive in.
-      await coordinator.markWatched(_episodeItem(6), _client());
-      await coordinator.markWatched(_episodeItem(5), _client());
-
-      recorder.status = 200;
-      await coordinator.flushWriteQueue();
-
-      expect(_malProgressWrites(recorder).last, 6);
-    });
   });
 
   group('a rate-limited service', () {
-    test('one back-off answer stops the drain asking again for that service', () async {
-      final recorder = _Recorder()..status = 429;
-      mal.rebindSession(_session(), onSessionInvalidated: () {}, httpClient: recorder.client);
 
-      // Three separate shows, so three queued rows for one service.
-      for (final show in ['show-a', 'show-b', 'show-c']) {
-        await coordinator.markWatched(_episodeItemOfShow(show, 5), _client());
-      }
-      expect(_malProgressWrites(recorder), hasLength(3), reason: 'each live write tried once');
 
-      recorder.paths.clear();
-      await coordinator.flushWriteQueue();
 
-      expect(
-        _malProgressWrites(recorder),
-        hasLength(1),
-        reason: 'after the first 429 the drain leaves the rest of the service alone',
-      );
-
-      // Once it recovers, every row still drains.
-      final recovered = _Recorder();
-      mal.rebindSession(_session(), onSessionInvalidated: () {}, httpClient: recovered.client);
-      await coordinator.flushWriteQueue();
-
-      expect(_malProgressWrites(recovered), hasLength(3));
-    });
-
-    test('a coalesced second flush does not re-ask during the same burst', () async {
-      final recorder = _Recorder()..status = 429;
-      mal.rebindSession(_session(), onSessionInvalidated: () {}, httpClient: recorder.client);
-      for (final show in ['show-a', 'show-b']) {
-        await coordinator.markWatched(_episodeItemOfShow(show, 5), _client());
-      }
-
-      recorder
-        ..paths.clear()
-        ..gate = Completer<void>();
-      // Two triggers landing together — network restore and app resume can — so
-      // the second coalesces onto the running drain and re-enters its loop.
-      final first = coordinator.flushWriteQueue();
-      await pumpEventQueue();
-      final second = coordinator.flushWriteQueue();
-      recorder.gate!.complete();
-      await first;
-      await second;
-
-      expect(_malProgressWrites(recorder), hasLength(1), reason: 'the deferral spans the whole burst');
-    });
   });
 
   group('isTrackerFailureTransient', () {
@@ -526,105 +392,17 @@ void main() {
   });
 
   group('a service that cannot answer for the write', () {
-    test('a rate limit never spends the retry budget', () async {
-      final recorder = _Recorder()..status = 429;
-      mal.rebindSession(_session(), onSessionInvalidated: () {}, httpClient: recorder.client);
-      await coordinator.markWatched(_episodeItem(5), _client());
 
-      for (var i = 0; i < TrackerWriteQueue.maxAttempts + 2; i++) {
-        await coordinator.flushWriteQueue();
-      }
 
-      final recovered = _Recorder();
-      mal.rebindSession(_session(), onSessionInvalidated: () {}, httpClient: recovered.client);
-      await coordinator.flushWriteQueue();
 
-      expect(_malProgressWrites(recovered), [5], reason: 'a 429 is explicitly retryable, not a verdict on the write');
-    });
 
-    test('a server-side failure never spends the retry budget', () async {
-      final recorder = _Recorder()..status = 503;
-      mal.rebindSession(_session(), onSessionInvalidated: () {}, httpClient: recorder.client);
-      await coordinator.markWatched(_episodeItem(5), _client());
 
-      for (var i = 0; i < TrackerWriteQueue.maxAttempts + 2; i++) {
-        await coordinator.flushWriteQueue();
-      }
 
-      final recovered = _Recorder();
-      mal.rebindSession(_session(), onSessionInvalidated: () {}, httpClient: recovered.client);
-      await coordinator.flushWriteQueue();
 
-      expect(_malProgressWrites(recovered), [5], reason: 'a bad hour for the service is not a bad watch');
-    });
-
-    test('a rejected write is dropped once its attempts are spent', () async {
-      // 422 is the service answering about this write: asking again cannot help,
-      // so the item must not be retried forever.
-      final recorder = _Recorder()..status = 422;
-      mal.rebindSession(_session(), onSessionInvalidated: () {}, httpClient: recorder.client);
-      await coordinator.markWatched(_episodeItem(5), _client());
-
-      for (var i = 0; i < TrackerWriteQueue.maxAttempts + 1; i++) {
-        await coordinator.flushWriteQueue();
-      }
-
-      final recovered = _Recorder();
-      mal.rebindSession(_session(), onSessionInvalidated: () {}, httpClient: recovered.client);
-      await coordinator.flushWriteQueue();
-
-      expect(_malProgressWrites(recovered), isEmpty, reason: 'the answered rejection exhausted the budget');
-    });
-
-    test('an unreachable service never spends the retry budget', () async {
-      final recorder = _Recorder()..status = 500;
-      mal.rebindSession(_session(), onSessionInvalidated: () {}, httpClient: recorder.client);
-      await coordinator.markWatched(_episodeItem(5), _client());
-      expect(_malProgressWrites(recorder), [5], reason: 'the first attempt is answered and fails');
-
-      // Now the endpoint is unreachable rather than answering. A connectivity flap
-      // can drive many flushes; none of them may exhaust the item's attempts,
-      // because nothing was learned about the write.
-      mal.rebindSession(_session(), onSessionInvalidated: () {}, httpClient: _unreachableClient());
-      for (var i = 0; i < TrackerWriteQueue.maxAttempts + 2; i++) {
-        await coordinator.flushWriteQueue();
-      }
-
-      // The service answers again: the watch is still queued and still lands.
-      final recovered = _Recorder();
-      mal.rebindSession(_session(), onSessionInvalidated: () {}, httpClient: recovered.client);
-      await coordinator.flushWriteQueue();
-
-      expect(_malProgressWrites(recovered), [5], reason: 'the queued claim survived every unreachable flush');
-    });
   });
 
   group('writes to one remote row are serialised', () {
-    test('a replay already in flight cannot land after a newer direct write', () async {
-      final recorder = _Recorder()..status = 500;
-      mal.rebindSession(_session(), onSessionInvalidated: () {}, httpClient: recorder.client);
-      await coordinator.markWatched(_episodeItem(5), _client());
-      expect(_malProgressWrites(recorder), [5]);
 
-      // Hold the replay's request open, then let a direct write for the same
-      // entry arrive while it is still on the wire.
-      recorder
-        ..status = 200
-        ..gate = Completer<void>();
-      final flush = coordinator.flushWriteQueue();
-      await pumpEventQueue();
-      expect(_malProgressWrites(recorder), [5, 5], reason: 'the replay is in flight');
-
-      final live = coordinator.markWatched(_episodeItem(6), _client());
-      await pumpEventQueue();
-      expect(_malProgressWrites(recorder), [5, 5], reason: 'the direct write waits for the row to be free');
-
-      recorder.gate!.complete();
-      await flush;
-      await live;
-
-      expect(_malProgressWrites(recorder).last, 6, reason: 'the newest write is the last one to reach the service');
-    });
   });
 
   group('queued rows a completed write already covers', () {
@@ -691,7 +469,6 @@ void main() {
 
   group('scrobbling turned off mid-playback', () {
     test('the watch still reaches history when the owner can no longer report', () async {
-      await mal.setEnabled(false);
       await trakt.setEnabled(true);
       await trakt.setWatchedSyncEnabled(true);
       final recorder = _Recorder();
@@ -720,7 +497,6 @@ void main() {
 
   group('a terminal stop the service never acknowledged', () {
     test('Simkl records the watch through history when the stop fails', () async {
-      await mal.setEnabled(false);
       await simkl.setEnabled(true);
       final recorder = _Recorder();
       simkl.rebindSession(
@@ -750,7 +526,6 @@ void main() {
     });
 
     test('a confirmed stop above the completion rule writes no history', () async {
-      await mal.setEnabled(false);
       await simkl.setEnabled(true);
       final recorder = _Recorder();
       simkl.rebindSession(
@@ -773,32 +548,9 @@ void main() {
   });
 
   group('an account rebound while its write was in flight', () {
-    test('a markWatched failure completing after a disconnect is not queued', () async {
-      final recorder = _Recorder()..status = 500;
-      mal.rebindSession(_session(), onSessionInvalidated: () {}, httpClient: recorder.client);
 
-      // Hold the write on the wire, then disconnect the account underneath it.
-      recorder.gate = Completer<void>();
-      final write = coordinator.markWatched(_episodeItem(5), _client());
-      await pumpEventQueue();
-      expect(_malProgressWrites(recorder), [5], reason: 'the write is in flight');
-
-      mal.rebindSession(null, onSessionInvalidated: () {});
-      recorder.gate!.complete();
-      recorder.gate = null;
-      await write;
-
-      // Account B connects: A's late failure must not have left a row behind,
-      // because the disconnect purge that would remove it has already run.
-      final recovered = _Recorder();
-      mal.rebindSession(_session(), onSessionInvalidated: () {}, httpClient: recovered.client);
-      await coordinator.flushWriteQueue();
-
-      expect(_malProgressWrites(recovered), isEmpty, reason: "account A's late failure must not replay through B");
-    });
 
     test('a reconcile failure completing after a disconnect is not queued', () async {
-      await mal.setEnabled(false);
       await simkl.setEnabled(true);
       final recorder = _Recorder();
       simkl.rebindSession(

@@ -13,12 +13,9 @@ import '../providers/download_provider.dart';
 import '../providers/multi_server_provider.dart';
 import '../utils/platform_detector.dart';
 import 'device_performance.dart';
-import 'discord_rpc_service.dart';
 import 'companion_remote/companion_remote_host_controller.dart';
 import 'music/music_playback_service.dart';
 import 'settings_service.dart';
-import 'trackers/anilist/anilist_tracker.dart';
-import 'trackers/mal/mal_tracker.dart';
 import 'trackers/mdblist/mdblist_tracker.dart';
 import 'trackers/simkl/simkl_tracker.dart';
 import 'trackers/tracker.dart';
@@ -78,10 +75,6 @@ class SettingsMutationService {
       (_, settings, _) async => DevicePerformance.setOverrideSync(settings.read(SettingsService.visualEffects)),
       rebuildsRoot: true,
     ),
-    _SettingsEffect(
-      SettingsService.enableDiscordRPC,
-      (_, settings, _) => DiscordRPCService.instance.setEnabled(settings.read(SettingsService.enableDiscordRPC)),
-    ),
     _SettingsEffect(SettingsService.musicVolume, (context, settings, _) async {
       await context.read<MusicPlaybackService?>()?.setVolume(
         settings.read(SettingsService.musicVolume),
@@ -93,7 +86,7 @@ class SettingsMutationService {
       (_, settings, _) =>
           TraktTracker.instance.setWatchedSyncEnabled(settings.read(SettingsService.enableTraktWatchedSync)),
     ),
-    for (final service in TrackerService.values) _scrobbleEffect(service),
+    for (final service in heisucaTrackerServices) _scrobbleEffect(service),
     _SettingsEffect(SettingsService.enableCompanionRemoteServer, _applyCompanionRemoteServer),
     // Home hubs are fetched in the chosen layout, so a switch only shows once
     // they are fetched again. The load runs in the background: the setting is
@@ -121,8 +114,7 @@ class SettingsMutationService {
   }
 
   static Tracker _trackerFor(TrackerService service) => switch (service) {
-    TrackerService.mal => MalTracker.instance,
-    TrackerService.anilist => AnilistTracker.instance,
+    TrackerService.mal || TrackerService.anilist => throw UnsupportedError('Serviço removido do Heisuca'),
     TrackerService.simkl => SimklTracker.instance,
     TrackerService.trakt => TraktTracker.instance,
     TrackerService.mdblist => MdblistTracker.instance,

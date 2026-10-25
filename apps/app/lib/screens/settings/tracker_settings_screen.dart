@@ -7,45 +7,15 @@ import 'package:provider/provider.dart';
 import '../../i18n/strings.g.dart';
 import '../../models/trackers/device_code.dart';
 import '../../providers/trackers_provider.dart';
-import '../../services/trackers/oauth_proxy_client.dart';
 import '../../services/trackers/tracker_constants.dart';
 import '../../services/settings_service.dart';
 import '../../utils/dialogs.dart';
 import '../../widgets/app_icon.dart';
 import '../../widgets/device_code_dialog.dart';
 import '../../widgets/focusable_list_tile.dart';
-import '../../widgets/oauth_proxy_dialog.dart';
 import '../../widgets/settings_page.dart';
 import 'tracker_account_settings_body.dart';
 import 'tracker_connect_launcher.dart';
-
-Future<void> startMalConnection(BuildContext context) {
-  final account = context.read<TrackersProvider>();
-  final name = t.services.names.mal;
-  return launchTrackerConnect<OAuthProxyStart>(
-    context,
-    isBusyOrConnected: account.isConnecting(TrackerService.mal) || account.isMalConnected,
-    serviceName: name,
-    connect: (cb) => account.connectMal(onCodeReady: cb),
-    onCancel: account.cancelConnect,
-    buildDialog: (p, cancel) => OAuthProxyDialog(start: p, serviceName: name, onCancel: cancel),
-    urlFor: (p) => p.url,
-  );
-}
-
-Future<void> startAnilistConnection(BuildContext context) {
-  final account = context.read<TrackersProvider>();
-  final name = t.services.names.anilist;
-  return launchTrackerConnect<OAuthProxyStart>(
-    context,
-    isBusyOrConnected: account.isConnecting(TrackerService.anilist) || account.isAnilistConnected,
-    serviceName: name,
-    connect: (cb) => account.connectAnilist(onCodeReady: cb),
-    onCancel: account.cancelConnect,
-    buildDialog: (p, cancel) => OAuthProxyDialog(start: p, serviceName: name, onCancel: cancel),
-    urlFor: (p) => p.url,
-  );
-}
 
 Future<void> startSimklConnection(BuildContext context) {
   final account = context.read<TrackersProvider>();
@@ -113,22 +83,6 @@ class TrackerConfig {
   });
 
   Pref<bool> get scrobblePref => SettingsService.scrobblePref(service);
-
-  static TrackerConfig mal() => TrackerConfig(
-    service: TrackerService.mal,
-    displayName: t.services.names.mal,
-    isConnected: (a) => a.isMalConnected,
-    username: (a) => a.malUsername,
-    disconnect: (a) => a.disconnectMal(),
-  );
-
-  static TrackerConfig anilist() => TrackerConfig(
-    service: TrackerService.anilist,
-    displayName: t.services.names.anilist,
-    isConnected: (a) => a.isAnilistConnected,
-    username: (a) => a.anilistUsername,
-    disconnect: (a) => a.disconnectAnilist(),
-  );
 
   static TrackerConfig simkl() => TrackerConfig(
     service: TrackerService.simkl,

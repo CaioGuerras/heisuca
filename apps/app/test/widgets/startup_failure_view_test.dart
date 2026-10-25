@@ -97,7 +97,8 @@ void main() {
     expect(find.byKey(startupFailureRepairKey), findsNothing);
     // The diagnostic actions stay, because a stuck user still needs them out.
     expect(find.byKey(startupFailureCopyKey), findsOneWidget);
-    expect(find.byKey(startupFailureUploadKey), findsOneWidget);
+    // Caio, 25/10: diagnóstico só local; copiar continua e envio foi removido.
+    expect(find.text(t.startup.uploadDetails), findsNothing);
     expect(find.text(t.startup.restartRequiredBody), findsOneWidget);
   });
 

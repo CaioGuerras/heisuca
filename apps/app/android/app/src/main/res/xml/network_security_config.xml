@@ -29,20 +29,11 @@
              lib/services/plex_client/parts/live_tv.dart:3).
              Does NOT match *.plex.direct — user PMS keeps base-config. -->
         <domain includeSubdomains="true">plex.tv</domain>
-        <!-- ice.plezy.app: relay + /auth OAuth proxy + /posters
-             (lib/watch_together/services/watch_together_relay_endpoint.dart:8,
-             lib/services/trackers/oauth_proxy_client.dart:22,
-             lib/services/discord_rpc_service.dart:55);
-             bugs.plezy.app: Sentry DSN (lib/main.dart:90). -->
+        <!-- Proteção do endpoint legado de exceções, desativado neste build. -->
         <domain includeSubdomains="true">plezy.app</domain>
         <!-- api.trakt.tv incl. /oauth/device/*, /oauth/token
              (lib/services/trakt/trakt_constants.dart:16,21-24). -->
         <domain includeSubdomains="true">trakt.tv</domain>
-        <!-- api.myanimelist.net + myanimelist.net/v1/oauth2/token
-             (lib/services/trackers/mal/mal_constants.dart:19-20). -->
-        <domain includeSubdomains="true">myanimelist.net</domain>
-        <!-- graphql.anilist.co (lib/services/trackers/anilist/anilist_constants.dart:9). -->
-        <domain includeSubdomains="true">anilist.co</domain>
         <!-- api.simkl.com + simkl.com/pin
              (lib/services/trackers/simkl/simkl_constants.dart:21,33). -->
         <domain includeSubdomains="true">simkl.com</domain>

@@ -49,7 +49,6 @@ import 'widgets/settings_builder.dart';
 import 'utils/platform_detector.dart';
 import 'utils/pointer_scroll_axis.dart';
 import 'services/apple_tv_remote_touch_service.dart';
-import 'services/discord_rpc_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'services/image_cache_service.dart';
@@ -1052,7 +1051,6 @@ void _startNonessentialInitialization(SettingsService settings) {
   });
 
   if (PlatformDetector.isDesktopOS()) {
-    bestEffort('Discord RPC', DiscordRPCService.instance.initialize);
     // Detection forks helper processes; resolve it here so the External Player
     // settings page never has to wait on a cold probe.
     bestEffort('External player detection', KnownPlayers.getForCurrentPlatform);
@@ -1135,8 +1133,6 @@ FutureOr<SentryEvent?> _beforeSend(SentryEvent event, Hint _) {
       // 'cancel' lands after the stream is already gone, and the framework
       // reports it via FlutterError — nothing was ever wrong user-side.
       if (e.type == 'PlatformException' && v != null && v.contains('No active stream to cancel')) return true;
-      // Discord RPC errors when Discord is not running
-      if (e.type == 'DiscordStateException') return true;
       return false;
     }
 

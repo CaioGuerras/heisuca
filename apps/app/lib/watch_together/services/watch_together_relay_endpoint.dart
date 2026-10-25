@@ -7,8 +7,6 @@ import '../../cgflix/cgflix_defaults.dart';
 final class WatchTogetherRelayEndpoint {
   WatchTogetherRelayEndpoint._(this._baseUri);
 
-  // CGFLIX: o Assistir juntos usa o relay próprio; o do Plezy fica só para o login dos trackers.
-  static const String upstreamRelayBaseUrl = 'https://ice.plezy.app';
   static const String defaultBaseUrl = cgflixWatchTogetherRelay;
 
   static final WatchTogetherRelayEndpoint defaultEndpoint = WatchTogetherRelayEndpoint._(Uri.parse(defaultBaseUrl));

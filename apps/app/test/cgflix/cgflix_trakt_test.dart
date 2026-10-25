@@ -3,7 +3,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plezy/cgflix/cgflix_trakt.dart';
 import 'package:plezy/screens/settings/tracker_service_info.dart';
-import 'package:plezy/services/trackers/mal/mal_constants.dart';
 import 'package:plezy/services/trackers/mdblist/mdblist_constants.dart';
 import 'package:plezy/services/trackers/simkl/simkl_constants.dart';
 import 'package:plezy/services/trackers/tracker_constants.dart';
@@ -26,7 +25,6 @@ void main() {
   });
 
   test('chaves do upstream fora do app', () {
-    expect(MalConstants.clientId, isEmpty);
     expect(MdblistConstants.clientId, isEmpty);
     expect(SimklConstants.legacyClientId, isEmpty);
     expect(SimklConstants.v2ClientId, isEmpty);

@@ -381,3 +381,53 @@ A2 foi iniciada somente após o run verde da etapa A.
   Portão com Impeller, testes nativos, compilação ARM64 e validador do APK aprovados.
 - **Não testado em aparelho.** A reprodução equivalente no Flutter tester não confirma
   a correção física no Edge 60 Pro. B–M ainda não iniciadas.
+
+## Rodada de 25/10 — etapa B — 2.0.20+21 — em validação
+Iniciada somente após o run verde de A2. A decisão atual de remover Discord inteiro
+prevalece sobre o trecho histórico do handoff que sugeria manter presença sem capa.
+
+### O que saiu e por quê
+- MAL/AniList: clientes, autenticação, trackers, fontes de catálogo e modelos exclusivos;
+  entradas de configurações, início de conexão/QR e vinculação de sessões no provider.
+- OAuth proxy: cliente, serviço base e diálogo; retirada a constante do relay antigo.
+- Discord RPC: serviço e dependência `dart_discord_presence`, inicialização, preferências,
+  comandos de ajustes, efeitos de configurações e ganchos de vídeo/música. Sem integração
+  substituta com Telegram e sem envio automático a outro serviço.
+- Envio interativo de diagnóstico: serviço HTTP/endereço, ações e diálogos de Logs e
+  da falha de abertura. O limite UTF-8 necessário ao Clipboard permanece no helper
+  **local** `diagnostic_text.dart`; copiar, selecionar, limpar e recuperar logs continuam.
+- Recursos sem consumidores: mixin `anime_list_tracker_base.dart` e protótipo
+  `heisuca_player_screen.dart`. A varredura de referências confirmou ausência de uso;
+  o HUD/player real foi preservado. Retiradas exceções TLS dos dois trackers removidos,
+  em Dart e no XML Android, mantendo confiança estrita para os demais endpoints.
+
+### O que foi preservado e como foi verificado
+- Trakt: cliente e fluxo de autenticação mantidos; sessão/catálogo compartilhados com
+  o tracker, isolamento por perfil, revogação, cancelamento e geração de vínculos.
+- Simkl/MDBList não foram removidos. A lista de serviços disponíveis é centralizada;
+  nem a opção de testes de mostrar todos recria MAL/AniList na interface.
+- IDs legados do enum e campos de metadados continuam legíveis para compatibilidade
+  com dados salvos. Isso não cria cliente nem consulta de rede: teste semeia sessões
+  MAL/AniList antigas e verifica que não ativam fontes ou chamadas.
+- `rg -n 'ice.plezy.app' apps/app/lib`: **sem resultados** (saída 1 esperada do rg).
+  Guarda permanente também verifica ausência do destino, `DiscordRPCService` e
+  `OAuthProxyClient` no código do app.
+- A Início Jellyfin, sua montagem e os componentes de arte de A2 não foram alterados.
+
+### Testes
+- **383 aprovados**: providers (incluindo Trakt), serviços de trackers/filas/cancelamento,
+  música, logs, falha de abertura, avaliações, Trakt CGFLIX e confiança TLS.
+- **31 aprovados**: falha de abertura do vídeo, abertura/recarga, saída da rota e linha
+  do tempo de TV ao vivo. Nenhuma transmissão/casting foi acrescentada.
+- **11 aprovados**: cache, catálogo e trocas de fontes do CatalogSourcesProvider.
+- Análise de `lib test` sem erro ou aviso novo nos arquivos tocados.
+- Testes exclusivos das integrações retiradas foram aposentados com elas; as provas
+  gerais de perfil, corrida, filas, música e seleção/cópia foram mantidas. Casos gerais
+  antes baseados em MAL/AniList usam Trakt/Simkl agora. Donos OAuth: 6 → 3; avaliações:
+  5 trackers → 3, mais o servidor. As duas expectativas de nome CGFLIX na cópia foram
+  atualizadas para a marca vigente Heisuca, sem mudar o conteúdo/separadores copiados.
+- Portão completo: **381 aprovados e 3 ignorados**, mais **8 aprovados com Impeller**.
+- Commit/run/APK: aguardando publicação e resultado do Actions.
+- Não testado em aparelho, em conta Trakt real nem em reprodução com servidor real.
+  Os testes de rede usam clientes controlados; não foram feitos login/envio ao Plezy,
+  Discord, MAL ou AniList. Etapas C–M ainda não iniciadas.

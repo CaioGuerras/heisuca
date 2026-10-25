@@ -1,7 +1,7 @@
 name: plezy
 description: "Heisuca. Nada entre você e o filme. Cliente cinematográfico multiplataforma para Jellyfin, Plex, WebDAV e SMB."
 publish_to: "none"
-version: 2.0.19+20
+version: 2.0.20+21
 
 environment:
   # Dart floor stays 3.12: freezed 3.x emits `final` constructor parameters,
@@ -59,7 +59,6 @@ dependencies:
   material_symbols_icons: ^4.2951.0
   web_socket_channel: ^3.0.1
   # 1.2.1: Windows IPC no longer blocks the UI isolate while Discord stalls (#2518).
-  dart_discord_presence: ^1.2.1
   flutter_svg: ^2.2.3
   # Fork 54a34a0 fixes upstream #649's missing desktop temp parent; 7ee4588
   # survives a host with no documents directory (Linux without xdg-user-dirs);

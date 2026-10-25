@@ -657,7 +657,6 @@ class SettingsService extends BaseSharedPreferencesService {
   static const autoCheckUpdatesOnStartup = BoolPref('auto_check_updates_on_startup', defaultValue: true);
   static const showPerformanceOverlay = BoolPref('show_performance_overlay');
   static const autoHidePerformanceOverlay = BoolPref('auto_hide_performance_overlay', defaultValue: true);
-  static const enableDiscordRPC = BoolPref('enable_discord_rpc');
   static const enableTraktWatchedSync = BoolPref('enable_trakt_watched_sync', defaultValue: true);
   static const matchContentFrameRate = BoolPref('match_content_frame_rate');
   static const matchContentResolution = BoolPref('match_content_resolution');
@@ -1396,10 +1395,9 @@ class SettingsService extends BaseSharedPreferencesService {
     autoCheckUpdatesOnStartup,
     showPerformanceOverlay,
     autoHidePerformanceOverlay,
-    enableDiscordRPC,
     enableTraktWatchedSync,
     // Scrobble toggle, one per tracker service.
-    for (final s in TrackerService.values) scrobblePref(s),
+    for (final s in heisucaTrackerServices) scrobblePref(s),
     matchContentFrameRate,
     matchContentResolution,
     tunneledPlayback,
@@ -1466,7 +1464,7 @@ class SettingsService extends BaseSharedPreferencesService {
     episodeAction,
     keyboardHotkeys,
     // Library filters, one pair per tracker service.
-    for (final s in TrackerService.values) ...[trackerFilterModePref(s), trackerFilterIdsPref(s)],
+    for (final s in heisucaTrackerServices) ...[trackerFilterModePref(s), trackerFilterIdsPref(s)],
   ];
 
   /// Group two: exported but *not* reset. Mirrors the original reset surface —

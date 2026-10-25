@@ -1,4 +1,9 @@
-# Etapa C — contrato de dados a esclarecer antes de alterar o app
+# Etapa C — histórico do bloqueio de contrato
+
+**Superado:** contrato aprovado em `docs/HANDOFF_CODEX_2026-10-25.md`, seção C,
+commit `8531b55`. A implementação usa conexão Jellyfin salva no perfil e vínculo
+declarado em `plex` nos feeds; não há endereço/identificador fixo. Registro da
+retomada em `HANDOFF_GPT_ENTREGA_2026-10-24.md`. O texto abaixo é histórico.
 
 Estado: A, A2 e B concluídas no Actions. Último APK: **2.0.20+21**, código
 `383f59ef4a3ac36b853f79e92968d7b51e3e4b37`, run

@@ -1,7 +1,7 @@
 /// Calendário do mesmo plugin e mapa usados por apps/web/src/api/jellyfin.ts.
 class HeisucaUpcoming {
   const HeisucaUpcoming({required this.id, required this.title, required this.subtitle,
-    required this.isMovie, this.imagePath, this.jellyfinId, this.tmdbId});
+    required this.isMovie, this.imagePath, this.jellyfinId, this.tmdbId, this.tvdbId});
   final String id;
   final String title;
   final String subtitle;
@@ -9,6 +9,7 @@ class HeisucaUpcoming {
   final String? imagePath;
   final String? jellyfinId;
   final int? tmdbId;
+  final int? tvdbId;
 }
 
 List<HeisucaUpcoming> heisucaParseUpcoming(Object? mapping, Object? section, {required bool isMovie}) {
@@ -34,7 +35,8 @@ List<HeisucaUpcoming> heisucaParseUpcoming(Object? mapping, Object? section, {re
     result.add(HeisucaUpcoming(id: '${isMovie ? 'movie' : 'tv'}:$key', title: title,
       subtitle: [day, episode].where((s) => s.isNotEmpty).join(' · '), isMovie: isMovie,
       imagePath: cachedPoster ?? (jf == null ? null : '/Items/${Uri.encodeComponent(jf)}/Images/Primary'),
-      jellyfinId: jf, tmdbId: int.tryParse('${target['tmdb'] ?? ''}')));
+      jellyfinId: jf, tmdbId: int.tryParse('${target['tmdb'] ?? ''}'),
+      tvdbId: int.tryParse('${target['tvdb'] ?? ''}')));
   }
   return result;
 }

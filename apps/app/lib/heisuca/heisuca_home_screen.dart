@@ -4,7 +4,7 @@
 //   e ZERO botões de cápsula sobre a arte (toque no hero abre a Ficha Técnica)
 // - Fileira 1: Continuar Assistindo em proporção 16:9 com barra de progresso e play
 // - Fileira 2: Em alta no Brasil (Top 10) com números grandes vazados no canto inferior esquerdo
-// - Fileiras de Acervo: Lançamentos, Novidades em Filmes, Séries, Animes ou Hubs do Plex
+// - Acervo: uma fileira por biblioteca, na ordem do servidor
 // - Suporte unificado: Jellyfin e Plex operam com visual 100% Heisuca (zero telas legadas)
 // - Menu de Toque Longo (500ms + haptics) para ações rápidas (Esboço 04B)
 // - Espaçamento inferior calibrado para a Ilha Flutuante (HeisucaFloatingIsland)
@@ -37,6 +37,9 @@ import '../providers/discover_provider.dart';
 import '../providers/download_provider.dart';
 import '../providers/multi_server_provider.dart';
 import '../services/jellyfin_client.dart';
+import '../media/media_server_client.dart';
+import '../services/plex_client.dart';
+import 'heisuca_plex_home_repository.dart';
 import '../utils/download_utils.dart';
 import '../utils/media_image_helper.dart';
 import '../widgets/optimized_media_image.dart';
@@ -61,8 +64,9 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
   late final DiscoverProvider _discover;
   late final MultiServerProvider _servers;
 
-  JellyfinClient? _client;
-  CgflixHomeRepository? _repository;
+  MediaServerClient? _client;
+  List<JellyfinClient> _feedClients = const [];
+  HeisucaHomeRepository? _repository;
   bool _tabVisible = true;
   bool _appActive = true;
   int _generation = 0;
@@ -94,24 +98,28 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
   }
 
   void _onServersChanged() {
-    final client = _servers.serverManager.navigationOnlineClients.values
-        .whereType<JellyfinClient>()
-        .firstOrNull;
-    final same = client != null &&
-        _client != null &&
-        client.serverId == _client!.serverId &&
-        client.cgflixUserId == _client!.cgflixUserId;
+    final client = _servers.serverManager.navigationOnlineClients.values.firstOrNull;
+    final feeds = _servers.serverManager.visibleOnlineClients.values.whereType<JellyfinClient>().toList();
+    final sameFeeds = feeds.length == _feedClients.length &&
+        List.generate(feeds.length, (i) => identical(feeds[i], _feedClients[i])).every((same) => same);
+    final same = identical(client, _client) && sameFeeds;
 
-    if (same || (client == null && _client == null)) {
+    if (same) {
       _onChanged();
       return;
     }
 
     _repository?.dispose();
+    _generation++;
     _activeHeroItem = null;
     _heroDocked = false;
     _client = client;
-    _repository = client == null ? null : CgflixHomeRepository(client);
+    _feedClients = feeds;
+    _repository = switch (client) {
+      JellyfinClient jf => CgflixHomeRepository(jf),
+      PlexClient plex => HeisucaPlexHomeRepository(plex, feedClients: feeds),
+      _ => null,
+    };
     _onChanged();
   }
 
@@ -208,8 +216,8 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
               controller: _scrollController,
               physics: const ProMotionScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
               slivers: repo != null
-                  ? _buildJellyfinSlivers(repo, heroHeight)
-                  : _buildDiscoverSlivers(heroHeight),
+                  ? _buildHomeSlivers(repo, heroHeight)
+                  : [SliverToBoxAdapter(child: SizedBox(height: heroHeight))],
             ),
           ),
 
@@ -228,9 +236,9 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
     );
   }
 
-  // --- Construção do acervo Jellyfin -----------------------------------------
+  // --- Montagem compartilhada do acervo -----------------------------------------
 
-  List<Widget> _buildJellyfinSlivers(CgflixHomeRepository repo, double heroHeight) {
+  List<Widget> _buildHomeSlivers(HeisucaHomeRepository repo, double heroHeight) {
     final key = '${repo.client.serverId.value}:$_generation';
     return [
       // 1. Hero Cinematográfico (Esboço 03B)
@@ -297,83 +305,7 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
     ];
   }
 
-  // --- Construção do acervo Plex / DiscoverProvider ---------------------------
 
-  List<Widget> _buildDiscoverSlivers(double heroHeight) {
-    final heroItems = _discover.onDeck.isNotEmpty
-        ? _discover.onDeck.take(5).toList()
-        : (_discover.hubs.isNotEmpty ? _discover.hubs.first.items.take(5).toList() : <MediaItem>[]);
-
-    // Hubs adicionais (excluindo o Continue Watching se presente nos hubs)
-    final otherHubs = _discover.hubs.where((h) => !h.isContinueWatchingHub).toList();
-    final trendingHub = otherHubs.where((hub) => cgflixNormalize(hub.title) == cgflixNormalize(cgflixTrendingTitle)).firstOrNull;
-    final top10Items = trendingHub?.items.take(10).toList() ?? <MediaItem>[];
-    final remainingHubs = otherHubs.where((hub) => !identical(hub, trendingHub)).toList();
-
-    return [
-      // 1. Hero Cinematográfico (Esboço 03B)
-      if (heroItems.isNotEmpty)
-        SliverToBoxAdapter(
-          child: _HeisucaHero(
-            items: heroItems,
-            height: heroHeight,
-            paused: !_tabVisible || !_appActive || _heroDocked,
-                  logoAnchor: _logoAnchor,
-            scrollController: _scrollController,
-            onActiveItemChanged: _onHeroActiveChanged,
-          ),
-        )
-      else if (_discover.isLoading)
-        SliverToBoxAdapter(child: _HeroSkeleton(height: heroHeight)),
-
-      // 2. Fileira 1: Continuar Assistindo (16:9 Widescreen)
-      if (_discover.onDeck.isNotEmpty)
-        SliverToBoxAdapter(
-          child: _HeisucaContinueWatchingRow(items: _discover.onDeck),
-        ),
-
-      // 3. Fileira 2: Em alta no Brasil (Top 10)
-      if (top10Items.isNotEmpty)
-        SliverToBoxAdapter(
-          child: _HeisucaTop10Row(items: top10Items),
-        ),
-
-      // 4. Fileiras das Bibliotecas / Hubs do Plex
-      for (final hub in remainingHubs)
-        if (hub.items.isNotEmpty)
-          SliverToBoxAdapter(
-            child: _HeisucaShelfRow(
-              title: _cleanHubTitle(hub.title),
-              items: hub.items,
-              storageKey: 'hub_${hub.id}',
-            ),
-          ),
-
-      if (_discover.isLoading && _discover.hubs.isEmpty && _discover.onDeck.isEmpty) ...[
-        SliverToBoxAdapter(child: _HeroSkeleton(height: heroHeight)),
-        const SliverToBoxAdapter(child: CgflixSkeletonRow(wide: true)),
-        const SliverToBoxAdapter(child: CgflixSkeletonRow()),
-      ],
-
-      // Folga no rodapé para não ficar sob a Ilha Flutuante (64dp + 14dp)
-      SliverToBoxAdapter(child: SizedBox(height: MediaQuery.paddingOf(context).bottom + 96)),
-    ];
-  }
-
-  /// Limpa e humaniza títulos brutos de hubs do Plex
-  String _cleanHubTitle(String raw) {
-    final lower = raw.toLowerCase();
-    if (lower.contains('recently added movies') || lower == 'filmes recentes') {
-      return 'Novidades em filmes';
-    }
-    if (lower.contains('recently added television') || lower.contains('recently added shows') || lower == 'séries recentes') {
-      return 'Novidades em séries';
-    }
-    if (lower.contains('recently released movies')) {
-      return 'Lançamentos';
-    }
-    return raw;
-  }
 }
 
 // -----------------------------------------------------------------------------
@@ -785,10 +717,14 @@ class _HeisucaContinueWatchingRow extends StatelessWidget {
 class _ContinueWatchingStreamRow extends StatelessWidget {
   const _ContinueWatchingStreamRow({super.key, required this.discover, required this.repository});
   final DiscoverProvider discover;
-  final CgflixHomeRepository repository;
+  final HeisucaHomeRepository repository;
 
   @override
   Widget build(BuildContext context) {
+    // O Discover mantém o progresso Plex atualizado ao voltar do player.
+    if (repository.client is PlexClient) {
+      return _HeisucaContinueWatchingRow(items: discover.onDeck);
+    }
     return _StreamSection<CgflixRowData>(
       key: const ValueKey('continue_stream'),
       stream: () => repository.watchRow(CgflixRowKind.continueWatching),
@@ -1061,18 +997,15 @@ class _HomePosterWithCaption extends StatelessWidget {
 
 class _UpcomingRow extends StatelessWidget {
   const _UpcomingRow({required this.repository, required this.items});
-  final CgflixHomeRepository repository;
+  final HeisucaHomeRepository repository;
   final List<HeisucaUpcoming> items;
 
   Future<void> _open(BuildContext context, HeisucaUpcoming item) async {
-    if (item.jellyfinId != null) {
-      try {
-        final raw = await repository.client.cgflixFetchRawItems({'Ids': item.jellyfinId!, 'Limit': '1'});
-        final catalog = repository.client.cgflixMapItems(raw);
-        if (!context.mounted) return;
-        if (catalog.isNotEmpty) { HeisucaTitleSheet.show(context, catalog.first); return; }
-      } catch (_) { /* Oferece o fluxo real de pedidos se o item não puder ser aberto. */ }
-    }
+    try {
+      final matched = await repository.resolveUpcoming(item);
+      if (!context.mounted) return;
+      if (matched != null) { HeisucaTitleSheet.show(context, matched); return; }
+    } catch (_) { /* Oferece o fluxo real de pedidos se o item não puder ser aberto. */ }
     if (!context.mounted) return;
     await showModalBottomSheet<void>(sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: context, isScrollControlled: true, useSafeArea: true,
       builder: (_) => SizedBox(height: MediaQuery.sizeOf(context).height * 0.72,
@@ -1100,7 +1033,7 @@ class _UpcomingRow extends StatelessWidget {
             return SizedBox(width: 80, child: InkWell(onTap: () => _open(context, item), child: Column(
               crossAxisAlignment: CrossAxisAlignment.start, children: [
                 ClipRRect(borderRadius: BorderRadius.circular(9), child: Stack(children: [
-                  OptimizedMediaImage(client: repository.client, imagePath: item.imagePath, width: 80, height: 120),
+                  OptimizedMediaImage(client: repository.upcomingImageClient, imagePath: item.imagePath, width: 80, height: 120),
                   Positioned(top: 4, left: 4, right: 4, child: DecoratedBox(
                     decoration: BoxDecoration(color: context.cgflix.accent, borderRadius: BorderRadius.circular(8)),
                     child: Padding(padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),

@@ -451,3 +451,35 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`, a mesma de A/A2.
 - A rodada completa **não foi concluída**. Retomar na C após esclarecer o contrato;
   D–M não iniciadas. Validação física de A/A2/B ainda pendente.
+
+## Retomada de 25/10 — etapa C — 2.0.21+22 — em validação
+
+- Contrato incorporado do commit `8531b55`: o bloqueio anterior foi superado pela
+  decisão explícita de usar um Jellyfin salvo no perfil e o vínculo `plex` de cada feed.
+- Uma montagem visual para Jellyfin e Plex: destaque, Continuar, Em alta, bibliotecas
+  na ordem do servidor e Em breve. Removidos os hubs promovidos e sua humanização de
+  títulos da Home Plex. Bibliotecas de música não entram no acervo de vídeo.
+- `HeisucaPlexHomeRepository` consulta somente Jellyfins on-line/visíveis no perfil;
+  valida `plex` separadamente em cada feed contra o ID da fonte Plex ativa. Não contém
+  identidade/endereço CGSERVER, token fixo nem uso de token Plex no Jellyfin.
+- Em alta: resolve TMDB/TVDB com `PlexClient.findByExternalIds`, preserva ranking,
+  pula títulos ausentes e deduplica cópias. Em breve usa mapa + calendário autenticado
+  da mesma sessão Jellyfin; abre a ficha Plex quando há correspondência e mantém a
+  busca real de pedidos quando não há. Pôsteres do calendário usam o cliente de origem.
+- Sem conexão/vínculo/feed acessível: fileira vazia, sem mensagem ao usuário. Cache em
+  memória por instância/perfil, renovado no refresh, reconexão/troca e após dez minutos.
+- O Continuar Plex continua consumindo o DiscoverProvider, atualizado ao sair do player.
+- A montagem Jellyfin anterior foi mantida; só ganhou o contrato comum de dados.
+  As consultas e o cache Jellyfin permaneceram iguais. Capturas da versão anterior
+  (`8531b55`, antes desta etapa) foram geradas para Home parada e rolada a 350 dp;
+  o teste golden compara as duas imagens com a implementação nova, sem atualizá-las.
+  Ambas passaram sem diferença. São fixtures de Flutter/Linux, com Sora/Inter reais;
+  não são capturas de aparelho nem conteúdo/arte de servidor real.
+- Testes direcionados iniciais: **30 aprovados** (Plex, paridade Jellyfin, repositório
+  Jellyfin), mais **1 golden aprovado** com duas capturas antes/depois. Teste adicional
+  cobre feed indisponível e revalidação do vínculo ao atualizar.
+- Portão completo: **389 aprovados, 3 ignorados**, mais **8 aprovados com Impeller**.
+  Inclui os sete testes Plex e o golden Jellyfin desta etapa. Commit/run/APK aguardando CI.
+- Não testado: aparelho, Plex/Jellyfin reais, fluidez em hardware, abertura real do
+  pedido e reprodução real. O formato público dos feeds foi informado no contrato
+  do Claude/Caio; os testes desta etapa usam HTTP controlado, sem login real.

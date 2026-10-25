@@ -63,9 +63,12 @@ jobs:
       - name: Liberar espaço da compilação antes do emulador
         run: |
           # O percurso instala o APK pronto (executar.py: adb install e flutter drive --use-application-binary).
-          ./android/gradlew --stop -p android >/dev/null 2>&1 || true
+          # Espaço é ganho extra (o runner já fica com ~32 GB livres): nunca derruba a bancada.
+          (cd android && ./gradlew --stop >/dev/null 2>&1) || true
+          pkill -f '[G]radleDaemon|[K]otlinCompileDaemon' || true
+          sleep 2
           rm -rf "$HOME/.gradle/caches" "$HOME/.gradle/wrapper/dists" build/app/intermediates build/app/tmp \
-            build/app/kotlin build/app/generated
+            build/app/kotlin build/app/generated || echo "Aviso: parte do cache do Gradle não saiu"
           df -h /
       - name: Emulador e percurso autenticado
         id: percurso

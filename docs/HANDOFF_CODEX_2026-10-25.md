@@ -111,6 +111,11 @@ estilizadas. **Sem "ilha"/Live Updates**: o Google não permite para mídia nem 
 som, com serviço em primeiro plano `mediaPlayback` (Android 17 exige app visível ou serviço em primeiro plano para tocar
 áudio). Pode ser feita depois da L.
 
+## N. Retorno do Caio de 25/10 à tarde (depois da M)
+- Tudo em `docs/RETORNO_CAIO_2026-10-25_TARDE.md`: N1 indicador do login falso e com o nome CGSERVER (sondar o servidor de
+  verdade), N2 "+" em dobro, N3 níveis reais no medidor do popup (Reduzido/Padrão/Topo de linha) + "Medir fluidez" pelos
+  tempos de quadro do próprio app. Mesmo rito das outras etapas (versão, portão, CI, registro).
+
 ## Depois (não agora)
 - Varredura do app inteiro contra `docs/GUIA_ANDROID_GOOGLE.md`, com lista de falhas e correções.
 - Tema infantil escuro.

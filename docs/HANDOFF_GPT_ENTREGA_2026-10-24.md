@@ -568,7 +568,7 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
 - Não testado em aparelho, TalkBack real, servidor real, teclado/controle físico,
   login real ou resposta de rede real. A Início Jellyfin não foi redesenhada.
 
-## Etapa F — 2.0.24+25 — em validação
+## Etapa F — 2.0.24+25 — concluída no CI
 
 - Retirada a implementação manual `_CgflixPredictiveBack`. O builder da marca agora
   herda `PredictiveBackPageTransitionsBuilder` e delega a ele toda a transição/gesto;
@@ -637,3 +637,13 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   incluindo os dois arquivos do player adicionados ao CI. Primeiro commit de código:
   `96d3904797d0abd0283da61b3011fecb5813af53`; run inicial `40199848233` substituído
   pelo complemento de cobertura. Não avançar à G até o run do complemento ficar verde.
+- **Fechamento (Claude, 25/10, depois do limite de uso do Codex):** run do complemento
+  [40200689682](https://github.com/CaioGuerras/heisuca/actions/runs/40200689682) `success` em `0d8d76a`.
+  Artifact 12601943900 (51.143.036 bytes); APK 98.605.838 bytes, SHA-256
+  `196b6e97bc46892365fd0bf3018aa5c5ea5fe454a3d1732682fdc2b49eded5a8`; assinatura v2 com o mesmo certificado
+  `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`. Publicado em
+  `https://heisuca.docaio.com.br/pacotes/heisuca-2.0.24-teste.apk` (download conferido pelo SHA-256).
+- Conferência C–F (Claude): runs C `40188133608`, D `40190335242`, E `40193402429`, F `40200689682` verdes; o run
+  `40199848233` (cancelado) foi substituído. Vínculo Plex↔Jellyfin lido só dos feeds do servidor (`plex` em
+  `emalta/embreve.json`), sem nome de servidor fixo. G–M seguem com o Codex; depois a etapa N
+  (`docs/RETORNO_CAIO_2026-10-25_TARDE.md`).

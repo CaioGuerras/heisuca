@@ -251,6 +251,22 @@ void main() {
       }
     });
 
+    test('um endereço só: servidor lento (3 s) não é descartado pela corrida de 2 s', () async {
+      final discovery = JellyfinEndpointDiscovery(
+        testHttpClientFactory: () => MockClient((req) async {
+          await Future<void>.delayed(const Duration(seconds: 3));
+          return _info(id: 'srv-lento');
+        }),
+      );
+      final input = JellyfinEndpointDiscovery.buildUserInputCandidates(['https://lento.example.com']);
+      final result = await discovery.raceEndpoints(
+        input.probeBaseUrls,
+        baseUrlsToPersist: input.explicitBaseUrls,
+        baseUrlValidationGroups: input.validationBaseUrlGroups,
+      );
+      expect(result.activeBaseUrl, 'https://lento.example.com');
+    });
+
     test('races URLs and selects the lowest-latency reachable endpoint', () async {
       final discovery = JellyfinEndpointDiscovery(
         testHttpClientFactory: () => MockClient((req) async {

@@ -702,3 +702,7 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
 - Complemento: manifesto fonte e compilação sintática Python aprovados; portão
   local novamente **427 aprovados, 3 ignorados + 8 Impeller aprovados**. O hash é
   calculado por `hashlib.file_digest` sobre o mesmo APK conferido por apksigner/aapt.
+- **Retomada atualizada da G:** complemento `157327c6e33cebadf5245350a460740974470cb3`,
+  run [40213852821](https://github.com/CaioGuerras/heisuca/actions/runs/40213852821)
+  pendente. Aguardar verde e ler no log do validador o SHA-256 do APK e certificado;
+  registrar artifact/metadados desse run. G segue 2.0.25+26; H–O não iniciadas.

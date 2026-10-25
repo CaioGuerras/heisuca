@@ -674,3 +674,10 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
 - Portão local final: **427 aprovados, 3 ignorados + 8 Impeller aprovados**,
   `APROVADO: análise e testes concluídos.` A prova da foto inclui o `RawImage`
   decodificado, não apenas a presença do widget. Registro do CI segue após o push.
+- Código da G: `cf884dd04f072680f56145d56a859c7319dd01df` (sem `[skip ci]`),
+  já enviado ao ramo único. Run pendente:
+  [40211659360](https://github.com/CaioGuerras/heisuca/actions/runs/40211659360).
+  **Ponto de retomada:** aguardar esse run, conferir pacote/certificado e SHA-256
+  do APK, registrar o resultado; só então iniciar H (próxima 2.0.26+27).
+  H–O ainda não iniciadas. Na L remover Sentry inteiro e traduções Discord;
+  N/O seguem o handoff atualizado pelo Claude, inclusive changelog manual.

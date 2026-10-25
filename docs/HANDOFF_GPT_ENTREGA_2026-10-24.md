@@ -434,3 +434,20 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
 - Não testado em aparelho, em conta Trakt real nem em reprodução com servidor real.
   Os testes de rede usam clientes controlados; não foram feitos login/envio ao Plezy,
   Discord, MAL ou AniList. Etapas C–M ainda não iniciadas.
+
+## Etapa C — pausada antes da implementação; C–M pendentes
+
+- Evidência e pergunta de contrato: [BLOQUEIO_ETAPA_C_2026-10-25.md](BLOQUEIO_ETAPA_C_2026-10-25.md).
+- O desenho exige Em alta/Em breve com Plex CGSERVER ativo; o código obtém o
+  calendário completo somente com sessão Jellyfin. Falta definir a origem e a
+  autenticação para uma instalação que só tem Plex, ou explicitar a dependência
+  de um Jellyfin CGSERVER já conectado. Não inferir URL/token a partir do Plex.
+- Investigação de código e contrato, sem consulta ao servidor real; não se afirma
+  que um endpoint do servidor inexiste. A busca Plex por IDs já está disponível.
+- Pausa conforme “Se algo não bater, pare e documente”; sem alteração parcial da
+  Home, sem mudança da Início Jellyfin, sem aumento de versão para documentação.
+- Última versão/APK verde: **2.0.20+21**, etapa B, run **40159071302**, links acima.
+- Assinatura B conferida no log do Actions: SHA-256
+  `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`, a mesma de A/A2.
+- A rodada completa **não foi concluída**. Retomar na C após esclarecer o contrato;
+  D–M não iniciadas. Validação física de A/A2/B ainda pendente.

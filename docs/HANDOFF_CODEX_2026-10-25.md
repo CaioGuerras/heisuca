@@ -102,6 +102,12 @@ Ver item 8 em `docs/HANDOFF_GPT_2026-10-24.md`.
 - Renomear o pacote Android `com.edde746.plezy` e os canais `com.plezy/*` para `app.heisuca` (sem mudar o
   `applicationId`, para não perder a atualização por cima); tirar "Plezy" de nomes e textos; trocar o texto de crédito
   do Sobre por uma página padrão de licenças (GPL-3.0 e aviso do Plezy, obrigatório). Registrar no `CLAUDE.md`.
+- **Sentry do Plezy (achado de 25/10, conferido no código):** `main.dart:114` fixa o DSN `bugs.plezy.app` e
+  `SettingsService.crashReporting` vem ligado por padrão (`settings_service.dart:557`), então falhas dos nossos aparelhos
+  vão para o servidor do Plezy, o que contraria a etapa B ("sem chamadas ao Plezy"). Retirar o `sentry_flutter` inteiro
+  (dependência, init, `beforeSend`, opção nos ajustes, `nativeDatabasePath`); falhas ficam só no registro local que já
+  existe (compartilhável pelo usuário, sem token). Teste: nenhuma URL `plezy.app` no código nem no APK
+  (`unzip -p ... | strings | grep -c plezy.app` = 0, salvo o texto de licença/crédito).
 
 ## M. Esboço 04C — mídia fora do app (depois do guia do Google)
 Ver `docs/ESBOCOS_PENDENTES_2026-10-25.md`: MediaSession e notificação MediaStyle para o vídeo, controles na tela de

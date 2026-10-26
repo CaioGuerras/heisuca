@@ -1013,3 +1013,11 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   ignorados + 8 Impeller + 14 Python**; `APROVADO` no script completo. Nenhum
   golden da Início foi atualizado. Pacotes, JNI e restauração reais ainda serão
   comprovados pelos dois runs deste código.
+- **Ponto de retomada L:** código enviado no commit
+  `8f72d6fc73a6cbc647102d485648570dc8606c62`, sem `[skip ci]`.
+  [APK 40255564554](https://github.com/CaioGuerras/heisuca/actions/runs/40255564554)
+  e [bancada 40255564586](https://github.com/CaioGuerras/heisuca/actions/runs/40255564586)
+  estão em execução. Conferir ambos antes de iniciar M: pacote/certificado/hash,
+  ausência do Sentry no APK e relatório do percurso/restauração. Versão L 2.0.30+31.
+  M–O não iniciadas. K permanece fechada; a ausência de pôsteres e o uso da conta
+  dedicada são observações não bloqueantes, conforme autorização de Caio em 26/10.

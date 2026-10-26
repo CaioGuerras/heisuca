@@ -1824,3 +1824,37 @@ Próxima ação quando Actions for liberado:
   e [bancada 40359810049](https://github.com/CaioGuerras/heisuca/actions/runs/40359810049).
   Se interromper, retomar desses runs; ainda não há dado novo da imagem após
   áudio nem teste real de ACTION_DISMISS. M aberta, 2.0.31+32, N/O não iniciadas.
+
+### Último resultado e perda do ambiente — 26/10, após 442d345
+
+- [APK 40359809836](https://github.com/CaioGuerras/heisuca/actions/runs/40359809836)
+  **verde**, versão **2.0.31+32**, pacote `app.heisuca.player.teste.home`,
+  97.072.446 bytes. Certificado conferido no job:
+  `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`.
+  SHA-256 do APK **1535e239d45356fbb5a23d96adcf018215e5480e720e11f2d2a8c46dae086cbd**.
+  [Artifact 12668527190](https://github.com/CaioGuerras/heisuca/actions/runs/40359809836/artifacts/12668527190),
+  ZIP 50.367.790 bytes, digest
+  `9970d11a604d8016b3699bd2e624719d637acac9436156a21b27c1dd8ff80219`.
+  Leitura pelo conector GitHub; não foi recalculado localmente.
+- [Bancada 40359810049](https://github.com/CaioGuerras/heisuca/actions/runs/40359810049)
+  **vermelha**, artifact **12666949950**, 7.972.683 bytes, digest
+  `a4b654d118f6afa09c2c801d5141e1e5364cb5462fc2e52a7088a2643e78ab83`.
+  Job completo lido pelo conector GitHub. O percurso chegou a **11-voce**:
+  flags padrão desligado/PiP padrão/áudio FGS/transporte/áudio após fechar
+  PiP **todas verdadeiras**, reabertura e Back único devolveram à ficha.
+  Assim, ACTION_DISMISS foi exercitada no percurso real; não é só a sonda.
+  **Sem ANR**, restauração confirmada.
+- Motivo ainda a detalhar: Flutter encerrou com **Multiple exceptions (6)**.
+  O log público só imprime as últimas 60 linhas; não contém as seis causas
+  originais. **Não ignorar exceções, não classificar como infraestrutura e não
+  fechar a M.** Ler os blocos EXCEPTION CAUGHT do execucao.log já redigido.
+  Também conferir imagens 21 e 06 e os logs detalhados do VO; as flags do teste
+  não substituem prova da imagem restaurada.
+- Caio respondeu que **ainda não testou esse cenário no aparelho**. Portanto
+  não há confirmação física de que o defeito é exclusivo do emulador.
+- Ambiente de execução ficou **unavailable**; exec-server transport disconnected.
+  Nenhuma alteração local perdida: último código/testes **442d345**, checkpoint
+  **2f9eae5** já enviados. Sem Flutter/arquivos locais acessíveis enquanto durar
+  a indisponibilidade. GitHub conectado continua acessível para leitura e registro.
+- **M aberta, N/O não iniciadas**, versão **2.0.31+32**. Próximo passo é ler as
+  seis exceções e a evidência visual desse artifact, antes de propor correção.

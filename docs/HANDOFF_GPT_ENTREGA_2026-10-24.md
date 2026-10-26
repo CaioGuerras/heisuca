@@ -1450,3 +1450,19 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   ANR antes de classificar/corrigir. Som e transporte foram exercitados; retorno
   da imagem e fechar PiP com áudio ainda não foram comprovados. M aberta, N/O
   não iniciadas. Último par completo verde continua a L, 2.0.30+31.
+
+- **APK M verde e conferido:** código `bbc0a66eeba5d4bfe4023660247c661b124ab0ba`,
+  versão **2.0.31+32**, [run 40312145112](https://github.com/CaioGuerras/heisuca/actions/runs/40312145112),
+  [artifact 12645654971](https://github.com/CaioGuerras/heisuca/actions/runs/40312145112/artifacts/12645654971).
+  Pacote `app.heisuca.player.teste.home`, Heisuca Teste, APK 97.072.446 bytes,
+  certificado `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`.
+  SHA-256 APK `9127b306ee272579162d220e62c8e5e004ea5f3ce7aeff3ea9f1695bc75340a6`;
+  ZIP 50.367.789 bytes, SHA-256
+  `a384e683b2592f20214b5b8bda26595c192b7c75fd5db44f4202de8cf50e2a54`.
+  Validador confirmou serviço privado mediaPlayback, sem Live Updates, GPL,
+  zero plezy.app/SDK Sentry. Testes Kotlin aprovados (BUILD SUCCESSFUL).
+  **Não fecha M:** bancada do mesmo código tem ANR. Sem teste físico de áudio,
+  PiP/ASS/SRT, notificações de download, ExoPlayer ou atualização instalada no Caio.
+- Leitor de artifacts ampliado para imprimir motivo/carga/pressão de recursos
+  do android-anr.log já redigido. Não altera app nem transforma o run da bancada
+  em verde. Próxima leitura é do ANR de perda de foco 40312145102.

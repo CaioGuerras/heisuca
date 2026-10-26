@@ -61,6 +61,12 @@ jobs:
                           if any(marker in line.lower() for marker in markers)]
               print('Eventos de mídia já redigidos:')
               print('\n'.join(selected[-300:]))
+          anr = root / 'android-anr.log'
+          if anr.exists():
+              keys = ('Reason:', 'Load:', '/proc/pressure/', 'some avg', 'full avg', 'CPU usage', 'TOTAL:', 'am_anr')
+              print('Motivo e pressão de recursos já redigidos:')
+              selected = [line for line in anr.read_text().splitlines() if any(key in line for key in keys)]
+              print('\n'.join(selected))
           if not traces:
               print('Artifact sem trace do próprio app; consultar resultado e eventos acima.')
           for trace in traces:

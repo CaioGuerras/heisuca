@@ -1371,3 +1371,9 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   **M aberta, N/O não iniciadas.** Último par verde completo continua sendo
   L 40269817723/40269817747 (2.0.30+31). Não retomar hipóteses de pop/dispose:
   stack da reprodução M já foi lida em 40306588701 e está no diagnóstico da L.
+- APK 40307478247, tentativa 1: falha **antes dos testes Kotlin**, no download
+  `https://ffmpeg.org/releases/ffmpeg-8.0.1.tar.xz`, task prepareMpvFfmpegDevelopment
+  (`Failed to download FFmpeg 8.0.1 headers`). Não é falha de asserção do app.
+  Solicitada repetição do job com `gh run rerun --failed`, mesmo código/checksum.
+  Tentativa 2 pendente. Bancada 40307478230 com GPU software ainda em execução.
+  M continua aberta, N/O não iniciadas. Não há APK M conferido até este ponto.

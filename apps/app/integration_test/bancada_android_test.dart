@@ -292,6 +292,9 @@ void main() {
     await until(() => binding.lifecycleState == AppLifecycleState.resumed && !playerScreen.debugBackgroundAudioActive,
         'imagem restaurada depois do áudio');
     expect(await player.getProperty('vid'), isNot('no'));
+    position = player.currentPosition;
+    await until(() => player.currentPosition >= position + const Duration(seconds: 2), 'vídeo avança após restaurar a imagem');
+    await shot('21-imagem-apos-audio');
     expect((await PipService.enter(width: 16, height: 9)).$1, isTrue);
     await until(() => PipService().isPipActive.value, 'PiP manual com áudio permitido');
     await shot('19-fechar-pip', action: 'pip_close');

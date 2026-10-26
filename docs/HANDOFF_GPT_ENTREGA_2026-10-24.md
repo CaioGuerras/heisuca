@@ -1550,3 +1550,45 @@ Próxima ação quando Actions for liberado:
   [APK 40326294512](https://github.com/CaioGuerras/heisuca/actions/runs/40326294512) e
   [bancada 40326294796](https://github.com/CaioGuerras/heisuca/actions/runs/40326294796).
   **Não considerá-los aprovados antes de ler o resultado e artifacts.**
+
+### Resultado do experimento 49ea96d — M ainda aberta
+
+- [APK 40326294512](https://github.com/CaioGuerras/heisuca/actions/runs/40326294512)
+  **verde**, versão 2.0.31+32; pacote/certificado/mediaPlayback/GPL/ausência de
+  Sentry conferidos no run. [Artifact 12651329519](https://github.com/CaioGuerras/heisuca/actions/runs/40326294512/artifacts/12651329519),
+  ZIP 50.367.807 bytes, digest `830a6235e5ccf34dacb569ba787d04b732aa12c01fc73d18eb4912db39d4da7c`.
+  APK 97.072.446 bytes, SHA-256 **daf47c2221d601b10d8430115e35717a5d4441cf1b22a0a0d804dee8b4242ab5**.
+  Certificado **19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c**.
+  Download pela ferramenta conectada GitHub funcionou: ZIP extraído e SHA do
+  APK recalculado localmente, igual ao log. O mesmo vale para o APK anterior.
+- [Bancada 40326294796](https://github.com/CaioGuerras/heisuca/actions/runs/40326294796)
+  **vermelha**, artifact **12653390690**, ZIP 6.547.310 bytes, digest
+  `495475923eedfb83ce44fe514b5592c1c3762e398c004b06e406db7c9ba6a193`.
+  Relatório/PNG/vídeo/log baixados e inspecionados. Sem ANR do app, coleta
+  nativa disponível; restauração de progresso/assistido/contagem/data/preferências
+  confirmada. Overrides efetivos 540x1200 / 210 dpi. Preparação passou em 48 s.
+- Percurso chegou a **19-fechar-pip**: padrão desligado, Home em PiP, retorno,
+  áudio com FGS/vid=no/avanço, pausa e retomada via MediaSession, retorno da
+  imagem (estado/vid) e nova entrada em PiP. **Não chegou ao Back final**.
+  Falha exata: `RuntimeError: Botão de fechar PiP não encontrado; nenhuma saída simulada.`
+  Não é run instável/aprovado; o guard continua recusando fechamento da M.
+- Captura 15 tem vídeo real; captura 19 mostra PiP preto transitório, mas o
+  fim do vídeo interrompido tem imagem no PiP. Há erro MediaCodec de índice
+  após mudanças de superfície; não declará-lo inofensivo nem corrigido sem prova.
+  A nova captura 21 documentará a imagem após voltar do áudio, antes do PiP manual.
+- Diagnóstico da automação, fontes AOSP oficiais lidas:
+  `frameworks/testing/master/uiautomator/cmds/uiautomator/src/com/android/commands/uiautomator/DumpCommand.java`
+  espera `waitForIdle(1000, 10000)` e só lê `getRootInActiveWindow()`;
+  `frameworks/base/android15-release/libs/WindowManager/Shell/src/com/android/wm/shell/pip/phone/PipMenuView.java`
+  esconde menu após **3500 ms** (depois de interação, **2000 ms**).
+  O caminho antigo de dois dumps levou ~20 s e não preservava a janela PiP.
+- Próximo teste usa UiAutomation nas **janelas interativas** sem espera de idle:
+  helper Java compilado/dexado só na bancada, executado como shell, abre menu
+  com toque real dentro do task pinned deste pacote e faz ACTION_CLICK apenas
+  no botão Close/dismiss do SystemUI. Nenhum pop/PiP exit é simulado. O teste
+  continua exigindo PiP inativo, FGS e avanço de áudio, retorno da imagem e Back.
+  Helper e task dump são registrados no artifact, com a mesma redação de dados.
+  Sem alteração de permissões/motor/pacote/versão do app. Não testado em aparelho.
+- Portão local após a mudança de automação: **aprovado**, 622 Flutter
+  (3 ignorados), 8 Impeller e 35 Python; análise sem erros. Java/D8 do helper
+  será compilado no SDK do Actions; não se montou SDK Android neste ambiente.

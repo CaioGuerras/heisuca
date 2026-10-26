@@ -81,7 +81,8 @@ class Capturas:
             if event.get('back') is True:
                 raise RuntimeError('Marco não pode misturar ações.')
             self.focus(name, 'antes')
-            perform(event['action'], adb)
+            perform(event['action'], adb, record=lambda suffix, value:
+                    (self.output / f'{name}-{suffix}').write_text(self.sanitize(value)))
             self.focus(name, 'depois')
         if event.get('back') is True:
             self.focus(name, 'antes')

@@ -71,6 +71,8 @@ jobs:
           rm -rf "$HOME/.gradle/caches" "$HOME/.gradle/wrapper/dists" build/app/intermediates build/app/tmp \
             build/app/kotlin build/app/generated || echo "Aviso: parte do cache do Gradle não saiu"
           df -h /
+      - name: Compilar leitor rápido das janelas PiP (só bancada)
+        run: python3 scripts/bancada/compilar_ui.py
       - name: Emulador e percurso autenticado
         id: percurso
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d

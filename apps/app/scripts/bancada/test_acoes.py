@@ -1,18 +1,17 @@
 import subprocess
 import unittest
-import xml.etree.ElementTree as ET
 from unittest.mock import Mock
-from acoes import close_button, perform, pip_bounds
+from acoes import perform, pip_bounds
 
 
 class AcoesNativas(unittest.TestCase):
-    def test_botao_de_fechar_e_do_systemui_e_tem_area_real(self):
-        root = ET.fromstring('''<hierarchy>
-          <node package="outro.app" content-desc="Close" bounds="[0,0][50,50]"/>
-          <node package="com.android.systemui" content-desc="Close" bounds="[0,0][0,0]"/>
-          <node package="com.android.systemui" content-desc="Close" bounds="[50,100][100,150]"/>
-        </hierarchy>''')
-        self.assertEqual((50, 100, 100, 150), close_button(root))
+    def test_fechar_pip_recusa_task_de_outro_app_antes_de_tocar(self):
+        adb = Mock(return_value=subprocess.CompletedProcess([], 0,
+            b'* Task{123 mode=pinned outro.app}\n mBounds=Rect(10, 10 - 100, 100)'))
+        with self.assertRaisesRegex(RuntimeError, 'Task PiP deste app'):
+            perform('pip_close', adb)
+        self.assertEqual([('shell', 'dumpsys', 'activity', 'activities')],
+                         [call.args for call in adb.call_args_list])
 
     def test_sessao_usa_transporte_do_android_e_nao_mexe_no_back(self):
         adb = Mock()

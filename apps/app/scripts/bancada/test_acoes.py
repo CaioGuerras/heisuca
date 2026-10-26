@@ -1,10 +1,20 @@
 import subprocess
 import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 from acoes import perform, pip_bounds
 
 
 class AcoesNativas(unittest.TestCase):
+    @patch('acoes.Path.is_file', return_value=True)
+    def test_saida_nativa_sem_stderr_ainda_e_registrada(self, exists):
+        tasks = b'* Task{123 mode=pinned app.heisuca.player.teste.home}\n mBounds=Rect(10, 20 - 100, 120)'
+        adb = Mock(side_effect=[subprocess.CompletedProcess([], 0, tasks),
+                               subprocess.CompletedProcess([], 0, b''),
+                               subprocess.CompletedProcess([], 0, b'clique real do SystemUI\n')])
+        record = Mock()
+        perform('pip_close', adb, record=record)
+        record.assert_any_call('pip-automation.log', 'clique real do SystemUI\n')
+
     def test_fechar_pip_recusa_task_de_outro_app_antes_de_tocar(self):
         adb = Mock(return_value=subprocess.CompletedProcess([], 0,
             b'* Task{123 mode=pinned outro.app}\n mBounds=Rect(10, 10 - 100, 100)'))

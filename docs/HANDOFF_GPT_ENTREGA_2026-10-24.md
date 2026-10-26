@@ -1618,3 +1618,20 @@ Próxima ação quando Actions for liberado:
   [40339131385](https://github.com/CaioGuerras/heisuca/actions/runs/40339131385),
   head documental `b3408cd`, código `477ed64`. Em acompanhamento; **M aberta**.
   Não avançou para N/O nem declarou resolvida a falha anterior de automação.
+
+### Correção local da coleta do helper antes da próxima execução
+
+- Revisão encontrou defeito novo na automação de 477ed64: `capturas.adb` descarta
+  stderr, logo `CompletedProcess.stderr` é None, mas `acoes.perform` concatenava
+  stdout+stderr. Teste novo reproduziu **TypeError: can't concat NoneType to bytes**
+  antes da correção. Agora só a chamada do helper reúne stderr em stdout; o
+  restante do wrapper permanece descartando stderr. Saída nativa passa pela
+  redação já existente antes de gravar no artifact. **36 testes Python verdes**.
+- Run **40339131385 cancelado**, ainda em compilação do APK de integração,
+  antes de emulador/conta. Cancelamento comum recebeu HTTP 502 e 500; o
+  endpoint force-cancel foi aceito e o estado final `cancelled` foi conferido.
+  Não houve execução do novo helper nesse run. Nenhuma alegação de teste do app.
+- O portão completo está sendo repetido; código do aplicativo segue o mesmo,
+  versão 2.0.31+32. M continua aberta, N/O não iniciadas.
+- Portão final desta correção **aprovado**: 622 Flutter (3 ignorados),
+  8 Impeller, 36 Python; análise sem erros. Log local m-pip-stderr-gate.log.

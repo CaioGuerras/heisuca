@@ -43,8 +43,8 @@ def perform(action, adb, record=lambda name, value: None):
         remote = '/data/local/tmp/heisuca-bancada-ui.jar'
         adb('push', str(helper), remote, check=True)
         result = adb('shell', 'CLASSPATH=' + remote, 'app_process', '/system/bin',
-                     'HeisucaPipClose', *(str(v) for v in rectangle))
-        record('pip-automation.log', (result.stdout + result.stderr).decode(errors='replace'))
+                     'HeisucaPipClose', *(str(v) for v in rectangle), capture_errors=True)
+        record('pip-automation.log', result.stdout.decode(errors='replace'))
         if result.returncode:
             raise RuntimeError('Clique nativo de fechar PiP falhou; consulte pip-automation.log.')
     else:

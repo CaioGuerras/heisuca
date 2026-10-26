@@ -10,10 +10,11 @@ APP_ID = 'app.heisuca.player.teste.home'
 REMOTE = '/sdcard/heisuca-bancada.mp4'
 
 
-def adb(*args, check=False):
+def adb(*args, check=False, capture_errors=False):
     try:
         result = subprocess.run(['adb', *args], stdout=subprocess.PIPE,
-                                stderr=subprocess.DEVNULL, timeout=600 if args[0] == 'install' else 30)
+                                stderr=subprocess.STDOUT if capture_errors else subprocess.DEVNULL,
+                                timeout=600 if args[0] == 'install' else 30)
     except (subprocess.TimeoutExpired, OSError):
         result = subprocess.CompletedProcess(args, 1, b'')
     if check and result.returncode:

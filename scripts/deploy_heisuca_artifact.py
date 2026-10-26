@@ -24,9 +24,7 @@ SP = ZoneInfo("America/Sao_Paulo")
 OWNER = "CaioGuerras"
 REPO = "heisuca"
 BRANCH = "gemini/heisuca-plex-home"
-VPS_HOST = "143.95.215.156"
-VPS_PORT = 22022
-VPS_USER = "root"
+VPS_HOST = "vps"  # atalho no ~/.ssh/config (endereço, porta e usuário fora do repositório)
 VPS_DEST = "/var/www/heisuca/pacotes/heisuca-arm64-v8a.apk"
 URL_PUBLICA = "https://heisuca.docaio.com.br/pacotes/heisuca-arm64-v8a.apk"
 
@@ -172,12 +170,12 @@ def main():
     # Deploy na VPS
     log(f"Enviando APK para a VPS {VPS_HOST}:{VPS_DEST} via SCP...")
     subprocess.run([
-        "scp", "-P", str(VPS_PORT), str(apk_path),
-        f"{VPS_USER}@{VPS_HOST}:{VPS_DEST}"
+        "scp", str(apk_path),
+        f"{VPS_HOST}:{VPS_DEST}"
     ], check=True)
 
     subprocess.run([
-        "ssh", "-p", str(VPS_PORT), f"{VPS_USER}@{VPS_HOST}",
+        "ssh", VPS_HOST,
         f"cp -f {VPS_DEST} /var/www/heisuca/teste/pacotes/heisuca-arm64-v8a.apk && chown -R www-data:www-data /var/www/heisuca/pacotes /var/www/heisuca/teste/pacotes && chmod 644 {VPS_DEST} /var/www/heisuca/teste/pacotes/heisuca-arm64-v8a.apk"
     ], check=True)
 

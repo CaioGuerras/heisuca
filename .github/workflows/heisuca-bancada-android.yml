@@ -35,6 +35,7 @@ jobs:
           channel: stable
           cache: true
       - name: Preparar KVM e espaço
+        timeout-minutes: 10
         run: |
           # O runner padrão chega com ~14 GB livres; APK de depuração + Gradle + imagem do emulador não cabem
           # (run 40228852177: "No space left on device" ao instalar a imagem). Só sai o que esta bancada não usa.
@@ -47,8 +48,8 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
           if ! command -v ffprobe >/dev/null; then
-            sudo apt-get update
-            sudo apt-get install -y ffmpeg
+            sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update
+            sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y --no-install-recommends ffmpeg
           fi
           mkdir -p .bancada/evidencias
       - name: Dependências
@@ -94,6 +95,13 @@ jobs:
             adb root
             timeout 45 adb wait-for-device
             adb shell id
+            # 40312145102: pressão CPU 91%, main pronta esperando CPU por 169 s.
+            # Pixel 6 mantém ~411 x 914 dp: metade dos pixels por eixo e da densidade.
+            # Só o AVD muda; nenhuma redução de efeitos ou prazo no aplicativo.
+            adb shell wm size 540x1200
+            adb shell wm density 210
+            adb shell wm size
+            adb shell wm density
             python3 scripts/bancada/executar.py
       - name: Classificar sem confundir infraestrutura com aprovação
         if: always()

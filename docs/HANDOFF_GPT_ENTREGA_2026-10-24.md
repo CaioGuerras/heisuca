@@ -1508,3 +1508,40 @@ Próxima ação quando Actions for liberado:
    sem skip, push e APK/bancada verdes; conferir pacote/certificado/SHA-256 e
    registrar artifact. Manter M em 2.0.31+32 enquanto corrige a mesma etapa;
    depois N 2.0.32+33 e O 2.0.33+34, seguindo os handoffs e relatórios do repo.
+
+### Retomada da M — Actions liberado em 26/10, 12:55 UTC
+
+- Pull em `codex/heisuca-home-site` até `d2f4728`; alterações recentes do Claude
+  são só CI, sem diferença líquida no app. Cobrança deixou de bloquear jobs.
+- [APK 40321095197](https://github.com/CaioGuerras/heisuca/actions/runs/40321095197)
+  **verde**, código do app ainda `bbc0a66`, versão **2.0.31+32**.
+  [Artifact 12649218807](https://github.com/CaioGuerras/heisuca/actions/runs/40321095197/artifacts/12649218807):
+  ZIP 50.367.959 bytes, digest `20879833df08925ec5fa923d50fae8b17a655b985752d9091df8ec7f69c334e5`.
+  APK 97.072.446 bytes, SHA-256 `91be2793fc2e678e2e5a898426050f593587e844eabec095214c8216c36081eb`.
+  Log conferido: pacote `app.heisuca.player.teste.home`, certificado
+  `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`,
+  serviço privado mediaPlayback, GPL presente e nenhum Sentry/plezy.app.
+- [Ler ANR 40325209236](https://github.com/CaioGuerras/heisuca/actions/runs/40325209236)
+  **verde**, lendo a evidência do run vermelho 40312145102, sem acessar contas.
+  Confirma `FocusEvent(hasFocus=false)` 5002 ms em Home 15; carga
+  **36,78 / 27,64 / 12,79**, CPU **99%**, pressão CPU avg10 **91,04%**,
+  avg60 **90,40%**. Main em estado R, ~19,6 s executando e ~169,2 s aguardando CPU;
+  Java nativePollOnce, RenderThread idle. Não é a stack de GPU anterior nem
+  evidência de bloqueio em pop/dispose. Não extrapolar essa causa aos ANRs antigos.
+- Novo experimento só de bancada: renderizar **540x1200 / 210 dpi**, em vez de
+  1080x2400 / 420 dpi, mantendo ~411x914 dp e cortando 75% dos pixels de
+  renderização por software. Comprovação esperada é percurso completo sem ANR;
+  nenhum timeout, foco, efeito do app ou guard de ANR relaxado.
+- Bancada 40320970997 observada por mais de 35 minutos em **Preparar KVM e espaço**,
+  sem sequer compilar/iniciar emulador; 40321095378 aguardava essa execução.
+  Após cancelamento, log completo mostrou a causa exata: limpeza terminou em
+  ~1 minuto; **apt baixava ffmpeg e recomendações**, com downloads parados
+  por vários minutos (libcodec2/pocketsphinx). A suspeita inicial de limpeza
+  lenta foi descartada antes do commit; limpeza original preservada. Instalação
+  agora sem recomendações, timeout HTTP/HTTPS 30 s, duas tentativas, limite de
+  10 min para preparação. Falha de download continua vermelha, sem acessar conta.
+  Ambos os runs antigos foram cancelados antes de compilar/acessar servidor.
+- M permanece **aberta**; N/O não iniciadas. Não testado em aparelho físico.
+- Portão local desta retomada aprovado: **622 testes Flutter (3 ignorados),
+  8 com Impeller e 35 Python**, análise sem erros. Registro em
+  `/workspace/m-retomada-gate.log` (arquivo local, não distribuído no APK).

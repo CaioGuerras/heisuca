@@ -1545,3 +1545,8 @@ Próxima ação quando Actions for liberado:
 - Portão local desta retomada aprovado: **622 testes Flutter (3 ignorados),
   8 com Impeller e 35 Python**, análise sem erros. Registro em
   `/workspace/m-retomada-gate.log` (arquivo local, não distribuído no APK).
+- Experimento enviado no commit **49ea96defbddc7b2760f1e4cf47cc92ea25a6654**,
+  sem skip, mesmo app/versão da M. Runs em acompanhamento:
+  [APK 40326294512](https://github.com/CaioGuerras/heisuca/actions/runs/40326294512) e
+  [bancada 40326294796](https://github.com/CaioGuerras/heisuca/actions/runs/40326294796).
+  **Não considerá-los aprovados antes de ler o resultado e artifacts.**

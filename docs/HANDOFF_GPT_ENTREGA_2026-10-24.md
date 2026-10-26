@@ -1736,3 +1736,46 @@ Próxima ação quando Actions for liberado:
   e [bancada 40348262192](https://github.com/CaioGuerras/heisuca/actions/runs/40348262192).
   Retomar por eles, baixar artifact e comparar PNG decodificado/tela se disponíveis.
   M **não fechada**, N/O não iniciadas, versão **2.0.31+32**, nenhum teste físico.
+
+### Resultado de 707d4cb e próximo diagnóstico nativo — 26/10
+
+- [APK 40348261830](https://github.com/CaioGuerras/heisuca/actions/runs/40348261830)
+  **verde**, 2.0.31+32, pacote `app.heisuca.player.teste.home`, certificado
+  `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`,
+  97.072.446 bytes. SHA-256 **429ccb44472775fc47abc903c53feccbabafe7eb31f085d53eb0a3098e09921d**.
+  Artifact **12663566848**, ZIP 50.367.874 bytes, digest
+  `ee45f66b7650f13b5485544767358349b7273cc39fe4b6e7bcc581e1ef2afbff`.
+  Conferência pelo run; ainda não recalculado localmente.
+- [Bancada 40348262192](https://github.com/CaioGuerras/heisuca/actions/runs/40348262192)
+  **vermelha**, artifact **12664175500** baixado e inspecionado, 6.240.640 bytes,
+  digest `9b7a36b7f86ad79f5c43260174b0d43f71eb20053e013c37f42aad4fbe75643a`.
+  **Sem ANR do app**, restauração confirmada. Preparação passou em **93 s**,
+  host/AVD **4 CPUs**, overrides 540x1200 / 210 dpi efetivos. Não concluir que
+  a capacidade adicional corrige o problema visual.
+- Helper agora **conecta e lista janelas**; não encontra a vista Close.
+  Listou SystemUI, app e launcher, encerrou conexão e terminou Killed (exceção
+  principal enviada ao log Android pelo runtime). Próxima versão imprime a
+  própria exceção em stderr antes de retornar exit 1, preservado no artifact.
+- Imagem 05 tem quadro real (Lisoca); **21 continua preta**. mpv **não permitiu
+  screenshot-to-file**, sem PNG decodificado; indisponibilidade registrada,
+  não tratada como prova. `video-pts` não existe nesta versão do mpv e será
+  retirado da sonda. Inicial: vid=1, current-vo=gpu, vo-configured=no,
+  output=1920x1080. Após áudio: vid=1, GPU, vo-configured=no, output=null.
+  Não basta para determinar a causa; o quadro inicial pode ser da transição
+  anterior. Logs mostram mediacodec→gpu por `reasons=[shaders]` e retorno a
+  mediacodec no PiP. Próxima coleta inclui entrada/decoder/faixa e logs do VO
+  em nível v **só na integração**, passando pela redação já existente.
+- Fontes AOSP 15 conferidas para fechar PiP sem depender do menu efêmero:
+  `libs/WindowManager/Shell/src/com/android/wm/shell/pip/phone/PipAccessibilityInteractionConnection.java`
+  publica **ACTION_DISMISS**, cujo handler chama `mMotionHelper.dismissPip()`.
+  `services/accessibility/java/com/android/server/accessibility/AbstractAccessibilityServiceConnection.java`
+  encaminha ações não focais da janela PiP para essa conexão do sistema.
+- Helper passa a usar **uma ACTION_DISMISS** oferecida pela janela que o Android
+  marca como PiP, com pacote do app/SystemUI; host continua validando o task
+  pinned do Heisuca antes da chamada. Não toca em outra janela nem chama
+  saída/pop no aplicativo. Mantém as verificações de FGS, avanço de áudio,
+  PiP encerrado, reabertura e Back único. Não é um clique visual no X; é a
+  ação real de acessibilidade do sistema, com o mesmo fechamento nativo.
+- M continua **aberta**, sem prova da imagem restaurada; N/O não iniciadas.
+- Portão local da ação nativa de acessibilidade **aprovado**: 622 Flutter
+  (3 ignorados), 8 Impeller, 37 Python; análise sem erros. Não testado em aparelho.

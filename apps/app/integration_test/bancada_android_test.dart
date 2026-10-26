@@ -215,9 +215,12 @@ void main() {
     await tester.tap(find.text('Assistir').first);
     await until(() => find.byType(MobileVideoControls).evaluate().isNotEmpty, 'player nativo');
     final player = tester.widget<MobileVideoControls>(find.byType(MobileVideoControls).first).player;
+    // Só na integração: detalhes de inicialização do VO; o APK de uso mantém seu nível de log.
+    await player.setLogLevel('v');
     Future<Map<String, Object?>> videoProbe() async {
       final values = <String, Object?>{};
-      for (final key in ['vid', 'video-pts', 'vo-configured', 'current-vo', 'hwdec-current',
+      for (final key in ['vid', 'pause', 'vo-configured', 'current-vo', 'hwdec-current',
+        'video-params/w', 'video-params/h', 'video-dec-params/pixelformat', 'current-tracks/video/id',
         'avsync', 'decoder-frame-drop-count', 'frame-drop-count', 'video-out-params/w', 'video-out-params/h']) {
         try { values[key] = await player.getProperty(key); }
         catch (_) { values[key] = 'indisponível'; }

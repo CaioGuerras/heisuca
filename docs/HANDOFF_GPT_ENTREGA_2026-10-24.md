@@ -1466,3 +1466,45 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
 - Leitor de artifacts ampliado para imprimir motivo/carga/pressão de recursos
   do android-anr.log já redigido. Não altera app nem transforma o run da bancada
   em verde. Próxima leitura é do ANR de perda de foco 40312145102.
+
+### Bloqueio externo para retomar a M — 26/10, 11:35 UTC
+
+- Código mais recente: `628f1964a794beafa4bc2db08f417c387150ee4d` (só leitor de
+  evidência desde `bbc0a66`; código do app continua o do APK verde abaixo).
+  Versão **2.0.31+32**; portão do app aprovado: **622 Flutter (3 ignorados),
+  8 Impeller, 35 Python**. Ramo único preservado, sem PR/merge/publicação no site.
+- Os três runs novos falharam **sem executar nenhum step**:
+  [APK 40316060620](https://github.com/CaioGuerras/heisuca/actions/runs/40316060620),
+  [bancada 40316060677](https://github.com/CaioGuerras/heisuca/actions/runs/40316060677),
+  [leitor 40316060681](https://github.com/CaioGuerras/heisuca/actions/runs/40316060681).
+  Annotations conferidas nos três check-runs (121548831188, 121548831059,
+  121548830789), mesma mensagem exata:
+  > The job was not started because recent account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans' section in your settings
+- Não se sabe qual das duas condições ocorreu. Nenhum pagamento/limite foi
+  alterado pelo Codex. Não adianta repetir os jobs enquanto o GitHub bloquear
+  a conta; depende do responsável regularizar Billing & plans. Não houve login
+  de teste nem dados a restaurar nesses três runs sem steps.
+- **Último APK verde conferido: 40312145112 / artifact 12645654971, 2.0.31+32**,
+  pacote/certificado/hashes acima. Não é aprovação da M: a bancada 40312145102
+  tem ANR de perda de foco, com restauração confirmada. O bloqueio de cobrança
+  não reclassifica esse ANR como infraestrutura nem resolve o retorno da imagem.
+- **L entregue; M aberta; N e O não iniciadas.** Não iniciar outra etapa antes
+  de cumprir o rito da M (ou documentar uma falha de infraestrutura demonstrada,
+  sem inventar a causa do ANR). PiP padrão, áudio com FGS e transporte foram
+  exercitados; imagem no retorno e áudio após fechar PiP ainda sem prova completa.
+  Teste físico de ASS/SRT/PiP/lockscreen/download/Exo/atualização segue pendente.
+
+Próxima ação quando Actions for liberado:
+1. `git pull --ff-only` no ramo codex/heisuca-home-site e ler o fim deste registro.
+2. Rodar o leitor sem novo acesso ao servidor:
+   `gh workflow run heisuca-inspecionar-anr.yml --ref codex/heisuca-home-site -f run_id=40312145102`.
+   Ele já inclui carga/pressão de recursos do android-anr.log, além da stack e
+   do JSON do teste; essa versão do leitor ainda não executou por bloqueio de cobrança.
+3. Identificar o motivo do novo ANR: começou em Home 15, antes de voltar à imagem;
+   main mostra nativePollOnce/frame Dart e alta espera por CPU (~169 s acumulados),
+   não a stack glGetActiveUniform anterior. Conferir métricas antes de concluir.
+   Não forçar foco, repetir Back, ampliar prazos ou alterar dispose por suposição.
+4. Corrigir a causa com teste antes/depois; portão completo, commit de código
+   sem skip, push e APK/bancada verdes; conferir pacote/certificado/SHA-256 e
+   registrar artifact. Manter M em 2.0.31+32 enquanto corrige a mesma etapa;
+   depois N 2.0.32+33 e O 2.0.33+34, seguindo os handoffs e relatórios do repo.

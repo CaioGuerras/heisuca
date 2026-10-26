@@ -1305,3 +1305,14 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   8 Impeller, 34 Python, análise sem erros. Preservado o wakelock das demais
   plataformas; só o modo de áudio desliga a retenção da tela. Versão continua
   2.0.31+32 (mesma etapa). Novo push precisa de APK e bancada verdes.
+- **Retomada M / complemento enviado:** `05af83111ee04171163011df9378d76318cde01d`,
+  versão **2.0.31+32**, portão 615 + 8 + 34 aprovado, sem `[skip ci]`.
+  Runs a conferir: [APK 40303114349](https://github.com/CaioGuerras/heisuca/actions/runs/40303114349)
+  e [bancada 40303114336](https://github.com/CaioGuerras/heisuca/actions/runs/40303114336).
+  O APK anterior 40301348854 (`1ecb735`) ainda executava testes nativos no momento
+  deste registro. Não confundir o resultado dele com a aprovação do complemento.
+  Próximo passo: ler testes Kotlin e `BANCADA_FORA_DO_APP`, retorno/foco/ANR e
+  restauração; conferir pacote, certificado e SHA-256/artifact do novo APK.
+  **M não fechada; N/O não iniciadas.** Último APK e bancada verdes continuam
+  40269817723/40269817747 da L, 2.0.30+31. Falhas intermitentes antigas continuam
+  no diagnóstico da L, sem causa demonstrada e sem reclassificação de infraestrutura.

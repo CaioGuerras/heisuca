@@ -5,8 +5,21 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from diagnosticos import resumo_trace
 from diagnosticos import coletar, processo_proprio, coletar_traces
 from capturas import APP_ID
+
+
+class ResumoTrace(unittest.TestCase):
+    def test_java_nao_some_depois_de_mil_frames_do_interpretador(self):
+        trace = '"main" prio=5 tid=1 Native\n' + ('  native: art::interpreter\n' * 1000)
+        trace += '  at io.flutter.embedding.engine.FlutterJNI.onSurfaceCreated(Native method)\n'
+        trace += '"1.raster" prio=5 tid=2 Native\n  native: aguarda_buffer\n'
+        summary = resumo_trace(trace)
+        self.assertIn('FlutterJNI.onSurfaceCreated', summary)
+        self.assertIn('"1.raster"', summary)
+        self.assertIn('aguarda_buffer', summary)
+        self.assertLess(len(summary), 3000)
 
 
 class DiagnosticoAndroid(unittest.TestCase):

@@ -23,6 +23,21 @@ def processo_proprio(trace):
     return '\n'.join(block for block in blocks if re.search(r'(?m)^Cmd line: ' + PACKAGE, block))
 
 
+def resumo_trace(safe):
+    """Prioriza Java: frames do interpretador nativo não podem esconder o chamador JNI."""
+    blocks = re.split(r'(?m)(?=^"[^"\n]+")', safe)
+    selected = []
+    for block in blocks:
+        name = block.splitlines()[0] if block.splitlines() else ''
+        if name.startswith('"main"') or any(key in name.lower() for key in
+                ('raster', 'renderthread', '.ui"', '.io"', 'mpv', 'flutter')):
+            lines = block.splitlines()
+            java = [line for line in lines if re.match(r'\s+at ', line)]
+            native = [line for line in lines if re.match(r'\s+native:', line)][:12]
+            selected.append('\n'.join(lines[:8] + ['Java:'] + java + ['Nativo (início):'] + native)[:12000])
+    return '\n\n'.join(selected)[:50000]
+
+
 def coletar_traces(output, adb, protected, base):
     listing = adb('shell', 'ls', '-1t', '/data/anr')
     count = 0
@@ -45,7 +60,7 @@ def coletar_traces(output, adb, protected, base):
         if main_trace:
             main = True
             print('Thread main no trace do Android (já redigido):')
-            print(main_trace.group(0)[:12000])
+            print(resumo_trace(safe))
     return {'tracesDoApp': count, 'mainColetada': main}
 
 

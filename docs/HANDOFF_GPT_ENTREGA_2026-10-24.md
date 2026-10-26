@@ -1334,3 +1334,9 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   preservar/priorizar Java e threads raster na coleta, sem alterar a navegação.
   O run 40301348854 foi cancelado automaticamente pela concorrência do workflow
   quando entrou o complemento; 40301349609 foi cancelado antes do emulador.
+- Coleta complementar, sem mudar o app: resumo de trace prioriza Java e threads
+  raster/renderização, em vez de gastar 12 KB com o interpretador. Regressão
+  coberta com 1.000 frames nativos antes do chamador JNI: 35 testes Python verdes.
+  Workflow de leitura baixa o artifact já redigido pelo Actions (actions:read),
+  sem segredos de servidor/conta e sem rodar o percurso. Resolve a falta da stack
+  no log disponível neste ambiente; não considera o ANR corrigido.

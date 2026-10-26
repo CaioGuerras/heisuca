@@ -1,0 +1,57 @@
+name: Heisuca Ler ANR coletado
+
+on:
+  push:
+    branches: ["codex/heisuca-home-site"]
+    paths: [".github/workflows/heisuca-inspecionar-anr.yml"]
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Run da bancada com o trace já redigido (vazio = última falha)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  ler:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Escolher evidência já coletada
+        id: origem
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_SOLICITADO: ${{ inputs.run_id }}
+        run: |
+          run_anr="$RUN_SOLICITADO"
+          if [[ -z "$run_anr" ]]; then
+            run_anr=$(gh run list --workflow heisuca-bancada-android.yml --branch "$GITHUB_REF_NAME" --status failure --limit 1 --json databaseId --jq '.[0].databaseId')
+          fi
+          [[ "$run_anr" =~ ^[0-9]+$ ]] || { echo "Run inválido ou ausente"; exit 1; }
+          echo "run_id=$run_anr" >> "$GITHUB_OUTPUT"
+          echo "Trace da bancada $run_anr; nenhuma conta ou servidor será acessado."
+      - uses: actions/download-artifact@v4
+        with:
+          name: heisuca-bancada-android
+          run-id: ${{ steps.origem.outputs.run_id }}
+          github-token: ${{ github.token }}
+          path: evidencia-anr
+      - name: Ler Java e threads de renderização já redigidos
+        working-directory: apps/app/scripts/bancada
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from diagnosticos import resumo_trace
+          traces = sorted(Path('../../../../evidencia-anr').glob('android-trace-app-*.log'))
+          if not traces:
+              raise SystemExit('Artifact sem trace do próprio app.')
+          for trace in traces:
+              print(trace.name)
+              print(resumo_trace(trace.read_text()))
+          PY

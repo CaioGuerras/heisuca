@@ -1125,3 +1125,22 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   verde é 40258843798/40258843944, dados acima. L aguarda validação desse guard;
   **M–O não iniciadas**. ANR do run 40256320245 não tem causa demonstrada nem foi
   classificado como infraestrutura. Sem mudança especulativa no app.
+- **Run 40261399848 falhou com ANR nativo confirmado:** coleta disponível
+  (`dumpsysCodigo=0`, `logcatCodigo=0`), ANR do pacote detectado, restauração
+  confirmada. Motivo: **Input dispatching timed out, 5009 ms esperando
+  FocusEvent(hasFocus=true)**. Evento am_anr às 03:10:47; relatório às 03:10:49.
+  Mesmo intervalo registra diálogo ANR de `com.google.android.apps.messaging`,
+  carga `42.15 / 15.07 / 5.44` e `/proc/pressure/cpu some avg10=91.61`.
+  Isso demonstra saturação sistêmica; ainda não fornece a stack main do app.
+  Não se considera o app corrigido. Próxima investigação: condições da imagem
+  google_apis/boot e traces nativos, sem mexer no pop/dispose por suposição.
+- Artifact da falha: 12625117952, 3.007.155 bytes, ZIP SHA-256
+  `cb278473763b8dcb729a74b0d2adaa900819fb3a4f786ea9030e8cc4d910d423`.
+  APK do mesmo código `2d4785018f04a6ccb1e3e3424108d221aa231a93` verde e conferido
+  no run `40261399840`, artifact
+  [12625436053](https://github.com/CaioGuerras/heisuca/actions/runs/40261399840/artifacts/12625436053),
+  97.070.954 bytes, pacote `app.heisuca.player.teste.home`, certificado
+  `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`.
+  SHA-256 APK `ea5ac4fe76f6c9c8763d8dacd20315ab3e4ae308d461d3d7d0b2fae8ed17c680`,
+  ZIP `59c8829124d13b6e795d8eb86a0462029c264d223a704e97eed0013b97e33813`.
+  GPL presente, zero SDK/destino Sentry. **L continua aberta; M–O não iniciadas.**

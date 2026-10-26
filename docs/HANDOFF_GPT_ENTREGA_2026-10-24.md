@@ -1021,3 +1021,16 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   ausência do Sentry no APK e relatório do percurso/restauração. Versão L 2.0.30+31.
   M–O não iniciadas. K permanece fechada; a ausência de pôsteres e o uso da conta
   dedicada são observações não bloqueantes, conforme autorização de Caio em 26/10.
+- Revisão adicional de **todos** os testes encontrou três referências de teste à
+  telemetria retirada (duas ao pref e uma à inicialização do reporter). O teste de
+  atualização de preferências usa agora o pref dinâmico do Trakt, com a mesma
+  propriedade verificada; o teste de fases verifica apenas o registro local.
+  Ambos entram no portão, que também analisa a pasta `test` inteira.
+- **Validação final do complemento:** análise de todos os testes sem erros,
+  **603 Flutter aprovados, 3 ignorados, 8 Impeller e 14 Python**. Script completo
+  terminou `APROVADO` com fontes congeladas. Uma execução intermediária foi
+  invalidada porque o script foi editado enquanto rodava; não conta como portão.
+- Bancada `40255564586` cancelada ainda em **Compilar APK da bancada**, antes do
+  emulador/login, para substituir pelo commit final que inclui os testes. Não é
+  bancada verde nem falha de infraestrutura. APK anterior será substituído pelo
+  run do complemento. Nenhuma mudança funcional adicional no app nem na K.

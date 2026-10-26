@@ -456,16 +456,17 @@ void main() {
   group('SettingsService listenables', () {
     test('refreshListenables updates active prefs outside the resettable surface', () async {
       final settings = await SettingsService.getInstance();
-      final crashReporting = settings.listenable(SettingsService.crashReporting);
+      final pref = SettingsService.scrobblePref(TrackerService.trakt);
+      final scrobble = settings.listenable(pref);
 
-      expect(crashReporting.value, isTrue);
+      expect(scrobble.value, isTrue);
 
-      await settings.prefs.setBool(SettingsService.crashReporting.key, false);
-      expect(crashReporting.value, isTrue);
+      await settings.prefs.setBool(pref.key, false);
+      expect(scrobble.value, isTrue);
 
       settings.refreshListenables();
 
-      expect(crashReporting.value, isFalse);
+      expect(scrobble.value, isFalse);
     });
 
     test('resetAllSettings refreshes active dynamic tracker prefs', () async {

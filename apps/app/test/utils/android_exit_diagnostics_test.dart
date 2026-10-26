@@ -21,7 +21,6 @@ void main() {
     expect(AndroidUiState.values.map((state) => state.id), ['main_screen', 'player']);
 
     MemoryLogOutput.clearLogs();
-    AndroidExitDiagnostics.markTelemetryReady();
     AndroidExitDiagnostics.markStartupPhase(AndroidStartupPhase.databaseOpenStarted);
     AndroidExitDiagnostics.markStartupPhase(AndroidStartupPhase.databaseReady);
     AndroidExitDiagnostics.markStartupPhase(AndroidStartupPhase.credentialsLoaded);

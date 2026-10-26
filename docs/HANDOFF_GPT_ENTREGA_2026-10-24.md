@@ -1592,3 +1592,8 @@ Próxima ação quando Actions for liberado:
 - Portão local após a mudança de automação: **aprovado**, 622 Flutter
   (3 ignorados), 8 Impeller e 35 Python; análise sem erros. Java/D8 do helper
   será compilado no SDK do Actions; não se montou SDK Android neste ambiente.
+- Commit enviado: **477ed64b6a0f3d104adb25e002302585e2ab3b26** (sem skip).
+  Em acompanhamento: [APK 40329657365](https://github.com/CaioGuerras/heisuca/actions/runs/40329657365)
+  e [bancada 40329657261](https://github.com/CaioGuerras/heisuca/actions/runs/40329657261).
+  Se houver interrupção, começar inspecionando esses runs e seus artifacts;
+  não refazer a L, não iniciar N/O e não considerar a M fechada automaticamente.

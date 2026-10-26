@@ -45,6 +45,9 @@ def main():
             'duracao_arquivo_segundos': video.get('RunTimeTicks', 0) / 10_000_000})
         # O APK não contém credenciais. Configuração vai por stdin ao diretório privado.
         adb('install', '-r', str(ROOT / 'build/app/outputs/flutter-apk/app-debug.apk'), check=True)
+        # Emulador novo mostra o aviso do sistema "Viewing full screen" na 1ª tela cheia; o Back da bancada
+        # fechava o aviso em vez do player (run 40247726001). Marca o aviso como já visto, como num aparelho em uso.
+        adb('shell', 'settings', 'put', 'secure', 'immersive_mode_confirmations', 'confirmed', check=True)
         config = json.dumps({'server': base, 'user': name, 'item': video['Id'], 'title': video['Name']}).encode()
         adb('exec-out', 'run-as', APP_ID, 'mkdir', '-p', 'files', check=True)
         # `adb exec-out` não repassa o fim da entrada ao processo remoto (o `tee` esperava para sempre:
@@ -65,7 +68,10 @@ def main():
         playback_possible = True
         command = ['flutter', 'drive', '--driver', 'test_driver/bancada_android_test.dart',
             '--target', 'integration_test/bancada_android_test.dart', '--use-application-binary',
-            'build/app/outputs/flutter-apk/app-debug.apk']
+            'build/app/outputs/flutter-apk/app-debug.apk',
+            # Sem isto o drive desinstala o app no fim (drive_service.dart: stop → uninstallApp) e apaga o
+            # arquivo de sessão antes de a bancada encerrar a sessão no servidor; a limpeza é feita abaixo.
+            '--keep-app-running']
         with (OUT / 'execucao.log').open('w') as log:
             process = subprocess.Popen(command, cwd=ROOT, env=env, stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT, text=True, errors='replace', start_new_session=True)
@@ -136,15 +142,24 @@ def main():
                     session = json.loads(app_session.stdout) if app_session.returncode == 0 else None
                 except ValueError:
                     session = None  # sem arquivo de sessão: o adb devolve a mensagem de erro com código 0
-                if session:
-                    if session.get('user', '').replace('-', '').lower() != client.user.replace('-', '').lower():
-                        raise RestauracaoFalhou('Sessão do emulador não pertence à conta selecionada.')
-                    Servidor(base, session['token'], session['user'], session['device']).logout()
-                elif playback_possible and (OUT / '02-inicio.png').exists():
-                    raise RestauracaoFalhou('Não foi possível encerrar com segurança a sessão do emulador.')
+                falha_sessao = None
+                try:
+                    if session:
+                        if session.get('user', '').replace('-', '').lower() != client.user.replace('-', '').lower():
+                            raise RestauracaoFalhou('Sessão do emulador não pertence à conta selecionada.')
+                        Servidor(base, session['token'], session['user'], session['device']).logout()
+                    elif playback_possible and (OUT / '02-inicio.png').exists():
+                        raise RestauracaoFalhou('Não foi possível encerrar com segurança a sessão do emulador.')
+                except Exception as error:
+                    falha_sessao = error
+                # O estado do item volta SEMPRE, mesmo se a sessão falhou (run 40247726001 deixou contagem e data
+                # na conta do rodízio porque a falha da sessão interrompia a restauração antes de chegar aqui).
                 if estado(client.item(video['Id'])['UserData']) != estado(video['UserData']):
                     client.restaurar(video['Id'], video['UserData'])
                 report['restauracao'] = 'confirmada: progresso, assistido, contagem, data e preferências preservados'
+                if falha_sessao:
+                    report['restauracao'] += '; sessão do emulador NÃO encerrada'
+                    raise falha_sessao
         except Exception as error:
             detalhe = str(error) if isinstance(error, RestauracaoFalhou) else ''
             report.update({'status_percurso': report.get('status'),

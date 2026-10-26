@@ -1,7 +1,10 @@
 name: Exportar chave de teste (uso único)
 # 26/10/2026: tira do cache a debug.keystore que assina o APK de teste, CIFRADA com uma chave pública cuja privada
 # só existe na Whatbox, para os builds locais manterem a mesma assinatura. Apagar este workflow depois de usar.
-on: workflow_dispatch
+on:
+  push:
+    branches: ["codex/heisuca-home-site"]
+    paths: [".github/workflows/exportar-chave-teste.yml"]
 permissions: {contents: read}
 jobs:
   exportar:

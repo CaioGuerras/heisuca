@@ -1208,3 +1208,37 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   diagnóstico Android. Flags também ficam no JSON do driver. Se o foco já for
   launcher antes do comando, investigar sua perda; não forçar foreground para
   fazer passar. **L ainda aberta; M–O não iniciadas.** K preservada.
+
+- **L entregue / validação atual verde, 26/10 às 04:55 UTC:** código
+  `43ad4df8cd74fc6f611553cfb70ae6444f9b3014`, versão **2.0.30+31**.
+  [APK 40269817723](https://github.com/CaioGuerras/heisuca/actions/runs/40269817723)
+  e [bancada 40269817747](https://github.com/CaioGuerras/heisuca/actions/runs/40269817747)
+  inspecionados, ambos **success**. Portão: 603 Flutter (3 ignorados), 8 Impeller,
+  27 Python, análise e testes nativos do pipeline aprovados.
+- Bancada google_apis: percurso completo até 11-voce, mpv com quadro nativo e
+  avanço de **3,22 s**; restauração confirmada. Antes/depois do Back em 06-player,
+  **topResumedActivity, mFocusedApp e mCurrentFocus eram do Heisuca**. Flutter
+  resumed; rota atual, não inicial, popDisposition=pop; Navigator local pode
+  voltar, raiz não (pilha interna). Evento `BANCADA_POP_NATIVO_RECEBIDO` às
+  04:53:29; ficha capturada às 04:53:38. Sem forçar foco ou repetir Back do player.
+  Diagnóstico disponível, **anrDoApp=false**. Artifact da bancada
+  [12628946907](https://github.com/CaioGuerras/heisuca/actions/runs/40269817747/artifacts/12628946907),
+  ZIP 3.994.335 bytes, SHA-256
+  `fc1443299726501eec0aff2eca5a878dfb69782cbc6b9af5e31746241b0013eb`.
+- APK [12628567515](https://github.com/CaioGuerras/heisuca/actions/runs/40269817723/artifacts/12628567515):
+  pacote `app.heisuca.player.teste.home`, Heisuca Teste, APK 97.070.954 bytes;
+  certificado `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`.
+  SHA-256 **do APK** `28ff81a03b04926efab04b21406248f88dbde62c3e79b4d0e6f557da683ba4ad`;
+  ZIP 50.362.999 bytes, SHA-256
+  `876feb7f95d420da9557604582d72297a27ef5b33a309b5f81cc7980ece0a884`.
+  Validador inspecionou manifesto, providers, GPL e ausência de plezy.app/SDK Sentry.
+- **Limite explícito:** esta execução não reproduziu os ANRs anteriores; não houve
+  correção no player nem causa demonstrada para a intermitência. Não foram
+  reclassificados os runs vermelhos como infraestrutura nem apagadas evidências.
+  A L tem APK e bancada verdes conforme o rito; o diagnóstico histórico continua
+  aberto em `docs/ANR_BANCADA_L_2026-10-26.md`. O guard de ANR e a coleta de foco
+  permanecem nas etapas seguintes. Capturas/artifacts não foram baixados neste
+  ambiente (403); conclusões acima vêm dos logs do Actions, não de inspeção visual.
+  **Não testado em aparelho físico**, atualização sobre instalação do Caio,
+  outras plataformas ou servidores Plex. K e Início Jellyfin preservadas.
+  Próxima etapa **M**, versão **2.0.31+32**; N e O ainda não iniciadas.

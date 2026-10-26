@@ -83,3 +83,16 @@ do comando, atributos/callback da janela do próprio app, ciclo de vida nativo,
 marcos do teste, estado da rota/navigators e chegada do pop ao Flutter. O
 observador retorna false, não consome eventos. Flags passam direto ao Actions e
 ao JSON final, em vez de depender das últimas 60 linhas. Resultado ainda pendente.
+
+## Execução com foco instrumentado — 40269817747
+
+Commit 43ad4df, imagem google_apis API35, resultado aprovado. Às 04:53:28,
+antes do Back, topResumedActivity/mFocusedApp/mCurrentFocus apontavam ao Heisuca;
+às 04:53:29 continuavam nele. Flutter resumed, rota atual/não inicial com
+popDisposition=pop. Evento pop recebido às 04:53:29 e ficha capturada às 04:53:38.
+Percurso completo, mpv/quadro nativo +3,22 s, restauração confirmada e anrDoApp=false.
+
+Essa execução não reproduz a perda de foco. Não houve correção de navegação/mpv,
+nem se demonstrou causa dos ANRs intermitentes. L tem agora APK e bancada verdes;
+o histórico permanece aberto e a coleta/guard continua nas próximas etapas.
+Não foi atribuída classificação de infraestrutura aos runs vermelhos.

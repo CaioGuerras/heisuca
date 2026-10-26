@@ -1974,3 +1974,31 @@ Próxima ação quando Actions for liberado:
   Nenhum resultado verde presumido. Revisão da M preparada em
   `docs/DIAGNOSTICO_M_PIP_2026-10-26.md`, incluindo a ordem favorável simulada
   pelo teste isolado e a falta de prova da ordem real dos callbacks/métricas.
+
+### N — resultado dos runs inspecionados
+
+- Código **c1d466ebc5c04bb063aa68472023e66b94b58b15**, **2.0.32+33**.
+  [APK 40387651870](https://github.com/CaioGuerras/heisuca/actions/runs/40387651870)
+  **verde**, portão completo aprovado também no CI. Pacote
+  `app.heisuca.player.teste.home`, 97.072.446 bytes, certificado
+  `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`.
+  SHA-256 **5bcd2a1d7960a0606e525429508b325eecf3cae8ae6a1bc8015c38d404a02a22**.
+  [Artifact 12680944377](https://github.com/CaioGuerras/heisuca/actions/runs/40387651870/artifacts/12680944377),
+  ZIP 50.371.395 bytes, digest
+  `529af72dea4dd396c146f2f809b116745ce53f4dabbf3219be36d44f42c247ab`.
+  Conferido pelo verificador do job, sem recálculo local do download bloqueado.
+- [Bancada 40387651901](https://github.com/CaioGuerras/heisuca/actions/runs/40387651901)
+  **vermelha**, artifact **12682405588**, 8.461.342 bytes, digest
+  `6f3b724d67799a7b9e83212f95c5e7aeaa53166b65ef20edc240deeabb7288ab`.
+  [Leitura 40390020895](https://github.com/CaioGuerras/heisuca/actions/runs/40390020895)
+  inspecionada: repetiu os erros do HUD em janela pequena, nos mesmos
+  `video_controls_header.dart:59`, `mobile_video_controls.dart:387/:237` da M.
+  Todos os 20 marcos terminaram; as cinco flags fora do app verdadeiras,
+  3,403 s avançados no trecho inicial, Back recebido, restauração confirmada,
+  diagnóstico nativo disponível e **anrDoApp=false**. Não foi encontrada falha
+  nova de login; o percurso real autenticou e navegou. Medição do popup foi
+  provada por widget com quadros falsos; não foi exercitada fisicamente.
+- Não chamamos a bancada de verde/instável. **N implementada e com APK verde,
+  conservando a pendência da M**; avanço à O pela autorização expressa do Caio
+  para não manter essa prova bloqueando N/O. Nenhum novo ciclo de investigação
+  da M foi aberto; a leitura acima confere o run automático obrigatório da N.

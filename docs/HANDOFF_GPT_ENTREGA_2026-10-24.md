@@ -1042,3 +1042,13 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   Versão **2.0.30+31**, portão local aprovado (603 + 8 + 14). Não iniciar M antes
   de conferir os dois runs, pacote, certificado, hash, GPL e ausência do Sentry.
   L ainda não fechada; M–O não iniciadas. Aparelho físico/Apple/PC não testados.
+- **L ainda aberta — falha real da bancada `40256320245`:** compilação passou,
+  mas o percurso expirou em **voltar à ficha**, depois de reproduzir o vídeo.
+  A restauração foi **confirmada** no log. Não é classificada como infraestrutura
+  nem se considera bancada aprovada. Artifact 12622379862 (2.059.193 bytes), ZIP
+  SHA-256 `fb2995f330c93a28407017e6cdaae612d441f1fbb1e651224bb095aef2b9d426`.
+  APK `40256320319` ainda em compilação. M–O continuam não iniciadas.
+- Próxima ação: inspecionar capturas/relatório e reproduzir o estado após Back,
+  antes de modificar navegação. Não desfazer cc5c6ad/479b129/7d1e1bf, que permanecem
+  intactos. A falha nova não demonstra qual é a causa; não será atribuída ao
+  emulador, à rota ou à retirada do Sentry sem evidência.

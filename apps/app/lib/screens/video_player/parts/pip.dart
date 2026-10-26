@@ -6,6 +6,7 @@ extension _VideoPlayerPipMethods on VideoPlayerScreenState {
   }
 
   void _detachPipStateListener() {
+    _autoPipReadiness.cancel();
     _releasePipStateListener?.call();
     _releasePipStateListener = null;
   }
@@ -88,15 +89,17 @@ extension _VideoPlayerPipMethods on VideoPlayerScreenState {
   }
 
   Future<void> _updateAutoPipState({required bool isPlaying}) async {
-    if (!_pipInitialized) return;
-
-    if (!isPlaying || !_autoPipEnabled || _continueListeningEnabled) {
-      await PipService.setAutoPipReady(ready: false);
+    if (!_pipInitialized || !mounted || _shuttingDown || player == null) {
+      _autoPipReadiness.cancel();
       return;
     }
-
-    final dims = await _getVideoDimensions();
-    await PipService.setAutoPipReady(ready: true, width: dims.$1, height: dims.$2);
+    final currentPlayer = player;
+    await _autoPipReadiness.update(
+      ready: () => mounted && !_shuttingDown && _pipInitialized && player == currentPlayer &&
+          isPlaying && (currentPlayer?.state.playing ?? false) && _autoPipEnabled && !_continueListeningEnabled,
+      dimensions: _getVideoDimensions,
+      publish: (ready, width, height) => PipService.setAutoPipReady(ready: ready, width: width, height: height),
+    );
   }
 
   /// Get current video dimensions (display or storage or fallback to viewport)

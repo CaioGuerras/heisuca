@@ -1,6 +1,7 @@
 // Bancada real: sem falsos de rede, player, sessão ou serviços do app.
 import 'dart:convert';
 import 'dart:io';
+import 'support/bancada_clock.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -27,6 +28,8 @@ import 'package:heisuca/widgets/focusable_media_card.dart';
 import 'package:heisuca/widgets/video_controls/mobile_video_controls.dart';
 
 class _BancadaBinding extends IntegrationTestWidgetsFlutterBinding with PointerScrollAxisLock, SemanticsTreeGate {
+  _BancadaBinding() { configureBancadaFrames(this); }
+
   // Em debug o app abre um handle de semântica que dura a sessão (main.dart). Iniciado dentro do caso, ele
   // contaria como vazamento no fim do teste; a bancada guarda os handles abertos durante app.main() e os solta.
   bool captureAppSemantics = false;
@@ -98,14 +101,14 @@ void main() {
           if (captureTimeout != null) await captureTimeout!();
           throw StateError('Tempo esgotado na etapa: $stage.');
         }
-        await tester.pump(const Duration(milliseconds: 200));
+        await waitBancada(binding, const Duration(milliseconds: 200));
       }
-      await tester.pump(const Duration(milliseconds: 400));
+      await waitBancada(binding, const Duration(milliseconds: 400));
     }
 
     var sequence = 0;
     Future<void> shot(String name, {bool back = false, String? action}) async {
-      await tester.pump(const Duration(milliseconds: 400));
+      await waitBancada(binding, const Duration(milliseconds: 400));
       final seq = ++sequence;
       final pending = File('${support.path}/heisuca-bancada-event.tmp');
       await pending.writeAsString(jsonEncode({'seq': seq, 'name': name, 'back': back, if (action != null) 'action': action}), flush: true);
@@ -118,7 +121,7 @@ void main() {
           if (data['seq'] == seq && data['ok'] == true) break;
         }
         if (DateTime.now().isAfter(deadline)) throw StateError('Captura não confirmada: $name.');
-        await tester.pump(const Duration(milliseconds: 200));
+        await waitBancada(binding, const Duration(milliseconds: 200));
       }
       steps.add(name);
     }
@@ -127,7 +130,7 @@ void main() {
         find.descendant(of: find.byKey(ValueKey('heisuca-login-$name')), matching: find.byType(TextField));
     await until(() => find.byType(HeisucaLoginScreen).evaluate().isNotEmpty, 'login');
     binding.captureAppSemantics = false;
-    await tester.pump();
+    await waitBancada(binding, Duration.zero);
     // Host encerra o vídeo da abertura antes de entrar qualquer dado privado.
     await shot('01-login');
     await tester.enterText(field('server'), server);
@@ -170,7 +173,7 @@ void main() {
       'perfil local anônimo',
     );
     await precacheImage(FileImage(avatar), context);
-    await tester.pump(const Duration(milliseconds: 500));
+    await waitBancada(binding, const Duration(milliseconds: 500));
     await shot('02-inicio');
     await tester.tap(find.widgetWithIcon(IconButton, Icons.search_rounded).first);
     await until(() => find.byType(SearchScreen).evaluate().isNotEmpty, 'busca');
@@ -238,6 +241,13 @@ void main() {
         'fichaNaArvore': find.byType(HeisucaTitleSheet, skipOffstage: false).evaluate().isNotEmpty,
         'buscaVisivel': find.byType(SearchScreen).evaluate().isNotEmpty,
         'inicioVisivel': find.byType(HeisucaHomeScreen).evaluate().isNotEmpty,
+        'pipAtivo': PipService().isPipActive.value,
+        'cicloFlutter': binding.lifecycleState?.name,
+        'servicoMidiaForeground': await PipService.isMediaPlaybackServiceActive(),
+        if (find.byType(VideoPlayerScreen).evaluate().isNotEmpty) ...{
+          'continuarOuvindo': tester.state<VideoPlayerScreenState>(find.byType(VideoPlayerScreen).first).debugContinueListeningEnabled,
+          'audioForaDaTela': tester.state<VideoPlayerScreenState>(find.byType(VideoPlayerScreen).first).debugBackgroundAudioActive,
+        },
       };
       binding.reportData!['diagnosticoRetorno'] = state;
       print('BANCADA_RETORNO: ${jsonEncode(state)}');
@@ -263,7 +273,7 @@ void main() {
     final foregroundDeadline = DateTime.now().add(const Duration(seconds: 20));
     while (!await PipService.isMediaPlaybackServiceActive()) {
       if (DateTime.now().isAfter(foregroundDeadline)) throw StateError('Serviço de mídia não iniciou.');
-      await tester.pump(const Duration(milliseconds: 200));
+      await waitBancada(binding, const Duration(milliseconds: 200));
     }
     await shot('15-home-so-som', action: 'home');
     await until(() => playerScreen.debugBackgroundAudioActive && !PipService().isPipActive.value,
@@ -318,19 +328,19 @@ void main() {
     await until(() => find.byType(SearchScreen).evaluate().isNotEmpty, 'voltar à busca');
     for (var attempt = 0; attempt < 3 && find.byType(SearchScreen).evaluate().isNotEmpty; attempt++) {
       await shot('08-busca-retorno-$attempt', back: true);
-      await tester.pump(const Duration(milliseconds: 500));
+      await waitBancada(binding, const Duration(milliseconds: 500));
     }
     await until(() => find.byType(HeisucaHomeScreen).evaluate().isNotEmpty, 'voltar à Início');
     await tester.tap(find.byKey(const ValueKey('heisuca-nav-1')));
-    await tester.pump(const Duration(seconds: 2));
+    await waitBancada(binding, const Duration(seconds: 2));
     await shot('09-biblioteca');
     await tester.tap(find.byKey(const ValueKey('heisuca-nav-2')));
-    await tester.pump(const Duration(seconds: 2));
+    await waitBancada(binding, const Duration(seconds: 2));
     await shot('10-baixados');
     await tester.tap(find.byKey(const ValueKey('heisuca-nav-3')));
     await until(() => find.byType(HeisucaProfileScreen).evaluate().isNotEmpty, 'Você');
     await shot('11-voce', back: true);
-    await tester.pump(const Duration(seconds: 1));
+    await waitBancada(binding, const Duration(seconds: 1));
     binding.reportData!['testeEncerrado'] = true;
     await tester.pumpWidget(const SizedBox.shrink());
     binding.releaseAppSemantics();

@@ -49,8 +49,20 @@ jobs:
           from pathlib import Path
           from diagnosticos import resumo_trace
           traces = sorted(Path('../../../../evidencia-anr').glob('android-trace-app-*.log'))
+          root = Path('../../../../evidencia-anr')
+          report = root / 'resultado-teste.json'
+          if report.exists():
+              print(report.read_text())
+          execution = root / 'execucao.log'
+          if execution.exists():
+              markers = ('player lifecycle:', 'pip:', 'auto-pip', 'background mode:',
+                         'não foi possível manter', 'bancada_', 'setbackground', 'setcontinuelistening')
+              selected = [line for line in execution.read_text().splitlines()
+                          if any(marker in line.lower() for marker in markers)]
+              print('Eventos de mídia já redigidos:')
+              print('\n'.join(selected[-300:]))
           if not traces:
-              raise SystemExit('Artifact sem trace do próprio app.')
+              print('Artifact sem trace do próprio app; consultar resultado e eventos acima.')
           for trace in traces:
               print(trace.name)
               print(resumo_trace(trace.read_text()))

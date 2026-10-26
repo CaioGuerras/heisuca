@@ -131,6 +131,8 @@ import '../watch_together/services/watch_together_controller.dart';
 import '../cgflix/cgflix_feedback.dart';
 import '../utils/error_message_utils.dart';
 
+import 'video_player/auto_pip_readiness.dart';
+
 part 'video_player/parts/companion_remote.dart';
 part 'video_player/parts/display_matching.dart';
 part 'video_player/parts/episode_navigation.dart';
@@ -896,6 +898,7 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
   bool _hiddenForBackground = false;
   bool _resumeAfterAppleAudioSessionPause = false;
   DateTime? _lastPlaybackPauseAt;
+  final _autoPipReadiness = AutoPipReadiness();
   bool _autoPipEnabled = false;
   bool _continueListeningEnabled = false;
   bool _backgroundAudioActive = false;

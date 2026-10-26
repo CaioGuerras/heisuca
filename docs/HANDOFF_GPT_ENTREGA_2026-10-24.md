@@ -1377,3 +1377,43 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   Solicitada repetição do job com `gh run rerun --failed`, mesmo código/checksum.
   Tentativa 2 pendente. Bancada 40307478230 com GPU software ainda em execução.
   M continua aberta, N/O não iniciadas. Não há APK M conferido até este ponto.
+
+- **Bancada software 40307478230:** escolheu Vulkan **lavapipe** / GLES **swangle**.
+  **anrDoApp=false**, restauração confirmada; passou Home/PiP padrão e retorno.
+  Falhou no passo seguinte: `só som fora do app`. O evento Android após o Home
+  com a opção ligada ainda indica `auto-pip`; não é ANR nem instabilidade aceita.
+  Artifact [12644117517](https://github.com/CaioGuerras/heisuca/actions/runs/40307478230/artifacts/12644117517),
+  ZIP 12.639.624 bytes, SHA-256
+  `366875e15319d6ff44cb76eae6b55a4b7153a9c88a522f78262d925364c3f9e9`.
+- Reprodução local de uma corrida real no atualizador do PiP: consulta antiga
+  de dimensões pode publicar true depois de uma mudança que publicou false.
+  Teste falhou com **Expected [false], Actual [false, true]**. Correção local
+  invalida revisões anteriores e reconfere preferência/pausa/dono depois do await;
+  5 testes passaram (desligar, consulta mais nova, dono cancelado e condição atual).
+  Isso ainda precisa ser confirmado no Android; não se declara toda a falha resolvida.
+- Hipótese auxiliar sobre pump/segundo plano foi testada isoladamente: a espera
+  completou no SDK atual; não se reproduziu bloqueio. Experimento removido, sem
+  mudar binding/pump da bancada por suposição. Diagnóstico de timeout agora inclui
+  PiP, ciclo Flutter, escolha de áudio, áudio ativo e serviço foreground.
+- Correção ainda local, portão completo em execução; APK 40307478247 tentativa 2
+  segue em andamento. M aberta; N/O não iniciadas. Próximo commit precisa de
+  APK/bancada novos e registro dos respectivos runs.
+
+- Complemento de reprodução da espera: o primeiro probe não estabilizava frames.
+  Depois de `pump` inicial, pausa e 100 ms para escoar frames pendentes, **pump
+  em segundo plano expirou em 250 ms**. Novo teste reproduziu isso no LiveBinding.
+  O driver passa a usar relógio real (`binding.delayed`) nas esperas e política
+  fullyLive para o app desenhar como em uso normal. Não força frames enquanto
+  o Android os suspende. Dois testes passaram: espera em pausa e animação em
+  primeiro plano sem pumps do driver. Não altera binding/código do APK de produção.
+- Corrida do PiP integrada à tela, 5 testes aprovados. Portão anterior do controle
+  passou 620 Flutter + 8 Impeller + 35 Python. Agora o portão final inclui também
+  os dois testes de espera da bancada; em execução com fontes congelados.
+  A execução real da correção ainda não ocorreu. M continua aberta.
+- **Portão final do complemento PiP/espera aprovado:** 622 Flutter (3 ignorados),
+  8 Impeller, 35 Python; análise sem erros. O controlador só publica a consulta
+  atual e não publica pela tela desmontada; a bancada usa fullyLive e relógio
+  real nas esperas, mantendo entrada/saída/Back nativos. Sem mudança de prazos.
+  Código em preparação para push sem `[skip ci]`, mesma versão 2.0.31+32.
+  Ainda não aprovado no Android. APK 40307478247 tentativa 2 compilava release;
+  a bancada correspondente está vermelha por `só som fora do app` (não ANR).

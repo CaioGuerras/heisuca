@@ -78,7 +78,8 @@ jobs:
           HEISUCA_TESTE_CONTAS: ${{ secrets.HEISUCA_TESTE_CONTAS }}
         with:
           api-level: 35
-          target: google_apis
+          # Sem GMS/Mensagens: o teste não depende deles; a imagem anterior saturou a CPU e registrou ANRs sistêmicos.
+          target: default
           arch: x86_64
           profile: pixel_6
           ram-size: 4096M
@@ -86,7 +87,11 @@ jobs:
           disable-animations: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           working-directory: apps/app
-          script: python3 scripts/bancada/executar.py
+          script: |
+            adb root
+            timeout 45 adb wait-for-device
+            adb shell id
+            python3 scripts/bancada/executar.py
       - name: Classificar sem confundir infraestrutura com aprovação
         if: always()
         env:

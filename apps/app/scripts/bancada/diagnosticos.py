@@ -17,6 +17,38 @@ def contexto_eventos(log):
     return '\n'.join(lines[i] for i in sorted(selected))
 
 
+def processo_proprio(trace):
+    """Mantém só blocos do processo do app, sem atribuir stacks de outros apps."""
+    blocks = re.split(r'(?m)(?=^----- pid [0-9]+ )', trace)
+    return '\n'.join(block for block in blocks if re.search(r'(?m)^Cmd line: ' + PACKAGE, block))
+
+
+def coletar_traces(output, adb, protected, base):
+    listing = adb('shell', 'ls', '-1t', '/data/anr')
+    count = 0
+    main = False
+    if listing.returncode:
+        return {'tracesDoApp': 0, 'mainColetada': False}
+    filenames = [name for name in listing.stdout.decode(errors='replace').splitlines()
+                 if re.fullmatch(r'anr_[0-9TZa-z_.:-]+', name)][:3]
+    for filename in filenames:
+        result = adb('exec-out', 'cat', '/data/anr/' + filename)
+        if result.returncode:
+            break
+        own = processo_proprio(result.stdout.decode(errors='replace'))
+        if not own:
+            continue
+        safe = limpar_log(own, protected, base)[:300000]
+        count += 1
+        (output / f'android-trace-app-{count}.log').write_text(safe)
+        main_trace = re.search(r'(?ms)^"main".*?(?=\n"|\Z)', safe)
+        if main_trace:
+            main = True
+            print('Thread main no trace do Android (já redigido):')
+            print(main_trace.group(0)[:12000])
+    return {'tracesDoApp': count, 'mainColetada': main}
+
+
 def coletar(output, adb, protected, base):
     """Só grava texto após redação. Falta de diagnóstico não vira aprovação."""
     report = {'disponivel': False, 'anrDoApp': False}
@@ -29,10 +61,12 @@ def coletar(output, adb, protected, base):
         report.update({'disponivel': last.returncode == 0 and events.returncode == 0 and bool(last_text.strip()),
                        'anrDoApp': own_last or bool(event_text),
                        'dumpsysCodigo': last.returncode, 'logcatCodigo': events.returncode})
-        selected = (last_text if own_last else 'Nenhum ANR deste app no lastanr.\n')
+        selected = 'dumpsys activity lastanr (texto do Android):\n' + last_text
         selected += '\nEventos/system_server do ANR deste app:\n' + (event_text or 'Nenhum encontrado.\n')
         safe = limpar_log(selected, protected, base)[:64000]
         (output / 'android-anr.log').write_text(safe)
+        if report['anrDoApp']:
+            report.update(coletar_traces(output, adb, protected, base))
         (output / 'android-diagnostico.json').write_text(json.dumps(report, ensure_ascii=False, indent=2))
         print('Diagnóstico Android: ' + json.dumps(report, ensure_ascii=False))
         if report['anrDoApp']:

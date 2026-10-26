@@ -40,3 +40,25 @@ fica vermelha mesmo que o percurso termine; coleta indisponível também não vi
 verde. Sem classificação automática de infraestrutura. Testes cobrem motivo,
 evento am_anr, pacote diferente e indisponibilidade. Execução real da coleta
 aguarda o próximo run; não se afirma que esse run reproduzirá o ANR.
+
+A coleta real no run 40261399848 (`2d47850`) registrou ANR próprio: am_anr às
+03:10:47, **Input dispatching timed out / FocusEvent(hasFocus=true) / 5009 ms**.
+No mesmo intervalo o Android abriu ANR de com.google.android.apps.messaging.
+Carga: 42.15 / 15.07 / 5.44; pressão CPU some.avg10=91.61, some.avg60=79.17;
+pressão de memória some.avg10=9.53. Restauração confirmada. O registro nativo
+identifica saturação sistêmica, mas não contém a stack main do aplicativo.
+
+Próximo experimento mantém o mesmo app, API, ABI, dispositivo, RAM e renderizador;
+troca google_apis pela imagem AOSP `default` (sem GMS/Mensagens do Google, que o
+login Jellyfin/player não usam). Existência conferida no catálogo oficial:
+https://dl.google.com/android/repository/sys-img/android/sys-img2-3.xml
+`system-images;android-35;default;x86_64` — Intel x86_64 Atom System Image.
+Não se alteram pop, prazos, player nem se envia Back adicional. A hipótese é
+reduzir a disputa de CPU do boot; o resultado ainda precisa ser observado.
+
+O emulador de teste passa a permitir leitura de /data/anr com adb root. Em ANR,
+a coleta lê os três arquivos recentes e conserva só blocos `Cmd line` do próprio
+pacote, redigidos; imprime a stack main, quando disponível. O dumpsys passa a ser
+preservado integralmente após redação, sem substituir o texto original por uma
+interpretação do parser. ANR próprio continua impedindo verde. Não há mudança
+nas permissões nem no código do APK de produto.

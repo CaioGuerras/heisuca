@@ -1144,3 +1144,13 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   SHA-256 APK `ea5ac4fe76f6c9c8763d8dacd20315ab3e4ae308d461d3d7d0b2fae8ed17c680`,
   ZIP `59c8829124d13b6e795d8eb86a0462029c264d223a704e97eed0013b97e33813`.
   GPL presente, zero SDK/destino Sentry. **L continua aberta; M–O não iniciadas.**
+- Experimento da fixture, sem alterar o app: imagem **AOSP default API 35/x86_64**,
+  conferida no catálogo oficial (link no diagnóstico). Retira GMS/Mensagens do
+  Google da bancada; mantém dispositivo, RAM, renderizador e prazos. Motivo:
+  ANRs sistêmicos e pressão CPU 91,61% observados na imagem anterior. Ainda não
+  se afirma que isso resolve a ocorrência.
+- Coleta de traces de /data/anr habilitada no emulador de teste: conserva só o
+  processo do app, dados redigidos e stack main quando disponível. Sem alteração
+  de permissão/código do APK. Testes cobrem seleção do processo, redação e falta
+  de acesso a trace. **Portão aprovado: 603 Flutter (3 ignorados), 8 Impeller e
+  21 Python**, YAML validado. Próximo commit/run confere a hipótese no Android.

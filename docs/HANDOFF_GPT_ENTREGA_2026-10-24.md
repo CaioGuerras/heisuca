@@ -1883,3 +1883,44 @@ Próxima ação quando Actions for liberado:
   em mpv, Surface, filtros, foco, navegação ou temporização.
 - Ambiente continua indisponível: portão local impossível; conforme AGENTS.md,
   validação pelo portão completo do Actions. M permanece 2.0.31+32.
+
+### M — prova adicional encerrada dentro do limite do Caio (26/10, 17h46 UTC)
+
+- Autorização mais recente: no máximo mais 30 minutos no emulador, depois
+  registrar e seguir N → O; Caio verificará PiP no celular. Prazo combinado
+  17h24–17h54 UTC; investigação adicional encerrada às 17h46, sem nova tentativa.
+- Código **0e3d77320ca4d02fbfb8525f9e373ead70dcd68c** (sem skip), mesma versão
+  **2.0.31+32**. Antecipar o aviso de entrada do PiP segue o ciclo do Android,
+  e o teste isolado de 240,8 × 108,2 dp passou localmente e no portão do CI.
+  **Isso NÃO eliminou as seis exceções na integração real.** A hipótese de que
+  bastaria antecipar esse aviso foi insuficiente; não apresentar como correção
+  comprovada do defeito completo. Não foram ignoradas exceções nem alterados
+  mpv, filtros, navegação, foco ou prazos para obter aprovação.
+- [APK 40368590970](https://github.com/CaioGuerras/heisuca/actions/runs/40368590970)
+  **verde**, portão completo aprovado, pacote `app.heisuca.player.teste.home`,
+  97.072.446 bytes, certificado
+  `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`.
+  SHA-256 **29ac54e9e5130e5b59f6f07fe5f6825223dc4f6b04643f4fd31fcfa0a1783c6c**.
+  [Artifact 12673205246](https://github.com/CaioGuerras/heisuca/actions/runs/40368590970/artifacts/12673205246),
+  ZIP 50.367.662 bytes; digest
+  `d615ebe5dd792012806f547a47ee1ed82e019f5d049788a2f139994568e1ecc0`.
+  Conferido no job; download direto do artifact segue bloqueado por 403,
+  portanto não foi recalculado localmente.
+- [Bancada 40368590994](https://github.com/CaioGuerras/heisuca/actions/runs/40368590994)
+  **vermelha**. Artifact **12672787527**, 8.113.970 bytes, digest
+  `a2de6f56d94c9817158f5bd100b7a1cd770ea766705f0d006c5d244a06176337`.
+  Percurso terminou os 20 marcos; serviço/MediaSession/áudio após fechar PiP
+  confirmados, 3,202 s avançados no primeiro trecho. Back único recebido,
+  ficha/busca/Início e abas acessíveis. **Sem ANR do app**; restauração
+  confirmada (progresso, assistido, contagem, data e preferências).
+- [Leitura 40371170100](https://github.com/CaioGuerras/heisuca/actions/runs/40371170100)
+  inspecionada: persistem overflows de cabeçalho/transporte/coluna nas
+  dimensões do PiP. **21-imagem-apos-audio continua preta; 06-player está
+  preta com indicador de carregamento.** Miniaturas lidas visualmente;
+  indicadores de faixa/posição não são prova de imagem restaurada.
+- A bancada não foi classificada como infraestrutura e a M **não recebeu
+  aprovação integral**. Avançamos à N exclusivamente pela autorização acima,
+  conservando a pendência do layout/retorno de imagem e o teste físico do Caio.
+  Não há prova de que seja defeito exclusivo do emulador.
+- Ambiente local voltou; sincronizado por `git pull --ff-only` no mesmo ramo.
+  Nenhum ramo/PR/merge criado. N preparada localmente; ainda não entregue.

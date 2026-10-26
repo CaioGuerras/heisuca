@@ -7,6 +7,7 @@
 // "Meus pedidos" vai para o menu do usuário.
 import 'dart:io' show Platform;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -31,7 +32,13 @@ import 'cgflix_user_menu.dart';
 import 'requests/cgflix_requests_ui.dart';
 
 /// Celular e tablet usam a navegação do CGFLIX (TV e computador ficam como no upstream).
-bool cgflixUseYouTab(BuildContext context) => PlatformDetector.isMobile(context);
+///
+/// Lê a plataforma de [defaultTargetPlatform] (a mesma que o tema do app usa, ver `mono_theme.dart`), sem
+/// depender do contexto: a tela principal decide as abas no `initState`, onde `Theme.of` é proibido (o debug
+/// derrubava a Início na bancada Android).
+bool cgflixUseYouTab(BuildContext context) =>
+    !PlatformDetector.isTV() &&
+    (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS);
 
 /// Seção inicial: no celular a raiz é sempre a Início (não há mais abas para escolher);
 /// TV e computador seguem a preferência "Seção inicial" do upstream.

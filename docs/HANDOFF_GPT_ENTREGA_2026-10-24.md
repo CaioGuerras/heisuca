@@ -1080,3 +1080,16 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   `12-falha-retorno.png` no artifact antes de escolher uma correção. APK anterior
   verde/conferido: 40256320319, artifact 12623397735, dados acima.
   **L não fechada; M–O não iniciadas.** Não tratar a falha do retorno como infra.
+- **Evidência adicional do Caio:** `06-player.png` do run `40256320245` mostra
+  **ANR do Android**: “Heisuca Teste isn't responding”, botões “Close app”/“Wait”,
+  sobre o vídeo. Não era menu do player nem aviso de tela cheia. A captura 06 é
+  feita pelo host **antes** de injetar Back; o ANR já estava presente nesse ponto.
+  Isso não permite atribuir a falha ao pop/dispose sem investigar a cronologia.
+- O Caio informou que no run K `40251727025` (`e02fcd5`) a mesma captura tinha só
+  vídeo. Comparação em andamento com esse commit: rotas da K preservadas; mudanças
+  do player incluem canais/JNI/namespace e retirada dos breadcrumbs Sentry. No
+  trecho final disponível no log do Actions há `aimagereader: Waiting for frame
+  timed out`, mas **não** consta motivo do ANR. Artifact completo continua 403.
+  Foi solicitado o trecho `ANR in ...`/`Reason:`/thread main do `execucao.log`.
+  Não classificar como instabilidade sem motivo real do ANR. Diagnóstico em
+  execução: bancada `40258843944`, APK `40258843798`; ainda sem resultado.

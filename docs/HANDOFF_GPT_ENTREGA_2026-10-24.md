@@ -1359,3 +1359,15 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   8 Impeller, 35 Python, análise sem erros. Bancada 40306588412 cancelada ainda
   na preparação KVM, antes do emulador/contas. Nenhum prazo ou comportamento do
   player foi alterado para este experimento. M segue aberta até a execução real.
+- **Retomada M / GPU suportada enviado:** commit
+  `c29ca1d3133f3d57c265afc7cd07cc004f262baa`, sem `[skip ci]`, versão **2.0.31+32**.
+  Portão local **615 + 8 + 35** aprovado. Inspecionar
+  [APK 40307478247](https://github.com/CaioGuerras/heisuca/actions/runs/40307478247)
+  e [bancada 40307478230](https://github.com/CaioGuerras/heisuca/actions/runs/40307478230).
+  Conferir no log qual backend `-gpu software` escolheu e o percurso completo,
+  flags foraDoApp, foco, ANR, restauração e hashes/certificado do APK.
+  A mudança só trata a configuração de emulação demonstrada pelo trace; ainda
+  não há resultado do experimento, nem prova das funções da M no emulador.
+  **M aberta, N/O não iniciadas.** Último par verde completo continua sendo
+  L 40269817723/40269817747 (2.0.30+31). Não retomar hipóteses de pop/dispose:
+  stack da reprodução M já foi lida em 40306588701 e está no diagnóstico da L.

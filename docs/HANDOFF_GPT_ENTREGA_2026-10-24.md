@@ -1163,3 +1163,16 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   procurar a stack main no log/trace; não supor causa nem desfazer as correções K.
   Último APK verde conferido: 40261399840 (dados acima); último percurso verde:
   40258843944. **L aguarda este experimento; M–O não iniciadas.**
+- **Experimento AOSP 40264419251:** compilou e executou, adb root confirmado
+  (`uid=0`). Coleta nativa disponível, **anrDoApp=false**, sem ANR registrado;
+  mesmo assim expirou em **voltar à ficha**. Restauração confirmada. Portanto
+  a saturação/ANR da imagem Google não explica toda a falha do percurso. Não
+  classificado como instável nem como aprovado.
+- Artifact AOSP 12626502433, 2.015.895 bytes, ZIP
+  `7fa3c8597b5a39c001756b0ee35f100c79dc1e9443dac7e38108ea8f65e06c45`.
+  APK 40264419240 está verde, ainda falta registrar hash/artifact/certificado.
+  Foi solicitado ao Caio o estado `BANCADA_RETORNO`/12-falha-retorno.png, porque
+  o download segue 403 e o trecho final de 60 linhas omitiu a flag impressa.
+- Ajuste local ainda sem commit: encaminhar a flag do retorno diretamente ao
+  log do Actions e preservá-la no resultado JSON do driver. Sem alterar navegação.
+  **L continua aberta; M–O não iniciadas.**

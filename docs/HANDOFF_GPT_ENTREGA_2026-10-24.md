@@ -1279,3 +1279,14 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   provas `foraDoApp` verdadeiras; FGS/áudio/PiP não são aprovados só pelo código.
   Continuam pendentes o par APK/bancada, hashes, certificado e validação física
   de ASS/SRT/PiP, ExoPlayer, lockscreen e download com pausar/retomar no aparelho.
+- **Retomada M / código enviado:** `1ecb735d8d512414201b443e05ef83a70c74a655`,
+  versão **2.0.31+32**, sem `[skip ci]`, portão 615 + 8 + 32 aprovado.
+  Aguardar e inspecionar [APK 40301348854](https://github.com/CaioGuerras/heisuca/actions/runs/40301348854)
+  e [bancada 40301349609](https://github.com/CaioGuerras/heisuca/actions/runs/40301349609).
+  Registrar artifact, SHA-256 do APK/ZIP e certificado após a conferência.
+  Ver `BANCADA_FORA_DO_APP`, foco antes/depois, cinco provas no JSON, ANR e
+  restauração. Se falhar, corrigir na causa; não simular fechamento do PiP,
+  repetir Back ou forçar foreground para ocultar falha. A reabertura explícita
+  nos marcos 14/18/20 faz parte do teste Home/PiP/áudio; o Back original continua
+  único e instrumentado. **M ainda aberta; N/O não iniciadas.** Último par verde
+  é o da L, 40269817723/40269817747, versão 2.0.30+31.

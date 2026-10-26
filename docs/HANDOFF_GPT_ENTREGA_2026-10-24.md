@@ -1819,3 +1819,8 @@ Próxima ação quando Actions for liberado:
   `bd4b0f2f10d5aba0627bbe8a971c8e144151781ed44494cea0f28300c956a33b`.
 - Portão local da pré-condição de Assistir **aprovado**: 622 Flutter
   (3 ignorados), 8 Impeller, 37 Python; análise sem erros. Versão 2.0.31+32.
+- Pré-condição enviada em **442d3455ee25972b9684287233ede0755bdf2342** (sem skip).
+  Conferir [APK 40359809836](https://github.com/CaioGuerras/heisuca/actions/runs/40359809836)
+  e [bancada 40359810049](https://github.com/CaioGuerras/heisuca/actions/runs/40359810049).
+  Se interromper, retomar desses runs; ainda não há dado novo da imagem após
+  áudio nem teste real de ACTION_DISMISS. M aberta, 2.0.31+32, N/O não iniciadas.

@@ -1731,3 +1731,8 @@ Próxima ação quando Actions for liberado:
 - Portão local da coleta de quadros **aprovado**: **622 Flutter (3 ignorados),
   8 Impeller, 37 Python**, análise sem erros. Análise do arquivo de integração
   repetida após ajustar o log, sem erros. Sem teste físico; M aberta.
+- Coleta e preparação enviadas em **707d4cb22350418248bfce462bc311479f0e7979**,
+  sem skip. Runs pendentes: [APK 40348261830](https://github.com/CaioGuerras/heisuca/actions/runs/40348261830)
+  e [bancada 40348262192](https://github.com/CaioGuerras/heisuca/actions/runs/40348262192).
+  Retomar por eles, baixar artifact e comparar PNG decodificado/tela se disponíveis.
+  M **não fechada**, N/O não iniciadas, versão **2.0.31+32**, nenhum teste físico.

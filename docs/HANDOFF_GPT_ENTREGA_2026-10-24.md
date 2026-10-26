@@ -1597,3 +1597,24 @@ Próxima ação quando Actions for liberado:
   e [bancada 40329657261](https://github.com/CaioGuerras/heisuca/actions/runs/40329657261).
   Se houver interrupção, começar inspecionando esses runs e seus artifacts;
   não refazer a L, não iniciar N/O e não considerar a M fechada automaticamente.
+
+### Retomada seguinte — resultado de 477ed64, 26/10
+
+- [APK 40329657365](https://github.com/CaioGuerras/heisuca/actions/runs/40329657365)
+  **verde**, 2.0.31+32. Pacote `app.heisuca.player.teste.home`, 97.072.446 bytes;
+  certificado `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`.
+  SHA-256 do APK `3cb3fa6aafd7ca71ba6ee3cb3cc5ef55c17871e52759ba226b671c04680474da`.
+  Artifact **12653254525**, ZIP 50.367.759 bytes, digest
+  `f480afd66ee3f8cdc2622d6b0089bf8b3fcb9287a580cbd616799bb971db31af`.
+  Pacote, assinatura e hashes lidos no run; este APK ainda não foi recalculado localmente.
+- [Bancada 40329657261](https://github.com/CaioGuerras/heisuca/actions/runs/40329657261)
+  **instável por infraestrutura identificada**, nunca verde: compilação do
+  APK de integração e do helper Java/D8 aprovadas; emulador informou boot completo,
+  mas `adb root` falhou imediatamente com **`unable to connect for root: closed`**
+  às 13:30:45 UTC. Script encerrou antes de instalar/executar app ou acessar servidor.
+  Não é novo ANR nem prova funcional de fechar PiP. Artifact **12654862564**,
+  240 bytes, digest `dc1fca9e13e71bcb7082a6026835d3e67f29f6d42b18b7de5c9ad57f56803e92`.
+- Disparada apenas a bancada novamente, **mesmo código**: run
+  [40339131385](https://github.com/CaioGuerras/heisuca/actions/runs/40339131385),
+  head documental `b3408cd`, código `477ed64`. Em acompanhamento; **M aberta**.
+  Não avançou para N/O nem declarou resolvida a falha anterior de automação.

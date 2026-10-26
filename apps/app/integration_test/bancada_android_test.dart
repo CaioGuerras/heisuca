@@ -66,6 +66,13 @@ void main() {
     }
     // Inicia dentro do caso: ao começar, o framework troca a árvore pela tela "Test starting..." e um app iniciado
     // antes some (run 40237449346: 90 s parado nela). O binding do runner não é recriado.
+    // O app instala os próprios tratadores de erro (main.dart); o framework exige os originais de volta no fim.
+    final errorWidgetBuilder = ErrorWidget.builder;
+    final flutterErrorHandler = FlutterError.onError;
+    addTearDown(() {
+      ErrorWidget.builder = errorWidgetBuilder;
+      FlutterError.onError = flutterErrorHandler;
+    });
     binding.captureAppSemantics = true;
     app.main();
     final steps = <String>[];
@@ -231,5 +238,7 @@ void main() {
     binding.reportData!['testeEncerrado'] = true;
     await tester.pumpWidget(const SizedBox.shrink());
     binding.releaseAppSemantics();
+    ErrorWidget.builder = errorWidgetBuilder;
+    FlutterError.onError = flutterErrorHandler;
   }, timeout: const Timeout(Duration(minutes: 10)));
 }

@@ -1340,3 +1340,22 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   Workflow de leitura baixa o artifact já redigido pelo Actions (actions:read),
   sem segredos de servidor/conta e sem rodar o percurso. Resolve a falta da stack
   no log disponível neste ambiente; não considera o ANR corrigido.
+
+- **Stack completa lida:** workflow [40306588701](https://github.com/CaioGuerras/heisuca/actions/runs/40306588701)
+  verde, código `f3c624e48d0cdd28fac084b0794522dc942259fe`, evidência do mesmo
+  artifact 40303114336, sem novo login. Main em FlutterJNI.nativeSurfaceCreated;
+  raster presa em glGetActiveUniform_enc/qemu_pipe_read do driver do emulador;
+  RenderThread Android idle. Não é stack de pop/dispose do mpv.
+- Configuração conferida contra Google: Emulator 37.2.12 rodava modo
+  swiftshader_indirect, descontinuado desde 36.4.9. Experimento preparado muda
+  só GPU para `software`, backend suportado escolhido pelo Emulator. Imagem
+  google_apis/API35/ABI x64, motor do app e prazos mantidos. Resultado ainda
+  pendente, sem declarar cura nem reclassificar os ANRs antigos sem stack.
+- Push do leitor também abriu APK 40306588427 e bancada 40306588412; o APK
+  40303114349 anterior foi cancelado pela concorrência. A bancada do leitor
+  ainda está na preparação/compilação, sem executar o percurso. M continua
+  aberta; portão completo do experimento está em execução antes do novo push.
+- **Experimento gráfico / portão completo aprovado:** 615 Flutter (3 ignorados),
+  8 Impeller, 35 Python, análise sem erros. Bancada 40306588412 cancelada ainda
+  na preparação KVM, antes do emulador/contas. Nenhum prazo ou comportamento do
+  player foi alterado para este experimento. M segue aberta até a execução real.

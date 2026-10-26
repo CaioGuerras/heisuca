@@ -85,7 +85,10 @@ jobs:
           ram-size: 4096M
           heap-size: 512M
           disable-animations: false
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          # AOSP trace 40303114336: raster preso em glGetActiveUniform/qemu_pipe_read.
+          # swiftshader_indirect foi descontinuado no Emulator 36.4.9; usa o backend
+          # de software suportado escolhido pelo Emulator, sem trocar o motor do app.
+          emulator-options: -no-window -gpu software -noaudio -no-boot-anim -camera-back none
           working-directory: apps/app
           script: |
             adb root

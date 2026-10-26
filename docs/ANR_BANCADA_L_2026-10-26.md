@@ -112,3 +112,26 @@ A impressão de 12 KB cortou a stack antes dos frames Java completos. Próxima
 coleta precisa priorizar Java e threads raster; o trace integral do app está
 no artifact 12642990088 (download segue inacessível aqui).
 Não classificado como infraestrutura. Áudio/PiP novos não foram comprovados.
+
+
+### Stack completa recuperada pelo Actions
+
+[Leitura 40306588701](https://github.com/CaioGuerras/heisuca/actions/runs/40306588701)
+verde, mesma evidência 40303114336, sem rodar contas/servidor. Java confirma
+`FlutterJNI.nativeSurfaceCreated → FlutterRenderer.startRenderingToSurface →
+FlutterTextureView.connectSurfaceToRenderer → delegate.onSurfaceTextureAvailable`.
+`1.raster` está em `read → qemu_pipe_read → QemuPipeStream →
+glGetActiveUniform_enc → GL2Encoder → libGLESv2_emulation`. RenderThread Android
+está idle (epoll). A thread principal espera a raster através da JNI; não há pop,
+dispose mpv nem reconexão de standby de TV nessa stack. Isso demonstra espera
+no driver gráfico do emulador nesta reprodução, não uma espera no tratamento do Back.
+
+O runner usou Emulator **37.2.12** com `-gpu swiftshader_indirect`.
+Fonte oficial conferida em 26/10:
+https://developer.android.com/studio/run/emulator-acceleration
+`swiftshader_indirect` descontinuado desde **36.4.9**; `software` escolhe backend
+software suportado conforme os recursos do AVD/host. Próximo experimento troca
+só `-gpu swiftshader_indirect` por `-gpu software`, mantendo imagem google_apis,
+API, ABI, player, testes, limites e guard de ANR. Não é alteração no app, nem se
+afirma ainda que elimina a falha. ANRs da K/L sem stack não recebem essa causa
+por extrapolação. As funções da M continuam sem prova de bancada completa.

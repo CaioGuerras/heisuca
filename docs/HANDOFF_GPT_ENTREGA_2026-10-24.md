@@ -1116,3 +1116,12 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   das simulações oculto, para não confundir ANR de teste com ocorrência real.
   A coleta real ainda será verificada no próximo job Android. Sem correção
   especulativa no player/pop/dispose; a causa do ANR observado segue pendente.
+- **Retomada L com coleta nativa:** código
+  `2d4785018f04a6ccb1e3e3424108d221aa231a93`, enviado sem `[skip ci]`, versão
+  **2.0.30+31**. Aguardar [APK 40261399840](https://github.com/CaioGuerras/heisuca/actions/runs/40261399840)
+  e [bancada 40261399848](https://github.com/CaioGuerras/heisuca/actions/runs/40261399848).
+  Conferir `Diagnóstico Android` no log: comandos disponíveis e ANR do app; se
+  houver ANR, ler o motivo nativo antes de corrigir/classificar. O último par
+  verde é 40258843798/40258843944, dados acima. L aguarda validação desse guard;
+  **M–O não iniciadas**. ANR do run 40256320245 não tem causa demonstrada nem foi
+  classificado como infraestrutura. Sem mudança especulativa no app.

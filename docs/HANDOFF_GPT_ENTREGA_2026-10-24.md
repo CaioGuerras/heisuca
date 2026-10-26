@@ -2002,3 +2002,34 @@ Próxima ação quando Actions for liberado:
   conservando a pendência da M**; avanço à O pela autorização expressa do Caio
   para não manter essa prova bloqueando N/O. Nenhum novo ciclo de investigação
   da M foi aberto; a leitura acima confere o run automático obrigatório da N.
+
+## O — análise concluída; implementação parada para revisão dos contratos
+
+- Atendendo à instrução mais recente do Caio (“se estiver travada em alguma
+  parte, pare e me dê o diagnóstico, eu envio para o Claude analisar”), parei
+  no cruzamento dos contratos antes de publicar uma adaptação parcial.
+- Diagnóstico concreto: `docs/DIAGNOSTICO_O_COMPATIBILIDADE_2026-10-26.md`.
+  Base mais próxima **Plezy 2.22.0** (34 tags comparadas contra `612b0a6`),
+  matriz em `docs/pesquisa_rodada2/BASE_PLEZY_COMPARADA_2026-10-26.json`.
+  Origem registrada em AGENTS.md e apps/app/CLAUDE.md. Notas reais da 2.23/2.24
+  e commits de origem conferidos, corrigindo as atribuições do Gemini.
+- Pontos para revisão: esquema próprio **23** versus patch de coleções que
+  pressupõe **24 → 25**; helper de prévia pressupõe `MediaSourceInfo.partTimeline`,
+  ausente no nosso modelo; pacote nativo muda de TAR com headers para AAR.
+  Isso não prova que todas as funções sejam incompatíveis. O diagnóstico
+  distingue dependências necessárias de adaptações possíveis e não assume
+  incompatibilidade de ABI. Estão descritas duas rotas para o banco.
+- BIF: reproduzida a cópia adicional do arquivo por isolate com teste negativo
+  (esperado 254, obtido 16); log em `docs/evidencias/o_bif_antes_2026-10-26.txt`.
+  O teste negativo não ficou ativo no portão. Nenhuma correção foi proclamada.
+- AAR de origem baixado e SHA-256 completo conferido; símbolos JNI relevantes
+  existem e a classe de callback coincide após normalizar pacote/espaços.
+  Ainda não foi integrado/compilado no Heisuca. Nenhum binário foi commitado.
+- Estudo parcial do buffer HTTP foi **revertido antes da parada**. Código do
+  app, testes ativos, pubspec e Android voltaram exatamente a `c1d466e` (N).
+  Sem APK/versão nova da O; **continua 2.0.32+33**. Próxima O: **2.0.33+34**.
+- Também documentados os recursos já existentes (identidade de faixa, regras
+  keep-N, políticas/bridge DV7 e prompt por temporizador), para não recriá-los
+  a partir das lacunas desatualizadas do relatório. O não foi marcada pronta.
+- Pendente: revisão do Claude/retomada da O e prova física de PiP pelo Caio.
+  Último APK verde continua o artifact **12680944377**, run **40387651870**.

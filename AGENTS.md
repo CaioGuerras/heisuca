@@ -1,5 +1,14 @@
 # Heisuca — continuidade entre agentes
 
+## Origem técnica conferida em 26/10/2026
+
+A base mais próxima do snapshot inicial `apps/app` é **Plezy 2.22.0**, pela
+comparação de 34 tags (não uma cópia exata; o fork já tinha alterações próprias).
+Auditoria e contratos pendentes da O: `docs/DIAGNOSTICO_O_COMPATIBILIDADE_2026-10-26.md`.
+Última implementação entregue: N, **2.0.32+33**, APK verde; bancada conserva a
+pendência de PiP da M. O aguarda revisão dos contratos, conforme pedido do Caio.
+Registro completo em `docs/HANDOFF_GPT_ENTREGA_2026-10-24.md`.
+
 ## Regras fixas para agentes (Caio, 24/10/2026) — leia antes de tudo
 
 **Antes de qualquer tela: leia `docs/PILARES_HEISUCA.md`** (filosofia, visual, movimento, texto). Retorno mais recente do

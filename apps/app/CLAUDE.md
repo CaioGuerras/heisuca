@@ -5,6 +5,16 @@ Windows/macOS/Linux). Este é o app "completo" do CGFLIX. Irmão leve: `CaioGuer
 Plano do Caio (resumo): Android primeiro; iPhone fica para depois; PC (Windows) virá deste mesmo código.
 
 
+## Origem técnica — auditoria de 26/10/2026
+
+O snapshot inicial `612b0a6` tem **Plezy 2.22.0** como tag mais próxima entre
+34 tags comparadas até 2.24.0; não é uma cópia idêntica. O fork continua
+independente. Matriz, diferenças reais dos contratos e ports da O ainda não
+entregues: `../../docs/DIAGNOSTICO_O_COMPATIBILIDADE_2026-10-26.md`.
+Não confundir a versão 2.0.x do Heisuca com a do upstream. Preservar os contratos
+próprios de mídia/banco e o JNI renomeado; o diagnóstico não autoriza trocar o
+app inteiro pela árvore de uma tag do Plezy.
+
 ## Independência — etapa L (26/10/2026)
 - Pacote Dart: `heisuca`. Namespace Android e canais próprios: `app.heisuca`.
   JNI, regras R8 e testes nativos acompanham a mudança. **Não alterar os applicationIds**:

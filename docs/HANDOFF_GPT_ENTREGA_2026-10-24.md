@@ -1191,3 +1191,20 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   8 Impeller e 27 Python; análise incluindo integração/driver/testes sem erros.
   Teste do host verifica que o estado anterior é coletado antes de injetar Back
   e o posterior depois. Não altera a decisão de navegação nem o prazo de 90 s.
+- APK AOSP-código `23bffef` conferido no run verde `40264419240`, artifact
+  [12626067706](https://github.com/CaioGuerras/heisuca/actions/runs/40264419240/artifacts/12626067706),
+  97.070.954 bytes, pacote `app.heisuca.player.teste.home`, certificado
+  `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`.
+  SHA-256 APK `e0c1cf5ed0952b2718260b69384c708b3cc8ea0a517bc050b99650f88b19a4ee`,
+  ZIP `0d531c1aee012da9a053a0db3e2f7308f3a3295ba8cb6a376535b18617db1533`.
+  GPL e ausência de SDK/destino Sentry verificadas. Isso não fecha a L: a bancada
+  correspondente falhou no retorno, sem ANR do app e com ANR do launcher.
+- **Retomada L / foco antes do Back:** código enviado em
+  `43ad4df8cd74fc6f611553cfb70ae6444f9b3014`, sem `[skip ci]`, versão **2.0.30+31**.
+  Novos runs [APK 40269817723](https://github.com/CaioGuerras/heisuca/actions/runs/40269817723)
+  e [bancada google_apis 40269817747](https://github.com/CaioGuerras/heisuca/actions/runs/40269817747).
+  Ler diretamente no log `BANCADA_MARCO`, `BANCADA_FOCO_ANTES/DEPOIS/FALHA`,
+  `BANCADA_ROTAS_ANTES`, eventual `BANCADA_POP_NATIVO_RECEBIDO`, ciclo de vida e
+  diagnóstico Android. Flags também ficam no JSON do driver. Se o foco já for
+  launcher antes do comando, investigar sua perda; não forçar foreground para
+  fazer passar. **L ainda aberta; M–O não iniciadas.** K preservada.

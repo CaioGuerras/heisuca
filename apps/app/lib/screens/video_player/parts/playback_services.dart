@@ -741,8 +741,7 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
     // Play Next prompt) a play press still reports playing while nothing
     // advances, and a lock taken there keeps a finished item lit until
     // someone comes back.
-    unawaited(_wakelockController.setEnabled(isPlaying && !_backgroundAudioActive &&
-        WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed && !(player?.state.completed ?? false)));
+    unawaited(_wakelockController.setEnabled(isPlaying && !_backgroundAudioActive && !(player?.state.completed ?? false)));
 
     if (isPlaying && !_backgroundAudioActive) {
       // Force a texture refresh on resume to unstick stale frames

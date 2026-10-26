@@ -142,7 +142,12 @@ extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
 
     if (!mounted || _shuttingDown || currentPlayer != player) return;
 
-    _suspendLiveTimelineForBackground();
+    if (keepAudio) {
+      // O áudio continua tocando: mantém os heartbeats que pertencem à reprodução.
+      _watchTogetherProvider?.setBackgrounded(false);
+    } else {
+      _suspendLiveTimelineForBackground();
+    }
 
     if (isTv) {
       await _mediaControls.suspendForTvBackground('hidden');

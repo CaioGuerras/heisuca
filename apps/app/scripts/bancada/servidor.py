@@ -77,23 +77,33 @@ class Servidor:
         return self.request('GET', f'/Users/{self.user}/Items/{item_id}')
 
     def escolher_video(self):
-        result = self.request('GET', f'/Users/{self.user}/Items', query={
-            'Recursive': 'true', 'IncludeItemTypes': 'Movie', 'IsPlayed': 'false',
-            'IsVirtualItem': 'false', 'SortBy': 'Runtime', 'SortOrder': 'Ascending',
-            'Fields': 'MediaSources,MediaStreams', 'EnableUserData': 'true', 'Limit': 200})
-        choices = []
-        for row in result.get('Items', []):
-            ticks = row.get('RunTimeTicks', 0)
-            if ticks < 30 * 10_000_000 or not intacto(row.get('UserData', {})):
-                continue
-            streams = row.get('MediaStreams', [])
-            avc = any(s.get('Type') == 'Video' and s.get('Codec', '').lower() in ('h264', 'avc') for s in streams)
-            choices.append((ticks > 10 * 60 * 10_000_000, not avc, ticks, row))
-        for _, _, _, row in sorted(choices, key=lambda choice: choice[:3]):
-            video = self.item(row['Id'])
-            if intacto(video.get('UserData', {})):
-                return video
-        raise BancadaIndisponivel('Nenhum filme sem histórico disponível para teste seguro.')
+        # M acrescenta Home/PiP/áudio/MediaSession: 30 s já não cobrem o percurso.
+        # O contrato Jellyfin não tem filtro de duração; pagina sem inventar parâmetro.
+        offset = 0
+        while True:
+            result = self.request('GET', f'/Users/{self.user}/Items', query={
+                'Recursive': 'true', 'IncludeItemTypes': 'Movie', 'IsPlayed': 'false',
+                'IsVirtualItem': 'false', 'SortBy': 'Runtime', 'SortOrder': 'Ascending',
+                'Fields': 'MediaSources,MediaStreams', 'EnableUserData': 'true',
+                'StartIndex': offset, 'Limit': 200})
+            rows = result.get('Items', [])
+            choices = []
+            for row in rows:
+                ticks = row.get('RunTimeTicks', 0)
+                if ticks < 5 * 60 * 10_000_000 or not intacto(row.get('UserData', {})):
+                    continue
+                streams = row.get('MediaStreams', [])
+                avc = any(stream.get('Type') == 'Video' and stream.get('Codec', '').lower() in ('h264', 'avc')
+                          for stream in streams)
+                choices.append((ticks > 10 * 60 * 10_000_000, not avc, ticks, row))
+            for _, _, _, row in sorted(choices, key=lambda choice: choice[:3]):
+                video = self.item(row['Id'])
+                if intacto(video.get('UserData', {})):
+                    return video
+            if len(rows) < 200:
+                break
+            offset += len(rows)
+        raise BancadaIndisponivel('Nenhum filme sem histórico com duração suficiente para o percurso.')
 
     def logout(self):
         self.request('POST', '/Sessions/Logout')

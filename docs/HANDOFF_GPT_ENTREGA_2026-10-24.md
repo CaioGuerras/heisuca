@@ -1290,3 +1290,18 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   nos marcos 14/18/20 faz parte do teste Home/PiP/áudio; o Back original continua
   único e instrumentado. **M ainda aberta; N/O não iniciadas.** Último par verde
   é o da L, 40269817723/40269817747, versão 2.0.30+31.
+
+- Revisão do preparo da M: teste demonstrou escolha indevida de clipe de 30 s
+  (`suficiente != curto`) para o percurso ampliado. Passou após exigir >=5 min;
+  paginação cobre catálogo com 200 curtas antes do primeiro filme adequado.
+  Jellyfin OpenAPI conferida: filtro de duração não existe, não foi inventado.
+  34 testes Python aprovados. Bancada 40301349609 cancelada **na preparação KVM**,
+  antes de compilar/iniciar emulador/login, para não executar com esse preparo
+  insuficiente; não houve conta a restaurar. APK 40301348854 segue em execução.
+  Também preservados heartbeats da reprodução quando só o som continua; não
+  suspendê-los como se a mídia estivesse pausada. Portão final do complemento
+  em execução; novo commit/run será registrado após passar.
+- **Complemento M aprovado localmente:** portão completo, 615 Flutter (3 ignorados),
+  8 Impeller, 34 Python, análise sem erros. Preservado o wakelock das demais
+  plataformas; só o modo de áudio desliga a retenção da tela. Versão continua
+  2.0.31+32 (mesma etapa). Novo push precisa de APK e bancada verdes.

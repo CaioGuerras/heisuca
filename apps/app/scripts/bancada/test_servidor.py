@@ -26,6 +26,31 @@ class ServidorFalso(Servidor):
 
 
 class SegurancaDaBancada(unittest.TestCase):
+    def test_midia_curta_demais_nao_termina_no_meio_do_percurso_ampliado(self):
+        class Videos(ServidorFalso):
+            def request(self, method, path, body=None, query=None):
+                if path.endswith('/Items'):
+                    return {'Items': [
+                        {'Id': 'curto', 'RunTimeTicks': 30 * 10_000_000, 'UserData': PRISTINO},
+                        {'Id': 'suficiente', 'RunTimeTicks': 360 * 10_000_000, 'UserData': PRISTINO}]}
+                return {'Id': path.rsplit('/', 1)[-1], 'UserData': PRISTINO}
+        self.assertEqual('suficiente', Videos().escolher_video()['Id'])
+
+    def test_busca_proxima_pagina_quando_os_primeiros_filmes_sao_curtos(self):
+        offsets = []
+        class Videos(ServidorFalso):
+            def request(self, method, path, body=None, query=None):
+                if path.endswith('/Items'):
+                    offsets.append(query['StartIndex'])
+                    if query['StartIndex'] == 0:
+                        return {'Items': [{'Id': f'curto-{i}', 'RunTimeTicks': 30 * 10_000_000,
+                                           'UserData': PRISTINO} for i in range(200)]}
+                    return {'Items': [{'Id': 'adequado', 'RunTimeTicks': 360 * 10_000_000,
+                                       'UserData': PRISTINO}]}
+                return {'Id': path.rsplit('/', 1)[-1], 'UserData': PRISTINO}
+        self.assertEqual('adequado', Videos().escolher_video()['Id'])
+        self.assertEqual([0, 200], offsets)
+
     def test_rodizio_nao_autentica_kids_e_pula_conta_ocupada(self):
         authenticated, logged_out = [], []
         class Fake:

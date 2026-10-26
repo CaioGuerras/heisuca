@@ -40,9 +40,11 @@ public final class HeisucaPipClose {
     }
 
     public static void main(String[] args) throws Exception {
-        if (args.length != 4) throw new IllegalArgumentException("São necessários os limites do task PiP.");
-        int left = Integer.parseInt(args[0]), top = Integer.parseInt(args[1]);
-        int right = Integer.parseInt(args[2]), bottom = Integer.parseInt(args[3]);
+        System.out.println("BANCADA_PIP: início do helper");
+        boolean probe = args.length == 1 && "--probe".equals(args[0]);
+        if (!probe && args.length != 4) throw new IllegalArgumentException("São necessários os limites do task PiP.");
+        int left = probe ? 0 : Integer.parseInt(args[0]), top = probe ? 0 : Integer.parseInt(args[1]);
+        int right = probe ? 1 : Integer.parseInt(args[2]), bottom = probe ? 1 : Integer.parseInt(args[3]);
         if (left < 0 || top < 0 || right <= left || bottom <= top)
             throw new IllegalArgumentException("Limites PiP inválidos.");
         HandlerThread thread = new HandlerThread("bancada-pip");
@@ -56,11 +58,17 @@ public final class HeisucaPipClose {
                     .getDeclaredConstructor().newInstance();
             ui = (UiAutomation) UiAutomation.class.getDeclaredConstructor(Looper.class, connectionType)
                     .newInstance(thread.getLooper(), connection);
+            System.out.println("BANCADA_PIP: conectando UiAutomation");
             UiAutomation.class.getMethod("connect").invoke(ui);
+            System.out.println("BANCADA_PIP: conectado");
             AccessibilityServiceInfo info = ui.getServiceInfo();
             info.flags |= AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS
                     | AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS;
             ui.setServiceInfo(info);
+            if (probe) {
+                System.out.println("BANCADA_PIP: janelas=" + ui.getWindows().size());
+                return; // Diagnóstico sem toque, sem app e sem conta.
+            }
             if (!clickClose(ui)) {
                 // Abre o menu com um toque real, somente no task do nosso app identificado pelo host.
                 long now = SystemClock.uptimeMillis();
@@ -88,6 +96,7 @@ public final class HeisucaPipClose {
                 }
             }
         } finally {
+            System.out.println("BANCADA_PIP: encerrando conexão");
             if (ui != null) UiAutomation.class.getMethod("disconnect").invoke(ui);
             thread.quitSafely();
         }

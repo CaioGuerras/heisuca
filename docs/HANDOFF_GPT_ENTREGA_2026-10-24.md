@@ -1639,3 +1639,30 @@ Próxima ação quando Actions for liberado:
   Pendente conferir [APK 40340535441](https://github.com/CaioGuerras/heisuca/actions/runs/40340535441)
   e [bancada 40340535448](https://github.com/CaioGuerras/heisuca/actions/runs/40340535448).
   Retomar por esses runs. M aberta, versão 2.0.31+32; N/O não iniciadas.
+
+### Resultado de 7ec179b — 26/10, M ainda aberta
+
+- [APK 40340535441](https://github.com/CaioGuerras/heisuca/actions/runs/40340535441)
+  **verde**, 2.0.31+32, pacote `app.heisuca.player.teste.home`, 97.072.446 bytes;
+  certificado **19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c**.
+  SHA-256 **af92f2e2341ca7cda380bd20ad370b68b7c793f53d0a1fb8f1298df7103337bb**,
+  artifact **12660236296**, ZIP 50.367.948 bytes, digest
+  `d28bc65d0a06256f18122edb815367f898a3dc96a9fcf996625631e92effebe7`.
+  Conferidos no run; ainda não recalculado localmente.
+- [Bancada 40340535448](https://github.com/CaioGuerras/heisuca/actions/runs/40340535448)
+  **vermelha**, artifact **12658969782** baixado/inspecionado, ZIP 5.994.437 bytes,
+  digest `454d14c5f6b76e705d35cda1f28da9d5d604fe2aaeaad279f5085f4c7fef258c`.
+  **Sem ANR do app**, diagnósticos disponíveis, restauração confirmada.
+  Chegou ao marco 21 e ao 19. Helper registrou só **`Killed`**, antes de registrar
+  clique; erro do host `Clique nativo de fechar PiP falhou`. Não há motivo de
+  kernel/Java coletado para atribuir a memória, permissões ou outra causa.
+- **Captura 21 está preta**: vid selecionado e áudio/posição avançando NÃO
+  comprovam imagem restaurada. O vídeo interrompido tem intervalo preto de
+  ~89,5 a 103,7 s, terminando quando aparece o launcher na transição PiP.
+  Não corrigir o player por suposição nem declarar retorno funcional. N/O seguem
+  não iniciadas. Captura 15 anterior tinha vídeo; a falha visual requer prova.
+- Próxima investigação isolada: workflow **Heisuca Diagnosticar UiAutomation**,
+  sem instalar app, sem servidor/contas e **sem toque**. Só conectar/listar janelas/
+  desconectar, com milestones e logs Android/kernel/memória. Helper tem --probe
+  para isso; a bancada normal mantém clique real e todas as verificações.
+  O workflow diagnóstico não fecha a etapa nem substitui a bancada.

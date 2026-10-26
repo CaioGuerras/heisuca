@@ -1154,3 +1154,12 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   de permissão/código do APK. Testes cobrem seleção do processo, redação e falta
   de acesso a trace. **Portão aprovado: 603 Flutter (3 ignorados), 8 Impeller e
   21 Python**, YAML validado. Próximo commit/run confere a hipótese no Android.
+- **Retomada L / experimento AOSP:** commit
+  `23bffeff9c9e8dc3547dd1fbcac78ac107103dc6`, enviado sem `[skip ci]`, versão
+  **2.0.30+31**, portão 603 + 8 + 21 aprovado. Runs em execução:
+  [APK 40264419240](https://github.com/CaioGuerras/heisuca/actions/runs/40264419240)
+  e [bancada AOSP 40264419251](https://github.com/CaioGuerras/heisuca/actions/runs/40264419251).
+  Conferir o diagnóstico nativo, percurso, restauração e APK. Se houver ANR,
+  procurar a stack main no log/trace; não supor causa nem desfazer as correções K.
+  Último APK verde conferido: 40261399840 (dados acima); último percurso verde:
+  40258843944. **L aguarda este experimento; M–O não iniciadas.**

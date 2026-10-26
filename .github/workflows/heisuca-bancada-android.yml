@@ -35,8 +35,14 @@ jobs:
           channel: stable
           cache: true
       - name: Preparar KVM e espaço
+        id: ambiente
         timeout-minutes: 10
         run: |
+          runner_cores=$(nproc)
+          avd_cores=$runner_cores
+          if [ "$avd_cores" -gt 4 ]; then avd_cores=4; fi
+          echo "CPUs disponíveis: $runner_cores; CPUs do AVD: $avd_cores"
+          echo "cores=$avd_cores" >> "$GITHUB_OUTPUT"
           # O runner padrão chega com ~14 GB livres; APK de depuração + Gradle + imagem do emulador não cabem
           # (run 40228852177: "No space left on device" ao instalar a imagem). Só sai o que esta bancada não usa.
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/share/swift /usr/local/share/boost \
@@ -48,6 +54,11 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
           if ! command -v ffprobe >/dev/null; then
+            # 40344379555: índices 6 MB/s, pacotes do mirror Azure ~60 KB/s e retry.
+            # Usa o arquivo oficial do Ubuntu, mantendo repositórios/chaves/assinaturas.
+            if [ -f /etc/apt/apt-mirrors.txt ]; then
+              sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' /etc/apt/apt-mirrors.txt
+            fi
             sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update
             sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y --no-install-recommends ffmpeg
           fi
@@ -85,6 +96,7 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_6
+          cores: ${{ steps.ambiente.outputs.cores }}
           ram-size: 4096M
           heap-size: 512M
           disable-animations: false

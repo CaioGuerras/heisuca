@@ -1687,3 +1687,47 @@ Próxima ação quando Actions for liberado:
 - Antes de novo percurso, repetir a sondagem isolada e exigir conexão/lista de
   janelas/desconexão com exit zero. Isso ainda não comprova fechar PiP nem a
   imagem preta observada na M. Não iniciar N/O até a M ter a prova exigida.
+
+### Prova antes/depois do bootstrap da UiAutomation
+
+- Correção **781a626f9683f1da188b9583f05949a3ee2d3b90**.
+  Sondagem [40345431981](https://github.com/CaioGuerras/heisuca/actions/runs/40345431981)
+  **verde**: exit **0**, marcos `início → conectando → conectado → janelas=1
+  → encerrando conexão`. Log inspecionado. Artifact **12660334405**, 65.297 bytes,
+  digest `59f9dd7212dcfc7332b7679fd9e6ae138551ae59032a1bde8ec3887e5929044f`.
+  Contrasta com a mesma sonda vermelha por NPE antes da única inicialização
+  do Looper principal. Não houve app instalado/toque/servidor nesse teste.
+- A bancada com a correção **40345395444** ainda está em preparação; APK
+  correspondente **40345395249** também em acompanhamento. Não supor aprovação.
+  Bancada duplicada **40344506657** cancelada ainda na fila; **40344379555**
+  cancelada antes de compilar/usar conta porque ainda continha o bootstrap com NPE.
+- Diagnóstico do mirror, log de 40344379555: índices baixaram **12,6 MB em 2 s**,
+  porém .deb do `azure.archive.ubuntu.com` HTTP chegaram a ~60 KB/s e libcodec2
+  teve retry. Preparação levou vários minutos. Próxima bancada prioriza o
+  **archive.ubuntu.com HTTPS oficial**, preservando chaves e verificação APT,
+  limite de preparação de 10 min e todos os guards do percurso.
+- Próxima coleta da M: `video-pts`, VO/configuração, dimensões, avsync e quedas
+  de quadro antes/depois; tentativa de `screenshot-to-file ... video` do mpv
+  para comparar quadro decodificado com screenshot do Android. Sem mudança
+  de motor, decoder ou vídeo escolhido. Se o VO não permitir captura, registrar
+  indisponibilidade; não inferir que a imagem voltou só da posição/faixa.
+  PNG decodificado só pode ser lido de caminho fixo privado criado pelo teste;
+  PNG inválido recusa ACK (novo teste de regressão, **37 Python verdes**).
+- Resultado da bancada **40345395444**: infraestrutura **instável**, erro exato
+  `Preparar KVM e espaço has timed out after 10 minutes`, ainda baixando .deb
+  do mirror Azure; não compilou/iniciou app nem acessou conta. Artifact
+  **12661642876**, 240 bytes, digest
+  `dffd3eafdb8970a949ea34560310abb0eaebc4350edf9123567ec3ec45e565a8`.
+  Não substituir por isso a falha visual anterior do retorno do áudio.
+- [APK 40345395249](https://github.com/CaioGuerras/heisuca/actions/runs/40345395249)
+  **verde**, 2.0.31+32; pacote/certificado conferidos, assinatura19160423…
+  (valor completo já registrado), 97.072.446 bytes, SHA-256
+  `41d08cc2685989ca09aa537658bb31acfca6edc6163b0285645735cf3f94c0e1`.
+  Artifact **12661643360**, ZIP 50.368.118 bytes, digest
+  `04007bdd33f37efa0ceff99db335944bae2448311e9b6177dd1a8f2eaf30c176`.
+- Log da bancada mostrou `hw.cpu.ncore=2`. Próxima configuração registra nproc
+  do host e usa os núcleos disponíveis (máximo 4) no AVD. É capacidade da bancada,
+  sem comprar runner, mudar motor/efeitos do app ou alegar correção da tela preta.
+- Portão local da coleta de quadros **aprovado**: **622 Flutter (3 ignorados),
+  8 Impeller, 37 Python**, análise sem erros. Análise do arquivo de integração
+  repetida após ajustar o log, sem erros. Sem teste físico; M aberta.

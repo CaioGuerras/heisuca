@@ -17,6 +17,15 @@ class CapturaAoVivo(unittest.TestCase):
         self.addCleanup(self.tmp.cleanup)
         self.c = Capturas(Path(self.tmp.name))
 
+    @patch('capturas.adb')
+    def test_quadro_decodificado_invalido_nao_confirma_a_captura(self, adb):
+        adb.side_effect = [subprocess.CompletedProcess([], 0, PNG),
+                           subprocess.CompletedProcess([], 0, b'captura indisponivel')]
+        with self.assertRaisesRegex(RuntimeError, 'Quadro decodificado'):
+            self.c.handle({'seq': 1, 'name': '21-imagem-apos-audio', 'decodedFrame': True})
+        self.assertFalse(any('ack' in str(c.args) for c in adb.call_args_list))
+        self.assertEqual(self.c.last, 0)
+
     @patch('capturas.subprocess.run')
     @patch('capturas.adb')
     def test_login_so_e_confirmado_apos_video_parado_e_captura(self, adb, run):

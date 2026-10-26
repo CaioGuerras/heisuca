@@ -78,6 +78,13 @@ class Capturas:
         if not png.startswith(b'\x89PNG\r\n\x1a\n') or len(png) < 24:
             raise RuntimeError('Captura nativa inválida.')
         (self.output / f'{name}.png').write_bytes(png)
+        if event.get('decodedFrame') is True:
+            # Caminho fixo, nunca fornecido pelo evento: não pode ler arquivo privado arbitrário.
+            decoded = adb('exec-out', 'run-as', APP_ID, 'cat',
+                          'files/heisuca-bancada-video-frame.png', check=True).stdout
+            if not decoded.startswith(b'\x89PNG\r\n\x1a\n') or len(decoded) < 24:
+                raise RuntimeError('Quadro decodificado não é um PNG válido.')
+            (self.output / f'{name}-decodificado.png').write_bytes(decoded)
         if event.get('action'):
             if event.get('back') is True:
                 raise RuntimeError('Marco não pode misturar ações.')

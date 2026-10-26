@@ -107,11 +107,12 @@ void main() {
     }
 
     var sequence = 0;
-    Future<void> shot(String name, {bool back = false, String? action}) async {
+    Future<void> shot(String name, {bool back = false, String? action, bool decodedFrame = false}) async {
       await waitBancada(binding, const Duration(milliseconds: 400));
       final seq = ++sequence;
       final pending = File('${support.path}/heisuca-bancada-event.tmp');
-      await pending.writeAsString(jsonEncode({'seq': seq, 'name': name, 'back': back, if (action != null) 'action': action}), flush: true);
+      await pending.writeAsString(jsonEncode({'seq': seq, 'name': name, 'back': back, if (action != null) 'action': action,
+        if (decodedFrame) 'decodedFrame': true}), flush: true);
       await pending.rename('${support.path}/heisuca-bancada-event.json');
       final deadline = DateTime.now().add(const Duration(seconds: 45));
       final ack = File('${support.path}/heisuca-bancada-ack.json');
@@ -214,13 +215,39 @@ void main() {
     await tester.tap(find.text('Assistir').first);
     await until(() => find.byType(MobileVideoControls).evaluate().isNotEmpty, 'player nativo');
     final player = tester.widget<MobileVideoControls>(find.byType(MobileVideoControls).first).player;
+    Future<Map<String, Object?>> videoProbe() async {
+      final values = <String, Object?>{};
+      for (final key in ['vid', 'video-pts', 'vo-configured', 'current-vo', 'hwdec-current',
+        'avsync', 'decoder-frame-drop-count', 'frame-drop-count', 'video-out-params/w', 'video-out-params/h']) {
+        try { values[key] = await player.getProperty(key); }
+        catch (_) { values[key] = 'indisponível'; }
+      }
+      return values;
+    }
+    Future<bool> decodedFrame(Map<String, Object?> probe) async {
+      final file = File('${support.path}/heisuca-bancada-video-frame.png');
+      if (await file.exists()) await file.delete();
+      try {
+        await player.command(['screenshot-to-file', file.path, 'video']);
+        final available = await file.exists();
+        probe['capturaDecodificada'] = available ? 'disponível' : 'não produzida pelo motor';
+        return available;
+      } catch (error) {
+        probe['capturaDecodificada'] = 'indisponível: ${error.runtimeType}';
+        return false;
+      }
+    }
     await until(
       () =>
           player.state.hasRenderedFrame && player.state.playing && player.currentPosition >= const Duration(seconds: 1),
       'primeiro quadro real',
       seconds: 120,
     );
-    await shot('05-player-inicio');
+    final initialProbe = await videoProbe();
+    binding.reportData!['imagemInicial'] = initialProbe;
+    final initialDecoded = await decodedFrame(initialProbe);
+    print('BANCADA_VIDEO_INICIAL: ${jsonEncode(initialProbe)}');
+    await shot('05-player-inicio', decodedFrame: initialDecoded);
     final start = player.currentPosition;
     await until(
       () => player.currentPosition >= start + const Duration(seconds: 3),
@@ -294,7 +321,11 @@ void main() {
     expect(await player.getProperty('vid'), isNot('no'));
     position = player.currentPosition;
     await until(() => player.currentPosition >= position + const Duration(seconds: 2), 'vídeo avança após restaurar a imagem');
-    await shot('21-imagem-apos-audio');
+    final restoredProbe = await videoProbe();
+    binding.reportData!['imagemAposAudio'] = restoredProbe;
+    final restoredDecoded = await decodedFrame(restoredProbe);
+    print('BANCADA_VIDEO_APOS_AUDIO: ${jsonEncode(restoredProbe)}');
+    await shot('21-imagem-apos-audio', decodedFrame: restoredDecoded);
     expect((await PipService.enter(width: 16, height: 9)).$1, isTrue);
     await until(() => PipService().isPipActive.value, 'PiP manual com áudio permitido');
     await shot('19-fechar-pip', action: 'pip_close');

@@ -1787,3 +1787,35 @@ Próxima ação quando Actions for liberado:
   Foco da investigação: imagem preta/VO GPU sem configuração após áudio, com
   logs do VO; nenhuma correção no player atribuída a isso ainda. M aberta,
   versão 2.0.31+32; N/O não iniciadas. Não multiplicar tentativas sem ler essa evidência.
+
+### Resultado de 0cb87aa — falha anterior ao player, sem novo dado da retomada
+
+- [APK 40355325643](https://github.com/CaioGuerras/heisuca/actions/runs/40355325643)
+  **verde**, artifact **12667120951**, 50.367.747 bytes, digest
+  `67d4a04f0eee8875bfcd1dda29a7a2ea680f72ae2c15a338f8559943cdfb99c5`.
+- [Bancada 40355325623](https://github.com/CaioGuerras/heisuca/actions/runs/40355325623)
+  **vermelha**, artifact **12665354473**, 833.330 bytes, digest
+  `e8403888cb58d6e84d34285049dcbd64de997f43b6095eaf1c066283bbf8d7be`.
+  Baixado/inspecionado: só marcos 01–04. Erro `Tempo esgotado na etapa: player
+  nativo`. **Sem ANR**, restauração confirmada. Nem helper ACTION_DISMISS nem
+  nova coleta de VO chegaram a executar: não atribuir esse resultado a eles.
+- Captura **04-ficha.png** mostra **Assistir desabilitado**. Código real de
+  `HeisucaTitleSheet._playButton`: enabled = `_target != null`, InkWell.onTap
+  null até terminar a seleção de conteúdo. Teste esperava a ficha existir,
+  tocava no texto imediatamente e aguardava um player que não fora solicitado.
+  Não há prova de que o alvo permaneceu indisponível por 90 s; não chamar isso
+  de falha de infraestrutura ou de reprodução. Nenhuma mudança no app indicada.
+- Corrigir a pré-condição da automação: aguardar InkWell visível/hit-testable
+  **com onTap não nulo**, depois **um toque**. Prazo existente de 90 s mantido.
+  Sem habilitar botão, escolher cliente alternativo, chamar reprodução por fora
+  ou repetir toque. Falha continua vermelha se a ficha não ficar pronta.
+- A captura de falha passa a ser armada **depois do perfil anônimo (02)**,
+  antes da busca/ficha; antes disso continua proibida. Registra etapa e estado
+  naquele instante, para distinguir carregamento/erro real de falta de interação.
+  Não expõe campos de login. M continua aberta, N/O não iniciadas.
+- APK 40355325643 conferido no log: pacote `app.heisuca.player.teste.home`,
+  97.072.446 bytes, certificado
+  `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`, SHA-256
+  `bd4b0f2f10d5aba0627bbe8a971c8e144151781ed44494cea0f28300c956a33b`.
+- Portão local da pré-condição de Assistir **aprovado**: 622 Flutter
+  (3 ignorados), 8 Impeller, 37 Python; análise sem erros. Versão 2.0.31+32.

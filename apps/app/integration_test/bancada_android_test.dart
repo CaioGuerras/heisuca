@@ -93,12 +93,12 @@ void main() {
     app.main();
     final steps = <String>[];
     binding.reportData = {'passos': steps, 'testeEncerrado': false};
-    Future<void> Function()? captureTimeout;
+    Future<void> Function(String)? captureTimeout;
     Future<void> until(bool Function() ready, String stage, {int seconds = 90}) async {
       final deadline = DateTime.now().add(Duration(seconds: seconds));
       while (!ready()) {
         if (DateTime.now().isAfter(deadline)) {
-          if (captureTimeout != null) await captureTimeout!();
+          await captureTimeout?.call(stage);
           throw StateError('Tempo esgotado na etapa: $stage.');
         }
         await waitBancada(binding, const Duration(milliseconds: 200));
@@ -176,6 +176,28 @@ void main() {
     await precacheImage(FileImage(avatar), context);
     await waitBancada(binding, const Duration(milliseconds: 500));
     await shot('02-inicio');
+    // Captura falhas só após anonimizar o perfil; nunca captura o login preenchido.
+    captureTimeout = (stage) async {
+      final state = {
+        'etapa': stage,
+        'playerVisivel': find.byType(VideoPlayerScreen).evaluate().isNotEmpty,
+        'playerNaArvore': find.byType(VideoPlayerScreen, skipOffstage: false).evaluate().isNotEmpty,
+        'fichaVisivel': find.byType(HeisucaTitleSheet).evaluate().isNotEmpty,
+        'fichaNaArvore': find.byType(HeisucaTitleSheet, skipOffstage: false).evaluate().isNotEmpty,
+        'buscaVisivel': find.byType(SearchScreen).evaluate().isNotEmpty,
+        'inicioVisivel': find.byType(HeisucaHomeScreen).evaluate().isNotEmpty,
+        'pipAtivo': PipService().isPipActive.value,
+        'cicloFlutter': binding.lifecycleState?.name,
+        'servicoMidiaForeground': await PipService.isMediaPlaybackServiceActive(),
+        if (find.byType(VideoPlayerScreen).evaluate().isNotEmpty) ...{
+          'continuarOuvindo': tester.state<VideoPlayerScreenState>(find.byType(VideoPlayerScreen).first).debugContinueListeningEnabled,
+          'audioForaDaTela': tester.state<VideoPlayerScreenState>(find.byType(VideoPlayerScreen).first).debugBackgroundAudioActive,
+        },
+      };
+      binding.reportData!['diagnosticoRetorno'] = state;
+      print('BANCADA_RETORNO: ${jsonEncode(state)}');
+      await shot('12-falha-retorno');
+    };
     await tester.tap(find.widgetWithIcon(IconButton, Icons.search_rounded).first);
     await until(() => find.byType(SearchScreen).evaluate().isNotEmpty, 'busca');
     await tester.enterText(find.byType(TextField).first, title);
@@ -212,7 +234,12 @@ void main() {
       http.close(force: true);
     }
     await tester.ensureVisible(find.text('Assistir').first);
-    await tester.tap(find.text('Assistir').first);
+    final playControl = find.ancestor(of: find.text('Assistir'), matching: find.byType(InkWell)).hitTestable();
+    await until(() {
+      final controls = playControl.evaluate();
+      return controls.isNotEmpty && (controls.first.widget as InkWell).onTap != null;
+    }, 'botão Assistir habilitado e visível');
+    await tester.tap(playControl.first);
     await until(() => find.byType(MobileVideoControls).evaluate().isNotEmpty, 'player nativo');
     final player = tester.widget<MobileVideoControls>(find.byType(MobileVideoControls).first).player;
     // Só na integração: detalhes de inicialização do VO; o APK de uso mantém seu nível de log.
@@ -261,27 +288,6 @@ void main() {
       'motor': await player.runtimePlayerType(),
       'quadroNativo': player.state.hasRenderedFrame,
       'segundosAvancados': (player.currentPosition - start).inMilliseconds / 1000,
-    };
-    // Diagnóstico só após o perfil anônimo e o vídeo: nunca captura o login preenchido.
-    captureTimeout = () async {
-      final state = {
-        'playerVisivel': find.byType(VideoPlayerScreen).evaluate().isNotEmpty,
-        'playerNaArvore': find.byType(VideoPlayerScreen, skipOffstage: false).evaluate().isNotEmpty,
-        'fichaVisivel': find.byType(HeisucaTitleSheet).evaluate().isNotEmpty,
-        'fichaNaArvore': find.byType(HeisucaTitleSheet, skipOffstage: false).evaluate().isNotEmpty,
-        'buscaVisivel': find.byType(SearchScreen).evaluate().isNotEmpty,
-        'inicioVisivel': find.byType(HeisucaHomeScreen).evaluate().isNotEmpty,
-        'pipAtivo': PipService().isPipActive.value,
-        'cicloFlutter': binding.lifecycleState?.name,
-        'servicoMidiaForeground': await PipService.isMediaPlaybackServiceActive(),
-        if (find.byType(VideoPlayerScreen).evaluate().isNotEmpty) ...{
-          'continuarOuvindo': tester.state<VideoPlayerScreenState>(find.byType(VideoPlayerScreen).first).debugContinueListeningEnabled,
-          'audioForaDaTela': tester.state<VideoPlayerScreenState>(find.byType(VideoPlayerScreen).first).debugBackgroundAudioActive,
-        },
-      };
-      binding.reportData!['diagnosticoRetorno'] = state;
-      print('BANCADA_RETORNO: ${jsonEncode(state)}');
-      await shot('12-falha-retorno');
     };
     // M: Home e controles usam eventos do Android. Só depois do perfil anônimo.
     final settings = SettingsService.instance;

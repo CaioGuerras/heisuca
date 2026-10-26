@@ -85,8 +85,17 @@ class PlaybackSettingsScreen extends StatelessWidget {
               if (isMobile) _gesturesGroup(),
               if (PlatformDetector.supportsPictureInPicture())
                 SettingsGroup(
-                  title: 'Janelinha',
-                  children: [CgflixComDica(dica: CgflixDica.janelinha, child: _autoPipTile())],
+                  title: 'Fora do app',
+                  children: [
+                    CgflixComDica(dica: CgflixDica.janelinha, child: _autoPipTile()),
+                    if (Platform.isAndroid && isMobile && !PlatformDetector.isAutomotive())
+                      SettingSwitchTile(
+                        pref: SettingsService.continueListening,
+                        icon: Symbols.headphones_rounded,
+                        title: 'Continuar ouvindo ao sair',
+                        subtitle: 'Ao sair, o filme continua só com som. Controle pela notificação ou pela tela de bloqueio.',
+                      ),
+                  ],
                 ),
               _seekAndTimingGroup(),
             ],

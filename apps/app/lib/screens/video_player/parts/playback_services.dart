@@ -554,6 +554,12 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
     // helper wires its metadata update).
     final mediaControlsManager = MediaControlsManager();
     _mediaControlsManager = mediaControlsManager;
+    if (Platform.isAndroid && PlatformDetector.isMobile(context) && !PlatformDetector.isAutomotive()) {
+      // Vídeo usa a mesma MediaSession/MediaStyle da música, sem um segundo player.
+      await mediaControlsManager.setBackgroundMode(true);
+      await currentPlayer.setContinueListening(_continueListeningEnabled);
+      if (!mounted || _shuttingDown || player != currentPlayer || _mediaControlsManager != mediaControlsManager) return;
+    }
 
     final mediaControlRouter = _buildMediaControlRouter();
 
@@ -735,9 +741,10 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
     // Play Next prompt) a play press still reports playing while nothing
     // advances, and a lock taken there keeps a finished item lit until
     // someone comes back.
-    unawaited(_wakelockController.setEnabled(isPlaying && !(player?.state.completed ?? false)));
+    unawaited(_wakelockController.setEnabled(isPlaying && !_backgroundAudioActive &&
+        WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed && !(player?.state.completed ?? false)));
 
-    if (isPlaying) {
+    if (isPlaying && !_backgroundAudioActive) {
       // Force a texture refresh on resume to unstick stale frames
       // (Linux/macOS texture registrars can miss frame-available
       // notifications after extended pause periods)

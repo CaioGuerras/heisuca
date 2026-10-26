@@ -2013,7 +2013,7 @@ class MpvPlayerCore private constructor(
 
   // Audio-only mode has no video output to wait for — playback and resume
   // paths gated on output readiness must always proceed there.
-  private fun hasReadyVideoOutput(): Boolean = audioOnly || (videoOutputFailure == null && hasAttachedRealSurface() && !videoOutputRestoring)
+  private fun hasReadyVideoOutput(): Boolean = audioOnly || backgroundVideoTrack != null || (videoOutputFailure == null && hasAttachedRealSurface() && !videoOutputRestoring)
 
   private fun isCurrentVideoOutputEpoch(epoch: Long): Boolean = !disposing && videoOutputFailure == null && epoch == videoOutputEpoch
 
@@ -2190,7 +2190,9 @@ class MpvPlayerCore private constructor(
           val target = if (videoLost) placeholderSurface else currentCandidateSurface() ?: placeholderSurface
           check(target != null && target.isValid) { "No valid MPV surface for $reason" }
           val isPlaceholder = target === placeholderSurface
-          val pauseAfterRetirement = isPlaceholder && !attachedToPlaceholder
+          val keepAudio = (backgroundVideoTrack != null || continueListeningAllowed) &&
+            app.heisuca.hasMediaPlaybackService(context)
+          val pauseAfterRetirement = isPlaceholder && !attachedToPlaceholder && !keepAudio
           // Revoke both planes when the video disappears. Otherwise retain
           // the currently available video and remove only the destroyed OSD.
           val osd = if (isPlaceholder) {
@@ -3021,6 +3023,24 @@ class MpvPlayerCore private constructor(
       } else {
         val p = player ?: throw IllegalStateException("MPV player unavailable")
         p.command(*args)
+      }
+    }
+  }
+
+  @Volatile private var backgroundVideoTrack: String? = null
+  @Volatile var continueListeningAllowed: Boolean = false
+
+  fun setBackgroundAudio(enabled: Boolean, onComplete: (Result<Unit>) -> Unit) {
+    submitMpvOperation(writeOperations, "áudio fora do app", onComplete) {
+      if (enabled && backgroundVideoTrack == null) {
+        val previous = readProperty("vid") ?: error("Faixa de vídeo indisponível")
+        writeProperty("vid", "no")
+        backgroundVideoTrack = previous
+      } else if (!enabled) {
+        backgroundVideoTrack?.let { previous ->
+          writeProperty("vid", previous)
+          backgroundVideoTrack = null
+        }
       }
     }
   }

@@ -1,9 +1,25 @@
 part of '../../video_player_screen.dart';
 
-bool shouldPauseVideoForBackground({required bool isHandheld, required bool isTv, required bool isAutomotive}) =>
-    isHandheld || isTv || isAutomotive;
+bool shouldPauseVideoForBackground({required bool isHandheld, required bool isTv, required bool isAutomotive, bool continueListening = false}) =>
+    isTv || isAutomotive || (isHandheld && !continueListening);
 
 extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
+  Future<void> _applyOutsideAppSettings() async {
+    final settings = SettingsService.instance;
+    _autoPipEnabled = settings.read(SettingsService.autoPip);
+    _continueListeningEnabled = Platform.isAndroid && PlatformDetector.isMobile(context) &&
+        !PlatformDetector.isAutomotive() && settings.read(SettingsService.continueListening);
+    final current = player;
+    if (current == null || !_isPlayerInitialized) return;
+    await current.setContinueListening(_continueListeningEnabled);
+    if (_backgroundAudioActive && !_continueListeningEnabled) {
+      await _pauseWithPlaybackIntent(current);
+      await current.setBackgroundAudio(false);
+      _backgroundAudioActive = false;
+    }
+    await _updateAutoPipState(isPlaying: current.state.playing);
+  }
+
   void _enqueueLifecycleTransition(String label, Future<void> Function() transition) {
     _lifecycleTransition = _lifecycleTransition
         .catchError((Object error, StackTrace stackTrace) {
@@ -77,11 +93,15 @@ extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
       return;
     }
 
+    // A preferência sozinha não autoriza som sem FGS. O Android pode recusar o início.
+    final keepAudio = _continueListeningEnabled && await PipService.isMediaPlaybackServiceActive();
+    if (!mounted || _shuttingDown || currentPlayer != player) return;
     final isAutomotive = PlatformDetector.isAutomotive();
     final shouldPauseForBackground = shouldPauseVideoForBackground(
       isHandheld: PlatformDetector.isMobile(context),
       isTv: isTv,
       isAutomotive: isAutomotive,
+      continueListening: keepAudio,
     );
 
     // Pause first so Android MPV does not keep decoding against a transient
@@ -134,6 +154,19 @@ extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
       return;
     }
 
+    if (keepAudio) {
+      try {
+        await currentPlayer.setBackgroundAudio(true);
+        _backgroundAudioActive = true;
+        // Uma perda de superfície anterior pode ter pausado antes do callback Dart.
+        // O núcleo continua respeitando perda de foco de áudio e pausa do usuário.
+        if (_playbackIntentShouldPlay) await currentPlayer.play();
+      } catch (error, stack) {
+        _wasPlayingBeforeInactive = _wasPlayingBeforeInactive || _playbackIntentShouldPlay;
+        await _pauseWithPlaybackIntent(currentPlayer);
+        appLogger.w('Não foi possível manter só o som', error: error, stackTrace: stack);
+      }
+    }
     _hiddenForBackground = true;
     await currentPlayer.setVisible(false, restoreOnWindowVisible: Platform.isMacOS);
     _recordLifecycleState('hidden', action: 'render_hidden');
@@ -160,6 +193,10 @@ extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
     // video-output refresh before any auto-resume logic runs.
     if (_hiddenForBackground && currentPlayer != null && _isPlayerInitialized) {
       await currentPlayer.setVisible(true);
+      if (_backgroundAudioActive) {
+        await currentPlayer.setBackgroundAudio(false);
+        _backgroundAudioActive = false;
+      }
       if (!Platform.isMacOS) {
         await currentPlayer.updateFrame();
       }
@@ -194,6 +231,10 @@ extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
 
     // Restore media controls and wakelock when app is resumed.
     if (_isPlayerInitialized && mounted && !_shuttingDown) {
+      if (Platform.isAndroid && PlatformDetector.isMobile(context) && !PlatformDetector.isAutomotive()) {
+        await _mediaControlsManager?.setBackgroundMode(true);
+      }
+      if (!mounted || _shuttingDown || currentPlayer != player) return;
       _mediaControls.resumeAfterTvBackground('app_resumed');
       await _mediaControls.restoreAfterResume();
     }

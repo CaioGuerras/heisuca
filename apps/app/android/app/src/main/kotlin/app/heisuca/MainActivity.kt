@@ -15,7 +15,6 @@ import android.os.Process
 import android.os.SystemClock
 import android.provider.Settings
 import android.util.Log
-import android.util.Rational
 import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.View
@@ -584,6 +583,13 @@ class MainActivity : FlutterActivity() {
       insets
     }
     systemBarsInsetsHost = wrapper
+    wrapper.addOnLayoutChangeListener { _, l, t, r, b, oldL, oldT, oldR, oldB ->
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !isInPictureInPictureMode && autoPipReady &&
+          (l != oldL || t != oldT || r != oldR || b != oldB)) {
+        runCatching { setPictureInPictureParams(buildPipParams(autoPipWidth, autoPipHeight, true)) }
+          .onFailure { Log.w(TAG, "Não foi possível atualizar a origem do PiP", it) }
+      }
+    }
 
     if (isAndroidTvDevice()) installTextEditorProxy()
     requestHighRefreshRate()
@@ -1045,6 +1051,9 @@ class MainActivity : FlutterActivity() {
 
     MethodChannel(flutterEngine.dartExecutor.binaryMessenger, PIP_CHANNEL).setMethodCallHandler { call, result ->
       when (call.method) {
+        "isMediaPlaybackServiceActive" -> {
+          result.success(hasMediaPlaybackService(this))
+        }
         "isSupported" -> {
           result.success(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && isPipSupportedDevice())
         }
@@ -1235,24 +1244,12 @@ class MainActivity : FlutterActivity() {
     ) == AppOpsManager.MODE_ALLOWED
   }
 
+  private val lastPipSourceRect = android.graphics.Rect()
+
   @RequiresApi(Build.VERSION_CODES.O)
   private fun buildPipParams(width: Int, height: Int, autoEnterEnabled: Boolean? = null): PictureInPictureParams {
-    val (w, h) = if (width <= 0 || height <= 0) {
-      Pair(16, 9)
-    } else {
-      val ratio = width.toFloat() / height.toFloat()
-      when {
-        ratio < 1f / 2.39f -> Pair(100, 239)
-        ratio > 2.39f -> Pair(239, 100)
-        else -> Pair(width, height)
-      }
-    }
-    val builder = PictureInPictureParams.Builder()
-      .setAspectRatio(Rational(w, h))
-    if (autoEnterEnabled != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-      builder.setAutoEnterEnabled(autoEnterEnabled)
-    }
-    return builder.build()
+    if (!isInPictureInPictureMode) window.decorView.getGlobalVisibleRect(lastPipSourceRect)
+    return heisucaPipParams(width, height, lastPipSourceRect, autoEnterEnabled)
   }
 }
 

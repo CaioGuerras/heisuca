@@ -49,6 +49,7 @@ class ExoPlayerPlugin :
   private var fallbackInProgress: Boolean = false
   private var backendSwitchPending: Boolean = false
   private var activity: Activity? = null
+  private var continueListeningAllowed = false
   private var activityBinding: ActivityPluginBinding? = null
 
   /** Whichever core currently owns the surface; both expose [SurfacePlayerCore] identically. */
@@ -248,6 +249,26 @@ class ExoPlayerPlugin :
       "selectAudioTrack" -> handleSelectAudioTrack(call, result)
       "selectSubtitleTrack" -> handleSelectSubtitleTrack(call, result)
       "addSubtitleTrack" -> handleAddSubtitleTrack(call, result)
+      "setContinueListening" -> {
+        continueListeningAllowed = call.argument<Boolean>("allowed") == true
+        mpvCore?.continueListeningAllowed = continueListeningAllowed
+        result.success(null)
+      }
+      "setBackgroundAudio" -> {
+        val enabled = call.argument<Boolean>("enabled") == true
+        if (usingMpvFallback) {
+          val core = mpvCore
+          if (core == null) completeMpvPropertyNotInitialized(result)
+          else core.setBackgroundAudio(enabled) { completeMpvPropertyResult(result, it) }
+        } else {
+          val core = playerCore
+          if (core == null) result.error("NOT_INITIALIZED", "Player not initialized", null)
+          else {
+            core.setBackgroundAudio(enabled)
+            result.success(null)
+          }
+        }
+      }
       "setVisible" -> handleSetVisible(call, result)
       "updateFrame" -> handleUpdateFrame(result)
       "setVideoFrameRate" -> handleSetVideoFrameRate(call, result)
@@ -591,7 +612,7 @@ class ExoPlayerPlugin :
     oldCore.dispose(preserveDisplayMode = true)
 
     val replacementCore = try {
-      createMpvCore(act)
+      createMpvCore(act).also { it.continueListeningAllowed = continueListeningAllowed }
     } catch (error: Exception) {
       failMpvReplacementInitialization(
         request.mediaGeneration,
@@ -1491,7 +1512,7 @@ class ExoPlayerPlugin :
           val act = activity ?: return@post
 
           try {
-            val core = createMpvCore(act)
+            val core = createMpvCore(act).also { it.continueListeningAllowed = continueListeningAllowed }
             core.delegate = MpvDelegate(core)
             mpvCore = core
 

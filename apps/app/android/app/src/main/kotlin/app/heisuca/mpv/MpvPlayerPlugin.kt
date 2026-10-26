@@ -227,6 +227,17 @@ open class MpvPlayerPlugin(
       "getStats" -> handleGetStats(result)
       "observeProperty" -> handleObserveProperty(call, result)
       "command" -> handleCommand(call, result)
+      "setContinueListening" -> {
+        playerCore?.continueListeningAllowed = call.argument<Boolean>("allowed") == true
+        result.success(null)
+      }
+      "setBackgroundAudio" -> {
+        val core = playerCore
+        if (core == null) completeMpvPropertyNotInitialized(result)
+        else core.setBackgroundAudio(call.argument<Boolean>("enabled") == true) {
+          completeMpvPropertyResult(result, it)
+        }
+      }
       "setVisible" -> handleSetVisible(call, result)
       "updateFrame" -> handleUpdateFrame(result)
       "setVideoFrameRate" -> handleSetVideoFrameRate(call, result)

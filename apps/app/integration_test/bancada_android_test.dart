@@ -5,6 +5,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:heisuca/services/pip_service.dart';
+import 'package:heisuca/services/settings_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:heisuca/main.dart' as app;
@@ -102,11 +104,11 @@ void main() {
     }
 
     var sequence = 0;
-    Future<void> shot(String name, {bool back = false}) async {
+    Future<void> shot(String name, {bool back = false, String? action}) async {
       await tester.pump(const Duration(milliseconds: 400));
       final seq = ++sequence;
       final pending = File('${support.path}/heisuca-bancada-event.tmp');
-      await pending.writeAsString(jsonEncode({'seq': seq, 'name': name, 'back': back}), flush: true);
+      await pending.writeAsString(jsonEncode({'seq': seq, 'name': name, 'back': back, if (action != null) 'action': action}), flush: true);
       await pending.rename('${support.path}/heisuca-bancada-event.json');
       final deadline = DateTime.now().add(const Duration(seconds: 45));
       final ack = File('${support.path}/heisuca-bancada-ack.json');
@@ -227,7 +229,6 @@ void main() {
       'quadroNativo': player.state.hasRenderedFrame,
       'segundosAvancados': (player.currentPosition - start).inMilliseconds / 1000,
     };
-    // O retorno é uma tecla Back real enviada pelo adb pelo host.
     // Diagnóstico só após o perfil anônimo e o vídeo: nunca captura o login preenchido.
     captureTimeout = () async {
       final state = {
@@ -242,6 +243,60 @@ void main() {
       print('BANCADA_RETORNO: ${jsonEncode(state)}');
       await shot('12-falha-retorno');
     };
+    // M: Home e controles usam eventos do Android. Só depois do perfil anônimo.
+    final settings = SettingsService.instance;
+    expect(settings.read(SettingsService.continueListening), isFalse);
+    final outsideApp = <String, dynamic>{'padraoDesligado': true};
+    binding.reportData!['foraDoApp'] = outsideApp;
+    await shot('13-home-pip', action: 'home');
+    await until(() => PipService().isPipActive.value, 'Home entra em PiP');
+    var position = player.currentPosition;
+    await until(() => player.currentPosition >= position + const Duration(seconds: 2), 'vídeo continua no PiP');
+    outsideApp['pipPadrao'] = true;
+    await shot('14-voltar-do-pip', action: 'reopen');
+    await until(() => !PipService().isPipActive.value && binding.lifecycleState == AppLifecycleState.resumed,
+        'retorno do PiP');
+    await settings.write(SettingsService.continueListening, true);
+    final playerScreen = tester.state<VideoPlayerScreenState>(find.byType(VideoPlayerScreen));
+    await until(() => playerScreen.debugContinueListeningEnabled, 'preferência de áudio aplicada');
+    // O serviço inicia com a MediaSession tocando, enquanto o app ainda está visível.
+    final foregroundDeadline = DateTime.now().add(const Duration(seconds: 20));
+    while (!await PipService.isMediaPlaybackServiceActive()) {
+      if (DateTime.now().isAfter(foregroundDeadline)) throw StateError('Serviço de mídia não iniciou.');
+      await tester.pump(const Duration(milliseconds: 200));
+    }
+    await shot('15-home-so-som', action: 'home');
+    await until(() => playerScreen.debugBackgroundAudioActive && !PipService().isPipActive.value,
+        'só som fora do app');
+    position = player.currentPosition;
+    await until(() => player.currentPosition >= position + const Duration(seconds: 3), 'áudio fora do app avança');
+    expect(await player.getProperty('vid'), 'no');
+    expect(await PipService.isMediaPlaybackServiceActive(), isTrue);
+    outsideApp['audioComServico'] = true;
+    await shot('16-pausar-na-sessao', action: 'media_pause');
+    await until(() => !player.state.playing, 'pausa pela MediaSession');
+    await shot('17-tocar-na-sessao', action: 'media_play');
+    await until(() => player.state.playing, 'retoma pela MediaSession');
+    outsideApp['controlesDaSessao'] = true;
+    await shot('18-voltar-do-audio', action: 'reopen');
+    await until(() => binding.lifecycleState == AppLifecycleState.resumed && !playerScreen.debugBackgroundAudioActive,
+        'imagem restaurada depois do áudio');
+    expect(await player.getProperty('vid'), isNot('no'));
+    expect((await PipService.enter(width: 16, height: 9)).$1, isTrue);
+    await until(() => PipService().isPipActive.value, 'PiP manual com áudio permitido');
+    await shot('19-fechar-pip', action: 'pip_close');
+    await until(() => !PipService().isPipActive.value && playerScreen.debugBackgroundAudioActive,
+        'fechar PiP mantém só o som');
+    position = player.currentPosition;
+    await until(() => player.currentPosition >= position + const Duration(seconds: 2), 'áudio após fechar PiP avança');
+    expect(await PipService.isMediaPlaybackServiceActive(), isTrue);
+    outsideApp['audioAposFecharPip'] = true;
+    await shot('20-restaurar-imagem', action: 'reopen');
+    await until(() => binding.lifecycleState == AppLifecycleState.resumed && !playerScreen.debugBackgroundAudioActive,
+        'imagem restaurada antes do Back');
+    print('BANCADA_FORA_DO_APP: ${jsonEncode(outsideApp)}');
+
+    // O retorno é uma tecla Back real enviada pelo adb pelo host.
     final videoContext = tester.element(find.byType(VideoPlayerScreen).first);
     final videoRoute = ModalRoute.of(videoContext);
     final routeState = {

@@ -77,6 +77,11 @@ class _CallGate {
 /// In-memory audio player: records calls, exposes manual stream controllers
 /// so tests drive transitions/completion/errors deterministically.
 class FakePlayer implements Player {
+  @override
+  Future<void> setBackgroundAudio(bool enabled) async {}
+  @override
+  Future<void> setContinueListening(bool allowed) async {}
+
   final playingCtrl = StreamController<bool>.broadcast(sync: true);
   final completedCtrl = StreamController<bool>.broadcast(sync: true);
   final bufferingCtrl = StreamController<bool>.broadcast(sync: true);

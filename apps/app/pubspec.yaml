@@ -1,7 +1,7 @@
 name: heisuca
 description: "Heisuca. Nada entre você e o filme. Cliente cinematográfico multiplataforma para Jellyfin, Plex, WebDAV e SMB."
 publish_to: "none"
-version: 2.0.30+31
+version: 2.0.31+32
 
 environment:
   # Dart floor stays 3.12: freezed 3.x emits `final` constructor parameters,
@@ -70,9 +70,7 @@ dependencies:
   # partials through the provider. Keep the same-filesystem move/resume cleanup;
   # no per-host TLS bypass.
   background_downloader:
-    git:
-      url: https://github.com/edde746/background_downloader
-      ref: 5d45882265ead82e570cd067599e193070e3b4a2
+    path: packages/background_downloader
   auto_updater:
     git:
       url: https://github.com/edde746/auto_updater

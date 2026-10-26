@@ -4,6 +4,7 @@ import json
 import re
 import subprocess
 from foco import coletar_foco
+from acoes import perform
 
 APP_ID = 'app.heisuca.player.teste.home'
 REMOTE = '/sdcard/heisuca-bancada.mp4'
@@ -76,6 +77,12 @@ class Capturas:
         if not png.startswith(b'\x89PNG\r\n\x1a\n') or len(png) < 24:
             raise RuntimeError('Captura nativa inválida.')
         (self.output / f'{name}.png').write_bytes(png)
+        if event.get('action'):
+            if event.get('back') is True:
+                raise RuntimeError('Marco não pode misturar ações.')
+            self.focus(name, 'antes')
+            perform(event['action'], adb)
+            self.focus(name, 'depois')
         if event.get('back') is True:
             self.focus(name, 'antes')
             adb('shell', 'input', 'keyevent', '4', check=True)

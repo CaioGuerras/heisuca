@@ -90,7 +90,7 @@ extension _VideoPlayerPipMethods on VideoPlayerScreenState {
   Future<void> _updateAutoPipState({required bool isPlaying}) async {
     if (!_pipInitialized) return;
 
-    if (!isPlaying) {
+    if (!isPlaying || !_autoPipEnabled || _continueListeningEnabled) {
       await PipService.setAutoPipReady(ready: false);
       return;
     }
@@ -181,6 +181,11 @@ extension _VideoPlayerPipMethods on VideoPlayerScreenState {
       _preparePipFiltersForEntry();
     } else {
       _restorePipFiltersAfterExit();
+      // Fechar PiP move a tarefa para trás. Já não há superfície visível;
+      // aplica a mesma política de Home em vez de deixar a mídia sem dono.
+      if (Platform.isAndroid && WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
+        _enqueueLifecycleTransition('pip_closed', _handleAppHidden);
+      }
     }
   }
 }

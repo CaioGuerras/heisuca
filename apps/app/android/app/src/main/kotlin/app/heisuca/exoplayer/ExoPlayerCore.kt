@@ -3976,6 +3976,12 @@ class ExoPlayerCore(private val activity: Activity) :
     else -> null
   }
 
+  fun setBackgroundAudio(enabled: Boolean) {
+    val current = exoPlayer ?: return
+    current.trackSelectionParameters = current.trackSelectionParameters.buildUpon()
+      .setTrackTypeDisabled(C.TRACK_TYPE_VIDEO, enabled).build()
+  }
+
   override fun setVisible(visible: Boolean) {
     if (disposing) return
     currentVisible = visible

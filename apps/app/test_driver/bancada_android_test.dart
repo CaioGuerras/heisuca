@@ -13,6 +13,7 @@ Future<void> main() async {
           'testeEncerrado': data?['testeEncerrado'] == true,
           'passos': data?['passos'],
           'video': data?['video'],
+          'foraDoApp': data?['foraDoApp'],
           'diagnosticoRetorno': data?['diagnosticoRetorno'],
           'rotasAntesDoBack': data?['rotasAntesDoBack'],
         }),

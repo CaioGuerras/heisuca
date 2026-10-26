@@ -7,6 +7,16 @@ import 'package:heisuca/services/media_control_router.dart';
 import 'package:heisuca/utils/platform_detector.dart';
 
 void main() {
+  test('som ao sair exige escolha explícita e nunca libera TV ou carro', () {
+    expect(shouldPauseVideoForBackground(isHandheld: true, isTv: false,
+        isAutomotive: false, continueListening: true), isFalse);
+    expect(shouldPauseVideoForBackground(isHandheld: true, isTv: false,
+        isAutomotive: false), isTrue);
+    expect(shouldPauseVideoForBackground(isHandheld: false, isTv: true,
+        isAutomotive: false, continueListening: true), isTrue);
+    expect(shouldPauseVideoForBackground(isHandheld: true, isTv: false,
+        isAutomotive: true, continueListening: true), isTrue);
+  });
   setUp(TvDetectionService.debugReset);
   tearDown(TvDetectionService.debugReset);
 

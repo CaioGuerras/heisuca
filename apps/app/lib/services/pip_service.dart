@@ -37,6 +37,16 @@ class PipService {
     }
   }
 
+  /// Confere o serviço real; habilitar o plugin não prova que o Android aceitou o FGS.
+  static Future<bool> isMediaPlaybackServiceActive() async {
+    if (!Platform.isAndroid) return false;
+    try {
+      return await _channel.invokeMethod<bool>('isMediaPlaybackServiceActive') ?? false;
+    } on PlatformException {
+      return false;
+    }
+  }
+
   static Future<bool> isSupported() async {
     if (!_isAvailable) return false;
     return await _channel.invokeMethod<bool>('isSupported') ?? false;

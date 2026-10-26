@@ -58,3 +58,22 @@ Plano do Caio (resumo): Android primeiro; iPhone fica para depois; PC (Windows) 
    passos sugeridos (selos Dublado/Legendado, Pedidos/Seerr por Quick Connect, aviso das 2 telas, atualização pelo nosso servidor).
 7. PR para o `main` deste fork com tudo isso.
 Pronto quando: PR aberto, workflow verde (ou erro explicado no PR), APK como artifact.
+
+
+## Mídia fora do app — etapa M (implementação, 26/10)
+
+- Opção `continueListening` desligada por padrão, só Android de mão; carro e TV
+  mantêm suas restrições. Sem Live Updates, ilha ou notificações promovidas.
+- Vídeo usa a MediaSession e o serviço `mediaPlayback` já existentes. Consulta
+  serviço foreground real; sem serviço aceito, pausa. mpv/Exo mantêm a fonte e
+  a posição, desativam só a faixa de vídeo fora da tela e a restauram no retorno.
+- PiP usa sourceRectHint, guarda a origem fora do PiP e seamlessResize=false.
+  Referência: https://developer.android.com/develop/ui/views/picture-in-picture
+  Fechar PiP e remover a tarefa dos Recentes são ações distintas no Android.
+- Downloader local em `packages/background_downloader`: base `5d45882`, BSD-3-Clause,
+  copyright/licença preservados e alterações em HEISUCA.md. As correções prévias
+  de VPN/SAF continuam. Não trocar essa dependência por uma versão remota sem
+  preservar as ações da notificação e a contagem correta de tarefas pausadas.
+- A bancada testa Home/PiP, áudio com FGS real, transporte MediaSession e botão
+  nativo de fechar PiP. Ausência de prova ou ANR mantém vermelho; não há Back extra.
+  Estado de validação e limites ficam em HANDOFF_GPT_ENTREGA, não nesta descrição.

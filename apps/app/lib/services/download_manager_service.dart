@@ -900,11 +900,13 @@ class DownloadManagerService {
         )
         .configureNotificationForGroup(
           _downloadGroup,
-          running: TaskNotification('{displayName}', t.downloads.notificationDownloading),
-          complete: TaskNotification('{displayName}', t.downloads.notificationComplete),
-          error: TaskNotification('{displayName}', t.downloads.errorDownloadFailed),
-          paused: TaskNotification('{displayName}', t.downloads.notificationPaused),
+          running: const TaskNotification('Baixando no Heisuca', '{numFinished} de {numTotal} concluídos'),
+          complete: const TaskNotification('Downloads concluídos', '{numTotal} arquivos prontos'),
+          error: const TaskNotification('Confira os downloads', '{numFailed} arquivos precisam de atenção'),
+          paused: const TaskNotification('Downloads pausados', 'Continue quando quiser'),
           progressBar: true,
+          groupNotificationId: 'heisuca_downloads',
+
         );
 
     // Protect native writes even while Flutter is suspended. Plex servers can

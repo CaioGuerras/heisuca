@@ -14,6 +14,14 @@ import 'package:heisuca/utils/platform_detector.dart';
 import '../test_helpers/prefs.dart';
 
 void main() {
+  test('continuar ouvindo exige escolha explícita', () async {
+    resetSharedPreferencesForTest();
+    SettingsService.resetForTesting();
+    final settings = await SettingsService.getInstance();
+    expect(settings.read(SettingsService.continueListening), isFalse);
+    await settings.write(SettingsService.continueListening, true);
+    expect(settings.read(SettingsService.continueListening), isTrue);
+  });
   setUp(() {
     resetSharedPreferencesForTest();
     SettingsService.resetForTesting();

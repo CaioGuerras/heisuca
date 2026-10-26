@@ -87,7 +87,7 @@ def main():
                             line = 'Resposta do driver recebida.\n'
                         safe = limpar_log(line, protected, base)
                         if 'BANCADA_OCUPADA' in safe: report['ocupada'] = True
-                        if any(marker in safe for marker in ('BANCADA_RETORNO:', 'BANCADA_ROTAS_ANTES:', 'BANCADA_POP_NATIVO')):
+                        if any(marker in safe for marker in ('BANCADA_RETORNO:', 'BANCADA_ROTAS_ANTES:', 'BANCADA_POP_NATIVO', 'BANCADA_FORA_DO_APP:')):
                             print(safe.strip(), flush=True)
                         log.write(safe[:2000])
                         log.flush()
@@ -124,7 +124,9 @@ def main():
                 metadata = json.loads(probe.stdout) if probe.returncode == 0 else {}
                 if not metadata.get('streams') or float(metadata.get('format', {}).get('duration', 0)) <= 0:
                     raise RuntimeError('Uma captura de vídeo não tem faixa de imagem e duração válidas.')
-            report.update({'status': 'aprovado', 'video': details['video'], 'passos': details['passos']})
+            if not all(details.get('foraDoApp', {}).get(key) is True for key in ['padraoDesligado', 'pipPadrao', 'audioComServico', 'controlesDaSessao', 'audioAposFecharPip']):
+                raise RuntimeError('Percurso de mídia fora do app não comprovado.')
+            report.update({'status': 'aprovado', 'video': details['video'], 'passos': details['passos'], 'foraDoApp': details['foraDoApp']})
             result_code = 0
     except BancadaIndisponivel as error:
         report.update({'status': 'instável', 'motivo': str(error)})

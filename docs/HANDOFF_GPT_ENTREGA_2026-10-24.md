@@ -1242,3 +1242,40 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   **Não testado em aparelho físico**, atualização sobre instalação do Caio,
   outras plataformas ou servidores Plex. K e Início Jellyfin preservadas.
   Próxima etapa **M**, versão **2.0.31+32**; N e O ainda não iniciadas.
+
+
+## Etapa M — em implementação (26/10)
+
+- Base validada: L `43ad4df`, APK 40269817723 e bancada 40269817747 verdes, dados acima.
+- Trabalho local ainda **sem commit de código/push**, versão preparada **2.0.31+32**.
+  Política de áudio reproduzida em teste: antes pausava mesmo com escolha explícita;
+  depois passa e mantém pausa obrigatória para TV/carro.
+- Usa a MediaSession/MediaPlaybackService existentes, sem trocar mpv/Exo ou criar
+  outro player. Opção desligada por padrão; só áudio exige serviço real em primeiro
+  plano. Faixa de vídeo desativada/restaurada, sem reabrir URL nem perder posição.
+- Android AOSP 15, `PipTaskOrganizer.removePipImmediately` e
+  `ActivityTaskSupervisor.removeRootTask`: fechamento normal do PiP move a tarefa
+  para trás; não equivale a remover tarefa dos Recentes. Não se acrescentou cache
+  de engine nem retenção de Activity. O percurso real ainda precisa confirmar isso.
+- PiP: sourceRectHint da imagem e seamlessResize=false. ASS/SRT continuam nas camadas
+  existentes; aparência em aparelho físico ainda não conferida.
+- Downloads: cópia local BSD-3-Clause do plugin `5d45882`, origem/licença em
+  `apps/app/packages/background_downloader/HEISUCA.md`; grupo silencioso com
+  pausar/continuar/cancelar, pausa não equivale a conclusão. Sem Live Updates.
+- Bancada estendida para Home/PiP, som com FGS, transporte MediaSession, fechamento
+  pelo botão real do SystemUI e restauração da imagem antes do Back. Sem saída
+  simulada ou Back extra. Essa extensão **ainda não rodou no Android**.
+- Até aqui: análise Dart sem erros, 31 testes Python aprovados. Portão completo,
+  testes Kotlin, APK e bancada da M **pendentes**. N/O não iniciadas. Antes do push,
+  terminar revisão/testes locais e registrar commit/runs neste documento.
+
+- **M / portão local completo aprovado:** 615 Flutter (3 ignorados), 8 Impeller,
+  32 Python; análise sem erros, manifesto fonte e diff conferidos. Nenhum golden
+  da Início alterado. Teste da política falhou antes (`Expected false, Actual true`)
+  e passou depois; default desligado também testado na preferência persistente.
+- Envio do código da M em preparação, sem `[skip ci]`. Testes Kotlin selecionados
+  no workflow: buffer existente, PiP (3), mpv áudio (3), grupo de downloads (2).
+  **Não executados localmente** (sem SDK Android completo). A bancada exige cinco
+  provas `foraDoApp` verdadeiras; FGS/áudio/PiP não são aprovados só pelo código.
+  Continuam pendentes o par APK/bancada, hashes, certificado e validação física
+  de ASS/SRT/PiP, ExoPlayer, lockscreen e download com pausar/retomar no aparelho.

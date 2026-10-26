@@ -827,6 +827,8 @@ class SettingsService extends BaseSharedPreferencesService {
   static const matchDynamicRange = BoolPref('match_dynamic_range');
   static const appLocale = _AppLocalePref();
   static const autoPip = _AutoPipPref();
+  // Escolha explícita: sair mantém PiP enquanto esta opção estiver desligada.
+  static const continueListening = BoolPref('heisuca_continue_listening', defaultValue: false);
   static const customDownloadPath = NullableStringPref('custom_download_path');
   static final customRelayUrl = NullableStringPref('custom_relay_url', transform: _normalizeRelayBaseUrl);
 
@@ -1439,6 +1441,7 @@ class SettingsService extends BaseSharedPreferencesService {
     audioDownmixNormalize,
     appLocale,
     autoPip,
+    continueListening,
     maxVolume,
     downmixCenterBoost,
     subtitlePosition,

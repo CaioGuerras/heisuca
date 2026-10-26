@@ -63,6 +63,25 @@ for suffix in ['fileprovider', 'systemshelf.artwork']:
     assert re.search(r'android:exported.*(?:0x0\b|"false")', block), f'{suffix}: exported não é false no APK'
     assert re.search(r'android:grantUriPermissions.*(?:0xffffffff\b|"true")', block), f'{suffix}: faltam grants no APK'
 
+# M: conferir o manifesto mesclado, incluindo o serviço fornecido pelo plugin.
+assert 'android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK' in manifest, 'permissão mediaPlayback ausente'
+assert 'android.permission.POST_PROMOTED_NOTIFICATIONS' not in manifest, 'Live Updates não se aplicam à mídia'
+service_blocks = []
+for index, line in enumerate(lines):
+    match = re.match(r'(\s*)E: service(?:\s|$)', line)
+    if match:
+        indent = len(match[1])
+        end = index + 1
+        while end < len(lines):
+            following = re.match(r'(\s*)E:', lines[end])
+            if following and len(following[1]) <= indent:
+                break
+            end += 1
+        service_blocks.append('\n'.join(lines[index:end]))
+service = next((block for block in service_blocks if 'com.edde746.os_media_controls.MediaPlaybackService' in block), '')
+assert re.search(r'android:foregroundServiceType.*0x2\b', service), 'serviço sem tipo mediaPlayback'
+assert re.search(r'android:exported.*(?:0x0\b|"false")', service), 'serviço de mídia exportado'
+print('Mídia no APK: serviço privado mediaPlayback e nenhuma promoção de Live Update.')
 print(f'APK conferido: {package}, {label}, {apk.stat().st_size} bytes')
 
 # O hash do artifact é do ZIP. Registrar também o APK real, sem depender do download.

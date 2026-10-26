@@ -897,6 +897,9 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
   bool _resumeAfterAppleAudioSessionPause = false;
   DateTime? _lastPlaybackPauseAt;
   bool _autoPipEnabled = false;
+  bool _continueListeningEnabled = false;
+  bool _backgroundAudioActive = false;
+  VoidCallback? _releaseOutsideAppSettings;
   bool _exitFullscreenOnPlayerClose = false;
   bool _androidAutoPipTransitionInFlight = false;
   bool _pipFiltersPrepared = false;
@@ -1284,6 +1287,12 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
   @visibleForTesting
   bool get debugMediaControlsActiveForTesting => _mediaControlsManager != null;
 
+  @visibleForTesting
+  bool get debugContinueListeningEnabled => _continueListeningEnabled;
+
+  @visibleForTesting
+  bool get debugBackgroundAudioActive => _backgroundAudioActive;
+
   /// The playback start otherwise runs only at the end of player
   /// initialization, which no widget test finishes without a live native core.
   @visibleForTesting
@@ -1549,7 +1558,11 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
           _recordLifecycleState('paused', action: 'skipped_for_pip');
           break;
         }
-        // We don't support background playback
+        if (_continueListeningEnabled) {
+          _recordLifecycleState('paused', action: 'audio_background_requested');
+          unawaited(_wakelockController.setEnabled(false));
+          break;
+        }
         if (_mediaControls.shouldSuspendForTvBackground) {
           unawaited(_mediaControls.suspendForTvBackground('paused'));
         } else {
@@ -1678,6 +1691,12 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
       // the lint cannot see the mounted check inside the helper.
       if (!mounted || !_isPlayerInitializationCurrent(generation)) return;
       _autoPipEnabled = settingsService.read(SettingsService.autoPip);
+      _continueListeningEnabled = Platform.isAndroid && PlatformDetector.isMobile(context) &&
+          !PlatformDetector.isAutomotive() && settingsService.read(SettingsService.continueListening);
+      _releaseOutsideAppSettings ??= bindListenable(
+        settingsService.listenableOfAll(const [SettingsService.autoPip, SettingsService.continueListening]),
+        () => _enqueueLifecycleTransition('outside_app_setting', _applyOutsideAppSettings),
+      );
       _exitFullscreenOnPlayerClose = settingsService.read(SettingsService.exitFullscreenOnPlayerClose);
       _rewindOnResume = settingsService.read(SettingsService.rewindOnResume);
       final playbackBufferTier = settingsService.read(SettingsService.playbackBufferTier);

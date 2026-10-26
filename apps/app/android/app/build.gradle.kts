@@ -233,7 +233,7 @@ val heisucaPreview = providers.gradleProperty("heisucaPreview").orNull == "true"
 
 android {
   buildFeatures { buildConfig = true }
-  namespace = "com.edde746.plezy"
+  namespace = "app.heisuca"
   compileSdk = flutter.compileSdkVersion
   buildToolsVersion = "36.1.0"
   ndkVersion = "29.0.14206865"

@@ -1,26 +1,26 @@
 import 'dart:convert';
-import 'package:plezy/media/ids.dart';
+import 'package:heisuca/media/ids.dart';
 import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
-import 'package:plezy/database/app_database.dart';
-import 'package:plezy/media/media_backend.dart';
+import 'package:heisuca/database/app_database.dart';
+import 'package:heisuca/media/media_backend.dart';
 
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/media/media_server_client.dart';
-import 'package:plezy/models/download_models.dart';
-import 'package:plezy/services/cached_playback_metadata_service.dart';
-import 'package:plezy/services/download_storage_service.dart';
-import 'package:plezy/services/jellyfin_api_cache.dart';
-import 'package:plezy/services/jellyfin_media_info_mapper.dart';
-import 'package:plezy/services/playback_initialization_service.dart';
-import 'package:plezy/services/plex_api_cache.dart';
-import 'package:plezy/services/plex_mappers.dart';
-import 'package:plezy/services/saf_storage_service.dart';
-import 'package:plezy/services/settings_service.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/models/download_models.dart';
+import 'package:heisuca/services/cached_playback_metadata_service.dart';
+import 'package:heisuca/services/download_storage_service.dart';
+import 'package:heisuca/services/jellyfin_api_cache.dart';
+import 'package:heisuca/services/jellyfin_media_info_mapper.dart';
+import 'package:heisuca/services/playback_initialization_service.dart';
+import 'package:heisuca/services/plex_api_cache.dart';
+import 'package:heisuca/services/plex_mappers.dart';
+import 'package:heisuca/services/saf_storage_service.dart';
+import 'package:heisuca/services/settings_service.dart';
 
 import '../test_helpers/io_fakes.dart';
 import '../test_helpers/prefs.dart';

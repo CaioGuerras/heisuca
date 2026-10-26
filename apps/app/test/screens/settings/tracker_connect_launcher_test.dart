@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/screens/settings/tracker_connect_launcher.dart';
-import 'package:plezy/widgets/pending_auth_dialog.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/screens/settings/tracker_connect_launcher.dart';
+import 'package:heisuca/widgets/pending_auth_dialog.dart';
 
 /// Knobs for one launched connect flow: the pending `connect` future the
 /// launcher awaits, and a count of provider-level cancellations.

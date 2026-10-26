@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/cgflix/home/cgflix_cards.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_kind.dart';
+import 'package:heisuca/cgflix/home/cgflix_cards.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_kind.dart';
 
 void main() {
   testWidgets('Top 10, cartão largo com progresso e esqueleto desenham sem erro', (tester) async {

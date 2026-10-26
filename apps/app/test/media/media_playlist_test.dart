@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_playlist.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_playlist.dart';
 
 /// Backend-agnostic [MediaPlaylist] tests pin the neutral model's getters
 /// separately from mapper coverage. The model uses identity equality, so these

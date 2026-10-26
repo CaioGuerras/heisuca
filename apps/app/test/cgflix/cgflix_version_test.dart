@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/cgflix/cgflix_version.dart';
+import 'package:heisuca/cgflix/cgflix_version.dart';
 
 void main() {
   test('Sobre mostra "Versão 1.6.2" abaixo do nome', () {

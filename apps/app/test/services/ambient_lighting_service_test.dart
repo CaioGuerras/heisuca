@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
-import 'package:plezy/mpv/player/player.dart';
-import 'package:plezy/mpv/player/player_state.dart';
-import 'package:plezy/services/ambient_lighting_service.dart';
+import 'package:heisuca/mpv/player/player.dart';
+import 'package:heisuca/mpv/player/player_state.dart';
+import 'package:heisuca/services/ambient_lighting_service.dart';
 
 import '../test_helpers/io_fakes.dart';
 

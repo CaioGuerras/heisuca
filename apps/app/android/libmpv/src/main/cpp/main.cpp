@@ -57,7 +57,7 @@ static void prepare_environment(JNIEnv* env, jobject appctx) {
     // native methods with RegisterNatives - see consumer-rules.pro. Resolved
     // here, on a Java-entered thread whose class loader sees app classes;
     // libavcodec's own threads could not FindClass it.
-    jclass bridge = env->FindClass("com/edde746/plezy/libmpv/MediaCodecCallbackBridge");
+    jclass bridge = env->FindClass("app/heisuca/libmpv/MediaCodecCallbackBridge");
     if (bridge) {
       jobject global_bridge = env->NewGlobalRef(bridge);
       if (global_bridge) av_jni_set_mediacodec_callback_class(global_bridge, NULL);

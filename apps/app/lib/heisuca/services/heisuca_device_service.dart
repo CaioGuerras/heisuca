@@ -43,7 +43,7 @@ class HeisucaDeviceProfile {
 class HeisucaDeviceService extends ChangeNotifier {
   HeisucaDeviceService._();
   static final HeisucaDeviceService instance = HeisucaDeviceService._();
-  static const _channel = MethodChannel('com.plezy/device');
+  static const _channel = MethodChannel('app.heisuca/device');
   HeisucaDeviceProfile _profile = const HeisucaDeviceProfile();
   HeisucaDeviceProfile get profile => _profile;
 

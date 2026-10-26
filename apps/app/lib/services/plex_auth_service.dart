@@ -1161,7 +1161,7 @@ String? _optionalScalarString(Object? value) => switch (value) {
 
 /// Custom exception for server parsing errors that includes debug data
 class ServerParsingException implements Exception {
-  /// English diagnostic text, kept verbatim for logs and Sentry grouping.
+  /// English diagnostic text, kept verbatim for logs.
   final String message;
 
   /// Localized text rendered by the UI via [toString].

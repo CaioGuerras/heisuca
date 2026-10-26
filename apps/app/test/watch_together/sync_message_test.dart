@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/watch_together/models/sync_message.dart';
-import 'package:plezy/watch_together/models/watch_session.dart';
+import 'package:heisuca/watch_together/models/sync_message.dart';
+import 'package:heisuca/watch_together/models/watch_session.dart';
 
 void main() {
   group('join control mode wire format', () {

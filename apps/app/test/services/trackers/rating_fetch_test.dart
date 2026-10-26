@@ -4,13 +4,13 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/models/trackers/anime_ids.dart';
-import 'package:plezy/services/trackers/simkl/simkl_tracker.dart';
-import 'package:plezy/services/trackers/tracker_id_resolver.dart';
-import 'package:plezy/services/trackers/tracker_session.dart';
-import 'package:plezy/services/trackers/trakt/trakt_tracker.dart';
-import 'package:plezy/utils/external_ids.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/models/trackers/anime_ids.dart';
+import 'package:heisuca/services/trackers/simkl/simkl_tracker.dart';
+import 'package:heisuca/services/trackers/tracker_id_resolver.dart';
+import 'package:heisuca/services/trackers/tracker_session.dart';
+import 'package:heisuca/services/trackers/trakt/trakt_tracker.dart';
+import 'package:heisuca/utils/external_ids.dart';
 
 int _now() => DateTime.now().millisecondsSinceEpoch ~/ 1000;
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/cgflix/cgflix_theme.dart';
-import 'package:plezy/services/settings_service.dart' as settings;
+import 'package:heisuca/cgflix/cgflix_theme.dart';
+import 'package:heisuca/services/settings_service.dart' as settings;
 
 void main() {
   test('Isis (padrão): escuro, fundo preto puro e destaque roxo', () {

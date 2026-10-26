@@ -2,11 +2,11 @@
 // "Mostrar dedicatória" do Avançado.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/cgflix/cgflix_about.dart';
-import 'package:plezy/cgflix/cgflix_advanced.dart';
-import 'package:plezy/cgflix/cgflix_theme.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/widgets/app_icon.dart';
+import 'package:heisuca/cgflix/cgflix_about.dart';
+import 'package:heisuca/cgflix/cgflix_advanced.dart';
+import 'package:heisuca/cgflix/cgflix_theme.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/widgets/app_icon.dart';
 
 import '../test_helpers/prefs.dart';
 

@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/mpv/mpv.dart';
-import 'package:plezy/mpv/player/platform/player_android.dart';
-import 'package:plezy/mpv/player/player_native.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/services/video_volume_controller.dart';
+import 'package:heisuca/mpv/mpv.dart';
+import 'package:heisuca/mpv/player/platform/player_android.dart';
+import 'package:heisuca/mpv/player/player_native.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/services/video_volume_controller.dart';
 
 import '../test_helpers/mock_player_channels.dart';
 import '../test_helpers/prefs.dart';
@@ -319,14 +319,14 @@ void main() {
   for (final adapter in <({String name, String methodChannel, String eventChannel, Player Function() create})>[
     (
       name: 'PlayerNative',
-      methodChannel: 'com.plezy/mpv_player',
-      eventChannel: 'com.plezy/mpv_player/events',
+      methodChannel: 'app.heisuca/mpv_player',
+      eventChannel: 'app.heisuca/mpv_player/events',
       create: PlayerNative.new,
     ),
     (
       name: 'PlayerAndroid',
-      methodChannel: 'com.plezy/exo_player',
-      eventChannel: 'com.plezy/exo_player/events',
+      methodChannel: 'app.heisuca/exo_player',
+      eventChannel: 'app.heisuca/exo_player/events',
       create: PlayerAndroid.new,
     ),
   ]) {

@@ -1,11 +1,11 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/database/app_database.dart';
-import 'package:plezy/heisuca/heisuca_plex_home_repository.dart';
-import 'package:plezy/heisuca/heisuca_upcoming.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/services/jellyfin_api_cache.dart';
-import 'package:plezy/services/plex_api_cache.dart';
+import 'package:heisuca/database/app_database.dart';
+import 'package:heisuca/heisuca/heisuca_plex_home_repository.dart';
+import 'package:heisuca/heisuca/heisuca_upcoming.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/services/jellyfin_api_cache.dart';
+import 'package:heisuca/services/plex_api_cache.dart';
 import '../test_helpers/backend_client_fixtures.dart';
 import '../test_helpers/http_fixtures.dart';
 

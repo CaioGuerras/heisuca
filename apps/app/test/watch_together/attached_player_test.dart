@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/services/car_ux_restrictions_service.dart';
-import 'package:plezy/utils/platform_detector.dart';
-import 'package:plezy/watch_together/services/attached_player.dart';
+import 'package:heisuca/services/car_ux_restrictions_service.dart';
+import 'package:heisuca/utils/platform_detector.dart';
+import 'package:heisuca/watch_together/services/attached_player.dart';
 
 import '../test_helpers/watch_together_fakes.dart';
 

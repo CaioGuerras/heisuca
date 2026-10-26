@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/mpv/player/player_native.dart';
+import 'package:heisuca/mpv/player/player_native.dart';
 
 import '../test_helpers/mock_player_channels.dart';
 
@@ -21,8 +21,8 @@ void main() {
     required Future<void> Function() testBody,
   }) {
     return withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: methodHandler,
       testBody: testBody,
     );

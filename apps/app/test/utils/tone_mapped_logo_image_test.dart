@@ -4,7 +4,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/utils/tone_mapped_logo_image.dart';
+import 'package:heisuca/utils/tone_mapped_logo_image.dart';
 
 /// Pipeline tests for [ToneMappedLogoImage]: the provider must recolor a
 /// light-toned logo during decode, leave self-backed dark artwork untouched,

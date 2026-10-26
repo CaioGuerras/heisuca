@@ -8,7 +8,7 @@
 //     resumo bodyMedium em onSurfaceVariant), switch (trilho primary ligado, contorno outline
 //     desligado, check no polegar), divisores outlineVariant e barra de título grande que recolhe.
 //
-// Os arquivos do Plezy só ganham ganchos curtos: `SettingsGroup`, `SettingsSectionHeader`, as
+// Os arquivos do Heisuca só ganham ganchos curtos: `SettingsGroup`, `SettingsSectionHeader`, as
 // linhas (`FocusableListTile`, `_SettingRow`), o `AppIcon` e a barra de título perguntam
 // [CgflixSettingsLook.of] e desenham no padrão M3 quando estão dentro de [CgflixSettingsScope].
 import 'package:flutter/material.dart';

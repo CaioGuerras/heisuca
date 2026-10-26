@@ -44,14 +44,7 @@ extension _VideoPlayerDisplayMatchingMethods on VideoPlayerScreenState {
       await _refreshAndroidMpvDecoderAfterFrameRateSwitch(reason: reason, targetPosition: refreshPosition);
     }
 
-    unawaited(
-      Sentry.addBreadcrumb(
-        Breadcrumb(
-          message: 'Display matching: ${target.fps}fps, ${target.width}x${target.height}, switched=$didSwitch',
-          category: 'player',
-        ),
-      ),
-    );
+
     appLogger.d(
       'Display matching: ${target.fps}fps, ${target.width}x${target.height} '
       '(duration: ${durationMs}ms, switched=$didSwitch, $reason)',

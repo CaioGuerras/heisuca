@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/focus/covered_route_focus_boundary.dart';
+import 'package:heisuca/focus/covered_route_focus_boundary.dart';
 
 /// The shape from #2034/#2239: a nested navigator whose content sits under a
 /// route pushed on the ROOT navigator. Nested-route `isCurrent` stays true

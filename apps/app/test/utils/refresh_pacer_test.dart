@@ -1,6 +1,6 @@
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/utils/refresh_pacer.dart';
+import 'package:heisuca/utils/refresh_pacer.dart';
 
 void main() {
   const debounce = Duration(seconds: 3);

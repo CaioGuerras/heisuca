@@ -4,7 +4,7 @@
 
 #include <string>
 
-#define jni_func_name(name) Java_com_edde746_plezy_libmpv_MpvPlayer_##name
+#define jni_func_name(name) Java_app_heisuca_libmpv_MpvPlayer_##name
 #define jni_func(return_type, name, ...) \
   JNIEXPORT return_type JNICALL jni_func_name(name)(JNIEnv * env, jobject obj, ##__VA_ARGS__)
 

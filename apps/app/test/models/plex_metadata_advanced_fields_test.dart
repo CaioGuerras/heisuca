@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/models/plex/plex_metadata_preferences.dart';
-import 'package:plezy/services/plex_mappers.dart';
+import 'package:heisuca/models/plex/plex_metadata_preferences.dart';
+import 'package:heisuca/services/plex_mappers.dart';
 
 void main() {
   group('PlexMetadataPreferences', () {

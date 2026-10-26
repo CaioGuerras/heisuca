@@ -6,18 +6,18 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 
-import 'package:plezy/database/app_database.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/mpv/mpv.dart';
-import 'package:plezy/providers/playback_state_provider.dart';
-import 'package:plezy/services/fullscreen_state_manager.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/services/video_volume_controller.dart';
-import 'package:plezy/utils/platform_detector.dart';
-import 'package:plezy/watch_together/providers/watch_together_provider.dart';
-import 'package:plezy/widgets/video_controls/player_chrome_controller.dart';
-import 'package:plezy/widgets/video_controls/video_controls.dart';
-import 'package:plezy/widgets/video_controls/widgets/player_toast_indicator.dart';
+import 'package:heisuca/database/app_database.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/mpv/mpv.dart';
+import 'package:heisuca/providers/playback_state_provider.dart';
+import 'package:heisuca/services/fullscreen_state_manager.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/services/video_volume_controller.dart';
+import 'package:heisuca/utils/platform_detector.dart';
+import 'package:heisuca/watch_together/providers/watch_together_provider.dart';
+import 'package:heisuca/widgets/video_controls/player_chrome_controller.dart';
+import 'package:heisuca/widgets/video_controls/video_controls.dart';
+import 'package:heisuca/widgets/video_controls/widgets/player_toast_indicator.dart';
 
 import '../test_helpers/media_items.dart';
 import '../test_helpers/player_streams.dart';
@@ -39,7 +39,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   const windowChannel = MethodChannel('window_manager');
-  const macWindowChannel = MethodChannel('com.plezy/window_utils');
+  const macWindowChannel = MethodChannel('app.heisuca/window_utils');
 
   late _PlayingPlayer player;
   late PlayerChromeController chrome;

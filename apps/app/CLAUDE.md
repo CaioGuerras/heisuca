@@ -1,9 +1,25 @@
-# CGFLIX (app completo) — fork do Plezy
+# Heisuca — fork independente (GPL-3.0)
 
 Base: [Plezy](https://github.com/edde746/plezy) (Flutter, GPL-3.0; cliente de **Plex e Jellyfin**, player mpv, Android/iOS/
 Windows/macOS/Linux). Este é o app "completo" do CGFLIX. Irmão leve: `CaioGuerras/cgflix-lite` (fork do Findroid).
 Plano do Caio (resumo): Android primeiro; iPhone fica para depois; PC (Windows) virá deste mesmo código.
 
+
+## Independência — etapa L (26/10/2026)
+- Pacote Dart: `heisuca`. Namespace Android e canais próprios: `app.heisuca`.
+  JNI, regras R8 e testes nativos acompanham a mudança. **Não alterar os applicationIds**:
+  `app.heisuca.player.teste.home` (avaliação) e `app.heisuca.player.teste`.
+  Certificado e atualização sobre a instalação anterior são preservados.
+- Sentry removido: sem SDK, DSN, inicialização, hooks ou upload de símbolos.
+  Diagnósticos ficam nos registros locais, compartilhados por ação do usuário.
+  Não introduzir telemetria ou destinos do Plezy. O validador inspeciona o APK.
+- Licenças contém a GPL-3.0 completa e o aviso obrigatório da origem Plezy;
+  marca e traduções do produto são Heisuca. Textos do Discord foram retirados.
+- Chaves históricas de preferências/cache e `DisplayPreferences.client`
+  permanecem para conservar dados ao atualizar; não são marca nem destinos de rede.
+  IDs Apple permanecem; esta etapa valida Android.
+- Atualizador não usa mais feed/repositório do Plezy; feed nativo só mediante
+  configuração própria explícita. Não publicar releases automaticamente.
 
 ## Contexto (leia antes de tudo)
 - **CGFLIX** é um servidor de mídia particular de família e amigos no Brasil (Jellyfin principal; Plex também). Endereço público

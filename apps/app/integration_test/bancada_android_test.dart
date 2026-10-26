@@ -7,22 +7,22 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:plezy/main.dart' as app;
-import 'package:plezy/heisuca/heisuca_home_screen.dart';
-import 'package:plezy/heisuca/heisuca_login_screen.dart';
-import 'package:plezy/heisuca/heisuca_profile_screen.dart';
-import 'package:plezy/heisuca/heisuca_title_sheet.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/providers/multi_server_provider.dart';
-import 'package:plezy/profiles/active_profile_provider.dart';
-import 'package:plezy/profiles/profile_registry.dart';
-import 'package:plezy/screens/search_screen.dart';
-import 'package:plezy/screens/video_player_screen.dart';
-import 'package:plezy/services/jellyfin_client.dart';
-import 'package:plezy/utils/pointer_scroll_axis.dart';
-import 'package:plezy/utils/semantics_tree_gate.dart';
-import 'package:plezy/widgets/focusable_media_card.dart';
-import 'package:plezy/widgets/video_controls/mobile_video_controls.dart';
+import 'package:heisuca/main.dart' as app;
+import 'package:heisuca/heisuca/heisuca_home_screen.dart';
+import 'package:heisuca/heisuca/heisuca_login_screen.dart';
+import 'package:heisuca/heisuca/heisuca_profile_screen.dart';
+import 'package:heisuca/heisuca/heisuca_title_sheet.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/providers/multi_server_provider.dart';
+import 'package:heisuca/profiles/active_profile_provider.dart';
+import 'package:heisuca/profiles/profile_registry.dart';
+import 'package:heisuca/screens/search_screen.dart';
+import 'package:heisuca/screens/video_player_screen.dart';
+import 'package:heisuca/services/jellyfin_client.dart';
+import 'package:heisuca/utils/pointer_scroll_axis.dart';
+import 'package:heisuca/utils/semantics_tree_gate.dart';
+import 'package:heisuca/widgets/focusable_media_card.dart';
+import 'package:heisuca/widgets/video_controls/mobile_video_controls.dart';
 
 class _BancadaBinding extends IntegrationTestWidgetsFlutterBinding with PointerScrollAxisLock, SemanticsTreeGate {
   // Em debug o app abre um handle de semântica que dura a sessão (main.dart). Iniciado dentro do caso, ele
@@ -46,7 +46,7 @@ class _BancadaBinding extends IntegrationTestWidgetsFlutterBinding with PointerS
 }
 
 void main() {
-  final binding = PlezyWidgetsBinding.ensureInitialized(createBinding: _BancadaBinding.new) as _BancadaBinding;
+  final binding = HeisucaWidgetsBinding.ensureInitialized(createBinding: _BancadaBinding.new) as _BancadaBinding;
   late final Directory support;
   late final Map<String, dynamic> config;
   // O test_api recusa declarar casos depois de um await em main() ("Can't call test() once tests have begun

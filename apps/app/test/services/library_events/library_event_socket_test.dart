@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/media/library_change_event.dart';
-import 'package:plezy/media/media_browser_dialect.dart';
-import 'package:plezy/services/library_events/library_event_socket.dart';
-import 'package:plezy/services/library_events/media_browser_library_event_socket.dart';
-import 'package:plezy/services/library_events/plex_library_event_socket.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/media/library_change_event.dart';
+import 'package:heisuca/media/media_browser_dialect.dart';
+import 'package:heisuca/services/library_events/library_event_socket.dart';
+import 'package:heisuca/services/library_events/media_browser_library_event_socket.dart';
+import 'package:heisuca/services/library_events/plex_library_event_socket.dart';
 
 /// Ephemeral loopback websocket server standing in for a media server's
 /// notification endpoint. Real protocol boundary, torn down unconditionally.

@@ -3,15 +3,15 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/media/media_rating.dart';
-import 'package:plezy/models/catalog/catalog_item.dart';
-import 'package:plezy/models/catalog/catalog_metadata.dart';
-import 'package:plezy/services/catalog/catalog_source.dart';
-import 'package:plezy/services/catalog/plex_catalog_source.dart';
-import 'package:plezy/services/plex_discover_client.dart';
-import 'package:plezy/utils/external_ids.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_rating.dart';
+import 'package:heisuca/models/catalog/catalog_item.dart';
+import 'package:heisuca/models/catalog/catalog_metadata.dart';
+import 'package:heisuca/services/catalog/catalog_source.dart';
+import 'package:heisuca/services/catalog/plex_catalog_source.dart';
+import 'package:heisuca/services/plex_discover_client.dart';
+import 'package:heisuca/utils/external_ids.dart';
 
 import '../../test_helpers/http_fixtures.dart';
 

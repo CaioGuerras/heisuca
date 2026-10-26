@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:plezy/exceptions/media_server_exceptions.dart';
-import 'package:plezy/media/account_preferences.dart';
-import 'package:plezy/media/media_browser_dialect.dart';
-import 'package:plezy/media/media_server_user_profile.dart';
-import 'package:plezy/services/jellyfin_client.dart';
-import 'package:plezy/services/media_browser_account_preferences_source.dart';
+import 'package:heisuca/exceptions/media_server_exceptions.dart';
+import 'package:heisuca/media/account_preferences.dart';
+import 'package:heisuca/media/media_browser_dialect.dart';
+import 'package:heisuca/media/media_server_user_profile.dart';
+import 'package:heisuca/services/jellyfin_client.dart';
+import 'package:heisuca/services/media_browser_account_preferences_source.dart';
 
 import '../test_helpers/backend_client_fixtures.dart';
 import '../test_helpers/http_fixtures.dart';

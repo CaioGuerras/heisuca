@@ -8,7 +8,7 @@
          Only the platform HTTP stack (background_downloader, ExoPlayer's Cronet
          data source) reads this file. The app's own requests run on dart:io,
          which applies the same split through lib/utils/certificate_trust.dart
-         by loading the user store over com.plezy/user_certificates. -->
+         by loading the user store over app.heisuca/user_certificates. -->
     <base-config cleartextTrafficPermitted="true">
         <trust-anchors>
             <certificates src="system" />
@@ -30,7 +30,6 @@
              Does NOT match *.plex.direct — user PMS keeps base-config. -->
         <domain includeSubdomains="true">plex.tv</domain>
         <!-- Proteção do endpoint legado de exceções, desativado neste build. -->
-        <domain includeSubdomains="true">plezy.app</domain>
         <!-- api.trakt.tv incl. /oauth/device/*, /oauth/token
              (lib/services/trakt/trakt_constants.dart:16,21-24). -->
         <domain includeSubdomains="true">trakt.tv</domain>

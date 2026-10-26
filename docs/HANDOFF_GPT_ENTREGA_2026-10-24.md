@@ -972,3 +972,44 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   `teste-sem-senha` não foi usada em nenhum run (conferir se existe no segredo e se tem filme livre). Resíduo de testes
   na conta Claudia (Yellow Mirror: contagem/data; 2 aparelhos `sdk_gphone64_x86_64`) fica para o Caio limpar no fim.
 - **Próxima:** L (2.0.30+31).
+
+## Etapa L — independência, parte 2 — 2.0.30+31 (em implementação)
+
+- Base atualizada por pull até `e649f9c`; K fechada pelo Claude, sem refazer.
+  Preservados cc5c6ad (rota), 479b129 (sondagem única 8 s) e 7d1e1bf
+  (navegação sem Theme no initState), com os testes mantidos no portão.
+- Namespace Android, referências JVM/JNI, regras R8 e canais próprios mudados
+  para `app.heisuca`; `applicationId` permanece `app.heisuca.player.teste.home`
+  no ramo de teste e `app.heisuca.player.teste` na outra variante. Pacote Dart
+  passa a `heisuca`, com todos os imports ajustados. Assinatura não foi alterada.
+- Sentry removido de dependências, inicialização, hooks, ajustes, diagnóstico
+  nativo/Dart e ferramentas de upload de símbolos; locks Apple sem o SDK.
+  Os diagnósticos continuam locais e compartilháveis pelo usuário. Fila de envio
+  retirada; consumo local serializado com gravações, inclusive em concorrência.
+- Correção do diagnóstico histórico: na base real `_enableSentry` era false por
+  padrão e dependia de define; a preferência true não prova envio dos APKs
+  anteriores. Retirada total mantém a independência solicitada, sem alegar envio
+  anterior não demonstrado.
+- Traduções do Discord e da opção de telemetria retiradas na fonte e regeneradas.
+  Textos exibidos trocados para Heisuca. GPL-3.0 completa e aviso de origem ficam
+  em Licenças; o crédito separado do Sobre foi retirado. Recursos da marca antiga
+  deixam de entrar no bundle. Atualizador não aponta mais para releases do Plezy.
+- Chaves históricas de dados locais e `DisplayPreferences.client = 'Plezy'`
+  permanecem por compatibilidade dos dados; não representam destinos de rede
+  nem marca exibida. Bundle IDs de plataformas Apple não foram alterados.
+- Teste novo de independência falhou antes e passou depois; 89 testes direcionados
+  e 7 de identidade/rota/navegação passaram. Portão completo em andamento.
+  Sem commit/push da L ainda. APK, certificado, hash e bancada ainda não validados.
+  M–O não iniciadas; não testado em aparelho físico nem nas plataformas Apple/PC.
+- Teste adicional reproduziu concorrência entre consumo e falha nova: arquivo
+  preservado, mas registro em memória antigo. Correção mantém também o registro
+  mais novo em memória; teste falhou antes e passou depois. Portão repetido sobre
+  a implementação final; os 14 testes Python da K permanecem incluídos.
+- Validador do APK também exige a Activity no namespace novo e o arquivo da GPL
+  completa com aviso do autor original. Mudanças de namespace limitadas ao Android;
+  canais das outras plataformas acompanham o Dart. IDs/empacotamento desktop
+  mantidos. Sem alteração funcional das três correções do fechamento da K.
+- **Portão final L aprovado:** análise sem erros, **552 Flutter aprovados e 3
+  ignorados + 8 Impeller + 14 Python**; `APROVADO` no script completo. Nenhum
+  golden da Início foi atualizado. Pacotes, JNI e restauração reais ainda serão
+  comprovados pelos dois runs deste código.

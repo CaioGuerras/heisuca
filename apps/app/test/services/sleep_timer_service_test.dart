@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_async/fake_async.dart';
-import 'package:plezy/services/sleep_timer_service.dart';
+import 'package:heisuca/services/sleep_timer_service.dart';
 
 // Timer ticks and wall-clock arithmetic advance together in an isolated service.
 void main() {

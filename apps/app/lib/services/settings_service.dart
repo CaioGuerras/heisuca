@@ -9,7 +9,7 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
 import '../models/hotkey_model.dart';
 import 'image_cache_service.dart';
-import 'package:plezy/utils/app_logger.dart';
+import 'package:heisuca/utils/app_logger.dart';
 import '../i18n/strings.g.dart';
 import '../models/mpv_config_models.dart';
 import '../models/player_setting_scope.dart';
@@ -554,7 +554,6 @@ class SettingsService extends BaseSharedPreferencesService {
   static const String defaultCreditsPattern = r'(?:^|\b)(?:outro|closing|credits?|ending)(?:\b|$)|^ed(?:\s?\d+)?$';
 
   static const enableDebugLogging = BoolPref('enable_debug_logging', onWrite: setLoggerLevel);
-  static const crashReporting = BoolPref('crash_reporting', defaultValue: true);
   // Preferência local do Heisuca; desligada preserva a seleção do servidor.
   static const heisucaPreferPortugueseAudio = BoolPref('heisuca_prefer_portuguese_audio');
   static const enableHardwareDecoding = BoolPref('enable_hardware_decoding', defaultValue: true);
@@ -1537,7 +1536,6 @@ class SettingsService extends BaseSharedPreferencesService {
           pref != keyboardHotkeys &&
           pref != globalShaderPreset)
         pref,
-    crashReporting,
     mpvConfigText,
     customRelayUrl,
     rememberedBrightnessLevel,

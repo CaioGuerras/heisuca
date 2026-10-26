@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/mpv/player/mpv_node_decoder.dart';
+import 'package:heisuca/mpv/player/mpv_node_decoder.dart';
 
 void main() {
   const nestedList = [

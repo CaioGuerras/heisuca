@@ -7,7 +7,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:plezy/widgets/app_icon.dart';
+import 'package:heisuca/widgets/app_icon.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:path/path.dart' as path;
 
@@ -347,7 +347,7 @@ class _AudioRenderingModeItemState extends State<_AudioRenderingModeItem> {
 class VideoSettingsSheet extends StatefulWidget {
   final Player player;
 
-  /// Whether this player surface supports Plezy's HDR control.
+  /// Whether this player surface supports Heisuca's HDR control.
   ///
   /// Defaults to the native platform capability, but can be supplied by
   /// embedders whose capability is known independently of the host platform.
@@ -1021,7 +1021,7 @@ class _VideoSettingsSheetState extends State<VideoSettingsSheet> {
             leading: AppIcon(Symbols.swap_horiz_rounded, fill: 1, color: tokens(context).textMuted),
             title: const Text('Trigger MPV Fallback'),
             onTap: () {
-              const MethodChannel('com.plezy/exo_player').invokeMethod('triggerFallback');
+              const MethodChannel('app.heisuca/exo_player').invokeMethod('triggerFallback');
               OverlaySheetController.of(context).close();
             },
           ),

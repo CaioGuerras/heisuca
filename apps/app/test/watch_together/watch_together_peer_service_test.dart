@@ -5,10 +5,10 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:stream_channel/stream_channel.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:plezy/watch_together/services/watch_together_peer_service.dart';
-import 'package:plezy/watch_together/services/watch_together_relay_endpoint.dart';
-import 'package:plezy/watch_together/models/sync_message.dart';
-import 'package:plezy/watch_together/services/relay_protocol.g.dart';
+import 'package:heisuca/watch_together/services/watch_together_peer_service.dart';
+import 'package:heisuca/watch_together/services/watch_together_relay_endpoint.dart';
+import 'package:heisuca/watch_together/models/sync_message.dart';
+import 'package:heisuca/watch_together/services/relay_protocol.g.dart';
 
 typedef _MessageHandler = FutureOr<void> Function(int connection, WebSocket socket, Map<String, dynamic> message);
 const _relayHostId = 'relay-host-7';

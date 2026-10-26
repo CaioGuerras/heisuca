@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/i18n/strings.g.dart';
+import 'package:heisuca/i18n/strings.g.dart';
 
 void main() {
   test('user-facing and accessibility labels are populated in every locale', () async {

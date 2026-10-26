@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/providers/multi_server_provider.dart';
-import 'package:plezy/screens/actor_media_screen.dart';
-import 'package:plezy/theme/mono_theme.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/providers/multi_server_provider.dart';
+import 'package:heisuca/screens/actor_media_screen.dart';
+import 'package:heisuca/theme/mono_theme.dart';
 import 'package:provider/provider.dart';
 
 import '../test_helpers/multi_server_fixtures.dart';

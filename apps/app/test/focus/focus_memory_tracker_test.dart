@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/focus/focus_memory_tracker.dart';
+import 'package:heisuca/focus/focus_memory_tracker.dart';
 
 void main() {
   testWidgets('tracks and restores focus without a rebuild callback', (tester) async {

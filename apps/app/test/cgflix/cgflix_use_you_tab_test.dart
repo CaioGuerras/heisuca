@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/cgflix/cgflix_navigation.dart';
+import 'package:heisuca/cgflix/cgflix_navigation.dart';
 
 class _DecideNoInitState extends StatefulWidget {
   const _DecideNoInitState();

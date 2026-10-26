@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/mpv/mpv.dart';
-import 'package:plezy/widgets/video_controls/widgets/performance_overlay/performance_overlay.dart';
+import 'package:heisuca/mpv/mpv.dart';
+import 'package:heisuca/widgets/video_controls/widgets/performance_overlay/performance_overlay.dart';
 
 /// Player fake that only counts how often the overlay polls it.
 class _CountingStatsPlayer implements Player {

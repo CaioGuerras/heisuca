@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/screens/video_player/live_stream_retry.dart';
+import 'package:heisuca/screens/video_player/live_stream_retry.dart';
 
 void main() {
   group('runLiveStreamRetry', () {

@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/services/car_ux_restrictions_service.dart';
-import 'package:plezy/utils/platform_detector.dart';
-import 'package:plezy/watch_together/models/playback_state.dart';
-import 'package:plezy/watch_together/models/sync_message.dart';
-import 'package:plezy/watch_together/models/watch_session.dart';
-import 'package:plezy/watch_together/services/host_playback_coordinator.dart';
-import 'package:plezy/watch_together/services/watch_together_controller.dart';
+import 'package:heisuca/services/car_ux_restrictions_service.dart';
+import 'package:heisuca/utils/platform_detector.dart';
+import 'package:heisuca/watch_together/models/playback_state.dart';
+import 'package:heisuca/watch_together/models/sync_message.dart';
+import 'package:heisuca/watch_together/models/watch_session.dart';
+import 'package:heisuca/watch_together/services/host_playback_coordinator.dart';
+import 'package:heisuca/watch_together/services/watch_together_controller.dart';
 
 import '../test_helpers/watch_together_fakes.dart';
 

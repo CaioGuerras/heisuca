@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
-import 'package:plezy/models/shader_preset.dart';
-import 'package:plezy/mpv/player/player.dart';
-import 'package:plezy/services/shader_asset_loader.dart';
-import 'package:plezy/services/shader_service.dart';
+import 'package:heisuca/models/shader_preset.dart';
+import 'package:heisuca/mpv/player/player.dart';
+import 'package:heisuca/services/shader_asset_loader.dart';
+import 'package:heisuca/services/shader_service.dart';
 
 import '../test_helpers/io_fakes.dart';
 

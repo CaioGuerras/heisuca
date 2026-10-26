@@ -139,7 +139,7 @@ class _LogsScreenState extends State<LogsScreen> with MountedSetStateMixin {
       // device" into something answerable from any uploaded log (#1349).
       String renderer;
       try {
-        renderer = await const MethodChannel('com.plezy/theme').invokeMethod<String>('getRenderer') ?? 'unknown';
+        renderer = await const MethodChannel('app.heisuca/theme').invokeMethod<String>('getRenderer') ?? 'unknown';
       } catch (_) {
         renderer = 'unknown';
       }

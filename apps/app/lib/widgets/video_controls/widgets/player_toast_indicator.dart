@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:plezy/widgets/app_icon.dart';
+import 'package:heisuca/widgets/app_icon.dart';
 
 import 'transport_feedback_indicator.dart';
 

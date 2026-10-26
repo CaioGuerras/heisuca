@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart' as material;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/providers/theme_provider.dart';
-import 'package:plezy/screens/settings/settings_utils.dart';
-import 'package:plezy/services/base_shared_preferences_service.dart';
-import 'package:plezy/services/settings_service.dart' as settings;
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/providers/theme_provider.dart';
+import 'package:heisuca/screens/settings/settings_utils.dart';
+import 'package:heisuca/services/base_shared_preferences_service.dart';
+import 'package:heisuca/services/settings_service.dart' as settings;
 
 import '../test_helpers/prefs.dart';
 

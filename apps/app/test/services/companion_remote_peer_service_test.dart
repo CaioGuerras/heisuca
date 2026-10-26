@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/models/companion_remote/remote_command.dart';
-import 'package:plezy/models/companion_remote/remote_session.dart';
-import 'package:plezy/services/companion_remote/companion_remote_peer_service.dart';
-import 'package:plezy/services/companion_remote/remote_auth_context.dart';
-import 'package:plezy/services/companion_remote/remote_auth_service.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/models/companion_remote/remote_command.dart';
+import 'package:heisuca/models/companion_remote/remote_session.dart';
+import 'package:heisuca/services/companion_remote/companion_remote_peer_service.dart';
+import 'package:heisuca/services/companion_remote/remote_auth_context.dart';
+import 'package:heisuca/services/companion_remote/remote_auth_service.dart';
 
 const _ioTimeout = Duration(seconds: 5);
 

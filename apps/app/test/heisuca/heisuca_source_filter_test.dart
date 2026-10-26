@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/services/multi_server_manager.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/services/multi_server_manager.dart';
 import '../test_helpers/backend_client_fixtures.dart';
 import '../test_helpers/prefs.dart';
 

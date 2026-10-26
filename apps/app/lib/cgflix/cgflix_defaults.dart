@@ -1,5 +1,5 @@
 // Padrões do CGFLIX. Fica neste arquivo isolado para manter a diferença em
-// relação ao upstream (Plezy) mínima: os arquivos originais só chamam daqui.
+// relação ao upstream (Heisuca) mínima: os arquivos originais só chamam daqui.
 import 'dart:ui' show Locale;
 
 import '../i18n/app_locale_utils.dart';
@@ -34,11 +34,11 @@ const int cgflixSearchResultLimit = 40;
 /// Mude para `false` para voltar à lista do upstream (uma linha por servidor).
 const bool cgflixUnifiedSearch = true;
 
-/// Assistir juntos: relay próprio na VPS (24/10, mesmo código do relay do Plezy, `apps/app/server`).
+/// Assistir juntos: relay próprio na VPS (24/10, mesmo código do relay do Heisuca, `apps/app/server`).
 /// Só passam comandos (play, pausa, posição), o vídeo não.
 const String cgflixWatchTogetherRelay = 'https://heisuca.docaio.com.br/junto';
 
-/// Doação: o Liberapay do autor do Plezy nunca aparece (nem com ENABLE_DONATIONS). O apoio do
+/// Doação: o Liberapay do autor do Heisuca nunca aparece (nem com ENABLE_DONATIONS). O apoio do
 /// CGFLIX é a tela "Apoie o CGFLIX" (lib/cgflix/apoio/).
 const bool cgflixHidesUpstreamDonation = true;
 

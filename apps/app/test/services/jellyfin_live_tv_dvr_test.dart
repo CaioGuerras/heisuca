@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:plezy/exceptions/media_server_exceptions.dart';
-import 'package:plezy/media/media_server_client.dart';
-import 'package:plezy/models/media_subscription.dart';
+import 'package:heisuca/exceptions/media_server_exceptions.dart';
+import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/models/media_subscription.dart';
 
 import '../test_helpers/backend_client_fixtures.dart';
 import '../test_helpers/http_fixtures.dart';

@@ -415,8 +415,6 @@ class AgentSettingsCommands {
       },
       'applicability': {'supported': reason == null, 'reason': ?reason},
       'application': _application(pref.key),
-      if (pref == SettingsService.crashReporting)
-        'note': 'Controls event submission; reporting must also be compiled into this build.',
       if (pref == SettingsService.directPlayCoveredQuality) 'note': 'Only Plex uses this startup quality decision.',
       if (pref == SettingsService.customRelayUrl || pref == SettingsService.mpvConfigText)
         'valueRequiresExplicitGet': true,

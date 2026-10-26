@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/models/livetv_capture_buffer.dart';
-import 'package:plezy/utils/formatters.dart';
-import 'package:plezy/widgets/video_controls/widgets/live_timeline_bar.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/models/livetv_capture_buffer.dart';
+import 'package:heisuca/utils/formatters.dart';
+import 'package:heisuca/widgets/video_controls/widgets/live_timeline_bar.dart';
 
 import '../test_helpers/watch_together_fakes.dart';
 

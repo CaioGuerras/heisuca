@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/services/jellyfin_display_metadata.dart';
+import 'package:heisuca/services/jellyfin_display_metadata.dart';
 
 /// HDR/Dolby Vision classification from a MediaBrowser `MediaStreams[]` entry.
 ///

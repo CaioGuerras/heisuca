@@ -5,28 +5,28 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
-import 'package:plezy/database/app_database.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_server_client.dart';
-import 'package:plezy/media/server_capabilities.dart';
-import 'package:plezy/models/transcode_quality_preset.dart';
-import 'package:plezy/mpv/mpv.dart';
-import 'package:plezy/providers/account_preferences_controller.dart';
-import 'package:plezy/providers/multi_server_provider.dart';
-import 'package:plezy/providers/playback_state_provider.dart';
-import 'package:plezy/screens/video_player_screen.dart';
-import 'package:plezy/services/music/music_playback_service.dart';
-import 'package:plezy/services/download_storage_service.dart';
-import 'package:plezy/services/offline_watch_sync_service.dart';
-import 'package:plezy/services/episode_navigation_service.dart';
-import 'package:plezy/services/playback_initialization_types.dart';
-import 'package:plezy/services/playback_coordinator.dart';
-import 'package:plezy/services/playback_launch_observer.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/utils/video_player_navigation.dart';
-import 'package:plezy/widgets/video_controls/video_controls.dart';
+import 'package:heisuca/database/app_database.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/media/server_capabilities.dart';
+import 'package:heisuca/models/transcode_quality_preset.dart';
+import 'package:heisuca/mpv/mpv.dart';
+import 'package:heisuca/providers/account_preferences_controller.dart';
+import 'package:heisuca/providers/multi_server_provider.dart';
+import 'package:heisuca/providers/playback_state_provider.dart';
+import 'package:heisuca/screens/video_player_screen.dart';
+import 'package:heisuca/services/music/music_playback_service.dart';
+import 'package:heisuca/services/download_storage_service.dart';
+import 'package:heisuca/services/offline_watch_sync_service.dart';
+import 'package:heisuca/services/episode_navigation_service.dart';
+import 'package:heisuca/services/playback_initialization_types.dart';
+import 'package:heisuca/services/playback_coordinator.dart';
+import 'package:heisuca/services/playback_launch_observer.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/utils/video_player_navigation.dart';
+import 'package:heisuca/widgets/video_controls/video_controls.dart';
 import 'package:provider/provider.dart';
 
 import '../../test_helpers/io_fakes.dart';
@@ -92,8 +92,8 @@ void main() {
     final observer = PlaybackLaunchObserver(isCurrent: () => true);
     final fakePlayer = _ObservedPlayer();
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       testBody: () async {
         final screen = await _pushObservedScreen(tester, db: db, fakePlayer: fakePlayer, observer: observer);
         expect(observer.snapshot()['stage'], 'playing');
@@ -126,8 +126,8 @@ void main() {
     final observer = PlaybackLaunchObserver(isCurrent: () => true);
     final fakePlayer = _ObservedPlayer();
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       testBody: () async {
         final screen = await _pushObservedScreen(tester, db: db, fakePlayer: fakePlayer, observer: observer);
         expect(observer.snapshot()['stage'], 'playing');
@@ -158,8 +158,8 @@ void main() {
     final observer = PlaybackLaunchObserver(isCurrent: () => true);
     final fakePlayer = _ObservedPlayer();
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       testBody: () async {
         final screen = await _pushObservedScreen(tester, db: db, fakePlayer: fakePlayer, observer: observer);
         expect(observer.snapshot()['stage'], 'playing');
@@ -191,8 +191,8 @@ void main() {
     await SettingsService.instance.write(SettingsService.autoPlayNextEpisode, true);
     await SettingsService.instance.write(SettingsService.playNextCountdown, 0);
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       testBody: () async {
         final screen = await _pushObservedScreen(tester, db: db, fakePlayer: fakePlayer, observer: observer);
         expect(observer.snapshot(), containsPair('item', containsPair('itemId', 'observed')));

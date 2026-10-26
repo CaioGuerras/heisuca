@@ -18,7 +18,7 @@
     "quickConnectWaiting": "Waiting for approval…",
     "quickConnectCancel": "Cancel",
     "quickConnectExpired": "Quick Connect expired. Try again.",
-    "localDataRecoveryRequired": "Plezy could not safely recover local sign-in and pending playback data. Please sign in again.",
+    "localDataRecoveryRequired": "Heisuca could not safely recover local sign-in and pending playback data. Please sign in again.",
     "pinCheckRejected": "The Plex PIN check was rejected"
   },
   "common": {
@@ -117,7 +117,7 @@
   },
   "settings": {
     "title": "Settings",
-    "supportDeveloper": "Support Plezy",
+    "supportDeveloper": "Support Heisuca",
     "supportDeveloperDescription": "Donate via Liberapay to fund development",
     "language": "Language",
     "theme": "Theme",
@@ -239,8 +239,6 @@
     "watchTogetherRelayDescription": "Set a custom relay. Everyone must use the same server.",
     "watchTogetherRelayHint": "https://my-relay.example.com",
     "watchTogetherRelayInvalid": "Enter a valid HTTP or HTTPS relay base URL.",
-    "crashReporting": "Crash Reporting",
-    "crashReportingDescription": "Send crash reports to help improve the app",
     "debugLogging": "Debug Logging",
     "debugLoggingDescription": "Enable detailed logging for troubleshooting",
     "viewLogs": "View Logs",
@@ -259,7 +257,7 @@
     "importSettingsDescription": "Restore preferences from a file",
     "importSettingsConfirm": "This will replace your current settings. Continue?",
     "importSettingsSuccess": "Settings imported",
-    "importSettingsInvalidFile": "This file isn't a valid Plezy settings export",
+    "importSettingsInvalidFile": "This file isn't a valid Heisuca settings export",
     "importSettingsNoUser": "Sign in before importing settings",
     "shortcutsReset": "Shortcuts reset to defaults",
     "resetShortcutsConfirm": "This will replace your custom shortcuts with the defaults. Continue?",
@@ -322,8 +320,6 @@
     "maxVolume": "Maximum Volume",
     "maxVolumeDescription": "Allow volume boost above 100% for quiet media",
     "maxVolumePercent": "${percent}%",
-    "discordRichPresence": "Discord Rich Presence",
-    "discordRichPresenceDescription": "Show what you're watching on Discord",
     "services": "Services",
     "servicesDescription": "Connect Trakt, MyAnimeList, Seerr, and more",
     "manageLibrariesDescription": "Reorder and hide libraries",
@@ -389,7 +385,7 @@
     "forceTvMode": "Force TV mode",
     "forceTvModeDescription": "Force TV layout. For devices that don't auto-detect. Requires restart.",
     "startInFullscreen": "Start in fullscreen",
-    "startInFullscreenDescription": "Open Plezy in fullscreen mode at launch",
+    "startInFullscreenDescription": "Open Heisuca in fullscreen mode at launch",
     "exitFullscreenOnPlayerClose": "Exit fullscreen on player close",
     "exitFullscreenOnPlayerCloseDescription": "Automatically exit fullscreen when closing the video player",
     "autoHidePerformanceOverlay": "Auto-Hide Performance Overlay",
@@ -438,7 +434,7 @@
     "playerScopeGlobal": "Everywhere",
     "playerScopeLibrary": "Per library",
     "playerScopeTitle": "Per show or movie",
-    "exportDialogTitle": "Export Plezy settings"
+    "exportDialogTitle": "Export Heisuca settings"
   },
   "search": {
     "hint": "Search movies, shows, music...",
@@ -635,8 +631,8 @@
       "one": "${n} other episode is stored in the same file and will be deleted too:",
       "other": "${n} other episodes are stored in the same file and will be deleted too:"
     },
-    "deleteScopeUnverifiedProbeFailed": "Plezy could not check which files this will remove, so it may delete more than the item named above. Cancel and try again, or delete anyway.",
-    "deleteScopeUnverifiedNoFileInfo": "Your server did not provide file details for this item, so Plezy cannot check which files this will remove. It may delete more than the item named above.",
+    "deleteScopeUnverifiedProbeFailed": "Heisuca could not check which files this will remove, so it may delete more than the item named above. Cancel and try again, or delete anyway.",
+    "deleteScopeUnverifiedNoFileInfo": "Your server did not provide file details for this item, so Heisuca cannot check which files this will remove. It may delete more than the item named above.",
     "mediaDeletedSuccessfully": "Media item deleted successfully",
     "mediaFailedToDelete": "Failed to delete media item",
     "rate": "Rate",
@@ -909,7 +905,7 @@
     "confirmAction": "Confirm Action"
   },
   "profiles": {
-    "addPlezyProfile": "Add Plezy profile",
+    "addHeisucaProfile": "Add Heisuca profile",
     "switchingProfile": "Switching profile…",
     "deleteThisProfileTitle": "Delete this profile?",
     "deleteThisProfileMessage": "Remove ${displayName}. Connections aren't affected.",
@@ -986,14 +982,14 @@
     "accessDeniedMany": "${count} servers refused access for this account",
     "signInAgain": "Sign in again",
     "editMediaBrowserTitle": "Edit ${product} connection",
-    "editMediaBrowserIntro": "Add or remove URLs for ${serverName}. Plezy will use the reachable URL with the lowest latency."
+    "editMediaBrowserIntro": "Add or remove URLs for ${serverName}. Heisuca will use the reachable URL with the lowest latency."
   },
   "accountPreferences": {
     "sectionTitle": "Account preferences",
     "hubSubtitleSingle": "Audio, subtitle and library options saved on ${account}",
     "hubSubtitleMultiple": "Audio, subtitle and library options saved on ${count} accounts",
     "pickAccount": "Every account stores its own preferences. Pick the one to edit.",
-    "storedOnAccount": "These options are saved on the account itself, so every app signed in to it uses them — including Plezy on your other devices.",
+    "storedOnAccount": "These options are saved on the account itself, so every app signed in to it uses them — including Heisuca on your other devices.",
     "noAccounts": "No accounts to configure",
     "noAccountsHint": "Sign in to Plex, or connect a Jellyfin or Emby server, and the preferences stored on that account show up here.",
     "unavailable": "Can't reach this account",
@@ -1259,9 +1255,9 @@
     "uploadLogs": "Upload Logs"
   },
   "startup": {
-    "failedTitle": "Plezy could not start",
+    "failedTitle": "Heisuca could not start",
     "failedBody": "Something went wrong during startup. The details below identify what failed.",
-    "failedBodyRepairable": "Plezy's saved settings file is damaged and has to be rebuilt before Plezy can start. Retrying will not help — choose Repair storage.",
+    "failedBodyRepairable": "Heisuca's saved settings file is damaged and has to be rebuilt before Heisuca can start. Retrying will not help — choose Repair storage.",
     "phaseLabel": "Step",
     "showDetails": "Show details",
     "hideDetails": "Hide details",
@@ -1270,16 +1266,16 @@
     "uploadDetails": "Upload details",
     "repairStorage": "Repair storage",
     "repairTitle": "Repair stored data?",
-    "repairBodyCommon": "Plezy's settings file is damaged and cannot be read. Repairing resets every setting to its default.",
+    "repairBodyCommon": "Heisuca's settings file is damaged and cannot be read. Repairing resets every setting to its default.",
     "repairBodyOneCredential": "One saved sign-in is damaged and cannot be read. Repairing removes just that one; your other settings are left alone.",
     "repairBodySignInsKept": "Your servers and profiles should stay signed in.",
     "repairBodySignInsLost": "The key protecting your saved sign-ins cannot be recovered from this file, so you will have to sign in to every server and profile again. Nothing on your media server is affected.",
-    "repairBodySessionsUncertain": "Trackers (MAL, AniList, Simkl, Trakt) and Seerr are stored separately and may or may not survive. Plezy will tell you exactly what it kept.",
+    "repairBodySessionsUncertain": "Trackers (MAL, AniList, Simkl, Trakt) and Seerr are stored separately and may or may not survive. Heisuca will tell you exactly what it kept.",
     "repairConfirm": "Repair",
     "repairSucceeded": "Storage repaired",
     "repairNeedsRestart": "Storage repaired — restart required",
-    "restartRequiredBody": "Your data was repaired, but Plezy has to start fresh before it can use it. Close Plezy and open it again.",
-    "quitPlezy": "Quit Plezy",
+    "restartRequiredBody": "Your data was repaired, but Heisuca has to start fresh before it can use it. Close Heisuca and open it again.",
+    "quitHeisuca": "Quit Heisuca",
     "repairFailed": "Repair failed",
     "repairKeptSignIns": "Your servers and profiles are still signed in.",
     "repairLostSignIns": "The key protecting your saved sign-ins could not be recovered. You will have to sign in to every server and profile again.",
@@ -1288,7 +1284,7 @@
     "backupWarning": "It contains your sign-in credentials. Do not upload or share it.",
     "deleteBackup": "Delete copy",
     "backupDeleted": "Copy deleted.",
-    "previousFailureTitle": "Plezy failed to start last time"
+    "previousFailureTitle": "Heisuca failed to start last time"
   },
   "licenses": {
     "relatedPackages": "Related Packages",
@@ -1831,14 +1827,14 @@
       "bannerAction": "Details",
       "sheetTitle": "Background downloads are blocked",
       "sheetTitleDegraded": "Background downloads may be limited",
-      "sheetIntro": "Android is preventing Plezy from downloading reliably in the background.",
-      "sheetIntroDegraded": "Your device is limiting when Plezy can download in the background.",
-      "reasonBackgroundRestricted": "Plezy's background usage is restricted. Set its battery or background usage to \"Unrestricted\".",
-      "reasonStandbyRestricted": "Android has put Plezy in a restricted standby state. Set its battery usage to \"Unrestricted\".",
+      "sheetIntro": "Android is preventing Heisuca from downloading reliably in the background.",
+      "sheetIntroDegraded": "Your device is limiting when Heisuca can download in the background.",
+      "reasonBackgroundRestricted": "Heisuca's background usage is restricted. Set its battery or background usage to \"Unrestricted\".",
+      "reasonStandbyRestricted": "Android has put Heisuca in a restricted standby state. Set its battery usage to \"Unrestricted\".",
       "reasonDownloadChannelBlocked": "Download notifications are turned off, so progress and controls may be unavailable.",
       "reasonNotificationsDisabled": "Notifications are turned off. On Android 13 or newer, they are required for long background downloads.",
       "reasonDataSaver": "Data Saver is on, which blocks background downloads on mobile data. Downloads should still run on Wi-Fi.",
-      "reasonOemUnknown": "Downloads repeatedly stopped while Plezy was in the background. Check Plezy's battery or background usage settings.",
+      "reasonOemUnknown": "Downloads repeatedly stopped while Heisuca was in the background. Check Heisuca's battery or background usage settings.",
       "openSettings": "Open settings",
       "stillNotWorking": "Device-specific help",
       "stillNotWorkingDescription": "See steps for your device, or send a log from Settings › View Logs if the issue continues.",
@@ -1911,19 +1907,19 @@
       "manualAddressHint": "Manual connection address:"
     },
     "pairing": {
-      "discoveryDescription": "Plezy devices with the same Plex account appear here",
+      "discoveryDescription": "Heisuca devices with the same Plex account appear here",
       "hostAddressHint": "192.168.1.100:48632",
       "connecting": "Connecting...",
       "searchingForDevices": "Looking for devices...",
       "noDevicesFound": "No devices found on your network",
-      "noDevicesHint": "Open Plezy on desktop and use the same Wi-Fi",
+      "noDevicesHint": "Open Heisuca on desktop and use the same Wi-Fi",
       "availableDevices": "Available Devices",
       "manualConnection": "Manual Connection",
       "cryptoInitFailed": "Couldn't start secure connection. Sign in to Plex first.",
       "validationHostRequired": "Please enter host address",
       "validationHostFormat": "Format must be IP:port (e.g., 192.168.1.100:48632)",
       "connectionTimedOut": "Connection timed out. Use the same network on both devices.",
-      "sessionNotFound": "Device not found. Make sure Plezy is running on the host.",
+      "sessionNotFound": "Device not found. Make sure Heisuca is running on the host.",
       "authFailed": "Authentication failed. Both devices need the same Plex account.",
       "failedToConnect": "Failed to connect: ${error}"
     },
@@ -2169,11 +2165,11 @@
     "connected": "Connected",
     "connectedAs": "Connected as @${username}",
     "disconnectConfirm": "Disconnect Trakt account?",
-    "disconnectConfirmBody": "Plezy will stop sending events to Trakt. You can reconnect any time.",
+    "disconnectConfirmBody": "Heisuca will stop sending events to Trakt. You can reconnect any time.",
     "scrobble": "Real-time scrobbling",
     "scrobbleDescription": "Send play, pause, and stop events to Trakt during playback.",
     "watchedSync": "Sync watched status",
-    "watchedSyncDescription": "When you mark items as watched in Plezy, they are also marked as watched on Trakt."
+    "watchedSyncDescription": "When you mark items as watched in Heisuca, they are also marked as watched on Trakt."
   },
   "seerr": {
     "title": "Seerr",
@@ -2185,10 +2181,10 @@
     "signInWithEmby": "Sign in with Emby",
     "signInWithLocal": "Use a local account",
     "email": "Email",
-    "noSignInMethods": "This Seerr instance offers no sign-in method Plezy supports.",
+    "noSignInMethods": "This Seerr instance offers no sign-in method Heisuca supports.",
     "instance": "Instance",
     "disconnectConfirm": "Disconnect Seerr?",
-    "disconnectConfirmBody": "Plezy will forget this Seerr instance. Reconnect any time.",
+    "disconnectConfirmBody": "Heisuca will forget this Seerr instance. Reconnect any time.",
     "request": "Request",
     "request4k": "Request in 4K",
     "seasons": "Seasons",
@@ -2213,7 +2209,7 @@
     "statusBlocklisted": "Blocklisted",
     "couldNotReach": "Could not reach ${url}: ${error}",
     "noInstanceAtUrl": "No Seerr instance at ${url} (HTTP ${status})",
-    "behindAuthProxy": "An authenticating reverse proxy (SSO or HTTP auth) answered instead of Seerr. Plezy cannot sign in through it: let Seerr's /api/v1 path bypass the proxy for this app, or use an address that reaches Seerr directly.",
+    "behindAuthProxy": "An authenticating reverse proxy (SSO or HTTP auth) answered instead of Seerr. Heisuca cannot sign in through it: let Seerr's /api/v1 path bypass the proxy for this app, or use an address that reaches Seerr directly.",
     "invalidUrl": "Enter a server address like https://seerr.example.com",
     "quickConnectUnsupported": "This Seerr instance does not support Quick Connect. It needs Seerr 3.4 or newer.",
     "notInitialized": "This Seerr instance has not completed first-run setup",
@@ -2236,7 +2232,7 @@
     "scrobble": "Track progress automatically",
     "scrobbleDescription": "Update your list when you finish an episode or movie.",
     "disconnectConfirm": "Disconnect ${service}?",
-    "disconnectConfirmBody": "Plezy will stop updating ${service}. Reconnect any time.",
+    "disconnectConfirmBody": "Heisuca will stop updating ${service}. Reconnect any time.",
     "connectFailed": "Couldn't connect to ${service}. Try again.",
     "names": {
       "mal": "MyAnimeList",
@@ -2247,10 +2243,10 @@
     },
     "simklReconnect": {
       "title": "Reconnect Simkl",
-      "subtitle": "Simkl is retiring the sign-in method this connection uses. Reconnecting opens simkl.com to approve Plezy — Plezy never sees your password. Your watch history stays on Simkl."
+      "subtitle": "Simkl is retiring the sign-in method this connection uses. Reconnecting opens simkl.com to approve Heisuca — Heisuca never sees your password. Your watch history stays on Simkl."
     },
     "deviceCode": {
-      "title": "Activate Plezy on ${service}",
+      "title": "Activate Heisuca on ${service}",
       "instructions": "Scan the QR code, or visit the address below and enter this code:",
       "openToActivate": "Open ${service} to activate",
       "copyCode": "Copy activation code",

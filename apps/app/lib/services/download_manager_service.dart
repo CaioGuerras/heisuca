@@ -7,7 +7,7 @@ import 'package:background_downloader/background_downloader.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:path/path.dart' as path;
-import 'package:plezy/utils/media_server_http_client.dart';
+import 'package:heisuca/utils/media_server_http_client.dart';
 import '../exceptions/media_server_exceptions.dart';
 import '../database/app_database.dart';
 import '../database/download_operations.dart';
@@ -39,7 +39,6 @@ import '../utils/connectivity_link_type.dart';
 import '../utils/global_key_utils.dart';
 import '../utils/error_message_utils.dart';
 import '../utils/storage_failure.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 typedef MediaClientResolver = MediaServerClient? Function(ServerId serverId, {String? clientScopeId});
 typedef _NativeTaskForId = Future<Task?> Function(String taskId);
@@ -966,7 +965,7 @@ class DownloadManagerService {
       // rescheduleKilledTasks, further down, would re-enqueue it against that path again.
       await _purgeRelocatedDownloadRecords();
 
-      unawaited(Sentry.addBreadcrumb(Breadcrumb(message: 'Initializing FileDownloader', category: 'downloads')));
+
       await (_fileDownloaderInitializerOverride?.call() ?? _initializeFileDownloader());
 
       final deletedTempFiles = await _nativeOps.cleanUpOrphanedTempFiles();
@@ -975,7 +974,7 @@ class DownloadManagerService {
       }
 
       // Let background_downloader re-enqueue tasks killed by the OS
-      unawaited(Sentry.addBreadcrumb(Breadcrumb(message: 'Rescheduling killed tasks', category: 'downloads')));
+
       final (rescheduled, _) = await _nativeOps.rescheduleKilledTasks();
       if (rescheduled.isNotEmpty) {
         appLogger.i('Rescheduled ${rescheduled.length} killed download task(s)');
@@ -1024,7 +1023,7 @@ class DownloadManagerService {
       }
 
       // Scan drift for orphaned items stuck in 'downloading'
-      unawaited(Sentry.addBreadcrumb(Breadcrumb(message: 'Scanning for orphaned downloads', category: 'downloads')));
+
       final allDownloads = await _database.select(_database.downloadedMedia).get();
       for (final item in allDownloads) {
         if (item.status == DownloadStatus.downloading.index) {

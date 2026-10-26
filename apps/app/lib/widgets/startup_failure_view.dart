@@ -188,7 +188,7 @@ class _StartupFailureViewState extends State<StartupFailureView> {
                       child: FilledButton(
                         key: startupFailureQuitKey,
                         onPressed: enabled ? _quit : null,
-                        child: Text(t.startup.quitPlezy),
+                        child: Text(t.startup.quitHeisuca),
                       ),
                     ),
                   FocusableButton(

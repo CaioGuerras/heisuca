@@ -5,12 +5,12 @@ import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:plezy/services/trackers/simkl/simkl_auth_service.dart';
-import 'package:plezy/services/trackers/simkl/simkl_client.dart';
-import 'package:plezy/services/trackers/simkl/simkl_constants.dart';
-import 'package:plezy/services/trackers/tracker_constants.dart';
-import 'package:plezy/services/trackers/tracker_exceptions.dart';
-import 'package:plezy/services/trackers/tracker_session.dart';
+import 'package:heisuca/services/trackers/simkl/simkl_auth_service.dart';
+import 'package:heisuca/services/trackers/simkl/simkl_client.dart';
+import 'package:heisuca/services/trackers/simkl/simkl_constants.dart';
+import 'package:heisuca/services/trackers/tracker_constants.dart';
+import 'package:heisuca/services/trackers/tracker_exceptions.dart';
+import 'package:heisuca/services/trackers/tracker_session.dart';
 
 int get _nowSeconds => DateTime.now().millisecondsSinceEpoch ~/ 1000;
 

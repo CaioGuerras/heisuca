@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/models/transcode_quality_preset.dart';
+import 'package:heisuca/models/transcode_quality_preset.dart';
 
 void main() {
   group('TranscodeQualityPreset.resolveStartupDefault', () {

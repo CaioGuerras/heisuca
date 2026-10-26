@@ -3,9 +3,9 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/heisuca/heisuca_home_style.dart';
-import 'package:plezy/heisuca/heisuca_motion.dart';
-import 'package:plezy/services/device_performance.dart';
+import 'package:heisuca/heisuca/heisuca_home_style.dart';
+import 'package:heisuca/heisuca/heisuca_motion.dart';
+import 'package:heisuca/services/device_performance.dart';
 
 /// A2: cores fortes tornam qualquer vazamento de arte distinguível do fundo.
 ui.Image _art() {

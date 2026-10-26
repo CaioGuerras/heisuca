@@ -412,7 +412,7 @@ abstract class Player {
   ///
   /// An mpv audio-only core on every platform — regardless of the Android
   /// video backend setting — running on its own native core and channels
-  /// (`com.plezy/mpv_audio_player`), so it never contends with the video
+  /// (`app.heisuca/mpv_audio_player`), so it never contends with the video
   /// pipeline. Desktop and Android need none of the video plumbing (display
   /// modes, GL textures, surfaces) — the plain mpv wrapper suffices. Only
   /// one native player is kept alive at a time: the music service disposes

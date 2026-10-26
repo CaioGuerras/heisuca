@@ -3,14 +3,14 @@ import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
-import 'package:plezy/mpv/player/player.dart';
-import 'package:plezy/mpv/player/player_state.dart';
-import 'package:plezy/providers/shader_provider.dart';
-import 'package:plezy/screens/video_player/visual_effects_controller.dart';
-import 'package:plezy/services/ambient_lighting_service.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/services/video_filter_manager.dart';
-import 'package:plezy/widgets/video_controls/widgets/player_toast_indicator.dart';
+import 'package:heisuca/mpv/player/player.dart';
+import 'package:heisuca/mpv/player/player_state.dart';
+import 'package:heisuca/providers/shader_provider.dart';
+import 'package:heisuca/screens/video_player/visual_effects_controller.dart';
+import 'package:heisuca/services/ambient_lighting_service.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/services/video_filter_manager.dart';
+import 'package:heisuca/widgets/video_controls/widgets/player_toast_indicator.dart';
 
 import '../../test_helpers/io_fakes.dart';
 import '../../test_helpers/media_items.dart';

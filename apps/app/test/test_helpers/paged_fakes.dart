@@ -1,4 +1,4 @@
-import 'package:plezy/media/library_query.dart';
+import 'package:heisuca/media/library_query.dart';
 
 /// Default page size used by production media paging paths.
 const fakeMediaPageSize = 200;

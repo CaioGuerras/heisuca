@@ -1,31 +1,31 @@
-import 'package:plezy/providers/multi_server_provider.dart';
-import 'package:plezy/services/multi_server_manager.dart';
-import 'package:plezy/services/data_aggregation_service.dart';
+import 'package:heisuca/providers/multi_server_provider.dart';
+import 'package:heisuca/services/multi_server_manager.dart';
+import 'package:heisuca/services/data_aggregation_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:plezy/cgflix/cgflix_palette.dart';
-import 'package:plezy/cgflix/cgflix_theme.dart';
-import 'package:plezy/heisuca/heisuca_context_menu.dart';
-import 'package:plezy/heisuca/heisuca_floating_island.dart';
-import 'package:plezy/heisuca/heisuca_library_screen.dart';
-import 'package:plezy/heisuca/heisuca_login_screen.dart';
-import 'package:plezy/heisuca/heisuca_logo.dart';
-import 'package:plezy/heisuca/heisuca_profile_screen.dart';
-import 'package:plezy/heisuca/heisuca_search_screen.dart';
-import 'package:plezy/heisuca/heisuca_settings_screen.dart';
-import 'package:plezy/heisuca/heisuca_state_store.dart';
-import 'package:plezy/heisuca/heisuca_title_sheet.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/media/media_file_info.dart';
-import 'package:plezy/media/media_hub.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/providers/theme_provider.dart';
-import 'package:plezy/services/settings_service.dart' as settings;
-import 'package:plezy/services/device_performance.dart';
+import 'package:heisuca/cgflix/cgflix_palette.dart';
+import 'package:heisuca/cgflix/cgflix_theme.dart';
+import 'package:heisuca/heisuca/heisuca_context_menu.dart';
+import 'package:heisuca/heisuca/heisuca_floating_island.dart';
+import 'package:heisuca/heisuca/heisuca_library_screen.dart';
+import 'package:heisuca/heisuca/heisuca_login_screen.dart';
+import 'package:heisuca/heisuca/heisuca_logo.dart';
+import 'package:heisuca/heisuca/heisuca_profile_screen.dart';
+import 'package:heisuca/heisuca/heisuca_search_screen.dart';
+import 'package:heisuca/heisuca/heisuca_settings_screen.dart';
+import 'package:heisuca/heisuca/heisuca_state_store.dart';
+import 'package:heisuca/heisuca/heisuca_title_sheet.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/media/media_file_info.dart';
+import 'package:heisuca/media/media_hub.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/providers/theme_provider.dart';
+import 'package:heisuca/services/settings_service.dart' as settings;
+import 'package:heisuca/services/device_performance.dart';
 import 'package:provider/provider.dart';
 
 import '../test_helpers/prefs.dart';
@@ -155,7 +155,7 @@ void main() {
 
   group('HeisucaSettingsScreen', () {
     testWidgets('medidor real está no popup das configurações, com detalhes recolhidos', (tester) async {
-      const channel = MethodChannel('com.plezy/device');
+      const channel = MethodChannel('app.heisuca/device');
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel,
         (_) async => <String, Object>{'totalMemBytes': (3.6 * 1024 * 1024 * 1024).round(), 'renderer': 'Impeller'});
       addTearDown(() => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, null));

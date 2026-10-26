@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/utils/url_utils.dart';
+import 'package:heisuca/utils/url_utils.dart';
 
 void main() {
   group('stripTrailingSlash', () {

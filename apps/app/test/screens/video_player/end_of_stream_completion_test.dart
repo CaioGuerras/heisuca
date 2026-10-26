@@ -1,9 +1,9 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/mpv/player/platform/player_android.dart';
-import 'package:plezy/providers/playback_state_provider.dart';
-import 'package:plezy/screens/video_player/completion_latch.dart';
-import 'package:plezy/services/settings_service.dart';
+import 'package:heisuca/mpv/player/platform/player_android.dart';
+import 'package:heisuca/providers/playback_state_provider.dart';
+import 'package:heisuca/screens/video_player/completion_latch.dart';
+import 'package:heisuca/services/settings_service.dart';
 
 import '../../test_helpers/prefs.dart';
 
@@ -36,7 +36,7 @@ void main() {
 
   test('a synthesized end of file completes the item at its duration', () async {
     final messenger = TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
-    const channel = MethodChannel('com.plezy/exo_player');
+    const channel = MethodChannel('app.heisuca/exo_player');
     messenger.setMockMethodCallHandler(channel, (_) async => null);
     addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
 

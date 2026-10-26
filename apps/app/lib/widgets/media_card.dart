@@ -6,7 +6,7 @@ import '../media/ids.dart';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:plezy/widgets/app_icon.dart';
+import 'package:heisuca/widgets/app_icon.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 import '../focus/card_focus_scope.dart';

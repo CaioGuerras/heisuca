@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:plezy/exceptions/media_server_exceptions.dart';
-import 'package:plezy/models/livetv_channel.dart';
-import 'package:plezy/services/favorite_channels_repository.dart';
-import 'package:plezy/services/jellyfin_client.dart';
+import 'package:heisuca/exceptions/media_server_exceptions.dart';
+import 'package:heisuca/models/livetv_channel.dart';
+import 'package:heisuca/services/favorite_channels_repository.dart';
+import 'package:heisuca/services/jellyfin_client.dart';
 
 import '../test_helpers/backend_client_fixtures.dart';
 

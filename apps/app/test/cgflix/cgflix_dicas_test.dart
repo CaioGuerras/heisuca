@@ -2,9 +2,9 @@
 // e o Sobre › Dicas do Heisuca faz ela aparecer de novo. As folhas abrem pelo "?".
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/cgflix/cgflix_dicas.dart';
-import 'package:plezy/cgflix/cgflix_theme.dart';
-import 'package:plezy/services/settings_service.dart';
+import 'package:heisuca/cgflix/cgflix_dicas.dart';
+import 'package:heisuca/cgflix/cgflix_theme.dart';
+import 'package:heisuca/services/settings_service.dart';
 
 import '../test_helpers/prefs.dart';
 

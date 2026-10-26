@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/utils/navigation_transitions.dart';
+import 'package:heisuca/utils/navigation_transitions.dart';
 
 void main() {
   testWidgets('rota de sessão: transparente, sem violar a asserção do MaterialPageRoute, com transição do tema',

@@ -22,25 +22,6 @@ extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
   void _recordLifecycleState(String state, {String? action}) {
     final isTv = PlatformDetector.isTV();
     final pipActive = PipService().isPipActive.value;
-    final breadcrumbData = <String, dynamic>{
-      'state': state,
-      'isTv': isTv,
-      'autoPipEnabled': _autoPipEnabled,
-      'pipActive': pipActive,
-      'pipTransitionInFlight': _androidAutoPipTransitionInFlight,
-      'hiddenForBackground': _hiddenForBackground,
-      'playerSuspendedForTvBackground': _tvSuspend.suspended,
-      'mediaControlsSuspendedForTvBackground': _mediaControls.suspendedForTvBackground,
-      'backend': _playerBackendLabel,
-    };
-    if (action != null) {
-      breadcrumbData['action'] = action;
-    }
-
-    Sentry.addBreadcrumb(
-      Breadcrumb(message: 'Player lifecycle $state', category: 'player.lifecycle', data: breadcrumbData),
-    );
-
     appLogger.d(
       'Player lifecycle: state=$state'
       '${action != null ? ' action=$action' : ''}'
@@ -245,7 +226,7 @@ extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
 
   /// Grace expired while still backgrounded: release the native AV pipeline
   /// (MediaCodec decoders + AudioTrack, tunneled passthrough included) so a
-  /// parked Plezy can't starve other apps on shared-hardware TV SoCs, and end
+  /// parked Heisuca can't starve other apps on shared-hardware TV SoCs, and end
   /// the backend playback session. Fire OS standby never freezes the process,
   /// so paused heartbeats would pin the session in the server dashboard for
   /// as long as the device sits dark (#1911) — and they buy nothing here: the

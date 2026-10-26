@@ -2,14 +2,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:plezy/cgflix/cgflix_icones.dart';
-import 'package:plezy/cgflix/cgflix_menus.dart';
-import 'package:plezy/cgflix/cgflix_advanced.dart';
-import 'package:plezy/cgflix/cgflix_theme.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/screens/settings/playback_settings_screen.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/widgets/app_menu.dart';
+import 'package:heisuca/cgflix/cgflix_icones.dart';
+import 'package:heisuca/cgflix/cgflix_menus.dart';
+import 'package:heisuca/cgflix/cgflix_advanced.dart';
+import 'package:heisuca/cgflix/cgflix_theme.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/screens/settings/playback_settings_screen.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/widgets/app_menu.dart';
 
 import '../test_helpers/prefs.dart';
 

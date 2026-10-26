@@ -5,12 +5,11 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:plezy/widgets/app_icon.dart';
+import 'package:heisuca/widgets/app_icon.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter/services.dart';
 import 'package:os_media_controls/os_media_controls.dart';
 import 'package:provider/provider.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../mpv/mpv.dart';
 import '../mpv/player/platform/player_android.dart';
@@ -909,7 +908,7 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
   /// Android TV: release the native AV pipeline once the app stays
   /// backgrounded past the grace window. A merely paused player keeps its
   /// MediaCodec decoders and (tunneled passthrough) AudioTrack alive, which
-  /// on shared-pipeline TV SoCs degrades every other app until Plezy is
+  /// on shared-pipeline TV SoCs degrades every other app until Heisuca is
   /// force-stopped. The grace absorbs transient hidden/paused blips
   /// (assistant overlay, HDMI-CEC events) so quick app switches don't churn
   /// codecs.
@@ -2539,7 +2538,7 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
       unawaited(_restoreSystemUiAndOrientation());
     }
 
-    Sentry.addBreadcrumb(Breadcrumb(message: 'Player dispose', category: 'player'));
+
     final volumeController = _volumeController;
     _volumeController = null;
     volumeController?.dispose();

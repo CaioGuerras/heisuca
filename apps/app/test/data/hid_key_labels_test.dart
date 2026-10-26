@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/models/hotkey_model.dart';
+import 'package:heisuca/models/hotkey_model.dart';
 
 void main() {
   test('physicalKeyLabel uses the catalog and formats an unknown HID fallback', () {

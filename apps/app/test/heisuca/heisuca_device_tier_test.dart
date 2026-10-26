@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/cgflix/cgflix_theme.dart';
-import 'package:plezy/heisuca/heisuca_device_status.dart';
-import 'package:plezy/heisuca/services/heisuca_device_service.dart';
-import 'package:plezy/services/device_performance.dart';
+import 'package:heisuca/cgflix/cgflix_theme.dart';
+import 'package:heisuca/heisuca/heisuca_device_status.dart';
+import 'package:heisuca/heisuca/services/heisuca_device_service.dart';
+import 'package:heisuca/services/device_performance.dart';
 
 void main() {
   tearDown(DevicePerformance.debugReset);

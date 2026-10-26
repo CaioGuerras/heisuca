@@ -7,6 +7,7 @@ import re
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
+import zipfile
 
 
 def validate_source():
@@ -42,6 +43,7 @@ assert re.search(r"package: name='" + re.escape(package) + r"'", badging), 'appl
 assert f"application-label:'{label}'" in badging, 'nome do app inesperado'
 for suffix in ['fileprovider', 'systemshelf.artwork']:
     assert f'{package}.{suffix}' in manifest, f'provider {suffix} não acompanha applicationId'
+assert 'app.heisuca.MainActivity' in manifest, 'activity fora do namespace Heisuca'
 assert 'br.com.docaio.cgflix.fileprovider' not in manifest, 'provider legado conflita com outro app'
 lines = manifest.splitlines()
 blocks = []
@@ -66,3 +68,12 @@ print(f'APK conferido: {package}, {label}, {apk.stat().st_size} bytes')
 # O hash do artifact é do ZIP. Registrar também o APK real, sem depender do download.
 with apk.open('rb') as content:
     print(f'SHA-256 do APK: {hashlib.file_digest(content, "sha256").hexdigest()}')
+
+with zipfile.ZipFile(apk) as archive:
+    license_text = archive.read('assets/flutter_assets/assets/licenses/heisuca_gpl.txt')
+    assert b'GNU GENERAL PUBLIC LICENSE' in license_text and b'edde746' in license_text and b'Plezy' in license_text, 'aviso GPL/origem ausente'
+    for entry in archive.infolist():
+        payload = archive.read(entry).lower()
+        assert b'plezy.app' not in payload, f'destino externo legado em {entry.filename}'
+        assert b'io/sentry/' not in payload and b'io.sentry.android' not in payload, f'SDK de telemetria em {entry.filename}'
+print('Independência conferida no APK: zero plezy.app e zero SDK Sentry.')

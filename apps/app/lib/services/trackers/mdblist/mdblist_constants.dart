@@ -9,12 +9,12 @@ class MdblistConstants {
 
   /// Registered MDBList Device Code app client ID. Public by design: the
   /// device-code grant authenticates the user, not the binary.
-  static const String clientId = ''; // CGFLIX: sem a chave do Plezy (serviço escondido no CGFLIX)
+  static const String clientId = ''; // CGFLIX: sem a chave do Heisuca (serviço escondido no CGFLIX)
 
   static const String apiBase = 'https://api.mdblist.com';
   static const String webBase = 'https://mdblist.com';
 
-  static const String appName = 'plezy';
+  static const String appName = 'heisuca';
   static const String appVersion = '2';
 
   /// OAuth endpoints. MDBList runs django-oauth-toolkit, whose routes are

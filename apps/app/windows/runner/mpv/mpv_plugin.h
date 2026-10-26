@@ -33,11 +33,11 @@ class MpvPlayerPlugin : public flutter::Plugin {
   // |channel_name| + "/events". |audio_only| runs a windowless music core:
   // no child HWND, no display-mode handling (see MpvPlayer).
   static void RegisterWithRegistrar(
-      flutter::PluginRegistrarWindows* registrar, const std::string& channel_name = "com.plezy/mpv_player",
+      flutter::PluginRegistrarWindows* registrar, const std::string& channel_name = "app.heisuca/mpv_player",
       bool audio_only = false);
 
   MpvPlayerPlugin(
-      flutter::PluginRegistrarWindows* registrar, const std::string& channel_name = "com.plezy/mpv_player",
+      flutter::PluginRegistrarWindows* registrar, const std::string& channel_name = "app.heisuca/mpv_player",
       bool audio_only = false);
   virtual ~MpvPlayerPlugin();
 

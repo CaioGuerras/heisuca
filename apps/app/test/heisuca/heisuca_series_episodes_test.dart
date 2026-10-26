@@ -2,16 +2,16 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:plezy/heisuca/player/heisuca_series_episodes.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/media/media_server_client.dart';
-import 'package:plezy/providers/multi_server_provider.dart';
-import 'package:plezy/services/multi_server_manager.dart';
-import 'package:plezy/services/data_aggregation_service.dart';
-import 'package:plezy/services/settings_service.dart';
+import 'package:heisuca/heisuca/player/heisuca_series_episodes.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/providers/multi_server_provider.dart';
+import 'package:heisuca/services/multi_server_manager.dart';
+import 'package:heisuca/services/data_aggregation_service.dart';
+import 'package:heisuca/services/settings_service.dart';
 import '../test_helpers/prefs.dart';
 
 MediaItem episode(int index, {int season = 1}) => MediaItem.jellyfin(

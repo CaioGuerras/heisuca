@@ -26,7 +26,7 @@ import 'app_logger.dart';
 /// Schannel) and is left alone.
 abstract final class CertificateTrust {
   @visibleForTesting
-  static const MethodChannel channel = MethodChannel('com.plezy/user_certificates');
+  static const MethodChannel channel = MethodChannel('app.heisuca/user_certificates');
 
   /// Parent domains of every hard-coded HTTPS endpoint, matched together with
   /// their subdomains. Kept equal to the `<domain-config>` in
@@ -34,7 +34,6 @@ abstract final class CertificateTrust {
   /// `test/android/network_security_config_test.dart` pins both to the sources.
   static const Set<String> fixedEndpointDomains = {
     'plex.tv',
-    'plezy.app',
     'trakt.tv',
     'simkl.com',
     'simkl.in',

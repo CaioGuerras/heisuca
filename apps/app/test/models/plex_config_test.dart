@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/models/plex/plex_config.dart';
+import 'package:heisuca/models/plex/plex_config.dart';
 
 void main() {
   group('PlexConfig.headers', () {

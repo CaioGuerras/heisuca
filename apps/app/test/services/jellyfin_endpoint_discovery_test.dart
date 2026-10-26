@@ -4,9 +4,9 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:plezy/exceptions/media_server_exceptions.dart';
-import 'package:plezy/media/media_browser_dialect.dart';
-import 'package:plezy/services/jellyfin_endpoint_discovery.dart';
+import 'package:heisuca/exceptions/media_server_exceptions.dart';
+import 'package:heisuca/media/media_browser_dialect.dart';
+import 'package:heisuca/services/jellyfin_endpoint_discovery.dart';
 
 http.Response _info({required String id, String name = 'Home'}) => http.Response(
   jsonEncode({'Id': id, 'ServerName': name, 'Version': '10.9.0'}),

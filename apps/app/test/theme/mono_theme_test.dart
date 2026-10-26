@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/theme/mono_theme.dart';
+import 'package:heisuca/theme/mono_theme.dart';
 
 /// `monoTheme` builds a full `ColorScheme`, an applied+copyWith'd Typography
 /// `TextTheme`, ~14 sub-theme objects, and then clones the whole `ThemeData`

@@ -1,22 +1,22 @@
-import 'package:plezy/heisuca/heisuca_home_chrome.dart';
+import 'package:heisuca/heisuca/heisuca_home_chrome.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:plezy/cgflix/cgflix_theme.dart';
-import 'package:plezy/heisuca/heisuca_title_sheet.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_file_info.dart';
-import 'package:plezy/media/media_hub.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/media/media_server_client.dart';
-import 'package:plezy/media/server_capabilities.dart';
-import 'package:plezy/providers/multi_server_provider.dart';
-import 'package:plezy/services/data_aggregation_service.dart';
-import 'package:plezy/services/multi_server_manager.dart';
-import 'package:plezy/services/settings_service.dart';
+import 'package:heisuca/cgflix/cgflix_theme.dart';
+import 'package:heisuca/heisuca/heisuca_title_sheet.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_file_info.dart';
+import 'package:heisuca/media/media_hub.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/media/server_capabilities.dart';
+import 'package:heisuca/providers/multi_server_provider.dart';
+import 'package:heisuca/services/data_aggregation_service.dart';
+import 'package:heisuca/services/multi_server_manager.dart';
+import 'package:heisuca/services/settings_service.dart';
 import '../test_helpers/prefs.dart';
 
 MediaItem _item(String id, MediaKind kind, {int? index, String? parentId, int? parentIndex}) =>

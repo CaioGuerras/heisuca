@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/media_source_info.dart';
-import 'package:plezy/mpv/mpv.dart';
-import 'package:plezy/services/track_selection_service.dart';
+import 'package:heisuca/media/media_source_info.dart';
+import 'package:heisuca/mpv/mpv.dart';
+import 'package:heisuca/services/track_selection_service.dart';
 
 // The container-ordinal guards in `findMpvTrackForPlexSubtitle` and
 // `findPlexTrackForMpvSubtitle` look like mirrors but are not: when the probe

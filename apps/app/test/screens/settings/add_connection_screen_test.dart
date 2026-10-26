@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/heisuca/heisuca_sources_ui.dart';
-import 'package:plezy/focus/input_mode_tracker.dart';
-import 'package:plezy/media/media_browser_dialect.dart';
-import 'package:plezy/profiles/profile.dart';
-import 'package:plezy/screens/settings/add_connection_screen.dart';
-import 'package:plezy/screens/settings/add_jellyfin_screen.dart';
-import 'package:plezy/screens/settings/add_plex_account_screen.dart';
-import 'package:plezy/theme/mono_theme.dart';
+import 'package:heisuca/heisuca/heisuca_sources_ui.dart';
+import 'package:heisuca/focus/input_mode_tracker.dart';
+import 'package:heisuca/media/media_browser_dialect.dart';
+import 'package:heisuca/profiles/profile.dart';
+import 'package:heisuca/screens/settings/add_connection_screen.dart';
+import 'package:heisuca/screens/settings/add_jellyfin_screen.dart';
+import 'package:heisuca/screens/settings/add_plex_account_screen.dart';
+import 'package:heisuca/theme/mono_theme.dart';
 
 /// The "Add connection" picker is the only route to a new server, so a backend
 /// missing from this list is unreachable no matter how complete its client is.

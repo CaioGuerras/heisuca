@@ -44,7 +44,7 @@ ManagedHttpClient _createIoClient(String debugLabel) {
 /// [happyEyeballsConnectionFactory] now supplies everywhere else.
 ///
 /// Cronet and NSURLSession used to serve Android and Apple here. Both were
-/// measured slower than this client on the request shapes Plezy actually
+/// measured slower than this client on the request shapes Heisuca actually
 /// issues — Cronet by ~10x on LAN body throughput — so neither survived; see
 /// issue #2140.
 http.Client createPlatformClient() {

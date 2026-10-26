@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/screens/video_player/player_output_format.dart';
+import 'package:heisuca/screens/video_player/player_output_format.dart';
 
 import '../../test_helpers/watch_together_fakes.dart';
 

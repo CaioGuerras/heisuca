@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/models/livetv_channel.dart';
-import 'package:plezy/screens/video_player/live_tv_session_args.dart';
-import 'package:plezy/utils/live_tv_deep_link.dart';
+import 'package:heisuca/models/livetv_channel.dart';
+import 'package:heisuca/screens/video_player/live_tv_session_args.dart';
+import 'package:heisuca/utils/live_tv_deep_link.dart';
 
 LiveTvChannel _channel(String key, {String? identifier, String? number, String? callSign}) =>
     LiveTvChannel(key: key, identifier: identifier, number: number, callSign: callSign, hd: false);

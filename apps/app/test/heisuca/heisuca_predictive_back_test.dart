@@ -1,12 +1,12 @@
 import '../test_helpers/predictive_back.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/cgflix/cgflix_palette.dart';
-import 'package:plezy/cgflix/cgflix_theme.dart';
-import 'package:plezy/heisuca/heisuca_title_sheet.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/services/device_performance.dart';
+import 'package:heisuca/cgflix/cgflix_palette.dart';
+import 'package:heisuca/cgflix/cgflix_theme.dart';
+import 'package:heisuca/heisuca/heisuca_title_sheet.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/services/device_performance.dart';
 
 class _Routes extends NavigatorObserver {
   Route<dynamic>? last;

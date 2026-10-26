@@ -3,17 +3,17 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:plezy/models/trackers/device_code.dart';
-import 'package:plezy/services/trackers/simkl/simkl_auth_service.dart';
-import 'package:plezy/services/trackers/simkl/simkl_client.dart';
-import 'package:plezy/services/trackers/tracker_connect_runner.dart';
-import 'package:plezy/services/trackers/tracker_exceptions.dart';
-import 'package:plezy/services/trackers/tracker_constants.dart';
-import 'package:plezy/services/trackers/tracker_session.dart';
-import 'package:plezy/services/trackers/trakt/trakt_auth_service.dart';
-import 'package:plezy/services/trackers/trakt/trakt_client.dart';
-import 'package:plezy/utils/app_logger.dart';
-import 'package:plezy/utils/log_redaction_manager.dart';
+import 'package:heisuca/models/trackers/device_code.dart';
+import 'package:heisuca/services/trackers/simkl/simkl_auth_service.dart';
+import 'package:heisuca/services/trackers/simkl/simkl_client.dart';
+import 'package:heisuca/services/trackers/tracker_connect_runner.dart';
+import 'package:heisuca/services/trackers/tracker_exceptions.dart';
+import 'package:heisuca/services/trackers/tracker_constants.dart';
+import 'package:heisuca/services/trackers/tracker_session.dart';
+import 'package:heisuca/services/trackers/trakt/trakt_auth_service.dart';
+import 'package:heisuca/services/trackers/trakt/trakt_client.dart';
+import 'package:heisuca/utils/app_logger.dart';
+import 'package:heisuca/utils/log_redaction_manager.dart';
 
 const _canaries = <String>[
   'fint-access-Q7w9',

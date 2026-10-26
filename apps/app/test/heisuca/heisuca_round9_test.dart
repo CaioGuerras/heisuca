@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/heisuca/heisuca_media_category.dart';
-import 'package:plezy/cgflix/cgflix_theme.dart';
-import 'package:plezy/cgflix/you/cgflix_favorites_screen.dart';
-import 'package:plezy/cgflix/home/cgflix_cards.dart';
-import 'package:plezy/heisuca/heisuca_security.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/utils/platform_detector.dart';
-import 'package:plezy/screens/profile/pin_entry_dialog.dart';
-import 'package:plezy/i18n/strings.g.dart';
+import 'package:heisuca/heisuca/heisuca_media_category.dart';
+import 'package:heisuca/cgflix/cgflix_theme.dart';
+import 'package:heisuca/cgflix/you/cgflix_favorites_screen.dart';
+import 'package:heisuca/cgflix/home/cgflix_cards.dart';
+import 'package:heisuca/heisuca/heisuca_security.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/utils/platform_detector.dart';
+import 'package:heisuca/screens/profile/pin_entry_dialog.dart';
+import 'package:heisuca/i18n/strings.g.dart';
 import '../test_helpers/prefs.dart';
 
 void main() {

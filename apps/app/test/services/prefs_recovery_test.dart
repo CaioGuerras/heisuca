@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/services/prefs_recovery.dart';
-import 'package:plezy/services/sensitive_prefs.dart';
-import 'package:plezy/utils/log_redaction_manager.dart';
+import 'package:heisuca/services/prefs_recovery.dart';
+import 'package:heisuca/services/sensitive_prefs.dart';
+import 'package:heisuca/utils/log_redaction_manager.dart';
 
 /// A 32-byte key, the only length `AesGcm.with256bits()` accepts.
 final String _validVaultKey = base64Encode(List<int>.generate(32, (i) => i));

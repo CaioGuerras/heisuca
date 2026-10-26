@@ -4,11 +4,11 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:plezy/exceptions/media_server_exceptions.dart';
-import 'package:plezy/utils/app_logger.dart';
-import 'package:plezy/utils/failover_http_client.dart';
-import 'package:plezy/utils/media_server_http_client.dart';
-import 'package:plezy/utils/log_redaction_manager.dart';
+import 'package:heisuca/exceptions/media_server_exceptions.dart';
+import 'package:heisuca/utils/app_logger.dart';
+import 'package:heisuca/utils/failover_http_client.dart';
+import 'package:heisuca/utils/media_server_http_client.dart';
+import 'package:heisuca/utils/log_redaction_manager.dart';
 
 /// Pins the shared failover semantics both backends now ride on (see the
 /// class doc): single-step cascades for GETs (and opted-in replay-safe

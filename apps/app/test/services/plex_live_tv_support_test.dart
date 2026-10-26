@@ -1,20 +1,20 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:plezy/media/ids.dart';
+import 'package:heisuca/media/ids.dart';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:drift/native.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:plezy/database/app_database.dart';
-import 'package:plezy/exceptions/media_server_exceptions.dart';
-import 'package:plezy/media/media_server_client.dart';
-import 'package:plezy/models/media_subscription.dart';
-import 'package:plezy/models/livetv_channel.dart';
-import 'package:plezy/models/plex/plex_config.dart';
-import 'package:plezy/services/plex_api_cache.dart';
-import 'package:plezy/services/plex_client.dart';
-import 'package:plezy/utils/active_client_scope.dart';
+import 'package:heisuca/database/app_database.dart';
+import 'package:heisuca/exceptions/media_server_exceptions.dart';
+import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/models/media_subscription.dart';
+import 'package:heisuca/models/livetv_channel.dart';
+import 'package:heisuca/models/plex/plex_config.dart';
+import 'package:heisuca/services/plex_api_cache.dart';
+import 'package:heisuca/services/plex_client.dart';
+import 'package:heisuca/utils/active_client_scope.dart';
 
 import '../test_helpers/http_fixtures.dart';
 

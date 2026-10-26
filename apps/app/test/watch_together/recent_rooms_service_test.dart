@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/watch_together/models/watch_session.dart';
-import 'package:plezy/watch_together/services/recent_rooms_service.dart';
-import 'package:plezy/watch_together/services/watch_together_relay_endpoint.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/watch_together/models/watch_session.dart';
+import 'package:heisuca/watch_together/services/recent_rooms_service.dart';
+import 'package:heisuca/watch_together/services/watch_together_relay_endpoint.dart';
 
 import '../test_helpers/prefs.dart';
 

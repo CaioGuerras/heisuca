@@ -1,13 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/utils/certificate_trust.dart';
+import 'package:heisuca/utils/certificate_trust.dart';
 import 'package:xml/xml.dart';
 
 const _configPath = 'android/app/src/main/res/xml/network_security_config.xml';
 const _expectedDomains = <String>{
   'plex.tv',
-  'plezy.app',
   'trakt.tv',
   'simkl.com',
   'simkl.in',

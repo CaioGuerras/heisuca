@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/media_browser_dialect.dart';
-import 'package:plezy/services/jellyfin_lan_discovery_service.dart';
-import 'package:plezy/utils/udp_broadcast_sockets.dart';
+import 'package:heisuca/media/media_browser_dialect.dart';
+import 'package:heisuca/services/jellyfin_lan_discovery_service.dart';
+import 'package:heisuca/utils/udp_broadcast_sockets.dart';
 
 void main() {
   group('JellyfinLanDiscoveryService', () {

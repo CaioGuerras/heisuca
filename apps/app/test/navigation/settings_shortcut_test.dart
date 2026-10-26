@@ -4,9 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/navigation/settings_shortcut.dart';
-import 'package:plezy/utils/platform_detector.dart';
-import 'package:plezy/utils/video_player_navigation.dart';
+import 'package:heisuca/navigation/settings_shortcut.dart';
+import 'package:heisuca/utils/platform_detector.dart';
+import 'package:heisuca/utils/video_player_navigation.dart';
 
 /// Session shell mirroring production: [SettingsShortcut] wrapping the
 /// profile navigator, with a stand-in settings route so the suite does not

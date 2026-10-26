@@ -21,8 +21,8 @@ import 'settings_service.dart' show EpisodePosterMode;
 /// Android uses the Watch Next row. tvOS uses the app's Top Shelf extension.
 class SystemShelfService {
   static const int schemaVersion = 3;
-  static const MethodChannel _androidChannel = MethodChannel('com.plezy/watch_next');
-  static const MethodChannel _tvosChannel = MethodChannel('com.plezy/system_shelf');
+  static const MethodChannel _androidChannel = MethodChannel('app.heisuca/watch_next');
+  static const MethodChannel _tvosChannel = MethodChannel('app.heisuca/system_shelf');
   static const bool _tvosBuild = bool.fromEnvironment('TVOS_BUILD');
 
   static final SystemShelfService _instance = SystemShelfService._internal();

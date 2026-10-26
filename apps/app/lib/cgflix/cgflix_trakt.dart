@@ -2,8 +2,8 @@
 //
 // As credenciais vêm do build (`--dart-define=TRAKT_CLIENT_ID=... --dart-define=TRAKT_CLIENT_SECRET=...`,
 // lidas dos secrets CGFLIX_TRAKT_CLIENT_ID/CGFLIX_TRAKT_CLIENT_SECRET no workflow do CGFLIX). Sem
-// elas o Trakt some da interface: nunca cai no app OAuth registrado pelo autor do Plezy (era daí
-// que vinha o nome "Plezy" ao abrir um serviço). MyAnimeList, AniList, Simkl, MDBList e o Seerr
+// elas o Trakt some da interface: nunca cai no app OAuth registrado pelo autor do Heisuca (era daí
+// que vinha o nome "Heisuca" ao abrir um serviço). MyAnimeList, AniList, Simkl, MDBList e o Seerr
 // manual saem da interface; MAL/AniList foram removidos em 25/10.
 import 'dart:convert';
 
@@ -27,7 +27,7 @@ const cgflixTraktClientSecret = String.fromEnvironment('TRAKT_CLIENT_SECRET');
 /// O build tem as credenciais do CGFLIX?
 const cgflixTraktConfigured = cgflixTraktClientId != '' && cgflixTraktClientSecret != '';
 
-/// Testes do upstream ligam isto para ver todos os serviços (como no Plezy).
+/// Testes do upstream ligam isto para ver todos os serviços (como no Heisuca).
 bool cgflixDebugShowAllServices = false;
 
 /// Quais rastreadores aparecem nos Serviços (e no resto da interface): só o Trakt, e só com

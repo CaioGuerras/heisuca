@@ -349,11 +349,7 @@ extension _VideoPlayerOpenMethods on VideoPlayerScreenState {
       // preparation gate has been cleared.
       await resumeAfterStartupGate('post-open frame rate switch');
 
-      unawaited(
-        Sentry.addBreadcrumb(
-          Breadcrumb(message: 'Pre-playback frame rate: ${plan.fps}fps, switched=$didSwitch', category: 'player'),
-        ),
-      );
+
     } else if (plan.needsFirstFrameSwitch && mounted && player == currentPlayer) {
       try {
         await _negotiateDisplayAtFirstFrame(

@@ -12,7 +12,7 @@ class TraktConstants {
   // SharedPreferences — extractable from the binary, but acceptable for a
   // native client app. To rotate, update the registration at
   // https://trakt.tv/oauth/applications.
-  // CGFLIX: credenciais próprias do build (--dart-define), nunca as do Plezy; vazio = Trakt escondido.
+  // CGFLIX: credenciais próprias do build (--dart-define), nunca as do Heisuca; vazio = Trakt escondido.
   static const String clientId = cgflixTraktClientId;
   static const String clientSecret = cgflixTraktClientSecret;
 

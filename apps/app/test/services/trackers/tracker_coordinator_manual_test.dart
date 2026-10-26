@@ -1,19 +1,19 @@
 // Caio, 25/10: retirados somente casos dos serviços removidos; demais serviços e filas continuam cobertos.
 import 'dart:convert';
-import 'package:plezy/media/ids.dart';
+import 'package:heisuca/media/ids.dart';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/media/media_server_client.dart';
-import 'package:plezy/services/trackers/simkl/simkl_tracker.dart';
-import 'package:plezy/services/trackers/tracker_coordinator.dart';
-import 'package:plezy/services/trackers/tracker_constants.dart';
-import 'package:plezy/services/trackers/tracker_session.dart';
-import 'package:plezy/utils/external_ids.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/services/trackers/simkl/simkl_tracker.dart';
+import 'package:heisuca/services/trackers/tracker_coordinator.dart';
+import 'package:heisuca/services/trackers/tracker_constants.dart';
+import 'package:heisuca/services/trackers/tracker_session.dart';
+import 'package:heisuca/utils/external_ids.dart';
 import '../../test_helpers/media_items.dart';
 
 class _FakeMediaServerClient implements MediaServerClient {

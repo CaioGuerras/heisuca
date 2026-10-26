@@ -506,9 +506,9 @@ def phase_preflight(ctx: Context) -> None:
         if not (env.get("SUPPLY_JSON_KEY_DATA") or env.get("SUPPLY_JSON_KEY")):
             raise DeployError("play: set SUPPLY_JSON_KEY_DATA or SUPPLY_JSON_KEY in .env")
         require_env(env, ["SUPPLY_PACKAGE_NAME"], "play")
-        if env["SUPPLY_PACKAGE_NAME"] != "com.edde746.plezy":
+        if env["SUPPLY_PACKAGE_NAME"] != "app.heisuca":
             raise DeployError(
-                "play: SUPPLY_PACKAGE_NAME must be com.edde746.plezy; "
+                "play: SUPPLY_PACKAGE_NAME must be app.heisuca; "
                 f"got {env['SUPPLY_PACKAGE_NAME']!r}"
             )
     if "amazon" in pending:
@@ -522,9 +522,9 @@ def phase_preflight(ctx: Context) -> None:
             ],
             "amazon",
         )
-        if env["AMAZON_APPSTORE_PACKAGE_NAME"] != "com.edde746.plezy3":
+        if env["AMAZON_APPSTORE_PACKAGE_NAME"] != "app.heisuca3":
             raise DeployError(
-                "amazon: AMAZON_APPSTORE_PACKAGE_NAME must be com.edde746.plezy3; "
+                "amazon: AMAZON_APPSTORE_PACKAGE_NAME must be app.heisuca3; "
                 f"got {env['AMAZON_APPSTORE_PACKAGE_NAME']!r}"
             )
         if not env["AMAZON_APPSTORE_APP_ID"].startswith("amzn1.devportal.mobileapp."):
@@ -540,9 +540,9 @@ def phase_preflight(ctx: Context) -> None:
             "app store connect",
         )
         require_env(env, ["DELIVER_APP_IDENTIFIER"], "app store connect")
-        if env["DELIVER_APP_IDENTIFIER"] != "com.edde746.plezy":
+        if env["DELIVER_APP_IDENTIFIER"] != "app.heisuca":
             raise DeployError(
-                "app store connect: DELIVER_APP_IDENTIFIER must be com.edde746.plezy; "
+                "app store connect: DELIVER_APP_IDENTIFIER must be app.heisuca; "
                 f"got {env['DELIVER_APP_IDENTIFIER']!r}"
             )
         key_path = Path(env["ASC_KEY_PATH"]).expanduser()
@@ -910,18 +910,11 @@ def phase_play(ctx: Context) -> None:
         commit = short_sha()
         run([
             "flutter", "build", "appbundle",
-            "--dart-define=ENABLE_SENTRY=true",
             f"--dart-define=GIT_COMMIT={commit}",
-            "--dart-define=SENTRY_ENVIRONMENT=play-store",
-            "--dart-define=SENTRY_DIST=play-store",
             "--obfuscate",
             "--split-debug-info=debug-info/android-aab",
             "--extra-gen-snapshot-options=--save-obfuscation-map=debug-info/android-aab/obfuscation.map.json",
         ])
-        run(
-            [str(SCRIPTS_DIR / "upload-symbols.sh"), "android-aab"],
-            env={"SENTRY_DIST": "play-store"},
-        )
         if not aab.is_file():
             raise DeployError(f"play: AAB not found at {aab}")
 
@@ -1081,19 +1074,12 @@ def phase_amazon(ctx: Context) -> None:
     run(
         [
             "flutter", "build", "apk", "--release",
-            "--dart-define=ENABLE_SENTRY=true",
             f"--dart-define=GIT_COMMIT={commit}",
-            "--dart-define=SENTRY_ENVIRONMENT=amazon",
-            "--dart-define=SENTRY_DIST=amazon",
             "--obfuscate",
             "--split-debug-info=debug-info/android-apk",
             "--extra-gen-snapshot-options=--save-obfuscation-map=debug-info/android-apk/obfuscation.map.json",
         ],
         env={"AMAZON": "1"},
-    )
-    run(
-        [str(SCRIPTS_DIR / "upload-symbols.sh"), "android-apk"],
-        env={"SENTRY_DIST": "amazon"},
     )
     if not apk.is_file():
         raise DeployError(f"amazon: APK not found at {apk}")
@@ -1231,16 +1217,9 @@ def phase_ios(ctx: Context) -> None:
     commit = short_sha()
     run([
         "flutter", "build", "ipa",
-        "--dart-define=ENABLE_SENTRY=true",
         f"--dart-define=GIT_COMMIT={commit}",
-        "--dart-define=SENTRY_ENVIRONMENT=app-store",
-        "--dart-define=SENTRY_DIST=app-store",
         "--split-debug-info=debug-info/ios",
     ])
-    run(
-        [str(SCRIPTS_DIR / "upload-symbols.sh"), "ios"],
-        env={"SENTRY_DIST": "app-store", "BUGS_APPLE_ARCHIVE": "build/ios/archive/Plezy.xcarchive"},
-    )
     _upload_ipa(ctx, ROOT / "build/ios/ipa/Plezy.ipa", "ios")
 
 

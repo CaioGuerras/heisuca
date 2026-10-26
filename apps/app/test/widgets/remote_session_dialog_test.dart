@@ -3,12 +3,12 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/providers/companion_remote_provider.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/utils/platform_detector.dart';
-import 'package:plezy/theme/mono_theme.dart';
-import 'package:plezy/widgets/companion_remote/remote_session_dialog.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/providers/companion_remote_provider.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/utils/platform_detector.dart';
+import 'package:heisuca/theme/mono_theme.dart';
+import 'package:heisuca/widgets/companion_remote/remote_session_dialog.dart';
 import 'package:provider/provider.dart';
 
 import '../test_helpers/prefs.dart';

@@ -1,7 +1,7 @@
-name: plezy
+name: heisuca
 description: "Heisuca. Nada entre você e o filme. Cliente cinematográfico multiplataforma para Jellyfin, Plex, WebDAV e SMB."
 publish_to: "none"
-version: 2.0.29+30
+version: 2.0.30+31
 
 environment:
   # Dart floor stays 3.12: freezed 3.x emits `final` constructor parameters,
@@ -73,7 +73,6 @@ dependencies:
     git:
       url: https://github.com/edde746/background_downloader
       ref: 5d45882265ead82e570cd067599e193070e3b4a2
-  sentry_flutter: ^9.30.0
   auto_updater:
     git:
       url: https://github.com/edde746/auto_updater
@@ -148,12 +147,11 @@ dependency_overrides:
 flutter:
   uses-material-design: true
   assets:
+    - assets/licenses/
     - assets/heisuca/
     - assets/heisuca/kids/
     - assets/cgflix_emblema.svg
     - assets/cgflix_emblema_heitor.svg
-    - assets/plezy.png
-    - assets/plezy_adaptive_foreground.svg
     - assets/plex_chevron.svg
     - assets/jellyfin_icon.svg
     - assets/emby_icon.svg

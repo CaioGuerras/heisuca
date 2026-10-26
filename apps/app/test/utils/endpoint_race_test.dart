@@ -2,9 +2,9 @@ import 'dart:async';
 import 'package:fake_async/fake_async.dart';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/utils/app_logger.dart';
-import 'package:plezy/utils/endpoint_race.dart';
-import 'package:plezy/utils/log_redaction_manager.dart';
+import 'package:heisuca/utils/app_logger.dart';
+import 'package:heisuca/utils/endpoint_race.dart';
+import 'package:heisuca/utils/log_redaction_manager.dart';
 
 typedef _Result = ({String url, bool ok});
 

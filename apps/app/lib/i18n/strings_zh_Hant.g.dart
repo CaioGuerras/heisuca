@@ -125,7 +125,7 @@ class _Translations$auth$zh_Hant extends Translations$auth$zh {
 	@override String get quickConnectWaiting => '等待核准…';
 	@override String get quickConnectCancel => '取消';
 	@override String get quickConnectExpired => '快速連線代碼已過期。請重試。';
-	@override String get localDataRecoveryRequired => 'Plezy 無法安全地復原本機登入資料與待處理的播放資料。請重新登入。';
+	@override String get localDataRecoveryRequired => 'Heisuca 無法安全地復原本機登入資料與待處理的播放資料。請重新登入。';
 	@override String get pinCheckRejected => 'Plex PIN 檢查遭到拒絕';
 }
 
@@ -227,7 +227,7 @@ class _Translations$settings$zh_Hant extends Translations$settings$zh {
 
 	// Translations
 	@override String get title => '設定';
-	@override String get supportDeveloper => '贊助 Plezy';
+	@override String get supportDeveloper => '贊助 Heisuca';
 	@override String get supportDeveloperDescription => '透過 Liberapay 捐款支持開發者';
 	@override String get language => '語言';
 	@override String get theme => '主題';
@@ -349,8 +349,6 @@ class _Translations$settings$zh_Hant extends Translations$settings$zh {
 	@override String get watchTogetherRelayDescription => '設定自訂中繼。所有人必須使用相同的伺服器。';
 	@override String get watchTogetherRelayHint => 'https://my-relay.example.com';
 	@override String get watchTogetherRelayInvalid => '請輸入有效的 HTTP 或 HTTPS 中繼伺服器根網址。';
-	@override String get crashReporting => '當機報告';
-	@override String get crashReportingDescription => '傳送當機報告以協助改善應用程式';
 	@override String get debugLogging => '偵錯日誌';
 	@override String get debugLoggingDescription => '啟用詳細日誌記錄以便進行疑難排解';
 	@override String get viewLogs => '查看日誌';
@@ -369,7 +367,7 @@ class _Translations$settings$zh_Hant extends Translations$settings$zh {
 	@override String get importSettingsDescription => '從檔案還原偏好設定';
 	@override String get importSettingsConfirm => '這將覆蓋您目前的設定。要繼續嗎？';
 	@override String get importSettingsSuccess => '設定已匯入';
-	@override String get importSettingsInvalidFile => '此檔案不是有效的 Plezy 設定匯出檔';
+	@override String get importSettingsInvalidFile => '此檔案不是有效的 Heisuca 設定匯出檔';
 	@override String get importSettingsNoUser => '匯入設定前請先登入';
 	@override String get shortcutsReset => '快速鍵已重設為預設值';
 	@override String get about => '關於';
@@ -431,8 +429,6 @@ class _Translations$settings$zh_Hant extends Translations$settings$zh {
 	@override String get maxVolume => '最大音量';
 	@override String get maxVolumeDescription => '允許音量調大至 100% 以上，以適應聲音過小的媒體';
 	@override String maxVolumePercent({required Object percent}) => '${percent}%';
-	@override String get discordRichPresence => 'Discord 狀態整合（Rich Presence）';
-	@override String get discordRichPresenceDescription => '在 Discord 上顯示您正在觀看的內容';
 	@override String get services => '外部服務';
 	@override String get servicesDescription => '連結 Trakt、MyAnimeList、Seerr 等服務';
 	@override String get manageLibrariesDescription => '重新排序與隱藏媒體庫';
@@ -490,7 +486,7 @@ class _Translations$settings$zh_Hant extends Translations$settings$zh {
 	@override String get forceTvMode => '強制 TV 模式';
 	@override String get forceTvModeDescription => '強制使用 TV 介面版面。適用於無法自動辨識 TV 的裝置。需要重新啟動。';
 	@override String get startInFullscreen => '以全螢幕模式啟動';
-	@override String get startInFullscreenDescription => '啟動時直接以全螢幕開啟 Plezy';
+	@override String get startInFullscreenDescription => '啟動時直接以全螢幕開啟 Heisuca';
 	@override String get exitFullscreenOnPlayerClose => '關閉播放器時退出全螢幕';
 	@override String get exitFullscreenOnPlayerCloseDescription => '關閉影片播放器時自動退出全螢幕模式';
 	@override String get autoHidePerformanceOverlay => '自動隱藏效能疊加層';
@@ -539,7 +535,7 @@ class _Translations$settings$zh_Hant extends Translations$settings$zh {
 	@override String get playerScopeGlobal => '全部';
 	@override String get playerScopeLibrary => '依媒體庫';
 	@override String get playerScopeTitle => '依影集或電影';
-	@override String get exportDialogTitle => '匯出 Plezy 設定';
+	@override String get exportDialogTitle => '匯出 Heisuca 設定';
 }
 
 // Path: search
@@ -734,8 +730,8 @@ class _Translations$mediaMenu$zh_Hant extends Translations$mediaMenu$zh {
 	@override String deleteSharedFileHeading({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n,
 		other: '另有 ${n} 集儲存在同一檔案中，也會一併被刪除：',
 	);
-	@override String get deleteScopeUnverifiedProbeFailed => 'Plezy 無法確認此操作會刪除哪些檔案，因此刪除範圍可能超出上方所列的項目。請取消後重試，或仍要刪除。';
-	@override String get deleteScopeUnverifiedNoFileInfo => '您的伺服器未提供此項目的檔案資訊，因此 Plezy 無法確認此操作會刪除哪些檔案。刪除範圍可能超出上方所列的項目。';
+	@override String get deleteScopeUnverifiedProbeFailed => 'Heisuca 無法確認此操作會刪除哪些檔案，因此刪除範圍可能超出上方所列的項目。請取消後重試，或仍要刪除。';
+	@override String get deleteScopeUnverifiedNoFileInfo => '您的伺服器未提供此項目的檔案資訊，因此 Heisuca 無法確認此操作會刪除哪些檔案。刪除範圍可能超出上方所列的項目。';
 	@override String get mediaDeletedSuccessfully => '媒體已成功刪除';
 	@override String get mediaFailedToDelete => '刪除媒體失敗';
 	@override String get rate => '評分';
@@ -1067,7 +1063,7 @@ class _Translations$profiles$zh_Hant extends Translations$profiles$zh {
 	final TranslationsZhHant _root; // ignore: unused_field
 
 	// Translations
-	@override String get addPlezyProfile => '新增 Plezy 使用者設定檔';
+	@override String get addHeisucaProfile => '新增 Heisuca 使用者設定檔';
 	@override String get switchingProfile => '正在切換使用者設定檔…';
 	@override String get deleteThisProfileTitle => '刪除此使用者設定檔？';
 	@override String deleteThisProfileMessage({required Object displayName}) => '將移除 ${displayName}。連線資訊將不受影響。';
@@ -1149,7 +1145,7 @@ class _Translations$connections$zh_Hant extends Translations$connections$zh {
 	@override String accessDeniedMany({required Object count}) => '${count} 台伺服器拒絕此帳戶存取';
 	@override String get signInAgain => '重新登入';
 	@override String editMediaBrowserTitle({required Object product}) => '編輯 ${product} 連線';
-	@override String editMediaBrowserIntro({required Object serverName}) => '為 ${serverName} 新增或移除 URL。Plezy 將使用延遲最低且可連線的 URL。';
+	@override String editMediaBrowserIntro({required Object serverName}) => '為 ${serverName} 新增或移除 URL。Heisuca 將使用延遲最低且可連線的 URL。';
 }
 
 // Path: accountPreferences
@@ -1163,7 +1159,7 @@ class _Translations$accountPreferences$zh_Hant extends Translations$accountPrefe
 	@override String hubSubtitleSingle({required Object account}) => '已在 ${account} 上儲存音訊、字幕與媒體庫選項';
 	@override String hubSubtitleMultiple({required Object count}) => '已在 ${count} 個帳戶上儲存音訊、字幕與媒體庫選項';
 	@override String get pickAccount => '每個帳戶都會儲存各自的偏好設定。請選擇要編輯的帳戶。';
-	@override String get storedOnAccount => '這些選項會儲存在帳戶本身，因此登入該帳戶的所有應用程式都會使用它們，包括您其他裝置上的 Plezy。';
+	@override String get storedOnAccount => '這些選項會儲存在帳戶本身，因此登入該帳戶的所有應用程式都會使用它們，包括您其他裝置上的 Heisuca。';
 	@override String get noAccounts => '沒有可設定的帳戶';
 	@override String get noAccountsHint => '登入 Plex，或連線至 Jellyfin 或 Emby 伺服器，儲存在該帳戶上的偏好設定便會顯示在此處。';
 	@override String get unavailable => '無法連線至此帳戶';
@@ -1372,9 +1368,9 @@ class _Translations$startup$zh_Hant extends Translations$startup$zh {
 	final TranslationsZhHant _root; // ignore: unused_field
 
 	// Translations
-	@override String get failedTitle => 'Plezy 無法啟動';
+	@override String get failedTitle => 'Heisuca 無法啟動';
 	@override String get failedBody => '啟動期間發生問題。下方詳細資料可識別失敗的原因。';
-	@override String get failedBodyRepairable => 'Plezy 儲存的設定檔已損壞，必須先重建才能啟動。重試無法解決問題 — 請選擇「修復儲存空間」。';
+	@override String get failedBodyRepairable => 'Heisuca 儲存的設定檔已損壞，必須先重建才能啟動。重試無法解決問題 — 請選擇「修復儲存空間」。';
 	@override String get phaseLabel => '步驟';
 	@override String get showDetails => '顯示詳細資料';
 	@override String get hideDetails => '隱藏詳細資料';
@@ -1383,16 +1379,16 @@ class _Translations$startup$zh_Hant extends Translations$startup$zh {
 	@override String get uploadDetails => '上傳詳細資料';
 	@override String get repairStorage => '修復儲存空間';
 	@override String get repairTitle => '修復已儲存的資料？';
-	@override String get repairBodyCommon => 'Plezy 的設定檔已損壞且無法讀取。修復會將所有設定重設為預設值。';
+	@override String get repairBodyCommon => 'Heisuca 的設定檔已損壞且無法讀取。修復會將所有設定重設為預設值。';
 	@override String get repairBodyOneCredential => '有一筆已儲存的登入資訊損壞且無法讀取。修復僅會移除該筆資訊，其他設定將保持不變。';
 	@override String get repairBodySignInsKept => '您的伺服器與使用者設定檔應可保持登入狀態。';
 	@override String get repairBodySignInsLost => '保護已儲存登入資訊的金鑰無法從此檔案中復原，因此您必須重新登入每個伺服器與使用者設定檔。您媒體伺服器上的內容不受影響。';
-	@override String get repairBodySessionsUncertain => '追蹤服務（MAL、AniList、Simkl、Trakt）與 Seerr 分別儲存，可能保留也可能遺失。Plezy 會明確告知保留了哪些項目。';
+	@override String get repairBodySessionsUncertain => '追蹤服務（MAL、AniList、Simkl、Trakt）與 Seerr 分別儲存，可能保留也可能遺失。Heisuca 會明確告知保留了哪些項目。';
 	@override String get repairConfirm => '修復';
 	@override String get repairSucceeded => '儲存空間已修復';
 	@override String get repairNeedsRestart => '儲存空間已修復 — 需要重新啟動';
-	@override String get restartRequiredBody => '您的資料已修復，但 Plezy 必須重新啟動才能使用。請關閉 Plezy 後重新開啟。';
-	@override String get quitPlezy => '退出 Plezy';
+	@override String get restartRequiredBody => '您的資料已修復，但 Heisuca 必須重新啟動才能使用。請關閉 Heisuca 後重新開啟。';
+	@override String get quitHeisuca => '退出 Heisuca';
 	@override String get repairFailed => '修復失敗';
 	@override String get repairKeptSignIns => '您的伺服器與使用者設定檔仍保持登入狀態。';
 	@override String get repairLostSignIns => '保護已儲存登入資訊的金鑰無法復原。您必須重新登入每個伺服器與使用者設定檔。';
@@ -1401,7 +1397,7 @@ class _Translations$startup$zh_Hant extends Translations$startup$zh {
 	@override String get backupWarning => '其中包含您的登入憑證。請勿上傳或分享。';
 	@override String get deleteBackup => '刪除副本';
 	@override String get backupDeleted => '副本已刪除。';
-	@override String get previousFailureTitle => 'Plezy 上次啟動失敗';
+	@override String get previousFailureTitle => 'Heisuca 上次啟動失敗';
 }
 
 // Path: licenses
@@ -2147,11 +2143,11 @@ class _Translations$trakt$zh_Hant extends Translations$trakt$zh {
 	@override String get connected => '已連線';
 	@override String connectedAs({required Object username}) => '已以 @${username} 身分連線';
 	@override String get disconnectConfirm => '中斷與 Trakt 帳戶的連結？';
-	@override String get disconnectConfirmBody => 'Plezy 將停止向 Trakt 傳送事件。您可以隨時重新連線。';
+	@override String get disconnectConfirmBody => 'Heisuca 將停止向 Trakt 傳送事件。您可以隨時重新連線。';
 	@override String get scrobble => '即時同步記錄（Scrobble）';
 	@override String get scrobbleDescription => '在播放時向 Trakt 傳送播放、暫停和停止等狀態。';
 	@override String get watchedSync => '同步已觀看狀態';
-	@override String get watchedSyncDescription => '在 Plezy 中將項目標記為已觀看時，也會在 Trakt 上標記為已觀看。';
+	@override String get watchedSyncDescription => '在 Heisuca 中將項目標記為已觀看時，也會在 Trakt 上標記為已觀看。';
 }
 
 // Path: seerr
@@ -2170,10 +2166,10 @@ class _Translations$seerr$zh_Hant extends Translations$seerr$zh {
 	@override String get signInWithEmby => '使用 Emby 登入';
 	@override String get signInWithLocal => '使用本地帳戶';
 	@override String get email => '電子郵件';
-	@override String get noSignInMethods => '此 Seerr 執行個體未提供 Plezy 支援的登入方式。';
+	@override String get noSignInMethods => '此 Seerr 執行個體未提供 Heisuca 支援的登入方式。';
 	@override String get instance => '執行個體';
 	@override String get disconnectConfirm => '中斷與 Seerr 的連線？';
-	@override String get disconnectConfirmBody => 'Plezy 將忘記此 Seerr 連線資訊。您可以隨時重新連線。';
+	@override String get disconnectConfirmBody => 'Heisuca 將忘記此 Seerr 連線資訊。您可以隨時重新連線。';
 	@override String get request => '請求';
 	@override String get request4k => '請求 4K 版本';
 	@override String get seasons => '季';
@@ -2198,7 +2194,7 @@ class _Translations$seerr$zh_Hant extends Translations$seerr$zh {
 	@override String get statusBlocklisted => '已加入封鎖清單';
 	@override String couldNotReach({required Object url, required Object error}) => '無法連線至 ${url}：${error}';
 	@override String noInstanceAtUrl({required Object url, required Object status}) => '在 ${url} 找不到 Seerr 執行個體（HTTP ${status}）';
-	@override String get behindAuthProxy => '回應來自需要驗證的反向代理（SSO 或 HTTP 驗證），而非 Seerr。Plezy 無法透過它登入：請讓 Seerr 的 /api/v1 路徑為此應用程式繞過代理，或使用可直接連線至 Seerr 的位址。';
+	@override String get behindAuthProxy => '回應來自需要驗證的反向代理（SSO 或 HTTP 驗證），而非 Seerr。Heisuca 無法透過它登入：請讓 Seerr 的 /api/v1 路徑為此應用程式繞過代理，或使用可直接連線至 Seerr 的位址。';
 	@override String get invalidUrl => '請輸入伺服器位址，例如 https://seerr.example.com';
 	@override String get quickConnectUnsupported => '此 Seerr 執行個體不支援 Quick Connect。需要 Seerr 3.4 或更新版本。';
 	@override String get notInitialized => '此 Seerr 執行個體尚未完成首次執行設定';
@@ -2228,7 +2224,7 @@ class _Translations$services$zh_Hant extends Translations$services$zh {
 	@override String get scrobble => '自動同步播放進度';
 	@override String get scrobbleDescription => '觀賞完一集或一部電影後自動更新您的外部列表。';
 	@override String disconnectConfirm({required Object service}) => '中斷與 ${service} 的連線？';
-	@override String disconnectConfirmBody({required Object service}) => 'Plezy 將停止更新 ${service}。您可以隨時重新連線。';
+	@override String disconnectConfirmBody({required Object service}) => 'Heisuca 將停止更新 ${service}。您可以隨時重新連線。';
 	@override String connectFailed({required Object service}) => '無法連線至 ${service}。請重試。';
 	@override late final _Translations$services$names$zh_Hant names = _Translations$services$names$zh_Hant._(_root);
 	@override late final _Translations$services$deviceCode$zh_Hant deviceCode = _Translations$services$deviceCode$zh_Hant._(_root);
@@ -2816,14 +2812,14 @@ class _Translations$downloads$backgroundWarning$zh_Hant extends Translations$dow
 	@override String get bannerAction => '詳細資料';
 	@override String get sheetTitle => '背景下載遭到封鎖';
 	@override String get sheetTitleDegraded => '背景下載可能受限';
-	@override String get sheetIntro => 'Android 正在阻止 Plezy 在背景穩定下載。';
-	@override String get sheetIntroDegraded => '你的裝置限制了 Plezy 可在背景下載的時機。';
-	@override String get reasonBackgroundRestricted => 'Plezy 的背景使用受限。請將其電池用量或背景使用設定為「無限制」。';
-	@override String get reasonStandbyRestricted => 'Android 已將 Plezy 設為受限待命狀態。請將電池用量設為「無限制」。';
+	@override String get sheetIntro => 'Android 正在阻止 Heisuca 在背景穩定下載。';
+	@override String get sheetIntroDegraded => '你的裝置限制了 Heisuca 可在背景下載的時機。';
+	@override String get reasonBackgroundRestricted => 'Heisuca 的背景使用受限。請將其電池用量或背景使用設定為「無限制」。';
+	@override String get reasonStandbyRestricted => 'Android 已將 Heisuca 設為受限待命狀態。請將電池用量設為「無限制」。';
 	@override String get reasonDownloadChannelBlocked => '下載通知已關閉，因此可能無法查看進度或使用控制項。';
 	@override String get reasonNotificationsDisabled => '通知已關閉。在 Android 13 或更新版本中，長時間背景下載需要啟用通知。';
 	@override String get reasonDataSaver => '已開啟數據節省模式，因此系統會封鎖使用行動數據的背景下載。透過 Wi-Fi 下載應仍可正常執行。';
-	@override String get reasonOemUnknown => 'Plezy 在背景執行時，下載屢次停止。請檢查 Plezy 的電池用量或背景使用設定。';
+	@override String get reasonOemUnknown => 'Heisuca 在背景執行時，下載屢次停止。請檢查 Heisuca 的電池用量或背景使用設定。';
 	@override String get openSettings => '開啟設定';
 	@override String get stillNotWorking => '裝置專屬說明';
 	@override String get stillNotWorkingDescription => '查看適用於你裝置的步驟；若問題持續發生，也可從設定 › 查看日誌傳送日誌。';
@@ -2877,19 +2873,19 @@ class _Translations$companionRemote$pairing$zh_Hant extends Translations$compani
 	final TranslationsZhHant _root; // ignore: unused_field
 
 	// Translations
-	@override String get discoveryDescription => '使用相同 Plex 帳戶的 Plezy 裝置會顯示在此處';
+	@override String get discoveryDescription => '使用相同 Plex 帳戶的 Heisuca 裝置會顯示在此處';
 	@override String get hostAddressHint => '192.168.1.100:48632';
 	@override String get connecting => '正在連線…';
 	@override String get searchingForDevices => '正在搜尋裝置…';
 	@override String get noDevicesFound => '在區域網路上找不到裝置';
-	@override String get noDevicesHint => '請在電腦上開啟 Plezy，並確認兩台裝置使用相同的 Wi-Fi 網路';
+	@override String get noDevicesHint => '請在電腦上開啟 Heisuca，並確認兩台裝置使用相同的 Wi-Fi 網路';
 	@override String get availableDevices => '可用裝置';
 	@override String get manualConnection => '手動連線';
 	@override String get cryptoInitFailed => '無法啟動安全連線。請先登入 Plex。';
 	@override String get validationHostRequired => '請輸入主機位址';
 	@override String get validationHostFormat => '格式必須為 IP 位址:連接埠（例如 192.168.1.100:48632）';
 	@override String get connectionTimedOut => '連線逾時。請確認兩台裝置都使用相同網路。';
-	@override String get sessionNotFound => '找不到裝置。請確認主機上已啟動 Plezy。';
+	@override String get sessionNotFound => '找不到裝置。請確認主機上已啟動 Heisuca。';
 	@override String get authFailed => '驗證失敗。兩台裝置需要登入相同的 Plex 帳戶。';
 	@override String failedToConnect({required Object error}) => '連線失敗：${error}';
 }
@@ -2968,7 +2964,7 @@ class _Translations$services$deviceCode$zh_Hant extends Translations$services$de
 	final TranslationsZhHant _root; // ignore: unused_field
 
 	// Translations
-	@override String title({required Object service}) => '在 ${service} 啟用 Plezy';
+	@override String title({required Object service}) => '在 ${service} 啟用 Heisuca';
 	@override String get instructions => '掃描 QR 碼，或前往下方網址並輸入此代碼：';
 	@override String openToActivate({required Object service}) => '開啟 ${service} 進行啟用';
 	@override String get copyCode => '複製啟用代碼';
@@ -3044,7 +3040,7 @@ extension on TranslationsZhHant {
 			'auth.quickConnectWaiting' => '等待核准…',
 			'auth.quickConnectCancel' => '取消',
 			'auth.quickConnectExpired' => '快速連線代碼已過期。請重試。',
-			'auth.localDataRecoveryRequired' => 'Plezy 無法安全地復原本機登入資料與待處理的播放資料。請重新登入。',
+			'auth.localDataRecoveryRequired' => 'Heisuca 無法安全地復原本機登入資料與待處理的播放資料。請重新登入。',
 			'auth.pinCheckRejected' => 'Plex PIN 檢查遭到拒絕',
 			'common.cancel' => '取消',
 			'common.save' => '儲存',
@@ -3131,7 +3127,7 @@ extension on TranslationsZhHant {
 			'update.latestVersion' => '已安裝的版本為最新版本',
 			'update.checkFailed' => '無法檢查更新',
 			'settings.title' => '設定',
-			'settings.supportDeveloper' => '贊助 Plezy',
+			'settings.supportDeveloper' => '贊助 Heisuca',
 			'settings.supportDeveloperDescription' => '透過 Liberapay 捐款支持開發者',
 			'settings.language' => '語言',
 			'settings.theme' => '主題',
@@ -3253,8 +3249,6 @@ extension on TranslationsZhHant {
 			'settings.watchTogetherRelayDescription' => '設定自訂中繼。所有人必須使用相同的伺服器。',
 			'settings.watchTogetherRelayHint' => 'https://my-relay.example.com',
 			'settings.watchTogetherRelayInvalid' => '請輸入有效的 HTTP 或 HTTPS 中繼伺服器根網址。',
-			'settings.crashReporting' => '當機報告',
-			'settings.crashReportingDescription' => '傳送當機報告以協助改善應用程式',
 			'settings.debugLogging' => '偵錯日誌',
 			'settings.debugLoggingDescription' => '啟用詳細日誌記錄以便進行疑難排解',
 			'settings.viewLogs' => '查看日誌',
@@ -3273,7 +3267,7 @@ extension on TranslationsZhHant {
 			'settings.importSettingsDescription' => '從檔案還原偏好設定',
 			'settings.importSettingsConfirm' => '這將覆蓋您目前的設定。要繼續嗎？',
 			'settings.importSettingsSuccess' => '設定已匯入',
-			'settings.importSettingsInvalidFile' => '此檔案不是有效的 Plezy 設定匯出檔',
+			'settings.importSettingsInvalidFile' => '此檔案不是有效的 Heisuca 設定匯出檔',
 			'settings.importSettingsNoUser' => '匯入設定前請先登入',
 			'settings.shortcutsReset' => '快速鍵已重設為預設值',
 			'settings.about' => '關於',
@@ -3335,8 +3329,6 @@ extension on TranslationsZhHant {
 			'settings.maxVolume' => '最大音量',
 			'settings.maxVolumeDescription' => '允許音量調大至 100% 以上，以適應聲音過小的媒體',
 			'settings.maxVolumePercent' => ({required Object percent}) => '${percent}%',
-			'settings.discordRichPresence' => 'Discord 狀態整合（Rich Presence）',
-			'settings.discordRichPresenceDescription' => '在 Discord 上顯示您正在觀看的內容',
 			'settings.services' => '外部服務',
 			'settings.servicesDescription' => '連結 Trakt、MyAnimeList、Seerr 等服務',
 			'settings.manageLibrariesDescription' => '重新排序與隱藏媒體庫',
@@ -3394,7 +3386,7 @@ extension on TranslationsZhHant {
 			'settings.forceTvMode' => '強制 TV 模式',
 			'settings.forceTvModeDescription' => '強制使用 TV 介面版面。適用於無法自動辨識 TV 的裝置。需要重新啟動。',
 			'settings.startInFullscreen' => '以全螢幕模式啟動',
-			'settings.startInFullscreenDescription' => '啟動時直接以全螢幕開啟 Plezy',
+			'settings.startInFullscreenDescription' => '啟動時直接以全螢幕開啟 Heisuca',
 			'settings.exitFullscreenOnPlayerClose' => '關閉播放器時退出全螢幕',
 			'settings.exitFullscreenOnPlayerCloseDescription' => '關閉影片播放器時自動退出全螢幕模式',
 			'settings.autoHidePerformanceOverlay' => '自動隱藏效能疊加層',
@@ -3443,7 +3435,7 @@ extension on TranslationsZhHant {
 			'settings.playerScopeGlobal' => '全部',
 			'settings.playerScopeLibrary' => '依媒體庫',
 			'settings.playerScopeTitle' => '依影集或電影',
-			'settings.exportDialogTitle' => '匯出 Plezy 設定',
+			'settings.exportDialogTitle' => '匯出 Heisuca 設定',
 			'search.hint' => '搜尋電影、影集、音樂…',
 			'search.tryDifferentTerm' => '嘗試不同的關鍵字',
 			'search.searchYourMedia' => '搜尋媒體庫',
@@ -3540,12 +3532,12 @@ extension on TranslationsZhHant {
 			'fileInfo.streamId' => '串流 ID',
 			'fileInfo.language' => '語言',
 			'fileInfo.languageCode' => '語言代碼',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.streamTitle' => '軌道名稱',
 			'fileInfo.channels' => '聲道數',
 			'fileInfo.sampleRate' => '取樣率',
 			'fileInfo.spatialAudio' => '空間音訊',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.textBased' => '文字型',
 			'fileInfo.subtitleFormat' => '附屬檔案格式',
 			'fileInfo.provider' => '提供者',
@@ -3622,8 +3614,8 @@ extension on TranslationsZhHant {
 			'mediaMenu.deleteEpisodeCountWarning' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '這會刪除其中全部 ${n} 集及其檔案。', ), 
 			'mediaMenu.deleteMultiPartWarning' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '此項目分散儲存於 ${n} 個檔案中，且全部都會被刪除。', ), 
 			'mediaMenu.deleteSharedFileHeading' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '另有 ${n} 集儲存在同一檔案中，也會一併被刪除：', ), 
-			'mediaMenu.deleteScopeUnverifiedProbeFailed' => 'Plezy 無法確認此操作會刪除哪些檔案，因此刪除範圍可能超出上方所列的項目。請取消後重試，或仍要刪除。',
-			'mediaMenu.deleteScopeUnverifiedNoFileInfo' => '您的伺服器未提供此項目的檔案資訊，因此 Plezy 無法確認此操作會刪除哪些檔案。刪除範圍可能超出上方所列的項目。',
+			'mediaMenu.deleteScopeUnverifiedProbeFailed' => 'Heisuca 無法確認此操作會刪除哪些檔案，因此刪除範圍可能超出上方所列的項目。請取消後重試，或仍要刪除。',
+			'mediaMenu.deleteScopeUnverifiedNoFileInfo' => '您的伺服器未提供此項目的檔案資訊，因此 Heisuca 無法確認此操作會刪除哪些檔案。刪除範圍可能超出上方所列的項目。',
 			'mediaMenu.mediaDeletedSuccessfully' => '媒體已成功刪除',
 			'mediaMenu.mediaFailedToDelete' => '刪除媒體失敗',
 			'mediaMenu.rate' => '評分',
@@ -3870,7 +3862,7 @@ extension on TranslationsZhHant {
 			'mpvConfig.removeLine' => '移除行',
 			'mpvConfig.embeddedVoHint' => '在 Linux 上會忽略 vo、gpu-context 和 gpu-api：嵌入式影片一律透過影片平面上的 vo=libmpv 轉譯，而 gpu-next（ArtCNN 等計算著色器需要它）無法以嵌入式方式執行。',
 			'dialog.confirmAction' => '確認操作',
-			'profiles.addPlezyProfile' => '新增 Plezy 使用者設定檔',
+			'profiles.addHeisucaProfile' => '新增 Heisuca 使用者設定檔',
 			'profiles.switchingProfile' => '正在切換使用者設定檔…',
 			'profiles.deleteThisProfileTitle' => '刪除此使用者設定檔？',
 			'profiles.deleteThisProfileMessage' => ({required Object displayName}) => '將移除 ${displayName}。連線資訊將不受影響。',
@@ -3943,12 +3935,12 @@ extension on TranslationsZhHant {
 			'connections.accessDeniedMany' => ({required Object count}) => '${count} 台伺服器拒絕此帳戶存取',
 			'connections.signInAgain' => '重新登入',
 			'connections.editMediaBrowserTitle' => ({required Object product}) => '編輯 ${product} 連線',
-			'connections.editMediaBrowserIntro' => ({required Object serverName}) => '為 ${serverName} 新增或移除 URL。Plezy 將使用延遲最低且可連線的 URL。',
+			'connections.editMediaBrowserIntro' => ({required Object serverName}) => '為 ${serverName} 新增或移除 URL。Heisuca 將使用延遲最低且可連線的 URL。',
 			'accountPreferences.sectionTitle' => '帳戶偏好設定',
 			'accountPreferences.hubSubtitleSingle' => ({required Object account}) => '已在 ${account} 上儲存音訊、字幕與媒體庫選項',
 			'accountPreferences.hubSubtitleMultiple' => ({required Object count}) => '已在 ${count} 個帳戶上儲存音訊、字幕與媒體庫選項',
 			'accountPreferences.pickAccount' => '每個帳戶都會儲存各自的偏好設定。請選擇要編輯的帳戶。',
-			'accountPreferences.storedOnAccount' => '這些選項會儲存在帳戶本身，因此登入該帳戶的所有應用程式都會使用它們，包括您其他裝置上的 Plezy。',
+			'accountPreferences.storedOnAccount' => '這些選項會儲存在帳戶本身，因此登入該帳戶的所有應用程式都會使用它們，包括您其他裝置上的 Heisuca。',
 			'accountPreferences.noAccounts' => '沒有可設定的帳戶',
 			'accountPreferences.noAccountsHint' => '登入 Plex，或連線至 Jellyfin 或 Emby 伺服器，儲存在該帳戶上的偏好設定便會顯示在此處。',
 			'accountPreferences.unavailable' => '無法連線至此帳戶',
@@ -4054,12 +4046,12 @@ extension on TranslationsZhHant {
 			'libraries.refreshMetadata' => '重新整理中繼資料',
 			'libraries.emptyTrash' => '清空垃圾桶',
 			'libraries.emptyingTrash' => ({required Object title}) => '正在清空「${title}」的垃圾桶…',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.trashEmptied' => ({required Object title}) => '已清空「${title}」的垃圾桶',
 			'libraries.failedToEmptyTrash' => ({required Object error}) => '無法清空垃圾桶：${error}',
 			'libraries.analyzing' => ({required Object title}) => '正在分析「${title}」…',
 			'libraries.analysisStarted' => ({required Object title}) => '已開始分析「${title}」',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.failedToAnalyze' => ({required Object error}) => '無法分析媒體庫：${error}',
 			'libraries.noLibrariesFound' => '找不到媒體庫',
 			'libraries.allLibrariesHidden' => '所有媒體庫都已隱藏',
@@ -4148,9 +4140,9 @@ extension on TranslationsZhHant {
 			'logs.clearLogs' => '清除日誌',
 			'logs.copyLogs' => '複製日誌',
 			'logs.uploadLogs' => '上傳日誌',
-			'startup.failedTitle' => 'Plezy 無法啟動',
+			'startup.failedTitle' => 'Heisuca 無法啟動',
 			'startup.failedBody' => '啟動期間發生問題。下方詳細資料可識別失敗的原因。',
-			'startup.failedBodyRepairable' => 'Plezy 儲存的設定檔已損壞，必須先重建才能啟動。重試無法解決問題 — 請選擇「修復儲存空間」。',
+			'startup.failedBodyRepairable' => 'Heisuca 儲存的設定檔已損壞，必須先重建才能啟動。重試無法解決問題 — 請選擇「修復儲存空間」。',
 			'startup.phaseLabel' => '步驟',
 			'startup.showDetails' => '顯示詳細資料',
 			'startup.hideDetails' => '隱藏詳細資料',
@@ -4159,16 +4151,16 @@ extension on TranslationsZhHant {
 			'startup.uploadDetails' => '上傳詳細資料',
 			'startup.repairStorage' => '修復儲存空間',
 			'startup.repairTitle' => '修復已儲存的資料？',
-			'startup.repairBodyCommon' => 'Plezy 的設定檔已損壞且無法讀取。修復會將所有設定重設為預設值。',
+			'startup.repairBodyCommon' => 'Heisuca 的設定檔已損壞且無法讀取。修復會將所有設定重設為預設值。',
 			'startup.repairBodyOneCredential' => '有一筆已儲存的登入資訊損壞且無法讀取。修復僅會移除該筆資訊，其他設定將保持不變。',
 			'startup.repairBodySignInsKept' => '您的伺服器與使用者設定檔應可保持登入狀態。',
 			'startup.repairBodySignInsLost' => '保護已儲存登入資訊的金鑰無法從此檔案中復原，因此您必須重新登入每個伺服器與使用者設定檔。您媒體伺服器上的內容不受影響。',
-			'startup.repairBodySessionsUncertain' => '追蹤服務（MAL、AniList、Simkl、Trakt）與 Seerr 分別儲存，可能保留也可能遺失。Plezy 會明確告知保留了哪些項目。',
+			'startup.repairBodySessionsUncertain' => '追蹤服務（MAL、AniList、Simkl、Trakt）與 Seerr 分別儲存，可能保留也可能遺失。Heisuca 會明確告知保留了哪些項目。',
 			'startup.repairConfirm' => '修復',
 			'startup.repairSucceeded' => '儲存空間已修復',
 			'startup.repairNeedsRestart' => '儲存空間已修復 — 需要重新啟動',
-			'startup.restartRequiredBody' => '您的資料已修復，但 Plezy 必須重新啟動才能使用。請關閉 Plezy 後重新開啟。',
-			'startup.quitPlezy' => '退出 Plezy',
+			'startup.restartRequiredBody' => '您的資料已修復，但 Heisuca 必須重新啟動才能使用。請關閉 Heisuca 後重新開啟。',
+			'startup.quitHeisuca' => '退出 Heisuca',
 			'startup.repairFailed' => '修復失敗',
 			'startup.repairKeptSignIns' => '您的伺服器與使用者設定檔仍保持登入狀態。',
 			'startup.repairLostSignIns' => '保護已儲存登入資訊的金鑰無法復原。您必須重新登入每個伺服器與使用者設定檔。',
@@ -4177,7 +4169,7 @@ extension on TranslationsZhHant {
 			'startup.backupWarning' => '其中包含您的登入憑證。請勿上傳或分享。',
 			'startup.deleteBackup' => '刪除副本',
 			'startup.backupDeleted' => '副本已刪除。',
-			'startup.previousFailureTitle' => 'Plezy 上次啟動失敗',
+			'startup.previousFailureTitle' => 'Heisuca 上次啟動失敗',
 			'licenses.relatedPackages' => '相關套件',
 			'licenses.license' => '授權',
 			'licenses.licenseNumber' => ({required Object number}) => '授權條款 ${number}',
@@ -4568,12 +4560,12 @@ extension on TranslationsZhHant {
 			'watchTogether.renameRoom' => '重新命名房間',
 			'watchTogether.removeRoom' => '移除',
 			'watchTogether.guestSwitchUnavailable' => '無法切換 — 伺服器無法進行同步',
-			_ => null,
-		} ?? switch (path) {
 			'watchTogether.guestSwitchFailed' => '無法切換 — 在此伺服器上找不到內容',
 			'watchTogether.defaultDisplayName' => '使用者',
 			'watchTogether.errors.timedOut' => '中繼伺服器未及時回應',
 			'watchTogether.errors.connectionLost' => '工作階段就緒前連線已中斷',
+			_ => null,
+		} ?? switch (path) {
 			'watchTogether.errors.invalidRelayResponse' => '中繼伺服器傳回了非預期的回應',
 			'watchTogether.errors.sessionEnded' => '主持人已結束工作階段',
 			'watchTogether.errors.sessionUnavailable' => '無法恢復此工作階段。請加入或建立房間以繼續。',
@@ -4658,14 +4650,14 @@ extension on TranslationsZhHant {
 			'downloads.backgroundWarning.bannerAction' => '詳細資料',
 			'downloads.backgroundWarning.sheetTitle' => '背景下載遭到封鎖',
 			'downloads.backgroundWarning.sheetTitleDegraded' => '背景下載可能受限',
-			'downloads.backgroundWarning.sheetIntro' => 'Android 正在阻止 Plezy 在背景穩定下載。',
-			'downloads.backgroundWarning.sheetIntroDegraded' => '你的裝置限制了 Plezy 可在背景下載的時機。',
-			'downloads.backgroundWarning.reasonBackgroundRestricted' => 'Plezy 的背景使用受限。請將其電池用量或背景使用設定為「無限制」。',
-			'downloads.backgroundWarning.reasonStandbyRestricted' => 'Android 已將 Plezy 設為受限待命狀態。請將電池用量設為「無限制」。',
+			'downloads.backgroundWarning.sheetIntro' => 'Android 正在阻止 Heisuca 在背景穩定下載。',
+			'downloads.backgroundWarning.sheetIntroDegraded' => '你的裝置限制了 Heisuca 可在背景下載的時機。',
+			'downloads.backgroundWarning.reasonBackgroundRestricted' => 'Heisuca 的背景使用受限。請將其電池用量或背景使用設定為「無限制」。',
+			'downloads.backgroundWarning.reasonStandbyRestricted' => 'Android 已將 Heisuca 設為受限待命狀態。請將電池用量設為「無限制」。',
 			'downloads.backgroundWarning.reasonDownloadChannelBlocked' => '下載通知已關閉，因此可能無法查看進度或使用控制項。',
 			'downloads.backgroundWarning.reasonNotificationsDisabled' => '通知已關閉。在 Android 13 或更新版本中，長時間背景下載需要啟用通知。',
 			'downloads.backgroundWarning.reasonDataSaver' => '已開啟數據節省模式，因此系統會封鎖使用行動數據的背景下載。透過 Wi-Fi 下載應仍可正常執行。',
-			'downloads.backgroundWarning.reasonOemUnknown' => 'Plezy 在背景執行時，下載屢次停止。請檢查 Plezy 的電池用量或背景使用設定。',
+			'downloads.backgroundWarning.reasonOemUnknown' => 'Heisuca 在背景執行時，下載屢次停止。請檢查 Heisuca 的電池用量或背景使用設定。',
 			'downloads.backgroundWarning.openSettings' => '開啟設定',
 			'downloads.backgroundWarning.stillNotWorking' => '裝置專屬說明',
 			'downloads.backgroundWarning.stillNotWorkingDescription' => '查看適用於你裝置的步驟；若問題持續發生，也可從設定 › 查看日誌傳送日誌。',
@@ -4728,19 +4720,19 @@ extension on TranslationsZhHant {
 			'companionRemote.session.stopServer' => '停止伺服器',
 			'companionRemote.session.minimize' => '最小化',
 			'companionRemote.session.manualAddressHint' => '手動連線位址：',
-			'companionRemote.pairing.discoveryDescription' => '使用相同 Plex 帳戶的 Plezy 裝置會顯示在此處',
+			'companionRemote.pairing.discoveryDescription' => '使用相同 Plex 帳戶的 Heisuca 裝置會顯示在此處',
 			'companionRemote.pairing.hostAddressHint' => '192.168.1.100:48632',
 			'companionRemote.pairing.connecting' => '正在連線…',
 			'companionRemote.pairing.searchingForDevices' => '正在搜尋裝置…',
 			'companionRemote.pairing.noDevicesFound' => '在區域網路上找不到裝置',
-			'companionRemote.pairing.noDevicesHint' => '請在電腦上開啟 Plezy，並確認兩台裝置使用相同的 Wi-Fi 網路',
+			'companionRemote.pairing.noDevicesHint' => '請在電腦上開啟 Heisuca，並確認兩台裝置使用相同的 Wi-Fi 網路',
 			'companionRemote.pairing.availableDevices' => '可用裝置',
 			'companionRemote.pairing.manualConnection' => '手動連線',
 			'companionRemote.pairing.cryptoInitFailed' => '無法啟動安全連線。請先登入 Plex。',
 			'companionRemote.pairing.validationHostRequired' => '請輸入主機位址',
 			'companionRemote.pairing.validationHostFormat' => '格式必須為 IP 位址:連接埠（例如 192.168.1.100:48632）',
 			'companionRemote.pairing.connectionTimedOut' => '連線逾時。請確認兩台裝置都使用相同網路。',
-			'companionRemote.pairing.sessionNotFound' => '找不到裝置。請確認主機上已啟動 Plezy。',
+			'companionRemote.pairing.sessionNotFound' => '找不到裝置。請確認主機上已啟動 Heisuca。',
 			'companionRemote.pairing.authFailed' => '驗證失敗。兩台裝置需要登入相同的 Plex 帳戶。',
 			'companionRemote.pairing.failedToConnect' => ({required Object error}) => '連線失敗：${error}',
 			'companionRemote.remote.disconnectConfirm' => '是否要中斷遠端連線工作階段？',
@@ -4960,11 +4952,11 @@ extension on TranslationsZhHant {
 			'trakt.connected' => '已連線',
 			'trakt.connectedAs' => ({required Object username}) => '已以 @${username} 身分連線',
 			'trakt.disconnectConfirm' => '中斷與 Trakt 帳戶的連結？',
-			'trakt.disconnectConfirmBody' => 'Plezy 將停止向 Trakt 傳送事件。您可以隨時重新連線。',
+			'trakt.disconnectConfirmBody' => 'Heisuca 將停止向 Trakt 傳送事件。您可以隨時重新連線。',
 			'trakt.scrobble' => '即時同步記錄（Scrobble）',
 			'trakt.scrobbleDescription' => '在播放時向 Trakt 傳送播放、暫停和停止等狀態。',
 			'trakt.watchedSync' => '同步已觀看狀態',
-			'trakt.watchedSyncDescription' => '在 Plezy 中將項目標記為已觀看時，也會在 Trakt 上標記為已觀看。',
+			'trakt.watchedSyncDescription' => '在 Heisuca 中將項目標記為已觀看時，也會在 Trakt 上標記為已觀看。',
 			'seerr.title' => 'Seerr',
 			'seerr.connectTitle' => '連線至 Seerr',
 			'seerr.serverUrl' => '伺服器 URL',
@@ -4974,10 +4966,10 @@ extension on TranslationsZhHant {
 			'seerr.signInWithEmby' => '使用 Emby 登入',
 			'seerr.signInWithLocal' => '使用本地帳戶',
 			'seerr.email' => '電子郵件',
-			'seerr.noSignInMethods' => '此 Seerr 執行個體未提供 Plezy 支援的登入方式。',
+			'seerr.noSignInMethods' => '此 Seerr 執行個體未提供 Heisuca 支援的登入方式。',
 			'seerr.instance' => '執行個體',
 			'seerr.disconnectConfirm' => '中斷與 Seerr 的連線？',
-			'seerr.disconnectConfirmBody' => 'Plezy 將忘記此 Seerr 連線資訊。您可以隨時重新連線。',
+			'seerr.disconnectConfirmBody' => 'Heisuca 將忘記此 Seerr 連線資訊。您可以隨時重新連線。',
 			'seerr.request' => '請求',
 			'seerr.request4k' => '請求 4K 版本',
 			'seerr.seasons' => '季',
@@ -5002,7 +4994,7 @@ extension on TranslationsZhHant {
 			'seerr.statusBlocklisted' => '已加入封鎖清單',
 			'seerr.couldNotReach' => ({required Object url, required Object error}) => '無法連線至 ${url}：${error}',
 			'seerr.noInstanceAtUrl' => ({required Object url, required Object status}) => '在 ${url} 找不到 Seerr 執行個體（HTTP ${status}）',
-			'seerr.behindAuthProxy' => '回應來自需要驗證的反向代理（SSO 或 HTTP 驗證），而非 Seerr。Plezy 無法透過它登入：請讓 Seerr 的 /api/v1 路徑為此應用程式繞過代理，或使用可直接連線至 Seerr 的位址。',
+			'seerr.behindAuthProxy' => '回應來自需要驗證的反向代理（SSO 或 HTTP 驗證），而非 Seerr。Heisuca 無法透過它登入：請讓 Seerr 的 /api/v1 路徑為此應用程式繞過代理，或使用可直接連線至 Seerr 的位址。',
 			'seerr.invalidUrl' => '請輸入伺服器位址，例如 https://seerr.example.com',
 			'seerr.quickConnectUnsupported' => '此 Seerr 執行個體不支援 Quick Connect。需要 Seerr 3.4 或更新版本。',
 			'seerr.notInitialized' => '此 Seerr 執行個體尚未完成首次執行設定',
@@ -5023,14 +5015,14 @@ extension on TranslationsZhHant {
 			'services.scrobble' => '自動同步播放進度',
 			'services.scrobbleDescription' => '觀賞完一集或一部電影後自動更新您的外部列表。',
 			'services.disconnectConfirm' => ({required Object service}) => '中斷與 ${service} 的連線？',
-			'services.disconnectConfirmBody' => ({required Object service}) => 'Plezy 將停止更新 ${service}。您可以隨時重新連線。',
+			'services.disconnectConfirmBody' => ({required Object service}) => 'Heisuca 將停止更新 ${service}。您可以隨時重新連線。',
 			'services.connectFailed' => ({required Object service}) => '無法連線至 ${service}。請重試。',
 			'services.names.mal' => 'MyAnimeList',
 			'services.names.anilist' => 'AniList',
 			'services.names.simkl' => 'Simkl',
 			'services.names.seerr' => 'Seerr',
 			'services.names.mdblist' => 'MDBList',
-			'services.deviceCode.title' => ({required Object service}) => '在 ${service} 啟用 Plezy',
+			'services.deviceCode.title' => ({required Object service}) => '在 ${service} 啟用 Heisuca',
 			'services.deviceCode.instructions' => '掃描 QR 碼，或前往下方網址並輸入此代碼：',
 			'services.deviceCode.openToActivate' => ({required Object service}) => '開啟 ${service} 進行啟用',
 			'services.deviceCode.copyCode' => '複製啟用代碼',
@@ -5082,12 +5074,12 @@ extension on TranslationsZhHant {
 			'addServer.borrowFromAnotherProfile' => '從另一個使用者設定檔共用',
 			'addServer.borrowFromAnotherProfileSubtitle' => '重複使用另一個使用者設定檔的連線資訊。受 PIN 碼保護的使用者設定檔需輸入 PIN 碼。',
 			'addServer.invalidCredentials' => '使用者名稱或密碼無效',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.authResponseNotJson' => '驗證回應不是有效的 JSON',
 			'addServer.authResponseIncomplete' => '伺服器傳回的登入回應不完整',
 			'addServer.quickConnectRejected' => 'Quick Connect 遭到伺服器拒絕',
 			'addServer.quickConnectNotJson' => 'Quick Connect 回應不是有效的 JSON',
+			_ => null,
+		} ?? switch (path) {
 			'addServer.quickConnectMissingFields' => 'Quick Connect 回應缺少代碼或密鑰',
 			'addServer.quickConnectPollRejected' => 'Quick Connect 輪詢遭到伺服器拒絕',
 			'addServer.serverTimedOut' => '伺服器未及時回應',

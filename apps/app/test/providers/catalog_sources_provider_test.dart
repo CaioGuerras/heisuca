@@ -1,21 +1,21 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/media/media_server_client.dart';
-import 'package:plezy/models/catalog/catalog_item.dart';
-import 'package:plezy/providers/catalog_sources_provider.dart';
-import 'package:plezy/providers/seerr_account_provider.dart';
-import 'package:plezy/providers/trackers_provider.dart';
-import 'package:plezy/services/catalog/catalog_source.dart';
-import 'package:plezy/services/base_shared_preferences_service.dart';
-import 'package:plezy/services/plex_discover_client.dart';
-import 'package:plezy/services/trackers/mdblist/mdblist_tracker.dart';
-import 'package:plezy/services/trackers/tracker_account_store.dart';
-import 'package:plezy/services/trackers/tracker_constants.dart';
-import 'package:plezy/services/trackers/tracker_coordinator.dart';
-import 'package:plezy/services/trackers/tracker_session.dart';
-import 'package:plezy/utils/external_ids.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/models/catalog/catalog_item.dart';
+import 'package:heisuca/providers/catalog_sources_provider.dart';
+import 'package:heisuca/providers/seerr_account_provider.dart';
+import 'package:heisuca/providers/trackers_provider.dart';
+import 'package:heisuca/services/catalog/catalog_source.dart';
+import 'package:heisuca/services/base_shared_preferences_service.dart';
+import 'package:heisuca/services/plex_discover_client.dart';
+import 'package:heisuca/services/trackers/mdblist/mdblist_tracker.dart';
+import 'package:heisuca/services/trackers/tracker_account_store.dart';
+import 'package:heisuca/services/trackers/tracker_constants.dart';
+import 'package:heisuca/services/trackers/tracker_coordinator.dart';
+import 'package:heisuca/services/trackers/tracker_session.dart';
+import 'package:heisuca/utils/external_ids.dart';
 
 import '../test_helpers/media_items.dart';
 import '../test_helpers/prefs.dart';

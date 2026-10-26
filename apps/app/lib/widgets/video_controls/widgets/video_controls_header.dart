@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:plezy/utils/formatters.dart';
+import 'package:heisuca/utils/formatters.dart';
 
 import '../../../cgflix/cgflix_units.dart';
 import '../../../media/media_item.dart';

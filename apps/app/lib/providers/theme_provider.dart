@@ -86,7 +86,7 @@ class ThemeProvider extends ChangeNotifier with DisposableChangeNotifierMixin, W
     }
   }
 
-  static const _themeChannel = MethodChannel('com.plezy/theme');
+  static const _themeChannel = MethodChannel('app.heisuca/theme');
 
   @visibleForTesting
   Future<void> setThemeMode(settings.ThemeMode mode) async {

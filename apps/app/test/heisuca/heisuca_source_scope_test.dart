@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:plezy/heisuca/heisuca_source_scope.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/profiles/active_profile_provider.dart';
-import 'package:plezy/providers/multi_server_provider.dart';
-import 'package:plezy/services/data_aggregation_service.dart';
-import 'package:plezy/services/multi_server_manager.dart';
+import 'package:heisuca/heisuca/heisuca_source_scope.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/profiles/active_profile_provider.dart';
+import 'package:heisuca/providers/multi_server_provider.dart';
+import 'package:heisuca/services/data_aggregation_service.dart';
+import 'package:heisuca/services/multi_server_manager.dart';
 import '../test_helpers/backend_client_fixtures.dart';
 import '../test_helpers/prefs.dart';
 

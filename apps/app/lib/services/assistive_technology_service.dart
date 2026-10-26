@@ -30,7 +30,7 @@ class AssistiveTechnologyService with WidgetsBindingObserver {
   static final AssistiveTechnologyService instance = AssistiveTechnologyService._();
 
   @visibleForTesting
-  static const MethodChannel channel = MethodChannel('com.plezy/assistive_technology');
+  static const MethodChannel channel = MethodChannel('app.heisuca/assistive_technology');
 
   bool _started = false;
   Future<void>? _inFlight;

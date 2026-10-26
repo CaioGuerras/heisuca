@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/services/companion_remote/lan_discovery_service.dart';
-import 'package:plezy/services/companion_remote/remote_auth_context.dart';
-import 'package:plezy/services/companion_remote/remote_auth_service.dart';
+import 'package:heisuca/services/companion_remote/lan_discovery_service.dart';
+import 'package:heisuca/services/companion_remote/remote_auth_context.dart';
+import 'package:heisuca/services/companion_remote/remote_auth_service.dart';
 
 void main() {
   group('LanDiscoveryService', () {

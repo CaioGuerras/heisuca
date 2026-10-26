@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/media_server_client.dart';
-import 'package:plezy/services/playback_report_session.dart';
+import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/services/playback_report_session.dart';
 
 import '../test_helpers/playback_report_fakes.dart';
 

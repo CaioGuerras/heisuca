@@ -1,13 +1,13 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/database/app_database.dart';
-import 'package:plezy/exceptions/media_server_exceptions.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_server_client.dart';
-import 'package:plezy/services/api_cache.dart';
-import 'package:plezy/services/plex_api_cache.dart';
-import 'package:plezy/utils/media_server_http_client.dart';
+import 'package:heisuca/database/app_database.dart';
+import 'package:heisuca/exceptions/media_server_exceptions.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/services/api_cache.dart';
+import 'package:heisuca/services/plex_api_cache.dart';
+import 'package:heisuca/utils/media_server_http_client.dart';
 
 class _CacheClient with MediaServerCacheMixin implements MediaServerClient {
   _CacheClient(this.cache);

@@ -6,8 +6,8 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:plezy/cgflix/requests/cgflix_secure_store.dart';
-import 'package:plezy/cgflix/requests/cgflix_seerr.dart';
+import 'package:heisuca/cgflix/requests/cgflix_secure_store.dart';
+import 'package:heisuca/cgflix/requests/cgflix_seerr.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _seerr = 'https://pedidos.docaio.com.br';

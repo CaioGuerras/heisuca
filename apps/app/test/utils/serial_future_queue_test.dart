@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/utils/serial_future_queue.dart';
+import 'package:heisuca/utils/serial_future_queue.dart';
 
 void main() {
   test('a failed operation does not poison the next queued operation', () async {

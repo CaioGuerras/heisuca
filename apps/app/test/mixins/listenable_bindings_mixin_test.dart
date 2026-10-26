@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/mixins/listenable_bindings_mixin.dart';
+import 'package:heisuca/mixins/listenable_bindings_mixin.dart';
 
 class _Probe extends StatefulWidget {
   const _Probe({required this.notifier, required this.onState});

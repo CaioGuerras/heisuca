@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/utils/language_codes.dart';
+import 'package:heisuca/utils/language_codes.dart';
 
 void main() {
   test('bibliographic aliases resolve via trim, case, and variation expansion', () {

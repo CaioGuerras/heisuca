@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/focus/focusable_action_bar.dart';
-import 'package:plezy/focus/focusable_text_field.dart';
-import 'package:plezy/focus/focusable_wrapper.dart';
+import 'package:heisuca/focus/focusable_action_bar.dart';
+import 'package:heisuca/focus/focusable_text_field.dart';
+import 'package:heisuca/focus/focusable_wrapper.dart';
 
 void main() {
   testWidgets('FocusableWrapper never disposes caller-owned nodes across swaps', (tester) async {

@@ -4,16 +4,16 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/models/catalog/catalog_item.dart';
-import 'package:plezy/models/catalog/catalog_metadata.dart';
-import 'package:plezy/models/simkl/simkl_trending_item.dart';
-import 'package:plezy/services/catalog/catalog_source.dart';
-import 'package:plezy/services/catalog/simkl_catalog_source.dart';
-import 'package:plezy/services/trackers/simkl/simkl_client.dart';
-import 'package:plezy/services/trackers/simkl/simkl_constants.dart';
-import 'package:plezy/services/trackers/tracker_exceptions.dart';
-import 'package:plezy/services/trackers/tracker_session.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/models/catalog/catalog_item.dart';
+import 'package:heisuca/models/catalog/catalog_metadata.dart';
+import 'package:heisuca/models/simkl/simkl_trending_item.dart';
+import 'package:heisuca/services/catalog/catalog_source.dart';
+import 'package:heisuca/services/catalog/simkl_catalog_source.dart';
+import 'package:heisuca/services/trackers/simkl/simkl_client.dart';
+import 'package:heisuca/services/trackers/simkl/simkl_constants.dart';
+import 'package:heisuca/services/trackers/tracker_exceptions.dart';
+import 'package:heisuca/services/trackers/tracker_session.dart';
 
 TrackerSession _session() {
   final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;

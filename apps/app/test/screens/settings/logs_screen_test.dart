@@ -8,15 +8,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:logger/logger.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:plezy/focus/focusable_action_bar.dart';
-import 'package:plezy/focus/input_mode_tracker.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/screens/settings/logs_screen.dart';
-import 'package:plezy/services/diagnostic_text.dart';
-import 'package:plezy/services/startup_diagnostics.dart';
-import 'package:plezy/utils/app_logger.dart';
-import 'package:plezy/utils/platform_detector.dart';
-import 'package:plezy/widgets/app_bar_back_button.dart';
+import 'package:heisuca/focus/focusable_action_bar.dart';
+import 'package:heisuca/focus/input_mode_tracker.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/screens/settings/logs_screen.dart';
+import 'package:heisuca/services/diagnostic_text.dart';
+import 'package:heisuca/services/startup_diagnostics.dart';
+import 'package:heisuca/utils/app_logger.dart';
+import 'package:heisuca/utils/platform_detector.dart';
+import 'package:heisuca/widgets/app_bar_back_button.dart';
 
 void main() {
   setUpAll(() {

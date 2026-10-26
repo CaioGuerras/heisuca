@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:plezy/widgets/app_icon.dart';
+import 'package:heisuca/widgets/app_icon.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../cgflix/apoio/cgflix_apoio_screen.dart';
@@ -94,7 +94,6 @@ class AboutScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        const CgflixCredits(),
                         const CgflixApoioAboutLine(),
                       ],
                     ),

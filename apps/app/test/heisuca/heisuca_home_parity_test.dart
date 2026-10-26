@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/cgflix/cgflix_theme.dart';
-import 'package:plezy/cgflix/cgflix_palette.dart';
-import 'package:plezy/heisuca/heisuca_home_chrome.dart';
-import 'package:plezy/heisuca/heisuca_home_style.dart';
-import 'package:plezy/heisuca/heisuca_upcoming.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_kind.dart';
+import 'package:heisuca/cgflix/cgflix_theme.dart';
+import 'package:heisuca/cgflix/cgflix_palette.dart';
+import 'package:heisuca/heisuca/heisuca_home_chrome.dart';
+import 'package:heisuca/heisuca/heisuca_home_style.dart';
+import 'package:heisuca/heisuca/heisuca_upcoming.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_kind.dart';
 
 void main() {
   test('máscara dissolve a arte antes do fim, mantendo o fundo único da página', () {

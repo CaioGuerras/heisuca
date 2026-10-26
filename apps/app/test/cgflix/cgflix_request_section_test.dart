@@ -2,11 +2,11 @@
 // baixando, Seerr fora do ar e a escolha de temporadas. Nunca aparece formulário de login.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/cgflix/cgflix_theme.dart';
-import 'package:plezy/cgflix/requests/cgflix_requests_ui.dart';
-import 'package:plezy/cgflix/requests/cgflix_seerr.dart';
-import 'package:plezy/cgflix/search/cgflix_search_extras.dart';
-import 'package:plezy/screens/libraries/state_messages.dart';
+import 'package:heisuca/cgflix/cgflix_theme.dart';
+import 'package:heisuca/cgflix/requests/cgflix_requests_ui.dart';
+import 'package:heisuca/cgflix/requests/cgflix_seerr.dart';
+import 'package:heisuca/cgflix/search/cgflix_search_extras.dart';
+import 'package:heisuca/screens/libraries/state_messages.dart';
 
 class _FakeRequests implements CgflixRequestsBackend {
   bool up = true;

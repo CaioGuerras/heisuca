@@ -7,30 +7,30 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
-import 'package:plezy/database/app_database.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_server_client.dart';
-import 'package:plezy/media/media_source_info.dart';
-import 'package:plezy/media/server_capabilities.dart';
-import 'package:plezy/models/transcode_quality_preset.dart';
-import 'package:plezy/mpv/player/player_base.dart';
-import 'package:plezy/providers/account_preferences_controller.dart';
-import 'package:plezy/providers/companion_remote_provider.dart';
-import 'package:plezy/providers/multi_server_provider.dart';
-import 'package:plezy/providers/playback_state_provider.dart';
-import 'package:plezy/providers/shader_provider.dart';
-import 'package:plezy/screens/video_player_screen.dart';
-import 'package:plezy/services/download_storage_service.dart';
-import 'package:plezy/services/music/music_playback_service.dart';
-import 'package:plezy/services/offline_watch_sync_service.dart';
-import 'package:plezy/services/playback_coordinator.dart';
-import 'package:plezy/services/playback_initialization_types.dart';
-import 'package:plezy/services/playback_launch_observer.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/utils/video_player_navigation.dart';
-import 'package:plezy/watch_together/providers/watch_together_provider.dart';
+import 'package:heisuca/database/app_database.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/media/media_source_info.dart';
+import 'package:heisuca/media/server_capabilities.dart';
+import 'package:heisuca/models/transcode_quality_preset.dart';
+import 'package:heisuca/mpv/player/player_base.dart';
+import 'package:heisuca/providers/account_preferences_controller.dart';
+import 'package:heisuca/providers/companion_remote_provider.dart';
+import 'package:heisuca/providers/multi_server_provider.dart';
+import 'package:heisuca/providers/playback_state_provider.dart';
+import 'package:heisuca/providers/shader_provider.dart';
+import 'package:heisuca/screens/video_player_screen.dart';
+import 'package:heisuca/services/download_storage_service.dart';
+import 'package:heisuca/services/music/music_playback_service.dart';
+import 'package:heisuca/services/offline_watch_sync_service.dart';
+import 'package:heisuca/services/playback_coordinator.dart';
+import 'package:heisuca/services/playback_initialization_types.dart';
+import 'package:heisuca/services/playback_launch_observer.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/utils/video_player_navigation.dart';
+import 'package:heisuca/watch_together/providers/watch_together_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../test_helpers/hdr_startup.dart';
@@ -108,8 +108,8 @@ void main() {
     final loadfileUrls = <String>[];
 
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
         if (call.method != 'command') return null;

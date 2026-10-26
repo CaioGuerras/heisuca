@@ -3,14 +3,14 @@ import 'dart:convert';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
-import 'package:plezy/database/app_database.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/providers/multi_server_provider.dart';
-import 'package:plezy/services/data_aggregation_service.dart';
-import 'package:plezy/services/multi_server_manager.dart';
-import 'package:plezy/services/plex_api_cache.dart';
-import 'package:plezy/services/plex_client.dart';
-import 'package:plezy/utils/active_client_scope.dart';
+import 'package:heisuca/database/app_database.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/providers/multi_server_provider.dart';
+import 'package:heisuca/services/data_aggregation_service.dart';
+import 'package:heisuca/services/multi_server_manager.dart';
+import 'package:heisuca/services/plex_api_cache.dart';
+import 'package:heisuca/services/plex_client.dart';
+import 'package:heisuca/utils/active_client_scope.dart';
 
 import '../test_helpers/backend_client_fixtures.dart';
 

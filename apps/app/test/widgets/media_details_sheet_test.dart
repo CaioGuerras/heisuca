@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/focus/input_mode_tracker.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/media/media_rating.dart';
-import 'package:plezy/media/media_part.dart';
-import 'package:plezy/media/media_stream.dart';
-import 'package:plezy/media/media_version.dart';
-import 'package:plezy/utils/formatters.dart';
-import 'package:plezy/widgets/media_details_sheet.dart';
+import 'package:heisuca/focus/input_mode_tracker.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_rating.dart';
+import 'package:heisuca/media/media_part.dart';
+import 'package:heisuca/media/media_stream.dart';
+import 'package:heisuca/media/media_version.dart';
+import 'package:heisuca/utils/formatters.dart';
+import 'package:heisuca/widgets/media_details_sheet.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:plezy/media/account_preferences.dart';
-import 'package:plezy/media/media_server_user_profile.dart';
-import 'package:plezy/models/plex/plex_account_preferences.dart';
-import 'package:plezy/services/plex_account_preferences_source.dart';
-import 'package:plezy/services/plex_auth_service.dart';
-import 'package:plezy/utils/media_server_http_client.dart';
+import 'package:heisuca/media/account_preferences.dart';
+import 'package:heisuca/media/media_server_user_profile.dart';
+import 'package:heisuca/models/plex/plex_account_preferences.dart';
+import 'package:heisuca/services/plex_account_preferences_source.dart';
+import 'package:heisuca/services/plex_auth_service.dart';
+import 'package:heisuca/utils/media_server_http_client.dart';
 
 void main() {
   group('Plex account preferences', () {

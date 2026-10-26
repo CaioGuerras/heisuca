@@ -8,7 +8,7 @@ import 'package:http/http.dart';
 /// can catch with one filter and match exhaustively when they care which
 /// failure mode it is.
 ///
-/// [message] is English for stable logs and Sentry grouping. [display] is the
+/// [message] is English for stable logs. [display] is the
 /// localized user-facing text when this failure is rendered in the UI.
 sealed class MediaServerException implements Exception {
   final String message;
@@ -135,7 +135,7 @@ class RecordingConflictException extends MediaServerException {
 ///
 /// Plex signals this with `terminationCode`/`terminationText` on the
 /// MediaContainer of a timeline report response. The MediaBrowser backends
-/// deliver admin stops as a WebSocket remote-control command Plezy does not
+/// deliver admin stops as a WebSocket remote-control command Heisuca does not
 /// subscribe to, so they never throw this — intentionally unsupported there.
 ///
 /// Progress reporting must stop when this is thrown: continuing the heartbeat

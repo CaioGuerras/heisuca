@@ -4,8 +4,8 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/utils/certificate_trust.dart';
-import 'package:plezy/utils/happy_eyeballs.dart';
+import 'package:heisuca/utils/certificate_trust.dart';
+import 'package:heisuca/utils/happy_eyeballs.dart';
 
 // Self-signed CA, valid until 2126; mirrors android/.../UserCertificateChannelTest.kt.
 const _privateAuthorityPem = '''
@@ -80,7 +80,7 @@ void main() {
         same(userStore),
         reason: 'a parent-domain match must stop at a label boundary',
       );
-      for (final fixed in ['plex.tv', 'app.plex.tv', 'PLEX.TV', 'ice.plezy.app', 'api.github.com', 'image.tmdb.org']) {
+      for (final fixed in ['plex.tv', 'app.plex.tv', 'PLEX.TV', 'api.github.com', 'image.tmdb.org']) {
         expect(CertificateTrust.contextFor(fixed), isNull, reason: fixed);
       }
     });

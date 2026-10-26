@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/focus/focusable_button.dart';
-import 'package:plezy/focus/input_mode_tracker.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/screens/libraries/state_messages.dart';
+import 'package:heisuca/focus/focusable_button.dart';
+import 'package:heisuca/focus/input_mode_tracker.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/screens/libraries/state_messages.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

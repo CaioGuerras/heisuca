@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/models/livetv_channel.dart';
-import 'package:plezy/services/base_shared_preferences_service.dart';
-import 'package:plezy/services/favorite_channels_repository.dart';
-import 'package:plezy/services/prefs_recovery.dart';
+import 'package:heisuca/models/livetv_channel.dart';
+import 'package:heisuca/services/base_shared_preferences_service.dart';
+import 'package:heisuca/services/favorite_channels_repository.dart';
+import 'package:heisuca/services/prefs_recovery.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../test_helpers/prefs.dart';

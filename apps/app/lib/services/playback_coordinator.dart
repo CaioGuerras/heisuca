@@ -109,7 +109,7 @@ class PlaybackCoordinator {
   /// Bounded route exit can expose music UI while video cleanup is still
   /// retiring, but the two share nothing that has to be serialized: they are
   /// separate plugin instances on separate channels
-  /// (`com.plezy/mpv_audio_player` vs `com.plezy/mpv_player`), so neither
+  /// (`app.heisuca/mpv_audio_player` vs `app.heisuca/mpv_player`), so neither
   /// contends for `PlayerBase`'s per-channel event-channel owner; on Android
   /// each holds its own native session, handle and locks; and a retiring video
   /// core releases audio focus in the synchronous part of its dispose, before

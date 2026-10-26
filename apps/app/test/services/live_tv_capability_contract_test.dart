@@ -3,13 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
-import 'package:plezy/database/app_database.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/media/media_server_client.dart';
-import 'package:plezy/services/jellyfin_client.dart';
-import 'package:plezy/services/multi_server_manager.dart';
-import 'package:plezy/services/plex_api_cache.dart';
-import 'package:plezy/services/plex_client.dart';
+import 'package:heisuca/database/app_database.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/services/jellyfin_client.dart';
+import 'package:heisuca/services/multi_server_manager.dart';
+import 'package:heisuca/services/plex_api_cache.dart';
+import 'package:heisuca/services/plex_client.dart';
 
 import '../test_helpers/backend_client_fixtures.dart';
 import '../test_helpers/http_fixtures.dart';

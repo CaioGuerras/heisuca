@@ -124,7 +124,7 @@ class _Translations$auth$kk extends Translations$auth$en {
 	@override String get quickConnectWaiting => 'Растау күтілуде…';
 	@override String get quickConnectCancel => 'Бас тарту';
 	@override String get quickConnectExpired => 'Жылдам қосылу мерзімі өтті. Қайтадан байқап көріңіз.';
-	@override String get localDataRecoveryRequired => 'Plezy жергілікті кіру мәліметтерін қалпына келтіре алмады. Қайтадан кіріңіз.';
+	@override String get localDataRecoveryRequired => 'Heisuca жергілікті кіру мәліметтерін қалпына келтіре алмады. Қайтадан кіріңіз.';
 	@override String get pinCheckRejected => 'Plex PIN кодын тексеру қабылданбады';
 }
 
@@ -226,7 +226,7 @@ class _Translations$settings$kk extends Translations$settings$en {
 
 	// Translations
 	@override String get title => 'Баптаулар';
-	@override String get supportDeveloper => 'Plezy жобасын қолдау';
+	@override String get supportDeveloper => 'Heisuca жобасын қолдау';
 	@override String get supportDeveloperDescription => 'Дамытуды қаржыландыру үшін Liberapay арқылы демеушілік жасаңыз';
 	@override String get language => 'Тіл';
 	@override String get theme => 'Тақырып';
@@ -348,8 +348,6 @@ class _Translations$settings$kk extends Translations$settings$en {
 	@override String get watchTogetherRelayDescription => 'Жеке реле орнату. Барлығы бір серверді пайдалануы керек.';
 	@override String get watchTogetherRelayHint => 'https://my-relay.example.com';
 	@override String get watchTogetherRelayInvalid => 'Дұрыс HTTP немесе HTTPS реле мекенжайын енгізіңіз.';
-	@override String get crashReporting => 'Қателіктер туралы есеп';
-	@override String get crashReportingDescription => 'Қолданбаны жақсартуға көмектесу үшін қателіктер есебін жіберу';
 	@override String get debugLogging => 'Жөндеу журналы';
 	@override String get debugLoggingDescription => 'Мәселелерді шешу үшін толық журнал жүргізуді қосу';
 	@override String get viewLogs => 'Журналдарды көру';
@@ -368,7 +366,7 @@ class _Translations$settings$kk extends Translations$settings$en {
 	@override String get importSettingsDescription => 'Параметрлерді файлдан қалпына келтіріңіз';
 	@override String get importSettingsConfirm => 'Бұл ағымдағы баптауларыңыздың үстінен жазады. Жалғастырасыз ба?';
 	@override String get importSettingsSuccess => 'Баптаулар импортталды';
-	@override String get importSettingsInvalidFile => 'Бұл файл дұрыс Plezy баптаулар файлы емес';
+	@override String get importSettingsInvalidFile => 'Бұл файл дұрыс Heisuca баптаулар файлы емес';
 	@override String get importSettingsNoUser => 'Баптауларды импорттау алдында жүйеге кіріңіз';
 	@override String get shortcutsReset => 'Пернелер тіркесі әдепкі күйге қайтарылды';
 	@override String get about => 'Қолданба туралы';
@@ -430,8 +428,6 @@ class _Translations$settings$kk extends Translations$settings$en {
 	@override String get maxVolume => 'Максималды дыбыс';
 	@override String get maxVolumeDescription => 'Ақырын видеолар үшін дыбысты 100%-дан асыруға рұқсат беру';
 	@override String maxVolumePercent({required Object percent}) => '%${percent}';
-	@override String get discordRichPresence => 'Discord Rich Presence';
-	@override String get discordRichPresenceDescription => 'Discord-та не көріп жатқаныңызды көрсету';
 	@override String get services => 'Қызметтер';
 	@override String get servicesDescription => 'Trakt, MyAnimeList, Seerr және т.б. қосыңыз';
 	@override String get manageLibrariesDescription => 'Кітапханаларды қайта реттеу және жасыру';
@@ -489,7 +485,7 @@ class _Translations$settings$kk extends Translations$settings$en {
 	@override String get forceTvMode => 'TV режимін мәжбүрлеу';
 	@override String get forceTvModeDescription => 'TV интерфейсін мәжбүрлеу. Автоматты түрде анықталмайтын құрылғылар үшін. Қайта іске қосу қажет.';
 	@override String get startInFullscreen => 'Толық экранда бастау';
-	@override String get startInFullscreenDescription => 'Plezy-ді ашқанда толық экран режимінде ашу';
+	@override String get startInFullscreenDescription => 'Heisuca-ді ашқанда толық экран режимінде ашу';
 	@override String get exitFullscreenOnPlayerClose => 'Ойнатқыш жабылғанда толық экраннан шығу';
 	@override String get exitFullscreenOnPlayerCloseDescription => 'Видео ойнатқышты жапқанда автоматты түрде толық экраннан шығу';
 	@override String get autoHidePerformanceOverlay => 'Өнімділік панелін авто-жасыру';
@@ -538,7 +534,7 @@ class _Translations$settings$kk extends Translations$settings$en {
 	@override String get playerScopeGlobal => 'Барлық жерде';
 	@override String get playerScopeLibrary => 'Кітапхана бойынша';
 	@override String get playerScopeTitle => 'Сериал немесе фильм бойынша';
-	@override String get exportDialogTitle => 'Plezy параметрлерін экспорттау';
+	@override String get exportDialogTitle => 'Heisuca параметрлерін экспорттау';
 }
 
 // Path: search
@@ -736,8 +732,8 @@ class _Translations$mediaMenu$kk extends Translations$mediaMenu$en {
 		one: 'Сол файлда тағы ${n} бөлім сақталған, ол да өшіріледі:',
 		other: 'Сол файлда тағы ${n} бөлім сақталған, олар да өшіріледі:',
 	);
-	@override String get deleteScopeUnverifiedProbeFailed => 'Plezy қандай файлдар өшірілетінін тексере алмады, сондықтан ол жоғарыда аталған элементтен артық өшіруі мүмкін. Бас тартып, қайталап көріңіз немесе бәрібір өшіріңіз.';
-	@override String get deleteScopeUnverifiedNoFileInfo => 'Серверіңіз бұл элемент үшін файл мәліметтерін ұсынбады, сондықтан Plezy қандай файлдар өшірілетінін тексере алмайды. Ол жоғарыда аталған элементтен артық өшіруі мүмкін.';
+	@override String get deleteScopeUnverifiedProbeFailed => 'Heisuca қандай файлдар өшірілетінін тексере алмады, сондықтан ол жоғарыда аталған элементтен артық өшіруі мүмкін. Бас тартып, қайталап көріңіз немесе бәрібір өшіріңіз.';
+	@override String get deleteScopeUnverifiedNoFileInfo => 'Серверіңіз бұл элемент үшін файл мәліметтерін ұсынбады, сондықтан Heisuca қандай файлдар өшірілетінін тексере алмайды. Ол жоғарыда аталған элементтен артық өшіруі мүмкін.';
 	@override String get mediaDeletedSuccessfully => 'Медиа элементі сәтті өшірілді';
 	@override String get mediaFailedToDelete => 'Медиа элементін өшіру мүмкін болмады';
 	@override String get rate => 'Бағалау';
@@ -1070,7 +1066,7 @@ class _Translations$profiles$kk extends Translations$profiles$en {
 	final TranslationsKk _root; // ignore: unused_field
 
 	// Translations
-	@override String get addPlezyProfile => 'Plezy профилін қосу';
+	@override String get addHeisucaProfile => 'Heisuca профилін қосу';
 	@override String get switchingProfile => 'Профильді ауыстыру…';
 	@override String get deleteThisProfileTitle => 'Осы профиль өшірілсін бе?';
 	@override String deleteThisProfileMessage({required Object displayName}) => '${displayName} өшіріледі. Қосылымдарға әсер етпейді.';
@@ -1152,7 +1148,7 @@ class _Translations$connections$kk extends Translations$connections$en {
 	@override String accessDeniedMany({required Object count}) => '${count} сервер бұл тіркелгіге кіруден бас тартты';
 	@override String get signInAgain => 'Қайтадан кіру';
 	@override String editMediaBrowserTitle({required Object product}) => '${product} қосылымын өңдеу';
-	@override String editMediaBrowserIntro({required Object serverName}) => '${serverName} үшін URL мекенжайларды қосыңыз немесе өшіріңіз. Plezy ең төмен кідірісі бар қолжетімді URL мекенжайды пайдаланады.';
+	@override String editMediaBrowserIntro({required Object serverName}) => '${serverName} үшін URL мекенжайларды қосыңыз немесе өшіріңіз. Heisuca ең төмен кідірісі бар қолжетімді URL мекенжайды пайдаланады.';
 }
 
 // Path: accountPreferences
@@ -1166,7 +1162,7 @@ class _Translations$accountPreferences$kk extends Translations$accountPreference
 	@override String hubSubtitleSingle({required Object account}) => '${account} тіркелгісінде сақталған аудио, субтитр және кітапхана баптаулары';
 	@override String hubSubtitleMultiple({required Object count}) => '${count} тіркелгіде сақталған аудио, субтитр және кітапхана баптаулары';
 	@override String get pickAccount => 'Әр тіркелгі өз баптауларын сақтайды. Өңдеу үшін біреуін таңдаңыз.';
-	@override String get storedOnAccount => 'Бұл баптаулар тіркелгінің өзінде сақталады, сондықтан оған кірген әрбір қолданба оларды пайдаланады — басқа құрылғыларыңыздағы Plezy қоса.';
+	@override String get storedOnAccount => 'Бұл баптаулар тіркелгінің өзінде сақталады, сондықтан оған кірген әрбір қолданба оларды пайдаланады — басқа құрылғыларыңыздағы Heisuca қоса.';
 	@override String get noAccounts => 'Баптауға тіркелгілер жоқ';
 	@override String get noAccountsHint => 'Plex-ке кіріңіз немесе Jellyfin не Emby серверін қосыңыз, сонда сол тіркелгіде сақталған баптаулар осында көрсетіледі.';
 	@override String get unavailable => 'Бұл тіркелгіге қол жеткізу мүмкін емес';
@@ -1376,9 +1372,9 @@ class _Translations$startup$kk extends Translations$startup$en {
 	final TranslationsKk _root; // ignore: unused_field
 
 	// Translations
-	@override String get failedTitle => 'Plezy іске қосылмады';
+	@override String get failedTitle => 'Heisuca іске қосылмады';
 	@override String get failedBody => 'Іске қосу кезінде қате орын алды. Төмендегі мәліметтер ненің сәтсіз аяқталғанын көрсетеді.';
-	@override String get failedBodyRepairable => 'Plezy сақталған баптаулар файлы зақымдалған және Plezy іске қосылмас бұрын оны қайта құру қажет. Қайталау көмектеспейді — «Сақтауды қалпына келтіру» тармағын таңдаңыз.';
+	@override String get failedBodyRepairable => 'Heisuca сақталған баптаулар файлы зақымдалған және Heisuca іске қосылмас бұрын оны қайта құру қажет. Қайталау көмектеспейді — «Сақтауды қалпына келтіру» тармағын таңдаңыз.';
 	@override String get phaseLabel => 'Қадам';
 	@override String get showDetails => 'Мәліметтерді көрсету';
 	@override String get hideDetails => 'Мәліметтерді жасыру';
@@ -1387,16 +1383,16 @@ class _Translations$startup$kk extends Translations$startup$en {
 	@override String get uploadDetails => 'Мәліметтерді жүктеп жіберу';
 	@override String get repairStorage => 'Сақтауды қалпына келтіру';
 	@override String get repairTitle => 'Сақталған деректер қалпына келтірілсін бе?';
-	@override String get repairBodyCommon => 'Plezy баптаулар файлы зақымдалған және оқылмайды. Қалпына келтіру барлық баптауды әдепкі мәнге қайтарады.';
+	@override String get repairBodyCommon => 'Heisuca баптаулар файлы зақымдалған және оқылмайды. Қалпына келтіру барлық баптауды әдепкі мәнге қайтарады.';
 	@override String get repairBodyOneCredential => 'Бір сақталған кіру деректері зақымдалған және оқылмайды. Қалпына келтіру тек соны өшіреді; қалған баптауларыңызға тиіспейді.';
 	@override String get repairBodySignInsKept => 'Серверлеріңіз бен профильдеріңіз кірген күйінде қалады.';
 	@override String get repairBodySignInsLost => 'Сақталған кіру деректерін қорғайтын кілт осы файлдан қалпына келтірілмейді, сондықтан әрбір сервер мен профильге қайта кіруге тура келеді. Медиа серверіңіздегі ештеңеге әсер етілмейді.';
-	@override String get repairBodySessionsUncertain => 'Tracker-лар (MAL, AniList, Simkl, Trakt) және Seerr бөлек сақталады және сақталуы да, сақталмауы да мүмкін. Plezy не сақталғанын нақты айтады.';
+	@override String get repairBodySessionsUncertain => 'Tracker-лар (MAL, AniList, Simkl, Trakt) және Seerr бөлек сақталады және сақталуы да, сақталмауы да мүмкін. Heisuca не сақталғанын нақты айтады.';
 	@override String get repairConfirm => 'Қалпына келтіру';
 	@override String get repairSucceeded => 'Сақтау қалпына келтірілді';
 	@override String get repairNeedsRestart => 'Сақтау қалпына келтірілді — қайта іске қосу қажет';
-	@override String get restartRequiredBody => 'Деректеріңіз қалпына келтірілді, бірақ Plezy оларды пайдаланар алдында жаңадан іске қосылуы керек. Plezy жабыңыз да, қайта ашыңыз.';
-	@override String get quitPlezy => 'Plezy бағдарламасынан шығу';
+	@override String get restartRequiredBody => 'Деректеріңіз қалпына келтірілді, бірақ Heisuca оларды пайдаланар алдында жаңадан іске қосылуы керек. Heisuca жабыңыз да, қайта ашыңыз.';
+	@override String get quitHeisuca => 'Heisuca бағдарламасынан шығу';
 	@override String get repairFailed => 'Қалпына келтіру сәтсіз аяқталды';
 	@override String get repairKeptSignIns => 'Серверлеріңіз бен профильдеріңіз әлі кірген күйде.';
 	@override String get repairLostSignIns => 'Сақталған кіру деректерін қорғайтын кілт қалпына келтірілмеді. Әрбір сервер мен профильге қайта кіруге тура келеді.';
@@ -1405,7 +1401,7 @@ class _Translations$startup$kk extends Translations$startup$en {
 	@override String get backupWarning => 'Онда сіздің кіру деректеріңіз бар. Оны жүктеп жібермеңіз немесе бөліспеңіз.';
 	@override String get deleteBackup => 'Көшірмені өшіру';
 	@override String get backupDeleted => 'Көшірме өшірілді.';
-	@override String get previousFailureTitle => 'Plezy соңғы рет іске қосыла алмады';
+	@override String get previousFailureTitle => 'Heisuca соңғы рет іске қосыла алмады';
 }
 
 // Path: licenses
@@ -2155,11 +2151,11 @@ class _Translations$trakt$kk extends Translations$trakt$en {
 	@override String get connected => 'Қосылды';
 	@override String connectedAs({required Object username}) => '@${username} ретінде қосылды';
 	@override String get disconnectConfirm => 'Trakt ажыратылсын ба?';
-	@override String get disconnectConfirmBody => 'Plezy Trakt-қа деректер жіберуді тоқтатады.';
+	@override String get disconnectConfirmBody => 'Heisuca Trakt-қа деректер жіберуді тоқтатады.';
 	@override String get scrobble => 'Нақты уақытта бақылау';
 	@override String get scrobbleDescription => 'Ойнату кезінде Trakt-қа деректер жіберу.';
 	@override String get watchedSync => 'Көру мәртебесін синхрондау';
-	@override String get watchedSyncDescription => 'Plezy-де белгіленгенде Trakt-та да белгіленеді.';
+	@override String get watchedSyncDescription => 'Heisuca-де белгіленгенде Trakt-та да белгіленеді.';
 }
 
 // Path: seerr
@@ -2181,7 +2177,7 @@ class _Translations$seerr$kk extends Translations$seerr$en {
 	@override String get noSignInMethods => 'Бұл Seerr қолдау көрсетілетін кіру әдісін ұсынбайды.';
 	@override String get instance => 'Инстанция';
 	@override String get disconnectConfirm => 'Seerr ажыратылсын ба?';
-	@override String get disconnectConfirmBody => 'Plezy бұл Seerr серверін ұмытады. Кез келген уақытта қайта қосыла аласыз.';
+	@override String get disconnectConfirmBody => 'Heisuca бұл Seerr серверін ұмытады. Кез келген уақытта қайта қосыла аласыз.';
 	@override String get request => 'Сұрау салу';
 	@override String get request4k => '4K сұрау салу';
 	@override String get seasons => 'Маусымдар';
@@ -2206,7 +2202,7 @@ class _Translations$seerr$kk extends Translations$seerr$en {
 	@override String get statusBlocklisted => 'Бұғаттау тізімінде';
 	@override String couldNotReach({required Object url, required Object error}) => '${url} мекенжайына қосылу мүмкін болмады: ${error}';
 	@override String noInstanceAtUrl({required Object url, required Object status}) => '${url} мекенжайында Seerr данасы жоқ (HTTP ${status})';
-	@override String get behindAuthProxy => 'Seerr орнына аутентификация жасайтын кері прокси (SSO немесе HTTP auth) жауап берді. Plezy оның арқылы кіре алмайды: осы қолданба үшін Seerr-дің /api/v1 жолы проксиді айналып өтуіне рұқсат етіңіз немесе Seerr-ге тікелей жететін мекенжайды пайдаланыңыз.';
+	@override String get behindAuthProxy => 'Seerr орнына аутентификация жасайтын кері прокси (SSO немесе HTTP auth) жауап берді. Heisuca оның арқылы кіре алмайды: осы қолданба үшін Seerr-дің /api/v1 жолы проксиді айналып өтуіне рұқсат етіңіз немесе Seerr-ге тікелей жететін мекенжайды пайдаланыңыз.';
 	@override String get invalidUrl => 'Сервер мекенжайын енгізіңіз, мысалы: https://seerr.example.com';
 	@override String get quickConnectUnsupported => 'Бұл Seerr данасы Жылдам қосылуды қолдамайды. Оған Seerr 3.4 немесе одан жаңарақ нұсқа қажет.';
 	@override String get notInitialized => 'Бұл Seerr данасының бастапқы баптауы аяқталмаған';
@@ -2236,7 +2232,7 @@ class _Translations$services$kk extends Translations$services$en {
 	@override String get scrobble => 'Барысты автоматты бақылау';
 	@override String get scrobbleDescription => 'Эпизодты немесе фильмді көріп болғанда тізіміңізді жаңарту.';
 	@override String disconnectConfirm({required Object service}) => '${service} ажыратылсын ба?';
-	@override String disconnectConfirmBody({required Object service}) => 'Plezy ${service} жаңартуды тоқтатады. Кез келген уақытта қайта қосыла аласыз.';
+	@override String disconnectConfirmBody({required Object service}) => 'Heisuca ${service} жаңартуды тоқтатады. Кез келген уақытта қайта қосыла аласыз.';
 	@override String connectFailed({required Object service}) => '${service} қосылу мүмкін болмады. Қайтадан байқап көріңіз.';
 	@override late final _Translations$services$names$kk names = _Translations$services$names$kk._(_root);
 	@override late final _Translations$services$deviceCode$kk deviceCode = _Translations$services$deviceCode$kk._(_root);
@@ -2826,14 +2822,14 @@ class _Translations$downloads$backgroundWarning$kk extends Translations$download
 	@override String get bannerAction => 'Толығырақ';
 	@override String get sheetTitle => 'Фондық жүктеулер бұғатталған';
 	@override String get sheetTitleDegraded => 'Фондық жүктеулер шектелуі мүмкін';
-	@override String get sheetIntro => 'Android Plezy-дің фонда сенімді жүктеуіне кедергі келтіруде.';
-	@override String get sheetIntroDegraded => 'Құрылғыңыз Plezy-дің фонда қашан жүктей алатынын шектеп отыр.';
-	@override String get reasonBackgroundRestricted => 'Plezy-дің фондық жұмысы шектелген. Батарея немесе фондық пайдалануды "Шектеусіз" етіп қойыңыз.';
-	@override String get reasonStandbyRestricted => 'Android Plezy-ді шектеулі күту режиміне ауыстырды. Батарея пайдалануын "Шектеусіз" етіп қойыңыз.';
+	@override String get sheetIntro => 'Android Heisuca-дің фонда сенімді жүктеуіне кедергі келтіруде.';
+	@override String get sheetIntroDegraded => 'Құрылғыңыз Heisuca-дің фонда қашан жүктей алатынын шектеп отыр.';
+	@override String get reasonBackgroundRestricted => 'Heisuca-дің фондық жұмысы шектелген. Батарея немесе фондық пайдалануды "Шектеусіз" етіп қойыңыз.';
+	@override String get reasonStandbyRestricted => 'Android Heisuca-ді шектеулі күту режиміне ауыстырды. Батарея пайдалануын "Шектеусіз" етіп қойыңыз.';
 	@override String get reasonDownloadChannelBlocked => 'Жүктеу хабарландырулары өшірілген, сондықтан жүктеу барысы мен басқару элементтері қолжетімсіз болуы мүмкін.';
 	@override String get reasonNotificationsDisabled => 'Хабарландырулар өшірілген. Android 13 және одан жаңа нұсқаларда ұзақ фондық жүктеулер үшін олар қажет.';
 	@override String get reasonDataSaver => 'Трафикті үнемдеу қосулы, бұл мобильді деректер арқылы фондық жүктеулерді бұғаттайды. Wi-Fi арқылы жүктеулер жұмыс істеуі тиіс.';
-	@override String get reasonOemUnknown => 'Plezy фонда тұрғанда жүктеулер бірнеше рет тоқтады. Plezy-дің батарея немесе фондық пайдалану баптауларын тексеріңіз.';
+	@override String get reasonOemUnknown => 'Heisuca фонда тұрғанда жүктеулер бірнеше рет тоқтады. Heisuca-дің батарея немесе фондық пайдалану баптауларын тексеріңіз.';
 	@override String get openSettings => 'Баптауларды ашу';
 	@override String get stillNotWorking => 'Құрылғыға арналған көмек';
 	@override String get stillNotWorkingDescription => 'Құрылғыңызға арналған қадамдарды қараңыз немесе мәселе жалғасса Баптаулар › Журналдарды көру бөлімінен журнал жіберіңіз.';
@@ -2887,12 +2883,12 @@ class _Translations$companionRemote$pairing$kk extends Translations$companionRem
 	final TranslationsKk _root; // ignore: unused_field
 
 	// Translations
-	@override String get discoveryDescription => 'Бірдей Plex тіркелгісіндегі Plezy құрылғылары мұнда көрінеді';
+	@override String get discoveryDescription => 'Бірдей Plex тіркелгісіндегі Heisuca құрылғылары мұнда көрінеді';
 	@override String get hostAddressHint => '192.168.1.100:48632';
 	@override String get connecting => 'Қосылуда...';
 	@override String get searchingForDevices => 'Құрылғылар ізделуде...';
 	@override String get noDevicesFound => 'Желіде құрылғылар табылмады';
-	@override String get noDevicesHint => 'ПК-де Plezy-ді ашып, бір Wi-Fi-ға қосылыңыз';
+	@override String get noDevicesHint => 'ПК-де Heisuca-ді ашып, бір Wi-Fi-ға қосылыңыз';
 	@override String get availableDevices => 'Қолжетімді құрылғылар';
 	@override String get manualConnection => 'Қолмен қосылу';
 	@override String get cryptoInitFailed => 'Қауіпсіз қосылым қатесі. Алдымен Plex-ке кіріңіз.';
@@ -2978,7 +2974,7 @@ class _Translations$services$deviceCode$kk extends Translations$services$deviceC
 	final TranslationsKk _root; // ignore: unused_field
 
 	// Translations
-	@override String title({required Object service}) => 'Plezy-ді ${service} қызметінде белсендіру';
+	@override String title({required Object service}) => 'Heisuca-ді ${service} қызметінде белсендіру';
 	@override String get instructions => 'QR кодын сканерлеңіз немесе төмендегі мекенжайға өтіп, мына кодты енгізіңіз:';
 	@override String openToActivate({required Object service}) => 'Белсендіру үшін ${service} ашу';
 	@override String get copyCode => 'Белсендіру кодын көшіру';
@@ -3054,7 +3050,7 @@ extension on TranslationsKk {
 			'auth.quickConnectWaiting' => 'Растау күтілуде…',
 			'auth.quickConnectCancel' => 'Бас тарту',
 			'auth.quickConnectExpired' => 'Жылдам қосылу мерзімі өтті. Қайтадан байқап көріңіз.',
-			'auth.localDataRecoveryRequired' => 'Plezy жергілікті кіру мәліметтерін қалпына келтіре алмады. Қайтадан кіріңіз.',
+			'auth.localDataRecoveryRequired' => 'Heisuca жергілікті кіру мәліметтерін қалпына келтіре алмады. Қайтадан кіріңіз.',
 			'auth.pinCheckRejected' => 'Plex PIN кодын тексеру қабылданбады',
 			'common.cancel' => 'Бас тарту',
 			'common.save' => 'Сақтау',
@@ -3141,7 +3137,7 @@ extension on TranslationsKk {
 			'update.latestVersion' => 'Сізде ең соңғы нұсқа орнатылған',
 			'update.checkFailed' => 'Жаңартуларды тексеру мүмкін болмады',
 			'settings.title' => 'Баптаулар',
-			'settings.supportDeveloper' => 'Plezy жобасын қолдау',
+			'settings.supportDeveloper' => 'Heisuca жобасын қолдау',
 			'settings.supportDeveloperDescription' => 'Дамытуды қаржыландыру үшін Liberapay арқылы демеушілік жасаңыз',
 			'settings.language' => 'Тіл',
 			'settings.theme' => 'Тақырып',
@@ -3263,8 +3259,6 @@ extension on TranslationsKk {
 			'settings.watchTogetherRelayDescription' => 'Жеке реле орнату. Барлығы бір серверді пайдалануы керек.',
 			'settings.watchTogetherRelayHint' => 'https://my-relay.example.com',
 			'settings.watchTogetherRelayInvalid' => 'Дұрыс HTTP немесе HTTPS реле мекенжайын енгізіңіз.',
-			'settings.crashReporting' => 'Қателіктер туралы есеп',
-			'settings.crashReportingDescription' => 'Қолданбаны жақсартуға көмектесу үшін қателіктер есебін жіберу',
 			'settings.debugLogging' => 'Жөндеу журналы',
 			'settings.debugLoggingDescription' => 'Мәселелерді шешу үшін толық журнал жүргізуді қосу',
 			'settings.viewLogs' => 'Журналдарды көру',
@@ -3283,7 +3277,7 @@ extension on TranslationsKk {
 			'settings.importSettingsDescription' => 'Параметрлерді файлдан қалпына келтіріңіз',
 			'settings.importSettingsConfirm' => 'Бұл ағымдағы баптауларыңыздың үстінен жазады. Жалғастырасыз ба?',
 			'settings.importSettingsSuccess' => 'Баптаулар импортталды',
-			'settings.importSettingsInvalidFile' => 'Бұл файл дұрыс Plezy баптаулар файлы емес',
+			'settings.importSettingsInvalidFile' => 'Бұл файл дұрыс Heisuca баптаулар файлы емес',
 			'settings.importSettingsNoUser' => 'Баптауларды импорттау алдында жүйеге кіріңіз',
 			'settings.shortcutsReset' => 'Пернелер тіркесі әдепкі күйге қайтарылды',
 			'settings.about' => 'Қолданба туралы',
@@ -3345,8 +3339,6 @@ extension on TranslationsKk {
 			'settings.maxVolume' => 'Максималды дыбыс',
 			'settings.maxVolumeDescription' => 'Ақырын видеолар үшін дыбысты 100%-дан асыруға рұқсат беру',
 			'settings.maxVolumePercent' => ({required Object percent}) => '%${percent}',
-			'settings.discordRichPresence' => 'Discord Rich Presence',
-			'settings.discordRichPresenceDescription' => 'Discord-та не көріп жатқаныңызды көрсету',
 			'settings.services' => 'Қызметтер',
 			'settings.servicesDescription' => 'Trakt, MyAnimeList, Seerr және т.б. қосыңыз',
 			'settings.manageLibrariesDescription' => 'Кітапханаларды қайта реттеу және жасыру',
@@ -3404,7 +3396,7 @@ extension on TranslationsKk {
 			'settings.forceTvMode' => 'TV режимін мәжбүрлеу',
 			'settings.forceTvModeDescription' => 'TV интерфейсін мәжбүрлеу. Автоматты түрде анықталмайтын құрылғылар үшін. Қайта іске қосу қажет.',
 			'settings.startInFullscreen' => 'Толық экранда бастау',
-			'settings.startInFullscreenDescription' => 'Plezy-ді ашқанда толық экран режимінде ашу',
+			'settings.startInFullscreenDescription' => 'Heisuca-ді ашқанда толық экран режимінде ашу',
 			'settings.exitFullscreenOnPlayerClose' => 'Ойнатқыш жабылғанда толық экраннан шығу',
 			'settings.exitFullscreenOnPlayerCloseDescription' => 'Видео ойнатқышты жапқанда автоматты түрде толық экраннан шығу',
 			'settings.autoHidePerformanceOverlay' => 'Өнімділік панелін авто-жасыру',
@@ -3453,7 +3445,7 @@ extension on TranslationsKk {
 			'settings.playerScopeGlobal' => 'Барлық жерде',
 			'settings.playerScopeLibrary' => 'Кітапхана бойынша',
 			'settings.playerScopeTitle' => 'Сериал немесе фильм бойынша',
-			'settings.exportDialogTitle' => 'Plezy параметрлерін экспорттау',
+			'settings.exportDialogTitle' => 'Heisuca параметрлерін экспорттау',
 			'search.hint' => 'Фильмдер, сериалдар, музыка іздеу...',
 			'search.tryDifferentTerm' => 'Басқа іздеу сөзін байқап көріңіз',
 			'search.searchYourMedia' => 'Медиафайлдардан іздеу',
@@ -3550,12 +3542,12 @@ extension on TranslationsKk {
 			'fileInfo.streamId' => 'Ағын ID',
 			'fileInfo.language' => 'Тіл',
 			'fileInfo.languageCode' => 'Тіл коды',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.streamTitle' => 'Трек атауы',
 			'fileInfo.channels' => 'Арналар',
 			'fileInfo.sampleRate' => 'Дискретизация жиілігі',
 			'fileInfo.spatialAudio' => 'Кеңістіктік аудио',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.textBased' => 'Мәтіндік',
 			'fileInfo.subtitleFormat' => 'Қосалқы формат',
 			'fileInfo.provider' => 'Провайдер',
@@ -3632,8 +3624,8 @@ extension on TranslationsKk {
 			'mediaMenu.deleteEpisodeCountWarning' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('kk'))(n, one: 'Бұл ондағы ${n} бөлімді және оның файлын өшіреді.', other: 'Бұл ондағы барлық ${n} бөлімді және олардың файлдарын өшіреді.', ), 
 			'mediaMenu.deleteMultiPartWarning' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('kk'))(n, one: 'Бұл элемент ${n} файл ретінде сақталған, ол өшіріледі.', other: 'Бұл элемент ${n} файлда сақталған, олардың барлығы өшіріледі.', ), 
 			'mediaMenu.deleteSharedFileHeading' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('kk'))(n, one: 'Сол файлда тағы ${n} бөлім сақталған, ол да өшіріледі:', other: 'Сол файлда тағы ${n} бөлім сақталған, олар да өшіріледі:', ), 
-			'mediaMenu.deleteScopeUnverifiedProbeFailed' => 'Plezy қандай файлдар өшірілетінін тексере алмады, сондықтан ол жоғарыда аталған элементтен артық өшіруі мүмкін. Бас тартып, қайталап көріңіз немесе бәрібір өшіріңіз.',
-			'mediaMenu.deleteScopeUnverifiedNoFileInfo' => 'Серверіңіз бұл элемент үшін файл мәліметтерін ұсынбады, сондықтан Plezy қандай файлдар өшірілетінін тексере алмайды. Ол жоғарыда аталған элементтен артық өшіруі мүмкін.',
+			'mediaMenu.deleteScopeUnverifiedProbeFailed' => 'Heisuca қандай файлдар өшірілетінін тексере алмады, сондықтан ол жоғарыда аталған элементтен артық өшіруі мүмкін. Бас тартып, қайталап көріңіз немесе бәрібір өшіріңіз.',
+			'mediaMenu.deleteScopeUnverifiedNoFileInfo' => 'Серверіңіз бұл элемент үшін файл мәліметтерін ұсынбады, сондықтан Heisuca қандай файлдар өшірілетінін тексере алмайды. Ол жоғарыда аталған элементтен артық өшіруі мүмкін.',
 			'mediaMenu.mediaDeletedSuccessfully' => 'Медиа элементі сәтті өшірілді',
 			'mediaMenu.mediaFailedToDelete' => 'Медиа элементін өшіру мүмкін болмады',
 			'mediaMenu.rate' => 'Бағалау',
@@ -3880,7 +3872,7 @@ extension on TranslationsKk {
 			'mpvConfig.removeLine' => 'Жолды өшіру',
 			'mpvConfig.embeddedVoHint' => 'vo, gpu-context және gpu-api Linux-те еленбейді: ендірілген бейне әрқашан бейне жазықтығында vo=libmpv арқылы көрсетіледі, ал gpu-next (ArtCNN сияқты compute шейдерлеріне қажет) ендірілген режимде жұмыс істей алмайды.',
 			'dialog.confirmAction' => 'Әрекетті растау',
-			'profiles.addPlezyProfile' => 'Plezy профилін қосу',
+			'profiles.addHeisucaProfile' => 'Heisuca профилін қосу',
 			'profiles.switchingProfile' => 'Профильді ауыстыру…',
 			'profiles.deleteThisProfileTitle' => 'Осы профиль өшірілсін бе?',
 			'profiles.deleteThisProfileMessage' => ({required Object displayName}) => '${displayName} өшіріледі. Қосылымдарға әсер етпейді.',
@@ -3953,12 +3945,12 @@ extension on TranslationsKk {
 			'connections.accessDeniedMany' => ({required Object count}) => '${count} сервер бұл тіркелгіге кіруден бас тартты',
 			'connections.signInAgain' => 'Қайтадан кіру',
 			'connections.editMediaBrowserTitle' => ({required Object product}) => '${product} қосылымын өңдеу',
-			'connections.editMediaBrowserIntro' => ({required Object serverName}) => '${serverName} үшін URL мекенжайларды қосыңыз немесе өшіріңіз. Plezy ең төмен кідірісі бар қолжетімді URL мекенжайды пайдаланады.',
+			'connections.editMediaBrowserIntro' => ({required Object serverName}) => '${serverName} үшін URL мекенжайларды қосыңыз немесе өшіріңіз. Heisuca ең төмен кідірісі бар қолжетімді URL мекенжайды пайдаланады.',
 			'accountPreferences.sectionTitle' => 'Тіркелгі баптаулары',
 			'accountPreferences.hubSubtitleSingle' => ({required Object account}) => '${account} тіркелгісінде сақталған аудио, субтитр және кітапхана баптаулары',
 			'accountPreferences.hubSubtitleMultiple' => ({required Object count}) => '${count} тіркелгіде сақталған аудио, субтитр және кітапхана баптаулары',
 			'accountPreferences.pickAccount' => 'Әр тіркелгі өз баптауларын сақтайды. Өңдеу үшін біреуін таңдаңыз.',
-			'accountPreferences.storedOnAccount' => 'Бұл баптаулар тіркелгінің өзінде сақталады, сондықтан оған кірген әрбір қолданба оларды пайдаланады — басқа құрылғыларыңыздағы Plezy қоса.',
+			'accountPreferences.storedOnAccount' => 'Бұл баптаулар тіркелгінің өзінде сақталады, сондықтан оған кірген әрбір қолданба оларды пайдаланады — басқа құрылғыларыңыздағы Heisuca қоса.',
 			'accountPreferences.noAccounts' => 'Баптауға тіркелгілер жоқ',
 			'accountPreferences.noAccountsHint' => 'Plex-ке кіріңіз немесе Jellyfin не Emby серверін қосыңыз, сонда сол тіркелгіде сақталған баптаулар осында көрсетіледі.',
 			'accountPreferences.unavailable' => 'Бұл тіркелгіге қол жеткізу мүмкін емес',
@@ -4064,12 +4056,12 @@ extension on TranslationsKk {
 			'libraries.refreshMetadata' => 'Метадеректерді жаңарту',
 			'libraries.emptyTrash' => 'Себетті тазалау',
 			'libraries.emptyingTrash' => ({required Object title}) => '"${title}" себеті тазалануда...',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.trashEmptied' => ({required Object title}) => '"${title}" себеті тазаланды',
 			'libraries.failedToEmptyTrash' => ({required Object error}) => 'Себетті тазалау мүмкін болмады: ${error}',
 			'libraries.analyzing' => ({required Object title}) => '"${title}" талдануда...',
 			'libraries.analysisStarted' => ({required Object title}) => '"${title}" үшін талдау басталды',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Талдау жасау мүмкін болмады: ${error}',
 			'libraries.noLibrariesFound' => 'Кітапханалар табылмады',
 			'libraries.allLibrariesHidden' => 'Барлық кітапханалар жасырылған',
@@ -4158,9 +4150,9 @@ extension on TranslationsKk {
 			'logs.clearLogs' => 'Журналдарды тазалау',
 			'logs.copyLogs' => 'Журналдарды көшіру',
 			'logs.uploadLogs' => 'Журналдарды жүктеу',
-			'startup.failedTitle' => 'Plezy іске қосылмады',
+			'startup.failedTitle' => 'Heisuca іске қосылмады',
 			'startup.failedBody' => 'Іске қосу кезінде қате орын алды. Төмендегі мәліметтер ненің сәтсіз аяқталғанын көрсетеді.',
-			'startup.failedBodyRepairable' => 'Plezy сақталған баптаулар файлы зақымдалған және Plezy іске қосылмас бұрын оны қайта құру қажет. Қайталау көмектеспейді — «Сақтауды қалпына келтіру» тармағын таңдаңыз.',
+			'startup.failedBodyRepairable' => 'Heisuca сақталған баптаулар файлы зақымдалған және Heisuca іске қосылмас бұрын оны қайта құру қажет. Қайталау көмектеспейді — «Сақтауды қалпына келтіру» тармағын таңдаңыз.',
 			'startup.phaseLabel' => 'Қадам',
 			'startup.showDetails' => 'Мәліметтерді көрсету',
 			'startup.hideDetails' => 'Мәліметтерді жасыру',
@@ -4169,16 +4161,16 @@ extension on TranslationsKk {
 			'startup.uploadDetails' => 'Мәліметтерді жүктеп жіберу',
 			'startup.repairStorage' => 'Сақтауды қалпына келтіру',
 			'startup.repairTitle' => 'Сақталған деректер қалпына келтірілсін бе?',
-			'startup.repairBodyCommon' => 'Plezy баптаулар файлы зақымдалған және оқылмайды. Қалпына келтіру барлық баптауды әдепкі мәнге қайтарады.',
+			'startup.repairBodyCommon' => 'Heisuca баптаулар файлы зақымдалған және оқылмайды. Қалпына келтіру барлық баптауды әдепкі мәнге қайтарады.',
 			'startup.repairBodyOneCredential' => 'Бір сақталған кіру деректері зақымдалған және оқылмайды. Қалпына келтіру тек соны өшіреді; қалған баптауларыңызға тиіспейді.',
 			'startup.repairBodySignInsKept' => 'Серверлеріңіз бен профильдеріңіз кірген күйінде қалады.',
 			'startup.repairBodySignInsLost' => 'Сақталған кіру деректерін қорғайтын кілт осы файлдан қалпына келтірілмейді, сондықтан әрбір сервер мен профильге қайта кіруге тура келеді. Медиа серверіңіздегі ештеңеге әсер етілмейді.',
-			'startup.repairBodySessionsUncertain' => 'Tracker-лар (MAL, AniList, Simkl, Trakt) және Seerr бөлек сақталады және сақталуы да, сақталмауы да мүмкін. Plezy не сақталғанын нақты айтады.',
+			'startup.repairBodySessionsUncertain' => 'Tracker-лар (MAL, AniList, Simkl, Trakt) және Seerr бөлек сақталады және сақталуы да, сақталмауы да мүмкін. Heisuca не сақталғанын нақты айтады.',
 			'startup.repairConfirm' => 'Қалпына келтіру',
 			'startup.repairSucceeded' => 'Сақтау қалпына келтірілді',
 			'startup.repairNeedsRestart' => 'Сақтау қалпына келтірілді — қайта іске қосу қажет',
-			'startup.restartRequiredBody' => 'Деректеріңіз қалпына келтірілді, бірақ Plezy оларды пайдаланар алдында жаңадан іске қосылуы керек. Plezy жабыңыз да, қайта ашыңыз.',
-			'startup.quitPlezy' => 'Plezy бағдарламасынан шығу',
+			'startup.restartRequiredBody' => 'Деректеріңіз қалпына келтірілді, бірақ Heisuca оларды пайдаланар алдында жаңадан іске қосылуы керек. Heisuca жабыңыз да, қайта ашыңыз.',
+			'startup.quitHeisuca' => 'Heisuca бағдарламасынан шығу',
 			'startup.repairFailed' => 'Қалпына келтіру сәтсіз аяқталды',
 			'startup.repairKeptSignIns' => 'Серверлеріңіз бен профильдеріңіз әлі кірген күйде.',
 			'startup.repairLostSignIns' => 'Сақталған кіру деректерін қорғайтын кілт қалпына келтірілмеді. Әрбір сервер мен профильге қайта кіруге тура келеді.',
@@ -4187,7 +4179,7 @@ extension on TranslationsKk {
 			'startup.backupWarning' => 'Онда сіздің кіру деректеріңіз бар. Оны жүктеп жібермеңіз немесе бөліспеңіз.',
 			'startup.deleteBackup' => 'Көшірмені өшіру',
 			'startup.backupDeleted' => 'Көшірме өшірілді.',
-			'startup.previousFailureTitle' => 'Plezy соңғы рет іске қосыла алмады',
+			'startup.previousFailureTitle' => 'Heisuca соңғы рет іске қосыла алмады',
 			'licenses.relatedPackages' => 'Байланысты пакеттер',
 			'licenses.license' => 'Лицензия',
 			'licenses.licenseNumber' => ({required Object number}) => 'Лицензия ${number}',
@@ -4578,12 +4570,12 @@ extension on TranslationsKk {
 			'watchTogether.renameRoom' => 'Бөлме атын өзгерткіңіз келе ме?',
 			'watchTogether.removeRoom' => 'Өшіру',
 			'watchTogether.guestSwitchUnavailable' => 'Ауысу мүмкін болмады — сервер синхрондау үшін қолжетімсіз',
-			_ => null,
-		} ?? switch (path) {
 			'watchTogether.guestSwitchFailed' => 'Ауысу мүмкін болмады — мазмұн табылмады',
 			'watchTogether.defaultDisplayName' => 'Пайдаланушы',
 			'watchTogether.errors.timedOut' => 'Реле сервері уақытында жауап бермеді',
 			'watchTogether.errors.connectionLost' => 'Сеанс дайын болмай тұрып байланыс үзілді',
+			_ => null,
+		} ?? switch (path) {
 			'watchTogether.errors.invalidRelayResponse' => 'Реле сервері күтпеген жауап жіберді',
 			'watchTogether.errors.sessionEnded' => 'Ұйымдастырушы сеансты аяқтады',
 			'watchTogether.errors.sessionUnavailable' => 'Бұл сеансты жалғастыру мүмкін емес. Жалғастыру үшін бөлмеге қосылыңыз немесе бөлме жасаңыз.',
@@ -4668,14 +4660,14 @@ extension on TranslationsKk {
 			'downloads.backgroundWarning.bannerAction' => 'Толығырақ',
 			'downloads.backgroundWarning.sheetTitle' => 'Фондық жүктеулер бұғатталған',
 			'downloads.backgroundWarning.sheetTitleDegraded' => 'Фондық жүктеулер шектелуі мүмкін',
-			'downloads.backgroundWarning.sheetIntro' => 'Android Plezy-дің фонда сенімді жүктеуіне кедергі келтіруде.',
-			'downloads.backgroundWarning.sheetIntroDegraded' => 'Құрылғыңыз Plezy-дің фонда қашан жүктей алатынын шектеп отыр.',
-			'downloads.backgroundWarning.reasonBackgroundRestricted' => 'Plezy-дің фондық жұмысы шектелген. Батарея немесе фондық пайдалануды "Шектеусіз" етіп қойыңыз.',
-			'downloads.backgroundWarning.reasonStandbyRestricted' => 'Android Plezy-ді шектеулі күту режиміне ауыстырды. Батарея пайдалануын "Шектеусіз" етіп қойыңыз.',
+			'downloads.backgroundWarning.sheetIntro' => 'Android Heisuca-дің фонда сенімді жүктеуіне кедергі келтіруде.',
+			'downloads.backgroundWarning.sheetIntroDegraded' => 'Құрылғыңыз Heisuca-дің фонда қашан жүктей алатынын шектеп отыр.',
+			'downloads.backgroundWarning.reasonBackgroundRestricted' => 'Heisuca-дің фондық жұмысы шектелген. Батарея немесе фондық пайдалануды "Шектеусіз" етіп қойыңыз.',
+			'downloads.backgroundWarning.reasonStandbyRestricted' => 'Android Heisuca-ді шектеулі күту режиміне ауыстырды. Батарея пайдалануын "Шектеусіз" етіп қойыңыз.',
 			'downloads.backgroundWarning.reasonDownloadChannelBlocked' => 'Жүктеу хабарландырулары өшірілген, сондықтан жүктеу барысы мен басқару элементтері қолжетімсіз болуы мүмкін.',
 			'downloads.backgroundWarning.reasonNotificationsDisabled' => 'Хабарландырулар өшірілген. Android 13 және одан жаңа нұсқаларда ұзақ фондық жүктеулер үшін олар қажет.',
 			'downloads.backgroundWarning.reasonDataSaver' => 'Трафикті үнемдеу қосулы, бұл мобильді деректер арқылы фондық жүктеулерді бұғаттайды. Wi-Fi арқылы жүктеулер жұмыс істеуі тиіс.',
-			'downloads.backgroundWarning.reasonOemUnknown' => 'Plezy фонда тұрғанда жүктеулер бірнеше рет тоқтады. Plezy-дің батарея немесе фондық пайдалану баптауларын тексеріңіз.',
+			'downloads.backgroundWarning.reasonOemUnknown' => 'Heisuca фонда тұрғанда жүктеулер бірнеше рет тоқтады. Heisuca-дің батарея немесе фондық пайдалану баптауларын тексеріңіз.',
 			'downloads.backgroundWarning.openSettings' => 'Баптауларды ашу',
 			'downloads.backgroundWarning.stillNotWorking' => 'Құрылғыға арналған көмек',
 			'downloads.backgroundWarning.stillNotWorkingDescription' => 'Құрылғыңызға арналған қадамдарды қараңыз немесе мәселе жалғасса Баптаулар › Журналдарды көру бөлімінен журнал жіберіңіз.',
@@ -4738,12 +4730,12 @@ extension on TranslationsKk {
 			'companionRemote.session.stopServer' => 'Серверді тоқтату',
 			'companionRemote.session.minimize' => 'Жию',
 			'companionRemote.session.manualAddressHint' => 'Қолмен қосылу мекенжайы:',
-			'companionRemote.pairing.discoveryDescription' => 'Бірдей Plex тіркелгісіндегі Plezy құрылғылары мұнда көрінеді',
+			'companionRemote.pairing.discoveryDescription' => 'Бірдей Plex тіркелгісіндегі Heisuca құрылғылары мұнда көрінеді',
 			'companionRemote.pairing.hostAddressHint' => '192.168.1.100:48632',
 			'companionRemote.pairing.connecting' => 'Қосылуда...',
 			'companionRemote.pairing.searchingForDevices' => 'Құрылғылар ізделуде...',
 			'companionRemote.pairing.noDevicesFound' => 'Желіде құрылғылар табылмады',
-			'companionRemote.pairing.noDevicesHint' => 'ПК-де Plezy-ді ашып, бір Wi-Fi-ға қосылыңыз',
+			'companionRemote.pairing.noDevicesHint' => 'ПК-де Heisuca-ді ашып, бір Wi-Fi-ға қосылыңыз',
 			'companionRemote.pairing.availableDevices' => 'Қолжетімді құрылғылар',
 			'companionRemote.pairing.manualConnection' => 'Қолмен қосылу',
 			'companionRemote.pairing.cryptoInitFailed' => 'Қауіпсіз қосылым қатесі. Алдымен Plex-ке кіріңіз.',
@@ -4970,11 +4962,11 @@ extension on TranslationsKk {
 			'trakt.connected' => 'Қосылды',
 			'trakt.connectedAs' => ({required Object username}) => '@${username} ретінде қосылды',
 			'trakt.disconnectConfirm' => 'Trakt ажыратылсын ба?',
-			'trakt.disconnectConfirmBody' => 'Plezy Trakt-қа деректер жіберуді тоқтатады.',
+			'trakt.disconnectConfirmBody' => 'Heisuca Trakt-қа деректер жіберуді тоқтатады.',
 			'trakt.scrobble' => 'Нақты уақытта бақылау',
 			'trakt.scrobbleDescription' => 'Ойнату кезінде Trakt-қа деректер жіберу.',
 			'trakt.watchedSync' => 'Көру мәртебесін синхрондау',
-			'trakt.watchedSyncDescription' => 'Plezy-де белгіленгенде Trakt-та да белгіленеді.',
+			'trakt.watchedSyncDescription' => 'Heisuca-де белгіленгенде Trakt-та да белгіленеді.',
 			'seerr.title' => 'Seerr',
 			'seerr.connectTitle' => 'Seerr қосу',
 			'seerr.serverUrl' => 'Сервер URL-і',
@@ -4987,7 +4979,7 @@ extension on TranslationsKk {
 			'seerr.noSignInMethods' => 'Бұл Seerr қолдау көрсетілетін кіру әдісін ұсынбайды.',
 			'seerr.instance' => 'Инстанция',
 			'seerr.disconnectConfirm' => 'Seerr ажыратылсын ба?',
-			'seerr.disconnectConfirmBody' => 'Plezy бұл Seerr серверін ұмытады. Кез келген уақытта қайта қосыла аласыз.',
+			'seerr.disconnectConfirmBody' => 'Heisuca бұл Seerr серверін ұмытады. Кез келген уақытта қайта қосыла аласыз.',
 			'seerr.request' => 'Сұрау салу',
 			'seerr.request4k' => '4K сұрау салу',
 			'seerr.seasons' => 'Маусымдар',
@@ -5012,7 +5004,7 @@ extension on TranslationsKk {
 			'seerr.statusBlocklisted' => 'Бұғаттау тізімінде',
 			'seerr.couldNotReach' => ({required Object url, required Object error}) => '${url} мекенжайына қосылу мүмкін болмады: ${error}',
 			'seerr.noInstanceAtUrl' => ({required Object url, required Object status}) => '${url} мекенжайында Seerr данасы жоқ (HTTP ${status})',
-			'seerr.behindAuthProxy' => 'Seerr орнына аутентификация жасайтын кері прокси (SSO немесе HTTP auth) жауап берді. Plezy оның арқылы кіре алмайды: осы қолданба үшін Seerr-дің /api/v1 жолы проксиді айналып өтуіне рұқсат етіңіз немесе Seerr-ге тікелей жететін мекенжайды пайдаланыңыз.',
+			'seerr.behindAuthProxy' => 'Seerr орнына аутентификация жасайтын кері прокси (SSO немесе HTTP auth) жауап берді. Heisuca оның арқылы кіре алмайды: осы қолданба үшін Seerr-дің /api/v1 жолы проксиді айналып өтуіне рұқсат етіңіз немесе Seerr-ге тікелей жететін мекенжайды пайдаланыңыз.',
 			'seerr.invalidUrl' => 'Сервер мекенжайын енгізіңіз, мысалы: https://seerr.example.com',
 			'seerr.quickConnectUnsupported' => 'Бұл Seerr данасы Жылдам қосылуды қолдамайды. Оған Seerr 3.4 немесе одан жаңарақ нұсқа қажет.',
 			'seerr.notInitialized' => 'Бұл Seerr данасының бастапқы баптауы аяқталмаған',
@@ -5033,14 +5025,14 @@ extension on TranslationsKk {
 			'services.scrobble' => 'Барысты автоматты бақылау',
 			'services.scrobbleDescription' => 'Эпизодты немесе фильмді көріп болғанда тізіміңізді жаңарту.',
 			'services.disconnectConfirm' => ({required Object service}) => '${service} ажыратылсын ба?',
-			'services.disconnectConfirmBody' => ({required Object service}) => 'Plezy ${service} жаңартуды тоқтатады. Кез келген уақытта қайта қосыла аласыз.',
+			'services.disconnectConfirmBody' => ({required Object service}) => 'Heisuca ${service} жаңартуды тоқтатады. Кез келген уақытта қайта қосыла аласыз.',
 			'services.connectFailed' => ({required Object service}) => '${service} қосылу мүмкін болмады. Қайтадан байқап көріңіз.',
 			'services.names.mal' => 'MyAnimeList',
 			'services.names.anilist' => 'AniList',
 			'services.names.simkl' => 'Simkl',
 			'services.names.seerr' => 'Seerr',
 			'services.names.mdblist' => 'MDBList',
-			'services.deviceCode.title' => ({required Object service}) => 'Plezy-ді ${service} қызметінде белсендіру',
+			'services.deviceCode.title' => ({required Object service}) => 'Heisuca-ді ${service} қызметінде белсендіру',
 			'services.deviceCode.instructions' => 'QR кодын сканерлеңіз немесе төмендегі мекенжайға өтіп, мына кодты енгізіңіз:',
 			'services.deviceCode.openToActivate' => ({required Object service}) => 'Белсендіру үшін ${service} ашу',
 			'services.deviceCode.copyCode' => 'Белсендіру кодын көшіру',
@@ -5092,12 +5084,12 @@ extension on TranslationsKk {
 			'addServer.borrowFromAnotherProfile' => 'Басқа профильден алу',
 			'addServer.borrowFromAnotherProfileSubtitle' => 'Басқа профильдің қосылымын қайта пайдалану. PIN кодпен қорғалған профильдер PIN кодты талап етеді.',
 			'addServer.invalidCredentials' => 'Пайдаланушы аты немесе құпия сөз қате',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.authResponseNotJson' => 'Аутентификация жауабы жарамды JSON болмады',
 			'addServer.authResponseIncomplete' => 'Сервердің кіру жауабы толық емес',
 			'addServer.quickConnectRejected' => 'Сервер Quick Connect сұрауын қабылдамады',
 			'addServer.quickConnectNotJson' => 'Quick Connect жауабы жарамды JSON болмады',
+			_ => null,
+		} ?? switch (path) {
 			'addServer.quickConnectMissingFields' => 'Quick Connect жауабында код немесе құпия кілт жоқ',
 			'addServer.quickConnectPollRejected' => 'Сервер Quick Connect сұрауын тексеруді қабылдамады',
 			'addServer.serverTimedOut' => 'Сервер уақытында жауап бермеді',

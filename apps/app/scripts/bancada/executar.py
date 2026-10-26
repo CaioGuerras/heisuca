@@ -13,6 +13,7 @@ import time
 from servidor import BancadaIndisponivel, RestauracaoFalhou, Servidor, selecionar, estado, limpar_log
 
 from capturas import APP_ID, Capturas, adb
+from diagnosticos import coletar
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / '.bancada/evidencias'
@@ -24,6 +25,7 @@ def main():
     names = [n.strip() for n in os.environ.get('HEISUCA_TESTE_CONTAS', '').splitlines() if n.strip()]
     names.sort(key=lambda n: n.lower() != 'teste-sem-senha')
     report = {'status': 'instável', 'restauracao': 'não necessária'}
+    protected = names.copy()
     client = video = name = None
     playback_possible = False
     captures = Capturas(OUT)
@@ -132,6 +134,13 @@ def main():
             'erro': f'{type(error).__name__}: {detalhe}'.rstrip(': ')})
         result_code = 1
     finally:
+        # Coleta o motivo do Android antes que force-stop apague o contexto.
+        if playback_possible:
+            native = coletar(OUT, adb, protected, base)
+            report['android'] = native
+            if native['anrDoApp'] or not native['disponivel']:
+                report.update({'status': 'falhou', 'motivo': 'ANR registrado pelo Android ou diagnóstico nativo indisponível; não classificado como infraestrutura.'})
+                result_code = 1
         # Nenhum produtor do app pode escrever depois da restauração.
         adb('shell', 'am', 'force-stop', APP_ID)
         captures.close()

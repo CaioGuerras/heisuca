@@ -1093,3 +1093,26 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   Foi solicitado o trecho `ANR in ...`/`Reason:`/thread main do `execucao.log`.
   Não classificar como instabilidade sem motivo real do ANR. Diagnóstico em
   execução: bancada `40258843944`, APK `40258843798`; ainda sem resultado.
+- Caio confirmou: o execucao.log completo não tem motivo/Reason do ANR (fica no
+  system_server). Comparação e cronologia em `docs/ANR_BANCADA_L_2026-10-26.md`.
+- **Reexecução verde sem correção do app:** bancada `40258843944`, commit
+  `741e7a7b40810dd0f68f16efd7e15fe29e417b78`: mpv/quadro nativo, +3,448 s,
+  percurso/restauração aprovados. Artifact 12624527406 (4.116.585 bytes), ZIP
+  `7dacb7021c660bdb83aa0ecd932673dfdd1e185d78b2a91a579392896ad54c65`.
+  APK do mesmo código verde `40258843798`, artifact
+  [12624163181](https://github.com/CaioGuerras/heisuca/actions/runs/40258843798/artifacts/12624163181),
+  97.070.954 bytes, pacote `app.heisuca.player.teste.home`, certificado
+  `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`,
+  **SHA-256 APK `836964d54b08c8d586b09c71edca85d33959985073bfea011947be02e5dfde0b`**,
+  ZIP `5eaeab94ebbb049975d49cc8fd71806211b61d3067d653bc6af3be312814c477`.
+  GPL e ausência de SDK/destino Sentry novamente verificadas no pacote.
+- Isso **não demonstra correção nem causa do ANR anterior**. Seguindo a indicação
+  do Caio, há coleta nativa em implementação antes da próxima execução: lastanr
+  e events/system_server, antes da limpeza; ANR próprio ou coleta indisponível
+  impede verde. Sem mudar o app nem marcar infraestrutura sem motivo. L segue
+  em validação desse complemento; M–O não iniciadas.
+- Portão da coleta nativa aprovado: **603 Flutter, 3 ignorados, 8 Impeller e
+  18 Python**; análise sem erros. Os testes Python foram repetidos com stdout
+  das simulações oculto, para não confundir ANR de teste com ocorrência real.
+  A coleta real ainda será verificada no próximo job Android. Sem correção
+  especulativa no player/pop/dispose; a causa do ANR observado segue pendente.

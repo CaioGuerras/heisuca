@@ -1429,3 +1429,24 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   Conferir pacote/certificado/SHA-256/artifact do APK novo. **M aberta; N/O não
   iniciadas.** Último par completo verde continua L 40269817723/40269817747,
   versão 2.0.30+31. Não reiniciar K/F nem desfazer correções K.
+- **Bancada 40312145102 (`bbc0a66`) falhou:** passou PiP padrão, só som com FGS,
+  vídeo desativado (`vid=no`) e avanço de posição, pausa e play pela MediaSession.
+  Falhou ao retornar à imagem no marco 18. O ANR já estava visível no marco 16,
+  portanto não começou no comando de retorno. Evento às 11:22:33: FocusEvent
+  **hasFocus=false**, 5002 ms, depois de Home 15 às 11:22:25.
+- Timeout: pipAtivo=false, cicloFlutter=inactive, servicoMidiaForeground=true,
+  continuarOuvindo=true, audioForaDaTela=true. Janela ANR retém foco; reabrir traz
+  Activity para topResumed, mas não tira o foco do diálogo. Main coletada mostra
+  Java nativePollOnce e frame Dart; schedstat main: ~19,6 s executando e ~169,2 s
+  esperando CPU. Essa stack é diferente da espera glGetActiveUniform anterior;
+  ainda não foi classificada como infraestrutura. Não alterar pop/dispose por isso.
+- Restauração confirmada. Artifact
+  [12646601316](https://github.com/CaioGuerras/heisuca/actions/runs/40312145102/artifacts/12646601316),
+  ZIP 12.064.676 bytes, SHA-256
+  `92e92215be0b3efb0643811940131314d5c748423bf0ed04aba244af0bc5a82c`.
+- **Retomada atual:** código `bbc0a66`, docs após `edc0384`, versão 2.0.31+32;
+  bancada 40312145102 vermelha, APK 40312145112 compilando release (testes nativos
+  passaram). Próximo passo: ler pressão/carga CPU e contexto integral do novo
+  ANR antes de classificar/corrigir. Som e transporte foram exercitados; retorno
+  da imagem e fechar PiP com áudio ainda não foram comprovados. M aberta, N/O
+  não iniciadas. Último par completo verde continua a L, 2.0.30+31.

@@ -1072,3 +1072,11 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   3 ignorados, análise incluindo todos os testes sem erros. A instrumentação
   apenas fotografa e registra flags no timeout, depois do mesmo Back e dos
   mesmos 90 s. Nenhum conserto do app foi aplicado sem conhecer o estado real.
+- **Ponto de retomada L/diagnóstico:** commit
+  `741e7a7b40810dd0f68f16efd7e15fe29e417b78` enviado sem `[skip ci]`, versão 2.0.30+31.
+  Novos runs [APK 40258843798](https://github.com/CaioGuerras/heisuca/actions/runs/40258843798)
+  e [bancada 40258843944](https://github.com/CaioGuerras/heisuca/actions/runs/40258843944)
+  em execução. Se voltar a falhar, ler `BANCADA_RETORNO` no log (flags de telas) e
+  `12-falha-retorno.png` no artifact antes de escolher uma correção. APK anterior
+  verde/conferido: 40256320319, artifact 12623397735, dados acima.
+  **L não fechada; M–O não iniciadas.** Não tratar a falha do retorno como infra.

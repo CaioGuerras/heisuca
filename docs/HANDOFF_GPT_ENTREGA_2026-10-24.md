@@ -871,7 +871,7 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   bloqueado pelo proxy. Limites de aparelho permanecem os acima.
   Próxima: K, 2.0.29+30.
 
-## Etapa K — bancada Android — 2.0.29+30 (em validação local)
+## Etapa K — bancada Android — 2.0.29+30 — concluída no CI
 
 - Implementação e limites em `docs/BANCADA_ANDROID_2026-10-25.md`. Workflow
   independente do APK, emulador API 35/x86_64; autenticação/app/player reais,
@@ -938,3 +938,37 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   resolver o percurso/limpeza (ou documentar instabilidade real de infraestrutura)
   e conferir pacote, assinatura, artifact e SHA-256 do APK verde desse código.
   Versão mantida **2.0.29+30**; L–O não iniciadas.
+- **Fechamento da K (Claude, 25–26/10, enquanto o Codex estava sem limite).** Correções na ordem em que a própria
+  bancada as revelou; cada commit traz a causa e a prova:
+  - `4a797f5`, `b9b7aa7`: runner sem disco ao instalar a imagem do emulador; limpeza ampliada e tolerante.
+  - `dfdc773`: `adb install` 600 s; `relatorio.json` passa a trazer `erro`, `erro_restauracao` e `status_percurso`.
+  - `b109c34`: `adb exec-out … tee` com stdin nunca recebia o fim da entrada (TimeoutExpired); configuração e ACK em
+    base64 no argumento; resposta não-JSON do `cat` tratada como ausente.
+  - `6319f8b`, `1802f26`: caso declarado antes de qualquer `await` em `main()`; `app.main()` dentro do caso (o framework
+    troca a árvore por "Test starting..."); handles de semântica do app em debug guardados e soltos no fim.
+  - `cc5c6ad` **(defeito do app, etapa F)**: `_SessionMaterialRoute` herdava `MaterialPageRoute` com `opaque=false`
+    (`assert(opaque)` derruba o debug); agora `PageRoute` + `MaterialRouteTransitionMixin`. Teste novo antes/depois.
+  - `ab1892f`: o aviso de falha da sondagem do Jellyfin traz o motivo (endereço trocado por `[endpoint]`).
+  - `479b129` **(defeito do app, herdado)**: login com um endereço só passava pela corrida de 2 s ("connect timed out"
+    no emulador; também derrubaria 4G fraco); com um candidato usa `jellyfinProbe` (8 s). Teste novo antes/depois.
+  - `7d1e1bf` **(defeito do app, 22–23/10)**: `cgflixUseYouTab` usava `Theme.of` no `initState` da MainScreen; agora
+    `defaultTargetPlatform` (mesma fonte do tema). Teste novo antes/depois.
+  - `495c21a`: Back da bancada fechava o aviso do sistema "Viewing full screen" (marcado como visto antes do teste);
+    `flutter drive` desinstalava o app no fim (`--keep-app-running`); o item volta sempre, mesmo se a sessão falhar.
+  - `e02fcd5`: `ErrorWidget.builder`/`FlutterError.onError` do app devolvidos no fim do caso.
+- **Bancada verde:** [run 40251727025](https://github.com/CaioGuerras/heisuca/actions/runs/40251727025) `success`,
+  `relatorio.json` = **aprovado**: 11 passos (01-login … 11-voce), motor **mpv**, `quadroNativo: true`, **+5,7 s** de
+  avanço, restauração **confirmada** (progresso, assistido, contagem, data e preferências). 11 PNG nativos e 4 MP4 com
+  imagem e duração válidas (ffprobe); capturas conferidas a olho. Conta do rodízio (liberada pelo Caio em 26/10; ele
+  limpa resíduos no fim).
+- **APK verde do mesmo código:** [run 40251727031](https://github.com/CaioGuerras/heisuca/actions/runs/40251727031),
+  artifact 12621890613; APK 98.632.818 bytes, SHA-256
+  `d4d8545c667a6c924eef0b4def047d9e475e087754ea37f6feb923d19f21231a`, certificado
+  `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`. Publicado em
+  `https://heisuca.docaio.com.br/pacotes/heisuca-2.0.29-teste.apk` (download conferido). Portão local: APROVADO
+  (487 Flutter + 8 Impeller + 14 Python).
+- **Observações para depois (não bloqueiam):** no emulador a Início e a Biblioteca ainda não tinham pôsteres no momento
+  da captura (rede/emulador lentos) e a captura 07 pegou a ficha no meio da transição; a conta dedicada
+  `teste-sem-senha` não foi usada em nenhum run (conferir se existe no segredo e se tem filme livre). Resíduo de testes
+  na conta Claudia (Yellow Mirror: contagem/data; 2 aparelhos `sdk_gphone64_x86_64`) fica para o Caio limpar no fim.
+- **Próxima:** L (2.0.30+31).

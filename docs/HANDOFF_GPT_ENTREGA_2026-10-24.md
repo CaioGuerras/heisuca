@@ -1779,3 +1779,11 @@ Próxima ação quando Actions for liberado:
 - M continua **aberta**, sem prova da imagem restaurada; N/O não iniciadas.
 - Portão local da ação nativa de acessibilidade **aprovado**: 622 Flutter
   (3 ignorados), 8 Impeller, 37 Python; análise sem erros. Não testado em aparelho.
+- Commit da ação nativa após integrar o remoto 8908741 (só publicação/SSH):
+  **0cb87aa62ec477b24a9182622c45913c87d1b09d**, sem skip. Portão do código
+  aprovado antes do rebase; alterações remotas não mudam o app/testes.
+  Runs pendentes: [APK 40355325643](https://github.com/CaioGuerras/heisuca/actions/runs/40355325643)
+  e [bancada 40355325623](https://github.com/CaioGuerras/heisuca/actions/runs/40355325623).
+  Foco da investigação: imagem preta/VO GPU sem configuração após áudio, com
+  logs do VO; nenhuma correção no player atribuída a isso ainda. M aberta,
+  versão 2.0.31+32; N/O não iniciadas. Não multiplicar tentativas sem ler essa evidência.

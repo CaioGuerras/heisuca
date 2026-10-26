@@ -89,7 +89,7 @@ void main() {
       expect(find.text('USUÁRIO'), findsOneWidget);
       expect(find.text('SENHA'), findsOneWidget);
       expect(find.text('Iniciar sessão'), findsOneWidget);
-      expect(find.text('+ Outros servidores e pastas locais'), findsOneWidget);
+      expect(find.text('Outros servidores e pastas locais'), findsOneWidget);
       expect(find.byIcon(Icons.qr_code_2_rounded), findsOneWidget);
     });
 
@@ -102,7 +102,7 @@ void main() {
 
     testWidgets('abre modal de outras fontes com servidores identificados', (tester) async {
       await _montar(tester, CgflixThemeVariant.isis, const HeisucaLoginScreen());
-      await tester.tap(find.text('+ Outros servidores e pastas locais'));
+      await tester.tap(find.text('Outros servidores e pastas locais'));
       await tester.pumpAndSettle();
 
       expect(find.text('Adicionar Fontes e Servidores'), findsOneWidget);

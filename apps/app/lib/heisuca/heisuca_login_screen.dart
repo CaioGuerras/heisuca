@@ -28,6 +28,7 @@ import 'heisuca_add_plex_screen.dart';
 import 'heisuca_design_system.dart';
 import 'heisuca_logo.dart';
 import 'heisuca_theme.dart';
+import 'widgets/heisuca_server_status.dart';
 
 /// Tela de Conexão e Login Heisuca Flagship 2026.
 /// Conexão Rápida (Quick Connect), 3 campos limpos, autenticação direta no Jellyfin
@@ -430,40 +431,9 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                             textColor: text,
                             hintColor: hintColor,
                             enabled: !_isLoading,
-                            onChanged: (_) => setState(() {}),
                           ),
                           const SizedBox(height: 6.0),
-                          // Indicador de Presença em Tempo Real
-                          Row(
-                            children: [
-                              Container(
-                                width: 8.0,
-                                height: 8.0,
-                                decoration: BoxDecoration(
-                                  color: _serverController.text.trim().isNotEmpty
-                                      ? const Color(0xFF22C55E)
-                                      : const Color(0xFF94A3B8),
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              const SizedBox(width: 6.0),
-                              Expanded(
-                                child: Text(
-                                  _serverController.text.trim().isNotEmpty
-                                      ? '● CGSERVER · Jellyfin pronto para autenticar'
-                                      : 'Acesso universal neutro · Digite o endereço',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontFamily: HeisucaTheme.fonteTexto,
-                                    fontSize: 11.5,
-                                    fontWeight: FontWeight.w500,
-                                    color: text2,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                          HeisucaServerStatus(controller: _serverController),
 
                           const SizedBox(height: 16.0),
 
@@ -618,7 +588,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                             onPressed: _showSourcesBottomSheet,
                             icon: Icon(Icons.add_circle_outline_rounded, size: 18.0, color: text2),
                             label: Text(
-                              '+ Outros servidores e pastas locais',
+                              'Outros servidores e pastas locais',
                               style: TextStyle(
                                 fontFamily: HeisucaTheme.fonteTexto,
                                 fontSize: 14.0,

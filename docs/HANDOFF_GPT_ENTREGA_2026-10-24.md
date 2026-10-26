@@ -1924,3 +1924,47 @@ Próxima ação quando Actions for liberado:
   Não há prova de que seja defeito exclusivo do emulador.
 - Ambiente local voltou; sincronizado por `git pull --ff-only` no mesmo ramo.
   Nenhum ramo/PR/merge criado. N preparada localmente; ainda não entregue.
+
+## N — servidor real no login e fluidez do próprio Flutter — 2.0.32+33
+
+- A M permanece com a pendência descrita acima; avanço N → O autorizado pelo
+  Caio após limitar a investigação adicional no emulador. Não apagar/ignorar
+  as falhas da M para dar verde à bancada.
+- Login: componente `HeisucaServerStatus` consulta `/System/Info/Public` pelo
+  `JellyfinEndpointDiscovery` existente. Espera 500 ms após digitação, aborta
+  a requisição a cada mudança de texto/dispose e rejeita respostas antigas.
+  Campo vazio não tem indicador; uma letra não anuncia servidor. Nome e versão
+  vêm da resposta; não há CGSERVER nem bolinha repetida. O endereço sondado
+  segue a mesma normalização https do login direto, sem alterar o prazo de 8 s
+  nem a autenticação da etapa K. Movimentar o cursor não reinicia a sonda.
+- “Outros servidores e pastas locais” conserva um único ícone de adicionar.
+  Os dois scripts citados no retorno também perderam a afirmação falsa de
+  servidor pronto; o esboço estático não finge uma resposta de rede. Scripts
+  foram compilados para verificar sintaxe, **não foram executados/publicados**.
+- Os três níveis reais já estavam na H (Reduzido/Padrão/Topo de linha), e suas
+  regressões continuam no portão. Nenhum novo critério de RAM ou redução de
+  efeitos; não medimos o Tab A9 fisicamente.
+- “Medir fluidez” coleta `FrameTiming` do Flutter por 20 s, continua quando o
+  popup fecha e conserva o resultado só na memória. Taxa da tela lida no toque;
+  limite = 1000/Hz. Detalhes recolhidos: contagem, p50/p90/p99 de construção,
+  rasterização e total, e % em que construção ou rasterização excede o limite.
+  Total inclui fila e não é somado ao tempo das etapas paralelas para decidir
+  atraso. Classificação descritiva: até 10% boa, até 30% pode melhorar, acima
+  baixa. Não é benchmark do vídeo nem altera os efeitos automaticamente.
+- **Antes/depois:** teste da tela real com uma letra falhou no código anterior
+  ao encontrar “● CGSERVER · Jellyfin pronto para autenticar”; passou após
+  substituir o indicador. Sonda falsa cobre resposta, erro, debounce, aborto,
+  resposta antiga e dispose. Teste do botão mudou a tela de 60 para 120 Hz
+  depois de abrir o popup: falhou ao usar 60 capturados no build e passou ao
+  ler 120 no toque. Quadros falsos comprovam percentis, 50% de atraso a 120 Hz,
+  fim da coleta, continuidade fora do popup e ausência de resultado inventado
+  quando não há quadros. Os testes existentes de layout estreito/fonte grande
+  continuam passando; os testes agora rolam até “Detalhes técnicos”.
+- Portão local completo **APROVADO**: **628 Flutter, 3 ignorados; 8 Impeller;
+  37 Python**. Análise sem erros fatais. `git diff --check` e sintaxe Python
+  aprovados. Preservados Início do Jellyfin, arquivos golden e correções K.
+- Commit/run/APK: serão registrados após o push e inspeção do Actions.
+  **Não testado em aparelho:** sondagem em redes reais, medição no Tab A9/Edge,
+  taxa variável durante a coleta e apresentação visual física. A bancada
+  automática ainda exercita o percurso da M, cuja pendência não fica resolvida
+  pelos testes unitários da N.

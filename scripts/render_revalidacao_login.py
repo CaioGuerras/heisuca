@@ -92,11 +92,11 @@ def render_screen(theme='shikkoku', mode='login'):
   )
   hint_server = 'https://seuservidor.com' if not val_server else ''
   status_server = (
-      '● CGSERVER · Jellyfin pronto para autenticar'
+      'Procurando servidor…'
       if mode == 'preenchido'
-      else 'Acesso universal neutro · Digite o endereço'
+      else ''
   )
-  dot_col = '#22C55E' if mode == 'preenchido' else '#94A3B8'
+  dot_col = '#94A3B8'  # Esboço estático: não comprova conexão.
   val_user = 'caio' if mode == 'preenchido' else ''
   hint_user = 'Nome de usuário' if not val_user else ''
   val_pass = '••••••••••' if mode == 'preenchido' else ''
@@ -113,8 +113,8 @@ def render_screen(theme='shikkoku', mode='login'):
       <text x="76" y="66" font-family="sans-serif" font-size="24" fill="{text}">{val_server}</text>
       {f'<text x="76" y="66" font-family="sans-serif" font-size="24" fill="{text2}" opacity="0.6">{hint_server}</text>' if hint_server else ''}
 
-      <!-- Indicador dinâmico de status -->
-      <circle cx="10" cy="124" r="5" fill="{dot_col}"/>
+      <!-- Esboço: só mostra a procura; não simula resposta on-line -->
+      <circle cx="10" cy="124" r="{5 if status_server else 0}" fill="{dot_col}"/>
       <text x="24" y="129" font-family="sans-serif" font-weight="500" font-size="18" fill="{text2}">{status_server}</text>
 
       <!-- Rótulo USUÁRIO -->

@@ -198,7 +198,7 @@ def main():
         f"• *SHA256*: `{sha256[:16]}...`\n"
         f"• *Download direto*: {URL_PUBLICA}\n\n"
         f"Correções validadas aplicadas:\n"
-        f"1. *Login 20:9:* Proporção vertical balanceada sem vazio inferior, indicador luminoso dinâmico (`● CGSERVER · Jellyfin pronto para autenticar`).\n"
+        f"1. *Login 20:9:* Proporção vertical balanceada sem vazio inferior, indicador que consulta o servidor e mostra o nome e a versão recebidos.\n"
         f"2. *Folha de Fontes:* Pílulas com cores oficiais de cada serviço (Plex dourado, Jellyfin roxo, Emby verde, SMB azul, WebDAV ciano, Local laranja).\n"
         f"3. *Quick Connect:* Fallback automático para netflix.docaio.com.br, formatação tabular do PIN (`482 917`) e retry.\n"
         f"4. *Reprodução Imediata:* Ficha técnica com `hostContext` fixo eliminando o fechamento prematuro da rota, fallback automático para séries e toque em episódios iniciando o vídeo na hora.\n"

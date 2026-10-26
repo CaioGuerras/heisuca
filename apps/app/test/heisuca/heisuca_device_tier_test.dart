@@ -33,6 +33,7 @@ void main() {
       expect(find.textContaining('Cache de imagens:'), findsNothing);
       expect(find.textContaining('orçamento'), findsNothing);
       expect(find.textContaining('Pressão de memória'), findsNothing);
+      await tester.ensureVisible(find.text('Detalhes técnicos'));
       await tester.tap(find.text('Detalhes técnicos'));
       await tester.pumpAndSettle();
       expect(find.textContaining('Cache de imagens:'), findsOneWidget);
@@ -56,6 +57,7 @@ void main() {
       DevicePerformance.debugReset(autoReduced: false, totalMemBytes: (3.6 * 1024 * 1024 * 1024).round());
       await showStatus(tester, theme, scale: 2);
       await tester.scrollUntilVisible(find.text('Detalhes técnicos'), 200, scrollable: find.byType(Scrollable).last);
+      await tester.ensureVisible(find.text('Detalhes técnicos'));
       await tester.tap(find.text('Detalhes técnicos'));
       await tester.pumpAndSettle();
       await tester.scrollUntilVisible(find.text('Fechar'), 200, scrollable: find.byType(Scrollable).last);

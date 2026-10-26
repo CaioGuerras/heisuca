@@ -1666,3 +1666,24 @@ Próxima ação quando Actions for liberado:
   desconectar, com milestones e logs Android/kernel/memória. Helper tem --probe
   para isso; a bancada normal mantém clique real e todas as verificações.
   O workflow diagnóstico não fecha a etapa nem substitui a bancada.
+
+### Causa do Killed isolada — 26/10, 14:59 UTC
+
+- Diagnóstico [40344507220](https://github.com/CaioGuerras/heisuca/actions/runs/40344507220)
+  **vermelho**, sem app/servidor/toque, reproduziu **exit 137** durante `connect`.
+  Artifact **12659883587**, ZIP 75.374 bytes, digest
+  `f21427b8e4d154c0bc10c092b6715ca2cc30371d27a99ef8a273bb51f54e0330`.
+- Log Android mostra `FATAL EXCEPTION: UiAutomation`, PID 2739:
+  `NullPointerException ... Looper.mQueue ... Looper null`, em
+  `Handler.<init> → AccessibilityInteractionClient.<init> → getInstanceForThread
+  → AccessibilityService$IAccessibilityServiceClientWrapper.init`.
+  `BANCADA_PIP: início` e `conectando` foram impressos; `conectado` não.
+  Isso explica o SIGKILL do helper pelo tratador fatal do runtime; não atribuir
+  a OOM/SELinux nem a travamento do processo do Heisuca.
+- Correção do bootstrap do processo shell: preparar o **Looper principal** antes
+  de conectar. O HandlerThread passado à UiAutomation continua cuidando de seus
+  callbacks; sem ActivityThread o Looper principal não era criado. Nenhuma
+  alteração do app, de timeout de player, foco ou atalho de saída.
+- Antes de novo percurso, repetir a sondagem isolada e exigir conexão/lista de
+  janelas/desconexão com exit zero. Isso ainda não comprova fechar PiP nem a
+  imagem preta observada na M. Não iniciar N/O até a M ter a prova exigida.

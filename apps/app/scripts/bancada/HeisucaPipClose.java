@@ -40,6 +40,9 @@ public final class HeisucaPipClose {
     }
 
     public static void main(String[] args) throws Exception {
+        // app_process não cria ActivityThread. A acessibilidade do Android 15
+        // exige o Looper principal mesmo usando um HandlerThread para callbacks.
+        Looper.prepareMainLooper();
         System.out.println("BANCADA_PIP: início do helper");
         boolean probe = args.length == 1 && "--probe".equals(args[0]);
         if (!probe && args.length != 4) throw new IllegalArgumentException("São necessários os limites do task PiP.");

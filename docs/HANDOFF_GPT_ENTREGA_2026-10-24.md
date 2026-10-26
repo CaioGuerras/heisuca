@@ -1316,3 +1316,21 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   **M não fechada; N/O não iniciadas.** Último APK e bancada verdes continuam
   40269817723/40269817747 da L, 2.0.30+31. Falhas intermitentes antigas continuam
   no diagnóstico da L, sem causa demonstrada e sem reclassificação de infraestrutura.
+- **M / bancada 40303114336 falhou com ANR antes do primeiro Home**. Restauração
+  confirmada. Diagnóstico disponível, anrDoApp=true, 1 trace do app e main coletada.
+  Motivo FocusEvent(hasFocus=true), 5001 ms; foco já no diálogo ANR em 13-home-pip
+  antes de injetar Home. Stack main espera em pthread_cond_wait/JNI no caminho
+  DeferredSurfaceTextureListener.onSurfaceTextureAvailable → TextureView.getTextureLayer/draw.
+  Sem atribuição automática ao emulador. Detalhes no diagnóstico da L.
+  Artifact [12642990088](https://github.com/CaioGuerras/heisuca/actions/runs/40303114336/artifacts/12642990088),
+  ZIP 1.782.596 bytes, SHA-256
+  `41003062ef2e1210ff9d004cfacb01cfdba6325212e46d86af877a8744a930f0`.
+- **Retomada atual:** código 05af831, docs após 3d7913d, versão 2.0.31+32.
+  APK 40303114349 segue compilando release; testes Kotlin da M passaram no step 12.
+  Bancada vermelha impede fechar M ou iniciar N/O. Próximo passo: identificar
+  a espera JNI/superfície com a stack completa e símbolos do engine 5d531788,
+  criar teste de reprodução antes da correção e repetir portão/CI. Impressão
+  atual dos traces corta Java depois de 12 KB de frames nativos do interpretador;
+  preservar/priorizar Java e threads raster na coleta, sem alterar a navegação.
+  O run 40301348854 foi cancelado automaticamente pela concorrência do workflow
+  quando entrou o complemento; 40301349609 foi cancelado antes do emulador.

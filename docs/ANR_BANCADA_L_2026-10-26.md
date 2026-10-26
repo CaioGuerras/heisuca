@@ -96,3 +96,19 @@ Essa execução não reproduz a perda de foco. Não houve correção de navegaç
 nem se demonstrou causa dos ANRs intermitentes. L tem agora APK e bancada verdes;
 o histórico permanece aberto e a coleta/guard continua nas próximas etapas.
 Não foi atribuída classificação de infraestrutura aos runs vermelhos.
+
+## Reprodução na M com stack main — 40303114336
+
+Código 05af831, 2.0.31+32, google_apis API35. Falhou, restauração confirmada.
+Em 13-home-pip, **antes** de Home, mCurrentFocus já era o diálogo ANR do Heisuca;
+Activity do app ainda topResumed. Motivo: FocusEvent(hasFocus=true), 5001 ms.
+Agora /data/anr foi lido: main Native, pthread_cond_wait, chamada JNI pelo APK,
+DeferredSurfaceTextureListener.onSurfaceTextureAvailable e TextureView.getTextureLayer/draw.
+O wrapper chama o delegate Flutter de forma síncrona; o callback de reconexão
+posterior só reconecta em retorno de standby de TV, não nesse celular.
+Isso localiza a espera no caminho de conexão da superfície Flutter, mas os
+frames JNI ainda estão sem símbolos: não concluir qual lock/raster está preso.
+A impressão de 12 KB cortou a stack antes dos frames Java completos. Próxima
+coleta precisa priorizar Java e threads raster; o trace integral do app está
+no artifact 12642990088 (download segue inacessível aqui).
+Não classificado como infraestrutura. Áudio/PiP novos não foram comprovados.

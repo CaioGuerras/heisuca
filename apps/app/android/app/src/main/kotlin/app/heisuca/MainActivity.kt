@@ -2,6 +2,7 @@ package app.heisuca
 
 import android.app.ActivityManager
 import android.app.AppOpsManager
+import android.app.PictureInPictureUiState
 import android.app.PictureInPictureParams
 import android.content.Context
 import android.content.Intent
@@ -605,6 +606,9 @@ class MainActivity : FlutterActivity() {
 
   override fun onResume() {
     super.onResume()
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !isInPictureInPictureMode) {
+      notifyPipUiTransition(false)
+    }
     requestHighRefreshRate()
   }
 
@@ -1212,8 +1216,28 @@ class MainActivity : FlutterActivity() {
     }
   }
 
+  private fun notifyPipUiTransition(entering: Boolean) {
+    flutterEngine?.dartExecutor?.binaryMessenger?.let { messenger ->
+      MethodChannel(messenger, PIP_CHANNEL).invokeMethod("onPipUiTransition", entering)
+    }
+  }
+
+  // API 35: o sinal de transição precede o redimensionamento. O callback de
+  // modo só chega depois, tarde demais para retirar os controles do vídeo.
+  override fun onPictureInPictureUiStateChanged(pipState: PictureInPictureUiState) {
+    super.onPictureInPictureUiStateChanged(pipState)
+    if (Build.VERSION.SDK_INT >= 35 && pipState.isTransitioningToPip) {
+      notifyPipUiTransition(true)
+    }
+  }
+
   override fun onUserLeaveHint() {
     super.onUserLeaveHint()
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+      isPipSupportedDevice() && autoPipReady && isPipPermissionGranted()
+    ) {
+      notifyPipUiTransition(true)
+    }
     // Auto PiP for API 26-30 (API 31+ uses setAutoEnterEnabled)
     if (isPipSupportedDevice() &&
       Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
@@ -1227,8 +1251,9 @@ class MainActivity : FlutterActivity() {
           MethodChannel(messenger, PIP_CHANNEL).invokeMethod("onAutoPipEntering", null)
         }
         val params = buildPipParams(autoPipWidth, autoPipHeight)
-        enterPictureInPictureMode(params)
+        if (!enterPictureInPictureMode(params)) notifyPipUiTransition(false)
       } catch (e: Exception) {
+        notifyPipUiTransition(false)
         Log.w(TAG, "Failed to enter auto-PiP", e)
       }
     }

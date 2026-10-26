@@ -22,6 +22,9 @@ class PipService {
   /// ValueNotifier for PiP state - widgets can listen to this
   final ValueNotifier<bool> isPipActive = ValueNotifier<bool>(false);
 
+  /// Entrada anunciada pelo Android antes de reduzir a janela; não é PiP ativo.
+  final ValueNotifier<bool> isPipTransitioning = ValueNotifier<bool>(false);
+
   /// Callback invoked when native side is about to auto-enter PiP (API 26-30 path)
   static VoidCallback? onAutoPipEntering;
 
@@ -30,8 +33,13 @@ class PipService {
       case 'onPipChanged':
         final isInPip = call.arguments as bool;
         isPipActive.value = isInPip;
+        isPipTransitioning.value = false;
+        break;
+      case 'onPipUiTransition':
+        isPipTransitioning.value = call.arguments as bool;
         break;
       case 'onAutoPipEntering':
+        isPipTransitioning.value = true;
         onAutoPipEntering?.call();
         break;
     }
@@ -65,15 +73,23 @@ class PipService {
 
   static Future<(bool success, String? error)> enter({int? width, int? height}) async {
     if (!_isAvailable) return (false, null);
-    final result = await _channel.invokeMethod<Map>('enter', {'width': width, 'height': height});
-    if (result == null) {
-      return (false, t.videoControls.pipErrors.unknown(error: t.common.unknown));
+    // Oculta o HUD antes de a janela encolher, inclusive na entrada manual.
+    if (Platform.isAndroid) _instance.isPipTransitioning.value = true;
+    var accepted = false;
+    try {
+      final result = await _channel.invokeMethod<Map>('enter', {'width': width, 'height': height});
+      if (result == null) {
+        return (false, t.videoControls.pipErrors.unknown(error: t.common.unknown));
+      }
+      final success = result['success'] as bool? ?? false;
+      accepted = success;
+      final errorCode = result['errorCode'] as String?;
+      final errorMessage = result['errorMessage'] as String?;
+      final error = errorCode != null ? _getLocalizedError(errorCode, errorMessage) : null;
+      return (success, error);
+    } finally {
+      if (Platform.isAndroid && !accepted) _instance.isPipTransitioning.value = false;
     }
-    final success = result['success'] as bool? ?? false;
-    final errorCode = result['errorCode'] as String?;
-    final errorMessage = result['errorMessage'] as String?;
-    final error = errorCode != null ? _getLocalizedError(errorCode, errorMessage) : null;
-    return (success, error);
   }
 
   static String _getLocalizedError(String errorCode, String? errorMessage) {

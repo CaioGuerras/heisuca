@@ -1185,11 +1185,14 @@ class _PlexVideoControlsState extends State<PlexVideoControls>
     // behind a fully transparent widget.
     final performanceOverlayVisible = !_autoHidePerformanceOverlay || _showControls;
 
-    // Hide ALL controls when in PiP mode (except macOS where main window stays visible)
-    return ValueListenableBuilder<bool>(
-      valueListenable: _pipService.isPipActive,
-      builder: (context, isInPip, _) {
-        if (isInPip && !Platform.isMacOS) return const SizedBox.shrink();
+    // O Android anuncia a entrada antes de redimensionar a janela. O HUD já
+    // deve estar ausente nessa transição, além de permanecer ausente no PiP.
+    return ListenableBuilder(
+      listenable: Listenable.merge([_pipService.isPipActive, _pipService.isPipTransitioning]),
+      builder: (context, _) {
+        if ((_pipService.isPipActive.value || _pipService.isPipTransitioning.value) && !Platform.isMacOS) {
+          return const SizedBox.shrink();
+        }
         return Focus(
           focusNode: _focusNode,
           autofocus: true,

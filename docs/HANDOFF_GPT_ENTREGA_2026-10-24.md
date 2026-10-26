@@ -1858,3 +1858,28 @@ Próxima ação quando Actions for liberado:
   a indisponibilidade. GitHub conectado continua acessível para leitura e registro.
 - **M aberta, N/O não iniciadas**, versão **2.0.31+32**. Próximo passo é ler as
   seis exceções e a evidência visual desse artifact, antes de propor correção.
+
+### M — limite de diagnóstico autorizado e regressão do HUD (26/10, 17h26 UTC)
+
+- Caio limitou a prova adicional no emulador a **30 minutos (até 17h54 UTC)**;
+  ao vencer, registrar o resultado e seguir N → O. Ele verificará o PiP no celular.
+  Isso autoriza avançar com a pendência explícita; **não torna a bancada verde**
+  nem classifica defeito do app como infraestrutura. Cenário físico ainda não testado.
+- Leitor [40364703064](https://github.com/CaioGuerras/heisuca/actions/runs/40364703064)
+  inspecionado: as seis exceções são **RenderFlex overflow** no cabeçalho
+  (149/161 px), transporte (7,2/20 px) e coluna (212 px) do HUD durante PiP,
+  com janela de **240,8 × 108,2 dp**. Não são ANR.
+- Causa: o pai já oculta o HUD em PiP, mas só recebia onPipChanged, posterior
+  ao redimensionamento. A correção usa o aviso de entrada do Android
+  (onPictureInPictureUiStateChanged/isTransitioningToPip na API 35, com
+  onUserLeaveHint nas anteriores e entrada manual antecipada), preservando
+  a distinção entre transição e modo ativo. Saída/cancelamento limpam o aviso.
+  Não encolhe botões nem recorta/ignora erros de layout.
+- Regressão de widget cobre a janela real **antes** do callback de modo ativo,
+  permanência em PiP e restauração do HUD. Prova anterior: seis erros reais
+  na bancada 40359810049; prova posterior **ainda pendente no CI**.
+- Capturas 21 e 06 desse artifact foram lidas: **pretas**. A correção do HUD
+  não é apresentada como correção do vídeo. Nenhuma alteração especulativa
+  em mpv, Surface, filtros, foco, navegação ou temporização.
+- Ambiente continua indisponível: portão local impossível; conforme AGENTS.md,
+  validação pelo portão completo do Actions. M permanece 2.0.31+32.

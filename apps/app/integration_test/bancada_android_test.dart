@@ -53,8 +53,8 @@ void main() {
   // running", run 40235597511): o caso é declarado de forma síncrona e a leitura assíncrona fica no setUpAll.
   setUpAll(() async {
     support = await getApplicationSupportDirectory();
-    config = jsonDecode(await File('${support.path}/heisuca-bancada-config.json').readAsString())
-        as Map<String, dynamic>;
+    config =
+        jsonDecode(await File('${support.path}/heisuca-bancada-config.json').readAsString()) as Map<String, dynamic>;
   });
   testWidgets('abertura, login, acervo, vídeo nativo, abas e voltar', (tester) async {
     final server = config['server'] as String;
@@ -77,10 +77,14 @@ void main() {
     app.main();
     final steps = <String>[];
     binding.reportData = {'passos': steps, 'testeEncerrado': false};
+    Future<void> Function()? captureTimeout;
     Future<void> until(bool Function() ready, String stage, {int seconds = 90}) async {
       final deadline = DateTime.now().add(Duration(seconds: seconds));
       while (!ready()) {
-        if (DateTime.now().isAfter(deadline)) throw StateError('Tempo esgotado na etapa: $stage.');
+        if (DateTime.now().isAfter(deadline)) {
+          if (captureTimeout != null) await captureTimeout!();
+          throw StateError('Tempo esgotado na etapa: $stage.');
+        }
         await tester.pump(const Duration(milliseconds: 200));
       }
       await tester.pump(const Duration(milliseconds: 400));
@@ -213,6 +217,20 @@ void main() {
       'segundosAvancados': (player.currentPosition - start).inMilliseconds / 1000,
     };
     // O retorno é uma tecla Back real enviada pelo adb pelo host.
+    // Diagnóstico só após o perfil anônimo e o vídeo: nunca captura o login preenchido.
+    captureTimeout = () async {
+      final state = {
+        'playerVisivel': find.byType(VideoPlayerScreen).evaluate().isNotEmpty,
+        'playerNaArvore': find.byType(VideoPlayerScreen, skipOffstage: false).evaluate().isNotEmpty,
+        'fichaVisivel': find.byType(HeisucaTitleSheet).evaluate().isNotEmpty,
+        'fichaNaArvore': find.byType(HeisucaTitleSheet, skipOffstage: false).evaluate().isNotEmpty,
+        'buscaVisivel': find.byType(SearchScreen).evaluate().isNotEmpty,
+        'inicioVisivel': find.byType(HeisucaHomeScreen).evaluate().isNotEmpty,
+      };
+      binding.reportData!['diagnosticoRetorno'] = state;
+      print('BANCADA_RETORNO: ${jsonEncode(state)}');
+      await shot('12-falha-retorno');
+    };
     await shot('06-player', back: true);
     await until(
       () => find.byType(VideoPlayerScreen).evaluate().isEmpty && find.byType(HeisucaTitleSheet).evaluate().isNotEmpty,

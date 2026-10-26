@@ -1052,3 +1052,23 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   antes de modificar navegação. Não desfazer cc5c6ad/479b129/7d1e1bf, que permanecem
   intactos. A falha nova não demonstra qual é a causa; não será atribuída ao
   emulador, à rota ou à retirada do Sentry sem evidência.
+- **APK L verde e inspecionado**, ainda sem fechar a etapa pela falha da bancada:
+  [run 40256320319](https://github.com/CaioGuerras/heisuca/actions/runs/40256320319),
+  commit `f617c2e063a2f4068622bc8872dade3f4d70cb1f`, artifact
+  [12623397735](https://github.com/CaioGuerras/heisuca/actions/runs/40256320319/artifacts/12623397735).
+  Pacote `app.heisuca.player.teste.home`, rótulo Heisuca Teste, 97.070.954 bytes.
+  Certificado SHA-256 `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`.
+  **SHA-256 do APK:** `fededf324bc037e4b928ed8d45783d55f60ed5697ad146a9f6aead372c0889cb`.
+  ZIP do artifact: `552259635aab165427e26394e65205a87174c02782bdfa8f1b20af1f17e534bf`.
+  Validador comprovou Activity no namespace novo, GPL/aviso presentes e **zero
+  plezy.app/SDK Sentry** nos conteúdos descomprimidos. Testes nativos passaram.
+  Instalação sobre o APK anterior em aparelho não foi executada.
+- Download do artifact da bancada bloqueado novamente pela rede do ambiente
+  (403). Em diagnóstico local: timeout após Back passará a publicar uma captura
+  nativa e flags de quais telas estão presentes/visíveis. Não muda a navegação
+  nem adiciona espera ao caminho que passa; só registra o estado em falha após
+  perfil anonimizado/reprodução, nunca os campos de login preenchidos.
+- Portão do diagnóstico aprovado: **603 Flutter + 8 Impeller + 14 Python**,
+  3 ignorados, análise incluindo todos os testes sem erros. A instrumentação
+  apenas fotografa e registra flags no timeout, depois do mesmo Back e dos
+  mesmos 90 s. Nenhum conserto do app foi aplicado sem conhecer o estado real.

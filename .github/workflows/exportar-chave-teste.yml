@@ -18,20 +18,20 @@ jobs:
       - name: Cifrar
         run: |
           cat > pub.pem <<'PUB'
-            -----BEGIN PUBLIC KEY-----
-            MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEApT0Gk09++TNUaQcAnmA9
-            iLW1HlBQZN7ydnKwxlJpu3QSjGiNfUW9sRzl9HZrvXbN8jcOi9JTB3fvbztV+aoz
-            wCouL9G8ey3JC3U4Gt7qzdxe+CR3JyN/JQcHt57Hn+JggUegAC89t2MQH2LlOnCM
-            umNTyOMa/ZSfT/LVygWf6syCah0E2ChJbHzvvmd5G9knK2wpmjbU3nYEhaOiAPMG
-            K8PZutBJFnIARAAyN1q8BTJWy7E00b1wBt/JScHcef1jx5voaNn6snZcKjnh5Tul
-            vEv/7XbVKqpsIG66m8+XC877PWK8CbCI9TWWnnYXqArKnHxyAV7oKB/ju7FTkg5H
-            lWyX2mq27fDmB1+++Ll5sU1w/lc+nEBnmopW93ZqraYeIy6Kz5lwUvC8ijuKhGZS
-            QLSCSXPV5M+wKSq2Dds0mWOTS3SdZPeucbGAXs7U7PwqelAwpumqCgAeg2kfBU2g
-            S1mSWxR8H+sJlqExMMNOy0dhgZYzcL92YGEM3B+OXi5QedvRcccZX1N1YxhHva2Z
-            7+Y8Lxa3X5PvLwqV6biqCaSP5rNaW7A3KWuw8L/dyPOtNXZkcz5lfoIXlPr1GgdF
-            Iirubu1ZcEHFpBwq12JO/EHjY8bg1PtRY9KIn/npn+3p5Xu5bCmxMH3+GDq+XKRY
-            x1AG3jIflHiCTIZyTVc5pw0CAwEAAQ==
-            -----END PUBLIC KEY-----
+          -----BEGIN PUBLIC KEY-----
+          MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEApT0Gk09++TNUaQcAnmA9
+          iLW1HlBQZN7ydnKwxlJpu3QSjGiNfUW9sRzl9HZrvXbN8jcOi9JTB3fvbztV+aoz
+          wCouL9G8ey3JC3U4Gt7qzdxe+CR3JyN/JQcHt57Hn+JggUegAC89t2MQH2LlOnCM
+          umNTyOMa/ZSfT/LVygWf6syCah0E2ChJbHzvvmd5G9knK2wpmjbU3nYEhaOiAPMG
+          K8PZutBJFnIARAAyN1q8BTJWy7E00b1wBt/JScHcef1jx5voaNn6snZcKjnh5Tul
+          vEv/7XbVKqpsIG66m8+XC877PWK8CbCI9TWWnnYXqArKnHxyAV7oKB/ju7FTkg5H
+          lWyX2mq27fDmB1+++Ll5sU1w/lc+nEBnmopW93ZqraYeIy6Kz5lwUvC8ijuKhGZS
+          QLSCSXPV5M+wKSq2Dds0mWOTS3SdZPeucbGAXs7U7PwqelAwpumqCgAeg2kfBU2g
+          S1mSWxR8H+sJlqExMMNOy0dhgZYzcL92YGEM3B+OXi5QedvRcccZX1N1YxhHva2Z
+          7+Y8Lxa3X5PvLwqV6biqCaSP5rNaW7A3KWuw8L/dyPOtNXZkcz5lfoIXlPr1GgdF
+          Iirubu1ZcEHFpBwq12JO/EHjY8bg1PtRY9KIn/npn+3p5Xu5bCmxMH3+GDq+XKRY
+          x1AG3jIflHiCTIZyTVc5pw0CAwEAAQ==
+          -----END PUBLIC KEY-----
           PUB
           openssl rand -out k.bin 32
           openssl enc -aes-256-cbc -pbkdf2 -salt -in ~/.android/debug.keystore -out chave.enc -pass file:k.bin

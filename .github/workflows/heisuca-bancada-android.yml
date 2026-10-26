@@ -78,8 +78,8 @@ jobs:
           HEISUCA_TESTE_CONTAS: ${{ secrets.HEISUCA_TESTE_CONTAS }}
         with:
           api-level: 35
-          # Sem GMS/Mensagens: o teste não depende deles; a imagem anterior saturou a CPU e registrou ANRs sistêmicos.
-          target: default
+          # Retoma a imagem da K para comparar foco/Activity sem misturar com a troca para AOSP.
+          target: google_apis
           arch: x86_64
           profile: pixel_6
           ram-size: 4096M

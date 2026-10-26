@@ -28,7 +28,7 @@ def main():
     protected = names.copy()
     client = video = name = None
     playback_possible = False
-    captures = Capturas(OUT)
+    captures = Capturas(OUT, sanitize=lambda value: limpar_log(value, protected, base))
     result_code = 75
     def stop_group(pid):
         try: os.killpg(pid, signal.SIGTERM)
@@ -87,6 +87,8 @@ def main():
                             line = 'Resposta do driver recebida.\n'
                         safe = limpar_log(line, protected, base)
                         if 'BANCADA_OCUPADA' in safe: report['ocupada'] = True
+                        if any(marker in safe for marker in ('BANCADA_RETORNO:', 'BANCADA_ROTAS_ANTES:', 'BANCADA_POP_NATIVO')):
+                            print(safe.strip(), flush=True)
                         log.write(safe[:2000])
                         log.flush()
                 reader = threading.Thread(target=read_log, daemon=True)

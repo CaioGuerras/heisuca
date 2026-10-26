@@ -1,3 +1,5 @@
+import io
+from contextlib import redirect_stdout
 import subprocess
 import tempfile
 import unittest
@@ -10,6 +12,7 @@ PNG = b'\x89PNG\r\n\x1a\n' + b'0' * 24
 
 class CapturaAoVivo(unittest.TestCase):
     def setUp(self):
+        self.enterContext(redirect_stdout(io.StringIO()))
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.c = Capturas(Path(self.tmp.name))
@@ -83,3 +86,24 @@ class EventoAusente(unittest.TestCase):
             c = Capturas(Path(tmp))
             c.poll()
             self.assertEqual(c.last, 0)
+
+    @patch('capturas.adb')
+    def test_foco_antes_e_depois_reflete_o_lugar_exato_do_back(self, adb):
+        self.enterContext(redirect_stdout(io.StringIO()))
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.c = Capturas(Path(temporary.name))
+        focused = 'app.heisuca'
+        def native(*args, **kwargs):
+            nonlocal focused
+            if args[:3] == ('shell', 'input', 'keyevent'): focused = 'launcher'
+            if args[:2] == ('shell', 'dumpsys'):
+                payload = f'mCurrentFocus={focused}\ntopResumedActivity={focused}'.encode()
+            else: payload = PNG
+            return subprocess.CompletedProcess(args, 0, payload)
+        adb.side_effect = native
+        self.c.handle({'seq': 1, 'name': '08-busca-retorno-0', 'back': True})
+        before = (self.c.output / '08-busca-retorno-0-foco-antes.json').read_text()
+        after = (self.c.output / '08-busca-retorno-0-foco-depois.json').read_text()
+        self.assertIn('mCurrentFocus=app.heisuca', before)
+        self.assertIn('mCurrentFocus=launcher', after)

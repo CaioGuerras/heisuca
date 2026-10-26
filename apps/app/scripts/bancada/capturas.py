@@ -3,6 +3,7 @@ import base64
 import json
 import re
 import subprocess
+from foco import coletar_foco
 
 APP_ID = 'app.heisuca.player.teste.home'
 REMOTE = '/sdcard/heisuca-bancada.mp4'
@@ -20,8 +21,9 @@ def adb(*args, check=False):
 
 
 class Capturas:
-    def __init__(self, output):
+    def __init__(self, output, sanitize=lambda value: value):
         self.output = output
+        self.sanitize = sanitize
         self.recording = None
         self.last = 0
 
@@ -41,6 +43,12 @@ class Capturas:
         adb('pull', REMOTE, str(self.output / f'{name}.mp4'), check=True)
         adb('shell', 'rm', '-f', REMOTE, check=True)
 
+    def focus(self, name, phase):
+        state = {'marco': name, **coletar_foco(adb, APP_ID)}
+        safe = self.sanitize(json.dumps(state, ensure_ascii=False))
+        (self.output / f'{name}-foco-{phase}.json').write_text(safe)
+        print(f'BANCADA_FOCO_{phase.upper()}: {safe}', flush=True)
+
     def poll(self):
         result = adb('exec-out', 'run-as', APP_ID, 'cat', 'files/heisuca-bancada-event.json')
         if result.returncode:
@@ -57,6 +65,7 @@ class Capturas:
         name, seq = event['name'], event['seq']
         if seq != self.last + 1 or not re.fullmatch(r'[0-9]{2}-[a-z0-9-]+', name):
             raise RuntimeError('Marco inválido da bancada.')
+        print(f'BANCADA_MARCO: {name}', flush=True)
         stops = {'01-login': '01-abertura-login', '04-ficha': '02-acervo-busca-ficha',
                  '06-player': '03-player-nativo', '11-voce': '04-retorno-abas'}
         if name in stops:
@@ -68,7 +77,11 @@ class Capturas:
             raise RuntimeError('Captura nativa inválida.')
         (self.output / f'{name}.png').write_bytes(png)
         if event.get('back') is True:
+            self.focus(name, 'antes')
             adb('shell', 'input', 'keyevent', '4', check=True)
+            self.focus(name, 'depois')
+        elif name.startswith('12-falha'):
+            self.focus(name, 'falha')
         # `adb exec-out` não repassa o fim da entrada (um `tee` remoto espera para sempre); o ACK vai no argumento.
         ack = base64.b64encode(json.dumps({'seq': seq, 'ok': True}).encode()).decode()
         adb('shell', f"run-as {APP_ID} sh -c 'echo {ack} | base64 -d > files/heisuca-bancada-ack.tmp'", check=True)

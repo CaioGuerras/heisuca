@@ -57,6 +57,14 @@ def coletar(output, adb, protected, base):
         events = adb('logcat', '-d', '-b', 'events', '-b', 'system', '-v', 'threadtime')
         last_text = last.stdout.decode(errors='replace')
         event_text = contexto_eventos(events.stdout.decode(errors='replace'))
+        lifecycle = '\n'.join(line for line in events.stdout.decode(errors='replace').splitlines()
+                              if ('app.heisuca.MainActivity' in line or APP_ID in line)
+                              and re.search(r'\b(?:wm|am)_(?:on_|resume_|pause_|stop_|finish_|destroy_|restart_|create_|task_|new_intent)', line))
+        safe_lifecycle = limpar_log(lifecycle, protected, base)[-40000:]
+        (output / 'android-ciclo-de-vida.log').write_text(safe_lifecycle)
+        print('Ciclo de vida Android do app (já redigido):')
+        print(safe_lifecycle)
+
         own_last = bool(ANR.search(last_text))
         report.update({'disponivel': last.returncode == 0 and events.returncode == 0 and bool(last_text.strip()),
                        'anrDoApp': own_last or bool(event_text),

@@ -1176,3 +1176,18 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
 - Ajuste local ainda sem commit: encaminhar a flag do retorno diretamente ao
   log do Actions e preservá-la no resultado JSON do driver. Sem alterar navegação.
   **L continua aberta; M–O não iniciadas.**
+- Caio inspecionou o AOSP: player visível, ficha montada fora de cena; captura 12
+  mostra **ANR do Quickstep**, não do app. Launcher topResumedActivity, sem janela
+  focada, PiP=false; nenhuma Activity do app resumed/focada no dump. A ausência
+  de ANR próprio não aprova o retorno. Foco **antes** do Back ainda precisa ser
+  medido; o dump posterior não demonstra sozinho quando foi perdido.
+- Manifest fonte byte a byte igual a e02fcd5 (hash no diagnóstico); sem mudanças
+  de launchMode/taskAffinity/configChanges/PiP. Namespace altera os nomes completos
+  da Activity/aliases no APK. A próxima execução retoma **google_apis**, conforme
+  solicitado pelo Caio, e registra foco/janela antes/depois de Back, ciclo nativo,
+  estado das rotas Flutter e chegada de pop. Não força foco nem envia Back extra.
+  Instrumentação local em validação; nenhuma correção especulativa do app.
+- **Portão final da instrumentação de foco aprovado:** 603 Flutter (3 ignorados),
+  8 Impeller e 27 Python; análise incluindo integração/driver/testes sem erros.
+  Teste do host verifica que o estado anterior é coletado antes de injetar Back
+  e o posterior depois. Não altera a decisão de navegação nem o prazo de 90 s.

@@ -62,3 +62,24 @@ pacote, redigidos; imprime a stack main, quando disponível. O dumpsys passa a s
 preservado integralmente após redação, sem substituir o texto original por uma
 interpretação do parser. ANR próprio continua impedindo verde. Não há mudança
 nas permissões nem no código do APK de produto.
+
+Retorno do Caio sobre o run AOSP 40264419251: `BANCADA_RETORNO` mostrou player
+visível/presente, ficha presente mas fora de cena, busca/Início fora de cena.
+12-falha-retorno.png mostra **Quickstep isn't responding**, do launcher AOSP,
+não ANR do Heisuca. O dump indica launcher topResumedActivity, sem janela focada,
+PiP=false e nenhuma Activity do app resumed/focada. A coleta marcou corretamente
+anrDoApp=false; o teste de retorno, porém, continuou falhando. Não atribuir toda
+a falha a um ANR do app, nem classificar esse percurso como aprovado/instável.
+
+O manifest fonte é byte a byte igual a e02fcd5 (SHA-256
+45c47d787b33a14dc5feda2cf5ee58833abdc6c1ebd9e479e627c03a35e957dc):
+launchMode=singleTop, taskAffinity vazia, configChanges e PiP iguais. O namespace
+Gradle mudou; portanto os nomes completos das Activities/aliases relativos no
+APK mudaram, como pedido na L. Isso não prova que a troca perdeu o foco.
+
+A próxima comparação volta para google_apis, imagem da K. Sem trazer o app para
+frente e sem repetir Back: grava activity/window imediatamente antes e depois
+do comando, atributos/callback da janela do próprio app, ciclo de vida nativo,
+marcos do teste, estado da rota/navigators e chegada do pop ao Flutter. O
+observador retorna false, não consome eventos. Flags passam direto ao Actions e
+ao JSON final, em vez de depender das últimas 60 linhas. Resultado ainda pendente.

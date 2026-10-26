@@ -45,6 +45,14 @@ class _BancadaBinding extends IntegrationTestWidgetsFlutterBinding with PointerS
   }
 }
 
+class _NativeBackProbe with WidgetsBindingObserver {
+  @override
+  Future<bool> didPopRoute() async {
+    print('BANCADA_POP_NATIVO_RECEBIDO');
+    return false; // Observa sem consumir nem alterar o caminho do app.
+  }
+}
+
 void main() {
   final binding = HeisucaWidgetsBinding.ensureInitialized(createBinding: _BancadaBinding.new) as _BancadaBinding;
   late final Directory support;
@@ -73,6 +81,9 @@ void main() {
       ErrorWidget.builder = errorWidgetBuilder;
       FlutterError.onError = flutterErrorHandler;
     });
+    final backProbe = _NativeBackProbe();
+    binding.addObserver(backProbe);
+    addTearDown(() => binding.removeObserver(backProbe));
     binding.captureAppSemantics = true;
     app.main();
     final steps = <String>[];
@@ -231,6 +242,18 @@ void main() {
       print('BANCADA_RETORNO: ${jsonEncode(state)}');
       await shot('12-falha-retorno');
     };
+    final videoContext = tester.element(find.byType(VideoPlayerScreen).first);
+    final videoRoute = ModalRoute.of(videoContext);
+    final routeState = {
+      'navigatorPodeVoltar': Navigator.of(videoContext).canPop(),
+      'navigatorRaizPodeVoltar': Navigator.of(videoContext, rootNavigator: true).canPop(),
+      'cicloFlutter': binding.lifecycleState?.name,
+      'rotaAtual': videoRoute?.isCurrent,
+      'rotaPrimeira': videoRoute?.isFirst,
+      'disposicaoPop': videoRoute?.popDisposition.name,
+    };
+    binding.reportData!['rotasAntesDoBack'] = routeState;
+    print('BANCADA_ROTAS_ANTES: ${jsonEncode(routeState)}');
     await shot('06-player', back: true);
     await until(
       () => find.byType(VideoPlayerScreen).evaluate().isEmpty && find.byType(HeisucaTitleSheet).evaluate().isNotEmpty,

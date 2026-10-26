@@ -1034,3 +1034,11 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   emulador/login, para substituir pelo commit final que inclui os testes. Não é
   bancada verde nem falha de infraestrutura. APK anterior será substituído pelo
   run do complemento. Nenhuma mudança funcional adicional no app nem na K.
+- **Retomada L (código final):** complemento de testes enviado em
+  `f617c2e063a2f4068622bc8872dade3f4d70cb1f` (sem `[skip ci]`), sobre a implementação
+  `8f72d6fc73a6cbc647102d485648570dc8606c62`. Aguardar e inspecionar
+  [APK 40256320319](https://github.com/CaioGuerras/heisuca/actions/runs/40256320319)
+  e [bancada 40256320245](https://github.com/CaioGuerras/heisuca/actions/runs/40256320245).
+  Versão **2.0.30+31**, portão local aprovado (603 + 8 + 14). Não iniciar M antes
+  de conferir os dois runs, pacote, certificado, hash, GPL e ausência do Sentry.
+  L ainda não fechada; M–O não iniciadas. Aparelho físico/Apple/PC não testados.

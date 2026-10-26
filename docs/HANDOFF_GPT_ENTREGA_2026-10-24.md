@@ -1417,3 +1417,15 @@ prevalece sobre o trecho histórico do handoff que sugeria manter presença sem 
   Código em preparação para push sem `[skip ci]`, mesma versão 2.0.31+32.
   Ainda não aprovado no Android. APK 40307478247 tentativa 2 compilava release;
   a bancada correspondente está vermelha por `só som fora do app` (não ANR).
+- **Retomada M / PiP e relógio do driver enviados:**
+  `bbc0a66eeba5d4bfe4023660247c661b124ab0ba`, sem `[skip ci]`, **2.0.31+32**,
+  portão **622 Flutter + 8 Impeller + 35 Python** aprovado.
+  Aguardar [APK 40312145112](https://github.com/CaioGuerras/heisuca/actions/runs/40312145112)
+  e [bancada 40312145102](https://github.com/CaioGuerras/heisuca/actions/runs/40312145102).
+  [Leitura de evidência 40312145094](https://github.com/CaioGuerras/heisuca/actions/runs/40312145094)
+  só inspeciona artifact anterior: não é aprovação da bancada nem das funções.
+  No novo percurso conferir cinco provas foraDoApp, foco/ANR, retorno e restauração;
+  se falhar, a flag agora inclui PiP, ciclo, preferência, áudio ativo e FGS.
+  Conferir pacote/certificado/SHA-256/artifact do APK novo. **M aberta; N/O não
+  iniciadas.** Último par completo verde continua L 40269817723/40269817747,
+  versão 2.0.30+31. Não reiniciar K/F nem desfazer correções K.

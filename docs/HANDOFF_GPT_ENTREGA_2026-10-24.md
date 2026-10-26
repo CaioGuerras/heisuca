@@ -1968,3 +1968,9 @@ Próxima ação quando Actions for liberado:
   taxa variável durante a coleta e apresentação visual física. A bancada
   automática ainda exercita o percurso da M, cuja pendência não fica resolvida
   pelos testes unitários da N.
+- N enviada em **c1d466ebc5c04bb063aa68472023e66b94b58b15**, sem skip.
+  Aguardar e inspecionar [APK 40387651870](https://github.com/CaioGuerras/heisuca/actions/runs/40387651870)
+  e [bancada 40387651901](https://github.com/CaioGuerras/heisuca/actions/runs/40387651901).
+  Nenhum resultado verde presumido. Revisão da M preparada em
+  `docs/DIAGNOSTICO_M_PIP_2026-10-26.md`, incluindo a ordem favorável simulada
+  pelo teste isolado e a falta de prova da ordem real dos callbacks/métricas.

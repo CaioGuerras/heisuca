@@ -61,6 +61,21 @@ jobs:
                           if any(marker in line.lower() for marker in markers)]
               print('Eventos de mídia já redigidos:')
               print('\n'.join(selected[-300:]))
+              lines = execution.read_text().splitlines()
+              print('Exceções originais do Flutter, sem descartar erros:')
+              for index, line in enumerate(lines):
+                  if 'EXCEPTION CAUGHT' in line:
+                      print('\n'.join(lines[max(0, index-1):index+85]))
+              video = [line for line in lines if any(key in line.lower()
+                       for key in ('mpvplayercore', '[mpv:vo', '[mpv:vd', 're-selecting', 'bancada_video'))]
+              print('Saída de vídeo e retomada, texto já redigido:')
+              print('\n'.join(video[:100] + video[-1000:]))
+          for name in ('relatorio.json', 'android-diagnostico.json', '19-fechar-pip-pip-automation.log'):
+              item = root / name
+              if item.exists():
+                  print(name)
+                  print(item.read_text())
+
           anr = root / 'android-anr.log'
           if anr.exists():
               keys = ('Reason:', 'Load:', '/proc/pressure/', 'some avg', 'full avg', 'CPU usage', 'TOTAL:', 'am_anr')
@@ -72,4 +87,26 @@ jobs:
           for trace in traces:
               print(trace.name)
               print(resumo_trace(trace.read_text()))
+          PY
+
+      - name: Ler miniaturas das capturas anônimas existentes
+        run: |
+          python3 -m pip install --quiet --disable-pip-version-check Pillow==11.3.0
+          python3 - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          import base64, io
+          for name in ('21-imagem-apos-audio.png', '06-player.png', '12-falha-retorno.png'):
+              source = Path('evidencia-anr') / name
+              if not source.exists():
+                  continue
+              with Image.open(source) as original:
+                  preview = original.convert('RGB')
+                  preview.thumbnail((640, 640))
+                  data = io.BytesIO()
+                  preview.save(data, format='JPEG', quality=60, optimize=True)
+              encoded = base64.b64encode(data.getvalue()).decode()
+              chunks = [encoded[i:i+8000] for i in range(0, len(encoded), 8000)]
+              for index, chunk in enumerate(chunks):
+                  print(f'BANCADA_IMAGE_JPEG|{name}|{index+1}/{len(chunks)}|{chunk}')
           PY

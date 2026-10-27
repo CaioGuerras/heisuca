@@ -134,3 +134,63 @@ A integração agora também exige `vo-configured=yes` nas capturas 21 e 06, al�
 dos pixels não pretos, avanço e quadro nativo. Snapshot do estado fica no resultado
 do driver. Pixels da interface, sozinhos, não podem encobrir uma saída não configurada.
 **Patch candidato ainda sem prova de correção no emulador; P1 segue aberta.**
+
+O conector GitHub `download_workflow_artifact` conseguiu baixar o ZIP original
+12706228905, embora o CLI falhe. Não pedir mais imagens ao usuário por esse 403.
+Originais preservados: `evidencias/p1_05_antes_2026-10-27.png` (vídeo colorido,
+RGB máximo 174/247/207) e `evidencias/p1_21_antes_2026-10-27.png` (0/0/0).
+Mesmo percurso, mesmo capturador adb e mesma dimensão 1200×540. A captura inicial
+inspecionada mostra a abertura da obra; após áudio, preto absoluto. Não é prova
+baseada apenas no estado interno do player ou na miniatura JPEG.
+
+### Resultado do candidato 2f526a1 — sem aceite da P1
+
+- APK **40442922526 verde**, testes nativos passaram, pacote
+  `app.heisuca.player.teste.home`, 97.138.589 bytes. Certificado SHA-256
+  `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`. APK SHA-256
+  `15b04eb59ac78664347aa46e4bb1166b693189b2d8bcb2a511f506075b46c1a5`.
+- Bancada **40442922427 vermelha**, artifact **12707875657**, ZIP SHA-256
+  `e655cab96a3532ad385ca2a5a4e2dfa4d98fb7593f8cb1c3a6528c170b6f6d26`.
+- Originais inspecionados: `p1_21_apos_sync_2026-10-27.png` mostra bola/criança;
+  `p1_06_apos_sync_2026-10-27.png` mostra a entrevista. Ambos têm vídeo real,
+  não só UI ou spinner. No marco 21, VO GPU configurado e dimensões 1920×1080.
+- O marco 06 falhou em uma asserção NOVA da bancada: uma amostra de
+  `vo-configured=no` lida antes do PNG. O PNG, capturado segundos depois, já
+  tinha vídeo visível. Não é correto usar o probe antigo como veto aos pixels.
+- Houve também **ANR real do app**, não do launcher: `Input dispatching timed
+  out`, 5002 ms em `FocusEvent(hasFocus=false)`. Diagnóstico disponível, dados
+  restaurados. Não converter isso em ATENÇÃO nem declarar infraestrutura.
+
+### Correção da prova da captura
+
+O ACK antigo só continha seq/ok; o teste negativo exigindo os pixels daquela
+captura falhou: `imagem not found`. A coleta agora anexa seu resultado de pixels
+no ACK; integração e driver conservam `capturasNativas` e exigem imagem sim em
+06/21. Probes de propriedades continuam como diagnóstico, não se passam por
+medição sincronizada com o PNG. Preto total permanece sem ACK e vermelho.
+Prova em `evidencias/p1_ack_antes_2026-10-27.txt`.
+
+### Tratador de diagnóstico e ANR: fatos separados de hipótese
+
+O trace main está executável (state=R), em memcpy, com 97 s acumulados esperando
+CPU. Android registrou pressão de CPU avg10=73,67%, total 90%, load 21,66. São
+sinais de carga, não demonstração suficiente para dispensar o ANR.
+
+Com símbolos oficiais do engine Flutter 3.47.1, revisão
+`5d531788691ec3404cac0cee66ead4007b177363`, addr2line dos PCs anotados:
+`0x0229046d` = `dart::TwoByteString::ConcatAll` (object.cc:25275);
+`0x0223fcbd` = `dart::NativeEntry::BootstrapNativeCallWrapper`;
+`0x01c245df` = `fml::MessageLoopAndroid::Run`. Build IDs foram redigidos pelo
+coletor; a revisão dos símbolos segue o SDK fixado no workflow. Isso localiza
+concatenação de strings, não prova sozinho qual chamador gerou a carga.
+
+Achado reproduzível no nosso tratador: expandia `toDiagnosticsNode().toStringDeep()`
+ANTES de verificar tipo, biblioteca, fase ou viewport, inclusive TestFailure
+fora do PiP. Teste do informationCollector: esperado 0 expansões, obtido 1.
+Depois da correção, só formata candidatos de rendering em PiP pequeno; demais
+exceções vão diretamente ao framework, sem suprimir sua falha. Casos com HUD
+REAL continuam passando. Prova em `evidencias/p1_diagnostico_precoce_antes_2026-10-27.txt`.
+
+Essa correção evita trabalho duplicado demonstrado; **não afirmar que curou
+sozinho o ANR sem nova prova completa**. P1 segue bloqueada até percurso e
+coleta nativa sem ANR. P2–P7 ainda pendentes, sem ENTREGA-FINAL/publicação.

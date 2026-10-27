@@ -86,6 +86,7 @@ class Capturas:
             if not decoded.startswith(b'\x89PNG\r\n\x1a\n') or len(decoded) < 24:
                 raise RuntimeError('Quadro decodificado não é um PNG válido.')
             (self.output / f'{name}-decodificado.png').write_bytes(decoded)
+        image = None
         if name in ('06-player', '21-imagem-apos-audio'):
             image = analisar(png)
             (self.output / f'{name}-imagem.json').write_text(json.dumps(image, ensure_ascii=False, indent=2))
@@ -106,7 +107,7 @@ class Capturas:
         elif name.startswith('12-falha'):
             self.focus(name, 'falha')
         # `adb exec-out` não repassa o fim da entrada (um `tee` remoto espera para sempre); o ACK vai no argumento.
-        ack = base64.b64encode(json.dumps({'seq': seq, 'ok': True}).encode()).decode()
+        ack = base64.b64encode(json.dumps({'seq': seq, 'ok': True, 'imagem': image}).encode()).decode()
         adb('shell', f"run-as {APP_ID} sh -c 'echo {ack} | base64 -d > files/heisuca-bancada-ack.tmp'", check=True)
         adb('exec-out', 'run-as', APP_ID, 'chmod', '600', 'files/heisuca-bancada-ack.tmp', check=True)
         adb('exec-out', 'run-as', APP_ID, 'mv', 'files/heisuca-bancada-ack.tmp',

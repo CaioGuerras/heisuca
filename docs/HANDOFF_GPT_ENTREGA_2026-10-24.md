@@ -2295,3 +2295,38 @@ Bancada pré-patch **40441219089** não testou o app: terminou no comando
 Estado vermelho/instável de infraestrutura registrado, não uma aprovação nem
 regressão atribuída ao player. A nova execução do candidato já foi disparada
 pelo push; não houve rerun do app para mascarar esse resultado.
+
+#### P1 — pixels restaurados, mas bancada ainda vermelha
+
+Candidato `2f526a1`: APK **40442922526 verde**, artifact **12707207829**,
+ZIP SHA-256 `82581b8f5c75f82357d822448a9e93425df5a74b7495d900c9790e3a0eb51eae`.
+Pacote `app.heisuca.player.teste.home`, certificado
+`19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`, APK
+97.138.589 bytes, SHA-256
+`15b04eb59ac78664347aa46e4bb1166b693189b2d8bcb2a511f506075b46c1a5`.
+ZIP/APK baixados pelo conector e hashes recalculados localmente, iguais ao run.
+
+Bancada **40442922427 vermelha**, artifact **12707875657**. PNGs originais
+21/06 mostram vídeo real após o patch, inspecionados e preservados em
+`docs/evidencias/p1_21_apos_sync_2026-10-27.png` e `p1_06_apos_sync_2026-10-27.png`.
+Os 3 overflows foram reconhecidos pela regra (227,8×128 dp, fase ativo).
+Mas `testeEncerrado: false`: falhou uma asserção nova que exigia uma flag de VO
+lida antes da captura 06, enquanto o PNG posterior já mostrava vídeo. Houve
+ANR real do app: FocusEvent(hasFocus=false), 5002ms, dados restaurados. Não
+marcado ATENÇÃO/infraestrutura nem aprovação. Diagnóstico completo em
+`docs/DIAGNOSTICO_P1_2026-10-27.md`.
+
+Duas correções da própria prova, ambas com teste negativo antes do patch:
+
+- ACK agora contém os pixels da captura correspondente. Antes faltava `imagem`
+  no ACK; depois campo presente e confirmado. Probes antigos permanecem
+  diagnósticos, sem veto a uma imagem posterior. Preto total continua erro.
+- Tratador não expande diagnóstico de erro comum/fora do PiP antes de delegar.
+  Antes informationCollector era executado indevidamente (esperado 0, obtido 1).
+  Depois 0; HUD real continua reconhecido. Trace aponta concatenação de strings
+  em main, mas não foi alegado que essa correção sozinha resolveu o ANR.
+
+Portão completo desta correção de prova **aprovado**: 851 Flutter (3 skips),
+8 Impeller, 40 Python; `/tmp/p1-capture-final-gate.log`. Próximo run deve completar
+até Você e trazer `anrDoApp=false`; qualquer ANR continua vermelho. P2–P7
+pendentes. Sem ENTREGA-FINAL e sem publicação.

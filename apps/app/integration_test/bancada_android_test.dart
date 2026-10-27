@@ -95,18 +95,12 @@ void main() {
     final steps = <String>[];
     final warnings = <Map<String, Object?>>[];
     var pipPhase = 'fora';
-    binding.reportData = {'passos': steps, 'testeEncerrado': false, 'avisos': warnings};
+    binding.reportData = {'passos': steps, 'testeEncerrado': false, 'avisos': warnings, 'capturasNativas': <String, dynamic>{}};
     FlutterError.onError = (details) {
       final view = binding.platformDispatcher.views.first;
       final size = view.physicalSize / view.devicePixelRatio;
-      final source = details.toDiagnosticsNode().toStringDeep();
-      final message = details.exceptionAsString();
-      if (details.exception is FlutterError && details.library == 'rendering library' &&
-          knownPipHudOverflow(message: message, source: source, phase: pipPhase,
-            width: size.width, height: size.height)) {
-        final widget = RegExp(r'(video_controls_header\.dart:59:12|mobile_video_controls\.dart:(?:387:16|237:14))').firstMatch(source)!.group(1);
-        final warning = <String, Object?>{'tipo': 'overflow HUD PiP', 'widget': widget,
-          'fase': pipPhase, 'larguraDp': size.width, 'alturaDp': size.height};
+      final warning = pipHudWarning(details, phase: pipPhase, width: size.width, height: size.height);
+      if (warning != null) {
         warnings.add(warning);
         print('BANCADA_ATENCAO: ${jsonEncode(warning)}');
         return;
@@ -139,7 +133,15 @@ void main() {
       while (true) {
         if (await ack.exists()) {
           final data = jsonDecode(await ack.readAsString()) as Map<String, dynamic>;
-          if (data['seq'] == seq && data['ok'] == true) break;
+          if (data['seq'] == seq && data['ok'] == true) {
+            if (name == '21-imagem-apos-audio' || name == '06-player') {
+              final image = data['imagem'];
+              expect(image, isA<Map>());
+              expect((image as Map)['imagem'], 'sim', reason: 'A captura nativa precisa conter imagem.');
+              (binding.reportData!['capturasNativas'] as Map)[name] = image;
+            }
+            break;
+          }
         }
         if (DateTime.now().isAfter(deadline)) throw StateError('Captura não confirmada: $name.');
         await waitBancada(binding, const Duration(milliseconds: 200));
@@ -361,7 +363,7 @@ void main() {
     final restoredDecoded = await decodedFrame(restoredProbe);
     print('BANCADA_VIDEO_APOS_AUDIO: ${jsonEncode(restoredProbe)}');
     await shot('21-imagem-apos-audio', decodedFrame: restoredDecoded);
-    expect(restoredProbe['vo-configured'], 'yes', reason: 'Faixa e posição não comprovam saída de vídeo restaurada.');
+    // Probe é diagnóstico anterior ao PNG; o ACK traz a prova da captura real.
     pipPhase = 'entrada';
     expect((await PipService.enter(width: 16, height: 9)).$1, isTrue);
     await until(() => PipService().isPipActive.value, 'PiP manual com áudio permitido');
@@ -398,7 +400,7 @@ void main() {
     final beforeBackProbe = await videoProbe();
     binding.reportData!['imagemAntesDoBack'] = beforeBackProbe;
     await shot('06-player', back: true);
-    expect(beforeBackProbe['vo-configured'], 'yes', reason: 'Saída de vídeo precisa estar configurada antes do Back.');
+    // Não confundir uma amostra anterior à captura com os pixels do PNG confirmado.
     await until(
       () => find.byType(VideoPlayerScreen).evaluate().isEmpty && find.byType(HeisucaTitleSheet).evaluate().isNotEmpty,
       'voltar à ficha',

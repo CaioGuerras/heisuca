@@ -1,7 +1,17 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/foundation.dart';
 import '../../integration_test/support/pip_overflow_policy.dart';
 
 void main() {
+  test('P1: não expande diagnóstico fora da lista antes de delegar ao framework', () {
+    for (final exception in [StateError('falha comum'), FlutterError('A RenderFlex overflowed by 1 pixels on the right.')]) {
+      var reads = 0;
+      final details = FlutterErrorDetails(exception: exception, library: 'rendering library',
+        informationCollector: () { reads++; return [ErrorDescription('diagnóstico completo')]; });
+      expect(pipHudWarning(details, phase: 'fora', width: 986, height: 444), isNull);
+      expect(reads, 0, reason: 'Não construir a árvore de erro em janela cheia ou para exceção não candidata.');
+    }
+  });
   const cases = [
     ('widgets/video_controls_header.dart:59:12', 'right', 151),
     ('mobile_video_controls.dart:387:16', 'right', 7.2),

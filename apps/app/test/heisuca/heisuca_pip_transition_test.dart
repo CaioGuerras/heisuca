@@ -159,6 +159,7 @@ void main() {
     await tester.pump();
     expect(errors, isNotEmpty);
     for (final details in errors) {
+      expect(pipHudWarning(details, phase: 'entrada', width: 240.8, height: 108.2), isNotNull);
       final source = details.toDiagnosticsNode().toStringDeep();
       expect(knownPipHudOverflow(message: details.exceptionAsString(), source: source,
         phase: 'entrada', width: 240.8, height: 108.2), isTrue, reason: source);

@@ -1,6 +1,6 @@
 name: Heisuca PEPK (chave para a Play)
 
-# Exporta a chave dos APKs do Heisuca, cifrada para a Google Play (App Signing).
+# Exporta a chave do Heisuca (~/.cgflix/segredos/heisuca_play.p12, criada por heisuca-chave-criar), cifrada para a Google Play (App Signing).
 # A chave nunca sai do Actions em claro: o PEPK cifra com a chave pública da Play
 # (play/encryption_public_key.pem, baixada do Play Console) e só o .zip cifrado vira artifact.
 
@@ -41,21 +41,21 @@ jobs:
 
       - name: Exportar chave cifrada
         env:
-          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          ESPERADO: "19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c"
+          KEYSTORE_B64: ${{ secrets.HEISUCA_PLAY_KEYSTORE_B64 }}
+          STORE_PASSWORD: ${{ secrets.HEISUCA_PLAY_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.HEISUCA_PLAY_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.HEISUCA_PLAY_KEY_ALIAS }}
+          ESPERADO: "d415544dae728cd8d402827f1bf17b6af00b2443295b3bad8b463d65d3acd4c1"
         run: |
           set -euo pipefail
           if [ -z "$KEYSTORE_B64" ]; then echo "::error::Secrets da keystore ausentes."; exit 1; fi
-          ks="$RUNNER_TEMP/heisuca.jks"
+          ks="$RUNNER_TEMP/heisuca.p12"
           trap 'rm -f "$ks"' EXIT
           echo "$KEYSTORE_B64" | base64 --decode > "$ks"
           sha=$(keytool -exportcert -rfc -keystore "$ks" -storepass "$STORE_PASSWORD" -alias "$KEY_ALIAS" \
                 | openssl x509 -noout -fingerprint -sha256 | cut -d= -f2 | tr -d ':' | tr 'A-F' 'a-f')
           echo "Certificado SHA-256: $sha"
-          if [ "$sha" != "$ESPERADO" ]; then echo "::error::Certificado não é o dos APKs do Heisuca."; exit 1; fi
+          if [ "$sha" != "$ESPERADO" ]; then echo "::error::Certificado não é o da chave do Heisuca (heisuca-chave-criar)."; exit 1; fi
           mkdir -p "$RUNNER_TEMP/saida"
           java -jar "$RUNNER_TEMP/pepk.jar" \
             --keystore="$ks" --alias="$KEY_ALIAS" \

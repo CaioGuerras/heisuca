@@ -2675,3 +2675,17 @@ premissa. P4–P7 seguem pendentes, sem ENTREGA-FINAL e sem publicação de APK.
 herdados (inclui warnings a tratar na P4; esta coleta não os declara resolvidos).
 As 360 capturas posteriores foram geradas por este mesmo portão e todos os
 JSONs têm lista de erros vazia. Próximo passo: push normal e inspeção dos runs.
+
+### P3 — segunda coleta enviada; runs em andamento
+
+Commit normal **f6a8c0f0b51e4ed5f3453f64e73d1d23d40c5a9f**, 2.0.34+36.
+Portão completo local verde registrado acima. Push no ramo único.
+
+- APK: [40536736659](https://github.com/CaioGuerras/heisuca/actions/runs/40536736659),
+  em andamento; artifact, pacote, certificado e SHA-256 ainda não conferidos.
+- Bancada: [40536737040](https://github.com/CaioGuerras/heisuca/actions/runs/40536737040),
+  em andamento; faltam relatório, percurso, imagem, ANR e restauração.
+
+Retomada: inspecionar ambos antes de avançar para P4. Não fechar esta coleta
+por suposição. Prova da mídia original/barras segue diagnosticada como bloqueada;
+P4–P7, aparelhos e revisão independente pendentes. Nenhuma publicação de APK.

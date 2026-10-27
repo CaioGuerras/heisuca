@@ -17,6 +17,22 @@ export 'cgflix_palette.dart';
 
 const cgflixFontFamily = 'Inter';
 
+TextTheme _heisucaTypography(TextTheme source) {
+  final text = source.apply(fontFamily: cgflixFontFamily);
+  TextStyle? heading(TextStyle? style) => style?.copyWith(fontFamily: 'Sora');
+  return text.copyWith(
+    displayLarge: heading(text.displayLarge),
+    displayMedium: heading(text.displayMedium),
+    displaySmall: heading(text.displaySmall),
+    headlineLarge: heading(text.headlineLarge),
+    headlineMedium: heading(text.headlineMedium),
+    headlineSmall: heading(text.headlineSmall),
+    titleLarge: heading(text.titleLarge),
+    titleMedium: heading(text.titleMedium),
+    titleSmall: heading(text.titleSmall),
+  );
+}
+
 /// Tema do app para a [variant] (Isis, escuro e roxo; Heitor, claro e verde). É o ÚNICO
 /// ponto de entrada de tema do app (`main.dart` usa só isto). As cores vêm de
 /// `cgflix_palette.dart`; os dois passam pelo tema "mono" do upstream (forma, tamanhos,
@@ -73,10 +89,10 @@ ThemeData cgflixBrandTheme(ThemeData theme, {required bool oled, CgflixThemeVari
       : oled ? CgflixPalette.isis : (theme.brightness == Brightness.light ? CgflixPalette.heitor : CgflixPalette.hisuiDark);
   final accent = palette.accent;
   final branded = theme.copyWith(
-    textTheme: theme.textTheme.apply(fontFamily: cgflixFontFamily),
-    primaryTextTheme: theme.primaryTextTheme.apply(fontFamily: cgflixFontFamily),
+    textTheme: _heisucaTypography(theme.textTheme),
+    primaryTextTheme: _heisucaTypography(theme.primaryTextTheme),
     appBarTheme: theme.appBarTheme.copyWith(
-      titleTextStyle: theme.appBarTheme.titleTextStyle?.copyWith(fontFamily: cgflixFontFamily),
+      titleTextStyle: theme.appBarTheme.titleTextStyle?.copyWith(fontFamily: 'Sora'),
       systemOverlayStyle: cgflixSystemOverlay(theme.brightness),
     ),
     pageTransitionsTheme: PageTransitionsTheme(

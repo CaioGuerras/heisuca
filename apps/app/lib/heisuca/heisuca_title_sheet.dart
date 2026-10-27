@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+import 'heisuca_text_metrics.dart';
 import 'heisuca_theme.dart';
 import 'heisuca_home_chrome.dart';
 import '../cgflix/cgflix_navigation.dart';
@@ -295,13 +297,13 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
   }
 
   /// Botão de vidro do site (.titulo-play): translúcido sobre a cor da página, sem branco chapado.
-  Widget _playButton(HeisucaTitleColors c, {bool compact = false}) {
+  Widget _playButton(HeisucaTitleColors c) {
     final enabled = _target != null;
     return Semantics(button: true, enabled: enabled, label: _playLabel, child: Material(
       color: c.isLight ? Colors.white.withValues(alpha: .62) : Colors.white.withValues(alpha: .16),
       shape: StadiumBorder(side: BorderSide(color: c.isLight ? Colors.white.withValues(alpha: .7) : Colors.white.withValues(alpha: .14))),
       clipBehavior: Clip.antiAlias,
-      child: InkWell(onTap: enabled ? _play : null, child: SizedBox(height: compact ? 44 : 48, child: Center(child: Row(
+      child: InkWell(onTap: enabled ? _play : null, child: SizedBox(height: 48, child: Center(child: Row(
         mainAxisSize: MainAxisSize.min, children: [
           Icon(Icons.play_arrow_rounded, size: 24, color: c.text.withValues(alpha: enabled ? 1 : .4)),
           const SizedBox(width: 6),
@@ -464,7 +466,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
           scrollController: _scroll, logoAnchor: _logoAnchor, pageColor: c.page,
           item: _item, client: client, expandedLogoWidth: size.width - 48,
           expandedLogoHeight: 104, expandedTitleSize: 32, titleFontFamily: HeisucaTheme.fonteTitulo,
-          belowHeaderAction: _docked ? _playButton(c, compact: true) : null,
+          belowHeaderAction: _docked ? _playButton(c) : null,
           onSearch: () => cgflixOpenSearch(context),
           onHome: () => _scroll.animateTo(0, duration: HeisucaMotion.durationFor(context), curve: HeisucaMotion.curve),
           onTitleTap: () => _scroll.animateTo(0, duration: HeisucaMotion.durationFor(context), curve: HeisucaMotion.curve),
@@ -486,13 +488,24 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
       if (!_loadingEpisodes && _episodes.isEmpty && _episodeError == null) Padding(
         padding: const EdgeInsets.symmetric(horizontal: HeisucaTitleMetrics.margin),
         child: Text('Nenhum episódio disponível nesta temporada.', style: TextStyle(color: c.text2))),
-      if (page.isNotEmpty) SizedBox(height: HeisucaTitleMetrics.landscapeCard * 9 / 16 + 62, child: _EpisodeStrip(
+      if (page.isNotEmpty) SizedBox(height: page.map(_episodeCardHeight).reduce(math.max), child: _EpisodeStrip(
         key: ValueKey('${_season?.id}:$_group'),
         initialIndex: page.indexWhere((ep) => ep.id == _target?.id),
         children: page.map((ep) => _episodeCard(c, ep)).toList())),
       if (groups > 1) Padding(padding: const EdgeInsets.fromLTRB(HeisucaTitleMetrics.margin, 10, HeisucaTitleMetrics.margin, 0),
         child: Wrap(spacing: 8, runSpacing: 8, children: [for (var i = 0; i < groups; i++) _pageChip(c, i)])),
     ];
+  }
+
+  double _episodeCardHeight(MediaItem ep) {
+    const width = HeisucaTitleMetrics.landscapeCard;
+    final title = heisucaTextHeight(context, _episodeTitle(ep),
+      const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, height: 1.25),
+      maxWidth: width - 4, maxLines: 2);
+    final meta = _episodeMeta(ep);
+    final metadata = meta.isEmpty ? 0 : 2 + heisucaTextHeight(context, meta,
+      const TextStyle(fontSize: 11.5), maxWidth: width - 4);
+    return math.max(width * 9 / 16 + 62, (width - 8) * 9 / 16 + 8 + 6 + title + metadata);
   }
 
   Widget _pageChip(HeisucaTitleColors c, int i) {
@@ -612,7 +625,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
     const width = 104.0;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       HeisucaSectionTitle('Títulos relacionados', colors: c),
-      SizedBox(height: width * 1.5 + HeisucaPosterTile.textBlock + 10, child: snap.connectionState != ConnectionState.done
+      SizedBox(height: width * 1.5 + HeisucaPosterTile.textBlockFor(context) + 10, child: snap.connectionState != ConnectionState.done
         ? ListView.separated(scrollDirection: Axis.horizontal, itemCount: 4,
             padding: const EdgeInsets.symmetric(horizontal: HeisucaTitleMetrics.margin),
             separatorBuilder: (_, __) => const SizedBox(width: HeisucaTitleMetrics.gap),

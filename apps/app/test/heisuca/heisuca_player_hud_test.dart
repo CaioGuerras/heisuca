@@ -5,29 +5,16 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:heisuca/cgflix/cgflix_theme.dart';
 import 'package:heisuca/i18n/strings.g.dart';
-import 'package:heisuca/mpv/mpv.dart';
 import 'package:heisuca/services/settings_service.dart';
 import 'package:heisuca/widgets/overlay_sheet.dart';
 import 'package:heisuca/widgets/video_controls/mobile_video_controls.dart';
 import 'package:heisuca/widgets/video_controls/widgets/timeline_slider.dart';
 import 'package:heisuca/widgets/video_controls/models/track_controls_state.dart';
 import 'package:heisuca/watch_together/providers/watch_together_provider.dart';
-import '../test_helpers/watch_together_fakes.dart';
+import '../test_helpers/player_hud_fixture.dart';
 import '../test_helpers/media_items.dart';
 import '../test_helpers/prefs.dart';
 import '../visual/heisuca_snapshot.dart';
-
-/// Player falso com as faixas de um anime real do acervo (áudio JA/PT, legenda ASS em português).
-class _AnimePlayer extends FakeSyncPlayer {
-  _AnimePlayer() : super(position: const Duration(minutes: 18, seconds: 42), hasRenderedFrame: true, playing: true);
-  static const ja = AudioTrack(id: '1', language: 'jpn', codec: 'eac3', channels: 6);
-  static const pt = AudioTrack(id: '2', language: 'por', codec: 'aac', channels: 2);
-  static const sub = SubtitleTrack(id: '3', language: 'por', codec: 'ass', title: 'Brazil');
-  @override
-  PlayerState get state => super.state.copyWith(
-    tracks: const Tracks(audio: [ja, pt], subtitle: [sub]),
-    track: const TrackSelection(audio: ja, subtitle: sub));
-}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -42,7 +29,7 @@ void main() {
     tester.view.physicalSize = const Size(986 * 2, 444 * 2);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
-    final player = _AnimePlayer();
+    final player = HeisucaHudPlayer();
     final watch = WatchTogetherProvider();
     addTearDown(player.dispose);
     addTearDown(watch.dispose);

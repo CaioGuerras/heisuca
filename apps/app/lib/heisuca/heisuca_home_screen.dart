@@ -46,6 +46,7 @@ import '../widgets/optimized_media_image.dart';
 import 'heisuca_context_menu.dart';
 import 'heisuca_design_system.dart';
 import 'heisuca_theme.dart';
+import 'heisuca_text_metrics.dart';
 import 'heisuca_title_sheet.dart';
 
 class HeisucaHomeScreen extends StatefulWidget {
@@ -666,7 +667,7 @@ class _HeisucaContinueWatchingRow extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: 180 * 9 / 16 + CgflixWideCard.titleBlockHeight,
+            height: 180 * 9 / 16 + CgflixWideCard.titleBlockHeightFor(context, siteStyle: true),
             child: ListView.separated(
               key: const PageStorageKey('heisuca-continue-watching-list'),
               physics: const ProMotionScrollPhysics(),
@@ -851,7 +852,9 @@ class _HeisucaShelfRow extends StatelessWidget {
             if (onSeeAll != null) TextButton(onPressed: onSeeAll, child: const Text('Ver tudo ›')),
           ])),
           SizedBox(
-            height: 180,
+            height: (120 + 5
+                + heisucaLineHeight(context, const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600))
+                + heisucaLineHeight(context, const TextStyle(fontSize: 11))).clamp(180.0, double.infinity),
             child: ListView.separated(
               key: PageStorageKey<String>('heisuca-shelf:$storageKey'),
               physics: const ProMotionScrollPhysics(),

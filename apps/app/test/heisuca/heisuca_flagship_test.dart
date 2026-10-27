@@ -54,33 +54,34 @@ void main() {
   });
 
   group('HeisucaLogo', () {
-    testWidgets('adapta selo e texto para Shikkoku (escuro)', (tester) async {
+    testWidgets('adapta marca SVG para Shikkoku (escuro)', (tester) async {
       await _montar(tester, CgflixThemeVariant.isis, const Scaffold(body: Center(child: HeisucaLogo())));
       expect(find.byType(SvgPicture), findsOneWidget);
       final svg = tester.widget<SvgPicture>(find.byType(SvgPicture));
       final bytesLoader = svg.bytesLoader as SvgAssetLoader;
-      expect(bytesLoader.assetName, 'assets/heisuca/selo_pequeno_shikkoku.svg');
+      expect(bytesLoader.assetName, 'assets/heisuca/marca_site_shikkoku.svg');
+      expect(bytesLoader.colorMapper, isNotNull);
 
-      final text = tester.widget<Text>(find.text('HEISUCA'));
-      expect(text.style?.color, const Color(0xFFF4F1FA));
+      expect(find.text('HEISUCA'), findsNothing);
     });
 
-    testWidgets('adapta selo e texto para Hisui (claro)', (tester) async {
+    testWidgets('adapta marca SVG para Hisui (claro)', (tester) async {
       await _montar(tester, CgflixThemeVariant.heitor, const Scaffold(body: Center(child: HeisucaLogo())));
       expect(find.byType(SvgPicture), findsOneWidget);
       final svg = tester.widget<SvgPicture>(find.byType(SvgPicture));
       final bytesLoader = svg.bytesLoader as SvgAssetLoader;
-      expect(bytesLoader.assetName, 'assets/heisuca/selo_pequeno_hisui.svg');
+      expect(bytesLoader.assetName, 'assets/heisuca/marca_site_hisui.svg');
+      expect(bytesLoader.colorMapper, isNotNull);
 
-      final text = tester.widget<Text>(find.text('HEISUCA'));
-      expect(text.style?.color, const Color(0xFF134E4A));
+      expect(find.text('HEISUCA'), findsNothing);
     });
   });
 
   group('HeisucaLoginScreen', () {
     testWidgets('monta sem erro e com distribuição equilibrada no modo escuro', (tester) async {
       await _montar(tester, CgflixThemeVariant.isis, const HeisucaLoginScreen());
-      expect(find.text('HEISUCA'), findsOneWidget);
+      expect(find.byType(HeisucaLogo), findsOneWidget);
+      expect(find.text('HEISUCA'), findsNothing);
       expect(find.text('SERVIDOR'), findsOneWidget);
       expect(find.text('USUÁRIO'), findsOneWidget);
       expect(find.text('SENHA'), findsOneWidget);
@@ -91,7 +92,8 @@ void main() {
 
     testWidgets('monta sem erro no modo claro', (tester) async {
       await _montar(tester, CgflixThemeVariant.heitor, const HeisucaLoginScreen());
-      expect(find.text('HEISUCA'), findsOneWidget);
+      expect(find.byType(HeisucaLogo), findsOneWidget);
+      expect(find.text('HEISUCA'), findsNothing);
       expect(find.text('SERVIDOR'), findsOneWidget);
       expect(find.text('Iniciar sessão'), findsOneWidget);
     });
@@ -213,6 +215,12 @@ void main() {
     await service.write(settings.SettingsService.skipIntroMode, settings.SkipMarkerMode.button);
     await _montar(tester, CgflixThemeVariant.isis, const HeisucaSettingsScreen());
     await tester.pumpAndSettle();
+    Future<void> revealIntro() async {
+      await tester.scrollUntilVisible(find.text('Pular Abertura Automático'), 200,
+        scrollable: find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)).first);
+      await tester.pumpAndSettle();
+    }
+    await revealIntro();
     final introSwitch = find.descendant(
       of: find.ancestor(of: find.text('Pular Abertura Automático'), matching: find.byType(Row)).first,
       matching: find.byType(Switch),
@@ -225,6 +233,7 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     await _montar(tester, CgflixThemeVariant.isis, const HeisucaSettingsScreen());
     await tester.pumpAndSettle();
+    await revealIntro();
     expect(tester.widget<Switch>(introSwitch).value, isTrue);
   });
 
@@ -361,7 +370,7 @@ void main() {
 
       expect(find.text('Você'), findsOneWidget);
       expect(find.text('MÍDIA & BIBLIOTECA'), findsOneWidget);
-      expect(find.text('Baixados & Offline'), findsOneWidget);
+      expect(find.text('Baixados'), findsOneWidget);
       expect(find.text('Favoritos'), findsOneWidget);
       expect(find.text('Todas as Bibliotecas'), findsOneWidget);
       // Caio, 24/10: menu por assunto.
@@ -372,8 +381,8 @@ void main() {
       expect(find.text('Este aparelho'), findsNothing);
       expect(find.text('Sobre o Heisuca'), findsOneWidget);
       expect(find.text('Trocar perfil'), findsOneWidget);
-      await tester.scrollUntilVisible(find.text('Sair da Conta'), 300, scrollable: find.byType(Scrollable).first);
-      expect(find.text('Sair da Conta'), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('Sair da conta'), 300, scrollable: find.byType(Scrollable).first);
+      expect(find.text('Sair da conta'), findsOneWidget);
 
       // Descontaminação estrita: NÃO deve conter apoio nem opções legadas do CGFLIX
       expect(find.text('Apoie o CGFLIX'), findsNothing);

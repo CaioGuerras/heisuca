@@ -54,7 +54,8 @@ class HeisucaPlayerPill extends StatelessWidget {
       color: Colors.black.withValues(alpha: .38),
       shape: StadiumBorder(side: BorderSide(color: active ? accent : Colors.white.withValues(alpha: .22), width: 1.2)),
       clipBehavior: Clip.antiAlias,
-      child: InkWell(onTap: onTap, child: Padding(
+      child: InkWell(onTap: onTap, child: ConstrainedBox(
+        constraints: const BoxConstraints(minWidth: 48, minHeight: 48), child: Padding(
         padding: EdgeInsets.symmetric(horizontal: label == null ? 9 : 14, vertical: 9),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           if (icon != null) Icon(icon, size: 20, color: active ? accent : Colors.white),
@@ -63,7 +64,7 @@ class HeisucaPlayerPill extends StatelessWidget {
             fontFeatures: [FontFeature.tabularFigures()])),
           if (label != null && onTap != null) const Icon(Icons.arrow_drop_down_rounded, size: 20, color: Colors.white70),
         ]),
-      )),
+      ))),
     ));
   }
 }
@@ -133,7 +134,7 @@ class HeisucaPlayerTabs extends StatelessWidget {
     final accent = context.cgflix.accent;
     Widget tab({required String text, String? value, required VoidCallback onTap, IconData? icon, required String semantic}) =>
       Semantics(button: true, label: semantic, child: InkWell(borderRadius: BorderRadius.circular(10), onTap: onTap,
-        child: ConstrainedBox(constraints: const BoxConstraints(minHeight: 44), child: Padding(
+        child: ConstrainedBox(constraints: const BoxConstraints(minHeight: 48), child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
             if (icon != null) ...[Icon(icon, size: 20, color: Colors.white), const SizedBox(width: 6)],

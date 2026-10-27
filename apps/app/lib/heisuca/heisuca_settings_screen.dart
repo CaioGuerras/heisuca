@@ -269,7 +269,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
             // Seletor de Abas (Geral vs Avançado)
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
-              height: 40.0,
+              height: 48.0,
               decoration: BoxDecoration(
                 color: tabBg,
                 borderRadius: BorderRadius.circular(10.0),
@@ -554,7 +554,8 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
         HeisucaSpringPressable(
           onTap: _restore,
           child: Container(
-            height: 44.0,
+            constraints: const BoxConstraints(minHeight: 48),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: context.cgflix.divider,
               borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
@@ -565,7 +566,8 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
             ),
             child: Center(
               child: Text(
-                'Restaurar Configuração Recomendada',
+                'Restaurar configuração recomendada',
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: HeisucaTheme.fonteTexto,
                   fontSize: 13.5,

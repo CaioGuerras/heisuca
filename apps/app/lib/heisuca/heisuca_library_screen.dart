@@ -1,3 +1,4 @@
+import '../utils/grid_size_calculator.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -140,12 +141,21 @@ class _HeisucaLibraryScreenState extends State<HeisucaLibraryScreen> with Refres
       Expanded(child: _items.isEmpty && !_loading ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
         const Text('Nenhum título disponível nesta seleção.'),
         if (_servers.serverManager.navigationOnlineClients.isEmpty) const HeisucaSourceTile(),
-      ])) : RefreshIndicator(onRefresh: _reload, child: GridView.builder(controller: _scroll,
+       ])) : LayoutBuilder(builder: (context, constraints) {
+        final availableWidth = constraints.maxWidth - 32;
+        final columns = GridSizeCalculator.getColumnCount(availableWidth, 160, crossAxisSpacing: 12);
+        final width = GridSizeCalculator.getCellWidthForColumnCount(availableWidth, columns, crossAxisSpacing: 12);
+        final captionHeight = HeisucaPosterTile.textBlockFor(context);
+        final naturalHeight = width * 1.5 + captionHeight;
+        return RefreshIndicator(onRefresh: _reload, child: GridView.builder(controller: _scroll,
         physics: const AlwaysScrollableScrollPhysics(), padding: const EdgeInsets.fromLTRB(16, 4, 16, 100),
-        // Pôster 2:3 + bloco do título (CgflixPosterCard.titleBlockHeight): o nome não pode ser cortado.
-        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 160, childAspectRatio: 0.5, crossAxisSpacing: 12, mainAxisSpacing: 10),
+        // Preserva a grade a 100%; fonte maior ganha espaço real para a legenda.
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: columns,
+          mainAxisExtent: naturalHeight > width * 2 ? naturalHeight : width * 2,
+          crossAxisSpacing: 12, mainAxisSpacing: 10),
         itemCount: _items.length, itemBuilder: (context, i) => LayoutBuilder(builder: (context, box) => HeisucaPosterTile(
-          item: _items[i], client: _selected?.client, width: box.maxWidth, onTap: () => cgflixOpenDetails(context, _items[i])))))),
+          item: _items[i], client: _selected?.client, width: box.maxWidth, onTap: () => cgflixOpenDetails(context, _items[i])))));
+      })),
       if (_more && !_loading) const LinearProgressIndicator(minHeight: 2),
     ]));
   }

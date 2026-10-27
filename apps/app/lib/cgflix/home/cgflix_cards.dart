@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import '../../heisuca/heisuca_design_system.dart';
+import '../../heisuca/heisuca_text_metrics.dart';
 import '../../media/media_item.dart';
 import '../../media/media_kind.dart';
 import '../../media/media_server_client.dart';
@@ -361,6 +362,14 @@ class CgflixWideCard extends StatelessWidget {
 
   static const double titleBlockHeight = 50;
 
+  static double titleBlockHeightFor(BuildContext context, {bool siteStyle = false}) {
+    final theme = Theme.of(context).textTheme;
+    final title = theme.bodyMedium!.copyWith(fontWeight: FontWeight.w600, fontSize: siteStyle ? 12 : null);
+    final subtitle = theme.bodySmall!.copyWith(fontSize: siteStyle ? 10.5 : null);
+    final measured = 6 + heisucaLineHeight(context, title) + heisucaLineHeight(context, subtitle);
+    return measured > titleBlockHeight ? measured : titleBlockHeight;
+  }
+
   double? get _progress {
     final offset = item.viewOffsetMs;
     final duration = item.durationMs;
@@ -481,12 +490,8 @@ class CgflixWideCard extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             SizedBox(
-              height: titleBlockHeight - 6,
-              // Fonte grande do sistema não estoura o cartão (no máximo 1,2×).
-              child: MediaQuery.withClampedTextScaling(
-                maxScaleFactor: 1.2,
-                child: ClipRect(
-                  child: Column(
+              height: titleBlockHeightFor(context, siteStyle: siteStyle) - 6,
+              child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
@@ -507,8 +512,6 @@ class CgflixWideCard extends StatelessWidget {
                           ),
                         ),
                     ],
-                  ),
-                ),
               ),
             ),
           ],

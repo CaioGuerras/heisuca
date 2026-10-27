@@ -275,7 +275,7 @@ class _MpvConfigScreenState extends State<MpvConfigScreen> with ListenableBindin
     );
   }
 
-  static const _editorStyle = TextStyle(fontFamily: 'monospace', fontSize: 13);
+  static const _editorStyle = TextStyle(fontFamily: 'Inter', fontSize: 13);
 
   void _handleLineEditorChanged(String text) {
     _textController.value = TextEditingValue(

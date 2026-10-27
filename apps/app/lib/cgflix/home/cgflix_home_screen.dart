@@ -605,7 +605,7 @@ class _ContinueWatchingRowState extends State<_ContinueWatchingRow> {
         key: const ValueKey('row'),
         title: cgflixRowTitle(CgflixRowKind.continueWatching),
         storageKey: 'continue',
-        height: cgflixWideHeight + CgflixWideCard.titleBlockHeight,
+        height: cgflixWideHeight + CgflixWideCard.titleBlockHeightFor(context),
         itemCount: items.length,
         itemBuilder: (context, index) {
           final item = items[index];

@@ -2,6 +2,7 @@
 // Só apresentação: os dados e as ações vêm de heisuca_title_sheet.dart.
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'heisuca_theme.dart';
 import '../media/media_file_info.dart';
 import '../media/media_item.dart';
 import '../utils/language_codes.dart';
@@ -25,7 +26,7 @@ class HeisucaTitleColors {
   Color get surface => Color.alphaBlend(text.withValues(alpha: isLight ? .05 : .07), page);
 }
 
-TextStyle heisucaSectionStyle(HeisucaTitleColors c) => TextStyle(fontSize: HeisucaTitleMetrics.sectionTitle,
+TextStyle heisucaSectionStyle(HeisucaTitleColors c) => TextStyle(fontFamily: HeisucaTheme.fonteTitulo, fontSize: HeisucaTitleMetrics.sectionTitle,
     fontWeight: FontWeight.w700, letterSpacing: -.17, color: c.text);
 
 class HeisucaSectionTitle extends StatelessWidget {

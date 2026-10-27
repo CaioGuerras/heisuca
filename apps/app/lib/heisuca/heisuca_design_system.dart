@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../focus/focusable_wrapper.dart';
 
 /// Design System Flagship do Heisuca (炳素華)
 /// Filosofia: "Nada entre você e o filme."
@@ -391,7 +392,13 @@ class _HeisucaSpringPressableState extends State<HeisucaSpringPressable> {
         ? (widget.pressedScale * 0.965)
         : (_pressed ? widget.pressedScale : 1.0);
 
-    return Listener(
+    return FocusableWrapper(
+      onSelect: widget.onTap,
+      onLongPress: widget.onLongPress,
+      enableLongPress: widget.onLongPress != null,
+      canRequestFocus: widget.onTap != null || widget.onLongPress != null,
+      disableScale: true,
+      child: Listener(
       onPointerDown: _onPointerDown,
       onPointerUp: _onPointerUp,
       onPointerCancel: _onPointerCancel,
@@ -413,6 +420,7 @@ class _HeisucaSpringPressableState extends State<HeisucaSpringPressable> {
           curve: _pressed ? Curves.easeOutCubic : const ElasticOutCurve(0.85),
           child: widget.child,
         ),
+      ),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import '../cgflix/home/cgflix_actions.dart';
+import 'heisuca_text_metrics.dart';
 import 'package:flutter/material.dart';
 import '../cgflix/cgflix_palette.dart';
 import '../cgflix/home/cgflix_cards.dart';
@@ -16,6 +17,11 @@ class HeisucaPosterTile extends StatelessWidget {
 
   /// Altura do bloco de texto abaixo do pôster (título + ano).
   static const textBlock = 40.0;
+  static double textBlockFor(BuildContext context) {
+    final measured = 6 + heisucaLineHeight(context, const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600))
+        + heisucaLineHeight(context, const TextStyle(fontSize: 11));
+    return measured > textBlock ? measured : textBlock;
+  }
 
   @override
   Widget build(BuildContext context) => SizedBox(width: width, child: Column(

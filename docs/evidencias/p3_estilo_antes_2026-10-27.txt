@@ -26,7 +26,7 @@ The test description was:
 00:01 +0 -1: P3 Shikkoku: login usa o canvas do tema [E]
   Test failed. See exception logs above.
   The test description was: P3 Shikkoku: login usa o canvas do tema
-  
+
 00:01 +0 -1: P3 Shikkoku: Você usa o canvas do tema
 ══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
 The following TestFailure was thrown running a test:
@@ -53,7 +53,7 @@ The test description was:
 00:01 +0 -2: P3 Shikkoku: Você usa o canvas do tema [E]
   Test failed. See exception logs above.
   The test description was: P3 Shikkoku: Você usa o canvas do tema
-  
+
 00:01 +0 -2: P3 Shikkoku: dica do campo de login tem AA no preenchimento real
 ══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
 The following TestFailure was thrown running a test:
@@ -79,7 +79,7 @@ The test description was:
 00:01 +0 -3: P3 Shikkoku: dica do campo de login tem AA no preenchimento real [E]
   Test failed. See exception logs above.
   The test description was: P3 Shikkoku: dica do campo de login tem AA no preenchimento real
-  
+
 00:01 +0 -3: P3 Shikkoku: títulos Sora e texto Inter no contrato do tema
 00:01 +0 -4: P3 Shikkoku: títulos Sora e texto Inter no contrato do tema [E]
   Expected: 'Sora'
@@ -89,11 +89,11 @@ The test description was:
               Actual: Inter
                       ^
              Differ at offset 0
-  
+
   package:matcher                                     expect
   package:flutter_test/src/widget_tester.dart 473:18  expect
   test/heisuca/heisuca_p3_style_test.dart 49:9        main.<fn>
-  
+
 00:01 +0 -4: P3 Hisui claro: login usa o canvas do tema
 ══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
 The following TestFailure was thrown running a test:
@@ -120,7 +120,7 @@ The test description was:
 00:02 +0 -5: P3 Hisui claro: login usa o canvas do tema [E]
   Test failed. See exception logs above.
   The test description was: P3 Hisui claro: login usa o canvas do tema
-  
+
 00:02 +0 -5: P3 Hisui claro: Você usa o canvas do tema
 ══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
 The following TestFailure was thrown running a test:
@@ -147,7 +147,7 @@ The test description was:
 00:02 +0 -6: P3 Hisui claro: Você usa o canvas do tema [E]
   Test failed. See exception logs above.
   The test description was: P3 Hisui claro: Você usa o canvas do tema
-  
+
 00:02 +0 -6: P3 Hisui claro: dica do campo de login tem AA no preenchimento real
 ══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
 The following TestFailure was thrown running a test:
@@ -173,7 +173,7 @@ The test description was:
 00:02 +0 -7: P3 Hisui claro: dica do campo de login tem AA no preenchimento real [E]
   Test failed. See exception logs above.
   The test description was: P3 Hisui claro: dica do campo de login tem AA no preenchimento real
-  
+
 00:02 +0 -7: P3 Hisui claro: títulos Sora e texto Inter no contrato do tema
 00:02 +0 -8: P3 Hisui claro: títulos Sora e texto Inter no contrato do tema [E]
   Expected: 'Sora'
@@ -183,11 +183,11 @@ The test description was:
               Actual: Inter
                       ^
              Differ at offset 0
-  
+
   package:matcher                                     expect
   package:flutter_test/src/widget_tester.dart 473:18  expect
   test/heisuca/heisuca_p3_style_test.dart 49:9        main.<fn>
-  
+
 00:02 +0 -8: P3 Hisui escuro: login usa o canvas do tema
 ══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
 The following TestFailure was thrown running a test:
@@ -214,7 +214,7 @@ The test description was:
 00:02 +0 -9: P3 Hisui escuro: login usa o canvas do tema [E]
   Test failed. See exception logs above.
   The test description was: P3 Hisui escuro: login usa o canvas do tema
-  
+
 00:02 +0 -9: P3 Hisui escuro: Você usa o canvas do tema
 ══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
 The following TestFailure was thrown running a test:
@@ -241,7 +241,7 @@ The test description was:
 00:03 +0 -10: P3 Hisui escuro: Você usa o canvas do tema [E]
   Test failed. See exception logs above.
   The test description was: P3 Hisui escuro: Você usa o canvas do tema
-  
+
 00:03 +0 -10: P3 Hisui escuro: dica do campo de login tem AA no preenchimento real
 ══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
 The following TestFailure was thrown running a test:
@@ -267,7 +267,7 @@ The test description was:
 00:03 +0 -11: P3 Hisui escuro: dica do campo de login tem AA no preenchimento real [E]
   Test failed. See exception logs above.
   The test description was: P3 Hisui escuro: dica do campo de login tem AA no preenchimento real
-  
+
 00:03 +0 -11: P3 Hisui escuro: títulos Sora e texto Inter no contrato do tema
 00:03 +0 -12: P3 Hisui escuro: títulos Sora e texto Inter no contrato do tema [E]
   Expected: 'Sora'
@@ -277,11 +277,11 @@ The test description was:
               Actual: Inter
                       ^
              Differ at offset 0
-  
+
   package:matcher                                     expect
   package:flutter_test/src/widget_tester.dart 473:18  expect
   test/heisuca/heisuca_p3_style_test.dart 49:9        main.<fn>
-  
+
 00:03 +0 -12: P3 logo completo é SVG, sem palavra digitada
 ══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
 The following TestFailure was thrown running a test:
@@ -311,7 +311,7 @@ The test description was:
 00:03 +0 -13: P3 logo completo é SVG, sem palavra digitada [E]
   Test failed. See exception logs above.
   The test description was: P3 logo completo é SVG, sem palavra digitada
-  
+
 00:03 +0 -13: P3 Sobre usa marca SVG, sem palavra digitada
 ══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
 The following TestFailure was thrown running a test:
@@ -343,7 +343,7 @@ The test description was:
 00:03 +0 -14: P3 Sobre usa marca SVG, sem palavra digitada [E]
   Test failed. See exception logs above.
   The test description was: P3 Sobre usa marca SVG, sem palavra digitada
-  
+
 00:03 +0 -14: (tearDownAll)
 00:03 +0 -14: Some tests failed.
 

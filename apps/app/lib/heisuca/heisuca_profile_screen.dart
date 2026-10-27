@@ -45,36 +45,12 @@ class HeisucaProfileScreen extends StatelessWidget {
     // Heisuca: no modo infantil a tela usa a paleta do perfil (Ichigo/Sorairo) e fica enxuta.
     final kids = heisucaKidsActive(context);
     final kidsRecord = HeisucaKids.instance.forParent(active?.id);
-    final bg = kids
-        ? palette.background
-        : isLight
-        ? const Color(0xFFF7F3EC)
-        : const Color(0xFF0E0B16);
-    final cardBg = kids
-        ? palette.surface
-        : isLight
-        ? Colors.white
-        : Colors.white.withOpacity(0.045);
-    final cardBorder = kids
-        ? palette.divider
-        : isLight
-        ? const Color(0xFFE2E8F0)
-        : Colors.white.withOpacity(0.08);
-    final textTitle = kids
-        ? palette.onGlass
-        : isLight
-        ? const Color(0xFF134E4A)
-        : const Color(0xFFF4F1FA);
-    final textSub = kids
-        ? palette.textMuted
-        : isLight
-        ? const Color(0xFF64748B)
-        : const Color(0xFFA99FBB);
-    final dividerColor = kids
-        ? palette.divider
-        : isLight
-        ? const Color(0xFFF1F5F9)
-        : Colors.white.withOpacity(0.05);
+    final bg = palette.background;
+    final cardBg = palette.surface;
+    final cardBorder = palette.divider;
+    final textTitle = palette.text;
+    final textSub = palette.textOn(cardBg, preferred: palette.textMuted);
+    final dividerColor = palette.divider;
 
     // Um cartão por assunto, com o título acima e divisores entre os itens.
     List<Widget> secao(String? titulo, List<Widget> itens) => [
@@ -126,11 +102,11 @@ class HeisucaProfileScreen extends StatelessWidget {
                           },
                           borderRadius: BorderRadius.circular(20.0),
                           child: Container(
-                            width: 40.0,
-                            height: 40.0,
+                            width: 48.0,
+                            height: 48.0,
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: isLight ? Colors.black.withOpacity(0.04) : Colors.white.withOpacity(0.06),
+                              color: palette.glass,
                               borderRadius: BorderRadius.circular(20.0),
                               border: Border.all(color: cardBorder, width: 0.8),
                             ),
@@ -165,13 +141,7 @@ class HeisucaProfileScreen extends StatelessWidget {
                     color: cardBg,
                     borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
                     border: Border.all(color: cardBorder, width: 0.8),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(isLight ? 0.04 : 0.25),
-                        blurRadius: 18.0,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                    boxShadow: palette.cardShadow,
                   ),
                   child: Row(
                     children: [
@@ -183,14 +153,12 @@ class HeisucaProfileScreen extends StatelessWidget {
                           width: 58.0,
                           height: 58.0,
                           decoration: BoxDecoration(
-                            color: isLight
-                                ? const Color(0xFF047857).withOpacity(0.12)
-                                : const Color(0xFF7A40F2).withOpacity(0.20),
+                            color: palette.badge,
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
                             Symbols.person_rounded,
-                            color: isLight ? const Color(0xFF047857) : const Color(0xFFC4B5FD),
+                            color: palette.onBadge,
                             size: 32.0,
                           ),
                         ),
@@ -239,11 +207,11 @@ class HeisucaProfileScreen extends StatelessWidget {
                       if (!kids) ...[
                         _buildProfileTile(
                           icon: Symbols.download_rounded,
-                          title: 'Baixados & Offline',
-                          subtitle: 'Gerenciar mídias salvas no dispositivo',
+                          title: 'Baixados',
+                          subtitle: 'Assista sem internet',
                           textColor: textTitle,
                           subColor: textSub,
-                          iconColor: isLight ? const Color(0xFF0284C7) : const Color(0xFF38BDF8),
+                          iconColor: palette.accent,
                           onTap: () {
                             HapticFeedback.lightImpact();
                             cgflixOpenDownloads(context);
@@ -258,7 +226,7 @@ class HeisucaProfileScreen extends StatelessWidget {
                         subtitle: 'Títulos marcados na sua lista pessoal',
                         textColor: textTitle,
                         subColor: textSub,
-                        iconColor: const Color(0xFFFF5252),
+                        iconColor: palette.accent,
                         onTap: () {
                           HapticFeedback.lightImpact();
                           final source = CgflixFavoritesSource.of(context);
@@ -274,7 +242,7 @@ class HeisucaProfileScreen extends StatelessWidget {
                         subtitle: 'Navegar por pastas de Filmes, Séries e Animes',
                         textColor: textTitle,
                         subColor: textSub,
-                        iconColor: isLight ? const Color(0xFF059669) : const Color(0xFF34D399),
+                        iconColor: palette.accent,
                         onTap: () {
                           HapticFeedback.lightImpact();
                           Navigator.of(context).push(
@@ -311,7 +279,7 @@ class HeisucaProfileScreen extends StatelessWidget {
                   subtitle: 'Alternar entre usuários salvos',
                   textColor: textTitle,
                   subColor: textSub,
-                  iconColor: isLight ? const Color(0xFF047857) : const Color(0xFFE2E8F0),
+                  iconColor: palette.accent,
                   onTap: () {
                     HapticFeedback.lightImpact();
                     Navigator.of(
@@ -330,7 +298,7 @@ class HeisucaProfileScreen extends StatelessWidget {
                       : 'Só desenhos e filmes de família, filtrados pelo servidor',
                   textColor: textTitle,
                   subColor: textSub,
-                  iconColor: const Color(0xFFE85A6D),
+                  iconColor: palette.accent,
                   onTap: () {
                     HapticFeedback.lightImpact();
                     heisucaEnterKids(context);
@@ -370,7 +338,7 @@ class HeisucaProfileScreen extends StatelessWidget {
                   subtitle: 'Reprodução, vídeo, áudio, legendas e fontes',
                   textColor: textTitle,
                   subColor: textSub,
-                  iconColor: isLight ? const Color(0xFF047857) : const Color(0xFFC084FC),
+                  iconColor: palette.accent,
                   onTap: () {
                     HapticFeedback.lightImpact();
                     Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const HeisucaSettingsScreen()));
@@ -379,10 +347,10 @@ class HeisucaProfileScreen extends StatelessWidget {
                 _buildProfileTile(
                   icon: Symbols.info_rounded,
                   title: 'Sobre o Heisuca',
-                  subtitle: 'Versão, licenças e arquitetura',
+                  subtitle: 'Novidades, versão e licenças',
                   textColor: textTitle,
                   subColor: textSub,
-                  iconColor: isLight ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+                  iconColor: palette.accent,
                   onTap: () {
                     HapticFeedback.lightImpact();
                     Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const AboutScreen()));
@@ -392,11 +360,11 @@ class HeisucaProfileScreen extends StatelessWidget {
               ...secao(null, [
                 _buildProfileTile(
                   icon: Symbols.logout_rounded,
-                  title: 'Sair da Conta',
+                  title: 'Sair da conta',
                   subtitle: 'Encerrar a sessão neste dispositivo',
-                  textColor: const Color(0xFFEF4444),
-                  subColor: isLight ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                  iconColor: const Color(0xFFEF4444),
+                  textColor: palette.textOn(cardBg, preferred: palette.danger),
+                  subColor: textSub,
+                  iconColor: palette.danger,
                   onTap: () async {
                     HapticFeedback.lightImpact();
                     final confirm = await showConfirmDialog(

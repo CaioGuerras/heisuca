@@ -259,8 +259,10 @@ class _SettingsToggleItemState extends State<_SettingsToggleItem> {
       builder: (context, value, _) {
         final displayedValue = _pendingValue ?? value;
         final isPending = _pendingValue != null;
-        return FocusableListTile(
-          leading: AppIcon(
+        return FocusableSwitchListTile(
+          dense: false,
+          visualDensity: VisualDensity.standard,
+          secondary: AppIcon(
             widget.icon,
             fill: 1,
             color: displayedValue ? cgflixPlayerAccent : tokens(context).textMuted,
@@ -269,13 +271,8 @@ class _SettingsToggleItemState extends State<_SettingsToggleItem> {
           subtitle: widget.subtitle == null
               ? null
               : Text(widget.subtitle!, style: TextStyle(color: tokens(context).textMuted, fontSize: 12)),
-          trailing: Switch(
-            value: displayedValue,
-            onChanged: isPending ? null : _write,
-            activeTrackColor: cgflixPlayerAccent,
-            activeThumbColor: Colors.white,
-          ),
-          onTap: isPending ? null : () => _write(!displayedValue),
+          value: displayedValue,
+          onChanged: isPending ? null : _write,
         );
       },
     );
@@ -963,23 +960,17 @@ class _VideoSettingsSheetState extends State<VideoSettingsSheet> {
 
         // Ambient Lighting (MPV only)
         if (_state.onToggleAmbientLighting != null)
-          FocusableListTile(
-            leading: AppIcon(
+          FocusableSwitchListTile(
+            dense: false,
+            visualDensity: VisualDensity.standard,
+            secondary: AppIcon(
               Symbols.blur_on_rounded,
               fill: 1,
               color: _state.isAmbientLightingEnabled ? cgflixPlayerAccent : tokens(context).textMuted,
             ),
             title: Text(t.videoControls.ambientLighting),
-            trailing: Switch(
-              value: _state.isAmbientLightingEnabled,
-              onChanged: (_) {
-                _state.onToggleAmbientLighting?.call();
-                OverlaySheetController.of(context).close();
-              },
-              activeTrackColor: cgflixPlayerAccent,
-            activeThumbColor: Colors.white,
-            ),
-            onTap: () {
+            value: _state.isAmbientLightingEnabled,
+            onChanged: (_) {
               _state.onToggleAmbientLighting?.call();
               OverlaySheetController.of(context).close();
             },

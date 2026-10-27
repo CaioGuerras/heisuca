@@ -189,7 +189,7 @@ void main() {
     await HeisucaKids.instance.save(_record);
     await _pumpYou(tester, _child, theme: CgflixThemeVariant.ichigo);
     expect(find.text('Sair do modo infantil'), findsOneWidget);
-    for (final hidden in ['Trocar perfil', 'Sair da Conta', 'Fonte atual', 'Baixados & Offline', 'Configurações Heisuca', 'Sobre o Heisuca']) {
+    for (final hidden in ['Trocar perfil', 'Sair da conta', 'Fonte atual', 'Baixados', 'Configurações Heisuca', 'Sobre o Heisuca']) {
       expect(find.text(hidden), findsNothing, reason: '$hidden não pode aparecer para a criança');
     }
     expect(find.text('Favoritos'), findsOneWidget);

@@ -53,3 +53,201 @@ respeitar fonte 200% sem limitar a escala para esconder overflow.
 Barras/iluminação: ainda sem prova do arquivo de origem nesta P3. Não atribuir
 letterbox gravado só pela captura; não alterar proporção/recorte para maquiar.
 P4–P7 continuam pendentes. Revisão independente e aparelhos pendentes.
+
+## P3 — base visual e acessibilidade, progresso local (sem fechamento)
+
+A coleta válida anterior cobriu **624 combinações** (26 telas × 3 temas ×
+2 tamanhos × 2 orientações × fontes 100/200%): 435 passaram e 189 tiveram
+apontamentos. Isso NÃO significa 189 defeitos diferentes. Log completo:
+`evidencias/p3_matriz_antes_2026-10-27.txt`. As capturas e os JSONs ficam em
+`evidencias/p3/antes/`. Os 14 testes de estilo anteriores, mais as provas de
+teclado, escala dos cartões/opções e títulos de seção, reproduzem causas reais.
+
+Correções locais, ainda sem commit de código nesta anotação:
+
+- Tipografia do tema: títulos Sora, corpo Inter; marca completa e Sobre usam o
+  SVG oficial, sem HEISUCA digitado. Canvas de login/Você e campo de login
+  seguem tokens. O campo tem um único preenchimento/borda; o botão usa ação e
+  texto da paleta, cresce com o texto e dispensa o degradê/sombra antigos.
+- Reprodução: o limite de episódios já era 0–20 no serviço, mas não constava
+  em numericBounds; a tela agora recebe os mesmos limites. Padrão 3, sono de
+  20 minutos e fluxo de continuação preservados.
+- Pôsteres, grade da Biblioteca e episódios reservam altura com a fonte e a
+  largura reais, mantendo as dimensões anteriores quando o conteúdo cabe.
+  Cartões largos e grupos de opções deixam de encolher a fonte. A faixa de
+  episódios mede o título e os metadados de cada episódio; não corta o texto
+  para esconder o overflow. Início em 100% mantém a composição aprovada.
+- Abas de Configurações, Voltar de Você, ações do menu, Restaurar e Assistir
+  encaixado respeitam o mínimo de 48 dp. O botão Heisuca reaproveita
+  FocusableWrapper para teclado/controle, preservando o gesto de toque.
+
+A primeira comparação após essas correções teve 603/624 aprovados; os 21
+restantes eram medições de fragmentos recortados na borda da rolagem. A inspeção
+confirmou, por exemplo, o campo de 79 dp reduzido semanticamente a 24,3 dp na
+borda superior. O guia do Flutter ignora bordas de ancestrais com rolagem
+implícita, mas não esse recorte diretamente no nó. O auxiliar de teste passa a
+consultar parentPaintClipRect com a mesma tolerância de borda (0,001); conserva
+48 dp para controles inteiros. Não altera o app, não libera overflow nem reduz
+a exigência. Provas com as coordenadas coletadas: dois recortes falhavam antes,
+controle inteiro de 40 dp continua elegível para reprovação; quatro casos passam
+com o auxiliar correto. Evidência:
+`evidencias/p3_medicao_recorte_antes_2026-10-27.txt`.
+
+Matriz posterior: **624/624 aprovados** (`/tmp/p3-matrix-after-clips.log`).
+Testes focados de estilo/acessibilidade/medição: **21 aprovados** antes dos dois
+ajustes finais de títulos de seção. Os testes existentes de flagship passaram
+**16/16**; o teste de abertura foi ajustado para rolar uma lista preguiçosa antes
+de procurar a opção e depois de reabrir, mantendo a verificação de persistência.
+Paridade do topo/gesto da ficha e cartões também passaram; o portão completo
+está em execução em `/tmp/p3-first-gate.log`. Ainda não há run novo da P3.
+
+A matriz é local com fixture. Não prova aparelho, servidor real, imagem nativa
+nem revisão independente. Ainda faltam HUD/folhas/diálogos/estados e revisão do
+restante das cores/textos, capturas finais e goldens. P3 não está fechada.
+
+## Galeria para revisão independente
+
+O portão final desta coleta passou: **1.755 testes Flutter, 3 skips de capturas
+opcionais, 8 Impeller e 46 Python** (`/tmp/p3-adjusted-final-gate.log`).
+As 624 combinações de telas e 96 do player foram refeitas com a árvore final.
+Não é aprovação visual independente nem teste em aparelho.
+
+A tabela liga capturas representativas de cada tela: celular/retrato/100% nos
+três temas e tablet/paisagem/200% em Shikkoku. Os JSONs registram as 24
+combinações por tela, incluindo a rolagem. Quadros byte a byte idênticos da
+mesma combinação foram deduplicados; `capturas_duplicadas.json` aponta o
+arquivo preservado e seu SHA-256. Capturas posteriores de coletas anteriores
+foram retiradas; as imagens posteriores são da execução final.
+
+| Tela/caso | Antes | Depois |
+|---|---|---|
+| baixados-oled-moto-retrato-f100 | [antes](evidencias/p3/antes/baixados-oled-moto-retrato-f100.png) | [depois](evidencias/p3/depois/baixados-oled-moto-retrato-f100.png) |
+| baixados-light-moto-retrato-f100 | [antes](evidencias/p3/antes/baixados-light-moto-retrato-f100.png) | [depois](evidencias/p3/depois/baixados-light-moto-retrato-f100.png) |
+| baixados-dark-moto-retrato-f100 | [antes](evidencias/p3/antes/baixados-dark-moto-retrato-f100.png) | [depois](evidencias/p3/depois/baixados-dark-moto-retrato-f100.png) |
+| baixados-oled-tab-paisagem-f200 | [antes](evidencias/p3/antes/baixados-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/depois/baixados-oled-tab-paisagem-f200.png) |
+| barra-abas-oled-moto-retrato-f100 | [antes](evidencias/p3/antes/barra-abas-oled-moto-retrato-f100.png) | [depois](evidencias/p3/depois/barra-abas-oled-moto-retrato-f100.png) |
+| barra-abas-light-moto-retrato-f100 | [antes](evidencias/p3/antes/barra-abas-light-moto-retrato-f100.png) | [depois](evidencias/p3/depois/barra-abas-light-moto-retrato-f100.png) |
+| barra-abas-dark-moto-retrato-f100 | [antes](evidencias/p3/antes/barra-abas-dark-moto-retrato-f100.png) | [depois](evidencias/p3/depois/barra-abas-dark-moto-retrato-f100.png) |
+| barra-abas-oled-tab-paisagem-f200 | [antes](evidencias/p3/antes/barra-abas-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/depois/barra-abas-oled-tab-paisagem-f200.png) |
+| biblioteca-oled-moto-retrato-f100 | [antes](evidencias/p3/antes/biblioteca-oled-moto-retrato-f100.png) | [depois](evidencias/p3/depois/biblioteca-oled-moto-retrato-f100.png) |
+| biblioteca-light-moto-retrato-f100 | [antes](evidencias/p3/antes/biblioteca-light-moto-retrato-f100.png) | [depois](evidencias/p3/depois/biblioteca-light-moto-retrato-f100.png) |
+| biblioteca-dark-moto-retrato-f100 | [antes](evidencias/p3/antes/biblioteca-dark-moto-retrato-f100.png) | [depois](evidencias/p3/depois/biblioteca-dark-moto-retrato-f100.png) |
+| biblioteca-oled-tab-paisagem-f200 | [antes](evidencias/p3/antes/biblioteca-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/depois/biblioteca-oled-tab-paisagem-f200.png) |
+| busca-oled-moto-retrato-f100 | [antes](evidencias/p3/antes/busca-oled-moto-retrato-f100.png) | [depois](evidencias/p3/depois/busca-oled-moto-retrato-f100.png) |
+| busca-light-moto-retrato-f100 | [antes](evidencias/p3/antes/busca-light-moto-retrato-f100.png) | [depois](evidencias/p3/depois/busca-light-moto-retrato-f100.png) |
+| busca-dark-moto-retrato-f100 | [antes](evidencias/p3/antes/busca-dark-moto-retrato-f100.png) | [depois](evidencias/p3/depois/busca-dark-moto-retrato-f100.png) |
+| busca-oled-tab-paisagem-f200 | [antes](evidencias/p3/antes/busca-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/depois/busca-oled-tab-paisagem-f200.png) |
+| config-aparencia-oled-moto-retrato-f100 | [antes](evidencias/p3/antes/config-aparencia-oled-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-aparencia-oled-moto-retrato-f100.png) |
+| config-aparencia-light-moto-retrato-f100 | [antes](evidencias/p3/antes/config-aparencia-light-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-aparencia-light-moto-retrato-f100.png) |
+| config-aparencia-dark-moto-retrato-f100 | [antes](evidencias/p3/antes/config-aparencia-dark-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-aparencia-dark-moto-retrato-f100.png) |
+| config-aparencia-oled-tab-paisagem-f200 | [antes](evidencias/p3/antes/config-aparencia-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/depois/config-aparencia-oled-tab-paisagem-f200.png) |
+| config-avancada-oled-moto-retrato-f100 | [antes](evidencias/p3/antes/config-avancada-oled-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-avancada-oled-moto-retrato-f100.png) |
+| config-avancada-light-moto-retrato-f100 | [antes](evidencias/p3/antes/config-avancada-light-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-avancada-light-moto-retrato-f100.png) |
+| config-avancada-dark-moto-retrato-f100 | [antes](evidencias/p3/antes/config-avancada-dark-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-avancada-dark-moto-retrato-f100.png) |
+| config-avancada-oled-tab-paisagem-f200 | [antes](evidencias/p3/antes/config-avancada-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/depois/config-avancada-oled-tab-paisagem-f200.png) |
+| config-basicas-oled-moto-retrato-f100 | [antes](evidencias/p3/antes/config-basicas-oled-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-basicas-oled-moto-retrato-f100.png) |
+| config-basicas-light-moto-retrato-f100 | [antes](evidencias/p3/antes/config-basicas-light-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-basicas-light-moto-retrato-f100.png) |
+| config-basicas-dark-moto-retrato-f100 | [antes](evidencias/p3/antes/config-basicas-dark-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-basicas-dark-moto-retrato-f100.png) |
+| config-basicas-oled-tab-paisagem-f200 | [antes](evidencias/p3/antes/config-basicas-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/depois/config-basicas-oled-tab-paisagem-f200.png) |
+| config-completas-oled-moto-retrato-f100 | [antes](evidencias/p3/antes/config-completas-oled-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-completas-oled-moto-retrato-f100.png) |
+| config-completas-light-moto-retrato-f100 | [antes](evidencias/p3/antes/config-completas-light-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-completas-light-moto-retrato-f100.png) |
+| config-completas-dark-moto-retrato-f100 | [antes](evidencias/p3/antes/config-completas-dark-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-completas-dark-moto-retrato-f100.png) |
+| config-completas-oled-tab-paisagem-f200 | [antes](evidencias/p3/antes/config-completas-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/depois/config-completas-oled-tab-paisagem-f200.png) |
+| config-geral-oled-moto-retrato-f100 | [antes](evidencias/p3/antes/config-geral-oled-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-geral-oled-moto-retrato-f100.png) |
+| config-geral-light-moto-retrato-f100 | [antes](evidencias/p3/antes/config-geral-light-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-geral-light-moto-retrato-f100.png) |
+| config-geral-dark-moto-retrato-f100 | [antes](evidencias/p3/antes/config-geral-dark-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-geral-dark-moto-retrato-f100.png) |
+| config-geral-oled-tab-paisagem-f200 | [antes](evidencias/p3/antes/config-geral-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/depois/config-geral-oled-tab-paisagem-f200.png) |
+| config-legendas-oled-moto-retrato-f100 | [antes](evidencias/p3/antes/config-legendas-oled-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-legendas-oled-moto-retrato-f100.png) |
+| config-legendas-light-moto-retrato-f100 | [antes](evidencias/p3/antes/config-legendas-light-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-legendas-light-moto-retrato-f100.png) |
+| config-legendas-dark-moto-retrato-f100 | [antes](evidencias/p3/antes/config-legendas-dark-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-legendas-dark-moto-retrato-f100.png) |
+| config-legendas-oled-tab-paisagem-f200 | [antes](evidencias/p3/antes/config-legendas-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/depois/config-legendas-oled-tab-paisagem-f200.png) |
+| config-mpv-oled-moto-retrato-f100 | [antes](evidencias/p3/antes/config-mpv-oled-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-mpv-oled-moto-retrato-f100.png) |
+| config-mpv-light-moto-retrato-f100 | [antes](evidencias/p3/antes/config-mpv-light-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-mpv-light-moto-retrato-f100.png) |
+| config-mpv-dark-moto-retrato-f100 | [antes](evidencias/p3/antes/config-mpv-dark-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-mpv-dark-moto-retrato-f100.png) |
+| config-mpv-oled-tab-paisagem-f200 | [antes](evidencias/p3/antes/config-mpv-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/depois/config-mpv-oled-tab-paisagem-f200.png) |
+| config-player-externo-oled-moto-retrato-f100 | [antes](evidencias/p3/antes/config-player-externo-oled-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-player-externo-oled-moto-retrato-f100.png) |
+| config-player-externo-light-moto-retrato-f100 | [antes](evidencias/p3/antes/config-player-externo-light-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-player-externo-light-moto-retrato-f100.png) |
+| config-player-externo-dark-moto-retrato-f100 | [antes](evidencias/p3/antes/config-player-externo-dark-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-player-externo-dark-moto-retrato-f100.png) |
+| config-player-externo-oled-tab-paisagem-f200 | [antes](evidencias/p3/antes/config-player-externo-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/depois/config-player-externo-oled-tab-paisagem-f200.png) |
+| config-reproducao-oled-moto-retrato-f100 | [antes](evidencias/p3/antes/config-reproducao-oled-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-reproducao-oled-moto-retrato-f100.png) |
+| config-reproducao-light-moto-retrato-f100 | [antes](evidencias/p3/antes/config-reproducao-light-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-reproducao-light-moto-retrato-f100.png) |
+| config-reproducao-dark-moto-retrato-f100 | [antes](evidencias/p3/antes/config-reproducao-dark-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-reproducao-dark-moto-retrato-f100.png) |
+| config-reproducao-oled-tab-paisagem-f200 | [antes](evidencias/p3/antes/config-reproducao-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/depois/config-reproducao-oled-tab-paisagem-f200.png) |
+| config-reproducao-avancada-oled-moto-retrato-f100 | [antes](evidencias/p3/antes/config-reproducao-avancada-oled-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-reproducao-avancada-oled-moto-retrato-f100.png) |
+| config-reproducao-avancada-light-moto-retrato-f100 | [antes](evidencias/p3/antes/config-reproducao-avancada-light-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-reproducao-avancada-light-moto-retrato-f100.png) |
+| config-reproducao-avancada-dark-moto-retrato-f100 | [antes](evidencias/p3/antes/config-reproducao-avancada-dark-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-reproducao-avancada-dark-moto-retrato-f100.png) |
+| config-reproducao-avancada-oled-tab-paisagem-f200 | [antes](evidencias/p3/antes/config-reproducao-avancada-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/depois/config-reproducao-avancada-oled-tab-paisagem-f200.png) |
+| config-servicos-oled-moto-retrato-f100 | [antes](evidencias/p3/antes/config-servicos-oled-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-servicos-oled-moto-retrato-f100.png) |
+| config-servicos-light-moto-retrato-f100 | [antes](evidencias/p3/antes/config-servicos-light-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-servicos-light-moto-retrato-f100.png) |
+| config-servicos-dark-moto-retrato-f100 | [antes](evidencias/p3/antes/config-servicos-dark-moto-retrato-f100.png) | [depois](evidencias/p3/depois/config-servicos-dark-moto-retrato-f100.png) |
+| config-servicos-oled-tab-paisagem-f200 | [antes](evidencias/p3/antes/config-servicos-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/depois/config-servicos-oled-tab-paisagem-f200.png) |
+| ficha-filme-oled-moto-retrato-f100 | [antes](evidencias/p3/antes/ficha-filme-oled-moto-retrato-f100.png) | [depois](evidencias/p3/depois/ficha-filme-oled-moto-retrato-f100.png) |
+| ficha-filme-light-moto-retrato-f100 | [antes](evidencias/p3/antes/ficha-filme-light-moto-retrato-f100.png) | [depois](evidencias/p3/depois/ficha-filme-light-moto-retrato-f100.png) |
+| ficha-filme-dark-moto-retrato-f100 | [antes](evidencias/p3/antes/ficha-filme-dark-moto-retrato-f100.png) | [depois](evidencias/p3/depois/ficha-filme-dark-moto-retrato-f100.png) |
+| ficha-filme-oled-tab-paisagem-f200 | [antes](evidencias/p3/antes/ficha-filme-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/depois/ficha-filme-oled-tab-paisagem-f200.png) |
+| ficha-serie-oled-moto-retrato-f100 | [antes](evidencias/p3/antes/ficha-serie-oled-moto-retrato-f100.png) | [depois](evidencias/p3/depois/ficha-serie-oled-moto-retrato-f100.png) |
+| ficha-serie-light-moto-retrato-f100 | [antes](evidencias/p3/antes/ficha-serie-light-moto-retrato-f100.png) | [depois](evidencias/p3/depois/ficha-serie-light-moto-retrato-f100.png) |
+| ficha-serie-dark-moto-retrato-f100 | [antes](evidencias/p3/antes/ficha-serie-dark-moto-retrato-f100.png) | [depois](evidencias/p3/depois/ficha-serie-dark-moto-retrato-f100.png) |
+| ficha-serie-oled-tab-paisagem-f200 | [antes](evidencias/p3/antes/ficha-serie-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/depois/ficha-serie-oled-tab-paisagem-f200.png) |
+| inicio-oled-moto-retrato-f100 | [antes](evidencias/p3/antes/inicio-oled-moto-retrato-f100.png) | [depois](evidencias/p3/depois/inicio-oled-moto-retrato-f100.png) |
+| inicio-light-moto-retrato-f100 | [antes](evidencias/p3/antes/inicio-light-moto-retrato-f100.png) | [depois](evidencias/p3/depois/inicio-light-moto-retrato-f100.png) |
+| inicio-dark-moto-retrato-f100 | [antes](evidencias/p3/antes/inicio-dark-moto-retrato-f100.png) | [depois](evidencias/p3/depois/inicio-dark-moto-retrato-f100.png) |
+| inicio-oled-tab-paisagem-f200 | [antes](evidencias/p3/antes/inicio-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/depois/inicio-oled-tab-paisagem-f200.png) |
+| kids-config-oled-moto-retrato-f100 | [antes](evidencias/p3/antes/kids-config-oled-moto-retrato-f100.png) | [depois](evidencias/p3/depois/kids-config-oled-moto-retrato-f100.png) |
+| kids-config-light-moto-retrato-f100 | [antes](evidencias/p3/antes/kids-config-light-moto-retrato-f100.png) | [depois](evidencias/p3/depois/kids-config-light-moto-retrato-f100.png) |
+| kids-config-dark-moto-retrato-f100 | [antes](evidencias/p3/antes/kids-config-dark-moto-retrato-f100.png) | [depois](evidencias/p3/depois/kids-config-dark-moto-retrato-f100.png) |
+| kids-config-oled-tab-paisagem-f200 | [antes](evidencias/p3/antes/kids-config-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/depois/kids-config-oled-tab-paisagem-f200.png) |
+| licencas-oled-moto-retrato-f100 | [antes](evidencias/p3/antes/licencas-oled-moto-retrato-f100.png) | [depois](evidencias/p3/depois/licencas-oled-moto-retrato-f100.png) |
+| licencas-light-moto-retrato-f100 | [antes](evidencias/p3/antes/licencas-light-moto-retrato-f100.png) | [depois](evidencias/p3/depois/licencas-light-moto-retrato-f100.png) |
+| licencas-dark-moto-retrato-f100 | [antes](evidencias/p3/antes/licencas-dark-moto-retrato-f100.png) | [depois](evidencias/p3/depois/licencas-dark-moto-retrato-f100.png) |
+| licencas-oled-tab-paisagem-f200 | [antes](evidencias/p3/antes/licencas-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/depois/licencas-oled-tab-paisagem-f200.png) |
+| login-oled-moto-retrato-f100 | [antes](evidencias/p3/antes/login-oled-moto-retrato-f100.png) | [depois](evidencias/p3/depois/login-oled-moto-retrato-f100.png) |
+| login-light-moto-retrato-f100 | [antes](evidencias/p3/antes/login-light-moto-retrato-f100.png) | [depois](evidencias/p3/depois/login-light-moto-retrato-f100.png) |
+| login-dark-moto-retrato-f100 | [antes](evidencias/p3/antes/login-dark-moto-retrato-f100.png) | [depois](evidencias/p3/depois/login-dark-moto-retrato-f100.png) |
+| login-oled-tab-paisagem-f200 | [antes](evidencias/p3/antes/login-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/depois/login-oled-tab-paisagem-f200.png) |
+| menu-titulo-oled-moto-retrato-f100 | [antes](evidencias/p3/antes/menu-titulo-oled-moto-retrato-f100.png) | [depois](evidencias/p3/depois/menu-titulo-oled-moto-retrato-f100.png) |
+| menu-titulo-light-moto-retrato-f100 | [antes](evidencias/p3/antes/menu-titulo-light-moto-retrato-f100.png) | [depois](evidencias/p3/depois/menu-titulo-light-moto-retrato-f100.png) |
+| menu-titulo-dark-moto-retrato-f100 | [antes](evidencias/p3/antes/menu-titulo-dark-moto-retrato-f100.png) | [depois](evidencias/p3/depois/menu-titulo-dark-moto-retrato-f100.png) |
+| menu-titulo-oled-tab-paisagem-f200 | [antes](evidencias/p3/antes/menu-titulo-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/depois/menu-titulo-oled-tab-paisagem-f200.png) |
+| novidades-oled-moto-retrato-f100 | [antes](evidencias/p3/antes/novidades-oled-moto-retrato-f100.png) | [depois](evidencias/p3/depois/novidades-oled-moto-retrato-f100.png) |
+| novidades-light-moto-retrato-f100 | [antes](evidencias/p3/antes/novidades-light-moto-retrato-f100.png) | [depois](evidencias/p3/depois/novidades-light-moto-retrato-f100.png) |
+| novidades-dark-moto-retrato-f100 | [antes](evidencias/p3/antes/novidades-dark-moto-retrato-f100.png) | [depois](evidencias/p3/depois/novidades-dark-moto-retrato-f100.png) |
+| novidades-oled-tab-paisagem-f200 | [antes](evidencias/p3/antes/novidades-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/depois/novidades-oled-tab-paisagem-f200.png) |
+| perfis-oled-moto-retrato-f100 | [antes](evidencias/p3/antes/perfis-oled-moto-retrato-f100.png) | [depois](evidencias/p3/depois/perfis-oled-moto-retrato-f100.png) |
+| perfis-light-moto-retrato-f100 | [antes](evidencias/p3/antes/perfis-light-moto-retrato-f100.png) | [depois](evidencias/p3/depois/perfis-light-moto-retrato-f100.png) |
+| perfis-dark-moto-retrato-f100 | [antes](evidencias/p3/antes/perfis-dark-moto-retrato-f100.png) | [depois](evidencias/p3/depois/perfis-dark-moto-retrato-f100.png) |
+| perfis-oled-tab-paisagem-f200 | [antes](evidencias/p3/antes/perfis-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/depois/perfis-oled-tab-paisagem-f200.png) |
+| sobre-oled-moto-retrato-f100 | [antes](evidencias/p3/antes/sobre-oled-moto-retrato-f100.png) | [depois](evidencias/p3/depois/sobre-oled-moto-retrato-f100.png) |
+| sobre-light-moto-retrato-f100 | [antes](evidencias/p3/antes/sobre-light-moto-retrato-f100.png) | [depois](evidencias/p3/depois/sobre-light-moto-retrato-f100.png) |
+| sobre-dark-moto-retrato-f100 | [antes](evidencias/p3/antes/sobre-dark-moto-retrato-f100.png) | [depois](evidencias/p3/depois/sobre-dark-moto-retrato-f100.png) |
+| sobre-oled-tab-paisagem-f200 | [antes](evidencias/p3/antes/sobre-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/depois/sobre-oled-tab-paisagem-f200.png) |
+| voce-oled-moto-retrato-f100 | [antes](evidencias/p3/antes/voce-oled-moto-retrato-f100.png) | [depois](evidencias/p3/depois/voce-oled-moto-retrato-f100.png) |
+| voce-light-moto-retrato-f100 | [antes](evidencias/p3/antes/voce-light-moto-retrato-f100.png) | [depois](evidencias/p3/depois/voce-light-moto-retrato-f100.png) |
+| voce-dark-moto-retrato-f100 | [antes](evidencias/p3/antes/voce-dark-moto-retrato-f100.png) | [depois](evidencias/p3/depois/voce-dark-moto-retrato-f100.png) |
+| voce-oled-tab-paisagem-f200 | [antes](evidencias/p3/antes/voce-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/depois/voce-oled-tab-paisagem-f200.png) |
+
+### Player
+
+HUD/faixas/ajustes/qualidade usam os widgets reais e um player falso de teste,
+com as mesmas faixas JA/PT/ASS do teste de HUD preexistente. Não comprovam
+frame nativo; a correção dessa prova está em
+[DIAGNOSTICO_P_IMAGEM_2026-10-27.md](DIAGNOSTICO_P_IMAGEM_2026-10-27.md).
+
+| Cena/caso | Antes | Depois |
+|---|---|---|
+| hud-oled-moto-retrato-f100 | [antes](evidencias/p3/player-antes/hud-oled-moto-retrato-f100.png) | [depois](evidencias/p3/player-depois/hud-oled-moto-retrato-f100.png) |
+| hud-light-moto-retrato-f100 | [antes](evidencias/p3/player-antes/hud-light-moto-retrato-f100.png) | [depois](evidencias/p3/player-depois/hud-light-moto-retrato-f100.png) |
+| hud-dark-moto-retrato-f100 | [antes](evidencias/p3/player-antes/hud-dark-moto-retrato-f100.png) | [depois](evidencias/p3/player-depois/hud-dark-moto-retrato-f100.png) |
+| hud-oled-tab-paisagem-f200 | [antes](evidencias/p3/player-antes/hud-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/player-depois/hud-oled-tab-paisagem-f200.png) |
+| faixas-oled-moto-retrato-f100 | [antes](evidencias/p3/player-antes/faixas-oled-moto-retrato-f100.png) | [depois](evidencias/p3/player-depois/faixas-oled-moto-retrato-f100.png) |
+| faixas-light-moto-retrato-f100 | [antes](evidencias/p3/player-antes/faixas-light-moto-retrato-f100.png) | [depois](evidencias/p3/player-depois/faixas-light-moto-retrato-f100.png) |
+| faixas-dark-moto-retrato-f100 | [antes](evidencias/p3/player-antes/faixas-dark-moto-retrato-f100.png) | [depois](evidencias/p3/player-depois/faixas-dark-moto-retrato-f100.png) |
+| faixas-oled-tab-paisagem-f200 | [antes](evidencias/p3/player-antes/faixas-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/player-depois/faixas-oled-tab-paisagem-f200.png) |
+| ajustes-oled-moto-retrato-f100 | [antes](evidencias/p3/player-antes/ajustes-oled-moto-retrato-f100.png) | [depois](evidencias/p3/player-depois/ajustes-oled-moto-retrato-f100.png) |
+| ajustes-light-moto-retrato-f100 | [antes](evidencias/p3/player-antes/ajustes-light-moto-retrato-f100.png) | [depois](evidencias/p3/player-depois/ajustes-light-moto-retrato-f100.png) |
+| ajustes-dark-moto-retrato-f100 | [antes](evidencias/p3/player-antes/ajustes-dark-moto-retrato-f100.png) | [depois](evidencias/p3/player-depois/ajustes-dark-moto-retrato-f100.png) |
+| ajustes-oled-tab-paisagem-f200 | [antes](evidencias/p3/player-antes/ajustes-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/player-depois/ajustes-oled-tab-paisagem-f200.png) |
+| qualidade-oled-moto-retrato-f100 | [antes](evidencias/p3/player-antes/qualidade-oled-moto-retrato-f100.png) | [depois](evidencias/p3/player-depois/qualidade-oled-moto-retrato-f100.png) |
+| qualidade-light-moto-retrato-f100 | [antes](evidencias/p3/player-antes/qualidade-light-moto-retrato-f100.png) | [depois](evidencias/p3/player-depois/qualidade-light-moto-retrato-f100.png) |
+| qualidade-dark-moto-retrato-f100 | [antes](evidencias/p3/player-antes/qualidade-dark-moto-retrato-f100.png) | [depois](evidencias/p3/player-depois/qualidade-dark-moto-retrato-f100.png) |
+| qualidade-oled-tab-paisagem-f200 | [antes](evidencias/p3/player-antes/qualidade-oled-tab-paisagem-f200.png) | [depois](evidencias/p3/player-depois/qualidade-oled-tab-paisagem-f200.png) |

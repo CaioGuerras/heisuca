@@ -2178,3 +2178,14 @@ Portão completo da correção **APROVADO**, processo encerrado com código 0:
 Log local `/tmp/o-correction-gate.log`. Análise sem erros fatais e
 `git diff --check` limpo. Testes do BIF permanecem XFAIL conhecido e explicado.
 Nenhuma afirmação de aprovação independente ou de bancada verde nesta anotação.
+
+#### Correção O — commit e runs enviados ao Visão
+
+- Código `9f4073b2764b6c860598249a4e13f4cb755a5c65`, versão **2.0.33+35**,
+  enviado sem `[skip ci]` ao ramo `codex/heisuca-home-site`.
+- APK: [40433379758](https://github.com/CaioGuerras/heisuca/actions/runs/40433379758).
+- Bancada: [40433379764](https://github.com/CaioGuerras/heisuca/actions/runs/40433379764).
+- Consulta real à API após push: ambos **na fila**, sem conclusão. Pacote,
+  assinatura, SHA-256 e percurso até `11-voce`/`testeEncerrado: true` ainda
+  aguardam os resultados e a conferência independente do Visão. Não marcados verdes.
+- Não foi publicado nenhum APK. Arquivos locais limpos após commit.

@@ -2467,3 +2467,17 @@ confirmada. Somente seis avisos dos três widgets permitidos, nas fases saída/
 ativo, larguras 240,8/227,8 dp. PNGs 21/06 originais com imagem, inspecionados.
 Isso não apaga o vermelho anterior nem prova a nova espera nativa: o run de
 13e8f76 permanece necessário para fechar a revisão do roteiro. Nada publicado.
+
+APK **13e8f76 / 40482536147 verde**, job 122116167349, inspecionado e baixado.
+Artifact [12723219816](https://github.com/CaioGuerras/heisuca/actions/runs/40482536147/artifacts/12723219816).
+ZIP SHA-256 recalculado `bcba018d1b3394f9567c2e6248b8b6cf81eb3ff9d9cf596cb48ee86f6513929f`.
+APK 97.138.729 bytes, SHA-256 recalculado
+`0abc27e6d41ffb5f1e4691ca0f635d6ee400dfa80a53e28cf13f2827d36b1617`.
+`aapt`: `app.heisuca.player.teste.home`, “Heisuca Teste”, versionName 2.0.34.
+`apksigner verify --verbose --print-certs`: **Verifies**, v2 válida, certificado
+`19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`.
+O versionCode nativo é **2036**: o plugin oficial Flutter soma 2×1000 ao build 36
+no split arm64 (`FlutterPlugin.kt`, ABI_VERSION); mesmo comportamento do APK P1,
+sem mudança na versão pedida do pubspec **2.0.34+36**. Nada publicado.
+Bancada **40482536078** ainda no percurso autenticado na última consulta;
+P2 permanece aberta até conferir eventos, PNGs, conclusão e restauração.

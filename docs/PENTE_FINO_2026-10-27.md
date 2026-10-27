@@ -367,3 +367,9 @@ em `evidencias/p3_segunda_*_2026-10-27.png`; a medição de preto manteve área
 P3 técnica entregue para revisão externa com a pendência da mídia original
 explicitamente bloqueada. Não testado em aparelho. Seguir P4–P7 independentes;
 nenhuma aprovação estética/física é reivindicada por quem programou.
+
+## Atualização (27/10, noite)
+
+- Barras pretas: provado pelo arquivo, ver [P3_BARRAS_PRETAS_2026-10-27.md](P3_BARRAS_PRETAS_2026-10-27.md). Jurassic World não tem barra gravada; o Dominion tem letterbox gravado. O app não mexe nisso.
+- Foco por controle remoto: `test/heisuca/heisuca_p3_foco_controle_test.dart` passa em 52 de 52 casos (26 telas × tablet paisagem e celular retrato), sem pulos. Anel único do `FocusTheme` no token `focusRing` (contraste de 3:1 ou mais nas 5 paletas).
+- HUD: a bancada confere de novo, depois da captura, que o HUD continua oculto, e grava o valor real em `hudOculto`.

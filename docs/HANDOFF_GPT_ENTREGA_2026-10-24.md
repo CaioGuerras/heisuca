@@ -2409,3 +2409,10 @@ Portão completo novamente **APROVADO**: **994 Flutter (3 skips), 8 Impeller,
 40 Python**; `/tmp/p2-fields-final-gate.log`. Mesmo 2.0.34+36. Os runs de 88c6810
 não incluem estes cinco ajustes de estilo; não fecham P2. Commit/runs do ajuste
 serão registrados após o push. P3–P7 ainda pendentes. Não testado em aparelho.
+
+Ajuste P2 enviado em **9113a40**. Novos runs:
+APK [40480544115](https://github.com/CaioGuerras/heisuca/actions/runs/40480544115)
+e bancada [40480544171](https://github.com/CaioGuerras/heisuca/actions/runs/40480544171).
+Na consulta inicial, APK em fila e bancada pendente da execução anterior.
+APK anterior 40478590176 concluiu verde; bancada 40478590180 ainda em andamento.
+Aguardar e inspecionar os runs de **9113a40** antes de fechar P2 e avançar P3.

@@ -2583,3 +2583,22 @@ continuar as partes independentes da P3 após a evidência do CI. Sem publicaç�
 Commit da coleta P3: **6c7723e** (normal, sem skip). Revisão de imagem vai em
 commit separado, também normal; ambos compõem a árvore que passou o portão
 final acima. P3 continua aberta para o restante da revisão; nenhum ENTREGA-FINAL.
+
+### P3 + revisão de imagem — enviado, runs pendentes
+
+- **6c7723e**: coleta P3 de tipografia, marca SVG, temas, fonte 200%, áreas de
+  toque e provas visuais (P3 ainda aberta).
+- **df479e52efcbfd29a8c582a66af8d4053dcc79d5**: correção da análise de imagem
+  preta da bancada, com contrato de geometria e provas negativas/positivas.
+- Versão: **2.0.34+36**. Push no único ramo `codex/heisuca-home-site`.
+- APK: [40524767696](https://github.com/CaioGuerras/heisuca/actions/runs/40524767696),
+  **em andamento**, sem artifact/hash conferidos ainda.
+- Bancada: [40524767724](https://github.com/CaioGuerras/heisuca/actions/runs/40524767724),
+  **em andamento**; falta inspecionar relatório, passos, imagem/área/fração e ANR.
+- Portão local completo verde registrado acima (1.755 + 8 Flutter, 46 Python).
+  Nenhuma aprovação de aparelho/revisão independente reivindicada.
+
+**Retomada:** conferir esses dois runs antes de fechar a coleta. Se a geometria
+nativa não corresponder ao contrato, registrar o diagnóstico sem liberar a
+captura nem relaxar a medição. Continuar P3 (prompts/diálogos/estados e prova da
+origem das barras), depois P4–P7. Não publicar APK; não emitir ENTREGA-FINAL.

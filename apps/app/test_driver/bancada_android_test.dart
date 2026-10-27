@@ -12,6 +12,7 @@ Future<void> main() async {
         jsonEncode({
           'testeEncerrado': data?['testeEncerrado'] == true,
           'passos': data?['passos'],
+          'avisos': data?['avisos'],
           'video': data?['video'],
           'foraDoApp': data?['foraDoApp'],
           'diagnosticoRetorno': data?['diagnosticoRetorno'],

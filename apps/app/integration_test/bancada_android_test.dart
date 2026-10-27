@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'support/bancada_clock.dart';
+import 'support/pip_overflow_policy.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -92,7 +93,26 @@ void main() {
     binding.captureAppSemantics = true;
     app.main();
     final steps = <String>[];
-    binding.reportData = {'passos': steps, 'testeEncerrado': false};
+    final warnings = <Map<String, Object?>>[];
+    var pipPhase = 'fora';
+    binding.reportData = {'passos': steps, 'testeEncerrado': false, 'avisos': warnings};
+    FlutterError.onError = (details) {
+      final view = binding.platformDispatcher.views.first;
+      final size = view.physicalSize / view.devicePixelRatio;
+      final source = details.toDiagnosticsNode().toStringDeep();
+      final message = details.exceptionAsString();
+      if (details.exception is FlutterError && details.library == 'rendering library' &&
+          knownPipHudOverflow(message: message, source: source, phase: pipPhase,
+            width: size.width, height: size.height)) {
+        final widget = RegExp(r'(video_controls_header\.dart:59:12|mobile_video_controls\.dart:(?:387:16|237:14))').firstMatch(source)!.group(1);
+        final warning = <String, Object?>{'tipo': 'overflow HUD PiP', 'widget': widget,
+          'fase': pipPhase, 'larguraDp': size.width, 'alturaDp': size.height};
+        warnings.add(warning);
+        print('BANCADA_ATENCAO: ${jsonEncode(warning)}');
+        return;
+      }
+      flutterErrorHandler?.call(details);
+    };
     Future<void> Function(String)? captureTimeout;
     Future<void> until(bool Function() ready, String stage, {int seconds = 90}) async {
       final deadline = DateTime.now().add(Duration(seconds: seconds));
@@ -294,14 +314,20 @@ void main() {
     expect(settings.read(SettingsService.continueListening), isFalse);
     final outsideApp = <String, dynamic>{'padraoDesligado': true};
     binding.reportData!['foraDoApp'] = outsideApp;
+    pipPhase = 'entrada';
     await shot('13-home-pip', action: 'home');
     await until(() => PipService().isPipActive.value, 'Home entra em PiP');
+    pipPhase = 'ativo';
     var position = player.currentPosition;
     await until(() => player.currentPosition >= position + const Duration(seconds: 2), 'vídeo continua no PiP');
     outsideApp['pipPadrao'] = true;
+    pipPhase = 'saída';
     await shot('14-voltar-do-pip', action: 'reopen');
     await until(() => !PipService().isPipActive.value && binding.lifecycleState == AppLifecycleState.resumed,
         'retorno do PiP');
+    await until(() => binding.platformDispatcher.views.first.physicalSize.width /
+      binding.platformDispatcher.views.first.devicePixelRatio > 320, 'janela expandida após PiP');
+    pipPhase = 'fora';
     await settings.write(SettingsService.continueListening, true);
     final playerScreen = tester.state<VideoPlayerScreenState>(find.byType(VideoPlayerScreen));
     await until(() => playerScreen.debugContinueListeningEnabled, 'preferência de áudio aplicada');
@@ -335,9 +361,12 @@ void main() {
     final restoredDecoded = await decodedFrame(restoredProbe);
     print('BANCADA_VIDEO_APOS_AUDIO: ${jsonEncode(restoredProbe)}');
     await shot('21-imagem-apos-audio', decodedFrame: restoredDecoded);
+    pipPhase = 'entrada';
     expect((await PipService.enter(width: 16, height: 9)).$1, isTrue);
     await until(() => PipService().isPipActive.value, 'PiP manual com áudio permitido');
+    pipPhase = 'ativo';
     await shot('19-fechar-pip', action: 'pip_close');
+    pipPhase = 'saída';
     await until(() => !PipService().isPipActive.value && playerScreen.debugBackgroundAudioActive,
         'fechar PiP mantém só o som');
     position = player.currentPosition;
@@ -347,6 +376,9 @@ void main() {
     await shot('20-restaurar-imagem', action: 'reopen');
     await until(() => binding.lifecycleState == AppLifecycleState.resumed && !playerScreen.debugBackgroundAudioActive,
         'imagem restaurada antes do Back');
+    await until(() => binding.platformDispatcher.views.first.physicalSize.width /
+      binding.platformDispatcher.views.first.devicePixelRatio > 320, 'janela expandida antes do Back');
+    pipPhase = 'fora';
     print('BANCADA_FORA_DO_APP: ${jsonEncode(outsideApp)}');
 
     // O retorno é uma tecla Back real enviada pelo adb pelo host.

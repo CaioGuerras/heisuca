@@ -2224,3 +2224,37 @@ a P1 e não é autorização para publicar o pacote. Sem teste novo em aparelho.
 Portão local completo desta preparação P1 **APROVADO**, exit 0:
 846 Flutter (3 skips preexistentes), 8 Impeller, 39 Python.
 Log `/tmp/p1-gate.log`. Não equivale a corrigir/validar a imagem do mpv.
+
+#### Continuidade P1 — decisão da lista e prova original
+
+Caio autorizou largura variável **<=320 dp**, apenas erros RenderFlex nos três
+pontos do HUD durante entrada/ativo/saída PiP. Fora disso continua vermelho.
+Implementação da regra e teste com os mesmos erros em janela cheia: antes 3
+falhas, depois 3 casos aprovados (incluem negações de fase/origem/tamanho/tipo).
+Relatório/summary passam a expor estado verde/ATENÇÃO/vermelho; atenção traz a
+frase exata pedida. Outros erros seguem o tratador do framework, não são engolidos.
+Driver mantém a lista de avisos. Preto nativo impede ACK e continua vermelho.
+
+Leitura dos **PNGs originais** no run **40440212912** confirmou ambos os arquivos
+06/21 em 1200×540 com RGB máximo **0** em cada canal: imagem **não**, preto total.
+Não é só limitação da miniatura. P1 ainda não fechada por perda real de imagem.
+
+Commit de prova inicial `58d5f09`: APK **40440203947** falhou no portão Python,
+antes de compilar: `FileNotFoundError: ffmpeg`. A dependência já era instalada
+na bancada, mas faltava no job de APK. Incluída preparação explícita do ffmpeg
+antes do portão nesse job, mantendo assinaturas/repositórios oficiais. É correção
+da causa da diferença entre executor local e runner; testes não foram ignorados.
+Bancada desse commit **40440203813** ainda em execução na última consulta.
+
+O gh CLI passou a responder HTTP 401 durante a inspeção. Os tools do conector
+GitHub continuam operacionais; logs do job 121978465720 foram lidos por eles.
+Não imprimir/alterar credenciais nem iniciar login interativo.
+
+Novo teste nativo de ressincronização será conferido no CI ANTES de patch no
+player. É uma hipótese documentada, não uma correção comprovada por mock.
+Nenhum commit ENTREGA-FINAL, nenhuma publicação e P2–P7 continuam pendentes.
+
+Portão local da regra PiP aprovado: 849 Flutter (3 skips), 8 Impeller,
+39 Python. Log `/tmp/p1-policy-gate.log`; Python rechecado após apresentação
+do estado no relatório. Teste nativo novo ainda pendente do Actions; sem SDK
+Android neste executor, não alegar falha/sucesso nativo local.

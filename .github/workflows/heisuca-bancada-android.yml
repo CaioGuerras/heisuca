@@ -132,11 +132,15 @@ jobs:
               status = 'falhou' if os.environ['RESULTADO_BUILD'] == 'failure' else 'instável'
               path.write_text(json.dumps({'status': status, 'motivo': 'A compilação falhou ou o emulador não chegou a executar o percurso.'}, ensure_ascii=False))
           report = json.loads(path.read_text())
+          report['estado'] = ({'aprovado': 'verde', 'atenção': 'ATENÇÃO'}.get(report['status'], 'vermelho')
+                              if os.environ['RESULTADO_ETAPA'] == 'success' else 'vermelho')
+          path.write_text(json.dumps(report, ensure_ascii=False, indent=2))
           with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
-              summary.write('### Bancada Android: ' + report['status'] + '\n\n')
+              summary.write('### Bancada Android: ' + report['estado'] + '\n\n')
+              if report.get('motivo'): summary.write(report['motivo'] + '\n\n')
               summary.write('Este workflow é separado do APK. Falha de infraestrutura é instabilidade, nunca teste verde.\n')
               summary.write('Sem contas -kids; somente item sem histórico, com restauração conferida.\n')
-          if report['status'] != 'aprovado' or os.environ['RESULTADO_ETAPA'] != 'success':
+          if report['estado'] == 'vermelho':
               raise SystemExit(1)
           PY
       - name: Guardar capturas, vídeos e relatório sem credenciais

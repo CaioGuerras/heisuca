@@ -12,6 +12,20 @@ import java.util.concurrent.ConcurrentLinkedQueue
 
 @RunWith(RobolectricTestRunner::class)
 class MpvPlayerBackgroundAudioTest {
+  @Test fun reativarVideoRessincronizaNoPontoAtualSemTrocarFaixa() {
+    val operations = ConcurrentLinkedQueue<String>()
+    val core = MpvPlayerCore(Robolectric.buildActivity(Activity::class.java).setup().get(),
+      audioOnly = false,
+      propertyWriter = { key, value -> operations.add("$key=$value"); Unit },
+      commandRunner = { args -> operations.add(args.joinToString(" ")); null })
+    core.propertyReaderOverride = { "7" }
+    try {
+      assertTrue(change(core, true).isSuccess)
+      assertTrue(change(core, false).isSuccess)
+      assertEquals(listOf("vid=no", "vid=7", "seek 0 relative exact"), operations.toList())
+    } finally { core.dispose() }
+  }
+
   @Test fun somDesligaVideoERestauraExatamenteAFaixaAnterior() {
     val writes = ConcurrentLinkedQueue<Pair<String, String>>()
     val core = MpvPlayerCore(Robolectric.buildActivity(Activity::class.java).setup().get(),

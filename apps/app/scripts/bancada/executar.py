@@ -127,6 +127,9 @@ def main():
             if not all(details.get('foraDoApp', {}).get(key) is True for key in ['padraoDesligado', 'pipPadrao', 'audioComServico', 'controlesDaSessao', 'audioAposFecharPip']):
                 raise RuntimeError('Percurso de mídia fora do app não comprovado.')
             report.update({'status': 'aprovado', 'video': details['video'], 'passos': details['passos'], 'foraDoApp': details['foraDoApp']})
+            if details.get('avisos'):
+                report.update({'status': 'atenção', 'avisos': details['avisos'],
+                    'motivo': 'ATENÇÃO: overflow conhecido do HUD em PiP (aguarda teste no Tab A9 e Moto G77)'})
             result_code = 0
     except BancadaIndisponivel as error:
         report.update({'status': 'instável', 'motivo': str(error)})
@@ -187,6 +190,9 @@ def main():
                 try: client.logout()
                 except BancadaIndisponivel: pass
             adb('shell', 'pm', 'clear', APP_ID)
+        report['imagens'] = {path.name: json.loads(path.read_text())
+                             for path in OUT.glob('*-imagem.json')}
+        report['estado'] = {'aprovado': 'verde', 'atenção': 'ATENÇÃO'}.get(report['status'], 'vermelho')
         (OUT / 'relatorio.json').write_text(json.dumps(report, ensure_ascii=False, indent=2))
         print(f'Bancada: {report["status"]}. Restauração: {report["restauracao"]}.')
         if report.get('video'):

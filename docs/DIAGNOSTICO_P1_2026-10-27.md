@@ -65,3 +65,41 @@ No mesmo log de 40433379764:
   o log não estabelece qual operação deixa de produzir o primeiro quadro.
 
 Não houve patch especulativo no player/Surface/codec ou mudança do AAR proibido.
+
+### Decisão de Caio recebida e implementação da regra
+
+Autorizada janela variável até **320 dp de largura**, incluindo 227,8×128,0
+com coluna 192 px. Regra usa simultaneamente: erro RenderFlex da biblioteca
+rendering, origem nos três pontos do HUD, fase entrada/ativo/saída PiP,
+janela válida com largura <=320 dp. Fonte/contexto errado, outra exceção ou
+janela cheia seguem o tratador original e ficam vermelhos. Não altera handlers
+no APK de uso: somente no teste de integração. A saída espera janela expandida
+antes de sair da fase PiP; não presume que o callback nativo já expandiu a janela.
+
+Teste de política: baseline recusava os 3 casos conhecidos (3 falhas); depois
+aceita os casos PiP e rejeita a mesma exceção em janela cheia, fora da fase,
+com outra origem, outra exceção, largura inválida ou >320. Driver conserva os
+avisos no resultado; relatório e resumo exibem verde/ATENÇÃO/vermelho. Qualquer
+falha de passo/diagnóstico nativo continua vermelha; preto total continua fatal.
+
+### Pixels originais conferidos
+
+Run leitor **40440212912**, conclusão success, prova dos arquivos originais de
+40433379764: `21-imagem-apos-audio.png` e `06-player.png`, ambos **1200×540**,
+**imagem: não**, extremos RGB **[[0,0],[0,0],[0,0]]**. Método: PNG original de
+adb screencap, leitura RGB por Pillow antes da miniatura JPEG. Preto total real.
+
+### Hipótese de sincronização ainda em teste
+
+O código desativa `vid` para ouvir fora do app e restaura a faixa no retorno,
+mas não pede ressincronização da cadeia de vídeo ao ponto atual do áudio.
+O próprio `rebuildVideoOutput` documenta que desativar a faixa durante rebuild
+pula a ressincronização que o mpv faz com vídeo ativo, usando seek relativo zero
+exato após reativar para sincronizar áudio/vídeo. Isso é uma hipótese aplicável
+ao retorno do áudio, ainda NÃO provada como causa desta falha.
+
+Acrescentado teste nativo `reativarVideoRessincronizaNoPontoAtualSemTrocarFaixa`
+para executar no Actions antes de qualquer patch dessa hipótese. O executor local
+não tem Android SDK/Gradle cache; portão Flutter/Python não prova esse teste nativo.
+Ainda não há patch no player. Só aceitar a hipótese com prova de falha anterior,
+correção e pixels reais restaurados no emulador; não aceitar somente o mock.

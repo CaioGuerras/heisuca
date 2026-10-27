@@ -69,6 +69,15 @@ void main() {
     });
   }
 
+  test('anel de foco (focusRing) ≥ 3:1 no canvas e na superfície das 5 paletas', () {
+    for (final p in [CgflixPalette.isis, CgflixPalette.heitor, CgflixPalette.hisuiDark,
+        CgflixPalette.ichigo, CgflixPalette.sorairo]) {
+      for (final bg in [p.background, p.surface]) {
+        expect(contrast(p.focusRing, bg), greaterThanOrEqualTo(3), reason: '${p.variant}');
+      }
+    }
+  });
+
   test('Hisui claro: verde suave é preenchimento de selo, nunca texto/ícone', () {
     const p = CgflixPalette.heitor;
     const pale = Color(0xFF8EB69B);

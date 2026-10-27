@@ -761,6 +761,56 @@ void main() {
 
   }
 
+  for (final continueAfter in [true, false]) {
+  testWidgets('O correção: sono visível + EOF, continuar: $continueAfter', (tester) async {
+    await (FontLoader('Roboto')..addFont(rootBundle.load('assets/fonts/Inter-Regular.ttf'))).load();
+    await SettingsService.instance.write(SettingsService.stillWatchingEpisodes, 1);
+    await withMockPlayerChannels(
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
+      testBody: () async {
+        final screen = await pumpReloadScreen(tester, episode: true);
+        final state = screen.key.currentState!;
+        await state.debugWirePlayerStreamsForTesting();
+        screen.player.emitPlaybackRestart();
+        await state.debugMarkPlaybackStartedForTesting();
+        await tester.pump();
+        final next = testMediaItem(id: 'next', title: 'Próximo episódio', kind: MediaKind.episode, serverId: 'srv-1', backend: MediaBackend.jellyfin);
+        state.debugCommitAdjacentEpisodesForTesting(AdjacentEpisodes(next: next,
+          nextStatus: QueueNavigationStatus.found, previousStatus: QueueNavigationStatus.boundary));
+        SleepTimerService().startTimer(const Duration(minutes: 20));
+        addTearDown(() => SleepTimerService().cancelTimer());
+        SleepTimerService().extendTimer(const Duration(minutes: -21));
+        await tester.pump(const Duration(seconds: 1));
+        await tester.pump();
+        expect(SleepTimerService().isActive, isFalse);
+        final deadline = SleepTimerService().endTime;
+        state.debugCompleteVideoForTesting();
+        await tester.pump();
+        await tester.pump();
+        expect(state.debugStillWatchingForEpisodes, isTrue);
+        expect(state.debugPlayNextPromptVisibleForTesting, isFalse);
+        expect(screen.player.state.playing, isFalse);
+        expect(SleepTimerService().endTime, deadline);
+        await tester.tap(find.text(continueAfter ? t.videoControls.continueWatching : t.videoControls.pauseButton));
+        await tester.pump();
+        if (continueAfter) {
+          expect(SleepTimerService().isActive, isTrue);
+          expect(SleepTimerService().duration, const Duration(minutes: 20));
+          await pumpUntil(tester, () => screen.player.openCalls > 0);
+          expect(screen.player.openCalls, 1);
+        } else {
+          expect(screen.player.openCalls, 0);
+          expect(screen.player.state.playing, isFalse);
+        }
+        SleepTimerService().cancelTimer();
+        await tester.pumpWidget(const SizedBox.shrink());
+      },
+    );
+  });
+
+  }
+
   group('TV background suspend', () {
     testWidgets('a suspend under the Play Next prompt restores the prompt and its countdown', (tester) async {
       TvDetectionService.debugSetAppleTVOverride(true);

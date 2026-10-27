@@ -2130,3 +2130,51 @@ Commit e números dos runs são registrados abaixo após o push; a bancada deste
   conferência. Não foram presumidos verdes. Jarvis/Visão/Jocasta fazem a revisão
   independente e a publicação do pacote de teste. Nenhuma publicação realizada
   pelo Ultron. Código do BIF e lock nativo não foram alterados.
+
+### Correção da O parcial — revisão Visão, 27/10 — 2.0.33+35
+
+Base `3cc295c`. Cada defeito foi convertido em teste antes do patch. Provas
+negativas na implementação anterior, com os novos testes e as dependências
+coerentes restauradas temporariamente a partir da base (depois repostas):
+
+- `docs/evidencias/o_correcao_news_antes_2026-10-27.txt`: toque na pílula real
+  `heisuca-nav-3` com SnackBar pendente não encontra `HeisucaProfileScreen`;
+  teste do asset empacotado encontra `Caio` no changelog.
+- `docs/evidencias/o_correcao_sleep_antes_2026-10-27.txt`: aviso de sono visível,
+  EOF e limite 1 não registram o pedido de episódio (esperado true, obtido false),
+  nas variantes Continuar e Pausar. O harness carrega fonte real para não medir
+  o texto do prompt com a fonte Ahem de teste. Não houve patch em overflows do HUD.
+
+**Causa e correção:**
+
+1. Removido o SnackBar e seu agendamento da sessão/MainScreen, não apenas mudada
+   sua posição. Nenhuma camada de aviso fica sobre o conteúdo ou a navegação.
+   Novidades tem somente um ponto de 6 dp no próprio item do Sobre, com rótulo
+   semântico de não lido. Persiste por versão até abrir o texto; ao voltar o
+   estado local do item é reconstruído. Preferência `read` separada da antiga
+   `notified`: ter recebido o aviso não equivale a ter lido. É a alternativa
+   mais discreta: não disputa toque, foco ou espaço com o filme e as abas.
+2. Retirada toda a seção “Em avaliação”. Texto público: “base do Plezy 2.22.0”.
+   Teste carrega o asset real e proíbe Caio/bancada/emulador/Em avaliação.
+3. O EOF não é mais descartado só porque o prompt de sono está visível. O latch
+   continua impedindo duplicatas. Ao atingir o limite, pausa e une as duas
+   intenções no mesmo prompt, preservando a necessidade de rearmar o sono.
+   Continuar rearma os 20 minutos e abre o próximo; Pausar não avança.
+
+Testes direcionados após correção: 6 de Novidades/conversão/contador e 2 do canto
+sono+EOF aprovados, incluindo navegação real da pílula, leitura persistida,
+texto ampliado e preservação do temporizador. Portão completo em execução;
+resultado, commit e números dos runs serão registrados após consulta.
+
+Fora do escopo e intactos: código BIF/partTimeline (xfail permanece), coleções/banco,
+pacote nativo/lock mpv, DV7, seleção de faixas e HUD do PiP. M continua fechada pela
+prova física de Caio; seus overflows herdados são outra etapa. A bancada do push
+é a execução exigida para a entrega, sem investigação adicional da M.
+Nenhum APK publicado pelo Ultron. Visão confere o percurso até `11-voce` e
+`testeEncerrado: true` e publica o pacote de teste; não antecipar esse resultado.
+
+Portão completo da correção **APROVADO**, processo encerrado com código 0:
+846 testes Flutter (3 ignorados preexistentes), 8 Impeller e 37 Python.
+Log local `/tmp/o-correction-gate.log`. Análise sem erros fatais e
+`git diff --check` limpo. Testes do BIF permanecem XFAIL conhecido e explicado.
+Nenhuma afirmação de aprovação independente ou de bancada verde nesta anotação.

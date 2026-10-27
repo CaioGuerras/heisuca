@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../widgets/focusable_list_tile.dart';
+import '../widgets/app_icon.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,6 +29,23 @@ class HeisucaNewsScreen extends StatefulWidget {
 
 class _HeisucaNewsScreenState extends State<HeisucaNewsScreen> {
   final _text = rootBundle.loadString(heisucaNewsAsset);
+  @override
+  void initState() {
+    super.initState();
+    _markRead();
+  }
+
+  Future<void> _markRead() async {
+    // Só marca após o texto poder ser carregado, ao abrir a tela.
+    try {
+      await _text;
+    } catch (_) {
+      return;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('heisuca.news.read', heisucaNewsVersion);
+  }
+
   @override
   Widget build(BuildContext context) {
     final palette = context.cgflix;
@@ -89,42 +109,44 @@ class _HeisucaNewsScreenState extends State<HeisucaNewsScreen> {
   }
 }
 
-/// Aviso único por versão, na sessão Jellyfin, sem alterar o desenho da Início.
-class HeisucaNewsNotice extends StatefulWidget {
-  const HeisucaNewsNotice({super.key, required this.child});
-  final Widget child;
+/// Sinal local ao item do Sobre; nunca ocupa a superfície da navegação.
+class HeisucaNewsEntry extends StatefulWidget {
+  const HeisucaNewsEntry({super.key});
   @override
-  State<HeisucaNewsNotice> createState() => _HeisucaNewsNoticeState();
+  State<HeisucaNewsEntry> createState() => _HeisucaNewsEntryState();
 }
 
-class _HeisucaNewsNoticeState extends State<HeisucaNewsNotice> {
-  bool _scheduled = false;
+class _HeisucaNewsEntryState extends State<HeisucaNewsEntry> {
+  final _prefs = SharedPreferences.getInstance();
   @override
-  Widget build(BuildContext context) {
-    if (!_scheduled && heisucaNewsAvailable(context)) {
-      _scheduled = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) => _show());
-    }
-    return widget.child;
-  }
-
-  Future<void> _show() async {
-    final prefs = await SharedPreferences.getInstance();
-    const key = 'heisuca.news.notified';
-    if (!mounted || prefs.getString(key) == heisucaNewsVersion) return;
-    final messenger = ScaffoldMessenger.maybeOf(context);
-    if (messenger == null || ModalRoute.of(context)?.isCurrent == false) return;
-    messenger.showSnackBar(
-      SnackBar(
-        content: const Text('Veja o que mudou no Heisuca.'),
-        action: SnackBarAction(
-          label: 'Novidades',
-          onPressed: () {
-            if (mounted) Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const HeisucaNewsScreen()));
-          },
+  Widget build(BuildContext context) => FutureBuilder<SharedPreferences>(
+    future: _prefs,
+    builder: (context, snapshot) {
+      final unread = snapshot.hasData && snapshot.data!.getString('heisuca.news.read') != heisucaNewsVersion;
+      return FocusableListTile(
+        leading: const AppIcon(Symbols.auto_awesome_rounded, fill: 0),
+        subtitle: const Text('O que mudou no Heisuca.'),
+        onTap: () async {
+          await Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const HeisucaNewsScreen()));
+          if (mounted) setState(() {});
+        },
+        title: Row(
+          children: [
+            const Text('Novidades'),
+            if (unread) ...[
+              const SizedBox(width: 8),
+              Semantics(
+                label: 'Novidades ainda não lidas',
+                child: Container(
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(color: context.cgflix.accent, shape: BoxShape.circle),
+                ),
+              ),
+            ],
+          ],
         ),
-      ),
-    );
-    await prefs.setString(key, heisucaNewsVersion);
-  }
+      );
+    },
+  );
 }

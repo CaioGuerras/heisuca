@@ -92,7 +92,6 @@ extension _VideoPlayerPlaybackPromptMethods on VideoPlayerScreenState {
 
     if (navigationAction == CompletionNavigationAction.presentNext &&
         !_episode.showPlayNextDialog &&
-        !_showStillWatchingPrompt &&
         !_episode.completionLatch.triggered) {
       _episode.completionLatch.latch();
 
@@ -116,6 +115,8 @@ extension _VideoPlayerPlaybackPromptMethods on VideoPlayerScreenState {
         _showStillWatchingDialog(forEpisodes: true);
         return;
       }
+
+      if (_showStillWatchingPrompt) return;
 
       // PiP: skip dialog (user can't interact), auto-play immediately
       if (PipService().isPipActive.value && !serverStopped) {
@@ -353,6 +354,14 @@ extension _VideoPlayerPlaybackPromptMethods on VideoPlayerScreenState {
 
   void _showStillWatchingDialog({bool forEpisodes = false}) {
     if (_showStillWatchingPrompt) {
+      if (forEpisodes && !_episodeAttentionPrompt) {
+        // Une os dois pedidos: Continuar responde aos episódios e ao sono.
+        _stillWatchingTimer?.cancel();
+        _setPlayerState(() {
+          _episodeAttentionPrompt = true;
+          _sleepPromptAlsoPending = true;
+        });
+      }
       if (!forEpisodes && _episodeAttentionPrompt) _sleepPromptAlsoPending = true;
       return;
     }

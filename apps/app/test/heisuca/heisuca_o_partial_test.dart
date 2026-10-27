@@ -1,3 +1,6 @@
+import 'package:flutter/services.dart';
+import 'package:heisuca/heisuca/heisuca_floating_island.dart';
+import 'package:heisuca/heisuca/heisuca_profile_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:heisuca/media/media_server_client.dart';
@@ -13,30 +16,71 @@ import 'package:heisuca/heisuca/services/heisuca_episode_attention.dart';
 import 'package:heisuca/heisuca/services/heisuca_playback_delivery.dart';
 
 void main() {
-  for (final backend in [MediaBackend.jellyfin, MediaBackend.plex]) {
-    testWidgets('aviso só na primeira abertura Jellyfin: $backend', (tester) async {
-      SharedPreferences.setMockInitialValues({});
-      final servers = testMultiServer(clients: [_NewsClient(backend)]);
-      servers.manager.setNavigationSource(Object(), 'news');
-      Widget app() => ChangeNotifierProvider<MultiServerProvider>.value(
+  testWidgets('Novidades pendente não intercepta Você', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final servers = testMultiServer(clients: [_NewsClient(MediaBackend.jellyfin)]);
+    servers.manager.setNavigationSource(Object(), 'news');
+    await tester.pumpWidget(
+      ChangeNotifierProvider<MultiServerProvider>.value(
         value: servers.provider,
         child: MaterialApp(
-          home: const HeisucaNewsNotice(child: Scaffold(body: Text('Sessão'))),
+          theme: cgflixAppTheme(),
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: Stack(
+                children: [
+                  HeisucaFloatingIsland(
+                    currentIndex: 0,
+                    onDestinationSelected: (index) {
+                      if (index == 3)
+                        Navigator.of(
+                          context,
+                        ).push(MaterialPageRoute<void>(builder: (_) => const HeisucaProfileScreen()));
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
-      );
-      await tester.pumpWidget(app());
-      await tester.pumpAndSettle();
-      expect(
-        find.text('Veja o que mudou no Heisuca.'),
-        backend == MediaBackend.jellyfin ? findsOneWidget : findsNothing,
-      );
-      await tester.pumpWidget(const SizedBox.shrink());
-      await tester.pumpWidget(app());
-      await tester.pumpAndSettle();
-      expect(find.text('Veja o que mudou no Heisuca.'), findsNothing);
-      await tester.pumpWidget(const SizedBox.shrink());
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('heisuca-nav-3')));
+    await tester.pumpAndSettle();
+    expect(find.byType(HeisucaProfileScreen), findsOneWidget);
+    expect(find.byType(HeisucaNewsScreen), findsNothing);
+    expect(find.byType(SnackBar), findsNothing);
+  });
+  test('changelog empacotado não expõe notas internas', () async {
+    final text = await rootBundle.loadString(heisucaNewsAsset);
+    for (final internal in ['Caio', 'bancada', 'emulador', 'Em avaliação']) {
+      expect(text.toLowerCase(), isNot(contains(internal.toLowerCase())));
+    }
+    expect(text, contains('base do Plezy 2.22.0'));
+  });
+  testWidgets('ponto permanece até abrir Novidades e some ao voltar', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: cgflixAppTheme(),
+        home: const Scaffold(body: HeisucaNewsEntry()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.bySemanticsLabel(RegExp('Novidades ainda não lidas')), findsOneWidget);
+    await tester.runAsync(() => rootBundle.loadString(heisucaNewsAsset));
+    await tester.tap(find.text('Novidades'));
+    await tester.pump();
+    await tester.runAsync(() async {
+      await Future<void>.delayed(const Duration(milliseconds: 100));
     });
-  }
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Voltar'));
+    await tester.pumpAndSettle();
+    expect(find.bySemanticsLabel(RegExp('Novidades ainda não lidas')), findsNothing);
+    expect((await SharedPreferences.getInstance()).getString('heisuca.news.read'), heisucaNewsVersion);
+  });
   test('episódios: três conclusões, interação reinicia, zero desliga', () {
     final attention = HeisucaEpisodeAttention();
     expect(attention.finish(limit: 3), isFalse);
@@ -66,6 +110,7 @@ void main() {
     );
   });
   testWidgets('Novidades usa texto editorial e cabe em tela pequena com texto ampliado', (tester) async {
+    await tester.runAsync(() => rootBundle.loadString(heisucaNewsAsset));
     tester.view.physicalSize = const Size(320, 640);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -79,6 +124,9 @@ void main() {
         home: const HeisucaNewsScreen(),
       ),
     );
+    await tester.runAsync(() async {
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    });
     await tester.pumpAndSettle();
     expect(find.text('Novidades'), findsOneWidget);
     expect(find.text('2.0.33 — O que mudou'), findsOneWidget);
@@ -92,6 +140,8 @@ class _NewsClient implements MediaServerClient {
   void close() {}
   @override
   final MediaBackend backend;
+  @override
+  String get serverName => 'Servidor';
   @override
   ServerId get serverId => ServerId('news');
   @override

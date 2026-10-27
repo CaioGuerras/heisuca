@@ -49,25 +49,30 @@ void main() {
     });
 
     test('applies every guess in order to a bare host', () {
-      expect(expandBaseUrlCandidates('seerr.example.com', guesses: guesses), [
-        'https://seerr.example.com',
-        'http://seerr.example.com',
-        'http://seerr.example.com:5055',
+      // Só HTTPS: os palpites http:// de host externo são descartados.
+      expect(expandBaseUrlCandidates('seerr.example.com', guesses: guesses), ['https://seerr.example.com']);
+      // No proxy local o texto claro segue permitido, na ordem dos palpites.
+      expect(expandBaseUrlCandidates('127.0.0.1', guesses: guesses), [
+        'https://127.0.0.1',
+        'http://127.0.0.1',
+        'http://127.0.0.1:5055',
       ]);
     });
 
     test('a typed port beats the guessed one and collapses the duplicates', () {
-      expect(expandBaseUrlCandidates('192.168.1.5:5055', guesses: guesses), [
-        'https://192.168.1.5:5055',
-        'http://192.168.1.5:5055',
+      expect(expandBaseUrlCandidates('127.0.0.1:5055', guesses: guesses), [
+        'https://127.0.0.1:5055',
+        'http://127.0.0.1:5055',
       ]);
+      expect(expandBaseUrlCandidates('192.168.1.5:5055', guesses: guesses), ['https://192.168.1.5:5055']);
     });
 
     test('keeps a sub-path on every candidate and drops query and fragment', () {
-      expect(expandBaseUrlCandidates('example.com/seerr?a=1#top', guesses: guesses), [
-        'https://example.com/seerr',
-        'http://example.com/seerr',
-        'http://example.com:5055/seerr',
+      expect(expandBaseUrlCandidates('example.com/seerr?a=1#top', guesses: guesses), ['https://example.com/seerr']);
+      expect(expandBaseUrlCandidates('localhost/seerr?a=1#top', guesses: guesses), [
+        'https://localhost/seerr',
+        'http://localhost/seerr',
+        'http://localhost:5055/seerr',
       ]);
     });
 

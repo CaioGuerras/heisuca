@@ -1396,34 +1396,26 @@ void main() {
   });
 
   group('SeerrAuthService.expandUrlCandidates', () {
-    test('tries TLS first, then plain http and the default install port', () {
-      expect(SeerrAuthService.expandUrlCandidates('seerr.example.com'), [
-        'https://seerr.example.com',
-        'http://seerr.example.com',
-        'http://seerr.example.com:5055',
-      ]);
+    test('só HTTPS: host externo sem esquema vira apenas https://', () {
+      expect(SeerrAuthService.expandUrlCandidates('seerr.example.com'), ['https://seerr.example.com']);
     });
 
     test('keeps an explicit scheme, and a typed port, as the only candidate', () {
       expect(SeerrAuthService.expandUrlCandidates('http://192.168.1.5:5055'), ['http://192.168.1.5:5055']);
-      expect(SeerrAuthService.expandUrlCandidates('192.168.1.5:5055'), [
-        'https://192.168.1.5:5055',
-        'http://192.168.1.5:5055',
-      ]);
+      expect(SeerrAuthService.expandUrlCandidates('192.168.1.5:5055'), ['https://192.168.1.5:5055']);
     });
   });
 
   group('SeerrAuthService.probeFirstReachable', () {
-    test('falls back to plain http on the default port when nothing else answers', () async {
+    test('só HTTPS: nunca cai para http:// na porta de instalação', () async {
       final auth = SeerrAuthService(
         httpClientFactory: () => MockClient((request) async {
+          expect(request.url.scheme, 'https', reason: 'nenhuma sondagem em texto claro');
           if (request.url.port != 5055) throw http.ClientException('connection refused');
           return _json({'initialized': true, 'mediaServerType': 2});
         }),
       );
-      final result = await auth.probeFirstReachable('seerr.example.com');
-      expect(result.baseUrl, 'http://seerr.example.com:5055');
-      expect(result.settings.product, SeerrProduct.jellyseerr);
+      await expectLater(auth.probeFirstReachable('seerr.example.com'), throwsA(isA<Object>()));
     });
 
     test('prefers a slow TLS instance over a fast plaintext one', () async {
@@ -1438,23 +1430,16 @@ void main() {
       expect((await auth.probeFirstReachable('seerr.example.com')).baseUrl, 'https://seerr.example.com');
     });
 
-    test('reports the instance it reached instead of the TLS transport failure', () async {
-      // An uninitialized instance on plain http is the actionable answer;
-      // "could not reach https://…" from a candidate the user never typed is
-      // not.
+    test('só HTTPS: falha de TLS é informada como tal, sem sondar http://', () async {
       final auth = SeerrAuthService(
         httpClientFactory: () => MockClient((request) async {
           if (request.url.scheme == 'https') throw http.ClientException('connection refused');
-          return _json({'initialized': false, 'mediaServerType': 4});
+          fail('nenhuma sondagem em texto claro');
         }),
       );
       await expectLater(
         auth.probeFirstReachable('seerr.example.com'),
-        throwsA(
-          isA<SeerrUrlException>()
-              .having((e) => e.message, 'message', contains('first-run setup'))
-              .having((e) => e.statusCode, 'statusCode', 200),
-        ),
+        throwsA(isA<SeerrUrlException>().having((e) => e.message, 'message', contains('https://seerr.example.com'))),
       );
     });
 

@@ -1,3 +1,4 @@
+import '../../cgflix/cgflix_login_checks.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
@@ -59,6 +60,8 @@ class _EditJellyfinConnectionScreenState extends State<EditJellyfinConnectionScr
     );
   }
 
+  String? _httpsProblem() => _enteredUrls().any(cgflixIsCleartextRefused) ? cgflixHttpsRequiredMessage : null;
+
   List<String> _enteredUrls() => JellyfinEndpointDiscovery.parseUserEnteredUrls(_urlsController.text);
 
   @override
@@ -96,7 +99,7 @@ class _EditJellyfinConnectionScreenState extends State<EditJellyfinConnectionScr
                       labelText: t.addServer.serverUrls,
                       prefixIcon: const AppIcon(Symbols.link_rounded, fill: 1),
                     ),
-                    validator: (_) => _enteredUrls().isEmpty ? t.addServer.required : null,
+                    validator: (_) => _enteredUrls().isEmpty ? t.addServer.required : _httpsProblem(),
                   ),
                   const SizedBox(height: 16),
                   FocusableButton(

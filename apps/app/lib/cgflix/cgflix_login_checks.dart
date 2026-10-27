@@ -3,12 +3,19 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import '../utils/url_utils.dart';
 import '../widgets/app_icon.dart';
 
 const cgflixLoginMissingMessage = 'Preencha o usuário.';
 const cgflixServerEmptyMessage = 'Digite o endereço do servidor, por exemplo https://seu.servidor.com';
 const cgflixServerInvalidMessage =
     'Esse endereço não parece certo. Confira se digitou tudo, por exemplo https://seu.servidor.com';
+
+const cgflixHttpsRequiredMessage = 'Use um endereço https://';
+
+/// Verdadeiro para `http://` em host que não seja o proxy local (127.0.0.1/localhost):
+/// o app só fala com servidores por HTTPS (decisão do Caio; ver network_security_config.xml).
+bool cgflixIsCleartextRefused(String url) => isCleartextRefusedUrl(url);
 
 /// Usuário vazio. Nulo = pode ir ao servidor. A senha pode ficar vazia: o Jellyfin tem conta sem
 /// senha (Caio, 16/10/2026: o 1.5.0 recusava esses usuários).
@@ -21,6 +28,7 @@ String? cgflixServerAddressProblem(Iterable<String> enteredUrls) {
   if (urls.isEmpty) return cgflixServerEmptyMessage;
   for (final url in urls) {
     if (!_looksLikeAddress(url)) return cgflixServerInvalidMessage;
+    if (cgflixIsCleartextRefused(url)) return cgflixHttpsRequiredMessage;
   }
   return null;
 }

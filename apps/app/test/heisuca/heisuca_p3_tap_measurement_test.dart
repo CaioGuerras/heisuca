@@ -1,4 +1,3 @@
-import 'dart:ui' show Rect;
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../test_helpers/heisuca_tap_targets.dart';

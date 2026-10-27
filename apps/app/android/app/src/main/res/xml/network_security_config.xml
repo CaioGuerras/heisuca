@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <!-- Fallback for user-entered hosts only: a self-hosted Plex/Jellyfin/Seerr
-         server, or a custom Watch Together relay, may be plain HTTP or fronted
-         by a private CA the device owner installed. Their hostnames are not
-         knowable at build time, so they can only be covered here.
-
-         Only the platform HTTP stack (background_downloader, ExoPlayer's Cronet
-         data source) reads this file. The app's own requests run on dart:io,
-         which applies the same split through lib/utils/certificate_trust.dart
-         by loading the user store over app.heisuca/user_certificates. -->
-    <base-config cleartextTrafficPermitted="true">
+    <!-- Só HTTPS (decisão do Caio): servidores digitados pelo usuário (Jellyfin,
+         Plex, Seerr, relay) precisam de https://. O texto claro só é permitido
+         para o proxy local do app (lib/heisuca/services/local_stream_proxy.dart),
+         em 127.0.0.1/localhost. A CA instalada pelo usuário continua aceita
+         para quem usa uma CA privada. As requisições do próprio app usam dart:io
+         (lib/utils/certificate_trust.dart); este arquivo vale para a pilha HTTP
+         da plataforma (background_downloader, ExoPlayer). -->
+    <base-config cleartextTrafficPermitted="false">
         <trust-anchors>
             <certificates src="system" />
             <certificates src="user" />
@@ -22,6 +20,12 @@
          behaviour. Every hard-coded https:// host in lib/ must appear here
          and in CertificateTrust.fixedEndpointDomains. Pinned by
          test/android/network_security_config_test.dart. -->
+    <!-- Proxy local do app: único destino com texto claro permitido. -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">127.0.0.1</domain>
+        <domain includeSubdomains="false">localhost</domain>
+    </domain-config>
+
     <domain-config>
         <!-- plex.tv, clients.plex.tv, app.plex.tv, discover.provider.plex.tv,
              epg.provider.plex.tv (lib/services/plex_auth_service.dart:53-54,167,

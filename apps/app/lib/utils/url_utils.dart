@@ -44,6 +44,15 @@ String encodeQueryParameters(Map<String, Object?>? params) {
   return parts.join('&');
 }
 
+/// `http://` em host que não seja o proxy local (127.0.0.1/localhost): o app só
+/// fala com servidores por HTTPS (decisão do Caio; network_security_config.xml).
+bool isCleartextRefusedUrl(String url) {
+  final trimmed = url.trim();
+  if (!trimmed.toLowerCase().startsWith('http://')) return false;
+  final host = Uri.tryParse(trimmed)?.host.toLowerCase() ?? '';
+  return host != '127.0.0.1' && host != 'localhost';
+}
+
 final RegExp _schemePattern = RegExp(r'^[A-Za-z][A-Za-z\d+.-]*://');
 
 /// Canonicalizes a server base URL: trims, strips one trailing `/`, and
@@ -102,7 +111,7 @@ List<String> expandBaseUrlCandidates(String input, {required List<BaseUrlGuess> 
       path: parsed.path,
     );
     final normalized = stripTrailingSlash(candidate.toString());
-    if (normalized.isEmpty || !seen.add(normalized)) continue;
+    if (normalized.isEmpty || isCleartextRefusedUrl(normalized) || !seen.add(normalized)) continue;
     candidates.add(normalized);
   }
   return List.unmodifiable(candidates);

@@ -1,3 +1,4 @@
+import '../../cgflix/cgflix_login_checks.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
@@ -97,6 +98,10 @@ class _SeerrConnectScreenState extends State<SeerrConnectScreen>
     final input = _urlController.text.trim();
     if (input.isEmpty) {
       setErrorText(t.addServer.required);
+      return;
+    }
+    if (cgflixIsCleartextRefused(input)) {
+      setErrorText(cgflixHttpsRequiredMessage);
       return;
     }
     await runAsync<void>(() async {

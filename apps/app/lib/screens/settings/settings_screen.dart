@@ -1,3 +1,4 @@
+import '../../cgflix/cgflix_login_checks.dart';
 import 'dart:async';
 import 'dart:io';
 
@@ -1065,6 +1066,7 @@ class _RelayUrlDialogState extends State<_RelayUrlDialog> {
   late final TextEditingController _controller;
   final _saveFocusNode = FocusNode(debugLabel: 'WatchTogetherRelaySave');
   bool _relayUrlInvalid = false;
+  bool _relayHttpsRequired = false;
 
   @override
   void initState() {
@@ -1095,6 +1097,10 @@ class _RelayUrlDialogState extends State<_RelayUrlDialog> {
       return;
     }
 
+    if (cgflixIsCleartextRefused(value)) {
+      setState(() => _relayHttpsRequired = true);
+      return;
+    }
     final endpoint = WatchTogetherRelayEndpoint.tryParseCustom(value);
     if (endpoint == null) {
       setState(() => _relayUrlInvalid = true);
@@ -1113,13 +1119,16 @@ class _RelayUrlDialogState extends State<_RelayUrlDialog> {
         decoration: InputDecoration(
           labelText: t.common.url,
           hintText: t.settings.watchTogetherRelayHint,
-          errorText: _relayUrlInvalid ? t.settings.watchTogetherRelayInvalid : null,
+          errorText: _relayHttpsRequired ? cgflixHttpsRequiredMessage : (_relayUrlInvalid ? t.settings.watchTogetherRelayInvalid : null),
         ),
         autofocus: true,
         textInputAction: TextInputAction.done,
         onChanged: (_) {
-          if (_relayUrlInvalid) {
-            setState(() => _relayUrlInvalid = false);
+          if (_relayUrlInvalid || _relayHttpsRequired) {
+            setState(() {
+              _relayUrlInvalid = false;
+              _relayHttpsRequired = false;
+            });
           }
         },
         onEditingComplete: () => _saveFocusNode.requestFocus(),

@@ -44,8 +44,28 @@ void main() {
     expect(certificateSources, contains('user'));
   });
 
+  test('só HTTPS: base-config recusa texto claro e o manifest não o reabilita', () {
+    final baseConfig = config.rootElement.findElements('base-config').single;
+    expect(baseConfig.getAttribute('cleartextTrafficPermitted'), 'false');
+    expect(File('android/app/src/main/AndroidManifest.xml').readAsStringSync(),
+        isNot(contains('usesCleartextTraffic')));
+  });
+
+  test('texto claro permitido só para 127.0.0.1 e localhost (proxy local)', () {
+    final cleartext = config.rootElement
+        .findElements('domain-config')
+        .where((c) => c.getAttribute('cleartextTrafficPermitted') == 'true')
+        .single;
+    expect(cleartext.findElements('domain').map((d) => d.innerText.trim()).toSet(),
+        {'127.0.0.1', 'localhost'});
+    expect(cleartext.findElements('trust-anchors'), isEmpty);
+  });
+
   test('fixed endpoint domains trust only system certificate authorities', () {
-    final domainConfigs = config.rootElement.findElements('domain-config').toList();
+    final domainConfigs = config.rootElement
+        .findElements('domain-config')
+        .where((c) => c.getAttribute('cleartextTrafficPermitted') != 'true')
+        .toList();
 
     expect(domainConfigs, hasLength(1));
     for (final domainConfig in domainConfigs) {

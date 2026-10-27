@@ -1,3 +1,4 @@
+import '../cgflix/cgflix_login_checks.dart';
 import 'heisuca_motion.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -84,6 +85,12 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
     var serverUrl = rawUrl;
     if (!serverUrl.startsWith('http://') && !serverUrl.startsWith('https://')) {
       serverUrl = 'https://$serverUrl';
+    }
+
+    if (cgflixIsCleartextRefused(serverUrl)) {
+      setState(() => _errorMessage = cgflixHttpsRequiredMessage);
+      HapticFeedback.vibrate();
+      return;
     }
 
     final username = _userController.text.trim();
@@ -219,6 +226,11 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
     }
     if (!serverUrl.startsWith('http://') && !serverUrl.startsWith('https://')) {
       serverUrl = 'https://$serverUrl';
+    }
+
+    if (cgflixIsCleartextRefused(serverUrl)) {
+      setState(() => _errorMessage = cgflixHttpsRequiredMessage);
+      return;
     }
 
     final palette = context.cgflix;
@@ -775,6 +787,9 @@ class _HeisucaQuickConnectModalState extends State<_HeisucaQuickConnectModal> {
       }
       if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
         targetUrl = 'https://$targetUrl';
+      }
+      if (cgflixIsCleartextRefused(targetUrl)) {
+        throw const MediaServerUrlException(cgflixHttpsRequiredMessage);
       }
 
       final clientVersion = await resolveJellyfinClientVersion();

@@ -1,0 +1,73 @@
+name: Heisuca PEPK (chave para a Play)
+
+# Exporta a chave dos APKs do Heisuca, cifrada para a Google Play (App Signing).
+# A chave nunca sai do Actions em claro: o PEPK cifra com a chave pública da Play
+# (play/encryption_public_key.pem, baixada do Play Console) e só o .zip cifrado vira artifact.
+
+on:
+  push:
+    branches: [visao/heisuca-pepk]
+    paths:
+      - "play/encryption_public_key.pem"
+      - ".github/workflows/heisuca-pepk.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pepk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Conferir chave pública da Play
+        run: |
+          if [ ! -s play/encryption_public_key.pem ]; then
+            echo "::error::Falta play/encryption_public_key.pem (Play Console → Integridade do app → Assinatura de apps)."
+            exit 1
+          fi
+          openssl pkey -pubin -in play/encryption_public_key.pem -noout -text | head -1
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Baixar pepk.jar (hash fixado)
+        run: |
+          curl -sSfLo "$RUNNER_TEMP/pepk.jar" https://www.gstatic.com/play-apps-publisher-rapid/signing-tool/prod/pepk.jar
+          echo "aaccc0774b240aa5304bdad2a49865e92f229ca73209ecb6eaafe75dc858e24e  $RUNNER_TEMP/pepk.jar" | sha256sum -c -
+
+      - name: Exportar chave cifrada
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ESPERADO: "19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c"
+        run: |
+          set -euo pipefail
+          if [ -z "$KEYSTORE_B64" ]; then echo "::error::Secrets da keystore ausentes."; exit 1; fi
+          ks="$RUNNER_TEMP/heisuca.jks"
+          trap 'rm -f "$ks"' EXIT
+          echo "$KEYSTORE_B64" | base64 --decode > "$ks"
+          sha=$(keytool -exportcert -rfc -keystore "$ks" -storepass "$STORE_PASSWORD" -alias "$KEY_ALIAS" \
+                | openssl x509 -noout -fingerprint -sha256 | cut -d= -f2 | tr -d ':' | tr 'A-F' 'a-f')
+          echo "Certificado SHA-256: $sha"
+          if [ "$sha" != "$ESPERADO" ]; then echo "::error::Certificado não é o dos APKs do Heisuca."; exit 1; fi
+          mkdir -p "$RUNNER_TEMP/saida"
+          java -jar "$RUNNER_TEMP/pepk.jar" \
+            --keystore="$ks" --alias="$KEY_ALIAS" \
+            --keystore-pass="$STORE_PASSWORD" --key-pass="$KEY_PASSWORD" \
+            --output="$RUNNER_TEMP/saida/heisuca-pepk.zip" \
+            --rsa-aes-encryption --encryption-key-path=play/encryption_public_key.pem \
+            --include-cert
+          ls -la "$RUNNER_TEMP/saida"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: heisuca-pepk
+          path: ${{ runner.temp }}/saida/heisuca-pepk.zip
+          retention-days: 3
+          if-no-files-found: error

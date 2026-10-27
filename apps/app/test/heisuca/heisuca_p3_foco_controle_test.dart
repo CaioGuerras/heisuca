@@ -116,17 +116,9 @@ void main() {
   // Falhas reais do app cuja correção passa de ~80 linhas (ou é decisão de design do foco em todo o app):
   // a prova está escrita e falha de verdade; o caso fica pulado com o motivo até alguém decidir o desenho.
   // Chave: 'tela/aparelho'. Para reproduzir, tire a entrada (ou use P3_FOCO_SEM_PULOS=1).
-  const semFocoVisivel = 'InkWell/IconButton sem indicador de foco visível por pixel: o realce de tinta '
-      'fica sob o fundo da tela. Precisa de anel de foco pelo token do tema (global ou por controle).';
   const escopoSemFoco = 'D-pad não chega ao conteúdo: o foco fica no escopo da tela inteira (ou preso no campo '
       'de busca); falta FocusTraversalGroup/autofoco nos controles.';
   const pulos = <String, String>{
-    'login/tab': semFocoVisivel, 'login/moto': semFocoVisivel,
-    'inicio/tab': semFocoVisivel, 'inicio/moto': semFocoVisivel,
-    'voce/tab': semFocoVisivel, 'voce/moto': semFocoVisivel,
-    'config-geral/tab': semFocoVisivel, 'config-geral/moto': semFocoVisivel,
-    'config-avancada/tab': semFocoVisivel, 'config-avancada/moto': semFocoVisivel,
-    'config-aparencia/tab': 'FocusableWrapper/FocusableSlider: só 180 px mudam em 1248x49 com foco (anel quase invisível).',
     'busca/tab': escopoSemFoco, 'busca/moto': escopoSemFoco,
     'config-completas/tab': escopoSemFoco, 'config-completas/moto': escopoSemFoco,
     'config-servicos/tab': escopoSemFoco, 'config-servicos/moto': escopoSemFoco,

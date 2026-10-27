@@ -1,3 +1,4 @@
+import 'heisuca_dpad_focus.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../cgflix/cgflix_palette.dart';
@@ -94,18 +95,18 @@ class _HeisucaHomeChromeState extends State<HeisucaHomeChrome> {
         )))),
       Positioned(top: top + 6, left: 14, right: 14, height: 48,
         child: Row(children: [
-          Semantics(button: true, label: 'Heisuca: trocar fonte', child: InkWell(onTap: heisucaKidsActive(context) ? null : () => heisucaChooseSource(context),
+          Semantics(button: true, label: 'Heisuca: trocar fonte', child: HeisucaDpadFocus(borderRadius: 12, child: InkWell(onTap: heisucaKidsActive(context) ? null : () => heisucaChooseSource(context),
             child: const SizedBox(height: 48, child: Center(widthFactor: 1,
-              child: HeisucaLogo(height: 28, siteHeader: true))))),
+              child: HeisucaLogo(height: 28, siteHeader: true)))))),
           const Spacer(),
-          IconButton.filledTonal(tooltip: 'Buscar', onPressed: widget.onSearch,
+          HeisucaDpadFocus(borderRadius: 20, child: IconButton.filledTonal(tooltip: 'Buscar', onPressed: widget.onSearch,
             style: IconButton.styleFrom(backgroundColor: widget.pageColor.withValues(alpha: 0.55), foregroundColor: foreground),
-            icon: const Icon(Icons.search_rounded, size: 24)),
+            icon: const Icon(Icons.search_rounded, size: 24))),
         ])),
       if (widget.onBack != null) Positioned(top: top + 62, left: 14, right: 14,
-        child: Row(children: [IconButton.filledTonal(tooltip: 'Voltar', onPressed: widget.onBack,
+        child: Row(children: [HeisucaDpadFocus(borderRadius: 20, child: IconButton.filledTonal(tooltip: 'Voltar', onPressed: widget.onBack,
           style: IconButton.styleFrom(backgroundColor: widget.pageColor.withValues(alpha: .55), foregroundColor: foreground),
-          icon: const Icon(Icons.arrow_back_rounded)),
+          icon: const Icon(Icons.arrow_back_rounded))),
           if (widget.belowHeaderAction != null) ...[const SizedBox(width: 10), Expanded(child: widget.belowHeaderAction!)],
         ])),
       if (widget.item != null && rect != null) Positioned(

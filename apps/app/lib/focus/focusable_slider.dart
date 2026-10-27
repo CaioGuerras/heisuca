@@ -76,7 +76,6 @@ class _FocusableSliderState extends State<FocusableSlider> {
       autofocus: widget.autofocus,
       descendantsAreFocusable: false,
       disableScale: true,
-      focusColor: Colors.transparent,
       onFocusChange: (focused) => setState(() => _isFocused = focused),
       onKeyEvent: _handleKeyEvent,
       child: SliderTheme(

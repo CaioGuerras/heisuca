@@ -1,3 +1,4 @@
+import 'heisuca_dpad_focus.dart';
 import '../services/device_performance.dart';
 import 'heisuca_device_status.dart';
 import 'heisuca_motion.dart';
@@ -274,7 +275,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                 color: tabBg,
                 borderRadius: BorderRadius.circular(10.0),
               ),
-              child: TabBar(
+              child: HeisucaDpadFocus(borderRadius: 8, child: TabBar(
                 controller: _tabController,
                 indicator: BoxDecoration(
                   color: accentColor,
@@ -298,7 +299,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                   Tab(text: 'Geral'),
                   Tab(text: 'Avançado'),
                 ],
-              ),
+              )),
             ),
 
             // Conteúdo das Abas
@@ -365,7 +366,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
           title: const Text('Qualidade de reprodução'),
           subtitle: const Text('Original prioriza reprodução direta. Reduzir exige transcodificação no servidor.'),
         ),
-        DropdownButton<TranscodeQualityPreset>(
+        HeisucaDpadFocus(borderRadius: 8, child: DropdownButton<TranscodeQualityPreset>(
           key: const ValueKey('heisuca-quality'),
           isExpanded: true,
           value: _settings?.read(settings.SettingsService.defaultQualityPreset) ?? TranscodeQualityPreset.original,
@@ -376,7 +377,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
           onChanged: (value) {
             if (value != null) _save(settings.SettingsService.defaultQualityPreset, value);
           },
-        ),
+        )),
         _buildSwitchTile(
           title: 'Pular Abertura Automático',
           subtitle: 'Usa os marcadores disponíveis no vídeo; sem eles, não avança.',
@@ -531,7 +532,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                     : 'Buffer mpv limitado à memória do aparelho. Aplicado na próxima reprodução; pode reduzir sob pressão de RAM.',
                 style: TextStyle(color: titleColor, fontSize: 12),
               ),
-              DropdownButton<settings.PlaybackBufferTier>(
+              HeisucaDpadFocus(borderRadius: 8, child: DropdownButton<settings.PlaybackBufferTier>(
                 key: const ValueKey('heisuca-buffer'),
                 isExpanded: true,
                 value: _settings?.read(settings.SettingsService.playbackBufferTier) ?? settings.PlaybackBufferTier.auto,
@@ -543,7 +544,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                 onChanged: (value) {
                   if (value != null) _save(settings.SettingsService.playbackBufferTier, value);
                 },
-              ),
+              )),
             ],
           ),
         ),
@@ -654,7 +655,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                 ],
               ),
             ),
-            Switch(
+            HeisucaDpadFocus(borderRadius: 24, child: Switch(
               value: value,
               onChanged: _settings == null || _saving ? null : (v) {
                 HapticFeedback.lightImpact();
@@ -662,7 +663,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
               },
               activeThumbColor: activeColor,
               activeTrackColor: activeColor.withValues(alpha: 0.35),
-            ),
+            )),
           ],
         ),
       ),

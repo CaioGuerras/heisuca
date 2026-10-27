@@ -1,3 +1,4 @@
+import 'heisuca_dpad_focus.dart';
 import '../cgflix/cgflix_login_checks.dart';
 import 'heisuca_motion.dart';
 import 'dart:async';
@@ -561,7 +562,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                       Padding(
                         padding: const EdgeInsets.only(top: 24.0, bottom: 8.0),
                         child: Center(
-                          child: TextButton.icon(
+                          child: HeisucaDpadFocus(borderRadius: 20, child: TextButton.icon(
                             onPressed: _showSourcesBottomSheet,
                             icon: Icon(Icons.add_circle_outline_rounded, size: 18.0, color: text2),
                             label: Text(
@@ -577,7 +578,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                               foregroundColor: text2,
                               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
                             ),
-                          ),
+                          )),
                         ),
                       ),
                     ],

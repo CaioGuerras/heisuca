@@ -1,3 +1,4 @@
+import 'heisuca_dpad_focus.dart';
 import 'dart:ui' as ui;
 import '../cgflix/conta/cgflix_conta.dart';
 import '../cgflix/conta/cgflix_minha_conta_screen.dart';
@@ -95,7 +96,7 @@ class HeisucaProfileScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20.0),
                       child: BackdropFilter(
                         filter: ui.ImageFilter.blur(sigmaX: 16.0, sigmaY: 16.0),
-                        child: InkWell(
+                        child: HeisucaDpadFocus(borderRadius: 20, child: InkWell(
                           onTap: () {
                             HapticFeedback.lightImpact();
                             Navigator.of(context).pop();
@@ -112,7 +113,7 @@ class HeisucaProfileScreen extends StatelessWidget {
                             ),
                             child: Icon(Symbols.arrow_back_rounded, color: textTitle, size: 22.0),
                           ),
-                        ),
+                        )),
                       ),
                     ),
                     const SizedBox(width: 14.0),
@@ -430,7 +431,7 @@ class HeisucaProfileScreen extends StatelessWidget {
     required Color iconColor,
     required VoidCallback onTap,
   }) {
-    return InkWell(
+    return HeisucaDpadFocus(borderRadius: HeisucaTheme.raioSquircle, child: InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
       child: Padding(
@@ -474,6 +475,6 @@ class HeisucaProfileScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ));
   }
 }

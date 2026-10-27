@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/focus/focusable_wrapper.dart';
-import 'package:plezy/focus/input_mode_tracker.dart';
-import 'package:plezy/mixins/grid_focus_node_mixin.dart';
-import 'package:plezy/mixins/library_tab_focus_mixin.dart';
-import 'package:plezy/utils/focus_utils.dart';
+import 'package:heisuca/focus/focusable_wrapper.dart';
+import 'package:heisuca/focus/input_mode_tracker.dart';
+import 'package:heisuca/mixins/grid_focus_node_mixin.dart';
+import 'package:heisuca/mixins/library_tab_focus_mixin.dart';
+import 'package:heisuca/utils/focus_utils.dart';
 
 void main() {
   testWidgets('covered item keeps captured restoration across first and nonfirst positions', (tester) async {

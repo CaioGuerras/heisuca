@@ -33,8 +33,8 @@ class PlayerNative extends PlayerBase {
   /// sessions, gpu-next for software ones (see
   /// MpvPlayerCore.initialVideoOutput; #2010). Other platforms ignore it.
   PlayerNative({this._hardwareDecoding = true})
-    : methodChannel = const MethodChannel('com.plezy/mpv_player'),
-      eventChannel = const EventChannel('com.plezy/mpv_player/events'),
+    : methodChannel = const MethodChannel('app.heisuca/mpv_player'),
+      eventChannel = const EventChannel('app.heisuca/mpv_player/events'),
       audioOnly = false;
 
   /// Audio-only player on the dedicated music channels/core (see
@@ -42,8 +42,8 @@ class PlayerNative extends PlayerBase {
   /// ([setVisible] no-ops via [audioOnly]), no subtitle plumbing, no
   /// display-mode handling.
   PlayerNative.audio()
-    : methodChannel = const MethodChannel('com.plezy/mpv_audio_player'),
-      eventChannel = const EventChannel('com.plezy/mpv_audio_player/events'),
+    : methodChannel = const MethodChannel('app.heisuca/mpv_audio_player'),
+      eventChannel = const EventChannel('app.heisuca/mpv_audio_player/events'),
       audioOnly = true,
       _hardwareDecoding = true;
 
@@ -100,7 +100,7 @@ class PlayerNative extends PlayerBase {
     final cached = _cachedHeapSizeMB;
     if (cached != null) return cached;
     try {
-      const channel = MethodChannel('com.plezy/mpv_player');
+      const channel = MethodChannel('app.heisuca/mpv_player');
       final result = await channel.invokeMethod<int>('getHeapSize');
       if (result != null && result > 0) _cachedHeapSizeMB = result;
       return result ?? 0;

@@ -7,6 +7,7 @@
 // "Meus pedidos" vai para o menu do usuário.
 import 'dart:io' show Platform;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -23,6 +24,7 @@ import '../widgets/settings_section.dart';
 import '../widgets/app_icon.dart';
 import 'cgflix_logo.dart';
 import '../heisuca/heisuca_logo.dart';
+import '../heisuca/heisuca_library_screen.dart';
 import '../heisuca/heisuca_settings_screen.dart';
 import 'cgflix_palette.dart';
 import 'cgflix_style.dart';
@@ -30,7 +32,13 @@ import 'cgflix_user_menu.dart';
 import 'requests/cgflix_requests_ui.dart';
 
 /// Celular e tablet usam a navegação do CGFLIX (TV e computador ficam como no upstream).
-bool cgflixUseYouTab(BuildContext context) => PlatformDetector.isMobile(context);
+///
+/// Lê a plataforma de [defaultTargetPlatform] (a mesma que o tema do app usa, ver `mono_theme.dart`), sem
+/// depender do contexto: a tela principal decide as abas no `initState`, onde `Theme.of` é proibido (o debug
+/// derrubava a Início na bancada Android).
+bool cgflixUseYouTab(BuildContext context) =>
+    !PlatformDetector.isTV() &&
+    (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS);
 
 /// Seção inicial: no celular a raiz é sempre a Início (não há mais abas para escolher);
 /// TV e computador seguem a preferência "Seção inicial" do upstream.
@@ -81,7 +89,7 @@ abstract final class CgflixPages {
   static WidgetBuilder downloads = (_) => const DownloadsScreen();
 
   /// Bibliotecas do upstream (1.5.0: no menu do usuário).
-  static WidgetBuilder libraries = (_) => const LibrariesScreen();
+  static WidgetBuilder libraries = (context) => PlatformDetector.isMobile(context) ? const HeisucaLibraryScreen() : const LibrariesScreen();
   static Route<void> Function() settings = () => MaterialPageRoute<void>(builder: (_) => const HeisucaSettingsScreen());
 
   /// "Meus pedidos" (Seerr), em tela nativa.

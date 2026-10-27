@@ -2803,7 +2803,7 @@ class OfflineWatchProgressItem extends DataClass
   /// Auto-incrementing primary key
   final int id;
 
-  /// Active Plezy profile that owns this queued action.
+  /// Active Heisuca profile that owns this queued action.
   final String? profileId;
 
   /// Server ID this media belongs to
@@ -6157,7 +6157,7 @@ class $MusicSessionsTable extends MusicSessions
 }
 
 class MusicSessionRow extends DataClass implements Insertable<MusicSessionRow> {
-  /// Active Plezy profile that owns this session snapshot.
+  /// Active Heisuca profile that owns this session snapshot.
   final String profileId;
 
   /// Canonical queue tracks (insertion order) as a JSON array of MediaItem

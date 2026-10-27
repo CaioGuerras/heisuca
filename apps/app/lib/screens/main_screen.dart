@@ -1,7 +1,12 @@
+import '../heisuca/heisuca_motion.dart'; // CGFLIX: entrada de abas sem perder estado.
+import '../heisuca/heisuca_library_screen.dart';
 import '../cgflix/cgflix_navigation.dart';
 import '../heisuca/heisuca_floating_island.dart';
+import '../heisuca/kids/heisuca_kids_flow.dart';
 import '../heisuca/heisuca_home_screen.dart';
 import '../heisuca/heisuca_profile_screen.dart';
+import '../cgflix/you/cgflix_favorites_screen.dart';
+import '../profiles/profile_avatar.dart';
 import 'dart:async';
 import '../media/ids.dart';
 import '../media/media_server_client.dart';
@@ -1236,13 +1241,13 @@ class _MainScreenState extends State<MainScreen>
       children: [
         const AuthErrorBanner(),
         Expanded(
-          child: IndexedStack(
-            index: _currentIndex,
-            clipBehavior: Clip.none,
-            children: [
-              for (var i = 0; i < _screens.length; i++) TickerMode(enabled: i == _currentIndex, child: _screens[i]),
-            ],
-          ),
+          // CGFLIX: fade-through conserva estado e desativa tickers das abas ocultas.
+          child: cgflixUseYouTab(context)
+              ? HeisucaTabStack(index: _currentIndex, children: _screens)
+              : IndexedStack(index: _currentIndex, clipBehavior: Clip.none, children: [
+                  for (var i = 0; i < _screens.length; i++)
+                    TickerMode(enabled: i == _currentIndex, child: _screens[i]),
+                ]),
         ),
       ],
     );
@@ -1258,10 +1263,13 @@ class _MainScreenState extends State<MainScreen>
     return switch (tab) {
       NavigationTabId.discover =>
         cgflixUseYouTab(context) // CGFLIX: no celular a Início é Heisuca Flagship (Esboço 03B)
-            ? HeisucaHomeScreen(key: _screenKeys[tab])
+            ? HeisucaHomeScreen(key: _screenKeys[tab], onOpenLibrary: _selectLibrary)
             : DiscoverScreen(key: _screenKeys[tab]),
       NavigationTabId.explore => ExploreScreen(key: _screenKeys[tab]),
-      NavigationTabId.libraries => LibrariesScreen(
+      NavigationTabId.libraries => cgflixUseYouTab(context) && !_isOffline
+          ? HeisucaLibraryScreen(key: _screenKeys[tab], initialLibraryKey: _selectedLibraryGlobalKey,
+              onLibrarySelected: _handleLibrariesScreenSelected)
+          : LibrariesScreen(
         key: _screenKeys[tab],
         onLibraryOrderChanged: _onLibraryOrderChanged,
         onLibrarySelected: _handleLibrariesScreenSelected,
@@ -2342,6 +2350,8 @@ class _MainScreenState extends State<MainScreen>
 
   /// Heisuca: shell com Ilha Flutuante Inferior de Vidro (Início, Biblioteca, Buscar, Usuário).
   Widget _buildCgflixShell(BuildContext context) {
+    final profiles = context.watch<ActiveProfileProvider?>();
+    final activeProfile = profiles?.active;
     final insets = _miniPlayerInsets;
     if (insets != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -2352,7 +2362,7 @@ class _MainScreenState extends State<MainScreen>
     final tabIndex = switch (_currentTab) {
       NavigationTabId.discover => 0,
       NavigationTabId.libraries => 1,
-      NavigationTabId.search => 2,
+      NavigationTabId.downloads => 2,
       _ => 0,
     };
 
@@ -2373,6 +2383,9 @@ class _MainScreenState extends State<MainScreen>
           ),
           HeisucaFloatingIsland(
             currentIndex: tabIndex,
+            userLabel: activeProfile?.displayName.split(RegExp(r'[\s._-]')).first ?? 'Você',
+            kids: heisucaKidsActive(context),
+            userAvatar: activeProfile == null ? null : ProfileAvatar(profile: activeProfile, size: 23, avatarUrl: profiles?.avatarUrlFor(activeProfile.id)),
             onLibrariesLongPress: () {
               Feedback.forLongPress(context);
               _showLibraryQuickPicker(context);
@@ -2380,7 +2393,15 @@ class _MainScreenState extends State<MainScreen>
             onDestinationSelected: (i) {
               if (i == 0) _selectTab(NavigationTabId.discover);
               if (i == 1) _selectTab(NavigationTabId.libraries);
-              if (i == 2) _selectTab(NavigationTabId.search);
+              if (i == 2 && !heisucaKidsActive(context, listen: false)) _selectTab(NavigationTabId.downloads);
+              if (i == 2 && heisucaKidsActive(context, listen: false)) {
+                final source = CgflixFavoritesSource.of(context);
+                if (source != null) {
+                  cgflixOpenFavorites(context, source);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Favoritos indisponíveis para esta conexão.')));
+                }
+              }
               if (i == 3) {
                 Navigator.of(context).push(
                   MaterialPageRoute<void>(

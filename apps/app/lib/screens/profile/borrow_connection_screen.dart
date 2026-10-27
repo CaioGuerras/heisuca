@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import '../../heisuca/kids/heisuca_kids.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
@@ -95,7 +96,8 @@ class _BorrowConnectionScreenState extends State<BorrowConnectionScreen> {
     final allConns = results[1] as List<Connection>;
     final localProfiles = results[2] as List<Profile>;
     final storage = results[3] as StorageService;
-    final connById = {for (final c in allConns) c.id: c};
+    // Heisuca: a conexão do usuário infantil nunca é emprestada (ver heisucaIsKidsConnection).
+    final connById = {for (final c in allConns) if (!heisucaIsKidsConnection(c)) c.id: c};
     final allProfiles = mergeLocalWithPlexHome(
       locals: localProfiles,
       plexHomeByConnectionId: plexHome.current,

@@ -277,6 +277,7 @@ extension _VideoPlayerBuildMethods on VideoPlayerScreenState {
                       player: player!,
                       hasFirstFrame: _firstFrame.uiReady,
                       controls: (context) => PlexVideoControls(
+                        delivery: _playbackSession?.context.result.delivery,
                         player: player!,
                         volumeController: _volumeController!,
                         metadata: _currentMetadata,
@@ -356,6 +357,7 @@ extension _VideoPlayerBuildMethods on VideoPlayerScreenState {
               ),
               // "Still watching?" overlay (hidden in PiP mode)
               VideoPlayerStillWatchingOverlay(
+                pausedForEpisodes: _episodeAttentionPrompt,
                 visible: _showStillWatchingPrompt,
                 countdown: _stillWatchingCountdown,
                 pauseFocusNode: _stillWatchingPauseFocusNode,

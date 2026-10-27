@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/utils/web_socket_connect.dart';
+import 'package:heisuca/utils/web_socket_connect.dart';
 
 void main() {
   /// Accepts TCP connections and never answers the upgrade.

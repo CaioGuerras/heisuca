@@ -1,0 +1,220 @@
+{
+  "status": "atenção",
+  "restauracao": "confirmada: progresso, assistido, contagem, data e preferências preservados",
+  "conta": "rodízio",
+  "duracao_arquivo_segundos": 1524.32,
+  "video": {
+    "motor": "mpv",
+    "quadroNativo": true,
+    "segundosAvancados": 3.17
+  },
+  "passos": [
+    "01-login",
+    "02-inicio",
+    "03-busca",
+    "04-ficha",
+    "05-player-inicio",
+    "13-home-pip",
+    "14-voltar-do-pip",
+    "15-home-so-som",
+    "16-pausar-na-sessao",
+    "17-tocar-na-sessao",
+    "18-voltar-do-audio",
+    "21-imagem-apos-audio",
+    "19-fechar-pip",
+    "20-restaurar-imagem",
+    "06-player",
+    "07-ficha-retorno",
+    "08-busca-retorno-0",
+    "09-biblioteca",
+    "10-baixados",
+    "11-voce"
+  ],
+  "foraDoApp": {
+    "padraoDesligado": true,
+    "pipPadrao": true,
+    "audioComServico": true,
+    "controlesDaSessao": true,
+    "audioAposFecharPip": true
+  },
+  "restaurosNativos": {
+    "18-voltar-do-audio": true,
+    "20-restaurar-imagem": true
+  },
+  "avisos": [
+    {
+      "tipo": "overflow HUD PiP",
+      "widget": "video_controls_header.dart:59:12",
+      "fase": "saída",
+      "larguraDp": 240.76190476190476,
+      "alturaDp": 108.19047619047619
+    },
+    {
+      "tipo": "overflow HUD PiP",
+      "widget": "mobile_video_controls.dart:387:16",
+      "fase": "saída",
+      "larguraDp": 240.76190476190476,
+      "alturaDp": 108.19047619047619
+    },
+    {
+      "tipo": "overflow HUD PiP",
+      "widget": "mobile_video_controls.dart:237:14",
+      "fase": "saída",
+      "larguraDp": 240.76190476190476,
+      "alturaDp": 108.19047619047619
+    },
+    {
+      "tipo": "overflow HUD PiP",
+      "widget": "video_controls_header.dart:59:12",
+      "fase": "ativo",
+      "larguraDp": 227.8095238095238,
+      "alturaDp": 128.0
+    },
+    {
+      "tipo": "overflow HUD PiP",
+      "widget": "mobile_video_controls.dart:387:16",
+      "fase": "ativo",
+      "larguraDp": 227.8095238095238,
+      "alturaDp": 128.0
+    },
+    {
+      "tipo": "overflow HUD PiP",
+      "widget": "mobile_video_controls.dart:237:14",
+      "fase": "ativo",
+      "larguraDp": 227.8095238095238,
+      "alturaDp": 128.0
+    }
+  ],
+  "motivo": "ATENÇÃO: overflow conhecido do HUD em PiP (aguarda teste no Tab A9 e Moto G77)",
+  "android": {
+    "disponivel": true,
+    "anrDoApp": false,
+    "dumpsysCodigo": 0,
+    "logcatCodigo": 0
+  },
+  "imagens": {
+    "06-player-imagem.json": {
+      "imagem": "sim",
+      "metodo": "adb exec-out screencap -p; RGB24 por ffmpeg; vídeo pela geometria real, sem barras/HUD",
+      "maiorCanalRGB": 255,
+      "areaMedida": {
+        "pixels": 447360,
+        "retangulos": [
+          {
+            "x": 120,
+            "y": 32,
+            "largura": 960,
+            "altura": 466
+          }
+        ]
+      },
+      "retanguloVideo": {
+        "x": 120.0,
+        "y": 0.0,
+        "largura": 960.0,
+        "altura": 540.0
+      },
+      "geometriaVideo": {
+        "janela": {
+          "largura": 1200.0,
+          "altura": 540.0
+        },
+        "superficie": {
+          "x": 0.0,
+          "y": 0.0,
+          "largura": 1200.0,
+          "altura": 540.0
+        },
+        "video": {
+          "largura": 1920.0,
+          "altura": 1080.0,
+          "modo": "conter",
+          "zoom": 1.0
+        },
+        "barrasSistema": {
+          "topo": 32.0,
+          "base": 42.0,
+          "esquerda": 39.0,
+          "direita": 39.0
+        },
+        "hudOculto": true,
+        "exclusoesHud": [],
+        "parametrosMotor": {
+          "w": 1920,
+          "h": 1080,
+          "dw": 1920,
+          "dh": 1080,
+          "par": 1.0,
+          "rotate": 0
+        }
+      },
+      "pixelsNaoEscuros": 447360,
+      "fracaoNaoEscura": 1.0,
+      "lumaMinima": 16,
+      "fracaoMinima": 0.02,
+      "criterio": "luma > 16 em pelo menos 2% da área útil do vídeo, excluindo barras do sistema, HUD e letterbox"
+    },
+    "21-imagem-apos-audio-imagem.json": {
+      "imagem": "sim",
+      "metodo": "adb exec-out screencap -p; RGB24 por ffmpeg; vídeo pela geometria real, sem barras/HUD",
+      "maiorCanalRGB": 168,
+      "areaMedida": {
+        "pixels": 447360,
+        "retangulos": [
+          {
+            "x": 120,
+            "y": 32,
+            "largura": 960,
+            "altura": 466
+          }
+        ]
+      },
+      "retanguloVideo": {
+        "x": 120.0,
+        "y": 0.0,
+        "largura": 960.0,
+        "altura": 540.0
+      },
+      "geometriaVideo": {
+        "janela": {
+          "largura": 1200.0,
+          "altura": 540.0
+        },
+        "superficie": {
+          "x": 0.0,
+          "y": 0.0,
+          "largura": 1200.0,
+          "altura": 540.0
+        },
+        "video": {
+          "largura": 1920.0,
+          "altura": 1080.0,
+          "modo": "conter",
+          "zoom": 1.0
+        },
+        "barrasSistema": {
+          "topo": 32.0,
+          "base": 42.0,
+          "esquerda": 39.0,
+          "direita": 39.0
+        },
+        "hudOculto": true,
+        "exclusoesHud": [],
+        "parametrosMotor": {
+          "w": 1920,
+          "h": 1080,
+          "dw": 1920,
+          "dh": 1080,
+          "par": 1.0,
+          "rotate": 0
+        }
+      },
+      "pixelsNaoEscuros": 447360,
+      "fracaoNaoEscura": 1.0,
+      "lumaMinima": 16,
+      "fracaoMinima": 0.02,
+      "criterio": "luma > 16 em pelo menos 2% da área útil do vídeo, excluindo barras do sistema, HUD e letterbox"
+    }
+  },
+  "estado": "ATENÇÃO"
+}

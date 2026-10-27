@@ -1,0 +1,644 @@
+00:00 +0: loading /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart
+00:00 +0: (setUpAll)
+00:00 +0: P3 estado inicio-erro-oled-moto-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (14ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (16ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[I]  Platform HTTP client  ERROR: {platform: linux, client: IOClient}
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (292ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (287ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (286ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (284ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (5ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (5ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (2ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:01 +1: P3 estado inicio-erro-oled-moto-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (47ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (43ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (42ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (41ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (2ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (1ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:01 +2: P3 estado inicio-erro-oled-moto-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (49ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (39ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (37ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (36ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (3ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (3ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (1ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:02 +3: P3 estado inicio-erro-oled-moto-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (44ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (40ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (37ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (36ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (3ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (3ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (0ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:02 +4: P3 estado inicio-erro-oled-tab-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (47ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (44ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (38ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (37ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (2ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (0ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:03 +5: P3 estado inicio-erro-oled-tab-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (38ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (33ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (32ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (31ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (2ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (0ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:03 +6: P3 estado inicio-erro-oled-tab-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (100ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (93ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (92ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (90ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (4ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (4ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (1ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:04 +7: P3 estado inicio-erro-oled-tab-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (59ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (35ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (34ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (34ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (6ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (6ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (1ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:04 +8: P3 estado inicio-erro-light-moto-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (47ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (38ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (37ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (37ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (4ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (5ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (1ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: ['Texto de orientação do erro não passa AA no fundo real.']
+inicio-erro-light-moto-retrato-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart:126:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart line 126
+The test description was:
+  P3 estado inicio-erro-light-moto-retrato-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:05 +8 -1: P3 estado inicio-erro-light-moto-retrato-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 estado inicio-erro-light-moto-retrato-f100 (variant: TargetPlatform.android)
+
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:05 +8 -1: P3 estado inicio-erro-light-moto-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (33ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (30ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (29ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (28ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (2ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (0ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: ['Texto de orientação do erro não passa AA no fundo real.']
+inicio-erro-light-moto-retrato-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart:126:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart line 126
+The test description was:
+  P3 estado inicio-erro-light-moto-retrato-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:05 +8 -2: P3 estado inicio-erro-light-moto-retrato-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 estado inicio-erro-light-moto-retrato-f200 (variant: TargetPlatform.android)
+
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:05 +8 -2: P3 estado inicio-erro-light-moto-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (32ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (27ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (26ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (25ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (3ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (3ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (0ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: ['Texto de orientação do erro não passa AA no fundo real.']
+inicio-erro-light-moto-paisagem-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart:126:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart line 126
+The test description was:
+  P3 estado inicio-erro-light-moto-paisagem-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:05 +8 -3: P3 estado inicio-erro-light-moto-paisagem-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 estado inicio-erro-light-moto-paisagem-f100 (variant: TargetPlatform.android)
+
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:05 +8 -3: P3 estado inicio-erro-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (39ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (36ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (35ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (25ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (2ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (1ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: ['Texto de orientação do erro não passa AA no fundo real.']
+inicio-erro-light-moto-paisagem-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart:126:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart line 126
+The test description was:
+  P3 estado inicio-erro-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:06 +8 -4: P3 estado inicio-erro-light-moto-paisagem-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 estado inicio-erro-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:06 +8 -4: P3 estado inicio-erro-light-tab-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (49ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (47ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (45ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (32ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (3ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (4ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (0ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: ['Texto de orientação do erro não passa AA no fundo real.']
+inicio-erro-light-tab-retrato-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart:126:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart line 126
+The test description was:
+  P3 estado inicio-erro-light-tab-retrato-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:06 +8 -5: P3 estado inicio-erro-light-tab-retrato-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 estado inicio-erro-light-tab-retrato-f100 (variant: TargetPlatform.android)
+
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:06 +8 -5: P3 estado inicio-erro-light-tab-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (35ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (30ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (29ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (28ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (2ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (0ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: ['Texto de orientação do erro não passa AA no fundo real.']
+inicio-erro-light-tab-retrato-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart:126:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart line 126
+The test description was:
+  P3 estado inicio-erro-light-tab-retrato-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:07 +8 -6: P3 estado inicio-erro-light-tab-retrato-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 estado inicio-erro-light-tab-retrato-f200 (variant: TargetPlatform.android)
+
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:07 +8 -6: P3 estado inicio-erro-light-tab-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (32ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (29ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (26ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (25ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (2ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (0ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: ['Texto de orientação do erro não passa AA no fundo real.']
+inicio-erro-light-tab-paisagem-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart:126:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart line 126
+The test description was:
+  P3 estado inicio-erro-light-tab-paisagem-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:07 +8 -7: P3 estado inicio-erro-light-tab-paisagem-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 estado inicio-erro-light-tab-paisagem-f100 (variant: TargetPlatform.android)
+
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:07 +8 -7: P3 estado inicio-erro-light-tab-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (37ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (33ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (30ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (28ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (2ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (0ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: ['Texto de orientação do erro não passa AA no fundo real.']
+inicio-erro-light-tab-paisagem-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart:126:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart line 126
+The test description was:
+  P3 estado inicio-erro-light-tab-paisagem-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:07 +8 -8: P3 estado inicio-erro-light-tab-paisagem-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 estado inicio-erro-light-tab-paisagem-f200 (variant: TargetPlatform.android)
+
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:07 +8 -8: P3 estado inicio-erro-dark-moto-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (44ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (40ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (37ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (36ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (4ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (4ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (0ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:08 +9 -8: P3 estado inicio-erro-dark-moto-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (35ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (30ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (29ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (28ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (3ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (3ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (1ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:08 +10 -8: P3 estado inicio-erro-dark-moto-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (29ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (26ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (24ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (21ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (2ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (0ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:09 +11 -8: P3 estado inicio-erro-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (29ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (26ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (25ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (24ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (2ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (0ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:09 +12 -8: P3 estado inicio-erro-dark-tab-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (35ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (33ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (31ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (30ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (2ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (1ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:09 +13 -8: P3 estado inicio-erro-dark-tab-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (0ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (33ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (30ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (29ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (28ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (2ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (0ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:10 +14 -8: P3 estado inicio-erro-dark-tab-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (34ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (32ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (30ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (27ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (2ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (1ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:10 +15 -8: P3 estado inicio-erro-dark-tab-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (0ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (38ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (36ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (35ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (34ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (2ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (0ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:11 +16 -8: (tearDownAll)
+00:11 +16 -8: Some tests failed.
+
+Failing tests:
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart: P3 estado inicio-erro-light-moto-paisagem-f100 (variant: TargetPlatform.android)
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart: P3 estado inicio-erro-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart: P3 estado inicio-erro-light-moto-retrato-f100 (variant: TargetPlatform.android)
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart: P3 estado inicio-erro-light-moto-retrato-f200 (variant: TargetPlatform.android)
+  ... and 4 more

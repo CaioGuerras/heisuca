@@ -1,3 +1,5 @@
+import '../heisuca/heisuca_title_sheet.dart';
+import 'platform_detector.dart';
 import 'package:flutter/material.dart';
 import '../i18n/strings.g.dart';
 import '../media/catalog_item_ref.dart';
@@ -279,6 +281,12 @@ Future<MediaNavigationResult> navigateToMediaItemDetails(
     return MediaNavigationResult.navigated;
   }
 
+  if (!isOffline && PlatformDetector.isMobile(context) && (mi.kind == MediaKind.movie || mi.kind == MediaKind.show)) {
+    await HeisucaTitleSheet.show(context, metadataOverride ?? mi);
+    if (context.mounted) onRefresh?.call(mi);
+    return MediaNavigationResult.navigated;
+  }
+
   final target = mediaDetailNavigationTargetFor(mi, metadataOverride: metadataOverride);
   final result = await Navigator.push<bool>(
     context,
@@ -325,3 +333,4 @@ Future<void> navigateToPersonMedia(
     ),
   );
 }
+

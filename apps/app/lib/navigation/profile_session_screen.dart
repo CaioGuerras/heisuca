@@ -1,4 +1,6 @@
 import 'dart:async';
+import '../heisuca/heisuca_source_scope.dart';
+import '../utils/platform_detector.dart';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -140,7 +142,7 @@ class _ProfileSessionScreenState extends State<ProfileSessionScreen> {
       builder: (context, activeId, _) {
         _onSessionProfileChanged(activeId);
         final initialPromptHandled = widget.initialPromptHandled || _hasBuiltSession;
-        return KeyedSubtree(
+        final session = KeyedSubtree(
           key: ValueKey<String?>('profile-session:$activeId'),
           child: MultiProvider(
             providers: [
@@ -292,6 +294,8 @@ class _ProfileSessionScreenState extends State<ProfileSessionScreen> {
             ),
           ),
         );
+        if (widget.profileShellBuilder != null || !PlatformDetector.isMobile(context)) return session;
+        return HeisucaSourceScope(key: ValueKey('source:$activeId'), profileId: activeId, child: session);
       },
     );
   }
@@ -409,7 +413,9 @@ class _ProfileSessionNavigatorState extends State<_ProfileSessionNavigator> {
       settings: settings,
       builder: (context) =>
           widget.profileShellBuilder?.call(context) ??
-          MainScreen(isOfflineMode: widget.isOfflineMode, initialPromptHandled: widget.initialPromptHandled),
+          MainScreen(isOfflineMode: widget.isOfflineMode,
+            initialPromptHandled: widget.initialPromptHandled || HeisucaSourceScope.skipInitialPromptOf(context)),
     );
   }
 }
+

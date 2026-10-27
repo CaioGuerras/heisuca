@@ -1,5 +1,12 @@
 import 'dart:ui' as ui;
+import '../cgflix/conta/cgflix_conta.dart';
+import '../cgflix/conta/cgflix_minha_conta_screen.dart';
 import 'package:flutter/material.dart';
+import 'heisuca_source_scope.dart';
+import 'heisuca_security.dart';
+import 'kids/heisuca_kids.dart';
+import 'kids/heisuca_kids_identity.dart';
+import 'kids/heisuca_kids_flow.dart';
 import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
@@ -10,7 +17,6 @@ import '../cgflix/you/cgflix_favorites_screen.dart';
 import '../i18n/strings.g.dart';
 import '../profiles/active_profile_provider.dart';
 import '../profiles/profile_avatar.dart';
-import '../providers/multi_server_provider.dart';
 import '../screens/profile/profile_switch_screen.dart';
 import '../screens/profile/profile_teardown.dart';
 import '../screens/settings/about_screen.dart';
@@ -29,42 +35,48 @@ import 'heisuca_theme.dart';
 class HeisucaProfileScreen extends StatelessWidget {
   const HeisucaProfileScreen({super.key});
 
-  bool _isServerOnline(BuildContext context) {
-    try {
-      final servers = Provider.of<MultiServerProvider?>(context, listen: false);
-      return servers?.serverManager.visibleOnlineClients.isNotEmpty ?? false;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  String _getServerName(BuildContext context) {
-    try {
-      final servers = Provider.of<MultiServerProvider?>(context, listen: false);
-      final clients = servers?.serverManager.visibleOnlineClients;
-      if (clients != null && clients.isNotEmpty) {
-        return clients.values.first.serverName ?? 'CGSERVER';
-      }
-    } catch (_) {}
-    return 'CGSERVER';
-  }
-
   @override
   Widget build(BuildContext context) {
     final palette = context.cgflix;
     final isLight = palette.isLight;
     final profiles = context.watch<ActiveProfileProvider?>();
     final active = profiles?.active;
-    final online = _isServerOnline(context);
-    final serverName = _getServerName(context);
 
-    final bg = isLight ? const Color(0xFFF7F3EC) : const Color(0xFF0E0B16);
-    final cardBg = isLight ? Colors.white : Colors.white.withOpacity(0.045);
-    final cardBorder = isLight ? const Color(0xFFE2E8F0) : Colors.white.withOpacity(0.08);
-    final textTitle = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
-    final textSub = isLight ? const Color(0xFF64748B) : const Color(0xFFA99FBB);
-    final accentGreen = isLight ? const Color(0xFF047857) : const Color(0xFF10B981);
-    final dividerColor = isLight ? const Color(0xFFF1F5F9) : Colors.white.withOpacity(0.05);
+    // Heisuca: no modo infantil a tela usa a paleta do perfil (Ichigo/Sorairo) e fica enxuta.
+    final kids = heisucaKidsActive(context);
+    final kidsRecord = HeisucaKids.instance.forParent(active?.id);
+    final bg = palette.background;
+    final cardBg = palette.surface;
+    final cardBorder = palette.divider;
+    final textTitle = palette.text;
+    final textSub = palette.textOn(cardBg, preferred: palette.textMuted);
+    final dividerColor = palette.divider;
+
+    // Um cartão por assunto, com o título acima e divisores entre os itens.
+    List<Widget> secao(String? titulo, List<Widget> itens) => [
+      const SliverToBoxAdapter(child: SizedBox(height: 20.0)),
+      if (titulo != null) SliverToBoxAdapter(child: _buildSectionHeader(titulo, isLight, textSub)),
+      SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: cardBg,
+              borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
+              border: Border.all(color: cardBorder, width: 0.8),
+            ),
+            child: Column(
+              children: [
+                for (var i = 0; i < itens.length; i++) ...[
+                  if (i > 0) Divider(color: dividerColor, height: 1.0, indent: 56.0),
+                  itens[i],
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    ];
 
     return Scaffold(
       backgroundColor: bg,
@@ -90,19 +102,15 @@ class HeisucaProfileScreen extends StatelessWidget {
                           },
                           borderRadius: BorderRadius.circular(20.0),
                           child: Container(
-                            width: 40.0,
-                            height: 40.0,
+                            width: 48.0,
+                            height: 48.0,
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: isLight ? Colors.black.withOpacity(0.04) : Colors.white.withOpacity(0.06),
+                              color: palette.glass,
                               borderRadius: BorderRadius.circular(20.0),
                               border: Border.all(color: cardBorder, width: 0.8),
                             ),
-                            child: Icon(
-                              Symbols.arrow_back_rounded,
-                              color: textTitle,
-                              size: 22.0,
-                            ),
+                            child: Icon(Symbols.arrow_back_rounded, color: textTitle, size: 22.0),
                           ),
                         ),
                       ),
@@ -133,34 +141,24 @@ class HeisucaProfileScreen extends StatelessWidget {
                     color: cardBg,
                     borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
                     border: Border.all(color: cardBorder, width: 0.8),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(isLight ? 0.04 : 0.25),
-                        blurRadius: 18.0,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                    boxShadow: palette.cardShadow,
                   ),
                   child: Row(
                     children: [
                       // Avatar
                       if (active != null)
-                        ProfileAvatar(
-                          profile: active,
-                          size: 58.0,
-                          avatarUrl: profiles?.avatarUrlFor(active.id),
-                        )
+                        ProfileAvatar(profile: active, size: 58.0, avatarUrl: profiles?.avatarUrlFor(active.id))
                       else
                         Container(
                           width: 58.0,
                           height: 58.0,
                           decoration: BoxDecoration(
-                            color: isLight ? const Color(0xFF047857).withOpacity(0.12) : const Color(0xFF7A40F2).withOpacity(0.20),
+                            color: palette.badge,
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
                             Symbols.person_rounded,
-                            color: isLight ? const Color(0xFF047857) : const Color(0xFFC4B5FD),
+                            color: palette.onBadge,
                             size: 32.0,
                           ),
                         ),
@@ -183,35 +181,7 @@ class HeisucaProfileScreen extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 5.0),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  width: 8.0,
-                                  height: 8.0,
-                                  decoration: BoxDecoration(
-                                    color: online ? accentGreen : const Color(0xFFEF4444),
-                                    shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: (online ? accentGreen : const Color(0xFFEF4444)).withOpacity(0.4),
-                                        blurRadius: 6.0,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 6.0),
-                                Text(
-                                  online ? '$serverName · Conectado' : 'Sem conexão',
-                                  style: TextStyle(
-                                    fontFamily: HeisucaTheme.fonteTexto,
-                                    fontSize: 13.0,
-                                    fontWeight: FontWeight.w500,
-                                    color: online ? accentGreen : const Color(0xFFEF4444),
-                                  ),
-                                ),
-                              ],
-                            ),
+                            const HeisucaCurrentSourceCaption(),
                           ],
                         ),
                       ),
@@ -222,9 +192,7 @@ class HeisucaProfileScreen extends StatelessWidget {
             ),
 
             // Seção 1: Mídia e Armazenamento (VidHub Style)
-            SliverToBoxAdapter(
-              child: _buildSectionHeader('Mídia & Biblioteca', isLight, textSub),
-            ),
+            SliverToBoxAdapter(child: _buildSectionHeader('Mídia & Biblioteca', isLight, textSub)),
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -236,19 +204,21 @@ class HeisucaProfileScreen extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      _buildProfileTile(
-                        icon: Symbols.download_rounded,
-                        title: 'Baixados & Offline',
-                        subtitle: 'Gerenciar mídias salvas no dispositivo',
-                        textColor: textTitle,
-                        subColor: textSub,
-                        iconColor: isLight ? const Color(0xFF0284C7) : const Color(0xFF38BDF8),
-                        onTap: () {
-                          HapticFeedback.lightImpact();
-                          cgflixOpenDownloads(context);
-                        },
-                      ),
-                      Divider(color: dividerColor, height: 1.0, indent: 56.0),
+                      if (!kids) ...[
+                        _buildProfileTile(
+                          icon: Symbols.download_rounded,
+                          title: 'Baixados',
+                          subtitle: 'Assista sem internet',
+                          textColor: textTitle,
+                          subColor: textSub,
+                          iconColor: palette.accent,
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            cgflixOpenDownloads(context);
+                          },
+                        ),
+                        Divider(color: dividerColor, height: 1.0, indent: 56.0),
+                      ],
                       _buildProfileTile(
                         icon: Symbols.favorite_rounded,
                         iconFill: 1.0,
@@ -256,7 +226,7 @@ class HeisucaProfileScreen extends StatelessWidget {
                         subtitle: 'Títulos marcados na sua lista pessoal',
                         textColor: textTitle,
                         subColor: textSub,
-                        iconColor: const Color(0xFFFF5252),
+                        iconColor: palette.accent,
                         onTap: () {
                           HapticFeedback.lightImpact();
                           final source = CgflixFavoritesSource.of(context);
@@ -272,7 +242,7 @@ class HeisucaProfileScreen extends StatelessWidget {
                         subtitle: 'Navegar por pastas de Filmes, Séries e Animes',
                         textColor: textTitle,
                         subColor: textSub,
-                        iconColor: isLight ? const Color(0xFF059669) : const Color(0xFF34D399),
+                        iconColor: palette.accent,
                         onTap: () {
                           HapticFeedback.lightImpact();
                           Navigator.of(context).push(
@@ -289,127 +259,145 @@ class HeisucaProfileScreen extends StatelessWidget {
               ),
             ),
 
-            const SliverToBoxAdapter(child: SizedBox(height: 20.0)),
-
-            // Seção 2: Sistema e Ajustes
-            SliverToBoxAdapter(
-              child: _buildSectionHeader('Preferências & Sistema', isLight, textSub),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: cardBg,
-                    borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
-                    border: Border.all(color: cardBorder, width: 0.8),
+            // Caio, 24/10: menu por assunto. Conta, família, segurança e app em cartões separados; sair fica sozinho no fim.
+            if (!kids) ...[
+              ...secao('Conta', [
+                if (CgflixConta.of(context) case final conta?)
+                  _buildProfileTile(
+                    icon: Symbols.manage_accounts_rounded,
+                    title: 'Minha conta: foto e senha',
+                    subtitle: 'Na fonte selecionada',
+                    textColor: textTitle,
+                    subColor: textSub,
+                    iconColor: textTitle,
+                    onTap: () => cgflixAbrirMinhaConta(context, conta),
                   ),
-                  child: Column(
-                    children: [
-                      _buildProfileTile(
-                        icon: Symbols.tune_rounded,
-                        title: 'Configurações Heisuca',
-                        subtitle: 'Hardware, GPU 144Hz, Vídeo, Áudio e Legendas',
-                        textColor: textTitle,
-                        subColor: textSub,
-                        iconColor: isLight ? const Color(0xFF047857) : const Color(0xFFC084FC),
-                        onTap: () {
-                          HapticFeedback.lightImpact();
-                          Navigator.of(context).push(
-                            MaterialPageRoute<void>(
-                              builder: (_) => const HeisucaSettingsScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                      Divider(color: dividerColor, height: 1.0, indent: 56.0),
-                      _buildProfileTile(
-                        icon: Symbols.info_rounded,
-                        title: 'Sobre o Heisuca',
-                        subtitle: 'Versão, licenças e arquitetura',
-                        textColor: textTitle,
-                        subColor: textSub,
-                        iconColor: isLight ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
-                        onTap: () {
-                          HapticFeedback.lightImpact();
-                          Navigator.of(context).push(
-                            MaterialPageRoute<void>(
-                              builder: (_) => const AboutScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
+                const HeisucaSourceTile(),
+                _buildProfileTile(
+                  icon: Symbols.switch_account_rounded,
+                  title: 'Trocar perfil',
+                  subtitle: 'Alternar entre usuários salvos',
+                  textColor: textTitle,
+                  subColor: textSub,
+                  iconColor: palette.accent,
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    Navigator.of(
+                      context,
+                      rootNavigator: true,
+                    ).push(MaterialPageRoute<void>(builder: (_) => const ProfileSwitchScreen()));
+                  },
                 ),
-              ),
-            ),
-
-            const SliverToBoxAdapter(child: SizedBox(height: 20.0)),
-
-            // Seção 3: Conta & Sessão
-            SliverToBoxAdapter(
-              child: _buildSectionHeader('Conta & Acesso', isLight, textSub),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: cardBg,
-                    borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
-                    border: Border.all(color: cardBorder, width: 0.8),
-                  ),
-                  child: Column(
-                    children: [
-                      _buildProfileTile(
-                        icon: Symbols.switch_account_rounded,
-                        title: 'Trocar Usuário / Servidor',
-                        subtitle: 'Alternar entre perfis salvos ou adicionar servidor',
-                        textColor: textTitle,
-                        subColor: textSub,
-                        iconColor: isLight ? const Color(0xFF047857) : const Color(0xFFE2E8F0),
-                        onTap: () {
-                          HapticFeedback.lightImpact();
-                          Navigator.of(context, rootNavigator: true).push(
-                            MaterialPageRoute<void>(
-                              builder: (_) => const ProfileSwitchScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                      Divider(color: dividerColor, height: 1.0, indent: 56.0),
-                      _buildProfileTile(
-                        icon: Symbols.logout_rounded,
-                        title: 'Sair da Conta',
-                        subtitle: 'Encerrar a sessão neste dispositivo',
-                        textColor: const Color(0xFFEF4444),
-                        subColor: isLight ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                        iconColor: const Color(0xFFEF4444),
-                        onTap: () async {
-                          HapticFeedback.lightImpact();
-                          final confirm = await showConfirmDialog(
-                            context,
-                            title: t.common.logout,
-                            message: t.messages.logoutConfirm,
-                            confirmText: t.common.logout,
-                            isDestructive: true,
-                          );
-                          if (confirm && context.mounted) {
-                            await logoutAllProfiles(context);
-                          }
-                        },
-                      ),
-                    ],
-                  ),
+              ]),
+              ...secao('Família', [
+                _buildProfileTile(
+                  icon: Symbols.child_care_rounded,
+                  title: 'Modo infantil',
+                  subtitle: kidsRecord != null
+                      ? 'Entrar no perfil ${kidsRecord.name}'
+                      : 'Só desenhos e filmes de família, filtrados pelo servidor',
+                  textColor: textTitle,
+                  subColor: textSub,
+                  iconColor: palette.accent,
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    heisucaEnterKids(context);
+                  },
                 ),
-              ),
-            ),
+                if (kidsRecord != null)
+                  _buildProfileTile(
+                    icon: Symbols.edit_rounded,
+                    title: 'Perfil infantil',
+                    subtitle: '${kidsRecord.name} · nome, foto, tema, classificação e PIN',
+                    textColor: textTitle,
+                    subColor: textSub,
+                    iconColor: textTitle,
+                    onTap: () => Navigator.of(
+                      context,
+                    ).push(MaterialPageRoute<void>(builder: (_) => HeisucaKidsIdentityScreen(record: kidsRecord))),
+                  ),
+              ]),
+              if (active != null)
+                ...secao('Privacidade e segurança', [
+                  _buildProfileTile(
+                    icon: Symbols.fingerprint_rounded,
+                    title: 'Segurança e biometria',
+                    subtitle: 'Bloqueio do app e saída infantil',
+                    textColor: textTitle,
+                    subColor: textSub,
+                    iconColor: textTitle,
+                    onTap: () => Navigator.of(
+                      context,
+                    ).push(MaterialPageRoute<void>(builder: (_) => HeisucaSecurityScreen(parentId: active.id))),
+                  ),
+                ]),
+              ...secao('App', [
+                _buildProfileTile(
+                  icon: Symbols.tune_rounded,
+                  title: 'Configurações Heisuca',
+                  subtitle: 'Reprodução, vídeo, áudio, legendas e fontes',
+                  textColor: textTitle,
+                  subColor: textSub,
+                  iconColor: palette.accent,
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const HeisucaSettingsScreen()));
+                  },
+                ),
+                _buildProfileTile(
+                  icon: Symbols.info_rounded,
+                  title: 'Sobre o Heisuca',
+                  subtitle: 'Novidades, versão e licenças',
+                  textColor: textTitle,
+                  subColor: textSub,
+                  iconColor: palette.accent,
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const AboutScreen()));
+                  },
+                ),
+              ]),
+              ...secao(null, [
+                _buildProfileTile(
+                  icon: Symbols.logout_rounded,
+                  title: 'Sair da conta',
+                  subtitle: 'Encerrar a sessão neste dispositivo',
+                  textColor: palette.textOn(cardBg, preferred: palette.danger),
+                  subColor: textSub,
+                  iconColor: palette.danger,
+                  onTap: () async {
+                    HapticFeedback.lightImpact();
+                    final confirm = await showConfirmDialog(
+                      context,
+                      title: t.common.logout,
+                      message: t.messages.logoutConfirm,
+                      confirmText: t.common.logout,
+                      isDestructive: true,
+                    );
+                    if (confirm && context.mounted) {
+                      await logoutAllProfiles(context);
+                    }
+                  },
+                ),
+              ]),
+            ] else
+              ...secao('Modo infantil', [
+                _buildProfileTile(
+                  icon: Symbols.lock_open_rounded,
+                  title: 'Sair do modo infantil',
+                  subtitle: 'Pede o PIN do responsável',
+                  textColor: textTitle,
+                  subColor: textSub,
+                  iconColor: palette.accent,
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    heisucaExitKids(context);
+                  },
+                ),
+              ]),
 
             // Espaçamento do rodapé
-            SliverToBoxAdapter(
-              child: SizedBox(height: MediaQuery.paddingOf(context).bottom + 40.0),
-            ),
+            SliverToBoxAdapter(child: SizedBox(height: MediaQuery.paddingOf(context).bottom + 40.0)),
           ],
         ),
       ),
@@ -452,10 +440,7 @@ class HeisucaProfileScreen extends StatelessWidget {
             Container(
               width: 38.0,
               height: 38.0,
-              decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(10.0),
-              ),
+              decoration: BoxDecoration(color: iconColor.withOpacity(0.12), borderRadius: BorderRadius.circular(10.0)),
               child: Icon(icon, color: iconColor, size: 22.0, fill: iconFill),
             ),
             const SizedBox(width: 14.0),

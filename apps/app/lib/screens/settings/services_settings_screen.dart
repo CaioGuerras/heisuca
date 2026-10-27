@@ -6,13 +6,10 @@ import '../../cgflix/cgflix_trakt.dart';
 import '../../i18n/strings.g.dart';
 import '../../models/catalog/catalog_item.dart';
 import '../../providers/seerr_account_provider.dart';
-import '../../services/discord_rpc_service.dart';
-import '../../services/settings_service.dart';
 import '../../widgets/app_icon.dart';
 import '../../widgets/catalog_source_logo.dart';
 import '../../widgets/focused_scroll_scaffold.dart';
 import '../../widgets/focusable_list_tile.dart';
-import '../../widgets/setting_tile.dart';
 import '../../widgets/settings_section.dart';
 import 'seerr_connect_screen.dart';
 import 'seerr_settings_screen.dart';
@@ -46,18 +43,6 @@ class ServicesSettingsScreen extends StatelessWidget {
                 if (cgflixShowsSeerrService) _seerr(), // CGFLIX: pedidos entram sozinhos pela busca
               ],
             ),
-            if (DiscordRPCService.isAvailable)
-              SettingsGroup(
-                title: t.services.integrations,
-                children: [
-                  SettingSwitchTile(
-                    pref: SettingsService.enableDiscordRPC,
-                    icon: Symbols.chat_rounded,
-                    title: t.settings.discordRichPresence,
-                    subtitle: t.settings.discordRichPresenceDescription,
-                  ),
-                ],
-              ),
             const SizedBox(height: 24),
           ]),
         ),

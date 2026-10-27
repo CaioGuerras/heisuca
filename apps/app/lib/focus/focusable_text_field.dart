@@ -23,7 +23,7 @@ enum TvTextInputPresentation {
   /// Always use the platform text input implementation.
   platform,
 
-  /// Always use Plezy's in-app Flutter keyboard overlay.
+  /// Always use Heisuca's in-app Flutter keyboard overlay.
   flutterOverlay,
 }
 
@@ -100,7 +100,7 @@ void _logTvTextInput(String message) {
 }
 
 class _NativeTvTextInputFocusBridge {
-  static const _channel = MethodChannel('com.plezy/text_input');
+  static const _channel = MethodChannel('app.heisuca/text_input');
   static final Set<Object> _focusedTokens = <Object>{};
   static bool _lastSentFocused = false;
 

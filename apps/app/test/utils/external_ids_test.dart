@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/utils/external_ids.dart';
+import 'package:heisuca/utils/external_ids.dart';
 
 void main() {
   group('ExternalIds.fromGuids', () {

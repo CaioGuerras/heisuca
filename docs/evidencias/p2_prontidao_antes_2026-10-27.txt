@@ -1,0 +1,49 @@
+00:00 +0: loading /workspace/heisuca/apps/app/test/bancada/video_restore_test.dart
+00:00 +0: comando aceito não libera captura antes de um quadro novo
+00:00 +0 -1: comando aceito não libera captura antes de um quadro novo [E]
+  Expected: false
+    Actual: <true>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/bancada/video_restore_test.dart 15:5           main.<fn>
+  
+00:00 +0 -1: assina antes da ação para não perder restart síncrono
+00:00 +0 -2: assina antes da ação para não perder restart síncrono [E]
+  Expected: true
+    Actual: <false>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/bancada/video_restore_test.dart 26:7           main.<fn>.<fn>
+  integration_test/support/video_restore.dart 8:16    restoreVideoForBancada
+  test/bancada/video_restore_test.dart 25:11          main.<fn>
+  
+00:00 +0 -2: falha da ação continua falha e cancela a assinatura
+00:00 +1 -2: sem quadro novo expira em erro, nunca libera captura
+00:00 +1 -3: sem quadro novo expira em erro, nunca libera captura [E]
+  Expected: throws <Instance of 'TimeoutException'>
+    Actual: <Instance of 'Future<void>'>
+     Which: emitted <null>
+  
+  package:matcher                                    expectLater
+  package:flutter_test/src/widget_tester.dart 507:8  expectLater
+  test/bancada/video_restore_test.dart 43:11         main.<fn>
+  
+00:00 +1 -3: motor encerrado sem quadro é erro
+00:00 +1 -4: motor encerrado sem quadro é erro [E]
+  Expected: throws <Instance of 'StateError'>
+    Actual: <Instance of 'Future<void>'>
+     Which: emitted <null>
+  
+  package:matcher                                    expectLater
+  package:flutter_test/src/widget_tester.dart 507:8  expectLater
+  test/bancada/video_restore_test.dart 50:11         main.<fn>
+  
+00:00 +1 -4: Some tests failed.
+
+Failing tests:
+  /workspace/heisuca/apps/app/test/bancada/video_restore_test.dart: assina antes da ação para não perder restart síncrono
+  /workspace/heisuca/apps/app/test/bancada/video_restore_test.dart: comando aceito não libera captura antes de um quadro novo
+  /workspace/heisuca/apps/app/test/bancada/video_restore_test.dart: motor encerrado sem quadro é erro
+  /workspace/heisuca/apps/app/test/bancada/video_restore_test.dart: sem quadro novo expira em erro, nunca libera captura

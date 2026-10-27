@@ -18,6 +18,10 @@ import 'widgets/play_pause_stream_builder.dart';
 import 'widgets/live_timeline_bar.dart';
 import 'widgets/video_controls_header.dart';
 import 'widgets/video_timeline_bar.dart';
+import 'models/track_controls_state.dart';
+import '../../heisuca/player/heisuca_player_hud.dart';
+import '../../heisuca/player/heisuca_series_episodes.dart'; // CGFLIX
+import '../../cgflix/cgflix_palette.dart';
 
 /// Mobile video controls layout for Plex video player
 ///
@@ -77,6 +81,7 @@ class MobileVideoControls extends StatefulWidget {
 
   /// Callback when a queue item is selected from the content strip
   final Function(MediaItem)? onQueueItemSelected;
+  final Function(MediaItem)? onSeriesEpisodeSelected; // CGFLIX: seleção fora da temporada da fila
 
   /// Shared controller for chrome visibility (used to reset strip on hide)
   final PlayerChromeController? chromeController;
@@ -87,9 +92,13 @@ class MobileVideoControls extends StatefulWidget {
   /// Returns true when a global touch position belongs to the parent edge-adjustment zone.
   final bool Function(Offset globalPosition)? isInEdgeAdjustmentZone;
 
+  /// Heisuca (celular): estado real das faixas para o HUD do Esboço 07A. Nulo = régua original.
+  final TrackControlsState? heisucaTrackState;
+
   const MobileVideoControls({
     super.key,
     required this.player,
+    this.heisucaTrackState,
     required this.metadata,
     required this.chapters,
     required this.chaptersLoaded,
@@ -120,6 +129,7 @@ class MobileVideoControls extends StatefulWidget {
     this.serverId,
     this.showQueueTab = false,
     this.onQueueItemSelected,
+    this.onSeriesEpisodeSelected,
     this.chromeController,
     this.onStripVisibilityChanged,
     this.isInEdgeAdjustmentZone,
@@ -230,6 +240,7 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
           const Spacer(),
           _buildPlaybackControls(context),
           const Spacer(),
+          if (widget.isLive) _buildActionDock(),
           _buildBottomBar(context),
         ],
       );
@@ -324,10 +335,15 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
         padding: const EdgeInsets.all(16),
         child: VideoControlsHeader(
           metadata: widget.metadata,
+          // CGFLIX: o logo abre temporadas da série; filme continua somente título.
+          title: widget.heisucaTrackState == null ? null : HeisucaPlayerTitle(metadata: widget.metadata,
+            onEpisodes: widget.canControl && widget.onSeriesEpisodeSelected != null && heisucaPlayerSeriesId(widget.metadata) != null
+              ? _showSeriesEpisodes : null),
           style: VideoHeaderStyle.multiLine,
           onCancelAutoHide: widget.onCancelAutoHide,
           onStartAutoHide: widget.onStartAutoHide,
-          trailing: widget.trackChapterControls,
+          trailing: widget.heisucaTrackState == null || !widget.canControl ? null
+              : HeisucaPlayerQuickActions(player: widget.player, state: widget.heisucaTrackState!, compact: isPortraitPhone),
           onBack: widget.onBack,
           showClock: !isPortraitPhone,
         ),
@@ -335,6 +351,21 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
     );
 
     return DesktopAppBarHelper.wrapWithGestureDetector(topBar, opaque: true);
+  }
+
+  // CGFLIX: usa a mesma navegação real e as mesmas permissões da fila.
+  Future<void> _showSeriesEpisodes() async {
+    widget.onCancelAutoHide?.call();
+    widget.onStripVisibilityChanged?.call(true);
+    try {
+      final selected = await showHeisucaSeriesEpisodes(context, widget.metadata);
+      if (mounted && selected != null) widget.onSeriesEpisodeSelected?.call(selected);
+    } finally {
+      if (mounted) {
+        widget.onStripVisibilityChanged?.call(false);
+        widget.onStartAutoHide?.call();
+      }
+    }
   }
 
   Widget _buildPlaybackControls(BuildContext _) {
@@ -358,10 +389,10 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
           children: [
             if (!widget.isLive) ...[
               CircularControlButton(
-                semanticLabel: t.videoControls.previousButton,
-                icon: Symbols.skip_previous_rounded,
-                iconSize: 48,
-                onPressed: widget.onPrevious,
+                semanticLabel: 'Voltar ${widget.seekTimeSmall} segundos',
+                icon: heisucaSeekIcon(widget.seekTimeSmall, forward: false),
+                iconSize: 40,
+                onPressed: () => _seekRelative(-widget.seekTimeSmall),
               ),
               const SizedBox(width: 24),
             ],
@@ -369,6 +400,9 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
               semanticLabel: isPlaying ? t.videoControls.pauseButton : t.videoControls.playButton,
               icon: isPlaying ? Symbols.pause_rounded : Symbols.play_arrow_rounded,
               iconSize: 72,
+              background: widget.heisucaTrackState != null
+                  ? context.cgflix.accent.withValues(alpha: .9)
+                  : null,
               onPressed: () {
                 widget.onPlayPause();
                 if (isPlaying) {
@@ -381,10 +415,10 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
             if (!widget.isLive) ...[
               const SizedBox(width: 24),
               CircularControlButton(
-                semanticLabel: t.videoControls.nextButton,
-                icon: Symbols.skip_next_rounded,
-                iconSize: 48,
-                onPressed: widget.onNext,
+                semanticLabel: 'Avançar ${widget.seekTimeSmall} segundos',
+                icon: heisucaSeekIcon(widget.seekTimeSmall, forward: true),
+                iconSize: 40,
+                onPressed: () => _seekRelative(widget.seekTimeSmall),
               ),
             ],
           ],
@@ -393,7 +427,54 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
     );
   }
 
-  Widget _buildBottomBar(BuildContext _) {
+  Future<void> _seekRelative(int seconds) async {
+    final maximum = widget.player.state.duration.inMilliseconds;
+    if (maximum <= 0) return;
+    final milliseconds = (widget.player.state.position.inMilliseconds + seconds * 1000).clamp(0, maximum);
+    final target = Duration(milliseconds: milliseconds);
+    widget.onCancelAutoHide?.call();
+    try {
+      if (widget.onSeekRequested != null) {
+        await widget.onSeekRequested!(target);
+        widget.onSeekCompleted?.call(target);
+      } else {
+        widget.onSeekEnd(target);
+      }
+    } finally { if (mounted) widget.onStartAutoHide?.call(); }
+  }
+
+  Widget _buildActionDock() => DecoratedBox(
+    decoration: BoxDecoration(color: Colors.black.withValues(alpha: .32), borderRadius: BorderRadius.circular(24),
+      border: Border.all(color: Colors.white.withValues(alpha: .12))),
+    child: SingleChildScrollView(scrollDirection: Axis.horizontal, padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        widget.trackChapterControls,
+        if (_hasStripContent) TextButton.icon(
+          onPressed: () { widget.onCancelAutoHide?.call(); _stripAnim.forward(); },
+          icon: const Icon(Icons.video_library_outlined, color: Colors.white),
+          label: Text(widget.showQueueTab ? 'Episódios' : 'Capítulos', style: const TextStyle(color: Colors.white))),
+        if (widget.onPrevious != null) IconButton(tooltip: 'Anterior', onPressed: widget.onPrevious,
+          icon: const Icon(Icons.skip_previous, color: Colors.white)),
+        if (widget.onNext != null && widget.heisucaTrackState == null) IconButton(tooltip: 'Próximo', onPressed: widget.onNext,
+          icon: const Icon(Icons.skip_next, color: Colors.white)),
+      ])));
+
+  /// Celular (07A): linha de texto com áudio, legendas, episódios e ajustes. Sem estado: régua original.
+  Widget _buildBottomActions() {
+    final state = widget.heisucaTrackState;
+    if (state == null || !widget.canControl) return _buildActionDock();
+    return Align(alignment: Alignment.centerRight, child: HeisucaPlayerTabs(
+      player: widget.player,
+      state: state,
+      episodesLabel: widget.showQueueTab ? 'Episódios' : 'Capítulos',
+      onEpisodes: _hasStripContent ? () { widget.onCancelAutoHide?.call(); _stripAnim.forward(); } : null,
+    ));
+  }
+
+  Widget _buildBottomBar(BuildContext context) => SafeArea(top: false,
+    minimum: MediaQuery.systemGestureInsetsOf(context), child: _buildBottomBarWithoutInsets(context));
+
+  Widget _buildBottomBarWithoutInsets(BuildContext _) {
     if (widget.isLive) {
       if (widget.captureBuffer != null) {
         // Live TV with time-shift: show seekable timeline
@@ -436,7 +517,7 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
       top: false, // Only respect bottom safe area when in portrait
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: VideoTimelineBar(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [VideoTimelineBar(
           player: widget.player,
           chapters: widget.chapters,
           chaptersLoaded: widget.chaptersLoaded,
@@ -449,7 +530,7 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
           enabled: widget.canControl,
           showFinishTime: true,
           thumbnailDataBuilder: widget.thumbnailDataBuilder,
-        ),
+        ), const SizedBox(height: 4), _buildBottomActions()]),
       ),
     );
   }
@@ -468,3 +549,4 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
     return SafeArea(top: isPortrait && top, bottom: isPortrait && bottom, child: child);
   }
 }
+

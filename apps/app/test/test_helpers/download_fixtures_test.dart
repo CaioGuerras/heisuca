@@ -1,10 +1,10 @@
 import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/database/app_database.dart';
-import 'package:plezy/database/download_operations.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/models/download_models.dart';
+import 'package:heisuca/database/app_database.dart';
+import 'package:heisuca/database/download_operations.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/models/download_models.dart';
 
 import 'download_fixtures.dart';
 

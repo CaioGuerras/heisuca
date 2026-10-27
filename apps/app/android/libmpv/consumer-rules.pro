@@ -1,5 +1,5 @@
-# JNI exports bind by name (Java_com_edde746_plezy_libmpv_MpvPlayer_native*); keep the names stable.
--keepclasseswithmembernames class com.edde746.plezy.libmpv.* {
+# JNI exports bind by name (Java_app_heisuca_libmpv_MpvPlayer_native*); keep the names stable.
+-keepclasseswithmembernames class app.heisuca.libmpv.* {
     native <methods>;
 }
 
@@ -9,7 +9,7 @@
 # Match callback names, return type and static access without duplicating JNI
 # argument descriptors here: adding the session token made the old signatures
 # silently stop matching. Native initialization resolves every exact descriptor.
--keep class com.edde746.plezy.libmpv.MpvPlayer {
+-keep class app.heisuca.libmpv.MpvPlayer {
     public static void onPropertyChanged(...);
     public static void onEvent(...);
     public static void onEndFile(...);
@@ -22,7 +22,7 @@
 # release() with GetMethodID and binds the native methods with RegisterNatives. No app
 # code references the class, so R8 would drop it and the Java MediaCodec wrapper would
 # silently fall back to synchronous decoding with no rendered-frame feedback.
--keep class com.edde746.plezy.libmpv.MediaCodecCallbackBridge {
+-keep class app.heisuca.libmpv.MediaCodecCallbackBridge {
     <init>(long);
     android.os.Handler handler();
     void release();

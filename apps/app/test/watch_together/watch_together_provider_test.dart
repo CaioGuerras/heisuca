@@ -4,14 +4,14 @@ import 'dart:io';
 
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/watch_together/services/watch_together_relay_endpoint.dart';
-import 'package:plezy/watch_together/models/playback_state.dart';
-import 'package:plezy/watch_together/models/sync_message.dart';
-import 'package:plezy/watch_together/models/watch_session.dart';
-import 'package:plezy/watch_together/providers/watch_together_provider.dart';
-import 'package:plezy/watch_together/services/watch_together_peer_service.dart';
-import 'package:plezy/watch_together/services/relay_protocol.g.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/watch_together/services/watch_together_relay_endpoint.dart';
+import 'package:heisuca/watch_together/models/playback_state.dart';
+import 'package:heisuca/watch_together/models/sync_message.dart';
+import 'package:heisuca/watch_together/models/watch_session.dart';
+import 'package:heisuca/watch_together/providers/watch_together_provider.dart';
+import 'package:heisuca/watch_together/services/watch_together_peer_service.dart';
+import 'package:heisuca/watch_together/services/relay_protocol.g.dart';
 
 import '../test_helpers/prefs.dart';
 import '../test_helpers/watch_together_fakes.dart';

@@ -28,7 +28,7 @@ class PlayerInstallProbe {
   /// Spotlight is deliberately not consulted: an empty `mdfind` result also
   /// means indexing is off or incomplete, which would hide installed players.
   Future<bool> applicationInstalled(String bundleId) async {
-    const channel = MethodChannel('com.plezy/app_lookup');
+    const channel = MethodChannel('app.heisuca/app_lookup');
     return await channel.invokeMethod<bool>('isApplicationInstalled', {'bundleId': bundleId}) ?? false;
   }
 
@@ -104,7 +104,7 @@ const _tvosBuild = bool.fromEnvironment('TVOS_BUILD');
 
 /// The tvOS Runner has no url_launcher implementation; it answers the two
 /// handoff questions itself on this channel (Android's `openVideo` shares it).
-const _tvosHandoffChannel = MethodChannel('com.plezy/external_player');
+const _tvosHandoffChannel = MethodChannel('app.heisuca/external_player');
 
 Future<bool> _canOpenAppUrl(Uri uri) async {
   if (!_tvosBuild) return canLaunchUrl(uri);
@@ -350,7 +350,7 @@ class KnownPlayers {
   ///
   /// Detection forks `sh` or `where.exe` and calls out over platform channels,
   /// so it is asynchronous and memoised: it runs once per process and a player
-  /// installed while Plezy is running only appears after a restart. Android is
+  /// installed while Heisuca is running only appears after a restart. Android is
   /// the one platform left unprobed — where there is no reliable check the
   /// player stays listed, because hiding a working player is worse than
   /// listing a missing one.

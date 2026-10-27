@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/navigation/main_screen_scope.dart';
+import 'package:heisuca/navigation/main_screen_scope.dart';
 
 void main() {
   testWidgets('focusSidebarOf invokes the scope callback', (tester) async {

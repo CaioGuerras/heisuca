@@ -1,10 +1,10 @@
 // Refino 2: dicas do CGFLIX. A do player aparece uma vez, some com um toque ou sozinha, não volta,
-// e o Sobre › Dicas do CGFLIX faz ela aparecer de novo. As folhas abrem pelo "?".
+// e o Sobre › Dicas do Heisuca faz ela aparecer de novo. As folhas abrem pelo "?".
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/cgflix/cgflix_dicas.dart';
-import 'package:plezy/cgflix/cgflix_theme.dart';
-import 'package:plezy/services/settings_service.dart';
+import 'package:heisuca/cgflix/cgflix_dicas.dart';
+import 'package:heisuca/cgflix/cgflix_theme.dart';
+import 'package:heisuca/services/settings_service.dart';
 
 import '../test_helpers/prefs.dart';
 
@@ -76,14 +76,14 @@ void main() {
     expect(find.byKey(const ValueKey('cgflix-dica-player')), findsNothing);
   });
 
-  testWidgets('Sobre › Dicas do CGFLIX: lista todas e reabre a dica do player', (tester) async {
+  testWidgets('Sobre › Dicas do Heisuca: lista todas e reabre a dica do player', (tester) async {
     await SettingsService.instance.write(cgflixDicaPlayerVistaPref, true);
     tester.view.physicalSize = const Size(412, 2400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(_app(const Scaffold(body: CgflixDicasAboutTile())));
-    await tester.tap(find.text('Dicas do CGFLIX'));
+    await tester.tap(find.text('Dicas do Heisuca'));
     await tester.pumpAndSettle();
     for (final dica in CgflixDica.values) {
       expect(find.text(dica.titulo), findsOneWidget, reason: dica.name);

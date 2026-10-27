@@ -3,6 +3,7 @@ name: Heisuca Android Build
 on:
   push:
     branches: ["gemini/**", "claude/**", "codex/heisuca-**"]
+    paths-ignore: ["docs/**", "AGENTS.md", "apps/app/CLAUDE.md"]
   workflow_dispatch:
 
 env:
@@ -58,8 +59,25 @@ jobs:
             ~/.gradle/wrapper
           key: heisuca-clean-${{ runner.os }}-gradle-${{ hashFiles('apps/app/**/*.gradle*', 'apps/app/**/gradle-wrapper.properties') }}
 
+      - name: Preservar chave de teste nesta branch
+        if: startsWith(github.ref_name, 'codex/heisuca-')
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: heisuca-home-debug-key-v1
+
       - name: Obter dependências Flutter
         run: flutter pub get --no-example
+
+      - name: Preparar leitura dos pixels nativos no portão
+        run: |
+          if ! command -v ffmpeg >/dev/null; then
+            if [ -f /etc/apt/apt-mirrors.txt ]; then
+              sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' /etc/apt/apt-mirrors.txt
+            fi
+            sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update
+            sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y --no-install-recommends ffmpeg
+          fi
 
       - name: Validar análise e testes antes do APK
         run: bash scripts/heisuca-checar.sh
@@ -84,8 +102,24 @@ jobs:
             echo "Sem keystore nos secrets: assinando com debug."
           fi
 
+      - name: Conferir isolamento dos providers no manifesto
+        run: python3 scripts/heisuca-validar-apk.py --source-only
+
+      - name: Testar limites nativos do buffer mpv
+        run: |
+          cd android
+          ./gradlew :app:testDebugUnitTest --tests app.heisuca.mpv.HeisucaBufferBudgetTest --tests app.heisuca.HeisucaPipParamsTest --tests app.heisuca.HeisucaDownloadNotificationTest --tests app.heisuca.mpv.MpvPlayerBackgroundAudioTest -PtargetAbi=arm64-v8a -PheisucaPreview=true
+
       - name: Compilar APK Release (arm64-v8a)
-        run: flutter build apk --release --target-platform android-arm64 --split-per-abi -PtargetAbi=arm64-v8a --dart-define=GIT_COMMIT=${{ github.sha }}
+        run: |
+          preview_args=()
+          if [[ "$GITHUB_REF_NAME" == codex/heisuca-* ]]; then
+            preview_args+=(-PheisucaPreview=true)
+          fi
+          flutter build apk --release --target-platform android-arm64 --split-per-abi -PtargetAbi=arm64-v8a "${preview_args[@]}" --dart-define=GIT_COMMIT=${{ github.sha }}
+
+      - name: Conferir pacote, providers e assinatura do APK
+        run: python3 scripts/heisuca-validar-apk.py build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
 
       - name: Organizar e Renomear APKs
         run: |
@@ -99,10 +133,21 @@ jobs:
           fi
           ls -lh dist
 
+      - name: Guardar APK para diagnóstico se uma conferência falhar
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: heisuca-diagnostico-nao-aprovado
+          path: apps/app/build/app/outputs/flutter-apk/*.apk
+          if-no-files-found: ignore
+          retention-days: 3
+
       - name: Publicar Artifact Heisuca APK
         uses: actions/upload-artifact@v4
         with:
           name: heisuca-apk
-          path: apps/app/dist/*.apk
+          path: |
+            apps/app/dist/*.apk
+            apps/app/assets/heisuca/CHANGELOG_USUARIO.md
           retention-days: 14
 

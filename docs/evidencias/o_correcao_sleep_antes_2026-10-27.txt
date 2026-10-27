@@ -1,0 +1,114 @@
+Prova negativa — base 3cc295c, antes da correção.
+Novos testes sobre o código anterior restaurado temporariamente; arquivos repostos após a execução.
+Comando: flutter test test/screens/video_player/playback_reload_failure_test.dart --plain-name "O correção"
+
+00:00 +0: loading /workspace/heisuca/apps/app/test/screens/video_player/playback_reload_failure_test.dart
+00:00 +0: O correção: sono visível + EOF, continuar: true
+[D]  VideoPlayerScreen initialized for: null
+[D]  _loadPlaybackExtras: starting for movie-prior (forceRefresh=false)
+[D]  _loadPlaybackExtras: network path failed, trying cache fallback
+[D]  _loadPlaybackExtras: cache fallback failed  ERROR: NoSuchMethodError: Class '_ReloadClient' has no instance method 'fetchPlaybackExtrasFromCacheOnly' with matching arguments.
+Receiver: Instance of '_ReloadClient'
+Tried calling: fetchPlaybackExtrasFromCacheOnly("movie-prior", introPattern: "(?:^|\\b)(?:intro(?:duction)?|opening)(?:\\b|$)|^op(?:\\s?\\d+)?$", creditsPattern: "(?:^|\\b)(?:outro|closing|credits?|ending)(?:\\b|$)|^ed(?:\\s?\\d+)?$", forceChapterFallback: false)
+Found: fetchPlaybackExtrasFromCacheOnly(String, {String? introPattern, String? creditsPattern, bool forceChapterFallback}) => Future<PlaybackExtras?>
+[38;5;196m[E][0m  _loadPlaybackExtras failed  ERROR: NoSuchMethodError: Class '_ReloadClient' has no instance method 'fetchPlaybackExtras' with matching arguments.
+Receiver: Instance of '_ReloadClient'
+Tried calling: fetchPlaybackExtras("movie-prior", introPattern: "(?:^|\\b)(?:intro(?:duction)?|opening)(?:\\b|$)|^op(?:\\s?\\d+)?$", creditsPattern: "(?:^|\\b)(?:outro|closing|credits?|ending)(?:\\b|$)|^ed(?:\\s?\\d+)?$", forceChapterFallback: false, forceRefresh: false)
+Found: fetchPlaybackExtras(String, {String? introPattern, String? creditsPattern, bool forceChapterFallback, bool forceRefresh}) => Future<PlaybackExtras>
+[D]  Next-episode metadata prime failed  ERROR: NoSuchMethodError: Class '_ReloadClient' has no instance method 'fetchItem' with matching arguments.
+Receiver: Instance of '_ReloadClient'
+Tried calling: fetchItem("next")
+Found: fetchItem(String) => Future<MediaItem?>
+[D]  Sleep timer started: 20 minutes
+[D]  Sleep timer extended by -21 minutes
+[D]  Sleep timer completed - showing prompt
+[38;5;12m[I][0m  Video completed: action=presentNext latched (position=121000ms duration=2400000ms)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: true
+  Actual: <false>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///workspace/heisuca/apps/app/test/screens/video_player/playback_reload_failure_test.dart:791:9)
+<asynchronous suspension>
+#5      withMockPlayerChannels (file:///workspace/heisuca/apps/app/test/test_helpers/mock_player_channels.dart:32:5)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/screens/video_player/playback_reload_failure_test.dart:768:5)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/screens/video_player/playback_reload_failure_test.dart line 791
+The test description was:
+  O correção: sono visível + EOF, continuar: true
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -1: O correção: sono visível + EOF, continuar: true [E]
+  Test failed. See exception logs above.
+  The test description was: O correção: sono visível + EOF, continuar: true
+  
+[D]  Sleep timer cancelled
+[D]  Wakelock disabled
+[38;5;12m[I][0m  Gracefully disconnecting all servers
+[38;5;12m[I][0m  Stopped network monitoring
+00:01 +0 -1: O correção: sono visível + EOF, continuar: false
+[D]  VideoPlayerScreen initialized for: null
+[D]  _loadPlaybackExtras: starting for movie-prior (forceRefresh=false)
+[D]  _loadPlaybackExtras: network path failed, trying cache fallback
+[D]  _loadPlaybackExtras: cache fallback failed  ERROR: NoSuchMethodError: Class '_ReloadClient' has no instance method 'fetchPlaybackExtrasFromCacheOnly' with matching arguments.
+Receiver: Instance of '_ReloadClient'
+Tried calling: fetchPlaybackExtrasFromCacheOnly("movie-prior", introPattern: "(?:^|\\b)(?:intro(?:duction)?|opening)(?:\\b|$)|^op(?:\\s?\\d+)?$", creditsPattern: "(?:^|\\b)(?:outro|closing|credits?|ending)(?:\\b|$)|^ed(?:\\s?\\d+)?$", forceChapterFallback: false)
+Found: fetchPlaybackExtrasFromCacheOnly(String, {String? introPattern, String? creditsPattern, bool forceChapterFallback}) => Future<PlaybackExtras?>
+[38;5;196m[E][0m  _loadPlaybackExtras failed  ERROR: NoSuchMethodError: Class '_ReloadClient' has no instance method 'fetchPlaybackExtras' with matching arguments.
+Receiver: Instance of '_ReloadClient'
+Tried calling: fetchPlaybackExtras("movie-prior", introPattern: "(?:^|\\b)(?:intro(?:duction)?|opening)(?:\\b|$)|^op(?:\\s?\\d+)?$", creditsPattern: "(?:^|\\b)(?:outro|closing|credits?|ending)(?:\\b|$)|^ed(?:\\s?\\d+)?$", forceChapterFallback: false, forceRefresh: false)
+Found: fetchPlaybackExtras(String, {String? introPattern, String? creditsPattern, bool forceChapterFallback, bool forceRefresh}) => Future<PlaybackExtras>
+[D]  Next-episode metadata prime failed  ERROR: NoSuchMethodError: Class '_ReloadClient' has no instance method 'fetchItem' with matching arguments.
+Receiver: Instance of '_ReloadClient'
+Tried calling: fetchItem("next")
+Found: fetchItem(String) => Future<MediaItem?>
+[D]  Sleep timer started: 20 minutes
+[D]  Sleep timer extended by -21 minutes
+[D]  Sleep timer completed - showing prompt
+[38;5;12m[I][0m  Video completed: action=presentNext latched (position=121000ms duration=2400000ms)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: true
+  Actual: <false>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///workspace/heisuca/apps/app/test/screens/video_player/playback_reload_failure_test.dart:791:9)
+<asynchronous suspension>
+#5      withMockPlayerChannels (file:///workspace/heisuca/apps/app/test/test_helpers/mock_player_channels.dart:32:5)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/screens/video_player/playback_reload_failure_test.dart:768:5)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/screens/video_player/playback_reload_failure_test.dart line 791
+The test description was:
+  O correção: sono visível + EOF, continuar: false
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -2: O correção: sono visível + EOF, continuar: false [E]
+  Test failed. See exception logs above.
+  The test description was: O correção: sono visível + EOF, continuar: false
+  
+[D]  Sleep timer cancelled
+[D]  Wakelock disabled
+[38;5;12m[I][0m  Gracefully disconnecting all servers
+[38;5;12m[I][0m  Stopped network monitoring
+00:01 +0 -2: Some tests failed.
+
+Failing tests:
+  /workspace/heisuca/apps/app/test/screens/video_player/playback_reload_failure_test.dart: O correção: sono visível + EOF, continuar: false
+  /workspace/heisuca/apps/app/test/screens/video_player/playback_reload_failure_test.dart: O correção: sono visível + EOF, continuar: true

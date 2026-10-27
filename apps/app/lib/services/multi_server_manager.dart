@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import '../media/ids.dart';
+import '../media/media_backend.dart';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
@@ -20,7 +21,6 @@ import '../utils/media_server_timeouts.dart';
 import '../utils/active_client_scope.dart';
 import '../utils/future_extensions.dart';
 
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'plex_auth_service.dart';
 import 'settings_service.dart';
@@ -106,6 +106,14 @@ class MultiServerManager {
   final _connectProgressController = StreamController<({String serverId, bool online})>.broadcast();
 
   Stream<({String serverId, bool online})> get connectProgressStream => _connectProgressController.stream;
+
+  /// Atividade sem mudar o veredito on-line nem disparar recarga de bibliotecas.
+  final _connectionActivityController = StreamController<void>.broadcast();
+  Stream<void> get connectionActivityStream => _connectionActivityController.stream;
+  bool isServerConnecting(ServerId id) => _activeOptimizations.containsKey(id.value);
+  void _emitConnectionActivity() {
+    if (!_connectionActivityController.isClosed) _connectionActivityController.add(null);
+  }
 
   /// Servers whose token was rejected (HTTP 401). A re-auth flow should be
   /// offered for these — they remain "offline" until the user signs in again.
@@ -271,6 +279,24 @@ class MultiServerManager {
 
   Set<String>? get visibleServerIds => _visibleServerIds;
 
+  /// Seleção de navegação, independente da autorização e das tarefas offline.
+  /// null mantém a agregação original nas plataformas sem o seletor Heisuca.
+  String? navigationServerId;
+  Object? _navigationOwner;
+  void setNavigationSource(Object owner, String serverId) {
+    _navigationOwner = owner;
+    navigationServerId = serverId;
+  }
+  void clearNavigationSource(Object owner) {
+    if (!identical(owner, _navigationOwner)) return;
+    _navigationOwner = null;
+    navigationServerId = null;
+  }
+  Map<String, MediaServerClient> get navigationOnlineClients => {
+    for (final entry in visibleOnlineClients.entries)
+      if (navigationServerId == null || entry.key == navigationServerId) entry.key: entry.value,
+  };
+
   final _visibilityController = StreamController<void>.broadcast();
 
   /// Fires when [visibleServerIds] changes. Kept off [statusStream], whose
@@ -376,6 +402,10 @@ class MultiServerManager {
     }
     _emitStatus();
   }
+
+  /// Tipo conhecido mesmo quando o Plex salvo ainda não tem cliente on-line.
+  MediaBackend? backendForServer(ServerId id) =>
+      _clients[id]?.backend ?? (_plexServers.containsKey(id) ? MediaBackend.plex : null);
 
   String serverDisplayName(ServerId serverId) =>
       _clients[serverId]?.serverName ?? _plexServers[serverId]?.name ?? serverId;
@@ -1174,8 +1204,10 @@ class MultiServerManager {
     // Must not *return* the removed entry — whenComplete would then await this very future.
     final registered = task.whenComplete(() {
       _activeOptimizations.remove(serverId);
+      _emitConnectionActivity();
     });
     _activeOptimizations[serverId] = registered;
+    _emitConnectionActivity();
     return registered;
   }
 
@@ -1466,11 +1498,7 @@ class MultiServerManager {
     if (offline.isEmpty) return;
 
     appLogger.d('Attempting reconnection for ${offline.length} offline servers');
-    unawaited(
-      Sentry.addBreadcrumb(
-        Breadcrumb(message: 'Reconnecting ${offline.length} offline server(s)', category: 'servers'),
-      ),
-    );
+
 
     if (forceRediscovery) {
       final storage = await StorageService.getInstance();
@@ -1646,6 +1674,7 @@ class MultiServerManager {
   Future<void> shutdown({Duration drainTimeout = const Duration(seconds: 5)}) async {
     if (!_statusController.isClosed) unawaited(_statusController.close());
     if (!_connectProgressController.isClosed) unawaited(_connectProgressController.close());
+    if (!_connectionActivityController.isClosed) unawaited(_connectionActivityController.close());
     if (!_visibilityController.isClosed) unawaited(_visibilityController.close());
     await disconnectAllGracefully(drainTimeout: drainTimeout);
   }
@@ -1658,8 +1687,10 @@ class MultiServerManager {
     if (!_connectProgressController.isClosed) {
       _connectProgressController.close();
     }
+    if (!_connectionActivityController.isClosed) unawaited(_connectionActivityController.close());
     if (!_visibilityController.isClosed) {
       _visibilityController.close();
     }
   }
 }
+

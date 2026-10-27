@@ -11,9 +11,7 @@ import '../../utils/app_logger.dart';
 import '../../media/episode_collection.dart';
 import 'anime_episode_progress_resolver.dart';
 import 'anime_lists_mapping_store.dart';
-import 'anilist/anilist_tracker.dart';
 import 'fribb_mapping_store.dart';
-import 'mal/mal_tracker.dart';
 import 'mdblist/mdblist_tracker.dart';
 import 'simkl/simkl_tracker.dart';
 import 'tracker.dart';
@@ -51,8 +49,6 @@ class TrackerCoordinator {
   /// The registry. Everything below partitions this list by capability rather
   /// than naming services, so adding one means adding it here and nowhere else.
   late final List<Tracker> _trackers = [
-    MalTracker.instance,
-    AnilistTracker.instance,
     SimklTracker.instance,
     TraktTracker.instance,
     MdblistTracker.instance,
@@ -426,7 +422,7 @@ class TrackerCoordinator {
   /// Threshold trackers get the safety-net watched mark. Real-time trackers get
   /// a `stop` carrying the true progress — which is also the user's resume
   /// position, so it is never inflated to force a watched state — followed by
-  /// [RealtimeScrobbleTracker.reconcileWatchedAfterStop] when Plezy counts the
+  /// [RealtimeScrobbleTracker.reconcileWatchedAfterStop] when Heisuca counts the
   /// playback as watched, because only the tracker knows whether its own stop
   /// already recorded that.
   Future<void> stopPlayback() async {

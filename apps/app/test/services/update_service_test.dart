@@ -4,10 +4,10 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:plezy/utils/media_server_http_client.dart';
+import 'package:heisuca/utils/media_server_http_client.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/services/base_shared_preferences_service.dart';
-import 'package:plezy/services/update_service.dart';
+import 'package:heisuca/services/base_shared_preferences_service.dart';
+import 'package:heisuca/services/update_service.dart';
 
 import '../test_helpers/prefs.dart';
 

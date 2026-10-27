@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/mpv/mpv.dart';
-import 'package:plezy/mpv/player/player_native.dart';
-import 'package:plezy/services/settings_service.dart';
+import 'package:heisuca/mpv/mpv.dart';
+import 'package:heisuca/mpv/player/player_native.dart';
+import 'package:heisuca/services/settings_service.dart';
 
 import '../test_helpers/mock_player_channels.dart';
 import '../test_helpers/prefs.dart';
@@ -30,8 +30,8 @@ void main() {
 
   Future<void> run(_AudioCoreMock core, Future<void> Function(PlayerNative player, List<String> transitions) body) {
     return withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_audio_player',
-      eventChannelName: 'com.plezy/mpv_audio_player/events',
+      methodChannelName: 'app.heisuca/mpv_audio_player',
+      eventChannelName: 'app.heisuca/mpv_audio_player/events',
       methodHandler: core.handle,
       testBody: () async {
         final player = PlayerNative.audio();

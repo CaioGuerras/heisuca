@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:plezy/exceptions/media_server_exceptions.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/media/live_tv_support.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/media/media_library.dart';
-import 'package:plezy/media/media_server_client.dart';
-import 'package:plezy/media/server_capabilities.dart';
-import 'package:plezy/models/livetv_program.dart';
-import 'package:plezy/models/media_subscription.dart';
-import 'package:plezy/screens/livetv/livetv_recording_actions.dart';
-import 'package:plezy/screens/livetv/record_options_sheet.dart';
+import 'package:heisuca/exceptions/media_server_exceptions.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/media/live_tv_support.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_library.dart';
+import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/media/server_capabilities.dart';
+import 'package:heisuca/models/livetv_program.dart';
+import 'package:heisuca/models/media_subscription.dart';
+import 'package:heisuca/screens/livetv/livetv_recording_actions.dart';
+import 'package:heisuca/screens/livetv/record_options_sheet.dart';
 
 class _FakeDvr implements LiveTvDvrSupport {
   final List<MediaSubscriptionCreateRequest> created = [];

@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/utils/pointer_scroll_axis.dart';
+import 'package:heisuca/utils/pointer_scroll_axis.dart';
 
 /// The production binding's axis lock, over the standard test binding, so the
 /// widget cases below exercise the same path a real wheel/trackball event takes.

@@ -1,46 +1,43 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:dart_discord_presence/dart_discord_presence.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/widgets.dart';
 import 'package:os_media_controls/os_media_controls.dart';
-import 'package:plezy/database/app_database.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/media/media_server_client.dart';
-import 'package:plezy/mpv/models.dart';
-import 'package:plezy/models/audio_channel_limit.dart';
-import 'package:plezy/models/companion_remote/remote_command.dart';
-import 'package:plezy/models/download_models.dart';
-import 'package:plezy/mpv/player/audio_rendering_mode.dart';
-import 'package:plezy/mpv/player/player.dart';
-import 'package:plezy/mpv/player/player_state.dart';
-import 'package:plezy/mpv/player/player_streams.dart';
-import 'package:plezy/providers/download_provider.dart';
-import 'package:plezy/providers/multi_server_provider.dart';
-import 'package:plezy/services/agent_control_protocol.dart';
-import 'package:plezy/services/agent_playback_commands.dart';
-import 'package:plezy/services/base_shared_preferences_service.dart';
-import 'package:plezy/services/companion_remote/companion_remote_receiver.dart';
-import 'package:plezy/services/discord_rpc_service.dart';
-import 'package:plezy/services/media_controls_manager.dart';
-import 'package:plezy/services/multi_server_manager.dart';
-import 'package:plezy/services/music/music_playback_service.dart';
-import 'package:plezy/services/music/music_playback_service_impl.dart';
-import 'package:plezy/services/music/music_queue_controller.dart';
-import 'package:plezy/services/music/music_session_store.dart';
-import 'package:plezy/services/music/music_source_resolver.dart';
-import 'package:plezy/services/offline_watch_sync_service.dart';
-import 'package:plezy/services/playback_coordinator.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/services/playback_launch_observer.dart';
+import 'package:heisuca/database/app_database.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/mpv/models.dart';
+import 'package:heisuca/models/audio_channel_limit.dart';
+import 'package:heisuca/models/companion_remote/remote_command.dart';
+import 'package:heisuca/models/download_models.dart';
+import 'package:heisuca/mpv/player/audio_rendering_mode.dart';
+import 'package:heisuca/mpv/player/player.dart';
+import 'package:heisuca/mpv/player/player_state.dart';
+import 'package:heisuca/mpv/player/player_streams.dart';
+import 'package:heisuca/providers/download_provider.dart';
+import 'package:heisuca/providers/multi_server_provider.dart';
+import 'package:heisuca/services/agent_control_protocol.dart';
+import 'package:heisuca/services/agent_playback_commands.dart';
+import 'package:heisuca/services/base_shared_preferences_service.dart';
+import 'package:heisuca/services/companion_remote/companion_remote_receiver.dart';
+import 'package:heisuca/services/media_controls_manager.dart';
+import 'package:heisuca/services/multi_server_manager.dart';
+import 'package:heisuca/services/music/music_playback_service.dart';
+import 'package:heisuca/services/music/music_playback_service_impl.dart';
+import 'package:heisuca/services/music/music_queue_controller.dart';
+import 'package:heisuca/services/music/music_session_store.dart';
+import 'package:heisuca/services/music/music_source_resolver.dart';
+import 'package:heisuca/services/offline_watch_sync_service.dart';
+import 'package:heisuca/services/playback_coordinator.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/services/playback_launch_observer.dart';
 import 'package:provider/provider.dart';
-import '../../test_helpers/discord_rpc_fakes.dart';
 import '../../test_helpers/media_items.dart';
 import '../../test_helpers/multi_server_fixtures.dart';
 import '../../test_helpers/playback_report_fakes.dart';
@@ -80,6 +77,11 @@ class _CallGate {
 /// In-memory audio player: records calls, exposes manual stream controllers
 /// so tests drive transitions/completion/errors deterministically.
 class FakePlayer implements Player {
+  @override
+  Future<void> setBackgroundAudio(bool enabled) async {}
+  @override
+  Future<void> setContinueListening(bool allowed) async {}
+
   final playingCtrl = StreamController<bool>.broadcast(sync: true);
   final completedCtrl = StreamController<bool>.broadcast(sync: true);
   final bufferingCtrl = StreamController<bool>.broadcast(sync: true);
@@ -1855,71 +1857,6 @@ void main() {
       await h.service.stop();
       await pumpEventQueue();
       expect(receiver.musicTransport, isNull);
-    });
-  });
-
-  group('Discord presence', () {
-    late FakeDiscordRPC rpc;
-    late DiscordRPCService rpcService;
-
-    setUp(() {
-      rpc = FakeDiscordRPC();
-      rpcService = DiscordRPCService.forTesting(rpcFactory: () => rpc);
-      DiscordRPCService.debugOverrideInstance(rpcService);
-      unawaited(rpcService.setEnabled(true));
-      rpc.emitReady();
-    });
-
-    tearDown(() {
-      DiscordRPCService.debugOverrideInstance(null);
-      unawaited(rpcService.dispose());
-    });
-
-    test('a session publishes Listening, withdraws on pause, returns on resume, and clears on stop', () async {
-      await h.playTracks([t1, t2]);
-
-      var presence = rpc.presences.last;
-      expect(presence.type, DiscordActivityType.listening);
-      expect(presence.details, 'Track t1');
-      expect(presence.state, 'Artist');
-      expect(presence.timestamps, isNotNull, reason: 'audible playback runs the progress bar');
-
-      final published = rpc.presences.length;
-      await h.service.pause();
-      await pumpEventQueue();
-      expect(rpc.clearPresenceCalls, 1, reason: 'a paused session can sit in the mini-player for hours');
-      expect(rpc.presences, hasLength(published));
-
-      await h.service.play();
-      await pumpEventQueue();
-      presence = rpc.presences.last;
-      expect(presence.details, 'Track t1');
-      expect(presence.timestamps, isNotNull);
-
-      h.player.emitTransition(_urlFor(t2));
-      await pumpEventQueue();
-      presence = rpc.presences.last;
-      expect(presence.details, 'Track t2');
-      expect(presence.timestamps, isNotNull);
-
-      // Regression: the player subscriptions are cancelled before the player
-      // stops, so no playing=false reaches the service — the teardown itself
-      // must clear presence or the last track sticks to the profile.
-      await h.service.stop();
-      expect(rpc.clearPresenceCalls, 2);
-    });
-
-    test('a queue that plays out withdraws the card', () async {
-      await h.playTracks([t1]);
-      expect(rpc.presences.last.timestamps, isNotNull);
-      final published = rpc.presences.length;
-
-      h.player.emitCompleted();
-      await pumpEventQueue();
-
-      expect(h.service.status, MusicPlaybackStatus.paused);
-      expect(rpc.clearPresenceCalls, isPositive);
-      expect(rpc.presences, hasLength(published));
     });
   });
 

@@ -1,24 +1,27 @@
+import 'package:heisuca/providers/multi_server_provider.dart';
+import 'package:heisuca/services/multi_server_manager.dart';
+import 'package:heisuca/services/data_aggregation_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_symbols_icons/symbols.dart';
-import 'package:plezy/cgflix/cgflix_palette.dart';
-import 'package:plezy/cgflix/cgflix_theme.dart';
-import 'package:plezy/heisuca/heisuca_context_menu.dart';
-import 'package:plezy/heisuca/heisuca_floating_island.dart';
-import 'package:plezy/heisuca/heisuca_library_screen.dart';
-import 'package:plezy/heisuca/heisuca_login_screen.dart';
-import 'package:plezy/heisuca/heisuca_logo.dart';
-import 'package:plezy/heisuca/heisuca_profile_screen.dart';
-import 'package:plezy/heisuca/heisuca_search_screen.dart';
-import 'package:plezy/heisuca/heisuca_settings_screen.dart';
-import 'package:plezy/heisuca/heisuca_state_store.dart';
-import 'package:plezy/heisuca/heisuca_title_sheet.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/providers/theme_provider.dart';
-import 'package:plezy/services/settings_service.dart' as settings;
+import 'package:heisuca/cgflix/cgflix_palette.dart';
+import 'package:heisuca/cgflix/cgflix_theme.dart';
+import 'package:heisuca/heisuca/heisuca_context_menu.dart';
+import 'package:heisuca/heisuca/heisuca_floating_island.dart';
+import 'package:heisuca/heisuca/heisuca_library_screen.dart';
+import 'package:heisuca/heisuca/heisuca_login_screen.dart';
+import 'package:heisuca/heisuca/heisuca_logo.dart';
+import 'package:heisuca/heisuca/heisuca_profile_screen.dart';
+import 'package:heisuca/heisuca/heisuca_search_screen.dart';
+import 'package:heisuca/heisuca/heisuca_settings_screen.dart';
+import 'package:heisuca/heisuca/heisuca_title_sheet.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/providers/theme_provider.dart';
+import 'package:heisuca/services/settings_service.dart' as settings;
+import 'package:heisuca/services/device_performance.dart';
 import 'package:provider/provider.dart';
 
 import '../test_helpers/prefs.dart';
@@ -51,51 +54,53 @@ void main() {
   });
 
   group('HeisucaLogo', () {
-    testWidgets('adapta selo e texto para Shikkoku (escuro)', (tester) async {
+    testWidgets('adapta marca SVG para Shikkoku (escuro)', (tester) async {
       await _montar(tester, CgflixThemeVariant.isis, const Scaffold(body: Center(child: HeisucaLogo())));
       expect(find.byType(SvgPicture), findsOneWidget);
       final svg = tester.widget<SvgPicture>(find.byType(SvgPicture));
       final bytesLoader = svg.bytesLoader as SvgAssetLoader;
-      expect(bytesLoader.assetName, 'assets/heisuca/selo_pequeno_shikkoku.svg');
+      expect(bytesLoader.assetName, 'assets/heisuca/marca_site_shikkoku.svg');
+      expect(bytesLoader.colorMapper, isNotNull);
 
-      final text = tester.widget<Text>(find.text('HEISUCA'));
-      expect(text.style?.color, const Color(0xFFF4F1FA));
+      expect(find.text('HEISUCA'), findsNothing);
     });
 
-    testWidgets('adapta selo e texto para Hisui (claro)', (tester) async {
+    testWidgets('adapta marca SVG para Hisui (claro)', (tester) async {
       await _montar(tester, CgflixThemeVariant.heitor, const Scaffold(body: Center(child: HeisucaLogo())));
       expect(find.byType(SvgPicture), findsOneWidget);
       final svg = tester.widget<SvgPicture>(find.byType(SvgPicture));
       final bytesLoader = svg.bytesLoader as SvgAssetLoader;
-      expect(bytesLoader.assetName, 'assets/heisuca/selo_pequeno_hisui.svg');
+      expect(bytesLoader.assetName, 'assets/heisuca/marca_site_hisui.svg');
+      expect(bytesLoader.colorMapper, isNotNull);
 
-      final text = tester.widget<Text>(find.text('HEISUCA'));
-      expect(text.style?.color, const Color(0xFF134E4A));
+      expect(find.text('HEISUCA'), findsNothing);
     });
   });
 
   group('HeisucaLoginScreen', () {
     testWidgets('monta sem erro e com distribuição equilibrada no modo escuro', (tester) async {
       await _montar(tester, CgflixThemeVariant.isis, const HeisucaLoginScreen());
-      expect(find.text('HEISUCA'), findsOneWidget);
+      expect(find.byType(HeisucaLogo), findsOneWidget);
+      expect(find.text('HEISUCA'), findsNothing);
       expect(find.text('SERVIDOR'), findsOneWidget);
       expect(find.text('USUÁRIO'), findsOneWidget);
       expect(find.text('SENHA'), findsOneWidget);
       expect(find.text('Iniciar sessão'), findsOneWidget);
-      expect(find.text('+ Outros servidores e pastas locais'), findsOneWidget);
+      expect(find.text('Outros servidores e pastas locais'), findsOneWidget);
       expect(find.byIcon(Icons.qr_code_2_rounded), findsOneWidget);
     });
 
     testWidgets('monta sem erro no modo claro', (tester) async {
       await _montar(tester, CgflixThemeVariant.heitor, const HeisucaLoginScreen());
-      expect(find.text('HEISUCA'), findsOneWidget);
+      expect(find.byType(HeisucaLogo), findsOneWidget);
+      expect(find.text('HEISUCA'), findsNothing);
       expect(find.text('SERVIDOR'), findsOneWidget);
       expect(find.text('Iniciar sessão'), findsOneWidget);
     });
 
     testWidgets('abre modal de outras fontes com servidores identificados', (tester) async {
       await _montar(tester, CgflixThemeVariant.isis, const HeisucaLoginScreen());
-      await tester.tap(find.text('+ Outros servidores e pastas locais'));
+      await tester.tap(find.text('Outros servidores e pastas locais'));
       await tester.pumpAndSettle();
 
       expect(find.text('Adicionar Fontes e Servidores'), findsOneWidget);
@@ -138,12 +143,50 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Duna: Parte 2'), findsOneWidget);
-      expect(find.text('Assistir Agora'), findsOneWidget);
-      expect(find.text('Sinopse'), findsOneWidget);
+      expect(find.text('Assistir'), findsOneWidget);
+      // Sinopse sem título de seção (Esboço 04/site): confere o próprio texto, visível ao rolar.
+      final synopsis = find.textContaining('Paul Atreides');
+      await tester.scrollUntilVisible(synopsis, 180, scrollable: find.byType(Scrollable).first);
+      expect(synopsis.hitTestable(), findsOneWidget);
     });
   });
 
   group('HeisucaSettingsScreen', () {
+    testWidgets('medidor real está no popup das configurações, com detalhes recolhidos', (tester) async {
+      const channel = MethodChannel('app.heisuca/device');
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel,
+        (_) async => <String, Object>{'totalMemBytes': (3.6 * 1024 * 1024 * 1024).round(), 'renderer': 'Impeller'});
+      addTearDown(() => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, null));
+      DevicePerformance.debugReset(autoReduced: false, totalMemBytes: (3.6 * 1024 * 1024 * 1024).round());
+      addTearDown(DevicePerformance.debugReset);
+      await _montar(tester, CgflixThemeVariant.isis, const HeisucaSettingsScreen());
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Ver funções ativas'));
+      await tester.pumpAndSettle();
+      expect(find.text('Funções e desempenho'), findsOneWidget);
+      expect(find.text('Padrão'), findsOneWidget);
+      expect(find.text('Detalhes técnicos'), findsOneWidget);
+      expect(find.textContaining('Cache de imagens:'), findsNothing);
+      await tester.tap(find.text('Detalhes técnicos'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Cache de imagens:'), findsOneWidget);
+      await tester.ensureVisible(find.text('Fechar'));
+      await tester.tap(find.text('Fechar'));
+      await tester.pumpAndSettle();
+      expect(find.text('Funções e desempenho'), findsNothing);
+    });
+
+    testWidgets('Hisui escuro salva a escolha real do seletor', (tester) async {
+      await _montar(tester, CgflixThemeVariant.isis, const HeisucaSettingsScreen());
+      final choice = find.text('Hisui escuro');
+      await tester.ensureVisible(choice);
+      await tester.pumpAndSettle();
+      await tester.tap(choice);
+      await tester.pumpAndSettle();
+      final service = await settings.SettingsService.getInstance();
+      expect(service.read(settings.SettingsService.themeMode), settings.ThemeMode.dark);
+    });
+
     testWidgets('monta abas Geral e Avançado com reconhecimento de aparelho e seletor de tema', (tester) async {
       await _montar(tester, CgflixThemeVariant.isis, const HeisucaSettingsScreen());
       expect(find.text('Configurações'), findsOneWidget);
@@ -154,12 +197,15 @@ void main() {
       expect(find.text('Aparência e Tema'), findsOneWidget);
       expect(find.text('Shikkoku'), findsOneWidget);
       expect(find.text('Hisui'), findsOneWidget);
+      expect(find.text('Hisui escuro'), findsOneWidget);
       expect(find.text('Qualidade de reprodução'), findsOneWidget);
 
       await tester.tap(find.text('Avançado'));
       await tester.pumpAndSettle();
 
+      await tester.scrollUntilVisible(find.text('Decodificação por Hardware'), 300, scrollable: find.byType(Scrollable).last);
       expect(find.text('Decodificação por Hardware'), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('Buffer de Memória RAM'), 300, scrollable: find.byType(Scrollable).last);
       expect(find.text('Buffer de Memória RAM'), findsOneWidget);
     });
   });
@@ -169,21 +215,29 @@ void main() {
     await service.write(settings.SettingsService.skipIntroMode, settings.SkipMarkerMode.button);
     await _montar(tester, CgflixThemeVariant.isis, const HeisucaSettingsScreen());
     await tester.pumpAndSettle();
+    Future<void> revealIntro() async {
+      await tester.scrollUntilVisible(find.text('Pular Abertura Automático'), 200,
+        scrollable: find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)).first);
+      await tester.pumpAndSettle();
+    }
+    await revealIntro();
     final introSwitch = find.descendant(
       of: find.ancestor(of: find.text('Pular Abertura Automático'), matching: find.byType(Row)).first,
       matching: find.byType(Switch),
     );
     await tester.ensureVisible(introSwitch);
+    await tester.pumpAndSettle();
     await tester.tap(introSwitch);
     await tester.pumpAndSettle();
     expect(service.read(settings.SettingsService.skipIntroMode), settings.SkipMarkerMode.auto);
     await tester.pumpWidget(const SizedBox());
     await _montar(tester, CgflixThemeVariant.isis, const HeisucaSettingsScreen());
     await tester.pumpAndSettle();
+    await revealIntro();
     expect(tester.widget<Switch>(introSwitch).value, isTrue);
   });
 
-  testWidgets('buffer respeita o motor ativo e salva o perfil do ExoPlayer', (tester) async {
+  testWidgets('buffer salva a preferência tanto em mpv como em ExoPlayer', (tester) async {
     final service = await settings.SettingsService.getInstance();
     await service.write(settings.SettingsService.useExoPlayer, false);
     await _montar(tester, CgflixThemeVariant.isis, const HeisucaSettingsScreen());
@@ -191,7 +245,16 @@ void main() {
     await tester.tap(find.text('Avançado'));
     await tester.pumpAndSettle();
     final buffer = find.byKey(const ValueKey('heisuca-buffer'));
-    expect(tester.widget<DropdownButton<settings.PlaybackBufferTier>>(buffer).onChanged, isNull);
+    // Lista preguiçosa: o controle só existe depois de rolar até ele (ensureVisible não acha o que não foi montado).
+    await tester.scrollUntilVisible(buffer, 200,
+      scrollable: find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)).last);
+    await tester.pumpAndSettle();
+    expect(tester.widget<DropdownButton<settings.PlaybackBufferTier>>(buffer).onChanged, isNotNull);
+    await tester.tap(buffer);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Muito grande').last);
+    await tester.pumpAndSettle();
+    expect(service.read(settings.SettingsService.playbackBufferTier), settings.PlaybackBufferTier.extraLarge);
     await tester.pumpWidget(const SizedBox());
     await service.write(settings.SettingsService.useExoPlayer, true);
     await _montar(tester, CgflixThemeVariant.isis, const HeisucaSettingsScreen());
@@ -199,7 +262,10 @@ void main() {
     await tester.tap(find.text('Avançado'));
     await tester.pumpAndSettle();
     expect(find.text('Decodificação por Hardware'), findsNothing);
-    await tester.ensureVisible(buffer);
+    // Lista preguiçosa: o controle só existe depois de rolar até ele (ensureVisible não acha o que não foi montado).
+    await tester.scrollUntilVisible(buffer, 200,
+      scrollable: find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)).last);
+    await tester.pumpAndSettle();
     await tester.tap(buffer);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Grande').last);
@@ -209,9 +275,13 @@ void main() {
 
   group('HeisucaLibraryScreen & HeisucaSearchScreen', () {
     testWidgets('monta biblioteca e busca adaptando a ambos os temas', (tester) async {
-      await _montar(tester, CgflixThemeVariant.heitor, const HeisucaLibraryScreen());
+      final manager = MultiServerManager();
+      final servers = MultiServerProvider(manager, DataAggregationService(manager));
+      addTearDown(servers.dispose); addTearDown(manager.dispose);
+      await _montar(tester, CgflixThemeVariant.heitor, ChangeNotifierProvider.value(value: servers, child: const HeisucaLibraryScreen()));
+      await tester.pumpAndSettle();
       expect(find.text('Biblioteca'), findsOneWidget);
-      expect(find.text('Todos'), findsOneWidget);
+      expect(find.text('Nenhum título disponível nesta seleção.'), findsOneWidget, reason: 'sem fonte, estado vazio (sem botões falsos)');
 
       await _montar(tester, CgflixThemeVariant.heitor, const HeisucaSearchScreen());
       expect(find.text('No seu Acervo'), findsOneWidget);
@@ -220,7 +290,7 @@ void main() {
   });
 
   group('HeisucaFloatingIsland', () {
-    testWidgets('exibe abas Início, Biblioteca, Buscar e Você com resposta ao toque', (tester) async {
+    testWidgets('exibe abas Início, Biblioteca, Baixados e Você só com ícones e resposta ao toque', (tester) async {
       int selecionado = 0;
       await _montar(
         tester,
@@ -239,12 +309,14 @@ void main() {
         ),
       );
 
-      expect(find.text('Início'), findsOneWidget);
-      expect(find.text('Biblioteca'), findsOneWidget);
-      expect(find.text('Buscar'), findsOneWidget);
-      expect(find.text('Você'), findsOneWidget);
+      // Caio, 24/10: sem nome embaixo do ícone; o nome fica para o leitor de tela.
+      for (final nome in ['Início', 'Biblioteca', 'Baixados', 'Você']) {
+        expect(find.text(nome), findsNothing);
+        expect(find.bySemanticsLabel(nome), findsOneWidget);
+      }
+      expect(find.bySemanticsLabel('Favoritos'), findsNothing);
 
-      await tester.tap(find.text('Biblioteca'));
+      await tester.tap(find.bySemanticsLabel('Biblioteca'));
       await tester.pumpAndSettle();
       expect(selecionado, 1);
     });
@@ -298,15 +370,19 @@ void main() {
 
       expect(find.text('Você'), findsOneWidget);
       expect(find.text('MÍDIA & BIBLIOTECA'), findsOneWidget);
-      expect(find.text('Baixados & Offline'), findsOneWidget);
+      expect(find.text('Baixados'), findsOneWidget);
       expect(find.text('Favoritos'), findsOneWidget);
       expect(find.text('Todas as Bibliotecas'), findsOneWidget);
-      expect(find.text('PREFERÊNCIAS & SISTEMA'), findsOneWidget);
+      // Caio, 24/10: menu por assunto.
+      for (final secao in ['CONTA', 'FAMÍLIA', 'APP']) {
+        expect(find.text(secao), findsOneWidget);
+      }
       expect(find.text('Configurações Heisuca'), findsOneWidget);
+      expect(find.text('Este aparelho'), findsNothing);
       expect(find.text('Sobre o Heisuca'), findsOneWidget);
-      expect(find.text('CONTA & ACESSO'), findsOneWidget);
-      expect(find.text('Trocar Usuário / Servidor'), findsOneWidget);
-      expect(find.text('Sair da Conta'), findsOneWidget);
+      expect(find.text('Trocar perfil'), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('Sair da conta'), 300, scrollable: find.byType(Scrollable).first);
+      expect(find.text('Sair da conta'), findsOneWidget);
 
       // Descontaminação estrita: NÃO deve conter apoio nem opções legadas do CGFLIX
       expect(find.text('Apoie o CGFLIX'), findsNothing);
@@ -343,10 +419,11 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Duna: Parte 2'), findsOneWidget);
-      expect(find.text('Assistir Agora'), findsOneWidget);
-      expect(find.text('Sinopse'), findsOneWidget);
-      expect(find.text('Paul Atreides busca vingança contra os conspiradores.'), findsOneWidget);
-      expect(find.byIcon(Symbols.arrow_back_rounded), findsOneWidget);
+      expect(find.text('Assistir'), findsOneWidget);
+      final synopsis = find.text('Paul Atreides busca vingança contra os conspiradores.');
+      await tester.scrollUntilVisible(synopsis, 180, scrollable: find.byType(Scrollable).first);
+      expect(synopsis.hitTestable(), findsOneWidget);
+      expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);
 
       // Como o item não possui versão 4K informada, NÃO deve exibir tag 4K falsa
       expect(find.text('4K HDR'), findsNothing);
@@ -356,7 +433,7 @@ void main() {
       expect(find.text('Pedir no Seerr'), findsNothing);
 
       // Tocar no botão de voltar deve fechar a ficha com fluidez
-      await tester.tap(find.byIcon(Symbols.arrow_back_rounded));
+      await tester.tap(find.byIcon(Icons.arrow_back_rounded));
       await tester.pumpAndSettle();
       expect(find.text('Abrir Ficha'), findsOneWidget);
     });

@@ -1,16 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/utils/certificate_trust.dart';
+import 'package:heisuca/utils/certificate_trust.dart';
 import 'package:xml/xml.dart';
 
 const _configPath = 'android/app/src/main/res/xml/network_security_config.xml';
 const _expectedDomains = <String>{
   'plex.tv',
-  'plezy.app',
   'trakt.tv',
-  'myanimelist.net',
-  'anilist.co',
   'simkl.com',
   'simkl.in',
   'jsdelivr.net',
@@ -22,14 +19,10 @@ const _fixedEndpointSourcePaths = <String>[
   'lib/services/plex_discover_client.dart',
   'lib/services/plex_client/parts/live_tv.dart',
   'lib/services/trackers/trakt/trakt_constants.dart',
-  'lib/services/trackers/mal/mal_constants.dart',
-  'lib/services/trackers/anilist/anilist_constants.dart',
   'lib/services/trackers/simkl/simkl_constants.dart',
-  'lib/services/trackers/oauth_proxy_client.dart',
   'lib/services/trackers/anime_lists_mapping_store.dart',
   'lib/services/trackers/fribb_mapping_store.dart',
   'lib/services/catalog/seerr_catalog_source.dart',
-  'lib/services/discord_rpc_service.dart',
   'lib/services/update_service.dart',
   'lib/watch_together/services/watch_together_relay_endpoint.dart',
   'lib/main.dart',

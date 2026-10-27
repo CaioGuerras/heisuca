@@ -4,25 +4,25 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/database/app_database.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/media/media_backend.dart';
+import 'package:heisuca/database/app_database.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/media/media_backend.dart';
 
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/media/media_server_client.dart';
-import 'package:plezy/media/media_version.dart';
-import 'package:plezy/models/download_models.dart';
-import 'package:plezy/models/transcode_quality_preset.dart';
-import 'package:plezy/mpv/player/player_native.dart';
-import 'package:plezy/providers/download_provider.dart';
-import 'package:plezy/providers/multi_server_provider.dart';
-import 'package:plezy/services/downloaded_video_source.dart';
-import 'package:plezy/services/offline_watch_sync_service.dart';
-import 'package:plezy/services/playback_initialization_types.dart';
-import 'package:plezy/services/saf_storage_service.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/utils/video_player_navigation.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/media/media_version.dart';
+import 'package:heisuca/models/download_models.dart';
+import 'package:heisuca/models/transcode_quality_preset.dart';
+import 'package:heisuca/mpv/player/player_native.dart';
+import 'package:heisuca/providers/download_provider.dart';
+import 'package:heisuca/providers/multi_server_provider.dart';
+import 'package:heisuca/services/downloaded_video_source.dart';
+import 'package:heisuca/services/offline_watch_sync_service.dart';
+import 'package:heisuca/services/playback_initialization_types.dart';
+import 'package:heisuca/services/saf_storage_service.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/utils/video_player_navigation.dart';
 import 'package:provider/provider.dart';
 
 import '../test_helpers/prefs.dart';
@@ -38,8 +38,8 @@ void main() {
     final pages = <_PlaybackPageState>[];
     int? nativeOwner;
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') {
           if (nativeOwner != null) throw PlatformException(code: 'owner_still_active');

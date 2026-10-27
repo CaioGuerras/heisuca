@@ -22,6 +22,17 @@ extension CgflixJellyfinQueries on JellyfinClient {
     return _itemsArray(response.data);
   }
 
+  /// Mesma rota Items/Latest do site, sem transformar novidades em gêneros.
+  Future<List<Map<String, dynamic>>> cgflixFetchLatestRaw(String libraryId) async {
+    final response = await _http.get('/Items/Latest', queryParameters: {
+      'UserId': connection.userId, 'ParentId': libraryId, 'Limit': '20',
+      'Fields': '$_hubRowFields,Genres', ...jellyfinImageQueryParameters,
+    }, timeout: const Duration(seconds: 12));
+    throwIfHttpError(response);
+    final data = response.data;
+    return data is List ? data.whereType<Map<String, dynamic>>().toList() : _itemsArray(data);
+  }
+
   /// Continuar assistindo + Próximos episódios só da biblioteca [libraryId] (Etapa 1E). Usa as
   /// mesmas consultas do upstream (`Resume` e `/Shows/NextUp` com `ParentId`) e a mesma junção.
   Future<List<MediaItem>> cgflixFetchContinueWatchingIn(String libraryId, {int count = 20}) async {
@@ -149,4 +160,33 @@ extension CgflixJellyfinQueries on JellyfinClient {
   }
 
   static bool _cgflixRouteMissing(int status) => status == 404 || status == 405;
+
+  /// Modo infantil (contrato do cgflix-kids, PLANO_MODO_MARYANNE M1): com o token desta sessão,
+  /// o servidor cria/atualiza o usuário-sombra "<nome>-kids" filtrado por classificação e
+  /// etiqueta infantil, e devolve a sessão dele. [teto]: "livre" ou "10".
+  /// Erros: 401 token, 400 teto, 403 já é infantil, 409 nome ocupado, 429 limite, 404 sem o serviço.
+  Future<({String token, String userId, String name})> cgflixActivateKids(String teto) async {
+    final response = await _http.post('/__kids/ativar', body: {'teto': teto}, timeout: const Duration(seconds: 20));
+    final data = response.data;
+    if (response.statusCode != 200 || data is! Map) throw CgflixKidsException(response.statusCode);
+    final token = data['token'], userId = data['usuarioId'], name = data['nome'];
+    if (token is! String || userId is! String || token.isEmpty || userId.isEmpty) throw CgflixKidsException(response.statusCode);
+    return (token: token, userId: userId, name: name is String && name.isNotEmpty ? name : 'kids');
+  }
 }
+
+/// Falha ao ativar o modo infantil no servidor, com mensagem em português para a pessoa.
+class CgflixKidsException implements Exception {
+  const CgflixKidsException(this.status);
+  final int status;
+  String get message => switch (status) {
+    401 => 'A sessão expirou. Entre de novo e tente outra vez.',
+    403 => 'Este perfil já é infantil.',
+    404 => 'Este servidor não oferece o modo infantil.',
+    429 => 'Muitas tentativas. Espere alguns minutos.',
+    _ => 'Não foi possível ativar o modo infantil agora (erro $status).',
+  };
+  @override
+  String toString() => 'CgflixKidsException($status)';
+}
+

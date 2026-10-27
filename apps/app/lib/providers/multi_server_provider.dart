@@ -30,6 +30,7 @@ class MultiServerProvider extends ChangeNotifier with DisposableChangeNotifierMi
   final MultiServerManager _serverManager;
   final DataAggregationService _aggregationService;
   StreamSubscription? _statusSubscription;
+  StreamSubscription<void>? _connectionActivitySubscription;
 
   /// Whether any connected server has Live TV / DVR
   bool _hasLiveTv = false;
@@ -148,6 +149,7 @@ class MultiServerProvider extends ChangeNotifier with DisposableChangeNotifierMi
   }
 
   MultiServerProvider(this._serverManager, this._aggregationService) {
+    _connectionActivitySubscription = _serverManager.connectionActivityStream.listen((_) => safeNotifyListeners());
     // Listen to server status changes
     _statusSubscription = _serverManager.statusStream.listen((_) {
       _promoteOnlineExpectedServers();
@@ -161,7 +163,8 @@ class MultiServerProvider extends ChangeNotifier with DisposableChangeNotifierMi
       // the "is anything actually new to me?" decision (their loaded sets can
       // differ from _previousOnlineServerIds after a load error or a profile
       // switch that cleared them), so notify unconditionally and let them decide.
-      final immutableOnline = Set<String>.unmodifiable(currentOnline);
+      final immutableOnline = Set<String>.unmodifiable(
+        currentOnline.where((id) => _serverManager.navigationServerId == null || id == _serverManager.navigationServerId));
       for (final listener in List.of(_onlineServersListeners)) {
         listener(immutableOnline);
       }
@@ -361,6 +364,8 @@ class MultiServerProvider extends ChangeNotifier with DisposableChangeNotifierMi
   void dispose() {
     ++_liveTvCheckGeneration;
     _statusSubscription?.cancel();
+    _connectionActivitySubscription?.cancel();
     super.dispose();
   }
 }
+

@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/utils/happy_eyeballs.dart';
+import 'package:heisuca/utils/happy_eyeballs.dart';
 
 void main() {
   final v6 = InternetAddress('2001:db8::1');

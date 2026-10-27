@@ -22,16 +22,16 @@ class SimklConstants {
 
   /// AUTH V1 app. Only used for sessions minted before the V2 cutover; nothing
   /// signs in with it any more. Its tokens never expire and cannot be revoked.
-  static const String legacyClientId = ''; // CGFLIX: sem a chave do Plezy (serviço escondido no CGFLIX)
+  static const String legacyClientId = ''; // CGFLIX: sem a chave do Heisuca (serviço escondido no CGFLIX)
 
   /// AUTH V2 app, registered as "TV, devices & command line": device flow
   /// only, no client secret. Public by design — on its own it reaches nothing
   /// but public catalog data.
-  static const String v2ClientId = ''; // CGFLIX: sem a chave do Plezy (serviço escondido no CGFLIX)
+  static const String v2ClientId = ''; // CGFLIX: sem a chave do Heisuca (serviço escondido no CGFLIX)
 
   static const String apiBase = 'https://api.simkl.com';
   static const String dataBase = 'https://data.simkl.in';
-  static const String appName = 'plezy';
+  static const String appName = 'heisuca';
 
   /// Sent as `app-version` when the platform cannot report the real one.
   static const String fallbackAppVersion = 'unknown';

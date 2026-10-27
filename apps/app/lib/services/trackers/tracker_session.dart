@@ -1,4 +1,3 @@
-import 'oauth_proxy_client.dart';
 import 'simkl/simkl_constants.dart';
 import 'tracker_constants.dart';
 import 'tracker_exceptions.dart';
@@ -82,24 +81,6 @@ class TrackerSession {
         _validateRefreshToken(service, refreshToken);
         requireExpiry();
     }
-  }
-
-  factory TrackerSession.fromOAuthProxyResult(TrackerService service, OAuthProxyResult result) {
-    final createdAt = trackerSessionNowEpochSeconds();
-    return switch (service) {
-      TrackerService.anilist => TrackerSession(
-        accessToken: result.accessToken,
-        expiresAt: createdAt + (result.expiresIn ?? 365 * 24 * 60 * 60),
-        createdAt: createdAt,
-      ),
-      TrackerService.mal => TrackerSession(
-        accessToken: result.accessToken,
-        refreshToken: _requireRefreshToken(service, result.refreshToken),
-        expiresAt: createdAt + (result.expiresIn ?? 31 * 24 * 60 * 60),
-        createdAt: createdAt,
-      ),
-      _ => throw ArgumentError('OAuth proxy sessions are not supported for ${service.name}'),
-    };
   }
 
   factory TrackerSession.fromTokenResponse(TrackerService service, Map<String, dynamic> json) {

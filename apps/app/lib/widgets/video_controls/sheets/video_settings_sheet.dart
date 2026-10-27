@@ -7,7 +7,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:plezy/widgets/app_icon.dart';
+import 'package:heisuca/widgets/app_icon.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:path/path.dart' as path;
 
@@ -259,8 +259,10 @@ class _SettingsToggleItemState extends State<_SettingsToggleItem> {
       builder: (context, value, _) {
         final displayedValue = _pendingValue ?? value;
         final isPending = _pendingValue != null;
-        return FocusableListTile(
-          leading: AppIcon(
+        return FocusableSwitchListTile(
+          dense: false,
+          visualDensity: VisualDensity.standard,
+          secondary: AppIcon(
             widget.icon,
             fill: 1,
             color: displayedValue ? cgflixPlayerAccent : tokens(context).textMuted,
@@ -269,12 +271,8 @@ class _SettingsToggleItemState extends State<_SettingsToggleItem> {
           subtitle: widget.subtitle == null
               ? null
               : Text(widget.subtitle!, style: TextStyle(color: tokens(context).textMuted, fontSize: 12)),
-          trailing: Switch(
-            value: displayedValue,
-            onChanged: isPending ? null : _write,
-            activeThumbColor: cgflixPlayerAccent,
-          ),
-          onTap: isPending ? null : () => _write(!displayedValue),
+          value: displayedValue,
+          onChanged: isPending ? null : _write,
         );
       },
     );
@@ -346,7 +344,7 @@ class _AudioRenderingModeItemState extends State<_AudioRenderingModeItem> {
 class VideoSettingsSheet extends StatefulWidget {
   final Player player;
 
-  /// Whether this player surface supports Plezy's HDR control.
+  /// Whether this player surface supports Heisuca's HDR control.
   ///
   /// Defaults to the native platform capability, but can be supplied by
   /// embedders whose capability is known independently of the host platform.
@@ -962,22 +960,17 @@ class _VideoSettingsSheetState extends State<VideoSettingsSheet> {
 
         // Ambient Lighting (MPV only)
         if (_state.onToggleAmbientLighting != null)
-          FocusableListTile(
-            leading: AppIcon(
+          FocusableSwitchListTile(
+            dense: false,
+            visualDensity: VisualDensity.standard,
+            secondary: AppIcon(
               Symbols.blur_on_rounded,
               fill: 1,
               color: _state.isAmbientLightingEnabled ? cgflixPlayerAccent : tokens(context).textMuted,
             ),
             title: Text(t.videoControls.ambientLighting),
-            trailing: Switch(
-              value: _state.isAmbientLightingEnabled,
-              onChanged: (_) {
-                _state.onToggleAmbientLighting?.call();
-                OverlaySheetController.of(context).close();
-              },
-              activeThumbColor: cgflixPlayerAccent,
-            ),
-            onTap: () {
+            value: _state.isAmbientLightingEnabled,
+            onChanged: (_) {
               _state.onToggleAmbientLighting?.call();
               OverlaySheetController.of(context).close();
             },
@@ -990,6 +983,15 @@ class _VideoSettingsSheetState extends State<VideoSettingsSheet> {
           title: t.videoSettings.performanceOverlay,
         ),
 
+        if (_state.delivery case final delivery?)
+          Padding(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const Text('Esta reprodução', style: TextStyle(fontFamily: 'Sora', fontSize: 16)),
+              const SizedBox(height: 8), Text(delivery.summary),
+              if (delivery.method == 'Transcode') ...[
+                const SizedBox(height: 8), Text(delivery.explanation),
+              ],
+            ])),
         // File Info for the playing item (#2229), the same breakdown as the
         // library's File Info entry. Read-only, so Watch Together guests get it.
         if (_fileInfoClient() case final client?)
@@ -1019,7 +1021,7 @@ class _VideoSettingsSheetState extends State<VideoSettingsSheet> {
             leading: AppIcon(Symbols.swap_horiz_rounded, fill: 1, color: tokens(context).textMuted),
             title: const Text('Trigger MPV Fallback'),
             onTap: () {
-              const MethodChannel('com.plezy/exo_player').invokeMethod('triggerFallback');
+              const MethodChannel('app.heisuca/exo_player').invokeMethod('triggerFallback');
               OverlaySheetController.of(context).close();
             },
           ),

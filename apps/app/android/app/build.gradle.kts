@@ -229,8 +229,11 @@ val downloadLibdovi = tasks.register("downloadLibdovi") {
   }
 }
 
+val heisucaPreview = providers.gradleProperty("heisucaPreview").orNull == "true"
+
 android {
-  namespace = "com.edde746.plezy"
+  buildFeatures { buildConfig = true }
+  namespace = "app.heisuca"
   compileSdk = flutter.compileSdkVersion
   buildToolsVersion = "36.1.0"
   ndkVersion = "29.0.14206865"
@@ -246,7 +249,8 @@ android {
   }
 
   defaultConfig {
-    applicationId = "app.heisuca.player.teste" // Heisuca Player Teste
+    applicationId = if (heisucaPreview) "app.heisuca.player.teste.home" else "app.heisuca.player.teste"
+    manifestPlaceholders["heisucaAppLabel"] = if (heisucaPreview) "Heisuca Teste" else "Heisuca"
     minSdk = 25 // Fire OS 6.x (API 25); :libmpv shares the same floor
     targetSdk = flutter.targetSdkVersion
     versionCode = flutter.versionCode
@@ -464,3 +468,4 @@ dependencies {
   androidTestImplementation("androidx.test:runner:1.7.0")
   androidTestImplementation("androidx.test.ext:junit:1.3.0")
 }
+

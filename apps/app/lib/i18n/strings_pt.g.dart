@@ -348,8 +348,6 @@ class _Translations$settings$pt extends Translations$settings$en {
 	@override String get watchTogetherRelayDescription => 'Usar outro servidor para o Assistir juntos. Todos precisam usar o mesmo.';
 	@override String get watchTogetherRelayHint => 'https://minha-retransmissao.exemplo.com.br';
 	@override String get watchTogetherRelayInvalid => 'Digite um endereço válido, começando com http:// ou https://.';
-	@override String get crashReporting => 'Relatório de erros';
-	@override String get crashReportingDescription => 'Enviar relatórios de erro para ajudar a melhorar o app';
 	@override String get debugLogging => 'Registros de diagnóstico';
 	@override String get debugLoggingDescription => 'Guardar registros detalhados para ajudar a resolver problemas';
 	@override String get viewLogs => 'Ver registros (logs)';
@@ -431,8 +429,6 @@ class _Translations$settings$pt extends Translations$settings$en {
 	@override String get maxVolume => 'Volume máximo';
 	@override String get maxVolumeDescription => 'Deixar o volume passar de 100% para vídeos com som baixo';
 	@override String maxVolumePercent({required Object percent}) => '${percent}%';
-	@override String get discordRichPresence => 'Discord Rich Presence';
-	@override String get discordRichPresenceDescription => 'Mostrar o que você está assistindo no Discord';
 	@override String get services => 'Serviços';
 	@override String get servicesDescription => 'Conecte o Trakt para registrar o que você assiste';
 	@override String get manageLibrariesDescription => 'Mudar a ordem e ocultar bibliotecas';
@@ -1080,7 +1076,7 @@ class _Translations$profiles$pt extends Translations$profiles$en {
 	final TranslationsPt _root; // ignore: unused_field
 
 	// Translations
-	@override String get addPlezyProfile => 'Adicionar perfil Heisuca';
+	@override String get addHeisucaProfile => 'Adicionar perfil Heisuca';
 	@override String get switchingProfile => 'Trocando de perfil…';
 	@override String get deleteThisProfileTitle => 'Excluir este perfil?';
 	@override String deleteThisProfileMessage({required Object displayName}) => 'Remover ${displayName}. As conexões com os servidores continuam.';
@@ -1409,7 +1405,7 @@ class _Translations$startup$pt extends Translations$startup$en {
 	@override String get repairSucceeded => 'Dados reparados';
 	@override String get repairNeedsRestart => 'Dados reparados — reinicie o app';
 	@override String get restartRequiredBody => 'Seus dados foram reparados, mas o Heisuca precisa ser reiniciado. Feche o Heisuca e abra de novo.';
-	@override String get quitPlezy => 'Sair do Heisuca';
+	@override String get quitHeisuca => 'Sair do Heisuca';
 	@override String get repairFailed => 'Não deu para reparar';
 	@override String get repairKeptSignIns => 'Seus servidores e perfis ainda estão conectados.';
 	@override String get repairLostSignIns => 'Não deu para recuperar a chave que protege seus acessos salvos. Você vai precisar entrar de novo em todos os servidores e perfis.';
@@ -3332,8 +3328,6 @@ extension on TranslationsPt {
 			'settings.watchTogetherRelayDescription' => 'Usar outro servidor para o Assistir juntos. Todos precisam usar o mesmo.',
 			'settings.watchTogetherRelayHint' => 'https://minha-retransmissao.exemplo.com.br',
 			'settings.watchTogetherRelayInvalid' => 'Digite um endereço válido, começando com http:// ou https://.',
-			'settings.crashReporting' => 'Relatório de erros',
-			'settings.crashReportingDescription' => 'Enviar relatórios de erro para ajudar a melhorar o app',
 			'settings.debugLogging' => 'Registros de diagnóstico',
 			'settings.debugLoggingDescription' => 'Guardar registros detalhados para ajudar a resolver problemas',
 			'settings.viewLogs' => 'Ver registros (logs)',
@@ -3415,8 +3409,6 @@ extension on TranslationsPt {
 			'settings.maxVolume' => 'Volume máximo',
 			'settings.maxVolumeDescription' => 'Deixar o volume passar de 100% para vídeos com som baixo',
 			'settings.maxVolumePercent' => ({required Object percent}) => '${percent}%',
-			'settings.discordRichPresence' => 'Discord Rich Presence',
-			'settings.discordRichPresenceDescription' => 'Mostrar o que você está assistindo no Discord',
 			'settings.services' => 'Serviços',
 			'settings.servicesDescription' => 'Conecte o Trakt para registrar o que você assiste',
 			'settings.manageLibrariesDescription' => 'Mudar a ordem e ocultar bibliotecas',
@@ -3619,12 +3611,12 @@ extension on TranslationsPt {
 			'fileInfo.dolbyVision' => 'Dolby Vision',
 			'fileInfo.dolbyVisionLevel' => 'Nível Dolby Vision',
 			'fileInfo.dolbyVisionVersion' => 'Versão Dolby Vision',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.dolbyVisionLayers' => 'Camadas Dolby Vision',
 			'fileInfo.baseLayerCompatibility' => 'Compatibilidade da camada base',
 			'fileInfo.avcBitstream' => 'Bitstream AVC',
 			'fileInfo.nalLengthSize' => 'Tamanho do comprimento NAL',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.scalingMatrix' => 'Matriz de dimensionamento personalizada',
 			'fileInfo.streamIdentifier' => 'Identificador do fluxo',
 			'fileInfo.streamIndex' => 'Índice do fluxo',
@@ -3959,7 +3951,7 @@ extension on TranslationsPt {
 			'mpvConfig.removeLine' => 'Remover linha',
 			'mpvConfig.embeddedVoHint' => 'No Linux, vo, gpu-context e gpu-api são ignorados: o vídeo dentro do app sempre usa vo=libmpv, e o gpu-next (necessário para filtros como o ArtCNN) não funciona dentro do app.',
 			'dialog.confirmAction' => 'Confirmar',
-			'profiles.addPlezyProfile' => 'Adicionar perfil Heisuca',
+			'profiles.addHeisucaProfile' => 'Adicionar perfil Heisuca',
 			'profiles.switchingProfile' => 'Trocando de perfil…',
 			'profiles.deleteThisProfileTitle' => 'Excluir este perfil?',
 			'profiles.deleteThisProfileMessage' => ({required Object displayName}) => 'Remover ${displayName}. As conexões com os servidores continuam.',
@@ -4133,12 +4125,12 @@ extension on TranslationsPt {
 			'errors.reasonUnreachable' => 'não deu para falar com o servidor',
 			'errors.reasonRefused' => 'o servidor recusou o pedido',
 			'errors.reasonNotFound' => 'o item não está mais no servidor',
-			_ => null,
-		} ?? switch (path) {
 			'errors.reasonServerError' => 'o servidor teve um problema',
 			'errors.reasonCancelled' => 'o pedido foi cancelado',
 			'errors.reasonUnexpected' => 'aconteceu um erro inesperado',
 			'libraries.title' => 'Bibliotecas',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.fallbackTitle' => 'Biblioteca',
 			'libraries.scanLibraryFiles' => 'Procurar arquivos novos',
 			'libraries.scanLibrary' => 'Atualizar biblioteca',
@@ -4286,7 +4278,7 @@ extension on TranslationsPt {
 			'startup.repairSucceeded' => 'Dados reparados',
 			'startup.repairNeedsRestart' => 'Dados reparados — reinicie o app',
 			'startup.restartRequiredBody' => 'Seus dados foram reparados, mas o Heisuca precisa ser reiniciado. Feche o Heisuca e abra de novo.',
-			'startup.quitPlezy' => 'Sair do Heisuca',
+			'startup.quitHeisuca' => 'Sair do Heisuca',
 			'startup.repairFailed' => 'Não deu para reparar',
 			'startup.repairKeptSignIns' => 'Seus servidores e perfis ainda estão conectados.',
 			'startup.repairLostSignIns' => 'Não deu para recuperar a chave que protege seus acessos salvos. Você vai precisar entrar de novo em todos os servidores e perfis.',
@@ -4647,12 +4639,12 @@ extension on TranslationsPt {
 			'watchTogether.hostTransferFailed' => ({required Object name}) => 'Não deu para passar o controle para ${name}',
 			'watchTogether.watchingWithOthers' => 'Assistindo com outras pessoas',
 			'watchTogether.endSession' => 'Encerrar sessão',
-			_ => null,
-		} ?? switch (path) {
 			'watchTogether.leaveSession' => 'Sair da sessão',
 			'watchTogether.endSessionQuestion' => 'Encerrar sessão?',
 			'watchTogether.leaveSessionQuestion' => 'Sair da sessão?',
 			'watchTogether.endSessionConfirm' => 'Isso vai encerrar a sessão para todo mundo.',
+			_ => null,
+		} ?? switch (path) {
 			'watchTogether.leaveSessionConfirm' => 'Você vai sair da sessão.',
 			'watchTogether.endSessionConfirmOverlay' => 'Isso vai encerrar o Assistir juntos para todo mundo.',
 			'watchTogether.leaveSessionConfirmOverlay' => 'Você vai sair do Assistir juntos.',
@@ -5161,12 +5153,12 @@ extension on TranslationsPt {
 			'services.deviceCode.title' => ({required Object service}) => 'Ativar o Heisuca no ${service}',
 			'services.deviceCode.instructions' => 'Leia o código QR ou abra o endereço abaixo e digite este código:',
 			'services.deviceCode.openToActivate' => ({required Object service}) => 'Abrir ${service} para ativar',
-			_ => null,
-		} ?? switch (path) {
 			'services.deviceCode.copyCode' => 'Copiar código de ativação',
 			'services.deviceCode.waitingForAuthorization' => 'Esperando a autorização…',
 			'services.deviceCode.codeCopied' => 'Código copiado',
 			'services.oauthProxy.title' => ({required Object service}) => 'Entrar no ${service}',
+			_ => null,
+		} ?? switch (path) {
 			'services.oauthProxy.body' => 'Leia este código QR ou abra o endereço em qualquer aparelho.',
 			'services.oauthProxy.openToSignIn' => ({required Object service}) => 'Abrir ${service} para entrar',
 			'services.pendingAuth.copyUrl' => 'Copiar endereço de acesso',

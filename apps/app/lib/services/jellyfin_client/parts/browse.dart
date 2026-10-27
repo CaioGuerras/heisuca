@@ -568,7 +568,7 @@ mixin _JellyfinBrowseMethods on _JellyfinClientInternals {
 
   /// Jellyfin has no `/sorts` listing endpoint, so this returns a hardcoded
   /// list based on the broad sort set Streamyfin exposes. Keys remain
-  /// backend-neutral where Plezy already had saved preferences (`rating`,
+  /// backend-neutral where Heisuca already had saved preferences (`rating`,
   /// `lastViewedAt`, …); [JellyfinLibraryQueryTranslator] maps them to
   /// Jellyfin's `SortBy`/`SortOrder` at request time.
   @override
@@ -725,9 +725,10 @@ mixin _JellyfinBrowseMethods on _JellyfinClientInternals {
     final item = await fetchItem(id);
     if (item == null) return (item: null, onDeckEpisode: null);
     onItemReady?.call(item);
-    final stamped = isOfflineMode ? item : await _withLibraryFromAncestors(item);
-    if (item.kind != MediaKind.show) return (item: stamped, onDeckEpisode: null);
-    final nextUp = await _safeFetchItemsArray('/Shows/NextUp', {
+    // Heisuca: ancestrais e NextUp em paralelo (cada ida ao servidor custa ~250 ms pela VPS).
+    final stampedFuture = isOfflineMode ? Future.value(item) : _withLibraryFromAncestors(item);
+    if (item.kind != MediaKind.show) return (item: await stampedFuture, onDeckEpisode: null);
+    final nextUpFuture = _safeFetchItemsArray('/Shows/NextUp', {
       'seriesId': id,
       'userId': connection.userId,
       'Limit': '1',
@@ -735,6 +736,8 @@ mixin _JellyfinBrowseMethods on _JellyfinClientInternals {
       if (sendNextUpRewatching) 'EnableRewatching': 'true',
       ...jellyfinImageQueryParameters,
     });
+    final stamped = await stampedFuture;
+    final nextUp = await nextUpFuture;
     final onDeckEpisode = nextUp.isEmpty ? null : _mapItem(nextUp.first);
     return (item: stamped, onDeckEpisode: onDeckEpisode);
   }
@@ -2225,7 +2228,7 @@ mixin _JellyfinBrowseMethods on _JellyfinClientInternals {
   }
 
   /// Both dialects expose local trailers separately from special features.
-  /// Combine them into Plezy's existing extras row, but keep remote/YouTube
+  /// Combine them into Heisuca's existing extras row, but keep remote/YouTube
   /// trailers out of scope because they are external URLs, not playable items.
   @override
   Future<List<MediaItem>> fetchExtras(String id) async {
@@ -2339,7 +2342,7 @@ mixin _JellyfinBrowseMethods on _JellyfinClientInternals {
   /// Query for the one dedicated-resume-route window that feeds every Emby
   /// playback shelf.
   ///
-  /// Emby's route conflates the two shelves Plezy models separately: it returns
+  /// Emby's route conflates the two shelves Heisuca models separately: it returns
   /// the genuinely in-progress items *and* one zero-position next episode per
   /// started series, and no server-side filter separates them (measured on
   /// 4.9.5: `Filters=IsResumable` changes nothing). It is nevertheless the only

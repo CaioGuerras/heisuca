@@ -1,7 +1,7 @@
-name: plezy
+name: heisuca
 description: "Heisuca. Nada entre você e o filme. Cliente cinematográfico multiplataforma para Jellyfin, Plex, WebDAV e SMB."
 publish_to: "none"
-version: 2.0.1+2
+version: 2.0.34+36
 
 environment:
   # Dart floor stays 3.12: freezed 3.x emits `final` constructor parameters,
@@ -59,7 +59,6 @@ dependencies:
   material_symbols_icons: ^4.2951.0
   web_socket_channel: ^3.0.1
   # 1.2.1: Windows IPC no longer blocks the UI isolate while Discord stalls (#2518).
-  dart_discord_presence: ^1.2.1
   flutter_svg: ^2.2.3
   # Fork 54a34a0 fixes upstream #649's missing desktop temp parent; 7ee4588
   # survives a host with no documents directory (Linux without xdg-user-dirs);
@@ -71,10 +70,7 @@ dependencies:
   # partials through the provider. Keep the same-filesystem move/resume cleanup;
   # no per-host TLS bypass.
   background_downloader:
-    git:
-      url: https://github.com/edde746/background_downloader
-      ref: 5d45882265ead82e570cd067599e193070e3b4a2
-  sentry_flutter: ^9.30.0
+    path: packages/background_downloader
   auto_updater:
     git:
       url: https://github.com/edde746/auto_updater
@@ -86,8 +82,11 @@ dependencies:
   xml: ^7.0.1
   string_similarity: ^2.2.0
   unorm_dart: ^0.3.2
+  animations: ^2.0.11
 
 dev_dependencies:
+  integration_test:
+    sdk: flutter
   archive: ^4.0.9
   flutter_test:
     sdk: flutter
@@ -146,11 +145,11 @@ dependency_overrides:
 flutter:
   uses-material-design: true
   assets:
+    - assets/licenses/
     - assets/heisuca/
+    - assets/heisuca/kids/
     - assets/cgflix_emblema.svg
     - assets/cgflix_emblema_heitor.svg
-    - assets/plezy.png
-    - assets/plezy_adaptive_foreground.svg
     - assets/plex_chevron.svg
     - assets/jellyfin_icon.svg
     - assets/emby_icon.svg
@@ -170,6 +169,10 @@ flutter:
   # Registered as UI font families so the Linux build, whose fontconfig may
   # lack CJK fonts, can fall back to the bundled subtitle fonts (mono_theme).
   fonts:
+    # Heisuca: Sora variável, SIL OFL 1.1 em assets/fonts/Sora-LICENSE.txt.
+    - family: Sora
+      fonts:
+        - asset: assets/fonts/Sora-VF.ttf
     - family: Go Noto Current
       fonts:
         - asset: assets/go-noto-current-regular.ttf
@@ -188,3 +191,8 @@ flutter:
           weight: 700
         - asset: assets/fonts/Inter-ExtraBold.ttf
           weight: 800
+    # Heisuca: Fredoka só nos títulos do modo infantil (OFL, assets/fonts/Fredoka-LICENSE.txt)
+    - family: Fredoka
+      fonts:
+        - asset: assets/fonts/Fredoka-VF.ttf
+

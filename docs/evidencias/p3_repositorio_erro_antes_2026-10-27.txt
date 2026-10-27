@@ -1,0 +1,34 @@
+00:00 +0: loading /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_home_errors_test.dart
+00:00 +0: P3 cache vazio conhecido não é apresentado como resposta nova da rede
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie&SortBy=DateCreated%2CSortName&SortOrder=Descending%2CAscending&Limit=20 → 200 (6ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie&SortBy=DateCreated%2CSortName&SortOrder=Descending%2CAscending&Limit=20 → 500 (0ms)
+[W]  CGFLIX: linha "newMovies" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+00:00 +0 -1: P3 cache vazio conhecido não é apresentado como resposta nova da rede [E]
+  Expected: true
+    Actual: <false>
+
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/heisuca/heisuca_p3_home_errors_test.dart 31:7  main.<fn>
+
+00:00 +0 -1: P3 falha de rede: não inventa acervo vazio
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (1ms)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+00:00 +0 -2: P3 falha de rede: não inventa acervo vazio [E]
+  Expected: throws <Instance of 'MediaServerHttpException'>
+    Actual: <Instance of 'Future<List<CgflixRowData>>'>
+     Which: emitted [Instance of 'CgflixRowData']
+
+  package:matcher                                      expectLater
+  package:flutter_test/src/widget_tester.dart 507:8    expectLater
+  test/heisuca/heisuca_p3_home_errors_test.dart 59:17  main.<fn>
+
+00:00 +0 -2: P3 falha de rede: mantém dados do cache
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie&SortBy=DateCreated%2CSortName&SortOrder=Descending%2CAscending&Limit=20 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie&SortBy=DateCreated%2CSortName&SortOrder=Descending%2CAscending&Limit=20 → 500 (1ms)
+[W]  CGFLIX: linha "newMovies" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+00:00 +1 -2: Some tests failed.
+
+Failing tests:
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_home_errors_test.dart: P3 cache vazio conhecido não é apresentado como resposta nova da rede
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_home_errors_test.dart: P3 falha de rede: não inventa acervo vazio

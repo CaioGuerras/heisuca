@@ -5,13 +5,13 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:plezy/models/audio_channel_limit.dart';
-import 'package:plezy/models/shader_preset.dart';
-import 'package:plezy/services/base_shared_preferences_service.dart';
-import 'package:plezy/services/file_picker_service.dart';
-import 'package:plezy/services/settings_export_service.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/services/trackers/tracker_constants.dart';
+import 'package:heisuca/models/audio_channel_limit.dart';
+import 'package:heisuca/models/shader_preset.dart';
+import 'package:heisuca/services/base_shared_preferences_service.dart';
+import 'package:heisuca/services/file_picker_service.dart';
+import 'package:heisuca/services/settings_export_service.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/services/trackers/tracker_constants.dart';
 
 import '../test_helpers/prefs.dart';
 

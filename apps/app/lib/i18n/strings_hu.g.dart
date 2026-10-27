@@ -124,7 +124,7 @@ class _Translations$auth$hu extends Translations$auth$en {
 	@override String get quickConnectWaiting => 'Várakozás a jóváhagyásra…';
 	@override String get quickConnectCancel => 'Mégse';
 	@override String get quickConnectExpired => 'A Quick Connect kód lejárt. Próbáld újra.';
-	@override String get localDataRecoveryRequired => 'A Plezy nem tudta biztonságosan helyreállítani a helyi bejelentkezés és a függőben lévő lejátszás adatait. Jelentkezz be újra.';
+	@override String get localDataRecoveryRequired => 'A Heisuca nem tudta biztonságosan helyreállítani a helyi bejelentkezés és a függőben lévő lejátszás adatait. Jelentkezz be újra.';
 	@override String get pinCheckRejected => 'A Plex PIN ellenőrzését elutasították';
 }
 
@@ -226,7 +226,7 @@ class _Translations$settings$hu extends Translations$settings$en {
 
 	// Translations
 	@override String get title => 'Beállítások';
-	@override String get supportDeveloper => 'Plezy támogatása';
+	@override String get supportDeveloper => 'Heisuca támogatása';
 	@override String get supportDeveloperDescription => 'A fejlesztés támogatása Liberapay-en keresztül';
 	@override String get language => 'Nyelv';
 	@override String get theme => 'Téma';
@@ -348,8 +348,6 @@ class _Translations$settings$hu extends Translations$settings$en {
 	@override String get watchTogetherRelayDescription => 'Egyéni relé beállítása. Mindenkinek ugyanazt a szervert kell használnia.';
 	@override String get watchTogetherRelayHint => 'https://my-relay.example.com';
 	@override String get watchTogetherRelayInvalid => 'Adj meg egy érvényes HTTP- vagy HTTPS-alapú relészerver-URL-t.';
-	@override String get crashReporting => 'Összeomlási jelentések';
-	@override String get crashReportingDescription => 'Összeomlási jelentések küldése az alkalmazás fejlesztésének elősegítéséhez';
 	@override String get debugLogging => 'Hibakeresési naplózás';
 	@override String get debugLoggingDescription => 'Részletes naplózás engedélyezése a hibaelhárításhoz';
 	@override String get viewLogs => 'Naplók megtekintése';
@@ -368,7 +366,7 @@ class _Translations$settings$hu extends Translations$settings$en {
 	@override String get importSettingsDescription => 'Beállítások visszaállítása fájlból';
 	@override String get importSettingsConfirm => 'Ez felülírja a jelenlegi beállításaidat. Folytatod?';
 	@override String get importSettingsSuccess => 'Beállítások importálva';
-	@override String get importSettingsInvalidFile => 'Ez a fájl nem érvényes Plezy-beállításexport';
+	@override String get importSettingsInvalidFile => 'Ez a fájl nem érvényes Heisuca-beállításexport';
 	@override String get importSettingsNoUser => 'Jelentkezz be a beállítások importálása előtt';
 	@override String get shortcutsReset => 'A billentyűparancsok visszaálltak az alapértelmezettekre';
 	@override String get about => 'Névjegy';
@@ -430,8 +428,6 @@ class _Translations$settings$hu extends Translations$settings$en {
 	@override String get maxVolume => 'Maximális hangerő';
 	@override String get maxVolumeDescription => 'A hangerő 100% fölé emelésének engedélyezése halk tartalmak esetén';
 	@override String maxVolumePercent({required Object percent}) => '${percent}%';
-	@override String get discordRichPresence => 'Discord Rich Presence';
-	@override String get discordRichPresenceDescription => 'Megjeleníti a Discordon, hogy éppen mit nézel';
 	@override String get services => 'Szolgáltatások';
 	@override String get servicesDescription => 'Trakt, MyAnimeList, Seerr és egyéb szolgáltatások csatlakoztatása';
 	@override String get manageLibrariesDescription => 'Könyvtárak sorrendjének módosítása és elrejtése';
@@ -489,7 +485,7 @@ class _Translations$settings$hu extends Translations$settings$en {
 	@override String get forceTvMode => 'TV-mód kényszerítése';
 	@override String get forceTvModeDescription => 'TV-elrendezés kényszerítése az automatikus felismeréssel nem rendelkező eszközökön. Újraindítást igényel.';
 	@override String get startInFullscreen => 'Indítás teljes képernyőn';
-	@override String get startInFullscreenDescription => 'A Plezy megnyitása teljes képernyős módban indításkor';
+	@override String get startInFullscreenDescription => 'A Heisuca megnyitása teljes képernyős módban indításkor';
 	@override String get exitFullscreenOnPlayerClose => 'Kilépés a teljes képernyőből a lejátszó bezárásakor';
 	@override String get exitFullscreenOnPlayerCloseDescription => 'Automatikus kilépés a teljes képernyőből a videólejátszó bezárásakor';
 	@override String get autoHidePerformanceOverlay => 'Teljesítményadatok automatikus elrejtése';
@@ -538,7 +534,7 @@ class _Translations$settings$hu extends Translations$settings$en {
 	@override String get playerScopeGlobal => 'Mindenhol';
 	@override String get playerScopeLibrary => 'Könyvtáronként';
 	@override String get playerScopeTitle => 'Sorozatonként vagy filmenként';
-	@override String get exportDialogTitle => 'Plezy-beállítások exportálása';
+	@override String get exportDialogTitle => 'Heisuca-beállítások exportálása';
 }
 
 // Path: search
@@ -736,8 +732,8 @@ class _Translations$mediaMenu$hu extends Translations$mediaMenu$en {
 		one: 'További ${n} epizód is ugyanabban a fájlban van, és szintén törlésre kerül:',
 		other: 'További ${n} epizód is ugyanabban a fájlban van, és szintén törlésre kerül:',
 	);
-	@override String get deleteScopeUnverifiedProbeFailed => 'A Plezy nem tudta ellenőrizni, mely fájlokat távolítja el ez, ezért a fent nevezett elemnél többet is törölhet. Szakítsa meg és próbálja újra, vagy töröljön mindenképp.';
-	@override String get deleteScopeUnverifiedNoFileInfo => 'A szerver nem szolgáltatott fájladatokat ehhez az elemhez, ezért a Plezy nem tudja ellenőrizni, mely fájlokat távolít el. A fent nevezett elemnél többet is törölhet.';
+	@override String get deleteScopeUnverifiedProbeFailed => 'A Heisuca nem tudta ellenőrizni, mely fájlokat távolítja el ez, ezért a fent nevezett elemnél többet is törölhet. Szakítsa meg és próbálja újra, vagy töröljön mindenképp.';
+	@override String get deleteScopeUnverifiedNoFileInfo => 'A szerver nem szolgáltatott fájladatokat ehhez az elemhez, ezért a Heisuca nem tudja ellenőrizni, mely fájlokat távolít el. A fent nevezett elemnél többet is törölhet.';
 	@override String get mediaDeletedSuccessfully => 'Médiaelem sikeresen törölve';
 	@override String get mediaFailedToDelete => 'Nem sikerült a médiaelem törlése';
 	@override String get rate => 'Értékelés';
@@ -1070,7 +1066,7 @@ class _Translations$profiles$hu extends Translations$profiles$en {
 	final TranslationsHu _root; // ignore: unused_field
 
 	// Translations
-	@override String get addPlezyProfile => 'Plezy profil hozzáadása';
+	@override String get addHeisucaProfile => 'Heisuca profil hozzáadása';
 	@override String get switchingProfile => 'Profilváltás…';
 	@override String get deleteThisProfileTitle => 'Törlöd ezt a profilt?';
 	@override String deleteThisProfileMessage({required Object displayName}) => '${displayName} eltávolítása. A kapcsolatokat nem érinti.';
@@ -1152,7 +1148,7 @@ class _Translations$connections$hu extends Translations$connections$en {
 	@override String accessDeniedMany({required Object count}) => '${count} szerver megtagadta a hozzáférést ettől a fióktól';
 	@override String get signInAgain => 'Bejelentkezés újra';
 	@override String editMediaBrowserTitle({required Object product}) => 'A(z) ${product} kapcsolat szerkesztése';
-	@override String editMediaBrowserIntro({required Object serverName}) => 'Adjon hozzá vagy távolítson el URL-eket a(z) ${serverName} esetén. A Plezy a legkisebb késleltetésű, elérhető URL-t fogja használni.';
+	@override String editMediaBrowserIntro({required Object serverName}) => 'Adjon hozzá vagy távolítson el URL-eket a(z) ${serverName} esetén. A Heisuca a legkisebb késleltetésű, elérhető URL-t fogja használni.';
 }
 
 // Path: accountPreferences
@@ -1166,7 +1162,7 @@ class _Translations$accountPreferences$hu extends Translations$accountPreference
 	@override String hubSubtitleSingle({required Object account}) => 'Hang-, felirat- és könyvtárbeállítások mentve a(z) ${account} fiókra';
 	@override String hubSubtitleMultiple({required Object count}) => 'Hang-, felirat- és könyvtárbeállítások mentve ${count} fiókra';
 	@override String get pickAccount => 'Minden fiók a saját beállításait tárolja. Válaszd ki a szerkesztendőt.';
-	@override String get storedOnAccount => 'Ezek a beállítások magán a fiókon tárolódnak, így minden bejelentkezett alkalmazás használja őket — beleértve a Plezyt a többi eszközödön.';
+	@override String get storedOnAccount => 'Ezek a beállítások magán a fiókon tárolódnak, így minden bejelentkezett alkalmazás használja őket — beleértve a Heisucat a többi eszközödön.';
 	@override String get noAccounts => 'Nincs beállítható fiók';
 	@override String get noAccountsHint => 'Jelentkezz be a Plexbe, vagy csatlakoztass egy Jellyfin- vagy Emby-szervert, és az azon a fiókon tárolt beállítások itt jelennek meg.';
 	@override String get unavailable => 'Ez a fiók nem érhető el';
@@ -1376,9 +1372,9 @@ class _Translations$startup$hu extends Translations$startup$en {
 	final TranslationsHu _root; // ignore: unused_field
 
 	// Translations
-	@override String get failedTitle => 'A Plezy nem tudott elindulni';
+	@override String get failedTitle => 'A Heisuca nem tudott elindulni';
 	@override String get failedBody => 'Valami hiba történt az indítás során. Az alábbi részletek mutatják, mi hibázott.';
-	@override String get failedBodyRepairable => 'A Plezy mentett beállításfájlja sérült, és újra kell építeni, mielőtt a Plezy elindulhatna. Az újrapróbálkozás nem segít – válassza a Tárhely javítása lehetőséget.';
+	@override String get failedBodyRepairable => 'A Heisuca mentett beállításfájlja sérült, és újra kell építeni, mielőtt a Heisuca elindulhatna. Az újrapróbálkozás nem segít – válassza a Tárhely javítása lehetőséget.';
 	@override String get phaseLabel => 'Lépés';
 	@override String get showDetails => 'Részletek megjelenítése';
 	@override String get hideDetails => 'Részletek elrejtése';
@@ -1387,16 +1383,16 @@ class _Translations$startup$hu extends Translations$startup$en {
 	@override String get uploadDetails => 'Részletek feltöltése';
 	@override String get repairStorage => 'Tárhely javítása';
 	@override String get repairTitle => 'Javítsuk a tárolt adatokat?';
-	@override String get repairBodyCommon => 'A Plezy beállításfájlja sérült, és nem olvasható. A javítás minden beállítást visszaállít az alapértelmezettre.';
+	@override String get repairBodyCommon => 'A Heisuca beállításfájlja sérült, és nem olvasható. A javítás minden beállítást visszaállít az alapértelmezettre.';
 	@override String get repairBodyOneCredential => 'Egy mentett bejelentkezés sérült, és nem olvasható. A javítás csak azt távolítja el; a többi beállítása érintetlen marad.';
 	@override String get repairBodySignInsKept => 'A szervereinek és profiljainak bejelentkezve kell maradniuk.';
 	@override String get repairBodySignInsLost => 'A mentett bejelentkezéseket védő kulcs nem nyerhető vissza ebből a fájlból, ezért minden szerverre és profilba újra be kell jelentkeznie. A médiaszerveren semmi nem érintett.';
-	@override String get repairBodySessionsUncertain => 'A nyomkövetők (MAL, AniList, Simkl, Trakt) és a Seerr külön vannak tárolva, és megmaradhatnak vagy nem. A Plezy pontosan megmondja, mit őrzött meg.';
+	@override String get repairBodySessionsUncertain => 'A nyomkövetők (MAL, AniList, Simkl, Trakt) és a Seerr külön vannak tárolva, és megmaradhatnak vagy nem. A Heisuca pontosan megmondja, mit őrzött meg.';
 	@override String get repairConfirm => 'Javítás';
 	@override String get repairSucceeded => 'A tárhely javítva';
 	@override String get repairNeedsRestart => 'A tárhely javítva – újraindítás szükséges';
-	@override String get restartRequiredBody => 'Az adatait kijavítottuk, de a Plezy-nek frissen kell elindulnia, mielőtt használhatná. Zárja be a Plezy-t, és nyissa meg újra.';
-	@override String get quitPlezy => 'Kilépés a Plezy-ből';
+	@override String get restartRequiredBody => 'Az adatait kijavítottuk, de a Heisuca-nek frissen kell elindulnia, mielőtt használhatná. Zárja be a Heisuca-t, és nyissa meg újra.';
+	@override String get quitHeisuca => 'Kilépés a Heisuca-ből';
 	@override String get repairFailed => 'A javítás nem sikerült';
 	@override String get repairKeptSignIns => 'A szerverei és profiljai továbbra is be vannak jelentkezve.';
 	@override String get repairLostSignIns => 'A mentett bejelentkezéseket védő kulcs nem volt visszanyerhető. Minden szerverre és profilba újra be kell jelentkeznie.';
@@ -1405,7 +1401,7 @@ class _Translations$startup$hu extends Translations$startup$en {
 	@override String get backupWarning => 'Bejelentkezési adatait tartalmazza. Ne töltse fel és ne ossza meg.';
 	@override String get deleteBackup => 'Másolat törlése';
 	@override String get backupDeleted => 'A másolat törölve.';
-	@override String get previousFailureTitle => 'A Plezy legutóbb nem tudott elindulni';
+	@override String get previousFailureTitle => 'A Heisuca legutóbb nem tudott elindulni';
 }
 
 // Path: licenses
@@ -2155,11 +2151,11 @@ class _Translations$trakt$hu extends Translations$trakt$en {
 	@override String get connected => 'Csatlakoztatva';
 	@override String connectedAs({required Object username}) => '@${username} néven csatlakoztatva';
 	@override String get disconnectConfirm => 'Leválasztod a Trakt-fiókot?';
-	@override String get disconnectConfirmBody => 'A Plezy nem küld több eseményt a Traktnak. Bármikor újracsatlakozhatsz.';
+	@override String get disconnectConfirmBody => 'A Heisuca nem küld több eseményt a Traktnak. Bármikor újracsatlakozhatsz.';
 	@override String get scrobble => 'Valós idejű scrobbling';
 	@override String get scrobbleDescription => 'Lejátszási, szüneteltetési és leállítási események küldése a Traktnak lejátszás közben.';
 	@override String get watchedSync => 'Megtekintési állapot szinkronizálása';
-	@override String get watchedSyncDescription => 'Ha egy elemet megtekintettként jelölsz meg a Plezyben, a Trakt is megtekintettként jelöli.';
+	@override String get watchedSyncDescription => 'Ha egy elemet megtekintettként jelölsz meg a Heisucaben, a Trakt is megtekintettként jelöli.';
 }
 
 // Path: seerr
@@ -2178,10 +2174,10 @@ class _Translations$seerr$hu extends Translations$seerr$en {
 	@override String get signInWithEmby => 'Bejelentkezés Emby-vel';
 	@override String get signInWithLocal => 'Helyi fiók használata';
 	@override String get email => 'E-mail';
-	@override String get noSignInMethods => 'Ez a Seerr példány nem kínál olyan bejelentkezési módot, amit a Plezy támogat.';
+	@override String get noSignInMethods => 'Ez a Seerr példány nem kínál olyan bejelentkezési módot, amit a Heisuca támogat.';
 	@override String get instance => 'Példány';
 	@override String get disconnectConfirm => 'Leválasztod a Seerr-kapcsolatot?';
-	@override String get disconnectConfirmBody => 'A Plezy elfelejti ezt a Seerr példányt. Bármikor újracsatlakozhatsz.';
+	@override String get disconnectConfirmBody => 'A Heisuca elfelejti ezt a Seerr példányt. Bármikor újracsatlakozhatsz.';
 	@override String get request => 'Igénylés';
 	@override String get request4k => 'Igénylés 4K-ban';
 	@override String get seasons => 'Évadok';
@@ -2206,7 +2202,7 @@ class _Translations$seerr$hu extends Translations$seerr$en {
 	@override String get statusBlocklisted => 'Tiltólistán';
 	@override String couldNotReach({required Object url, required Object error}) => 'Nem sikerült elérni ezt: ${url}: ${error}';
 	@override String noInstanceAtUrl({required Object url, required Object status}) => 'Nem található Seerr-példány ezen a címen: ${url} (HTTP ${status})';
-	@override String get behindAuthProxy => 'A Seerr helyett egy hitelesítő fordított proxy (SSO vagy HTTP-hitelesítés) válaszolt. A Plezy nem tud rajta bejelentkezni: engedd, hogy a Seerr /api/v1 útvonala megkerülje a proxyt ennél az alkalmazásnál, vagy használj olyan címet, amely közvetlenül eléri a Seerr-t.';
+	@override String get behindAuthProxy => 'A Seerr helyett egy hitelesítő fordított proxy (SSO vagy HTTP-hitelesítés) válaszolt. A Heisuca nem tud rajta bejelentkezni: engedd, hogy a Seerr /api/v1 útvonala megkerülje a proxyt ennél az alkalmazásnál, vagy használj olyan címet, amely közvetlenül eléri a Seerr-t.';
 	@override String get invalidUrl => 'Adj meg egy szervercímet, például: https://seerr.example.com';
 	@override String get quickConnectUnsupported => 'Ez a Seerr-példány nem támogatja a Quick Connectet. Seerr 3.4 vagy újabb verzió szükséges.';
 	@override String get notInitialized => 'Ennek a Seerr-példánynak a kezdeti beállítása még nem fejeződött be';
@@ -2236,7 +2232,7 @@ class _Translations$services$hu extends Translations$services$en {
 	@override String get scrobble => 'Haladás automatikus követése';
 	@override String get scrobbleDescription => 'Lista frissítése, amikor befejezel egy epizódot vagy filmet.';
 	@override String disconnectConfirm({required Object service}) => 'Leválasztod a(z) ${service} szolgáltatást?';
-	@override String disconnectConfirmBody({required Object service}) => 'A Plezy nem frissíti többé a(z) ${service} adatait. Bármikor újracsatlakozhatsz.';
+	@override String disconnectConfirmBody({required Object service}) => 'A Heisuca nem frissíti többé a(z) ${service} adatait. Bármikor újracsatlakozhatsz.';
 	@override String connectFailed({required Object service}) => 'Nem sikerült csatlakozni a következőhöz: ${service}. Próbáld újra.';
 	@override late final _Translations$services$names$hu names = _Translations$services$names$hu._(_root);
 	@override late final _Translations$services$deviceCode$hu deviceCode = _Translations$services$deviceCode$hu._(_root);
@@ -2826,14 +2822,14 @@ class _Translations$downloads$backgroundWarning$hu extends Translations$download
 	@override String get bannerAction => 'Részletek';
 	@override String get sheetTitle => 'A háttérbeli letöltések le vannak tiltva';
 	@override String get sheetTitleDegraded => 'A háttérbeli letöltések korlátozottak lehetnek';
-	@override String get sheetIntro => 'Az Android megakadályozza, hogy a Plezy megbízhatóan töltsön le a háttérben.';
-	@override String get sheetIntroDegraded => 'Az eszközöd korlátozza, hogy a Plezy mikor tölthet le a háttérben.';
-	@override String get reasonBackgroundRestricted => 'A Plezy háttérbeli használata korlátozva van. Állítsd az akkumulátor- vagy háttérhasználatát „Korlátlan” értékre.';
-	@override String get reasonStandbyRestricted => 'Az Android korlátozott készenléti állapotba helyezte a Plezyt. Állítsd az akkumulátorhasználatát „Korlátlan” értékre.';
+	@override String get sheetIntro => 'Az Android megakadályozza, hogy a Heisuca megbízhatóan töltsön le a háttérben.';
+	@override String get sheetIntroDegraded => 'Az eszközöd korlátozza, hogy a Heisuca mikor tölthet le a háttérben.';
+	@override String get reasonBackgroundRestricted => 'A Heisuca háttérbeli használata korlátozva van. Állítsd az akkumulátor- vagy háttérhasználatát „Korlátlan” értékre.';
+	@override String get reasonStandbyRestricted => 'Az Android korlátozott készenléti állapotba helyezte a Heisucat. Állítsd az akkumulátorhasználatát „Korlátlan” értékre.';
 	@override String get reasonDownloadChannelBlocked => 'A letöltési értesítések ki vannak kapcsolva, ezért előfordulhat, hogy a folyamatjelzés és a vezérlők nem érhetők el.';
 	@override String get reasonNotificationsDisabled => 'Az értesítések ki vannak kapcsolva. Android 13 vagy újabb rendszeren szükségesek a hosszú háttérbeli letöltésekhez.';
 	@override String get reasonDataSaver => 'Az Adatforgalom-csökkentő be van kapcsolva, ezért mobiladat-kapcsolaton nem működnek a háttérbeli letöltések. Wi-Fi-n továbbra is működniük kell.';
-	@override String get reasonOemUnknown => 'A letöltések többször leálltak, miközben a Plezy a háttérben futott. Ellenőrizd a Plezy akkumulátor- vagy háttérhasználati beállításait.';
+	@override String get reasonOemUnknown => 'A letöltések többször leálltak, miközben a Heisuca a háttérben futott. Ellenőrizd a Heisuca akkumulátor- vagy háttérhasználati beállításait.';
 	@override String get openSettings => 'Beállítások megnyitása';
 	@override String get stillNotWorking => 'Eszközspecifikus segítség';
 	@override String get stillNotWorkingDescription => 'Nézd meg az eszközödhöz tartozó lépéseket, vagy ha a probléma továbbra is fennáll, küldj naplót a Beállítások › Naplók megtekintése menüből.';
@@ -2887,19 +2883,19 @@ class _Translations$companionRemote$pairing$hu extends Translations$companionRem
 	final TranslationsHu _root; // ignore: unused_field
 
 	// Translations
-	@override String get discoveryDescription => 'Az azonos Plex-fiókot használó Plezy-eszközök itt jelennek meg';
+	@override String get discoveryDescription => 'Az azonos Plex-fiókot használó Heisuca-eszközök itt jelennek meg';
 	@override String get hostAddressHint => '192.168.1.100:48632';
 	@override String get connecting => 'Csatlakozás...';
 	@override String get searchingForDevices => 'Eszközök keresése...';
 	@override String get noDevicesFound => 'Nem találhatók eszközök a hálózaton';
-	@override String get noDevicesHint => 'Nyisd meg a Plezyt asztali gépen, és használd ugyanazt a Wi-Fi-hálózatot';
+	@override String get noDevicesHint => 'Nyisd meg a Heisucat asztali gépen, és használd ugyanazt a Wi-Fi-hálózatot';
 	@override String get availableDevices => 'Elérhető eszközök';
 	@override String get manualConnection => 'Kézi csatlakozás';
 	@override String get cryptoInitFailed => 'Nem sikerült elindítani a biztonságos kapcsolatot. Először jelentkezz be a Plexbe.';
 	@override String get validationHostRequired => 'Add meg a gazdagép címét';
 	@override String get validationHostFormat => 'A formátumnak IP:port kell lennie (pl. 192.168.1.100:48632)';
 	@override String get connectionTimedOut => 'A csatlakozás túllépte az időkorlátot. Használd ugyanazt a hálózatot mindkét eszközön.';
-	@override String get sessionNotFound => 'Az eszköz nem található. Győződj meg arról, hogy a Plezy fut a gazdagépen.';
+	@override String get sessionNotFound => 'Az eszköz nem található. Győződj meg arról, hogy a Heisuca fut a gazdagépen.';
 	@override String get authFailed => 'A hitelesítés nem sikerült. Mindkét eszközön ugyanazt a Plex-fiókot kell használni.';
 	@override String failedToConnect({required Object error}) => 'Nem sikerült a csatlakozás: ${error}';
 }
@@ -2978,7 +2974,7 @@ class _Translations$services$deviceCode$hu extends Translations$services$deviceC
 	final TranslationsHu _root; // ignore: unused_field
 
 	// Translations
-	@override String title({required Object service}) => 'Plezy aktiválása a következőn: ${service}';
+	@override String title({required Object service}) => 'Heisuca aktiválása a következőn: ${service}';
 	@override String get instructions => 'Olvasd be a QR-kódot, vagy nyisd meg az alábbi címet, és írd be ezt a kódot:';
 	@override String openToActivate({required Object service}) => 'Nyisd meg a(z) ${service} oldalt az aktiváláshoz';
 	@override String get copyCode => 'Aktiválási kód másolása';
@@ -3054,7 +3050,7 @@ extension on TranslationsHu {
 			'auth.quickConnectWaiting' => 'Várakozás a jóváhagyásra…',
 			'auth.quickConnectCancel' => 'Mégse',
 			'auth.quickConnectExpired' => 'A Quick Connect kód lejárt. Próbáld újra.',
-			'auth.localDataRecoveryRequired' => 'A Plezy nem tudta biztonságosan helyreállítani a helyi bejelentkezés és a függőben lévő lejátszás adatait. Jelentkezz be újra.',
+			'auth.localDataRecoveryRequired' => 'A Heisuca nem tudta biztonságosan helyreállítani a helyi bejelentkezés és a függőben lévő lejátszás adatait. Jelentkezz be újra.',
 			'auth.pinCheckRejected' => 'A Plex PIN ellenőrzését elutasították',
 			'common.cancel' => 'Mégse',
 			'common.save' => 'Mentés',
@@ -3141,7 +3137,7 @@ extension on TranslationsHu {
 			'update.latestVersion' => 'A legújabb verziót használod',
 			'update.checkFailed' => 'Nem sikerült az újabb frissítések ellenőrzése',
 			'settings.title' => 'Beállítások',
-			'settings.supportDeveloper' => 'Plezy támogatása',
+			'settings.supportDeveloper' => 'Heisuca támogatása',
 			'settings.supportDeveloperDescription' => 'A fejlesztés támogatása Liberapay-en keresztül',
 			'settings.language' => 'Nyelv',
 			'settings.theme' => 'Téma',
@@ -3263,8 +3259,6 @@ extension on TranslationsHu {
 			'settings.watchTogetherRelayDescription' => 'Egyéni relé beállítása. Mindenkinek ugyanazt a szervert kell használnia.',
 			'settings.watchTogetherRelayHint' => 'https://my-relay.example.com',
 			'settings.watchTogetherRelayInvalid' => 'Adj meg egy érvényes HTTP- vagy HTTPS-alapú relészerver-URL-t.',
-			'settings.crashReporting' => 'Összeomlási jelentések',
-			'settings.crashReportingDescription' => 'Összeomlási jelentések küldése az alkalmazás fejlesztésének elősegítéséhez',
 			'settings.debugLogging' => 'Hibakeresési naplózás',
 			'settings.debugLoggingDescription' => 'Részletes naplózás engedélyezése a hibaelhárításhoz',
 			'settings.viewLogs' => 'Naplók megtekintése',
@@ -3283,7 +3277,7 @@ extension on TranslationsHu {
 			'settings.importSettingsDescription' => 'Beállítások visszaállítása fájlból',
 			'settings.importSettingsConfirm' => 'Ez felülírja a jelenlegi beállításaidat. Folytatod?',
 			'settings.importSettingsSuccess' => 'Beállítások importálva',
-			'settings.importSettingsInvalidFile' => 'Ez a fájl nem érvényes Plezy-beállításexport',
+			'settings.importSettingsInvalidFile' => 'Ez a fájl nem érvényes Heisuca-beállításexport',
 			'settings.importSettingsNoUser' => 'Jelentkezz be a beállítások importálása előtt',
 			'settings.shortcutsReset' => 'A billentyűparancsok visszaálltak az alapértelmezettekre',
 			'settings.about' => 'Névjegy',
@@ -3345,8 +3339,6 @@ extension on TranslationsHu {
 			'settings.maxVolume' => 'Maximális hangerő',
 			'settings.maxVolumeDescription' => 'A hangerő 100% fölé emelésének engedélyezése halk tartalmak esetén',
 			'settings.maxVolumePercent' => ({required Object percent}) => '${percent}%',
-			'settings.discordRichPresence' => 'Discord Rich Presence',
-			'settings.discordRichPresenceDescription' => 'Megjeleníti a Discordon, hogy éppen mit nézel',
 			'settings.services' => 'Szolgáltatások',
 			'settings.servicesDescription' => 'Trakt, MyAnimeList, Seerr és egyéb szolgáltatások csatlakoztatása',
 			'settings.manageLibrariesDescription' => 'Könyvtárak sorrendjének módosítása és elrejtése',
@@ -3404,7 +3396,7 @@ extension on TranslationsHu {
 			'settings.forceTvMode' => 'TV-mód kényszerítése',
 			'settings.forceTvModeDescription' => 'TV-elrendezés kényszerítése az automatikus felismeréssel nem rendelkező eszközökön. Újraindítást igényel.',
 			'settings.startInFullscreen' => 'Indítás teljes képernyőn',
-			'settings.startInFullscreenDescription' => 'A Plezy megnyitása teljes képernyős módban indításkor',
+			'settings.startInFullscreenDescription' => 'A Heisuca megnyitása teljes képernyős módban indításkor',
 			'settings.exitFullscreenOnPlayerClose' => 'Kilépés a teljes képernyőből a lejátszó bezárásakor',
 			'settings.exitFullscreenOnPlayerCloseDescription' => 'Automatikus kilépés a teljes képernyőből a videólejátszó bezárásakor',
 			'settings.autoHidePerformanceOverlay' => 'Teljesítményadatok automatikus elrejtése',
@@ -3453,7 +3445,7 @@ extension on TranslationsHu {
 			'settings.playerScopeGlobal' => 'Mindenhol',
 			'settings.playerScopeLibrary' => 'Könyvtáronként',
 			'settings.playerScopeTitle' => 'Sorozatonként vagy filmenként',
-			'settings.exportDialogTitle' => 'Plezy-beállítások exportálása',
+			'settings.exportDialogTitle' => 'Heisuca-beállítások exportálása',
 			'search.hint' => 'Keresés filmek, sorozatok és zenék között...',
 			'search.tryDifferentTerm' => 'Próbálj másik keresési kifejezést',
 			'search.searchYourMedia' => 'Keresés a saját médiatartalmak között',
@@ -3550,12 +3542,12 @@ extension on TranslationsHu {
 			'fileInfo.streamId' => 'Adatfolyam azonosítója',
 			'fileInfo.language' => 'Nyelv',
 			'fileInfo.languageCode' => 'Nyelvkód',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.streamTitle' => 'Sáv címe',
 			'fileInfo.channels' => 'Csatornák',
 			'fileInfo.sampleRate' => 'Mintavételi frekvencia',
 			'fileInfo.spatialAudio' => 'Térbeli hang',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.textBased' => 'Szövegalapú',
 			'fileInfo.subtitleFormat' => 'Kísérő formátum',
 			'fileInfo.provider' => 'Szolgáltató',
@@ -3632,8 +3624,8 @@ extension on TranslationsHu {
 			'mediaMenu.deleteEpisodeCountWarning' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('hu'))(n, one: 'Ez törli az összes (${n}) epizódot benne és a hozzá tartozó fájlt.', other: 'Ez törli az összes (${n}) epizódot benne és a fájljaikat.', ), 
 			'mediaMenu.deleteMultiPartWarning' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('hu'))(n, one: 'Ez az elem ${n} fájlban van tárolva, amely törlésre kerül.', other: 'Ez az elem ${n} fájlban van tárolva, és mindegyik törlésre kerül.', ), 
 			'mediaMenu.deleteSharedFileHeading' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('hu'))(n, one: 'További ${n} epizód is ugyanabban a fájlban van, és szintén törlésre kerül:', other: 'További ${n} epizód is ugyanabban a fájlban van, és szintén törlésre kerül:', ), 
-			'mediaMenu.deleteScopeUnverifiedProbeFailed' => 'A Plezy nem tudta ellenőrizni, mely fájlokat távolítja el ez, ezért a fent nevezett elemnél többet is törölhet. Szakítsa meg és próbálja újra, vagy töröljön mindenképp.',
-			'mediaMenu.deleteScopeUnverifiedNoFileInfo' => 'A szerver nem szolgáltatott fájladatokat ehhez az elemhez, ezért a Plezy nem tudja ellenőrizni, mely fájlokat távolít el. A fent nevezett elemnél többet is törölhet.',
+			'mediaMenu.deleteScopeUnverifiedProbeFailed' => 'A Heisuca nem tudta ellenőrizni, mely fájlokat távolítja el ez, ezért a fent nevezett elemnél többet is törölhet. Szakítsa meg és próbálja újra, vagy töröljön mindenképp.',
+			'mediaMenu.deleteScopeUnverifiedNoFileInfo' => 'A szerver nem szolgáltatott fájladatokat ehhez az elemhez, ezért a Heisuca nem tudja ellenőrizni, mely fájlokat távolít el. A fent nevezett elemnél többet is törölhet.',
 			'mediaMenu.mediaDeletedSuccessfully' => 'Médiaelem sikeresen törölve',
 			'mediaMenu.mediaFailedToDelete' => 'Nem sikerült a médiaelem törlése',
 			'mediaMenu.rate' => 'Értékelés',
@@ -3880,7 +3872,7 @@ extension on TranslationsHu {
 			'mpvConfig.removeLine' => 'Sor eltávolítása',
 			'mpvConfig.embeddedVoHint' => 'A vo, gpu-context és gpu-api beállítások Linuxon figyelmen kívül maradnak: a beágyazott videó mindig a vo=libmpv-n keresztül jelenik meg a videósíkon, a gpu-next (amelyre az ArtCNN-hez hasonló compute shadereknek szükségük van) pedig nem futhat beágyazva.',
 			'dialog.confirmAction' => 'Művelet megerősítése',
-			'profiles.addPlezyProfile' => 'Plezy profil hozzáadása',
+			'profiles.addHeisucaProfile' => 'Heisuca profil hozzáadása',
 			'profiles.switchingProfile' => 'Profilváltás…',
 			'profiles.deleteThisProfileTitle' => 'Törlöd ezt a profilt?',
 			'profiles.deleteThisProfileMessage' => ({required Object displayName}) => '${displayName} eltávolítása. A kapcsolatokat nem érinti.',
@@ -3953,12 +3945,12 @@ extension on TranslationsHu {
 			'connections.accessDeniedMany' => ({required Object count}) => '${count} szerver megtagadta a hozzáférést ettől a fióktól',
 			'connections.signInAgain' => 'Bejelentkezés újra',
 			'connections.editMediaBrowserTitle' => ({required Object product}) => 'A(z) ${product} kapcsolat szerkesztése',
-			'connections.editMediaBrowserIntro' => ({required Object serverName}) => 'Adjon hozzá vagy távolítson el URL-eket a(z) ${serverName} esetén. A Plezy a legkisebb késleltetésű, elérhető URL-t fogja használni.',
+			'connections.editMediaBrowserIntro' => ({required Object serverName}) => 'Adjon hozzá vagy távolítson el URL-eket a(z) ${serverName} esetén. A Heisuca a legkisebb késleltetésű, elérhető URL-t fogja használni.',
 			'accountPreferences.sectionTitle' => 'Fiókbeállítások',
 			'accountPreferences.hubSubtitleSingle' => ({required Object account}) => 'Hang-, felirat- és könyvtárbeállítások mentve a(z) ${account} fiókra',
 			'accountPreferences.hubSubtitleMultiple' => ({required Object count}) => 'Hang-, felirat- és könyvtárbeállítások mentve ${count} fiókra',
 			'accountPreferences.pickAccount' => 'Minden fiók a saját beállításait tárolja. Válaszd ki a szerkesztendőt.',
-			'accountPreferences.storedOnAccount' => 'Ezek a beállítások magán a fiókon tárolódnak, így minden bejelentkezett alkalmazás használja őket — beleértve a Plezyt a többi eszközödön.',
+			'accountPreferences.storedOnAccount' => 'Ezek a beállítások magán a fiókon tárolódnak, így minden bejelentkezett alkalmazás használja őket — beleértve a Heisucat a többi eszközödön.',
 			'accountPreferences.noAccounts' => 'Nincs beállítható fiók',
 			'accountPreferences.noAccountsHint' => 'Jelentkezz be a Plexbe, vagy csatlakoztass egy Jellyfin- vagy Emby-szervert, és az azon a fiókon tárolt beállítások itt jelennek meg.',
 			'accountPreferences.unavailable' => 'Ez a fiók nem érhető el',
@@ -4064,12 +4056,12 @@ extension on TranslationsHu {
 			'libraries.refreshMetadata' => 'Metaadatok frissítése',
 			'libraries.emptyTrash' => 'Lomtár ürítése',
 			'libraries.emptyingTrash' => ({required Object title}) => 'Lomtár ürítése a következőhöz: "${title}"...',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.trashEmptied' => ({required Object title}) => 'Lomtár kiürítve a következőhöz: "${title}"',
 			'libraries.failedToEmptyTrash' => ({required Object error}) => 'Nem sikerült a lomtár ürítése: ${error}',
 			'libraries.analyzing' => ({required Object title}) => '"${title}" elemzése...',
 			'libraries.analysisStarted' => ({required Object title}) => 'Elemzés elindítva a következőhöz: "${title}"',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Nem sikerült a könyvtár elemzése: ${error}',
 			'libraries.noLibrariesFound' => 'Nem találhatók könyvtárak',
 			'libraries.allLibrariesHidden' => 'Minden könyvtár el van rejtve',
@@ -4158,9 +4150,9 @@ extension on TranslationsHu {
 			'logs.clearLogs' => 'Naplók törlése',
 			'logs.copyLogs' => 'Naplók másolása',
 			'logs.uploadLogs' => 'Naplók feltöltése',
-			'startup.failedTitle' => 'A Plezy nem tudott elindulni',
+			'startup.failedTitle' => 'A Heisuca nem tudott elindulni',
 			'startup.failedBody' => 'Valami hiba történt az indítás során. Az alábbi részletek mutatják, mi hibázott.',
-			'startup.failedBodyRepairable' => 'A Plezy mentett beállításfájlja sérült, és újra kell építeni, mielőtt a Plezy elindulhatna. Az újrapróbálkozás nem segít – válassza a Tárhely javítása lehetőséget.',
+			'startup.failedBodyRepairable' => 'A Heisuca mentett beállításfájlja sérült, és újra kell építeni, mielőtt a Heisuca elindulhatna. Az újrapróbálkozás nem segít – válassza a Tárhely javítása lehetőséget.',
 			'startup.phaseLabel' => 'Lépés',
 			'startup.showDetails' => 'Részletek megjelenítése',
 			'startup.hideDetails' => 'Részletek elrejtése',
@@ -4169,16 +4161,16 @@ extension on TranslationsHu {
 			'startup.uploadDetails' => 'Részletek feltöltése',
 			'startup.repairStorage' => 'Tárhely javítása',
 			'startup.repairTitle' => 'Javítsuk a tárolt adatokat?',
-			'startup.repairBodyCommon' => 'A Plezy beállításfájlja sérült, és nem olvasható. A javítás minden beállítást visszaállít az alapértelmezettre.',
+			'startup.repairBodyCommon' => 'A Heisuca beállításfájlja sérült, és nem olvasható. A javítás minden beállítást visszaállít az alapértelmezettre.',
 			'startup.repairBodyOneCredential' => 'Egy mentett bejelentkezés sérült, és nem olvasható. A javítás csak azt távolítja el; a többi beállítása érintetlen marad.',
 			'startup.repairBodySignInsKept' => 'A szervereinek és profiljainak bejelentkezve kell maradniuk.',
 			'startup.repairBodySignInsLost' => 'A mentett bejelentkezéseket védő kulcs nem nyerhető vissza ebből a fájlból, ezért minden szerverre és profilba újra be kell jelentkeznie. A médiaszerveren semmi nem érintett.',
-			'startup.repairBodySessionsUncertain' => 'A nyomkövetők (MAL, AniList, Simkl, Trakt) és a Seerr külön vannak tárolva, és megmaradhatnak vagy nem. A Plezy pontosan megmondja, mit őrzött meg.',
+			'startup.repairBodySessionsUncertain' => 'A nyomkövetők (MAL, AniList, Simkl, Trakt) és a Seerr külön vannak tárolva, és megmaradhatnak vagy nem. A Heisuca pontosan megmondja, mit őrzött meg.',
 			'startup.repairConfirm' => 'Javítás',
 			'startup.repairSucceeded' => 'A tárhely javítva',
 			'startup.repairNeedsRestart' => 'A tárhely javítva – újraindítás szükséges',
-			'startup.restartRequiredBody' => 'Az adatait kijavítottuk, de a Plezy-nek frissen kell elindulnia, mielőtt használhatná. Zárja be a Plezy-t, és nyissa meg újra.',
-			'startup.quitPlezy' => 'Kilépés a Plezy-ből',
+			'startup.restartRequiredBody' => 'Az adatait kijavítottuk, de a Heisuca-nek frissen kell elindulnia, mielőtt használhatná. Zárja be a Heisuca-t, és nyissa meg újra.',
+			'startup.quitHeisuca' => 'Kilépés a Heisuca-ből',
 			'startup.repairFailed' => 'A javítás nem sikerült',
 			'startup.repairKeptSignIns' => 'A szerverei és profiljai továbbra is be vannak jelentkezve.',
 			'startup.repairLostSignIns' => 'A mentett bejelentkezéseket védő kulcs nem volt visszanyerhető. Minden szerverre és profilba újra be kell jelentkeznie.',
@@ -4187,7 +4179,7 @@ extension on TranslationsHu {
 			'startup.backupWarning' => 'Bejelentkezési adatait tartalmazza. Ne töltse fel és ne ossza meg.',
 			'startup.deleteBackup' => 'Másolat törlése',
 			'startup.backupDeleted' => 'A másolat törölve.',
-			'startup.previousFailureTitle' => 'A Plezy legutóbb nem tudott elindulni',
+			'startup.previousFailureTitle' => 'A Heisuca legutóbb nem tudott elindulni',
 			'licenses.relatedPackages' => 'Kapcsolódó csomagok',
 			'licenses.license' => 'Licenc',
 			'licenses.licenseNumber' => ({required Object number}) => '${number}. licenc',
@@ -4578,12 +4570,12 @@ extension on TranslationsHu {
 			'watchTogether.renameRoom' => 'Szoba átnevezése',
 			'watchTogether.removeRoom' => 'Eltávolítás',
 			'watchTogether.guestSwitchUnavailable' => 'Nem sikerült a váltás — a szerver nem érhető el szinkronizáláshoz',
-			_ => null,
-		} ?? switch (path) {
 			'watchTogether.guestSwitchFailed' => 'Nem sikerült a váltás — a tartalom nem található ezen a szerveren',
 			'watchTogether.defaultDisplayName' => 'Felhasználó',
 			'watchTogether.errors.timedOut' => 'A relészerver nem válaszolt időben',
 			'watchTogether.errors.connectionLost' => 'A kapcsolat lezárult, mielőtt a munkamenet elkészült volna',
+			_ => null,
+		} ?? switch (path) {
 			'watchTogether.errors.invalidRelayResponse' => 'A relészerver váratlan választ küldött',
 			'watchTogether.errors.sessionEnded' => 'A házigazda befejezte a munkamenetet',
 			'watchTogether.errors.sessionUnavailable' => 'Ez a munkamenet nem folytatható. A folytatáshoz csatlakozz egy szobához vagy hozz létre egyet.',
@@ -4668,14 +4660,14 @@ extension on TranslationsHu {
 			'downloads.backgroundWarning.bannerAction' => 'Részletek',
 			'downloads.backgroundWarning.sheetTitle' => 'A háttérbeli letöltések le vannak tiltva',
 			'downloads.backgroundWarning.sheetTitleDegraded' => 'A háttérbeli letöltések korlátozottak lehetnek',
-			'downloads.backgroundWarning.sheetIntro' => 'Az Android megakadályozza, hogy a Plezy megbízhatóan töltsön le a háttérben.',
-			'downloads.backgroundWarning.sheetIntroDegraded' => 'Az eszközöd korlátozza, hogy a Plezy mikor tölthet le a háttérben.',
-			'downloads.backgroundWarning.reasonBackgroundRestricted' => 'A Plezy háttérbeli használata korlátozva van. Állítsd az akkumulátor- vagy háttérhasználatát „Korlátlan” értékre.',
-			'downloads.backgroundWarning.reasonStandbyRestricted' => 'Az Android korlátozott készenléti állapotba helyezte a Plezyt. Állítsd az akkumulátorhasználatát „Korlátlan” értékre.',
+			'downloads.backgroundWarning.sheetIntro' => 'Az Android megakadályozza, hogy a Heisuca megbízhatóan töltsön le a háttérben.',
+			'downloads.backgroundWarning.sheetIntroDegraded' => 'Az eszközöd korlátozza, hogy a Heisuca mikor tölthet le a háttérben.',
+			'downloads.backgroundWarning.reasonBackgroundRestricted' => 'A Heisuca háttérbeli használata korlátozva van. Állítsd az akkumulátor- vagy háttérhasználatát „Korlátlan” értékre.',
+			'downloads.backgroundWarning.reasonStandbyRestricted' => 'Az Android korlátozott készenléti állapotba helyezte a Heisucat. Állítsd az akkumulátorhasználatát „Korlátlan” értékre.',
 			'downloads.backgroundWarning.reasonDownloadChannelBlocked' => 'A letöltési értesítések ki vannak kapcsolva, ezért előfordulhat, hogy a folyamatjelzés és a vezérlők nem érhetők el.',
 			'downloads.backgroundWarning.reasonNotificationsDisabled' => 'Az értesítések ki vannak kapcsolva. Android 13 vagy újabb rendszeren szükségesek a hosszú háttérbeli letöltésekhez.',
 			'downloads.backgroundWarning.reasonDataSaver' => 'Az Adatforgalom-csökkentő be van kapcsolva, ezért mobiladat-kapcsolaton nem működnek a háttérbeli letöltések. Wi-Fi-n továbbra is működniük kell.',
-			'downloads.backgroundWarning.reasonOemUnknown' => 'A letöltések többször leálltak, miközben a Plezy a háttérben futott. Ellenőrizd a Plezy akkumulátor- vagy háttérhasználati beállításait.',
+			'downloads.backgroundWarning.reasonOemUnknown' => 'A letöltések többször leálltak, miközben a Heisuca a háttérben futott. Ellenőrizd a Heisuca akkumulátor- vagy háttérhasználati beállításait.',
 			'downloads.backgroundWarning.openSettings' => 'Beállítások megnyitása',
 			'downloads.backgroundWarning.stillNotWorking' => 'Eszközspecifikus segítség',
 			'downloads.backgroundWarning.stillNotWorkingDescription' => 'Nézd meg az eszközödhöz tartozó lépéseket, vagy ha a probléma továbbra is fennáll, küldj naplót a Beállítások › Naplók megtekintése menüből.',
@@ -4738,19 +4730,19 @@ extension on TranslationsHu {
 			'companionRemote.session.stopServer' => 'Szerver leállítása',
 			'companionRemote.session.minimize' => 'Kis méret',
 			'companionRemote.session.manualAddressHint' => 'Kézi kapcsolódási cím:',
-			'companionRemote.pairing.discoveryDescription' => 'Az azonos Plex-fiókot használó Plezy-eszközök itt jelennek meg',
+			'companionRemote.pairing.discoveryDescription' => 'Az azonos Plex-fiókot használó Heisuca-eszközök itt jelennek meg',
 			'companionRemote.pairing.hostAddressHint' => '192.168.1.100:48632',
 			'companionRemote.pairing.connecting' => 'Csatlakozás...',
 			'companionRemote.pairing.searchingForDevices' => 'Eszközök keresése...',
 			'companionRemote.pairing.noDevicesFound' => 'Nem találhatók eszközök a hálózaton',
-			'companionRemote.pairing.noDevicesHint' => 'Nyisd meg a Plezyt asztali gépen, és használd ugyanazt a Wi-Fi-hálózatot',
+			'companionRemote.pairing.noDevicesHint' => 'Nyisd meg a Heisucat asztali gépen, és használd ugyanazt a Wi-Fi-hálózatot',
 			'companionRemote.pairing.availableDevices' => 'Elérhető eszközök',
 			'companionRemote.pairing.manualConnection' => 'Kézi csatlakozás',
 			'companionRemote.pairing.cryptoInitFailed' => 'Nem sikerült elindítani a biztonságos kapcsolatot. Először jelentkezz be a Plexbe.',
 			'companionRemote.pairing.validationHostRequired' => 'Add meg a gazdagép címét',
 			'companionRemote.pairing.validationHostFormat' => 'A formátumnak IP:port kell lennie (pl. 192.168.1.100:48632)',
 			'companionRemote.pairing.connectionTimedOut' => 'A csatlakozás túllépte az időkorlátot. Használd ugyanazt a hálózatot mindkét eszközön.',
-			'companionRemote.pairing.sessionNotFound' => 'Az eszköz nem található. Győződj meg arról, hogy a Plezy fut a gazdagépen.',
+			'companionRemote.pairing.sessionNotFound' => 'Az eszköz nem található. Győződj meg arról, hogy a Heisuca fut a gazdagépen.',
 			'companionRemote.pairing.authFailed' => 'A hitelesítés nem sikerült. Mindkét eszközön ugyanazt a Plex-fiókot kell használni.',
 			'companionRemote.pairing.failedToConnect' => ({required Object error}) => 'Nem sikerült a csatlakozás: ${error}',
 			'companionRemote.remote.disconnectConfirm' => 'Bontod a kapcsolatot a távoli munkamenettel?',
@@ -4970,11 +4962,11 @@ extension on TranslationsHu {
 			'trakt.connected' => 'Csatlakoztatva',
 			'trakt.connectedAs' => ({required Object username}) => '@${username} néven csatlakoztatva',
 			'trakt.disconnectConfirm' => 'Leválasztod a Trakt-fiókot?',
-			'trakt.disconnectConfirmBody' => 'A Plezy nem küld több eseményt a Traktnak. Bármikor újracsatlakozhatsz.',
+			'trakt.disconnectConfirmBody' => 'A Heisuca nem küld több eseményt a Traktnak. Bármikor újracsatlakozhatsz.',
 			'trakt.scrobble' => 'Valós idejű scrobbling',
 			'trakt.scrobbleDescription' => 'Lejátszási, szüneteltetési és leállítási események küldése a Traktnak lejátszás közben.',
 			'trakt.watchedSync' => 'Megtekintési állapot szinkronizálása',
-			'trakt.watchedSyncDescription' => 'Ha egy elemet megtekintettként jelölsz meg a Plezyben, a Trakt is megtekintettként jelöli.',
+			'trakt.watchedSyncDescription' => 'Ha egy elemet megtekintettként jelölsz meg a Heisucaben, a Trakt is megtekintettként jelöli.',
 			'seerr.title' => 'Seerr',
 			'seerr.connectTitle' => 'Seerr csatlakoztatása',
 			'seerr.serverUrl' => 'Szerver URL-címe',
@@ -4984,10 +4976,10 @@ extension on TranslationsHu {
 			'seerr.signInWithEmby' => 'Bejelentkezés Emby-vel',
 			'seerr.signInWithLocal' => 'Helyi fiók használata',
 			'seerr.email' => 'E-mail',
-			'seerr.noSignInMethods' => 'Ez a Seerr példány nem kínál olyan bejelentkezési módot, amit a Plezy támogat.',
+			'seerr.noSignInMethods' => 'Ez a Seerr példány nem kínál olyan bejelentkezési módot, amit a Heisuca támogat.',
 			'seerr.instance' => 'Példány',
 			'seerr.disconnectConfirm' => 'Leválasztod a Seerr-kapcsolatot?',
-			'seerr.disconnectConfirmBody' => 'A Plezy elfelejti ezt a Seerr példányt. Bármikor újracsatlakozhatsz.',
+			'seerr.disconnectConfirmBody' => 'A Heisuca elfelejti ezt a Seerr példányt. Bármikor újracsatlakozhatsz.',
 			'seerr.request' => 'Igénylés',
 			'seerr.request4k' => 'Igénylés 4K-ban',
 			'seerr.seasons' => 'Évadok',
@@ -5012,7 +5004,7 @@ extension on TranslationsHu {
 			'seerr.statusBlocklisted' => 'Tiltólistán',
 			'seerr.couldNotReach' => ({required Object url, required Object error}) => 'Nem sikerült elérni ezt: ${url}: ${error}',
 			'seerr.noInstanceAtUrl' => ({required Object url, required Object status}) => 'Nem található Seerr-példány ezen a címen: ${url} (HTTP ${status})',
-			'seerr.behindAuthProxy' => 'A Seerr helyett egy hitelesítő fordított proxy (SSO vagy HTTP-hitelesítés) válaszolt. A Plezy nem tud rajta bejelentkezni: engedd, hogy a Seerr /api/v1 útvonala megkerülje a proxyt ennél az alkalmazásnál, vagy használj olyan címet, amely közvetlenül eléri a Seerr-t.',
+			'seerr.behindAuthProxy' => 'A Seerr helyett egy hitelesítő fordított proxy (SSO vagy HTTP-hitelesítés) válaszolt. A Heisuca nem tud rajta bejelentkezni: engedd, hogy a Seerr /api/v1 útvonala megkerülje a proxyt ennél az alkalmazásnál, vagy használj olyan címet, amely közvetlenül eléri a Seerr-t.',
 			'seerr.invalidUrl' => 'Adj meg egy szervercímet, például: https://seerr.example.com',
 			'seerr.quickConnectUnsupported' => 'Ez a Seerr-példány nem támogatja a Quick Connectet. Seerr 3.4 vagy újabb verzió szükséges.',
 			'seerr.notInitialized' => 'Ennek a Seerr-példánynak a kezdeti beállítása még nem fejeződött be',
@@ -5033,14 +5025,14 @@ extension on TranslationsHu {
 			'services.scrobble' => 'Haladás automatikus követése',
 			'services.scrobbleDescription' => 'Lista frissítése, amikor befejezel egy epizódot vagy filmet.',
 			'services.disconnectConfirm' => ({required Object service}) => 'Leválasztod a(z) ${service} szolgáltatást?',
-			'services.disconnectConfirmBody' => ({required Object service}) => 'A Plezy nem frissíti többé a(z) ${service} adatait. Bármikor újracsatlakozhatsz.',
+			'services.disconnectConfirmBody' => ({required Object service}) => 'A Heisuca nem frissíti többé a(z) ${service} adatait. Bármikor újracsatlakozhatsz.',
 			'services.connectFailed' => ({required Object service}) => 'Nem sikerült csatlakozni a következőhöz: ${service}. Próbáld újra.',
 			'services.names.mal' => 'MyAnimeList',
 			'services.names.anilist' => 'AniList',
 			'services.names.simkl' => 'Simkl',
 			'services.names.seerr' => 'Seerr',
 			'services.names.mdblist' => 'MDBList',
-			'services.deviceCode.title' => ({required Object service}) => 'Plezy aktiválása a következőn: ${service}',
+			'services.deviceCode.title' => ({required Object service}) => 'Heisuca aktiválása a következőn: ${service}',
 			'services.deviceCode.instructions' => 'Olvasd be a QR-kódot, vagy nyisd meg az alábbi címet, és írd be ezt a kódot:',
 			'services.deviceCode.openToActivate' => ({required Object service}) => 'Nyisd meg a(z) ${service} oldalt az aktiváláshoz',
 			'services.deviceCode.copyCode' => 'Aktiválási kód másolása',
@@ -5092,12 +5084,12 @@ extension on TranslationsHu {
 			'addServer.borrowFromAnotherProfile' => 'Kapcsolat használata másik profilból',
 			'addServer.borrowFromAnotherProfileSubtitle' => 'Egy másik profil kapcsolatának használata. A PIN-kóddal védett profilokhoz PIN-kód szükséges.',
 			'addServer.invalidCredentials' => 'Érvénytelen felhasználónév vagy jelszó',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.authResponseNotJson' => 'A hitelesítési válasz nem érvényes JSON',
 			'addServer.authResponseIncomplete' => 'A szerver bejelentkezési válasza hiányos volt',
 			'addServer.quickConnectRejected' => 'A szerver elutasította a Quick Connect-kérést',
 			'addServer.quickConnectNotJson' => 'A Quick Connect válasza nem érvényes JSON',
+			_ => null,
+		} ?? switch (path) {
 			'addServer.quickConnectMissingFields' => 'A Quick Connect válaszából hiányzik a kód vagy a titkos kulcs',
 			'addServer.quickConnectPollRejected' => 'A szerver elutasította a Quick Connect lekérdezését',
 			'addServer.serverTimedOut' => 'A szerver nem válaszolt időben',

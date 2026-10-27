@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/utils/download_utils.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/utils/download_utils.dart';
 
 void main() {
   setUpAll(() => LocaleSettings.setLocaleSync(AppLocale.en));

@@ -1,13 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/cgflix/search/cgflix_search_extras.dart';
-import 'package:plezy/cgflix/search/cgflix_search_grouping.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/media/media_person.dart';
-import 'package:plezy/media/media_version.dart';
-import 'package:plezy/media/search_hit.dart';
+import 'package:heisuca/cgflix/search/cgflix_search_extras.dart';
+import 'package:heisuca/cgflix/search/cgflix_search_grouping.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_person.dart';
+import 'package:heisuca/media/media_version.dart';
+import 'package:heisuca/media/search_hit.dart';
 
 /// Filme de um servidor Plex compartilhado.
 MediaItem _plex(

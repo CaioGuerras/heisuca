@@ -75,3 +75,6 @@ maestro/**/*.png
 
 server/deploy.sh
 server/Caddyfile
+
+# Capturas e estado transitório da bancada (somente artifacts do CI).
+.bancada/

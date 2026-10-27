@@ -1,4 +1,4 @@
-import 'package:plezy/mpv/mpv.dart';
+import 'package:heisuca/mpv/mpv.dart';
 
 /// A [PlayerStreams] whose every stream is empty unless the caller names it.
 ///

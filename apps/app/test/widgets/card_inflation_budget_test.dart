@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/widgets/card_inflation_budget.dart';
-import 'package:plezy/widgets/sliver_child_memo.dart';
+import 'package:heisuca/widgets/card_inflation_budget.dart';
+import 'package:heisuca/widgets/sliver_child_memo.dart';
 
 class _UpgradeHost extends StatefulWidget {
   const _UpgradeHost();

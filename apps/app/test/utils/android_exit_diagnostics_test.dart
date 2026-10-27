@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/utils/android_exit_diagnostics.dart';
-import 'package:plezy/utils/app_logger.dart';
+import 'package:heisuca/utils/android_exit_diagnostics.dart';
+import 'package:heisuca/utils/app_logger.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -21,7 +21,6 @@ void main() {
     expect(AndroidUiState.values.map((state) => state.id), ['main_screen', 'player']);
 
     MemoryLogOutput.clearLogs();
-    AndroidExitDiagnostics.markTelemetryReady();
     AndroidExitDiagnostics.markStartupPhase(AndroidStartupPhase.databaseOpenStarted);
     AndroidExitDiagnostics.markStartupPhase(AndroidStartupPhase.databaseReady);
     AndroidExitDiagnostics.markStartupPhase(AndroidStartupPhase.credentialsLoaded);

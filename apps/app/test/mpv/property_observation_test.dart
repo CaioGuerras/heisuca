@@ -2,9 +2,9 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/mpv/player/platform/player_android.dart';
-import 'package:plezy/mpv/player/player_native.dart';
-import 'package:plezy/services/settings_service.dart';
+import 'package:heisuca/mpv/player/platform/player_android.dart';
+import 'package:heisuca/mpv/player/player_native.dart';
+import 'package:heisuca/services/settings_service.dart';
 
 import '../test_helpers/prefs.dart';
 
@@ -64,7 +64,7 @@ void main() {
   test('ExoPlayer registers the core properties (plus its cache extra)', () async {
     final player = PlayerAndroid();
     final observations = await capturedObservations(
-      channelName: 'com.plezy/exo_player',
+      channelName: 'app.heisuca/exo_player',
       initialize: () => player.requestAudioFocus(), // forces _ensureInitialized
       dispose: () => player.dispose(),
     );
@@ -81,7 +81,7 @@ void main() {
 
   test('PlayerAndroid forwards only explicit playback restart events', () async {
     final messenger = TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
-    const channel = MethodChannel('com.plezy/exo_player');
+    const channel = MethodChannel('app.heisuca/exo_player');
     messenger.setMockMethodCallHandler(channel, (_) async => null);
     addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
 
@@ -106,7 +106,7 @@ void main() {
   test('mpv registers the core properties (plus its track/device extras)', () async {
     final player = PlayerNative();
     final observations = await capturedObservations(
-      channelName: 'com.plezy/mpv_player',
+      channelName: 'app.heisuca/mpv_player',
       initialize: () => player.setLogLevel('warn'), // forces _ensureInitialized
       dispose: () => player.dispose(),
     );
@@ -126,7 +126,7 @@ void main() {
   test('audio-only mpv registers only the properties the music path consumes', () async {
     final player = PlayerNative.audio();
     final observations = await capturedObservations(
-      channelName: 'com.plezy/mpv_audio_player',
+      channelName: 'app.heisuca/mpv_audio_player',
       initialize: () => player.setLogLevel('warn'), // forces _ensureInitialized
       dispose: () => player.dispose(),
     );

@@ -1,10 +1,10 @@
+import 'heisuca_motion.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import '../cgflix/cgflix_palette.dart';
-import 'heisuca_theme.dart';
 
 /// Ilha Flutuante de Navegação Inferior Heisuca (Floating Island)
 /// Filosofia: "Nada entre você e o filme."
@@ -15,8 +15,16 @@ class HeisucaFloatingIsland extends StatefulWidget {
     required this.currentIndex,
     required this.onDestinationSelected,
     this.onLibrariesLongPress,
+    this.userLabel = 'Você',
+    this.userAvatar,
+    this.kids = false,
   });
 
+  /// Modo infantil: o 3º botão continua sendo Favoritos (Baixados fica fora do perfil infantil).
+  final bool kids;
+
+  final String userLabel;
+  final Widget? userAvatar;
   final int currentIndex;
   final ValueChanged<int> onDestinationSelected;
   final VoidCallback? onLibrariesLongPress;
@@ -31,10 +39,12 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
   double _currentPosition = 0.0;
   double _targetPosition = 0.0;
 
-  static const _items = [
+  // Caio, 24/10: só ícones (o nome espremia a bolha) e Baixados no lugar de Favoritos; Favoritos foi para a
+  // Biblioteca, como mais um botão. O nome continua para o leitor de tela (Semantics).
+  List<({IconData icon, String label})> get _items => [
     (icon: Symbols.home_rounded, label: 'Início'),
     (icon: Symbols.video_library_rounded, label: 'Biblioteca'),
-    (icon: Symbols.search_rounded, label: 'Buscar'),
+    widget.kids ? (icon: Symbols.favorite_rounded, label: 'Favoritos') : (icon: Symbols.download_rounded, label: 'Baixados'),
     (icon: Symbols.person_rounded, label: 'Você'),
   ];
 
@@ -59,6 +69,11 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
 
   void _animateTo(double target) {
     _targetPosition = target;
+    if (HeisucaMotion.reduced(context)) {
+      _springController.stop();
+      _springController.value = target;
+      return;
+    }
     const springDesc = SpringDescription(
       mass: 1.0,
       stiffness: 180.0,
@@ -83,7 +98,7 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.paddingOf(context).bottom;
     final screenWidth = MediaQuery.sizeOf(context).width;
-    final islandWidth = (screenWidth - 44.0).clamp(280.0, 420.0);
+    final islandWidth = (screenWidth - 56.0).clamp(240.0, 290.0);
     final itemWidth = islandWidth / _items.length;
     final palette = context.cgflix;
     final isLight = palette.isLight;
@@ -101,7 +116,7 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
       bottom: bottomInset + 14.0,
       left: (screenWidth - islandWidth) / 2,
       width: islandWidth,
-      height: 64.0,
+      height: 54.0,
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(32.0),
@@ -139,7 +154,7 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
 
                       return Positioned(
                         left: dynamicLeft,
-                        top: 9.0,
+                        top: 4.0,
                         width: dynamicWidth,
                         height: 46.0,
                         child: Container(
@@ -162,8 +177,10 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
                       final isSelected = widget.currentIndex == index;
                       return Expanded(
                         child: _IslandButton(
+                          key: ValueKey('heisuca-nav-$index'),
                           icon: item.icon,
-                          label: item.label,
+                          label: index == 3 ? widget.userLabel : item.label,
+                          avatar: index == 3 ? widget.userAvatar : null,
                           isSelected: isSelected,
                           isLight: isLight,
                           activeColor: isLight ? palette.accent : const Color(0xFFF4F1FA),
@@ -191,6 +208,7 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
 
 class _IslandButton extends StatefulWidget {
   const _IslandButton({
+    super.key,
     required this.icon,
     required this.label,
     required this.isSelected,
@@ -198,9 +216,11 @@ class _IslandButton extends StatefulWidget {
     required this.activeColor,
     required this.mutedColor,
     required this.onTap,
+    this.avatar,
     this.onLongPress,
   });
 
+  final Widget? avatar;
   final IconData icon;
   final String label;
   final bool isSelected;
@@ -227,33 +247,27 @@ class _IslandButtonState extends State<_IslandButton> {
       onTapCancel: () => setState(() => _scale = 1.0),
       onTap: widget.onTap,
       onLongPress: widget.onLongPress,
-      child: AnimatedScale(
-        scale: _scale,
-        duration: const Duration(milliseconds: 140),
-        curve: const ElasticOutCurve(0.9),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
+      child: Semantics(
+        button: true,
+        selected: widget.isSelected,
+        label: widget.label,
+        excludeSemantics: true,
+        child: AnimatedScale(
+          scale: _scale,
+          duration: const Duration(milliseconds: 140),
+          curve: const ElasticOutCurve(0.9),
+          child: Center(
+            child: widget.avatar ?? Icon(
               widget.icon,
-              size: 24.0,
+              size: 26.0,
               fill: widget.isSelected ? 1.0 : 0.0,
               weight: widget.isSelected ? 600.0 : 350.0,
               color: fg,
             ),
-            const SizedBox(height: 2.0),
-            Text(
-              widget.label,
-              style: TextStyle(
-                fontFamily: HeisucaTheme.fonteTexto,
-                fontSize: 10.5,
-                fontWeight: widget.isSelected ? FontWeight.w600 : FontWeight.w400,
-                color: fg,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
+

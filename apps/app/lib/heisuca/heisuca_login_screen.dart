@@ -1,3 +1,4 @@
+import 'heisuca_motion.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,11 +25,10 @@ import '../utils/app_logger.dart';
 import '../utils/device_identity.dart';
 import '../utils/navigation_transitions.dart';
 import 'heisuca_add_plex_screen.dart';
-import 'heisuca_add_smb_screen.dart';
-import 'heisuca_add_webdav_screen.dart';
 import 'heisuca_design_system.dart';
 import 'heisuca_logo.dart';
 import 'heisuca_theme.dart';
+import 'widgets/heisuca_server_status.dart';
 
 /// Tela de Conexão e Login Heisuca Flagship 2026.
 /// Conexão Rápida (Quick Connect), 3 campos limpos, autenticação direta no Jellyfin
@@ -211,23 +211,23 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
   void _showQuickConnectModal() {
     HapticFeedback.lightImpact();
     var serverUrl = _serverController.text.trim();
+    if (serverUrl.isEmpty || serverUrl == 'https://') serverUrl = widget.initialServerUrl.trim();
+    // Player neutro (Caio, 21/10; regra do fork): nenhum servidor embutido. Sem endereço, pede.
     if (serverUrl.isEmpty || serverUrl == 'https://') {
-      serverUrl = widget.initialServerUrl.isNotEmpty
-          ? widget.initialServerUrl
-          : 'https://netflix.docaio.com.br';
+      setState(() => _errorMessage = 'Digite o endereço do servidor para usar a conexão rápida.');
+      return;
     }
     if (!serverUrl.startsWith('http://') && !serverUrl.startsWith('https://')) {
       serverUrl = 'https://$serverUrl';
     }
 
     final palette = context.cgflix;
-    final isLight = palette.isLight;
 
     showModalBottomSheet<void>(
-      context: context,
+      sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: context,
       isScrollControlled: true,
-      backgroundColor: isLight ? const Color(0xFFF7F3EC) : const Color(0xFF140F22),
-      barrierColor: Colors.black.withOpacity(0.75),
+      backgroundColor: palette.surface,
+      barrierColor: Theme.of(context).colorScheme.scrim.withValues(alpha: .75),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28.0)),
       ),
@@ -238,15 +238,14 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
   void _showSourcesBottomSheet() {
     HapticFeedback.lightImpact();
     final palette = context.cgflix;
-    final isLight = palette.isLight;
 
-    final sheetBg = isLight ? const Color(0xFFF7F3EC) : const Color(0xFF140F22);
-    final handleColor = isLight ? const Color(0xFFCBD5E1) : const Color(0xFF382C52);
-    final titleColor = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
-    final subtitleColor = isLight ? const Color(0xFF64748B) : const Color(0xFFA99FBB);
+    final sheetBg = palette.surface;
+    final handleColor = palette.divider;
+    final titleColor = palette.text;
+    final subtitleColor = palette.textOn(palette.surface, preferred: palette.textMuted);
 
     showModalBottomSheet<void>(
-      context: context,
+      sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: context,
       isScrollControlled: true,
       backgroundColor: sheetBg,
       barrierColor: Colors.black.withOpacity(0.65),
@@ -339,39 +338,24 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                   brandColor: const Color(0xFF3B82F6), // SMB Blue
                   icon: Icons.folder_shared_rounded,
                   title: 'Pasta de Rede Local (SMB / Samba)',
-                  subtitle: 'Acesse pastas compartilhadas no seu roteador, PC ou NAS',
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const HeisucaAddSmbScreen()),
-                    );
-                  },
+                  subtitle: 'Em breve · ainda não reproduz por aqui',
+                  onTap: null,
                 ),
                 const SizedBox(height: 12.0),
                 _SourceTile(
                   brandColor: const Color(0xFF0EA5E9), // WebDAV Sky Blue
                   icon: Icons.cloud_queue_rounded,
                   title: 'Servidor WebDAV',
-                  subtitle: 'Streaming direto de nuvens privadas compatíveis',
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const HeisucaAddWebDavScreen()),
-                    );
-                  },
+                  subtitle: 'Em breve · ainda não reproduz por aqui',
+                  onTap: null,
                 ),
                 const SizedBox(height: 12.0),
                 _SourceTile(
                   brandColor: const Color(0xFFF97316), // Local Storage Orange
                   icon: Icons.sd_storage_rounded,
                   title: 'Arquivos deste Dispositivo',
-                  subtitle: 'Reproduzir vídeos salvos no armazenamento local do aparelho',
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    HapticFeedback.lightImpact();
-                  },
+                  subtitle: 'Em breve · ainda não reproduz por aqui',
+                  onTap: null,
                 ),
                 const SizedBox(height: 16.0),
               ],
@@ -385,15 +369,13 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
   @override
   Widget build(BuildContext context) {
     final palette = context.cgflix;
-    final isLight = palette.isLight;
-
-    final bg = isLight ? const Color(0xFFF7F3EC) : const Color(0xFF0E0B16);
-    final surf = isLight ? const Color(0xFFFFFFFF) : const Color(0xFF181324);
-    final border = isLight ? const Color(0xFFE2E8F0) : const Color(0xFF2A203D);
-    final accent = isLight ? const Color(0xFF047857) : const Color(0xFF9D74FF);
-    final text = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
-    final text2 = isLight ? const Color(0xFF64748B) : const Color(0xFFA99FBB);
-    final hintColor = isLight ? const Color(0xFF94A3B8) : const Color(0xFF5A526E);
+    final bg = palette.background;
+    final surf = palette.surface;
+    final border = palette.divider;
+    final accent = palette.accent;
+    final text = palette.text;
+    final text2 = palette.textOn(surf, preferred: palette.textMuted);
+    final hintColor = text2;
 
     return Scaffold(
       backgroundColor: bg,
@@ -436,6 +418,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                           _InputLabel(label: 'SERVIDOR', color: accent),
                           const SizedBox(height: 8.0),
                           _GlassTextField(
+                            key: const ValueKey('heisuca-login-server'),
                             controller: _serverController,
                             prefixIcon: Icons.dns_outlined,
                             hintText: 'https://seuservidor.com',
@@ -444,40 +427,9 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                             textColor: text,
                             hintColor: hintColor,
                             enabled: !_isLoading,
-                            onChanged: (_) => setState(() {}),
                           ),
                           const SizedBox(height: 6.0),
-                          // Indicador de Presença em Tempo Real
-                          Row(
-                            children: [
-                              Container(
-                                width: 8.0,
-                                height: 8.0,
-                                decoration: BoxDecoration(
-                                  color: _serverController.text.trim().isNotEmpty
-                                      ? const Color(0xFF22C55E)
-                                      : const Color(0xFF94A3B8),
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              const SizedBox(width: 6.0),
-                              Expanded(
-                                child: Text(
-                                  _serverController.text.trim().isNotEmpty
-                                      ? '● CGSERVER · Jellyfin pronto para autenticar'
-                                      : 'Acesso universal neutro · Digite o endereço',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontFamily: HeisucaTheme.fonteTexto,
-                                    fontSize: 11.5,
-                                    fontWeight: FontWeight.w500,
-                                    color: text2,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                          HeisucaServerStatus(controller: _serverController),
 
                           const SizedBox(height: 16.0),
 
@@ -485,6 +437,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                           _InputLabel(label: 'USUÁRIO', color: accent),
                           const SizedBox(height: 8.0),
                           _GlassTextField(
+                            key: const ValueKey('heisuca-login-user'),
                             controller: _userController,
                             prefixIcon: Icons.person_outline_rounded,
                             hintText: 'Nome de usuário',
@@ -501,6 +454,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                           _InputLabel(label: 'SENHA', color: accent),
                           const SizedBox(height: 8.0),
                           _GlassTextField(
+                            key: const ValueKey('heisuca-login-password'),
                             controller: _passwordController,
                             prefixIcon: Icons.lock_outline_rounded,
                             hintText: '••••••••',
@@ -528,16 +482,16 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
                               decoration: BoxDecoration(
-                                color: isLight ? const Color(0xFFFEE2E2) : const Color(0xFF3B1219),
+                                color: Theme.of(context).colorScheme.errorContainer,
                                 borderRadius: BorderRadius.circular(14.0),
                                 border: Border.all(
-                                  color: const Color(0xFFE53935).withOpacity(0.5),
+                                  color: Theme.of(context).colorScheme.error,
                                   width: 1.2,
                                 ),
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.error_outline_rounded, color: Color(0xFFE53935), size: 20.0),
+                                  Icon(Icons.error_outline_rounded, color: Theme.of(context).colorScheme.error, size: 20.0),
                                   const SizedBox(width: 12.0),
                                   Expanded(
                                     child: Text(
@@ -545,7 +499,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                                       style: TextStyle(
                                         fontFamily: HeisucaTheme.fonteTexto,
                                         fontSize: 13.5,
-                                        color: isLight ? const Color(0xFF991B1B) : const Color(0xFFFFCDD2),
+                                        color: Theme.of(context).colorScheme.onErrorContainer,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -560,63 +514,32 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                           HeisucaSpringPressable(
                             onTap: _isLoading ? null : _signInDirect,
                             child: Container(
-                              height: 56.0,
+                              constraints: const BoxConstraints(minHeight: 56),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                               decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: _isLoading
-                                      ? (isLight
-                                          ? [const Color(0xFF047857).withOpacity(0.6), const Color(0xFF065F46).withOpacity(0.6)]
-                                          : [const Color(0xFF4C3078), const Color(0xFF5B3E96)])
-                                      : (isLight
-                                          ? [const Color(0xFF059669), const Color(0xFF047857)]
-                                          : [const Color(0xFF7444E0), const Color(0xFF9D74FF)]),
-                                ),
-                                borderRadius: BorderRadius.circular(28.0),
-                                boxShadow: _isLoading
-                                    ? []
-                                    : [
-                                        BoxShadow(
-                                          color: accent.withOpacity(isLight ? 0.25 : 0.35),
-                                          blurRadius: 20.0,
-                                          offset: const Offset(0, 8),
-                                        ),
-                                      ],
+                                color: palette.action,
+                                borderRadius: BorderRadius.circular(28),
                               ),
                               alignment: Alignment.center,
                               child: _isLoading
-                                  ? const Row(
+                                  ? Row(
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
-                                        SizedBox(
-                                          width: 22.0,
-                                          height: 22.0,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2.4,
-                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                          ),
-                                        ),
-                                        SizedBox(width: 12.0),
-                                        Text(
-                                          'Iniciando sessão...',
-                                          style: TextStyle(
-                                            fontFamily: HeisucaTheme.fonteTitulo,
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.white,
-                                          ),
-                                        ),
+                                        SizedBox(width: 22, height: 22,
+                                          child: CircularProgressIndicator(strokeWidth: 2.4,
+                                            color: palette.onAction)),
+                                        const SizedBox(width: 12),
+                                        Flexible(child: Text('Iniciando sessão...',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(fontFamily: HeisucaTheme.fonteTexto,
+                                            fontSize: 16, fontWeight: FontWeight.w600,
+                                            color: palette.onAction))),
                                       ],
                                     )
-                                  : const Text(
-                                      'Iniciar sessão',
-                                      style: TextStyle(
-                                        fontFamily: HeisucaTheme.fonteTitulo,
-                                        fontSize: 16.5,
-                                        fontWeight: FontWeight.w700,
-                                        color: Colors.white,
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
+                                  : Text('Iniciar sessão', textAlign: TextAlign.center,
+                                      style: TextStyle(fontFamily: HeisucaTheme.fonteTexto,
+                                        fontSize: 16.5, fontWeight: FontWeight.w700,
+                                        color: palette.onAction)),
                             ),
                           ),
                         ],
@@ -630,7 +553,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                             onPressed: _showSourcesBottomSheet,
                             icon: Icon(Icons.add_circle_outline_rounded, size: 18.0, color: text2),
                             label: Text(
-                              '+ Outros servidores e pastas locais',
+                              'Outros servidores e pastas locais',
                               style: TextStyle(
                                 fontFamily: HeisucaTheme.fonteTexto,
                                 fontSize: 14.0,
@@ -679,6 +602,7 @@ class _InputLabel extends StatelessWidget {
 
 class _GlassTextField extends StatelessWidget {
   const _GlassTextField({
+    super.key,
     required this.controller,
     required this.prefixIcon,
     required this.hintText,
@@ -708,35 +632,29 @@ class _GlassTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(18.0),
-        border: Border.all(color: borderColor, width: 1.4),
-      ),
-      child: TextField(
-        controller: controller,
-        enabled: enabled,
-        obscureText: obscureText,
-        onSubmitted: onSubmitted,
-        onChanged: onChanged,
-        textInputAction: onSubmitted != null ? TextInputAction.done : TextInputAction.next,
-        style: TextStyle(
-          fontFamily: HeisucaTheme.fonteTexto,
-          fontSize: 15.5,
-          color: textColor,
-        ),
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-          prefixIcon: Icon(prefixIcon, color: hintColor, size: 22.0),
-          suffixIcon: suffixIcon,
-          hintText: hintText,
-          hintStyle: TextStyle(
-            color: hintColor,
-            fontSize: 15.0,
-          ),
-        ),
+    final outline = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(HeisucaTheme.raioInput),
+      borderSide: BorderSide(color: borderColor));
+    return TextField(
+      controller: controller,
+      enabled: enabled,
+      obscureText: obscureText,
+      onSubmitted: onSubmitted,
+      onChanged: onChanged,
+      textInputAction: onSubmitted != null ? TextInputAction.done : TextInputAction.next,
+      style: TextStyle(fontFamily: HeisucaTheme.fonteTexto, fontSize: 15.5, color: textColor),
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: bgColor,
+        border: outline,
+        enabledBorder: outline,
+        disabledBorder: outline,
+        focusedBorder: outline.copyWith(borderSide: BorderSide(color: context.cgflix.focusRing, width: 2)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        prefixIcon: Icon(prefixIcon, color: hintColor, size: 22),
+        suffixIcon: suffixIcon,
+        hintText: hintText,
+        hintStyle: TextStyle(color: hintColor, fontSize: 15),
       ),
     );
   }
@@ -748,40 +666,32 @@ class _SourceTile extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.subtitle,
-    required this.onTap,
+    this.onTap,
   });
 
   final Color brandColor;
   final IconData icon;
   final String title;
   final String subtitle;
-  final VoidCallback onTap;
+  /// Nulo = ainda não implementado: aparece esmaecido com "Em breve" (nada de tela que finge conectar).
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final palette = context.cgflix;
-    final isLight = palette.isLight;
 
-    return HeisucaSpringPressable(
+    return Opacity(opacity: onTap == null ? .45 : 1, child: HeisucaSpringPressable(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
-          color: isLight ? Colors.white : const Color(0xFF1E1730),
+          color: palette.surface,
           borderRadius: BorderRadius.circular(18.0),
           border: Border.all(
-            color: isLight ? const Color(0xFFE2E8F0) : const Color(0xFF2E2248),
+            color: palette.divider,
             width: 1.2,
           ),
-          boxShadow: isLight
-              ? [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
-                    blurRadius: 10.0,
-                    offset: const Offset(0, 3),
-                  ),
-                ]
-              : null,
+          boxShadow: palette.cardShadow,
         ),
         child: Row(
           children: [
@@ -805,7 +715,7 @@ class _SourceTile extends StatelessWidget {
                       fontFamily: HeisucaTheme.fonteTitulo,
                       fontSize: 15.5,
                       fontWeight: FontWeight.w600,
-                      color: isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA),
+                      color: palette.text,
                     ),
                   ),
                   const SizedBox(height: 2.0),
@@ -814,7 +724,7 @@ class _SourceTile extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: HeisucaTheme.fonteTexto,
                       fontSize: 12.5,
-                      color: isLight ? const Color(0xFF64748B) : const Color(0xFFA99FBB),
+                      color: palette.textOn(palette.surface, preferred: palette.textMuted),
                     ),
                   ),
                 ],
@@ -822,12 +732,12 @@ class _SourceTile extends StatelessWidget {
             ),
             Icon(
               Icons.chevron_right_rounded,
-              color: isLight ? const Color(0xFF94A3B8) : const Color(0xFFA99FBB),
+              color: palette.textOn(palette.surface, preferred: palette.textMuted),
             ),
           ],
         ),
       ),
-    );
+    ));
   }
 }
 
@@ -861,7 +771,7 @@ class _HeisucaQuickConnectModalState extends State<_HeisucaQuickConnectModal> {
     try {
       var targetUrl = widget.serverUrl.trim();
       if (targetUrl.isEmpty || targetUrl == 'https://') {
-        targetUrl = 'https://netflix.docaio.com.br';
+        throw StateError('Sem endereço do servidor');
       }
       if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
         targetUrl = 'https://$targetUrl';
@@ -967,13 +877,12 @@ class _HeisucaQuickConnectModalState extends State<_HeisucaQuickConnectModal> {
   @override
   Widget build(BuildContext context) {
     final palette = context.cgflix;
-    final isLight = palette.isLight;
 
-    final accent = isLight ? const Color(0xFF047857) : const Color(0xFF9D74FF);
-    final text = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
-    final text2 = isLight ? const Color(0xFF64748B) : const Color(0xFFA99FBB);
-    final cardBg = isLight ? const Color(0xFFFFFFFF) : const Color(0xFF1E1730);
-    final handleColor = isLight ? const Color(0xFFCBD5E1) : const Color(0xFF382C52);
+    final accent = palette.accent;
+    final text = palette.text;
+    final text2 = palette.textOn(palette.surface, preferred: palette.textMuted);
+    final cardBg = palette.surface;
+    final handleColor = palette.divider;
 
     final formattedCode = _code != null && _code!.length == 6
         ? '${_code!.substring(0, 3)} ${_code!.substring(3)}'
@@ -1017,8 +926,8 @@ class _HeisucaQuickConnectModalState extends State<_HeisucaQuickConnectModal> {
             if (_error != null) ...[
               Text(
                 _error!,
-                style: const TextStyle(
-                  color: Color(0xFFFF5252),
+                style: TextStyle(
+                  color: palette.textOn(palette.surface, preferred: palette.danger),
                   fontSize: 14.0,
                   fontWeight: FontWeight.w600,
                 ),
@@ -1079,7 +988,7 @@ class _HeisucaQuickConnectModalState extends State<_HeisucaQuickConnectModal> {
                     fontFamily: HeisucaTheme.fonteTexto,
                     fontSize: 13.5,
                     height: 1.5,
-                    color: isLight ? const Color(0xFF334155) : const Color(0xFFC7C0D6),
+                    color: palette.textOn(palette.surface),
                   ),
                 ),
               ),
@@ -1110,10 +1019,10 @@ class _HeisucaQuickConnectModalState extends State<_HeisucaQuickConnectModal> {
                 height: 48.0,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: isLight ? const Color(0xFFE2E8F0) : const Color(0xFF221A33),
+                  color: palette.surfaceHigh,
                   borderRadius: BorderRadius.circular(14.0),
                   border: Border.all(
-                    color: isLight ? const Color(0xFFCBD5E1) : const Color(0xFF382C52),
+                    color: palette.divider,
                     width: 1.2,
                   ),
                 ),

@@ -248,6 +248,13 @@ abstract class Player {
   /// Returns true if the operation was successful.
   Future<bool> setVisible(bool visible, {bool restoreOnWindowVisible = false});
 
+  /// Desliga a faixa de vídeo no Android sem trocar fonte, áudio ou posição.
+  /// Ao voltar, restaura a faixa anterior; não equivale a apenas esconder a tela.
+  Future<void> setBackgroundAudio(bool enabled);
+
+  /// Prepara a política de perda de superfície antes de sair da janela.
+  Future<void> setContinueListening(bool allowed);
+
   /// Update the video frame/surface dimensions.
   ///
   /// On iOS/macOS, this updates the Metal layer's frame to match the current
@@ -412,7 +419,7 @@ abstract class Player {
   ///
   /// An mpv audio-only core on every platform — regardless of the Android
   /// video backend setting — running on its own native core and channels
-  /// (`com.plezy/mpv_audio_player`), so it never contends with the video
+  /// (`app.heisuca/mpv_audio_player`), so it never contends with the video
   /// pipeline. Desktop and Android need none of the video plumbing (display
   /// modes, GL textures, surfaces) — the plain mpv wrapper suffices. Only
   /// one native player is kept alive at a time: the music service disposes

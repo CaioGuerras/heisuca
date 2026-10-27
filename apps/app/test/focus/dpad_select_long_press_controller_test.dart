@@ -2,8 +2,8 @@ import 'package:fake_async/fake_async.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/widgets.dart' show KeyEventResult;
-import 'package:plezy/focus/dpad_navigator.dart';
-import 'package:plezy/focus/dpad_select_long_press_controller.dart';
+import 'package:heisuca/focus/dpad_navigator.dart';
+import 'package:heisuca/focus/dpad_select_long_press_controller.dart';
 
 const _down = KeyDownEvent(
   physicalKey: PhysicalKeyboardKey.enter,

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/cgflix/apoio/apoio_pix.dart';
-import 'package:plezy/cgflix/apoio/br_code.dart';
+import 'package:heisuca/cgflix/apoio/apoio_pix.dart';
+import 'package:heisuca/cgflix/apoio/br_code.dart';
 
 String _cgflix() => BrCode.estatico(chave: ApoioPix.chave, nome: ApoioPix.nome, cidade: ApoioPix.cidade);
 

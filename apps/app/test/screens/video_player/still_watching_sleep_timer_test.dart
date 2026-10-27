@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/providers/playback_state_provider.dart';
-import 'package:plezy/screens/video_player_screen.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/services/sleep_timer_service.dart';
+import 'package:heisuca/providers/playback_state_provider.dart';
+import 'package:heisuca/screens/video_player_screen.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/services/sleep_timer_service.dart';
 import 'package:provider/provider.dart';
 
 import '../../test_helpers/media_items.dart';
@@ -36,8 +36,8 @@ void main() {
     final nativeInitialize = Completer<bool>();
 
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) {
         if (call.method == 'initialize') return nativeInitialize.future;
         return Future<Object?>.value(null);
@@ -82,8 +82,8 @@ void main() {
     final nativeInitialize = Completer<bool>();
 
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) {
         if (call.method == 'initialize') return nativeInitialize.future;
         return Future<Object?>.value(null);

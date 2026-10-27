@@ -4,11 +4,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/mpv/mpv.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/services/video_volume_controller.dart';
-import 'package:plezy/widgets/video_controls/widgets/volume_control.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/mpv/mpv.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/services/video_volume_controller.dart';
+import 'package:heisuca/widgets/video_controls/widgets/volume_control.dart';
 
 import '../test_helpers/player_streams.dart';
 import '../test_helpers/prefs.dart';

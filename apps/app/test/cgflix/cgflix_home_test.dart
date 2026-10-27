@@ -3,13 +3,13 @@ import 'dart:io';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/testing.dart';
-import 'package:plezy/cgflix/home/cgflix_home_logic.dart';
-import 'package:plezy/cgflix/home/cgflix_home_repository.dart';
-import 'package:plezy/database/app_database.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/media/media_library.dart';
-import 'package:plezy/services/jellyfin_api_cache.dart';
+import 'package:heisuca/cgflix/home/cgflix_home_logic.dart';
+import 'package:heisuca/cgflix/home/cgflix_home_repository.dart';
+import 'package:heisuca/database/app_database.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_library.dart';
+import 'package:heisuca/services/jellyfin_api_cache.dart';
 
 import '../test_helpers/backend_client_fixtures.dart';
 import '../test_helpers/http_fixtures.dart';
@@ -138,6 +138,25 @@ void main() {
     });
 
     Map<String, dynamic> movie(String id) => {'Id': id, 'Type': 'Movie', 'Name': 'Filme $id'};
+
+    test('fileira de biblioteca usa Items/Latest com ParentId e reaproveita cache', () async {
+      var calls = 0;
+      final client = testJellyfinClient(httpClient: MockClient((request) async {
+        if (request.url.path.endsWith('/Items/Latest')) {
+          calls++;
+          expect(request.url.queryParameters['ParentId'], 'anime');
+          return jsonResponse([movie('m1')]);
+        }
+        return jsonResponse({'Items': []});
+      }));
+      final repo = CgflixHomeRepository(client, cacheDir: () async => tmp);
+      final library = _lib('anime', 'Animes', MediaKind.show);
+      expect((await repo.watchLibrary(library).last).items.single.id, 'm1');
+      expect((await repo.watchLibrary(library).last).items.single.id, 'm1');
+      expect(calls, 1);
+      repo.dispose();
+      await repo.flushed;
+    });
 
     test('usa o emalta.json na ordem do arquivo', () async {
       final client = testJellyfinClient(
@@ -275,3 +294,4 @@ void main() {
     });
   });
 }
+

@@ -1,8 +1,8 @@
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/exceptions/media_server_exceptions.dart';
-import 'package:plezy/utils/media_server_http_client.dart';
-import 'package:plezy/utils/media_server_retry.dart';
+import 'package:heisuca/exceptions/media_server_exceptions.dart';
+import 'package:heisuca/utils/media_server_http_client.dart';
+import 'package:heisuca/utils/media_server_retry.dart';
 
 MediaServerHttpException _error(MediaServerHttpErrorType type) =>
     MediaServerHttpException(type: type, message: type.name);

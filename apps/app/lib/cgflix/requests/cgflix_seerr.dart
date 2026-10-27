@@ -233,7 +233,11 @@ class _Session {
   }
 }
 
-class CgflixSeerrRequests implements CgflixRequestsBackend {
+abstract class CgflixPersonCreditsBackend {
+  Future<List<CgflixRequestable>> personCredits(int tmdbId);
+}
+
+class CgflixSeerrRequests implements CgflixRequestsBackend, CgflixPersonCreditsBackend {
   CgflixSeerrRequests({
     required this.jellyfinBaseUrl,
     required this.accountKey,
@@ -401,6 +405,13 @@ class CgflixSeerrRequests implements CgflixRequestsBackend {
     ];
   }
 
+  // Caio, 24/10: identidade confirmada pela fonte; nunca busca pessoa por nome no catálogo.
+  @override
+  Future<List<CgflixRequestable>> personCredits(int tmdbId) async {
+    final data = await _getJson('/person/$tmdbId/combined_credits', query: {'language': 'pt-BR'});
+    return cgflixParsePersonCredits(data);
+  }
+
   static int? _mediaStatus(Object? mediaInfo) =>
       mediaInfo is Map && mediaInfo['status'] is int ? mediaInfo['status'] as int : null;
 
@@ -501,4 +512,26 @@ class CgflixSeerrRequests implements CgflixRequestsBackend {
       posterUrl: cgflixTmdbPoster(data['posterPath']),
     );
   }
+}
+
+
+/// Créditos de atuação; equipe técnica não significa "atuou em".
+List<CgflixRequestable> cgflixParsePersonCredits(Object? data) {
+  final cast = data is Map ? data['cast'] : null;
+  if (cast is! List) return const [];
+  final result = <String, CgflixRequestable>{};
+  for (final raw in cast.whereType<Map>()) {
+    final type = raw['mediaType'] ?? raw['media_type'];
+    final id = raw['id'];
+    if (id is! int || id <= 0 || (type != 'movie' && type != 'tv')) continue;
+    final state = cgflixRequestStateFor(CgflixSeerrRequests._mediaStatus(raw['mediaInfo']));
+    if (state == null) continue;
+    final title = raw['title'] ?? raw['name'] ?? raw['originalTitle'] ?? raw['originalName'];
+    if (title is! String || title.trim().isEmpty) continue;
+    result['$type:$id'] = CgflixRequestable(tmdbId: id, isMovie: type == 'movie', title: title,
+      year: _yearOf(raw['releaseDate'] ?? raw['release_date'] ?? raw['firstAirDate'] ?? raw['first_air_date']),
+      posterUrl: cgflixTmdbPoster(raw['posterPath'] ?? raw['poster_path']),
+      overview: raw['overview'] is String ? raw['overview'] as String : null, state: state);
+  }
+  return result.values.toList()..sort((a, b) => (b.year ?? 0).compareTo(a.year ?? 0));
 }

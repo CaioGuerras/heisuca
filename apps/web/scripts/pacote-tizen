@@ -58,9 +58,9 @@ def main():
     print(f"{WGT.name}: {WGT.stat().st_size // 1024} KB, sha256 {sha}")
     if "--sem-enviar" in sys.argv:
         return 0
-    vps = ["ssh", "-p", "22022", "-o", "BatchMode=yes", "root@143.95.215.156"]
+    vps = ["ssh", "-o", "BatchMode=yes", "vps"]  # atalho "vps" no ~/.ssh/config (endereço fora do repositório)
     subprocess.run(vps + [f"mkdir -p {DEST}"], check=True)
-    subprocess.run(["scp", "-P", "22022", "-o", "BatchMode=yes", str(WGT), f"root@143.95.215.156:{DEST}/{WGT.name}"], check=True)
+    subprocess.run(["scp", "-o", "BatchMode=yes", str(WGT), f"vps:{DEST}/{WGT.name}"], check=True)
     subprocess.run(vps + [f"chmod -R a+rX /var/www/heisuca"], check=True)
     print(f"https://netflix.docaio.com.br/__heisuca/pacotes/{WGT.name}")
     return 0

@@ -1,17 +1,16 @@
+// Caio, 25/10: retirados somente casos dos serviços removidos; demais serviços e filas continuam cobertos.
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/models/trackers/anime_ids.dart';
-import 'package:plezy/services/trackers/anilist/anilist_tracker.dart';
-import 'package:plezy/services/trackers/mal/mal_tracker.dart';
-import 'package:plezy/services/trackers/simkl/simkl_tracker.dart';
-import 'package:plezy/services/trackers/tracker_id_resolver.dart';
-import 'package:plezy/services/trackers/tracker_session.dart';
-import 'package:plezy/services/trackers/trakt/trakt_tracker.dart';
-import 'package:plezy/utils/external_ids.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/models/trackers/anime_ids.dart';
+import 'package:heisuca/services/trackers/simkl/simkl_tracker.dart';
+import 'package:heisuca/services/trackers/tracker_id_resolver.dart';
+import 'package:heisuca/services/trackers/tracker_session.dart';
+import 'package:heisuca/services/trackers/trakt/trakt_tracker.dart';
+import 'package:heisuca/utils/external_ids.dart';
 
 int _now() => DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
@@ -19,11 +18,6 @@ TrackerSession _traktSession() =>
     TrackerSession(accessToken: 'token', refreshToken: 'refresh', expiresAt: _now() + 86400, createdAt: _now());
 
 TrackerSession _simklSession() => TrackerSession(accessToken: 'token', createdAt: _now());
-
-TrackerSession _malSession() =>
-    TrackerSession(accessToken: 'token', refreshToken: 'refresh', expiresAt: _now() + 86400, createdAt: _now());
-
-TrackerSession _anilistSession() => TrackerSession(accessToken: 'token', expiresAt: _now() + 86400, createdAt: _now());
 
 TrackerRatingContext _ctx({
   required MediaKind kind,
@@ -44,8 +38,6 @@ void main() {
   tearDown(() {
     TraktTracker.instance.rebindSession(null, onSessionInvalidated: () {});
     SimklTracker.instance.rebindSession(null, onSessionInvalidated: () {});
-    MalTracker.instance.rebindSession(null, onSessionInvalidated: () {});
-    AnilistTracker.instance.rebindSession(null, onSessionInvalidated: () {});
   });
 
   test('Trakt fetches the current episode rating by show ids and episode number', () async {
@@ -130,46 +122,7 @@ void main() {
     expect(paths, ['/sync/ratings/shows', '/sync/ratings/anime']);
   });
 
-  test('MAL fetches the current list score', () async {
-    final client = MockClient((request) async {
-      expect(request.method, 'GET');
-      expect(request.url.path, '/v2/anime/21');
-      expect(request.url.queryParameters['fields'], 'my_list_status');
-      return http.Response(
-        json.encode({
-          'my_list_status': {'score': 9},
-        }),
-        200,
-      );
-    });
-    MalTracker.instance.rebindSession(_malSession(), onSessionInvalidated: () {}, httpClient: client);
 
-    final score = await MalTracker.instance.getRating(_ctx(kind: MediaKind.show, anime: AnimeIds(mal: 21)));
 
-    expect(score, 9);
-  });
 
-  test('AniList fetches point-100 score and maps it to a 1-10 score', () async {
-    final client = MockClient((request) async {
-      final body = json.decode(request.body) as Map<String, dynamic>;
-      expect(body['variables'], {'mediaId': 21});
-      expect(body['query'], contains('mediaListEntry'));
-      expect(body['query'], contains('scoreRaw: score(format: POINT_100)'));
-      return http.Response(
-        json.encode({
-          'data': {
-            'Media': {
-              'mediaListEntry': {'scoreRaw': 80},
-            },
-          },
-        }),
-        200,
-      );
-    });
-    AnilistTracker.instance.rebindSession(_anilistSession(), onSessionInvalidated: () {}, httpClient: client);
-
-    final score = await AnilistTracker.instance.getRating(_ctx(kind: MediaKind.show, anime: AnimeIds(anilist: 21)));
-
-    expect(score, 8);
-  });
 }

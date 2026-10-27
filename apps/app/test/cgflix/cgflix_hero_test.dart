@@ -2,10 +2,10 @@
 // com fonte em 200%. Foi a exceção do destaque que pintava a Início de preto ao girar o celular.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/cgflix/cgflix_layout.dart';
-import 'package:plezy/cgflix/home/cgflix_hero.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_kind.dart';
+import 'package:heisuca/cgflix/cgflix_layout.dart';
+import 'package:heisuca/cgflix/home/cgflix_hero.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_kind.dart';
 
 const _sizes = <String, Size>{
   'retrato 360': Size(360, 760),

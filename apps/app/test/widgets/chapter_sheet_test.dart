@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/media/media_source_info.dart';
-import 'package:plezy/mpv/mpv.dart';
-import 'package:plezy/widgets/overlay_sheet.dart';
-import 'package:plezy/widgets/video_controls/sheets/chapter_sheet.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/media/media_source_info.dart';
+import 'package:heisuca/mpv/mpv.dart';
+import 'package:heisuca/widgets/overlay_sheet.dart';
+import 'package:heisuca/widgets/video_controls/sheets/chapter_sheet.dart';
 
 import '../test_helpers/theme.dart';
 

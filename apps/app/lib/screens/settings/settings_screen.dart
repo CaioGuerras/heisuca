@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:plezy/widgets/app_icon.dart';
+import 'package:heisuca/widgets/app_icon.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -20,6 +20,7 @@ import '../../focus/focus_memory_tracker.dart';
 import '../../focus/focusable_text_field.dart';
 import '../../focus/input_mode_tracker.dart';
 import '../../i18n/strings.g.dart';
+import '../../heisuca/heisuca_source_scope.dart';
 import '../main_screen.dart';
 import '../../mixins/mounted_set_state_mixin.dart';
 import '../../mixins/refreshable.dart';
@@ -70,14 +71,19 @@ import 'settings_utils.dart';
 import 'tracker_service_info.dart';
 import '../../widgets/loading_indicator_box.dart';
 
+enum HeisucaSettingsSection { downloads, subtitles, diagnostics, sources }
+
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({
     super.key,
+    this.heisucaSection,
     this.downloadDirectoryWritableChecker,
     this.settingsExporter,
     this.settingsImporter,
     this.backgroundWorkDiagnosticsService,
   });
+
+  final HeisucaSettingsSection? heisucaSection;
 
   @visibleForTesting
   final Future<bool> Function(Directory directory)? downloadDirectoryWritableChecker;
@@ -111,7 +117,6 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
   static const _kVideoPlayerControls = 'video_player_controls';
   static const _kVideoPlayerNavigation = 'video_player_navigation';
   static const _kCompanionRemoteServer = 'companion_remote_server';
-  static const _kCrashReporting = 'crash_reporting';
   static const _kDebugLogging = 'debug_logging';
   static const _kAutoHidePerformanceOverlay = 'auto_hide_performance_overlay';
   static const _kViewLogs = 'view_logs';
@@ -212,10 +217,33 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
           child: CustomScrollView(
             primary: false,
             slivers: [
-              ExcludeFocus(child: CustomAppBar(title: Text(t.settings.title), pinned: true)),
+              ExcludeFocus(
+                child: CustomAppBar(
+                  title: Text(switch (widget.heisucaSection) {
+                    HeisucaSettingsSection.downloads => "Downloads",
+                    HeisucaSettingsSection.subtitles => "Áudio e legendas",
+                    HeisucaSettingsSection.diagnostics => "Diagnóstico e backup",
+                    HeisucaSettingsSection.sources => "Fontes e conexões",
+                    null => t.settings.title,
+                  }),
+                  pinned: true,
+                ),
+              ),
               SliverList(
                 delegate: SliverChildListDelegate([
-                  ..._cgflixMainList(sheetContext, accounts: accounts, hasLibraries: hasLibraries),
+                  ...switch (widget.heisucaSection) {
+                    HeisucaSettingsSection.downloads => _cgflixDownloadsChildren(),
+                    HeisucaSettingsSection.subtitles => <Widget>[
+                      if (accounts.isNotEmpty) _buildAccountPreferencesTile(sheetContext),
+                      const CgflixSubtitleStyleTile(),
+                      const CgflixAdvancedSubtitles(),
+                    ],
+                    HeisucaSettingsSection.diagnostics => <Widget>[_buildAdvancedSection(), _buildBackupSection()],
+                    HeisucaSettingsSection.sources => <Widget>[
+                      _buildConnectionsSection(sheetContext, hasLibraries: hasLibraries),
+                    ],
+                    null => _cgflixMainList(sheetContext, accounts: accounts, hasLibraries: hasLibraries),
+                  },
                   const SizedBox(height: 24),
                 ]),
               ),
@@ -439,6 +467,11 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
             // CGFLIX (refino 2b): na tela, um resumo que um leigo entende; o perfil fica para o leitor de tela.
             subtitle: 'Entrar em outro servidor Plex, Jellyfin ou Emby',
             onTap: () {
+              // Heisuca: mesma porta do menu Você; ao adicionar, já passa a mostrar a fonte nova.
+              if (widget.heisucaSection != null) {
+                heisucaAddSource(context);
+                return;
+              }
               final active = context.read<ActiveProfileProvider>().active;
               Navigator.push(context, MaterialPageRoute(builder: (_) => AddConnectionScreen(targetProfile: active)));
             },
@@ -639,15 +672,6 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
           subtitle: t.settings.watchTogetherRelayDescription,
           onTap: () => _showRelayUrlDialog(),
         ),
-        // CGFLIX: sem ENABLE_SENTRY (nossos builds) a chave não fazia nada; fica escondida.
-        if (const bool.fromEnvironment('ENABLE_SENTRY'))
-          SettingSwitchTile(
-            focusNode: _focusTracker.get(_kCrashReporting),
-            pref: settings.SettingsService.crashReporting,
-            icon: Symbols.monitoring_rounded,
-            title: t.settings.crashReporting,
-            subtitle: t.settings.crashReportingDescription,
-          ),
         SettingSwitchTile(
           focusNode: _focusTracker.get(_kDebugLogging),
           pref: settings.SettingsService.enableDebugLogging,
@@ -683,15 +707,6 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
           subtitle: t.settings.resetSettingsDescription,
           onTap: () => _showResetSettingsDialog(),
         ),
-        if (kDebugMode)
-          SettingNavigationTile(
-            icon: Symbols.error_rounded,
-            title: 'Test Sentry',
-            subtitle: 'Send a test error',
-            onTap: () {
-              throw Exception("Example exception");
-            },
-          ),
         if (kDebugMode)
           SettingNavigationTile(
             icon: Symbols.timer_rounded,

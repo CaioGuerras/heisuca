@@ -1,6 +1,7 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:plezy/widgets/app_icon.dart';
+import 'package:heisuca/widgets/app_icon.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import '../../widgets/focused_scroll_scaffold.dart';
 import '../../widgets/loading_indicator_box.dart';
@@ -20,6 +21,11 @@ class LicensesScreen extends StatelessWidget {
   static final Future<List<MergedLicenseEntry>> _licensesFuture = _loadLicenses();
 
   static Future<List<MergedLicenseEntry>> _loadLicenses() async {
+    LicenseRegistry.addLicense(() async* {
+      yield LicenseEntryWithLineBreaks([
+        'Heisuca (GPL-3.0; base Plezy)',
+      ], await rootBundle.loadString('assets/licenses/heisuca_gpl.txt'));
+    });
     final licenseMap = <String, List<LicenseEntry>>{};
     final allPackageNames = <String, Set<String>>{};
 

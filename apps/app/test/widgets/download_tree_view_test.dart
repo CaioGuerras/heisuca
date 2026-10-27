@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/models/download_models.dart';
-import 'package:plezy/widgets/download_tree_view.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/models/download_models.dart';
+import 'package:heisuca/widgets/download_tree_view.dart';
 import '../test_helpers/media_items.dart';
 
 DownloadTreeNode _episodeNode(String globalKey) => DownloadTreeNode(

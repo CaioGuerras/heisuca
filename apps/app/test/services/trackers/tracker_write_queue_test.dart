@@ -1,12 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/models/trackers/tracker_context.dart';
-import 'package:plezy/profiles/profile.dart';
-import 'package:plezy/services/base_shared_preferences_service.dart';
-import 'package:plezy/services/trackers/tracker_constants.dart';
-import 'package:plezy/services/trackers/tracker_write_queue.dart';
-import 'package:plezy/utils/external_ids.dart';
+import 'package:heisuca/models/trackers/tracker_context.dart';
+import 'package:heisuca/profiles/profile.dart';
+import 'package:heisuca/services/base_shared_preferences_service.dart';
+import 'package:heisuca/services/trackers/tracker_constants.dart';
+import 'package:heisuca/services/trackers/tracker_write_queue.dart';
+import 'package:heisuca/utils/external_ids.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 import 'package:shared_preferences_platform_interface/types.dart';

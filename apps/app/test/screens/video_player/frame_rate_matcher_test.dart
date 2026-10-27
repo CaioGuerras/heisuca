@@ -1,6 +1,6 @@
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/screens/video_player/frame_rate_matcher.dart';
+import 'package:heisuca/screens/video_player/frame_rate_matcher.dart';
 
 void main() {
   test('single suppression window lasts through its configured deadline', () {

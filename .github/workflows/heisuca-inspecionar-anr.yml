@@ -1,0 +1,120 @@
+name: Heisuca Ler ANR coletado
+
+on:
+  push:
+    branches: ["codex/heisuca-home-site"]
+    paths: [".github/workflows/heisuca-inspecionar-anr.yml"]
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Run da bancada com o trace já redigido (vazio = última falha)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  ler:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Escolher evidência já coletada
+        id: origem
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_SOLICITADO: ${{ inputs.run_id }}
+        run: |
+          run_anr="$RUN_SOLICITADO"
+          if [[ -z "$run_anr" ]]; then
+            run_anr=$(gh run list --workflow heisuca-bancada-android.yml --branch "$GITHUB_REF_NAME" --status failure --limit 1 --json databaseId --jq '.[0].databaseId')
+          fi
+          [[ "$run_anr" =~ ^[0-9]+$ ]] || { echo "Run inválido ou ausente"; exit 1; }
+          echo "run_id=$run_anr" >> "$GITHUB_OUTPUT"
+          echo "Trace da bancada $run_anr; nenhuma conta ou servidor será acessado."
+      - uses: actions/download-artifact@v4
+        with:
+          name: heisuca-bancada-android
+          run-id: ${{ steps.origem.outputs.run_id }}
+          github-token: ${{ github.token }}
+          path: evidencia-anr
+      - name: Ler Java e threads de renderização já redigidos
+        working-directory: apps/app/scripts/bancada
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from diagnosticos import resumo_trace
+          traces = sorted(Path('../../../../evidencia-anr').glob('android-trace-app-*.log'))
+          root = Path('../../../../evidencia-anr')
+          report = root / 'resultado-teste.json'
+          if report.exists():
+              print(report.read_text())
+          execution = root / 'execucao.log'
+          if execution.exists():
+              markers = ('player lifecycle:', 'pip:', 'auto-pip', 'background mode:',
+                         'não foi possível manter', 'bancada_', 'setbackground', 'setcontinuelistening')
+              selected = [line for line in execution.read_text().splitlines()
+                          if any(marker in line.lower() for marker in markers)]
+              print('Eventos de mídia já redigidos:')
+              print('\n'.join(selected[-300:]))
+              lines = execution.read_text().splitlines()
+              print('Exceções originais do Flutter, sem descartar erros:')
+              for index, line in enumerate(lines):
+                  if 'EXCEPTION CAUGHT' in line:
+                      print('\n'.join(lines[max(0, index-1):index+85]))
+              video = [line for line in lines if any(key in line.lower()
+                       for key in ('mpvplayercore', '[mpv:vo', '[mpv:vd', 're-selecting', 'bancada_video'))]
+              print('Saída de vídeo e retomada, texto já redigido:')
+              print('\n'.join(video[:100] + video[-1000:]))
+          for name in ('relatorio.json', 'android-diagnostico.json', '19-fechar-pip-pip-automation.log'):
+              item = root / name
+              if item.exists():
+                  print(name)
+                  print(item.read_text())
+
+          anr = root / 'android-anr.log'
+          if anr.exists():
+              keys = ('Reason:', 'Load:', '/proc/pressure/', 'some avg', 'full avg', 'CPU usage', 'TOTAL:', 'am_anr')
+              print('Motivo e pressão de recursos já redigidos:')
+              selected = [line for line in anr.read_text().splitlines() if any(key in line for key in keys)]
+              print('\n'.join(selected))
+          if not traces:
+              print('Artifact sem trace do próprio app; consultar resultado e eventos acima.')
+          for trace in traces:
+              print(trace.name)
+              print(resumo_trace(trace.read_text()))
+          PY
+
+      - name: Ler miniaturas das capturas anônimas existentes
+        run: |
+          python3 -m pip install --quiet --disable-pip-version-check Pillow==11.3.0
+          python3 - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          import base64, io, json
+          for name in ('21-imagem-apos-audio.png', '06-player.png', '12-falha-retorno.png'):
+              source = Path('evidencia-anr') / name
+              if not source.exists():
+                  continue
+              with Image.open(source) as original:
+                  preview = original.convert('RGB')
+                  extrema = preview.getextrema()
+                  print('BANCADA_PIXELS_ORIGINAIS: ' + json.dumps({
+                      'arquivo': name, 'dimensoes': list(preview.size),
+                      'imagem': 'não' if max(pair[1] for pair in extrema) == 0 else 'sim',
+                      'extremosRGB': extrema,
+                      'metodo': 'PNG original de adb exec-out screencap -p; leitura RGB por Pillow',
+                      'limite': 'pixels não pretos não comprovam sozinhos a obra; exige inspeção'
+                  }, ensure_ascii=False))
+                  preview.thumbnail((640, 640))
+                  data = io.BytesIO()
+                  preview.save(data, format='JPEG', quality=60, optimize=True)
+              encoded = base64.b64encode(data.getvalue()).decode()
+              chunks = [encoded[i:i+8000] for i in range(0, len(encoded), 8000)]
+              for index, chunk in enumerate(chunks):
+                  print(f'BANCADA_IMAGE_JPEG|{name}|{index+1}/{len(chunks)}|{chunk}')
+          PY

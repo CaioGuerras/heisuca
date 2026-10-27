@@ -4,47 +4,54 @@
 //   e ZERO botões de cápsula sobre a arte (toque no hero abre a Ficha Técnica)
 // - Fileira 1: Continuar Assistindo em proporção 16:9 com barra de progresso e play
 // - Fileira 2: Em alta no Brasil (Top 10) com números grandes vazados no canto inferior esquerdo
-// - Fileiras de Acervo: Lançamentos, Novidades em Filmes, Séries, Animes ou Hubs do Plex
+// - Acervo: uma fileira por biblioteca, na ordem do servidor
 // - Suporte unificado: Jellyfin e Plex operam com visual 100% Heisuca (zero telas legadas)
 // - Menu de Toque Longo (500ms + haptics) para ações rápidas (Esboço 04B)
 // - Espaçamento inferior calibrado para a Ilha Flutuante (HeisucaFloatingIsland)
 import 'dart:async';
-import 'dart:ui' show FontFeature, ImageFilter;
+import 'heisuca_motion.dart';
+import 'dart:ui' show FontFeature;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 
-import '../cgflix/cgflix_detail.dart';
-import '../cgflix/cgflix_layout.dart';
 import '../cgflix/cgflix_navigation.dart';
 import '../cgflix/cgflix_palette.dart';
-import '../cgflix/cgflix_style.dart';
 import '../cgflix/home/cgflix_actions.dart';
 import '../cgflix/home/cgflix_cards.dart';
 import '../cgflix/home/cgflix_home_logic.dart';
 import '../cgflix/home/cgflix_home_repository.dart';
 import '../media/media_item.dart';
-import '../media/media_kind.dart';
+import '../media/media_library.dart';
+import '../cgflix/requests/cgflix_requests_ui.dart';
+import 'heisuca_home_chrome.dart';
+import 'heisuca_home_style.dart';
+import 'heisuca_source_scope.dart';
+import 'heisuca_upcoming.dart';
+import 'kids/heisuca_kids_flow.dart';
 import '../mixins/refreshable.dart';
 import '../mixins/tab_visibility_aware.dart';
 import '../providers/discover_provider.dart';
 import '../providers/download_provider.dart';
 import '../providers/multi_server_provider.dart';
 import '../services/jellyfin_client.dart';
-import '../services/watch_actions.dart';
+import '../media/media_server_client.dart';
+import '../services/plex_client.dart';
+import 'heisuca_plex_home_repository.dart';
 import '../utils/download_utils.dart';
 import '../utils/media_image_helper.dart';
 import '../widgets/optimized_media_image.dart';
 import 'heisuca_context_menu.dart';
 import 'heisuca_design_system.dart';
-import 'heisuca_logo.dart';
 import 'heisuca_theme.dart';
+import 'heisuca_text_metrics.dart';
 import 'heisuca_title_sheet.dart';
 
 class HeisucaHomeScreen extends StatefulWidget {
-  const HeisucaHomeScreen({super.key});
+  const HeisucaHomeScreen({super.key, this.onOpenLibrary});
+  final ValueChanged<String>? onOpenLibrary;
 
   @override
   State<HeisucaHomeScreen> createState() => _HeisucaHomeScreenState();
@@ -53,11 +60,14 @@ class HeisucaHomeScreen extends StatefulWidget {
 class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
     with Refreshable, FullRefreshable, TabVisibilityAware, WidgetsBindingObserver {
   final _scrollController = ScrollController();
+  final _logoAnchor = GlobalKey();
+  bool _heroDocked = false;
   late final DiscoverProvider _discover;
   late final MultiServerProvider _servers;
 
-  JellyfinClient? _client;
-  CgflixHomeRepository? _repository;
+  MediaServerClient? _client;
+  List<JellyfinClient> _feedClients = const [];
+  HeisucaHomeRepository? _repository;
   bool _tabVisible = true;
   bool _appActive = true;
   int _generation = 0;
@@ -89,22 +99,28 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
   }
 
   void _onServersChanged() {
-    final client = _servers.serverManager.visibleOnlineClients.values
-        .whereType<JellyfinClient>()
-        .firstOrNull;
-    final same = client != null &&
-        _client != null &&
-        client.serverId == _client!.serverId &&
-        client.cgflixUserId == _client!.cgflixUserId;
+    final client = _servers.serverManager.navigationOnlineClients.values.firstOrNull;
+    final feeds = _servers.serverManager.visibleOnlineClients.values.whereType<JellyfinClient>().toList();
+    final sameFeeds = feeds.length == _feedClients.length &&
+        List.generate(feeds.length, (i) => identical(feeds[i], _feedClients[i])).every((same) => same);
+    final same = identical(client, _client) && sameFeeds;
 
-    if (same || (client == null && _client == null)) {
+    if (same) {
       _onChanged();
       return;
     }
 
     _repository?.dispose();
+    _generation++;
+    _activeHeroItem = null;
+    _heroDocked = false;
     _client = client;
-    _repository = client == null ? null : CgflixHomeRepository(client);
+    _feedClients = feeds;
+    _repository = switch (client) {
+      JellyfinClient jf => CgflixHomeRepository(jf),
+      PlexClient plex => HeisucaPlexHomeRepository(plex, feedClients: feeds),
+      _ => null,
+    };
     _onChanged();
   }
 
@@ -116,6 +132,7 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
 
   @override
   void fullRefresh() {
+    _repository?.forgetMemory();
     unawaited(_discover.load());
     if (mounted) setState(() => _generation++);
   }
@@ -140,25 +157,9 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
   MediaItem? _activeHeroItem;
 
   void _onHeroActiveChanged(MediaItem item) {
-    if (_activeHeroItem?.id != item.id) {
+    if (!identical(_activeHeroItem, item)) {
       setState(() => _activeHeroItem = item);
     }
-  }
-
-  static Color resolveHeroAmbientColor(MediaItem? item, {required bool isLight}) {
-    if (item == null) {
-      return isLight ? const Color(0xFF047857) : const Color(0xFF7A40F2);
-    }
-    final seed = (item.displayTitle + (item.genres?.join() ?? '')).hashCode.abs();
-    final hues = [
-      isLight ? const Color(0xFF0D9488) : const Color(0xFF06B6D4), // Cyan / Teal
-      isLight ? const Color(0xFFD97706) : const Color(0xFFF59E0B), // Solar Amber
-      isLight ? const Color(0xFF7C3AED) : const Color(0xFF8B5CF6), // Royal Purple
-      isLight ? const Color(0xFFE11D48) : const Color(0xFFF43F5E), // Crimson Rose
-      isLight ? const Color(0xFF2563EB) : const Color(0xFF3B82F6), // Sapphire Blue
-      isLight ? const Color(0xFF059669) : const Color(0xFF10B981), // Jade Emerald
-    ];
-    return hues[seed % hues.length];
   }
 
   @override
@@ -180,41 +181,42 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
   @override
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context);
-    final heroHeight = (media.size.height * 0.54).clamp(380.0, 560.0);
+    final heroHeight = heisucaHeroHeight(media.size.height);
     final repo = _repository;
     final isLight = context.cgflix.isLight;
-    final heroAmbient = resolveHeroAmbientColor(_activeHeroItem, isLight: isLight);
+    final pageColor = heisucaPageColor(_activeHeroItem, isLight: isLight, palette: context.cgflix);
+
+    if (_servers.serverManager.navigationServerId != null &&
+        _servers.serverManager.navigationOnlineClients.isEmpty) {
+      return Scaffold(backgroundColor: pageColor, body: SafeArea(child: LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          physics: const ProMotionScrollPhysics(),
+          padding: const EdgeInsets.all(24),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight > 48 ? constraints.maxHeight - 48 : 0),
+            child: Column(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center, children: [
+              Icon(Symbols.cloud_off_rounded, size: 48, color: context.cgflix.accent),
+              const SizedBox(height: 16),
+              const Text('Esta fonte está indisponível', textAlign: TextAlign.center,
+                style: TextStyle(fontFamily: HeisucaTheme.fonteTitulo, fontSize: 22, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              const Text('Tente reconectar ou escolha outro servidor.', textAlign: TextAlign.center),
+              const HeisucaSourceTile(),
+              TextButton(onPressed: () => _servers.serverManager.reconnectOfflineServers(forceRediscovery: true),
+                child: const Text('Tentar novamente')),
+            ]),
+          ),
+        ),
+      )));
+    }
 
     return Scaffold(
-      backgroundColor: context.cgflix.background,
-      body: Stack(
+      backgroundColor: pageColor,
+      body: AnimatedContainer(
+        duration: const Duration(milliseconds: 650),
+        color: pageColor,
+        child: Stack(
         children: [
-          // Iluminação Atmosférica Flagship dominante (Esboço 03B)
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: media.size.height * 0.70,
-            child: IgnorePointer(
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 650),
-                curve: Curves.easeOutCubic,
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    center: const Alignment(0.0, -0.65),
-                    radius: 1.45,
-                    colors: [
-                      heroAmbient.withOpacity(isLight ? 0.28 : 0.42),
-                      heroAmbient.withOpacity(isLight ? 0.08 : 0.16),
-                      Colors.transparent,
-                    ],
-                    stops: const [0.0, 0.55, 1.0],
-                  ),
-                ),
-              ),
-            ),
-          ),
-
           // Conteúdo rolável com indicador de atualização e física ProMotion
           RefreshIndicator(
             color: context.cgflix.accent,
@@ -226,21 +228,29 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
               controller: _scrollController,
               physics: const ProMotionScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
               slivers: repo != null
-                  ? _buildJellyfinSlivers(repo, heroHeight)
-                  : _buildDiscoverSlivers(heroHeight),
+                  ? _buildHomeSlivers(repo, heroHeight)
+                  : [SliverToBoxAdapter(child: SizedBox(height: heroHeight))],
             ),
           ),
 
           // Topo oficial Heisuca (Logo à esquerda, Busca à direita)
-          _HeisucaTopBar(scrollController: _scrollController),
+          Positioned.fill(child: HeisucaHomeChrome(
+            scrollController: _scrollController, logoAnchor: _logoAnchor, pageColor: pageColor,
+            item: _activeHeroItem,
+            client: _activeHeroItem == null ? null : cgflixClientFor(context, _activeHeroItem!),
+            onSearch: () => cgflixOpenSearch(context),
+            onHome: () => _scrollController.animateTo(0, duration: const Duration(milliseconds: 350), curve: Curves.easeOutCubic),
+            onDockedChanged: (docked) { if (mounted && docked != _heroDocked) setState(() => _heroDocked = docked); },
+          )),
         ],
+      ),
       ),
     );
   }
 
-  // --- Construção do acervo Jellyfin -----------------------------------------
+  // --- Montagem compartilhada do acervo -----------------------------------------
 
-  List<Widget> _buildJellyfinSlivers(CgflixHomeRepository repo, double heroHeight) {
+  List<Widget> _buildHomeSlivers(HeisucaHomeRepository repo, double heroHeight) {
     final key = '${repo.client.serverId.value}:$_generation';
     return [
       // 1. Hero Cinematográfico (Esboço 03B)
@@ -255,7 +265,9 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
               : _HeisucaHero(
                   items: data.items,
                   height: heroHeight,
-                  paused: !_tabVisible || !_appActive,
+                  paused: !_tabVisible || !_appActive || _heroDocked,
+                  logoAnchor: _logoAnchor,
+                  scrollController: _scrollController,
                   onActiveItemChanged: _onHeroActiveChanged,
                 ),
         ),
@@ -280,199 +292,32 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
         ),
       ),
 
-      // 4. Fileiras Fixas do Acervo Heisuca (Lançamentos, Filmes, Séries, Animes)
-      for (final kind in cgflixFixedRowOrder.skip(2))
-        SliverToBoxAdapter(
-          child: _StreamSection<CgflixRowData>(
-            key: ValueKey('${kind.name}:$key'),
-            stream: () => repo.watchRow(kind),
-            loading: const CgflixSkeletonRow(),
-            builder: (data) => _HeisucaShelfRow(
-              title: cgflixRowTitle(kind),
-              items: data.items,
-              storageKey: kind.name,
+      // Mesma ordem e mesmos nomes de biblioteca que o site; sem gêneros extras.
+      SliverToBoxAdapter(child: _StreamSection<List<MediaLibrary>>(
+        key: ValueKey('libraries:$key'), stream: () => repo.videoLibraries().asStream(),
+        loading: const CgflixSkeletonRow(), builder: (libraries) => Column(children: [
+          for (final library in libraries) _StreamSection<CgflixRowData>(
+            key: ValueKey('library:${library.id}:$key'), stream: () => repo.watchLibrary(library),
+            loading: const CgflixSkeletonRow(), builder: (data) => _HeisucaShelfRow(
+              title: library.title, items: data.items, storageKey: library.id,
+              onSeeAll: widget.onOpenLibrary == null ? null : () => widget.onOpenLibrary!(library.globalKey),
             ),
           ),
-        ),
-
-      // 5. Linhas por Gênero sob demanda
-      _GenreRows(key: ValueKey('genres:$key'), repository: repo),
+        ]),
+      )),
+      // Modo infantil: o calendário vem do Sonarr/Radarr do servidor inteiro (não passa pelo filtro do
+      // usuário infantil) e traria pôster de título adulto. Some no kids.
+      if (!heisucaKidsActive(context)) SliverToBoxAdapter(child: _StreamSection<List<HeisucaUpcoming>>(
+        key: ValueKey('upcoming:$key'), stream: () => repo.upcoming().asStream(),
+        loading: const CgflixSkeletonRow(), builder: (items) => _UpcomingRow(repository: repo, items: items),
+      )),
 
       // Folga no rodapé para não ficar sob a Ilha Flutuante (64dp + 14dp)
       SliverToBoxAdapter(child: SizedBox(height: MediaQuery.paddingOf(context).bottom + 96)),
     ];
   }
 
-  // --- Construção do acervo Plex / DiscoverProvider ---------------------------
 
-  List<Widget> _buildDiscoverSlivers(double heroHeight) {
-    final heroItems = _discover.onDeck.isNotEmpty
-        ? _discover.onDeck.take(5).toList()
-        : (_discover.hubs.isNotEmpty ? _discover.hubs.first.items.take(5).toList() : <MediaItem>[]);
-
-    // Hubs adicionais (excluindo o Continue Watching se presente nos hubs)
-    final otherHubs = _discover.hubs.where((h) => !h.isContinueWatchingHub).toList();
-    final top10Items = otherHubs.isNotEmpty ? otherHubs.first.items.take(10).toList() : <MediaItem>[];
-    final remainingHubs = otherHubs.length > 1 ? otherHubs.skip(1).toList() : const [];
-
-    return [
-      // 1. Hero Cinematográfico (Esboço 03B)
-      if (heroItems.isNotEmpty)
-        SliverToBoxAdapter(
-          child: _HeisucaHero(
-            items: heroItems,
-            height: heroHeight,
-            paused: !_tabVisible || !_appActive,
-            onActiveItemChanged: _onHeroActiveChanged,
-          ),
-        )
-      else if (_discover.isLoading)
-        SliverToBoxAdapter(child: _HeroSkeleton(height: heroHeight)),
-
-      // 2. Fileira 1: Continuar Assistindo (16:9 Widescreen)
-      if (_discover.onDeck.isNotEmpty)
-        SliverToBoxAdapter(
-          child: _HeisucaContinueWatchingRow(items: _discover.onDeck),
-        ),
-
-      // 3. Fileira 2: Em alta no Brasil (Top 10)
-      if (top10Items.isNotEmpty)
-        SliverToBoxAdapter(
-          child: _HeisucaTop10Row(items: top10Items),
-        ),
-
-      // 4. Fileiras das Bibliotecas / Hubs do Plex
-      for (final hub in remainingHubs)
-        if (hub.items.isNotEmpty)
-          SliverToBoxAdapter(
-            child: _HeisucaShelfRow(
-              title: _cleanHubTitle(hub.title),
-              items: hub.items,
-              storageKey: 'hub_${hub.id}',
-            ),
-          ),
-
-      if (_discover.isLoading && _discover.hubs.isEmpty && _discover.onDeck.isEmpty) ...[
-        SliverToBoxAdapter(child: _HeroSkeleton(height: heroHeight)),
-        const SliverToBoxAdapter(child: CgflixSkeletonRow(wide: true)),
-        const SliverToBoxAdapter(child: CgflixSkeletonRow()),
-      ],
-
-      // Folga no rodapé para não ficar sob a Ilha Flutuante (64dp + 14dp)
-      SliverToBoxAdapter(child: SizedBox(height: MediaQuery.paddingOf(context).bottom + 96)),
-    ];
-  }
-
-  /// Limpa e humaniza títulos brutos de hubs do Plex
-  String _cleanHubTitle(String raw) {
-    final lower = raw.toLowerCase();
-    if (lower.contains('recently added movies') || lower == 'filmes recentes') {
-      return 'Novidades em filmes';
-    }
-    if (lower.contains('recently added television') || lower.contains('recently added shows') || lower == 'séries recentes') {
-      return 'Novidades em séries';
-    }
-    if (lower.contains('recently released movies')) {
-      return 'Lançamentos';
-    }
-    return raw;
-  }
-}
-
-// -----------------------------------------------------------------------------
-// TopBar Heisuca (Esboço 03B: 炳 HEISUCA à esquerda, Busca à direita)
-
-class _HeisucaTopBar extends StatefulWidget {
-  const _HeisucaTopBar({required this.scrollController});
-  final ScrollController scrollController;
-
-  @override
-  State<_HeisucaTopBar> createState() => _HeisucaTopBarState();
-}
-
-class _HeisucaTopBarState extends State<_HeisucaTopBar> {
-  double _scrollOffset = 0.0;
-
-  @override
-  void initState() {
-    super.initState();
-    widget.scrollController.addListener(_onScroll);
-  }
-
-  @override
-  void didUpdateWidget(_HeisucaTopBar oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.scrollController != widget.scrollController) {
-      oldWidget.scrollController.removeListener(_onScroll);
-      widget.scrollController.addListener(_onScroll);
-    }
-  }
-
-  @override
-  void dispose() {
-    widget.scrollController.removeListener(_onScroll);
-    super.dispose();
-  }
-
-  void _onScroll() {
-    if (!widget.scrollController.hasClients) return;
-    final offset = widget.scrollController.offset;
-    if ((offset - _scrollOffset).abs() > 4.0) {
-      setState(() => _scrollOffset = offset);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final padding = MediaQuery.paddingOf(context);
-    final isScrolled = _scrollOffset > 24.0;
-    final palette = context.cgflix;
-    final isLight = palette.isLight;
-
-    final bgColor = isScrolled
-        ? (isLight
-            ? const Color(0xFFF7F3EC).withValues(alpha: 0.88)
-            : const Color(0xFF0E0B14).withValues(alpha: 0.82))
-        : Colors.transparent;
-
-    return Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
-      child: ClipRect(
-        child: BackdropFilter(
-          filter: isScrolled
-              ? ImageFilter.blur(sigmaX: 16.0, sigmaY: 16.0)
-              : ImageFilter.blur(sigmaX: 0.0, sigmaY: 0.0),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            color: bgColor,
-            padding: EdgeInsets.fromLTRB(16.0 + padding.left, padding.top + 6.0, 16.0 + padding.right, 10.0),
-            child: Row(
-              children: [
-                // Marca HEISUCA colada ao selo carmim no canto superior esquerdo
-                const HeisucaLogo(height: 28, comSlogan: false),
-                const Spacer(),
-                // Ícone de Busca discreto à direita
-                IconButton(
-                  icon: Icon(
-                    Symbols.search_rounded,
-                    color: isLight ? const Color(0xFF164E3E) : const Color(0xFFF4F1FA),
-                    size: 24.0,
-                  ),
-                  tooltip: 'Buscar',
-                  onPressed: () {
-                    HapticFeedback.lightImpact();
-                    cgflixOpenSearch(context);
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 // -----------------------------------------------------------------------------
@@ -486,8 +331,12 @@ class _HeisucaHero extends StatefulWidget {
     required this.height,
     this.paused = false,
     this.onActiveItemChanged,
+    required this.logoAnchor,
+    required this.scrollController,
   });
 
+  final ScrollController scrollController;
+  final GlobalKey logoAnchor;
   final List<MediaItem> items;
   final double height;
   final bool paused;
@@ -500,6 +349,7 @@ class _HeisucaHero extends StatefulWidget {
 class _HeisucaHeroState extends State<_HeisucaHero> {
   int _currentIndex = 0;
   Timer? _timer;
+  final _preloaded = <String>{};
 
   @override
   void initState() {
@@ -512,7 +362,7 @@ class _HeisucaHeroState extends State<_HeisucaHero> {
   void didUpdateWidget(_HeisucaHero oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (_currentIndex >= widget.items.length) _currentIndex = 0;
-    if (oldWidget.paused != widget.paused || oldWidget.items.length != widget.items.length) {
+    if (oldWidget.paused != widget.paused || oldWidget.items != widget.items) {
       _startTimer();
       WidgetsBinding.instance.addPostFrameCallback((_) => _notifyActive());
     }
@@ -521,6 +371,23 @@ class _HeisucaHeroState extends State<_HeisucaHero> {
   void _notifyActive() {
     if (widget.items.isNotEmpty && mounted) {
       widget.onActiveItemChanged?.call(widget.items[_currentIndex % widget.items.length]);
+      // Só o próximo destaque: não disputa rede/decodificação com toda a primeira tela.
+      if (widget.items.length > 1) {
+        final next = widget.items[(_currentIndex + 1) % widget.items.length];
+        final client = cgflixClientFor(context, next);
+        final width = MediaQuery.sizeOf(context).width;
+        final candidates = next.heroArtCandidates(containerAspectRatio: width / widget.height);
+        final path = next.artPath ?? candidates.firstOrNull;
+        if (client != null && path != null && _preloaded.add(next.globalKey)) {
+          final ratio = MediaImageHelper.artworkPixelRatio(context, imageType: ImageType.art);
+          final url = MediaImageHelper.getOptimizedImageUrl(client: client, thumbPath: path, maxWidth: width,
+            maxHeight: widget.height, pixelRatio: ratio, imageType: ImageType.art);
+          final (w, h) = MediaImageHelper.getMemCacheDimensions(displayWidth: (width * ratio).round(),
+            displayHeight: (widget.height * ratio).round(), imageType: ImageType.art);
+          if (url.isNotEmpty) unawaited(precacheImage(MediaImageHelper.serverArtworkProvider(imageUrl: url, memWidth: w, memHeight: h), context,
+            onError: (_, __) {}));
+        }
+      }
     }
   }
 
@@ -557,8 +424,6 @@ class _HeisucaHeroState extends State<_HeisucaHero> {
     final item = widget.items[_currentIndex % widget.items.length];
     final client = cgflixClientFor(context, item);
     final screenWidth = MediaQuery.sizeOf(context).width;
-    final palette = context.cgflix;
-    final isLight = palette.isLight;
     final artCandidates = item.heroArtCandidates(containerAspectRatio: screenWidth / widget.height);
 
     return GestureDetector(
@@ -578,78 +443,17 @@ class _HeisucaHeroState extends State<_HeisucaHero> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // 1. Imagem de Fundo com Transição Suave
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 500),
-              switchInCurve: Curves.easeOutCubic,
-              switchOutCurve: Curves.easeInCubic,
-              child: KeyedSubtree(
-                key: ValueKey('hero_art_${item.globalKey}'),
+            HeisucaArtworkMask(
+              key: const ValueKey('heisuca-hero-mask'),
+              child: HeisucaParallax(controller: widget.scrollController, child: AnimatedSwitcher(
+                duration: HeisucaMotion.durationFor(context),
                 child: OptimizedMediaImage(
-                  client: client,
-                  imagePath: artCandidates.isNotEmpty ? artCandidates.first : null,
-                  width: screenWidth,
-                  height: widget.height,
-                  imageType: ImageType.art,
-                  fadeInDuration: const Duration(milliseconds: 300),
+                  key: ValueKey('hero_art_${item.globalKey}'), client: client,
+                  imagePath: item.artPath ?? (artCandidates.isEmpty ? null : artCandidates.first),
+                  width: screenWidth, height: widget.height, imageType: ImageType.art,
+                  alignment: const Alignment(0, -0.64), fadeInDuration: HeisucaMotion.durationFor(context),
                 ),
-              ),
-            ),
-
-            // 2. Scrim Zenital Superior (protege o topo oficial)
-            IgnorePointer(
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: Container(
-                  height: 120.0,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        palette.background.withValues(alpha: isLight ? 0.70 : 0.85),
-                        palette.background.withValues(alpha: 0.0),
-                      ],
-                      stops: const [0.0, 1.0],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            // 3. Scrim Easing Cúbico de 9 paradas (Hermite Smoothstep - zero faixas duras)
-            IgnorePointer(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: CubicScrimGradient.create(
-                    baseColor: palette.background,
-                    begin: const Alignment(0.0, -0.05),
-                    end: Alignment.bottomCenter,
-                  ),
-                ),
-              ),
-            ),
-
-            // 4. Halo Atmosférico em OKLCH na base adaptado ao item em destaque
-            IgnorePointer(
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  height: 200.0,
-                  decoration: BoxDecoration(
-                    gradient: RadialGradient(
-                      center: const Alignment(0.0, 0.95),
-                      radius: 1.25,
-                      colors: [
-                        OklchColor.fromColor(_HeisucaHomeScreenState.resolveHeroAmbientColor(item, isLight: isLight))
-                            .toCalibratedAmbientColor(isDarkTheme: !isLight)
-                            .withValues(alpha: isLight ? 0.25 : 0.40),
-                        palette.background.withValues(alpha: 0.0),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+              )),
             ),
 
             // 5. Informações Nobres Centralizadas (Esboço 03B)
@@ -660,11 +464,13 @@ class _HeisucaHeroState extends State<_HeisucaHero> {
               child: _HeroInformationBlock(
                 item: item,
                 client: client,
+                logoAnchor: widget.logoAnchor,
                 totalDots: widget.items.length,
                 activeDotIndex: _currentIndex,
                 onDotSelected: (idx) {
                   HapticFeedback.selectionClick();
                   setState(() => _currentIndex = idx);
+                  _notifyActive();
                   _startTimer();
                 },
               ),
@@ -680,6 +486,7 @@ class _HeroInformationBlock extends StatelessWidget {
   const _HeroInformationBlock({
     required this.item,
     required this.client,
+    required this.logoAnchor,
     required this.totalDots,
     required this.activeDotIndex,
     required this.onDotSelected,
@@ -687,6 +494,7 @@ class _HeroInformationBlock extends StatelessWidget {
 
   final MediaItem item;
   final dynamic client;
+  final GlobalKey logoAnchor;
   final int totalDots;
   final int activeDotIndex;
   final ValueChanged<int> onDotSelected;
@@ -696,40 +504,18 @@ class _HeroInformationBlock extends StatelessWidget {
     final palette = context.cgflix;
     final isLight = palette.isLight;
     final year = item.year?.toString() ?? '';
-    final rating = item.rating != null && item.rating! > 0 ? item.rating!.toStringAsFixed(1) : '';
-    final genres = (item.genres ?? const <String>[]).take(2).join(' · ');
-    final badges = _extractBadges(item);
+    final rating = item.rating != null && item.rating! > 0 ? item.rating!.toStringAsFixed(1).replaceAll('.', ',') : '';
+    final genres = (item.genres ?? const <String>[]).take(5).join(', ');
+    final badges = [if (item.contentRating?.isNotEmpty == true) item.contentRating!];
 
-    final titleColor = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
-    final textMutedColor = isLight ? const Color(0xFF334155) : const Color(0xFFA99FBB);
+    final titleColor = context.cgflix.text;
+    final textMutedColor = context.cgflix.textMuted;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // ClearLogo ou Título estilizado em Sora bold
-        ClearLogoImage(
-          client: client,
-          logoPath: item.clearLogoPath,
-          width: 260.0,
-          height: 72.0,
-          fallbackWidth: 320.0,
-          alignment: Alignment.bottomCenter,
-          logoToneTarget: isLight ? const Color(0xFF134E4A) : null,
-          fallbackBuilder: (ctx) => Text(
-            item.displayTitle,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontFamily: HeisucaTheme.fonteTitulo,
-              fontSize: 24.0,
-              fontWeight: FontWeight.w800,
-              color: titleColor,
-              letterSpacing: -0.5,
-            ),
-          ),
-        ),
+        SizedBox(key: logoAnchor, height: 56, width: MediaQuery.sizeOf(context).width * 0.54),
 
         const SizedBox(height: 8.0),
 
@@ -859,16 +645,7 @@ class _HeroInformationBlock extends StatelessWidget {
     );
   }
 
-  List<String> _extractBadges(MediaItem item) {
-    final badges = <String>[];
-    final res = item.mediaVersions?.firstOrNull?.videoResolution?.toUpperCase() ?? '';
-    if (res.contains('4K') || res.contains('2160')) {
-      badges.add('4K UHD');
-    } else if (res.contains('1080')) {
-      badges.add('1080p');
-    }
-    return badges;
-  }
+
 }
 
 // -----------------------------------------------------------------------------
@@ -890,18 +667,18 @@ class _HeisucaContinueWatchingRow extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 12.0),
             child: Text(
-              'Continuar assistindo',
+              'Continuar',
               style: TextStyle(
                 fontFamily: HeisucaTheme.fonteTitulo,
                 fontSize: 18.0,
                 fontWeight: FontWeight.w700,
-                color: context.cgflix.isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA),
+                color: context.cgflix.text,
                 letterSpacing: -0.3,
               ),
             ),
           ),
           SizedBox(
-            height: cgflixWideHeight + CgflixWideCard.titleBlockHeight,
+            height: 180 * 9 / 16 + CgflixWideCard.titleBlockHeightFor(context, siteStyle: true),
             child: ListView.separated(
               key: const PageStorageKey('heisuca-continue-watching-list'),
               physics: const ProMotionScrollPhysics(),
@@ -912,6 +689,7 @@ class _HeisucaContinueWatchingRow extends StatelessWidget {
               itemBuilder: (ctx, index) {
                 final item = items[index];
                 return CgflixWideCard(
+                  width: 180, siteStyle: true,
                   item: item,
                   client: cgflixClientFor(ctx, item),
                   onTap: () {
@@ -951,10 +729,14 @@ class _HeisucaContinueWatchingRow extends StatelessWidget {
 class _ContinueWatchingStreamRow extends StatelessWidget {
   const _ContinueWatchingStreamRow({super.key, required this.discover, required this.repository});
   final DiscoverProvider discover;
-  final CgflixHomeRepository repository;
+  final HeisucaHomeRepository repository;
 
   @override
   Widget build(BuildContext context) {
+    // O Discover mantém o progresso Plex atualizado ao voltar do player.
+    if (repository.client is PlexClient) {
+      return _HeisucaContinueWatchingRow(items: discover.onDeck);
+    }
     return _StreamSection<CgflixRowData>(
       key: const ValueKey('continue_stream'),
       stream: () => repository.watchRow(CgflixRowKind.continueWatching),
@@ -992,33 +774,16 @@ class _HeisucaTop10Row extends StatelessWidget {
                     fontFamily: HeisucaTheme.fonteTitulo,
                     fontSize: 18.0,
                     fontWeight: FontWeight.w700,
-                    color: context.cgflix.isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA),
+                    color: context.cgflix.text,
                     letterSpacing: -0.3,
                   ),
                 ),
-                const SizedBox(width: 8.0),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
-                  decoration: BoxDecoration(
-                    color: context.cgflix.accent.withValues(alpha: 0.18),
-                    borderRadius: BorderRadius.circular(4.0),
-                    border: Border.all(color: context.cgflix.accent.withValues(alpha: 0.4), width: 0.8),
-                  ),
-                  child: Text(
-                    'TOP 10',
-                    style: TextStyle(
-                      fontFamily: HeisucaTheme.fonteTitulo,
-                      fontSize: 10.0,
-                      fontWeight: FontWeight.w800,
-                      color: context.cgflix.accent,
-                    ),
-                  ),
-                ),
+
               ],
             ),
           ),
           SizedBox(
-            height: cgflixPosterHeight,
+            height: 134.4,
             child: ListView.separated(
               key: const PageStorageKey('heisuca-top10-list'),
               physics: const ProMotionScrollPhysics(),
@@ -1029,11 +794,13 @@ class _HeisucaTop10Row extends StatelessWidget {
               itemBuilder: (ctx, index) {
                 final item = items[index];
                 return CgflixTop10Card(
+                  siteStyle: true,
                   rank: index + 1,
                   item: item,
                   client: cgflixClientFor(ctx, item),
                   onTap: () {
                     HapticFeedback.lightImpact();
+                    cgflixRememberHeroTag(item, 'heisuca-home-${ctx.hashCode}-${item.globalKey}');
                     HeisucaTitleSheet.show(ctx, item);
                   },
                   onLongPress: () {
@@ -1073,11 +840,13 @@ class _HeisucaShelfRow extends StatelessWidget {
     required this.title,
     required this.items,
     required this.storageKey,
+    this.onSeeAll,
   });
 
   final String title;
   final List<MediaItem> items;
   final String storageKey;
+  final VoidCallback? onSeeAll;
 
   @override
   Widget build(BuildContext context) {
@@ -1088,23 +857,15 @@ class _HeisucaShelfRow extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 11.0),
-            child: Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontFamily: HeisucaTheme.fonteTitulo,
-                fontSize: 17.5,
-                fontWeight: FontWeight.w700,
-                color: context.cgflix.isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA),
-                letterSpacing: -0.3,
-              ),
-            ),
-          ),
+          Padding(padding: const EdgeInsets.fromLTRB(16, 4, 16, 11), child: Row(children: [
+            Expanded(child: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontFamily: HeisucaTheme.fonteTitulo, fontSize: 17.5, fontWeight: FontWeight.w700))),
+            if (onSeeAll != null) TextButton(onPressed: onSeeAll, child: const Text('Ver tudo ›')),
+          ])),
           SizedBox(
-            height: cgflixPosterHeight,
+            height: (120 + 5
+                + heisucaLineHeight(context, const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600))
+                + heisucaLineHeight(context, const TextStyle(fontSize: 11))).clamp(180.0, double.infinity),
             child: ListView.separated(
               key: PageStorageKey<String>('heisuca-shelf:$storageKey'),
               physics: const ProMotionScrollPhysics(),
@@ -1114,11 +875,16 @@ class _HeisucaShelfRow extends StatelessWidget {
               separatorBuilder: (_, __) => const SizedBox(width: 8.0),
               itemBuilder: (ctx, index) {
                 final item = items[index];
-                return CgflixPosterCard(
+                return _HomePosterWithCaption(
+                  item: item,
+                  child: CgflixPosterCard(
+                  heroTag: 'heisuca-home-${ctx.hashCode}-${item.globalKey}',
+                  width: 80,
                   item: item,
                   client: cgflixClientFor(ctx, item),
                   onTap: () {
                     HapticFeedback.lightImpact();
+                    cgflixRememberHeroTag(item, 'heisuca-home-${ctx.hashCode}-${item.globalKey}');
                     HeisucaTitleSheet.show(ctx, item);
                   },
                   onLongPress: () {
@@ -1140,6 +906,7 @@ class _HeisucaShelfRow extends StatelessWidget {
                       },
                     );
                   },
+                ),
                 );
               },
             ),
@@ -1153,78 +920,24 @@ class _HeisucaShelfRow extends StatelessWidget {
 // -----------------------------------------------------------------------------
 // Auxiliares, Streams e Gêneros
 
-class _StreamSection<T> extends StatelessWidget {
-  const _StreamSection({
-    super.key,
-    required this.stream,
-    required this.loading,
-    required this.builder,
-    this.failed,
-  });
-
+class _StreamSection<T> extends StatefulWidget {
+  const _StreamSection({super.key, required this.stream, required this.loading, required this.builder, this.failed});
   final Stream<T> Function() stream;
   final Widget loading;
   final Widget Function(T data) builder;
   final Widget? failed;
-
   @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<T>(
-      stream: stream(),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) return failed ?? const SizedBox.shrink();
-        if (snapshot.hasData) return builder(snapshot.data as T);
-        return loading;
-      },
-    );
-  }
+  State<_StreamSection<T>> createState() => _StreamSectionState<T>();
 }
 
-class _GenreRows extends StatefulWidget {
-  const _GenreRows({super.key, required this.repository});
-  final CgflixHomeRepository repository;
-
+class _StreamSectionState<T> extends State<_StreamSection<T>> {
+  late final Stream<T> _stream = widget.stream();
   @override
-  State<_GenreRows> createState() => _GenreRowsState();
-}
-
-class _GenreRowsState extends State<_GenreRows> {
-  StreamSubscription<List<String>>? _subscription;
-  List<String> _genres = const [];
-
-  @override
-  void initState() {
-    super.initState();
-    _subscription = widget.repository.watchGenres().listen((genres) {
-      if (mounted) setState(() => _genres = genres);
-    });
-  }
-
-  @override
-  void dispose() {
-    _subscription?.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SliverList.builder(
-      itemCount: _genres.length,
-      itemBuilder: (context, index) {
-        final genre = _genres[index];
-        return _StreamSection<CgflixRowData>(
-          key: ValueKey('genre:$genre'),
-          stream: () => widget.repository.watchRow(CgflixRowKind.genre, genre: genre),
-          loading: const CgflixSkeletonRow(),
-          builder: (data) => _HeisucaShelfRow(
-            title: cgflixRowTitle(CgflixRowKind.genre, genre: genre),
-            items: data.items,
-            storageKey: 'genre:$genre',
-          ),
-        );
-      },
-    );
-  }
+  Widget build(BuildContext context) => StreamBuilder<T>(stream: _stream, builder: (context, snapshot) {
+    if (snapshot.hasError) return widget.failed ?? const SizedBox.shrink();
+    if (snapshot.hasData) return widget.builder(snapshot.data as T);
+    return widget.loading;
+  });
 }
 
 class _HeroSkeleton extends StatelessWidget {
@@ -1249,7 +962,7 @@ class _HomeLoadFailed extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Symbols.cloud_off_rounded, size: 48, color: Colors.white30),
+              Icon(Symbols.cloud_off_rounded, size: 48, color: context.cgflix.accent),
               const SizedBox(height: 12),
               Text(
                 'Não foi possível conectar ao acervo',
@@ -1258,21 +971,95 @@ class _HomeLoadFailed extends StatelessWidget {
                   fontFamily: HeisucaTheme.fonteTitulo,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: context.cgflix.isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA),
+                  color: context.cgflix.text,
                 ),
               ),
               const SizedBox(height: 6),
-              const Text(
+              Text(
                 'Verifique a conexão ou puxe para atualizar',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: HeisucaTheme.fonteTexto,
                   fontSize: 13,
-                  color: Colors.white54,
+                  color: context.cgflix.textOn(context.cgflix.background, preferred: context.cgflix.textMuted),
                 ),
               ),
             ],
           ),
         ),
       );
+}
+
+
+class _HomePosterWithCaption extends StatelessWidget {
+  const _HomePosterWithCaption({required this.item, required this.child});
+  final MediaItem item;
+  final Widget child;
+  @override
+  Widget build(BuildContext context) => SizedBox(width: 80, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    Stack(children: [child,
+      if (item.rating != null && item.rating! > 0) Positioned(right: 4, bottom: 4,
+        child: DecoratedBox(decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(4)),
+          child: Padding(padding: const EdgeInsets.symmetric(horizontal: 3),
+            child: Text(item.rating!.toStringAsFixed(1).replaceAll('.', ','), style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700))))),
+    ]),
+    const SizedBox(height: 5),
+    Text(item.displayTitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600)),
+    if (item.year != null) Text('${item.year}', style: TextStyle(fontSize: 11, color: context.cgflix.textMuted)),
+  ]));
+}
+
+class _UpcomingRow extends StatelessWidget {
+  const _UpcomingRow({required this.repository, required this.items});
+  final HeisucaHomeRepository repository;
+  final List<HeisucaUpcoming> items;
+
+  Future<void> _open(BuildContext context, HeisucaUpcoming item) async {
+    try {
+      final matched = await repository.resolveUpcoming(item);
+      if (!context.mounted) return;
+      if (matched != null) { HeisucaTitleSheet.show(context, matched); return; }
+    } catch (_) { /* Oferece o fluxo real de pedidos se o item não puder ser aberto. */ }
+    if (!context.mounted) return;
+    await showModalBottomSheet<void>(sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: context, isScrollControlled: true, useSafeArea: true,
+      builder: (_) => SizedBox(height: MediaQuery.sizeOf(context).height * 0.72,
+        child: SingleChildScrollView(padding: const EdgeInsets.all(20), child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(item.title, style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 12),
+            const Text('Confira a disponibilidade e escolha o título para pedir.'),
+            CgflixRequestSection(query: item.title),
+          ],
+        ))));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (items.isEmpty) return const SizedBox.shrink();
+    return Padding(key: const ValueKey('heisuca-upcoming-row'), padding: const EdgeInsets.only(bottom: 22),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        const Padding(padding: EdgeInsets.fromLTRB(16, 4, 16, 12), child: Text('Em breve',
+          style: TextStyle(fontSize: 17.5, fontWeight: FontWeight.w700, fontFamily: HeisucaTheme.fonteTitulo))),
+        SizedBox(height: 180, child: ListView.separated(scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16), itemCount: items.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 8), itemBuilder: (context, index) {
+            final item = items[index];
+            return SizedBox(width: 80, child: InkWell(onTap: () => _open(context, item), child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start, children: [
+                ClipRRect(borderRadius: BorderRadius.circular(9), child: Stack(children: [
+                  OptimizedMediaImage(client: repository.upcomingImageClient, imagePath: item.imagePath, width: 80, height: 120),
+                  Positioned(top: 4, left: 4, right: 4, child: DecoratedBox(
+                    decoration: BoxDecoration(color: context.cgflix.accent, borderRadius: BorderRadius.circular(8)),
+                    child: Padding(padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      child: Text(item.isMovie ? 'Em breve' : 'Novo episódio', maxLines: 1, overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w700))))),
+                ])),
+                const SizedBox(height: 5),
+                Text(item.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600)),
+                Text(item.subtitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 11, color: context.cgflix.textMuted)),
+              ],
+            )));
+          })),
+      ]));
+  }
 }

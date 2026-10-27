@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/theme/mono_theme.dart';
+import 'package:heisuca/theme/mono_theme.dart';
 
 /// `monoTheme` builds a full `ColorScheme`, an applied+copyWith'd Typography
 /// `TextTheme`, ~14 sub-theme objects, and then clones the whole `ThemeData`
@@ -26,9 +26,8 @@ void main() {
     expect(identical(dark, oled), isFalse);
     expect(light.brightness, Brightness.light);
     expect(dark.brightness, Brightness.dark);
-    // OLED is the pure-black variant, which is the whole reason it exists.
-    // CGFLIX: o OLED (tema Isis) usa preto puro (#000), pensando em tela OLED.
-    expect(oled.scaffoldBackgroundColor, const Color(0xFF000000));
+    // P2: slots históricos oled/dark representam Shikkoku e Hisui escuro.
+    expect(oled.scaffoldBackgroundColor, const Color(0xFF17151C));
     expect(dark.scaffoldBackgroundColor, isNot(const Color(0xFF000000)));
   });
 

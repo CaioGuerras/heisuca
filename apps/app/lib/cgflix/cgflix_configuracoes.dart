@@ -8,7 +8,7 @@
 //     resumo bodyMedium em onSurfaceVariant), switch (trilho primary ligado, contorno outline
 //     desligado, check no polegar), divisores outlineVariant e barra de título grande que recolhe.
 //
-// Os arquivos do Plezy só ganham ganchos curtos: `SettingsGroup`, `SettingsSectionHeader`, as
+// Os arquivos do Heisuca só ganham ganchos curtos: `SettingsGroup`, `SettingsSectionHeader`, as
 // linhas (`FocusableListTile`, `_SettingRow`), o `AppIcon` e a barra de título perguntam
 // [CgflixSettingsLook.of] e desenham no padrão M3 quando estão dentro de [CgflixSettingsScope].
 import 'package:flutter/material.dart';
@@ -21,23 +21,13 @@ import 'cgflix_palette.dart';
 /// deslizante): o lilás da marca, que no tema escuro faz o papel do `primary` do M3 (tom claro
 /// sobre o preto: 9,3:1 no #000 e 8,2:1 no #120e1a). O `primary` global da Isis continua o
 /// branco do upstream (botões cheios, foco da TV); só as Configurações e os controles ficam roxos.
-const cgflixIsisPrimary = Color(0xFFC084FC);
-const cgflixIsisOnPrimary = Color(0xFF3B0764);
-const cgflixIsisPrimaryContainer = Color(0xFF581C87);
-const cgflixIsisOnPrimaryContainer = Color(0xFFF3E8FF);
+const cgflixIsisPrimary = heisucaShikkokuAccent;
+const cgflixIsisOnPrimary = heisucaShikkokuCanvas;
+const cgflixIsisPrimaryContainer = heisucaShikkokuSurface2;
+const cgflixIsisOnPrimaryContainer = heisucaShikkokuText;
 
-/// Esquema das Configurações: o do tema ativo, com o roxo da Isis no `primary`.
-ColorScheme cgflixSettingsScheme(ColorScheme scheme, CgflixThemeVariant variant) => switch (variant) {
-  CgflixThemeVariant.heitor => scheme,
-  CgflixThemeVariant.isis => scheme.copyWith(
-    primary: cgflixIsisPrimary,
-    onPrimary: cgflixIsisOnPrimary,
-    primaryContainer: cgflixIsisPrimaryContainer,
-    onPrimaryContainer: cgflixIsisOnPrimaryContainer,
-    secondaryContainer: cgflixIsisPrimaryContainer.withValues(alpha: 0.6),
-    onSecondaryContainer: cgflixIsisOnPrimaryContainer,
-  ),
-};
+/// Todos os controles usam o mesmo contrato do tema ativo.
+ColorScheme cgflixSettingsScheme(ColorScheme scheme, CgflixThemeVariant variant) => scheme;
 
 /// Switch M3 com as cores do esquema: ligado = trilho `primary`, polegar `onPrimary` com check;
 /// desligado = trilho `surfaceContainerHighest` com contorno `outline` e polegar `outline`.

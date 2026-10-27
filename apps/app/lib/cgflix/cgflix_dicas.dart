@@ -1,11 +1,11 @@
-// Dicas do CGFLIX (refino 2): explicações curtas, em português simples, para as funções que
+// Dicas do Heisuca (refino 2): explicações curtas, em português simples, para as funções que
 // quem não entende de tecnologia não pega de primeira. TODOS os textos ficam aqui, para editar
 // sem caçar pelo código:
 //   - `resumo`: uma linha que aparece sob o item nas Configurações;
-//   - `texto`: 2 a 4 frases, na folha que abre no ícone "?" (help) e em Sobre › Dicas do CGFLIX.
+//   - `texto`: 2 a 4 frases, na folha que abre no ícone "?" (help) e em Sobre › Dicas do Heisuca.
 // A dica do player (gestos) aparece uma vez só, na primeira vez que um vídeo abre no celular, e
 // some sozinha ou com um toque; fica guardada no aparelho (`cgflixDicaPlayerVistaPref`) e pode ser
-// revista em Sobre › Dicas do CGFLIX. Com "remover animações" ligado, nada se mexe.
+// revista em Sobre › Dicas do Heisuca. Com "remover animações" ligado, nada se mexe.
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -18,6 +18,14 @@ import 'cgflix_style.dart';
 
 /// Cada dica: ícone, título, uma linha de resumo e o texto completo.
 enum CgflixDica {
+  navegacao(
+    Symbols.explore_rounded,
+    'Por onde começar',
+    'Use Início, Biblioteca, Baixados e Você na barra de baixo.',
+    'Na barra de baixo, Início mostra os destaques e Biblioteca abre seu acervo. '
+        'Baixados reúne os vídeos para ver sem internet. '
+        'Você reúne sua conta, os perfis e as configurações.',
+  ),
   pularAbertura(
     Symbols.fast_forward_rounded,
     'Pular abertura e créditos',
@@ -38,35 +46,29 @@ enum CgflixDica {
   qualidade(
     Symbols.high_quality_rounded,
     'Qualidade e dados móveis',
-    'O Heisuca toca o arquivo original, na melhor qualidade.',
-    'O vídeo sempre toca do jeito que está no servidor, sem perder qualidade. '
-        'No 4G ou 5G isso gasta bastante internet: um filme pode passar de 2 GB. '
-        'Se o seu plano é pequeno, assista no Wi-Fi ou baixe antes.',
+    'Escolha a qualidade e cuide do seu plano de internet.',
+    'Escolha Original em Configurações › Qualidade de reprodução para priorizar a qualidade do arquivo no servidor. '
+        'Um filme pode gastar vários gigabytes no 4G ou 5G. '
+        'Para poupar internet móvel, assista no Wi-Fi ou baixe antes.',
   ),
   downloads(
     Symbols.download_for_offline_rounded,
     'Baixar para ver sem internet',
     'Baixe no Wi-Fi e assista depois, até no avião.',
     'Toque em "Baixar" na página do filme ou do episódio. '
-        'Os baixados ficam no menu (sua foto) › Baixados e tocam sem internet. '
+        'Abra Baixados na barra de baixo para assistir sem internet. '
         'Com "Baixar só no Wi-Fi" ligado, nada gasta seus dados móveis. '
-        'Para liberar espaço, ligue "Apagar o que já assisti".',
-  ),
-  quickConnect(
-    Symbols.tv_rounded,
-    'Entrar na TV com um código',
-    'Entre na TV ou em outro aparelho sem digitar a senha.',
-    'Na tela de entrada da TV, escolha "Quick Connect": aparece um código de 6 números. '
-        'No celular ou no computador onde você já está conectado, abra o site do servidor, '
-        'toque na sua foto › Quick Connect e digite o código. Pronto: a TV entra sozinha.',
+        'Para liberar espaço, ligue "Apagar baixados já assistidos".',
   ),
   verNaTv(
-    Symbols.cast_rounded,
+    Symbols.tv_rounded,
     'Ver na TV',
-    'Instale o Heisuca na TV box ou espelhe a tela do celular.',
-    'O Heisuca ainda não manda o vídeo para a TV como o Chromecast. '
-        'O melhor jeito é instalar o Heisuca na TV box ou na Android TV e entrar com o código (Quick Connect). '
-        'Outra opção é espelhar a tela do celular pela função do Android ("Transmitir tela" ou "Smart View").',
+    'Veja as opções para sua TV e como entrar com um código.',
+    'Na Samsung e na LG, use nossos apps de TV; no Fire TV, Google TV/Android TV, Roku e Apple TV, '
+        'use um app compatível com Jellyfin ou Plex.\n\n'
+        'No Jellyfin, escolha Quick Connect na TV e autorize o código pelo site do servidor onde você já entrou. '
+        'No Plex, abra plex.tv/link no celular, entre na sua conta Plex e digite o código da TV.\n\n'
+        'Para espelhar, use a função do seu celular e da TV, como Smart View ou Transmitir tela.',
   ),
   meusPedidos(
     Symbols.playlist_add_check_rounded,
@@ -79,10 +81,11 @@ enum CgflixDica {
   minhaConta(
     Symbols.account_circle_rounded,
     'Minha conta',
-    'Troque sua foto e sua senha.',
-    'No menu (toque na sua foto), toque no seu nome para abrir Minha conta. '
-        'Ali você troca a foto e a senha. A senha nova vale para o app, o site e a TV; '
-        'os outros aparelhos pedem a senha nova na próxima vez.',
+    'Atualize a foto e a senha da sua conta.',
+    'Com uma fonte Jellyfin conectada, abra Você › Conta › Minha conta: foto e senha. '
+        'Ali, você troca a foto e a senha do Jellyfin. '
+        'Nos outros aparelhos, entre de novo com a senha nova quando for pedido. '
+        'No Plex, gerencie a conta pelo site plex.tv.',
   ),
   gestos(
     Symbols.touch_app_rounded,
@@ -241,7 +244,7 @@ Future<void> _marcarDicaPlayerVista(bool vista) async {
   await SettingsService.instanceOrNull?.write(cgflixDicaPlayerVistaPref, vista);
 }
 
-/// Faz a dica do player aparecer de novo no próximo vídeo (Sobre › Dicas do CGFLIX).
+/// Faz a dica do player aparecer de novo no próximo vídeo (Sobre › Dicas do Heisuca).
 Future<void> cgflixReverDicaPlayer() => _marcarDicaPlayerVista(false);
 
 /// Dica única do player: um cartão discreto embaixo, por cima do vídeo. Aparece só se ainda não foi

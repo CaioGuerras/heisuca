@@ -29,6 +29,16 @@ import 'player_streams.dart';
 /// - Track parsing and selection
 /// - Common lifecycle methods
 abstract class PlayerBase with PlayerStreamControllersMixin implements Player {
+  @override
+  Future<void> setBackgroundAudio(bool enabled) async {
+    if (Platform.isAndroid) await invoke('setBackgroundAudio', {'enabled': enabled});
+  }
+
+  @override
+  Future<void> setContinueListening(bool allowed) async {
+    if (Platform.isAndroid) await invoke('setContinueListening', {'allowed': allowed});
+  }
+
   PlayerState _state = const PlayerState();
 
   @override

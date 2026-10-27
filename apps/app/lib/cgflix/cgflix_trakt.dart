@@ -2,9 +2,9 @@
 //
 // As credenciais vêm do build (`--dart-define=TRAKT_CLIENT_ID=... --dart-define=TRAKT_CLIENT_SECRET=...`,
 // lidas dos secrets CGFLIX_TRAKT_CLIENT_ID/CGFLIX_TRAKT_CLIENT_SECRET no workflow do CGFLIX). Sem
-// elas o Trakt some da interface: nunca cai no app OAuth registrado pelo autor do Plezy (era daí
-// que vinha o nome "Plezy" ao abrir um serviço). MyAnimeList, AniList, Simkl, MDBList e o Seerr
-// manual saem da interface (o código do upstream continua lá).
+// elas o Trakt some da interface: nunca cai no app OAuth registrado pelo autor do Heisuca (era daí
+// que vinha o nome "Heisuca" ao abrir um serviço). MyAnimeList, AniList, Simkl, MDBList e o Seerr
+// manual saem da interface; MAL/AniList foram removidos em 25/10.
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -13,7 +13,6 @@ import 'package:material_symbols_icons/symbols.dart';
 
 import '../media/media_item.dart';
 import '../media/media_kind.dart';
-import '../services/discord_rpc_service.dart';
 import '../services/trackers/tracker_constants.dart';
 import '../services/trackers/trakt/trakt_constants.dart';
 import '../utils/app_logger.dart';
@@ -28,20 +27,20 @@ const cgflixTraktClientSecret = String.fromEnvironment('TRAKT_CLIENT_SECRET');
 /// O build tem as credenciais do CGFLIX?
 const cgflixTraktConfigured = cgflixTraktClientId != '' && cgflixTraktClientSecret != '';
 
-/// Testes do upstream ligam isto para ver todos os serviços (como no Plezy).
+/// Testes do upstream ligam isto para ver todos os serviços (como no Heisuca).
 bool cgflixDebugShowAllServices = false;
 
 /// Quais rastreadores aparecem nos Serviços (e no resto da interface): só o Trakt, e só com
 /// credenciais próprias.
 bool cgflixShowsTracker(TrackerService service) =>
-    cgflixDebugShowAllServices || (service == TrackerService.trakt && cgflixTraktConfigured);
+    heisucaTrackerServices.contains(service) && (cgflixDebugShowAllServices || (service == TrackerService.trakt && cgflixTraktConfigured));
 
 /// A linha "Seerr" dos Serviços sai: os pedidos entram sozinhos pela busca (Quick Connect).
 bool get cgflixShowsSeerrService => cgflixDebugShowAllServices;
 
-/// Configurações › Serviços só aparece se houver algo dentro (Trakt; Discord no computador).
+/// Configurações › Serviços só aparece se houver algo dentro (Trakt).
 bool get cgflixShowsServicesTile =>
-    cgflixDebugShowAllServices || cgflixTraktConfigured || DiscordRPCService.isAvailable;
+    cgflixDebugShowAllServices || cgflixTraktConfigured;
 
 // ---------------------------------------------------------------------------
 // Comentários do Trakt na página do título

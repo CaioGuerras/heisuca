@@ -5,8 +5,6 @@ import '../../cgflix/cgflix_trakt.dart';
 import '../../i18n/strings.g.dart';
 import '../../models/catalog/catalog_item.dart';
 import '../../providers/trackers_provider.dart';
-import '../../services/trackers/anilist/anilist_tracker.dart';
-import '../../services/trackers/mal/mal_tracker.dart';
 import '../../services/trackers/mdblist/mdblist_tracker.dart';
 import '../../services/trackers/simkl/simkl_tracker.dart';
 import '../../services/trackers/tracker.dart';
@@ -73,18 +71,6 @@ class TrackerServiceInfo {
       username: (context) => context.watch<TrackersProvider>().traktUsername,
       startConnection: startTraktConnection,
       buildSettingsScreen: () => const TraktSettingsScreen(),
-    ),
-    TrackerServiceInfo.shared(
-      TrackerConfig.mal(),
-      logoSource: CatalogSourceId.mal,
-      ratingSource: MalTracker.instance,
-      startConnection: startMalConnection,
-    ),
-    TrackerServiceInfo.shared(
-      TrackerConfig.anilist(),
-      logoSource: CatalogSourceId.anilist,
-      ratingSource: AnilistTracker.instance,
-      startConnection: startAnilistConnection,
     ),
     TrackerServiceInfo.shared(
       TrackerConfig.simkl(),

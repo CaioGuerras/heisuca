@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/mixins/debounced_media_search.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/mixins/debounced_media_search.dart';
 
 import '../test_helpers/media_items.dart';
 

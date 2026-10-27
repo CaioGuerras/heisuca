@@ -1,3 +1,4 @@
+import 'package:heisuca/heisuca/services/heisuca_playback_delivery.dart';
 import 'dart:async' show StreamSubscription, Timer, unawaited;
 import 'dart:io' show Platform;
 
@@ -14,7 +15,7 @@ import 'package:flutter/gestures.dart'
         PointerUpEvent,
         kDoubleTapTimeout;
 import 'package:flutter/material.dart';
-import 'package:plezy/widgets/app_icon.dart';
+import 'package:heisuca/widgets/app_icon.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:rate_limiter/rate_limiter.dart';
 import 'package:flutter/services.dart'
@@ -554,6 +555,7 @@ class PlexVideoControls extends StatefulWidget {
   final int selectedMediaIndex;
   final TranscodeQualityPreset selectedQualityPreset;
   final bool serverSupportsTranscoding;
+  final HeisucaPlaybackDelivery? delivery;
   final bool isTranscoding;
   final bool isOfflinePlayback;
   final List<MediaAudioTrack> sourceAudioTracks;
@@ -697,6 +699,7 @@ class PlexVideoControls extends StatefulWidget {
     this.selectedQualityPreset = TranscodeQualityPreset.original,
     this.serverSupportsTranscoding = false,
     this.isTranscoding = false,
+    this.delivery,
     this.isOfflinePlayback = false,
     this.sourceAudioTracks = const [],
     this.selectedAudioStreamId,
@@ -1185,11 +1188,14 @@ class _PlexVideoControlsState extends State<PlexVideoControls>
     // behind a fully transparent widget.
     final performanceOverlayVisible = !_autoHidePerformanceOverlay || _showControls;
 
-    // Hide ALL controls when in PiP mode (except macOS where main window stays visible)
-    return ValueListenableBuilder<bool>(
-      valueListenable: _pipService.isPipActive,
-      builder: (context, isInPip, _) {
-        if (isInPip && !Platform.isMacOS) return const SizedBox.shrink();
+    // O Android anuncia a entrada antes de redimensionar a janela. O HUD já
+    // deve estar ausente nessa transição, além de permanecer ausente no PiP.
+    return ListenableBuilder(
+      listenable: Listenable.merge([_pipService.isPipActive, _pipService.isPipTransitioning]),
+      builder: (context, _) {
+        if ((_pipService.isPipActive.value || _pipService.isPipTransitioning.value) && !Platform.isMacOS) {
+          return const SizedBox.shrink();
+        }
         return Focus(
           focusNode: _focusNode,
           autofocus: true,
@@ -1334,6 +1340,12 @@ class _PlexVideoControlsState extends State<PlexVideoControls>
                                                     final hasStripContent = _chapters.isNotEmpty || canShowQueue;
                                                     return MobileVideoControls(
                                                       player: widget.player,
+                                                      heisucaTrackState: PlatformDetector.isPhone(context)
+                                                          ? _buildTrackControlsState(
+                                                              playbackState: playbackState,
+                                                              onToggleAlwaysOnTop: _toggleAlwaysOnTop,
+                                                            )
+                                                          : null,
                                                       metadata: widget.metadata,
                                                       chapters: _chapters,
                                                       chaptersLoaded: _chaptersLoaded,
@@ -1366,6 +1378,8 @@ class _PlexVideoControlsState extends State<PlexVideoControls>
                                                       serverId: widget.metadata.serverId,
                                                       showQueueTab: canShowQueue,
                                                       onQueueItemSelected: canShowQueue ? _onQueueItemSelected : null,
+                                                      // CGFLIX: todas as temporadas, mesmo sem fila ativa.
+                                                      onSeriesEpisodeSelected: widget.canNavigateMediaItems ? _onQueueItemSelected : null,
                                                       chromeController: widget.chromeController,
                                                       onStripVisibilityChanged: (visible) {
                                                         if (visible) {

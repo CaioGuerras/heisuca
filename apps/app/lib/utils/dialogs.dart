@@ -340,6 +340,7 @@ Future<bool?> showConfirmWithSwitchDialog(
         builder: (context, setState) {
           final colorScheme = Theme.of(context).colorScheme;
           return AlertDialog(
+            scrollable: true,
             title: Text(title),
             content: Column(
               mainAxisSize: MainAxisSize.min,

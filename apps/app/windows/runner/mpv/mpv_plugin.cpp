@@ -16,7 +16,7 @@ void MpvPlayerPluginRegisterWithRegistrar(FlutterDesktopPluginRegistrarRef regis
 void MpvAudioPlayerPluginRegisterWithRegistrar(FlutterDesktopPluginRegistrarRef registrar) {
   mpv::MpvPlayerPlugin::RegisterWithRegistrar(
       flutter::PluginRegistrarManager::GetInstance()->GetRegistrar<flutter::PluginRegistrarWindows>(registrar),
-      "com.plezy/mpv_audio_player", /*audio_only=*/true);
+      "app.heisuca/mpv_audio_player", /*audio_only=*/true);
 }
 
 namespace mpv {

@@ -1,16 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/media/account_preferences.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/media/media_server_user_profile.dart';
-import 'package:plezy/media/media_source_info.dart';
-import 'package:plezy/services/jellyfin_media_info_mapper.dart';
-import 'package:plezy/services/playback_track_preview.dart';
-import 'package:plezy/services/plex_mappers.dart';
-import 'package:plezy/services/plex_playback_mapper.dart';
-import 'package:plezy/services/track_selection_service.dart';
-import 'package:plezy/mpv/mpv.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/media/account_preferences.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_server_user_profile.dart';
+import 'package:heisuca/media/media_source_info.dart';
+import 'package:heisuca/services/jellyfin_media_info_mapper.dart';
+import 'package:heisuca/services/playback_track_preview.dart';
+import 'package:heisuca/services/plex_mappers.dart';
+import 'package:heisuca/services/plex_playback_mapper.dart';
+import 'package:heisuca/services/track_selection_service.dart';
+import 'package:heisuca/mpv/mpv.dart';
 
 class _JapaneseAudioProfile implements MediaServerUserProfile {
   @override

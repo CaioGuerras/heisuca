@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:plezy/services/trackers/tracker_http_client.dart';
+import 'package:heisuca/services/trackers/tracker_http_client.dart';
 
 TrackerHttpClient _client(void Function(http.Request) capture) {
   return TrackerHttpClient(

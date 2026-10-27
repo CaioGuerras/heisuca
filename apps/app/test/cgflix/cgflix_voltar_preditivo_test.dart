@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/cgflix/cgflix_theme.dart';
+import 'package:heisuca/cgflix/cgflix_theme.dart';
 
 Future<void> _mandar(WidgetTester tester, MethodCall call) async {
   await tester.binding.defaultBinaryMessenger.handlePlatformMessage(

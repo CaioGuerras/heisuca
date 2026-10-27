@@ -1,6 +1,7 @@
 import 'dart:ui';
+import '../../heisuca/heisuca_news.dart';
 import 'package:flutter/material.dart';
-import 'package:plezy/widgets/app_icon.dart';
+import 'package:heisuca/widgets/app_icon.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../cgflix/apoio/cgflix_apoio_screen.dart';
@@ -23,7 +24,6 @@ class AboutScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final appName = t.app.title;
     final palette = context.cgflix;
 
     return FutureBuilder<PackageInfo>(
@@ -41,29 +41,7 @@ class AboutScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         const SizedBox(height: 16),
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(24),
-                            boxShadow: [
-                              BoxShadow(
-                                color: palette.accent.withValues(alpha: 0.28),
-                                blurRadius: 32,
-                                spreadRadius: -4,
-                              ),
-                            ],
-                          ),
-                          child: const HeisucaLogo(height: 84, apenasSelo: true),
-                        ),
-                        const SizedBox(height: 14),
-                        Text(
-                          appName.toUpperCase(),
-                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontFamily: 'Sora',
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 3.0,
-                          ),
-                        ),
+                        const HeisucaLogo(height: 64),
                         const SizedBox(height: 6),
                         Text(
                           'Nada entre você e o filme.',
@@ -94,7 +72,6 @@ class AboutScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        const CgflixCredits(),
                         const CgflixApoioAboutLine(),
                       ],
                     ),
@@ -106,6 +83,7 @@ class AboutScreen extends StatelessWidget {
                     margin: EdgeInsets.zero,
                     children: [
                       const CgflixDicasAboutTile(),
+                      if (heisucaNewsAvailable(context)) const HeisucaNewsEntry(),
                       FocusableListTile(
                         leading: const AppIcon(Symbols.description_rounded, fill: 1),
                         title: Text(t.about.openSourceLicenses),

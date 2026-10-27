@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/services/bif_thumbnail_service.dart';
+import 'package:heisuca/services/bif_thumbnail_service.dart';
 
 import '../test_helpers/bif_fixtures.dart';
 

@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:sentry_flutter/sentry_flutter.dart';
-
 import 'app_logger.dart';
 import 'device_channel.dart';
 
@@ -65,21 +63,8 @@ abstract final class AndroidExitDiagnostics {
   };
   static final _decoderNamePattern = RegExp(r'^[A-Za-z0-9_.:-]{1,96}$');
   static final _startupWatch = Stopwatch()..start();
-  static final List<({String phase, int elapsedMs})> _pendingBreadcrumbs = [];
-  static var _telemetryReady = false;
   static var _nativeOnCreateRecorded = false;
   static var _lastElapsedMs = 0;
-
-  /// Flushes phase breadcrumbs recorded before Sentry's app runner started.
-  static void markTelemetryReady() {
-    if (_telemetryReady) return;
-    _telemetryReady = true;
-    final pending = List.of(_pendingBreadcrumbs);
-    _pendingBreadcrumbs.clear();
-    for (final mark in pending) {
-      _sendBreadcrumb(mark.phase, mark.elapsedMs);
-    }
-  }
 
   /// Persists and records one fixed, privacy-safe startup phase.
   static void markStartupPhase(AndroidStartupPhase phase) {
@@ -106,27 +91,6 @@ abstract final class AndroidExitDiagnostics {
     } catch (_) {
       // Local logging is best-effort.
     }
-    if (_telemetryReady) {
-      _sendBreadcrumb(phase, elapsedMs);
-    } else {
-      _pendingBreadcrumbs.add((phase: phase, elapsedMs: elapsedMs));
-    }
-  }
-
-  static void _sendBreadcrumb(String phase, int elapsedMs) {
-    try {
-      unawaited(
-        Sentry.addBreadcrumb(
-          Breadcrumb(
-            message: 'Startup phase $phase',
-            category: 'startup.phase',
-            data: {'phase': phase, 'elapsedMs': elapsedMs},
-          ),
-        ).catchError((_) {}),
-      );
-    } catch (_) {
-      // Breadcrumb emission is best-effort.
-    }
   }
 
   static Future<void> _persistStartupPhase(String phase) async {
@@ -146,7 +110,7 @@ abstract final class AndroidExitDiagnostics {
     }
   }
 
-  /// Records a native-sanitized previous-exit report in local logs and Sentry.
+  /// Records a native-sanitized previous-exit report in local logs.
   ///
   /// Native persistence makes this one-shot across launches. Every failure is
   /// intentionally contained because historical diagnostics must not affect
@@ -172,11 +136,6 @@ abstract final class AndroidExitDiagnostics {
         'downmix=${report['downmixEnabled'] ?? 'omitted'} '
         'normalization=${report['normalizationEnabled'] ?? 'omitted'} '
         'uiState=${report['uiState'] ?? 'omitted'}',
-      );
-      await Sentry.captureMessage(
-        'Previous Android application exit',
-        level: SentryLevel.warning,
-        withScope: (scope) => scope.setContexts('android_previous_exit', report),
       );
     } catch (_) {
       // Historical diagnostics are best-effort and must never escape startup.

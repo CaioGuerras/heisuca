@@ -124,7 +124,7 @@ class _Translations$auth$de extends Translations$auth$en {
 	@override String get quickConnectWaiting => 'Warte auf Bestätigung…';
 	@override String get quickConnectCancel => 'Abbrechen';
 	@override String get quickConnectExpired => 'Quick Connect ist abgelaufen. Versuche es erneut.';
-	@override String get localDataRecoveryRequired => 'Plezy konnte lokale Anmeldedaten und ausstehende Wiedergabedaten nicht sicher wiederherstellen. Bitte melde dich erneut an.';
+	@override String get localDataRecoveryRequired => 'Heisuca konnte lokale Anmeldedaten und ausstehende Wiedergabedaten nicht sicher wiederherstellen. Bitte melde dich erneut an.';
 	@override String get pinCheckRejected => 'Die Plex-PIN-Prüfung wurde abgelehnt';
 }
 
@@ -226,7 +226,7 @@ class _Translations$settings$de extends Translations$settings$en {
 
 	// Translations
 	@override String get title => 'Einstellungen';
-	@override String get supportDeveloper => 'Plezy unterstützen';
+	@override String get supportDeveloper => 'Heisuca unterstützen';
 	@override String get supportDeveloperDescription => 'Per Liberapay spenden, um die Entwicklung zu fördern';
 	@override String get language => 'Sprache';
 	@override String get theme => 'Design';
@@ -348,8 +348,6 @@ class _Translations$settings$de extends Translations$settings$en {
 	@override String get watchTogetherRelayDescription => 'Eigenes Relay festlegen. Alle müssen denselben Server verwenden.';
 	@override String get watchTogetherRelayHint => 'https://mein-relay.beispiel.de';
 	@override String get watchTogetherRelayInvalid => 'Gib eine gültige HTTP- oder HTTPS-Basis-URL für das Relay ein.';
-	@override String get crashReporting => 'Absturzberichte';
-	@override String get crashReportingDescription => 'Absturzberichte senden, um die App zu verbessern';
 	@override String get debugLogging => 'Debug-Protokollierung';
 	@override String get debugLoggingDescription => 'Detaillierte Protokolle zur Fehleranalyse aktivieren';
 	@override String get viewLogs => 'Protokolle anzeigen';
@@ -368,7 +366,7 @@ class _Translations$settings$de extends Translations$settings$en {
 	@override String get importSettingsDescription => 'Einstellungen aus einer Datei wiederherstellen';
 	@override String get importSettingsConfirm => 'Dies ersetzt deine aktuellen Einstellungen. Fortfahren?';
 	@override String get importSettingsSuccess => 'Einstellungen importiert';
-	@override String get importSettingsInvalidFile => 'Diese Datei ist kein gültiger Plezy-Einstellungsexport';
+	@override String get importSettingsInvalidFile => 'Diese Datei ist kein gültiger Heisuca-Einstellungsexport';
 	@override String get importSettingsNoUser => 'Vor dem Import bitte anmelden';
 	@override String get shortcutsReset => 'Tastenkürzel auf Standard zurückgesetzt';
 	@override String get about => 'Über';
@@ -430,8 +428,6 @@ class _Translations$settings$de extends Translations$settings$en {
 	@override String get maxVolume => 'Maximale Lautstärke';
 	@override String get maxVolumeDescription => 'Lautstärkeanhebung über 100 % für leise Medien erlauben';
 	@override String maxVolumePercent({required Object percent}) => '${percent} %';
-	@override String get discordRichPresence => 'Discord Rich Presence';
-	@override String get discordRichPresenceDescription => 'Auf Discord anzeigen, was du gerade schaust';
 	@override String get services => 'Dienste';
 	@override String get servicesDescription => 'Trakt, MyAnimeList, Seerr und mehr verbinden';
 	@override String get manageLibrariesDescription => 'Mediatheken neu anordnen und ausblenden';
@@ -489,7 +485,7 @@ class _Translations$settings$de extends Translations$settings$en {
 	@override String get forceTvMode => 'TV-Modus erzwingen';
 	@override String get forceTvModeDescription => 'TV-Layout erzwingen. Für Geräte ohne automatische Erkennung. Neustart erforderlich.';
 	@override String get startInFullscreen => 'Im Vollbildmodus starten';
-	@override String get startInFullscreenDescription => 'Plezy beim Start im Vollbildmodus öffnen';
+	@override String get startInFullscreenDescription => 'Heisuca beim Start im Vollbildmodus öffnen';
 	@override String get exitFullscreenOnPlayerClose => 'Vollbild beim Schließen des Players beenden';
 	@override String get exitFullscreenOnPlayerCloseDescription => 'Vollbildmodus automatisch beenden, wenn der Videoplayer geschlossen wird';
 	@override String get autoHidePerformanceOverlay => 'Leistungsoverlay automatisch ausblenden';
@@ -538,7 +534,7 @@ class _Translations$settings$de extends Translations$settings$en {
 	@override String get playerScopeGlobal => 'Überall';
 	@override String get playerScopeLibrary => 'Pro Bibliothek';
 	@override String get playerScopeTitle => 'Pro Serie oder Film';
-	@override String get exportDialogTitle => 'Plezy-Einstellungen exportieren';
+	@override String get exportDialogTitle => 'Heisuca-Einstellungen exportieren';
 }
 
 // Path: search
@@ -736,8 +732,8 @@ class _Translations$mediaMenu$de extends Translations$mediaMenu$en {
 		one: '${n} weitere Folge ist in derselben Datei gespeichert und wird ebenfalls gelöscht:',
 		other: '${n} weitere Folgen sind in derselben Datei gespeichert und werden ebenfalls gelöscht:',
 	);
-	@override String get deleteScopeUnverifiedProbeFailed => 'Plezy konnte nicht prüfen, welche Dateien dadurch entfernt werden. Es könnte also mehr gelöscht werden als das oben genannte Element. Brich ab und versuche es erneut, oder lösche trotzdem.';
-	@override String get deleteScopeUnverifiedNoFileInfo => 'Dein Server hat für dieses Element keine Dateidetails bereitgestellt, daher kann Plezy nicht prüfen, welche Dateien entfernt werden. Es könnte mehr gelöscht werden als das oben genannte Element.';
+	@override String get deleteScopeUnverifiedProbeFailed => 'Heisuca konnte nicht prüfen, welche Dateien dadurch entfernt werden. Es könnte also mehr gelöscht werden als das oben genannte Element. Brich ab und versuche es erneut, oder lösche trotzdem.';
+	@override String get deleteScopeUnverifiedNoFileInfo => 'Dein Server hat für dieses Element keine Dateidetails bereitgestellt, daher kann Heisuca nicht prüfen, welche Dateien entfernt werden. Es könnte mehr gelöscht werden als das oben genannte Element.';
 	@override String get mediaDeletedSuccessfully => 'Medienelement gelöscht';
 	@override String get mediaFailedToDelete => 'Medienelement konnte nicht gelöscht werden';
 	@override String get rate => 'Bewerten';
@@ -1070,7 +1066,7 @@ class _Translations$profiles$de extends Translations$profiles$en {
 	final TranslationsDe _root; // ignore: unused_field
 
 	// Translations
-	@override String get addPlezyProfile => 'Plezy-Profil hinzufügen';
+	@override String get addHeisucaProfile => 'Heisuca-Profil hinzufügen';
 	@override String get switchingProfile => 'Profil wird gewechselt…';
 	@override String get deleteThisProfileTitle => 'Dieses Profil löschen?';
 	@override String deleteThisProfileMessage({required Object displayName}) => '${displayName} entfernen. Verbindungen bleiben unberührt.';
@@ -1152,7 +1148,7 @@ class _Translations$connections$de extends Translations$connections$en {
 	@override String accessDeniedMany({required Object count}) => '${count} Server verweigern diesem Konto den Zugriff';
 	@override String get signInAgain => 'Erneut anmelden';
 	@override String editMediaBrowserTitle({required Object product}) => 'Verbindung zu ${product} bearbeiten';
-	@override String editMediaBrowserIntro({required Object serverName}) => 'URLs für ${serverName} hinzufügen oder entfernen. Plezy verwendet die erreichbare URL mit der geringsten Latenz.';
+	@override String editMediaBrowserIntro({required Object serverName}) => 'URLs für ${serverName} hinzufügen oder entfernen. Heisuca verwendet die erreichbare URL mit der geringsten Latenz.';
 }
 
 // Path: accountPreferences
@@ -1166,7 +1162,7 @@ class _Translations$accountPreferences$de extends Translations$accountPreference
 	@override String hubSubtitleSingle({required Object account}) => 'Audio-, Untertitel- und Mediathek-Optionen werden auf ${account} gespeichert';
 	@override String hubSubtitleMultiple({required Object count}) => 'Audio-, Untertitel- und Mediathek-Optionen werden auf ${count} Konten gespeichert';
 	@override String get pickAccount => 'Jedes Konto speichert seine eigenen Einstellungen. Wähle das Konto, das du bearbeiten möchtest.';
-	@override String get storedOnAccount => 'Diese Optionen werden auf dem Konto selbst gespeichert, sodass jede damit angemeldete App sie verwendet — auch Plezy auf deinen anderen Geräten.';
+	@override String get storedOnAccount => 'Diese Optionen werden auf dem Konto selbst gespeichert, sodass jede damit angemeldete App sie verwendet — auch Heisuca auf deinen anderen Geräten.';
 	@override String get noAccounts => 'Keine Konten zum Konfigurieren';
 	@override String get noAccountsHint => 'Melde dich bei Plex an oder verbinde einen Jellyfin- oder Emby-Server — die auf diesem Konto gespeicherten Einstellungen erscheinen dann hier.';
 	@override String get unavailable => 'Dieses Konto ist nicht erreichbar';
@@ -1376,9 +1372,9 @@ class _Translations$startup$de extends Translations$startup$en {
 	final TranslationsDe _root; // ignore: unused_field
 
 	// Translations
-	@override String get failedTitle => 'Plezy konnte nicht gestartet werden';
+	@override String get failedTitle => 'Heisuca konnte nicht gestartet werden';
 	@override String get failedBody => 'Beim Start ist etwas schiefgelaufen. Die Details unten zeigen, was fehlgeschlagen ist.';
-	@override String get failedBodyRepairable => 'Die gespeicherte Einstellungsdatei von Plezy ist beschädigt und muss neu aufgebaut werden, bevor Plezy starten kann. Erneutes Versuchen hilft nicht – wähle „Speicher reparieren“.';
+	@override String get failedBodyRepairable => 'Die gespeicherte Einstellungsdatei von Heisuca ist beschädigt und muss neu aufgebaut werden, bevor Heisuca starten kann. Erneutes Versuchen hilft nicht – wähle „Speicher reparieren“.';
 	@override String get phaseLabel => 'Schritt';
 	@override String get showDetails => 'Details anzeigen';
 	@override String get hideDetails => 'Details ausblenden';
@@ -1387,16 +1383,16 @@ class _Translations$startup$de extends Translations$startup$en {
 	@override String get uploadDetails => 'Details hochladen';
 	@override String get repairStorage => 'Speicher reparieren';
 	@override String get repairTitle => 'Gespeicherte Daten reparieren?';
-	@override String get repairBodyCommon => 'Die Einstellungsdatei von Plezy ist beschädigt und kann nicht gelesen werden. Beim Reparieren werden alle Einstellungen auf ihre Standardwerte zurückgesetzt.';
+	@override String get repairBodyCommon => 'Die Einstellungsdatei von Heisuca ist beschädigt und kann nicht gelesen werden. Beim Reparieren werden alle Einstellungen auf ihre Standardwerte zurückgesetzt.';
 	@override String get repairBodyOneCredential => 'Eine gespeicherte Anmeldung ist beschädigt und kann nicht gelesen werden. Beim Reparieren wird nur diese entfernt; deine übrigen Einstellungen bleiben unangetastet.';
 	@override String get repairBodySignInsKept => 'Deine Server und Profile sollten angemeldet bleiben.';
 	@override String get repairBodySignInsLost => 'Der Schlüssel, der deine gespeicherten Anmeldungen schützt, kann aus dieser Datei nicht wiederhergestellt werden. Du musst dich daher bei jedem Server und Profil erneut anmelden. Auf deinem Medienserver ändert sich nichts.';
-	@override String get repairBodySessionsUncertain => 'Tracker (MAL, AniList, Simkl, Trakt) und Seerr werden separat gespeichert und können erhalten bleiben oder auch nicht. Plezy teilt dir genau mit, was erhalten blieb.';
+	@override String get repairBodySessionsUncertain => 'Tracker (MAL, AniList, Simkl, Trakt) und Seerr werden separat gespeichert und können erhalten bleiben oder auch nicht. Heisuca teilt dir genau mit, was erhalten blieb.';
 	@override String get repairConfirm => 'Reparieren';
 	@override String get repairSucceeded => 'Speicher repariert';
 	@override String get repairNeedsRestart => 'Speicher repariert – Neustart erforderlich';
-	@override String get restartRequiredBody => 'Deine Daten wurden repariert, aber Plezy muss neu starten, bevor es sie verwenden kann. Schließe Plezy und öffne es erneut.';
-	@override String get quitPlezy => 'Plezy beenden';
+	@override String get restartRequiredBody => 'Deine Daten wurden repariert, aber Heisuca muss neu starten, bevor es sie verwenden kann. Schließe Heisuca und öffne es erneut.';
+	@override String get quitHeisuca => 'Heisuca beenden';
 	@override String get repairFailed => 'Reparatur fehlgeschlagen';
 	@override String get repairKeptSignIns => 'Deine Server und Profile sind weiterhin angemeldet.';
 	@override String get repairLostSignIns => 'Der Schlüssel, der deine gespeicherten Anmeldungen schützt, konnte nicht wiederhergestellt werden. Du musst dich bei jedem Server und Profil erneut anmelden.';
@@ -1405,7 +1401,7 @@ class _Translations$startup$de extends Translations$startup$en {
 	@override String get backupWarning => 'Sie enthält deine Anmeldedaten. Lade sie nicht hoch und teile sie nicht.';
 	@override String get deleteBackup => 'Kopie löschen';
 	@override String get backupDeleted => 'Kopie gelöscht.';
-	@override String get previousFailureTitle => 'Plezy konnte beim letzten Mal nicht starten';
+	@override String get previousFailureTitle => 'Heisuca konnte beim letzten Mal nicht starten';
 }
 
 // Path: licenses
@@ -2155,11 +2151,11 @@ class _Translations$trakt$de extends Translations$trakt$en {
 	@override String get connected => 'Verbunden';
 	@override String connectedAs({required Object username}) => 'Verbunden als @${username}';
 	@override String get disconnectConfirm => 'Trakt-Konto trennen?';
-	@override String get disconnectConfirmBody => 'Plezy sendet keine Ereignisse mehr an Trakt. Du kannst jederzeit erneut verbinden.';
+	@override String get disconnectConfirmBody => 'Heisuca sendet keine Ereignisse mehr an Trakt. Du kannst jederzeit erneut verbinden.';
 	@override String get scrobble => 'Echtzeit-Scrobbling';
 	@override String get scrobbleDescription => 'Sende Play-, Pause- und Stopp-Ereignisse während der Wiedergabe an Trakt.';
 	@override String get watchedSync => 'Gesehen-Status synchronisieren';
-	@override String get watchedSyncDescription => 'Wenn du Inhalte in Plezy als gesehen markierst, werden sie auch auf Trakt markiert.';
+	@override String get watchedSyncDescription => 'Wenn du Inhalte in Heisuca als gesehen markierst, werden sie auch auf Trakt markiert.';
 }
 
 // Path: seerr
@@ -2178,10 +2174,10 @@ class _Translations$seerr$de extends Translations$seerr$en {
 	@override String get signInWithEmby => 'Mit Emby anmelden';
 	@override String get signInWithLocal => 'Lokales Konto verwenden';
 	@override String get email => 'E-Mail';
-	@override String get noSignInMethods => 'Diese Seerr-Instanz bietet keine von Plezy unterstützte Anmeldemethode.';
+	@override String get noSignInMethods => 'Diese Seerr-Instanz bietet keine von Heisuca unterstützte Anmeldemethode.';
 	@override String get instance => 'Instanz';
 	@override String get disconnectConfirm => 'Seerr trennen?';
-	@override String get disconnectConfirmBody => 'Plezy vergisst diese Seerr-Instanz. Jederzeit erneut verbinden.';
+	@override String get disconnectConfirmBody => 'Heisuca vergisst diese Seerr-Instanz. Jederzeit erneut verbinden.';
 	@override String get request => 'Anfragen';
 	@override String get request4k => 'In 4K anfragen';
 	@override String get seasons => 'Staffeln';
@@ -2206,7 +2202,7 @@ class _Translations$seerr$de extends Translations$seerr$en {
 	@override String get statusBlocklisted => 'Auf der Sperrliste';
 	@override String couldNotReach({required Object url, required Object error}) => '${url} nicht erreichbar: ${error}';
 	@override String noInstanceAtUrl({required Object url, required Object status}) => 'Keine Seerr-Instanz unter ${url} (HTTP ${status})';
-	@override String get behindAuthProxy => 'Ein authentifizierender Reverse-Proxy (SSO oder HTTP-Auth) hat anstelle von Seerr geantwortet. Plezy kann sich nicht dadurch anmelden: Lass den Pfad /api/v1 von Seerr den Proxy für diese App umgehen, oder verwende eine Adresse, die Seerr direkt erreicht.';
+	@override String get behindAuthProxy => 'Ein authentifizierender Reverse-Proxy (SSO oder HTTP-Auth) hat anstelle von Seerr geantwortet. Heisuca kann sich nicht dadurch anmelden: Lass den Pfad /api/v1 von Seerr den Proxy für diese App umgehen, oder verwende eine Adresse, die Seerr direkt erreicht.';
 	@override String get invalidUrl => 'Gib eine Serveradresse ein, z. B. https://seerr.example.com';
 	@override String get quickConnectUnsupported => 'Diese Seerr-Instanz unterstützt Quick Connect nicht. Dafür ist Seerr 3.4 oder neuer erforderlich.';
 	@override String get notInitialized => 'Die Ersteinrichtung dieser Seerr-Instanz wurde noch nicht abgeschlossen';
@@ -2236,7 +2232,7 @@ class _Translations$services$de extends Translations$services$en {
 	@override String get scrobble => 'Fortschritt automatisch verfolgen';
 	@override String get scrobbleDescription => 'Aktualisiere deine Liste, wenn du eine Folge oder einen Film beendest.';
 	@override String disconnectConfirm({required Object service}) => '${service} trennen?';
-	@override String disconnectConfirmBody({required Object service}) => 'Plezy aktualisiert ${service} nicht mehr. Jederzeit erneut verbinden.';
+	@override String disconnectConfirmBody({required Object service}) => 'Heisuca aktualisiert ${service} nicht mehr. Jederzeit erneut verbinden.';
 	@override String connectFailed({required Object service}) => 'Verbindung zu ${service} fehlgeschlagen. Versuche es erneut.';
 	@override late final _Translations$services$names$de names = _Translations$services$names$de._(_root);
 	@override late final _Translations$services$deviceCode$de deviceCode = _Translations$services$deviceCode$de._(_root);
@@ -2826,14 +2822,14 @@ class _Translations$downloads$backgroundWarning$de extends Translations$download
 	@override String get bannerAction => 'Details';
 	@override String get sheetTitle => 'Downloads im Hintergrund sind blockiert';
 	@override String get sheetTitleDegraded => 'Downloads im Hintergrund sind möglicherweise eingeschränkt';
-	@override String get sheetIntro => 'Android verhindert, dass Plezy zuverlässig im Hintergrund herunterlädt.';
-	@override String get sheetIntroDegraded => 'Dein Gerät schränkt ein, wann Plezy im Hintergrund herunterladen kann.';
-	@override String get reasonBackgroundRestricted => 'Die Hintergrundnutzung von Plezy ist eingeschränkt. Stelle die Akku- oder Hintergrundnutzung auf „Uneingeschränkt“.';
-	@override String get reasonStandbyRestricted => 'Android hat Plezy in einen eingeschränkten Standby-Modus versetzt. Stelle die Akkunutzung auf „Uneingeschränkt“.';
+	@override String get sheetIntro => 'Android verhindert, dass Heisuca zuverlässig im Hintergrund herunterlädt.';
+	@override String get sheetIntroDegraded => 'Dein Gerät schränkt ein, wann Heisuca im Hintergrund herunterladen kann.';
+	@override String get reasonBackgroundRestricted => 'Die Hintergrundnutzung von Heisuca ist eingeschränkt. Stelle die Akku- oder Hintergrundnutzung auf „Uneingeschränkt“.';
+	@override String get reasonStandbyRestricted => 'Android hat Heisuca in einen eingeschränkten Standby-Modus versetzt. Stelle die Akkunutzung auf „Uneingeschränkt“.';
 	@override String get reasonDownloadChannelBlocked => 'Download-Benachrichtigungen sind deaktiviert. Fortschritt und Steuerelemente sind daher möglicherweise nicht verfügbar.';
 	@override String get reasonNotificationsDisabled => 'Benachrichtigungen sind deaktiviert. Ab Android 13 sind sie für lange Downloads im Hintergrund erforderlich.';
 	@override String get reasonDataSaver => 'Der Datensparmodus ist aktiviert und blockiert Downloads im Hintergrund über mobile Daten. Über Wi-Fi sollten Downloads weiterhin funktionieren.';
-	@override String get reasonOemUnknown => 'Downloads wurden wiederholt gestoppt, während Plezy im Hintergrund war. Prüfe die Einstellungen zur Akku- oder Hintergrundnutzung von Plezy.';
+	@override String get reasonOemUnknown => 'Downloads wurden wiederholt gestoppt, während Heisuca im Hintergrund war. Prüfe die Einstellungen zur Akku- oder Hintergrundnutzung von Heisuca.';
 	@override String get openSettings => 'Einstellungen öffnen';
 	@override String get stillNotWorking => 'Gerätespezifische Hilfe';
 	@override String get stillNotWorkingDescription => 'Sieh dir die Schritte für dein Gerät an oder sende bei anhaltendem Problem ein Protokoll über Einstellungen › Protokolle anzeigen.';
@@ -2887,19 +2883,19 @@ class _Translations$companionRemote$pairing$de extends Translations$companionRem
 	final TranslationsDe _root; // ignore: unused_field
 
 	// Translations
-	@override String get discoveryDescription => 'Plezy-Geräte mit demselben Plex-Konto erscheinen hier';
+	@override String get discoveryDescription => 'Heisuca-Geräte mit demselben Plex-Konto erscheinen hier';
 	@override String get hostAddressHint => '192.168.1.100:48632';
 	@override String get connecting => 'Verbinden...';
 	@override String get searchingForDevices => 'Suche nach Geräten...';
 	@override String get noDevicesFound => 'Keine Geräte in deinem Netzwerk gefunden';
-	@override String get noDevicesHint => 'Öffne Plezy auf dem Desktop und nutze dasselbe WLAN';
+	@override String get noDevicesHint => 'Öffne Heisuca auf dem Desktop und nutze dasselbe WLAN';
 	@override String get availableDevices => 'Verfügbare Geräte';
 	@override String get manualConnection => 'Manuelle Verbindung';
 	@override String get cryptoInitFailed => 'Sichere Verbindung konnte nicht gestartet werden. Melde dich zuerst bei Plex an.';
 	@override String get validationHostRequired => 'Bitte Host-Adresse eingeben';
 	@override String get validationHostFormat => 'Format muss IP:Port sein (z. B. 192.168.1.100:48632)';
 	@override String get connectionTimedOut => 'Zeitüberschreitung bei der Verbindung. Nutze auf beiden Geräten dasselbe Netzwerk.';
-	@override String get sessionNotFound => 'Gerät nicht gefunden. Stelle sicher, dass Plezy auf dem Host läuft.';
+	@override String get sessionNotFound => 'Gerät nicht gefunden. Stelle sicher, dass Heisuca auf dem Host läuft.';
 	@override String get authFailed => 'Authentifizierung fehlgeschlagen. Beide Geräte benötigen dasselbe Plex-Konto.';
 	@override String failedToConnect({required Object error}) => 'Verbindung fehlgeschlagen: ${error}';
 }
@@ -2978,7 +2974,7 @@ class _Translations$services$deviceCode$de extends Translations$services$deviceC
 	final TranslationsDe _root; // ignore: unused_field
 
 	// Translations
-	@override String title({required Object service}) => 'Plezy auf ${service} aktivieren';
+	@override String title({required Object service}) => 'Heisuca auf ${service} aktivieren';
 	@override String get instructions => 'Scanne den QR-Code oder rufe die unten angegebene Adresse auf und gib diesen Code ein:';
 	@override String openToActivate({required Object service}) => '${service} zum Aktivieren öffnen';
 	@override String get copyCode => 'Aktivierungscode kopieren';
@@ -3054,7 +3050,7 @@ extension on TranslationsDe {
 			'auth.quickConnectWaiting' => 'Warte auf Bestätigung…',
 			'auth.quickConnectCancel' => 'Abbrechen',
 			'auth.quickConnectExpired' => 'Quick Connect ist abgelaufen. Versuche es erneut.',
-			'auth.localDataRecoveryRequired' => 'Plezy konnte lokale Anmeldedaten und ausstehende Wiedergabedaten nicht sicher wiederherstellen. Bitte melde dich erneut an.',
+			'auth.localDataRecoveryRequired' => 'Heisuca konnte lokale Anmeldedaten und ausstehende Wiedergabedaten nicht sicher wiederherstellen. Bitte melde dich erneut an.',
 			'auth.pinCheckRejected' => 'Die Plex-PIN-Prüfung wurde abgelehnt',
 			'common.cancel' => 'Abbrechen',
 			'common.save' => 'Speichern',
@@ -3141,7 +3137,7 @@ extension on TranslationsDe {
 			'update.latestVersion' => 'Aktuellste Version installiert',
 			'update.checkFailed' => 'Fehler bei der Updateprüfung',
 			'settings.title' => 'Einstellungen',
-			'settings.supportDeveloper' => 'Plezy unterstützen',
+			'settings.supportDeveloper' => 'Heisuca unterstützen',
 			'settings.supportDeveloperDescription' => 'Per Liberapay spenden, um die Entwicklung zu fördern',
 			'settings.language' => 'Sprache',
 			'settings.theme' => 'Design',
@@ -3263,8 +3259,6 @@ extension on TranslationsDe {
 			'settings.watchTogetherRelayDescription' => 'Eigenes Relay festlegen. Alle müssen denselben Server verwenden.',
 			'settings.watchTogetherRelayHint' => 'https://mein-relay.beispiel.de',
 			'settings.watchTogetherRelayInvalid' => 'Gib eine gültige HTTP- oder HTTPS-Basis-URL für das Relay ein.',
-			'settings.crashReporting' => 'Absturzberichte',
-			'settings.crashReportingDescription' => 'Absturzberichte senden, um die App zu verbessern',
 			'settings.debugLogging' => 'Debug-Protokollierung',
 			'settings.debugLoggingDescription' => 'Detaillierte Protokolle zur Fehleranalyse aktivieren',
 			'settings.viewLogs' => 'Protokolle anzeigen',
@@ -3283,7 +3277,7 @@ extension on TranslationsDe {
 			'settings.importSettingsDescription' => 'Einstellungen aus einer Datei wiederherstellen',
 			'settings.importSettingsConfirm' => 'Dies ersetzt deine aktuellen Einstellungen. Fortfahren?',
 			'settings.importSettingsSuccess' => 'Einstellungen importiert',
-			'settings.importSettingsInvalidFile' => 'Diese Datei ist kein gültiger Plezy-Einstellungsexport',
+			'settings.importSettingsInvalidFile' => 'Diese Datei ist kein gültiger Heisuca-Einstellungsexport',
 			'settings.importSettingsNoUser' => 'Vor dem Import bitte anmelden',
 			'settings.shortcutsReset' => 'Tastenkürzel auf Standard zurückgesetzt',
 			'settings.about' => 'Über',
@@ -3345,8 +3339,6 @@ extension on TranslationsDe {
 			'settings.maxVolume' => 'Maximale Lautstärke',
 			'settings.maxVolumeDescription' => 'Lautstärkeanhebung über 100 % für leise Medien erlauben',
 			'settings.maxVolumePercent' => ({required Object percent}) => '${percent} %',
-			'settings.discordRichPresence' => 'Discord Rich Presence',
-			'settings.discordRichPresenceDescription' => 'Auf Discord anzeigen, was du gerade schaust',
 			'settings.services' => 'Dienste',
 			'settings.servicesDescription' => 'Trakt, MyAnimeList, Seerr und mehr verbinden',
 			'settings.manageLibrariesDescription' => 'Mediatheken neu anordnen und ausblenden',
@@ -3404,7 +3396,7 @@ extension on TranslationsDe {
 			'settings.forceTvMode' => 'TV-Modus erzwingen',
 			'settings.forceTvModeDescription' => 'TV-Layout erzwingen. Für Geräte ohne automatische Erkennung. Neustart erforderlich.',
 			'settings.startInFullscreen' => 'Im Vollbildmodus starten',
-			'settings.startInFullscreenDescription' => 'Plezy beim Start im Vollbildmodus öffnen',
+			'settings.startInFullscreenDescription' => 'Heisuca beim Start im Vollbildmodus öffnen',
 			'settings.exitFullscreenOnPlayerClose' => 'Vollbild beim Schließen des Players beenden',
 			'settings.exitFullscreenOnPlayerCloseDescription' => 'Vollbildmodus automatisch beenden, wenn der Videoplayer geschlossen wird',
 			'settings.autoHidePerformanceOverlay' => 'Leistungsoverlay automatisch ausblenden',
@@ -3453,7 +3445,7 @@ extension on TranslationsDe {
 			'settings.playerScopeGlobal' => 'Überall',
 			'settings.playerScopeLibrary' => 'Pro Bibliothek',
 			'settings.playerScopeTitle' => 'Pro Serie oder Film',
-			'settings.exportDialogTitle' => 'Plezy-Einstellungen exportieren',
+			'settings.exportDialogTitle' => 'Heisuca-Einstellungen exportieren',
 			'search.hint' => 'Filme, Serien und Musik suchen …',
 			'search.tryDifferentTerm' => 'Anderen Suchbegriff versuchen',
 			'search.searchYourMedia' => 'In den eigenen Medien suchen',
@@ -3550,12 +3542,12 @@ extension on TranslationsDe {
 			'fileInfo.streamId' => 'Stream-ID',
 			'fileInfo.language' => 'Sprache',
 			'fileInfo.languageCode' => 'Sprachcode',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.streamTitle' => 'Track-Titel',
 			'fileInfo.channels' => 'Kanäle',
 			'fileInfo.sampleRate' => 'Abtastrate',
 			'fileInfo.spatialAudio' => 'Räumliches Audio',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.textBased' => 'Textbasiert',
 			'fileInfo.subtitleFormat' => 'Sidecar-Format',
 			'fileInfo.provider' => 'Anbieter',
@@ -3632,8 +3624,8 @@ extension on TranslationsDe {
 			'mediaMenu.deleteEpisodeCountWarning' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('de'))(n, one: 'Dies löscht alle ${n} Folge darin sowie ihre Datei.', other: 'Dies löscht alle ${n} Folgen darin sowie ihre Dateien.', ), 
 			'mediaMenu.deleteMultiPartWarning' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('de'))(n, one: 'Dieses Element ist als ${n} Datei gespeichert, die gelöscht wird.', other: 'Dieses Element ist über ${n} Dateien verteilt gespeichert, die alle gelöscht werden.', ), 
 			'mediaMenu.deleteSharedFileHeading' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('de'))(n, one: '${n} weitere Folge ist in derselben Datei gespeichert und wird ebenfalls gelöscht:', other: '${n} weitere Folgen sind in derselben Datei gespeichert und werden ebenfalls gelöscht:', ), 
-			'mediaMenu.deleteScopeUnverifiedProbeFailed' => 'Plezy konnte nicht prüfen, welche Dateien dadurch entfernt werden. Es könnte also mehr gelöscht werden als das oben genannte Element. Brich ab und versuche es erneut, oder lösche trotzdem.',
-			'mediaMenu.deleteScopeUnverifiedNoFileInfo' => 'Dein Server hat für dieses Element keine Dateidetails bereitgestellt, daher kann Plezy nicht prüfen, welche Dateien entfernt werden. Es könnte mehr gelöscht werden als das oben genannte Element.',
+			'mediaMenu.deleteScopeUnverifiedProbeFailed' => 'Heisuca konnte nicht prüfen, welche Dateien dadurch entfernt werden. Es könnte also mehr gelöscht werden als das oben genannte Element. Brich ab und versuche es erneut, oder lösche trotzdem.',
+			'mediaMenu.deleteScopeUnverifiedNoFileInfo' => 'Dein Server hat für dieses Element keine Dateidetails bereitgestellt, daher kann Heisuca nicht prüfen, welche Dateien entfernt werden. Es könnte mehr gelöscht werden als das oben genannte Element.',
 			'mediaMenu.mediaDeletedSuccessfully' => 'Medienelement gelöscht',
 			'mediaMenu.mediaFailedToDelete' => 'Medienelement konnte nicht gelöscht werden',
 			'mediaMenu.rate' => 'Bewerten',
@@ -3880,7 +3872,7 @@ extension on TranslationsDe {
 			'mpvConfig.removeLine' => 'Zeile entfernen',
 			'mpvConfig.embeddedVoHint' => 'vo, gpu-context und gpu-api werden unter Linux ignoriert: eingebettetes Video wird immer über vo=libmpv auf der Videoebene gerendert, und gpu-next (das Compute-Shader wie ArtCNN benötigen) kann nicht eingebettet ausgeführt werden.',
 			'dialog.confirmAction' => 'Aktion bestätigen',
-			'profiles.addPlezyProfile' => 'Plezy-Profil hinzufügen',
+			'profiles.addHeisucaProfile' => 'Heisuca-Profil hinzufügen',
 			'profiles.switchingProfile' => 'Profil wird gewechselt…',
 			'profiles.deleteThisProfileTitle' => 'Dieses Profil löschen?',
 			'profiles.deleteThisProfileMessage' => ({required Object displayName}) => '${displayName} entfernen. Verbindungen bleiben unberührt.',
@@ -3953,12 +3945,12 @@ extension on TranslationsDe {
 			'connections.accessDeniedMany' => ({required Object count}) => '${count} Server verweigern diesem Konto den Zugriff',
 			'connections.signInAgain' => 'Erneut anmelden',
 			'connections.editMediaBrowserTitle' => ({required Object product}) => 'Verbindung zu ${product} bearbeiten',
-			'connections.editMediaBrowserIntro' => ({required Object serverName}) => 'URLs für ${serverName} hinzufügen oder entfernen. Plezy verwendet die erreichbare URL mit der geringsten Latenz.',
+			'connections.editMediaBrowserIntro' => ({required Object serverName}) => 'URLs für ${serverName} hinzufügen oder entfernen. Heisuca verwendet die erreichbare URL mit der geringsten Latenz.',
 			'accountPreferences.sectionTitle' => 'Kontoeinstellungen',
 			'accountPreferences.hubSubtitleSingle' => ({required Object account}) => 'Audio-, Untertitel- und Mediathek-Optionen werden auf ${account} gespeichert',
 			'accountPreferences.hubSubtitleMultiple' => ({required Object count}) => 'Audio-, Untertitel- und Mediathek-Optionen werden auf ${count} Konten gespeichert',
 			'accountPreferences.pickAccount' => 'Jedes Konto speichert seine eigenen Einstellungen. Wähle das Konto, das du bearbeiten möchtest.',
-			'accountPreferences.storedOnAccount' => 'Diese Optionen werden auf dem Konto selbst gespeichert, sodass jede damit angemeldete App sie verwendet — auch Plezy auf deinen anderen Geräten.',
+			'accountPreferences.storedOnAccount' => 'Diese Optionen werden auf dem Konto selbst gespeichert, sodass jede damit angemeldete App sie verwendet — auch Heisuca auf deinen anderen Geräten.',
 			'accountPreferences.noAccounts' => 'Keine Konten zum Konfigurieren',
 			'accountPreferences.noAccountsHint' => 'Melde dich bei Plex an oder verbinde einen Jellyfin- oder Emby-Server — die auf diesem Konto gespeicherten Einstellungen erscheinen dann hier.',
 			'accountPreferences.unavailable' => 'Dieses Konto ist nicht erreichbar',
@@ -4064,12 +4056,12 @@ extension on TranslationsDe {
 			'libraries.refreshMetadata' => 'Metadaten aktualisieren',
 			'libraries.emptyTrash' => 'Papierkorb leeren',
 			'libraries.emptyingTrash' => ({required Object title}) => 'Papierkorb für „${title}“ wird geleert...',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.trashEmptied' => ({required Object title}) => 'Papierkorb für „${title}“ geleert',
 			'libraries.failedToEmptyTrash' => ({required Object error}) => 'Papierkorb konnte nicht geleert werden: ${error}',
 			'libraries.analyzing' => ({required Object title}) => 'Analysiere „${title}“...',
 			'libraries.analysisStarted' => ({required Object title}) => 'Analyse gestartet für „${title}“',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Analyse der Mediathek fehlgeschlagen: ${error}',
 			'libraries.noLibrariesFound' => 'Keine Mediatheken gefunden',
 			'libraries.allLibrariesHidden' => 'Alle Mediatheken sind ausgeblendet',
@@ -4158,9 +4150,9 @@ extension on TranslationsDe {
 			'logs.clearLogs' => 'Protokolle löschen',
 			'logs.copyLogs' => 'Protokolle kopieren',
 			'logs.uploadLogs' => 'Protokolle hochladen',
-			'startup.failedTitle' => 'Plezy konnte nicht gestartet werden',
+			'startup.failedTitle' => 'Heisuca konnte nicht gestartet werden',
 			'startup.failedBody' => 'Beim Start ist etwas schiefgelaufen. Die Details unten zeigen, was fehlgeschlagen ist.',
-			'startup.failedBodyRepairable' => 'Die gespeicherte Einstellungsdatei von Plezy ist beschädigt und muss neu aufgebaut werden, bevor Plezy starten kann. Erneutes Versuchen hilft nicht – wähle „Speicher reparieren“.',
+			'startup.failedBodyRepairable' => 'Die gespeicherte Einstellungsdatei von Heisuca ist beschädigt und muss neu aufgebaut werden, bevor Heisuca starten kann. Erneutes Versuchen hilft nicht – wähle „Speicher reparieren“.',
 			'startup.phaseLabel' => 'Schritt',
 			'startup.showDetails' => 'Details anzeigen',
 			'startup.hideDetails' => 'Details ausblenden',
@@ -4169,16 +4161,16 @@ extension on TranslationsDe {
 			'startup.uploadDetails' => 'Details hochladen',
 			'startup.repairStorage' => 'Speicher reparieren',
 			'startup.repairTitle' => 'Gespeicherte Daten reparieren?',
-			'startup.repairBodyCommon' => 'Die Einstellungsdatei von Plezy ist beschädigt und kann nicht gelesen werden. Beim Reparieren werden alle Einstellungen auf ihre Standardwerte zurückgesetzt.',
+			'startup.repairBodyCommon' => 'Die Einstellungsdatei von Heisuca ist beschädigt und kann nicht gelesen werden. Beim Reparieren werden alle Einstellungen auf ihre Standardwerte zurückgesetzt.',
 			'startup.repairBodyOneCredential' => 'Eine gespeicherte Anmeldung ist beschädigt und kann nicht gelesen werden. Beim Reparieren wird nur diese entfernt; deine übrigen Einstellungen bleiben unangetastet.',
 			'startup.repairBodySignInsKept' => 'Deine Server und Profile sollten angemeldet bleiben.',
 			'startup.repairBodySignInsLost' => 'Der Schlüssel, der deine gespeicherten Anmeldungen schützt, kann aus dieser Datei nicht wiederhergestellt werden. Du musst dich daher bei jedem Server und Profil erneut anmelden. Auf deinem Medienserver ändert sich nichts.',
-			'startup.repairBodySessionsUncertain' => 'Tracker (MAL, AniList, Simkl, Trakt) und Seerr werden separat gespeichert und können erhalten bleiben oder auch nicht. Plezy teilt dir genau mit, was erhalten blieb.',
+			'startup.repairBodySessionsUncertain' => 'Tracker (MAL, AniList, Simkl, Trakt) und Seerr werden separat gespeichert und können erhalten bleiben oder auch nicht. Heisuca teilt dir genau mit, was erhalten blieb.',
 			'startup.repairConfirm' => 'Reparieren',
 			'startup.repairSucceeded' => 'Speicher repariert',
 			'startup.repairNeedsRestart' => 'Speicher repariert – Neustart erforderlich',
-			'startup.restartRequiredBody' => 'Deine Daten wurden repariert, aber Plezy muss neu starten, bevor es sie verwenden kann. Schließe Plezy und öffne es erneut.',
-			'startup.quitPlezy' => 'Plezy beenden',
+			'startup.restartRequiredBody' => 'Deine Daten wurden repariert, aber Heisuca muss neu starten, bevor es sie verwenden kann. Schließe Heisuca und öffne es erneut.',
+			'startup.quitHeisuca' => 'Heisuca beenden',
 			'startup.repairFailed' => 'Reparatur fehlgeschlagen',
 			'startup.repairKeptSignIns' => 'Deine Server und Profile sind weiterhin angemeldet.',
 			'startup.repairLostSignIns' => 'Der Schlüssel, der deine gespeicherten Anmeldungen schützt, konnte nicht wiederhergestellt werden. Du musst dich bei jedem Server und Profil erneut anmelden.',
@@ -4187,7 +4179,7 @@ extension on TranslationsDe {
 			'startup.backupWarning' => 'Sie enthält deine Anmeldedaten. Lade sie nicht hoch und teile sie nicht.',
 			'startup.deleteBackup' => 'Kopie löschen',
 			'startup.backupDeleted' => 'Kopie gelöscht.',
-			'startup.previousFailureTitle' => 'Plezy konnte beim letzten Mal nicht starten',
+			'startup.previousFailureTitle' => 'Heisuca konnte beim letzten Mal nicht starten',
 			'licenses.relatedPackages' => 'Verwandte Pakete',
 			'licenses.license' => 'Lizenz',
 			'licenses.licenseNumber' => ({required Object number}) => 'Lizenz ${number}',
@@ -4578,12 +4570,12 @@ extension on TranslationsDe {
 			'watchTogether.renameRoom' => 'Raum umbenennen',
 			'watchTogether.removeRoom' => 'Entfernen',
 			'watchTogether.guestSwitchUnavailable' => 'Wechsel fehlgeschlagen — Server nicht für Synchronisierung verfügbar',
-			_ => null,
-		} ?? switch (path) {
 			'watchTogether.guestSwitchFailed' => 'Wechsel fehlgeschlagen — Inhalt auf diesem Server nicht gefunden',
 			'watchTogether.defaultDisplayName' => 'Benutzer',
 			'watchTogether.errors.timedOut' => 'Der Relay-Server hat nicht rechtzeitig geantwortet',
 			'watchTogether.errors.connectionLost' => 'Die Verbindung wurde geschlossen, bevor die Sitzung bereit war',
+			_ => null,
+		} ?? switch (path) {
 			'watchTogether.errors.invalidRelayResponse' => 'Der Relay-Server hat eine unerwartete Antwort gesendet',
 			'watchTogether.errors.sessionEnded' => 'Der Host hat die Sitzung beendet',
 			'watchTogether.errors.sessionUnavailable' => 'Diese Sitzung kann nicht fortgesetzt werden. Tritt einem Raum bei oder erstelle einen, um fortzufahren.',
@@ -4668,14 +4660,14 @@ extension on TranslationsDe {
 			'downloads.backgroundWarning.bannerAction' => 'Details',
 			'downloads.backgroundWarning.sheetTitle' => 'Downloads im Hintergrund sind blockiert',
 			'downloads.backgroundWarning.sheetTitleDegraded' => 'Downloads im Hintergrund sind möglicherweise eingeschränkt',
-			'downloads.backgroundWarning.sheetIntro' => 'Android verhindert, dass Plezy zuverlässig im Hintergrund herunterlädt.',
-			'downloads.backgroundWarning.sheetIntroDegraded' => 'Dein Gerät schränkt ein, wann Plezy im Hintergrund herunterladen kann.',
-			'downloads.backgroundWarning.reasonBackgroundRestricted' => 'Die Hintergrundnutzung von Plezy ist eingeschränkt. Stelle die Akku- oder Hintergrundnutzung auf „Uneingeschränkt“.',
-			'downloads.backgroundWarning.reasonStandbyRestricted' => 'Android hat Plezy in einen eingeschränkten Standby-Modus versetzt. Stelle die Akkunutzung auf „Uneingeschränkt“.',
+			'downloads.backgroundWarning.sheetIntro' => 'Android verhindert, dass Heisuca zuverlässig im Hintergrund herunterlädt.',
+			'downloads.backgroundWarning.sheetIntroDegraded' => 'Dein Gerät schränkt ein, wann Heisuca im Hintergrund herunterladen kann.',
+			'downloads.backgroundWarning.reasonBackgroundRestricted' => 'Die Hintergrundnutzung von Heisuca ist eingeschränkt. Stelle die Akku- oder Hintergrundnutzung auf „Uneingeschränkt“.',
+			'downloads.backgroundWarning.reasonStandbyRestricted' => 'Android hat Heisuca in einen eingeschränkten Standby-Modus versetzt. Stelle die Akkunutzung auf „Uneingeschränkt“.',
 			'downloads.backgroundWarning.reasonDownloadChannelBlocked' => 'Download-Benachrichtigungen sind deaktiviert. Fortschritt und Steuerelemente sind daher möglicherweise nicht verfügbar.',
 			'downloads.backgroundWarning.reasonNotificationsDisabled' => 'Benachrichtigungen sind deaktiviert. Ab Android 13 sind sie für lange Downloads im Hintergrund erforderlich.',
 			'downloads.backgroundWarning.reasonDataSaver' => 'Der Datensparmodus ist aktiviert und blockiert Downloads im Hintergrund über mobile Daten. Über Wi-Fi sollten Downloads weiterhin funktionieren.',
-			'downloads.backgroundWarning.reasonOemUnknown' => 'Downloads wurden wiederholt gestoppt, während Plezy im Hintergrund war. Prüfe die Einstellungen zur Akku- oder Hintergrundnutzung von Plezy.',
+			'downloads.backgroundWarning.reasonOemUnknown' => 'Downloads wurden wiederholt gestoppt, während Heisuca im Hintergrund war. Prüfe die Einstellungen zur Akku- oder Hintergrundnutzung von Heisuca.',
 			'downloads.backgroundWarning.openSettings' => 'Einstellungen öffnen',
 			'downloads.backgroundWarning.stillNotWorking' => 'Gerätespezifische Hilfe',
 			'downloads.backgroundWarning.stillNotWorkingDescription' => 'Sieh dir die Schritte für dein Gerät an oder sende bei anhaltendem Problem ein Protokoll über Einstellungen › Protokolle anzeigen.',
@@ -4738,19 +4730,19 @@ extension on TranslationsDe {
 			'companionRemote.session.stopServer' => 'Server stoppen',
 			'companionRemote.session.minimize' => 'Minimieren',
 			'companionRemote.session.manualAddressHint' => 'Manuelle Verbindungsadresse:',
-			'companionRemote.pairing.discoveryDescription' => 'Plezy-Geräte mit demselben Plex-Konto erscheinen hier',
+			'companionRemote.pairing.discoveryDescription' => 'Heisuca-Geräte mit demselben Plex-Konto erscheinen hier',
 			'companionRemote.pairing.hostAddressHint' => '192.168.1.100:48632',
 			'companionRemote.pairing.connecting' => 'Verbinden...',
 			'companionRemote.pairing.searchingForDevices' => 'Suche nach Geräten...',
 			'companionRemote.pairing.noDevicesFound' => 'Keine Geräte in deinem Netzwerk gefunden',
-			'companionRemote.pairing.noDevicesHint' => 'Öffne Plezy auf dem Desktop und nutze dasselbe WLAN',
+			'companionRemote.pairing.noDevicesHint' => 'Öffne Heisuca auf dem Desktop und nutze dasselbe WLAN',
 			'companionRemote.pairing.availableDevices' => 'Verfügbare Geräte',
 			'companionRemote.pairing.manualConnection' => 'Manuelle Verbindung',
 			'companionRemote.pairing.cryptoInitFailed' => 'Sichere Verbindung konnte nicht gestartet werden. Melde dich zuerst bei Plex an.',
 			'companionRemote.pairing.validationHostRequired' => 'Bitte Host-Adresse eingeben',
 			'companionRemote.pairing.validationHostFormat' => 'Format muss IP:Port sein (z. B. 192.168.1.100:48632)',
 			'companionRemote.pairing.connectionTimedOut' => 'Zeitüberschreitung bei der Verbindung. Nutze auf beiden Geräten dasselbe Netzwerk.',
-			'companionRemote.pairing.sessionNotFound' => 'Gerät nicht gefunden. Stelle sicher, dass Plezy auf dem Host läuft.',
+			'companionRemote.pairing.sessionNotFound' => 'Gerät nicht gefunden. Stelle sicher, dass Heisuca auf dem Host läuft.',
 			'companionRemote.pairing.authFailed' => 'Authentifizierung fehlgeschlagen. Beide Geräte benötigen dasselbe Plex-Konto.',
 			'companionRemote.pairing.failedToConnect' => ({required Object error}) => 'Verbindung fehlgeschlagen: ${error}',
 			'companionRemote.remote.disconnectConfirm' => 'Möchtest du die Verbindung zur Fernsteuerungssitzung trennen?',
@@ -4970,11 +4962,11 @@ extension on TranslationsDe {
 			'trakt.connected' => 'Verbunden',
 			'trakt.connectedAs' => ({required Object username}) => 'Verbunden als @${username}',
 			'trakt.disconnectConfirm' => 'Trakt-Konto trennen?',
-			'trakt.disconnectConfirmBody' => 'Plezy sendet keine Ereignisse mehr an Trakt. Du kannst jederzeit erneut verbinden.',
+			'trakt.disconnectConfirmBody' => 'Heisuca sendet keine Ereignisse mehr an Trakt. Du kannst jederzeit erneut verbinden.',
 			'trakt.scrobble' => 'Echtzeit-Scrobbling',
 			'trakt.scrobbleDescription' => 'Sende Play-, Pause- und Stopp-Ereignisse während der Wiedergabe an Trakt.',
 			'trakt.watchedSync' => 'Gesehen-Status synchronisieren',
-			'trakt.watchedSyncDescription' => 'Wenn du Inhalte in Plezy als gesehen markierst, werden sie auch auf Trakt markiert.',
+			'trakt.watchedSyncDescription' => 'Wenn du Inhalte in Heisuca als gesehen markierst, werden sie auch auf Trakt markiert.',
 			'seerr.title' => 'Seerr',
 			'seerr.connectTitle' => 'Seerr verbinden',
 			'seerr.serverUrl' => 'Server-URL',
@@ -4984,10 +4976,10 @@ extension on TranslationsDe {
 			'seerr.signInWithEmby' => 'Mit Emby anmelden',
 			'seerr.signInWithLocal' => 'Lokales Konto verwenden',
 			'seerr.email' => 'E-Mail',
-			'seerr.noSignInMethods' => 'Diese Seerr-Instanz bietet keine von Plezy unterstützte Anmeldemethode.',
+			'seerr.noSignInMethods' => 'Diese Seerr-Instanz bietet keine von Heisuca unterstützte Anmeldemethode.',
 			'seerr.instance' => 'Instanz',
 			'seerr.disconnectConfirm' => 'Seerr trennen?',
-			'seerr.disconnectConfirmBody' => 'Plezy vergisst diese Seerr-Instanz. Jederzeit erneut verbinden.',
+			'seerr.disconnectConfirmBody' => 'Heisuca vergisst diese Seerr-Instanz. Jederzeit erneut verbinden.',
 			'seerr.request' => 'Anfragen',
 			'seerr.request4k' => 'In 4K anfragen',
 			'seerr.seasons' => 'Staffeln',
@@ -5012,7 +5004,7 @@ extension on TranslationsDe {
 			'seerr.statusBlocklisted' => 'Auf der Sperrliste',
 			'seerr.couldNotReach' => ({required Object url, required Object error}) => '${url} nicht erreichbar: ${error}',
 			'seerr.noInstanceAtUrl' => ({required Object url, required Object status}) => 'Keine Seerr-Instanz unter ${url} (HTTP ${status})',
-			'seerr.behindAuthProxy' => 'Ein authentifizierender Reverse-Proxy (SSO oder HTTP-Auth) hat anstelle von Seerr geantwortet. Plezy kann sich nicht dadurch anmelden: Lass den Pfad /api/v1 von Seerr den Proxy für diese App umgehen, oder verwende eine Adresse, die Seerr direkt erreicht.',
+			'seerr.behindAuthProxy' => 'Ein authentifizierender Reverse-Proxy (SSO oder HTTP-Auth) hat anstelle von Seerr geantwortet. Heisuca kann sich nicht dadurch anmelden: Lass den Pfad /api/v1 von Seerr den Proxy für diese App umgehen, oder verwende eine Adresse, die Seerr direkt erreicht.',
 			'seerr.invalidUrl' => 'Gib eine Serveradresse ein, z. B. https://seerr.example.com',
 			'seerr.quickConnectUnsupported' => 'Diese Seerr-Instanz unterstützt Quick Connect nicht. Dafür ist Seerr 3.4 oder neuer erforderlich.',
 			'seerr.notInitialized' => 'Die Ersteinrichtung dieser Seerr-Instanz wurde noch nicht abgeschlossen',
@@ -5033,14 +5025,14 @@ extension on TranslationsDe {
 			'services.scrobble' => 'Fortschritt automatisch verfolgen',
 			'services.scrobbleDescription' => 'Aktualisiere deine Liste, wenn du eine Folge oder einen Film beendest.',
 			'services.disconnectConfirm' => ({required Object service}) => '${service} trennen?',
-			'services.disconnectConfirmBody' => ({required Object service}) => 'Plezy aktualisiert ${service} nicht mehr. Jederzeit erneut verbinden.',
+			'services.disconnectConfirmBody' => ({required Object service}) => 'Heisuca aktualisiert ${service} nicht mehr. Jederzeit erneut verbinden.',
 			'services.connectFailed' => ({required Object service}) => 'Verbindung zu ${service} fehlgeschlagen. Versuche es erneut.',
 			'services.names.mal' => 'MyAnimeList',
 			'services.names.anilist' => 'AniList',
 			'services.names.simkl' => 'Simkl',
 			'services.names.seerr' => 'Seerr',
 			'services.names.mdblist' => 'MDBList',
-			'services.deviceCode.title' => ({required Object service}) => 'Plezy auf ${service} aktivieren',
+			'services.deviceCode.title' => ({required Object service}) => 'Heisuca auf ${service} aktivieren',
 			'services.deviceCode.instructions' => 'Scanne den QR-Code oder rufe die unten angegebene Adresse auf und gib diesen Code ein:',
 			'services.deviceCode.openToActivate' => ({required Object service}) => '${service} zum Aktivieren öffnen',
 			'services.deviceCode.copyCode' => 'Aktivierungscode kopieren',
@@ -5092,12 +5084,12 @@ extension on TranslationsDe {
 			'addServer.borrowFromAnotherProfile' => 'Von einem anderen Profil ausleihen',
 			'addServer.borrowFromAnotherProfileSubtitle' => 'Verbindung eines anderen Profils wiederverwenden. PIN-geschützte Profile erfordern eine PIN.',
 			'addServer.invalidCredentials' => 'Ungültiger Benutzername oder ungültiges Passwort',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.authResponseNotJson' => 'Die Authentifizierungsantwort war kein gültiges JSON',
 			'addServer.authResponseIncomplete' => 'Die Anmeldeantwort des Servers war unvollständig',
 			'addServer.quickConnectRejected' => 'Quick Connect wurde vom Server abgelehnt',
 			'addServer.quickConnectNotJson' => 'Die Quick Connect-Antwort war kein gültiges JSON',
+			_ => null,
+		} ?? switch (path) {
 			'addServer.quickConnectMissingFields' => 'In der Quick Connect-Antwort fehlt ein Code oder Geheimnis',
 			'addServer.quickConnectPollRejected' => 'Die Quick Connect-Abfrage wurde vom Server abgelehnt',
 			'addServer.serverTimedOut' => 'Der Server hat nicht rechtzeitig geantwortet',

@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:plezy/models/seerr/seerr_session.dart';
-import 'package:plezy/providers/seerr_account_provider.dart';
-import 'package:plezy/screens/settings/seerr_connect_screen.dart';
-import 'package:plezy/services/seerr/seerr_auth_service.dart';
-import 'package:plezy/services/seerr/seerr_constants.dart';
-import 'package:plezy/theme/mono_theme.dart';
+import 'package:heisuca/models/seerr/seerr_session.dart';
+import 'package:heisuca/providers/seerr_account_provider.dart';
+import 'package:heisuca/screens/settings/seerr_connect_screen.dart';
+import 'package:heisuca/services/seerr/seerr_auth_service.dart';
+import 'package:heisuca/services/seerr/seerr_constants.dart';
+import 'package:heisuca/theme/mono_theme.dart';
 import 'package:provider/provider.dart';
 
 /// Records what the connect flow produced instead of persisting it: the real

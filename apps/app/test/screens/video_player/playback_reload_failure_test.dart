@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
@@ -7,40 +8,41 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
-import 'package:plezy/database/app_database.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_server_client.dart';
-import 'package:plezy/media/play_queue.dart';
-import 'package:plezy/media/server_capabilities.dart';
-import 'package:plezy/models/transcode_quality_preset.dart';
-import 'package:plezy/models/livetv_channel.dart';
-import 'package:plezy/mpv/mpv.dart';
-import 'package:plezy/providers/account_preferences_controller.dart';
-import 'package:plezy/providers/multi_server_provider.dart';
-import 'package:plezy/providers/companion_remote_provider.dart';
-import 'package:plezy/providers/playback_state_provider.dart';
-import 'package:plezy/screens/video_player_screen.dart';
-import 'package:plezy/screens/video_player/live_tv_session_args.dart';
-import 'package:plezy/services/download_storage_service.dart';
-import 'package:plezy/services/episode_navigation_service.dart';
-import 'package:plezy/services/offline_watch_sync_service.dart';
-import 'package:plezy/services/playback_initialization_types.dart';
-import 'package:plezy/services/playback_coordinator.dart';
-import 'package:plezy/services/plex_client.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/services/sleep_timer_service.dart';
-import 'package:plezy/utils/platform_detector.dart';
-import 'package:plezy/utils/active_client_scope.dart';
-import 'package:plezy/utils/video_player_navigation.dart';
-import 'package:plezy/widgets/video_controls/video_controls.dart';
-import 'package:plezy/watch_together/models/playback_state.dart';
-import 'package:plezy/watch_together/models/sync_message.dart';
-import 'package:plezy/watch_together/models/watch_session.dart';
-import 'package:plezy/watch_together/providers/watch_together_provider.dart';
-import 'package:plezy/watch_together/services/watch_together_peer_service.dart';
-import 'package:plezy/watch_together/services/watch_together_relay_endpoint.dart';
+import 'package:heisuca/database/app_database.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/media/play_queue.dart';
+import 'package:heisuca/media/server_capabilities.dart';
+import 'package:heisuca/models/transcode_quality_preset.dart';
+import 'package:heisuca/models/livetv_channel.dart';
+import 'package:heisuca/mpv/mpv.dart';
+import 'package:heisuca/providers/account_preferences_controller.dart';
+import 'package:heisuca/providers/multi_server_provider.dart';
+import 'package:heisuca/providers/companion_remote_provider.dart';
+import 'package:heisuca/providers/playback_state_provider.dart';
+import 'package:heisuca/screens/video_player_screen.dart';
+import 'package:heisuca/screens/video_player/live_tv_session_args.dart';
+import 'package:heisuca/services/download_storage_service.dart';
+import 'package:heisuca/services/episode_navigation_service.dart';
+import 'package:heisuca/services/offline_watch_sync_service.dart';
+import 'package:heisuca/services/playback_initialization_types.dart';
+import 'package:heisuca/services/playback_coordinator.dart';
+import 'package:heisuca/services/plex_client.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/services/sleep_timer_service.dart';
+import 'package:heisuca/utils/platform_detector.dart';
+import 'package:heisuca/utils/active_client_scope.dart';
+import 'package:heisuca/utils/video_player_navigation.dart';
+import 'package:heisuca/widgets/video_controls/video_controls.dart';
+import 'package:heisuca/watch_together/models/playback_state.dart';
+import 'package:heisuca/watch_together/models/sync_message.dart';
+import 'package:heisuca/watch_together/models/watch_session.dart';
+import 'package:heisuca/watch_together/providers/watch_together_provider.dart';
+import 'package:heisuca/watch_together/services/watch_together_peer_service.dart';
+import 'package:heisuca/watch_together/services/watch_together_relay_endpoint.dart';
 import 'package:provider/provider.dart';
 
 import '../../test_helpers/io_fakes.dart';
@@ -63,6 +65,7 @@ void main() {
   late AppDatabase db;
 
   setUp(() async {
+    await initializeDateFormatting();
     resetSharedPreferencesForTest();
     SettingsService.resetForTesting();
     DownloadStorageService.resetForTesting();
@@ -138,8 +141,8 @@ void main() {
           await tester.pump();
         });
         await withMockPlayerChannels(
-          methodChannelName: 'com.plezy/mpv_player',
-          eventChannelName: 'com.plezy/mpv_player/events',
+          methodChannelName: 'app.heisuca/mpv_player',
+          eventChannelName: 'app.heisuca/mpv_player/events',
           testBody: () async {
             final key = GlobalKey<VideoPlayerScreenState>();
             await tester.pumpWidget(
@@ -324,8 +327,8 @@ void main() {
       );
       try {
         await withMockPlayerChannels(
-          methodChannelName: 'com.plezy/mpv_player',
-          eventChannelName: 'com.plezy/mpv_player/events',
+          methodChannelName: 'app.heisuca/mpv_player',
+          eventChannelName: 'app.heisuca/mpv_player/events',
           testBody: () async {
             final screen = await _pushExitScreen(tester, db: db, client: client, fakePlayer: fakePlayer);
             if (blocked == 'started') {
@@ -352,9 +355,13 @@ void main() {
             await tester.pump();
             await tester.binding.handlePopRoute();
             await tester.pump(const Duration(milliseconds: 999));
-            expect(screen.key.currentState, isNotNull, reason: 'the pending cleanup still owns the grace period');
             await tester.pump(const Duration(milliseconds: 1));
             await tester.pump();
+            if (screen.key.currentContext != null) {
+              expect(ModalRoute.of(screen.key.currentContext!)!.animation!.status, AnimationStatus.reverse,
+                reason: 'o limite de limpeza já aceitou sair; falta só a animação da rota');
+            }
+            await pumpUntil(tester, () => screen.key.currentState == null);
             expect(screen.key.currentState, isNull);
             expect(find.text('Browse'), findsOneWidget);
             expect(pending.isCompleted, isFalse);
@@ -432,8 +439,8 @@ void main() {
       addTearDown(watchTogether.dispose);
       final oldPlayer = _ExitPlayer();
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         testBody: () async {
           final screen = await _pushExitScreen(
             tester,
@@ -508,8 +515,8 @@ void main() {
     addTearDown(timer.cancelTimer);
     final oldPlayer = _ExitPlayer();
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       testBody: () async {
         final screen = await _pushExitScreen(tester, db: db, client: _ReloadClient(), fakePlayer: oldPlayer);
         timer.armEndOfVideo();
@@ -536,6 +543,10 @@ void main() {
         await tester.binding.handlePopRoute();
         await tester.pump(const Duration(seconds: 1));
         await tester.pump();
+        if (successorKey.currentContext != null) {
+          expect(ModalRoute.of(successorKey.currentContext!)!.animation!.status, AnimationStatus.reverse);
+        }
+        await pumpUntil(tester, () => successorKey.currentState == null);
         expect(successorKey.currentState, isNull);
         expect(find.text('Browse'), findsOneWidget);
       },
@@ -550,8 +561,8 @@ void main() {
     await watchTogether.joinSession('SCREEN', relayEndpoint: WatchTogetherRelayEndpoint.defaultEndpoint);
     addTearDown(watchTogether.dispose);
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       testBody: () async {
         final screen = await _pushExitScreen(
           tester,
@@ -583,6 +594,10 @@ void main() {
         await tester.binding.handlePopRoute();
         await tester.pump(const Duration(seconds: 1));
         await tester.pump();
+        if (successorKey.currentContext != null) {
+          expect(ModalRoute.of(successorKey.currentContext!)!.animation!.status, AnimationStatus.reverse);
+        }
+        await pumpUntil(tester, () => successorKey.currentState == null);
         expect(successorKey.currentState, isNull);
         expect(find.text('Browse'), findsOneWidget);
         expect(find.byType(AlertDialog, skipOffstage: false), findsNothing);
@@ -599,8 +614,8 @@ void main() {
     addTearDown(watchTogether.dispose);
     final fakePlayer = _ExitPlayer();
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       testBody: () async {
         final screen = await _pushExitScreen(
           tester,
@@ -628,6 +643,10 @@ void main() {
         await tester.pump();
         await tester.pump(const Duration(seconds: 1));
         await tester.pump();
+        if (screen.key.currentContext != null) {
+          expect(ModalRoute.of(screen.key.currentContext!)!.animation!.status, AnimationStatus.reverse);
+        }
+        await pumpUntil(tester, () => screen.key.currentState == null);
         expect(screen.key.currentState, isNull);
         expect(watchTogether.isInSession, isFalse);
         expect(peer.releaseCalls, 1);
@@ -643,6 +662,7 @@ void main() {
   Future<({GlobalKey<VideoPlayerScreenState> key, _ReloadPlayer player})> pumpReloadScreen(
     WidgetTester tester, {
     WatchTogetherProvider? watchTogether,
+    bool episode = false,
   }) async {
     final client = _ReloadClient();
     final multi = testMultiServer(clients: [client]);
@@ -660,7 +680,7 @@ void main() {
       accountPreferences.dispose();
     });
     final key = GlobalKey<VideoPlayerScreenState>();
-    final item = testMediaItem(id: 'movie-prior', serverId: 'srv-1', backend: MediaBackend.jellyfin);
+    final item = testMediaItem(id: 'movie-prior', serverId: 'srv-1', backend: MediaBackend.jellyfin, kind: episode ? MediaKind.episode : MediaKind.movie);
     await tester.pumpWidget(
       MultiProvider(
         providers: [
@@ -688,6 +708,109 @@ void main() {
     return (key: key, player: fakePlayer);
   }
 
+  for (final endTimer in [false, true]) {
+  testWidgets('O: pergunta por episódio preserva temporizador (fim: $endTimer)', (tester) async {
+    await SettingsService.instance.write(SettingsService.stillWatchingEpisodes, 1);
+    await withMockPlayerChannels(
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
+      testBody: () async {
+        final screen = await pumpReloadScreen(tester, episode: true);
+        final state = screen.key.currentState!;
+        await state.debugWirePlayerStreamsForTesting();
+        screen.player.emitPlaybackRestart();
+        await state.debugMarkPlaybackStartedForTesting();
+        await tester.pump();
+        final next = testMediaItem(id: 'next', title: 'Próximo episódio', kind: MediaKind.episode, serverId: 'srv-1', backend: MediaBackend.jellyfin);
+        state.debugCommitAdjacentEpisodesForTesting(AdjacentEpisodes(next: next,
+          nextStatus: QueueNavigationStatus.found, previousStatus: QueueNavigationStatus.boundary));
+        SleepTimerService().startTimer(const Duration(minutes: 20));
+        addTearDown(() => SleepTimerService().cancelTimer());
+        if (endTimer) SleepTimerService().armEndOfVideo();
+        final deadline = SleepTimerService().endTime;
+        state.debugCompleteVideoForTesting();
+        await tester.pump();
+        await tester.pump();
+        if (endTimer) {
+          expect(state.debugStillWatchingForEpisodes, isFalse);
+          expect(state.debugPlayNextPromptVisibleForTesting, isFalse);
+          expect(SleepTimerService().isActive, isFalse);
+          await tester.pumpWidget(const SizedBox.shrink());
+          return;
+        }
+        expect(state.debugStillWatchingForEpisodes, isTrue);
+        expect(state.debugPlayNextPromptVisibleForTesting, isFalse);
+        expect(screen.player.state.playing, isFalse);
+        expect(SleepTimerService().endTime, deadline);
+        // EOF duplicado e passagem de 31s não avançam nem removem a pergunta.
+        state.debugCompleteVideoForTesting();
+        await tester.pump(const Duration(seconds: 31));
+        expect(state.debugStillWatchingForEpisodes, isTrue);
+        expect(SleepTimerService().endTime, deadline);
+        await tester.tap(find.text(t.videoControls.continueWatching));
+        await tester.pump();
+        expect(state.debugStillWatchingForEpisodes, isFalse);
+        expect(SleepTimerService().endTime, deadline);
+        await pumpUntil(tester, () => screen.player.openCalls > 0);
+        expect(screen.player.openCalls, 1);
+        SleepTimerService().cancelTimer();
+        await tester.pumpWidget(const SizedBox.shrink());
+      },
+    );
+  });
+
+  }
+
+  for (final continueAfter in [true, false]) {
+  testWidgets('O correção: sono visível + EOF, continuar: $continueAfter', (tester) async {
+    await (FontLoader('Roboto')..addFont(rootBundle.load('assets/fonts/Inter-Regular.ttf'))).load();
+    await SettingsService.instance.write(SettingsService.stillWatchingEpisodes, 1);
+    await withMockPlayerChannels(
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
+      testBody: () async {
+        final screen = await pumpReloadScreen(tester, episode: true);
+        final state = screen.key.currentState!;
+        await state.debugWirePlayerStreamsForTesting();
+        screen.player.emitPlaybackRestart();
+        await state.debugMarkPlaybackStartedForTesting();
+        await tester.pump();
+        final next = testMediaItem(id: 'next', title: 'Próximo episódio', kind: MediaKind.episode, serverId: 'srv-1', backend: MediaBackend.jellyfin);
+        state.debugCommitAdjacentEpisodesForTesting(AdjacentEpisodes(next: next,
+          nextStatus: QueueNavigationStatus.found, previousStatus: QueueNavigationStatus.boundary));
+        SleepTimerService().startTimer(const Duration(minutes: 20));
+        addTearDown(() => SleepTimerService().cancelTimer());
+        SleepTimerService().extendTimer(const Duration(minutes: -21));
+        await tester.pump(const Duration(seconds: 1));
+        await tester.pump();
+        expect(SleepTimerService().isActive, isFalse);
+        final deadline = SleepTimerService().endTime;
+        state.debugCompleteVideoForTesting();
+        await tester.pump();
+        await tester.pump();
+        expect(state.debugStillWatchingForEpisodes, isTrue);
+        expect(state.debugPlayNextPromptVisibleForTesting, isFalse);
+        expect(screen.player.state.playing, isFalse);
+        expect(SleepTimerService().endTime, deadline);
+        await tester.tap(find.text(continueAfter ? t.videoControls.continueWatching : t.videoControls.pauseButton));
+        await tester.pump();
+        if (continueAfter) {
+          expect(SleepTimerService().isActive, isTrue);
+          expect(SleepTimerService().duration, const Duration(minutes: 20));
+          await pumpUntil(tester, () => screen.player.openCalls > 0);
+          expect(screen.player.openCalls, 1);
+        } else {
+          expect(screen.player.openCalls, 0);
+          expect(screen.player.state.playing, isFalse);
+        }
+        SleepTimerService().cancelTimer();
+        await tester.pumpWidget(const SizedBox.shrink());
+      },
+    );
+  });
+
+  }
+
   group('TV background suspend', () {
     testWidgets('a suspend under the Play Next prompt restores the prompt and its countdown', (tester) async {
       TvDetectionService.debugSetAppleTVOverride(true);
@@ -696,8 +819,8 @@ void main() {
       });
 
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         testBody: () async {
           final screen = await pumpReloadScreen(tester);
           final state = screen.key.currentState!;
@@ -791,8 +914,8 @@ void main() {
       addTearDown(watchTogether.dispose);
 
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         testBody: () async {
           final screen = await pumpReloadScreen(tester, watchTogether: watchTogether);
           final fakePlayer = screen.player;
@@ -847,8 +970,8 @@ void main() {
       addTearDown(watchTogether.dispose);
 
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         testBody: () async {
           final screen = await pumpReloadScreen(tester, watchTogether: watchTogether);
           final fakePlayer = screen.player;
@@ -902,8 +1025,8 @@ void main() {
 
     testWidgets("a source reload during the hold owns the replacement's play state", (tester) async {
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         testBody: () async {
           final screen = await pumpReloadScreen(tester);
           final fakePlayer = screen.player;
@@ -974,8 +1097,8 @@ void main() {
       });
 
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         testBody: () async {
           final key = GlobalKey<VideoPlayerScreenState>();
           await tester.pumpWidget(

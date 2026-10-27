@@ -14,9 +14,9 @@ import '../navigation/profile_navigation_scope.dart';
 import '../services/device_performance.dart';
 import '../services/fullscreen_state_manager.dart';
 import 'package:flutter/services.dart';
-import 'package:plezy/utils/platform_detector.dart';
-import 'package:plezy/widgets/app_icon.dart';
-import 'package:plezy/widgets/background_download_warning_banner.dart';
+import 'package:heisuca/utils/platform_detector.dart';
+import 'package:heisuca/widgets/app_icon.dart';
+import 'package:heisuca/widgets/background_download_warning_banner.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 import '../widgets/collapsible_text.dart';
@@ -318,26 +318,7 @@ PageRoute<bool> mediaDetailRoute({
     initialSeasonId: initialSeasonId,
     initialEpisodeId: initialEpisodeId,
   );
-  if (!PlatformDetector.isTV()) return MaterialPageRoute<bool>(builder: (_) => page);
-
-  return PageRouteBuilder<bool>(
-    // Opaque so the covered route stops painting/building once the fade
-    // completes (the framework only offstages routes below after the
-    // transition settles, so push/pop fades still composite over live
-    // content). The detail screen paints a full-screen opaque background
-    // immediately, and the video player route is itself opaque and never
-    // sits below a detail route, so nothing can leak through.
-    opaque: true,
-    pageBuilder: (_, _, _) => page,
-    transitionsBuilder: (_, animation, _, child) {
-      return FadeTransition(
-        opacity: CurvedAnimation(parent: animation, curve: Curves.easeOutCubic, reverseCurve: Curves.easeInCubic),
-        child: child,
-      );
-    },
-    transitionDuration: AppDurations.animMedium,
-    reverseTransitionDuration: AppDurations.animMedium,
-  );
+  return MaterialPageRoute<bool>(builder: (_) => page);
 }
 
 class _MediaDetailScreenState extends State<MediaDetailScreen>

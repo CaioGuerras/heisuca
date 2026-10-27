@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:plezy/widgets/app_icon.dart';
+import 'package:heisuca/widgets/app_icon.dart';
 
 /// A circular semi-transparent button used in the mobile video controls.
 ///
@@ -11,7 +11,11 @@ class CircularControlButton extends StatelessWidget {
   final double iconSize;
   final VoidCallback? onPressed;
 
+  /// Fundo do círculo (Heisuca: play na cor do tema). Padrão: preto 50%, como no upstream.
+  final Color? background;
+
   const CircularControlButton({
+    this.background,
     super.key,
     required this.semanticLabel,
     required this.icon,
@@ -23,7 +27,7 @@ class CircularControlButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final isEnabled = onPressed != null;
     return Container(
-      decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.5), shape: BoxShape.circle),
+      decoration: BoxDecoration(color: background ?? Colors.black.withValues(alpha: 0.5), shape: BoxShape.circle),
       child: Semantics(
         label: semanticLabel,
         button: true,

@@ -5,20 +5,16 @@ import 'package:material_symbols_icons/symbols.dart';
 import '../focus/focusable_button.dart';
 import '../i18n/strings.g.dart';
 import '../services/app_exit_service.dart';
-import '../services/log_upload_service.dart';
 import '../services/startup_diagnostics.dart';
 import '../utils/app_logger.dart';
-import '../utils/dialogs.dart';
 import '../utils/platform_detector.dart';
 import '../utils/snackbar_helper.dart';
 import 'app_icon.dart';
-import 'dialog_action_button.dart';
 
 const startupBootstrapFailureKey = Key('startup-bootstrap-failure');
 const startupBootstrapRetryKey = Key('startup-bootstrap-retry');
 const startupFailureDetailsKey = Key('startup-failure-details');
 const startupFailureCopyKey = Key('startup-failure-copy');
-const startupFailureUploadKey = Key('startup-failure-upload');
 const startupFailureRepairKey = Key('startup-failure-repair');
 const startupFailureRestartKey = Key('startup-failure-restart');
 const startupFailureQuitKey = Key('startup-failure-quit');
@@ -73,7 +69,6 @@ class _StartupFailureViewState extends State<StartupFailureView> {
   /// Retry otherwise, Quit once a restart is owed.
   late final FocusNode _primaryFocusNode = FocusNode(debugLabel: 'startup-failure-primary');
   bool _detailsExpanded = false;
-  bool _uploading = false;
 
   @override
   void dispose() {
@@ -96,50 +91,12 @@ class _StartupFailureViewState extends State<StartupFailureView> {
     }
   }
 
-  Future<void> _uploadDetails() async {
-    setState(() => _uploading = true);
-    try {
-      final id = await uploadDiagnosticText(widget.failure.describe());
-      if (!mounted) return;
-      await showScopedDialog<void>(
-        context: context,
-        builder: (dialogContext) => AlertDialog(
-          title: Text(t.messages.logsUploaded),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('${t.messages.logId}:'),
-              const SizedBox(height: 8),
-              SelectableText(
-                id,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'monospace', fontSize: 18),
-              ),
-            ],
-          ),
-          actions: [
-            DialogActionButton(
-              autofocus: true,
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              label: t.common.close,
-            ),
-          ],
-        ),
-      );
-    } catch (error, stackTrace) {
-      appLogger.w('Startup diagnostics upload failed', error: error, stackTrace: stackTrace);
-      if (mounted) showErrorSnackBar(context, t.messages.logsUploadFailed);
-    } finally {
-      if (mounted) setState(() => _uploading = false);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final failure = widget.failure;
     final restartRequired = widget.restartRequired;
-    final enabled = !widget.busy && !_uploading;
+    final enabled = !widget.busy;
     // Retry and Repair are the two actions that can touch the store, so they
     // are gone entirely once a restart is owed — not greyed out, because a
     // disabled control still reads as "try me again later".
@@ -231,7 +188,7 @@ class _StartupFailureViewState extends State<StartupFailureView> {
                       child: FilledButton(
                         key: startupFailureQuitKey,
                         onPressed: enabled ? _quit : null,
-                        child: Text(t.startup.quitPlezy),
+                        child: Text(t.startup.quitHeisuca),
                       ),
                     ),
                   FocusableButton(
@@ -240,14 +197,6 @@ class _StartupFailureViewState extends State<StartupFailureView> {
                       key: startupFailureCopyKey,
                       onPressed: enabled ? _copyDetails : null,
                       child: Text(t.startup.copyDetails),
-                    ),
-                  ),
-                  FocusableButton(
-                    onPressed: enabled ? () => _uploadDetails() : null,
-                    child: OutlinedButton(
-                      key: startupFailureUploadKey,
-                      onPressed: enabled ? () => _uploadDetails() : null,
-                      child: Text(t.startup.uploadDetails),
                     ),
                   ),
                 ],

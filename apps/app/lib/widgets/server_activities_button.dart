@@ -10,7 +10,7 @@ import '../focus/focusable_button.dart';
 import '../focus/key_event_utils.dart';
 import '../i18n/strings.g.dart';
 import '../theme/mono_tokens.dart';
-import 'package:plezy/widgets/app_icon.dart';
+import 'package:heisuca/widgets/app_icon.dart';
 import '../models/plex/plex_activity.dart';
 import '../providers/multi_server_provider.dart';
 import '../utils/media_server_http_client.dart';

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/services/background_work_diagnostics_service.dart';
+import 'package:heisuca/services/background_work_diagnostics_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -231,7 +231,7 @@ void main() {
   group('BackgroundWorkDiagnosticsService', () {
     late List<MethodCall> calls;
     late Map<String, Object?> signals;
-    const channel = MethodChannel('com.plezy/device.test');
+    const channel = MethodChannel('app.heisuca/device.test');
 
     BackgroundWorkDiagnosticsService buildService({
       DownloadStallDetector? stallDetector,

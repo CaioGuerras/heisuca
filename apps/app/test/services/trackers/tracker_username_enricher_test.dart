@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/services/trackers/tracker.dart';
-import 'package:plezy/services/trackers/tracker_session.dart';
-import 'package:plezy/services/trackers/tracker_username_enricher.dart';
+import 'package:heisuca/services/trackers/tracker.dart';
+import 'package:heisuca/services/trackers/tracker_session.dart';
+import 'package:heisuca/services/trackers/tracker_username_enricher.dart';
 
 const _session = TrackerSession(
   accessToken: 'access-token',

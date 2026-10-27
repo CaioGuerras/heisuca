@@ -12,12 +12,12 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/cgflix/cgflix_theme.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/screens/settings/account_preferences_screen.dart';
-import 'package:plezy/screens/settings/playback_settings_screen.dart';
-import 'package:plezy/screens/settings/settings_screen.dart';
-import 'package:plezy/screens/settings/subtitle_styling_screen.dart';
+import 'package:heisuca/cgflix/cgflix_theme.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/screens/settings/account_preferences_screen.dart';
+import 'package:heisuca/screens/settings/playback_settings_screen.dart';
+import 'package:heisuca/screens/settings/settings_screen.dart';
+import 'package:heisuca/screens/settings/subtitle_styling_screen.dart';
 
 import '../../test_helpers/cgflix_config_harness.dart';
 

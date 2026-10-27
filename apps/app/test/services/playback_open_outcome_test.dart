@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/mpv/mpv.dart';
-import 'package:plezy/services/playback_open_outcome.dart';
+import 'package:heisuca/mpv/mpv.dart';
+import 'package:heisuca/services/playback_open_outcome.dart';
 
 /// A player whose load-scoped streams the test drives directly. [close] ends
 /// every stream at once, like a disposed player closing its controllers.

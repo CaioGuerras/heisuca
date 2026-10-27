@@ -2,7 +2,7 @@ import CoreMedia
 import Flutter
 import VideoToolbox
 
-/// Answers `com.plezy/device`'s `getVideoDecodeCapabilities` on iOS and tvOS.
+/// Answers `app.heisuca/device`'s `getVideoDecodeCapabilities` on iOS and tvOS.
 ///
 /// Compiled into the iOS and tvOS Runners only — macOS keeps its own sources
 /// and is deliberately left unprobed, because desktop CPUs software-decode
@@ -11,7 +11,7 @@ import VideoToolbox
 class VideoDecodeCapabilitiesPlugin: NSObject, FlutterPlugin {
   static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(
-      name: "com.plezy/device",
+      name: "app.heisuca/device",
       binaryMessenger: registrar.messenger()
     )
     registrar.addMethodCallDelegate(VideoDecodeCapabilitiesPlugin(), channel: channel)
@@ -25,7 +25,7 @@ class VideoDecodeCapabilitiesPlugin: NSObject, FlutterPlugin {
         "av1": VTIsHardwareDecodeSupported(kCMVideoCodecType_AV1),
       ])
     default:
-      // The rest of `com.plezy/device` is Android-only.
+      // The rest of `app.heisuca/device` is Android-only.
       result(FlutterMethodNotImplemented)
     }
   }

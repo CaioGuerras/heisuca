@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/watch_together/primitives.dart';
+import 'package:heisuca/watch_together/primitives.dart';
 
 void main() {
   test('orderedStringListsEqual preserves order and multiplicity', () {

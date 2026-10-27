@@ -1,3 +1,4 @@
+import '../heisuca/heisuca_sources_ui.dart';
 import 'dart:async';
 import 'dart:ui';
 import '../cgflix/cgflix_units.dart';
@@ -5,7 +6,7 @@ import '../media/ids.dart';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:plezy/widgets/app_icon.dart';
+import 'package:heisuca/widgets/app_icon.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 import '../focus/card_focus_scope.dart';
@@ -229,7 +230,8 @@ class MediaCard extends StatefulWidget {
   final String? collectionId; // The collection ID if displaying within a collection
   final bool isOffline; // True for downloaded content without server access
   final bool mixedHubContext; // True when in a hub with mixed content (movies + episodes)
-  final bool showServerName; // Show server name in list view (multi-server)
+  final bool showServerName;
+  final String? sourceLabel; // Show server name in list view (multi-server)
 
   /// Library name to attribute the item with in list view, resolved by the
   /// caller (see `LibrariesProvider.libraryLabelFor`). Null renders nothing.
@@ -269,6 +271,7 @@ class MediaCard extends StatefulWidget {
     this.isOffline = false,
     this.mixedHubContext = false,
     this.showServerName = false,
+    this.sourceLabel,
     this.libraryName,
     this.episodePosterModeOverride,
     this.fullBleedImage = false,
@@ -445,7 +448,7 @@ class MediaCardState extends State<MediaCard> with ContextMenuTapMixin<MediaCard
     final item = _effectiveItem(context);
     final viewMode = widget.viewModeOverride ?? SettingsService.instance.read(SettingsService.viewMode);
 
-    final semanticLabel = _semanticLabel(item);
+    final semanticLabel = [_semanticLabel(item), ?widget.sourceLabel].join(', ');
     final accessibleNavigation = MediaQuery.accessibleNavigationOf(context);
     final enableDetailLinks = widget.onTap == null;
     final preservePointerDetailSemantics = !PlatformDetector.isTV() || accessibleNavigation;
@@ -466,6 +469,7 @@ class MediaCardState extends State<MediaCard> with ContextMenuTapMixin<MediaCard
             isOffline: widget.isOffline,
             localPosterPath: localPosterPath,
             showServerName: widget.showServerName,
+            sourceLabel: widget.sourceLabel,
             libraryName: widget.libraryName,
             episodePosterModeOverride: widget.episodePosterModeOverride,
             cardShapeOverride: widget.cardShapeOverride,
@@ -721,6 +725,7 @@ class _MediaCardList extends StatelessWidget {
   final bool isOffline;
   final String? localPosterPath;
   final bool showServerName;
+  final String? sourceLabel;
   final String? libraryName;
   final EpisodePosterMode? episodePosterModeOverride;
   final CardShape? cardShapeOverride;
@@ -738,6 +743,7 @@ class _MediaCardList extends StatelessWidget {
     this.isOffline = false,
     this.localPosterPath,
     this.showServerName = false,
+    this.sourceLabel,
     this.libraryName,
     this.episodePosterModeOverride,
     this.cardShapeOverride,
@@ -777,7 +783,7 @@ class _MediaCardList extends StatelessWidget {
   bool get _showsSource {
     final it = item;
     if (it is! MediaItem) return false;
-    return (showServerName && it.serverName != null) || libraryName != null;
+    return sourceLabel != null || (showServerName && it.serverName != null) || libraryName != null;
   }
 
   String _buildMetadataLine() {
@@ -982,20 +988,21 @@ class _MediaCardList extends StatelessWidget {
                             // summary-line trade) untouched.
                             Transform.translate(
                               offset: Offset(0, _metadataFontSize * 0.115),
-                              child: BackendBadge(
+                              child: sourceLabel != null ? HeisucaSourceMark(size: _metadataFontSize + 2,
+                                color: tokens(context).textMuted) : BackendBadge(
                                 backend: (item as MediaItem).backend,
                                 size: _metadataFontSize + 2,
-                                color: tokens(context).textMuted.withValues(alpha: 0.6),
+                                color: sourceLabel != null ? tokens(context).textMuted : tokens(context).textMuted.withValues(alpha: 0.6),
                               ),
                             ),
                             const SizedBox(width: 4),
                             Flexible(
                               child: Text(
-                                [?(item as MediaItem).serverName, ?libraryName].join(' • '),
+                                sourceLabel != null ? [sourceLabel!, ?libraryName].join(' · ') : [?(item as MediaItem).serverName, ?libraryName].join(' • '),
                                 maxLines: 1,
                                 overflow: .ellipsis,
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: tokens(context).textMuted.withValues(alpha: 0.6),
+                                  color: sourceLabel != null ? tokens(context).textMuted : tokens(context).textMuted.withValues(alpha: 0.6),
                                   fontSize: _metadataFontSize,
                                   // Matches the summary line it replaces on
                                   // wide rows, keeping the trade height-neutral.

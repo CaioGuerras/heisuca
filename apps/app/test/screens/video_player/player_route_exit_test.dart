@@ -3,17 +3,18 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/providers/playback_state_provider.dart';
-import 'package:plezy/services/playback_coordinator.dart';
-import 'package:plezy/screens/video_player_screen.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/utils/video_player_navigation.dart';
+import 'package:heisuca/providers/playback_state_provider.dart';
+import 'package:heisuca/services/playback_coordinator.dart';
+import 'package:heisuca/screens/video_player_screen.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/utils/video_player_navigation.dart';
 import 'package:provider/provider.dart';
 
 import '../../test_helpers/media_items.dart';
 import '../../test_helpers/mock_player_channels.dart';
 import '../../test_helpers/prefs.dart';
 import '../../test_helpers/pump.dart';
+import '../../test_helpers/predictive_back.dart';
 import '../../test_helpers/watch_together_fakes.dart';
 
 void main() {
@@ -33,8 +34,8 @@ void main() {
       final navigator = GlobalKey<NavigatorState>();
       var initializations = 0;
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') {
             initializations++;
@@ -69,6 +70,10 @@ void main() {
               await tester.tap(find.widgetWithText(OutlinedButton, 'Back'));
               await tester.pump(const Duration(seconds: 1));
               await tester.pump();
+              // A saída foi aceita no limite de 1 s; agora a rota oficial ainda
+              // precisa concluir sua animação antes de descartar o State.
+              expect(ModalRoute.of(key.currentContext!)!.animation!.status, AnimationStatus.reverse);
+              await pumpUntil(tester, () => key.currentState == null);
               expect(key.currentState, isNull);
               expect(find.text('Browse'), findsOneWidget);
               expect(player.pauseCalls, 1);
@@ -108,20 +113,25 @@ void main() {
   // A route pushed onto the player's own navigator inside the exit grace
   // period must not fence the accepted exit: the player leaves by identity
   // and the covering route stays put (#2290).
-  testWidgets('Back removes a covered player route without taking the covering route', (tester) async {
+  testWidgets('Back nativo retira o player coberto sem aguardar a limpeza nem retirar a cobertura', (tester) async {
     final player = _TouchExitPlayer();
     final screen = await _pushHeldPlayer(tester, player);
     final navigator = screen.navigator;
+    await tester.pump(const Duration(milliseconds: 500));
     await tester.binding.handlePopRoute();
     await tester.pump();
-    // Held startup keeps cleanup pending, so the 1 s navigation budget is
-    // what releases navigation: this push lands inside the grace period.
+    // O sistema confirmou o pop. A nova rota chega durante a animação, com
+    // limpeza nativa ainda pendente; ela não pode ser retirada por essa limpeza.
     unawaited(
       navigator.currentState!.push(MaterialPageRoute<void>(builder: (_) => const Scaffold(body: Text('Cover')))),
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
-    expect(screen.key.currentState, isNotNull, reason: 'the pending cleanup still owns the grace period');
+    expect(screen.key.currentState, isNotNull, reason: 'a rota oficial ainda anima');
+    expect(ModalRoute.of(screen.key.currentContext!)!.animation!.status, AnimationStatus.reverse);
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(screen.key.currentState, isNull);
+    expect(player.pauseGate.isCompleted, isFalse, reason: 'a resposta nativa não prende a navegação');
     expect(find.text('Cover'), findsOneWidget);
     await tester.pump(const Duration(milliseconds: 600));
     await tester.pump();
@@ -130,6 +140,33 @@ void main() {
     expect(find.text('Browse'), findsNothing, reason: 'the exit must not unwind past the covering route');
     expect(player.pauseCalls, 1);
   });
+  for (final edge in [0, 1]) {
+    testWidgets('player: gesto $edge cancela sem pausar e confirma com aposentadoria pendente', (tester) async {
+      tester.view.physicalSize = const Size(412, 914); tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final player = _TouchExitPlayer();
+      final screen = await _pushHeldPlayer(tester, player);
+      await tester.pump(const Duration(milliseconds: 600));
+      screen.key.currentState!.chromeController.setContentStripVisible(true);
+      await tester.pump();
+      await tester.binding.handlePopRoute(); await tester.pump();
+      expect(screen.key.currentState!.chromeController.contentStripVisible, isFalse);
+      expect(player.pauseCalls, 0, reason: 'o primeiro voltar fecha só o painel');
+      await sendPredictiveBack(tester, 'startBackGesture', edge: edge);
+      await sendPredictiveBack(tester, 'updateBackGestureProgress', edge: edge, progress: .35);
+      await sendPredictiveBack(tester, 'cancelBackGesture', edge: edge);
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(screen.key.currentState, isNotNull); expect(player.pauseCalls, 0);
+      await sendPredictiveBack(tester, 'startBackGesture', edge: edge);
+      await sendPredictiveBack(tester, 'updateBackGestureProgress', edge: edge, progress: .65);
+      await sendPredictiveBack(tester, 'commitBackGesture', edge: edge);
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(screen.key.currentState, isNull); expect(player.pauseCalls, 1);
+      expect(find.text('Browse'), findsOneWidget);
+      expect(player.pauseGate.isCompleted, isFalse);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.android));
+  }
+
 }
 
 class _TouchExitPlayer extends FakeSyncPlayer {

@@ -1,0 +1,16 @@
+F..
+======================================================================
+FAIL: test_ack_carrega_prova_da_captura_e_nao_uma_flag_anterior (test_imagem.ImagemNativa.test_ack_carrega_prova_da_captura_e_nao_uma_flag_anterior)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1396, in patched
+    return func(*newargs, **newkeywargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/heisuca/apps/app/scripts/bancada/test_imagem.py", line 40, in test_ack_carrega_prova_da_captura_e_nao_uma_flag_anterior
+    self.assertIn('imagem', ack)
+AssertionError: 'imagem' not found in {'seq': 1, 'ok': True}
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.263s
+
+FAILED (failures=1)

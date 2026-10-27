@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/utils/semantics_tree_gate.dart';
+import 'package:heisuca/utils/semantics_tree_gate.dart';
 
 class _GateTestBinding extends AutomatedTestWidgetsFlutterBinding with SemanticsTreeGate {}
 

@@ -124,7 +124,7 @@ class _Translations$auth$tr extends Translations$auth$en {
 	@override String get quickConnectWaiting => 'Onay bekleniyor…';
 	@override String get quickConnectCancel => 'İptal';
 	@override String get quickConnectExpired => 'Hızlı Bağlantı süresi doldu. Tekrar deneyin.';
-	@override String get localDataRecoveryRequired => 'Plezy yerel giriş ve bekleyen oynatma verilerini güvenli bir şekilde kurtaramadı. Lütfen tekrar giriş yapın.';
+	@override String get localDataRecoveryRequired => 'Heisuca yerel giriş ve bekleyen oynatma verilerini güvenli bir şekilde kurtaramadı. Lütfen tekrar giriş yapın.';
 	@override String get pinCheckRejected => 'Plex PIN denetimi reddedildi';
 }
 
@@ -226,7 +226,7 @@ class _Translations$settings$tr extends Translations$settings$en {
 
 	// Translations
 	@override String get title => 'Ayarlar';
-	@override String get supportDeveloper => 'Plezy\'yi Destekleyin';
+	@override String get supportDeveloper => 'Heisuca\'yi Destekleyin';
 	@override String get supportDeveloperDescription => 'Geliştirmeyi fonlamak için Liberapay üzerinden bağış yapın';
 	@override String get language => 'Dil';
 	@override String get theme => 'Tema';
@@ -348,8 +348,6 @@ class _Translations$settings$tr extends Translations$settings$en {
 	@override String get watchTogetherRelayDescription => 'Özel bir aktarıcı ayarlayın. Herkes aynı sunucuyu kullanmalıdır.';
 	@override String get watchTogetherRelayHint => 'https://ornek-aktarici.com';
 	@override String get watchTogetherRelayInvalid => 'Geçerli bir HTTP veya HTTPS aktarıcı adresi girin.';
-	@override String get crashReporting => 'Çökme Bildirimi';
-	@override String get crashReportingDescription => 'Uygulamanın geliştirilmesine yardımcı olmak için çökme raporları gönder';
 	@override String get debugLogging => 'Hata Ayıklama Günlüğü';
 	@override String get debugLoggingDescription => 'Sorun giderme için ayrıntılı günlük kaydını etkinleştir';
 	@override String get viewLogs => 'Günlükleri Görüntüle';
@@ -368,7 +366,7 @@ class _Translations$settings$tr extends Translations$settings$en {
 	@override String get importSettingsDescription => 'Tercihleri bir dosyadan geri yükleyin';
 	@override String get importSettingsConfirm => 'Bu işlem mevcut ayarlarınızın üzerine yazacak. Devam edilsin mi?';
 	@override String get importSettingsSuccess => 'Ayarlar içe aktarıldı';
-	@override String get importSettingsInvalidFile => 'Bu dosya geçerli bir Plezy ayar dosyası değil';
+	@override String get importSettingsInvalidFile => 'Bu dosya geçerli bir Heisuca ayar dosyası değil';
 	@override String get importSettingsNoUser => 'Ayarları içe aktarmadan önce giriş yapın';
 	@override String get shortcutsReset => 'Kısayollar varsayılana sıfırlandı';
 	@override String get about => 'Hakkında';
@@ -430,8 +428,6 @@ class _Translations$settings$tr extends Translations$settings$en {
 	@override String get maxVolume => 'Maksimum Ses';
 	@override String get maxVolumeDescription => 'Kısık sesli medyalar için %100\'ün üzerinde ses yükseltmeye izin ver';
 	@override String maxVolumePercent({required Object percent}) => '%${percent}';
-	@override String get discordRichPresence => 'Discord Rich Presence';
-	@override String get discordRichPresenceDescription => 'Discord\'da ne izlediğinizi gösterin';
 	@override String get services => 'Servisler';
 	@override String get servicesDescription => 'Trakt, MyAnimeList, Seerr ve daha fazlasını bağlayın';
 	@override String get manageLibrariesDescription => 'Kitaplıkları yeniden sıralayın ve gizleyin';
@@ -489,7 +485,7 @@ class _Translations$settings$tr extends Translations$settings$en {
 	@override String get forceTvMode => 'TV modunu zorla';
 	@override String get forceTvModeDescription => 'TV düzenini zorla. Otomatik algılamayan cihazlar içindir. Yeniden başlatma gerektirir.';
 	@override String get startInFullscreen => 'Tam ekranda başlat';
-	@override String get startInFullscreenDescription => 'Plezy\'yi açılışta tam ekran modunda aç';
+	@override String get startInFullscreenDescription => 'Heisuca\'yi açılışta tam ekran modunda aç';
 	@override String get exitFullscreenOnPlayerClose => 'Oynatıcı kapandığında tam ekrandan çık';
 	@override String get exitFullscreenOnPlayerCloseDescription => 'Video oynatıcıyı kapatırken otomatik olarak tam ekrandan çık';
 	@override String get autoHidePerformanceOverlay => 'Performans Katmanını Otomatik Gizle';
@@ -538,7 +534,7 @@ class _Translations$settings$tr extends Translations$settings$en {
 	@override String get playerScopeGlobal => 'Her yerde';
 	@override String get playerScopeLibrary => 'Kitaplık başına';
 	@override String get playerScopeTitle => 'Dizi veya film başına';
-	@override String get exportDialogTitle => 'Plezy ayarlarını dışa aktar';
+	@override String get exportDialogTitle => 'Heisuca ayarlarını dışa aktar';
 }
 
 // Path: search
@@ -736,8 +732,8 @@ class _Translations$mediaMenu$tr extends Translations$mediaMenu$en {
 		one: '${n} başka bölüm aynı dosyada saklanıyor ve o da silinecek:',
 		other: '${n} başka bölüm aynı dosyada saklanıyor ve onlar da silinecek:',
 	);
-	@override String get deleteScopeUnverifiedProbeFailed => 'Plezy bunun hangi dosyaları sileceğini kontrol edemedi, bu yüzden yukarıda adı geçen ögeden daha fazlasını silebilir. İptal edip tekrar deneyin veya yine de silin.';
-	@override String get deleteScopeUnverifiedNoFileInfo => 'Sunucunuz bu öge için dosya ayrıntıları sağlamadı, bu yüzden Plezy bunun hangi dosyaları sileceğini kontrol edemiyor. Yukarıda adı geçen ögeden daha fazlasını silebilir.';
+	@override String get deleteScopeUnverifiedProbeFailed => 'Heisuca bunun hangi dosyaları sileceğini kontrol edemedi, bu yüzden yukarıda adı geçen ögeden daha fazlasını silebilir. İptal edip tekrar deneyin veya yine de silin.';
+	@override String get deleteScopeUnverifiedNoFileInfo => 'Sunucunuz bu öge için dosya ayrıntıları sağlamadı, bu yüzden Heisuca bunun hangi dosyaları sileceğini kontrol edemiyor. Yukarıda adı geçen ögeden daha fazlasını silebilir.';
 	@override String get mediaDeletedSuccessfully => 'Medya ögesi başarıyla silindi';
 	@override String get mediaFailedToDelete => 'Medya ögesi silinemedi';
 	@override String get rate => 'Oyla';
@@ -1070,7 +1066,7 @@ class _Translations$profiles$tr extends Translations$profiles$en {
 	final TranslationsTr _root; // ignore: unused_field
 
 	// Translations
-	@override String get addPlezyProfile => 'Plezy profili ekle';
+	@override String get addHeisucaProfile => 'Heisuca profili ekle';
 	@override String get switchingProfile => 'Profil değiştiriliyor…';
 	@override String get deleteThisProfileTitle => 'Bu profil silinsin mi?';
 	@override String deleteThisProfileMessage({required Object displayName}) => '${displayName} kişisi kaldırılacak. Bağlantılar etkilenmez.';
@@ -1152,7 +1148,7 @@ class _Translations$connections$tr extends Translations$connections$en {
 	@override String accessDeniedMany({required Object count}) => '${count} sunucu bu hesabın erişimini reddetti';
 	@override String get signInAgain => 'Tekrar giriş yap';
 	@override String editMediaBrowserTitle({required Object product}) => '${product} bağlantısını düzenle';
-	@override String editMediaBrowserIntro({required Object serverName}) => '${serverName} için URL ekleyin veya kaldırın. Plezy, erişilebilir olan en düşük gecikmeli URL\'yi kullanacak.';
+	@override String editMediaBrowserIntro({required Object serverName}) => '${serverName} için URL ekleyin veya kaldırın. Heisuca, erişilebilir olan en düşük gecikmeli URL\'yi kullanacak.';
 }
 
 // Path: accountPreferences
@@ -1166,7 +1162,7 @@ class _Translations$accountPreferences$tr extends Translations$accountPreference
 	@override String hubSubtitleSingle({required Object account}) => 'Ses, altyazı ve kitaplık seçenekleri ${account} hesabına kaydedildi';
 	@override String hubSubtitleMultiple({required Object count}) => 'Ses, altyazı ve kitaplık seçenekleri ${count} hesaba kaydedildi';
 	@override String get pickAccount => 'Her hesap kendi tercihlerini saklar. Düzenlemek için birini seçin.';
-	@override String get storedOnAccount => 'Bu seçenekler hesabın kendisine kaydedilir; böylece hesaba giriş yapan her uygulama bunları kullanır — diğer cihazlarınızdaki Plezy dahil.';
+	@override String get storedOnAccount => 'Bu seçenekler hesabın kendisine kaydedilir; böylece hesaba giriş yapan her uygulama bunları kullanır — diğer cihazlarınızdaki Heisuca dahil.';
 	@override String get noAccounts => 'Yapılandırılacak hesap yok';
 	@override String get noAccountsHint => 'Plex\'e giriş yapın veya bir Jellyfin ya da Emby sunucusu bağlayın; o hesapta saklanan tercihler burada görünür.';
 	@override String get unavailable => 'Bu hesaba ulaşılamıyor';
@@ -1376,9 +1372,9 @@ class _Translations$startup$tr extends Translations$startup$en {
 	final TranslationsTr _root; // ignore: unused_field
 
 	// Translations
-	@override String get failedTitle => 'Plezy başlatılamadı';
+	@override String get failedTitle => 'Heisuca başlatılamadı';
 	@override String get failedBody => 'Başlatma sırasında bir şeyler ters gitti. Aşağıdaki ayrıntılar neyin başarısız olduğunu gösteriyor.';
-	@override String get failedBodyRepairable => 'Plezy\'nin kayıtlı ayar dosyası hasarlı ve Plezy başlamadan önce yeniden oluşturulması gerekiyor. Tekrar denemek işe yaramaz — Depolama Alanını Onar\'ı seçin.';
+	@override String get failedBodyRepairable => 'Heisuca\'nin kayıtlı ayar dosyası hasarlı ve Heisuca başlamadan önce yeniden oluşturulması gerekiyor. Tekrar denemek işe yaramaz — Depolama Alanını Onar\'ı seçin.';
 	@override String get phaseLabel => 'Adım';
 	@override String get showDetails => 'Ayrıntıları göster';
 	@override String get hideDetails => 'Ayrıntıları gizle';
@@ -1387,16 +1383,16 @@ class _Translations$startup$tr extends Translations$startup$en {
 	@override String get uploadDetails => 'Ayrıntıları yükle';
 	@override String get repairStorage => 'Depolama Alanını Onar';
 	@override String get repairTitle => 'Kayıtlı veriler onarılsın mı?';
-	@override String get repairBodyCommon => 'Plezy\'nin ayar dosyası hasarlı ve okunamıyor. Onarım, her ayarı varsayılanına sıfırlar.';
+	@override String get repairBodyCommon => 'Heisuca\'nin ayar dosyası hasarlı ve okunamıyor. Onarım, her ayarı varsayılanına sıfırlar.';
 	@override String get repairBodyOneCredential => 'Kayıtlı bir giriş hasarlı ve okunamıyor. Onarım yalnızca onu kaldırır; diğer ayarlarınıza dokunulmaz.';
 	@override String get repairBodySignInsKept => 'Sunucularınız ve profilleriniz giriş yapılı kalmalı.';
 	@override String get repairBodySignInsLost => 'Kayıtlı girişlerinizi koruyan anahtar bu dosyadan kurtarılamıyor, bu yüzden her sunucuya ve profile yeniden giriş yapmanız gerekecek. Medya sunucunuzdaki hiçbir şey etkilenmez.';
-	@override String get repairBodySessionsUncertain => 'Takip hizmetleri (MAL, AniList, Simkl, Trakt) ve Seerr ayrı olarak saklanır; korunup korunmayacakları belirsizdir. Plezy tam olarak neyi koruduğunu size söyleyecek.';
+	@override String get repairBodySessionsUncertain => 'Takip hizmetleri (MAL, AniList, Simkl, Trakt) ve Seerr ayrı olarak saklanır; korunup korunmayacakları belirsizdir. Heisuca tam olarak neyi koruduğunu size söyleyecek.';
 	@override String get repairConfirm => 'Onar';
 	@override String get repairSucceeded => 'Depolama alanı onarıldı';
 	@override String get repairNeedsRestart => 'Depolama alanı onarıldı — yeniden başlatma gerekli';
-	@override String get restartRequiredBody => 'Verileriniz onarıldı, ancak Plezy\'nin bunları kullanabilmesi için temiz bir başlangıç yapması gerekiyor. Plezy\'yi kapatıp yeniden açın.';
-	@override String get quitPlezy => 'Plezy\'den Çık';
+	@override String get restartRequiredBody => 'Verileriniz onarıldı, ancak Heisuca\'nin bunları kullanabilmesi için temiz bir başlangıç yapması gerekiyor. Heisuca\'yi kapatıp yeniden açın.';
+	@override String get quitHeisuca => 'Heisuca\'den Çık';
 	@override String get repairFailed => 'Onarım başarısız oldu';
 	@override String get repairKeptSignIns => 'Sunucularınız ve profilleriniz hâlâ giriş yapılı.';
 	@override String get repairLostSignIns => 'Kayıtlı girişlerinizi koruyan anahtar kurtarılamadı. Her sunucuya ve profile yeniden giriş yapmanız gerekecek.';
@@ -1405,7 +1401,7 @@ class _Translations$startup$tr extends Translations$startup$en {
 	@override String get backupWarning => 'Giriş bilgilerinizi içerir. Yüklemeyin veya paylaşmayın.';
 	@override String get deleteBackup => 'Kopyayı Sil';
 	@override String get backupDeleted => 'Kopya silindi.';
-	@override String get previousFailureTitle => 'Plezy geçen sefer başlatılamadı';
+	@override String get previousFailureTitle => 'Heisuca geçen sefer başlatılamadı';
 }
 
 // Path: licenses
@@ -2155,11 +2151,11 @@ class _Translations$trakt$tr extends Translations$trakt$en {
 	@override String get connected => 'Bağlandı';
 	@override String connectedAs({required Object username}) => '@${username} olarak bağlandı';
 	@override String get disconnectConfirm => 'Trakt hesabının bağlantısı kesilsin mi?';
-	@override String get disconnectConfirmBody => 'Plezy, Trakt\'a olay göndermeyi durduracak. İstediğiniz zaman yeniden bağlanabilirsiniz.';
+	@override String get disconnectConfirmBody => 'Heisuca, Trakt\'a olay göndermeyi durduracak. İstediğiniz zaman yeniden bağlanabilirsiniz.';
 	@override String get scrobble => 'Gerçek zamanlı scrobble';
 	@override String get scrobbleDescription => 'Oynatma sırasında Trakt\'a oynatma, duraklatma ve durdurma olayları gönderin.';
 	@override String get watchedSync => 'İzleme durumunu eşitle';
-	@override String get watchedSyncDescription => 'Plezy\'de ögeleri izlendi olarak işaretlediğinizde, Trakt üzerinde de izlendi olarak işaretlenir.';
+	@override String get watchedSyncDescription => 'Heisuca\'de ögeleri izlendi olarak işaretlediğinizde, Trakt üzerinde de izlendi olarak işaretlenir.';
 }
 
 // Path: seerr
@@ -2178,10 +2174,10 @@ class _Translations$seerr$tr extends Translations$seerr$en {
 	@override String get signInWithEmby => 'Emby ile Giriş Yap';
 	@override String get signInWithLocal => 'Yerel hesap kullan';
 	@override String get email => 'E-posta';
-	@override String get noSignInMethods => 'Bu Seerr örneği Plezy\'nin desteklediği bir giriş yöntemi sunmuyor.';
+	@override String get noSignInMethods => 'Bu Seerr örneği Heisuca\'nin desteklediği bir giriş yöntemi sunmuyor.';
 	@override String get instance => 'Örnek (Instance)';
 	@override String get disconnectConfirm => 'Seerr bağlantısı kesilsin mi?';
-	@override String get disconnectConfirmBody => 'Plezy bu Seerr örneğini unutacak. İstediğiniz zaman yeniden bağlanabilirsiniz.';
+	@override String get disconnectConfirmBody => 'Heisuca bu Seerr örneğini unutacak. İstediğiniz zaman yeniden bağlanabilirsiniz.';
 	@override String get request => 'İstek Gönder';
 	@override String get request4k => '4K İstek Gönder';
 	@override String get seasons => 'Sezonlar';
@@ -2206,7 +2202,7 @@ class _Translations$seerr$tr extends Translations$seerr$en {
 	@override String get statusBlocklisted => 'Engelleme listesinde';
 	@override String couldNotReach({required Object url, required Object error}) => '${url} adresine ulaşılamadı: ${error}';
 	@override String noInstanceAtUrl({required Object url, required Object status}) => '${url} adresinde Seerr örneği bulunamadı (HTTP ${status})';
-	@override String get behindAuthProxy => 'Seerr yerine kimlik doğrulayan bir ters proxy (SSO veya HTTP kimlik doğrulaması) yanıt verdi. Plezy bunun üzerinden giriş yapamaz: bu uygulama için Seerr\'in /api/v1 yolunun proxy\'yi atlamasına izin verin veya Seerr\'e doğrudan ulaşan bir adres kullanın.';
+	@override String get behindAuthProxy => 'Seerr yerine kimlik doğrulayan bir ters proxy (SSO veya HTTP kimlik doğrulaması) yanıt verdi. Heisuca bunun üzerinden giriş yapamaz: bu uygulama için Seerr\'in /api/v1 yolunun proxy\'yi atlamasına izin verin veya Seerr\'e doğrudan ulaşan bir adres kullanın.';
 	@override String get invalidUrl => 'https://seerr.example.com gibi bir sunucu adresi girin';
 	@override String get quickConnectUnsupported => 'Bu Seerr örneği Quick Connect\'i desteklemiyor. Seerr 3.4 veya daha yenisini gerektiriyor.';
 	@override String get notInitialized => 'Bu Seerr örneği ilk çalıştırma kurulumunu tamamlamadı';
@@ -2236,7 +2232,7 @@ class _Translations$services$tr extends Translations$services$en {
 	@override String get scrobble => 'İlerlemeyi otomatik takip et';
 	@override String get scrobbleDescription => 'Bir bölümü veya filmi bitirdiğinizde listenizi güncelleyin.';
 	@override String disconnectConfirm({required Object service}) => '${service} bağlantısı kesilsin mi?';
-	@override String disconnectConfirmBody({required Object service}) => 'Plezy, ${service} güncellemeyi durduracak. İstediğiniz zaman yeniden bağlanabilirsiniz.';
+	@override String disconnectConfirmBody({required Object service}) => 'Heisuca, ${service} güncellemeyi durduracak. İstediğiniz zaman yeniden bağlanabilirsiniz.';
 	@override String connectFailed({required Object service}) => '${service} ile bağlantı kurulamadı. Tekrar deneyin.';
 	@override late final _Translations$services$names$tr names = _Translations$services$names$tr._(_root);
 	@override late final _Translations$services$deviceCode$tr deviceCode = _Translations$services$deviceCode$tr._(_root);
@@ -2826,14 +2822,14 @@ class _Translations$downloads$backgroundWarning$tr extends Translations$download
 	@override String get bannerAction => 'Detaylar';
 	@override String get sheetTitle => 'Arka plan indirmeleri engellendi';
 	@override String get sheetTitleDegraded => 'Arka plan indirmeleri sınırlı olabilir';
-	@override String get sheetIntro => 'Android, Plezy\'nin arka planda güvenilir şekilde indirme yapmasını engelliyor.';
-	@override String get sheetIntroDegraded => 'Cihazınız, Plezy\'nin arka planda ne zaman indirme yapabileceğini sınırlıyor.';
-	@override String get reasonBackgroundRestricted => 'Plezy\'nin arka plan kullanımı kısıtlanmış. Pil veya arka plan kullanımını "Kısıtlanmamış" olarak ayarlayın.';
-	@override String get reasonStandbyRestricted => 'Android, Plezy\'yi kısıtlı bekleme durumuna aldı. Pil kullanımını "Kısıtlanmamış" olarak ayarlayın.';
+	@override String get sheetIntro => 'Android, Heisuca\'nin arka planda güvenilir şekilde indirme yapmasını engelliyor.';
+	@override String get sheetIntroDegraded => 'Cihazınız, Heisuca\'nin arka planda ne zaman indirme yapabileceğini sınırlıyor.';
+	@override String get reasonBackgroundRestricted => 'Heisuca\'nin arka plan kullanımı kısıtlanmış. Pil veya arka plan kullanımını "Kısıtlanmamış" olarak ayarlayın.';
+	@override String get reasonStandbyRestricted => 'Android, Heisuca\'yi kısıtlı bekleme durumuna aldı. Pil kullanımını "Kısıtlanmamış" olarak ayarlayın.';
 	@override String get reasonDownloadChannelBlocked => 'İndirme bildirimleri kapalı; bu nedenle ilerleme ve kontroller kullanılamayabilir.';
 	@override String get reasonNotificationsDisabled => 'Bildirimler kapalı. Android 13 ve sonraki sürümlerde uzun arka plan indirmeleri için gereklidir.';
 	@override String get reasonDataSaver => 'Veri Tasarrufu açık; bu, mobil veride arka plan indirmelerini engeller. Wi-Fi üzerinde indirmeler yine de çalışır.';
-	@override String get reasonOemUnknown => 'Plezy arka plandayken indirmeler tekrar tekrar durdu. Plezy\'nin pil veya arka plan kullanım ayarlarını kontrol edin.';
+	@override String get reasonOemUnknown => 'Heisuca arka plandayken indirmeler tekrar tekrar durdu. Heisuca\'nin pil veya arka plan kullanım ayarlarını kontrol edin.';
 	@override String get openSettings => 'Ayarları aç';
 	@override String get stillNotWorking => 'Cihaza özel yardım';
 	@override String get stillNotWorkingDescription => 'Cihazınıza yönelik adımlara bakın veya sorun sürerse Ayarlar › Günlükleri Görüntüle bölümünden bir günlük gönderin.';
@@ -2887,19 +2883,19 @@ class _Translations$companionRemote$pairing$tr extends Translations$companionRem
 	final TranslationsTr _root; // ignore: unused_field
 
 	// Translations
-	@override String get discoveryDescription => 'Aynı Plex hesabına sahip Plezy cihazları burada görünür';
+	@override String get discoveryDescription => 'Aynı Plex hesabına sahip Heisuca cihazları burada görünür';
 	@override String get hostAddressHint => '192.168.1.100:48632';
 	@override String get connecting => 'Bağlanılıyor...';
 	@override String get searchingForDevices => 'Cihazlar aranıyor...';
 	@override String get noDevicesFound => 'Ağınızda cihaz bulunamadı';
-	@override String get noDevicesHint => 'Masaüstünde Plezy\'yi açın ve aynı Wi-Fi ağını kullanın';
+	@override String get noDevicesHint => 'Masaüstünde Heisuca\'yi açın ve aynı Wi-Fi ağını kullanın';
 	@override String get availableDevices => 'Kullanılabilir Cihazlar';
 	@override String get manualConnection => 'Manuel Bağlantı';
 	@override String get cryptoInitFailed => 'Güvenli bağlantı başlatılamadı. Önce Plex\'e giriş yapın.';
 	@override String get validationHostRequired => 'Lütfen ana bilgisayar adresini girin';
 	@override String get validationHostFormat => 'Biçim IP:port şeklinde olmalıdır (ör. 192.168.1.100:48632)';
 	@override String get connectionTimedOut => 'Bağlantı zaman aşımına uğradı. Her iki cihazda da aynı ağı kullanın.';
-	@override String get sessionNotFound => 'Cihaz bulunamadı. Plezy\'nin ana bilgisayarda çalıştığından emin olun.';
+	@override String get sessionNotFound => 'Cihaz bulunamadı. Heisuca\'nin ana bilgisayarda çalıştığından emin olun.';
 	@override String get authFailed => 'Kimlik doğrulama başarısız oldu. Her iki cihazın da aynı Plex hesabına ihtiyacı var.';
 	@override String failedToConnect({required Object error}) => 'Bağlantı başarısız: ${error}';
 }
@@ -2978,7 +2974,7 @@ class _Translations$services$deviceCode$tr extends Translations$services$deviceC
 	final TranslationsTr _root; // ignore: unused_field
 
 	// Translations
-	@override String title({required Object service}) => 'Plezy\'yi ${service} üzerinde etkinleştirin';
+	@override String title({required Object service}) => 'Heisuca\'yi ${service} üzerinde etkinleştirin';
 	@override String get instructions => 'QR kodunu tarayın veya aşağıdaki adresi ziyaret edip bu kodu girin:';
 	@override String openToActivate({required Object service}) => 'Etkinleştirmek için ${service} servisini açın';
 	@override String get copyCode => 'Etkinleştirme kodunu kopyala';
@@ -3054,7 +3050,7 @@ extension on TranslationsTr {
 			'auth.quickConnectWaiting' => 'Onay bekleniyor…',
 			'auth.quickConnectCancel' => 'İptal',
 			'auth.quickConnectExpired' => 'Hızlı Bağlantı süresi doldu. Tekrar deneyin.',
-			'auth.localDataRecoveryRequired' => 'Plezy yerel giriş ve bekleyen oynatma verilerini güvenli bir şekilde kurtaramadı. Lütfen tekrar giriş yapın.',
+			'auth.localDataRecoveryRequired' => 'Heisuca yerel giriş ve bekleyen oynatma verilerini güvenli bir şekilde kurtaramadı. Lütfen tekrar giriş yapın.',
 			'auth.pinCheckRejected' => 'Plex PIN denetimi reddedildi',
 			'common.cancel' => 'İptal',
 			'common.save' => 'Kaydet',
@@ -3141,7 +3137,7 @@ extension on TranslationsTr {
 			'update.latestVersion' => 'En son sürümü kullanıyorsunuz',
 			'update.checkFailed' => 'Güncellemeler kontrol edilemedi',
 			'settings.title' => 'Ayarlar',
-			'settings.supportDeveloper' => 'Plezy\'yi Destekleyin',
+			'settings.supportDeveloper' => 'Heisuca\'yi Destekleyin',
 			'settings.supportDeveloperDescription' => 'Geliştirmeyi fonlamak için Liberapay üzerinden bağış yapın',
 			'settings.language' => 'Dil',
 			'settings.theme' => 'Tema',
@@ -3263,8 +3259,6 @@ extension on TranslationsTr {
 			'settings.watchTogetherRelayDescription' => 'Özel bir aktarıcı ayarlayın. Herkes aynı sunucuyu kullanmalıdır.',
 			'settings.watchTogetherRelayHint' => 'https://ornek-aktarici.com',
 			'settings.watchTogetherRelayInvalid' => 'Geçerli bir HTTP veya HTTPS aktarıcı adresi girin.',
-			'settings.crashReporting' => 'Çökme Bildirimi',
-			'settings.crashReportingDescription' => 'Uygulamanın geliştirilmesine yardımcı olmak için çökme raporları gönder',
 			'settings.debugLogging' => 'Hata Ayıklama Günlüğü',
 			'settings.debugLoggingDescription' => 'Sorun giderme için ayrıntılı günlük kaydını etkinleştir',
 			'settings.viewLogs' => 'Günlükleri Görüntüle',
@@ -3283,7 +3277,7 @@ extension on TranslationsTr {
 			'settings.importSettingsDescription' => 'Tercihleri bir dosyadan geri yükleyin',
 			'settings.importSettingsConfirm' => 'Bu işlem mevcut ayarlarınızın üzerine yazacak. Devam edilsin mi?',
 			'settings.importSettingsSuccess' => 'Ayarlar içe aktarıldı',
-			'settings.importSettingsInvalidFile' => 'Bu dosya geçerli bir Plezy ayar dosyası değil',
+			'settings.importSettingsInvalidFile' => 'Bu dosya geçerli bir Heisuca ayar dosyası değil',
 			'settings.importSettingsNoUser' => 'Ayarları içe aktarmadan önce giriş yapın',
 			'settings.shortcutsReset' => 'Kısayollar varsayılana sıfırlandı',
 			'settings.about' => 'Hakkında',
@@ -3345,8 +3339,6 @@ extension on TranslationsTr {
 			'settings.maxVolume' => 'Maksimum Ses',
 			'settings.maxVolumeDescription' => 'Kısık sesli medyalar için %100\'ün üzerinde ses yükseltmeye izin ver',
 			'settings.maxVolumePercent' => ({required Object percent}) => '%${percent}',
-			'settings.discordRichPresence' => 'Discord Rich Presence',
-			'settings.discordRichPresenceDescription' => 'Discord\'da ne izlediğinizi gösterin',
 			'settings.services' => 'Servisler',
 			'settings.servicesDescription' => 'Trakt, MyAnimeList, Seerr ve daha fazlasını bağlayın',
 			'settings.manageLibrariesDescription' => 'Kitaplıkları yeniden sıralayın ve gizleyin',
@@ -3404,7 +3396,7 @@ extension on TranslationsTr {
 			'settings.forceTvMode' => 'TV modunu zorla',
 			'settings.forceTvModeDescription' => 'TV düzenini zorla. Otomatik algılamayan cihazlar içindir. Yeniden başlatma gerektirir.',
 			'settings.startInFullscreen' => 'Tam ekranda başlat',
-			'settings.startInFullscreenDescription' => 'Plezy\'yi açılışta tam ekran modunda aç',
+			'settings.startInFullscreenDescription' => 'Heisuca\'yi açılışta tam ekran modunda aç',
 			'settings.exitFullscreenOnPlayerClose' => 'Oynatıcı kapandığında tam ekrandan çık',
 			'settings.exitFullscreenOnPlayerCloseDescription' => 'Video oynatıcıyı kapatırken otomatik olarak tam ekrandan çık',
 			'settings.autoHidePerformanceOverlay' => 'Performans Katmanını Otomatik Gizle',
@@ -3453,7 +3445,7 @@ extension on TranslationsTr {
 			'settings.playerScopeGlobal' => 'Her yerde',
 			'settings.playerScopeLibrary' => 'Kitaplık başına',
 			'settings.playerScopeTitle' => 'Dizi veya film başına',
-			'settings.exportDialogTitle' => 'Plezy ayarlarını dışa aktar',
+			'settings.exportDialogTitle' => 'Heisuca ayarlarını dışa aktar',
 			'search.hint' => 'Film, dizi, müzik ara...',
 			'search.tryDifferentTerm' => 'Farklı bir arama terimi deneyin',
 			'search.searchYourMedia' => 'Medyanızda arayın',
@@ -3550,12 +3542,12 @@ extension on TranslationsTr {
 			'fileInfo.streamId' => 'Akış Kimliği',
 			'fileInfo.language' => 'Dil',
 			'fileInfo.languageCode' => 'Dil Kodu',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.streamTitle' => 'Parça Başlığı',
 			'fileInfo.channels' => 'Kanallar',
 			'fileInfo.sampleRate' => 'Örnekleme Hızı',
 			'fileInfo.spatialAudio' => 'Uzamsal Ses',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.textBased' => 'Metin Tabanlı',
 			'fileInfo.subtitleFormat' => 'Yan Dosya Biçimi',
 			'fileInfo.provider' => 'Sağlayıcı',
@@ -3632,8 +3624,8 @@ extension on TranslationsTr {
 			'mediaMenu.deleteEpisodeCountWarning' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('tr'))(n, one: 'Bu, içindeki ${n} bölümü ve dosyasını siler.', other: 'Bu, içindeki ${n} bölümü ve dosyalarını siler.', ), 
 			'mediaMenu.deleteMultiPartWarning' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('tr'))(n, one: 'Bu öge ${n} dosya olarak saklanıyor ve silinecek.', other: 'Bu öge ${n} dosyaya bölünmüş olarak saklanıyor ve hepsi silinecek.', ), 
 			'mediaMenu.deleteSharedFileHeading' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('tr'))(n, one: '${n} başka bölüm aynı dosyada saklanıyor ve o da silinecek:', other: '${n} başka bölüm aynı dosyada saklanıyor ve onlar da silinecek:', ), 
-			'mediaMenu.deleteScopeUnverifiedProbeFailed' => 'Plezy bunun hangi dosyaları sileceğini kontrol edemedi, bu yüzden yukarıda adı geçen ögeden daha fazlasını silebilir. İptal edip tekrar deneyin veya yine de silin.',
-			'mediaMenu.deleteScopeUnverifiedNoFileInfo' => 'Sunucunuz bu öge için dosya ayrıntıları sağlamadı, bu yüzden Plezy bunun hangi dosyaları sileceğini kontrol edemiyor. Yukarıda adı geçen ögeden daha fazlasını silebilir.',
+			'mediaMenu.deleteScopeUnverifiedProbeFailed' => 'Heisuca bunun hangi dosyaları sileceğini kontrol edemedi, bu yüzden yukarıda adı geçen ögeden daha fazlasını silebilir. İptal edip tekrar deneyin veya yine de silin.',
+			'mediaMenu.deleteScopeUnverifiedNoFileInfo' => 'Sunucunuz bu öge için dosya ayrıntıları sağlamadı, bu yüzden Heisuca bunun hangi dosyaları sileceğini kontrol edemiyor. Yukarıda adı geçen ögeden daha fazlasını silebilir.',
 			'mediaMenu.mediaDeletedSuccessfully' => 'Medya ögesi başarıyla silindi',
 			'mediaMenu.mediaFailedToDelete' => 'Medya ögesi silinemedi',
 			'mediaMenu.rate' => 'Oyla',
@@ -3880,7 +3872,7 @@ extension on TranslationsTr {
 			'mpvConfig.removeLine' => 'Satırı Kaldır',
 			'mpvConfig.embeddedVoHint' => 'vo, gpu-context ve gpu-api Linux\'ta yok sayılır: gömülü video her zaman video düzleminde vo=libmpv üzerinden işlenir ve gpu-next (ArtCNN gibi compute shader\'ların ihtiyaç duyduğu) gömülü olarak çalışamaz.',
 			'dialog.confirmAction' => 'Eylemi Onayla',
-			'profiles.addPlezyProfile' => 'Plezy profili ekle',
+			'profiles.addHeisucaProfile' => 'Heisuca profili ekle',
 			'profiles.switchingProfile' => 'Profil değiştiriliyor…',
 			'profiles.deleteThisProfileTitle' => 'Bu profil silinsin mi?',
 			'profiles.deleteThisProfileMessage' => ({required Object displayName}) => '${displayName} kişisi kaldırılacak. Bağlantılar etkilenmez.',
@@ -3953,12 +3945,12 @@ extension on TranslationsTr {
 			'connections.accessDeniedMany' => ({required Object count}) => '${count} sunucu bu hesabın erişimini reddetti',
 			'connections.signInAgain' => 'Tekrar giriş yap',
 			'connections.editMediaBrowserTitle' => ({required Object product}) => '${product} bağlantısını düzenle',
-			'connections.editMediaBrowserIntro' => ({required Object serverName}) => '${serverName} için URL ekleyin veya kaldırın. Plezy, erişilebilir olan en düşük gecikmeli URL\'yi kullanacak.',
+			'connections.editMediaBrowserIntro' => ({required Object serverName}) => '${serverName} için URL ekleyin veya kaldırın. Heisuca, erişilebilir olan en düşük gecikmeli URL\'yi kullanacak.',
 			'accountPreferences.sectionTitle' => 'Hesap tercihleri',
 			'accountPreferences.hubSubtitleSingle' => ({required Object account}) => 'Ses, altyazı ve kitaplık seçenekleri ${account} hesabına kaydedildi',
 			'accountPreferences.hubSubtitleMultiple' => ({required Object count}) => 'Ses, altyazı ve kitaplık seçenekleri ${count} hesaba kaydedildi',
 			'accountPreferences.pickAccount' => 'Her hesap kendi tercihlerini saklar. Düzenlemek için birini seçin.',
-			'accountPreferences.storedOnAccount' => 'Bu seçenekler hesabın kendisine kaydedilir; böylece hesaba giriş yapan her uygulama bunları kullanır — diğer cihazlarınızdaki Plezy dahil.',
+			'accountPreferences.storedOnAccount' => 'Bu seçenekler hesabın kendisine kaydedilir; böylece hesaba giriş yapan her uygulama bunları kullanır — diğer cihazlarınızdaki Heisuca dahil.',
 			'accountPreferences.noAccounts' => 'Yapılandırılacak hesap yok',
 			'accountPreferences.noAccountsHint' => 'Plex\'e giriş yapın veya bir Jellyfin ya da Emby sunucusu bağlayın; o hesapta saklanan tercihler burada görünür.',
 			'accountPreferences.unavailable' => 'Bu hesaba ulaşılamıyor',
@@ -4064,12 +4056,12 @@ extension on TranslationsTr {
 			'libraries.refreshMetadata' => 'Meta Verileri Yenile',
 			'libraries.emptyTrash' => 'Çöpü Boşalt',
 			'libraries.emptyingTrash' => ({required Object title}) => '"${title}" için çöp boşaltılıyor...',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.trashEmptied' => ({required Object title}) => '"${title}" için çöp boşaltıldı',
 			'libraries.failedToEmptyTrash' => ({required Object error}) => 'Çöp boşaltılamadı: ${error}',
 			'libraries.analyzing' => ({required Object title}) => '"${title}" analiz ediliyor...',
 			'libraries.analysisStarted' => ({required Object title}) => '"${title}" için analiz başladı',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Kitaplık analiz edilemedi: ${error}',
 			'libraries.noLibrariesFound' => 'Kitaplık bulunamadı',
 			'libraries.allLibrariesHidden' => 'Tüm kitaplıklar gizli',
@@ -4158,9 +4150,9 @@ extension on TranslationsTr {
 			'logs.clearLogs' => 'Günlükleri Temizle',
 			'logs.copyLogs' => 'Günlükleri Kopyala',
 			'logs.uploadLogs' => 'Günlükleri Yükle',
-			'startup.failedTitle' => 'Plezy başlatılamadı',
+			'startup.failedTitle' => 'Heisuca başlatılamadı',
 			'startup.failedBody' => 'Başlatma sırasında bir şeyler ters gitti. Aşağıdaki ayrıntılar neyin başarısız olduğunu gösteriyor.',
-			'startup.failedBodyRepairable' => 'Plezy\'nin kayıtlı ayar dosyası hasarlı ve Plezy başlamadan önce yeniden oluşturulması gerekiyor. Tekrar denemek işe yaramaz — Depolama Alanını Onar\'ı seçin.',
+			'startup.failedBodyRepairable' => 'Heisuca\'nin kayıtlı ayar dosyası hasarlı ve Heisuca başlamadan önce yeniden oluşturulması gerekiyor. Tekrar denemek işe yaramaz — Depolama Alanını Onar\'ı seçin.',
 			'startup.phaseLabel' => 'Adım',
 			'startup.showDetails' => 'Ayrıntıları göster',
 			'startup.hideDetails' => 'Ayrıntıları gizle',
@@ -4169,16 +4161,16 @@ extension on TranslationsTr {
 			'startup.uploadDetails' => 'Ayrıntıları yükle',
 			'startup.repairStorage' => 'Depolama Alanını Onar',
 			'startup.repairTitle' => 'Kayıtlı veriler onarılsın mı?',
-			'startup.repairBodyCommon' => 'Plezy\'nin ayar dosyası hasarlı ve okunamıyor. Onarım, her ayarı varsayılanına sıfırlar.',
+			'startup.repairBodyCommon' => 'Heisuca\'nin ayar dosyası hasarlı ve okunamıyor. Onarım, her ayarı varsayılanına sıfırlar.',
 			'startup.repairBodyOneCredential' => 'Kayıtlı bir giriş hasarlı ve okunamıyor. Onarım yalnızca onu kaldırır; diğer ayarlarınıza dokunulmaz.',
 			'startup.repairBodySignInsKept' => 'Sunucularınız ve profilleriniz giriş yapılı kalmalı.',
 			'startup.repairBodySignInsLost' => 'Kayıtlı girişlerinizi koruyan anahtar bu dosyadan kurtarılamıyor, bu yüzden her sunucuya ve profile yeniden giriş yapmanız gerekecek. Medya sunucunuzdaki hiçbir şey etkilenmez.',
-			'startup.repairBodySessionsUncertain' => 'Takip hizmetleri (MAL, AniList, Simkl, Trakt) ve Seerr ayrı olarak saklanır; korunup korunmayacakları belirsizdir. Plezy tam olarak neyi koruduğunu size söyleyecek.',
+			'startup.repairBodySessionsUncertain' => 'Takip hizmetleri (MAL, AniList, Simkl, Trakt) ve Seerr ayrı olarak saklanır; korunup korunmayacakları belirsizdir. Heisuca tam olarak neyi koruduğunu size söyleyecek.',
 			'startup.repairConfirm' => 'Onar',
 			'startup.repairSucceeded' => 'Depolama alanı onarıldı',
 			'startup.repairNeedsRestart' => 'Depolama alanı onarıldı — yeniden başlatma gerekli',
-			'startup.restartRequiredBody' => 'Verileriniz onarıldı, ancak Plezy\'nin bunları kullanabilmesi için temiz bir başlangıç yapması gerekiyor. Plezy\'yi kapatıp yeniden açın.',
-			'startup.quitPlezy' => 'Plezy\'den Çık',
+			'startup.restartRequiredBody' => 'Verileriniz onarıldı, ancak Heisuca\'nin bunları kullanabilmesi için temiz bir başlangıç yapması gerekiyor. Heisuca\'yi kapatıp yeniden açın.',
+			'startup.quitHeisuca' => 'Heisuca\'den Çık',
 			'startup.repairFailed' => 'Onarım başarısız oldu',
 			'startup.repairKeptSignIns' => 'Sunucularınız ve profilleriniz hâlâ giriş yapılı.',
 			'startup.repairLostSignIns' => 'Kayıtlı girişlerinizi koruyan anahtar kurtarılamadı. Her sunucuya ve profile yeniden giriş yapmanız gerekecek.',
@@ -4187,7 +4179,7 @@ extension on TranslationsTr {
 			'startup.backupWarning' => 'Giriş bilgilerinizi içerir. Yüklemeyin veya paylaşmayın.',
 			'startup.deleteBackup' => 'Kopyayı Sil',
 			'startup.backupDeleted' => 'Kopya silindi.',
-			'startup.previousFailureTitle' => 'Plezy geçen sefer başlatılamadı',
+			'startup.previousFailureTitle' => 'Heisuca geçen sefer başlatılamadı',
 			'licenses.relatedPackages' => 'İlgili Paketler',
 			'licenses.license' => 'Lisans',
 			'licenses.licenseNumber' => ({required Object number}) => 'Lisans ${number}',
@@ -4578,12 +4570,12 @@ extension on TranslationsTr {
 			'watchTogether.renameRoom' => 'Odayı Yeniden Adlandır',
 			'watchTogether.removeRoom' => 'Kaldır',
 			'watchTogether.guestSwitchUnavailable' => 'Geçiş yapılamadı — eşitleme için sunucu mevcut değil',
-			_ => null,
-		} ?? switch (path) {
 			'watchTogether.guestSwitchFailed' => 'Geçiş yapılamadı — içerik bu sunucuda bulunamadı',
 			'watchTogether.defaultDisplayName' => 'Kullanıcı',
 			'watchTogether.errors.timedOut' => 'Aktarıcı sunucusu zamanında yanıt vermedi',
 			'watchTogether.errors.connectionLost' => 'Oturum hazır olmadan bağlantı kapandı',
+			_ => null,
+		} ?? switch (path) {
 			'watchTogether.errors.invalidRelayResponse' => 'Aktarıcı sunucusu beklenmeyen bir yanıt gönderdi',
 			'watchTogether.errors.sessionEnded' => 'Kurucu oturumu sonlandırdı',
 			'watchTogether.errors.sessionUnavailable' => 'Bu oturum sürdürülemiyor. Devam etmek için bir odaya katılın veya oda oluşturun.',
@@ -4668,14 +4660,14 @@ extension on TranslationsTr {
 			'downloads.backgroundWarning.bannerAction' => 'Detaylar',
 			'downloads.backgroundWarning.sheetTitle' => 'Arka plan indirmeleri engellendi',
 			'downloads.backgroundWarning.sheetTitleDegraded' => 'Arka plan indirmeleri sınırlı olabilir',
-			'downloads.backgroundWarning.sheetIntro' => 'Android, Plezy\'nin arka planda güvenilir şekilde indirme yapmasını engelliyor.',
-			'downloads.backgroundWarning.sheetIntroDegraded' => 'Cihazınız, Plezy\'nin arka planda ne zaman indirme yapabileceğini sınırlıyor.',
-			'downloads.backgroundWarning.reasonBackgroundRestricted' => 'Plezy\'nin arka plan kullanımı kısıtlanmış. Pil veya arka plan kullanımını "Kısıtlanmamış" olarak ayarlayın.',
-			'downloads.backgroundWarning.reasonStandbyRestricted' => 'Android, Plezy\'yi kısıtlı bekleme durumuna aldı. Pil kullanımını "Kısıtlanmamış" olarak ayarlayın.',
+			'downloads.backgroundWarning.sheetIntro' => 'Android, Heisuca\'nin arka planda güvenilir şekilde indirme yapmasını engelliyor.',
+			'downloads.backgroundWarning.sheetIntroDegraded' => 'Cihazınız, Heisuca\'nin arka planda ne zaman indirme yapabileceğini sınırlıyor.',
+			'downloads.backgroundWarning.reasonBackgroundRestricted' => 'Heisuca\'nin arka plan kullanımı kısıtlanmış. Pil veya arka plan kullanımını "Kısıtlanmamış" olarak ayarlayın.',
+			'downloads.backgroundWarning.reasonStandbyRestricted' => 'Android, Heisuca\'yi kısıtlı bekleme durumuna aldı. Pil kullanımını "Kısıtlanmamış" olarak ayarlayın.',
 			'downloads.backgroundWarning.reasonDownloadChannelBlocked' => 'İndirme bildirimleri kapalı; bu nedenle ilerleme ve kontroller kullanılamayabilir.',
 			'downloads.backgroundWarning.reasonNotificationsDisabled' => 'Bildirimler kapalı. Android 13 ve sonraki sürümlerde uzun arka plan indirmeleri için gereklidir.',
 			'downloads.backgroundWarning.reasonDataSaver' => 'Veri Tasarrufu açık; bu, mobil veride arka plan indirmelerini engeller. Wi-Fi üzerinde indirmeler yine de çalışır.',
-			'downloads.backgroundWarning.reasonOemUnknown' => 'Plezy arka plandayken indirmeler tekrar tekrar durdu. Plezy\'nin pil veya arka plan kullanım ayarlarını kontrol edin.',
+			'downloads.backgroundWarning.reasonOemUnknown' => 'Heisuca arka plandayken indirmeler tekrar tekrar durdu. Heisuca\'nin pil veya arka plan kullanım ayarlarını kontrol edin.',
 			'downloads.backgroundWarning.openSettings' => 'Ayarları aç',
 			'downloads.backgroundWarning.stillNotWorking' => 'Cihaza özel yardım',
 			'downloads.backgroundWarning.stillNotWorkingDescription' => 'Cihazınıza yönelik adımlara bakın veya sorun sürerse Ayarlar › Günlükleri Görüntüle bölümünden bir günlük gönderin.',
@@ -4738,19 +4730,19 @@ extension on TranslationsTr {
 			'companionRemote.session.stopServer' => 'Sunucuyu Durdur',
 			'companionRemote.session.minimize' => 'Küçült',
 			'companionRemote.session.manualAddressHint' => 'Manuel bağlantı adresi:',
-			'companionRemote.pairing.discoveryDescription' => 'Aynı Plex hesabına sahip Plezy cihazları burada görünür',
+			'companionRemote.pairing.discoveryDescription' => 'Aynı Plex hesabına sahip Heisuca cihazları burada görünür',
 			'companionRemote.pairing.hostAddressHint' => '192.168.1.100:48632',
 			'companionRemote.pairing.connecting' => 'Bağlanılıyor...',
 			'companionRemote.pairing.searchingForDevices' => 'Cihazlar aranıyor...',
 			'companionRemote.pairing.noDevicesFound' => 'Ağınızda cihaz bulunamadı',
-			'companionRemote.pairing.noDevicesHint' => 'Masaüstünde Plezy\'yi açın ve aynı Wi-Fi ağını kullanın',
+			'companionRemote.pairing.noDevicesHint' => 'Masaüstünde Heisuca\'yi açın ve aynı Wi-Fi ağını kullanın',
 			'companionRemote.pairing.availableDevices' => 'Kullanılabilir Cihazlar',
 			'companionRemote.pairing.manualConnection' => 'Manuel Bağlantı',
 			'companionRemote.pairing.cryptoInitFailed' => 'Güvenli bağlantı başlatılamadı. Önce Plex\'e giriş yapın.',
 			'companionRemote.pairing.validationHostRequired' => 'Lütfen ana bilgisayar adresini girin',
 			'companionRemote.pairing.validationHostFormat' => 'Biçim IP:port şeklinde olmalıdır (ör. 192.168.1.100:48632)',
 			'companionRemote.pairing.connectionTimedOut' => 'Bağlantı zaman aşımına uğradı. Her iki cihazda da aynı ağı kullanın.',
-			'companionRemote.pairing.sessionNotFound' => 'Cihaz bulunamadı. Plezy\'nin ana bilgisayarda çalıştığından emin olun.',
+			'companionRemote.pairing.sessionNotFound' => 'Cihaz bulunamadı. Heisuca\'nin ana bilgisayarda çalıştığından emin olun.',
 			'companionRemote.pairing.authFailed' => 'Kimlik doğrulama başarısız oldu. Her iki cihazın da aynı Plex hesabına ihtiyacı var.',
 			'companionRemote.pairing.failedToConnect' => ({required Object error}) => 'Bağlantı başarısız: ${error}',
 			'companionRemote.remote.disconnectConfirm' => 'Uzaktan kumanda oturumundan ayrılmak istiyor musunuz?',
@@ -4970,11 +4962,11 @@ extension on TranslationsTr {
 			'trakt.connected' => 'Bağlandı',
 			'trakt.connectedAs' => ({required Object username}) => '@${username} olarak bağlandı',
 			'trakt.disconnectConfirm' => 'Trakt hesabının bağlantısı kesilsin mi?',
-			'trakt.disconnectConfirmBody' => 'Plezy, Trakt\'a olay göndermeyi durduracak. İstediğiniz zaman yeniden bağlanabilirsiniz.',
+			'trakt.disconnectConfirmBody' => 'Heisuca, Trakt\'a olay göndermeyi durduracak. İstediğiniz zaman yeniden bağlanabilirsiniz.',
 			'trakt.scrobble' => 'Gerçek zamanlı scrobble',
 			'trakt.scrobbleDescription' => 'Oynatma sırasında Trakt\'a oynatma, duraklatma ve durdurma olayları gönderin.',
 			'trakt.watchedSync' => 'İzleme durumunu eşitle',
-			'trakt.watchedSyncDescription' => 'Plezy\'de ögeleri izlendi olarak işaretlediğinizde, Trakt üzerinde de izlendi olarak işaretlenir.',
+			'trakt.watchedSyncDescription' => 'Heisuca\'de ögeleri izlendi olarak işaretlediğinizde, Trakt üzerinde de izlendi olarak işaretlenir.',
 			'seerr.title' => 'Seerr',
 			'seerr.connectTitle' => 'Seerr Bağla',
 			'seerr.serverUrl' => 'Sunucu URL\'si',
@@ -4984,10 +4976,10 @@ extension on TranslationsTr {
 			'seerr.signInWithEmby' => 'Emby ile Giriş Yap',
 			'seerr.signInWithLocal' => 'Yerel hesap kullan',
 			'seerr.email' => 'E-posta',
-			'seerr.noSignInMethods' => 'Bu Seerr örneği Plezy\'nin desteklediği bir giriş yöntemi sunmuyor.',
+			'seerr.noSignInMethods' => 'Bu Seerr örneği Heisuca\'nin desteklediği bir giriş yöntemi sunmuyor.',
 			'seerr.instance' => 'Örnek (Instance)',
 			'seerr.disconnectConfirm' => 'Seerr bağlantısı kesilsin mi?',
-			'seerr.disconnectConfirmBody' => 'Plezy bu Seerr örneğini unutacak. İstediğiniz zaman yeniden bağlanabilirsiniz.',
+			'seerr.disconnectConfirmBody' => 'Heisuca bu Seerr örneğini unutacak. İstediğiniz zaman yeniden bağlanabilirsiniz.',
 			'seerr.request' => 'İstek Gönder',
 			'seerr.request4k' => '4K İstek Gönder',
 			'seerr.seasons' => 'Sezonlar',
@@ -5012,7 +5004,7 @@ extension on TranslationsTr {
 			'seerr.statusBlocklisted' => 'Engelleme listesinde',
 			'seerr.couldNotReach' => ({required Object url, required Object error}) => '${url} adresine ulaşılamadı: ${error}',
 			'seerr.noInstanceAtUrl' => ({required Object url, required Object status}) => '${url} adresinde Seerr örneği bulunamadı (HTTP ${status})',
-			'seerr.behindAuthProxy' => 'Seerr yerine kimlik doğrulayan bir ters proxy (SSO veya HTTP kimlik doğrulaması) yanıt verdi. Plezy bunun üzerinden giriş yapamaz: bu uygulama için Seerr\'in /api/v1 yolunun proxy\'yi atlamasına izin verin veya Seerr\'e doğrudan ulaşan bir adres kullanın.',
+			'seerr.behindAuthProxy' => 'Seerr yerine kimlik doğrulayan bir ters proxy (SSO veya HTTP kimlik doğrulaması) yanıt verdi. Heisuca bunun üzerinden giriş yapamaz: bu uygulama için Seerr\'in /api/v1 yolunun proxy\'yi atlamasına izin verin veya Seerr\'e doğrudan ulaşan bir adres kullanın.',
 			'seerr.invalidUrl' => 'https://seerr.example.com gibi bir sunucu adresi girin',
 			'seerr.quickConnectUnsupported' => 'Bu Seerr örneği Quick Connect\'i desteklemiyor. Seerr 3.4 veya daha yenisini gerektiriyor.',
 			'seerr.notInitialized' => 'Bu Seerr örneği ilk çalıştırma kurulumunu tamamlamadı',
@@ -5033,14 +5025,14 @@ extension on TranslationsTr {
 			'services.scrobble' => 'İlerlemeyi otomatik takip et',
 			'services.scrobbleDescription' => 'Bir bölümü veya filmi bitirdiğinizde listenizi güncelleyin.',
 			'services.disconnectConfirm' => ({required Object service}) => '${service} bağlantısı kesilsin mi?',
-			'services.disconnectConfirmBody' => ({required Object service}) => 'Plezy, ${service} güncellemeyi durduracak. İstediğiniz zaman yeniden bağlanabilirsiniz.',
+			'services.disconnectConfirmBody' => ({required Object service}) => 'Heisuca, ${service} güncellemeyi durduracak. İstediğiniz zaman yeniden bağlanabilirsiniz.',
 			'services.connectFailed' => ({required Object service}) => '${service} ile bağlantı kurulamadı. Tekrar deneyin.',
 			'services.names.mal' => 'MyAnimeList',
 			'services.names.anilist' => 'AniList',
 			'services.names.simkl' => 'Simkl',
 			'services.names.seerr' => 'Seerr',
 			'services.names.mdblist' => 'MDBList',
-			'services.deviceCode.title' => ({required Object service}) => 'Plezy\'yi ${service} üzerinde etkinleştirin',
+			'services.deviceCode.title' => ({required Object service}) => 'Heisuca\'yi ${service} üzerinde etkinleştirin',
 			'services.deviceCode.instructions' => 'QR kodunu tarayın veya aşağıdaki adresi ziyaret edip bu kodu girin:',
 			'services.deviceCode.openToActivate' => ({required Object service}) => 'Etkinleştirmek için ${service} servisini açın',
 			'services.deviceCode.copyCode' => 'Etkinleştirme kodunu kopyala',
@@ -5092,12 +5084,12 @@ extension on TranslationsTr {
 			'addServer.borrowFromAnotherProfile' => 'Başka bir profilden ödünç al',
 			'addServer.borrowFromAnotherProfileSubtitle' => 'Başka bir profilin bağlantısını yeniden kullanın. PIN korumalı profiller bir PIN gerektirir.',
 			'addServer.invalidCredentials' => 'Geçersiz kullanıcı adı veya şifre',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.authResponseNotJson' => 'Kimlik doğrulama yanıtı geçerli bir JSON değildi',
 			'addServer.authResponseIncomplete' => 'Sunucudan gelen oturum açma yanıtı eksikti',
 			'addServer.quickConnectRejected' => 'Quick Connect sunucu tarafından reddedildi',
 			'addServer.quickConnectNotJson' => 'Quick Connect yanıtı geçerli bir JSON değildi',
+			_ => null,
+		} ?? switch (path) {
 			'addServer.quickConnectMissingFields' => 'Quick Connect yanıtında kod veya gizli anahtar eksik',
 			'addServer.quickConnectPollRejected' => 'Quick Connect yoklaması sunucu tarafından reddedildi',
 			'addServer.serverTimedOut' => 'Sunucu zamanında yanıt vermedi',

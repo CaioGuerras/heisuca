@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/cgflix/cgflix_login_checks.dart';
+import 'package:heisuca/cgflix/cgflix_login_checks.dart';
 
 void main() {
   group('usuário', () {

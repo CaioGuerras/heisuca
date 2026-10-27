@@ -1,0 +1,22 @@
+test_ack_carrega_prova_da_captura_e_nao_uma_flag_anterior (test_imagem.ImagemNativa.test_ack_carrega_prova_da_captura_e_nao_uma_flag_anterior) ... ok
+test_png_invalido_nao_produz_prova (test_imagem.ImagemNativa.test_png_invalido_nao_produz_prova) ... ok
+test_preto_nao_pode_ser_confirmado_como_imagem_restaurada (test_imagem.ImagemNativa.test_preto_nao_pode_ser_confirmado_como_imagem_restaurada) ... ok
+test_quadro_real_do_run_p2_tem_imagem (test_imagem.ImagemNativa.test_quadro_real_do_run_p2_tem_imagem) ... ok
+test_video_preto_com_barra_branca_e_hud_claro_nao_recebe_ack (test_imagem.ImagemNativa.test_video_preto_com_barra_branca_e_hud_claro_nao_recebe_ack) ... FAIL
+
+======================================================================
+FAIL: test_video_preto_com_barra_branca_e_hud_claro_nao_recebe_ack (test_imagem.ImagemNativa.test_video_preto_com_barra_branca_e_hud_claro_nao_recebe_ack)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1396, in patched
+    return func(*newargs, **newkeywargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/heisuca/apps/app/scripts/bancada/test_imagem.py", line 56, in test_video_preto_com_barra_branca_e_hud_claro_nao_recebe_ack
+    with patch.object(capture, 'focus'), self.assertRaisesRegex(RuntimeError, 'Imagem nativa preta'):
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: RuntimeError not raised
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.838s
+
+FAILED (failures=1)

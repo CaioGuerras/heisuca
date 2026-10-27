@@ -8,43 +8,43 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
-import 'package:plezy/cgflix/cgflix_defaults.dart';
-import 'package:plezy/cgflix/cgflix_trakt.dart';
-import 'package:plezy/connection/connection_registry.dart';
-import 'package:plezy/database/app_database.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/media/media_library.dart';
-import 'package:plezy/profiles/active_profile_provider.dart';
-import 'package:plezy/profiles/plex_home_service.dart';
-import 'package:plezy/profiles/profile_connection_registry.dart';
-import 'package:plezy/profiles/profile_registry.dart';
-import 'package:plezy/providers/account_preferences_controller.dart';
-import 'package:plezy/providers/hidden_libraries_provider.dart';
-import 'package:plezy/providers/libraries_provider.dart';
-import 'package:plezy/providers/download_provider.dart';
-import 'package:plezy/providers/seerr_account_provider.dart';
-import 'package:plezy/providers/theme_provider.dart';
-import 'package:plezy/providers/trackers_provider.dart';
-import 'package:plezy/screens/settings/settings_screen.dart';
-import 'package:plezy/services/background_work_diagnostics_service.dart';
-import 'package:plezy/services/donation_service.dart';
-import 'package:plezy/services/download_storage_service.dart';
-import 'package:plezy/services/download_manager_service.dart';
-import 'package:plezy/services/file_picker_service.dart';
-import 'package:plezy/services/settings_export_service.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/services/storage_service.dart';
-import 'package:plezy/services/update_service.dart';
-import 'package:plezy/theme/mono_theme.dart';
-import 'package:plezy/utils/platform_detector.dart';
-import 'package:plezy/widgets/app_icon.dart';
-import 'package:plezy/widgets/dialog_action_button.dart';
-import 'package:plezy/widgets/focusable_list_tile.dart';
-import 'package:plezy/widgets/loading_indicator_box.dart';
-import 'package:plezy/widgets/setting_tile.dart';
-import 'package:plezy/cgflix/cgflix_config_itens.dart';
+import 'package:heisuca/cgflix/cgflix_defaults.dart';
+import 'package:heisuca/cgflix/cgflix_trakt.dart';
+import 'package:heisuca/connection/connection_registry.dart';
+import 'package:heisuca/database/app_database.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_library.dart';
+import 'package:heisuca/profiles/active_profile_provider.dart';
+import 'package:heisuca/profiles/plex_home_service.dart';
+import 'package:heisuca/profiles/profile_connection_registry.dart';
+import 'package:heisuca/profiles/profile_registry.dart';
+import 'package:heisuca/providers/account_preferences_controller.dart';
+import 'package:heisuca/providers/hidden_libraries_provider.dart';
+import 'package:heisuca/providers/libraries_provider.dart';
+import 'package:heisuca/providers/download_provider.dart';
+import 'package:heisuca/providers/seerr_account_provider.dart';
+import 'package:heisuca/providers/theme_provider.dart';
+import 'package:heisuca/providers/trackers_provider.dart';
+import 'package:heisuca/screens/settings/settings_screen.dart';
+import 'package:heisuca/services/background_work_diagnostics_service.dart';
+import 'package:heisuca/services/donation_service.dart';
+import 'package:heisuca/services/download_storage_service.dart';
+import 'package:heisuca/services/download_manager_service.dart';
+import 'package:heisuca/services/file_picker_service.dart';
+import 'package:heisuca/services/settings_export_service.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/services/storage_service.dart';
+import 'package:heisuca/services/update_service.dart';
+import 'package:heisuca/theme/mono_theme.dart';
+import 'package:heisuca/utils/platform_detector.dart';
+import 'package:heisuca/widgets/app_icon.dart';
+import 'package:heisuca/widgets/dialog_action_button.dart';
+import 'package:heisuca/widgets/focusable_list_tile.dart';
+import 'package:heisuca/widgets/loading_indicator_box.dart';
+import 'package:heisuca/widgets/setting_tile.dart';
+import 'package:heisuca/cgflix/cgflix_config_itens.dart';
 import 'package:provider/provider.dart';
 
 import '../../test_helpers/io_fakes.dart';
@@ -142,7 +142,6 @@ void main() {
       _MigratedRow(title: t.settings.watchTogetherRelay, focusLabel: 'settings_watch_together_relay'),
       _MigratedRow(title: t.settings.clearImageCache, focusLabel: 'settings_clear_image_cache'),
       _MigratedRow(title: t.settings.resetSettings, focusLabel: 'settings_reset_settings'),
-      const _MigratedRow(title: 'Test Sentry', isVisible: kDebugMode),
       const _MigratedRow(title: 'Test ANR', isVisible: kDebugMode),
       _MigratedRow(title: t.settings.exportSettings, focusLabel: 'settings_export_settings'),
       _MigratedRow(title: t.settings.importSettings, focusLabel: 'settings_import_settings'),
@@ -283,7 +282,7 @@ void main() {
   });
 
   testWidgets('background downloads tile renders and opens the injected blocked status', (tester) async {
-    const channel = MethodChannel('com.plezy/device.settings-background-test');
+    const channel = MethodChannel('app.heisuca/device.settings-background-test');
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, (call) async {
       return switch (call.method) {
         'getBackgroundWorkSignals' => {

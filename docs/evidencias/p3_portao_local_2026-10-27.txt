@@ -1,0 +1,7 @@
+Comando: P3_CAPTURE_PHASE=depois P3_PLAYER_PHASE=depois bash apps/app/scripts/heisuca-checar.sh
+Análise ainda contém os avisos/infos herdados; P4 pendente.
+Ran 46 tests in 0.787s
+188 issues found. (ran in 7.1s)
+05:23 +1755 ~3: All tests passed!
+01:12 +8: All tests passed!
+APROVADO: análise e testes concluídos.

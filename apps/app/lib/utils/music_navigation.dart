@@ -8,12 +8,9 @@ import '../navigation/profile_navigation_scope.dart';
 import '../screens/music/album_detail_screen.dart';
 import '../screens/music/artist_detail_screen.dart';
 import '../screens/music/now_playing_screen.dart';
-import '../services/device_performance.dart';
 import '../services/music/music_playback_service.dart';
 import '../services/playlist_items_loader.dart';
 import '../services/playback_initialization_types.dart';
-import '../theme/mono_motion.dart';
-import '../theme/mono_tokens.dart';
 import '../i18n/strings.g.dart';
 import 'app_logger.dart';
 import 'platform_detector.dart';
@@ -61,35 +58,14 @@ Future<void> navigateToAlbum(BuildContext context, MediaItem album, {bool isOffl
   );
 }
 
-/// Push the now-playing screen (slide-up + fade) on the profile navigator.
+/// Abre o tocador pelo navegador do perfil e pela transição oficial do tema.
 /// No-op when it is already on top (e.g. TV auto-push while open). Popping
 /// it never touches playback — audio continues under the mini-player.
 Future<void> openNowPlaying(BuildContext context) async {
   final navigator = _contentNavigatorOf(context);
   if (_isRouteOnTop(navigator, kNowPlayingRouteName)) return;
-  final duration = DevicePerformance.reducedDuration(tokens(context).expressive);
-  await navigator.push(
-    PageRouteBuilder<void>(
-      settings: const RouteSettings(name: kNowPlayingRouteName),
-      transitionDuration: duration,
-      reverseTransitionDuration: duration,
-      pageBuilder: (context, animation, secondaryAnimation) => const NowPlayingScreen(),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        final curved = CurvedAnimation(
-          parent: animation,
-          curve: MonoMotion.emphasized,
-          reverseCurve: Curves.easeInCubic,
-        );
-        return FadeTransition(
-          opacity: curved,
-          child: SlideTransition(
-            position: Tween<Offset>(begin: const Offset(0, 0.15), end: Offset.zero).animate(curved),
-            child: child,
-          ),
-        );
-      },
-    ),
-  );
+  await navigator.push(MaterialPageRoute<void>(
+    settings: const RouteSettings(name: kNowPlayingRouteName), builder: (_) => const NowPlayingScreen()));
 }
 
 bool _isRouteOnTop(NavigatorState navigator, String name) {

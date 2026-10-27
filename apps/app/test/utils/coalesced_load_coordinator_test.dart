@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/utils/coalesced_load_coordinator.dart';
+import 'package:heisuca/utils/coalesced_load_coordinator.dart';
 
 void main() {
   test('full requests share one drain and schedule one trailing pass', () async {

@@ -3,11 +3,11 @@ import 'dart:ui' show SemanticsAction, Tristate;
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart' show SemanticsNode;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/watch_together/models/watch_session.dart';
-import 'package:plezy/watch_together/providers/watch_together_provider.dart';
-import 'package:plezy/watch_together/widgets/watch_together_overlay.dart';
-import 'package:plezy/widgets/overlay_sheet.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/watch_together/models/watch_session.dart';
+import 'package:heisuca/watch_together/providers/watch_together_provider.dart';
+import 'package:heisuca/watch_together/widgets/watch_together_overlay.dart';
+import 'package:heisuca/widgets/overlay_sheet.dart';
 import 'package:provider/provider.dart';
 
 void main() {

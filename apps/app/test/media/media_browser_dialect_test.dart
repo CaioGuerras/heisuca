@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_browser_dialect.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_browser_dialect.dart';
 
 /// Contract tests for the Jellyfin/Emby dialect discriminator.
 ///

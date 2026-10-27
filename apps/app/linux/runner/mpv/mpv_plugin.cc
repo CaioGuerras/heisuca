@@ -1119,11 +1119,11 @@ MpvPlugin* mpv_plugin_new(FlPluginRegistrar* registrar, const gchar* channel_nam
 [[maybe_unused]] static MpvPlugin* g_mpv_audio_plugin = nullptr;
 
 void mpv_plugin_register_with_registrar(FlPluginRegistrar* registrar) {
-  g_mpv_plugin = mpv_plugin_new(registrar, "com.plezy/mpv_player", FALSE);
+  g_mpv_plugin = mpv_plugin_new(registrar, "app.heisuca/mpv_player", FALSE);
 }
 
 void mpv_audio_plugin_register_with_registrar(FlPluginRegistrar* registrar) {
-  g_mpv_audio_plugin = mpv_plugin_new(registrar, "com.plezy/mpv_audio_player", TRUE);
+  g_mpv_audio_plugin = mpv_plugin_new(registrar, "app.heisuca/mpv_audio_player", TRUE);
 }
 
 // fl_method_success_response_new() takes its own reference to the result, so

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/focus/hub_vertical_navigation.dart';
+import 'package:heisuca/focus/hub_vertical_navigation.dart';
 
 void main() {
   test('empty hub lists do not consume navigation', () {

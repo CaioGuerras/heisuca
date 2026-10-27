@@ -2,18 +2,26 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/models/audio_channel_limit.dart';
-import 'package:plezy/models/audio_quality_preset.dart';
-import 'package:plezy/models/transcode_quality_preset.dart';
-import 'package:plezy/services/base_shared_preferences_service.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/services/trackers/tracker_constants.dart';
-import 'package:plezy/utils/platform_detector.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/models/audio_channel_limit.dart';
+import 'package:heisuca/models/audio_quality_preset.dart';
+import 'package:heisuca/models/transcode_quality_preset.dart';
+import 'package:heisuca/services/base_shared_preferences_service.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/services/trackers/tracker_constants.dart';
+import 'package:heisuca/utils/platform_detector.dart';
 
 import '../test_helpers/prefs.dart';
 
 void main() {
+  test('continuar ouvindo exige escolha explícita', () async {
+    resetSharedPreferencesForTest();
+    SettingsService.resetForTesting();
+    final settings = await SettingsService.getInstance();
+    expect(settings.read(SettingsService.continueListening), isFalse);
+    await settings.write(SettingsService.continueListening, true);
+    expect(settings.read(SettingsService.continueListening), isTrue);
+  });
   setUp(() {
     resetSharedPreferencesForTest();
     SettingsService.resetForTesting();
@@ -456,16 +464,17 @@ void main() {
   group('SettingsService listenables', () {
     test('refreshListenables updates active prefs outside the resettable surface', () async {
       final settings = await SettingsService.getInstance();
-      final crashReporting = settings.listenable(SettingsService.crashReporting);
+      final pref = SettingsService.scrobblePref(TrackerService.trakt);
+      final scrobble = settings.listenable(pref);
 
-      expect(crashReporting.value, isTrue);
+      expect(scrobble.value, isTrue);
 
-      await settings.prefs.setBool(SettingsService.crashReporting.key, false);
-      expect(crashReporting.value, isTrue);
+      await settings.prefs.setBool(pref.key, false);
+      expect(scrobble.value, isTrue);
 
       settings.refreshListenables();
 
-      expect(crashReporting.value, isFalse);
+      expect(scrobble.value, isFalse);
     });
 
     test('resetAllSettings refreshes active dynamic tracker prefs', () async {

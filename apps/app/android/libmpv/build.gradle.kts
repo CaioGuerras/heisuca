@@ -182,7 +182,7 @@ val extractLibmpvNative = tasks.register("extractLibmpvNative") {
 }
 
 android {
-  namespace = "com.edde746.plezy.libmpv"
+  namespace = "app.heisuca.libmpv"
   compileSdk = 36
   // Matches the app's latest stable NDK so every project-owned native library
   // is built with the same 16 KB page-size-capable libc++ toolchain. That copy

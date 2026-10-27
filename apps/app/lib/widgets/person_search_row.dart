@@ -1,3 +1,4 @@
+import '../heisuca/heisuca_sources_ui.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -31,6 +32,7 @@ class PersonSearchRow extends StatelessWidget {
     required this.person,
     this.focusNode,
     this.showServerName = false,
+    this.sourceLabel,
     this.onNavigateLeft,
     this.onNavigateUp,
   });
@@ -41,6 +43,7 @@ class PersonSearchRow extends StatelessWidget {
   /// Adds the backend badge and server name line media rows show on
   /// multi-server setups.
   final bool showServerName;
+  final String? sourceLabel;
   final VoidCallback? onNavigateLeft;
   final VoidCallback? onNavigateUp;
 
@@ -74,7 +77,7 @@ class PersonSearchRow extends StatelessWidget {
     // its own whole-row border through CardFocusBorder.
     return FocusableWrapper(
       focusNode: focusNode,
-      semanticLabel: [person.name, ?creditLabel].join(', '),
+      semanticLabel: [person.name, ?creditLabel, ?sourceLabel].join(', '),
       includeFocusSemantics: !PlatformDetector.isTV() || MediaQuery.accessibleNavigationOf(context),
       onSelect: () => _open(context),
       onNavigateLeft: onNavigateLeft,
@@ -101,7 +104,7 @@ class PersonSearchRow extends StatelessWidget {
     // row isn't as tall as a poster.
     final columnWidth = MediaCardListLayout.basePosterWidth(density);
     final avatarSize = columnWidth * _avatarScale;
-    final serverName = showServerName ? person.serverName : null;
+    final serverName = sourceLabel ?? (showServerName ? person.serverName : null);
 
     // List rows keep the whole-row border; inside stroke so adjacent rows
     // don't overlap.
@@ -171,10 +174,11 @@ class PersonSearchRow extends StatelessWidget {
                           // Same optical nudge as the media rows' source line.
                           Transform.translate(
                             offset: Offset(0, metadataFontSize * 0.115),
-                            child: BackendBadge(
+                            child: sourceLabel != null ? HeisucaSourceMark(size: metadataFontSize + 2,
+                              color: monoTokens.textMuted) : BackendBadge(
                               backend: person.backend,
                               size: metadataFontSize + 2,
-                              color: monoTokens.textMuted.withValues(alpha: 0.6),
+                              color: sourceLabel != null ? monoTokens.textMuted : monoTokens.textMuted.withValues(alpha: 0.6),
                             ),
                           ),
                           const SizedBox(width: 4),
@@ -184,7 +188,7 @@ class PersonSearchRow extends StatelessWidget {
                               maxLines: 1,
                               overflow: .ellipsis,
                               style: textTheme.bodySmall?.copyWith(
-                                color: monoTokens.textMuted.withValues(alpha: 0.6),
+                                color: sourceLabel != null ? monoTokens.textMuted : monoTokens.textMuted.withValues(alpha: 0.6),
                                 fontSize: metadataFontSize,
                                 height: 1.3,
                               ),

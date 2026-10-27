@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/watch_together/services/current_playback_dispatcher.dart';
+import 'package:heisuca/watch_together/services/current_playback_dispatcher.dart';
 
 void main() {
   group('CurrentPlaybackDispatcher', () {

@@ -1,13 +1,12 @@
 // Etapa 1E (F): Serviços só com o Trakt do CGFLIX. Os testes rodam sem os --dart-define, como um
 // build sem os secrets: o Trakt fica escondido e nenhuma chave do Plezy é usada.
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/cgflix/cgflix_trakt.dart';
-import 'package:plezy/screens/settings/tracker_service_info.dart';
-import 'package:plezy/services/trackers/mal/mal_constants.dart';
-import 'package:plezy/services/trackers/mdblist/mdblist_constants.dart';
-import 'package:plezy/services/trackers/simkl/simkl_constants.dart';
-import 'package:plezy/services/trackers/tracker_constants.dart';
-import 'package:plezy/services/trackers/trakt/trakt_constants.dart';
+import 'package:heisuca/cgflix/cgflix_trakt.dart';
+import 'package:heisuca/screens/settings/tracker_service_info.dart';
+import 'package:heisuca/services/trackers/mdblist/mdblist_constants.dart';
+import 'package:heisuca/services/trackers/simkl/simkl_constants.dart';
+import 'package:heisuca/services/trackers/tracker_constants.dart';
+import 'package:heisuca/services/trackers/trakt/trakt_constants.dart';
 
 void main() {
   test('sem os secrets: Trakt escondido e sem o client id do Plezy', () {
@@ -26,7 +25,6 @@ void main() {
   });
 
   test('chaves do upstream fora do app', () {
-    expect(MalConstants.clientId, isEmpty);
     expect(MdblistConstants.clientId, isEmpty);
     expect(SimklConstants.legacyClientId, isEmpty);
     expect(SimklConstants.v2ClientId, isEmpty);

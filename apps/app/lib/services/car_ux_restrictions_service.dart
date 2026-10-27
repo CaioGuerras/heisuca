@@ -21,7 +21,7 @@ enum CarUxRestrictionState {
 
 /// Live `CarUxRestrictionsManager` state, mirrored from the Android side.
 ///
-/// Plezy used to derive its car playback authority from [AppLifecycleState], which cannot tell a
+/// Heisuca used to derive its car playback authority from [AppLifecycleState], which cannot tell a
 /// driving car apart from a parked car whose driver simply opened navigation. That made background
 /// audio impossible on a head unit even while parked. This service supplies the signal the platform
 /// documents for exactly that case; [CarUxRestrictionState.unknown] preserves the old behaviour
@@ -32,7 +32,7 @@ class CarUxRestrictionsService {
   static final CarUxRestrictionsService instance = CarUxRestrictionsService._();
 
   @visibleForTesting
-  static const MethodChannel channel = MethodChannel('com.plezy/car_restrictions');
+  static const MethodChannel channel = MethodChannel('app.heisuca/car_restrictions');
 
   static CarUxRestrictionState? _debugOverride;
 

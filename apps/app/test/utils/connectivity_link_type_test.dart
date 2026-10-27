@@ -1,6 +1,6 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/utils/connectivity_link_type.dart';
+import 'package:heisuca/utils/connectivity_link_type.dart';
 
 void main() {
   // The single definition of "metered connection" behind the cellular playback

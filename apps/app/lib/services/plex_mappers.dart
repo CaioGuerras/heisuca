@@ -14,7 +14,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import '../media/artist_discography.dart';
 import '../media/ids.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import '../i18n/strings.g.dart';
 
 import '../media/media_backend.dart';
@@ -752,17 +751,7 @@ class PlexMetadataDto {
     try {
       return _$PlexMetadataDtoFromJson(json);
     } on TypeError catch (e, st) {
-      Sentry.captureException(
-        e,
-        stackTrace: st,
-        withScope: (scope) {
-          scope.setContexts('plex_mapper', {
-            'backend': 'plex',
-            'dto': 'PlexMetadataDto',
-            'topLevelFieldCount': json.length,
-          });
-        },
-      );
+      appLogger.w('Metadados Plex inválidos (${json.length} campos).', stackTrace: st);
       rethrow;
     }
   }

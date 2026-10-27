@@ -3,9 +3,9 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
-import 'package:plezy/exceptions/media_server_exceptions.dart';
-import 'package:plezy/utils/managed_http_client.dart';
-import 'package:plezy/utils/media_server_http_client.dart';
+import 'package:heisuca/exceptions/media_server_exceptions.dart';
+import 'package:heisuca/utils/managed_http_client.dart';
+import 'package:heisuca/utils/media_server_http_client.dart';
 
 void main() {
   group('MediaServerHttpClient shutdown', () {

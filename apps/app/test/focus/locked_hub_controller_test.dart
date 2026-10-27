@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/focus/locked_hub_controller.dart';
+import 'package:heisuca/focus/locked_hub_controller.dart';
 
 void main() {
   test('focus memory and last-column hint are isolated per browse owner', () {

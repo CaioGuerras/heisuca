@@ -1,21 +1,37 @@
 // Tema do CGFLIX por cima do tema "mono" do upstream (Etapa 1C): fonte Inter, os temas Isis
-// (escuro, roxo) e Heitor (claro, verde; versão 1.4.0), transições de página de 250–350 ms com ease-out e barras do sistema
-// transparentes (ponta a ponta). O upstream chama daqui com um gancho de uma linha.
+// (escuro, roxo) e Heitor (claro, verde), transições oficiais do Flutter e barras
+// transparentes (ponta a ponta). O tema base chama daqui.
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../services/settings_service.dart' as settings;
+import '../services/device_performance.dart';
 import '../theme/mono_theme.dart';
 import '../theme/mono_tokens.dart';
 import '../utils/platform_detector.dart';
 import 'cgflix_app_icon.dart';
 import 'cgflix_configuracoes.dart';
 import 'cgflix_palette.dart';
-import 'cgflix_style.dart';
 
 export 'cgflix_palette.dart';
 
 const cgflixFontFamily = 'Inter';
+
+TextTheme _heisucaTypography(TextTheme source) {
+  final text = source.apply(fontFamily: cgflixFontFamily);
+  TextStyle? heading(TextStyle? style) => style?.copyWith(fontFamily: 'Sora');
+  return text.copyWith(
+    displayLarge: heading(text.displayLarge),
+    displayMedium: heading(text.displayMedium),
+    displaySmall: heading(text.displaySmall),
+    headlineLarge: heading(text.headlineLarge),
+    headlineMedium: heading(text.headlineMedium),
+    headlineSmall: heading(text.headlineSmall),
+    titleLarge: heading(text.titleLarge),
+    titleMedium: heading(text.titleMedium),
+    titleSmall: heading(text.titleSmall),
+  );
+}
 
 /// Tema do app para a [variant] (Isis, escuro e roxo; Heitor, claro e verde). É o ÚNICO
 /// ponto de entrada de tema do app (`main.dart` usa só isto). As cores vêm de
@@ -24,6 +40,7 @@ const cgflixFontFamily = 'Inter';
 ThemeData cgflixAppTheme([CgflixThemeVariant variant = CgflixThemeVariant.isis]) => switch (variant) {
   CgflixThemeVariant.isis => monoTheme(dark: true, oled: true),
   CgflixThemeVariant.heitor => monoTheme(dark: false),
+  CgflixThemeVariant.ichigo || CgflixThemeVariant.sorairo => monoTheme(dark: false, kids: variant),
 };
 
 /// TV fica sempre na Isis (tema claro na TV está fora do escopo).
@@ -32,13 +49,15 @@ bool get _forceIsis => PlatformDetector.isTV();
 /// Tema da vaga "clara" do MaterialApp: Heitor (na TV, Isis).
 ThemeData cgflixLightTheme() => cgflixAppTheme(_forceIsis ? CgflixThemeVariant.isis : CgflixThemeVariant.heitor);
 
-/// Tema da vaga "escura": sempre Isis.
-ThemeData cgflixDarkTheme() => cgflixAppTheme(CgflixThemeVariant.isis);
+/// Tema escuro: Shikkoku por padrão; Hisui escuro pela escolha persistida.
+ThemeData cgflixDarkTheme([settings.ThemeMode mode = settings.ThemeMode.oled]) =>
+    !_forceIsis && mode == settings.ThemeMode.dark
+        ? monoTheme(dark: true)
+        : cgflixAppTheme(CgflixThemeVariant.isis);
 
 /// A escolha "Tema" das Configurações reaproveita a preferência `themeMode` do upstream (assim a
 /// troca na hora, o "Automático" e a abertura nativa do Android já funcionam):
-/// Isis = `oled`, Heitor = `light`, Automático = `system`. O `dark` do upstream não é oferecido
-/// e vale como Isis.
+/// Shikkoku = `oled`, Hisui claro = `light`, Hisui escuro = `dark`, Automático = `system`.
 ThemeMode cgflixMaterialThemeMode(settings.ThemeMode mode) {
   if (_forceIsis) return ThemeMode.dark;
   cgflixSyncAppIcon(mode); // 1.5.0: ícone do launcher acompanha o tema (só manda quando muda)
@@ -49,136 +68,35 @@ ThemeMode cgflixMaterialThemeMode(settings.ThemeMode mode) {
   };
 }
 
-/// Quem ficou com o "Escuro" do upstream (1.1.0) passa para a Isis; Heitor (`light`) e
-/// Automático (`system`) são escolhas válidas desde a 1.4.0 e ficam como estão.
-Future<void> cgflixFixThemePref(settings.SettingsService service) async {
-  if (service.read(settings.SettingsService.themeMode) == settings.ThemeMode.dark) {
-    await service.write(settings.SettingsService.themeMode, settings.ThemeMode.oled);
+/// A transição e o gesto pertencem ao Flutter. Só há o portão de movimento
+/// reduzido e a cor da marca; nenhuma implementação própria do gesto.
+class CgflixPageTransitionsBuilder extends PredictiveBackPageTransitionsBuilder {
+  const CgflixPageTransitionsBuilder({super.fallbackColor});
+  @override Duration get transitionDuration => DevicePerformance.isReduced ? Duration.zero : super.transitionDuration;
+  @override
+  Widget buildTransitions<T>(PageRoute<T> route, BuildContext context,
+      Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+    if (DevicePerformance.isReduced || MediaQuery.disableAnimationsOf(context)) return child;
+    return super.buildTransitions(route, context, animation, secondaryAnimation, child);
   }
-}
-
-/// Troca de página no Android: entra deslizando de leve e aparecendo; a de baixo recua um
-/// pouco. 300 ms para ir, 250 ms para voltar. Refino 2b: com o voltar preditivo ligado
-/// (`android:enableOnBackInvokedCallback`), o gesto de voltar do Android 13+ arrasta a página
-/// junto com o dedo (ela encolhe um pouco e arredonda os cantos, como no sistema) e só fecha se
-/// a pessoa soltar; se desistir, volta para o lugar.
-class CgflixPageTransitionsBuilder extends PageTransitionsBuilder {
-  const CgflixPageTransitionsBuilder();
-
-  @override
-  Duration get transitionDuration => CgflixMotion.medium;
-
-  @override
-  Duration get reverseTransitionDuration => CgflixMotion.fast;
-
-  @override
-  Widget buildTransitions<T>(
-    PageRoute<T> route,
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-    Widget child,
-  ) {
-    // "Remover animações" do Android: troca de página seca, sem deslizar.
-    if (MediaQuery.disableAnimationsOf(context)) return child;
-    return _CgflixPredictiveBack(
-      route: route,
-      builder: (context) {
-        if (route.popGestureInProgress) {
-          // Durante o gesto a animação segue o dedo (sem curva), como no voltar preditivo do sistema.
-          return SlideTransition(
-            position: Tween(begin: const Offset(0.08, 0), end: Offset.zero).animate(animation),
-            child: ScaleTransition(
-              scale: Tween<double>(begin: 0.9, end: 1).animate(animation),
-              child: ClipRRect(borderRadius: BorderRadius.circular(28), child: child),
-            ),
-          );
-        }
-        final enter = CurvedAnimation(parent: animation, curve: CgflixMotion.curve, reverseCurve: Curves.easeInCubic);
-        final under = CurvedAnimation(parent: secondaryAnimation, curve: CgflixMotion.curve);
-        return SlideTransition(
-          position: Tween(begin: Offset.zero, end: const Offset(-0.06, 0)).animate(under),
-          child: SlideTransition(
-            position: Tween(begin: const Offset(0.08, 0), end: Offset.zero).animate(enter),
-            child: FadeTransition(opacity: enter, child: child),
-          ),
-        );
-      },
-    );
-  }
-}
-
-/// Recebe o gesto de voltar preditivo do Android (Flutter → [WidgetsBindingObserver]) e passa para
-/// a rota, que move a animação junto com o dedo. Mesma lógica do `PredictiveBackPageTransitionsBuilder`
-/// do Flutter, com a transição do CGFLIX.
-class _CgflixPredictiveBack extends StatefulWidget {
-  const _CgflixPredictiveBack({required this.route, required this.builder});
-
-  final PageRoute<dynamic> route;
-  final WidgetBuilder builder;
-
-  @override
-  State<_CgflixPredictiveBack> createState() => _CgflixPredictiveBackState();
-}
-
-class _CgflixPredictiveBackState extends State<_CgflixPredictiveBack> with WidgetsBindingObserver {
-  bool get _enabled => widget.route.isCurrent && widget.route.popGestureEnabled;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  bool handleStartBackGesture(PredictiveBackEvent backEvent) {
-    if (backEvent.isButtonEvent || !_enabled) return false;
-    widget.route.handleStartBackGesture(progress: 1 - backEvent.progress);
-    setState(() {});
-    return true;
-  }
-
-  @override
-  void handleUpdateBackGestureProgress(PredictiveBackEvent backEvent) {
-    widget.route.handleUpdateBackGestureProgress(progress: 1 - backEvent.progress);
-  }
-
-  @override
-  void handleCancelBackGesture() {
-    widget.route.handleCancelBackGesture();
-    setState(() {});
-  }
-
-  @override
-  void handleCommitBackGesture() {
-    widget.route.handleCommitBackGesture();
-    setState(() {});
-  }
-
-  @override
-  Widget build(BuildContext context) => widget.builder(context);
 }
 
 /// Marca do CGFLIX sobre o tema do upstream. [oled] = Isis; o tema claro do upstream vira o
-/// Heitor; o "escuro" comum do upstream (sem uso no CGFLIX) só ganha a fonte e as transições.
-ThemeData cgflixBrandTheme(ThemeData theme, {required bool oled}) {
-  final palette = oled ? CgflixPalette.isis : (theme.brightness == Brightness.light ? CgflixPalette.heitor : null);
-  final accent = palette?.accent ?? CgflixPalette.isis.accent;
+/// Hisui; o escuro comum representa Hisui escuro.
+/// [kids] troca o claro do Heitor pela paleta infantil (Ichigo/Sorairo), com o mesmo desenho.
+ThemeData cgflixBrandTheme(ThemeData theme, {required bool oled, CgflixThemeVariant? kids}) {
+  final palette = kids != null ? CgflixPalette.forVariant(kids)
+      : oled ? CgflixPalette.isis : (theme.brightness == Brightness.light ? CgflixPalette.heitor : CgflixPalette.hisuiDark);
+  final accent = palette.accent;
   final branded = theme.copyWith(
-    textTheme: theme.textTheme.apply(fontFamily: cgflixFontFamily),
-    primaryTextTheme: theme.primaryTextTheme.apply(fontFamily: cgflixFontFamily),
+    textTheme: _heisucaTypography(theme.textTheme),
+    primaryTextTheme: _heisucaTypography(theme.primaryTextTheme),
     appBarTheme: theme.appBarTheme.copyWith(
-      titleTextStyle: theme.appBarTheme.titleTextStyle?.copyWith(fontFamily: cgflixFontFamily),
+      titleTextStyle: theme.appBarTheme.titleTextStyle?.copyWith(fontFamily: 'Sora'),
       systemOverlayStyle: cgflixSystemOverlay(theme.brightness),
     ),
     pageTransitionsTheme: PageTransitionsTheme(
-      builders: {...theme.pageTransitionsTheme.builders, TargetPlatform.android: const CgflixPageTransitionsBuilder()},
+      builders: {...theme.pageTransitionsTheme.builders, TargetPlatform.android: CgflixPageTransitionsBuilder(fallbackColor: palette.background)},
     ),
     progressIndicatorTheme: theme.progressIndicatorTheme.copyWith(color: accent),
     textSelectionTheme: theme.textSelectionTheme.copyWith(
@@ -187,30 +105,17 @@ ThemeData cgflixBrandTheme(ThemeData theme, {required bool oled}) {
       selectionHandleColor: accent,
     ),
   );
-  return switch (palette?.variant) {
+  return switch (palette.variant) {
     CgflixThemeVariant.isis => _isis(branded),
-    CgflixThemeVariant.heitor => _heitor(branded),
-    null => branded,
+    CgflixThemeVariant.heitor => _heitor(branded, s: palette.isLight ? cgflixHeitorScheme : cgflixHisuiDarkScheme, p: palette),
+    CgflixThemeVariant.ichigo => _heitor(branded, s: cgflixIchigoScheme, p: CgflixPalette.ichigo),
+    CgflixThemeVariant.sorairo => _heitor(branded, s: cgflixSorairoScheme, p: CgflixPalette.sorairo),
   };
 }
 
-/// Isis: o esquema escrito à mão, fundo preto puro e superfícies #120e1a (cores do site).
-ThemeData _isis(ThemeData branded) {
-  const scheme = cgflixIsisScheme;
-  const p = CgflixPalette.isis;
-  return branded.copyWith(
-    scaffoldBackgroundColor: p.background,
-    canvasColor: p.background,
-    colorScheme: scheme,
-    // Refino 2b: chaves, botões de opção e caixas no roxo da Isis em todo o app (no player também).
-    switchTheme: cgflixSwitchTheme(cgflixSettingsScheme(scheme, CgflixThemeVariant.isis)),
-    radioTheme: cgflixRadioTheme(cgflixSettingsScheme(scheme, CgflixThemeVariant.isis)),
-    appBarTheme: branded.appBarTheme.copyWith(backgroundColor: p.background),
-    bottomSheetTheme: branded.bottomSheetTheme.copyWith(backgroundColor: p.surface, modalBackgroundColor: p.surface),
-    dialogTheme: branded.dialogTheme.copyWith(backgroundColor: p.surface),
-    extensions: [...branded.extensions.values.where((e) => e is! CgflixPalette), p],
-  );
-}
+/// Shikkoku usa os mesmos componentes e contratos de cor dos demais modos.
+ThemeData _isis(ThemeData branded) =>
+    _heitor(branded, s: cgflixIsisScheme, p: CgflixPalette.isis);
 
 /// Heitor: cada camada com ajuste próprio (não é só trocar o roxo pelo verde).
 ///   - fundo branco esverdeado #f4fcee; cartões e folhas brancos com sombra suave;
@@ -218,9 +123,7 @@ ThemeData _isis(ThemeData branded) {
 ///   - campos com borda `outline` e foco com anel `primary` de 2 dp;
 ///   - aba/navegação ativa com fundo `secondaryContainer` e ícone preenchido em `primary`;
 ///   - barras do sistema com ícones escuros.
-ThemeData _heitor(ThemeData branded) {
-  const s = cgflixHeitorScheme;
-  const p = CgflixPalette.heitor;
+ThemeData _heitor(ThemeData branded, {ColorScheme s = cgflixHeitorScheme, CgflixPalette p = CgflixPalette.heitor}) {
   final clickable = WidgetStateProperty.resolveWith<MouseCursor>(
     (states) => states.contains(WidgetState.disabled) ? MouseCursor.defer : SystemMouseCursors.click,
   );
@@ -246,9 +149,9 @@ ThemeData _heitor(ThemeData branded) {
   final tokens = branded.extension<MonoTokens>();
   return branded.copyWith(
     colorScheme: s,
-    scaffoldBackgroundColor: s.surface,
-    canvasColor: s.surface,
-    focusColor: s.primary.withValues(alpha: 0.12),
+    scaffoldBackgroundColor: p.background,
+    canvasColor: p.background,
+    focusColor: p.focused,
     hoverColor: s.onSurface.withValues(alpha: 0.05),
     dividerColor: s.outlineVariant,
     textTheme: textTheme.copyWith(bodySmall: textTheme.bodySmall?.copyWith(color: s.onSurfaceVariant)),
@@ -258,7 +161,7 @@ ThemeData _heitor(ThemeData branded) {
       backgroundColor: s.surface.withValues(alpha: 0.94),
       foregroundColor: s.onSurface,
       surfaceTintColor: Colors.transparent,
-      systemOverlayStyle: cgflixSystemOverlay(Brightness.light),
+      systemOverlayStyle: cgflixSystemOverlay(s.brightness),
     ),
     cardTheme: branded.cardTheme.copyWith(
       color: s.surfaceContainerLowest,
@@ -290,6 +193,11 @@ ThemeData _heitor(ThemeData branded) {
     inputDecorationTheme: branded.inputDecorationTheme.copyWith(
       fillColor: s.surfaceContainerHigh,
       hintStyle: TextStyle(color: s.onSurfaceVariant),
+      // A cor de erro oficial não passa AA como texto em todas as camadas.
+      // Mensagem e rótulo usam texto principal; o contorno continua semântico.
+      errorStyle: TextStyle(color: s.onSurface, fontFamily: cgflixFontFamily),
+      labelStyle: TextStyle(color: s.onSurfaceVariant),
+      floatingLabelStyle: TextStyle(color: s.onSurface),
       border: OutlineInputBorder(
         borderRadius: fieldRadius,
         borderSide: BorderSide(color: s.outline),
@@ -371,7 +279,7 @@ ThemeData _heitor(ThemeData branded) {
       ...branded.extensions.values.where((e) => e is! CgflixPalette && e is! MonoTokens),
       if (tokens != null)
         tokens.copyWith(
-          bg: s.surface,
+          bg: p.background,
           surface: s.surfaceContainerLowest,
           outline: s.outlineVariant,
           text: s.onSurface,

@@ -9,7 +9,7 @@ import os, re, subprocess, sys, time
 from pathlib import Path
 
 WEB = Path(__file__).resolve().parent.parent
-VPS = ["ssh", "-p", "22022", "-o", "BatchMode=yes", "root@143.95.215.156"]
+VPS = ["ssh", "-o", "BatchMode=yes", "vps"]  # atalho "vps" no ~/.ssh/config (endereço fora do repositório)
 SITE = "/etc/nginx/sites-available/jellyfin"
 DEST = "/var/www/heisuca/site"
 INI, FIM = "    # >>> HEISUCA teste\n", "    # <<< HEISUCA teste\n"
@@ -67,7 +67,7 @@ def main():
     subprocess.run(["find", "dist", "-type", "f", "(", "-name", "*.js", "-o", "-name", "*.css", "-o", "-name", "*.html",
                     "-o", "-name", "*.svg", "-o", "-name", "*.json", "-o", "-name", "*.wasm", ")", "-exec", "gzip", "-9", "-k", "-f", "{}", "+"], cwd=WEB, check=True)
     vps(f"mkdir -p {DEST}")
-    subprocess.run(["rsync", "-a", "--delete", "-e", "ssh -p 22022 -o BatchMode=yes", f"{WEB}/dist/", f"root@143.95.215.156:{DEST}/"], check=True)
+    subprocess.run(["rsync", "-a", "--delete", "-e", "ssh -o BatchMode=yes", f"{WEB}/dist/", f"vps:{DEST}/"], check=True)
     vps(f"chmod -R a+rX /var/www/heisuca")
     return 0 if trocar_nginx(True) else 1
 

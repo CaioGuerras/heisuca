@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/media_display_criteria.dart';
+import 'package:heisuca/media/media_display_criteria.dart';
 
 void main() {
   group('classifyMediaDisplayColor', () {

@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/mixins/tab_navigation_mixin.dart';
-import 'package:plezy/services/gamepad_service.dart';
-import 'package:plezy/widgets/overlay_sheet.dart';
+import 'package:heisuca/mixins/tab_navigation_mixin.dart';
+import 'package:heisuca/services/gamepad_service.dart';
+import 'package:heisuca/widgets/overlay_sheet.dart';
 
 /// Probe widget that mounts the mixin against a real BuildContext + Ticker.
 ///

@@ -187,15 +187,3 @@ class _TributeCard extends StatelessWidget {
     );
   }
 }
-
-/// Créditos ao projeto original (GPL-3.0). Só aparecem no Sobre e no README.
-class CgflixCredits extends StatelessWidget {
-  const CgflixCredits({super.key});
-
-  @override
-  Widget build(BuildContext context) => Text(
-    'O Heisuca para Android incorpora tecnologia aberta baseada no Plezy (github.com/edde746/plezy), software livre sob a licença GPL-3.0.',
-    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.cgflix.textMuted),
-    textAlign: TextAlign.center,
-  );
-}

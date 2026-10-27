@@ -48,7 +48,7 @@ void init_methods_cache(JNIEnv* env) {
   java_Boolean = reinterpret_cast<jclass>(env->NewGlobalRef(java_Boolean));
   java_Boolean_init = env->GetMethodID(java_Boolean, "<init>", "(Z)V");
 
-  mpv_MpvPlayer = env->FindClass("com/edde746/plezy/libmpv/MpvPlayer");
+  mpv_MpvPlayer = env->FindClass("app/heisuca/libmpv/MpvPlayer");
   mpv_MpvPlayer = reinterpret_cast<jclass>(env->NewGlobalRef(mpv_MpvPlayer));
   // Every callback leads with the origin session (J); see event.cpp.
   mpv_MpvPlayer_onPropertyChanged_SJZ =

@@ -16,7 +16,6 @@ import '../providers/companion_remote_provider.dart';
 import '../providers/shader_provider.dart';
 import '../utils/platform_detector.dart';
 import 'agent_control_protocol.dart';
-import 'discord_rpc_service.dart';
 import 'download_storage_service.dart';
 import 'keyboard_shortcuts_service.dart';
 import 'music/music_playback_service.dart';
@@ -188,8 +187,6 @@ class AgentSettingsCommands {
         if (!KeyboardShortcutsService.isPlatformSupported()) {
           return 'Keyboard customization requires a desktop platform.';
         }
-      case 'enable_discord_rpc':
-        if (!DiscordRPCService.isAvailable) return 'Discord rich presence is unavailable on this platform.';
       case 'auto_check_updates_on_startup':
         if (!UpdateService.isUpdateCheckAvailable) return 'Updates are managed externally on this platform.';
       case 'force_tv_mode':
@@ -418,8 +415,6 @@ class AgentSettingsCommands {
       },
       'applicability': {'supported': reason == null, 'reason': ?reason},
       'application': _application(pref.key),
-      if (pref == SettingsService.crashReporting)
-        'note': 'Controls event submission; reporting must also be compiled into this build.',
       if (pref == SettingsService.directPlayCoveredQuality) 'note': 'Only Plex uses this startup quality decision.',
       if (pref == SettingsService.customRelayUrl || pref == SettingsService.mpvConfigText)
         'valueRequiresExplicitGet': true,
@@ -591,14 +586,6 @@ class AgentSettingsCommands {
       if (application == 'nextPlayback')
         'note': 'Saved default; this does not apply native properties to an already running player.',
     };
-    if (key == 'enable_discord_rpc') {
-      final owner = DiscordRPCService.instance;
-      runtime.addAll({
-        'enabled': owner.isEnabled,
-        'connected': owner.isConnected,
-        'state': owner.isEnabled && !owner.isConnected ? 'waitingForDiscord' : 'applied',
-      });
-    }
     if (key == 'enable_companion_remote_server') {
       final owner = companionOwner;
       runtime.addAll({

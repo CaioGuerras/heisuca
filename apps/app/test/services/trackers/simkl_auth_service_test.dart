@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:plezy/models/trackers/device_code.dart';
-import 'package:plezy/services/trackers/device_code_auth_service.dart';
-import 'package:plezy/services/trackers/simkl/simkl_auth_service.dart';
-import 'package:plezy/services/trackers/simkl/simkl_constants.dart';
-import 'package:plezy/services/trackers/tracker_exceptions.dart';
-import 'package:plezy/services/trackers/tracker_session.dart';
+import 'package:heisuca/models/trackers/device_code.dart';
+import 'package:heisuca/services/trackers/device_code_auth_service.dart';
+import 'package:heisuca/services/trackers/simkl/simkl_auth_service.dart';
+import 'package:heisuca/services/trackers/simkl/simkl_constants.dart';
+import 'package:heisuca/services/trackers/tracker_exceptions.dart';
+import 'package:heisuca/services/trackers/tracker_session.dart';
 
 const _code = DeviceCode(
   deviceCode: 'dev-code',

@@ -4,24 +4,20 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show SelectedContent;
-import 'package:plezy/utils/media_server_http_client.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import '../../cgflix/cgflix_defaults.dart';
 import '../../focus/focusable_action_bar.dart';
-import '../../widgets/dialog_action_button.dart';
 import '../../widgets/app_icon.dart';
 import '../../focus/key_event_utils.dart';
 import '../../navigation/page_refresh_shortcut.dart';
 import '../../i18n/strings.g.dart';
 import '../../mixins/mounted_set_state_mixin.dart';
-import '../../utils/dialogs.dart';
 import '../../main.dart' show gitCommit;
 import '../../services/background_work_diagnostics_service.dart';
 import '../../services/device_performance.dart';
-import '../../services/log_upload_service.dart';
+import '../../services/diagnostic_text.dart';
 import '../../services/startup_diagnostics.dart';
 import '../../services/video_decode_capabilities.dart';
 import '../../utils/app_logger.dart';
@@ -98,9 +94,8 @@ class _LogRecordState extends State<_LogRecord> {
 }
 
 class LogsScreen extends StatefulWidget {
-  const LogsScreen({super.key, this.httpClient, this.deviceInfoPlugin});
+  const LogsScreen({super.key, this.deviceInfoPlugin});
 
-  final MediaServerHttpClient? httpClient;
   final DeviceInfoPlugin? deviceInfoPlugin;
 
   @override
@@ -116,7 +111,6 @@ class _LogsScreenState extends State<LogsScreen> with MountedSetStateMixin {
   final FocusNode _selectionFocusNode = FocusNode(skipTraversal: true, debugLabel: 'logs-selection');
   final _RecordSelectionDelegate _recordSelection = _RecordSelectionDelegate();
 
-  MediaServerHttpClient get _httpClient => widget.httpClient ?? httpClient;
 
   @override
   void initState() {
@@ -145,7 +139,7 @@ class _LogsScreenState extends State<LogsScreen> with MountedSetStateMixin {
       // device" into something answerable from any uploaded log (#1349).
       String renderer;
       try {
-        renderer = await const MethodChannel('com.plezy/theme').invokeMethod<String>('getRenderer') ?? 'unknown';
+        renderer = await const MethodChannel('app.heisuca/theme').invokeMethod<String>('getRenderer') ?? 'unknown';
       } catch (_) {
         renderer = 'unknown';
       }
@@ -198,7 +192,7 @@ class _LogsScreenState extends State<LogsScreen> with MountedSetStateMixin {
     return '$hour:$minute:$second.$millisecond';
   }
 
-  /// Whether there is anything worth copying, uploading or clearing.
+  /// Whether there is anything worth copying or clearing.
   ///
   /// A launch that failed the startup gate leaves an empty in-memory buffer —
   /// that process is gone — but does leave a persisted record. Gating the
@@ -247,74 +241,19 @@ class _LogsScreenState extends State<LogsScreen> with MountedSetStateMixin {
     final logText = logs.toString();
     return maxBytes == null
         ? '$header$logText'
-        : constrainLogUploadPayload(header: header, logs: logText, maxBytes: maxBytes);
+        : constrainDiagnosticText(header: header, logs: logText, maxBytes: maxBytes);
   }
 
   /// Android binder transactions are capped around 1 MiB and
   /// `Clipboard.setData` crosses one; an oversized payload aborts with
   /// TransactionTooLargeException. UTF-16 parceling can double the UTF-8
   /// size, so stay well below the limit. Trimming keeps the newest lines,
-  /// matching the upload path.
+  /// mantendo as linhas mais recentes.
   static const int _maxClipboardBytes = 256 * 1024;
 
   void _copyAllLogs() {
     Clipboard.setData(ClipboardData(text: _formatAllLogs(maxBytes: _maxClipboardBytes)));
     showSuccessSnackBar(context, t.messages.logsCopied);
-  }
-
-  Future<void> _uploadLogs() async {
-    final logText = _formatAllLogs(maxBytes: maxLogUploadBytes);
-
-    showLoadingDialog(context);
-
-    try {
-      final id = await uploadDiagnosticText(logText, client: _httpClient);
-
-      if (!mounted) return;
-      Navigator.of(context).pop(); // dismiss loading
-
-      unawaited(
-        showScopedDialog<void>(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: Text(t.messages.logsUploaded),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('${t.messages.logId}:'),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: SelectableText(
-                        id,
-                        style: const TextStyle(fontWeight: .bold, fontFamily: 'monospace', fontSize: 18),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      icon: const AppIcon(Symbols.content_copy_rounded, size: 20),
-                      onPressed: () {
-                        Clipboard.setData(ClipboardData(text: id));
-                        showSuccessSnackBar(context, t.messages.logsCopied);
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            actions: [
-              DialogActionButton(autofocus: true, onPressed: () => Navigator.of(ctx).pop(), label: t.common.close),
-            ],
-          ),
-        ),
-      );
-    } catch (_) {
-      if (!mounted) return;
-      Navigator.of(context).pop(); // dismiss loading
-      showErrorSnackBar(context, t.messages.logsUploadFailed);
-    }
   }
 
   Color _getLevelColor(Level level) {
@@ -479,13 +418,6 @@ class _LogsScreenState extends State<LogsScreen> with MountedSetStateMixin {
                               tooltip: t.common.refresh,
                               onPressed: _loadLogs,
                             ),
-                            // CGFLIX: sem envio de logs ao servidor do Plezy (regra: nada de telemetria)
-                            if (cgflixAllowLogUpload)
-                              FocusableAction(
-                                icon: Symbols.upload_rounded,
-                                tooltip: t.logs.uploadLogs,
-                                onPressed: _hasDiagnostics ? _uploadLogs : null,
-                              ),
                             FocusableAction(
                               icon: Symbols.content_copy_rounded,
                               tooltip: t.logs.copyLogs,

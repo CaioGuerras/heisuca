@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:plezy/focus/dpad_navigator.dart';
-import 'package:plezy/focus/focusable_text_field.dart';
-import 'package:plezy/focus/input_mode_tracker.dart';
-import 'package:plezy/focus/key_event_utils.dart';
-import 'package:plezy/services/gamepad_service.dart';
-import 'package:plezy/utils/platform_detector.dart';
+import 'package:heisuca/focus/dpad_navigator.dart';
+import 'package:heisuca/focus/focusable_text_field.dart';
+import 'package:heisuca/focus/input_mode_tracker.dart';
+import 'package:heisuca/focus/key_event_utils.dart';
+import 'package:heisuca/services/gamepad_service.dart';
+import 'package:heisuca/utils/platform_detector.dart';
 
 void main() {
   tearDown(() {
@@ -1487,7 +1487,7 @@ void main() {
     TvDetectionService.debugSetAppleTVOverride(null);
     await TvDetectionService.getInstance(forceTv: true);
     TvDetectionService.setForceTVSync(true);
-    const channel = MethodChannel('com.plezy/text_input');
+    const channel = MethodChannel('app.heisuca/text_input');
     final sentStates = <bool>[];
     GamepadService.debugNativeTextInputFocusHandler = (_) async {};
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, (call) async {
@@ -1548,7 +1548,7 @@ void main() {
     TvDetectionService.debugSetAppleTVOverride(null);
     await TvDetectionService.getInstance(forceTv: true);
     TvDetectionService.setForceTVSync(true);
-    const channel = MethodChannel('com.plezy/text_input');
+    const channel = MethodChannel('app.heisuca/text_input');
     final calls = <MethodCall>[];
     final gamepadFocusStates = <bool>[];
     GamepadService.debugNativeTextInputFocusHandler = (focused) async {

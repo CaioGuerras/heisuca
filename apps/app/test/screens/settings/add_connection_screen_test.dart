@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/focus/focusable_wrapper.dart';
-import 'package:plezy/focus/input_mode_tracker.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_browser_dialect.dart';
-import 'package:plezy/profiles/profile.dart';
-import 'package:plezy/screens/settings/add_connection_screen.dart';
-import 'package:plezy/screens/settings/add_jellyfin_screen.dart';
-import 'package:plezy/screens/settings/add_plex_account_screen.dart';
-import 'package:plezy/theme/mono_theme.dart';
-import 'package:plezy/widgets/backend_badge.dart';
+import 'package:heisuca/heisuca/heisuca_sources_ui.dart';
+import 'package:heisuca/focus/input_mode_tracker.dart';
+import 'package:heisuca/media/media_browser_dialect.dart';
+import 'package:heisuca/profiles/profile.dart';
+import 'package:heisuca/screens/settings/add_connection_screen.dart';
+import 'package:heisuca/screens/settings/add_jellyfin_screen.dart';
+import 'package:heisuca/screens/settings/add_plex_account_screen.dart';
+import 'package:heisuca/theme/mono_theme.dart';
 
 /// The "Add connection" picker is the only route to a new server, so a backend
 /// missing from this list is unreachable no matter how complete its client is.
@@ -23,7 +21,7 @@ void main() {
   Profile profile(String id) =>
       Profile.local(id: id, displayName: id, sortOrder: 0, createdAt: DateTime.fromMillisecondsSinceEpoch(0));
 
-  testWidgets('offers Plex, Jellyfin and Emby, each with its own badge', (tester) async {
+  testWidgets('offers Plex, Jellyfin and Emby with the Heisuca source mark', (tester) async {
     await tester.pumpWidget(app(const AddConnectionScreen()));
     await tester.pumpAndSettle();
 
@@ -31,8 +29,7 @@ void main() {
     expect(find.text('Connect to Jellyfin'), findsOneWidget);
     expect(find.text('Connect to Emby'), findsOneWidget);
 
-    final badges = tester.widgetList<BackendBadge>(find.byType(BackendBadge)).map((b) => b.backend).toList();
-    expect(badges, containsAll(<MediaBackend>[MediaBackend.plex, MediaBackend.jellyfin, MediaBackend.emby]));
+    expect(find.byType(HeisucaSourceMark), findsNWidgets(3));
   });
 
   /// The pushed sign-in screen starts a 2s LAN discovery sweep and a
@@ -95,15 +92,15 @@ void main() {
     await tester.pumpAndSettle();
 
     // The cards share a debugLabel, so track focus-node identity instead.
-    final visited = <FocusNode>{};
+    final visited = <String>{};
     for (var i = 0; i < 6; i++) {
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
       await tester.pumpAndSettle();
       final focused = FocusManager.instance.primaryFocus;
-      if (focused != null) visited.add(focused);
+      final row = focused?.context?.findAncestorWidgetOfExactType<HeisucaSourceRow>();
+      if (row != null) visited.add(row.title);
     }
 
-    expect(find.byType(FocusableWrapper), findsNWidgets(3));
-    expect(visited.length, greaterThanOrEqualTo(3), reason: 'D-pad did not reach every backend card');
+    expect(visited, containsAll(['Sign in with Plex', 'Connect to Jellyfin', 'Connect to Emby']));
   });
 }

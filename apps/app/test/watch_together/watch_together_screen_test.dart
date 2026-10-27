@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/watch_together/models/watch_session.dart';
-import 'package:plezy/watch_together/providers/watch_together_provider.dart';
-import 'package:plezy/watch_together/screens/watch_together_screen.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/watch_together/models/watch_session.dart';
+import 'package:heisuca/watch_together/providers/watch_together_provider.dart';
+import 'package:heisuca/watch_together/screens/watch_together_screen.dart';
 import 'package:provider/provider.dart';
 
 void main() {

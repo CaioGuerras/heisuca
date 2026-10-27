@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/services/recent_tags_service.dart';
-import 'package:plezy/services/settings_service.dart';
+import 'package:heisuca/services/recent_tags_service.dart';
+import 'package:heisuca/services/settings_service.dart';
 
 import '../test_helpers/prefs.dart';
 

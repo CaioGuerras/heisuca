@@ -1,11 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/providers/trackers_provider.dart';
-import 'package:plezy/services/base_shared_preferences_service.dart';
-import 'package:plezy/services/trackers/tracker_account_store.dart';
-import 'package:plezy/services/trackers/tracker_constants.dart';
-import 'package:plezy/services/trackers/tracker_coordinator.dart';
-import 'package:plezy/services/trackers/tracker_session.dart';
-import 'package:plezy/services/trackers/trakt/trakt_tracker.dart';
+import 'package:heisuca/providers/trackers_provider.dart';
+import 'package:heisuca/services/base_shared_preferences_service.dart';
+import 'package:heisuca/services/trackers/tracker_account_store.dart';
+import 'package:heisuca/services/trackers/tracker_constants.dart';
+import 'package:heisuca/services/trackers/tracker_coordinator.dart';
+import 'package:heisuca/services/trackers/tracker_session.dart';
+import 'package:heisuca/services/trackers/trakt/trakt_tracker.dart';
 
 import '../test_helpers/io_fakes.dart';
 import '../test_helpers/prefs.dart';
@@ -55,7 +55,8 @@ void main() {
         },
       );
 
-      expect(clients, hasLength(6));
+      // Caio, 25/10: três donos OAuth restantes; MAL/AniList e seus clientes foram removidos.
+      expect(clients, hasLength(3));
       for (final client in clients) {
         expect(client.closeCount, 0);
       }

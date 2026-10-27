@@ -1,0 +1,16 @@
+abas do celular conectado: só a Início (sem barra inferior)
+barra do topo em paisagem 360: sem overflow, tudo na mesma linha
+barra do topo em paisagem 412 (edge 70): sem overflow, tudo na mesma linha
+barra do topo em paisagem 800: sem overflow, tudo na mesma linha
+barra do topo em retrato 360: sem overflow, tudo na mesma linha
+barra do topo em retrato 412 (edge 70): sem overflow, tudo na mesma linha
+barra do topo em retrato 800 (tablet): sem overflow, tudo na mesma linha
+cada item leva ao lugar certo e Voltar funciona emblema → menu do usuário → Baixados
+cada item leva ao lugar certo e Voltar funciona emblema → menu do usuário → Bibliotecas
+cada item leva ao lugar certo e Voltar funciona emblema → menu do usuário → Configurações
+cada item leva ao lugar certo e Voltar funciona emblema → menu do usuário → Meus pedidos
+cada item leva ao lugar certo e Voltar funciona lupa → Busca
+cada item leva ao lugar certo e Voltar funciona menu do usuário cabe deitado (rola, sem overflow)
+cada item leva ao lugar certo e Voltar funciona paisagem: lupa → Busca
+leitor de tela lê os botões só de ícone
+tela estreita com fonte grande: chips rolam na horizontal, sem quebrar linha

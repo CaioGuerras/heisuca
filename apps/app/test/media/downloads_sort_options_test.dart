@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/downloads_sort_options.dart';
-import 'package:plezy/media/media_item_sort.dart';
+import 'package:heisuca/media/downloads_sort_options.dart';
+import 'package:heisuca/media/media_item_sort.dart';
 
 /// The downloads sort sheet's option list (#927). The contract under test:
 /// which keys are offered, in which order, and that the download-only fields

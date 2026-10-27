@@ -1,25 +1,25 @@
 import 'dart:convert';
-import 'package:plezy/media/ids.dart';
+import 'package:heisuca/media/ids.dart';
 
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
-import 'package:plezy/database/app_database.dart';
-import 'package:plezy/exceptions/media_server_exceptions.dart';
-import 'package:plezy/media/media_backend.dart';
+import 'package:heisuca/database/app_database.dart';
+import 'package:heisuca/exceptions/media_server_exceptions.dart';
+import 'package:heisuca/media/media_backend.dart';
 
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/media/media_server_client.dart';
-import 'package:plezy/media/media_source_info.dart';
-import 'package:plezy/mpv/mpv.dart';
-import 'package:plezy/models/transcode_quality_preset.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/services/subtitle_preference.dart';
-import 'package:plezy/services/playback_initialization_types.dart';
-import 'package:plezy/services/plex_api_cache.dart';
-import 'package:plezy/services/plex_client.dart';
-import 'package:plezy/utils/active_client_scope.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/media/media_source_info.dart';
+import 'package:heisuca/mpv/mpv.dart';
+import 'package:heisuca/models/transcode_quality_preset.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/services/subtitle_preference.dart';
+import 'package:heisuca/services/playback_initialization_types.dart';
+import 'package:heisuca/services/plex_api_cache.dart';
+import 'package:heisuca/services/plex_client.dart';
+import 'package:heisuca/utils/active_client_scope.dart';
 
 import '../test_helpers/backend_client_fixtures.dart';
 import '../test_helpers/media_items.dart';

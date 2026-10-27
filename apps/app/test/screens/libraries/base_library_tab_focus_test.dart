@@ -1,16 +1,16 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/focus/input_mode_tracker.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_library.dart';
-import 'package:plezy/screens/libraries/tabs/base_library_tab.dart';
-import 'package:plezy/screens/libraries/state_messages.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/media/library_change_event.dart';
-import 'package:plezy/providers/libraries_provider.dart';
-import 'package:plezy/utils/platform_detector.dart';
-import 'package:plezy/utils/library_content_notifier.dart';
+import 'package:heisuca/focus/input_mode_tracker.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_library.dart';
+import 'package:heisuca/screens/libraries/tabs/base_library_tab.dart';
+import 'package:heisuca/screens/libraries/state_messages.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/media/library_change_event.dart';
+import 'package:heisuca/providers/libraries_provider.dart';
+import 'package:heisuca/utils/platform_detector.dart';
+import 'package:heisuca/utils/library_content_notifier.dart';
 import 'package:provider/provider.dart';
 
 import '../../test_helpers/prefs.dart';

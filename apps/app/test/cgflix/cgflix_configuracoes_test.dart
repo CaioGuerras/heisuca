@@ -4,15 +4,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:plezy/cgflix/cgflix_configuracoes.dart';
-import 'package:plezy/cgflix/cgflix_theme.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/screens/settings/settings_screen.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/utils/language_codes.dart';
-import 'package:plezy/widgets/setting_tile.dart';
-import 'package:plezy/widgets/settings_page.dart';
-import 'package:plezy/widgets/settings_section.dart';
+import 'package:heisuca/cgflix/cgflix_configuracoes.dart';
+import 'package:heisuca/cgflix/cgflix_theme.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/screens/settings/settings_screen.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/utils/language_codes.dart';
+import 'package:heisuca/widgets/setting_tile.dart';
+import 'package:heisuca/widgets/settings_page.dart';
+import 'package:heisuca/widgets/settings_section.dart';
 
 import '../test_helpers/cgflix_config_harness.dart';
 

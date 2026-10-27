@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:os_media_controls/os_media_controls.dart';
-import 'package:plezy/services/media_control_router.dart';
+import 'package:heisuca/services/media_control_router.dart';
 
 void main() {
   test('denied playback and media-item commands are consumed without mutation', () {

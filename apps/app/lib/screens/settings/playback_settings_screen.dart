@@ -85,8 +85,17 @@ class PlaybackSettingsScreen extends StatelessWidget {
               if (isMobile) _gesturesGroup(),
               if (PlatformDetector.supportsPictureInPicture())
                 SettingsGroup(
-                  title: 'Janelinha',
-                  children: [CgflixComDica(dica: CgflixDica.janelinha, child: _autoPipTile())],
+                  title: 'Fora do app',
+                  children: [
+                    CgflixComDica(dica: CgflixDica.janelinha, child: _autoPipTile()),
+                    if (Platform.isAndroid && isMobile && !PlatformDetector.isAutomotive())
+                      SettingSwitchTile(
+                        pref: SettingsService.continueListening,
+                        icon: Symbols.headphones_rounded,
+                        title: 'Continuar ouvindo ao sair',
+                        subtitle: 'Ao sair, o filme continua só com som. Controle pela notificação ou pela tela de bloqueio.',
+                      ),
+                  ],
                 ),
               _seekAndTimingGroup(),
             ],
@@ -99,7 +108,7 @@ class PlaybackSettingsScreen extends StatelessWidget {
                   if (PlatformDetector.supportsExternalPlayers()) _externalPlayerTile(),
                   if (!exoActive && !cgflixMpvConfigOnlyInAdvanced) _mpvConfigTile(), // CGFLIX: vai para Avançado
                   _hardwareDecodingTile(),
-                  if (exoActive) _playbackBufferTile(),
+                  if (Platform.isAndroid) _playbackBufferTile(),
                   if (exoActive) _tunneledPlaybackTile(),
                 ],
               ),
@@ -350,6 +359,14 @@ class PlaybackSettingsScreen extends StatelessWidget {
         icon: Symbols.skip_next_rounded,
         title: t.settings.autoPlayNextEpisode,
         subtitle: t.settings.autoPlayNextEpisodeDescription,
+      ),
+      SettingNumberTile(
+        pref: SettingsService.stillWatchingEpisodes,
+        icon: Symbols.pause_circle_rounded,
+        title: 'Ainda está assistindo?',
+        subtitleBuilder: (v) => v == 0 ? 'Pergunta por episódios desligada' : 'Após $v episódios sem interação',
+        labelText: 'Episódios (0 desliga)',
+        suffixText: 'episódios',
       ),
       SettingNumberTile(
         pref: SettingsService.playNextCountdown,

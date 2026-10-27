@@ -95,13 +95,21 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           from PIL import Image
-          import base64, io
+          import base64, io, json
           for name in ('21-imagem-apos-audio.png', '06-player.png', '12-falha-retorno.png'):
               source = Path('evidencia-anr') / name
               if not source.exists():
                   continue
               with Image.open(source) as original:
                   preview = original.convert('RGB')
+                  extrema = preview.getextrema()
+                  print('BANCADA_PIXELS_ORIGINAIS: ' + json.dumps({
+                      'arquivo': name, 'dimensoes': list(preview.size),
+                      'imagem': 'não' if max(pair[1] for pair in extrema) == 0 else 'sim',
+                      'extremosRGB': extrema,
+                      'metodo': 'PNG original de adb exec-out screencap -p; leitura RGB por Pillow',
+                      'limite': 'pixels não pretos não comprovam sozinhos a obra; exige inspeção'
+                  }, ensure_ascii=False))
                   preview.thumbnail((640, 640))
                   data = io.BytesIO()
                   preview.save(data, format='JPEG', quality=60, optimize=True)

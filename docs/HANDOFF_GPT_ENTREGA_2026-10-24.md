@@ -2189,3 +2189,38 @@ Nenhuma afirmação de aprovação independente ou de bancada verde nesta anota�
   assinatura, SHA-256 e percurso até `11-voce`/`testeEncerrado: true` ainda
   aguardam os resultados e a conferência independente do Visão. Não marcados verdes.
 - Não foi publicado nenhum APK. Arquivos locais limpos após commit.
+
+### P1 em andamento — 2.0.34+36, sem aceite de release candidate
+
+Pedido P1–P7 recebido em 27/10. P2–P7 ainda não entregues; sem ENTREGA-FINAL.
+Diagnóstico concreto: `docs/DIAGNOSTICO_P1_2026-10-27.md`.
+
+Leitura real do artifact de 40433379764 pelo run **40439214269**: percurso
+chegou até `11-voce`, `testeEncerrado: true`. As capturas nativas 06/21 estão
+pretas na inspeção visual. O código da coleta já usava `adb exec-out screencap -p`.
+mpv muda de `vo-configured=yes`/1920×1080 inicial para `no`/dimensões nulas
+após áudio, com `vid=1`/posição avançando. Anexar Surface não prova saída real.
+Causa da perda de imagem ainda não demonstrada; não foi alterado o player.
+
+Prova negativa antes do patch de coleta: PNG preto válido recebia ACK no marco
+21; teste exigindo rejeição falhou com `RuntimeError not raised`. Prova em
+`docs/evidencias/p1_imagem_antes_2026-10-27.txt`. Agora a coleta lê os pixels
+RGB do PNG nativo com ffmpeg, registra método e imagem sim/não, e rejeita preto
+total antes do ACK. PNG ilegível também é erro. 39 testes Python aprovados.
+Preservado o limite: UI não preta não comprova sozinha a obra, pede inspeção.
+O leitor de artifacts também passa a imprimir extremos RGB do PNG ORIGINAL,
+sem JPEG, para comprovar a ausência de pixels no arquivo coletado.
+
+**Lista de ATENÇÃO pendente de decisão:** o mesmo run traz janela 227,8×128,0 dp
+com coluna 192 px, além de 240,8×108,2 e coluna 212 px. O pedido exige lista exata
+e omite o primeiro conjunto. Pergunta enviada ao Caio, sem alargar a exceção
+por conta própria. Classificação em três estados ainda não entregue. Imagem
+preta continua defeito vermelho, jamais entra na lista de ATENÇÃO do HUD.
+
+Nenhuma paleta, changelog público de estabilidade/segurança, migração, AAR ou
+fluxo Plex/TV foi alterado. Este commit é preparação da prova da P1, não fecha
+a P1 e não é autorização para publicar o pacote. Sem teste novo em aparelho.
+
+Portão local completo desta preparação P1 **APROVADO**, exit 0:
+846 Flutter (3 skips preexistentes), 8 Impeller, 39 Python.
+Log `/tmp/p1-gate.log`. Não equivale a corrigir/validar a imagem do mpv.

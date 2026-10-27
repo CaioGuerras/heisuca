@@ -5,6 +5,7 @@ import re
 import subprocess
 from foco import coletar_foco
 from acoes import perform
+from imagem import analisar
 
 APP_ID = 'app.heisuca.player.teste.home'
 REMOTE = '/sdcard/heisuca-bancada.mp4'
@@ -85,6 +86,12 @@ class Capturas:
             if not decoded.startswith(b'\x89PNG\r\n\x1a\n') or len(decoded) < 24:
                 raise RuntimeError('Quadro decodificado não é um PNG válido.')
             (self.output / f'{name}-decodificado.png').write_bytes(decoded)
+        if name in ('06-player', '21-imagem-apos-audio'):
+            image = analisar(png)
+            (self.output / f'{name}-imagem.json').write_text(json.dumps(image, ensure_ascii=False, indent=2))
+            print('BANCADA_IMAGEM: ' + json.dumps({'marco': name, **image}, ensure_ascii=False), flush=True)
+            if image['imagem'] == 'não':
+                raise RuntimeError('Imagem nativa preta: ' + name)
         if event.get('action'):
             if event.get('back') is True:
                 raise RuntimeError('Marco não pode misturar ações.')

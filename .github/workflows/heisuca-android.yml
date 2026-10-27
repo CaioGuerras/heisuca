@@ -59,13 +59,6 @@ jobs:
             ~/.gradle/wrapper
           key: heisuca-clean-${{ runner.os }}-gradle-${{ hashFiles('apps/app/**/*.gradle*', 'apps/app/**/gradle-wrapper.properties') }}
 
-      - name: Preservar chave de teste nesta branch
-        if: startsWith(github.ref_name, 'codex/heisuca-')
-        uses: actions/cache@v4
-        with:
-          path: ~/.android/debug.keystore
-          key: heisuca-home-debug-key-v1
-
       - name: Obter dependências Flutter
         run: flutter pub get --no-example
 
@@ -82,25 +75,31 @@ jobs:
       - name: Validar análise e testes antes do APK
         run: bash scripts/heisuca-checar.sh
 
-      - name: Configurar Assinatura (se houver secrets)
+      - name: Configurar Assinatura
         env:
-          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEYSTORE_B64: ${{ secrets.HEISUCA_PLAY_KEYSTORE_B64 }}
+          STORE_PASSWORD: ${{ secrets.HEISUCA_PLAY_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.HEISUCA_PLAY_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.HEISUCA_PLAY_KEY_ALIAS }}
         run: |
-          if [ -n "$KEYSTORE_B64" ]; then
-            echo "$KEYSTORE_B64" | base64 --decode > android/app/upload-keystore.jks
-            {
-              echo "storePassword=$STORE_PASSWORD"
-              echo "keyPassword=$KEY_PASSWORD"
-              echo "keyAlias=$KEY_ALIAS"
-              echo "storeFile=upload-keystore.jks"
-            } > android/key.properties
-            echo "Assinando com keystore de produção."
-          else
-            echo "Sem keystore nos secrets: assinando com debug."
+          # Sem a chave do Heisuca o APK não é gerado: nunca cair para a chave de debug.
+          missing=()
+          [ -n "$KEYSTORE_B64" ] || missing+=(HEISUCA_PLAY_KEYSTORE_B64)
+          [ -n "$STORE_PASSWORD" ] || missing+=(HEISUCA_PLAY_STORE_PASSWORD)
+          [ -n "$KEY_PASSWORD" ] || missing+=(HEISUCA_PLAY_KEY_PASSWORD)
+          [ -n "$KEY_ALIAS" ] || missing+=(HEISUCA_PLAY_KEY_ALIAS)
+          if [ "${#missing[@]}" -gt 0 ]; then
+            echo "::error::Faltam secrets de assinatura: ${missing[*]}"
+            exit 1
           fi
+          echo "$KEYSTORE_B64" | base64 --decode > android/app/upload-keystore.p12
+          {
+            echo "storePassword=$STORE_PASSWORD"
+            echo "keyPassword=$KEY_PASSWORD"
+            echo "keyAlias=$KEY_ALIAS"
+            echo "storeFile=upload-keystore.p12"
+          } > android/key.properties
+          echo "Assinando com a chave do Heisuca."
 
       - name: Conferir isolamento dos providers no manifesto
         run: python3 scripts/heisuca-validar-apk.py --source-only

@@ -33,7 +33,14 @@ if sys.argv[1] == "--source-only":
 apk = Path(sys.argv[1]).resolve()
 sdk = Path(os.environ.get('ANDROID_HOME') or os.environ['ANDROID_SDK_ROOT'])
 tools = sdk / 'build-tools' / '36.1.0'
-subprocess.run([str(tools / 'apksigner'), 'verify', '--print-certs', str(apk)], check=True)
+# Impressão digital (SHA-256) do certificado de assinatura do Heisuca (chave de envio/teste).
+EXPECTED_CERT_SHA256 = 'd415544dae728cd8d402827f1bf17b6af00b2443295b3bad8b463d65d3acd4c1'
+certs = subprocess.run([str(tools / 'apksigner'), 'verify', '--print-certs', str(apk)],
+                       check=True, capture_output=True, text=True).stdout
+print(certs)
+digests = re.findall(r'certificate SHA-256 digest: ([0-9a-fA-F]{64})', certs)
+assert digests and all(d.lower() == EXPECTED_CERT_SHA256 for d in digests), \
+    'APK não está assinado com a chave do Heisuca (certificado inesperado)'
 badging = subprocess.check_output([str(tools / 'aapt'), 'dump', 'badging', str(apk)], text=True)
 manifest = subprocess.check_output([str(tools / 'aapt'), 'dump', 'xmltree', str(apk), 'AndroidManifest.xml'], text=True)
 preview = os.environ.get('GITHUB_REF_NAME', '').startswith('codex/heisuca-')

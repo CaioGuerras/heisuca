@@ -2446,3 +2446,11 @@ Log `/tmp/p2-restart-final-gate.log`. Cinco testes da espera passaram. Candidato
 só terá prova no emulador quando o novo run completar e trouxer PNGs válidos;
 não alegar correção física da M ou causa permanente do player. Detalhes em
 `docs/DIAGNOSTICO_P2_BANCADA_2026-10-27.md`. P3–P7 seguem pendentes.
+
+Candidato da prova enviado em **13e8f76**. Runs:
+APK [40482536147](https://github.com/CaioGuerras/heisuca/actions/runs/40482536147)
+e bancada [40482536078](https://github.com/CaioGuerras/heisuca/actions/runs/40482536078).
+APK iniciou; bancada pendente da execução anterior na consulta inicial. O APK
+intermediário 40480544115 (9113a40) terminou verde; bancada 40480544171 ainda em
+curso. Não fechar P2 sem inspecionar o run de 13e8f76, os dois restauros e PNGs.
+Sem repetição manual da M; a mudança é a exigência de evento no roteiro de P1/P2.

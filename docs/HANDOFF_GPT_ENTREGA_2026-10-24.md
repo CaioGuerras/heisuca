@@ -2330,3 +2330,37 @@ Portão completo desta correção de prova **aprovado**: 851 Flutter (3 skips),
 8 Impeller, 40 Python; `/tmp/p1-capture-final-gate.log`. Próximo run deve completar
 até Você e trazer `anrDoApp=false`; qualquer ANR continua vermelho. P2–P7
 pendentes. Sem ENTREGA-FINAL e sem publicação.
+
+
+#### P1 — fechamento com APK verde e bancada ATENÇÃO
+
+Código **105a697d216acb901acb088659f1d014b3eea4be**, versão **2.0.34+36**.
+Portão local completo aprovado: 851 Flutter (3 skips herdados), 8 Impeller,
+40 Python. Testes nativos do Actions aprovados.
+
+- APK [40446725726](https://github.com/CaioGuerras/heisuca/actions/runs/40446725726),
+  artifact [12709146639](https://github.com/CaioGuerras/heisuca/actions/runs/40446725726/artifacts/12709146639), **verde**.
+  Pacote `app.heisuca.player.teste.home`, 97.138.589 bytes. SHA-256 APK informado
+  pelo job: `e143fd71fa9f8f429c842bebe77032bd5ea1b495ae19ddfab280ef32a4e923ea`.
+  Certificado `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`.
+  ZIP SHA-256 do artifact: `853b474f2fb371b43445a4743aa13adf402afb999c7e92fcfd4a49314c56bfda`.
+- Bancada [40446725637](https://github.com/CaioGuerras/heisuca/actions/runs/40446725637),
+  artifact [12709242120](https://github.com/CaioGuerras/heisuca/actions/runs/40446725637/artifacts/12709242120), **ATENÇÃO**.
+  ZIP baixado e SHA-256 recalculado:
+  `6ca51180c9ca00009256b5ea59884c1eacf4ffe6e53b9a20bcaa622cf4a6caf0`.
+  `testeEncerrado: true`, todos os 20 marcos até `11-voce`, sem ANR e com
+  restauração confirmada. Apenas os três overflows permitidos: cabeçalho,
+  transporte e coluna do HUD, PiP ativo, largura 227,8 dp. Nenhuma exceção nova
+  foi reclassificada para aprovar o percurso.
+- `21-imagem-apos-audio` e `06-player`: imagem **sim**, método `adb exec-out
+  screencap -p` + decodificação RGB24 por ffmpeg. Maior canal 251/255. PNGs
+  originais também inspecionados: entrevista e cena com bola; a prova não depende
+  apenas de pixels da interface ou de flags do mpv anteriores à captura.
+
+A falha real da imagem foi corrigida na fila de restauração do vídeo, com teste
+nativo vermelho antes do patch. Diagnóstico e provas negativas em
+`docs/DIAGNOSTICO_P1_2026-10-27.md`. O run vermelho anterior continua registrado;
+a execução atual completou o percurso sem ANR, sem alegar causa única para aquele
+ANR. Não testado em aparelho nesta versão; aprovação PiP anterior do Caio não
+substitui os testes pendentes no Tab A9 e Moto G77. Revisão independente do Visão
+pendente. Nenhum pacote publicado. P2–P7 seguem pendentes; sem ENTREGA-FINAL.

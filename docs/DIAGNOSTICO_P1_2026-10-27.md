@@ -1,6 +1,20 @@
 # P1 — imagem nativa e limite exato da ATENÇÃO
 
-P em andamento, não é entrega final nem release candidate aprovado.
+**P1 concluída em 105a697; P2–P7 ainda em andamento. Não é entrega final nem RC aprovado.**
+
+APK [40446725726](https://github.com/CaioGuerras/heisuca/actions/runs/40446725726) verde.
+Bancada [40446725637](https://github.com/CaioGuerras/heisuca/actions/runs/40446725637)
+concluída com **ATENÇÃO**, exclusivamente pelos três widgets do HUD em PiP
+ativo, 227,8 × 128 dp. `testeEncerrado: true`, percurso até `11-voce`, sem ANR
+do app e restauração confirmada. PNGs originais 21/06 inspecionados: ambos mostram
+a obra (entrevista e bola), além da prova RGB associada a cada ACK.
+A regra é a decisão posterior do Caio: widgets permitidos + fase PiP + largura
+até 320 dp; os demais casos continuam vermelhos. O mesmo erro fora do PiP ou
+em janela cheia é rejeitado por teste. A cronologia abaixo conserva as falhas,
+hipóteses e limites anteriores; não representa o estado final desta P1.
+
+Artifacts, assinatura e hashes no fechamento P1 do HANDOFF de entrega.
+Não testado em aparelho nesta versão. Tab A9/Moto G77 e revisão do Visão pendentes.
 Base 802ffbd. Leitura do artifact original:
 https://github.com/CaioGuerras/heisuca/actions/runs/40439214269
 Bancada base: https://github.com/CaioGuerras/heisuca/actions/runs/40433379764

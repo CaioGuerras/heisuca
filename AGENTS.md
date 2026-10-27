@@ -6,9 +6,12 @@ A base mais próxima do snapshot inicial `apps/app` é **Plezy 2.22.0**, pela
 comparação de 34 tags (não uma cópia exata; o fork já tinha alterações próprias).
 Auditoria e contratos pendentes da O: `docs/DIAGNOSTICO_O_COMPATIBILIDADE_2026-10-26.md`.
 Rodada atual: **P**, 2.0.34+36, descrita em `docs/PLANO_P_2026-10-27.md`.
-P1 e P2 comprovadas: código mais recente **13e8f76**, APK **40482536147 verde**,
-bancada **40482536078 ATENÇÃO** (somente HUD em PiP permitido). Próxima: **P3**;
-P3–P7 pendentes. Não emitir ENTREGA-FINAL nem publicar pacote antes de terminar.
+P1/P2 aprovadas. Coletas técnicas da P3 em **f6a8c0f**: APK
+**40536736659 verde**, bancada **40536737040 ATENÇÃO** (somente HUD em PiP).
+Revisão da medição de preto comprovada, área/fração nativas nos marcos 06/21.
+P3 aguarda revisão independente/aparelhos e prova da mídia original para barras
+(diagnóstico documentado, sem alterar recorte). Próxima parte independente:
+**P4**, depois P5–P7. Não emitir ENTREGA-FINAL nem publicar pacote antes de terminar.
 A M foi fechada pelo Caio em aparelho real; não reiniciar investigação/repetições
 manuais da M. O parcial e sua correção estão entregues na base **802ffbd**.
 Preservar K (cc5c6ad, 479b129, 7d1e1bf), retorno e02fcd5 e N.

@@ -2689,3 +2689,35 @@ Portão completo local verde registrado acima. Push no ramo único.
 Retomada: inspecionar ambos antes de avançar para P4. Não fechar esta coleta
 por suposição. Prova da mídia original/barras segue diagnosticada como bloqueada;
 P4–P7, aparelhos e revisão independente pendentes. Nenhuma publicação de APK.
+
+### P3 — segunda coleta: APK e bancada conferidos
+
+Código **f6a8c0f0b51e4ed5f3453f64e73d1d23d40c5a9f**, versão **2.0.34+36**.
+
+- [APK 40536736659](https://github.com/CaioGuerras/heisuca/actions/runs/40536736659)
+  **verde**; [artifact 12748769685](https://github.com/CaioGuerras/heisuca/actions/runs/40536736659/artifacts/12748769685).
+  ZIP 50.390.307 bytes, SHA-256
+  `5a26146514b01fd56a95a4e1be55ec2d402d03b82d483706bcfc87b9664ca2d9`.
+  APK 97.138.637 bytes, SHA-256
+  `2589405c4621cedbf137db1bc37471cfaa455c24098fb8d2e4e727201de714ce`.
+  aapt confirma `app.heisuca.player.teste.home`, Heisuca Teste, 2.0.34,
+  versionCode 2036 (arm64: 2×1000+36). apksigner verifica v2, certificado
+  `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`.
+- [Bancada 40536737040](https://github.com/CaioGuerras/heisuca/actions/runs/40536737040):
+  job **verde**, relatório **ATENÇÃO**, somente os seis avisos autorizados
+  do HUD em PiP. **20 marcos até 11-voce, testeEncerrado:true**, restauração
+  confirmada, restarts 18/20 confirmados, `anrDoApp:false`.
+  [Artifact 12750665608](https://github.com/CaioGuerras/heisuca/actions/runs/40536737040/artifacts/12750665608),
+  ZIP 10.716.758 bytes, SHA-256
+  `b8a1627e1230d3944874f1a0c2597dc2a47740472cf04c26c18c2270d9dc003a`.
+- Imagem nativa 06/21: área física `(120,32)`, **960×466 = 447.360 pixels**,
+  fração luma >16 **1,0** nos dois casos. PNGs vistos: entrevista e bola sobre
+  piso, sem HUD sobre o vídeo. Captura 11 confirma Você. Relatório/PNGs em
+  `docs/evidencias/p3_segunda_bancada_40536737040.json` e
+  `p3_segunda_06/21/11_2026-10-27.png` (nomes individuais).
+
+As coletas técnicas independentes da mídia original estão prontas para revisão
+externa. **A prova de faixas gravadas no arquivo continua bloqueada e descrita
+no diagnóstico; não há alegação de P3 física/aprovada integralmente.** Seguir
+P4–P7, partes independentes, como permite o plano. Não testado em aparelho,
+revisão do Visão pendente. Sem publicação e sem ENTREGA-FINAL nesta coleta.

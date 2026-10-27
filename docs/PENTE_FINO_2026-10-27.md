@@ -353,3 +353,17 @@ filtrada não autoriza afirmar que todo o acervo está vazio. A origem das faixa
 gravadas no arquivo continua sem prova de mídia original. Não houve alteração
 de zoom/proporção para esconder barras. P4–P7 e revisão física/independente
 continuam pendentes.
+
+## Resultado técnico da segunda coleta
+
+Portão completo: **2.118 Flutter + 3 skips opcionais herdados, 8 Impeller,
+46 Python**. Código f6a8c0f: APK **40536736659 verde**, bancada
+**40536737040 ATENÇÃO**, somente HUD em PiP autorizado; percurso termina em
+11-voce, sem ANR do app e com restauração confirmada. Pacote, certificado,
+artifacts e hashes conferidos no HANDOFF. PNGs nativos 06/21 e Você preservados
+em `evidencias/p3_segunda_*_2026-10-27.png`; a medição de preto manteve área
+447.360 pixels/fração 1,0 nos dois vídeos. A galeria tem 392 links conferidos.
+
+P3 técnica entregue para revisão externa com a pendência da mídia original
+explicitamente bloqueada. Não testado em aparelho. Seguir P4–P7 independentes;
+nenhuma aprovação estética/física é reivindicada por quem programou.

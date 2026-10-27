@@ -2394,3 +2394,18 @@ APK [40478590176](https://github.com/CaioGuerras/heisuca/actions/runs/4047859017
 e bancada [40478590180](https://github.com/CaioGuerras/heisuca/actions/runs/40478590180).
 Ambos em andamento na consulta inicial. Não supor aprovação nem avançar P3 antes
 de ler a conclusão, o relatório e os artifacts. Nenhuma publicação autorizada.
+
+#### P2 — correção adicional comprovada dos campos Material
+
+Antes de fechar P2, TextField real reproduziu contraste **4,46512044:1** na
+mensagem de erro e no rótulo flutuante sobre cartão Shikkoku. Duas provas negativas
+salvas em `docs/evidencias/p2_campo_contraste_antes_2026-10-27.txt` e
+`p2_rotulo_contraste_antes_2026-10-27.txt` ANTES do patch.
+
+Correção no tema central: mensagem/rótulo recebem texto principal, preservando
+os hexadecimais de erro e os demais papéis. Testes leem RenderParagraph real
+em três modos × quatro camadas × dois textos: 24 combinações AA aprovadas.
+Portão completo novamente **APROVADO**: **994 Flutter (3 skips), 8 Impeller,
+40 Python**; `/tmp/p2-fields-final-gate.log`. Mesmo 2.0.34+36. Os runs de 88c6810
+não incluem estes cinco ajustes de estilo; não fecham P2. Commit/runs do ajuste
+serão registrados após o push. P3–P7 ainda pendentes. Não testado em aparelho.

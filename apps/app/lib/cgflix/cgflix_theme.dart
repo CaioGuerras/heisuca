@@ -177,6 +177,11 @@ ThemeData _heitor(ThemeData branded, {ColorScheme s = cgflixHeitorScheme, Cgflix
     inputDecorationTheme: branded.inputDecorationTheme.copyWith(
       fillColor: s.surfaceContainerHigh,
       hintStyle: TextStyle(color: s.onSurfaceVariant),
+      // A cor de erro oficial não passa AA como texto em todas as camadas.
+      // Mensagem e rótulo usam texto principal; o contorno continua semântico.
+      errorStyle: TextStyle(color: s.onSurface, fontFamily: cgflixFontFamily),
+      labelStyle: TextStyle(color: s.onSurfaceVariant),
+      floatingLabelStyle: TextStyle(color: s.onSurface),
       border: OutlineInputBorder(
         borderRadius: fieldRadius,
         borderSide: BorderSide(color: s.outline),

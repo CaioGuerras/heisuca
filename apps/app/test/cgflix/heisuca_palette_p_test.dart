@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:heisuca/cgflix/cgflix_theme.dart';
 import 'package:heisuca/theme/mono_theme.dart';
@@ -46,6 +47,25 @@ void main() {
     expect(heisucaPageColor(null, isLight: false), CgflixPalette.isis.background);
     expect(heisucaPageColor(null, isLight: true), CgflixPalette.heitor.background);
   });
+  Future<void> checkField(WidgetTester tester, {required bool label}) async {
+    for (final theme in [cgflixAppTheme(), cgflixLightTheme(), cgflixDarkTheme(settings.ThemeMode.dark)]) {
+      final scheme = theme.colorScheme;
+      for (final bg in [scheme.surface, scheme.surfaceContainerLowest,
+          scheme.surfaceContainerHigh, scheme.surfaceContainerHighest]) {
+        await tester.pumpWidget(MaterialApp(theme: theme,
+          home: Scaffold(backgroundColor: bg, body: TextField(
+            decoration: InputDecoration(labelText: label ? 'Seu nome' : null,
+              floatingLabelBehavior: FloatingLabelBehavior.always, errorText: 'Confira este campo.')))));
+        await tester.pumpAndSettle();
+        final paragraph = tester.renderObject<RenderParagraph>(find.text(label ? 'Seu nome' : 'Confira este campo.'));
+        final color = (paragraph.text as TextSpan).style!.color!;
+        expect(contrast(color, bg), greaterThanOrEqualTo(4.5),
+          reason: 'campo real: ${theme.brightness}, fundo $bg, rótulo=$label');
+      }
+    }
+  }
+  testWidgets('P2 rótulo real de campo com erro é AA', (tester) => checkField(tester, label: true));
+  testWidgets('P2 erro real de campo é AA sobre cartão', (tester) => checkField(tester, label: false));
   testWidgets('P2 selo de erro mantém AA no cartão escuro', (tester) async {
     const p = CgflixPalette.isis;
     await tester.pumpWidget(MaterialApp(theme: cgflixAppTheme(),

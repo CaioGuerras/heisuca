@@ -2388,3 +2388,9 @@ Não é uma aprovação visual de todas as telas (P3) nem teste em aparelho.
 
 Commit de código e runs serão acrescentados após o push e inspeção. P3–P7
 pendentes. Não emitir ENTREGA-FINAL nem publicar pacote enquanto faltarem partes.
+
+P2 enviada em **88c6810189dff5b9bdf97ab168687d7d0e94b216**. Runs disparados:
+APK [40478590176](https://github.com/CaioGuerras/heisuca/actions/runs/40478590176)
+e bancada [40478590180](https://github.com/CaioGuerras/heisuca/actions/runs/40478590180).
+Ambos em andamento na consulta inicial. Não supor aprovação nem avançar P3 antes
+de ler a conclusão, o relatório e os artifacts. Nenhuma publicação autorizada.

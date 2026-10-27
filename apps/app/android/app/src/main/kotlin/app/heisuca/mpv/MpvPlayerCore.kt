@@ -3039,6 +3039,10 @@ class MpvPlayerCore private constructor(
       } else if (!enabled) {
         backgroundVideoTrack?.let { previous ->
           writeProperty("vid", previous)
+          // Com vid=no, o áudio avança sem a cadeia de vídeo. Ao reativar,
+          // ressincroniza no ponto atual (sem mudar faixa nem estado de pausa),
+          // como rebuildVideoOutput faz após reconstruir com a faixa suspensa.
+          if (previous != "no") runCommand("seek", "0", "relative", "exact")
           backgroundVideoTrack = null
         }
       }

@@ -361,6 +361,7 @@ void main() {
     final restoredDecoded = await decodedFrame(restoredProbe);
     print('BANCADA_VIDEO_APOS_AUDIO: ${jsonEncode(restoredProbe)}');
     await shot('21-imagem-apos-audio', decodedFrame: restoredDecoded);
+    expect(restoredProbe['vo-configured'], 'yes', reason: 'Faixa e posição não comprovam saída de vídeo restaurada.');
     pipPhase = 'entrada';
     expect((await PipService.enter(width: 16, height: 9)).$1, isTrue);
     await until(() => PipService().isPipActive.value, 'PiP manual com áudio permitido');
@@ -394,7 +395,10 @@ void main() {
     };
     binding.reportData!['rotasAntesDoBack'] = routeState;
     print('BANCADA_ROTAS_ANTES: ${jsonEncode(routeState)}');
+    final beforeBackProbe = await videoProbe();
+    binding.reportData!['imagemAntesDoBack'] = beforeBackProbe;
     await shot('06-player', back: true);
+    expect(beforeBackProbe['vo-configured'], 'yes', reason: 'Saída de vídeo precisa estar configurada antes do Back.');
     await until(
       () => find.byType(VideoPlayerScreen).evaluate().isEmpty && find.byType(HeisucaTitleSheet).evaluate().isNotEmpty,
       'voltar à ficha',

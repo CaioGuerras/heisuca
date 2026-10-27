@@ -2258,3 +2258,29 @@ Portão local da regra PiP aprovado: 849 Flutter (3 skips), 8 Impeller,
 39 Python. Log `/tmp/p1-policy-gate.log`; Python rechecado após apresentação
 do estado no relatório. Teste nativo novo ainda pendente do Actions; sem SDK
 Android neste executor, não alegar falha/sucesso nativo local.
+
+#### P1 — candidato de correção do retorno do áudio
+
+Commit anterior `b0399d0`, APK **40441219054**, job **121981762142**:
+portão passou, teste nativo novo falhou em `MpvPlayerBackgroundAudioTest.kt:25`
+na ordem de ressincronização. 12 testes nativos, 1 falha. Prova preservada em
+`docs/evidencias/p1_ressincronizacao_antes_2026-10-27.txt`.
+Bancada desse commit: **40441219089**, ainda em andamento na última consulta.
+
+Somente depois dessa falha foi alterado `MpvPlayerCore.setBackgroundAudio`:
+reativar a faixa após ouvir sem vídeo inclui seek relativo zero exato, na mesma
+fila ordenada, para ressincronizar vídeo com o ponto atual do áudio. Preserva
+faixa/pausa; não busca se vídeo já estava desligado; não repete no segundo
+restore; erro do seek não confirma restauro. Segue o mecanismo de ressincronização
+já documentado em `rebuildVideoOutput`, sem trocar codec, shaders ou AAR.
+É candidato até ter pixels reais restaurados; não basta o teste mockado.
+
+Novo teste com HUD REAL reduzido antes do callback valida a extração de origem
+da política PiP: aceita só no PiP, rejeita janela cheia. Integração exige saída
+configurada também nas capturas 21/06; estado da saída fica no resultado do driver.
+O Actions emite annotation de aviso quando o estado é ATENÇÃO, mantendo job
+com sucesso só para verde/ATENÇÃO.
+
+Portão local completo do candidato: 850 Flutter (3 skips), 8 Impeller e
+39 Python aprovados; `/tmp/p1-sync-final-gate.log`. YAML dos workflows válido.
+Teste nativo e emulador após patch ainda pendentes. Não testado em aparelho.

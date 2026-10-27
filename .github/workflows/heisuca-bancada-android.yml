@@ -135,6 +135,7 @@ jobs:
           report['estado'] = ({'aprovado': 'verde', 'atenção': 'ATENÇÃO'}.get(report['status'], 'vermelho')
                               if os.environ['RESULTADO_ETAPA'] == 'success' else 'vermelho')
           path.write_text(json.dumps(report, ensure_ascii=False, indent=2))
+          if report['estado'] == 'ATENÇÃO': print('::warning::' + report['motivo'])
           with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
               summary.write('### Bancada Android: ' + report['estado'] + '\n\n')
               if report.get('motivo'): summary.write(report['motivo'] + '\n\n')

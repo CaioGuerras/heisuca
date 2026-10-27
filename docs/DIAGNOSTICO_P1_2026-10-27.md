@@ -103,3 +103,34 @@ para executar no Actions antes de qualquer patch dessa hipótese. O executor loc
 não tem Android SDK/Gradle cache; portão Flutter/Python não prova esse teste nativo.
 Ainda não há patch no player. Só aceitar a hipótese com prova de falha anterior,
 correção e pixels reais restaurados no emulador; não aceitar somente o mock.
+
+### Reprodução nova sem patch de player
+
+Bancada **40440203813**, commit `58d5f09`, vermelha no marco 21:
+`BANCADA_IMAGEM: imagem=não, maiorCanalRGB=0`, método PNG de adb screencap
+lido por ffmpeg. Diagnóstico Android disponível, **anrDoApp=false**;
+restauração confirmada. Artifact **12706228905**, ZIP SHA-256
+`4f56d74be7a264dc72d3b8dc77f974cedcc581e4ec2713ae51c9a1971bff1acb`.
+Agora a prova de imagem impede a aprovação indevida, sem mudar o app.
+
+### Prova nativa anterior e patch candidato
+
+Run **40441219054**, job **121981762142**, código `b0399d0`: portão local do
+runner passou e teste nativo `reativarVideoRessincronizaNoPontoAtualSemTrocarFaixa`
+falhou na asserção da ordem `vid=no → vid=7 → seek 0 relative exact` (linha 25).
+**12 testes, 1 falha**. Log em `evidencias/p1_ressincronizacao_antes_2026-10-27.txt`.
+Só após ler esse resultado foi escrito o patch candidato em `setBackgroundAudio`:
+restaura a faixa e ressincroniza o vídeo ao ponto atual do áudio, na mesma fila
+ordenada, sem alterar pause/posição deliberada/faixa e sem repetir no segundo
+restore. Se o vídeo já estava desligado, não busca. Falha do seek não confirma
+restauro e conserva a intenção anterior. Testes nativos cobrem esses limites.
+
+Um teste de widget adicional usa os erros produzidos PELO HUD REAL ao encolher
+a janela antes do callback de PiP, e verifica a regra com o diagnóstico do
+Flutter: aceita no PiP e rejeita o mesmo erro em janela cheia. Passou localmente.
+Isso valida a extração da origem; não é só comparação com uma string fabricada.
+
+A integração agora também exige `vo-configured=yes` nas capturas 21 e 06, além
+dos pixels não pretos, avanço e quadro nativo. Snapshot do estado fica no resultado
+do driver. Pixels da interface, sozinhos, não podem encobrir uma saída não configurada.
+**Patch candidato ainda sem prova de correção no emulador; P1 segue aberta.**

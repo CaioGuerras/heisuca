@@ -1,0 +1,2537 @@
+00:00 +0: loading /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart
+00:00 +0: (setUpAll)
+00:00 +0: P3 prompt sono-oled-moto-retrato-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+sono-oled-moto-retrato-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt sono-oled-moto-retrato-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -1: P3 prompt sono-oled-moto-retrato-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt sono-oled-moto-retrato-f100 (variant: TargetPlatform.android)
+
+00:01 +0 -1: P3 prompt episodios-oled-moto-retrato-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+episodios-oled-moto-retrato-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt episodios-oled-moto-retrato-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -2: P3 prompt episodios-oled-moto-retrato-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt episodios-oled-moto-retrato-f100 (variant: TargetPlatform.android)
+
+00:01 +0 -2: P3 prompt proximo-oled-moto-retrato-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+proximo-oled-moto-retrato-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt proximo-oled-moto-retrato-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -3: P3 prompt proximo-oled-moto-retrato-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt proximo-oled-moto-retrato-f100 (variant: TargetPlatform.android)
+
+00:01 +0 -3: P3 prompt sono-oled-moto-retrato-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            '══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞══════════════════════\n'
+              'The following assertion was thrown during layout:\n'
+              'A RenderFlex overflowed by 32 pixels on the right.\n'
+              '\n'
+              'The relevant error-causing widget was:\n'
+              '  Row\n'
+              '
+Row:file:///workspace/heisuca/apps/app/lib/screens/video_player/widgets/player_prompt_overlays.dart:522:22\n'
+              '\n'
+              'The overflowing RenderFlex has an orientation of Axis.horizontal.\n'
+              'The edge of the RenderFlex that is overflowing has been marked in\n'
+              'the rendering with a yellow and black striped pattern. This is\n'
+              'usually caused by the contents being too big for the RenderFlex.\n'
+              'Consider applying a flex factor (e.g. using an Expanded widget)\n'
+              'to force the children of the RenderFlex to fit within the\n'
+              'available space instead of being sized to their natural size.\n'
+              'This is considered an error condition because it indicates that\n'
+              'there is content that cannot be seen. If the content is\n'
+              'legitimately bigger than the available space, consider clipping\n'
+              'it with a ClipRect widget before putting it in the flex, or using\n'
+              'a scrollable container rather than a Flex, like a ListView.\n'
+              'The specific RenderFlex in question is: RenderFlex#4d8d0 relayoutBoundary=up24
+OVERFLOWING:\n'
+              '  parentData: offset=Offset(0.0, 0.0) (can use size)\n'
+              '  constraints: BoxConstraints(0.0<=w<=140.0, 0.0<=h<=Infinity)\n'
+              '  size: Size(140.0, 40.0)\n'
+              '  direction: horizontal\n'
+              '  mainAxisAlignment: center\n'
+              '  mainAxisSize: max\n'
+              '  crossAxisAlignment: center\n'
+              '  textDirection: ltr\n'
+              '  verticalDirection: down\n'
+              '  spacing: 0.0\n'
+              '◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤\n'
+              '═════════════════════════════════════════════════════════════════\n'
+              '',
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+sono-oled-moto-retrato-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt sono-oled-moto-retrato-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -4: P3 prompt sono-oled-moto-retrato-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt sono-oled-moto-retrato-f200 (variant: TargetPlatform.android)
+
+00:01 +0 -4: P3 prompt episodios-oled-moto-retrato-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+episodios-oled-moto-retrato-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt episodios-oled-moto-retrato-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -5: P3 prompt episodios-oled-moto-retrato-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt episodios-oled-moto-retrato-f200 (variant: TargetPlatform.android)
+
+00:01 +0 -5: P3 prompt proximo-oled-moto-retrato-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+proximo-oled-moto-retrato-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt proximo-oled-moto-retrato-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:02 +0 -6: P3 prompt proximo-oled-moto-retrato-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt proximo-oled-moto-retrato-f200 (variant: TargetPlatform.android)
+
+00:02 +0 -6: P3 prompt sono-oled-moto-paisagem-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+sono-oled-moto-paisagem-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt sono-oled-moto-paisagem-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:02 +0 -7: P3 prompt sono-oled-moto-paisagem-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt sono-oled-moto-paisagem-f100 (variant: TargetPlatform.android)
+
+00:02 +0 -7: P3 prompt episodios-oled-moto-paisagem-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+episodios-oled-moto-paisagem-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt episodios-oled-moto-paisagem-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:02 +0 -8: P3 prompt episodios-oled-moto-paisagem-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt episodios-oled-moto-paisagem-f100 (variant: TargetPlatform.android)
+
+00:02 +0 -8: P3 prompt proximo-oled-moto-paisagem-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+proximo-oled-moto-paisagem-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt proximo-oled-moto-paisagem-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:02 +0 -9: P3 prompt proximo-oled-moto-paisagem-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt proximo-oled-moto-paisagem-f100 (variant: TargetPlatform.android)
+
+00:02 +0 -9: P3 prompt sono-oled-moto-paisagem-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            '══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞══════════════════════\n'
+              'The following assertion was thrown during layout:\n'
+              'A RenderFlex overflowed by 32 pixels on the right.\n'
+              '\n'
+              'The relevant error-causing widget was:\n'
+              '  Row\n'
+              '
+Row:file:///workspace/heisuca/apps/app/lib/screens/video_player/widgets/player_prompt_overlays.dart:522:22\n'
+              '\n'
+              'The overflowing RenderFlex has an orientation of Axis.horizontal.\n'
+              'The edge of the RenderFlex that is overflowing has been marked in\n'
+              'the rendering with a yellow and black striped pattern. This is\n'
+              'usually caused by the contents being too big for the RenderFlex.\n'
+              'Consider applying a flex factor (e.g. using an Expanded widget)\n'
+              'to force the children of the RenderFlex to fit within the\n'
+              'available space instead of being sized to their natural size.\n'
+              'This is considered an error condition because it indicates that\n'
+              'there is content that cannot be seen. If the content is\n'
+              'legitimately bigger than the available space, consider clipping\n'
+              'it with a ClipRect widget before putting it in the flex, or using\n'
+              'a scrollable container rather than a Flex, like a ListView.\n'
+              'The specific RenderFlex in question is: RenderFlex#36dc6 relayoutBoundary=up24
+OVERFLOWING:\n'
+              '  parentData: offset=Offset(0.0, 0.0) (can use size)\n'
+              '  constraints: BoxConstraints(0.0<=w<=140.0, 0.0<=h<=Infinity)\n'
+              '  size: Size(140.0, 40.0)\n'
+              '  direction: horizontal\n'
+              '  mainAxisAlignment: center\n'
+              '  mainAxisSize: max\n'
+              '  crossAxisAlignment: center\n'
+              '  textDirection: ltr\n'
+              '  verticalDirection: down\n'
+              '  spacing: 0.0\n'
+              '◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤\n'
+              '═════════════════════════════════════════════════════════════════\n'
+              '',
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+sono-oled-moto-paisagem-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt sono-oled-moto-paisagem-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:02 +0 -10: P3 prompt sono-oled-moto-paisagem-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt sono-oled-moto-paisagem-f200 (variant: TargetPlatform.android)
+
+00:02 +0 -10: P3 prompt episodios-oled-moto-paisagem-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.',
+            'O aviso fica fora da janela: Rect.fromLTRB(570.3, -28.6, 890.3, 311.4) / Size(914.3,
+411.4).'
+          ]
+episodios-oled-moto-paisagem-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt episodios-oled-moto-paisagem-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:02 +0 -11: P3 prompt episodios-oled-moto-paisagem-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt episodios-oled-moto-paisagem-f200 (variant: TargetPlatform.android)
+
+00:02 +0 -11: P3 prompt proximo-oled-moto-paisagem-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+proximo-oled-moto-paisagem-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt proximo-oled-moto-paisagem-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:02 +0 -12: P3 prompt proximo-oled-moto-paisagem-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt proximo-oled-moto-paisagem-f200 (variant: TargetPlatform.android)
+
+00:02 +0 -12: P3 prompt sono-oled-tab-retrato-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+sono-oled-tab-retrato-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt sono-oled-tab-retrato-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:02 +0 -13: P3 prompt sono-oled-tab-retrato-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt sono-oled-tab-retrato-f100 (variant: TargetPlatform.android)
+
+00:02 +0 -13: P3 prompt episodios-oled-tab-retrato-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+episodios-oled-tab-retrato-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt episodios-oled-tab-retrato-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:03 +0 -14: P3 prompt episodios-oled-tab-retrato-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt episodios-oled-tab-retrato-f100 (variant: TargetPlatform.android)
+
+00:03 +0 -14: P3 prompt proximo-oled-tab-retrato-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+proximo-oled-tab-retrato-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt proximo-oled-tab-retrato-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:03 +0 -15: P3 prompt proximo-oled-tab-retrato-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt proximo-oled-tab-retrato-f100 (variant: TargetPlatform.android)
+
+00:03 +0 -15: P3 prompt sono-oled-tab-retrato-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            '══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞══════════════════════\n'
+              'The following assertion was thrown during layout:\n'
+              'A RenderFlex overflowed by 32 pixels on the right.\n'
+              '\n'
+              'The relevant error-causing widget was:\n'
+              '  Row\n'
+              '
+Row:file:///workspace/heisuca/apps/app/lib/screens/video_player/widgets/player_prompt_overlays.dart:522:22\n'
+              '\n'
+              'The overflowing RenderFlex has an orientation of Axis.horizontal.\n'
+              'The edge of the RenderFlex that is overflowing has been marked in\n'
+              'the rendering with a yellow and black striped pattern. This is\n'
+              'usually caused by the contents being too big for the RenderFlex.\n'
+              'Consider applying a flex factor (e.g. using an Expanded widget)\n'
+              'to force the children of the RenderFlex to fit within the\n'
+              'available space instead of being sized to their natural size.\n'
+              'This is considered an error condition because it indicates that\n'
+              'there is content that cannot be seen. If the content is\n'
+              'legitimately bigger than the available space, consider clipping\n'
+              'it with a ClipRect widget before putting it in the flex, or using\n'
+              'a scrollable container rather than a Flex, like a ListView.\n'
+              'The specific RenderFlex in question is: RenderFlex#5093b relayoutBoundary=up24
+OVERFLOWING:\n'
+              '  parentData: offset=Offset(0.0, 0.0) (can use size)\n'
+              '  constraints: BoxConstraints(0.0<=w<=140.0, 0.0<=h<=Infinity)\n'
+              '  size: Size(140.0, 40.0)\n'
+              '  direction: horizontal\n'
+              '  mainAxisAlignment: center\n'
+              '  mainAxisSize: max\n'
+              '  crossAxisAlignment: center\n'
+              '  textDirection: ltr\n'
+              '  verticalDirection: down\n'
+              '  spacing: 0.0\n'
+              '◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤\n'
+              '═════════════════════════════════════════════════════════════════\n'
+              '',
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+sono-oled-tab-retrato-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt sono-oled-tab-retrato-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:03 +0 -16: P3 prompt sono-oled-tab-retrato-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt sono-oled-tab-retrato-f200 (variant: TargetPlatform.android)
+
+00:03 +0 -16: P3 prompt episodios-oled-tab-retrato-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+episodios-oled-tab-retrato-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt episodios-oled-tab-retrato-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:03 +0 -17: P3 prompt episodios-oled-tab-retrato-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt episodios-oled-tab-retrato-f200 (variant: TargetPlatform.android)
+
+00:03 +0 -17: P3 prompt proximo-oled-tab-retrato-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+proximo-oled-tab-retrato-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt proximo-oled-tab-retrato-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:03 +0 -18: P3 prompt proximo-oled-tab-retrato-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt proximo-oled-tab-retrato-f200 (variant: TargetPlatform.android)
+
+00:03 +0 -18: P3 prompt sono-oled-tab-paisagem-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+sono-oled-tab-paisagem-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt sono-oled-tab-paisagem-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:03 +0 -19: P3 prompt sono-oled-tab-paisagem-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt sono-oled-tab-paisagem-f100 (variant: TargetPlatform.android)
+
+00:03 +0 -19: P3 prompt episodios-oled-tab-paisagem-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+episodios-oled-tab-paisagem-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt episodios-oled-tab-paisagem-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:03 +0 -20: P3 prompt episodios-oled-tab-paisagem-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt episodios-oled-tab-paisagem-f100 (variant: TargetPlatform.android)
+
+00:03 +0 -20: P3 prompt proximo-oled-tab-paisagem-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+proximo-oled-tab-paisagem-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt proximo-oled-tab-paisagem-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:03 +0 -21: P3 prompt proximo-oled-tab-paisagem-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt proximo-oled-tab-paisagem-f100 (variant: TargetPlatform.android)
+
+00:03 +0 -21: P3 prompt sono-oled-tab-paisagem-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            '══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞══════════════════════\n'
+              'The following assertion was thrown during layout:\n'
+              'A RenderFlex overflowed by 32 pixels on the right.\n'
+              '\n'
+              'The relevant error-causing widget was:\n'
+              '  Row\n'
+              '
+Row:file:///workspace/heisuca/apps/app/lib/screens/video_player/widgets/player_prompt_overlays.dart:522:22\n'
+              '\n'
+              'The overflowing RenderFlex has an orientation of Axis.horizontal.\n'
+              'The edge of the RenderFlex that is overflowing has been marked in\n'
+              'the rendering with a yellow and black striped pattern. This is\n'
+              'usually caused by the contents being too big for the RenderFlex.\n'
+              'Consider applying a flex factor (e.g. using an Expanded widget)\n'
+              'to force the children of the RenderFlex to fit within the\n'
+              'available space instead of being sized to their natural size.\n'
+              'This is considered an error condition because it indicates that\n'
+              'there is content that cannot be seen. If the content is\n'
+              'legitimately bigger than the available space, consider clipping\n'
+              'it with a ClipRect widget before putting it in the flex, or using\n'
+              'a scrollable container rather than a Flex, like a ListView.\n'
+              'The specific RenderFlex in question is: RenderFlex#7aa5f relayoutBoundary=up24
+OVERFLOWING:\n'
+              '  parentData: offset=Offset(0.0, 0.0) (can use size)\n'
+              '  constraints: BoxConstraints(0.0<=w<=140.0, 0.0<=h<=Infinity)\n'
+              '  size: Size(140.0, 40.0)\n'
+              '  direction: horizontal\n'
+              '  mainAxisAlignment: center\n'
+              '  mainAxisSize: max\n'
+              '  crossAxisAlignment: center\n'
+              '  textDirection: ltr\n'
+              '  verticalDirection: down\n'
+              '  spacing: 0.0\n'
+              '◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤\n'
+              '═════════════════════════════════════════════════════════════════\n'
+              '',
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+sono-oled-tab-paisagem-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt sono-oled-tab-paisagem-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:04 +0 -22: P3 prompt sono-oled-tab-paisagem-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt sono-oled-tab-paisagem-f200 (variant: TargetPlatform.android)
+
+00:04 +0 -22: P3 prompt episodios-oled-tab-paisagem-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+episodios-oled-tab-paisagem-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt episodios-oled-tab-paisagem-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:04 +0 -23: P3 prompt episodios-oled-tab-paisagem-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt episodios-oled-tab-paisagem-f200 (variant: TargetPlatform.android)
+
+00:04 +0 -23: P3 prompt proximo-oled-tab-paisagem-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+proximo-oled-tab-paisagem-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt proximo-oled-tab-paisagem-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:04 +0 -24: P3 prompt proximo-oled-tab-paisagem-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt proximo-oled-tab-paisagem-f200 (variant: TargetPlatform.android)
+
+00:04 +0 -24: P3 prompt sono-light-moto-retrato-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+sono-light-moto-retrato-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt sono-light-moto-retrato-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:04 +0 -25: P3 prompt sono-light-moto-retrato-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt sono-light-moto-retrato-f100 (variant: TargetPlatform.android)
+
+00:04 +0 -25: P3 prompt episodios-light-moto-retrato-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+episodios-light-moto-retrato-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt episodios-light-moto-retrato-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:04 +0 -26: P3 prompt episodios-light-moto-retrato-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt episodios-light-moto-retrato-f100 (variant: TargetPlatform.android)
+
+00:04 +0 -26: P3 prompt proximo-light-moto-retrato-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+proximo-light-moto-retrato-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt proximo-light-moto-retrato-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:04 +0 -27: P3 prompt proximo-light-moto-retrato-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt proximo-light-moto-retrato-f100 (variant: TargetPlatform.android)
+
+00:04 +0 -27: P3 prompt sono-light-moto-retrato-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            '══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞══════════════════════\n'
+              'The following assertion was thrown during layout:\n'
+              'A RenderFlex overflowed by 32 pixels on the right.\n'
+              '\n'
+              'The relevant error-causing widget was:\n'
+              '  Row\n'
+              '
+Row:file:///workspace/heisuca/apps/app/lib/screens/video_player/widgets/player_prompt_overlays.dart:522:22\n'
+              '\n'
+              'The overflowing RenderFlex has an orientation of Axis.horizontal.\n'
+              'The edge of the RenderFlex that is overflowing has been marked in\n'
+              'the rendering with a yellow and black striped pattern. This is\n'
+              'usually caused by the contents being too big for the RenderFlex.\n'
+              'Consider applying a flex factor (e.g. using an Expanded widget)\n'
+              'to force the children of the RenderFlex to fit within the\n'
+              'available space instead of being sized to their natural size.\n'
+              'This is considered an error condition because it indicates that\n'
+              'there is content that cannot be seen. If the content is\n'
+              'legitimately bigger than the available space, consider clipping\n'
+              'it with a ClipRect widget before putting it in the flex, or using\n'
+              'a scrollable container rather than a Flex, like a ListView.\n'
+              'The specific RenderFlex in question is: RenderFlex#0e27d relayoutBoundary=up24
+OVERFLOWING:\n'
+              '  parentData: offset=Offset(0.0, 0.0) (can use size)\n'
+              '  constraints: BoxConstraints(0.0<=w<=140.0, 0.0<=h<=Infinity)\n'
+              '  size: Size(140.0, 40.0)\n'
+              '  direction: horizontal\n'
+              '  mainAxisAlignment: center\n'
+              '  mainAxisSize: max\n'
+              '  crossAxisAlignment: center\n'
+              '  textDirection: ltr\n'
+              '  verticalDirection: down\n'
+              '  spacing: 0.0\n'
+              '◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤\n'
+              '═════════════════════════════════════════════════════════════════\n'
+              '',
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+sono-light-moto-retrato-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt sono-light-moto-retrato-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:04 +0 -28: P3 prompt sono-light-moto-retrato-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt sono-light-moto-retrato-f200 (variant: TargetPlatform.android)
+
+00:04 +0 -28: P3 prompt episodios-light-moto-retrato-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+episodios-light-moto-retrato-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt episodios-light-moto-retrato-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:04 +0 -29: P3 prompt episodios-light-moto-retrato-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt episodios-light-moto-retrato-f200 (variant: TargetPlatform.android)
+
+00:04 +0 -29: P3 prompt proximo-light-moto-retrato-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+proximo-light-moto-retrato-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt proximo-light-moto-retrato-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:05 +0 -30: P3 prompt proximo-light-moto-retrato-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt proximo-light-moto-retrato-f200 (variant: TargetPlatform.android)
+
+00:05 +0 -30: P3 prompt sono-light-moto-paisagem-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+sono-light-moto-paisagem-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt sono-light-moto-paisagem-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:05 +0 -31: P3 prompt sono-light-moto-paisagem-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt sono-light-moto-paisagem-f100 (variant: TargetPlatform.android)
+
+00:05 +0 -31: P3 prompt episodios-light-moto-paisagem-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+episodios-light-moto-paisagem-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt episodios-light-moto-paisagem-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:05 +0 -32: P3 prompt episodios-light-moto-paisagem-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt episodios-light-moto-paisagem-f100 (variant: TargetPlatform.android)
+
+00:05 +0 -32: P3 prompt proximo-light-moto-paisagem-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+proximo-light-moto-paisagem-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt proximo-light-moto-paisagem-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:05 +0 -33: P3 prompt proximo-light-moto-paisagem-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt proximo-light-moto-paisagem-f100 (variant: TargetPlatform.android)
+
+00:05 +0 -33: P3 prompt sono-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            '══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞══════════════════════\n'
+              'The following assertion was thrown during layout:\n'
+              'A RenderFlex overflowed by 32 pixels on the right.\n'
+              '\n'
+              'The relevant error-causing widget was:\n'
+              '  Row\n'
+              '
+Row:file:///workspace/heisuca/apps/app/lib/screens/video_player/widgets/player_prompt_overlays.dart:522:22\n'
+              '\n'
+              'The overflowing RenderFlex has an orientation of Axis.horizontal.\n'
+              'The edge of the RenderFlex that is overflowing has been marked in\n'
+              'the rendering with a yellow and black striped pattern. This is\n'
+              'usually caused by the contents being too big for the RenderFlex.\n'
+              'Consider applying a flex factor (e.g. using an Expanded widget)\n'
+              'to force the children of the RenderFlex to fit within the\n'
+              'available space instead of being sized to their natural size.\n'
+              'This is considered an error condition because it indicates that\n'
+              'there is content that cannot be seen. If the content is\n'
+              'legitimately bigger than the available space, consider clipping\n'
+              'it with a ClipRect widget before putting it in the flex, or using\n'
+              'a scrollable container rather than a Flex, like a ListView.\n'
+              'The specific RenderFlex in question is: RenderFlex#85ace relayoutBoundary=up24
+OVERFLOWING:\n'
+              '  parentData: offset=Offset(0.0, 0.0) (can use size)\n'
+              '  constraints: BoxConstraints(0.0<=w<=140.0, 0.0<=h<=Infinity)\n'
+              '  size: Size(140.0, 40.0)\n'
+              '  direction: horizontal\n'
+              '  mainAxisAlignment: center\n'
+              '  mainAxisSize: max\n'
+              '  crossAxisAlignment: center\n'
+              '  textDirection: ltr\n'
+              '  verticalDirection: down\n'
+              '  spacing: 0.0\n'
+              '◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤\n'
+              '═════════════════════════════════════════════════════════════════\n'
+              '',
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+sono-light-moto-paisagem-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt sono-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:05 +0 -34: P3 prompt sono-light-moto-paisagem-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt sono-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+
+00:05 +0 -34: P3 prompt episodios-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.',
+            'O aviso fica fora da janela: Rect.fromLTRB(570.3, -28.6, 890.3, 311.4) / Size(914.3,
+411.4).'
+          ]
+episodios-light-moto-paisagem-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt episodios-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:05 +0 -35: P3 prompt episodios-light-moto-paisagem-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt episodios-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+
+00:05 +0 -35: P3 prompt proximo-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+proximo-light-moto-paisagem-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt proximo-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:05 +0 -36: P3 prompt proximo-light-moto-paisagem-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt proximo-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+
+00:05 +0 -36: P3 prompt sono-light-tab-retrato-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+sono-light-tab-retrato-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt sono-light-tab-retrato-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:05 +0 -37: P3 prompt sono-light-tab-retrato-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt sono-light-tab-retrato-f100 (variant: TargetPlatform.android)
+
+00:05 +0 -37: P3 prompt episodios-light-tab-retrato-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+episodios-light-tab-retrato-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt episodios-light-tab-retrato-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:06 +0 -38: P3 prompt episodios-light-tab-retrato-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt episodios-light-tab-retrato-f100 (variant: TargetPlatform.android)
+
+00:06 +0 -38: P3 prompt proximo-light-tab-retrato-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+proximo-light-tab-retrato-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt proximo-light-tab-retrato-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:06 +0 -39: P3 prompt proximo-light-tab-retrato-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt proximo-light-tab-retrato-f100 (variant: TargetPlatform.android)
+
+00:06 +0 -39: P3 prompt sono-light-tab-retrato-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            '══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞══════════════════════\n'
+              'The following assertion was thrown during layout:\n'
+              'A RenderFlex overflowed by 32 pixels on the right.\n'
+              '\n'
+              'The relevant error-causing widget was:\n'
+              '  Row\n'
+              '
+Row:file:///workspace/heisuca/apps/app/lib/screens/video_player/widgets/player_prompt_overlays.dart:522:22\n'
+              '\n'
+              'The overflowing RenderFlex has an orientation of Axis.horizontal.\n'
+              'The edge of the RenderFlex that is overflowing has been marked in\n'
+              'the rendering with a yellow and black striped pattern. This is\n'
+              'usually caused by the contents being too big for the RenderFlex.\n'
+              'Consider applying a flex factor (e.g. using an Expanded widget)\n'
+              'to force the children of the RenderFlex to fit within the\n'
+              'available space instead of being sized to their natural size.\n'
+              'This is considered an error condition because it indicates that\n'
+              'there is content that cannot be seen. If the content is\n'
+              'legitimately bigger than the available space, consider clipping\n'
+              'it with a ClipRect widget before putting it in the flex, or using\n'
+              'a scrollable container rather than a Flex, like a ListView.\n'
+              'The specific RenderFlex in question is: RenderFlex#58988 relayoutBoundary=up24
+OVERFLOWING:\n'
+              '  parentData: offset=Offset(0.0, 0.0) (can use size)\n'
+              '  constraints: BoxConstraints(0.0<=w<=140.0, 0.0<=h<=Infinity)\n'
+              '  size: Size(140.0, 40.0)\n'
+              '  direction: horizontal\n'
+              '  mainAxisAlignment: center\n'
+              '  mainAxisSize: max\n'
+              '  crossAxisAlignment: center\n'
+              '  textDirection: ltr\n'
+              '  verticalDirection: down\n'
+              '  spacing: 0.0\n'
+              '◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤\n'
+              '═════════════════════════════════════════════════════════════════\n'
+              '',
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+sono-light-tab-retrato-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt sono-light-tab-retrato-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:06 +0 -40: P3 prompt sono-light-tab-retrato-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt sono-light-tab-retrato-f200 (variant: TargetPlatform.android)
+
+00:06 +0 -40: P3 prompt episodios-light-tab-retrato-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+episodios-light-tab-retrato-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt episodios-light-tab-retrato-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:06 +0 -41: P3 prompt episodios-light-tab-retrato-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt episodios-light-tab-retrato-f200 (variant: TargetPlatform.android)
+
+00:06 +0 -41: P3 prompt proximo-light-tab-retrato-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+proximo-light-tab-retrato-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt proximo-light-tab-retrato-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:06 +0 -42: P3 prompt proximo-light-tab-retrato-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt proximo-light-tab-retrato-f200 (variant: TargetPlatform.android)
+
+00:06 +0 -42: P3 prompt sono-light-tab-paisagem-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+sono-light-tab-paisagem-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt sono-light-tab-paisagem-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:06 +0 -43: P3 prompt sono-light-tab-paisagem-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt sono-light-tab-paisagem-f100 (variant: TargetPlatform.android)
+
+00:06 +0 -43: P3 prompt episodios-light-tab-paisagem-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+episodios-light-tab-paisagem-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt episodios-light-tab-paisagem-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:06 +0 -44: P3 prompt episodios-light-tab-paisagem-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt episodios-light-tab-paisagem-f100 (variant: TargetPlatform.android)
+
+00:06 +0 -44: P3 prompt proximo-light-tab-paisagem-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+proximo-light-tab-paisagem-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt proximo-light-tab-paisagem-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:06 +0 -45: P3 prompt proximo-light-tab-paisagem-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt proximo-light-tab-paisagem-f100 (variant: TargetPlatform.android)
+
+00:06 +0 -45: P3 prompt sono-light-tab-paisagem-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            '══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞══════════════════════\n'
+              'The following assertion was thrown during layout:\n'
+              'A RenderFlex overflowed by 32 pixels on the right.\n'
+              '\n'
+              'The relevant error-causing widget was:\n'
+              '  Row\n'
+              '
+Row:file:///workspace/heisuca/apps/app/lib/screens/video_player/widgets/player_prompt_overlays.dart:522:22\n'
+              '\n'
+              'The overflowing RenderFlex has an orientation of Axis.horizontal.\n'
+              'The edge of the RenderFlex that is overflowing has been marked in\n'
+              'the rendering with a yellow and black striped pattern. This is\n'
+              'usually caused by the contents being too big for the RenderFlex.\n'
+              'Consider applying a flex factor (e.g. using an Expanded widget)\n'
+              'to force the children of the RenderFlex to fit within the\n'
+              'available space instead of being sized to their natural size.\n'
+              'This is considered an error condition because it indicates that\n'
+              'there is content that cannot be seen. If the content is\n'
+              'legitimately bigger than the available space, consider clipping\n'
+              'it with a ClipRect widget before putting it in the flex, or using\n'
+              'a scrollable container rather than a Flex, like a ListView.\n'
+              'The specific RenderFlex in question is: RenderFlex#ab5bc relayoutBoundary=up24
+OVERFLOWING:\n'
+              '  parentData: offset=Offset(0.0, 0.0) (can use size)\n'
+              '  constraints: BoxConstraints(0.0<=w<=140.0, 0.0<=h<=Infinity)\n'
+              '  size: Size(140.0, 40.0)\n'
+              '  direction: horizontal\n'
+              '  mainAxisAlignment: center\n'
+              '  mainAxisSize: max\n'
+              '  crossAxisAlignment: center\n'
+              '  textDirection: ltr\n'
+              '  verticalDirection: down\n'
+              '  spacing: 0.0\n'
+              '◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤\n'
+              '═════════════════════════════════════════════════════════════════\n'
+              '',
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+sono-light-tab-paisagem-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt sono-light-tab-paisagem-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:06 +0 -46: P3 prompt sono-light-tab-paisagem-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt sono-light-tab-paisagem-f200 (variant: TargetPlatform.android)
+
+00:06 +0 -46: P3 prompt episodios-light-tab-paisagem-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+episodios-light-tab-paisagem-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt episodios-light-tab-paisagem-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:07 +0 -47: P3 prompt episodios-light-tab-paisagem-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt episodios-light-tab-paisagem-f200 (variant: TargetPlatform.android)
+
+00:07 +0 -47: P3 prompt proximo-light-tab-paisagem-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+proximo-light-tab-paisagem-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt proximo-light-tab-paisagem-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:07 +0 -48: P3 prompt proximo-light-tab-paisagem-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt proximo-light-tab-paisagem-f200 (variant: TargetPlatform.android)
+
+00:07 +0 -48: P3 prompt sono-dark-moto-retrato-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+sono-dark-moto-retrato-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt sono-dark-moto-retrato-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:07 +0 -49: P3 prompt sono-dark-moto-retrato-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt sono-dark-moto-retrato-f100 (variant: TargetPlatform.android)
+
+00:07 +0 -49: P3 prompt episodios-dark-moto-retrato-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+episodios-dark-moto-retrato-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt episodios-dark-moto-retrato-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:07 +0 -50: P3 prompt episodios-dark-moto-retrato-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt episodios-dark-moto-retrato-f100 (variant: TargetPlatform.android)
+
+00:07 +0 -50: P3 prompt proximo-dark-moto-retrato-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+proximo-dark-moto-retrato-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt proximo-dark-moto-retrato-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:07 +0 -51: P3 prompt proximo-dark-moto-retrato-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt proximo-dark-moto-retrato-f100 (variant: TargetPlatform.android)
+
+00:07 +0 -51: P3 prompt sono-dark-moto-retrato-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            '══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞══════════════════════\n'
+              'The following assertion was thrown during layout:\n'
+              'A RenderFlex overflowed by 32 pixels on the right.\n'
+              '\n'
+              'The relevant error-causing widget was:\n'
+              '  Row\n'
+              '
+Row:file:///workspace/heisuca/apps/app/lib/screens/video_player/widgets/player_prompt_overlays.dart:522:22\n'
+              '\n'
+              'The overflowing RenderFlex has an orientation of Axis.horizontal.\n'
+              'The edge of the RenderFlex that is overflowing has been marked in\n'
+              'the rendering with a yellow and black striped pattern. This is\n'
+              'usually caused by the contents being too big for the RenderFlex.\n'
+              'Consider applying a flex factor (e.g. using an Expanded widget)\n'
+              'to force the children of the RenderFlex to fit within the\n'
+              'available space instead of being sized to their natural size.\n'
+              'This is considered an error condition because it indicates that\n'
+              'there is content that cannot be seen. If the content is\n'
+              'legitimately bigger than the available space, consider clipping\n'
+              'it with a ClipRect widget before putting it in the flex, or using\n'
+              'a scrollable container rather than a Flex, like a ListView.\n'
+              'The specific RenderFlex in question is: RenderFlex#cb3ff relayoutBoundary=up24
+OVERFLOWING:\n'
+              '  parentData: offset=Offset(0.0, 0.0) (can use size)\n'
+              '  constraints: BoxConstraints(0.0<=w<=140.0, 0.0<=h<=Infinity)\n'
+              '  size: Size(140.0, 40.0)\n'
+              '  direction: horizontal\n'
+              '  mainAxisAlignment: center\n'
+              '  mainAxisSize: max\n'
+              '  crossAxisAlignment: center\n'
+              '  textDirection: ltr\n'
+              '  verticalDirection: down\n'
+              '  spacing: 0.0\n'
+              '◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤\n'
+              '═════════════════════════════════════════════════════════════════\n'
+              '',
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+sono-dark-moto-retrato-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt sono-dark-moto-retrato-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:07 +0 -52: P3 prompt sono-dark-moto-retrato-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt sono-dark-moto-retrato-f200 (variant: TargetPlatform.android)
+
+00:07 +0 -52: P3 prompt episodios-dark-moto-retrato-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+episodios-dark-moto-retrato-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt episodios-dark-moto-retrato-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:07 +0 -53: P3 prompt episodios-dark-moto-retrato-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt episodios-dark-moto-retrato-f200 (variant: TargetPlatform.android)
+
+00:07 +0 -53: P3 prompt proximo-dark-moto-retrato-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+proximo-dark-moto-retrato-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt proximo-dark-moto-retrato-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:07 +0 -54: P3 prompt proximo-dark-moto-retrato-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt proximo-dark-moto-retrato-f200 (variant: TargetPlatform.android)
+
+00:07 +0 -54: P3 prompt sono-dark-moto-paisagem-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+sono-dark-moto-paisagem-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt sono-dark-moto-paisagem-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:07 +0 -55: P3 prompt sono-dark-moto-paisagem-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt sono-dark-moto-paisagem-f100 (variant: TargetPlatform.android)
+
+00:07 +0 -55: P3 prompt episodios-dark-moto-paisagem-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+episodios-dark-moto-paisagem-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt episodios-dark-moto-paisagem-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:08 +0 -56: P3 prompt episodios-dark-moto-paisagem-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt episodios-dark-moto-paisagem-f100 (variant: TargetPlatform.android)
+
+00:08 +0 -56: P3 prompt proximo-dark-moto-paisagem-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+proximo-dark-moto-paisagem-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt proximo-dark-moto-paisagem-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:08 +0 -57: P3 prompt proximo-dark-moto-paisagem-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt proximo-dark-moto-paisagem-f100 (variant: TargetPlatform.android)
+
+00:08 +0 -57: P3 prompt sono-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            '══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞══════════════════════\n'
+              'The following assertion was thrown during layout:\n'
+              'A RenderFlex overflowed by 32 pixels on the right.\n'
+              '\n'
+              'The relevant error-causing widget was:\n'
+              '  Row\n'
+              '
+Row:file:///workspace/heisuca/apps/app/lib/screens/video_player/widgets/player_prompt_overlays.dart:522:22\n'
+              '\n'
+              'The overflowing RenderFlex has an orientation of Axis.horizontal.\n'
+              'The edge of the RenderFlex that is overflowing has been marked in\n'
+              'the rendering with a yellow and black striped pattern. This is\n'
+              'usually caused by the contents being too big for the RenderFlex.\n'
+              'Consider applying a flex factor (e.g. using an Expanded widget)\n'
+              'to force the children of the RenderFlex to fit within the\n'
+              'available space instead of being sized to their natural size.\n'
+              'This is considered an error condition because it indicates that\n'
+              'there is content that cannot be seen. If the content is\n'
+              'legitimately bigger than the available space, consider clipping\n'
+              'it with a ClipRect widget before putting it in the flex, or using\n'
+              'a scrollable container rather than a Flex, like a ListView.\n'
+              'The specific RenderFlex in question is: RenderFlex#c3f9f relayoutBoundary=up24
+OVERFLOWING:\n'
+              '  parentData: offset=Offset(0.0, 0.0) (can use size)\n'
+              '  constraints: BoxConstraints(0.0<=w<=140.0, 0.0<=h<=Infinity)\n'
+              '  size: Size(140.0, 40.0)\n'
+              '  direction: horizontal\n'
+              '  mainAxisAlignment: center\n'
+              '  mainAxisSize: max\n'
+              '  crossAxisAlignment: center\n'
+              '  textDirection: ltr\n'
+              '  verticalDirection: down\n'
+              '  spacing: 0.0\n'
+              '◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤\n'
+              '═════════════════════════════════════════════════════════════════\n'
+              '',
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+sono-dark-moto-paisagem-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt sono-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:08 +0 -58: P3 prompt sono-dark-moto-paisagem-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt sono-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+
+00:08 +0 -58: P3 prompt episodios-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.',
+            'O aviso fica fora da janela: Rect.fromLTRB(570.3, -28.6, 890.3, 311.4) / Size(914.3,
+411.4).'
+          ]
+episodios-dark-moto-paisagem-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt episodios-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:08 +0 -59: P3 prompt episodios-dark-moto-paisagem-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt episodios-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+
+00:08 +0 -59: P3 prompt proximo-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+proximo-dark-moto-paisagem-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt proximo-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:08 +0 -60: P3 prompt proximo-dark-moto-paisagem-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt proximo-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+
+00:08 +0 -60: P3 prompt sono-dark-tab-retrato-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+sono-dark-tab-retrato-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt sono-dark-tab-retrato-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:08 +0 -61: P3 prompt sono-dark-tab-retrato-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt sono-dark-tab-retrato-f100 (variant: TargetPlatform.android)
+
+00:08 +0 -61: P3 prompt episodios-dark-tab-retrato-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+episodios-dark-tab-retrato-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt episodios-dark-tab-retrato-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:08 +0 -62: P3 prompt episodios-dark-tab-retrato-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt episodios-dark-tab-retrato-f100 (variant: TargetPlatform.android)
+
+00:08 +0 -62: P3 prompt proximo-dark-tab-retrato-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+proximo-dark-tab-retrato-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt proximo-dark-tab-retrato-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:08 +0 -63: P3 prompt proximo-dark-tab-retrato-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt proximo-dark-tab-retrato-f100 (variant: TargetPlatform.android)
+
+00:08 +0 -63: P3 prompt sono-dark-tab-retrato-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            '══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞══════════════════════\n'
+              'The following assertion was thrown during layout:\n'
+              'A RenderFlex overflowed by 32 pixels on the right.\n'
+              '\n'
+              'The relevant error-causing widget was:\n'
+              '  Row\n'
+              '
+Row:file:///workspace/heisuca/apps/app/lib/screens/video_player/widgets/player_prompt_overlays.dart:522:22\n'
+              '\n'
+              'The overflowing RenderFlex has an orientation of Axis.horizontal.\n'
+              'The edge of the RenderFlex that is overflowing has been marked in\n'
+              'the rendering with a yellow and black striped pattern. This is\n'
+              'usually caused by the contents being too big for the RenderFlex.\n'
+              'Consider applying a flex factor (e.g. using an Expanded widget)\n'
+              'to force the children of the RenderFlex to fit within the\n'
+              'available space instead of being sized to their natural size.\n'
+              'This is considered an error condition because it indicates that\n'
+              'there is content that cannot be seen. If the content is\n'
+              'legitimately bigger than the available space, consider clipping\n'
+              'it with a ClipRect widget before putting it in the flex, or using\n'
+              'a scrollable container rather than a Flex, like a ListView.\n'
+              'The specific RenderFlex in question is: RenderFlex#423e6 relayoutBoundary=up24
+OVERFLOWING:\n'
+              '  parentData: offset=Offset(0.0, 0.0) (can use size)\n'
+              '  constraints: BoxConstraints(0.0<=w<=140.0, 0.0<=h<=Infinity)\n'
+              '  size: Size(140.0, 40.0)\n'
+              '  direction: horizontal\n'
+              '  mainAxisAlignment: center\n'
+              '  mainAxisSize: max\n'
+              '  crossAxisAlignment: center\n'
+              '  textDirection: ltr\n'
+              '  verticalDirection: down\n'
+              '  spacing: 0.0\n'
+              '◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤\n'
+              '═════════════════════════════════════════════════════════════════\n'
+              '',
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+sono-dark-tab-retrato-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt sono-dark-tab-retrato-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:08 +0 -64: P3 prompt sono-dark-tab-retrato-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt sono-dark-tab-retrato-f200 (variant: TargetPlatform.android)
+
+00:08 +0 -64: P3 prompt episodios-dark-tab-retrato-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+episodios-dark-tab-retrato-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt episodios-dark-tab-retrato-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:09 +0 -65: P3 prompt episodios-dark-tab-retrato-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt episodios-dark-tab-retrato-f200 (variant: TargetPlatform.android)
+
+00:09 +0 -65: P3 prompt proximo-dark-tab-retrato-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+proximo-dark-tab-retrato-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt proximo-dark-tab-retrato-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:09 +0 -66: P3 prompt proximo-dark-tab-retrato-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt proximo-dark-tab-retrato-f200 (variant: TargetPlatform.android)
+
+00:09 +0 -66: P3 prompt sono-dark-tab-paisagem-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+sono-dark-tab-paisagem-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt sono-dark-tab-paisagem-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:09 +0 -67: P3 prompt sono-dark-tab-paisagem-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt sono-dark-tab-paisagem-f100 (variant: TargetPlatform.android)
+
+00:09 +0 -67: P3 prompt episodios-dark-tab-paisagem-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+episodios-dark-tab-paisagem-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt episodios-dark-tab-paisagem-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:09 +0 -68: P3 prompt episodios-dark-tab-paisagem-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt episodios-dark-tab-paisagem-f100 (variant: TargetPlatform.android)
+
+00:09 +0 -68: P3 prompt proximo-dark-tab-paisagem-f100 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+proximo-dark-tab-paisagem-f100
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt proximo-dark-tab-paisagem-f100 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:09 +0 -69: P3 prompt proximo-dark-tab-paisagem-f100 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt proximo-dark-tab-paisagem-f100 (variant: TargetPlatform.android)
+
+00:09 +0 -69: P3 prompt sono-dark-tab-paisagem-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            '══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞══════════════════════\n'
+              'The following assertion was thrown during layout:\n'
+              'A RenderFlex overflowed by 32 pixels on the right.\n'
+              '\n'
+              'The relevant error-causing widget was:\n'
+              '  Row\n'
+              '
+Row:file:///workspace/heisuca/apps/app/lib/screens/video_player/widgets/player_prompt_overlays.dart:522:22\n'
+              '\n'
+              'The overflowing RenderFlex has an orientation of Axis.horizontal.\n'
+              'The edge of the RenderFlex that is overflowing has been marked in\n'
+              'the rendering with a yellow and black striped pattern. This is\n'
+              'usually caused by the contents being too big for the RenderFlex.\n'
+              'Consider applying a flex factor (e.g. using an Expanded widget)\n'
+              'to force the children of the RenderFlex to fit within the\n'
+              'available space instead of being sized to their natural size.\n'
+              'This is considered an error condition because it indicates that\n'
+              'there is content that cannot be seen. If the content is\n'
+              'legitimately bigger than the available space, consider clipping\n'
+              'it with a ClipRect widget before putting it in the flex, or using\n'
+              'a scrollable container rather than a Flex, like a ListView.\n'
+              'The specific RenderFlex in question is: RenderFlex#dbdcf relayoutBoundary=up24
+OVERFLOWING:\n'
+              '  parentData: offset=Offset(0.0, 0.0) (can use size)\n'
+              '  constraints: BoxConstraints(0.0<=w<=140.0, 0.0<=h<=Infinity)\n'
+              '  size: Size(140.0, 40.0)\n'
+              '  direction: horizontal\n'
+              '  mainAxisAlignment: center\n'
+              '  mainAxisSize: max\n'
+              '  crossAxisAlignment: center\n'
+              '  textDirection: ltr\n'
+              '  verticalDirection: down\n'
+              '  spacing: 0.0\n'
+              '◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤\n'
+              '═════════════════════════════════════════════════════════════════\n'
+              '',
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+sono-dark-tab-paisagem-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt sono-dark-tab-paisagem-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:09 +0 -70: P3 prompt sono-dark-tab-paisagem-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt sono-dark-tab-paisagem-f200 (variant: TargetPlatform.android)
+
+00:09 +0 -70: P3 prompt episodios-dark-tab-paisagem-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+episodios-dark-tab-paisagem-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt episodios-dark-tab-paisagem-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:09 +0 -71: P3 prompt episodios-dark-tab-paisagem-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt episodios-dark-tab-paisagem-f200 (variant: TargetPlatform.android)
+
+00:09 +0 -71: P3 prompt proximo-dark-tab-paisagem-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            'Título do aviso não renderiza Sora.',
+            'O aviso usa uma superfície fora da paleta.'
+          ]
+proximo-dark-tab-paisagem-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart:123:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart line 123
+The test description was:
+  P3 prompt proximo-dark-tab-paisagem-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:09 +0 -72: P3 prompt proximo-dark-tab-paisagem-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 prompt proximo-dark-tab-paisagem-f200 (variant: TargetPlatform.android)
+
+00:09 +0 -72: (tearDownAll)
+00:09 +0 -72: Some tests failed.
+
+Failing tests:
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart: P3 prompt episodios-dark-moto-paisagem-f100 (variant: TargetPlatform.android)
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart: P3 prompt episodios-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart: P3 prompt episodios-dark-moto-retrato-f100 (variant: TargetPlatform.android)
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_prompts_test.dart: P3 prompt episodios-dark-moto-retrato-f200 (variant: TargetPlatform.android)
+  ... and 68 more

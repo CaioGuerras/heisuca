@@ -1,0 +1,1969 @@
+00:00 +0: loading /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart
+00:00 +0: (setUpAll)
+00:00 +0: P3 estado inicio-vazio-oled-moto-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (35ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (36ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[I]  Platform HTTP client  ERROR: {platform: linux, client: IOClient}
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (292ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (287ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (285ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (283ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (10ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (11ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (1ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:01 +1: P3 estado inicio-erro-oled-moto-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (72ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (65ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (64ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (62ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (6ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (4ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (3ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:02 +2: P3 estado inicio-carregando-oled-moto-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (2ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (2ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (58ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (50ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (49ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (48ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (4ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=filmes&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (1ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=series&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (2ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (711ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (707ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:02 +3: P3 estado inicio-offline-oled-moto-retrato-f100 (variant: TargetPlatform.android)
+[W]  No online servers available for fetching libraries (neutral)
+[I]  LibrariesProvider: Loaded 0 libraries
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:03 +4: P3 estado biblioteca-vazio-oled-moto-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (22ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:03 +5: P3 estado biblioteca-erro-oled-moto-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (20ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:04 +6: P3 estado biblioteca-carregando-oled-moto-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[D]  GET [REDACTED_URL]Items?userId=user-1&ParentId=filmes&Recursive=true&StartIndex=0&Limit=60&EnableTotalRecordCount=true&IncludeItemTypes=Movie&Fields=RecursiveItemCount%2CChildCount%2COriginalTitle%2CSortName%2COverview%2CDateCreated&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&SortBy=SortName&SortOrder=Ascending → 200 (358ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:04 +7: P3 estado inicio-vazio-oled-moto-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (38ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (35ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (34ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (30ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (2ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (0ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:05 +8: P3 estado inicio-erro-oled-moto-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (41ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (38ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (36ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (32ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (3ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (3ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (1ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:05 +9: P3 estado inicio-carregando-oled-moto-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (36ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (34ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (33ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (30ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (3ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=filmes&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (1ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=series&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (1ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (660ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (657ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:06 +10: P3 estado inicio-offline-oled-moto-retrato-f200 (variant: TargetPlatform.android)
+[W]  No online servers available for fetching libraries (neutral)
+[I]  LibrariesProvider: Loaded 0 libraries
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:06 +11: P3 estado biblioteca-vazio-oled-moto-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (20ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:07 +12: P3 estado biblioteca-erro-oled-moto-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (12ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (11ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (20ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:07 +13: P3 estado biblioteca-carregando-oled-moto-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (4ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (4ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[D]  GET [REDACTED_URL]Items?userId=user-1&ParentId=filmes&Recursive=true&StartIndex=0&Limit=60&EnableTotalRecordCount=true&IncludeItemTypes=Movie&Fields=RecursiveItemCount%2CChildCount%2COriginalTitle%2CSortName%2COverview%2CDateCreated&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&SortBy=SortName&SortOrder=Ascending → 200 (592ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:08 +14: P3 estado inicio-vazio-oled-moto-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (34ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (31ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (30ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (29ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (3ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (3ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (0ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:08 +15: P3 estado inicio-erro-oled-moto-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (35ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (33ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (31ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (31ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (3ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (3ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (1ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:09 +16: P3 estado inicio-carregando-oled-moto-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (36ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (33ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (32ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (31ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (2ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=filmes&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=series&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (1ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (704ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (702ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:10 +17: P3 estado inicio-offline-oled-moto-paisagem-f100 (variant: TargetPlatform.android)
+[W]  No online servers available for fetching libraries (neutral)
+[I]  LibrariesProvider: Loaded 0 libraries
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:10 +18: P3 estado biblioteca-vazio-oled-moto-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:10 +19: P3 estado biblioteca-erro-oled-moto-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (21ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:11 +20: P3 estado biblioteca-carregando-oled-moto-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[D]  GET [REDACTED_URL]Items?userId=user-1&ParentId=filmes&Recursive=true&StartIndex=0&Limit=60&EnableTotalRecordCount=true&IncludeItemTypes=Movie&Fields=RecursiveItemCount%2CChildCount%2COriginalTitle%2CSortName%2COverview%2CDateCreated&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&SortBy=SortName&SortOrder=Ascending → 200 (324ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:11 +21: P3 estado inicio-vazio-oled-moto-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (38ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (34ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (33ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (32ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (2ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (0ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:11 +22: P3 estado inicio-erro-oled-moto-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (37ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (34ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (33ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (32ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (2ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (0ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:12 +23: P3 estado inicio-carregando-oled-moto-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (36ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (34ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (33ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (32ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (2ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=filmes&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=series&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (1ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (690ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (688ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:13 +24: P3 estado inicio-offline-oled-moto-paisagem-f200 (variant: TargetPlatform.android)
+[W]  No online servers available for fetching libraries (neutral)
+[I]  LibrariesProvider: Loaded 0 libraries
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            '══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞══════════════════════\n'
+              'The following assertion was thrown during layout:\n'
+              'A RenderFlex overflowed by 26 pixels on the bottom.\n'
+              '\n'
+              'The relevant error-causing widget was:\n'
+              '  Column\n'
+              '
+Column:file:///workspace/heisuca/apps/app/lib/heisuca/heisuca_home_screen.dart:192:51\n'
+              '\n'
+              'The overflowing RenderFlex has an orientation of Axis.vertical.\n'
+              'The edge of the RenderFlex that is overflowing has been marked in\n'
+              'the rendering with a yellow and black striped pattern. This is\n'
+              'usually caused by the contents being too big for the RenderFlex.\n'
+              'Consider applying a flex factor (e.g. using an Expanded widget)\n'
+              'to force the children of the RenderFlex to fit within the\n'
+              'available space instead of being sized to their natural size.\n'
+              'This is considered an error condition because it indicates that\n'
+              'there is content that cannot be seen. If the content is\n'
+              'legitimately bigger than the available space, consider clipping\n'
+              'it with a ClipRect widget before putting it in the flex, or using\n'
+              'a scrollable container rather than a Flex, like a ListView.\n'
+              'The specific RenderFlex in question is: RenderFlex#7e655 relayoutBoundary=up7
+OVERFLOWING:\n'
+              '  parentData: offset=Offset(24.0, 24.0) (can use size)\n'
+              '  constraints: BoxConstraints(0.0<=w<=866.3, 0.0<=h<=315.4)\n'
+              '  size: Size(866.3, 315.4)\n'
+              '  direction: vertical\n'
+              '  mainAxisAlignment: start\n'
+              '  mainAxisSize: min\n'
+              '  crossAxisAlignment: center\n'
+              '  verticalDirection: down\n'
+              '  spacing: 0.0\n'
+              '◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤\n'
+              '═════════════════════════════════════════════════════════════════\n'
+              ''
+          ]
+inicio-offline-oled-moto-paisagem-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart:126:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart line 126
+The test description was:
+  P3 estado inicio-offline-oled-moto-paisagem-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:13 +24 -1: P3 estado inicio-offline-oled-moto-paisagem-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 estado inicio-offline-oled-moto-paisagem-f200 (variant: TargetPlatform.android)
+
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:13 +24 -1: P3 estado biblioteca-vazio-oled-moto-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:14 +25 -1: P3 estado biblioteca-erro-oled-moto-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (21ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:14 +26 -1: P3 estado biblioteca-carregando-oled-moto-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[D]  GET [REDACTED_URL]Items?userId=user-1&ParentId=filmes&Recursive=true&StartIndex=0&Limit=60&EnableTotalRecordCount=true&IncludeItemTypes=Movie&Fields=RecursiveItemCount%2CChildCount%2COriginalTitle%2CSortName%2COverview%2CDateCreated&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&SortBy=SortName&SortOrder=Ascending → 200 (305ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:14 +27 -1: P3 estado inicio-vazio-oled-tab-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (2ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (33ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (29ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (28ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (27ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (3ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (0ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:15 +28 -1: P3 estado inicio-erro-oled-tab-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (29ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (27ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (26ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (26ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (4ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (4ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (0ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:15 +29 -1: P3 estado inicio-carregando-oled-tab-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (32ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (30ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (25ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (24ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (2ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=filmes&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (1ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=series&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (1ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (533ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (532ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:16 +30 -1: P3 estado inicio-offline-oled-tab-retrato-f100 (variant: TargetPlatform.android)
+[W]  No online servers available for fetching libraries (neutral)
+[I]  LibrariesProvider: Loaded 0 libraries
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:16 +31 -1: P3 estado biblioteca-vazio-oled-tab-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (20ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:16 +32 -1: P3 estado biblioteca-erro-oled-tab-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (20ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:17 +33 -1: P3 estado biblioteca-carregando-oled-tab-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[D]  GET [REDACTED_URL]Items?userId=user-1&ParentId=filmes&Recursive=true&StartIndex=0&Limit=60&EnableTotalRecordCount=true&IncludeItemTypes=Movie&Fields=RecursiveItemCount%2CChildCount%2COriginalTitle%2CSortName%2COverview%2CDateCreated&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&SortBy=SortName&SortOrder=Ascending → 200 (309ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:17 +34 -1: P3 estado inicio-vazio-oled-tab-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (6ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (42ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (38ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (37ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (35ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (1ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (4ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (0ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:18 +35 -1: P3 estado inicio-erro-oled-tab-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (34ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (30ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (29ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (28ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (2ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (1ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:18 +36 -1: P3 estado inicio-carregando-oled-tab-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (33ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (30ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (29ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (27ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (1ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=filmes&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=series&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (1ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (529ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (527ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:19 +37 -1: P3 estado inicio-offline-oled-tab-retrato-f200 (variant: TargetPlatform.android)
+[W]  No online servers available for fetching libraries (neutral)
+[I]  LibrariesProvider: Loaded 0 libraries
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:19 +38 -1: P3 estado biblioteca-vazio-oled-tab-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (0ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (20ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:19 +39 -1: P3 estado biblioteca-erro-oled-tab-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (0ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (20ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:20 +40 -1: P3 estado biblioteca-carregando-oled-tab-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (20ms)
+[D]  GET [REDACTED_URL]Items?userId=user-1&ParentId=filmes&Recursive=true&StartIndex=0&Limit=60&EnableTotalRecordCount=true&IncludeItemTypes=Movie&Fields=RecursiveItemCount%2CChildCount%2COriginalTitle%2CSortName%2COverview%2CDateCreated&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&SortBy=SortName&SortOrder=Ascending → 200 (300ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:20 +41 -1: P3 estado inicio-vazio-oled-tab-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (32ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (30ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (29ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (28ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (2ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (0ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:21 +42 -1: P3 estado inicio-erro-oled-tab-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (31ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (29ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (28ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (27ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (1ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (1ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (0ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:21 +43 -1: P3 estado inicio-carregando-oled-tab-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (27ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (24ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (23ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (22ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (1ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=filmes&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=series&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (545ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (543ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:22 +44 -1: P3 estado inicio-offline-oled-tab-paisagem-f100 (variant: TargetPlatform.android)
+[W]  No online servers available for fetching libraries (neutral)
+[I]  LibrariesProvider: Loaded 0 libraries
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:22 +45 -1: P3 estado biblioteca-vazio-oled-tab-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:22 +46 -1: P3 estado biblioteca-erro-oled-tab-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (21ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:23 +47 -1: P3 estado biblioteca-carregando-oled-tab-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[D]  GET [REDACTED_URL]Items?userId=user-1&ParentId=filmes&Recursive=true&StartIndex=0&Limit=60&EnableTotalRecordCount=true&IncludeItemTypes=Movie&Fields=RecursiveItemCount%2CChildCount%2COriginalTitle%2CSortName%2COverview%2CDateCreated&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&SortBy=SortName&SortOrder=Ascending → 200 (307ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:23 +48 -1: P3 estado inicio-vazio-oled-tab-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (0ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (24ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (22ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (21ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (20ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (1ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (1ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (0ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:24 +49 -1: P3 estado inicio-erro-oled-tab-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (31ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (23ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (22ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (21ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (1ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (1ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (1ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:24 +50 -1: P3 estado inicio-carregando-oled-tab-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (33ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (30ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (25ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (24ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (2ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=filmes&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=series&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (539ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (536ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:25 +51 -1: P3 estado inicio-offline-oled-tab-paisagem-f200 (variant: TargetPlatform.android)
+[W]  No online servers available for fetching libraries (neutral)
+[I]  LibrariesProvider: Loaded 0 libraries
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:25 +52 -1: P3 estado biblioteca-vazio-oled-tab-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:26 +53 -1: P3 estado biblioteca-erro-oled-tab-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (21ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:26 +54 -1: P3 estado biblioteca-carregando-oled-tab-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[D]  GET [REDACTED_URL]Items?userId=user-1&ParentId=filmes&Recursive=true&StartIndex=0&Limit=60&EnableTotalRecordCount=true&IncludeItemTypes=Movie&Fields=RecursiveItemCount%2CChildCount%2COriginalTitle%2CSortName%2COverview%2CDateCreated&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&SortBy=SortName&SortOrder=Ascending → 200 (527ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:27 +55 -1: P3 estado inicio-vazio-light-moto-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (53ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (49ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (48ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (46ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (2ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (0ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:27 +56 -1: P3 estado inicio-erro-light-moto-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (27ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (24ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (23ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (22ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (3ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (3ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (1ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:28 +57 -1: P3 estado inicio-carregando-light-moto-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (31ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (28ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (27ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (26ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (1ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=filmes&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=series&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (723ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (721ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:28 +58 -1: P3 estado inicio-offline-light-moto-retrato-f100 (variant: TargetPlatform.android)
+[W]  No online servers available for fetching libraries (neutral)
+[I]  LibrariesProvider: Loaded 0 libraries
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:29 +59 -1: P3 estado biblioteca-vazio-light-moto-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (20ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:29 +60 -1: P3 estado biblioteca-erro-light-moto-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (21ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:30 +61 -1: P3 estado biblioteca-carregando-light-moto-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[D]  GET [REDACTED_URL]Items?userId=user-1&ParentId=filmes&Recursive=true&StartIndex=0&Limit=60&EnableTotalRecordCount=true&IncludeItemTypes=Movie&Fields=RecursiveItemCount%2CChildCount%2COriginalTitle%2CSortName%2COverview%2CDateCreated&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&SortBy=SortName&SortOrder=Ascending → 200 (366ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:30 +62 -1: P3 estado inicio-vazio-light-moto-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (0ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (27ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (25ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (25ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (25ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (4ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (4ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (1ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:31 +63 -1: P3 estado inicio-erro-light-moto-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (29ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (26ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (25ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (19ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (2ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (1ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:31 +64 -1: P3 estado inicio-carregando-light-moto-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (5ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (4ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (28ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (25ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (24ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (22ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (2ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=filmes&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (1ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=series&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (1ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (644ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (642ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:32 +65 -1: P3 estado inicio-offline-light-moto-retrato-f200 (variant: TargetPlatform.android)
+[W]  No online servers available for fetching libraries (neutral)
+[I]  LibrariesProvider: Loaded 0 libraries
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:32 +66 -1: P3 estado biblioteca-vazio-light-moto-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:33 +67 -1: P3 estado biblioteca-erro-light-moto-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (0ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (20ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:33 +68 -1: P3 estado biblioteca-carregando-light-moto-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[D]  GET [REDACTED_URL]Items?userId=user-1&ParentId=filmes&Recursive=true&StartIndex=0&Limit=60&EnableTotalRecordCount=true&IncludeItemTypes=Movie&Fields=RecursiveItemCount%2CChildCount%2COriginalTitle%2CSortName%2COverview%2CDateCreated&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&SortBy=SortName&SortOrder=Ascending → 200 (302ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:33 +69 -1: P3 estado inicio-vazio-light-moto-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (20ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (18ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (18ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (17ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (2ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (0ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:34 +70 -1: P3 estado inicio-erro-light-moto-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (24ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (21ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (18ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (18ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (3ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (3ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (0ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:34 +71 -1: P3 estado inicio-carregando-light-moto-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (0ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (25ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (23ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (22ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (21ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (1ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=filmes&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=series&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (654ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (653ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:35 +72 -1: P3 estado inicio-offline-light-moto-paisagem-f100 (variant: TargetPlatform.android)
+[W]  No online servers available for fetching libraries (neutral)
+[I]  LibrariesProvider: Loaded 0 libraries
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:35 +73 -1: P3 estado biblioteca-vazio-light-moto-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (0ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (20ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:36 +74 -1: P3 estado biblioteca-erro-light-moto-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (20ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:36 +75 -1: P3 estado biblioteca-carregando-light-moto-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (0ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (20ms)
+[D]  GET [REDACTED_URL]Items?userId=user-1&ParentId=filmes&Recursive=true&StartIndex=0&Limit=60&EnableTotalRecordCount=true&IncludeItemTypes=Movie&Fields=RecursiveItemCount%2CChildCount%2COriginalTitle%2CSortName%2COverview%2CDateCreated&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&SortBy=SortName&SortOrder=Ascending → 200 (299ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:36 +76 -1: P3 estado inicio-vazio-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (0ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (23ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (21ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (20ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (20ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (1ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (1ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (0ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:37 +77 -1: P3 estado inicio-erro-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (0ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (25ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (23ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (18ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (17ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (1ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (1ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (0ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:37 +78 -1: P3 estado inicio-carregando-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (4ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (65ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (56ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (55ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (51ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (9ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=filmes&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (3ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=series&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (3ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (869ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (862ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:38 +79 -1: P3 estado inicio-offline-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+[W]  No online servers available for fetching libraries (neutral)
+[I]  LibrariesProvider: Loaded 0 libraries
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            '══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞══════════════════════\n'
+              'The following assertion was thrown during layout:\n'
+              'A RenderFlex overflowed by 26 pixels on the bottom.\n'
+              '\n'
+              'The relevant error-causing widget was:\n'
+              '  Column\n'
+              '
+Column:file:///workspace/heisuca/apps/app/lib/heisuca/heisuca_home_screen.dart:192:51\n'
+              '\n'
+              'The overflowing RenderFlex has an orientation of Axis.vertical.\n'
+              'The edge of the RenderFlex that is overflowing has been marked in\n'
+              'the rendering with a yellow and black striped pattern. This is\n'
+              'usually caused by the contents being too big for the RenderFlex.\n'
+              'Consider applying a flex factor (e.g. using an Expanded widget)\n'
+              'to force the children of the RenderFlex to fit within the\n'
+              'available space instead of being sized to their natural size.\n'
+              'This is considered an error condition because it indicates that\n'
+              'there is content that cannot be seen. If the content is\n'
+              'legitimately bigger than the available space, consider clipping\n'
+              'it with a ClipRect widget before putting it in the flex, or using\n'
+              'a scrollable container rather than a Flex, like a ListView.\n'
+              'The specific RenderFlex in question is: RenderFlex#70d19 relayoutBoundary=up7
+OVERFLOWING:\n'
+              '  parentData: offset=Offset(24.0, 24.0) (can use size)\n'
+              '  constraints: BoxConstraints(0.0<=w<=866.3, 0.0<=h<=315.4)\n'
+              '  size: Size(866.3, 315.4)\n'
+              '  direction: vertical\n'
+              '  mainAxisAlignment: start\n'
+              '  mainAxisSize: min\n'
+              '  crossAxisAlignment: center\n'
+              '  verticalDirection: down\n'
+              '  spacing: 0.0\n'
+              '◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤\n'
+              '═════════════════════════════════════════════════════════════════\n'
+              ''
+          ]
+inicio-offline-light-moto-paisagem-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart:126:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart line 126
+The test description was:
+  P3 estado inicio-offline-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:39 +79 -2: P3 estado inicio-offline-light-moto-paisagem-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 estado inicio-offline-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:39 +79 -2: P3 estado biblioteca-vazio-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:39 +80 -2: P3 estado biblioteca-erro-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (21ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:40 +81 -2: P3 estado biblioteca-carregando-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (20ms)
+[D]  GET [REDACTED_URL]Items?userId=user-1&ParentId=filmes&Recursive=true&StartIndex=0&Limit=60&EnableTotalRecordCount=true&IncludeItemTypes=Movie&Fields=RecursiveItemCount%2CChildCount%2COriginalTitle%2CSortName%2COverview%2CDateCreated&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&SortBy=SortName&SortOrder=Ascending → 200 (340ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:40 +82 -2: P3 estado inicio-vazio-light-tab-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (0ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (20ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (18ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (18ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (17ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (2ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (0ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:40 +83 -2: P3 estado inicio-erro-light-tab-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (36ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (26ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (25ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (24ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (2ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (1ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:41 +84 -2: P3 estado inicio-carregando-light-tab-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (28ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (26ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (22ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (20ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (2ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=filmes&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=series&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (1ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (530ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (527ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:41 +85 -2: P3 estado inicio-offline-light-tab-retrato-f100 (variant: TargetPlatform.android)
+[W]  No online servers available for fetching libraries (neutral)
+[I]  LibrariesProvider: Loaded 0 libraries
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:42 +86 -2: P3 estado biblioteca-vazio-light-tab-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (20ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:42 +87 -2: P3 estado biblioteca-erro-light-tab-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (20ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:43 +88 -2: P3 estado biblioteca-carregando-light-tab-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[D]  GET [REDACTED_URL]Items?userId=user-1&ParentId=filmes&Recursive=true&StartIndex=0&Limit=60&EnableTotalRecordCount=true&IncludeItemTypes=Movie&Fields=RecursiveItemCount%2CChildCount%2COriginalTitle%2CSortName%2COverview%2CDateCreated&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&SortBy=SortName&SortOrder=Ascending → 200 (307ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:43 +89 -2: P3 estado inicio-vazio-light-tab-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (0ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (36ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (33ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (31ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (30ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (2ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (0ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:43 +90 -2: P3 estado inicio-erro-light-tab-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (32ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (30ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (29ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (28ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (3ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (3ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (4ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:44 +91 -2: P3 estado inicio-carregando-light-tab-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (31ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (29ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (28ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (27ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (3ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=filmes&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (1ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=series&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (1ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (587ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (585ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:44 +92 -2: P3 estado inicio-offline-light-tab-retrato-f200 (variant: TargetPlatform.android)
+[W]  No online servers available for fetching libraries (neutral)
+[I]  LibrariesProvider: Loaded 0 libraries
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:45 +93 -2: P3 estado biblioteca-vazio-light-tab-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (2ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (2ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:45 +94 -2: P3 estado biblioteca-erro-light-tab-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (2ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (2ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (21ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:46 +95 -2: P3 estado biblioteca-carregando-light-tab-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[D]  GET [REDACTED_URL]Items?userId=user-1&ParentId=filmes&Recursive=true&StartIndex=0&Limit=60&EnableTotalRecordCount=true&IncludeItemTypes=Movie&Fields=RecursiveItemCount%2CChildCount%2COriginalTitle%2CSortName%2COverview%2CDateCreated&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&SortBy=SortName&SortOrder=Ascending → 200 (315ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:46 +96 -2: P3 estado inicio-vazio-light-tab-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (0ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (19ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (18ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (17ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (1ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (2ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (0ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:47 +97 -2: P3 estado inicio-erro-light-tab-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (31ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (28ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (27ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (20ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (2ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (1ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:47 +98 -2: P3 estado inicio-carregando-light-tab-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (34ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (30ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (29ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (27ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (2ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=filmes&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=series&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (539ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (537ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:48 +99 -2: P3 estado inicio-offline-light-tab-paisagem-f100 (variant: TargetPlatform.android)
+[W]  No online servers available for fetching libraries (neutral)
+[I]  LibrariesProvider: Loaded 0 libraries
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:48 +100 -2: P3 estado biblioteca-vazio-light-tab-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (0ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:48 +101 -2: P3 estado biblioteca-erro-light-tab-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (0ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (20ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:49 +102 -2: P3 estado biblioteca-carregando-light-tab-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (20ms)
+[D]  GET [REDACTED_URL]Items?userId=user-1&ParentId=filmes&Recursive=true&StartIndex=0&Limit=60&EnableTotalRecordCount=true&IncludeItemTypes=Movie&Fields=RecursiveItemCount%2CChildCount%2COriginalTitle%2CSortName%2COverview%2CDateCreated&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&SortBy=SortName&SortOrder=Ascending → 200 (293ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:49 +103 -2: P3 estado inicio-vazio-light-tab-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (0ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (30ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (27ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (26ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (25ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (2ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (0ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:50 +104 -2: P3 estado inicio-erro-light-tab-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (41ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (38ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (37ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (35ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (4ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (4ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (1ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:50 +105 -2: P3 estado inicio-carregando-light-tab-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (26ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (24ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (23ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (22ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (2ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=filmes&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=series&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (1ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (524ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (522ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:51 +106 -2: P3 estado inicio-offline-light-tab-paisagem-f200 (variant: TargetPlatform.android)
+[W]  No online servers available for fetching libraries (neutral)
+[I]  LibrariesProvider: Loaded 0 libraries
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:51 +107 -2: P3 estado biblioteca-vazio-light-tab-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:51 +108 -2: P3 estado biblioteca-erro-light-tab-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (0ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (24ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:52 +109 -2: P3 estado biblioteca-carregando-light-tab-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[D]  GET [REDACTED_URL]Items?userId=user-1&ParentId=filmes&Recursive=true&StartIndex=0&Limit=60&EnableTotalRecordCount=true&IncludeItemTypes=Movie&Fields=RecursiveItemCount%2CChildCount%2COriginalTitle%2CSortName%2COverview%2CDateCreated&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&SortBy=SortName&SortOrder=Ascending → 200 (301ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:52 +110 -2: P3 estado inicio-vazio-dark-moto-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (27ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (24ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (23ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (22ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (1ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (1ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (0ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:52 +111 -2: P3 estado inicio-erro-dark-moto-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (0ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (21ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (19ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (18ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (17ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (2ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (0ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:53 +112 -2: P3 estado inicio-carregando-dark-moto-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (20ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (18ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (15ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (14ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (1ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=filmes&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=series&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (1ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (600ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (599ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:54 +113 -2: P3 estado inicio-offline-dark-moto-retrato-f100 (variant: TargetPlatform.android)
+[W]  No online servers available for fetching libraries (neutral)
+[I]  LibrariesProvider: Loaded 0 libraries
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:54 +114 -2: P3 estado biblioteca-vazio-dark-moto-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (20ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:54 +115 -2: P3 estado biblioteca-erro-dark-moto-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (20ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:55 +116 -2: P3 estado biblioteca-carregando-dark-moto-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (24ms)
+[D]  GET [REDACTED_URL]Items?userId=user-1&ParentId=filmes&Recursive=true&StartIndex=0&Limit=60&EnableTotalRecordCount=true&IncludeItemTypes=Movie&Fields=RecursiveItemCount%2CChildCount%2COriginalTitle%2CSortName%2COverview%2CDateCreated&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&SortBy=SortName&SortOrder=Ascending → 200 (347ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:55 +117 -2: P3 estado inicio-vazio-dark-moto-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (19ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (18ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (17ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (1ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (1ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (0ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:56 +118 -2: P3 estado inicio-erro-dark-moto-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (0ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (25ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (23ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (22ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (15ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (1ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (1ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (0ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:56 +119 -2: P3 estado inicio-carregando-dark-moto-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (26ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (23ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (22ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (20ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (1ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=filmes&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=series&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (598ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (597ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:57 +120 -2: P3 estado inicio-offline-dark-moto-retrato-f200 (variant: TargetPlatform.android)
+[W]  No online servers available for fetching libraries (neutral)
+[I]  LibrariesProvider: Loaded 0 libraries
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:57 +121 -2: P3 estado biblioteca-vazio-dark-moto-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (20ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:58 +122 -2: P3 estado biblioteca-erro-dark-moto-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (20ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:58 +123 -2: P3 estado biblioteca-carregando-dark-moto-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[D]  GET [REDACTED_URL]Items?userId=user-1&ParentId=filmes&Recursive=true&StartIndex=0&Limit=60&EnableTotalRecordCount=true&IncludeItemTypes=Movie&Fields=RecursiveItemCount%2CChildCount%2COriginalTitle%2CSortName%2COverview%2CDateCreated&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&SortBy=SortName&SortOrder=Ascending → 200 (298ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:58 +124 -2: P3 estado inicio-vazio-dark-moto-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (0ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (17ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (15ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (15ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (14ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (1ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (1ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (0ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:59 +125 -2: P3 estado inicio-erro-dark-moto-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (22ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (20ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (19ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (15ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (1ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (2ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (0ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:59 +126 -2: P3 estado inicio-carregando-dark-moto-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (28ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (26ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (25ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (24ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (2ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=filmes&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=series&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (571ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (569ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:00 +127 -2: P3 estado inicio-offline-dark-moto-paisagem-f100 (variant: TargetPlatform.android)
+[W]  No online servers available for fetching libraries (neutral)
+[I]  LibrariesProvider: Loaded 0 libraries
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:00 +128 -2: P3 estado biblioteca-vazio-dark-moto-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (2ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:01 +129 -2: P3 estado biblioteca-erro-dark-moto-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (21ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:01 +130 -2: P3 estado biblioteca-carregando-dark-moto-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (20ms)
+[D]  GET [REDACTED_URL]Items?userId=user-1&ParentId=filmes&Recursive=true&StartIndex=0&Limit=60&EnableTotalRecordCount=true&IncludeItemTypes=Movie&Fields=RecursiveItemCount%2CChildCount%2COriginalTitle%2CSortName%2COverview%2CDateCreated&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&SortBy=SortName&SortOrder=Ascending → 200 (323ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:01 +131 -2: P3 estado inicio-vazio-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (18ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (16ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (15ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (15ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (2ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (0ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:02 +132 -2: P3 estado inicio-erro-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (23ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (21ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (20ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (19ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (2ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (1ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:02 +133 -2: P3 estado inicio-carregando-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (0ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (31ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (29ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (28ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (27ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (1ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=filmes&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=series&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (566ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (564ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:03 +134 -2: P3 estado inicio-offline-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+[W]  No online servers available for fetching libraries (neutral)
+[I]  LibrariesProvider: Loaded 0 libraries
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            '══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞══════════════════════\n'
+              'The following assertion was thrown during layout:\n'
+              'A RenderFlex overflowed by 26 pixels on the bottom.\n'
+              '\n'
+              'The relevant error-causing widget was:\n'
+              '  Column\n'
+              '
+Column:file:///workspace/heisuca/apps/app/lib/heisuca/heisuca_home_screen.dart:192:51\n'
+              '\n'
+              'The overflowing RenderFlex has an orientation of Axis.vertical.\n'
+              'The edge of the RenderFlex that is overflowing has been marked in\n'
+              'the rendering with a yellow and black striped pattern. This is\n'
+              'usually caused by the contents being too big for the RenderFlex.\n'
+              'Consider applying a flex factor (e.g. using an Expanded widget)\n'
+              'to force the children of the RenderFlex to fit within the\n'
+              'available space instead of being sized to their natural size.\n'
+              'This is considered an error condition because it indicates that\n'
+              'there is content that cannot be seen. If the content is\n'
+              'legitimately bigger than the available space, consider clipping\n'
+              'it with a ClipRect widget before putting it in the flex, or using\n'
+              'a scrollable container rather than a Flex, like a ListView.\n'
+              'The specific RenderFlex in question is: RenderFlex#7fe94 relayoutBoundary=up7
+OVERFLOWING:\n'
+              '  parentData: offset=Offset(24.0, 24.0) (can use size)\n'
+              '  constraints: BoxConstraints(0.0<=w<=866.3, 0.0<=h<=315.4)\n'
+              '  size: Size(866.3, 315.4)\n'
+              '  direction: vertical\n'
+              '  mainAxisAlignment: start\n'
+              '  mainAxisSize: min\n'
+              '  crossAxisAlignment: center\n'
+              '  verticalDirection: down\n'
+              '  spacing: 0.0\n'
+              '◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤\n'
+              '═════════════════════════════════════════════════════════════════\n'
+              ''
+          ]
+inicio-offline-dark-moto-paisagem-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart:126:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart line 126
+The test description was:
+  P3 estado inicio-offline-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+01:03 +134 -3: P3 estado inicio-offline-dark-moto-paisagem-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 estado inicio-offline-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:03 +134 -3: P3 estado biblioteca-vazio-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (0ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:04 +135 -3: P3 estado biblioteca-erro-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (20ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:04 +136 -3: P3 estado biblioteca-carregando-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (0ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (20ms)
+[D]  GET [REDACTED_URL]Items?userId=user-1&ParentId=filmes&Recursive=true&StartIndex=0&Limit=60&EnableTotalRecordCount=true&IncludeItemTypes=Movie&Fields=RecursiveItemCount%2CChildCount%2COriginalTitle%2CSortName%2COverview%2CDateCreated&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&SortBy=SortName&SortOrder=Ascending → 200 (296ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:04 +137 -3: P3 estado inicio-vazio-dark-tab-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (0ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (22ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (20ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (20ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (19ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (3ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (3ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (0ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:05 +138 -3: P3 estado inicio-erro-dark-tab-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (0ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (25ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (22ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (17ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (16ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (2ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (0ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:05 +139 -3: P3 estado inicio-carregando-dark-tab-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (22ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (20ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (18ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (15ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (1ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=filmes&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=series&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (1ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (521ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (520ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:06 +140 -3: P3 estado inicio-offline-dark-tab-retrato-f100 (variant: TargetPlatform.android)
+[W]  No online servers available for fetching libraries (neutral)
+[I]  LibrariesProvider: Loaded 0 libraries
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:06 +141 -3: P3 estado biblioteca-vazio-dark-tab-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (20ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:06 +142 -3: P3 estado biblioteca-erro-dark-tab-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (0ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (21ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:07 +143 -3: P3 estado biblioteca-carregando-dark-tab-retrato-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (0ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[D]  GET [REDACTED_URL]Items?userId=user-1&ParentId=filmes&Recursive=true&StartIndex=0&Limit=60&EnableTotalRecordCount=true&IncludeItemTypes=Movie&Fields=RecursiveItemCount%2CChildCount%2COriginalTitle%2CSortName%2COverview%2CDateCreated&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&SortBy=SortName&SortOrder=Ascending → 200 (294ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:07 +144 -3: P3 estado inicio-vazio-dark-tab-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (0ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (28ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (25ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (25ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (24ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (2ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (0ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:08 +145 -3: P3 estado inicio-erro-dark-tab-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (28ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (26ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (25ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (24ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (3ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (3ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (0ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:08 +146 -3: P3 estado inicio-carregando-dark-tab-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (25ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (23ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (22ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (21ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (1ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=filmes&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=series&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (491ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (489ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:09 +147 -3: P3 estado inicio-offline-dark-tab-retrato-f200 (variant: TargetPlatform.android)
+[W]  No online servers available for fetching libraries (neutral)
+[I]  LibrariesProvider: Loaded 0 libraries
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:09 +148 -3: P3 estado biblioteca-vazio-dark-tab-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:09 +149 -3: P3 estado biblioteca-erro-dark-tab-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (0ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (23ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:10 +150 -3: P3 estado biblioteca-carregando-dark-tab-retrato-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (20ms)
+[D]  GET [REDACTED_URL]Items?userId=user-1&ParentId=filmes&Recursive=true&StartIndex=0&Limit=60&EnableTotalRecordCount=true&IncludeItemTypes=Movie&Fields=RecursiveItemCount%2CChildCount%2COriginalTitle%2CSortName%2COverview%2CDateCreated&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&SortBy=SortName&SortOrder=Ascending → 200 (288ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:10 +151 -3: P3 estado inicio-vazio-dark-tab-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (0ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (17ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (15ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (15ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (14ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (1ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (2ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (0ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:10 +152 -3: P3 estado inicio-erro-dark-tab-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (0ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (24ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (22ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (16ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (15ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (1ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (1ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (0ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:11 +153 -3: P3 estado inicio-carregando-dark-tab-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (24ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (21ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (20ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (16ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (1ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=filmes&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=series&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (0ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (477ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (476ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:11 +154 -3: P3 estado inicio-offline-dark-tab-paisagem-f100 (variant: TargetPlatform.android)
+[W]  No online servers available for fetching libraries (neutral)
+[I]  LibrariesProvider: Loaded 0 libraries
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:12 +155 -3: P3 estado biblioteca-vazio-dark-tab-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:12 +156 -3: P3 estado biblioteca-erro-dark-tab-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (1ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (20ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:12 +157 -3: P3 estado biblioteca-carregando-dark-tab-paisagem-f100 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (0ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (21ms)
+[D]  GET [REDACTED_URL]Items?userId=user-1&ParentId=filmes&Recursive=true&StartIndex=0&Limit=60&EnableTotalRecordCount=true&IncludeItemTypes=Movie&Fields=RecursiveItemCount%2CChildCount%2COriginalTitle%2CSortName%2COverview%2CDateCreated&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&SortBy=SortName&SortOrder=Ascending → 200 (287ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:13 +158 -3: P3 estado inicio-vazio-dark-tab-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (0ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (26ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (23ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (22ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (21ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (6ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (6ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (0ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:13 +159 -3: P3 estado inicio-erro-dark-tab-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (0ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (23ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 500 (21ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 500 (20ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 500 (18ms)
+[I]  Heisuca: calendário Em breve indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/embreve.json)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 500 (2ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 500 (2ms)
+[I]  CGFLIX: emalta.json indisponível  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/cgflix/emalta.json)
+[W]  CGFLIX: linha "hero" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 500 (0ms)
+[W]  CGFLIX: linha "trending" falhou  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Items)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:13 +160 -3: P3 estado inicio-carregando-dark-tab-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (1ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (22ms)
+[D]  GET [REDACTED_URL]cgflix/embreve.json → 200 (20ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingShows?UserId=user-1 → 200 (19ms)
+[D]  GET [REDACTED_URL]HomeScreen/Section/UpcomingMovies?UserId=user-1 → 200 (18ms)
+[D]  GET [REDACTED_URL]cgflix/emalta.json → 200 (2ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=filmes&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (2ms)
+[D]  GET [REDACTED_URL]Items/Latest?UserId=user-1&ParentId=series&Limit=20&Fields=Overview%2CDateCreated%2CGenres&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3 → 200 (3ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=Movie%2CSeries&ImageTypes=Backdrop%2CLogo&SortBy=Random&Limit=8 → 200 (470ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&IncludeItemTypes=BoxSet&SearchTerm=Em%20alta%20no%20Brasil&Limit=5 → 200 (468ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:14 +161 -3: P3 estado inicio-offline-dark-tab-paisagem-f200 (variant: TargetPlatform.android)
+[W]  No online servers available for fetching libraries (neutral)
+[I]  LibrariesProvider: Loaded 0 libraries
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:14 +162 -3: P3 estado biblioteca-vazio-dark-tab-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (0ms)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (20ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:15 +163 -3: P3 estado biblioteca-erro-dark-tab-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 500 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (0ms)
+[E]  Failed neutral library fetch from srv-1  ERROR: MediaServerHttpException(unknown: HTTP 500: HTTP 500: jf.example.com/Users/user-1/Views)
+[I]  LibrariesProvider: Loaded 0 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 500 (21ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:15 +164 -3: P3 estado biblioteca-carregando-dark-tab-paisagem-f200 (variant: TargetPlatform.android)
+[D]  GET [REDACTED_URL]LiveTv/Channels?limit=1&userId=user-1 → 200 (0ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (0ms)
+[I]  LibrariesProvider: Loaded 2 libraries
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (20ms)
+[D]  GET [REDACTED_URL]Items?userId=user-1&ParentId=filmes&Recursive=true&StartIndex=0&Limit=60&EnableTotalRecordCount=true&IncludeItemTypes=Movie&Fields=RecursiveItemCount%2CChildCount%2COriginalTitle%2CSortName%2COverview%2CDateCreated&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&SortBy=SortName&SortOrder=Ascending → 200 (288ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+01:15 +165 -3: (tearDownAll)
+01:15 +165 -3: Some tests failed.
+
+Failing tests:
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart: P3 estado inicio-offline-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart: P3 estado inicio-offline-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_states_test.dart: P3 estado inicio-offline-oled-moto-paisagem-f200 (variant: TargetPlatform.android)

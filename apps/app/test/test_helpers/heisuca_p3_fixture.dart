@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'dart:async';
+import 'package:http/http.dart' as http;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
@@ -65,6 +67,18 @@ class _Profiles extends ChangeNotifier implements ActiveProfileProvider {
 /// Dados locais determinísticos nas TELAS REAIS, sem conta/servidor reais.
 /// Não comprova rede, vídeo nativo, downloads nem revisão física.
 class HeisucaP3Fixture {
+  HeisucaP3Fixture({this.scenario = 'normal'});
+  final String scenario;
+  final _pendingResponses = <Completer<http.Response>>[];
+  bool _released = false;
+
+  void releasePendingResponses() {
+    _released = true;
+    for (final response in _pendingResponses) {
+      if (!response.isCompleted) response.complete(jsonResponse({'Items': [], 'TotalRecordCount': 0}));
+    }
+    _pendingResponses.clear();
+  }
   late final Directory temporary;
   late final PathProviderPlatform originalPaths;
   late final AppDatabase db;
@@ -104,6 +118,13 @@ class HeisucaP3Fixture {
     manager = MultiServerManager();
     final client = testJellyfinClient(connection: testJellyfinConnection(serverName: 'Acervo da família'), handler: (request) async {
       final path = request.url.path;
+      if (scenario == 'erro') return jsonResponse({'Message': 'Falha do servidor de teste'}, status: 500);
+      if (scenario == 'vazio') return jsonResponse(path.endsWith('/Latest') ? [] : {'Items': [], 'TotalRecordCount': 0});
+      if (scenario == 'carregando' && !_released && path.endsWith('/Items')) {
+        final pending = Completer<http.Response>();
+        _pendingResponses.add(pending);
+        return pending.future;
+      }
       final parent = request.url.queryParameters['ParentId'] ?? request.url.queryParameters['parentId'];
       final rawMovie = {'Id': 'filme', 'Name': movie.title, 'Type': 'Movie', 'ProductionYear': 2026,
         'Overview': movie.summary, 'CommunityRating': 8.2, 'RunTimeTicks': 54000000000,
@@ -134,7 +155,7 @@ class HeisucaP3Fixture {
       if (path.endsWith('/Items')) return jsonResponse({'Items': [parent == 'series' ? rawShow : rawMovie], 'TotalRecordCount': 1});
       return jsonResponse({'Items': []});
     });
-    manager.debugRegisterClientForTesting(client);
+    manager.debugRegisterClientForTesting(client, online: scenario != 'offline');
     manager.setNavigationSource(this, 'srv-1');
     final aggregation = DataAggregationService(manager);
     servers = MultiServerProvider(manager, aggregation);
@@ -177,6 +198,7 @@ class HeisucaP3Fixture {
       child: OverlaySheetHost(child: child));
 
   Future<void> dispose() async {
+    releasePendingResponses();
     accounts.dispose();
     profiles.dispose();
     seerr.dispose();

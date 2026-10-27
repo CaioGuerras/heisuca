@@ -2636,3 +2636,42 @@ para revisão independente. Nenhum APK publicado. Não testado em aparelho.
 P3 continua: novo trabalho local em prompts (72 combinações antes/depois),
 sem alterar temporizadores/callbacks; precisa de portão e novo push próprios.
 P4–P7 ainda pendentes. Não emitir ENTREGA-FINAL nesta coleta parcial.
+
+### P3 — segunda coleta: avisos, diálogos e estados
+
+Árvore local sobre 2d1c9ae, mesma versão **2.0.34+36**. Não altera P1/P2
+fora da revisão de imagem já comprovada; preserva sono/EOF, K, N e Início com
+dados. Código e provas negativas:
+
+- **72 avisos** reais (sono/episódios/próximo): títulos e superfícies seguem
+  tokens; largura acompanha fonte/área disponível e botão permite quebra.
+  Antes havia overflow de 32 px e cartão fora da janela em paisagem/200%.
+  Fluxos de sono/EOF existentes passaram junto: 99 testes focados.
+- **120 diálogos** reais: seis overflows de 57/64 px reproduzidos antes;
+  `scrollable:true` no diálogo com alternância mantém conteúdo e ações
+  acessíveis. Testes também exercitam alternância e digitação.
+- **168 estados** reais com cliente Jellyfin/servidor HTTP falso: erro sem
+  cache não vira acervo vazio; cache conhecido, inclusive vazio, é identificado
+  corretamente e continua pesquisando conteúdo novo. Biblioteca distingue
+  erro de vazio. Orientação do erro usa contraste AA; fonte indisponível usa
+  Sora e rola quando falta altura. Provas adicionais: 3 testes do repositório,
+  conjunto antigo preservado (21 juntos); 8 falhas de contraste e 3 overflows
+  de 26 px reproduzidos ANTES das respectivas correções.
+
+Capturas e JSONs antes/depois: `docs/evidencias/p3/` (prompts, dialogos,
+estados); galeria em `docs/PENTE_FINO_2026-10-27.md`. Causas e limites em
+`docs/DIAGNOSTICO_P3_ESTADOS_2026-10-27.md`.
+
+Não testado em aparelho; revisão independente pendente. A origem de faixas
+GRAVADAS na mídia continua bloqueada por falta do original/quadro decodificado
+verificável: diagnóstico registrado, sem mudar zoom/recorte. Hero filtrado
+vazio não prova acervo vazio; nenhuma mensagem global foi inventada com essa
+premissa. P4–P7 seguem pendentes, sem ENTREGA-FINAL e sem publicação de APK.
+
+**Portão completo local verde**, `/tmp/p3b-final-gate.log`, preservado em
+`docs/evidencias/p3_segunda_coleta_portao_2026-10-27.txt`:
+**2.118 Flutter aprovados + 3 skips herdados de capturas opcionais,
+8 Impeller, 46 Python**. Analyze sem erros, com os 188 apontamentos
+herdados (inclui warnings a tratar na P4; esta coleta não os declara resolvidos).
+As 360 capturas posteriores foram geradas por este mesmo portão e todos os
+JSONs têm lista de erros vazia. Próximo passo: push normal e inspeção dos runs.

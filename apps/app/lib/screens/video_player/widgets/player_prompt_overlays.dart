@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/foundation.dart' show ValueListenable, listEquals;
@@ -6,6 +7,8 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 
 import '../../../cgflix/cgflix_units.dart';
+import '../../../cgflix/cgflix_palette.dart';
+import '../../../heisuca/heisuca_theme.dart';
 import '../../../focus/focusable_button.dart';
 import '../../../i18n/strings.g.dart';
 import '../../../media/ids.dart';
@@ -310,6 +313,7 @@ class _PlayNextEpisodeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.cgflix;
     return Row(
       children: [
         Expanded(
@@ -323,7 +327,7 @@ class _PlayNextEpisodeHeader extends StatelessWidget {
                     children: [
                       Text(
                         t.videoControls.nextEpisode,
-                        style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 12, fontWeight: .w500),
+                        style: TextStyle(color: palette.textOn(palette.surface, preferred: palette.textMuted), fontSize: 12, fontWeight: .w500),
                       ),
                       if (isShuffleActive) ...[
                         const SizedBox(width: 4),
@@ -337,14 +341,14 @@ class _PlayNextEpisodeHeader extends StatelessWidget {
               if (episode.parentIndex != null && episode.index != null)
                 Text(
                   '$cgflixSeasonLetter${episode.parentIndex} E${episode.index} · ${episode.title}', // CGFLIX: T em português
-                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: .w600),
+                  style: TextStyle(fontFamily: HeisucaTheme.fonteTitulo, color: palette.text, fontSize: 14, fontWeight: .w600),
                   maxLines: 2,
                   overflow: .ellipsis,
                 )
               else
                 Text(
                   episode.title!,
-                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: .w600),
+                  style: TextStyle(fontFamily: HeisucaTheme.fonteTitulo, color: palette.text, fontSize: 14, fontWeight: .w600),
                   maxLines: 2,
                   overflow: .ellipsis,
                 ),
@@ -380,6 +384,7 @@ class VideoPlayerStillWatchingOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.cgflix;
     return _VideoPlayerPromptShell(
       visible: visible,
       chromeController: chromeController,
@@ -387,7 +392,7 @@ class VideoPlayerStillWatchingOverlay extends StatelessWidget {
       children: [
         Text(
           t.videoControls.stillWatching,
-          style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 12, fontWeight: .w500),
+          style: TextStyle(fontFamily: HeisucaTheme.fonteTitulo, color: palette.text, fontSize: 12, fontWeight: .w500),
         ),
         const SizedBox(height: 4),
         ValueListenableBuilder<int>(
@@ -396,7 +401,7 @@ class VideoPlayerStillWatchingOverlay extends StatelessWidget {
             pausedForEpisodes
                 ? 'Reprodução pausada. Continuar com o próximo episódio?'
                 : t.videoControls.pausingIn(seconds: '$seconds'),
-            style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: .w600),
+            style: TextStyle(color: palette.text, fontSize: 14, fontWeight: .w600),
           ),
         ),
         const SizedBox(height: 12),
@@ -481,6 +486,7 @@ class _VideoPlayerPromptActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.cgflix;
     return Row(
       children: [
         Expanded(
@@ -494,8 +500,8 @@ class _VideoPlayerPromptActions extends StatelessWidget {
             child: OutlinedButton(
               onPressed: onCancel,
               style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.white,
-                side: BorderSide(color: Colors.white.withValues(alpha: 0.5)),
+                foregroundColor: palette.text,
+                side: BorderSide(color: palette.divider),
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
               child: Text(cancelLabel),
@@ -515,11 +521,15 @@ class _VideoPlayerPromptActions extends StatelessWidget {
             child: FilledButton(
               onPressed: onConfirm,
               style: FilledButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
+                backgroundColor: palette.action,
+                foregroundColor: palette.onAction,
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
-              child: Row(mainAxisAlignment: .center, children: confirmChildren),
+              child: Row(mainAxisAlignment: .center, children: [
+                for (var i = 0; i < confirmChildren.length; i++)
+                  if (i == confirmChildren.length - 1) Flexible(child: confirmChildren[i])
+                  else confirmChildren[i],
+              ]),
             ),
           ),
         ),
@@ -561,17 +571,21 @@ class _VideoPlayerPromptCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.cgflix;
+    final availableWidth = math.max(0.0, MediaQuery.sizeOf(context).width - 48);
+    final preferredWidth = math.max(320.0, 320 * MediaQuery.textScalerOf(context).scale(14) / 14);
+    final width = math.min(availableWidth, preferredWidth);
     final backdrop = this.backdrop;
     final content = Padding(padding: const EdgeInsets.all(16), child: child);
     final decoration = BoxDecoration(
-      color: Colors.black.withValues(alpha: 0.9),
+      color: palette.surface,
       borderRadius: const BorderRadius.all(Radius.circular(12)),
     );
     if (backdrop == null) {
-      return Container(width: 320, decoration: decoration, child: content);
+      return Container(width: width, decoration: decoration, child: content);
     }
     return Container(
-      width: 320,
+      width: width,
       clipBehavior: Clip.antiAlias,
       decoration: decoration,
       child: Stack(
@@ -585,9 +599,9 @@ class _VideoPlayerPromptCard extends StatelessWidget {
                   end: Alignment.bottomCenter,
                   stops: const [0.0, 0.35, 0.78],
                   colors: [
-                    Colors.black.withValues(alpha: 0.05),
-                    Colors.black.withValues(alpha: 0.25),
-                    Colors.black.withValues(alpha: 0.92),
+                    palette.surface.withValues(alpha: 0.05),
+                    palette.surface.withValues(alpha: 0.25),
+                    palette.surface.withValues(alpha: 0.98),
                   ],
                 ),
               ),

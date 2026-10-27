@@ -188,15 +188,26 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
 
     if (_servers.serverManager.navigationServerId != null &&
         _servers.serverManager.navigationOnlineClients.isEmpty) {
-      return Scaffold(backgroundColor: pageColor, body: SafeArea(child: Center(child: Padding(
-        padding: const EdgeInsets.all(24), child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Icon(Icons.cloud_off_outlined, size: 48), const SizedBox(height: 16),
-          const Text('Esta fonte está indisponível', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8), const Text('Tente reconectar ou escolha outro servidor.'),
-          const HeisucaSourceTile(),
-          TextButton(onPressed: () => _servers.serverManager.reconnectOfflineServers(forceRediscovery: true),
-            child: const Text('Tentar novamente')),
-        ])))));
+      return Scaffold(backgroundColor: pageColor, body: SafeArea(child: LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          physics: const ProMotionScrollPhysics(),
+          padding: const EdgeInsets.all(24),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight > 48 ? constraints.maxHeight - 48 : 0),
+            child: Column(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center, children: [
+              Icon(Symbols.cloud_off_rounded, size: 48, color: context.cgflix.accent),
+              const SizedBox(height: 16),
+              const Text('Esta fonte está indisponível', textAlign: TextAlign.center,
+                style: TextStyle(fontFamily: HeisucaTheme.fonteTitulo, fontSize: 22, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              const Text('Tente reconectar ou escolha outro servidor.', textAlign: TextAlign.center),
+              const HeisucaSourceTile(),
+              TextButton(onPressed: () => _servers.serverManager.reconnectOfflineServers(forceRediscovery: true),
+                child: const Text('Tentar novamente')),
+            ]),
+          ),
+        ),
+      )));
     }
 
     return Scaffold(
@@ -951,7 +962,7 @@ class _HomeLoadFailed extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Symbols.cloud_off_rounded, size: 48, color: Colors.white30),
+              Icon(Symbols.cloud_off_rounded, size: 48, color: context.cgflix.accent),
               const SizedBox(height: 12),
               Text(
                 'Não foi possível conectar ao acervo',
@@ -964,13 +975,13 @@ class _HomeLoadFailed extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 6),
-              const Text(
+              Text(
                 'Verifique a conexão ou puxe para atualizar',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: HeisucaTheme.fonteTexto,
                   fontSize: 13,
-                  color: Colors.white54,
+                  color: context.cgflix.textOn(context.cgflix.background, preferred: context.cgflix.textMuted),
                 ),
               ),
             ],

@@ -154,9 +154,10 @@ class CgflixHomeRepository implements HeisucaHomeRepository {
     }
     await _ensureCache();
     final cached = _cached(key);
-    if (cached != null && cached.raw.isNotEmpty) {
+    if (cached != null) {
       yield CgflixRowData(items: client.cgflixMapItems(cached.raw), title: cached.title, fromCache: true);
-      if (maxAge != null && DateTime.now().difference(cached.savedAt) < maxAge) return;
+      // Um cache vazio continua consultando a rede para descobrir títulos novos.
+      if (cached.raw.isNotEmpty && maxAge != null && DateTime.now().difference(cached.savedAt) < maxAge) return;
     }
     try {
       // Teto de espera: sem ele, servidor que aceita a conexão e não responde deixava a linha
@@ -168,9 +169,9 @@ class CgflixHomeRepository implements HeisucaHomeRepository {
       yield data;
     } catch (e) {
       appLogger.w('CGFLIX: linha "$key" falhou', error: e);
-      // Nada foi mostrado ainda (sem cache, ou cache salvo vazio): emite vazio para a linha sair
-      // do esqueleto (some). Antes, cache vazio + rede fora = esqueleto para sempre.
-      if (cached == null || cached.raw.isEmpty) yield const CgflixRowData(items: []);
+      // Cache conhecido, inclusive vazio, já saiu do esqueleto. Sem ele a tela
+      // recebe a falha real; uma exceção não é uma consulta vazia bem-sucedida.
+      if (cached == null) rethrow;
     }
   }
 

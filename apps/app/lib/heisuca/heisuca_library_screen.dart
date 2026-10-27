@@ -138,7 +138,7 @@ class _HeisucaLibraryScreenState extends State<HeisucaLibraryScreen> with Refres
         onChanged: (_) { _debounce?.cancel(); _debounce = Timer(const Duration(milliseconds: 300), _reload); })),
       if (_loading) const LinearProgressIndicator(minHeight: 2),
       if (_error != null) ListTile(title: Text(_error!), trailing: TextButton(onPressed: _sources.isEmpty ? _loadSources : _page, child: const Text('Tentar novamente'))),
-      Expanded(child: _items.isEmpty && !_loading ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+      Expanded(child: _items.isEmpty && !_loading && _error == null ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
         const Text('Nenhum título disponível nesta seleção.'),
         if (_servers.serverManager.navigationOnlineClients.isEmpty) const HeisucaSourceTile(),
        ])) : LayoutBuilder(builder: (context, constraints) {

@@ -2284,3 +2284,14 @@ com sucesso só para verde/ATENÇÃO.
 Portão local completo do candidato: 850 Flutter (3 skips), 8 Impeller e
 39 Python aprovados; `/tmp/p1-sync-final-gate.log`. YAML dos workflows válido.
 Teste nativo e emulador após patch ainda pendentes. Não testado em aparelho.
+
+Candidato enviado: **2f526a1dad62d6963fa46abb7433cf237ad30cdc**, 2.0.34+36.
+APK **40442922526** (job 121987264613) e bancada **40442922427** (job
+121987264387) em andamento. Conferir testes nativos e pixels antes de fechar P1.
+Não publicar nem emitir ENTREGA-FINAL enquanto a P1 ou P2–P7 estiverem pendentes.
+
+Bancada pré-patch **40441219089** não testou o app: terminou no comando
+`adb root` com `unable to connect for root: closed`, após cold boot concluído.
+Estado vermelho/instável de infraestrutura registrado, não uma aprovação nem
+regressão atribuída ao player. A nova execução do candidato já foi disparada
+pelo push; não houve rerun do app para mascarar esse resultado.

@@ -2481,3 +2481,30 @@ no split arm64 (`FlutterPlugin.kt`, ABI_VERSION); mesmo comportamento do APK P1,
 sem mudança na versão pedida do pubspec **2.0.34+36**. Nada publicado.
 Bancada **40482536078** ainda no percurso autenticado na última consulta;
 P2 permanece aberta até conferir eventos, PNGs, conclusão e restauração.
+
+#### P2 — fechamento após exigir retomada nativa e conferir os PNGs
+
+Código **13e8f7662e95908c4fc71f114b648470b80ba912**, versão **2.0.34+36**.
+Portão **999 Flutter (3 skips), 8 Impeller, 40 Python aprovado**. APK
+**40482536147 verde**, baixado/assinatura v2/hash/pacote conferidos acima.
+Bancada [40482536078](https://github.com/CaioGuerras/heisuca/actions/runs/40482536078)
+**ATENÇÃO**, artifact [12724168219](https://github.com/CaioGuerras/heisuca/actions/runs/40482536078/artifacts/12724168219).
+ZIP baixado e SHA-256 recalculado
+`3f1a3517dbb84f107952c8dfb4e0421e8e7045e5eb427543cd152c64494d8896`.
+
+Relatório/driver inspecionados: `restaurosNativos` 18 e 20 **true**,
+`testeEncerrado: true`, todos os 20 marcos até `11-voce`, `anrDoApp: false`,
+restauração confirmada. Apenas seis avisos dos três widgets permitidos do HUD,
+fases saída/ativo, larguras 240,8/227,8 dp. PNGs 21/06: imagem **sim**, RGB máximo
+209/250, captura adb nativa + ffmpeg. Também inspecionados visualmente: cena com
+bola e quadro do documentário; originais preservados em
+`docs/evidencias/p2_21_final_2026-10-27.png` e `p2_06_final_2026-10-27.png`.
+Não depende só de flags antigas ou de pixels de interface. Nenhuma captura
+repetida até aprovar; nenhum preto/ANR foi classificado ATENÇÃO.
+
+P2 concluída tecnicamente para revisão independente. Paletas por tokens, três
+modos, preferência persistida, marca SVG temática e pares AA comprovados. O
+pente fino de todas as telas é P3, não alegado nesta parte. Não testado em aparelho
+nesta versão; Tab A9/Moto G77 e revisão do Visão pendentes. M física anterior
+continua fechada conforme Caio. Nenhum APK publicado. Próxima P3, depois P4–P7;
+plano atual registrado em `docs/PLANO_P_2026-10-27.md`. Sem ENTREGA-FINAL.

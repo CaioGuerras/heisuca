@@ -1,5 +1,12 @@
 # P2 — captura preta no segundo retorno do player
 
+**Prova concluída em 13e8f76:** APK 40482536147 verde; bancada 40482536078
+ATENÇÃO, somente HUD/PiP permitido. Ambos os restauros nativos confirmados,
+PNGs 21/06 com a obra, percurso completo até Você, sem ANR e restauração
+confirmada. ZIPs baixados e hashes conferidos; detalhes no fechamento P2 do
+HANDOFF. A cronologia abaixo conserva a falha original e suas limitações.
+Revisão independente e teste físico desta versão ainda pendentes.
+
 Candidato `88c6810`, versão 2.0.34+36:
 
 - APK [40478590176](https://github.com/CaioGuerras/heisuca/actions/runs/40478590176)

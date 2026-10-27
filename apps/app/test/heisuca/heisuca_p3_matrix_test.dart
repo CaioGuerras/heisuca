@@ -2,38 +2,14 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:heisuca/cgflix/cgflix_theme.dart';
-import 'package:heisuca/heisuca/heisuca_home_screen.dart';
-import 'package:heisuca/heisuca/heisuca_library_screen.dart';
-import 'package:heisuca/heisuca/heisuca_login_screen.dart';
-import 'package:heisuca/heisuca/heisuca_news.dart';
-import 'package:heisuca/heisuca/heisuca_profile_screen.dart';
-import 'package:heisuca/heisuca/heisuca_settings_screen.dart';
-import 'package:heisuca/heisuca/heisuca_title_sheet.dart';
-import 'package:heisuca/heisuca/heisuca_context_menu.dart';
-import 'package:heisuca/heisuca/heisuca_floating_island.dart';
-import 'package:heisuca/heisuca/kids/heisuca_kids_flow.dart';
 import 'package:heisuca/i18n/strings.g.dart';
-import 'package:heisuca/screens/search_screen.dart';
-import 'package:heisuca/screens/downloads/downloads_screen.dart';
-import 'package:heisuca/screens/settings/about_screen.dart';
-import 'package:heisuca/screens/profile/profile_switch_screen.dart';
-import 'package:heisuca/screens/settings/settings_screen.dart';
-import 'package:heisuca/screens/settings/general_settings_screen.dart';
-import 'package:heisuca/screens/settings/appearance_settings_screen.dart';
-import 'package:heisuca/screens/settings/playback_settings_screen.dart';
-import 'package:heisuca/screens/settings/subtitle_styling_screen.dart';
-import 'package:heisuca/screens/settings/services_settings_screen.dart';
-import 'package:heisuca/screens/settings/mpv_config_screen.dart';
-import 'package:heisuca/screens/settings/external_player_screen.dart';
-import 'package:heisuca/screens/settings/licenses_screen.dart';
 import 'package:heisuca/services/settings_service.dart' as settings;
 import '../test_helpers/heisuca_p3_fixture.dart';
+import '../test_helpers/heisuca_p3_screens.dart';
 import '../test_helpers/prefs.dart';
 import '../test_helpers/heisuca_tap_targets.dart';
 import '../visual/heisuca_snapshot.dart';
@@ -53,34 +29,6 @@ void main() {
     await heisucaLoadFonts();
     await (FontLoader('Sora')..addFont(rootBundle.load('assets/fonts/Sora-VF.ttf'))).load();
   });
-  final screens = <String, Widget Function(HeisucaP3Fixture)> {
-    'login': (_) => const HeisucaLoginScreen(),
-    'inicio': (_) => const HeisucaHomeScreen(),
-    'biblioteca': (_) => const HeisucaLibraryScreen(),
-    'busca': (_) => const SearchScreen(),
-    'baixados': (_) => const DownloadsScreen(),
-    'voce': (_) => const HeisucaProfileScreen(),
-    'config-geral': (_) => const HeisucaSettingsScreen(),
-    'config-avancada': (_) => const HeisucaSettingsScreen(),
-    'sobre': (_) => const AboutScreen(),
-    'novidades': (_) => const HeisucaNewsScreen(),
-    'kids-config': (_) => const HeisucaKidsSetupScreen(),
-    'ficha-filme': (f) => Builder(builder: (c) => HeisucaTitleSheet(hostContext: c, item: f.movie)),
-    'ficha-serie': (f) => Builder(builder: (c) => HeisucaTitleSheet(hostContext: c, item: f.show)),
-    'perfis': (_) => const ProfileSwitchScreen(),
-    'config-completas': (_) => const SettingsScreen(),
-    'config-basicas': (_) => const GeneralSettingsScreen(),
-    'config-aparencia': (_) => const AppearanceSettingsScreen(),
-    'config-reproducao': (_) => const PlaybackSettingsScreen(),
-    'config-reproducao-avancada': (_) => const PlaybackSettingsScreen(cgflixTechnical: true),
-    'config-legendas': (_) => const SubtitleStylingScreen(),
-    'config-servicos': (_) => const ServicesSettingsScreen(),
-    'config-mpv': (_) => const MpvConfigScreen(),
-    'config-player-externo': (_) => const ExternalPlayerScreen(),
-    'licencas': (_) => const LicensesScreen(),
-    'barra-abas': (_) => Scaffold(body: Stack(children: [HeisucaFloatingIsland(currentIndex: 0, onDestinationSelected: (_) {})])),
-    'menu-titulo': (f) => Scaffold(body: HeisucaContextMenu(item: f.movie)),
-  };
   final modes = quick ? [settings.ThemeMode.oled] : [settings.ThemeMode.oled, settings.ThemeMode.light, settings.ThemeMode.dark];
   for (final mode in modes) {
     for (final (device, physical, dpr) in [
@@ -89,7 +37,7 @@ void main() {
     ]) {
       for (final landscape in quick ? [false] : [false, true]) {
         for (final scale in [1.0, 2.0]) {
-          for (final screen in screens.entries.where((e) => onlyScreen == null || e.key == onlyScreen)) {
+          for (final screen in heisucaP3Screens.entries.where((e) => onlyScreen == null || e.key == onlyScreen)) {
             final tag = '${screen.key}-${mode.name}-$device-${landscape ? "paisagem" : "retrato"}-f${(scale * 100).round()}';
             if (onlyCase != null && tag != onlyCase) continue;
             testWidgets('P3 matriz $tag', (tester) async {
@@ -117,26 +65,13 @@ void main() {
                 }
               };
               try {
-                await tester.pumpWidget(f.wrap(MaterialApp(
-                  theme: mode == settings.ThemeMode.light ? cgflixLightTheme() : cgflixDarkTheme(mode),
-                  debugShowCheckedModeBanner: false,
-                  builder: (context, child) => MediaQuery(data: MediaQuery.of(context).copyWith(
-                    textScaler: TextScaler.linear(scale), disableAnimations: true),
-                    child: RepaintBoundary(key: boundary, child: child!)),
-                  initialRoute: {'login', 'inicio', 'biblioteca', 'busca', 'baixados', 'voce', 'barra-abas'}.contains(screen.key) ? '/' : '/alvo',
-                  routes: {
-                    '/': (_) => {'login', 'inicio', 'biblioteca', 'busca', 'baixados', 'voce', 'barra-abas'}.contains(screen.key)
-                        ? f.scope(KeyedSubtree(key: const ValueKey('p3-scene'), child: screen.value(f)))
-                        : const Scaffold(body: SizedBox()),
-                    '/alvo': (_) => f.scope(KeyedSubtree(key: const ValueKey('p3-scene'), child: screen.value(f))),
-                  },
-                )));
+                await tester.pumpWidget(heisucaP3App(f, screen.key, mode, scale, boundary));
                 await tester.runAsync(() async => Future<void>.delayed(const Duration(milliseconds: 60)));
                 for (var i = 0; i < 5; i++) { await tester.pump(const Duration(milliseconds: 100)); }
                 final sceneContext = tester.element(find.byKey(const ValueKey('p3-scene')));
                 expect(ModalRoute.of(sceneContext)?.isCurrent, isTrue);
                 expect(Navigator.of(sceneContext).canPop(),
-                    !{'login', 'inicio', 'biblioteca', 'busca', 'baixados', 'voce', 'barra-abas'}.contains(screen.key));
+                    !heisucaP3RootScreens.contains(screen.key));
                 if (screen.key == 'config-avancada') {
                   await tester.tap(find.text('Avançado'));
                   for (var i = 0; i < 5; i++) { await tester.pump(const Duration(milliseconds: 100)); }

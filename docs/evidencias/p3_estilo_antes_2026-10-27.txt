@@ -1,0 +1,355 @@
+00:00 +0: loading /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart
+00:00 +0: (setUpAll)
+00:00 +0: P3 Shikkoku: login usa o canvas do tema
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: Color:<Color(alpha: 1.0000, red: 0.0902, green: 0.0824, blue: 0.1098, colorSpace:
+ColorSpace.sRGB)>
+  Actual: Color:<Color(alpha: 1.0000, red: 0.0549, green: 0.0431, blue: 0.0863, colorSpace:
+ColorSpace.sRGB)>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart:32:9)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart line 32
+The test description was:
+  P3 Shikkoku: login usa o canvas do tema
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -1: P3 Shikkoku: login usa o canvas do tema [E]
+  Test failed. See exception logs above.
+  The test description was: P3 Shikkoku: login usa o canvas do tema
+  
+00:01 +0 -1: P3 Shikkoku: Você usa o canvas do tema
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: Color:<Color(alpha: 1.0000, red: 0.0902, green: 0.0824, blue: 0.1098, colorSpace:
+ColorSpace.sRGB)>
+  Actual: Color:<Color(alpha: 1.0000, red: 0.0549, green: 0.0431, blue: 0.0863, colorSpace:
+ColorSpace.sRGB)>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart:32:9)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart line 32
+The test description was:
+  P3 Shikkoku: Você usa o canvas do tema
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -2: P3 Shikkoku: Você usa o canvas do tema [E]
+  Test failed. See exception logs above.
+  The test description was: P3 Shikkoku: Você usa o canvas do tema
+  
+00:01 +0 -2: P3 Shikkoku: dica do campo de login tem AA no preenchimento real
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: a value greater than or equal to <4.5>
+  Actual: <1.3655995957173133>
+   Which: is not a value greater than or equal to <4.5>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart:42:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart line 42
+The test description was:
+  P3 Shikkoku: dica do campo de login tem AA no preenchimento real
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -3: P3 Shikkoku: dica do campo de login tem AA no preenchimento real [E]
+  Test failed. See exception logs above.
+  The test description was: P3 Shikkoku: dica do campo de login tem AA no preenchimento real
+  
+00:01 +0 -3: P3 Shikkoku: títulos Sora e texto Inter no contrato do tema
+00:01 +0 -4: P3 Shikkoku: títulos Sora e texto Inter no contrato do tema [E]
+  Expected: 'Sora'
+    Actual: 'Inter'
+     Which: is different.
+            Expected: Sora
+              Actual: Inter
+                      ^
+             Differ at offset 0
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/heisuca/heisuca_p3_style_test.dart 49:9        main.<fn>
+  
+00:01 +0 -4: P3 Hisui claro: login usa o canvas do tema
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: Color:<Color(alpha: 1.0000, red: 0.8549, green: 0.9451, blue: 0.8706, colorSpace:
+ColorSpace.sRGB)>
+  Actual: Color:<Color(alpha: 1.0000, red: 0.9686, green: 0.9529, blue: 0.9255, colorSpace:
+ColorSpace.sRGB)>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart:32:9)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart line 32
+The test description was:
+  P3 Hisui claro: login usa o canvas do tema
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:02 +0 -5: P3 Hisui claro: login usa o canvas do tema [E]
+  Test failed. See exception logs above.
+  The test description was: P3 Hisui claro: login usa o canvas do tema
+  
+00:02 +0 -5: P3 Hisui claro: Você usa o canvas do tema
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: Color:<Color(alpha: 1.0000, red: 0.8549, green: 0.9451, blue: 0.8706, colorSpace:
+ColorSpace.sRGB)>
+  Actual: Color:<Color(alpha: 1.0000, red: 0.9686, green: 0.9529, blue: 0.9255, colorSpace:
+ColorSpace.sRGB)>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart:32:9)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart line 32
+The test description was:
+  P3 Hisui claro: Você usa o canvas do tema
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:02 +0 -6: P3 Hisui claro: Você usa o canvas do tema [E]
+  Test failed. See exception logs above.
+  The test description was: P3 Hisui claro: Você usa o canvas do tema
+  
+00:02 +0 -6: P3 Hisui claro: dica do campo de login tem AA no preenchimento real
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: a value greater than or equal to <4.5>
+  Actual: <2.32855843244727>
+   Which: is not a value greater than or equal to <4.5>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart:42:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart line 42
+The test description was:
+  P3 Hisui claro: dica do campo de login tem AA no preenchimento real
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:02 +0 -7: P3 Hisui claro: dica do campo de login tem AA no preenchimento real [E]
+  Test failed. See exception logs above.
+  The test description was: P3 Hisui claro: dica do campo de login tem AA no preenchimento real
+  
+00:02 +0 -7: P3 Hisui claro: títulos Sora e texto Inter no contrato do tema
+00:02 +0 -8: P3 Hisui claro: títulos Sora e texto Inter no contrato do tema [E]
+  Expected: 'Sora'
+    Actual: 'Inter'
+     Which: is different.
+            Expected: Sora
+              Actual: Inter
+                      ^
+             Differ at offset 0
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/heisuca/heisuca_p3_style_test.dart 49:9        main.<fn>
+  
+00:02 +0 -8: P3 Hisui escuro: login usa o canvas do tema
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: Color:<Color(alpha: 1.0000, red: 0.0196, green: 0.1216, blue: 0.1255, colorSpace:
+ColorSpace.sRGB)>
+  Actual: Color:<Color(alpha: 1.0000, red: 0.0549, green: 0.0431, blue: 0.0863, colorSpace:
+ColorSpace.sRGB)>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart:32:9)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart line 32
+The test description was:
+  P3 Hisui escuro: login usa o canvas do tema
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:02 +0 -9: P3 Hisui escuro: login usa o canvas do tema [E]
+  Test failed. See exception logs above.
+  The test description was: P3 Hisui escuro: login usa o canvas do tema
+  
+00:02 +0 -9: P3 Hisui escuro: Você usa o canvas do tema
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: Color:<Color(alpha: 1.0000, red: 0.0196, green: 0.1216, blue: 0.1255, colorSpace:
+ColorSpace.sRGB)>
+  Actual: Color:<Color(alpha: 1.0000, red: 0.0549, green: 0.0431, blue: 0.0863, colorSpace:
+ColorSpace.sRGB)>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart:32:9)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart line 32
+The test description was:
+  P3 Hisui escuro: Você usa o canvas do tema
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:03 +0 -10: P3 Hisui escuro: Você usa o canvas do tema [E]
+  Test failed. See exception logs above.
+  The test description was: P3 Hisui escuro: Você usa o canvas do tema
+  
+00:03 +0 -10: P3 Hisui escuro: dica do campo de login tem AA no preenchimento real
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: a value greater than or equal to <4.5>
+  Actual: <1.7418484127045775>
+   Which: is not a value greater than or equal to <4.5>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart:42:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart line 42
+The test description was:
+  P3 Hisui escuro: dica do campo de login tem AA no preenchimento real
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:03 +0 -11: P3 Hisui escuro: dica do campo de login tem AA no preenchimento real [E]
+  Test failed. See exception logs above.
+  The test description was: P3 Hisui escuro: dica do campo de login tem AA no preenchimento real
+  
+00:03 +0 -11: P3 Hisui escuro: títulos Sora e texto Inter no contrato do tema
+00:03 +0 -12: P3 Hisui escuro: títulos Sora e texto Inter no contrato do tema [E]
+  Expected: 'Sora'
+    Actual: 'Inter'
+     Which: is different.
+            Expected: Sora
+              Actual: Inter
+                      ^
+             Differ at offset 0
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/heisuca/heisuca_p3_style_test.dart 49:9        main.<fn>
+  
+00:03 +0 -12: P3 logo completo é SVG, sem palavra digitada
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: no matching candidates
+  Actual: _TextWidgetFinder:<Found 1 widget with text "HEISUCA": [
+            Text("HEISUCA", inherit: true, color: Color(alpha: 1.0000, red: 0.9569, green: 0.9451,
+blue: 0.9804, colorSpace: ColorSpace.sRGB), family: Sora, size: 17.3, weight: 800, letterSpacing:
+2.2, dependencies: [DefaultSelectionStyle, DefaultTextStyle, MediaQuery]),
+          ]>
+   Which: means one was found but none were expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart:61:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart line 61
+The test description was:
+  P3 logo completo é SVG, sem palavra digitada
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:03 +0 -13: P3 logo completo é SVG, sem palavra digitada [E]
+  Test failed. See exception logs above.
+  The test description was: P3 logo completo é SVG, sem palavra digitada
+  
+00:03 +0 -13: P3 Sobre usa marca SVG, sem palavra digitada
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: no matching candidates
+  Actual: _TextWidgetFinder:<Found 1 widget with text "HEISUCA": [
+            Text("HEISUCA", debugLabel: ((((englishLike headlineMedium
+2021).apply).apply).apply).copyWith, inherit: false, color: Color(alpha: 1.0000, red: 0.8863, green:
+0.8667, blue: 0.9059, colorSpace: ColorSpace.sRGB), family: Sora, size: 28.0, weight: 800,
+letterSpacing: 3.0, baseline: alphabetic, height: 1.3x, leadingDistribution: even, dependencies:
+[DefaultSelectionStyle, DefaultTextStyle, MediaQuery]),
+          ]>
+   Which: means one was found but none were expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart:69:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart line 69
+The test description was:
+  P3 Sobre usa marca SVG, sem palavra digitada
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:03 +0 -14: P3 Sobre usa marca SVG, sem palavra digitada [E]
+  Test failed. See exception logs above.
+  The test description was: P3 Sobre usa marca SVG, sem palavra digitada
+  
+00:03 +0 -14: (tearDownAll)
+00:03 +0 -14: Some tests failed.
+
+Failing tests:
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart: P3 Hisui claro: Você usa o canvas do tema
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart: P3 Hisui claro: dica do campo de login tem AA no preenchimento real
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart: P3 Hisui claro: login usa o canvas do tema
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart: P3 Hisui claro: títulos Sora e texto Inter no contrato do tema
+  ... and 10 more

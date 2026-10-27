@@ -2508,3 +2508,19 @@ pente fino de todas as telas é P3, não alegado nesta parte. Não testado em ap
 nesta versão; Tab A9/Moto G77 e revisão do Visão pendentes. M física anterior
 continua fechada conforme Caio. Nenhum APK publicado. Próxima P3, depois P4–P7;
 plano atual registrado em `docs/PLANO_P_2026-10-27.md`. Sem ENTREGA-FINAL.
+
+#### P3 — início e provas anteriores ao patch visual
+
+P2 fechada acima; P3 em levantamento sobre 13e8f76/docs 966b55e. Nenhuma mudança
+no produto nesta parte ainda. Teste de estilo reproduziu **14 falhas** (fontes,
+marca digitada, canvases antigos, contraste das dicas); log salvo em
+`docs/evidencias/p3_estilo_antes_2026-10-27.txt`. Matriz inicial capturou overflow
+na Início/Biblioteca a 200% e em Aparência; Reprodução expõe ausência de bounds
+na UI do pref de episódios (faixa 0…20 já definida pelo serviço).
+
+Preparando matriz completa de rotas reais e capturas ANTES dos patches. Detalhes,
+limites da fixture Linux/sem servidor e próximos passos em
+`docs/PENTE_FINO_2026-10-27.md`. Arquivos de teste novos ainda locais:
+`heisuca_p3_style_test.dart`, `heisuca_p3_matrix_test.dart`, helper
+`test/test_helpers/heisuca_p3_fixture.dart`. Não enviar código com testes
+vermelhos; concluir correções e portão antes do push. Nada publicado.

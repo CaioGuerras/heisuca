@@ -1,6 +1,7 @@
 // Bancada real: sem falsos de rede, player, sessão ou serviços do app.
 import 'dart:convert';
 import 'dart:io';
+import 'support/video_restore.dart';
 import 'support/bancada_clock.dart';
 import 'support/pip_overflow_policy.dart';
 
@@ -352,9 +353,12 @@ void main() {
     await shot('17-tocar-na-sessao', action: 'media_play');
     await until(() => player.state.playing, 'retoma pela MediaSession');
     outsideApp['controlesDaSessao'] = true;
-    await shot('18-voltar-do-audio', action: 'reopen');
-    await until(() => binding.lifecycleState == AppLifecycleState.resumed && !playerScreen.debugBackgroundAudioActive,
-        'imagem restaurada depois do áudio');
+    await restoreVideoForBancada(restarts: player.streams.playbackRestart, restore: () async {
+      await shot('18-voltar-do-audio', action: 'reopen');
+      await until(() => binding.lifecycleState == AppLifecycleState.resumed && !playerScreen.debugBackgroundAudioActive,
+          'imagem restaurada depois do áudio');
+    });
+    print('BANCADA_RESTART_CONFIRMADO: 18-voltar-do-audio');
     expect(await player.getProperty('vid'), isNot('no'));
     position = player.currentPosition;
     await until(() => player.currentPosition >= position + const Duration(seconds: 2), 'vídeo avança após restaurar a imagem');
@@ -376,11 +380,15 @@ void main() {
     await until(() => player.currentPosition >= position + const Duration(seconds: 2), 'áudio após fechar PiP avança');
     expect(await PipService.isMediaPlaybackServiceActive(), isTrue);
     outsideApp['audioAposFecharPip'] = true;
-    await shot('20-restaurar-imagem', action: 'reopen');
-    await until(() => binding.lifecycleState == AppLifecycleState.resumed && !playerScreen.debugBackgroundAudioActive,
-        'imagem restaurada antes do Back');
-    await until(() => binding.platformDispatcher.views.first.physicalSize.width /
-      binding.platformDispatcher.views.first.devicePixelRatio > 320, 'janela expandida antes do Back');
+    await restoreVideoForBancada(restarts: player.streams.playbackRestart, restore: () async {
+      await shot('20-restaurar-imagem', action: 'reopen');
+      await until(() => binding.lifecycleState == AppLifecycleState.resumed && !playerScreen.debugBackgroundAudioActive,
+          'imagem restaurada antes do Back');
+      await until(() => binding.platformDispatcher.views.first.physicalSize.width /
+        binding.platformDispatcher.views.first.devicePixelRatio > 320, 'janela expandida antes do Back');
+    });
+    print('BANCADA_RESTART_CONFIRMADO: 20-restaurar-imagem');
+    binding.reportData!['restaurosNativos'] = {'18-voltar-do-audio': true, '20-restaurar-imagem': true};
     pipPhase = 'fora';
     print('BANCADA_FORA_DO_APP: ${jsonEncode(outsideApp)}');
 

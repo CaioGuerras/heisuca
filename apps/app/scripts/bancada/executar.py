@@ -126,7 +126,7 @@ def main():
                     raise RuntimeError('Uma captura de vídeo não tem faixa de imagem e duração válidas.')
             if not all(details.get('foraDoApp', {}).get(key) is True for key in ['padraoDesligado', 'pipPadrao', 'audioComServico', 'controlesDaSessao', 'audioAposFecharPip']):
                 raise RuntimeError('Percurso de mídia fora do app não comprovado.')
-            report.update({'status': 'aprovado', 'video': details['video'], 'passos': details['passos'], 'foraDoApp': details['foraDoApp']})
+            report.update({'status': 'aprovado', 'video': details['video'], 'passos': details['passos'], 'foraDoApp': details['foraDoApp'], 'restaurosNativos': details.get('restaurosNativos')})
             if details.get('avisos'):
                 report.update({'status': 'atenção', 'avisos': details['avisos'],
                     'motivo': 'ATENÇÃO: overflow conhecido do HUD em PiP (aguarda teste no Tab A9 e Moto G77)'})

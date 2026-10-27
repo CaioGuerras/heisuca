@@ -39,3 +39,27 @@ que evento síncrono durante a ação não se perde e que erro cancela a assinat
 Isso não autoriza alterar a M, AAR, codec ou declarar imagem restaurada sem PNG.
 Os runs de `9113a40` já haviam sido disparados pelo ajuste de contraste; não são
 reruns manuais para investigar M. Aguardar/registrar suas conclusões.
+
+
+## Prova local e ajuste do roteiro
+
+Extraído o limite da segunda reabertura para `support/video_restore.dart`,
+primeiro preservando a semântica anterior (aguardar apenas a ação). Testes
+escritos antes de corrigir esse limite: **1 passou / 4 falharam**. A captura era
+liberada antes do evento; a ação não tinha assinante; ausência de evento e fim
+do stream eram aceitos. Log `evidencias/p2_prontidao_antes_2026-10-27.txt`.
+O run vermelho/PNG preto acima é a prova negativa original no percurso real.
+
+Depois: assinatura antes da ação, exigência de novo playback-restart e conclusão
+da ação; erro/prazo sem evento encerram em falha e cancelam assinatura/prazo.
+Cinco testes locais passaram, incluindo evento síncrono durante a ação. Mesmo
+limite aplicado às duas reaberturas (18 e 20), com confirmação no resultado do
+driver/relatório. Sem pausa fixa, nova tentativa de captura ou mudança no app.
+Um evento sozinho não comprova imagem: o PNG nativo continua obrigatório;
+qualquer preto continua vermelho. A próxima execução precisa provar os pixels.
+Não foi alegada correção física da M ou de um defeito permanente do player.
+
+
+No marco 06, a checagem dos pixels precede o `keyevent 4` em `capturas.py`.
+Como houve preto, o Voltar ainda não foi enviado nesta execução. Não atribuir
+a falha ao retorno K aprovado ou ao tratamento do Back.

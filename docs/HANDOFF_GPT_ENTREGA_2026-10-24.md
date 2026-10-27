@@ -2424,3 +2424,25 @@ PNGs originais preservados. O roteiro aguarda comando/ciclo de vida, sem exigir
 um playback-restart novo. Não atribuir a causa à paleta nem declarar defeito
 permanente/falha de infraestrutura sem prova. P2 não fechada. Runs de 9113a40
 já em curso; nenhuma repetição manual da M.
+
+#### P2 — prontidão da captura após reabrir o player
+
+Ajuste restrito à bancada, sem alterar o player do APK/M. O limite existente
+aguardava só comando/ciclo de vida; extraído com a mesma semântica para teste,
+produziu **4 falhas / 1 acerto** antes de corrigir. Log negativo preservado em
+`docs/evidencias/p2_prontidao_antes_2026-10-27.txt`; o PNG preto do run 40478590180
+é a prova original no caminho real. A captura 06 falhou ANTES do envio do Back;
+não foi uma falha do retorno K.
+
+Agora o roteiro assina `player.streams.playbackRestart` antes de reabrir e exige
+um evento novo junto da conclusão da ação, nas duas reaberturas (18/20). Falta de
+evento, erro ou fim do stream falham e cancelam assinatura/prazo. Sem pausa fixa,
+sem repetir captura e sem transformar preto em aviso. Mesmo sinal já usado pelo
+app na reconfiguração de tela. Confirmações de restauro seguem no JSON do driver
+e no relatório; PNGs nativos continuam obrigatórios, com inspeção visual.
+
+**Portão local completo APROVADO**: **999 Flutter (3 skips), 8 Impeller, 40 Python**.
+Log `/tmp/p2-restart-final-gate.log`. Cinco testes da espera passaram. Candidato
+só terá prova no emulador quando o novo run completar e trouxer PNGs válidos;
+não alegar correção física da M ou causa permanente do player. Detalhes em
+`docs/DIAGNOSTICO_P2_BANCADA_2026-10-27.md`. P3–P7 seguem pendentes.

@@ -509,7 +509,7 @@ class MainActivity : FlutterActivity() {
     // screen and Flutter's first frame for non-default themes (e.g. OLED).
     val prefs = getSharedPreferences("plezy_prefs", Context.MODE_PRIVATE)
     val savedTheme = prefs.getString("splash_theme", null)
-    ThemeHelper.themeColor(savedTheme)?.let { window.decorView.setBackgroundColor(it) }
+    ThemeHelper.themeColor(this, savedTheme)?.let { window.decorView.setBackgroundColor(it) }
 
     super.onCreate(savedInstanceState)
     lastConfig = Configuration(resources.configuration)
@@ -1031,7 +1031,7 @@ class MainActivity : FlutterActivity() {
           // Persist for next cold start & update window background now
           getSharedPreferences("plezy_prefs", Context.MODE_PRIVATE)
             .edit().putString("splash_theme", mode).apply()
-          ThemeHelper.themeColor(mode)?.let { window.decorView.setBackgroundColor(it) }
+          ThemeHelper.themeColor(this, mode)?.let { window.decorView.setBackgroundColor(it) }
 
           if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val themeId = when (mode) {

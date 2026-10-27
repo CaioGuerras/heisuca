@@ -290,8 +290,8 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
 
   HeisucaTitleColors _colors(BuildContext context) {
     final isLight = context.cgflix.isLight;
-    return HeisucaTitleColors(page: heisucaPageColor(_item, isLight: isLight),
-      text: isLight ? const Color(0xff133c33) : Colors.white, accent: context.cgflix.accent, isLight: isLight);
+    return HeisucaTitleColors(page: heisucaPageColor(_item, isLight: isLight, palette: context.cgflix),
+      text: context.cgflix.text, accent: context.cgflix.accent, isLight: isLight);
   }
 
   /// Botão de vidro do site (.titulo-play): translúcido sobre a cor da página, sem branco chapado.

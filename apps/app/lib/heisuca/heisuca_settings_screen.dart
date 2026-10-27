@@ -16,6 +16,8 @@ import '../screens/settings/playback_settings_screen.dart';
 import '../screens/settings/settings_screen.dart';
 import 'heisuca_source_scope.dart';
 import 'heisuca_theme.dart';
+import 'heisuca_logo.dart';
+import '../cgflix/cgflix_theme.dart' show cgflixAppTheme;
 import 'services/heisuca_device_service.dart';
 
 /// Tela de Configurações Flagship do Heisuca (炳素華)
@@ -129,13 +131,13 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
     final palette = context.cgflix;
     final isLight = palette.isLight;
 
-    final bg = isLight ? const Color(0xFFF7F3EC) : const Color(0xFF0E0B16);
-    final cardBg = isLight ? Colors.white : Colors.white.withOpacity(0.04);
-    final borderColor = isLight ? const Color(0xFFE2E8F0) : Colors.white.withOpacity(0.08);
-    final titleColor = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
-    final subtitleColor = isLight ? const Color(0xFF64748B) : const Color(0xFFA99FBB);
-    final accentColor = isLight ? const Color(0xFF047857) : const Color(0xFF7A40F2);
-    final tabBg = isLight ? const Color(0xFFE2E8F0) : Colors.white.withOpacity(0.04);
+    final bg = context.cgflix.background;
+    final cardBg = context.cgflix.surface;
+    final borderColor = context.cgflix.divider;
+    final titleColor = context.cgflix.text;
+    final subtitleColor = context.cgflix.textOn(context.cgflix.surface);
+    final accentColor = context.cgflix.accent;
+    final tabBg = context.cgflix.surfaceHigh;
 
     return Scaffold(
       backgroundColor: bg,
@@ -180,20 +182,11 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.5),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF34D399).withOpacity(0.15),
+                      color: context.cgflix.success.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(6.0),
-                      border: Border.all(color: const Color(0xFF34D399).withOpacity(0.35), width: 0.6),
+                      border: Border.all(color: context.cgflix.success.withValues(alpha: 0.35), width: 0.6),
                     ),
-                    child: const Text(
-                      'HEISUCA',
-                      style: TextStyle(
-                        fontFamily: HeisucaTheme.fonteTexto,
-                        fontSize: 10.0,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF059669),
-                        letterSpacing: 0.6,
-                      ),
-                    ),
+                    child: const HeisucaLogo(height: 14, siteHeader: true),
                   ),
                 ],
               ),
@@ -211,7 +204,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                   boxShadow: isLight
                       ? [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
+                            color: context.cgflix.cardShadow.first.color,
                             blurRadius: 10.0,
                             offset: const Offset(0, 3),
                           ),
@@ -224,9 +217,9 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                       width: 44.0,
                       height: 44.0,
                       decoration: BoxDecoration(
-                        color: accentColor.withOpacity(0.18),
+                        color: accentColor.withValues(alpha: 0.18),
                         borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(color: accentColor.withOpacity(0.4), width: 0.8),
+                        border: Border.all(color: accentColor.withValues(alpha: 0.4), width: 0.8),
                       ),
                       child: Center(
                         child: Icon(Symbols.smartphone_rounded, color: accentColor, size: 24.0),
@@ -261,7 +254,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                             style: TextStyle(
                               fontFamily: HeisucaTheme.fonteTexto,
                               fontSize: 10.5,
-                              color: isLight ? const Color(0xFF64748B) : const Color(0xFF8E859E),
+                              color: context.cgflix.textOn(context.cgflix.surface),
                             ),
                           ),
                           TextButton(onPressed: _deviceStatus, child: const Text('Ver funções ativas')),
@@ -299,7 +292,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                   fontSize: 13.0,
                   fontWeight: FontWeight.w500,
                 ),
-                labelColor: Colors.white,
+                labelColor: context.cgflix.onAction,
                 unselectedLabelColor: subtitleColor,
                 tabs: const [
                   Tab(text: 'Geral'),
@@ -338,43 +331,31 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
       children: [
         _buildSectionHeader('Aparência e Tema', isLight),
         const SizedBox(height: 8.0),
-        Row(
-          children: [
-            // Shikkoku (Escuro OLED)
-            Expanded(
-              child: _buildThemeOptionCard(
-                title: 'Shikkoku',
-                subtitle: 'Escuro OLED',
-                previewBg: const Color(0xFF0B0910),
-                sealColor: const Color(0xFF7444E0),
-                sealText: '炳',
-                isSelected: !isLight,
-                isLight: isLight,
-                onTap: () async {
-                  HapticFeedback.selectionClick();
-                  await context.read<ThemeProvider>().setThemeMode(settings.ThemeMode.oled);
-                },
+        LayoutBuilder(builder: (context, constraints) {
+          final selected = context.watch<ThemeProvider>().themeMode;
+          final choices = [
+            ('Shikkoku', 'Escuro', settings.ThemeMode.oled, CgflixPalette.isis),
+            ('Hisui', 'Claro', settings.ThemeMode.light, CgflixPalette.heitor),
+            ('Hisui escuro', 'Escuro', settings.ThemeMode.dark, CgflixPalette.hisuiDark),
+          ];
+          return Wrap(spacing: 12, runSpacing: 12, children: [
+            for (final choice in choices)
+              SizedBox(
+                width: constraints.maxWidth < 380 ? constraints.maxWidth : (constraints.maxWidth - 24) / 3,
+                child: _buildThemeOptionCard(
+                  title: choice.$1,
+                  subtitle: choice.$2,
+                  preview: choice.$4,
+                  isSelected: selected == choice.$3 ||
+                      (selected == settings.ThemeMode.system && choice.$3 ==
+                          (isLight ? settings.ThemeMode.light : settings.ThemeMode.oled)),
+                  onTap: () async {
+                    await context.read<ThemeProvider>().setThemeMode(choice.$3);
+                  },
+                ),
               ),
-            ),
-            const SizedBox(width: 12.0),
-            // Hisui (Claro Esmeralda)
-            Expanded(
-              child: _buildThemeOptionCard(
-                title: 'Hisui',
-                subtitle: 'Claro Esmeralda',
-                previewBg: const Color(0xFFF7F3EC),
-                sealColor: const Color(0xFF047857),
-                sealText: '炳',
-                isSelected: isLight,
-                isLight: isLight,
-                onTap: () async {
-                  HapticFeedback.selectionClick();
-                  await context.read<ThemeProvider>().setThemeMode(settings.ThemeMode.light);
-                },
-              ),
-            ),
-          ],
-        ),
+          ]);
+        }),
 
         const SizedBox(height: 18.0),
 
@@ -428,10 +409,10 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
 
   Widget _buildAdvancedTab(bool isLight) {
     final usesExoPlayer = _settings?.read(settings.SettingsService.useExoPlayer) ?? false;
-    final accentColor = isLight ? const Color(0xFF047857) : const Color(0xFF7A40F2);
-    final cardBg = isLight ? Colors.white : Colors.white.withOpacity(0.03);
-    final borderColor = isLight ? const Color(0xFFE2E8F0) : Colors.white.withOpacity(0.06);
-    final titleColor = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
+    final accentColor = context.cgflix.accent;
+    final cardBg = context.cgflix.surface;
+    final borderColor = context.cgflix.divider;
+    final titleColor = context.cgflix.text;
 
     return ListView(
       physics: const HeisucaSpringPhysics(),
@@ -455,13 +436,13 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
         Container(
           padding: const EdgeInsets.all(12.0),
           decoration: BoxDecoration(
-            color: const Color(0xFFF59E0B).withOpacity(0.10),
+            color: context.cgflix.accent.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(10.0),
-            border: Border.all(color: const Color(0xFFF59E0B).withOpacity(0.3), width: 0.6),
+            border: Border.all(color: context.cgflix.accent.withValues(alpha: 0.3), width: 0.6),
           ),
           child: Row(
             children: [
-              const Icon(Symbols.warning_rounded, color: Color(0xFFFBBF24), size: 20.0),
+              Icon(Symbols.warning_rounded, color: context.cgflix.accent, size: 20.0),
               const SizedBox(width: 10.0),
               Expanded(
                 child: Text(
@@ -469,7 +450,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                   style: TextStyle(
                     fontFamily: HeisucaTheme.fonteTexto,
                     fontSize: 11.5,
-                    color: isLight ? const Color(0xFF92400E) : const Color(0xFFFDE68A),
+                    color: context.cgflix.text,
                   ),
                 ),
               ),
@@ -507,7 +488,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
             boxShadow: isLight
                 ? [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.03),
+                      color: context.cgflix.cardShadow.first.color,
                       blurRadius: 8.0,
                       offset: const Offset(0, 2),
                     ),
@@ -575,10 +556,10 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
           child: Container(
             height: 44.0,
             decoration: BoxDecoration(
-              color: isLight ? const Color(0xFFE2E8F0) : Colors.white.withOpacity(0.06),
+              color: context.cgflix.divider,
               borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
               border: Border.all(
-                color: isLight ? const Color(0xFFCBD5E1) : Colors.white.withOpacity(0.10),
+                color: context.cgflix.divider,
                 width: 0.8,
               ),
             ),
@@ -589,7 +570,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                   fontFamily: HeisucaTheme.fonteTexto,
                   fontSize: 13.5,
                   fontWeight: FontWeight.w600,
-                  color: isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA),
+                  color: context.cgflix.text,
                 ),
               ),
             ),
@@ -608,7 +589,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
           fontFamily: HeisucaTheme.fonteTitulo,
           fontSize: 14.5,
           fontWeight: FontWeight.w700,
-          color: isLight ? const Color(0xFF047857) : const Color(0xFFA99FBB),
+          color: context.cgflix.textMuted,
         ),
       ),
     );
@@ -621,11 +602,11 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
     required bool isLight,
     required ValueChanged<bool> onChanged,
   }) {
-    final cardBg = isLight ? Colors.white : Colors.white.withOpacity(0.03);
-    final borderColor = isLight ? const Color(0xFFE2E8F0) : Colors.white.withOpacity(0.06);
-    final titleColor = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
-    final subtitleColor = isLight ? const Color(0xFF64748B) : Colors.white.withOpacity(0.45);
-    final activeColor = isLight ? const Color(0xFF047857) : const Color(0xFF7A40F2);
+    final cardBg = context.cgflix.surface;
+    final borderColor = context.cgflix.divider;
+    final titleColor = context.cgflix.text;
+    final subtitleColor = context.cgflix.textOn(context.cgflix.surface);
+    final activeColor = context.cgflix.accent;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
@@ -638,7 +619,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
           boxShadow: isLight
               ? [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
+                    color: context.cgflix.cardShadow.first.color,
                     blurRadius: 8.0,
                     offset: const Offset(0, 2),
                   ),
@@ -677,8 +658,8 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                 HapticFeedback.lightImpact();
                 onChanged(v);
               },
-              activeColor: activeColor,
-              activeTrackColor: activeColor.withOpacity(0.35),
+              activeThumbColor: activeColor,
+              activeTrackColor: activeColor.withValues(alpha: 0.35),
             ),
           ],
         ),
@@ -689,135 +670,43 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
   Widget _buildThemeOptionCard({
     required String title,
     required String subtitle,
-    required Color previewBg,
-    required Color sealColor,
-    required String sealText,
+    required CgflixPalette preview,
     required bool isSelected,
-    required bool isLight,
     required VoidCallback onTap,
   }) {
-    final cardBg = isLight ? Colors.white : Colors.white.withOpacity(0.04);
-    final borderColor = isSelected
-        ? (isLight ? const Color(0xFF047857) : const Color(0xFF9D74FF))
-        : (isLight ? const Color(0xFFE2E8F0) : Colors.white.withOpacity(0.08));
-    final titleColor = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
-    final subtitleColor = isLight ? const Color(0xFF64748B) : const Color(0xFFA99FBB);
-
-    return HeisucaSpringPressable(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(12.0),
-        decoration: BoxDecoration(
-          color: cardBg,
-          borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
-          border: Border.all(
-            color: borderColor,
-            width: isSelected ? 2.0 : 0.8,
+    final palette = context.cgflix;
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      label: '$title, $subtitle',
+      child: HeisucaSpringPressable(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: palette.surface,
+            borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
+            border: Border.all(color: isSelected ? palette.focusRing : palette.divider,
+                width: isSelected ? 2 : 1),
           ),
-          boxShadow: isLight
-              ? [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(isSelected ? 0.08 : 0.03),
-                    blurRadius: 10.0,
-                    offset: const Offset(0, 3),
-                  ),
-                ]
-              : null,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Preview mini box
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Container(
-              height: 48.0,
-              decoration: BoxDecoration(
-                color: previewBg,
-                borderRadius: BorderRadius.circular(8.0),
-                border: Border.all(
-                  color: isLight ? const Color(0xFFCBD5E1) : Colors.white.withOpacity(0.12),
-                  width: 0.8,
-                ),
-              ),
-              child: Center(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 22.0,
-                      height: 22.0,
-                      decoration: BoxDecoration(
-                        color: sealColor,
-                        borderRadius: BorderRadius.circular(4.0),
-                      ),
-                      child: Center(
-                        child: Text(
-                          sealText,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8.0),
-                    Text(
-                      'HEISUCA',
-                      style: TextStyle(
-                        fontFamily: HeisucaTheme.fonteTitulo,
-                        fontSize: 11.0,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 1.2,
-                        color: isSelected && !isLight
-                            ? const Color(0xFFF4F1FA)
-                            : (isLight ? const Color(0xFF134E4A) : Colors.white70),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              height: 48,
+              width: double.infinity,
+              decoration: BoxDecoration(color: preview.background, borderRadius: BorderRadius.circular(8)),
+              child: Center(child: Theme(
+                data: cgflixAppTheme(preview.variant).copyWith(extensions: [preview]),
+                child: const HeisucaLogo(height: 24, siteHeader: true),
+              )),
             ),
-            const SizedBox(height: 10.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: TextStyle(
-                          fontFamily: HeisucaTheme.fonteTitulo,
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w700,
-                          color: titleColor,
-                        ),
-                      ),
-                      Text(
-                        subtitle,
-                        style: TextStyle(
-                          fontFamily: HeisucaTheme.fonteTexto,
-                          fontSize: 10.5,
-                          color: subtitleColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (isSelected)
-                  Icon(
-                    Icons.check_circle_rounded,
-                    color: isLight ? const Color(0xFF047857) : const Color(0xFF9D74FF),
-                    size: 18.0,
-                  ),
-              ],
-            ),
-          ],
+            const SizedBox(height: 8),
+            Text(title, style: TextStyle(fontFamily: HeisucaTheme.fonteTitulo,
+                fontSize: 14, fontWeight: FontWeight.w600, color: palette.text)),
+            Text(subtitle, style: TextStyle(fontFamily: HeisucaTheme.fonteTexto,
+                fontSize: 12, color: palette.textOn(palette.surface))),
+          ]),
         ),
       ),
     );
   }
 }
-

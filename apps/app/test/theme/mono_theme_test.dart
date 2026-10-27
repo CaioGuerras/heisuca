@@ -26,9 +26,8 @@ void main() {
     expect(identical(dark, oled), isFalse);
     expect(light.brightness, Brightness.light);
     expect(dark.brightness, Brightness.dark);
-    // OLED is the pure-black variant, which is the whole reason it exists.
-    // CGFLIX: o OLED (tema Isis) usa preto puro (#000), pensando em tela OLED.
-    expect(oled.scaffoldBackgroundColor, const Color(0xFF000000));
+    // P2: slots históricos oled/dark representam Shikkoku e Hisui escuro.
+    expect(oled.scaffoldBackgroundColor, const Color(0xFF17151C));
     expect(dark.scaffoldBackgroundColor, isNot(const Color(0xFF000000)));
   });
 

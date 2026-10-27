@@ -7,8 +7,8 @@
     <color name="ic_launcher_background_shinju">#FFFFFF</color>
     <color name="ic_launcher_background_sorairo">#FFFFFF</color>
     <color name="ic_launcher_background_heitor">#f4fcee</color>
-    <color name="splash_background">#0E0B14</color>
-    <color name="splash_dark">#0E0B14</color>
-    <color name="splash_oled">#000000</color>
-    <color name="splash_light">#F7F3EC</color>
+    <color name="splash_background">#17151C</color>
+    <color name="splash_dark">#051F20</color>
+    <color name="splash_oled">#17151C</color>
+    <color name="splash_light">#DAF1DE</color>
 </resources>

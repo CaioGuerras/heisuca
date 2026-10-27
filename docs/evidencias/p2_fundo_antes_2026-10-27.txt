@@ -1,0 +1,14 @@
+00:00 +0: loading /workspace/heisuca/apps/app/test/cgflix/heisuca_palette_p_test.dart
+00:00 +0: P2 fallback da arte respeita o canvas do tema
+00:00 +0 -1: P2 fallback da arte respeita o canvas do tema [E]
+  Expected: Color:<Color(alpha: 1.0000, red: 0.0902, green: 0.0824, blue: 0.1098, colorSpace: ColorSpace.sRGB)>
+    Actual: Color:<Color(alpha: 1.0000, red: 0.0549, green: 0.0431, blue: 0.0784, colorSpace: ColorSpace.sRGB)>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/cgflix/heisuca_palette_p_test.dart 41:5        main.<fn>
+  
+00:00 +0 -1: Some tests failed.
+
+Failing tests:
+  /workspace/heisuca/apps/app/test/cgflix/heisuca_palette_p_test.dart: P2 fallback da arte respeita o canvas do tema

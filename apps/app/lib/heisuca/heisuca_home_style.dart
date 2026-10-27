@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../media/media_item.dart';
+import '../cgflix/cgflix_palette.dart';
 
 /// Mesma máscara do site: a arte fica transparente sobre UMA cor de página.
 const heisucaHeroMask = LinearGradient(
@@ -108,9 +109,10 @@ Color? heisucaBaseColor(String? hash) {
 }
 
 /// OKLCH com a mesma luminosidade/croma da página web; sem halo nem cor pelo título.
-Color heisucaPageColor(MediaItem? item, {required bool isLight}) {
+Color heisucaPageColor(MediaItem? item, {required bool isLight, CgflixPalette? palette}) {
+  final p = palette ?? (isLight ? CgflixPalette.heitor : CgflixPalette.isis);
   final base = heisucaBaseColor(heisucaArtworkHash(item));
-  if (base == null) return isLight ? const Color(0xFFF7F3EC) : const Color(0xFF0E0B14);
+  if (base == null) return p.background;
   // Color.r/g/b são normalizados; usa os canais de oito bits para a conversão sRGB.
   final rr = _linear((base.r * 255).round()), gg = _linear((base.g * 255).round()), bb = _linear((base.b * 255).round());
   double cbrt(double v) => v.sign * math.pow(v.abs(), 1 / 3).toDouble();
@@ -129,5 +131,5 @@ Color heisucaPageColor(MediaItem? item, {required bool isLight}) {
   final color = Color.fromARGB(255, _srgb(4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s),
       _srgb(-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s),
       _srgb(-0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s));
-  return Color.lerp(color, isLight ? const Color(0xFF047857) : const Color(0xFF9D74FF), isLight ? 0.04 : 0.1)!;
+  return Color.lerp(color, p.accent, isLight ? 0.04 : 0.1)!;
 }

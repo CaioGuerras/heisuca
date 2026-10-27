@@ -2364,3 +2364,27 @@ a execução atual completou o percurso sem ANR, sem alegar causa única para aq
 ANR. Não testado em aparelho nesta versão; aprovação PiP anterior do Caio não
 substitui os testes pendentes no Tab A9 e Moto G77. Revisão independente do Visão
 pendente. Nenhum pacote publicado. P2–P7 seguem pendentes; sem ENTREGA-FINAL.
+
+#### P2 — paletas oficiais, candidato para conferência do CI
+
+Versão mantida em **2.0.34+36**, conforme a versão final única da P.
+Portão local completo **APROVADO**: 992 Flutter (3 skips herdados), 8 Impeller,
+40 Python. Log local `/tmp/p2-final-gate.log`. A análise continua apontando
+warnings herdados que serão tratados na P4; não são omitidos como “zero warnings”.
+
+Implementados Obsidian Plum/Shikkoku, Hisui claro e Hisui escuro nos tokens,
+esquema Material, MonoTokens e abertura nativa. Seletor real com terceira escolha;
+preferência `dark` deixa de ser reescrita para `oled` ao abrir. Sem mudar
+applicationId, assinatura, navegação, ciclo de vida, player ou composição da Início.
+Marca SVG com papéis de cor; geometria preservada. Paletas infantis não alteradas.
+
+Provas negativas, matriz de contraste e limites em `docs/PALETA_P2_2026-10-27.md`.
+O componente real de selo tinha 3,70:1 sobre cartão; texto agora usa papel AA e
+ícone mantém a cor de status. O secundário só é texto nas camadas em que passa
+4,5:1; em camadas altas usa texto principal, sem inventar cor nova. Goldens da
+Início atualizados para a paleta autorizada, com anteriores preservados nas
+evidências; fixtures sem rede e com limitação herdada de ícones não carregados.
+Não é uma aprovação visual de todas as telas (P3) nem teste em aparelho.
+
+Commit de código e runs serão acrescentados após o push e inspeção. P3–P7
+pendentes. Não emitir ENTREGA-FINAL nem publicar pacote enquanto faltarem partes.

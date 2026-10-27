@@ -319,12 +319,12 @@ class CgflixStatusBadge extends StatelessWidget {
   final Color? color;
 
   @override
-  Widget build(BuildContext context) => _build(color ?? context.cgflix.accentSoft);
+  Widget build(BuildContext context) => _build(context.cgflix, color ?? context.cgflix.accentSoft);
 
-  Widget _build(Color color) => Container(
+  Widget _build(CgflixPalette palette, Color color) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
     decoration: BoxDecoration(
-      color: color.withValues(alpha: 0.14),
+      color: palette.surface,
       borderRadius: BorderRadius.circular(999),
       border: Border.all(color: color.withValues(alpha: 0.4)),
     ),
@@ -335,7 +335,7 @@ class CgflixStatusBadge extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           label,
-          style: TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 12),
+          style: TextStyle(color: palette.textOn(palette.surface, preferred: color), fontWeight: FontWeight.w600, fontSize: 12),
         ),
       ],
     ),

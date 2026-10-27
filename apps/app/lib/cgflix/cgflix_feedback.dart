@@ -16,7 +16,7 @@ import 'cgflix_palette.dart';
 
 /// Destaque do player (sempre escuro): o lilás do CGFLIX no lugar do âmbar do upstream (chaves
 /// ligadas, item escolhido, timer ativo).
-const cgflixPlayerAccent = Color(0xFFC084FC);
+const cgflixPlayerAccent = heisucaShikkokuAccent;
 
 /// Cores dos estados de download (o upstream usava laranja/azul/âmbar/verde/vermelho soltos, quase
 /// invisíveis no fundo claro do Heitor). Tudo da paleta do tema.

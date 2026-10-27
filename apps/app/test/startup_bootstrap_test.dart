@@ -199,7 +199,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(bootstrapTheme(tester).brightness, Brightness.dark);
-    expect(bootstrapTheme(tester).scaffoldBackgroundColor, const Color(0xFF000000)); // CGFLIX: Isis, preto puro (OLED)
+    expect(bootstrapTheme(tester).scaffoldBackgroundColor, const Color(0xFF17151C)); // CGFLIX: Isis, preto puro (OLED)
 
     completion.complete(1);
     await tester.pump();

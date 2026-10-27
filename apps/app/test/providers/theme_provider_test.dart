@@ -97,9 +97,9 @@ void main() {
       await p.setThemeMode(settings.ThemeMode.oled);
       final oled = p.darkTheme;
 
-      // OLED must be a true black canvas; regular dark uses a non-black surface.
-      expect(oled.scaffoldBackgroundColor, const material.Color(0xFF000000)); // CGFLIX: Isis em preto puro
-      expect(dark.scaffoldBackgroundColor, isNot(const material.Color(0xFF000000)));
+      // P2: slots persistidos distinguem Shikkoku e Hisui escuro.
+      expect(oled.scaffoldBackgroundColor, const material.Color(0xFF17151C));
+      expect(dark.scaffoldBackgroundColor, const material.Color(0xFF051F20));
 
       p.dispose();
     });

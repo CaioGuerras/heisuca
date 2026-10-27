@@ -183,7 +183,7 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
     final heroHeight = heisucaHeroHeight(media.size.height);
     final repo = _repository;
     final isLight = context.cgflix.isLight;
-    final pageColor = heisucaPageColor(_activeHeroItem, isLight: isLight);
+    final pageColor = heisucaPageColor(_activeHeroItem, isLight: isLight, palette: context.cgflix);
 
     if (_servers.serverManager.navigationServerId != null &&
         _servers.serverManager.navigationOnlineClients.isEmpty) {
@@ -496,8 +496,8 @@ class _HeroInformationBlock extends StatelessWidget {
     final genres = (item.genres ?? const <String>[]).take(5).join(', ');
     final badges = [if (item.contentRating?.isNotEmpty == true) item.contentRating!];
 
-    final titleColor = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
-    final textMutedColor = isLight ? const Color(0xFF334155) : const Color(0xFFA99FBB);
+    final titleColor = context.cgflix.text;
+    final textMutedColor = context.cgflix.textMuted;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -660,7 +660,7 @@ class _HeisucaContinueWatchingRow extends StatelessWidget {
                 fontFamily: HeisucaTheme.fonteTitulo,
                 fontSize: 18.0,
                 fontWeight: FontWeight.w700,
-                color: context.cgflix.isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA),
+                color: context.cgflix.text,
                 letterSpacing: -0.3,
               ),
             ),
@@ -762,7 +762,7 @@ class _HeisucaTop10Row extends StatelessWidget {
                     fontFamily: HeisucaTheme.fonteTitulo,
                     fontSize: 18.0,
                     fontWeight: FontWeight.w700,
-                    color: context.cgflix.isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA),
+                    color: context.cgflix.text,
                     letterSpacing: -0.3,
                   ),
                 ),
@@ -957,7 +957,7 @@ class _HomeLoadFailed extends StatelessWidget {
                   fontFamily: HeisucaTheme.fonteTitulo,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: context.cgflix.isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA),
+                  color: context.cgflix.text,
                 ),
               ),
               const SizedBox(height: 6),

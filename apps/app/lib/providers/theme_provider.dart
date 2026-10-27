@@ -58,7 +58,7 @@ class ThemeProvider extends ChangeNotifier with DisposableChangeNotifierMixin, W
   /// provider will settle on, instead of guessing from platform brightness
   /// and flashing when the two disagree (#1833).
   static ThemeData darkThemeFor(settings.ThemeMode mode) =>
-      monoTheme(dark: true, oled: mode == settings.ThemeMode.oled);
+      monoTheme(dark: true, oled: mode != settings.ThemeMode.dark);
 
   /// Material equivalent of the app's own [settings.ThemeMode].
   static ThemeMode materialThemeModeFor(settings.ThemeMode mode) => switch (mode) {
@@ -88,7 +88,6 @@ class ThemeProvider extends ChangeNotifier with DisposableChangeNotifierMixin, W
 
   static const _themeChannel = MethodChannel('app.heisuca/theme');
 
-  @visibleForTesting
   Future<void> setThemeMode(settings.ThemeMode mode) async {
     if (_themeMode == mode) return;
     final service = _settingsBinding.settings ?? await settings.SettingsService.getInstance();

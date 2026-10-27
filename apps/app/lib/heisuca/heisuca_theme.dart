@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
+import '../cgflix/cgflix_palette.dart';
 
 /// Design System oficial do Heisuca (炳素華)
 /// Filosofia: "Nada entre você e o filme."
 /// Estética cinematográfica, refinada, com tipografia Sora e Inter.
 class HeisucaTheme {
   // Paleta Heisuca - Roxo / Escuro de Cinema (Padrão)
-  static const Color roxoFundo = Color(0xFF07060A);
-  static const Color roxoSuperficie = Color(0xFF121018);
-  static const Color roxoSuperficieElevada = Color(0xFF1B1824);
-  static const Color roxoLinha = Color(0x1FFFFFFF); // Hairline sutil
-  static const Color roxoPrimaria = Color(0xFFA855F7);
+  static const Color roxoFundo = heisucaShikkokuCanvas;
+  static const Color roxoSuperficie = heisucaShikkokuSurface;
+  static const Color roxoSuperficieElevada = heisucaShikkokuSurface2;
+  static const Color roxoLinha = heisucaShikkokuLine; // Hairline sutil
+  static const Color roxoPrimaria = heisucaShikkokuAccent;
   static const Color roxoSelo = Color(0xFFC82B3D); // Vermelho carmim do carimbo Heisuca
 
   // Paleta Heisuca - Verde Hisui (Claro / Nobre)
-  static const Color verdeFundo = Color(0xFF0A1410);
-  static const Color verdeSuperficie = Color(0xFF12201A);
-  static const Color verdeSuperficieElevada = Color(0xFF1B2E26);
-  static const Color verdePrimaria = Color(0xFF22C55E);
+  static const Color verdeFundo = heisucaHisuiDarkCanvas;
+  static const Color verdeSuperficie = heisucaHisuiDarkSurface;
+  static const Color verdeSuperficieElevada = heisucaHisuiDarkSurface2;
+  static const Color verdePrimaria = heisucaHisuiAccent;
 
   // Tipografia
   static const String fonteTitulo = 'Sora';

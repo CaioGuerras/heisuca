@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../cgflix/cgflix_palette.dart';
 import 'heisuca_theme.dart';
+import 'heisuca_brand_colors.dart';
 
 /// Renderizador oficial da marca Heisuca (炳素華)
 /// Adapta-se automaticamente ao tema ativo (Shikkoku / Hisui)
@@ -31,6 +32,7 @@ class HeisucaLogo extends StatelessWidget {
       return SvgPicture.asset(
         isLight ? 'assets/heisuca/marca_site_hisui.svg' : 'assets/heisuca/marca_site_shikkoku.svg',
         height: h,
+        colorMapper: HeisucaBrandColors(palette),
       );
     }
 
@@ -39,12 +41,13 @@ class HeisucaLogo extends StatelessWidget {
         : 'assets/heisuca/selo_pequeno_shikkoku.svg';
 
     final textColor = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
-    final sloganColor = isLight ? const Color(0xFF047857) : Colors.white.withOpacity(0.60);
+    final sloganColor = isLight ? const Color(0xFF047857) : Colors.white.withValues(alpha: 0.60);
 
     final selo = ClipRRect(
       borderRadius: BorderRadius.circular(h * 0.22),
       child: SvgPicture.asset(
         seloAsset,
+        colorMapper: HeisucaBrandColors(palette),
         width: h,
         height: h,
         fit: BoxFit.contain,

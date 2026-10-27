@@ -202,11 +202,10 @@ void _bootstrapApp() {
 Future<StartupThemeResolution> _resolveStartupTheme() async {
   final settings = await SettingsService.getInstance();
   await TvDetectionService.getInstance(forceTv: settings.read(SettingsService.forceTvMode));
-  await cgflixFixThemePref(settings); // CGFLIX: Isis / Heitor / Automático
   await HeisucaSecurity.instance.load();
   await HeisucaKids.instance.load(); // Heisuca: perfil infantil força o tema dele desde a abertura
   final mode = settings.read(SettingsService.themeMode);
-  return (themeMode: cgflixMaterialThemeMode(mode), darkTheme: cgflixDarkTheme()); // CGFLIX
+  return (themeMode: cgflixMaterialThemeMode(mode), darkTheme: cgflixDarkTheme(mode)); // CGFLIX
 }
 
 /// Wraps [step] so a failure names the gate phase it came from.
@@ -1609,7 +1608,7 @@ class _AppShell extends StatelessWidget {
                     localizationsDelegates: cgflixLocalizationsDelegates, // CGFLIX
                     // Heisuca: no modo infantil o tema é o do perfil (Ichigo/Sorairo), nos dois modos.
                     theme: heisucaKidsTheme(context) ?? cgflixLightTheme(), // CGFLIX: Heitor (claro, verde)
-                    darkTheme: heisucaKidsTheme(context) ?? cgflixDarkTheme(), // CGFLIX: Isis (escuro, roxo)
+                    darkTheme: heisucaKidsTheme(context) ?? cgflixDarkTheme(themeProvider.themeMode), // CGFLIX: Isis (escuro, roxo)
                     themeMode: cgflixMaterialThemeMode(themeProvider.themeMode), // CGFLIX
                     navigatorKey: rootNavigatorKey,
                     navigatorObservers: [BackKeySuppressorObserver()],

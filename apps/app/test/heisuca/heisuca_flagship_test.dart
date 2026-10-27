@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:heisuca/cgflix/cgflix_palette.dart';
 import 'package:heisuca/cgflix/cgflix_theme.dart';
 import 'package:heisuca/heisuca/heisuca_context_menu.dart';
@@ -16,11 +15,8 @@ import 'package:heisuca/heisuca/heisuca_logo.dart';
 import 'package:heisuca/heisuca/heisuca_profile_screen.dart';
 import 'package:heisuca/heisuca/heisuca_search_screen.dart';
 import 'package:heisuca/heisuca/heisuca_settings_screen.dart';
-import 'package:heisuca/heisuca/heisuca_state_store.dart';
 import 'package:heisuca/heisuca/heisuca_title_sheet.dart';
 import 'package:heisuca/i18n/strings.g.dart';
-import 'package:heisuca/media/media_file_info.dart';
-import 'package:heisuca/media/media_hub.dart';
 import 'package:heisuca/media/media_item.dart';
 import 'package:heisuca/media/media_kind.dart';
 import 'package:heisuca/providers/theme_provider.dart';
@@ -178,6 +174,17 @@ void main() {
       expect(find.text('Funções e desempenho'), findsNothing);
     });
 
+    testWidgets('Hisui escuro salva a escolha real do seletor', (tester) async {
+      await _montar(tester, CgflixThemeVariant.isis, const HeisucaSettingsScreen());
+      final choice = find.text('Hisui escuro');
+      await tester.ensureVisible(choice);
+      await tester.pumpAndSettle();
+      await tester.tap(choice);
+      await tester.pumpAndSettle();
+      final service = await settings.SettingsService.getInstance();
+      expect(service.read(settings.SettingsService.themeMode), settings.ThemeMode.dark);
+    });
+
     testWidgets('monta abas Geral e Avançado com reconhecimento de aparelho e seletor de tema', (tester) async {
       await _montar(tester, CgflixThemeVariant.isis, const HeisucaSettingsScreen());
       expect(find.text('Configurações'), findsOneWidget);
@@ -188,6 +195,7 @@ void main() {
       expect(find.text('Aparência e Tema'), findsOneWidget);
       expect(find.text('Shikkoku'), findsOneWidget);
       expect(find.text('Hisui'), findsOneWidget);
+      expect(find.text('Hisui escuro'), findsOneWidget);
       expect(find.text('Qualidade de reprodução'), findsOneWidget);
 
       await tester.tap(find.text('Avançado'));
@@ -210,6 +218,7 @@ void main() {
       matching: find.byType(Switch),
     );
     await tester.ensureVisible(introSwitch);
+    await tester.pumpAndSettle();
     await tester.tap(introSwitch);
     await tester.pumpAndSettle();
     expect(service.read(settings.SettingsService.skipIntroMode), settings.SkipMarkerMode.auto);

@@ -2454,3 +2454,16 @@ APK iniciou; bancada pendente da execução anterior na consulta inicial. O APK
 intermediário 40480544115 (9113a40) terminou verde; bancada 40480544171 ainda em
 curso. Não fechar P2 sem inspecionar o run de 13e8f76, os dois restauros e PNGs.
 Sem repetição manual da M; a mudança é a exigência de evento no roteiro de P1/P2.
+
+Intermediário **9113a40**, inspecionado: APK 40480544115 **verde**, artifact
+12724000190 (ZIP SHA-256 `2c7a6b666fd5747909ada0252c6428d19cdea4d426eae5716d902c7fff3fd1ff`).
+Job confirma pacote `app.heisuca.player.teste.home`, 97.138.729 bytes, certificado
+`19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`, APK SHA-256
+`e44bb9eb53e7a2f7125f23de5886c64471a7cdab8de55e7efc66a03ceb1496df`.
+Bancada **40480544171 ATENÇÃO**, artifact 12724055838, ZIP baixado e recalculado:
+`6fae27212700899bd6862b356dbc0c0273c284c39cfca050ecb0a6a95b5a248e`.
+`testeEncerrado: true`, 20 marcos até Você, `anrDoApp: false`, restauração
+confirmada. Somente seis avisos dos três widgets permitidos, nas fases saída/
+ativo, larguras 240,8/227,8 dp. PNGs 21/06 originais com imagem, inspecionados.
+Isso não apaga o vermelho anterior nem prova a nova espera nativa: o run de
+13e8f76 permanece necessário para fechar a revisão do roteiro. Nada publicado.

@@ -54,3 +54,14 @@ e 46 Python (`/tmp/p3-adjusted-final-gate.log`). Ainda faltam push e leitura dos
 runs de APK/bancada. Não testado em aparelho. Barras já gravadas no arquivo não são
 inferidas apenas da proporção; a conferência da origem das faixas continua
 pendente no registro da P3. Não alterar proporção/recorte no app para ocultá-las.
+
+## Evidência no Android — 40524767724
+
+Código df479e5, APK 40524767696 verde. Bancada com ATENÇÃO apenas pelo HUD no
+PiP autorizado; percurso completo até 11-voce, sem ANR do app, restauração
+confirmada. Em 06 e 21, geometria real do motor/janela produziu área física
+`x=120, y=32, largura=960, altura=466`, 447.360 pixels, fração clara **1,0**.
+Os PNGs nativos exibem conteúdo do vídeo com o HUD oculto. Relatório preservado
+em `evidencias/p3_bancada_40524767724.json`; hashes/assinatura/artefatos estão no
+HANDOFF. Este ajuste foi conferido tecnicamente, não é aprovação de aparelho
+nem substitui a revisão independente do Visão.

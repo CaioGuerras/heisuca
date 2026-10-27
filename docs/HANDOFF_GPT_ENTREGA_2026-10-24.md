@@ -2602,3 +2602,37 @@ final acima. P3 continua aberta para o restante da revisão; nenhum ENTREGA-FINA
 nativa não corresponder ao contrato, registrar o diagnóstico sem liberar a
 captura nem relaxar a medição. Continuar P3 (prompts/diálogos/estados e prova da
 origem das barras), depois P4–P7. Não publicar APK; não emitir ENTREGA-FINAL.
+
+### P3 (coleta base) e revisão da medição de preto — CI conferido
+
+Código **6c7723e + df479e52efcbfd29a8c582a66af8d4053dcc79d5**, 2.0.34+36.
+
+- [APK 40524767696](https://github.com/CaioGuerras/heisuca/actions/runs/40524767696):
+  **verde**; [artifact 12744706883](https://github.com/CaioGuerras/heisuca/actions/runs/40524767696/artifacts/12744706883).
+  ZIP 50.388.108 bytes, SHA-256
+  `f3b72da640e7fedb151094e9686f7cfbe5d9bb672327af2ede68dafdc0dee546`.
+  APK 97.138.729 bytes, SHA-256
+  `fefd075ff7ac45f19ce860d8f485f057fdf05a9719e0e005e9340d35252d7572`.
+  aapt: pacote `app.heisuca.player.teste.home`, Heisuca Teste, versão 2.0.34,
+  versionCode 2036 (split arm64: 2×1000+36). apksigner verifica v2, certificado
+  `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`.
+- [Bancada 40524767724](https://github.com/CaioGuerras/heisuca/actions/runs/40524767724):
+  job verde, relatório **ATENÇÃO**, somente os 6 avisos autorizados do HUD em
+  PiP; 20 marcos até 11-voce, `testeEncerrado: true`, restauração confirmada,
+  `anrDoApp: false`, restarts 18/20 confirmados.
+  [Artifact 12743039533](https://github.com/CaioGuerras/heisuca/actions/runs/40524767724/artifacts/12743039533),
+  ZIP 12.435.493 bytes, SHA-256
+  `7bb7d907787d58f65dceabba1f8d6b482407a2541b3c58299b865360d3e629a0`.
+- **Nova prova nativa de imagem:** 06 e 21 medem retângulo físico
+  `(120,32)`, 960×466 = **447.360 pixels**, fração luma >16 **1,0** nos dois.
+  Motor informa 1920×1080, DW/DH 1920×1080, PAR 1, rotação 0; janela 1200×540;
+  HUD efetivamente oculto e áreas do sistema excluídas. PNGs originais também
+  inspecionados: bola sobre o piso em 21 e entrevista em 06, sem interface
+  cobrindo o vídeo. `docs/evidencias/p3_bancada_40524767724.json` e
+  `p3_21_nativa_2026-10-27.png` / `p3_06_nativa_2026-10-27.png` preservam a prova.
+
+A revisão da checagem de preto está implementada e comprovada no CI, entregue
+para revisão independente. Nenhum APK publicado. Não testado em aparelho.
+P3 continua: novo trabalho local em prompts (72 combinações antes/depois),
+sem alterar temporizadores/callbacks; precisa de portão e novo push próprios.
+P4–P7 ainda pendentes. Não emitir ENTREGA-FINAL nesta coleta parcial.

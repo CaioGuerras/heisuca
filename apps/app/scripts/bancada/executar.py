@@ -112,6 +112,7 @@ def main():
             details = json.loads((OUT / 'resultado-teste.json').read_text())
             if not details.get('testeEncerrado') or not details.get('video', {}).get('quadroNativo'):
                 raise RuntimeError('O driver não confirmou o percurso completo e o quadro nativo.')
+            captures.verificar_marcos()
             for required in ('01-login.png', '02-inicio.png', '03-busca.png', '04-ficha.png', '06-player.png',
                              '09-biblioteca.png', '10-baixados.png', '11-voce.png', '01-abertura-login.mp4',
                              '02-acervo-busca-ficha.mp4', '03-player-nativo.mp4', '04-retorno-abas.mp4'):

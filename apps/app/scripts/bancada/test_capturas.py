@@ -10,6 +10,25 @@ from capturas import Capturas
 PNG = b'\x89PNG\r\n\x1a\n' + b'0' * 24
 
 
+class MarcosObrigatorios(unittest.TestCase):
+    def setUp(self):
+        self.c = Capturas(Path('.'))
+
+    def test_coleta_sem_o_marco_21_reprova(self):
+        self.c.analisados.add('06-player')
+        with self.assertRaisesRegex(RuntimeError, '21-imagem-apos-audio'):
+            self.c.verificar_marcos()
+
+    def test_coleta_sem_o_marco_06_reprova(self):
+        self.c.analisados.add('21-imagem-apos-audio')
+        with self.assertRaisesRegex(RuntimeError, '06-player'):
+            self.c.verificar_marcos()
+
+    def test_coleta_com_os_dois_marcos_passa(self):
+        self.c.analisados.update(['06-player', '21-imagem-apos-audio'])
+        self.c.verificar_marcos()
+
+
 class CapturaAoVivo(unittest.TestCase):
     def setUp(self):
         self.enterContext(redirect_stdout(io.StringIO()))

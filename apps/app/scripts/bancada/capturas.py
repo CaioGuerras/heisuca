@@ -9,6 +9,8 @@ from imagem import analisar
 
 APP_ID = 'app.heisuca.player.teste.home'
 REMOTE = '/sdcard/heisuca-bancada.mp4'
+# Marcos cuja imagem é analisada em pixels: se faltarem, a bancada fica vermelha.
+MARCOS_ANALISADOS = ('06-player', '21-imagem-apos-audio')
 
 
 def adb(*args, check=False, capture_errors=False):
@@ -29,6 +31,7 @@ class Capturas:
         self.sanitize = sanitize
         self.recording = None
         self.last = 0
+        self.analisados = set()
 
     def start(self):
         if self.recording is not None:
@@ -87,12 +90,13 @@ class Capturas:
                 raise RuntimeError('Quadro decodificado não é um PNG válido.')
             (self.output / f'{name}-decodificado.png').write_bytes(decoded)
         image = None
-        if name in ('06-player', '21-imagem-apos-audio'):
+        if name in MARCOS_ANALISADOS:
             image = analisar(png, event.get('geometriaVideo'))
             (self.output / f'{name}-imagem.json').write_text(json.dumps(image, ensure_ascii=False, indent=2))
             print('BANCADA_IMAGEM: ' + json.dumps({'marco': name, **image}, ensure_ascii=False), flush=True)
             if image['imagem'] == 'não':
                 raise RuntimeError('Imagem nativa preta: ' + name)
+            self.analisados.add(name)
         if event.get('action'):
             if event.get('back') is True:
                 raise RuntimeError('Marco não pode misturar ações.')
@@ -113,6 +117,12 @@ class Capturas:
         adb('exec-out', 'run-as', APP_ID, 'mv', 'files/heisuca-bancada-ack.tmp',
             'files/heisuca-bancada-ack.json', check=True)
         self.last = seq
+
+    def verificar_marcos(self):
+        """Falha se algum marco de análise de pixels não chegou até o fim da coleta."""
+        faltam = [m for m in MARCOS_ANALISADOS if m not in self.analisados]
+        if faltam:
+            raise RuntimeError('Marco de imagem não coletado: ' + ', '.join(faltam))
 
     def close(self):
         if self.recording is not None:

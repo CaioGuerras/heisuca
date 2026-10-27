@@ -24,12 +24,12 @@ void main() {
     PackageInfo.setMockInitialValues(appName: 'Heisuca', packageName: 'app.heisuca.player.teste.home',
         version: '2.0.34', buildNumber: '2036', buildSignature: '');
   });
-  testWidgets('P3 editor avançado também usa a fonte Inter do app', (tester) async {
+  testWidgets('P3 editor avançado usa a fonte monoespaçada do app', (tester) async {
     await settings.SettingsService.getInstance();
     await tester.pumpWidget(TranslationProvider(child: MaterialApp(theme: cgflixAppTheme(),
       home: const MpvConfigScreen())));
     await tester.pumpAndSettle();
-    expect(tester.widget<EditableText>(find.byType(EditableText)).style.fontFamily, 'Inter');
+    expect(tester.widget<EditableText>(find.byType(EditableText)).style.fontFamily, cgflixMonoFamily);
   });
   for (final (name, widget) in [
     ('ficha', const HeisucaSectionTitle('Episódios', colors: HeisucaTitleColors(

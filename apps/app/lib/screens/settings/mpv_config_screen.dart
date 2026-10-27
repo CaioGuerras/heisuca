@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io' show Platform;
 
+import 'package:heisuca/cgflix/cgflix_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:heisuca/widgets/app_icon.dart';
@@ -25,6 +26,13 @@ import '../../widgets/focusable_list_tile.dart';
 import '../../widgets/settings_builder.dart';
 import '../../widgets/settings_section.dart';
 import 'mpv_config_line_editor.dart';
+
+/// Editor do mpv.conf: monoespaçada pelos tokens do app.
+const mpvEditorStyle = TextStyle(
+  fontFamily: cgflixMonoFamily,
+  fontFamilyFallback: cgflixMonoFallback,
+  fontSize: 13,
+);
 
 class MpvConfigScreen extends StatefulWidget {
   const MpvConfigScreen({super.key});
@@ -275,7 +283,7 @@ class _MpvConfigScreenState extends State<MpvConfigScreen> with ListenableBindin
     );
   }
 
-  static const _editorStyle = TextStyle(fontFamily: 'Inter', fontSize: 13);
+  static const _editorStyle = mpvEditorStyle;
 
   void _handleLineEditorChanged(String text) {
     _textController.value = TextEditingValue(

@@ -17,6 +17,11 @@ export 'cgflix_palette.dart';
 
 const cgflixFontFamily = 'Inter';
 
+/// Família monoespaçada do sistema (não há mono empacotada) com reservas.
+const cgflixMonoFamily = 'monospace';
+const cgflixMonoFallback = ['RobotoMono', 'Courier'];
+
+
 TextTheme _heisucaTypography(TextTheme source) {
   final text = source.apply(fontFamily: cgflixFontFamily);
   TextStyle? heading(TextStyle? style) => style?.copyWith(fontFamily: 'Sora');

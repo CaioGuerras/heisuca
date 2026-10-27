@@ -113,19 +113,9 @@ void main() {
     await heisucaLoadFonts();
   });
 
-  // Falhas reais do app cuja correção passa de ~80 linhas (ou é decisão de design do foco em todo o app):
-  // a prova está escrita e falha de verdade; o caso fica pulado com o motivo até alguém decidir o desenho.
-  // Chave: 'tela/aparelho'. Para reproduzir, tire a entrada (ou use P3_FOCO_SEM_PULOS=1).
-  const escopoSemFoco = 'D-pad não chega ao conteúdo: o foco fica no escopo da tela inteira (ou preso no campo '
-      'de busca); falta FocusTraversalGroup/autofoco nos controles.';
-  const pulos = <String, String>{
-    'busca/tab': escopoSemFoco, 'busca/moto': escopoSemFoco,
-    'config-completas/tab': escopoSemFoco, 'config-completas/moto': escopoSemFoco,
-    'config-servicos/tab': escopoSemFoco, 'config-servicos/moto': escopoSemFoco,
-    'licencas/moto': escopoSemFoco,
-    'barra-abas/tab': 'HeisucaFloatingIsland não é alcançável por D-pad (nenhum destino focável).',
-    'barra-abas/moto': 'HeisucaFloatingIsland não é alcançável por D-pad (nenhum destino focável).',
-  };
+  // Telas cuja correção passaria de ~80 linhas ficam aqui, com o motivo explícito ('tela/aparelho' -> motivo).
+  // Hoje vazio: as 52 combinações passam sem pulos.
+  const pulos = <String, String>{};
   final semPulos = Platform.environment['P3_FOCO_SEM_PULOS'] == '1';
 
   const direcoes = [LogicalKeyboardKey.arrowDown, LogicalKeyboardKey.arrowRight,
@@ -188,6 +178,66 @@ void main() {
             }
           }
 
+          Future<void> verifica(FocusNode no, int passo, String tecla) async {
+          visitados.add(no);
+          final desc = _descreve(no, iniciais);
+          // (1) foco existe e dentro da cena
+          final ctx = no.context;
+          if (ctx == null || !ctx.mounted) { falhas.add('passo $passo ($tecla): foco sem contexto: $desc'); return; }
+          if (!_dentroDaCena(ctx)) { falhas.add('passo $passo ($tecla): foco fora da cena: $desc'); return; }
+          // (2) retângulo ao menos 50% dentro da tela
+          final rect = no.rect;
+          final dentro = rect.intersect(Offset.zero & tela);
+          final area = rect.width * rect.height;
+          final visivel = dentro.isEmpty ? 0.0 : dentro.width * dentro.height;
+          final referencia = math.min(area, tela.width * tela.height * .5);
+          if (area > 0 && visivel < referencia * .5 && visivel < area * .5) {
+            falhas.add('passo $passo ($tecla): foco fora da tela (${(100 * visivel / area).round()}% visível): $desc');
+          }
+          // (3) foco visível em pixels: com foco x sem foco na mesma área
+          await assenta();
+          final comFoco = await _pixels(tester, boundary, dpr);
+          no.unfocus();
+          await assenta();
+          // Telas que devolvem o foco sozinhas (autofoco/restauração): tira o foco por outro nó.
+          if (no.hasPrimaryFocus) { no.nextFocus(); await assenta(); }
+          final semFoco = await _pixels(tester, boundary, dpr);
+          if (no.canRequestFocus) { no.requestFocus(); await assenta(); }
+          if (!identical(atual(), no)) {
+            falhas.add('passo $passo ($tecla): foco não voltou ao nó após o teste de pixels: $desc');
+          }
+          // Campo de texto: o nó focado é o EditableText interno; a moldura (borda) é do TextField inteiro.
+          var base = rect;
+          if (ctx is Element) {
+            ctx.visitAncestorElements((e) {
+              if (e.widget is InputDecorator || e.widget is TextField) {
+                final box = e.renderObject;
+                if (box is RenderBox && box.attached) base = box.localToGlobal(Offset.zero) & box.size;
+                return false;
+              }
+              return true;
+            });
+          }
+          final zona = base.inflate(8).intersect(Offset.zero & tela);
+          if (!zona.isEmpty) {
+            final (diff, total) = _diferenca(comFoco, semFoco, zona, dpr);
+            final perimetro = 2 * (base.width + base.height) * dpr;
+            // Preenchimento troca >= 2% da área; anel/borda fina troca >= 25% do perímetro.
+            final minimo = math.min(total * .02, perimetro * .25);
+            if (diff < minimo) {
+              falhas.add('passo $passo ($tecla): foco invisível (só $diff de $total px mudam, mínimo ${minimo.round()}): $desc');
+            }
+          }
+          marca(no);
+          }
+          // Foco que o próprio app já colocou ao entrar em modo D-pad (ex.: primeiro controle da tela).
+          await assenta();
+          final inicial = atual();
+          if (inicial != null && inicial is! FocusScopeNode && inicial.context != null && inicial.context!.mounted &&
+              _dentroDaCena(inicial.context!)) {
+            await verifica(inicial, 0, 'inicial');
+          }
+
           for (var passo = 1; passo <= 80; passo++) {
             final antes = atual();
             // Tenta cada direção; prefere quem leva a um nó ainda não visitado.
@@ -225,54 +275,7 @@ void main() {
               }
               continue;
             }
-            final no = novo;
-            visitados.add(no);
-            final desc = _descreve(no, iniciais);
-            // (1) foco existe e dentro da cena
-            final ctx = no.context;
-            if (ctx == null || !ctx.mounted) { falhas.add('passo $passo ($tecla): foco sem contexto: $desc'); continue; }
-            if (!_dentroDaCena(ctx)) { falhas.add('passo $passo ($tecla): foco fora da cena: $desc'); continue; }
-            // (2) retângulo ao menos 50% dentro da tela
-            final rect = no.rect;
-            final dentro = rect.intersect(Offset.zero & tela);
-            final area = rect.width * rect.height;
-            final visivel = dentro.isEmpty ? 0.0 : dentro.width * dentro.height;
-            final referencia = math.min(area, tela.width * tela.height * .5);
-            if (area > 0 && visivel < referencia * .5 && visivel < area * .5) {
-              falhas.add('passo $passo ($tecla): foco fora da tela (${(100 * visivel / area).round()}% visível): $desc');
-            }
-            // (3) foco visível em pixels: com foco x sem foco na mesma área
-            final comFoco = await _pixels(tester, boundary, dpr);
-            no.unfocus();
-            await assenta();
-            final semFoco = await _pixels(tester, boundary, dpr);
-            if (no.canRequestFocus) { no.requestFocus(); await assenta(); }
-            if (!identical(atual(), no)) {
-              falhas.add('passo $passo ($tecla): foco não voltou ao nó após o teste de pixels: $desc');
-            }
-            // Campo de texto: o nó focado é o EditableText interno; a moldura (borda) é do TextField inteiro.
-            var base = rect;
-            if (ctx is Element) {
-              ctx.visitAncestorElements((e) {
-                if (e.widget is InputDecorator || e.widget is TextField) {
-                  final box = e.renderObject;
-                  if (box is RenderBox && box.attached) base = box.localToGlobal(Offset.zero) & box.size;
-                  return false;
-                }
-                return true;
-              });
-            }
-            final zona = base.inflate(8).intersect(Offset.zero & tela);
-            if (!zona.isEmpty) {
-              final (diff, total) = _diferenca(comFoco, semFoco, zona, dpr);
-              final perimetro = 2 * (base.width + base.height) * dpr;
-              // Preenchimento troca >= 2% da área; anel/borda fina troca >= 25% do perímetro.
-              final minimo = math.min(total * .02, perimetro * .25);
-              if (diff < minimo) {
-                falhas.add('passo $passo ($tecla): foco invisível (só $diff de $total px mudam, mínimo ${minimo.round()}): $desc');
-              }
-            }
-            marca(no);
+            await verifica(novo, passo, tecla!);
           }
           if (visitados.isEmpty && falhas.isEmpty) falhas.add('nenhum nó recebeu foco por D-pad nesta tela');
           final faltam = iniciais.values.where((a) => !alcancados.contains(a.id)).toList();

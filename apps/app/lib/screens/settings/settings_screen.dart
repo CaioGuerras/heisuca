@@ -213,7 +213,11 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
     return CgflixSettingsScope(
       // CGFLIX (refino 2b): lista plana no padrão das Configurações do Android (sem sanfonas)
       child: Scaffold(
+        // canRequestFocus: false — este Focus só intercepta teclas; focável, ele virava o primeiro
+        // destino do D-pad (a tela inteira) e as linhas ficavam inalcançáveis.
         body: Focus(
+          canRequestFocus: false,
+          skipTraversal: true,
           onKeyEvent: _handleKeyEvent,
           child: CustomScrollView(
             primary: false,

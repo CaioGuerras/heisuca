@@ -5,6 +5,7 @@ import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import '../cgflix/cgflix_palette.dart';
+import '../focus/focusable_wrapper.dart';
 
 /// Ilha Flutuante de Navegação Inferior Heisuca (Floating Island)
 /// Filosofia: "Nada entre você e o filme."
@@ -240,7 +241,14 @@ class _IslandButtonState extends State<_IslandButton> {
   @override
   Widget build(BuildContext context) {
     final fg = widget.isSelected ? widget.activeColor : widget.mutedColor;
-    return GestureDetector(
+    // D-pad: cada destino é focável (setas esquerda/direita andam entre eles) e mostra o anel do tema.
+    return FocusableWrapper(
+      onSelect: widget.onTap,
+      onLongPress: widget.onLongPress,
+      enableLongPress: widget.onLongPress != null,
+      disableScale: true,
+      borderRadius: 20,
+      child: GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTapDown: (_) => setState(() => _scale = 0.88),
       onTapUp: (_) => setState(() => _scale = 1.0),
@@ -266,6 +274,7 @@ class _IslandButtonState extends State<_IslandButton> {
             ),
           ),
         ),
+      ),
       ),
     );
   }

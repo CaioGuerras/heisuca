@@ -10,10 +10,13 @@ import '../focus/input_mode_tracker.dart';
 /// do controle embrulhado e, só no modo teclado/D-pad, pinta por cima a mesma borda do
 /// [FocusTheme] (token de foco da paleta) que o FocusableWrapper usa.
 class HeisucaDpadFocus extends StatefulWidget {
-  const HeisucaDpadFocus({super.key, required this.child, this.borderRadius = 12});
+  const HeisucaDpadFocus({super.key, required this.child, this.borderRadius = 12, this.radii});
 
   final Widget child;
   final double borderRadius;
+
+  /// Raios por canto; vence [borderRadius] (grupos de linhas com cantos externos maiores).
+  final BorderRadius? radii;
 
   @override
   State<HeisucaDpadFocus> createState() => _HeisucaDpadFocusState();
@@ -31,7 +34,7 @@ class _HeisucaDpadFocusState extends State<HeisucaDpadFocus> {
       onFocusChange: (value) { if (mounted) setState(() => _focused = value); },
       child: DecoratedBox(
         position: DecorationPosition.foreground,
-        decoration: FocusTheme.focusDecoration(context, isFocused: show, borderRadius: widget.borderRadius),
+        decoration: FocusTheme.focusDecoration(context, isFocused: show, borderRadius: widget.borderRadius, radii: widget.radii),
         child: widget.child,
       ),
     );

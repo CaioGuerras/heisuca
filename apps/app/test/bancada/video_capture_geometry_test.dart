@@ -20,6 +20,7 @@ void main() {
 
   test('captura usa tamanho de exibição, não o tamanho codificado anamórfico', () {
     final geometry = capture({'w': 720, 'h': 480, 'dw': 853, 'dh': 480});
+    expect(geometry['hudOculto'], isTrue);
     expect(geometry['video'], {'largura': 853.0, 'altura': 480.0, 'modo': 'conter', 'zoom': 1.0});
     expect(geometry['barrasSistema'], {'topo': 0.0, 'base': 24.0, 'esquerda': 0.0, 'direita': 0.0});
   });

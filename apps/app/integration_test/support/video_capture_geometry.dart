@@ -62,7 +62,7 @@ Map<String, Object?> videoCaptureGeometry({
     'video': {'largura': displayWidth, 'altura': displayHeight, 'modo': mode, 'zoom': zoom},
     'barrasSistema': {'topo': systemBars.top, 'base': systemBars.bottom,
       'esquerda': systemBars.left, 'direita': systemBars.right},
-    'hudOculto': true, 'exclusoesHud': <Object?>[],
+    'hudOculto': hudHidden, 'exclusoesHud': <Object?>[],
     'parametrosMotor': videoParams,
   };
 }

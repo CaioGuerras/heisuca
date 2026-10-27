@@ -30,6 +30,7 @@ import 'package:heisuca/utils/pointer_scroll_axis.dart';
 import 'package:heisuca/utils/semantics_tree_gate.dart';
 import 'package:heisuca/widgets/focusable_media_card.dart';
 import 'package:heisuca/widgets/video_controls/mobile_video_controls.dart';
+import 'package:heisuca/widgets/video_controls/player_chrome_controller.dart';
 import 'package:heisuca/widgets/video_controls/video_controls.dart';
 import 'package:heisuca/mpv/video.dart';
 
@@ -127,6 +128,8 @@ void main() {
 
     var sequence = 0;
     Future<Map<String, Object?>> Function()? captureVideoGeometry;
+    // Chrome usado na medição: o HUD é conferido de novo depois do ack da captura.
+    PlayerChromeController? measuredChrome;
     Future<void> shot(String name, {bool back = false, String? action, bool decodedFrame = false}) async {
       await waitBancada(binding, const Duration(milliseconds: 400));
       Map<String, Object?>? geometry;
@@ -148,6 +151,12 @@ void main() {
           final data = jsonDecode(await ack.readAsString()) as Map<String, dynamic>;
           if (data['seq'] == seq && data['ok'] == true) {
             if (name == '21-imagem-apos-audio' || name == '06-player') {
+              // O screencap do host é posterior à medição: o HUD não pode ter voltado nesse intervalo.
+              // (PlayerChromeHold só segura o HUD visível; não há hold para impedir o auto-show.)
+              final chrome = measuredChrome;
+              if (chrome == null || chrome.controlsPresented) {
+                throw StateError('O HUD reapareceu durante a captura do vídeo.');
+              }
               final image = data['imagem'];
               expect(image, isA<Map>());
               expect((image as Map)['imagem'], 'sim', reason: 'A captura nativa precisa conter imagem.');
@@ -279,6 +288,7 @@ void main() {
     final player = tester.widget<MobileVideoControls>(find.byType(MobileVideoControls).first).player;
     captureVideoGeometry = () async {
       final chrome = tester.widget<PlexVideoControls>(find.byType(PlexVideoControls)).chromeController;
+      measuredChrome = chrome;
       chrome.hide();
       await until(() => !chrome.controlsPresented, 'HUD oculto para medir o vídeo');
       final params = await readVideoParamsForCapture(player.getProperty);

@@ -1,3 +1,4 @@
+import '../heisuca/heisuca_news.dart';
 import '../heisuca/heisuca_motion.dart'; // CGFLIX: entrada de abas sem perder estado.
 import '../heisuca/heisuca_library_screen.dart';
 import '../cgflix/cgflix_navigation.dart';
@@ -2240,9 +2241,9 @@ class _MainScreenState extends State<MainScreen>
       child: ScaffoldMessenger(
         key: ProfileNavigationScope.of(context).mainScaffoldMessengerKey,
         // CGFLIX: celular sem trilho lateral, deitado ou em pé (barra única no topo)
-        child: PlatformDetector.shouldUseLandscapeNavigationRail(context) && !cgflixUseYouTab(context)
+        child: HeisucaNewsNotice(child: PlatformDetector.shouldUseLandscapeNavigationRail(context) && !cgflixUseYouTab(context)
             ? _buildLandscapeShell(context)
-            : _buildPortraitShell(context),
+            : _buildPortraitShell(context)),
       ),
     );
   }

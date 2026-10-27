@@ -718,6 +718,8 @@ class SettingsService extends BaseSharedPreferencesService {
 
   /// Restore the last music session parked-paused on launch (#2148).
   static const resumeMusicOnLaunch = BoolPref('resume_music_on_launch', defaultValue: true);
+  // Zero desliga só a pergunta por episódios, sem alterar o temporizador.
+  static final stillWatchingEpisodes = IntPref('heisuca_still_watching_episodes', defaultValue: 3, transform: (v) => v.clamp(0, 20));
   static const autoPlayNextEpisode = BoolPref('auto_play_next_episode', defaultValue: true);
 
   /// Shuffled video queues start every episode at 0:00 instead of resuming
@@ -1408,6 +1410,7 @@ class SettingsService extends BaseSharedPreferencesService {
     musicVolume,
     resumeMusicOnLaunch,
     autoPlayNextEpisode,
+    stillWatchingEpisodes,
     playNextCountdown,
     shuffleStartsFromBeginning,
     gestureBrightnessSwipe,

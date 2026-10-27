@@ -643,6 +643,7 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
       canControlPlayback: _canControlPlayback,
       canNavigateMediaItems: () => _canNavigateMediaItems() && automotivePlaybackAllowedNow(),
       onPlay: () {
+        if (_showStillWatchingPrompt && _episodeAttentionPrompt) { _onStillWatchingContinue(); return; }
         final currentPlayer = player;
         if (currentPlayer == null) return;
         unawaited(_mediaControls.seekBackForRewind(currentPlayer));
@@ -663,6 +664,7 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
         _mediaControls.pushPlaybackState();
       },
       onTogglePlayPause: () {
+        if (_showStillWatchingPrompt && _episodeAttentionPrompt) { _onStillWatchingContinue(); return; }
         final currentPlayer = player;
         if (currentPlayer == null) return;
         if (currentPlayer.state.isActive) {
@@ -677,6 +679,7 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
         _mediaControls.pushPlaybackState();
       },
       onSeek: (position) {
+        _episodeAttention.interact();
         // A live stream has no absolute position to seek to: the session
         // never advertises SEEK_TO for one, and a stray event must not
         // resolve into a VOD seek against a moving live edge.
@@ -689,8 +692,8 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
       // Next/previous mean what the on-screen buttons mean: a channel zap on
       // live TV, the adjacent item otherwise. Both targets refuse a step
       // that has nowhere to go, so no adjacency gate is repeated here.
-      onNext: () => unawaited(_navigateToNextItem()),
-      onPrevious: () => unawaited(_navigateToPreviousItem()),
+      onNext: () { _episodeAttention.interact(); unawaited(_navigateToNextItem()); },
+      onPrevious: () { _episodeAttention.interact(); unawaited(_navigateToPreviousItem()); },
       onStop: () => unawaited(_handleBackButton()),
       // The platform-reported interval is ignored on purpose; see
       // [_configuredSkipStep].

@@ -361,6 +361,14 @@ class PlaybackSettingsScreen extends StatelessWidget {
         subtitle: t.settings.autoPlayNextEpisodeDescription,
       ),
       SettingNumberTile(
+        pref: SettingsService.stillWatchingEpisodes,
+        icon: Symbols.pause_circle_rounded,
+        title: 'Ainda está assistindo?',
+        subtitleBuilder: (v) => v == 0 ? 'Pergunta por episódios desligada' : 'Após $v episódios sem interação',
+        labelText: 'Episódios (0 desliga)',
+        suffixText: 'episódios',
+      ),
+      SettingNumberTile(
         pref: SettingsService.playNextCountdown,
         icon: Symbols.timer_rounded,
         title: t.settings.playNextCountdown,

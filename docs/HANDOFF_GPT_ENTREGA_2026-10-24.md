@@ -2033,3 +2033,88 @@ Próxima ação quando Actions for liberado:
   a partir das lacunas desatualizadas do relatório. O não foi marcada pronta.
 - Pendente: revisão do Claude/retomada da O e prova física de PiP pelo Caio.
   Último APK verde continua o artifact **12680944377**, run **40387651870**.
+
+### Confirmação física recebida de Caio — 26/10/2026
+
+Caio informou nesta conversa: **“O PiP está funcionando, acabei de testar”**,
+com o vídeo `VID-20261026-WA0023.mp4` (anexo da conversa; não publicado no
+repositório). SHA-256 do anexo recebido:
+`6ac9c9a524c4b98e106fb58028104c239ef0dad44def2f732bf35ba9e707c08d`.
+É uma confirmação do usuário em aparelho real para PiP; não muda retroativamente
+o resultado vermelho da bancada nem prova, por si só, o cenário específico de
+“Continuar ouvindo ao sair” ligado → Home do Android → voltar ao vídeo. O relato
+não identifica o número do APK instalado. Sem novas execuções para investigar M.
+
+### O parcial autorizada — em implementação sobre 54d6053
+
+Escopo decidido por Caio/Claude: Novidades próprias e manuais, motivos de conversão
+informados pelo Jellyfin na reprodução ativa, pergunta por N episódios sem interação
+reutilizando o prompt, e BIF como falha conhecida executável. Versão alvo 2.0.33+34.
+Nenhum port de BIF/partTimeline, migração do esquema 23, pacote nativo/AAR,
+estimativa/automação por temporada ou conferência física de DV7: são etapas
+separadas, dependentes de aprovação. A N e as correções K permanecem.
+Resultados do portão, commit e APK serão acrescentados após inspeção real.
+
+### Retomada solicitada em 27/10 — handoff Whatbox indisponível neste ambiente
+
+O portão local da O parcial terminou **APROVADO** (`/tmp/o-gate.log`),
+incluindo os 8 testes Impeller. Alterações locais ainda sem commit/push;
+HEAD permanece `54d6053`, pubspec local em 2.0.33+34. Nenhum run de APK
+desta implementação foi iniciado.
+
+Caio pediu assumir a seção 2 de
+`~/cgflix/handoffs/2026-10-26_claude_para_codex_whatbox.md`. Esse arquivo
+não existe no HOME deste executor (`/home/agent`) nem foi encontrado em
+`/workspace`, `/home/agent` ou na árvore remota do ramo após fetch.
+Sem ferramentas/conexão Whatbox disponíveis nesta sessão. Aguardando o
+conteúdo ou localização acessível do handoff antes de executar instruções
+que ainda não puderam ser lidas. As alterações locais foram preservadas.
+
+### O parcial — entrega Ultron, 27/10/2026 — 2.0.33+34
+
+O comando de handoff da Whatbox foi cancelado pelo Caio: destinava-se à Jocasta,
+não a este executor. **M fechada no aparelho real por decisão explícita do Caio**,
+que confirmou o PiP. A bancada histórica permanece com seus resultados originais;
+nenhum run adicional foi disparado para investigar M.
+
+Implementação própria, sem copiar código do Plezy:
+
+- **Novidades:** tela com paleta Heisuca, Sora/Inter e selo; entrada no Sobre e
+  aviso discreto uma vez por versão, restritos à fonte Jellyfin. Texto escrito
+  à mão em `apps/app/assets/heisuca/CHANGELOG_USUARIO.md`, incluído no app e no
+  mesmo artifact do APK. Conta a origem próxima do Plezy 2.22.0 e o fork independente.
+- **Esta reprodução:** nos ajustes do player, mostra o método efetivo da sessão
+  e traduz `TranscodeReasons` da URL negociada pelo próprio Jellyfin. O snapshot
+  acompanha o resultado da inicialização/troca de fonte; não infere motivos dos
+  codecs do arquivo nem usa o motivo de fallback como motivo de conversão.
+  Ausência e código desconhecido são declarados; nenhum token/URL é exibido.
+- **Ainda está assistindo?:** amplia o prompt existente. Padrão 3 episódios;
+  quantidade configurável em Reprodução, 0 desliga só essa condição. EOF aceito
+  conta uma vez; toque, tecla e comandos explícitos de transporte reiniciam a
+  contagem. Antes de avançar, pausa e aguarda resposta. Continuar abre o próximo;
+  o temporizador conserva o prazo. Parar no fim do vídeo tem prioridade.
+  Watch Together conserva sua própria política (não aplica esta contagem).
+- **BIF:** reprodução negativa executada no portão, marcada XFAIL, esperado 254,
+  obtido 16. Não é teste ignorado: só aceita a falha conhecida; XPASS ou resultado
+  diferente falham e exigem revisão. Código do BIF intacto.
+
+**Portão local completo aprovado**, `/tmp/o-gate.log`: 843 testes Flutter,
+3 ignorados já existentes, 8 Impeller e 37 Python. Análise sem erros fatais;
+`git diff --check` passou. O portão inclui os testes reais de negociação Jellyfin,
+reload/EOF do player e temporizador. Prova negativa com o caminho anterior do
+prompt: esperado true, obtido false; com a implementação nova, pausa, EOF duplicado,
+31 segundos de espera, Continuar/abertura do próximo e prioridade do temporizador
+passaram. O temporizador de 20 minutos manteve o mesmo prazo. Aviso Jellyfin único,
+ausência no Plex e texto ampliado em 320 px também cobertos.
+
+**Fora desta entrega, por decisão do Caio:** port da prévia/BIF (`partTimeline`),
+coleções offline (migração a partir do esquema 23), pacote nativo do mpv/AAR,
+estimativa/automação por temporada e conferência física de DV7. Cada parte exige
+etapa própria aprovada. Não alterados seleção semântica de faixas, executor de
+sincronização, políticas DV7, fontes da N ou correções K/rota de retorno.
+
+**Revisão independente pendente:** Jarvis, Visão e Jocasta conferem a entrega.
+Testes locais do autor não representam aprovação deles nem teste físico dos novos
+fluxos. Não foi publicado APK em produção ou em servidor de teste por este executor.
+Commit e números dos runs são registrados abaixo após o push; a bancada deste push
+é a execução automática exigida para a entrega, não uma retomada da investigação M.

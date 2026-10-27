@@ -442,6 +442,9 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
       isOffline: false,
       isTranscoding: isTranscoding,
       fallbackReason: fallbackReason,
+      delivery: dialect.backend.name == 'jellyfin' ? HeisucaPlaybackDelivery.jellyfin(
+        method: playMethod, transcodingUrl: chosenSource?['TranscodingUrl'] is String ? chosenSource!['TranscodingUrl'] as String : null,
+      ) : null,
       activeAudioStreamId: requestedAudioStreamId,
       playSessionId: playSessionId,
       playMethod: playMethod,

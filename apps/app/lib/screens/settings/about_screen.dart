@@ -1,4 +1,5 @@
 import 'dart:ui';
+import '../../heisuca/heisuca_news.dart';
 import 'package:flutter/material.dart';
 import 'package:heisuca/widgets/app_icon.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -105,6 +106,13 @@ class AboutScreen extends StatelessWidget {
                     margin: EdgeInsets.zero,
                     children: [
                       const CgflixDicasAboutTile(),
+                      if (heisucaNewsAvailable(context))
+                        FocusableListTile(
+                          leading: const AppIcon(Symbols.auto_awesome_rounded, fill: 0),
+                          title: const Text('Novidades'),
+                          subtitle: const Text('O que mudou no Heisuca.'),
+                          onTap: () => Navigator.push(context, MaterialPageRoute<void>(builder: (_) => const HeisucaNewsScreen())),
+                        ),
                       FocusableListTile(
                         leading: const AppIcon(Symbols.description_rounded, fill: 1),
                         title: Text(t.about.openSourceLicenses),

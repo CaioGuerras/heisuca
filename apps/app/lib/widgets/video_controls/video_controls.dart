@@ -1,3 +1,4 @@
+import 'package:heisuca/heisuca/services/heisuca_playback_delivery.dart';
 import 'dart:async' show StreamSubscription, Timer, unawaited;
 import 'dart:io' show Platform;
 
@@ -554,6 +555,7 @@ class PlexVideoControls extends StatefulWidget {
   final int selectedMediaIndex;
   final TranscodeQualityPreset selectedQualityPreset;
   final bool serverSupportsTranscoding;
+  final HeisucaPlaybackDelivery? delivery;
   final bool isTranscoding;
   final bool isOfflinePlayback;
   final List<MediaAudioTrack> sourceAudioTracks;
@@ -697,6 +699,7 @@ class PlexVideoControls extends StatefulWidget {
     this.selectedQualityPreset = TranscodeQualityPreset.original,
     this.serverSupportsTranscoding = false,
     this.isTranscoding = false,
+    this.delivery,
     this.isOfflinePlayback = false,
     this.sourceAudioTracks = const [],
     this.selectedAudioStreamId,

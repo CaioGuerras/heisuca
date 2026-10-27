@@ -358,6 +358,7 @@ class _PlayNextEpisodeHeader extends StatelessWidget {
 
 class VideoPlayerStillWatchingOverlay extends StatelessWidget {
   final bool visible;
+  final bool pausedForEpisodes;
   final ValueListenable<int> countdown;
   final FocusNode pauseFocusNode;
   final FocusNode continueFocusNode;
@@ -368,6 +369,7 @@ class VideoPlayerStillWatchingOverlay extends StatelessWidget {
   const VideoPlayerStillWatchingOverlay({
     super.key,
     required this.visible,
+    this.pausedForEpisodes = false,
     required this.countdown,
     required this.pauseFocusNode,
     required this.continueFocusNode,
@@ -391,7 +393,9 @@ class VideoPlayerStillWatchingOverlay extends StatelessWidget {
         ValueListenableBuilder<int>(
           valueListenable: countdown,
           builder: (context, seconds, child) => Text(
-            t.videoControls.pausingIn(seconds: '$seconds'),
+            pausedForEpisodes
+                ? 'Reprodução pausada. Continuar com o próximo episódio?'
+                : t.videoControls.pausingIn(seconds: '$seconds'),
             style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: .w600),
           ),
         ),
@@ -403,10 +407,11 @@ class VideoPlayerStillWatchingOverlay extends StatelessWidget {
           confirmFocusNode: continueFocusNode,
           onConfirm: onContinue,
           confirmChildren: [
-            ValueListenableBuilder<int>(
-              valueListenable: countdown,
-              builder: (context, seconds, child) => Text('$seconds'),
-            ),
+            if (!pausedForEpisodes)
+              ValueListenableBuilder<int>(
+                valueListenable: countdown,
+                builder: (context, seconds, child) => Text('$seconds'),
+              ),
             const SizedBox(width: 4),
             Text(t.videoControls.continueWatching),
           ],

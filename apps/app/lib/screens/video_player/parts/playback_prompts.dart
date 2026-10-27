@@ -102,6 +102,21 @@ extension _VideoPlayerPlaybackPromptMethods on VideoPlayerScreenState {
       // waits for a person instead of counting down.
       final serverStopped = _progressTracker?.stoppedByServer ?? false;
 
+      // A contagem acontece uma vez por EOF aceito (latch acima), antes do
+      // atalho de PiP/autoplay. Temporizador de fim de vídeo já teve prioridade.
+      if (_currentMetadata.isEpisode &&
+          _activeWatchTogetherSession() == null &&
+          SettingsService.instance.read(SettingsService.autoPlayNextEpisode) &&
+          !serverStopped &&
+          _episodeAttention.finish(limit: SettingsService.instance.read(SettingsService.stillWatchingEpisodes))) {
+        final currentPlayer = player;
+        final completedItem = _currentMetadata;
+        if (currentPlayer != null) await _pauseWithPlaybackIntent(currentPlayer);
+        if (!mounted || _shuttingDown || currentPlayer != player || completedItem != _currentMetadata) return;
+        _showStillWatchingDialog(forEpisodes: true);
+        return;
+      }
+
       // PiP: skip dialog (user can't interact), auto-play immediately
       if (PipService().isPipActive.value && !serverStopped) {
         _logVideoCompleted('action=presentNext pip');
@@ -336,12 +351,18 @@ extension _VideoPlayerPlaybackPromptMethods on VideoPlayerScreenState {
     );
   }
 
-  void _showStillWatchingDialog() {
+  void _showStillWatchingDialog({bool forEpisodes = false}) {
+    if (_showStillWatchingPrompt) {
+      if (!forEpisodes && _episodeAttentionPrompt) _sleepPromptAlsoPending = true;
+      return;
+    }
     // Don't show if auto-play dialog is already visible
     if (_episode.showPlayNextDialog) return;
 
     final isKeyboardMode = PlatformDetector.isTV() && InputModeTracker.isKeyboardMode(context, listen: false);
 
+    _episodeAttentionPrompt = forEpisodes;
+    _sleepPromptAlsoPending = false;
     _setPlayerState(() {
       _showStillWatchingPrompt = true;
       _stillWatchingCountdown.value = 30;
@@ -354,6 +375,7 @@ extension _VideoPlayerPlaybackPromptMethods on VideoPlayerScreenState {
     }
 
     _stillWatchingTimer?.cancel();
+    if (forEpisodes) return; // Já pausado: aguarda resposta, inclusive ao voltar do PiP.
     _stillWatchingTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) {
         timer.cancel();
@@ -380,10 +402,15 @@ extension _VideoPlayerPlaybackPromptMethods on VideoPlayerScreenState {
   void _onStillWatchingContinue() {
     _stillWatchingTimer?.cancel();
     _unfocusStillWatchingPrompt();
-    SleepTimerService().restartTimer();
+    final advanceEpisode = _episodeAttentionPrompt;
+    if (!advanceEpisode || _sleepPromptAlsoPending) SleepTimerService().restartTimer();
+    _episodeAttention.interact();
+    _episodeAttentionPrompt = false;
+    _sleepPromptAlsoPending = false;
     _setPlayerState(() {
       _showStillWatchingPrompt = false;
     });
+    if (advanceEpisode) unawaited(_playNext());
   }
 
   void _onStillWatchingPause() {
@@ -404,7 +431,9 @@ extension _VideoPlayerPlaybackPromptMethods on VideoPlayerScreenState {
       // "still watching" acknowledgement as Continue: re-arm the sleep timer.
       // Guarded on prompt visibility — ordinary navigation also dismisses
       // here and must leave an armed timer untouched.
-      SleepTimerService().restartTimer();
+      if (!_episodeAttentionPrompt || _sleepPromptAlsoPending) SleepTimerService().restartTimer();
+      _episodeAttentionPrompt = false;
+      _sleepPromptAlsoPending = false;
       _setPlayerState(() {
         _showStillWatchingPrompt = false;
       });

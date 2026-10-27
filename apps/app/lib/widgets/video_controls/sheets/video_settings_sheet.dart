@@ -992,6 +992,15 @@ class _VideoSettingsSheetState extends State<VideoSettingsSheet> {
           title: t.videoSettings.performanceOverlay,
         ),
 
+        if (_state.delivery case final delivery?)
+          Padding(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const Text('Esta reprodução', style: TextStyle(fontFamily: 'Sora', fontSize: 16)),
+              const SizedBox(height: 8), Text(delivery.summary),
+              if (delivery.method == 'Transcode') ...[
+                const SizedBox(height: 8), Text(delivery.explanation),
+              ],
+            ])),
         // File Info for the playing item (#2229), the same breakdown as the
         // library's File Info entry. Read-only, so Watch Together guests get it.
         if (_fileInfoClient() case final client?)

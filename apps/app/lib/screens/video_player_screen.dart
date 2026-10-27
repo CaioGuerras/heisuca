@@ -1,3 +1,4 @@
+import '../heisuca/services/heisuca_episode_attention.dart';
 import 'dart:async';
 import '../services/playback_launch_observer.dart';
 import '../media/ids.dart';
@@ -859,6 +860,16 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
   late final FocusNode _playNextCancelFocusNode;
   late final FocusNode _playNextConfirmFocusNode;
 
+  final _episodeAttention = HeisucaEpisodeAttention();
+  bool _episodeAttentionPrompt = false;
+  bool _sleepPromptAlsoPending = false;
+  bool _recordAttentionKey(KeyEvent event) {
+    if (mounted && ModalRoute.of(context)?.isCurrent != false && event is KeyDownEvent) {
+      _episodeAttention.interact();
+    }
+    return false; // Observar não consome nem muda a navegação aprovada.
+  }
+
   bool _showStillWatchingPrompt = false;
   final ValueNotifier<int> _stillWatchingCountdown = ValueNotifier<int>(30);
   Timer? _stillWatchingTimer;
@@ -1245,6 +1256,9 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
   void debugCompleteVideoForTesting() => _onVideoCompleted(true);
 
   @visibleForTesting
+  bool get debugStillWatchingForEpisodes => _showStillWatchingPrompt && _episodeAttentionPrompt;
+
+  @visibleForTesting
   bool get debugPlayNextPromptVisibleForTesting => _episode.showPlayNextDialog;
 
   @visibleForTesting
@@ -1318,6 +1332,7 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
   @override
   void initState() {
     super.initState();
+    HardwareKeyboard.instance.addHandler(_recordAttentionKey);
     PlaybackCoordinator.instance.registerVideoSession(shutdown: _shutdownVideo, stopAndExit: _stopVideoAndExit);
     SleepTimerService().bindPlayback(
       owner: this,
@@ -1694,8 +1709,11 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
       // the lint cannot see the mounted check inside the helper.
       if (!mounted || !_isPlayerInitializationCurrent(generation)) return;
       _autoPipEnabled = settingsService.read(SettingsService.autoPip);
-      _continueListeningEnabled = Platform.isAndroid && PlatformDetector.isMobile(context) &&
-          !PlatformDetector.isAutomotive() && settingsService.read(SettingsService.continueListening);
+      _continueListeningEnabled =
+          Platform.isAndroid &&
+          PlatformDetector.isMobile(context) &&
+          !PlatformDetector.isAutomotive() &&
+          settingsService.read(SettingsService.continueListening);
       _releaseOutsideAppSettings ??= bindListenable(
         settingsService.listenableOfAll(const [SettingsService.autoPip, SettingsService.continueListening]),
         () => _enqueueLifecycleTransition('outside_app_setting', _applyOutsideAppSettings),
@@ -2295,9 +2313,11 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
     if (_isReplacingWithVideo || _routeExitOperation != null) return;
     final cleanup = _shutdownVideo(pauseForRouteExit: true);
     _routeExitOperation = cleanup;
-    unawaited(cleanup.catchError((Object error, StackTrace stackTrace) {
-      appLogger.w('Player: limpeza após voltar', error: error, stackTrace: stackTrace);
-    }));
+    unawaited(
+      cleanup.catchError((Object error, StackTrace stackTrace) {
+        appLogger.w('Player: limpeza após voltar', error: error, stackTrace: stackTrace);
+      }),
+    );
     unawaited(_restoreSystemUiAndOrientation());
   }
 
@@ -2412,6 +2432,7 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
 
   @override
   void dispose() {
+    HardwareKeyboard.instance.removeHandler(_recordAttentionKey);
     PlaybackCoordinator.instance.unregisterVideoSession(
       _shutdownVideo,
       retirement: () async {
@@ -2560,7 +2581,6 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
       unawaited(_restoreSystemUiAndOrientation());
     }
 
-
     final volumeController = _volumeController;
     _volumeController = null;
     volumeController?.dispose();
@@ -2639,6 +2659,7 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
   /// prompts, route exit and episode reloads — none of which are user
   /// commands. Each accepted command site opts in explicitly instead (#1676).
   void _announceTransportCommand({required bool willPlay}) {
+    _episodeAttention.interact();
     if (!mounted) return;
     // Visible chrome already renders the play/pause state.
     if (_chromeController.controlsVisible) return;
@@ -2655,6 +2676,7 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
   /// here — wheel, shortcut keys, the OSD slider, companion remote — while
   /// volume the player reports on its own never does.
   void _announceVolumeCommand(double volume) {
+    _episodeAttention.interact();
     if (!mounted) return;
     final percent = volume.round();
     final icon = percent == 0
@@ -2991,123 +3013,138 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
     // - autofocus: grabs focus when no deeper child claims it.
     // - onKeyEvent: owns player-level navigation after descendants have had the
     //   opportunity to handle local layers such as sheets and content strips.
-    return Focus(
-      focusNode: _screenFocusNode,
-      autofocus: isCurrentRoute,
-      canRequestFocus: isCurrentRoute,
-      onKeyEvent: (node, event) {
-        if (!isCurrentRoute) return KeyEventResult.ignored;
-        final navigationKey = classifyPlayerNavigationKey(event, isAppleTV: PlatformDetector.isAppleTV());
-        if (navigationKey != PlayerNavigationKey.none) {
-          if (navigationKey != PlayerNavigationKey.home && PlatformDetector.isTV() && event is KeyDownEvent) {
-            BackKeyCoordinator.markHandled();
+    return Listener(
+      onPointerDown: (_) => _episodeAttention.interact(),
+      onPointerSignal: (_) => _episodeAttention.interact(),
+      child: Focus(
+        focusNode: _screenFocusNode,
+        autofocus: isCurrentRoute,
+        canRequestFocus: isCurrentRoute,
+        onKeyEvent: (node, event) {
+          if (!isCurrentRoute) return KeyEventResult.ignored;
+          final navigationKey = classifyPlayerNavigationKey(event, isAppleTV: PlatformDetector.isAppleTV());
+          if (navigationKey != PlayerNavigationKey.none) {
+            if (navigationKey != PlayerNavigationKey.home && PlatformDetector.isTV() && event is KeyDownEvent) {
+              BackKeyCoordinator.markHandled();
+            }
+            return handlePlayerNavigationKeyAction(
+              event,
+              navigationKey,
+              () => _handleScreenPlayerNavigation(navigationKey),
+            );
           }
-          return handlePlayerNavigationKeyAction(
-            event,
-            navigationKey,
-            () => _handleScreenPlayerNavigation(navigationKey),
-          );
-        }
-        // Hardware media transport must act even when focus rests on this
-        // node or a sibling overlay — otherwise the key only reveals the
-        // chrome and leaks to the (possibly stale/suspended) Android
-        // MediaSession (#1375). Gated to TV-style nav: on desktop the global
-        // HardwareKeyboard handler already acts (handlers don't stop focus
-        // dispatch), and Apple TV delivers play/pause via its native bridge.
-        // The chrome deliberately stays down; _remoteTransport announces the
-        // accepted command with a centred transient disc instead (#1676).
-        final transportCommand = classifyTransportKey(event.logicalKey);
-        if (videoPlayerNavigationPreference() && !PlatformDetector.isAppleTV() && transportCommand != null) {
-          if (event is KeyDownEvent) {
-            unawaited(_remoteTransport(transportCommand, source: 'Hardware media key'));
-          }
-          return KeyEventResult.handled; // consume down, repeat, and up
-        }
-        // The skip keys need the same ownership, and unconditionally: no
-        // global handler and no native bridge ever acts on them, so a gate
-        // here would only decide which platform leaks. Reached whenever the
-        // controls' own node is out of the focus chain (route opening, PiP,
-        // window reactivation, self-heal); the controls consume these keys
-        // first whenever they are in it, so this can never double-act.
-        //
-        // A plain step, deliberately, where the controls would jump a chapter
-        // and name it: every window this is reached in is one with no chrome
-        // to put a toast in, and an unannounced chapter jump moves the
-        // playhead minutes with nothing on screen to say so. The predictable
-        // step is the safer answer when the feedback is missing — see
-        // `_seekToChapterWithFeedback` for the chaptered path.
-        final seekDirection = classifyPlayerSkipKey(event.logicalKey);
-        if (seekDirection != null) {
-          // Denied authority (a Watch Together room the viewer does not
-          // drive) still consumes the key: leaking it moves the playhead
-          // through the platform instead, which is exactly what authority is
-          // supposed to prevent.
-          if (_canControlPlayback()) {
+          // Hardware media transport must act even when focus rests on this
+          // node or a sibling overlay — otherwise the key only reveals the
+          // chrome and leaks to the (possibly stale/suspended) Android
+          // MediaSession (#1375). Gated to TV-style nav: on desktop the global
+          // HardwareKeyboard handler already acts (handlers don't stop focus
+          // dispatch), and Apple TV delivers play/pause via its native bridge.
+          // The chrome deliberately stays down; _remoteTransport announces the
+          // accepted command with a centred transient disc instead (#1676).
+          final transportCommand = classifyTransportKey(event.logicalKey);
+          if (videoPlayerNavigationPreference() && !PlatformDetector.isAppleTV() && transportCommand != null) {
             if (event is KeyDownEvent) {
-              _skipByConfiguredStep(forward: seekDirection == MediaSeekDirection.forward);
-            } else if (event is KeyUpEvent) {
-              // The press is over: commit now rather than sitting out the
-              // debounce, exactly as the controls do on key-up.
-              _relativeSkip.flush();
+              unawaited(_remoteTransport(transportCommand, source: 'Hardware media key'));
             }
+            return KeyEventResult.handled; // consume down, repeat, and up
           }
-          return KeyEventResult.handled; // consume down, repeat, and up
-        }
-        // Self-heal: if this node itself has primary focus (no descendant
-        // focused, e.g. during loading or after a window re-activation),
-        // redirect to the first descendant. Arrows stay playback shortcuts on
-        // desktop unless the viewer opted into player navigation; only Tab and
-        // a remote's OK deliberately pull focus into the OSD (#1797). Consuming
-        // reserved control keys either way keeps them from leaking to the route
-        // below.
-        if (node.hasPrimaryFocus) {
-          if (event.isActionable) {
-            // One decision drives both halves: the key that hands the chrome
-            // focus is the same key that switches the app into keyboard mode,
-            // so focus can never land on a control while focus chrome is still
-            // suppressed. For an arrow this already answers "did the viewer opt
-            // into player navigation", because the screen node owns arrows
-            // exactly while that setting is off.
-            final navigating = eventRequestsFocusNavigation(event, focused: node);
-            if (!event.logicalKey.isDpadDirection || navigating) {
-              _chromeController.show(focusPlayPause: navigating);
+          // The skip keys need the same ownership, and unconditionally: no
+          // global handler and no native bridge ever acts on them, so a gate
+          // here would only decide which platform leaks. Reached whenever the
+          // controls' own node is out of the focus chain (route opening, PiP,
+          // window reactivation, self-heal); the controls consume these keys
+          // first whenever they are in it, so this can never double-act.
+          //
+          // A plain step, deliberately, where the controls would jump a chapter
+          // and name it: every window this is reached in is one with no chrome
+          // to put a toast in, and an unannounced chapter jump moves the
+          // playhead minutes with nothing on screen to say so. The predictable
+          // step is the safer answer when the feedback is missing — see
+          // `_seekToChapterWithFeedback` for the chaptered path.
+          final seekDirection = classifyPlayerSkipKey(event.logicalKey);
+          if (seekDirection != null) {
+            // Denied authority (a Watch Together room the viewer does not
+            // drive) still consumes the key: leaking it moves the playhead
+            // through the platform instead, which is exactly what authority is
+            // supposed to prevent.
+            if (_canControlPlayback()) {
+              if (event is KeyDownEvent) {
+                _skipByConfiguredStep(forward: seekDirection == MediaSeekDirection.forward);
+              } else if (event is KeyUpEvent) {
+                // The press is over: commit now rather than sitting out the
+                // debounce, exactly as the controls do on key-up.
+                _relativeSkip.flush();
+              }
             }
+            return KeyEventResult.handled; // consume down, repeat, and up
           }
-          return event.logicalKey.isReservedControlKey ? KeyEventResult.handled : KeyEventResult.ignored;
-        }
-        // A descendant has focus — let events pass through so
-        // DirectionalFocusAction / ActivateAction can process them.
-        return KeyEventResult.ignored;
-      },
-      child: ListenableBuilder(listenable: _chromeController, builder: (context, _) => OverlaySheetHost(
-        // Só estados efêmeros bloqueiam o pop; no celular a rota pode acompanhar
-        // o gesto oficial. O host já impede sair enquanto uma folha está aberta.
-        canPop: PlatformDetector.isMobile(context) && !_chromeController.contentStripVisible &&
-            !_episode.showPlayNextDialog && !_showStillWatchingPrompt &&
-            !context.select<WatchTogetherProvider?, bool>((session) => identical(session, _watchTogetherProvider) &&
-                session != null && session.isInSession && !session.isHost),
-        onPopped: _handleCommittedPlayerPop,
-        onSystemBack: () {
-          if (BackKeyCoordinator.consumeIfHandled()) return;
-          BackKeyCoordinator.markHandled();
-          _handleScreenPlayerNavigation(PlayerNavigationKey.back);
+          // Self-heal: if this node itself has primary focus (no descendant
+          // focused, e.g. during loading or after a window re-activation),
+          // redirect to the first descendant. Arrows stay playback shortcuts on
+          // desktop unless the viewer opted into player navigation; only Tab and
+          // a remote's OK deliberately pull focus into the OSD (#1797). Consuming
+          // reserved control keys either way keeps them from leaking to the route
+          // below.
+          if (node.hasPrimaryFocus) {
+            if (event.isActionable) {
+              // One decision drives both halves: the key that hands the chrome
+              // focus is the same key that switches the app into keyboard mode,
+              // so focus can never land on a control while focus chrome is still
+              // suppressed. For an arrow this already answers "did the viewer opt
+              // into player navigation", because the screen node owns arrows
+              // exactly while that setting is off.
+              final navigating = eventRequestsFocusNavigation(event, focused: node);
+              if (!event.logicalKey.isDpadDirection || navigating) {
+                _chromeController.show(focusPlayPause: navigating);
+              }
+            }
+            return event.logicalKey.isReservedControlKey ? KeyEventResult.handled : KeyEventResult.ignored;
+          }
+          // A descendant has focus — let events pass through so
+          // DirectionalFocusAction / ActivateAction can process them.
+          return KeyEventResult.ignored;
         },
-        child: Builder(
-          key: _overlayChildKey,
-          builder: (sheetContext) {
-            final playbackFailure = _playbackFailureMessage;
-            if (playbackFailure != null) {
-              return _buildPlaybackFailure(playbackFailure, onRetry: _playbackFailureRetry!);
-            }
-            if (_isPlayerInitialized && player != null) return _buildVideoPlayer(sheetContext);
-            final initializationError = _playerInitializationError;
-            if (initializationError != null) {
-              return _buildPlaybackFailure(initializationError, onRetry: _retryPlayerInitialization);
-            }
-            return _buildLoadingSpinner();
-          },
+        child: ListenableBuilder(
+          listenable: _chromeController,
+          builder: (context, _) => OverlaySheetHost(
+            // Só estados efêmeros bloqueiam o pop; no celular a rota pode acompanhar
+            // o gesto oficial. O host já impede sair enquanto uma folha está aberta.
+            canPop:
+                PlatformDetector.isMobile(context) &&
+                !_chromeController.contentStripVisible &&
+                !_episode.showPlayNextDialog &&
+                !_showStillWatchingPrompt &&
+                !context.select<WatchTogetherProvider?, bool>(
+                  (session) =>
+                      identical(session, _watchTogetherProvider) &&
+                      session != null &&
+                      session.isInSession &&
+                      !session.isHost,
+                ),
+            onPopped: _handleCommittedPlayerPop,
+            onSystemBack: () {
+              if (BackKeyCoordinator.consumeIfHandled()) return;
+              BackKeyCoordinator.markHandled();
+              _handleScreenPlayerNavigation(PlayerNavigationKey.back);
+            },
+            child: Builder(
+              key: _overlayChildKey,
+              builder: (sheetContext) {
+                final playbackFailure = _playbackFailureMessage;
+                if (playbackFailure != null) {
+                  return _buildPlaybackFailure(playbackFailure, onRetry: _playbackFailureRetry!);
+                }
+                if (_isPlayerInitialized && player != null) return _buildVideoPlayer(sheetContext);
+                final initializationError = _playerInitializationError;
+                if (initializationError != null) {
+                  return _buildPlaybackFailure(initializationError, onRetry: _retryPlayerInitialization);
+                }
+                return _buildLoadingSpinner();
+              },
+            ),
+          ),
         ),
-      )),
+      ),
     );
   }
 }

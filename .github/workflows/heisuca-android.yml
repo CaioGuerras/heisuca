@@ -136,6 +136,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: heisuca-apk
-          path: apps/app/dist/*.apk
+          path: |
+            apps/app/dist/*.apk
+            apps/app/assets/heisuca/CHANGELOG_USUARIO.md
           retention-days: 14
 

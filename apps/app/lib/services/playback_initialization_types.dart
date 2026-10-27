@@ -1,3 +1,4 @@
+import '../heisuca/services/heisuca_playback_delivery.dart';
 import '../exceptions/media_server_exceptions.dart';
 import '../i18n/strings.g.dart';
 import '../media/media_item.dart';
@@ -118,6 +119,7 @@ enum TranscodeFallbackReason {
 
 /// Result of playback initialization
 class PlaybackInitializationResult {
+  final HeisucaPlaybackDelivery? delivery;
   final List<MediaVersion> availableVersions;
   final String? videoUrl;
   final MediaSourceInfo? mediaInfo;
@@ -169,6 +171,7 @@ class PlaybackInitializationResult {
 
   PlaybackInitializationResult({
     required this.availableVersions,
+    this.delivery,
     this.videoUrl,
     this.mediaInfo,
     this.subtitleSidecars = const [],

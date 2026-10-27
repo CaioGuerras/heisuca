@@ -1006,7 +1006,7 @@ void main() {
             'MediaSources': [
               {
                 'Id': 'src-1',
-                'TranscodingUrl': '/Videos/item-1/master.m3u8?MediaSourceId=src-1&PlaySessionId=play-session-1',
+                'TranscodingUrl': '/Videos/item-1/master.m3u8?MediaSourceId=src-1&PlaySessionId=play-session-1&TranscodeReasons=ContainerBitrateExceedsLimit',
                 'MediaStreams': [
                   {'Index': 0, 'Type': 'Audio', 'Codec': 'aac', 'Language': 'eng', 'DisplayTitle': 'English - AAC'},
                   {
@@ -1044,6 +1044,8 @@ void main() {
       );
 
       expect(result.isTranscoding, isTrue);
+      expect(result.delivery?.method, 'Transcode');
+      expect(result.delivery?.reasons, ['O arquivo ultrapassa o limite de qualidade da transmissão.']);
       expect(result.playMethod, 'Transcode');
       expect(result.playSessionId, 'play-session-1');
       expect(playbackInfoUris, hasLength(1));

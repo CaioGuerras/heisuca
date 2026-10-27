@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
@@ -10,6 +11,7 @@ import 'package:path_provider_platform_interface/path_provider_platform_interfac
 import 'package:heisuca/database/app_database.dart';
 import 'package:heisuca/i18n/strings.g.dart';
 import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/media/media_kind.dart';
 import 'package:heisuca/media/media_backend.dart';
 import 'package:heisuca/media/media_server_client.dart';
 import 'package:heisuca/media/play_queue.dart';
@@ -63,6 +65,7 @@ void main() {
   late AppDatabase db;
 
   setUp(() async {
+    await initializeDateFormatting();
     resetSharedPreferencesForTest();
     SettingsService.resetForTesting();
     DownloadStorageService.resetForTesting();
@@ -659,6 +662,7 @@ void main() {
   Future<({GlobalKey<VideoPlayerScreenState> key, _ReloadPlayer player})> pumpReloadScreen(
     WidgetTester tester, {
     WatchTogetherProvider? watchTogether,
+    bool episode = false,
   }) async {
     final client = _ReloadClient();
     final multi = testMultiServer(clients: [client]);
@@ -676,7 +680,7 @@ void main() {
       accountPreferences.dispose();
     });
     final key = GlobalKey<VideoPlayerScreenState>();
-    final item = testMediaItem(id: 'movie-prior', serverId: 'srv-1', backend: MediaBackend.jellyfin);
+    final item = testMediaItem(id: 'movie-prior', serverId: 'srv-1', backend: MediaBackend.jellyfin, kind: episode ? MediaKind.episode : MediaKind.movie);
     await tester.pumpWidget(
       MultiProvider(
         providers: [
@@ -702,6 +706,59 @@ void main() {
     addTearDown(fakePlayer.dispose);
     key.currentState!.player = fakePlayer;
     return (key: key, player: fakePlayer);
+  }
+
+  for (final endTimer in [false, true]) {
+  testWidgets('O: pergunta por episódio preserva temporizador (fim: $endTimer)', (tester) async {
+    await SettingsService.instance.write(SettingsService.stillWatchingEpisodes, 1);
+    await withMockPlayerChannels(
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
+      testBody: () async {
+        final screen = await pumpReloadScreen(tester, episode: true);
+        final state = screen.key.currentState!;
+        await state.debugWirePlayerStreamsForTesting();
+        screen.player.emitPlaybackRestart();
+        await state.debugMarkPlaybackStartedForTesting();
+        await tester.pump();
+        final next = testMediaItem(id: 'next', title: 'Próximo episódio', kind: MediaKind.episode, serverId: 'srv-1', backend: MediaBackend.jellyfin);
+        state.debugCommitAdjacentEpisodesForTesting(AdjacentEpisodes(next: next,
+          nextStatus: QueueNavigationStatus.found, previousStatus: QueueNavigationStatus.boundary));
+        SleepTimerService().startTimer(const Duration(minutes: 20));
+        addTearDown(() => SleepTimerService().cancelTimer());
+        if (endTimer) SleepTimerService().armEndOfVideo();
+        final deadline = SleepTimerService().endTime;
+        state.debugCompleteVideoForTesting();
+        await tester.pump();
+        await tester.pump();
+        if (endTimer) {
+          expect(state.debugStillWatchingForEpisodes, isFalse);
+          expect(state.debugPlayNextPromptVisibleForTesting, isFalse);
+          expect(SleepTimerService().isActive, isFalse);
+          await tester.pumpWidget(const SizedBox.shrink());
+          return;
+        }
+        expect(state.debugStillWatchingForEpisodes, isTrue);
+        expect(state.debugPlayNextPromptVisibleForTesting, isFalse);
+        expect(screen.player.state.playing, isFalse);
+        expect(SleepTimerService().endTime, deadline);
+        // EOF duplicado e passagem de 31s não avançam nem removem a pergunta.
+        state.debugCompleteVideoForTesting();
+        await tester.pump(const Duration(seconds: 31));
+        expect(state.debugStillWatchingForEpisodes, isTrue);
+        expect(SleepTimerService().endTime, deadline);
+        await tester.tap(find.text(t.videoControls.continueWatching));
+        await tester.pump();
+        expect(state.debugStillWatchingForEpisodes, isFalse);
+        expect(SleepTimerService().endTime, deadline);
+        await pumpUntil(tester, () => screen.player.openCalls > 0);
+        expect(screen.player.openCalls, 1);
+        SleepTimerService().cancelTimer();
+        await tester.pumpWidget(const SizedBox.shrink());
+      },
+    );
+  });
+
   }
 
   group('TV background suspend', () {

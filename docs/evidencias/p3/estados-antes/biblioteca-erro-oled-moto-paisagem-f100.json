@@ -1,1 +1,0 @@
-{"tela":"biblioteca","estado":"erro","tema":"oled","dispositivo":"moto","fonte":1.0,"larguraPx":2400.0,"alturaPx":1080.0,"dpr":2.625,"erros":["Falha de carregamento também é apresentada como biblioteca vazia."],"limite":"tela e cliente reais com servidor HTTP falso; sem aparelho"}

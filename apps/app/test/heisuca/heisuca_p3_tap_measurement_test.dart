@@ -17,7 +17,22 @@ void main() {
       node.updateWith(config: SemanticsConfiguration()..onTap = () {}, childrenInInversePaintOrder: []);
       node.rect = rect;
       node.parentPaintClipRect = clip;
+      // Pai rolável: é o único caso em que a borda do recorte é ignorada.
+      final scroller = SemanticsNode();
+      scroller.updateWith(config: SemanticsConfiguration()..onScrollUp = () {},
+        childrenInInversePaintOrder: [node]);
       expect(heisucaTapTargets.shouldSkipNode(node), skip);
     });
   }
+
+  test('P3 prova negativa: botão 24x24 encostado no ClipRect fora de rolagem reprova', () {
+    final node = SemanticsNode();
+    node.updateWith(config: SemanticsConfiguration()..onTap = () {}, childrenInInversePaintOrder: []);
+    node.rect = const Rect.fromLTRB(0, 0, 24, 24);
+    node.parentPaintClipRect = const Rect.fromLTRB(0, 0, 200, 200); // encostado na borda
+    final parent = SemanticsNode();
+    parent.updateWith(config: SemanticsConfiguration()..isSemanticBoundary = true,
+      childrenInInversePaintOrder: [node]);
+    expect(heisucaTapTargets.shouldSkipNode(node), isFalse);
+  });
 }

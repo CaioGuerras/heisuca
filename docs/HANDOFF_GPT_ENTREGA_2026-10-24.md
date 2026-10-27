@@ -2118,3 +2118,15 @@ Testes locais do autor não representam aprovação deles nem teste físico dos 
 fluxos. Não foi publicado APK em produção ou em servidor de teste por este executor.
 Commit e números dos runs são registrados abaixo após o push; a bancada deste push
 é a execução automática exigida para a entrega, não uma retomada da investigação M.
+
+#### Commit e execuções disparadas — O parcial
+
+- Código: `b73790d8cb0a5e1f6d85d3a52e2804900f198cf9`, enviado ao ramo
+  `codex/heisuca-home-site`, sem `[skip ci]`, versão **2.0.33+34**.
+- APK: [40427906574](https://github.com/CaioGuerras/heisuca/actions/runs/40427906574).
+- Bancada: [40427906497](https://github.com/CaioGuerras/heisuca/actions/runs/40427906497).
+- Ambos consultados pela API do GitHub: **em andamento**, ainda sem conclusão.
+  Artifact, certificado e SHA-256 deste APK ainda não estão disponíveis para
+  conferência. Não foram presumidos verdes. Jarvis/Visão/Jocasta fazem a revisão
+  independente e a publicação do pacote de teste. Nenhuma publicação realizada
+  pelo Ultron. Código do BIF e lock nativo não foram alterados.

@@ -112,7 +112,7 @@ jobs:
       - name: Compilar APK Release (arm64-v8a)
         run: |
           preview_args=()
-          if [[ "$GITHUB_REF_NAME" == codex/heisuca-* ]]; then
+          if [[ "$GITHUB_REF_NAME" == codex/heisuca-* || "$GITHUB_REF_NAME" == claude/heisuca-* ]]; then
             preview_args+=(-PheisucaPreview=true)
           fi
           flutter build apk --release --target-platform android-arm64 --split-per-abi -PtargetAbi=arm64-v8a "${preview_args[@]}" --dart-define=GIT_COMMIT=${{ github.sha }}

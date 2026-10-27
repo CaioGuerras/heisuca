@@ -43,7 +43,7 @@ assert digests and all(d.lower() == EXPECTED_CERT_SHA256 for d in digests), \
     'APK não está assinado com a chave do Heisuca (certificado inesperado)'
 badging = subprocess.check_output([str(tools / 'aapt'), 'dump', 'badging', str(apk)], text=True)
 manifest = subprocess.check_output([str(tools / 'aapt'), 'dump', 'xmltree', str(apk), 'AndroidManifest.xml'], text=True)
-preview = os.environ.get('GITHUB_REF_NAME', '').startswith('codex/heisuca-')
+preview = os.environ.get('GITHUB_REF_NAME', '').startswith(('codex/heisuca-', 'claude/heisuca-'))
 package = 'app.heisuca.player.teste.home' if preview else 'app.heisuca.player.teste'
 label = 'Heisuca Teste' if preview else 'Heisuca'
 assert re.search(r"package: name='" + re.escape(package) + r"'", badging), 'applicationId inesperado'

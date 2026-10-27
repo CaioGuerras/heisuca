@@ -2416,3 +2416,11 @@ e bancada [40480544171](https://github.com/CaioGuerras/heisuca/actions/runs/4048
 Na consulta inicial, APK em fila e bancada pendente da execução anterior.
 APK anterior 40478590176 concluiu verde; bancada 40478590180 ainda em andamento.
 Aguardar e inspecionar os runs de **9113a40** antes de fechar P2 e avançar P3.
+
+P2: bancada anterior **40478590180 vermelha**, não ATENÇÃO: PNG 06 totalmente
+preto após segunda reabertura; marco 21 mostrou a obra. Sem ANR e com restauração
+confirmada. Artifact e diagnóstico em `docs/DIAGNOSTICO_P2_BANCADA_2026-10-27.md`,
+PNGs originais preservados. O roteiro aguarda comando/ciclo de vida, sem exigir
+um playback-restart novo. Não atribuir a causa à paleta nem declarar defeito
+permanente/falha de infraestrutura sem prova. P2 não fechada. Runs de 9113a40
+já em curso; nenhuma repetição manual da M.

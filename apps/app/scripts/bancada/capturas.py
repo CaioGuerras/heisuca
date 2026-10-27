@@ -88,7 +88,7 @@ class Capturas:
             (self.output / f'{name}-decodificado.png').write_bytes(decoded)
         image = None
         if name in ('06-player', '21-imagem-apos-audio'):
-            image = analisar(png)
+            image = analisar(png, event.get('geometriaVideo'))
             (self.output / f'{name}-imagem.json').write_text(json.dumps(image, ensure_ascii=False, indent=2))
             print('BANCADA_IMAGEM: ' + json.dumps({'marco': name, **image}, ensure_ascii=False), flush=True)
             if image['imagem'] == 'não':

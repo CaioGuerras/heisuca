@@ -1,7 +1,9 @@
 // Bancada real: sem falsos de rede, player, sessão ou serviços do app.
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 import 'support/video_restore.dart';
+import 'support/video_capture_geometry.dart';
 import 'support/bancada_clock.dart';
 import 'support/pip_overflow_policy.dart';
 
@@ -28,6 +30,8 @@ import 'package:heisuca/utils/pointer_scroll_axis.dart';
 import 'package:heisuca/utils/semantics_tree_gate.dart';
 import 'package:heisuca/widgets/focusable_media_card.dart';
 import 'package:heisuca/widgets/video_controls/mobile_video_controls.dart';
+import 'package:heisuca/widgets/video_controls/video_controls.dart';
+import 'package:heisuca/mpv/video.dart';
 
 class _BancadaBinding extends IntegrationTestWidgetsFlutterBinding with PointerScrollAxisLock, SemanticsTreeGate {
   _BancadaBinding() { configureBancadaFrames(this); }
@@ -122,12 +126,20 @@ void main() {
     }
 
     var sequence = 0;
+    Future<Map<String, Object?>> Function()? captureVideoGeometry;
     Future<void> shot(String name, {bool back = false, String? action, bool decodedFrame = false}) async {
       await waitBancada(binding, const Duration(milliseconds: 400));
+      Map<String, Object?>? geometry;
+      if (name == '06-player' || name == '21-imagem-apos-audio') {
+        final measure = captureVideoGeometry;
+        if (measure == null) throw StateError('A superfície do vídeo ainda não pode ser medida.');
+        geometry = await measure();
+      }
       final seq = ++sequence;
       final pending = File('${support.path}/heisuca-bancada-event.tmp');
       await pending.writeAsString(jsonEncode({'seq': seq, 'name': name, 'back': back, if (action != null) 'action': action,
-        if (decodedFrame) 'decodedFrame': true}), flush: true);
+        if (decodedFrame) 'decodedFrame': true,
+        if (geometry != null) 'geometriaVideo': geometry}), flush: true);
       await pending.rename('${support.path}/heisuca-bancada-event.json');
       final deadline = DateTime.now().add(const Duration(seconds: 45));
       final ack = File('${support.path}/heisuca-bancada-ack.json');
@@ -265,6 +277,27 @@ void main() {
     await tester.tap(playControl.first);
     await until(() => find.byType(MobileVideoControls).evaluate().isNotEmpty, 'player nativo');
     final player = tester.widget<MobileVideoControls>(find.byType(MobileVideoControls).first).player;
+    captureVideoGeometry = () async {
+      final chrome = tester.widget<PlexVideoControls>(find.byType(PlexVideoControls)).chromeController;
+      chrome.hide();
+      await until(() => !chrome.controlsPresented, 'HUD oculto para medir o vídeo');
+      final params = await readVideoParamsForCapture(player.getProperty);
+      final view = binding.platformDispatcher.views.first;
+      final rect = tester.getRect(find.byType(Video));
+      final dpr = view.devicePixelRatio;
+      final controls = tester.widget<PlexVideoControls>(find.byType(PlexVideoControls));
+      return videoCaptureGeometry(
+        window: view.physicalSize,
+        surface: Rect.fromLTRB(rect.left * dpr, rect.top * dpr, rect.right * dpr, rect.bottom * dpr),
+        systemBars: EdgeInsets.fromLTRB(
+          math.max(view.viewPadding.left, view.systemGestureInsets.left),
+          math.max(view.viewPadding.top, view.systemGestureInsets.top),
+          math.max(view.viewPadding.right, view.systemGestureInsets.right),
+          math.max(view.viewPadding.bottom, view.systemGestureInsets.bottom)),
+        videoParams: params, boxFitMode: controls.boxFitMode, zoom: controls.videoZoomScale,
+        hudHidden: !chrome.controlsPresented,
+      );
+    };
     // Só na integração: detalhes de inicialização do VO; o APK de uso mantém seu nível de log.
     await player.setLogLevel('v');
     Future<Map<String, Object?>> videoProbe() async {

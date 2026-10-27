@@ -2524,3 +2524,62 @@ limites da fixture Linux/sem servidor e próximos passos em
 `heisuca_p3_style_test.dart`, `heisuca_p3_matrix_test.dart`, helper
 `test/test_helpers/heisuca_p3_fixture.dart`. Não enviar código com testes
 vermelhos; concluir correções e portão antes do push. Nada publicado.
+
+### P3 — retomada local, 27/10 (código ainda não enviado)
+
+Base remota continua **0ee1f42**; versão **2.0.34+36**. P1/P2 permanecem fechadas
+tecnicamente, com revisão independente pendente. Trabalho local da P3 descrito
+em `docs/PENTE_FINO_2026-10-27.md`: 624 combinações anteriores (435 aprovadas,
+189 com apontamentos), provas negativas de estilo, teclado, fonte e limites de
+Reprodução. Após corrigir causas e distinguir recorte de rolagem de alvo pequeno,
+a matriz passou 624/624; testes focados 21/21 e flagship existente 16/16.
+Mais dois testes reproduziram títulos de seção em Inter antes do ajuste a Sora.
+
+**Portão completo em execução**: `/tmp/p3-first-gate.log`, sessão local 76498.
+Nenhum push de código P3, nenhum APK/run P3 novo. Não publicar pacote, não emitir
+ENTREGA-FINAL. Próximo: terminar portão, conferir HUD/folhas/diálogos/estados e
+cores/textos restantes, capturas/goldens; só então commit normal + push e leitura
+dos dois runs. Código e novos testes estão na árvore de trabalho; não descartar.
+P4–P7 não iniciadas nesta retomada. Não testado em aparelho.
+
+### P3 — portão da base concluído; HUD e ajuste da revisão em trabalho local
+
+O portão `/tmp/p3-first-gate.log` terminou verde: **1.646 Flutter, 3 skips
+herdados, 8 Impeller e 40 Python**. Isso antecede os novos testes do player e o
+ajuste de imagem abaixo; não é o portão final desse novo conjunto.
+
+Matriz adicional do player: 96 combinações de HUD/faixas/ajustes/qualidade. Com
+fixture válida, 48 passaram e 48 reproduziram alvos pequenos (38 dp no HUD e
+36 dp em interruptores dentro de linhas compactas). Depois do patch, **96/96
+passaram** em `/tmp/p3-player-after.log`. Áreas mínimas nas pílulas/abas e uso
+de FocusableSwitchListTile nas alternâncias; gravação de preferências e ações
+permanecem nos callbacks existentes. Não houve alteração do AAR/player nativo.
+Mais sete provas negativas reproduziram cores antigas em Você/modal de fontes
+e fonte do sistema no editor. Depois do ajuste, os testes de estilo, flagship
+e kids passaram **52, com 1 skip de captura opcional** (`/tmp/p3-colors-after.log`).
+
+Caio acrescentou a revisão da checagem de preto: diagnóstico e prova anterior
+em `docs/DIAGNOSTICO_P_IMAGEM_2026-10-27.md`. O teste novo confirmou o falso
+positivo do código anterior (preto + HUD/barra branca liberava ACK/Voltar).
+Correção local mede a área útil do vídeo pela geometria real e exige luma >16
+em >=2%; JSON traz área e fração. Python **46/46** e contrato Flutter **6/6**.
+Ainda sem commit/push dessa parte: falta portão final, bancada e APK inspecionados.
+P1/P2 aprovadas permanecem preservadas fora desse ajuste específico.
+
+### P3 + ajuste de imagem — portão final local verde, antes do push
+
+`/tmp/p3-adjusted-final-gate.log`: **1.755 Flutter aprovados, 3 skips herdados de
+capturas opcionais; 8 Impeller; 46 Python**. Inclui a nova análise de pixels e
+seu contrato de geometria. As 624 combinações de telas e 96 do player foram
+capturadas novamente; galeria em `docs/PENTE_FINO_2026-10-27.md`.
+
+Este é o fechamento dos patches locais dessa coleta, NÃO o fechamento da P3:
+faltam prompts/diálogos/estados e o restante da revisão visual. A prova da origem
+das barras gravadas no arquivo também permanece pendente; nenhuma proporção do
+app foi alterada para escondê-las. P4–P7 não iniciadas. Próximo: commits pequenos
+de P3 e da revisão de imagem, push normal, registrar/inspecionar os dois runs;
+continuar as partes independentes da P3 após a evidência do CI. Sem publicação.
+
+Commit da coleta P3: **6c7723e** (normal, sem skip). Revisão de imagem vai em
+commit separado, também normal; ambos compõem a árvore que passou o portão
+final acima. P3 continua aberta para o restante da revisão; nenhum ENTREGA-FINAL.

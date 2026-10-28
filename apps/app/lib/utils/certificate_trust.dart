@@ -38,7 +38,6 @@ abstract final class CertificateTrust {
     'simkl.com',
     'simkl.in',
     'jsdelivr.net',
-    'api.github.com',
     'image.tmdb.org',
   };
 

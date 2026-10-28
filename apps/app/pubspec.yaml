@@ -70,11 +70,6 @@ dependencies:
   # no per-host TLS bypass.
   background_downloader:
     path: packages/background_downloader
-  auto_updater:
-    git:
-      url: https://github.com/edde746/auto_updater
-      path: packages/auto_updater
-      ref: 9e150f7
   win_http: ^0.2.2
   collection: ^1.18.0
   freezed_annotation: ^3.1.0
@@ -121,21 +116,6 @@ dependency_overrides:
       url: https://github.com/fluttercommunity/plus_plugins
       ref: bf04cdf66598dc3fca274b8b1db2b92b0bf6b73e
       path: packages/connectivity_plus/connectivity_plus
-  auto_updater_platform_interface:
-    git:
-      url: https://github.com/edde746/auto_updater
-      ref: 9e150f7
-      path: packages/auto_updater_platform_interface
-  auto_updater_macos:
-    git:
-      url: https://github.com/edde746/auto_updater
-      ref: 9e150f7
-      path: packages/auto_updater_macos
-  auto_updater_windows:
-    git:
-      url: https://github.com/edde746/auto_updater
-      ref: 9e150f7
-      path: packages/auto_updater_windows
   # Vendored 2.4.1: atomic replacement prevents upstream #1732 corruption.
   shared_preferences_windows:
     path: packages/shared_preferences_windows

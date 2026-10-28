@@ -653,7 +653,6 @@ class SettingsService extends BaseSharedPreferencesService {
   /// dialog. Defaults to true (include) so existing behavior is unchanged;
   /// turning it off persists so the next download keeps the choice.
   static const downloadIncludeSpecials = BoolPref('download_include_specials', defaultValue: true);
-  static const autoCheckUpdatesOnStartup = BoolPref('auto_check_updates_on_startup', defaultValue: true);
   static const showPerformanceOverlay = BoolPref('show_performance_overlay');
   static const autoHidePerformanceOverlay = BoolPref('auto_hide_performance_overlay', defaultValue: true);
   static const enableTraktWatchedSync = BoolPref('enable_trakt_watched_sync', defaultValue: true);
@@ -1395,7 +1394,6 @@ class SettingsService extends BaseSharedPreferencesService {
     downloadOnWifiOnly,
     backgroundDownloadWarningAcknowledged,
     downloadIncludeSpecials,
-    autoCheckUpdatesOnStartup,
     showPerformanceOverlay,
     autoHidePerformanceOverlay,
     enableTraktWatchedSync,

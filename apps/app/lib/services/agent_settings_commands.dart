@@ -25,7 +25,6 @@ import 'settings_mutation_service.dart';
 import 'settings_service.dart';
 import 'shader_service.dart';
 import 'shortcut_action.dart';
-import 'update_service.dart';
 
 /// Typed app configuration over the existing preferences and resource owners.
 /// Discovery never reads user-authored documents, paths or integration endpoints.
@@ -187,8 +186,6 @@ class AgentSettingsCommands {
         if (!KeyboardShortcutsService.isPlatformSupported()) {
           return 'Keyboard customization requires a desktop platform.';
         }
-      case 'auto_check_updates_on_startup':
-        if (!UpdateService.isUpdateCheckAvailable) return 'Updates are managed externally on this platform.';
       case 'force_tv_mode':
         if (!desktop && !Platform.isAndroid) return 'Forced TV mode requires Android or a desktop platform.';
       case 'visual_effects':

@@ -34,12 +34,15 @@ Map<String, Object?> _publicSettings({int mediaServerType = SeerrMediaServerType
   'mediaServerType': mediaServerType,
 };
 
-/// A Seerr that answers only on plain HTTP at its default port — the LAN setup
-/// that used to fail because the form assumed https.
-SeerrAuthService _plainHttpLanInstance({int mediaServerType = SeerrMediaServerType.jellyfin}) {
+/// A Seerr that answers only on HTTPS (porta 443 implícita). Desde o
+/// b3513e7 (P3, só HTTPS) um endereço sem esquema expande só para https e o
+/// app nunca sonda `http://` externo; por isso o fake deixou de ser HTTP puro.
+/// [probed] registra todo esquema sondado, para provar que http não é tentado.
+SeerrAuthService _httpsLanInstance({int mediaServerType = SeerrMediaServerType.jellyfin, List<String>? probed}) {
   return SeerrAuthService(
     httpClientFactory: () => MockClient((request) async {
-      if (request.url.scheme != 'http' || request.url.port != SeerrConstants.defaultPort) {
+      probed?.add(request.url.scheme);
+      if (request.url.scheme != 'https' || request.url.port != 443) {
         throw http.ClientException('connection refused', request.url);
       }
       return _json(_publicSettings(mediaServerType: mediaServerType));
@@ -114,13 +117,17 @@ void main() {
     await tester.pump(const Duration(milliseconds: 50));
   }
 
-  testWidgets('a schemeless address reaches a plain-HTTP instance on the default port', (tester) async {
-    await tester.pumpWidget(app(_plainHttpLanInstance()));
+  testWidgets('a schemeless address reaches an HTTPS instance (http:// is never probed)', (tester) async {
+    final probed = <String>[];
+    await tester.pumpWidget(app(_httpsLanInstance(probed: probed)));
     await submitUrl(tester, 'seerr.lan');
 
     // The URL that answered is what the sign-in and the session will use.
-    expect(find.text('http://seerr.lan:5055'), findsOneWidget);
+    expect(find.text('https://seerr.lan'), findsOneWidget);
     expect(find.text('Requests'), findsOneWidget);
+    // Só HTTPS (b3513e7): nenhum http:// externo é sondado.
+    expect(probed, isNotEmpty);
+    expect(probed.toSet(), {'https'});
   });
 
   testWidgets('an unreachable address keeps the URL step with the primary candidate named', (tester) async {
@@ -139,7 +146,7 @@ void main() {
   });
 
   testWidgets('Quick Connect is offered for a Jellyfin-backed instance', (tester) async {
-    await tester.pumpWidget(app(_plainHttpLanInstance()));
+    await tester.pumpWidget(app(_httpsLanInstance()));
     await submitUrl(tester, 'seerr.lan');
 
     expect(find.text('Use Quick Connect'), findsOneWidget);
@@ -148,7 +155,7 @@ void main() {
   testWidgets('Quick Connect is withheld from an Emby-backed instance', (tester) async {
     // Seerr rejects its Quick Connect routes for Emby, so the affordance is
     // gated on the linked media server, not on the instance answering at all.
-    await tester.pumpWidget(app(_plainHttpLanInstance(mediaServerType: SeerrMediaServerType.emby)));
+    await tester.pumpWidget(app(_httpsLanInstance(mediaServerType: SeerrMediaServerType.emby)));
     await submitUrl(tester, 'seerr.lan');
 
     expect(find.text('Use Quick Connect'), findsNothing);

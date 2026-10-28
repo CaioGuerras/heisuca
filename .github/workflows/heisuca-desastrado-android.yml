@@ -2,7 +2,7 @@ name: Heisuca Desastrado Android
 
 on:
   push:
-    branches: ["codex/heisuca-home-site", "claude/heisuca-**"]
+    branches: ["codex/heisuca-home-site", "claude/heisuca-**", "gemini/heisuca-**"]
     paths-ignore: ["docs/**", "AGENTS.md", "apps/app/CLAUDE.md"]
   workflow_dispatch:
 

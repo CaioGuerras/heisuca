@@ -50,7 +50,7 @@ class Servidor:
     def request(self, method, path, body=None, query=None):
         url = self.base + path
         if query:
-            url += '?' + urllib.parse.urlencode(query)
+            url += '?' + urllib.parse.urlencode(query, doseq=True, safe=',')
         headers = {'Authorization': f'MediaBrowser Client="Heisuca bancada", Device="Bancada Android", DeviceId="{self.device}", Version="1"',
                    'Content-Type': 'application/json'}
         if self.token:
@@ -88,26 +88,41 @@ class Servidor:
         candidatos = []
         while True:
             query = {
-                'Recursive': 'true', 'IncludeItemTypes': tipos,
-                'IsVirtualItem': 'false', 'SortBy': 'Runtime', 'SortOrder': 'Ascending',
-                'Fields': 'MediaSources,MediaStreams', 'EnableUserData': 'true',
-                'StartIndex': offset, 'Limit': 200
+                'Recursive': 'true',
+                'MediaTypes': 'Video',
+                'IsFolder': 'false',
+                'IsVirtualItem': 'false',
+                'SortBy': 'Runtime',
+                'SortOrder': 'Ascending',
+                'Fields': 'MediaSources,MediaStreams',
+                'EnableUserData': 'true',
+                'StartIndex': offset,
+                'Limit': 200,
             }
+            if tipos:
+                item_types = [t.strip() for t in tipos.split(',')] if isinstance(tipos, str) else list(tipos)
+                query['IncludeItemTypes'] = item_types
             if apenas_intacto:
                 query['IsPlayed'] = 'false'
             result = self.request('GET', f'/Users/{self.user}/Items', query=query)
-            rows = result.get('Items', [])
+            rows = result.get('Items', []) if result else []
+            if not rows and offset == 0 and 'IncludeItemTypes' in query and not apenas_intacto:
+                del query['IncludeItemTypes']
+                result = self.request('GET', f'/Users/{self.user}/Items', query=query)
+                rows = result.get('Items', []) if result else []
             for row in rows:
-                ticks = row.get('RunTimeTicks', 0)
+                ticks = row.get('RunTimeTicks') or 0
                 if ticks < min_ticks:
                     continue
                 is_intacto = intacto(row.get('UserData', {}))
                 if apenas_intacto and not is_intacto:
                     continue
                 streams = row.get('MediaStreams', [])
+                if not streams and row.get('MediaSources'):
+                    streams = row['MediaSources'][0].get('MediaStreams', [])
                 avc = any(stream.get('Type') == 'Video' and stream.get('Codec', '').lower() in ('h264', 'avc')
                           for stream in streams)
-                candidatos.append((not is_intacto, ticks > 10 * 60 * 10_000_000, not avc, ticks, row))
+                candidatos.append((not is_intacto, ticks < 30 * 10_000_000, not avc, -ticks, row))
             for _, _, _, _, row in sorted(candidatos, key=lambda choice: choice[:4]):
                 video = self.item(row['Id'])
                 if not apenas_intacto or intacto(video.get('UserData', {})):

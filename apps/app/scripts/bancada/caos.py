@@ -186,7 +186,7 @@ def e05_rede_no_video(ctx):
         sid = info.get('Id')
         if not sid:
             raise EtapaAmbiente('System/Info/Public: sem identificador do servidor')
-        video = passo('escolher_video', lambda: cli.escolher_video(min_ticks=50 * 10_000_000, tipos='Movie,Episode', apenas_intacto=False))
+        video = passo('escolher_video', lambda: cli.escolher_video(min_ticks=0, tipos=None, apenas_intacto=False))
         estado['video'] = video
         estado['anterior'] = video['UserData']
         link = f'plezy://play?content_id=plezy_{sid}_{video["Id"]}'
@@ -331,7 +331,10 @@ def e10_fonte_e_tela(ctx):
         ctx.abrir_titulo()
     def restaurar():
         ajuste('font_scale', original['font'] if original['font'] not in ('', 'null') else 1.0)
-        adb('shell', 'wm', 'density', 'reset')
+        if original.get('dens'):
+            adb('shell', 'wm', 'density', str(original['dens']))
+        else:
+            adb('shell', 'wm', 'density', 'reset')
     rodar(ctx, '10-fonte-200-e-tela-maxima', etapa, restaurar)
 
 

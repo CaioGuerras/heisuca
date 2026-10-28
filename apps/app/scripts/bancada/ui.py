@@ -74,9 +74,13 @@ def dump_cru():
 
 
 def _xml_do_dump():
-    bruto = texto('exec-out', 'uiautomator', 'dump', '/dev/stdout')
-    inicio, fim = bruto.find('<?xml'), bruto.rfind('</hierarchy>')
-    return bruto[inicio:fim + len('</hierarchy>')] if inicio >= 0 and fim > 0 else ''
+    for _ in range(3):
+        bruto = texto('exec-out', 'uiautomator', 'dump', '/dev/stdout')
+        inicio, fim = bruto.find('<?xml'), bruto.rfind('</hierarchy>')
+        if inicio >= 0 and fim > 0:
+            return bruto[inicio:fim + len('</hierarchy>')]
+        time.sleep(1)
+    return ''
 
 
 def tocar(no):
@@ -241,6 +245,7 @@ def sair_pela_interface(passos=None):
     [passos] recebe o visível saneado de cada passo. Devolve True se o app voltou ao login.
     """
     rec = (lambda nome, nos: passo_visivel(passos, nome, nos)) if passos is not None else (lambda nome, nos: None)
+    fechar_teclado()
     nos = dump()
     for _ in range(6):  # volta até a barra de abas (sair de título, player, diálogo...)
         if marco(nos) == 'inicio':
@@ -255,11 +260,13 @@ def sair_pela_interface(passos=None):
     rec('1 início', nos)
     voce = aba_voce(nos)
     if not voce:
-        rec('falha: aba do usuário não achada', nos)
-        return False
-    tocar(voce)
-    time.sleep(2.5)
+        time.sleep(2)
+        nos = dump()
+        voce = aba_voce(nos)
     sair = None
+    if voce:
+        tocar(voce)
+        time.sleep(2.5)
     for i in range(6):
         nos = dump()
         sair = achar_texto(nos, 'Sair da conta', exato=False)

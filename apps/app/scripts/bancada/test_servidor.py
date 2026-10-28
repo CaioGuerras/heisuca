@@ -126,6 +126,49 @@ class SegurancaDaBancada(unittest.TestCase):
         video = m.escolher_video(min_ticks=50 * 10_000_000, tipos='Movie,Episode', apenas_intacto=False)
         self.assertEqual(video['Id'], 'ep-1')
 
+    def test_escolher_video_caos_aceita_tipos_none_e_duracao_zero(self):
+        class Midias(ServidorFalso):
+            def request(self, method, path, body=None, query=None):
+                if path.endswith('/Items'):
+                    return {'Items': [
+                        {'Id': 'video-qualquer', 'RunTimeTicks': 10 * 10_000_000,
+                         'UserData': {**PRISTINO, 'Played': True}}]}
+                return {'Id': path.rsplit('/', 1)[-1], 'UserData': {**PRISTINO, 'Played': True}}
+        m = Midias()
+        video = m.escolher_video(min_ticks=0, tipos=None, apenas_intacto=False)
+        self.assertEqual(video['Id'], 'video-qualquer')
+
+    def test_escolher_video_fallback_sem_include_item_types(self):
+        consultas = []
+        class Midias(ServidorFalso):
+            def request(self, method, path, body=None, query=None):
+                if path.endswith('/Items'):
+                    consultas.append(dict(query))
+                    if 'IncludeItemTypes' in query:
+                        return {'Items': []}
+                    return {'Items': [{'Id': 'salvo', 'RunTimeTicks': 20 * 10_000_000, 'UserData': PRISTINO}]}
+                return {'Id': path.rsplit('/', 1)[-1], 'UserData': PRISTINO}
+        m = Midias()
+        video = m.escolher_video(min_ticks=0, tipos='Movie,Episode', apenas_intacto=False)
+        self.assertEqual(video['Id'], 'salvo')
+        self.assertEqual(len(consultas), 2)
+        self.assertNotIn('IncludeItemTypes', consultas[1])
+
+    def test_escolher_video_acha_streams_em_media_sources(self):
+        class Midias(ServidorFalso):
+            def request(self, method, path, body=None, query=None):
+                if path.endswith('/Items'):
+                    return {'Items': [{
+                        'Id': 'midia-sources',
+                        'RunTimeTicks': 60 * 10_000_000,
+                        'UserData': PRISTINO,
+                        'MediaSources': [{'MediaStreams': [{'Type': 'Video', 'Codec': 'h264'}]}]
+                    }]}
+                return {'Id': path.rsplit('/', 1)[-1], 'UserData': PRISTINO}
+        m = Midias()
+        video = m.escolher_video(min_ticks=0, tipos=None, apenas_intacto=False)
+        self.assertEqual(video['Id'], 'midia-sources')
+
     def test_restaurar_item_com_historico_nao_lanca_quando_apenas_intacto_falso(self):
         client = ServidorFalso(data={**PRISTINO, 'Played': True, 'PlaybackPositionTicks': 500})
         client.restaurar('filme', {**PRISTINO, 'Played': True, 'PlaybackPositionTicks': 500}, apenas_intacto=False)

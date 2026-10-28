@@ -199,6 +199,7 @@ class Caos(unittest.TestCase):
         self.assertEqual(tamanho_da_tela(saida), (540, 1200))
         self.assertIsNone(tamanho_da_tela(''))
         self.assertEqual(densidade_atual('Physical density: 420\nOverride density: 210'), 210)
+        self.assertEqual(densidade_atual('Physical density: 420\n'), 420)
 
     def test_usuario_inexistente_e_iptables(self):
         a, b = usuario_inexistente(), usuario_inexistente()

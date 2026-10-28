@@ -19,8 +19,8 @@ val verifySha256 = extra["verifySha256"] as (File, String, String) -> Unit
 val promoteDirectory = extra["promoteDirectory"] as (File, File) -> Unit
 
 // The in-project :libmpv module owns the mpv-build pin (repo-root
-// mpv-build.lock.json assets + checksums, plus the plezy.localMpvDir/
-// PLEZY_LOCAL_MPV_DIR escape hatch) and extracts the per-ABI tarballs'
+// mpv-build.lock.json assets + checksums, plus the heisuca.localMpvDir/
+// HEISUCA_LOCAL_MPV_DIR escape hatch) and extracts the per-ABI tarballs'
 // prebuilt native libraries. This file reads FFmpeg .so files from both native
 // output trees for the Media3 adapter link step, and packages the libc++ runtime
 // at PROJECT scope below.
@@ -104,7 +104,7 @@ val prepareMpvFfmpegDevelopment = tasks.register("prepareMpvFfmpegDevelopment") 
       }
       File(includeDir, "libavutil/avconfig.h").writeText(
         """
-        |/* Generated for Plezy's little-endian Android ABIs. */
+        |/* Generated for Heisuca's little-endian Android ABIs. */
         |#ifndef AVUTIL_AVCONFIG_H
         |#define AVUTIL_AVCONFIG_H
         |#define AV_HAVE_BIGENDIAN 0

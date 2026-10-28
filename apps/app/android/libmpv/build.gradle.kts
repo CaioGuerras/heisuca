@@ -60,8 +60,8 @@ fun stagedArchiveName(abi: String) = "libmpv-android-$abi.tar.gz"
 // libmpv-android-<key>-<abi>.tar.gz per ABI) to test changes before a lock
 // bump. Checksums are skipped for local archives; the lock stays
 // authoritative otherwise.
-val localMpvDir: String? = (project.findProperty("plezy.localMpvDir") as String?)
-  ?: System.getenv("PLEZY_LOCAL_MPV_DIR")
+val localMpvDir: String? = (project.findProperty("heisuca.localMpvDir") as String?)
+  ?: System.getenv("HEISUCA_LOCAL_MPV_DIR")
 
 fun localArchive(abi: String): File {
   val dir = File(localMpvDir!!)
@@ -70,7 +70,7 @@ fun localArchive(abi: String): File {
   val pattern = Regex("libmpv-android-.+-${Regex.escape(abi)}\\.tar\\.gz")
   val matches = dir.listFiles()?.filter { it.isFile && pattern.matches(it.name) }.orEmpty()
   return matches.singleOrNull() ?: throw GradleException(
-    "PLEZY_LOCAL_MPV_DIR=$localMpvDir must contain exactly one libmpv-android-*-$abi.tar.gz, found ${matches.size}"
+    "HEISUCA_LOCAL_MPV_DIR=$localMpvDir must contain exactly one libmpv-android-*-$abi.tar.gz, found ${matches.size}"
   )
 }
 

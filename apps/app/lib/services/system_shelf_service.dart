@@ -343,7 +343,11 @@ class SystemShelfService {
     if (!contentId.startsWith('plezy_')) return null;
     final parts = contentId.substring(6).split('_');
     if (parts.length < 2) return null;
-    return (ServerId(parts.first), parts.sublist(1).join('_'));
+    // Servidor vazio ou em branco faria o ServerId lançar; link externo (plezy://play) não pode derrubar o tratamento.
+    if (parts.first.trim().isEmpty) return null;
+    final ratingKey = parts.sublist(1).join('_');
+    if (ratingKey.isEmpty) return null;
+    return (ServerId(parts.first), ratingKey);
   }
 
   Map<String, dynamic> _convertToShelfItem(

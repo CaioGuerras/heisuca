@@ -87,8 +87,7 @@ class RecordedRequest {
   final Uri uri;
   final Map<String, String> headers;
 
-  bool carriesToken(String token) =>
-      headers.values.any((v) => v.contains(token)) || uri.toString().contains(token);
+  bool carriesToken(String token) => headers.values.any((v) => v.contains(token)) || uri.toString().contains(token);
 }
 
 /// Token de teste que nenhum pedido a outro host pode carregar.

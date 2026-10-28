@@ -40,28 +40,95 @@ void main() {
   final hostile = <String, Object?>{
     'Id numérico': {'Id': 5, 'Name': 'x', 'Type': 'Movie'},
     'Name numérico': {'Id': 'a', 'Name': 12345, 'Type': 'Movie'},
-    'Name lista': {'Id': 'a', 'Name': ['x'], 'Type': 'Movie'},
-    'Overview objeto': {'Id': 'a', 'Name': 'x', 'Overview': {'a': 1}, 'Type': 'Movie'},
+    'Name lista': {
+      'Id': 'a',
+      'Name': ['x'],
+      'Type': 'Movie',
+    },
+    'Overview objeto': {
+      'Id': 'a',
+      'Name': 'x',
+      'Overview': {'a': 1},
+      'Type': 'Movie',
+    },
     'Type nulo': {'Id': 'a', 'Name': null, 'Type': null},
     'MediaSources objeto': {'Id': 'a', 'Name': 'x', 'Type': 'Movie', 'MediaSources': {}},
     'MediaSources com lixo': {
       'Id': 'a',
       'Name': 'x',
       'Type': 'Movie',
-      'MediaSources': [1, null, 'x', {'MediaStreams': 5}, {'MediaStreams': [1, null, {'Index': 'x', 'Type': 5}]}],
+      'MediaSources': [
+        1,
+        null,
+        'x',
+        {'MediaStreams': 5},
+        {
+          'MediaStreams': [
+            1,
+            null,
+            {'Index': 'x', 'Type': 5},
+          ],
+        },
+      ],
     },
     'UserData lista': {'Id': 'a', 'Name': 'x', 'Type': 'Movie', 'UserData': []},
-    'ImageTags lista': {'Id': 'a', 'Name': 'x', 'Type': 'Movie', 'ImageTags': [1]},
-    'ImageTags valor numérico': {'Id': 'a', 'Name': 'x', 'Type': 'Movie', 'ImageTags': {'Primary': 7}},
-    'BackdropImageTags misto': {'Id': 'a', 'Name': 'x', 'Type': 'Movie', 'BackdropImageTags': [1, null, 'ok']},
-    'People lixo': {'Id': 'a', 'Name': 'x', 'Type': 'Movie', 'People': [1, null, {'Name': 5, 'Id': []}]},
-    'Genres lixo': {'Id': 'a', 'Name': 'x', 'Type': 'Movie', 'Genres': [1, null, {}]},
+    'ImageTags lista': {
+      'Id': 'a',
+      'Name': 'x',
+      'Type': 'Movie',
+      'ImageTags': [1],
+    },
+    'ImageTags valor numérico': {
+      'Id': 'a',
+      'Name': 'x',
+      'Type': 'Movie',
+      'ImageTags': {'Primary': 7},
+    },
+    'BackdropImageTags misto': {
+      'Id': 'a',
+      'Name': 'x',
+      'Type': 'Movie',
+      'BackdropImageTags': [1, null, 'ok'],
+    },
+    'People lixo': {
+      'Id': 'a',
+      'Name': 'x',
+      'Type': 'Movie',
+      'People': [
+        1,
+        null,
+        {'Name': 5, 'Id': []},
+      ],
+    },
+    'Genres lixo': {
+      'Id': 'a',
+      'Name': 'x',
+      'Type': 'Movie',
+      'Genres': [1, null, {}],
+    },
     'Datas inválidas': {'Id': 'a', 'Name': 'x', 'Type': 'Movie', 'PremiereDate': 5, 'DateCreated': []},
     'RunTimeTicks texto': {'Id': 'a', 'Name': 'x', 'Type': 'Movie', 'RunTimeTicks': 'muito', 'ProductionYear': 'x'},
     'ticks gigantes': {'Id': 'a', 'Name': 'x', 'Type': 'Movie', 'RunTimeTicks': 1e300, 'IndexNumber': 1e300},
     'objeto vazio': <String, Object?>{},
-    'Chapters lixo': {'Id': 'a', 'Name': 'x', 'Type': 'Movie', 'Chapters': [1, null, {'StartPositionTicks': 'x'}]},
-    'Trickplay lixo': {'Id': 'a', 'Name': 'x', 'Type': 'Movie', 'Trickplay': {'a': 5, 'b': {'c': 'd'}}},
+    'Chapters lixo': {
+      'Id': 'a',
+      'Name': 'x',
+      'Type': 'Movie',
+      'Chapters': [
+        1,
+        null,
+        {'StartPositionTicks': 'x'},
+      ],
+    },
+    'Trickplay lixo': {
+      'Id': 'a',
+      'Name': 'x',
+      'Type': 'Movie',
+      'Trickplay': {
+        'a': 5,
+        'b': {'c': 'd'},
+      },
+    },
   };
 
   group('item hostil em /Users/{u}/Items/{id}', () {
@@ -80,7 +147,14 @@ void main() {
       'Items null': {'Items': null},
       'Items texto': {'Items': 'x'},
       'Items misto': {
-        'Items': [1, null, 'x', [], {'Id': 'ok', 'Name': 'Bom', 'Type': 'Movie'}, {'Id': 7}],
+        'Items': [
+          1,
+          null,
+          'x',
+          [],
+          {'Id': 'ok', 'Name': 'Bom', 'Type': 'Movie'},
+          {'Id': 7},
+        ],
         'TotalRecordCount': 'muitos',
       },
       'TotalRecordCount gigante': {'Items': [], 'TotalRecordCount': 1e300},

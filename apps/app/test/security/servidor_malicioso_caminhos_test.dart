@@ -128,10 +128,16 @@ void main() {
     });
 
     test('ids legítimos (hex do Jellyfin, número do Plex, UUID) passam inalterados', () async {
-      final dir = await dss.getMediaDirectory(ServerId('0123abcd-ef01-2345-6789-abcdef012345'), '4f1e2d3c4b5a69788796a5b4c3d2e1f0');
+      final dir = await dss.getMediaDirectory(
+        ServerId('0123abcd-ef01-2345-6789-abcdef012345'),
+        '4f1e2d3c4b5a69788796a5b4c3d2e1f0',
+      );
       expect(p.basename(dir.path), '4f1e2d3c4b5a69788796a5b4c3d2e1f0');
       expect(p.basename(p.dirname(dir.path)), '0123abcd-ef01-2345-6789-abcdef012345');
-      expect(await dss.getSubtitlePath(ServerId('s'), '12345', 3, 'srt'), endsWith(p.join('12345', 'subtitles', '3.srt')));
+      expect(
+        await dss.getSubtitlePath(ServerId('s'), '12345', 3, 'srt'),
+        endsWith(p.join('12345', 'subtitles', '3.srt')),
+      );
     });
 
     test('ids diferentes que saneiam igual não colidem', () async {

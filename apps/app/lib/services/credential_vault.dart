@@ -60,6 +60,29 @@ class CredentialVault {
     invalidateCache();
   }
 
+  /// Se a chave do cofre está no armazenamento seguro (Android). Erro ou indisponível = false
+  /// ("não sei"), para quem decide manter o aviso conservador.
+  static Future<bool> secureKeyExists() async {
+    final store = _secureStore();
+    if (store == null) return false;
+    try {
+      final value = await store.readOrThrow(_secureKeyName);
+      if (value == null || value.isEmpty) return false;
+      base64Decode(value);
+      return true;
+    } catch (e) {
+      appLogger.w('CredentialVault: não deu para consultar a chave segura (${e.runtimeType})');
+      return false;
+    }
+  }
+
+  /// Os logins sobrevivem ao reparo da store de prefs? Sim se a chave do cofre está salva
+  /// (nas prefs ou no armazenamento seguro) e a chave ilegível não é a única cópia dela.
+  static Future<bool> signInsSurviveRepair({required String? unreadableKey, required bool prefsHaveVaultKey}) async {
+    if (await secureKeyExists()) return true;
+    return unreadableKey != null ? unreadableKey != credentialVaultKeyPref : prefsHaveVaultKey;
+  }
+
   /// Invalidates the memoized key and decrypted credentials after the
   /// underlying preference store is repaired or replaced.
   static void invalidateCache() {

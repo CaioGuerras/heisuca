@@ -158,6 +158,38 @@ void main() {
       expect(logged, contains('StateError'));
     });
   });
+
+  group('reparo das prefs considera a chave no armazenamento seguro (P5)', () {
+    test('chave só no armazenamento seguro: os logins sobrevivem', () async {
+      final store = CgflixMemorySecureStore()..values[_v2] = base64Encode(List<int>.filled(32, 3));
+      CredentialVault.useSecureStoreForTesting(store);
+
+      expect(await CredentialVault.signInsSurviveRepair(unreadableKey: null, prefsHaveVaultKey: false), isTrue);
+      expect(
+        await CredentialVault.signInsSurviveRepair(unreadableKey: credentialVaultKeyPref, prefsHaveVaultKey: true),
+        isTrue,
+      );
+    });
+
+    test('sem chave segura mantém a regra antiga (prefs)', () async {
+      CredentialVault.useSecureStoreForTesting(CgflixMemorySecureStore());
+
+      expect(await CredentialVault.signInsSurviveRepair(unreadableKey: null, prefsHaveVaultKey: false), isFalse);
+      expect(await CredentialVault.signInsSurviveRepair(unreadableKey: null, prefsHaveVaultKey: true), isTrue);
+      expect(
+        await CredentialVault.signInsSurviveRepair(unreadableKey: credentialVaultKeyPref, prefsHaveVaultKey: true),
+        isFalse,
+      );
+      expect(await CredentialVault.signInsSurviveRepair(unreadableKey: 'mal_session', prefsHaveVaultKey: true), isTrue);
+    });
+
+    test('erro do armazenamento seguro = "não sei": aviso conservador de sempre', () async {
+      CredentialVault.useSecureStoreForTesting(_ThrowingStore());
+
+      expect(await CredentialVault.signInsSurviveRepair(unreadableKey: null, prefsHaveVaultKey: false), isFalse);
+      expect(await CredentialVault.signInsSurviveRepair(unreadableKey: null, prefsHaveVaultKey: true), isTrue);
+    });
+  });
 }
 
 class _LeakyStore extends CgflixMemorySecureStore {

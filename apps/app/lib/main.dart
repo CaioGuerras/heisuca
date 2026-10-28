@@ -100,7 +100,6 @@ import 'utils/android_exit_diagnostics.dart';
 import 'utils/storage_failure.dart';
 import 'services/base_shared_preferences_service.dart';
 import 'services/prefs_recovery.dart';
-import 'services/sensitive_prefs.dart';
 import 'services/startup_diagnostics.dart';
 import 'utils/dialogs.dart';
 import 'widgets/dialog_action_button.dart';
@@ -327,9 +326,11 @@ Future<StartupRepairResult> repairStartupStorage(
   // store the key cannot be read out of signs the user out of everything. An
   // all-zero file is exactly that case (#1732), and telling them their
   // sign-ins are safe would be a promise the outcome dialog then contradicts.
-  final signInsSurvive = unreadableKey != null
-      ? unreadableKey != credentialVaultKeyPref
-      : (await PrefsRecovery.previewSalvage()).vaultKey != null;
+  // No Android a chave também pode estar só no Keystore (P5), fora das prefs.
+  final signInsSurvive = await CredentialVault.signInsSurviveRepair(
+    unreadableKey: unreadableKey,
+    prefsHaveVaultKey: unreadableKey != null || (await PrefsRecovery.previewSalvage()).vaultKey != null,
+  );
   if (!context.mounted) return StartupRepairResult.none;
 
   final confirmed = await showConfirmDialog(

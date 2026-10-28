@@ -668,7 +668,10 @@ class DownloadStorageService {
     if (metadata.isTrack) {
       return (components: getTrackSafPathComponents(metadata), fileName: getTrackSafFileName(metadata, extension));
     }
-    return (components: [safePathComponent(serverId!), safePathComponent(metadata.id)], fileName: 'video.${safeExtension(extension)}');
+    return (
+      components: [safePathComponent(serverId!), safePathComponent(metadata.id)],
+      fileName: 'video.${safeExtension(extension)}',
+    );
   }
 
   bool isSafUri(String storedPath) {

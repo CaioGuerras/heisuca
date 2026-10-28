@@ -69,3 +69,21 @@ class TesteGate(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TesteNormalizacao(unittest.TestCase):
+    def test_apktool_out_deduplica(self):
+        rel = {"binary_analysis": [
+            {"name": "apktool_out/lib/arm64-v8a/libmpv.so", "stack_canary": {"severity": "high"}},
+            {"name": "lib/arm64-v8a/libmpv.so", "stack_canary": {"severity": "high"}}]}
+        chaves = [c for c, _ in mobsf_gate.coletar(rel)]
+        self.assertEqual(chaves, ["binary_analysis:lib/arm64-v8a/libmpv.so:stack_canary"])
+
+    def test_gerador_so_aceita_o_que_tem_regra(self):
+        import gerar_aceitos_mobsf as g
+        rel = dict(RELATORIO, secrets=["x"])
+        mapa = [{"casa": "^secrets:", "motivo": "m"}]
+        aceitos, sem = g.gerar(rel, mapa)
+        self.assertEqual(len(aceitos), 1)
+        self.assertTrue(aceitos[0]["chave"].startswith("secrets:"))
+        self.assertIn("manifest_analysis:android_allow_backup", sem)

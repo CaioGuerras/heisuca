@@ -1,1 +1,390 @@
-[]
+[
+ {
+  "chave": "binary_analysis:lib/arm64-v8a/libapp.so:relocation_readonly",
+  "motivo": "libapp.so é o AOT do Dart, que não usa canary/RELRO do toolchain C."
+ },
+ {
+  "chave": "binary_analysis:lib/arm64-v8a/libapp.so:stack_canary",
+  "motivo": "libapp.so é o AOT do Dart, que não usa canary/RELRO do toolchain C."
+ },
+ {
+  "chave": "binary_analysis:lib/arm64-v8a/libavcodec.so:stack_canary",
+  "motivo": "Biblioteca nativa pré-compilada (AAR do mpv/ffmpeg, fora do escopo pela P8)."
+ },
+ {
+  "chave": "binary_analysis:lib/arm64-v8a/libavdevice.so:stack_canary",
+  "motivo": "Biblioteca nativa pré-compilada (AAR do mpv/ffmpeg, fora do escopo pela P8)."
+ },
+ {
+  "chave": "binary_analysis:lib/arm64-v8a/libavfilter.so:stack_canary",
+  "motivo": "Biblioteca nativa pré-compilada (AAR do mpv/ffmpeg, fora do escopo pela P8)."
+ },
+ {
+  "chave": "binary_analysis:lib/arm64-v8a/libavformat.so:stack_canary",
+  "motivo": "Biblioteca nativa pré-compilada (AAR do mpv/ffmpeg, fora do escopo pela P8)."
+ },
+ {
+  "chave": "binary_analysis:lib/arm64-v8a/libavutil.so:stack_canary",
+  "motivo": "Biblioteca nativa pré-compilada (AAR do mpv/ffmpeg, fora do escopo pela P8)."
+ },
+ {
+  "chave": "binary_analysis:lib/arm64-v8a/libc++_shared.so:stack_canary",
+  "motivo": "Biblioteca nativa pré-compilada (AAR do mpv/ffmpeg, fora do escopo pela P8)."
+ },
+ {
+  "chave": "binary_analysis:lib/arm64-v8a/libdovi_bridge.so:stack_canary",
+  "motivo": "Biblioteca nativa pré-compilada (AAR do mpv/ffmpeg, fora do escopo pela P8)."
+ },
+ {
+  "chave": "binary_analysis:lib/arm64-v8a/libmpv.so:stack_canary",
+  "motivo": "Biblioteca nativa pré-compilada (AAR do mpv/ffmpeg, fora do escopo pela P8)."
+ },
+ {
+  "chave": "binary_analysis:lib/arm64-v8a/libsqlite3.so:runpath",
+  "motivo": "Biblioteca nativa pré-compilada (AAR do mpv/ffmpeg, fora do escopo pela P8)."
+ },
+ {
+  "chave": "binary_analysis:lib/arm64-v8a/libsqlite3.so:stack_canary",
+  "motivo": "Biblioteca nativa pré-compilada (AAR do mpv/ffmpeg, fora do escopo pela P8)."
+ },
+ {
+  "chave": "binary_analysis:lib/arm64-v8a/libswresample.so:stack_canary",
+  "motivo": "Biblioteca nativa pré-compilada (AAR do mpv/ffmpeg, fora do escopo pela P8)."
+ },
+ {
+  "chave": "binary_analysis:lib/arm64-v8a/libswscale.so:stack_canary",
+  "motivo": "Biblioteca nativa pré-compilada (AAR do mpv/ffmpeg, fora do escopo pela P8)."
+ },
+ {
+  "chave": "code_analysis:cbc_padding_oracle",
+  "motivo": "Sem CBC no nosso Kotlin; vem de biblioteca ofuscada (provável AES-128 de HLS do media3), sem oráculo exposto."
+ },
+ {
+  "chave": "manifest_analysis:vulnerable_os_version",
+  "motivo": "minSdk 25 mantido: suporte a TV box antiga, decisão de produto."
+ },
+ {
+  "chave": "network_security:6b2d7de3a9",
+  "motivo": "CA do usuário mantida para CA privada; texto claro só em 127.0.0.1/localhost (proxy local)."
+ },
+ {
+  "chave": "network_security:f75fdf31dd",
+  "motivo": "CA do usuário mantida para CA privada; texto claro só em 127.0.0.1/localhost (proxy local)."
+ },
+ {
+  "chave": "secrets:08144de84ac9",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:081ae6f2be18",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:0abebe74a7b3",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:0b11b9c9d1c0",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:1357d06a94f6",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:18f7aa964484",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:1cb41750832f",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:1fd8272bcc74",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:20fd18849108",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:2998e3704dc4",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:31e020e2f792",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:330c1810efa1",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:369a091ea9dc",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:385c11c2c469",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:3c70e3d71422",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:3f2d7d93b4c5",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:3fac232fbdd6",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:437bdb7f9050",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:4486dddf4134",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:455287b7c374",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:45b05b491b6b",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:47312062b9b1",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:4ab3e1cf6a9c",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:50041fcd0083",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:50abf5706a15",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:53fb83205924",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:552557f4b723",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:56c08aaf5dab",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:58be8f16d4a7",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:5b3e420b44e4",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:5eac6f055a00",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:65e3bf3f9ee8",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:6e9b0312d4f0",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:6f050dd71ed1",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:730ea9a870e5",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:73afb42e0aea",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:78c82f2f7fe6",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:80fee820fb51",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:82186327d4a1",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:8367b2ab4aa4",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:848133792d8d",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:848447d62271",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:8b94570a4d0f",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:8f3ef309f36c",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:96e18b6d1f4d",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:97987e250a70",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:98fb2eba487e",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:99cea4c22e93",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:9a57fb01c495",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:9d6ed25d6f12",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:9edafce48e82",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:a139d59ed1c7",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:a6ddd9e7fe64",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:a74f9a899f81",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:a9cbe927c822",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:ab8d6846f2c4",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:b007b42abd88",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:b2bf4e7cb2be",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:ba42619800a1",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:bc372a496b8b",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:c11f407e0836",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:c17b689d51fa",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:c29623a596c4",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:c710672ab96a",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:cb90ffc0508f",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:d53ed416ec4c",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:d679b90de7ae",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:d75aafc288c6",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:d91037bdbc7d",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:d942d1d11b3b",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:dc98660acd0d",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:e2a57582a2f7",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:e5f7f4b8cb64",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:e630d107d010",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:e683a2213f55",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:f198f176ec28",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:f8190b5190bf",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:fcb52764018f",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ },
+ {
+  "chave": "secrets:fddab102acb9",
+  "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."
+ }
+]

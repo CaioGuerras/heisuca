@@ -1,0 +1,14 @@
+[
+  {"casa": "^binary_analysis:lib/[^:]+/lib(mpv|av[a-z]+|sw[a-z]+|dovi_bridge|c\\+\\+_shared|sqlite3)\\.so:(stack_canary|relocation_readonly|runpath)$",
+   "motivo": "Biblioteca nativa pré-compilada (AAR do mpv/ffmpeg, fora do escopo pela P8)."},
+  {"casa": "^binary_analysis:lib/[^:]+/libapp\\.so:(stack_canary|relocation_readonly)$",
+   "motivo": "libapp.so é o AOT do Dart, que não usa canary/RELRO do toolchain C."},
+  {"casa": "^code_analysis:cbc_padding_oracle$",
+   "motivo": "Sem CBC no nosso Kotlin; vem de biblioteca ofuscada (provável AES-128 de HLS do media3), sem oráculo exposto."},
+  {"casa": "^manifest_analysis:vulnerable_os_version$",
+   "motivo": "minSdk 25 mantido: suporte a TV box antiga, decisão de produto."},
+  {"casa": "^network_security:",
+   "motivo": "CA do usuário mantida para CA privada; texto claro só em 127.0.0.1/localhost (proxy local)."},
+  {"casa": "^secrets:",
+   "motivo": "Cabeçalhos PEM e constantes numéricas/hex de bibliotecas; nenhum segredo real (triagem de 28/10/2026)."}
+]

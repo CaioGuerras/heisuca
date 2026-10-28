@@ -33,8 +33,20 @@ def _lista(valor):
     return valor if isinstance(valor, list) else []
 
 
+def normalizar_chave(chave):
+    """O MobSF repete os binários em apktool_out/lib/... e lib/...: a chave ignora o prefixo."""
+    return chave.replace(":apktool_out/", ":", 1)
+
+
 def coletar(rel):
-    """Devolve lista de (chave, descrição) de achados com severidade high."""
+    """Devolve lista de (chave, descrição) de achados high, chaves normalizadas e sem duplicatas."""
+    unicos = {}
+    for chave, desc in _coletar_bruto(rel):
+        unicos.setdefault(normalizar_chave(chave), desc)
+    return list(unicos.items())
+
+
+def _coletar_bruto(rel):
     achados = []
     if not isinstance(rel, dict):
         return achados

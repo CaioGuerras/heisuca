@@ -11,7 +11,7 @@ env:
   # MobSF fixo (última v4.x estável no Docker Hub em 28/10/2026).
   MOBSF_TAG: "v4.5.3"
   # relatorio: classifica e resume sem falhar; bloquear: vermelho falha o job.
-  MOBSF_MODO: relatorio
+  MOBSF_MODO: bloquear
 
 concurrency:
   group: heisuca-android-${{ github.ref }}
@@ -160,9 +160,10 @@ jobs:
     needs: apk
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    # Modo relatório (MOBSF_MODO=relatorio): falha de API/infra do MobSF não derruba o build do APK.
-    # Trocar para false junto com MOBSF_MODO=bloquear, depois da triagem dos achados.
-    continue-on-error: true
+    # Modo bloquear (MOBSF_MODO=bloquear): achado high fora de apps/app/security/mobsf_aceitos.json
+    # fica vermelho e falha o job; falha de API/infra do MobSF também (continue-on-error: false).
+    # Achados aceitos foram triados em 28/10/2026 (gerar_aceitos_mobsf.py + mobsf_motivos.json).
+    continue-on-error: false
     permissions:
       contents: read
     steps:

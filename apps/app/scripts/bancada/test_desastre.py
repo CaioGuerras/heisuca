@@ -421,3 +421,57 @@ class CampoPeloRotulo(unittest.TestCase):
     def test_cai_na_ordem_quando_nao_ha_rotulos(self):
         c = campos_login(parse_uiautomator(LOGIN_SEM_DICA))
         self.assertEqual([c[k]['centro'][1] for k in ('servidor', 'usuario', 'senha')], [360, 560, 760])
+
+
+import urllib.error
+from unittest import mock
+from desastre import tela_conhecida
+from servidor import Servidor, BancadaIndisponivel
+
+
+class TelasConhecidas(unittest.TestCase):
+    def nome(self, *nos_):
+        return tela_conhecida(parse_uiautomator(xml(*nos_)))
+
+    def test_inicio_e_login_seguem_como_marcos(self):
+        self.assertEqual(tela_conhecida(parse_uiautomator(INICIO)), 'inicio')
+        self.assertEqual(tela_conhecida(parse_uiautomator(LOGIN)), 'login')
+
+    def test_titulo_e_player(self):
+        self.assertEqual(self.nome(no(text='Duna'), no(text='Assistir T1:E3'), no(desc='Fechar')), 'titulo')
+        self.assertEqual(self.nome(no(text='Continuar'), no(desc='Fechar')), 'titulo')
+        self.assertEqual(self.nome(no(desc='Pausar'), no(desc='Legendas'), no(desc='Voltar 10 segundos')), 'player')
+        self.assertEqual(self.nome(no(desc='Carregando vídeo'), no(desc='Mostrar os botões')), 'player')
+
+    def test_tela_do_final_do_run_novo_perfil_com_pin(self):
+        self.assertEqual(self.nome(no(text='Novo perfil'), no(text='Proteção por PIN (opcional)'),
+                                   no(text='Confirmar PIN'), no(text='Cancelar')), 'perfil')
+        self.assertEqual(self.nome(no(text='Sair da conta Encerrar a sessão neste dispositivo')), 'perfil')
+
+    def test_busca(self):
+        self.assertEqual(self.nome(no('android.widget.EditText', hint='Buscar', b='[0,0][500,100]'), no(text='Buscar')), 'busca')
+
+    def test_tela_desconhecida_e_vazia(self):
+        self.assertIsNone(self.nome(no(text='Carregando')))
+        self.assertIsNone(self.nome(no(text='Assistir')))   # só o verbo solto não basta
+        self.assertIsNone(tela_conhecida([]))
+        self.assertIsNone(self.nome(no(desc='Pausar')))     # um rótulo de player só não basta
+
+
+class CausaDoErro(unittest.TestCase):
+    def test_http_e_caminho_sem_id_nem_token(self):
+        s = Servidor('https://x.exemplo', token='segredo')
+        erro = urllib.error.HTTPError('https://x.exemplo/Users/0123456789abcdef0123456789abcdef/Items?ApiKey=z', 401, 'x', {}, None)
+        with mock.patch('servidor.urllib.request.urlopen', side_effect=erro):
+            with self.assertRaises(BancadaIndisponivel):
+                s.request('GET', '/Users/0123456789abcdef0123456789abcdef/Items', query={'ApiKey': 'z'})
+        self.assertEqual(s.ultimo_erro, 'GET /Users/<id>/Items -> HTTP 401')
+        for proibido in ('segredo', 'exemplo', 'ApiKey', '0123456789abcdef'):
+            self.assertNotIn(proibido, s.ultimo_erro)
+
+    def test_timeout_e_rede(self):
+        s = Servidor('https://x.exemplo')
+        with mock.patch('servidor.urllib.request.urlopen', side_effect=urllib.error.URLError(TimeoutError())):
+            with self.assertRaises(BancadaIndisponivel):
+                s.request('GET', '/System/Info/Public')
+        self.assertEqual(s.ultimo_erro, 'GET /System/Info/Public -> TimeoutError')

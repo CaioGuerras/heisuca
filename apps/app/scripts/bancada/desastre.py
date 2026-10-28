@@ -484,3 +484,36 @@ def achados_de_anr(dialogos, vistos):
         else:
             saida.append((ATENCAO, 'anr-de-outro-app', d['nome']))
     return saida
+
+
+# ---------- telas reconhecidas além do início e do login (P6-6) ----------
+
+ROTULOS_PLAYER = re.compile(r'^(pausar|mostrar os botões|esconder os botões|carregando vídeo|legendas|áudio|tocando|pausado|'
+                            r'ajustar à tela|preencher a tela|esticar|travar rotação|destravar rotação|'
+                            r'voltar \d+ segundos|avançar \d+ segundos|episódio anterior|próximo episódio)$', re.I)
+
+
+def tela_conhecida(nos):
+    """Nome da tela legítima reconhecida por rótulos estáveis do app, ou None.
+
+    'inicio' e 'login' vêm de [marco]; além deles: 'player', 'titulo' (ficha com Assistir/Continuar e Fechar),
+    'perfil' (Você, Novo perfil, PIN), 'busca' e 'configuracoes'.
+    """
+    m = marco(nos)
+    if m:
+        return m
+    rotulos = [r.strip() for n in nos for r in _rotulos(n) if len(r) <= 200]
+    baixos = {r.lower() for r in rotulos}
+    if sum(1 for r in rotulos if ROTULOS_PLAYER.match(r)) >= 2:
+        return 'player'
+    tem_play = any(r.lower().split(' ')[0] in ('assistir', 'continuar') for r in rotulos)
+    if tem_play and ({'fechar', 'minha lista', 'trailer'} & baixos):
+        return 'titulo'
+    if baixos & {'novo perfil', 'confirmar pin', 'definir pin', 'sair da conta', 'você'} \
+            or any(r.lower().startswith('sair da conta') for r in rotulos):
+        return 'perfil'
+    if baixos & {'buscar', 'configurações'} and any(n['cls'].endswith('EditText') for n in nos):
+        return 'busca'
+    if 'configurações' in baixos:
+        return 'configuracoes'
+    return None

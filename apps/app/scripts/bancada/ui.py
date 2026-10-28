@@ -4,7 +4,7 @@ import subprocess
 import time
 
 from capturas import APP_ID, adb
-from desastre import (VERMELHO, campo_abaixo_do_rotulo, foco_no_campo, tamanho_do_campo, aba_voce, achados_de_anr, reconhecer_anr, achar_texto, app_em_primeiro_plano, assinatura_tela, campos_login, marco,
+from desastre import (tela_conhecida, VERMELHO, campo_abaixo_do_rotulo, foco_no_campo, tamanho_do_campo, aba_voce, achados_de_anr, reconhecer_anr, achar_texto, app_em_primeiro_plano, assinatura_tela, campos_login, marco,
                       parse_uiautomator, teclado_visivel, tela_presa)
 
 CONTA = 'teste-sem-senha'
@@ -16,6 +16,14 @@ def texto(*args, tempo=30):
         return r.stdout.decode(errors='replace')
     except (subprocess.TimeoutExpired, OSError):
         return ''
+
+
+SANEAR = lambda nos: []  # troca pelo desastrado: listar_visivel(nos, servidor, nomes)
+
+
+def passo_visivel(lista, nome, nos):
+    """Guarda o que está visível (já saneado) em [lista] para o relatório."""
+    lista.append({'passo': nome, 'visivel': SANEAR(nos)})
 
 
 ANR_VISTOS = set()
@@ -198,48 +206,81 @@ def entrar_pela_interface(servidor, registrar=None):
 
 
 def recuperar(achados, rotulo):
-    """Volta a um estado utilizável. Devolve (marco, retomou). Três ações: Voltar, relançar, Home+relançar."""
-    acoes = [lambda: adb('shell', 'input', 'keyevent', '4'), abrir_app,
-             lambda: (adb('shell', 'input', 'keyevent', '3'), time.sleep(1), abrir_app())]
+    """Volta a um estado utilizável. Devolve (tela, retomou). Voltar até 5x, relançar, Home+relançar.
+
+    Uma tela legítima do app (título, player, perfil...) também é aceita como estado utilizável.
+    """
     nos = dump()
     dumps = [assinatura_tela(nos)]
-    if em_primeiro_plano() and marco(nos):
-        return marco(nos), True
+    if em_primeiro_plano() and tela_conhecida(nos):
+        return tela_conhecida(nos), True
+    acoes = [lambda: adb('shell', 'input', 'keyevent', '4')] * 5 + [abrir_app,
+             lambda: (adb('shell', 'input', 'keyevent', '3'), time.sleep(1), abrir_app())]
     for acao in acoes:
         acao()
-        time.sleep(4)
+        time.sleep(3)
         nos = dump()
         dumps.append(assinatura_tela(nos))
-        if em_primeiro_plano() and marco(nos):
-            return marco(nos), True
+        if em_primeiro_plano() and tela_conhecida(nos):
+            return tela_conhecida(nos), True
     retomou = em_primeiro_plano()
-    # Tela estática com marco conhecido não é "presa"; só tela desconhecida e idêntica nas quatro leituras.
-    if retomou and marco(nos) is None and tela_presa(dumps):
+    # Tela estática com marco conhecido não é "presa"; só tela desconhecida e idêntica nas últimas leituras.
+    if retomou and tela_conhecida(nos) is None and tela_presa(dumps[-3:]):
         achados.append((VERMELHO, 'tela-presa', f'{rotulo}: tela desconhecida igual após Voltar, relançar e Home+relançar'))
         retomou = False
     elif not retomou:
         achados.append((VERMELHO, 'app-fora-do-primeiro-plano', f'{rotulo}: não voltou após relançar'))
-    return marco(nos), retomou
+    return tela_conhecida(nos), retomou
 
 
-def sair_pela_interface():
-    """Sair da conta pelo menu Você; devolve True se o app voltou ao login."""
+def sair_pela_interface(passos=None):
+    """Sair da conta: aba do usuário (última da barra) → 'Sair da conta' → confirmação 'Sair'.
+
+    Caminho real em lib/heisuca/heisuca_floating_island.dart (rótulo da 4ª aba = primeiro nome) e
+    heisuca_profile_screen.dart (tile 'Sair da conta', diálogo com título e botão 'Sair').
+    [passos] recebe o visível saneado de cada passo. Devolve True se o app voltou ao login.
+    """
+    rec = (lambda nome, nos: passo_visivel(passos, nome, nos)) if passos is not None else (lambda nome, nos: None)
     nos = dump()
+    for _ in range(6):  # volta até a barra de abas (sair de título, player, diálogo...)
+        if marco(nos) == 'inicio':
+            break
+        adb('shell', 'input', 'keyevent', '4')
+        time.sleep(1.5)
+        nos = dump()
     if marco(nos) != 'inicio':
-        return False
+        abrir_app()
+        time.sleep(4)
+        nos = dump()
+    rec('1 início', nos)
     voce = aba_voce(nos)
     if not voce:
+        rec('falha: aba do usuário não achada', nos)
         return False
     tocar(voce)
-    time.sleep(2)
-    sair = achar_texto(dump(), 'Sair da conta')
+    time.sleep(2.5)
+    sair = None
+    for i in range(6):
+        nos = dump()
+        sair = achar_texto(nos, 'Sair da conta', exato=False)
+        if sair:
+            break
+        adb('shell', 'input', 'swipe', '270', '900', '270', '350')
+        time.sleep(1)
+    rec('2 perfil (Sair da conta)', nos)
     if not sair:
+        rec('falha: Sair da conta não achado', nos)
         return False
     tocar(sair)
-    time.sleep(2)
-    confirmar = [n for n in dump() if n['centro'] and n['text'].strip() == 'Sair']
+    time.sleep(2.5)
+    nos = dump()
+    rec('3 confirmação', nos)
+    confirmar = [n for n in nos if n['centro'] and n['clickable'] and n['text'].strip().lower() == 'sair']
+    confirmar = confirmar or [n for n in nos if n['centro'] and n['text'].strip().lower() == 'sair']
     if not confirmar:
+        rec('falha: botão Sair da confirmação não achado', nos)
         return False
     tocar(confirmar[-1])
-    m, _ = esperar_marco({'login'}, 30)
+    m, nos = esperar_marco({'login'}, 40)
+    rec(f'4 depois de confirmar (marco={m})', nos)
     return m == 'login'

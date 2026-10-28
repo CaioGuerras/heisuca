@@ -45,6 +45,7 @@ class Servidor:
         self.token = token
         self.user = user
         self.device = device or f'heisuca-bancada-{uuid.uuid4()}'
+        self.ultimo_erro = None  # 'GET /Users -> HTTP 401' ou 'timeout': nunca URL completa nem token
 
     def request(self, method, path, body=None, query=None):
         url = self.base + path
@@ -61,6 +62,10 @@ class Servidor:
                 content = response.read()
                 return json.loads(content) if content else None
         except (urllib.error.URLError, ValueError, TimeoutError) as error:
+            motivo = (f'HTTP {error.code}' if isinstance(error, urllib.error.HTTPError)
+                      else type(getattr(error, 'reason', error)).__name__)
+            secoes = [x for x in path.split("/") if x][:3]
+            self.ultimo_erro = f'{method} /{"/".join(re.sub(r"[0-9a-fA-F-]{20,}", "<id>", x) for x in secoes)} -> {motivo}'
             raise BancadaIndisponivel('Servidor não respondeu à operação da bancada.') from None
 
     def autenticar(self, name):

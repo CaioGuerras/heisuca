@@ -9,12 +9,12 @@ import socket
 import time
 
 from capturas import APP_ID, adb
-from desastre import (aba_voce, VERMELHO, ATENCAO, EtapaAmbiente, analisar_logcat, botoes_de_toque, comandos_iptables,
+from desastre import (tela_conhecida, aba_voce, VERMELHO, ATENCAO, EtapaAmbiente, analisar_logcat, botoes_de_toque, comandos_iptables,
                       densidade_atual, densidade_para_dp, escolher_cartao, executar_etapa, filtrar_pid, ips_do_host,
                       marco, mensagem_pt, nos_sem_rotulo, pids_do_app, tamanho_da_tela, texto_tecnico_na_ui,
                       usuario_inexistente)
 from servidor import Servidor, BancadaIndisponivel
-from ui import (preencher_campo, CONTA, abrir_app, achar_texto, campos_login, dump, em_primeiro_plano, entrar_pela_interface,
+from ui import (passo_visivel, preencher_campo, CONTA, abrir_app, achar_texto, campos_login, dump, em_primeiro_plano, entrar_pela_interface,
                 esperar_marco, pid_do_app, recuperar, sair_pela_interface, texto, tocar, digitar)
 
 PRAZO_TOTAL = 50 * 60  # segundos para todas as etapas; o job tem 90 min.
@@ -26,6 +26,9 @@ class Ctx:
         self.inicio = time.monotonic()
         self.registros = []
         self.logcat_total = []
+        self.diag = []          # visível saneado das telas sem marco
+        self.saida_passos = []  # visível saneado de cada passo da saída da conta
+        self.aviao = {}
         s = tamanho_da_tela(texto('shell', 'wm', 'size')) or (540, 1200)
         self.largura, self.altura = s
 
@@ -62,8 +65,9 @@ def checar_tela(ctx, rotulo):
     nos = dump()
     for t in texto_tecnico_na_ui(nos):
         achados.append((VERMELHO, 'texto-tecnico-na-ui', f'{rotulo}: {t}'))
-    if marco(nos) is None and not mensagem_pt(nos):
+    if tela_conhecida(nos) is None and not mensagem_pt(nos):
         achados.append((ATENCAO, 'sem-marco-nem-mensagem', f'{rotulo}: tela sem marco e sem mensagem em português'))
+        passo_visivel(ctx.diag, rotulo, nos)
     return achados
 
 
@@ -164,15 +168,25 @@ def e04_sem_atividades(ctx):
 
 def e05_rede_no_video(ctx):
     estado = {}
+    def passo(nome, fn):
+        """Executa uma chamada ao servidor dizendo QUAL falhou e com que código (sem URL nem token)."""
+        estado['passo'] = nome
+        try:
+            return fn()
+        except BancadaIndisponivel as erro:
+            cli = estado.get('cli')
+            causa = (cli.ultimo_erro if cli and cli.ultimo_erro else str(erro))
+            raise EtapaAmbiente(f'{nome}: {causa}') from None
+
     def etapa():
         cli = Servidor(ctx.base)
-        cli.autenticar(CONTA)
         estado['cli'] = cli
-        info = cli.request('GET', '/System/Info/Public') or {}
+        passo('autenticar', lambda: cli.autenticar(CONTA))
+        info = passo('System/Info/Public', lambda: cli.request('GET', '/System/Info/Public')) or {}
         sid = info.get('Id')
         if not sid:
-            raise EtapaAmbiente('o servidor não informou o identificador')
-        video = cli.escolher_video()
+            raise EtapaAmbiente('System/Info/Public: sem identificador do servidor')
+        video = passo('escolher_video', cli.escolher_video)
         estado['video'] = video
         estado['anterior'] = video['UserData']
         link = f'plezy://play?content_id=plezy_{sid}_{video["Id"]}'
@@ -187,19 +201,24 @@ def e05_rede_no_video(ctx):
         estado['rede'] = False
         time.sleep(15)
     def restaurar():
-        if estado.get('rede') is not False:
+        if estado.get('rede') is not False and estado.get('rede') is not None:
             adb('shell', 'svc', 'wifi', 'enable')
             adb('shell', 'svc', 'data', 'enable')
         adb('shell', 'am', 'force-stop', APP_ID)
         cli, video = estado.get('cli'), estado.get('video')
         if cli and video:
             try:
-                cli.restaurar(video['Id'], estado['anterior'])
+                passo('restaurar', lambda: cli.restaurar(video['Id'], estado['anterior']))
             finally:
                 try:
                     cli.logout()
                 except BancadaIndisponivel:
                     pass
+        elif cli and cli.token:
+            try:
+                cli.logout()
+            except BancadaIndisponivel:
+                pass
     rodar(ctx, '05-rede-cai-no-video', etapa, restaurar)
     abrir_app()
     esperar_marco({'inicio', 'login'}, 40)
@@ -211,6 +230,10 @@ def e06_aviao(ctx):
         time.sleep(5)
         ctx.abas()
         ctx.abrir_titulo()
+        nos = dump()
+        passo_visivel(ctx.diag, 'modo avião: tela depois de navegar', nos)
+        ctx.aviao['visivel'] = ctx.diag[-1]['visivel']
+        (ctx.saida / '06-modo-aviao.png').write_bytes(adb('exec-out', 'screencap', '-p').stdout)
         ctx.achados += [(g, c, '06-modo-aviao: ' + d) for g, c, d in checar_tela(ctx, 'durante o modo avião')]
     def restaurar():
         adb('shell', 'cmd', 'connectivity', 'airplane-mode', 'disable')
@@ -244,7 +267,7 @@ def e07_servidor_fora(ctx):
 
 def e08_senha_errada(ctx):
     def etapa():
-        if not sair_pela_interface():
+        if not sair_pela_interface(ctx.saida_passos):
             raise EtapaAmbiente('não consegui sair da conta pela interface')
         for tentativa in range(5):
             m, nos = esperar_marco({'login'}, 20)

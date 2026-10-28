@@ -14,9 +14,10 @@ from pathlib import Path
 
 from capturas import APP_ID, adb
 from desastre import (VERMELHO, ATENCAO, analisar_logcat, analisar_monkey, classificar, eventos_injetados,
-                      filtrar_pid, listar_visivel, marco, pids_do_app, texto_tecnico_na_ui)
+                      filtrar_pid, listar_visivel, marco, tela_conhecida, pids_do_app, texto_tecnico_na_ui)
 from servidor import BancadaIndisponivel, Servidor, limpar_log
-from ui import (CONTA, abrir_app, dump, esperar_launcher, ligar_achados, entrar_pela_interface, pid_do_app, recuperar, sair_pela_interface, texto)
+import ui
+from ui import (passo_visivel, CONTA, abrir_app, dump, esperar_launcher, ligar_achados, entrar_pela_interface, pid_do_app, recuperar, sair_pela_interface, texto)
 import caos
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -46,6 +47,40 @@ def sessoes_restantes(base):
                 pass
 
 
+def encerrar_sessao_do_app_por_api(base):
+    """Último recurso: com a conta dedicada, tenta encerrar a(s) sessão(ões) do app pelo que o Jellyfin permite.
+
+    `DELETE /Devices?id=` exige administrador: se der 403, só registra (o DeviceId sai truncado). Nunca outra conta.
+    Devolve (sessões restantes, resumo).
+    """
+    cliente = Servidor(base)
+    resumo = []
+    try:
+        cliente.autenticar(CONTA)
+        sessoes = cliente.request('GET', '/Sessions') or []
+        minhas = [s for s in sessoes if (s.get('Client') or '').lower().startswith('cgflix')
+                  and s.get('DeviceId') != cliente.device]
+        for sessao in minhas:
+            device = str(sessao.get('DeviceId') or '')
+            rotulo = (device[:4] + '…') if device else '?'
+            try:
+                cliente.request('DELETE', '/Devices', query={'id': device})
+                resumo.append(f'DELETE /Devices ok ({rotulo})')
+            except BancadaIndisponivel:
+                resumo.append(f'{cliente.ultimo_erro} ({rotulo})')
+        restantes = sum(1 for s in (cliente.request('GET', '/Sessions') or [])
+                        if (s.get('Client') or '').lower().startswith('cgflix') and s.get('DeviceId') != cliente.device)
+        return restantes, resumo
+    except (BancadaIndisponivel, KeyError, TypeError):
+        return None, resumo + [cliente.ultimo_erro or 'sem resposta']
+    finally:
+        if cliente.token:
+            try:
+                cliente.logout()
+            except BancadaIndisponivel:
+                pass
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     base = os.environ.get('HEISUCA_TESTE_SERVIDOR', '').strip()
@@ -58,6 +93,8 @@ def main():
     achados, relatorio = [], {'semente': SEMENTE, 'eventos_pedidos': EVENTOS, 'pacote': APP_ID, 'estado': 'vermelho'}
     codigo = 1
     passos, t0 = [], time.monotonic()
+    sem_marco, saida_passos = [], []
+    relatorio['visivel_sem_marco'], relatorio['saida_passos'] = sem_marco, saida_passos
     relatorio['login_passos'] = passos
     try:
         if not base.startswith(('https://', 'http://')) or CONTA.lower() not in [c.lower() for c in contas]:
@@ -73,6 +110,7 @@ def main():
         # Diálogos de erro do sistema cobrem o app no emulador lento (run 40700645544: ANR do launcher). Nossos ANRs
         # seguem no logcat. Restaurado no finally.
         ligar_achados(achados)
+        ui.SANEAR = lambda nos: listar_visivel(nos, base, protegidos)
         adb('shell', 'settings', 'put', 'global', 'hide_error_dialogs', '1')
         esperar_launcher(60)
         adb('logcat', '-G', '16M')
@@ -104,7 +142,8 @@ def main():
         (OUT / '02-final.png').write_bytes(adb('exec-out', 'screencap', '-p').stdout)
         relatorio['marco_final'] = m
         if m is None:
-            achados.append((ATENCAO, 'sem-marco', 'nem tela inicial nem login depois de relançar'))
+            achados.append((ATENCAO, 'sem-marco', 'nem tela conhecida do app depois de relançar'))
+            passo_visivel(sem_marco, 'depois do monkey', dump())
 
         logcat = texto('logcat', '-d', '-v', 'threadtime', tempo=120)
         pids = pids_do_app(logcat, APP_ID, pids)
@@ -118,6 +157,9 @@ def main():
         try:
             relatorio['etapas'] = caos.roteiro(ctx)
         finally:
+            sem_marco.extend(ctx.diag)
+            saida_passos.extend(ctx.saida_passos)
+            relatorio['modo_aviao'] = ctx.aviao
             (OUT / 'logcat-caos.log').write_text(limpo('\n'.join(ctx.logcat_total))[-1500000:])
             pids = ctx.pids
         m, retomou = recuperar(achados, 'depois do caos')
@@ -126,9 +168,12 @@ def main():
             achados.append((ATENCAO, 'sem-marco-final', 'nem tela inicial nem login depois do caos'))
 
         # Sessão: sair pela interface (se o monkey não deixou deslogado) e conferir no servidor.
-        if marco(dump()) == 'inicio' and not sair_pela_interface():
+        if marco(dump()) != 'login' and not sair_pela_interface(saida_passos):
             achados.append((ATENCAO, 'sair-pela-ui', 'não consegui sair pela interface'))
         restantes = sessoes_restantes(base)
+        if restantes:
+            restantes, motivo_api = encerrar_sessao_do_app_por_api(base)
+            relatorio['encerrar_por_api'] = motivo_api
         relatorio['sessoes_do_app_restantes'] = restantes
         if restantes:
             achados.append((ATENCAO, 'sessao-aberta', f'{restantes} sessão(ões) do app seguem abertas no servidor'))

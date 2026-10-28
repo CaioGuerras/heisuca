@@ -51,7 +51,6 @@ import 'services/apple_tv_remote_touch_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'services/image_cache_service.dart';
 import 'services/gamepad_service.dart';
-import 'services/trackers/tracker_coordinator.dart';
 import 'services/playback_coordinator.dart';
 import 'providers/account_preferences_controller.dart';
 import 'services/account_preferences_repository.dart';
@@ -852,7 +851,6 @@ void _startNonessentialInitialization(SettingsService settings) {
     () => initializeDateFormatting(settings.read(SettingsService.appLocale).intlLocaleName, null),
   );
   bestEffort('Download storage', () => DownloadStorageService.instance.initialize(settings));
-  bestEffort('Trackers', TrackerCoordinator.instance.initialize);
 
   bestEffort('Legacy image cache cleanup', () async {
     if (settings.read(SettingsService.cleanedOldImageCache)) return;
@@ -1035,7 +1033,6 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
   final Set<String> _pendingSyncKeys = <String>{};
   bool _isAutoDeleteRunning = false;
   bool _lastConnectivityWasWifi = false;
-  bool _lastConnectivityHadNetwork = true;
   Future<void>? _shutdownFuture;
 
   /// Last time server health probes ran from a resume event (cooldown for desktop)
@@ -1126,16 +1123,6 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
 
     _libraryEventService.dispose();
     _downloadManager.dispose();
-    // Quitting straight from the player is a real stop: the trackers that own
-    // their own watched semantics need the terminal report before the process
-    // goes away. Bounded — a hung tracker must not hold the app open.
-    try {
-      await TrackerCoordinator.instance.stopPlayback().timeout(const Duration(seconds: 3));
-    } catch (e, st) {
-      appLogger.w('Tracker shutdown did not complete before exit', error: e, stackTrace: st);
-    }
-    TrackerCoordinator.instance.cancelInFlight();
-
     await _serverManager.shutdown();
     await Future.wait([
       httpClient.closeGracefully(drainTimeout: const Duration(seconds: 5)),
@@ -1227,21 +1214,12 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
   void _startConnectivitySyncTrigger(DownloadProvider downloadProvider, OfflineModeProvider offlineModeProvider) {
     _removeConnectivitySyncListener();
     _lastConnectivityWasWifi = offlineModeProvider.hasWifiOrEthernet;
-    _lastConnectivityHadNetwork = offlineModeProvider.hasNetworkConnection;
     _connectivitySyncProvider = offlineModeProvider;
     _connectivitySyncListener = () {
       final hasWifi = offlineModeProvider.hasWifiOrEthernet;
       final movedOntoWifi = hasWifi && !_lastConnectivityWasWifi;
       _lastConnectivityWasWifi = hasWifi;
 
-      final hasNetwork = offlineModeProvider.hasNetworkConnection;
-      final networkRestored = hasNetwork && !_lastConnectivityHadNetwork;
-      _lastConnectivityHadNetwork = hasNetwork;
-
-      if (networkRestored) {
-        appLogger.d('Network restored — replaying queued tracker writes');
-        unawaited(TrackerCoordinator.instance.flushWriteQueue());
-      }
       if (movedOntoWifi) {
         appLogger.d('Connectivity moved onto WiFi/Ethernet — triggering sync pass');
         _autoDeleteAndSync(downloadProvider);
@@ -1319,7 +1297,6 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
       case AppLifecycleState.resumed:
         // App came back to foreground - trigger sync check
         _offlineWatchSyncService.onAppResumed();
-        unawaited(TrackerCoordinator.instance.flushWriteQueue());
         // Re-arm the per-server library push channels torn down on pause
         // (and any that exhausted their reconnect attempts).
         _libraryEventService.resume();

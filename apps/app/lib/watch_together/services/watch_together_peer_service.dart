@@ -8,7 +8,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../../i18n/strings.g.dart';
 import '../../services/base_peer_service.dart';
-import '../../services/trackers/future_coalescer.dart';
+import '../../utils/future_coalescer.dart';
 import '../../utils/app_logger.dart';
 import '../../utils/web_socket_connect_stub.dart'
     if (dart.library.io) '../../utils/web_socket_connect.dart'

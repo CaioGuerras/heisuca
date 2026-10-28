@@ -36,16 +36,6 @@ extension _VideoPlayerPlaybackPromptMethods on VideoPlayerScreenState {
     // meanwhile and ends `completed` from _retireLaunchObserver when the
     // screen leaves on this item.
     _mediaControls.pushPlaybackState();
-    // The item finished, so real-time trackers get a terminal report now rather
-    // than whenever the screen happens to tear down: a completion prompt or
-    // end-of-video sleep timer can leave it open for minutes, and until then
-    // the service would still show the item as playing. Seed the known duration
-    // first. A later dispose or in-place reload finds no context and does
-    // nothing.
-    if (duration != null) {
-      TrackerCoordinator.instance.updatePosition(duration);
-    }
-    unawaited(TrackerCoordinator.instance.stopPlayback());
     if (_autoPipEnabled) {
       unawaited(_updateAutoPipState(isPlaying: false));
     }

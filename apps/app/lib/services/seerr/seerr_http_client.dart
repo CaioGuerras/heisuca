@@ -9,7 +9,6 @@ import '../../utils/platform_http_client_stub.dart'
     if (dart.library.io) '../../utils/platform_http_client_io.dart'
     as platform;
 import '../../utils/url_utils.dart';
-import '../trackers/tracker_http_client.dart';
 import 'seerr_constants.dart';
 import 'seerr_exceptions.dart';
 
@@ -154,7 +153,17 @@ class SeerrHttpClient {
       followRedirects: false,
     );
     appLogger.d('Seerr $method $path -> ${response.statusCode} (${sw.elapsedMilliseconds}ms)');
-    return SeerrResponse(response, TrackerHttpClient.decodeJson(response.body));
+    return SeerrResponse(response, _decodeJson(response.body));
+  }
+
+  /// Corpo vazio ou inválido vira null (o chamador trata pelo status HTTP).
+  static dynamic _decodeJson(String body) {
+    if (body.isEmpty) return null;
+    try {
+      return jsonDecode(body);
+    } on FormatException {
+      return null;
+    }
   }
 
   Uri _uri(String path, Map<String, Object?>? query) {

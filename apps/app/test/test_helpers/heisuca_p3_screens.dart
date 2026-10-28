@@ -20,7 +20,6 @@ import 'package:heisuca/screens/settings/general_settings_screen.dart';
 import 'package:heisuca/screens/settings/appearance_settings_screen.dart';
 import 'package:heisuca/screens/settings/playback_settings_screen.dart';
 import 'package:heisuca/screens/settings/subtitle_styling_screen.dart';
-import 'package:heisuca/screens/settings/services_settings_screen.dart';
 import 'package:heisuca/screens/settings/mpv_config_screen.dart';
 import 'package:heisuca/screens/settings/external_player_screen.dart';
 import 'package:heisuca/screens/settings/licenses_screen.dart';
@@ -48,7 +47,6 @@ final heisucaP3Screens = <String, Widget Function(HeisucaP3Fixture)> {
   'config-reproducao': (_) => const PlaybackSettingsScreen(),
   'config-reproducao-avancada': (_) => const PlaybackSettingsScreen(cgflixTechnical: true),
   'config-legendas': (_) => const SubtitleStylingScreen(),
-  'config-servicos': (_) => const ServicesSettingsScreen(),
   'config-mpv': (_) => const MpvConfigScreen(),
   'config-player-externo': (_) => const ExternalPlayerScreen(),
   'licencas': (_) => const LicensesScreen(),

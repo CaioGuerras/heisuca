@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:heisuca/models/companion_remote/remote_command.dart';
 import 'package:heisuca/models/mpv_config_models.dart';
-import 'package:heisuca/models/trakt/trakt_ids.dart';
 import 'package:heisuca/watch_together/models/watch_session.dart';
 import 'package:heisuca/watch_together/services/recent_rooms_service.dart';
 
@@ -17,19 +16,6 @@ void main() {
       expect(decoded.name, preset.name);
       expect(decoded.text, preset.text);
       expect(decoded.createdAt, createdAt);
-    });
-
-    test('TraktIds omits null fields and accepts numeric ids', () {
-      const ids = TraktIds(imdb: 'tt123', tmdb: 42);
-
-      expect(ids.toJson(), {'imdb': 'tt123', 'tmdb': 42});
-
-      final decoded = TraktIds.fromJson({'trakt': 1.0, 'slug': 'movie', 'tmdb': 42.0, 'tvdb': 9});
-      expect(decoded.trakt, 1);
-      expect(decoded.slug, 'movie');
-      expect(decoded.tmdb, 42);
-      expect(decoded.tvdb, 9);
-      expect(decoded.hasAny, isTrue);
     });
 
     test('RecentRoom preserves epoch timestamp and control mode index', () {

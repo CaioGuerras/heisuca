@@ -354,15 +354,6 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
     _playbackSession = null;
     _mediaControls.resetSuspension();
 
-    if (progressTracker != null) {
-      try {
-        await Future.wait<void>([
-          TrackerCoordinator.instance.stopPlayback(),
-        ]);
-      } catch (e, st) {
-        appLogger.w('Failed to stop scrobblers during initialization rollback', error: e, stackTrace: st);
-      }
-    }
     if (!mounted || _shuttingDown) return;
     await _wakelockController.setEnabled(false);
 
@@ -411,10 +402,6 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
 
     _publishMediaControlsMetadata(metadata, mediaClient);
 
-    // O coordenador usa o cliente neutro e só os serviços conectados.
-    if (mediaClient != null) {
-      unawaited(TrackerCoordinator.instance.startPlayback(metadata, mediaClient, isLive: widget.isLive));
-    }
   }
 
   /// Media controls metadata. Fire-and-forget — the OS plugin downloads the
@@ -498,7 +485,6 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
           for (final sibling in siblings) {
             if (sibling.isWatched) continue;
             await mediaClient.markWatchedFromPlaybackStop(sibling);
-            await TrackerCoordinator.instance.markWatched(sibling, mediaClient);
             appLogger.d('Scrobbled same-file sibling ${sibling.id} of ${metadata.id}');
           }
         },
@@ -619,11 +605,6 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
         );
         // Canais ao vivo informam a linha do tempo apenas por [_sendLiveTimeline].
         if (widget.isLive) return;
-        TrackerCoordinator.instance.updatePosition(position);
-        // Keep the trackers' known duration current — mpv only emits on the
-        // duration stream once per load, but this is cheap and avoids an extra
-        // listener.
-        TrackerCoordinator.instance.updateDuration(currentPlayer.state.duration);
       }),
     );
 
@@ -758,13 +739,6 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
 
     // Update OS media controls playback state
     _mediaControls.pushPlaybackState();
-
-    // Atualiza os trackers de reprodução
-    if (isPlaying) {
-      TrackerCoordinator.instance.resumePlayback();
-    } else {
-      TrackerCoordinator.instance.pausePlayback();
-    }
 
     // Update auto-PiP readiness
     if (_autoPipEnabled) {

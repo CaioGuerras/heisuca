@@ -9,15 +9,6 @@ import 'package:heisuca/utils/log_redaction_manager.dart';
 /// A 32-byte key, the only length `AesGcm.with256bits()` accepts.
 final String _validVaultKey = base64Encode(List<int>.generate(32, (i) => i));
 
-String _traktSession({String access = 'trakt-access-token', String refresh = 'trakt-refresh-token'}) => jsonEncode({
-  'access_token': access,
-  'refresh_token': refresh,
-  'expires_at': 4102444800,
-  'username': 'someone',
-  'scope': 'public',
-  'created_at': 1700000000,
-});
-
 String _seerrSession({String cookie = 'seerr-connect-sid'}) => jsonEncode({
   'base_url': 'https://seerr.example.com',
   'method': 'local',
@@ -66,21 +57,17 @@ void main() {
       expect(salvaged.losses, 1);
     });
 
-    test('recovers profile-scoped tracker and Seerr sessions', () {
-      final raw = jsonEncode({
-        'user_abc_trakt_session': _traktSession(),
-        'user_abc_seerr_session': _seerrSession(),
-        'theme': 'dark',
-      });
+    test('recovers profile-scoped Seerr sessions', () {
+      final raw = jsonEncode({'user_abc_seerr_session': _seerrSession(), 'theme': 'dark'});
 
       final salvaged = PrefsRecovery.salvage(raw);
 
-      expect(salvaged.sessions.keys, containsAll(['user_abc_trakt_session', 'user_abc_seerr_session']));
+      expect(salvaged.sessions.keys, containsAll(['user_abc_seerr_session']));
       expect(salvaged.losses, 0);
     });
 
     test('counts an undecodable session as lost rather than reseeding garbage', () {
-      final salvaged = PrefsRecovery.salvage(jsonEncode({'trakt_session': '{"access_token":"only-half'}));
+      final salvaged = PrefsRecovery.salvage(jsonEncode({'seerr_session': '{"base_url":"only-half'}));
 
       expect(salvaged.sessions, isEmpty);
       expect(salvaged.losses, 1);
@@ -90,36 +77,35 @@ void main() {
       // A store damaged mid-migration holds credentials only under the legacy
       // spelling, because `SharedPreferences.getInstance()` runs first.
       final raw = jsonEncode({
-        '${legacyKeyPrefix}trakt_session': _traktSession(),
+        '${legacyKeyPrefix}seerr_session': _seerrSession(),
         '$legacyKeyPrefix$credentialVaultKeyPref': _validVaultKey,
       });
 
       final salvaged = PrefsRecovery.salvage(raw);
 
       expect(salvaged.vaultKey, _validVaultKey);
-      expect(salvaged.sessions.keys, ['trakt_session']);
+      expect(salvaged.sessions.keys, ['seerr_session']);
     });
 
     test('prefers the unprefixed entry over the legacy one regardless of order', () {
       final documents = [
         jsonEncode({
-          '${legacyKeyPrefix}trakt_session': _traktSession(access: 'legacy-access'),
-          'trakt_session': _traktSession(access: 'current-access'),
+          '${legacyKeyPrefix}seerr_session': _seerrSession(cookie: 'legacy-access'),
+          'seerr_session': _seerrSession(cookie: 'current-access'),
         }),
         jsonEncode({
-          'trakt_session': _traktSession(access: 'current-access'),
-          '${legacyKeyPrefix}trakt_session': _traktSession(access: 'legacy-access'),
+          'seerr_session': _seerrSession(cookie: 'current-access'),
+          '${legacyKeyPrefix}seerr_session': _seerrSession(cookie: 'legacy-access'),
         }),
       ];
 
       for (final raw in documents) {
-        expect(PrefsRecovery.salvage(raw).sessions['trakt_session'], contains('current-access'));
+        expect(PrefsRecovery.salvage(raw).sessions['seerr_session'], contains('current-access'));
       }
     });
 
     test('registers each secret individually, not just the whole payload', () {
       final raw = jsonEncode({
-        'trakt_session': _traktSession(access: 'aaa-access-secret', refresh: 'bbb-refresh-secret'),
         'seerr_session': _seerrSession(cookie: 'ccc-cookie-secret'),
         legacyPlexTokenPref: 'ddd-plex-secret',
       });
@@ -128,7 +114,7 @@ void main() {
 
       // A bare token quoted on its own must redact too; registering only the
       // encoded blob would leave these exposed.
-      for (final secret in ['aaa-access-secret', 'bbb-refresh-secret', 'ccc-cookie-secret', 'ddd-plex-secret']) {
+      for (final secret in ['ccc-cookie-secret', 'ddd-plex-secret']) {
         expect(LogRedactionManager.redact('value=$secret'), isNot(contains(secret)), reason: secret);
       }
     });
@@ -340,14 +326,14 @@ void main() {
   group('seedStore', () {
     test('writes only the salvaged credentials and leaves no staging file', () async {
       final salvaged = PrefsRecovery.salvage(
-        jsonEncode({credentialVaultKeyPref: _validVaultKey, 'trakt_session': _traktSession(), 'theme': 'dark'}),
+        jsonEncode({credentialVaultKeyPref: _validVaultKey, 'seerr_session': _seerrSession(), 'theme': 'dark'}),
       );
 
       expect(await PrefsRecovery.seedStore(salvaged, storeFileOverride: store), isTrue);
 
       final written = jsonDecode(await store.readAsString()) as Map<String, dynamic>;
       expect(written[credentialVaultKeyPref], _validVaultKey);
-      expect(written.containsKey('trakt_session'), isTrue);
+      expect(written.containsKey('seerr_session'), isTrue);
       // Ordinary settings are not salvaged, so a reseed must not invent them.
       expect(written.containsKey('theme'), isFalse);
       expect(await File('${store.path}.seed').exists(), isFalse);

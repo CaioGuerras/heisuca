@@ -17,13 +17,10 @@ import '../services/catalog/library_watchlist_candidates.dart';
 import '../services/catalog/catalog_source.dart';
 import '../services/catalog/plex_catalog_source.dart';
 import '../services/catalog/seerr_catalog_source.dart';
-import '../services/catalog/trakt_catalog_source.dart';
-import '../services/trackers/future_coalescer.dart';
+import '../utils/future_coalescer.dart';
 import '../services/plex_discover_client.dart';
 import '../services/seerr/seerr_client.dart';
-import '../services/trackers/trakt/trakt_client.dart';
 import 'seerr_account_provider.dart';
-import 'trackers_provider.dart';
 import '../utils/platform_detector.dart';
 import '../utils/app_logger.dart';
 
@@ -97,7 +94,6 @@ class CatalogSourcesProvider extends ChangeNotifier with DisposableChangeNotifie
     (session) => PlexCatalogSource(PlexDiscoverClient(session), includeImageVariants: PlatformDetector.isTV()),
     equals: (previous, next) => previous == next,
   );
-  final _CatalogSourceBinding<TraktClient, TraktCatalogSource> _trakt = _CatalogSourceBinding(TraktCatalogSource.new);
   final _CatalogSourceBinding<SeerrClient, SeerrCatalogSource> _seerr = _CatalogSourceBinding(SeerrCatalogSource.new);
   int _profileBindingGeneration = 0;
   int _plexSessionGeneration = 0;
@@ -115,7 +111,6 @@ class CatalogSourcesProvider extends ChangeNotifier with DisposableChangeNotifie
   int _watchlistCandidateGeneration = 0;
 
   List<CatalogSource> get connectedSources => [
-    ?_trakt.source,
     ?_plex.source,
     ?_seerr.source,
   ];
@@ -275,9 +270,8 @@ class CatalogSourcesProvider extends ChangeNotifier with DisposableChangeNotifie
 
   /// Proxy-provider update hook: rebuild a source when its catalog client
   /// was rebound (connect/disconnect/profile switch).
-  void update(TrackersProvider trackers, SeerrAccountProvider seerr) {
+  void update(SeerrAccountProvider seerr) {
     var changed = false;
-    changed = _trakt.update(trackers.traktCatalogClient) || changed;
     changed = _seerr.update(seerr.catalogClient) || changed;
     if (changed) {
       _invalidateWatchlistCandidates();
@@ -288,7 +282,6 @@ class CatalogSourcesProvider extends ChangeNotifier with DisposableChangeNotifie
   @override
   void dispose() {
     _plex.dispose();
-    _trakt.dispose();
     _seerr.dispose();
     super.dispose();
   }

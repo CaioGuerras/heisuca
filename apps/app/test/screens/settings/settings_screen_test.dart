@@ -9,7 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:heisuca/cgflix/cgflix_defaults.dart';
-import 'package:heisuca/cgflix/cgflix_trakt.dart';
 import 'package:heisuca/connection/connection_registry.dart';
 import 'package:heisuca/database/app_database.dart';
 import 'package:heisuca/i18n/strings.g.dart';
@@ -26,7 +25,6 @@ import 'package:heisuca/providers/libraries_provider.dart';
 import 'package:heisuca/providers/download_provider.dart';
 import 'package:heisuca/providers/seerr_account_provider.dart';
 import 'package:heisuca/providers/theme_provider.dart';
-import 'package:heisuca/providers/trackers_provider.dart';
 import 'package:heisuca/screens/settings/settings_screen.dart';
 import 'package:heisuca/services/background_work_diagnostics_service.dart';
 import 'package:heisuca/services/donation_service.dart';
@@ -49,8 +47,6 @@ import '../../test_helpers/io_fakes.dart';
 import '../../test_helpers/prefs.dart';
 
 void main() {
-  setUpAll(() => cgflixDebugShowAllServices = true); // CGFLIX: todos os serviços, como no Plezy
-  tearDownAll(() => cgflixDebugShowAllServices = false);
   // CGFLIX: estes testes partem do padrão do Plezy ("Baixar só no Wi-Fi" desligado).
   setUpAll(() => cgflixDownloadOnWifiOnlyDefault = false);
   tearDownAll(() => cgflixDownloadOnWifiOnlyDefault = true);
@@ -123,7 +119,7 @@ void main() {
     await _pumpUi(tester);
 
     expect(find.text('Maestro Movies'), findsNothing, reason: 'system back dismisses the sheet');
-    expect(find.text(t.settings.services), findsOneWidget, reason: 'the settings route remains current');
+    expect(find.text(t.libraries.manageLibraries), findsOneWidget, reason: 'the settings route remains current');
     expect(find.text('Settings launcher'), findsNothing, reason: 'system back must not pop the settings route');
   });
 
@@ -597,8 +593,6 @@ class _SettingsHarness {
     required this.libraries,
     required this.hiddenLibraries,
     required this.theme,
-    required this.trackers,
-    required this.trackerHttpClients,
     required this.seerr,
     required this.downloadManager,
     required this.downloadProvider,
@@ -612,8 +606,6 @@ class _SettingsHarness {
   final LibrariesProvider libraries;
   final HiddenLibrariesProvider hiddenLibraries;
   final ThemeProvider theme;
-  final TrackersProvider trackers;
-  final List<FakeHttpClient> trackerHttpClients;
   final SeerrAccountProvider seerr;
   final DownloadManagerService downloadManager;
   final DownloadProvider downloadProvider;
@@ -628,17 +620,11 @@ class _SettingsHarness {
     hiddenLibraries.dispose();
     libraries.dispose();
     theme.dispose();
-    trackers.dispose();
     seerr.dispose();
     activeProfile.dispose();
     accountPreferences.dispose();
     await plexHome.dispose();
     await database.close();
-    expect(trackerHttpClients, hasLength(6));
-    expect(trackerHttpClients.toSet(), hasLength(6));
-    for (final client in trackerHttpClients) {
-      expect(client.closeCount, 1);
-    }
   }
 }
 
@@ -676,14 +662,6 @@ Future<_SettingsHarness> _pumpSettingsScreen(
   final hiddenLibraries = HiddenLibrariesProvider(storageService: _FakeHiddenLibrariesStorage());
   await hiddenLibraries.ensureInitialized();
   final theme = ThemeProvider();
-  final trackerHttpClients = <FakeHttpClient>[];
-  FakeHttpClient trackerHttpClientFactory() {
-    final client = FakeHttpClient(HttpStatus.ok, const <int>[]);
-    trackerHttpClients.add(client);
-    return client;
-  }
-
-  final trackers = TrackersProvider(httpClientFactory: trackerHttpClientFactory);
   final seerr = SeerrAccountProvider();
   // Left unattached: with no registries wired it resolves no accounts, so the
   // Account preferences row stays hidden and these tests keep their existing
@@ -723,8 +701,6 @@ Future<_SettingsHarness> _pumpSettingsScreen(
     libraries: libraries,
     hiddenLibraries: hiddenLibraries,
     theme: theme,
-    trackers: trackers,
-    trackerHttpClients: trackerHttpClients,
     seerr: seerr,
     downloadManager: downloadManager,
     downloadProvider: downloadProvider,
@@ -740,7 +716,6 @@ Future<_SettingsHarness> _pumpSettingsScreen(
           ChangeNotifierProvider<LibrariesProvider>.value(value: libraries),
           ChangeNotifierProvider<HiddenLibrariesProvider>.value(value: hiddenLibraries),
           ChangeNotifierProvider<ThemeProvider>.value(value: theme),
-          ChangeNotifierProvider<TrackersProvider>.value(value: trackers),
           ChangeNotifierProvider<SeerrAccountProvider>.value(value: seerr),
           ChangeNotifierProvider<DownloadProvider>.value(value: downloadProvider),
           ChangeNotifierProvider<AccountPreferencesController>.value(value: accountPreferences),

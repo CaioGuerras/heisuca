@@ -15,14 +15,12 @@ import 'package:heisuca/providers/companion_remote_provider.dart';
 import 'package:heisuca/providers/discover_provider.dart';
 import 'package:heisuca/providers/hidden_libraries_provider.dart';
 import 'package:heisuca/providers/multi_server_provider.dart';
-import 'package:heisuca/providers/trackers_provider.dart';
 import 'package:heisuca/services/multi_server_manager.dart';
 import 'package:heisuca/services/offline_watch_sync_service.dart';
 import 'package:heisuca/services/storage_service.dart';
 import 'package:heisuca/services/system_shelf_service.dart';
 import 'package:provider/provider.dart';
 
-import '../test_helpers/io_fakes.dart';
 import '../test_helpers/multi_server_fixtures.dart';
 import '../test_helpers/prefs.dart';
 
@@ -38,19 +36,8 @@ void main() {
     final graph = await _SessionGraph.create();
     final discoverProviders = <DiscoverProvider>[];
     final hiddenProviders = <HiddenLibrariesProvider>[];
-    final trackerProviders = <TrackersProvider>[];
     final companionProviders = <CompanionRemoteProvider>[];
     final disposedActiveIds = <String>[];
-    final trackerHttpClients = <FakeHttpClient>[];
-    // TrackersProvider owns six eager auth HTTP clients across the five
-    // services (MAL's proxy and token exchange use separate clients).
-    const trackerAuthClientsPerProfile = 6;
-    FakeHttpClient trackerHttpClientFactory() {
-      final client = FakeHttpClient(200, const <int>[]);
-      trackerHttpClients.add(client);
-      return client;
-    }
-
     addTearDown(() async {
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pumpAndSettle();
@@ -68,19 +55,14 @@ void main() {
 
     await graph.pump(
       tester,
-      httpClientFactory: trackerHttpClientFactory,
       profileShellBuilder: (context) => _ProfileProbeShell(
         discoverProviders: discoverProviders,
         hiddenProviders: hiddenProviders,
-        trackerProviders: trackerProviders,
         companionProviders: companionProviders,
         disposedActiveIds: disposedActiveIds,
       ),
     );
     await tester.pumpAndSettle();
-    expect(trackerHttpClients, hasLength(trackerAuthClientsPerProfile));
-    final ownerHttpClients = List<FakeHttpClient>.of(trackerHttpClients);
-    _expectCloseCount(ownerHttpClients, 0);
 
     expect(find.text('active:local-owner'), findsOneWidget);
     expect(SystemShelfService().debugActiveOwner, owner.id);
@@ -91,7 +73,6 @@ void main() {
     final ownerNavigator = profileNavigationRegistry.navigator;
     final ownerDiscover = discoverProviders.single;
     final ownerHidden = hiddenProviders.single;
-    final ownerTrackers = trackerProviders.single;
     final ownerCompanion = companionProviders.single;
     await ownerHidden.ensureInitialized();
     expect(ownerHidden.profileId, owner.id);
@@ -103,10 +84,6 @@ void main() {
 
     expect(await graph.activeProfile.activate(kids), isTrue);
     await tester.pumpAndSettle();
-    expect(trackerHttpClients, hasLength(trackerAuthClientsPerProfile * 2));
-    final kidsHttpClients = trackerHttpClients.sublist(ownerHttpClients.length);
-    _expectCloseCount(ownerHttpClients, 1);
-    _expectCloseCount(kidsHttpClients, 0);
 
     expect(find.text('old profile route'), findsNothing);
     expect(find.text('active:local-kids'), findsOneWidget);
@@ -115,9 +92,6 @@ void main() {
     expect(discoverProviders.last, isNot(same(ownerDiscover)));
     expect(hiddenProviders, hasLength(2));
     expect(hiddenProviders.last, isNot(same(ownerHidden)));
-    expect(trackerProviders, hasLength(2));
-    expect(trackerProviders.last, isNot(same(ownerTrackers)));
-    expect(ownerTrackers.isDisposed, isTrue);
     expect(companionProviders, hasLength(2));
     expect(companionProviders.last, isNot(same(ownerCompanion)));
     expect(ownerCompanion.isDisposed, isTrue);
@@ -130,18 +104,11 @@ void main() {
 
     await graph.activeProfile.clearActiveProfile();
     await tester.pumpAndSettle();
-    expect(trackerHttpClients, hasLength(trackerAuthClientsPerProfile * 3));
-    final signedOutHttpClients = trackerHttpClients.sublist(ownerHttpClients.length + kidsHttpClients.length);
-    _expectCloseCount(ownerHttpClients, 1);
-    _expectCloseCount(kidsHttpClients, 1);
-    _expectCloseCount(signedOutHttpClients, 0);
     expect(SystemShelfService().debugActiveOwner, isNull);
     expect(discoverProviders.last.profileId, isNull);
 
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
-    expect(trackerHttpClients.toSet(), hasLength(trackerAuthClientsPerProfile * 3));
-    _expectCloseCount(trackerHttpClients, 1);
   });
 
   testWidgets(
@@ -170,7 +137,6 @@ void main() {
       await graph.pump(
         tester,
         navigatorKey: rootNavigator,
-        httpClientFactory: () => FakeHttpClient(200, const <int>[]),
         profileShellBuilder: (context) => Column(
           children: [
             Focus(focusNode: sidebar, child: const SizedBox(height: 10, width: 10)),
@@ -205,12 +171,6 @@ void main() {
       expect(content.hasPrimaryFocus, isTrue, reason: 'focus returns to the session leaf that had it');
     },
   );
-}
-
-void _expectCloseCount(Iterable<FakeHttpClient> clients, int expected) {
-  for (final client in clients) {
-    expect(client.closeCount, expected);
-  }
 }
 
 class _SessionGraph {
@@ -274,7 +234,6 @@ class _SessionGraph {
 
   Future<void> pump(
     WidgetTester tester, {
-    required FakeHttpClient Function() httpClientFactory,
     required WidgetBuilder profileShellBuilder,
     GlobalKey<NavigatorState>? navigatorKey,
   }) => tester.pumpWidget(
@@ -293,7 +252,6 @@ class _SessionGraph {
         navigatorKey: navigatorKey,
         home: ProfileSessionScreen.forTesting(
           initialPromptHandled: true,
-          httpClientFactory: httpClientFactory,
           profileShellBuilder: profileShellBuilder,
         ),
       ),
@@ -317,13 +275,11 @@ class _ProfileProbeShell extends StatefulWidget {
     required this.companionProviders,
     required this.hiddenProviders,
     required this.disposedActiveIds,
-    required this.trackerProviders,
   });
 
   final List<CompanionRemoteProvider> companionProviders;
   final List<DiscoverProvider> discoverProviders;
   final List<HiddenLibrariesProvider> hiddenProviders;
-  final List<TrackersProvider> trackerProviders;
   final List<String> disposedActiveIds;
 
   @override
@@ -334,7 +290,6 @@ class _ProfileProbeShellState extends State<_ProfileProbeShell> {
   CompanionRemoteProvider? _companionProvider;
   DiscoverProvider? _discoverProvider;
   HiddenLibrariesProvider? _hiddenProvider;
-  TrackersProvider? _trackersProvider;
   String _activeId = 'none';
 
   @override
@@ -343,16 +298,12 @@ class _ProfileProbeShellState extends State<_ProfileProbeShell> {
     _companionProvider = context.read<CompanionRemoteProvider>();
     _discoverProvider = context.read<DiscoverProvider>();
     _hiddenProvider = context.read<HiddenLibrariesProvider>();
-    _trackersProvider = context.read<TrackersProvider>();
     _activeId = context.read<ActiveProfileProvider>().activeId ?? 'none';
     if (widget.discoverProviders.isEmpty || !identical(widget.discoverProviders.last, _discoverProvider)) {
       widget.discoverProviders.add(_discoverProvider!);
     }
     if (widget.hiddenProviders.isEmpty || !identical(widget.hiddenProviders.last, _hiddenProvider)) {
       widget.hiddenProviders.add(_hiddenProvider!);
-    }
-    if (widget.trackerProviders.isEmpty || !identical(widget.trackerProviders.last, _trackersProvider)) {
-      widget.trackerProviders.add(_trackersProvider!);
     }
     if (widget.companionProviders.isEmpty || !identical(widget.companionProviders.last, _companionProvider)) {
       widget.companionProviders.add(_companionProvider!);

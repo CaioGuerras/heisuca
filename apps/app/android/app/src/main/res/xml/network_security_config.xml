@@ -33,13 +33,6 @@
              lib/services/plex_client/parts/live_tv.dart:3).
              Does NOT match *.plex.direct — user PMS keeps base-config. -->
         <domain includeSubdomains="true">plex.tv</domain>
-        <!-- Proteção do endpoint legado de exceções, desativado neste build. -->
-        <!-- api.trakt.tv incl. /oauth/device/*, /oauth/token
-             (lib/services/trakt/trakt_constants.dart:16,21-24). -->
-        <domain includeSubdomains="true">trakt.tv</domain>
-        <!-- cdn.jsdelivr.net: anime-list mappings (anime_lists_mapping_store.dart:37,
-             fribb_mapping_store.dart:49). -->
-        <domain includeSubdomains="true">jsdelivr.net</domain>
         <!-- TMDB artwork (lib/services/catalog/seerr_catalog_source.dart:163). -->
         <domain includeSubdomains="true">image.tmdb.org</domain>
         <trust-anchors>

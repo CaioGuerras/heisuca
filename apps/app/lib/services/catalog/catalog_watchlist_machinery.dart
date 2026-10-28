@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../../media/media_kind.dart';
 import '../../models/catalog/catalog_item.dart';
 import '../../utils/app_logger.dart';
-import '../trackers/future_coalescer.dart';
+import '../../utils/future_coalescer.dart';
 import 'catalog_source.dart';
 
 /// One snapshot page of watchlist membership: each group holds every key

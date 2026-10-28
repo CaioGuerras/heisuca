@@ -7,17 +7,12 @@ import 'package:xml/xml.dart';
 const _configPath = 'android/app/src/main/res/xml/network_security_config.xml';
 const _expectedDomains = <String>{
   'plex.tv',
-  'trakt.tv',
-  'jsdelivr.net',
   'image.tmdb.org',
 };
 const _fixedEndpointSourcePaths = <String>[
   'lib/services/plex_auth_service.dart',
   'lib/services/plex_discover_client.dart',
   'lib/services/plex_client/parts/live_tv.dart',
-  'lib/services/trackers/trakt/trakt_constants.dart',
-  'lib/services/trackers/anime_lists_mapping_store.dart',
-  'lib/services/trackers/fribb_mapping_store.dart',
   'lib/services/catalog/seerr_catalog_source.dart',
   'lib/watch_together/services/watch_together_relay_endpoint.dart',
   'lib/main.dart',

@@ -20,7 +20,6 @@ import '../i18n/strings.g.dart';
 import 'settings_service.dart';
 import 'offline_watch_sync_service.dart';
 import 'playback_initialization_service.dart';
-import 'trackers/tracker_coordinator.dart';
 
 const _externalPlayerChannel = MethodChannel('app.heisuca/external_player');
 
@@ -316,7 +315,6 @@ class ExternalPlayerService {
         // plugin (#1287). Plex still issues the explicit server call.
         await client.markWatchedFromPlaybackStop(metadata);
         if (!current()) return;
-        unawaited(TrackerCoordinator.instance.markWatched(metadata, client));
       } catch (e) {
         appLogger.w('Failed to mark external playback watched for ${metadata.id}', error: e);
       }

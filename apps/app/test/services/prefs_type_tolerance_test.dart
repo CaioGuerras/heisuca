@@ -9,8 +9,6 @@ import 'package:heisuca/services/sensitive_prefs.dart';
 import 'package:heisuca/services/startup_diagnostics.dart';
 import 'package:heisuca/services/settings_service.dart';
 import 'package:heisuca/services/storage_service.dart';
-import 'package:heisuca/services/trackers/tracker_account_store.dart';
-import 'package:heisuca/services/trackers/tracker_constants.dart';
 
 import '../test_helpers/prefs.dart';
 
@@ -122,13 +120,6 @@ void main() {
     });
 
     test('the stores themselves still refuse to guess', () async {
-      final trackerKey = profileScopedPrefsKey('abc', 'trakt_session');
-      resetSharedPreferencesForTest(initialAsync: {trackerKey: 7});
-      await expectLater(
-        trackerAccountStore(TrackerService.trakt).load('abc'),
-        throwsA(isA<UnreadableSensitivePreferenceException>().having((e) => e.key, 'key', trackerKey)),
-      );
-
       // `SeerrSessionStore.load` wraps decoding in a catch-all that returns
       // null; the read has to sit outside it or the credential vanishes with
       // no prompt at all.

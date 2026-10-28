@@ -10,7 +10,6 @@ import '../providers/offline_mode_provider.dart';
 import '../providers/offline_watch_provider.dart';
 import '../utils/provider_extensions.dart';
 import '../utils/watch_state_notifier.dart';
-import 'trackers/tracker_coordinator.dart';
 
 enum WatchMarkOutcome {
   /// Queued for later sync (offline). The offline provider emitted the event.
@@ -68,11 +67,6 @@ class WatchActions {
       isNowWatched: watched,
       cacheServerId: client.cacheServerId,
       serverAcknowledged: true,
-    );
-    unawaited(
-      watched
-          ? TrackerCoordinator.instance.markWatched(item, client)
-          : TrackerCoordinator.instance.markUnwatched(item, client),
     );
     return WatchMarkOutcome.marked;
   }

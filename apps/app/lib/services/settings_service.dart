@@ -36,7 +36,6 @@ import '../models/audio_quality_preset.dart';
 import '../models/transcode_quality_preset.dart';
 import '../navigation/navigation_tabs.dart';
 import '../utils/platform_detector.dart';
-import 'trackers/tracker_constants.dart';
 import '../profiles/profile.dart';
 import '../watch_together/services/watch_together_relay_endpoint.dart';
 
@@ -655,7 +654,6 @@ class SettingsService extends BaseSharedPreferencesService {
   static const downloadIncludeSpecials = BoolPref('download_include_specials', defaultValue: true);
   static const showPerformanceOverlay = BoolPref('show_performance_overlay');
   static const autoHidePerformanceOverlay = BoolPref('auto_hide_performance_overlay', defaultValue: true);
-  static const enableTraktWatchedSync = BoolPref('enable_trakt_watched_sync', defaultValue: true);
   static const matchContentFrameRate = BoolPref('match_content_frame_rate');
   static const matchContentResolution = BoolPref('match_content_resolution');
   static const tunneledPlayback = BoolPref('tunneled_playback', defaultValue: false);
@@ -1002,20 +1000,6 @@ class SettingsService extends BaseSharedPreferencesService {
   /// keeps applying until the user chooses).
   static IntPref dvrTargetSectionPref(ServerId serverId, int type) => IntPref('dvr_target_section_${type}_$serverId');
 
-  /// Per-service "scrobble to this tracker" toggle. Trakt's second toggle
-  /// ([enableTraktWatchedSync]) has no counterpart on the other services and
-  /// stays a standalone constant.
-  static BoolPref scrobblePref(TrackerService s) => BoolPref('enable_${s.name}_scrobble', defaultValue: true);
-
-  static EnumPref<TrackerLibraryFilterMode> trackerFilterModePref(TrackerService s) => EnumPref(
-    'tracker_library_filter_mode_${s.name}',
-    values: TrackerLibraryFilterMode.values,
-    defaultValue: TrackerLibraryFilterMode.blacklist,
-  );
-
-  static StringListPref trackerFilterIdsPref(TrackerService s) =>
-      StringListPref('tracker_library_filter_ids_${s.name}');
-
   /// Identity-keyed preference groups. Const list literals are canonicalized,
   /// so every builder at a call site shares one fan-out for the process
   /// lifetime. Dynamic lists receive weak entries: they get the same behavior
@@ -1097,17 +1081,6 @@ class SettingsService extends BaseSharedPreferencesService {
   }
 
   static Map<String, HotKey> defaultKeyboardHotkeys() => _defaultKeyboardHotkeys();
-
-  /// Unknown libraries are allowed only when no filter is configured.
-  bool isLibraryAllowedForTracker(TrackerService service, String? libraryGlobalKey) {
-    final filterIds = read(trackerFilterIdsPref(service));
-    final mode = read(trackerFilterModePref(service));
-    if (libraryGlobalKey == null) {
-      return mode == TrackerLibraryFilterMode.blacklist && filterIds.isEmpty;
-    }
-    final inList = filterIds.contains(libraryGlobalKey);
-    return mode == TrackerLibraryFilterMode.blacklist ? !inList : inList;
-  }
 
   static bool validCustomPlayerFields(String name, String value) => name.trim().isNotEmpty && value.trim().isNotEmpty;
 
@@ -1396,9 +1369,6 @@ class SettingsService extends BaseSharedPreferencesService {
     downloadIncludeSpecials,
     showPerformanceOverlay,
     autoHidePerformanceOverlay,
-    enableTraktWatchedSync,
-    // Scrobble toggle, one per tracker service.
-    for (final s in heisucaTrackerServices) scrobblePref(s),
     matchContentFrameRate,
     matchContentResolution,
     tunneledPlayback,
@@ -1466,8 +1436,6 @@ class SettingsService extends BaseSharedPreferencesService {
     continueWatchingAction,
     episodeAction,
     keyboardHotkeys,
-    // Library filters, one pair per tracker service.
-    for (final s in heisucaTrackerServices) ...[trackerFilterModePref(s), trackerFilterIdsPref(s)],
   ];
 
   /// Group two: exported but *not* reset. Mirrors the original reset surface —

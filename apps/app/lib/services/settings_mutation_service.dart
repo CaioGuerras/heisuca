@@ -16,9 +16,6 @@ import 'device_performance.dart';
 import 'companion_remote/companion_remote_host_controller.dart';
 import 'music/music_playback_service.dart';
 import 'settings_service.dart';
-import 'trackers/tracker.dart';
-import 'trackers/tracker_constants.dart';
-import 'trackers/trakt/trakt_tracker.dart';
 
 /// Runtime effect of one stored pref. [checkCurrent] must be called after
 /// every await so a profile switch mid-effect aborts the rest.
@@ -79,12 +76,6 @@ class SettingsMutationService {
         persist: false,
       );
     }),
-    _SettingsEffect(
-      SettingsService.enableTraktWatchedSync,
-      (_, settings, _) =>
-          TraktTracker.instance.setWatchedSyncEnabled(settings.read(SettingsService.enableTraktWatchedSync)),
-    ),
-    for (final service in heisucaTrackerServices) _scrobbleEffect(service),
     _SettingsEffect(SettingsService.enableCompanionRemoteServer, _applyCompanionRemoteServer),
     // Home hubs are fetched in the chosen layout, so a switch only shows once
     // they are fetched again. The load runs in the background: the setting is
@@ -102,18 +93,8 @@ class SettingsMutationService {
     }),
   ];
 
-  /// [Pref] compares by identity and [SettingsService.scrobblePref] mints a
-  /// fresh instance per call, so lookups go through the stable key.
+  /// [Pref] compares by identity, so lookups go through the stable key.
   static final Map<String, _SettingsEffect> _effectsByKey = {for (final effect in _effects) effect.pref.key: effect};
-
-  static _SettingsEffect _scrobbleEffect(TrackerService service) {
-    final pref = SettingsService.scrobblePref(service);
-    return _SettingsEffect(pref, (_, settings, _) => _trackerFor(service).setEnabled(settings.read(pref)));
-  }
-
-  static Tracker _trackerFor(TrackerService service) => switch (service) {
-    TrackerService.trakt => TraktTracker.instance,
-  };
 
   static Future<void> _applyAppLocale(
     BuildContext context,

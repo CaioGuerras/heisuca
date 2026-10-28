@@ -654,7 +654,6 @@ extension _VideoPlayerReloadMethods on VideoPlayerScreenState {
             _progressTracker?.stopTracking();
             _progressTracker?.dispose();
             _progressTracker = null;
-            unawaited(TrackerCoordinator.instance.stopPlayback());
             if (!isCurrentReload()) return false;
 
             // Generation invalidation prevents follow-on selection calls,

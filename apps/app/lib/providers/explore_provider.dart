@@ -7,7 +7,7 @@ import '../media/media_hub.dart';
 import '../media/media_item.dart';
 import '../mixins/disposable_change_notifier_mixin.dart';
 import '../services/catalog/catalog_source.dart';
-import '../services/trackers/future_coalescer.dart';
+import '../utils/future_coalescer.dart';
 import '../utils/app_logger.dart';
 import 'catalog_sources_provider.dart';
 

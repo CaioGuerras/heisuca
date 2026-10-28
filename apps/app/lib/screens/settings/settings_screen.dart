@@ -16,7 +16,6 @@ import '../../cgflix/cgflix_configuracoes.dart';
 import '../../cgflix/cgflix_dicas.dart';
 import '../../cgflix/conta/cgflix_conta.dart';
 import '../../cgflix/cgflix_theme_picker.dart';
-import '../../cgflix/cgflix_trakt.dart';
 import '../../focus/focus_memory_tracker.dart';
 import '../../focus/focusable_text_field.dart';
 import '../../focus/input_mode_tracker.dart';
@@ -36,7 +35,6 @@ import '../../services/file_picker_service.dart';
 import '../../services/saf_storage_service.dart';
 import '../../services/settings_export_service.dart';
 import '../../providers/theme_provider.dart';
-import '../../providers/seerr_account_provider.dart';
 import '../../services/account_preferences_accounts.dart';
 import '../../services/keyboard_shortcuts_service.dart';
 import '../../services/background_work_diagnostics_service.dart';
@@ -65,9 +63,7 @@ import 'appearance_settings_screen.dart';
 import 'keyboard_shortcuts_screen.dart';
 import 'logs_screen.dart';
 import '../profile/profile_switch_screen.dart';
-import 'services_settings_screen.dart';
 import 'settings_utils.dart';
-import 'tracker_service_info.dart';
 
 enum HeisucaSettingsSection { downloads, subtitles, diagnostics, sources }
 
@@ -107,7 +103,6 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
   static const _kDonate = 'donate';
   static const _kAppearance = 'appearance';
   static const _kManageLibraries = 'manage_libraries';
-  static const _kServices = 'services';
   static const _kDownloadLocation = 'download_location';
   static const _kDownloadOnWifiOnly = 'download_on_wifi_only';
   static const _kAutoRemoveWatchedDownloads = 'auto_remove_watched_downloads';
@@ -419,27 +414,6 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
     );
   }
 
-  Widget _buildServicesTile() {
-    // The tracker account providers are watched through [TrackerServiceInfo].
-    return Consumer<SeerrAccountProvider>(
-      builder: (context, seerr, _) {
-        final connectedNames = <String>[
-          for (final info in TrackerServiceInfo.all)
-            if (info.isConnected(context)) info.displayName,
-          if (seerr.isConnected) t.services.names.seerr,
-        ];
-        final subtitle = connectedNames.isEmpty ? t.settings.servicesDescription : connectedNames.join(' · ');
-        return SettingNavigationTile(
-          focusNode: _focusTracker.get(_kServices),
-          icon: Symbols.sync_rounded,
-          title: t.settings.services,
-          subtitle: subtitle,
-          destinationBuilder: (_) => const ServicesSettingsScreen(),
-        );
-      },
-    );
-  }
-
   Widget _buildConnectionsSection(BuildContext context, {required bool hasLibraries}) {
     final active = context.select<ActiveProfileProvider, Profile?>((p) => p.active);
     final subtitle = active == null
@@ -475,7 +449,6 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
         if (!multipleProfiles) _buildProfilesTile(context), // CGFLIX: com vários perfis, fica em Conta
         // CGFLIX: "Preferências da conta" (idiomas) subiu para o topo; bibliotecas e serviços vêm para cá.
         if (hasLibraries) _buildManageLibrariesTile(context),
-        if (cgflixShowsServicesTile) _buildServicesTile(), // CGFLIX: só com o Trakt do CGFLIX
       ],
     );
   }

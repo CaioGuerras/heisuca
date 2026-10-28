@@ -21,7 +21,6 @@ import 'package:heisuca/providers/multi_server_provider.dart';
 import 'package:heisuca/providers/theme_provider.dart';
 import 'package:heisuca/providers/account_preferences_controller.dart';
 import 'package:heisuca/providers/seerr_account_provider.dart';
-import 'package:heisuca/providers/trackers_provider.dart';
 import 'package:heisuca/profiles/active_profile_provider.dart';
 import 'package:heisuca/profiles/profile.dart';
 import 'package:heisuca/profiles/profile_connection.dart';
@@ -94,7 +93,6 @@ class HeisucaP3Fixture {
   late final _Registry registry;
   late final _Profiles profiles;
   late final SeerrAccountProvider seerr;
-  late final TrackersProvider trackers;
   late final AccountPreferencesController accounts;
 
   final movie = MediaItem.jellyfin(id: 'filme', serverId: 'srv-1', kind: MediaKind.movie,
@@ -175,7 +173,6 @@ class HeisucaP3Fixture {
     registry = _Registry(db);
     profiles = _Profiles();
     seerr = SeerrAccountProvider();
-    trackers = TrackersProvider();
     accounts = AccountPreferencesController();
   }
 
@@ -190,7 +187,6 @@ class HeisucaP3Fixture {
     Provider<ConnectionRegistry>.value(value: registry),
     ChangeNotifierProvider<ActiveProfileProvider>.value(value: profiles),
     ChangeNotifierProvider<SeerrAccountProvider>.value(value: seerr),
-    ChangeNotifierProvider<TrackersProvider>.value(value: trackers),
     ChangeNotifierProvider<AccountPreferencesController>.value(value: accounts),
   ], child: TranslationProvider(child: child)));
 
@@ -202,7 +198,6 @@ class HeisucaP3Fixture {
     accounts.dispose();
     profiles.dispose();
     seerr.dispose();
-    trackers.dispose();
     theme.dispose();
     discover.dispose();
     hidden.dispose();

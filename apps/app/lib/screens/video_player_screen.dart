@@ -48,7 +48,6 @@ import '../providers/companion_remote_provider.dart';
 import '../services/fullscreen_state_manager.dart';
 import '../services/car_ux_restrictions_service.dart';
 import '../services/driver_distraction.dart';
-import '../services/trackers/tracker_coordinator.dart';
 import '../services/episode_navigation_service.dart';
 import '../services/apple_tv_remote_touch_service.dart';
 import '../services/media_controls_manager.dart';
@@ -1600,11 +1599,6 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
         _recordLifecycleState('detached');
         if (widget.isLive) {
           unawaited(_sendStoppedProgressOnce());
-        } else {
-          // Last chance for VOD: dispose may never run on a terminate, and the
-          // trackers that own their own watched semantics need the terminal
-          // report.
-          unawaited(TrackerCoordinator.instance.stopPlayback());
         }
         break;
     }
@@ -2526,8 +2520,6 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
 
     _mediaControlsManager?.clear();
     _mediaControlsManager?.dispose();
-
-    TrackerCoordinator.instance.stopPlayback();
 
     // Released before the scope closes and the display mode is restored, so
     // neither can re-enter the handler on a screen that is going away.

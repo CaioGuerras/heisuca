@@ -1,8 +1,5 @@
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:heisuca/cgflix/cgflix_trakt.dart';
-import 'package:heisuca/screens/settings/tracker_service_info.dart';
-import 'package:heisuca/services/trackers/tracker_constants.dart';
 
 void main() {
   test('L: app independente não inclui telemetria, destino Plezy nem Discord traduzido', () {
@@ -29,10 +26,5 @@ void main() {
       }
     }
     expect(offenders, isEmpty);
-  });
-  test('MAL/AniList não voltam pela opção de testes de mostrar todos os serviços', () {
-    cgflixDebugShowAllServices = true;
-    addTearDown(() => cgflixDebugShowAllServices = false);
-    expect(TrackerServiceInfo.all.map((info) => info.service).toSet(), {TrackerService.trakt});
   });
 }

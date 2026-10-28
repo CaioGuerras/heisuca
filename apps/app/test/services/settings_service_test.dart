@@ -8,7 +8,6 @@ import 'package:heisuca/models/audio_quality_preset.dart';
 import 'package:heisuca/models/transcode_quality_preset.dart';
 import 'package:heisuca/services/base_shared_preferences_service.dart';
 import 'package:heisuca/services/settings_service.dart';
-import 'package:heisuca/services/trackers/tracker_constants.dart';
 import 'package:heisuca/utils/platform_detector.dart';
 
 import '../test_helpers/prefs.dart';
@@ -464,7 +463,7 @@ void main() {
   group('SettingsService listenables', () {
     test('refreshListenables updates active prefs outside the resettable surface', () async {
       final settings = await SettingsService.getInstance();
-      final pref = SettingsService.scrobblePref(TrackerService.trakt);
+      final pref = SettingsService.autoHidePerformanceOverlay;
       final scrobble = settings.listenable(pref);
 
       expect(scrobble.value, isTrue);
@@ -477,40 +476,6 @@ void main() {
       expect(scrobble.value, isFalse);
     });
 
-    test('resetAllSettings refreshes active dynamic tracker prefs', () async {
-      final settings = await SettingsService.getInstance();
-      final modePref = SettingsService.trackerFilterModePref(TrackerService.trakt);
-      final idsPref = SettingsService.trackerFilterIdsPref(TrackerService.trakt);
-
-      await settings.write(modePref, TrackerLibraryFilterMode.whitelist);
-      await settings.write(idsPref, ['library-1']);
-      final mode = settings.listenable(modePref);
-      final ids = settings.listenable(idsPref);
-
-      expect(mode.value, TrackerLibraryFilterMode.whitelist);
-      expect(ids.value, ['library-1']);
-
-      await settings.resetAllSettings();
-
-      expect(mode.value, TrackerLibraryFilterMode.blacklist);
-      expect(ids.value, isEmpty);
-    });
-
-    test('tracker library filter only allows unknown libraries when no filter is configured', () async {
-      final settings = await SettingsService.getInstance();
-      final modePref = SettingsService.trackerFilterModePref(TrackerService.trakt);
-      final idsPref = SettingsService.trackerFilterIdsPref(TrackerService.trakt);
-
-      expect(settings.isLibraryAllowedForTracker(TrackerService.trakt, null), isTrue);
-
-      await settings.write(idsPref, ['server:blocked']);
-      expect(settings.isLibraryAllowedForTracker(TrackerService.trakt, null), isFalse);
-
-      await settings.write(modePref, TrackerLibraryFilterMode.whitelist);
-      await settings.write(idsPref, ['server:allowed']);
-      expect(settings.isLibraryAllowedForTracker(TrackerService.trakt, null), isFalse);
-      expect(settings.isLibraryAllowedForTracker(TrackerService.trakt, 'server:allowed'), isTrue);
-    });
   });
   group('BaseSharedPreferencesService initialization generations', () {
     test('a reset-raced initialization resolves to the replacement backend', () async {

@@ -27,7 +27,6 @@ import 'package:heisuca/providers/hidden_libraries_provider.dart';
 import 'package:heisuca/providers/libraries_provider.dart';
 import 'package:heisuca/providers/seerr_account_provider.dart';
 import 'package:heisuca/providers/theme_provider.dart';
-import 'package:heisuca/providers/trackers_provider.dart';
 import 'package:heisuca/services/account_preferences_accounts.dart';
 import 'package:heisuca/services/account_preferences_repository.dart';
 import 'package:heisuca/services/download_manager_service.dart';
@@ -161,7 +160,6 @@ Future<void> montarConfiguracoes(
             ChangeNotifierProvider<ActiveProfileProvider>.value(value: perfis),
             ChangeNotifierProvider<LibrariesProvider>.value(value: _Bibliotecas()),
             ChangeNotifierProvider<HiddenLibrariesProvider>.value(value: ocultas),
-            ChangeNotifierProvider<TrackersProvider>.value(value: TrackersProvider()),
             ChangeNotifierProvider<SeerrAccountProvider>.value(value: SeerrAccountProvider()),
             ChangeNotifierProvider<DownloadProvider>.value(
               value: DownloadProvider.forTesting(downloadManager: downloads, database: database),

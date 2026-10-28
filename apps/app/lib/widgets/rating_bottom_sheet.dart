@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:provider/provider.dart';
 
 import '../focus/dpad_navigator.dart';
 import '../focus/focusable_wrapper.dart';
@@ -11,18 +10,11 @@ import '../i18n/strings.g.dart';
 import '../media/media_backend.dart';
 import '../media/media_item.dart';
 import '../media/media_server_client.dart';
-import '../models/catalog/catalog_item.dart';
-import '../providers/trackers_provider.dart';
-import '../screens/settings/tracker_service_info.dart';
-import '../services/trackers/tracker.dart';
-import '../services/trackers/tracker_constants.dart';
-import '../services/trackers/tracker_id_resolver.dart';
 import '../utils/app_logger.dart';
 import '../utils/snackbar_helper.dart';
 import 'app_icon.dart';
 import 'backend_badge.dart';
 import 'bottom_sheet_page_scaffold.dart';
-import 'catalog_source_logo.dart';
 import 'clickable_cursor.dart';
 
 class RatingBottomSheet extends StatefulWidget {
@@ -51,16 +43,10 @@ class _RatingBottomSheetState extends State<RatingBottomSheet> {
   late bool _serverFavorite;
   late final FocusNode _serverFocusNode;
 
-  final Map<TrackerService, int> _trackerScores = {};
-  final Map<TrackerService, FocusNode> _trackerFocusNodes = {};
   final Map<String, Timer> _autoSaveTimers = {};
-  final Map<String, _TrackerRatingSource> _trackerSourcesByKey = {};
   final Set<String> _pendingAutoSaves = {};
   final Set<String> _loading = {};
   final Map<String, _SectionStatus> _statuses = {};
-  TrackerIdResolver? _resolver;
-  bool _resolverNeedsFribb = false;
-  String? _trackerLoadKey;
 
   @override
   void initState() {
@@ -76,72 +62,42 @@ class _RatingBottomSheetState extends State<RatingBottomSheet> {
   void dispose() {
     _flushPendingAutoSavesOnDispose();
     _serverFocusNode.dispose();
-    for (final node in _trackerFocusNodes.values) {
-      node.dispose();
-    }
-    _resolver?.clearCache();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Trakt's account provider is watched by [_trackerSources] via `context`.
-    return Consumer<TrackersProvider>(
-      builder: (context, trackers, _) {
-        final trackerSources = _trackerSources(context);
-        _updateTrackerSourceMap(trackerSources);
-        _resolverNeedsFribb = trackerSources.whereType<Tracker>().any((source) => source.needsFribb);
-        _queueTrackerScoreLoad(trackerSources);
+    final serverCaps = widget.serverClient?.capabilities;
+    final showServerRow = serverCaps != null && (serverCaps.numericUserRating || serverCaps.userFavorites);
 
-        final serverCaps = widget.serverClient?.capabilities;
-        final showServerRow = serverCaps != null && (serverCaps.numericUserRating || serverCaps.userFavorites);
-        final focusNodes = <FocusNode>[
-          if (showServerRow) _serverFocusNode,
-          for (final source in trackerSources) _trackerFocusNode(source.service),
-        ];
-        var focusIndex = 0;
-
-        // Hugs its content: a handful of rows in a 720px sheet was mostly empty
-        // space. The row set is therefore fixed from the first frame — see
-        // [_loadTrackerScores], which marks an unratable tracker `notAvailable`
-        // rather than removing its row.
-        return BottomSheetPageScaffold(
-          title: t.rateSheet.title,
-          icon: Symbols.star_rounded,
-          child: ListView(
-            shrinkWrap: true,
-            padding: const EdgeInsets.fromLTRB(10, 4, 10, 12),
-            children: [
-              if (showServerRow)
-                _buildServerRow(
-                  widget.serverClient!,
-                  _serverFocusNode,
-                  autofocus: focusIndex == 0,
-                  onNavigateUp: _navTo(focusNodes, focusIndex - 1),
-                  onNavigateDown: _navTo(focusNodes, focusIndex++ + 1),
-                ),
-              for (final source in trackerSources)
-                _buildTrackerRow(
-                  source,
-                  _trackerFocusNode(source.service),
-                  autofocus: focusIndex == 0,
-                  onNavigateUp: _navTo(focusNodes, focusIndex - 1),
-                  onNavigateDown: _navTo(focusNodes, focusIndex++ + 1),
-                ),
-              if (trackerSources.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
-                  child: Text(
-                    t.rateSheet.noConnectedServices,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
-                  ),
-                ),
-            ],
-          ),
-        );
-      },
+    // Só a avaliação do servidor: os serviços externos (Trakt etc.) saíram.
+    return BottomSheetPageScaffold(
+      title: t.rateSheet.title,
+      icon: Symbols.star_rounded,
+      child: ListView(
+        shrinkWrap: true,
+        padding: const EdgeInsets.fromLTRB(10, 4, 10, 12),
+        children: [
+          if (showServerRow)
+            _buildServerRow(
+              widget.serverClient!,
+              _serverFocusNode,
+              autofocus: true,
+              onNavigateUp: null,
+              onNavigateDown: null,
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+              child: Text(
+                t.rateSheet.noConnectedServices,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              ),
+            ),
+        ],
+      ),
     );
   }
 
@@ -204,144 +160,6 @@ class _RatingBottomSheetState extends State<RatingBottomSheet> {
     );
   }
 
-  Widget _buildTrackerRow(
-    _TrackerRatingSource source,
-    FocusNode focusNode, {
-    required bool autofocus,
-    required VoidCallback? onNavigateUp,
-    required VoidCallback? onNavigateDown,
-  }) {
-    final key = source.service.name;
-    final loading = _loading.contains(key);
-    final status = _statuses[key];
-    final score = _trackerScores[source.service] ?? 0;
-    return _RatingRow(
-      focusNode: focusNode,
-      autofocus: autofocus,
-      leading: CatalogSourceLogo(source.logoSource, size: 24),
-      title: source.title,
-      subtitle: source.username != null ? t.services.connectedAs(username: source.username!) : source.connectedLabel,
-      loading: loading,
-      status: status,
-      enabled: !loading,
-      onNavigateUp: onNavigateUp,
-      onNavigateDown: onNavigateDown,
-      onDecrease: () => _setTrackerScore(source, score - 1),
-      onIncrease: () => _setTrackerScore(source, score + 1),
-      onSubmit: () => unawaited(_submitTrackerRating(source)),
-      control: _StarRatingControl(
-        value: score,
-        enabled: !loading,
-        onChanged: (value) => _setTrackerScore(source, value),
-        onSubmitValue: (value) => unawaited(_submitTrackerRating(source, score: value)),
-      ),
-    );
-  }
-
-  /// Snapshot of every connected tracker, in the shared display order. Must be
-  /// called from a build so the provider reads register a dependency.
-  List<_TrackerRatingSource> _trackerSources(BuildContext context) => [
-    for (final info in TrackerServiceInfo.all)
-      if (info.isConnected(context))
-        _TrackerRatingSource(
-          service: info.service,
-          title: info.displayName,
-          username: info.username(context),
-          connectedLabel: t.trakt.connected,
-          logoSource: info.logoSource,
-          ratingSource: info.ratingSource,
-        ),
-  ];
-
-  void _updateTrackerSourceMap(List<_TrackerRatingSource> sources) {
-    _trackerSourcesByKey
-      ..clear()
-      ..addEntries(sources.map((source) => MapEntry(source.service.name, source)));
-  }
-
-  void _queueTrackerScoreLoad(List<_TrackerRatingSource> sources) {
-    final services = sources.map((s) => s.service.name).join(',');
-    final key = '${widget.serverClient?.serverId}:${widget.item.id}:$services';
-    if (_trackerLoadKey == key) return;
-    _trackerLoadKey = key;
-    if (sources.isEmpty) return;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || _trackerLoadKey != key) return;
-      unawaited(_loadTrackerScores(sources));
-    });
-  }
-
-  /// Every tracker that cannot rate this item keeps its row and shows
-  /// `notAvailable`. Removing a row instead would shorten the sheet several
-  /// hundred ms after it opens, and because sheets are bottom-anchored that
-  /// slides the rows above it — which here are live rating controls — out from
-  /// under the user's finger.
-  Future<void> _loadTrackerScores(List<_TrackerRatingSource> sources) async {
-    setState(() {
-      for (final source in sources) {
-        _loading.add(source.service.name);
-        _statuses.remove(source.service.name);
-      }
-    });
-
-    void settleAll(_SectionStatus status) {
-      if (!mounted) return;
-      setState(() {
-        for (final source in sources) {
-          _loading.remove(source.service.name);
-          _statuses[source.service.name] = status;
-        }
-      });
-    }
-
-    TrackerRatingContext ctx;
-    try {
-      ctx = await _resolveTrackerContext();
-    } on TrackerRatingUnavailableException {
-      settleAll(_SectionStatus(t.rateSheet.notAvailable, isError: true));
-      return;
-    } catch (e) {
-      // The server or the anime mapping failed to answer: settle the rows the
-      // same way a per-tracker load failure does, or they spin forever.
-      appLogger.w('Failed to resolve tracker rating ids', error: e);
-      settleAll(_SectionStatus(t.errors.failedToRate, isError: true));
-      return;
-    }
-
-    await Future.wait(
-      sources.map((source) async {
-        final key = source.service.name;
-        try {
-          final score = await source.ratingSource.getRating(ctx);
-          if (!mounted) return;
-          setState(() {
-            _trackerScores[source.service] = score ?? 0;
-            _statuses.remove(key);
-          });
-        } on TrackerRatingUnavailableException catch (e) {
-          appLogger.d('Rating unavailable', error: e);
-          if (!mounted) return;
-          setState(() {
-            _statuses[key] = _SectionStatus(t.rateSheet.notAvailable, isError: true);
-          });
-        } catch (e) {
-          appLogger.w('Failed to load rating', error: e);
-          if (!mounted) return;
-          setState(() {
-            _statuses[key] = _SectionStatus(t.errors.failedToRate, isError: true);
-          });
-        } finally {
-          if (mounted) {
-            setState(() {
-              _loading.remove(key);
-            });
-          }
-        }
-      }),
-    );
-  }
-
   void _setServerStarUnits(int units) {
     final clamped = units.clamp(0, 10).toInt();
     if ((_serverStars * 2).round() == clamped) return;
@@ -359,16 +177,6 @@ class _RatingBottomSheetState extends State<RatingBottomSheet> {
       _statuses.remove(_serverKey);
     });
     _scheduleAutoSave(_serverKey, _submitServerFavorite);
-  }
-
-  void _setTrackerScore(_TrackerRatingSource source, int score) {
-    final clamped = score.clamp(0, 10).toInt();
-    if ((_trackerScores[source.service] ?? 0) == clamped) return;
-    setState(() {
-      _trackerScores[source.service] = clamped;
-      _statuses.remove(source.service.name);
-    });
-    _scheduleAutoSave(source.service.name, () => _submitTrackerRating(source));
   }
 
   Future<void> _submitServerStars({double? stars}) async {
@@ -408,38 +216,6 @@ class _RatingBottomSheetState extends State<RatingBottomSheet> {
     });
   }
 
-  Future<void> _submitTrackerRating(_TrackerRatingSource source, {int? score}) async {
-    _cancelAutoSave(source.service.name);
-    final value = score ?? _trackerScores[source.service] ?? 0;
-    if (value <= 0) {
-      await _clearTrackerRating(source);
-      return;
-    }
-    await _run(source.service.name, () async {
-      final ctx = await _resolveTrackerContext();
-      await source.ratingSource.rate(ctx, value);
-      _trackerScores[source.service] = value;
-    });
-  }
-
-  Future<void> _clearTrackerRating(_TrackerRatingSource source) async {
-    _cancelAutoSave(source.service.name);
-    await _run(source.service.name, () async {
-      final ctx = await _resolveTrackerContext();
-      await source.ratingSource.clearRating(ctx);
-      _trackerScores[source.service] = 0;
-    });
-  }
-
-  Future<TrackerRatingContext> _resolveTrackerContext() async {
-    final client = widget.serverClient;
-    if (client == null) throw const TrackerRatingUnavailableException('tracker');
-    _resolver ??= TrackerIdResolver(client, needsFribb: () => _resolverNeedsFribb);
-    final ctx = await _resolver!.resolveForRating(widget.item);
-    if (ctx == null) throw const TrackerRatingUnavailableException('tracker');
-    return ctx;
-  }
-
   Future<void> _run(String key, Future<void> Function() action) async {
     setState(() {
       _loading.add(key);
@@ -451,12 +227,6 @@ class _RatingBottomSheetState extends State<RatingBottomSheet> {
       if (!mounted) return;
       setState(() {
         _statuses[key] = _SectionStatus(t.rateSheet.saved);
-      });
-    } on TrackerRatingUnavailableException catch (e) {
-      appLogger.d('Rating unavailable', error: e);
-      if (!mounted) return;
-      setState(() {
-        _statuses[key] = _SectionStatus(t.rateSheet.notAvailable, isError: true);
       });
     } catch (e) {
       appLogger.w('Failed to update rating', error: e);
@@ -497,12 +267,7 @@ class _RatingBottomSheetState extends State<RatingBottomSheet> {
     _pendingAutoSaves.clear();
 
     for (final key in pendingKeys) {
-      if (key == _serverKey) {
-        unawaited(_saveServerRatingDetached());
-        continue;
-      }
-      final source = _trackerSourcesByKey[key];
-      if (source != null) unawaited(_saveTrackerRatingDetached(source));
+      if (key == _serverKey) unawaited(_saveServerRatingDetached());
     }
   }
 
@@ -525,51 +290,10 @@ class _RatingBottomSheetState extends State<RatingBottomSheet> {
     }
   }
 
-  Future<void> _saveTrackerRatingDetached(_TrackerRatingSource source) async {
-    try {
-      final ctx = await _resolveTrackerContext();
-      final value = _trackerScores[source.service] ?? 0;
-      if (value <= 0) {
-        await source.ratingSource.clearRating(ctx);
-      } else {
-        await source.ratingSource.rate(ctx, value);
-      }
-    } catch (e) {
-      appLogger.w('Failed to update tracker rating after sheet close', error: e);
-    }
-  }
-
-  FocusNode _trackerFocusNode(TrackerService service) {
-    return _trackerFocusNodes.putIfAbsent(service, () => FocusNode(debugLabel: 'rating_${service.name}'));
-  }
-
-  VoidCallback? _navTo(List<FocusNode> nodes, int index) {
-    if (index < 0 || index >= nodes.length) return null;
-    return () => nodes[index].requestFocus();
-  }
-
   String _backendLabel(MediaBackend backend) => backend.dialect?.productName ?? 'Plex';
 }
 
 const _serverKey = 'server';
-
-class _TrackerRatingSource {
-  final TrackerService service;
-  final String title;
-  final String? username;
-  final String connectedLabel;
-  final CatalogSourceId logoSource;
-  final TrackerRatingSource ratingSource;
-
-  const _TrackerRatingSource({
-    required this.service,
-    required this.title,
-    required this.username,
-    required this.connectedLabel,
-    required this.logoSource,
-    required this.ratingSource,
-  });
-}
 
 class _SectionStatus {
   final String text;

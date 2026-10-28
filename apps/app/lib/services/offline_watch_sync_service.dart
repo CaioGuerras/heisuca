@@ -20,7 +20,6 @@ import '../utils/watch_state_notifier.dart';
 import 'multi_server_manager.dart';
 import 'plex_client.dart';
 import 'settings_service.dart';
-import 'trackers/tracker_coordinator.dart';
 import 'watch_state_resolver.dart';
 
 typedef QueuedOfflineWatchAction = ({String? clientScopeId, String? profileId, int rowId, int revision});
@@ -683,13 +682,11 @@ class OfflineWatchSyncService extends ChangeNotifier with DisposableChangeNotifi
       case 'watched':
         await client.markWatched(item);
         persisted = true;
-        await TrackerCoordinator.instance.markWatched(item, client);
         break;
 
       case 'unwatched':
         await client.markUnwatched(item);
         persisted = true;
-        await TrackerCoordinator.instance.markUnwatched(item, client);
         break;
 
       case 'progress':
@@ -736,7 +733,6 @@ class OfflineWatchSyncService extends ChangeNotifier with DisposableChangeNotifi
             await client.markWatched(item);
             persisted = true;
           }
-          await TrackerCoordinator.instance.markWatched(item, client);
         }
         break;
     }
@@ -749,18 +745,6 @@ class OfflineWatchSyncService extends ChangeNotifier with DisposableChangeNotifi
       revision: action.updatedAt,
       persisted: persisted,
     );
-  }
-
-  /// Push a watch-state change Heisuca observed on the server to the trackers.
-  ///
-  /// Only for genuine transitions detected during a download sync: the item was
-  /// watched (or un-watched) somewhere else, so no playback, manual mark or
-  /// offline replay has reported it. Best-effort by construction — the
-  /// coordinator swallows per-tracker errors and queues what it can retry.
-  Future<void> _mirrorWatchStateToTrackers(MediaItem item, MediaServerClient client, {required bool isWatched}) async {
-    await (isWatched
-        ? TrackerCoordinator.instance.markWatched(item, client)
-        : TrackerCoordinator.instance.markUnwatched(item, client));
   }
 
   /// Sync watch states for all episodes in a single season.
@@ -805,9 +789,6 @@ class OfflineWatchSyncService extends ChangeNotifier with DisposableChangeNotifi
               cacheServerId: client.cacheServerId,
               serverAcknowledged: true,
             );
-            // The change came from the server (watched on another client), so no
-            // playback or manual path has told the trackers about it.
-            await _mirrorWatchStateToTrackers(episode, client, isWatched: isWatched);
           }
         } else {
           // No cached row yet — populate the canonical row via fetchItem
@@ -969,7 +950,6 @@ class OfflineWatchSyncService extends ChangeNotifier with DisposableChangeNotifi
                     cacheServerId: client.cacheServerId,
                     serverAcknowledged: true,
                   );
-                  await _mirrorWatchStateToTrackers(metadata, client, isWatched: isWatched);
                 }
               }
             } catch (e) {

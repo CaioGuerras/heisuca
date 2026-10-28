@@ -9,8 +9,6 @@ import '../models/seerr/seerr_session.dart';
 import '../utils/app_logger.dart';
 import '../utils/log_redaction_manager.dart';
 import 'sensitive_prefs.dart';
-import 'trackers/tracker_constants.dart';
-import 'trackers/tracker_session.dart';
 
 /// File-backed preference store used by the desktop `shared_preferences`
 /// implementations. Windows and Linux both persist a single flat JSON object
@@ -595,13 +593,8 @@ abstract final class PrefsRecovery {
         LogRedactionManager.registerServerUrl(session.baseUrl);
         return true;
       }
-      final base = profileScopedCredentialBaseKey(key);
-      final service = TrackerService.values.where((s) => base == '${s.name}_session').firstOrNull;
-      if (service == null) return false;
-      final session = TrackerSession.decode(encoded, service: service);
-      LogRedactionManager.registerToken(session.accessToken);
-      LogRedactionManager.registerToken(session.refreshToken);
-      return true;
+      // Sessões de rastreadores (Trakt etc.) foram removidas: não são mais validadas.
+      return false;
     } catch (_) {
       return false;
     }

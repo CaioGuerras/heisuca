@@ -13,7 +13,7 @@ import '../../utils/app_logger.dart';
 import '../../utils/serial_future_queue.dart';
 import '../../utils/web_socket_connect.dart';
 import '../base_peer_service.dart';
-import '../trackers/future_coalescer.dart';
+import '../../utils/future_coalescer.dart';
 import 'remote_auth_context.dart';
 import 'remote_auth_service.dart';
 

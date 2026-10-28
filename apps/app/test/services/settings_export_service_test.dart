@@ -11,7 +11,6 @@ import 'package:heisuca/services/base_shared_preferences_service.dart';
 import 'package:heisuca/services/file_picker_service.dart';
 import 'package:heisuca/services/settings_export_service.dart';
 import 'package:heisuca/services/settings_service.dart';
-import 'package:heisuca/services/trackers/tracker_constants.dart';
 
 import '../test_helpers/prefs.dart';
 
@@ -137,7 +136,7 @@ void main() {
     test('fails closed for unknown, credential, account, path, history, and runtime keys', () async {
       const canaries = ['SEERR-BEARER-CANARY', 'ACCOUNT-ID-CANARY', 'DEVICE-PATH-CANARY', 'RUNTIME-TIME-CANARY'];
       final prefs = await BaseSharedPreferencesService.sharedCache();
-      await prefs.setBool('enable_trakt_scrobble', true);
+      await prefs.setBool('enable_hdr', true);
       await prefs.setString('user_alice_seerr_session', '{"cookie":"${canaries[0]}","account":"${canaries[1]}"}');
       await prefs.setString('current_user_uuid', canaries[1]);
       await prefs.setString('custom_download_path', canaries[2]);
@@ -153,7 +152,7 @@ void main() {
       final encoded = jsonEncode(out);
       final exported = out['prefs'] as Map<String, dynamic>;
 
-      expect(exported.keys, contains('enable_trakt_scrobble'));
+      expect(exported.keys, contains('enable_hdr'));
       expect(exported.keys, isNot(contains('seerr_session')));
       expect(exported.keys, isNot(contains('current_user_uuid')));
       expect(exported.keys, isNot(contains('custom_download_path')));
@@ -195,25 +194,6 @@ void main() {
       expect(exported, contains('enable_hdr'));
       expect(exported.keys.where((key) => key.startsWith('tvos_db_recovery_')), isEmpty);
       expect(encoded, isNot(contains(canary)));
-    });
-    test('exports cold-start string lists while rejecting lists with non-string elements', () async {
-      resetSharedPreferencesForTest(
-        initialAsync: {
-          'tracker_library_filter_mode_trakt': 'blacklist',
-          'tracker_library_filter_ids_trakt': <Object?>['srv-1:lib-a', 'srv-1:lib-b'],
-          'tracker_library_filter_ids_simkl': <Object?>['ok', 7],
-        },
-      );
-      final prefs = await BaseSharedPreferencesService.sharedCache();
-
-      final exported =
-          SettingsExportService.buildExportMap(prefs, currentUserUuid: 'alice')['prefs'] as Map<String, dynamic>;
-
-      expect(exported['tracker_library_filter_ids_trakt'], {
-        'type': 'stringList',
-        'value': ['srv-1:lib-a', 'srv-1:lib-b'],
-      });
-      expect(exported, isNot(contains('tracker_library_filter_ids_simkl')));
     });
   });
 
@@ -550,103 +530,6 @@ void main() {
         throwsA(isA<InvalidExportFileException>()),
       );
       expect(prefs.getBool('enable_hdr'), isNull);
-    });
-
-    test('round-trips both filter modes and IDs for every tracker service', () async {
-      final prefs = await BaseSharedPreferencesService.sharedCache();
-
-      for (final mode in TrackerLibraryFilterMode.values) {
-        await prefs.clear();
-        for (final service in TrackerService.values) {
-          await prefs.setString(SettingsService.trackerFilterModePref(service).key, mode.name);
-          await prefs.setStringList(SettingsService.trackerFilterIdsPref(service).key, [
-            '${service.name}:library-a',
-            '${service.name}:library-b',
-          ]);
-        }
-
-        final export = SettingsExportService.buildExportMap(prefs, currentUserUuid: 'source-user');
-        final exported = export['prefs'] as Map<String, dynamic>;
-        for (final service in TrackerService.values) {
-          final modeKey = SettingsService.trackerFilterModePref(service).key;
-          final idsKey = SettingsService.trackerFilterIdsPref(service).key;
-          expect(exported[modeKey], {'type': 'string', 'value': mode.name});
-          expect(exported[idsKey], {
-            'type': 'stringList',
-            'value': ['${service.name}:library-a', '${service.name}:library-b'],
-          });
-        }
-
-        await prefs.clear();
-        final result = await SettingsExportService.applyImportMap(export, prefs, currentUserUuid: 'target-user');
-
-        expect(result.keysImported, TrackerService.values.length * 2);
-        expect(result.keysSkipped, 0);
-        for (final service in TrackerService.values) {
-          expect(prefs.getString(SettingsService.trackerFilterModePref(service).key), mode.name);
-          expect(prefs.getStringList(SettingsService.trackerFilterIdsPref(service).key), [
-            '${service.name}:library-a',
-            '${service.name}:library-b',
-          ]);
-        }
-      }
-    });
-
-    test('preserves an empty whitelist so import cannot broaden tracker access', () async {
-      final prefs = await BaseSharedPreferencesService.sharedCache();
-      for (final service in TrackerService.values) {
-        await prefs.setString(
-          SettingsService.trackerFilterModePref(service).key,
-          TrackerLibraryFilterMode.whitelist.name,
-        );
-        await prefs.setStringList(SettingsService.trackerFilterIdsPref(service).key, const []);
-      }
-
-      final export = SettingsExportService.buildExportMap(prefs, currentUserUuid: 'source-user');
-      await prefs.clear();
-      final result = await SettingsExportService.applyImportMap(export, prefs, currentUserUuid: 'target-user');
-      final settings = await SettingsService.getInstance();
-
-      expect(result.keysImported, TrackerService.values.length * 2);
-      expect(result.keysSkipped, 0);
-      for (final service in TrackerService.values) {
-        expect(settings.read(SettingsService.trackerFilterModePref(service)), TrackerLibraryFilterMode.whitelist);
-        expect(settings.read(SettingsService.trackerFilterIdsPref(service)), isEmpty);
-        expect(settings.isLibraryAllowedForTracker(service, '${service.name}:unlisted'), isFalse);
-        expect(settings.isLibraryAllowedForTracker(service, null), isFalse);
-      }
-    });
-
-    test('rejects tracker preference keys with unknown service suffixes', () async {
-      const modeKey = 'tracker_library_filter_mode_future';
-      const idsKey = 'tracker_library_filter_ids_future';
-      final prefs = await BaseSharedPreferencesService.sharedCache();
-      await prefs.setString(modeKey, 'local-mode');
-      await prefs.setStringList(idsKey, const ['local-id']);
-
-      final exported = SettingsExportService.buildExportMap(prefs, currentUserUuid: 'alice')['prefs'] as Map;
-      expect(exported, isNot(contains(modeKey)));
-      expect(exported, isNot(contains(idsKey)));
-
-      final result = await SettingsExportService.applyImportMap(
-        {
-          'formatVersion': SettingsExportService.formatVersion,
-          'prefs': {
-            modeKey: {'type': 'string', 'value': TrackerLibraryFilterMode.whitelist.name},
-            idsKey: {
-              'type': 'stringList',
-              'value': ['crafted-id'],
-            },
-          },
-        },
-        prefs,
-        currentUserUuid: 'alice',
-      );
-
-      expect(result.keysImported, 0);
-      expect(result.keysSkipped, 2);
-      expect(prefs.getString(modeKey), 'local-mode');
-      expect(prefs.getStringList(idsKey), ['local-id']);
     });
 
     test('normalizes format-v1 hidden and order string lists into JSON string storage', () async {

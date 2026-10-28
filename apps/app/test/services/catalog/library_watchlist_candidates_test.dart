@@ -75,7 +75,7 @@ void main() {
     test('pairs each source with its resolved ids, skipping out-of-domain and failing sources', () async {
       final trakt = _FakeWatchlistSource(CatalogSourceId.trakt, resolveTo: const CatalogItemIds(imdb: 'tt1'));
       final mal = _FakeWatchlistSource(CatalogSourceId.mal); // resolves null: not in domain
-      final simkl = _FakeWatchlistSource(CatalogSourceId.simkl, resolveError: StateError('down'));
+      final simkl = _FakeWatchlistSource(CatalogSourceId.seerr, resolveError: StateError('down'));
 
       final failed = <CatalogSource>[];
       final candidates = await resolveWatchlistCandidates(

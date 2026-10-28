@@ -35,8 +35,6 @@ abstract final class CertificateTrust {
   static const Set<String> fixedEndpointDomains = {
     'plex.tv',
     'trakt.tv',
-    'simkl.com',
-    'simkl.in',
     'jsdelivr.net',
     'image.tmdb.org',
   };

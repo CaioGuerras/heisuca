@@ -1,4 +1,3 @@
-import 'simkl/simkl_constants.dart';
 import 'tracker_constants.dart';
 import 'tracker_exceptions.dart';
 import 'tracker_session_utils.dart';
@@ -69,16 +68,9 @@ class TrackerSession {
     switch (service) {
       case TrackerService.mal:
       case TrackerService.trakt:
-      case TrackerService.mdblist:
         _validateRefreshToken(service, refreshToken);
         requireExpiry();
       case TrackerService.anilist:
-        requireExpiry();
-      // AUTH V2 tokens expire weekly and refresh; legacy V1 tokens live for
-      // years with neither, and stay valid until Simkl retires V1.
-      case TrackerService.simkl:
-        if (!SimklConstants.isV2AccessToken(accessToken)) return;
-        _validateRefreshToken(service, refreshToken);
         requireExpiry();
     }
   }
@@ -87,21 +79,6 @@ class TrackerSession {
     final createdAt = (json['created_at'] as num?)?.toInt() ?? trackerSessionNowEpochSeconds();
     return switch (service) {
       TrackerService.mal => TrackerSession(
-        accessToken: json['access_token'] as String,
-        refreshToken: _requireRefreshToken(service, json['refresh_token'] as String?),
-        expiresAt: createdAt + (json['expires_in'] as num).toInt(),
-        createdAt: createdAt,
-      ),
-      // Every new Simkl sign-in is AUTH V2: a 7-day access token plus a
-      // refresh token.
-      TrackerService.simkl => TrackerSession(
-        accessToken: json['access_token'] as String,
-        refreshToken: _requireRefreshToken(service, json['refresh_token'] as String?),
-        expiresAt: createdAt + (json['expires_in'] as num).toInt(),
-        createdAt: createdAt,
-      ),
-      // MDBList issues a 30-day access token plus a refresh token.
-      TrackerService.mdblist => TrackerSession(
         accessToken: json['access_token'] as String,
         refreshToken: _requireRefreshToken(service, json['refresh_token'] as String?),
         expiresAt: createdAt + (json['expires_in'] as num).toInt(),

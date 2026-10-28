@@ -12,8 +12,6 @@ import '../../media/episode_collection.dart';
 import 'anime_episode_progress_resolver.dart';
 import 'anime_lists_mapping_store.dart';
 import 'fribb_mapping_store.dart';
-import 'mdblist/mdblist_tracker.dart';
-import 'simkl/simkl_tracker.dart';
 import 'tracker.dart';
 import 'tracker_constants.dart';
 import 'tracker_exceptions.dart';
@@ -25,7 +23,7 @@ import 'trakt/trakt_tracker.dart';
 ///
 /// Three mechanisms, chosen per tracker kind:
 ///
-/// * [RealtimeScrobbleTracker]s (Simkl, Trakt, MDBList) receive the playback
+/// * [RealtimeScrobbleTracker]s (Trakt) receive the playback
 ///   lifecycle — start/resume, pause, seek, stop — with the current progress,
 ///   and decide watched state themselves. They are excluded from the threshold
 ///   fan-out so a single watch never produces two writes.
@@ -49,9 +47,7 @@ class TrackerCoordinator {
   /// The registry. Everything below partitions this list by capability rather
   /// than naming services, so adding one means adding it here and nowhere else.
   late final List<Tracker> _trackers = [
-    SimklTracker.instance,
     TraktTracker.instance,
-    MdblistTracker.instance,
   ];
 
   /// One transport per real-time tracker, created once and outliving individual

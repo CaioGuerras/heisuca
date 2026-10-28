@@ -35,10 +35,6 @@ void main() {
     addTearDown(() => cgflixDebugShowAllServices = false);
     expect(cgflixShowsTracker(TrackerService.mal), isFalse);
     expect(cgflixShowsTracker(TrackerService.anilist), isFalse);
-    expect(TrackerServiceInfo.all.map((info) => info.service).toSet(), {
-      TrackerService.trakt,
-      TrackerService.simkl,
-      TrackerService.mdblist,
-    });
+    expect(TrackerServiceInfo.all.map((info) => info.service).toSet(), {TrackerService.trakt});
   });
 }

@@ -3,8 +3,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:heisuca/cgflix/cgflix_trakt.dart';
 import 'package:heisuca/screens/settings/tracker_service_info.dart';
-import 'package:heisuca/services/trackers/mdblist/mdblist_constants.dart';
-import 'package:heisuca/services/trackers/simkl/simkl_constants.dart';
 import 'package:heisuca/services/trackers/tracker_constants.dart';
 import 'package:heisuca/services/trackers/trakt/trakt_constants.dart';
 
@@ -22,12 +20,6 @@ void main() {
       expect(cgflixShowsTracker(service), isFalse, reason: service.name);
     }
     expect(cgflixShowsSeerrService, isFalse);
-  });
-
-  test('chaves do upstream fora do app', () {
-    expect(MdblistConstants.clientId, isEmpty);
-    expect(SimklConstants.legacyClientId, isEmpty);
-    expect(SimklConstants.v2ClientId, isEmpty);
   });
 
   test('comentários do Trakt: sem spoiler nem vazios, no máximo 3', () {

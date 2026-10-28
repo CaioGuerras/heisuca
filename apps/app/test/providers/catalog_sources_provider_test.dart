@@ -5,16 +5,8 @@ import 'package:heisuca/media/media_kind.dart';
 import 'package:heisuca/media/media_server_client.dart';
 import 'package:heisuca/models/catalog/catalog_item.dart';
 import 'package:heisuca/providers/catalog_sources_provider.dart';
-import 'package:heisuca/providers/seerr_account_provider.dart';
-import 'package:heisuca/providers/trackers_provider.dart';
 import 'package:heisuca/services/catalog/catalog_source.dart';
-import 'package:heisuca/services/base_shared_preferences_service.dart';
 import 'package:heisuca/services/plex_discover_client.dart';
-import 'package:heisuca/services/trackers/mdblist/mdblist_tracker.dart';
-import 'package:heisuca/services/trackers/tracker_account_store.dart';
-import 'package:heisuca/services/trackers/tracker_constants.dart';
-import 'package:heisuca/services/trackers/tracker_coordinator.dart';
-import 'package:heisuca/services/trackers/tracker_session.dart';
 import 'package:heisuca/utils/external_ids.dart';
 
 import '../test_helpers/media_items.dart';
@@ -93,47 +85,6 @@ void main() {
     expect(calls, 3);
     expect(provider.connectedSources, isEmpty);
   });
-  test('tracker rebind exposes and removes the MDBList catalog source', () async {
-    const userUuid = 'profile-mdblist';
-    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-    await trackerAccountStore(TrackerService.mdblist).save(
-      userUuid,
-      TrackerSession(
-        accessToken: 'access',
-        refreshToken: 'refresh',
-        expiresAt: now + 3600,
-        createdAt: now,
-        username: 'alice',
-      ),
-    );
-    BaseSharedPreferencesService.resetForTesting();
-
-    final trackers = TrackersProvider();
-    final seerr = SeerrAccountProvider();
-    final sources = CatalogSourcesProvider(plexSessionSupplier: () async => null);
-    addTearDown(() {
-      sources.dispose();
-      trackers.dispose();
-      seerr.dispose();
-      MdblistTracker.instance.rebindSession(null, onSessionInvalidated: () {});
-    });
-
-    await trackers.onActiveProfileChanged(userUuid);
-    await TrackerCoordinator.instance.flushWriteQueue();
-    sources.update(trackers, seerr);
-
-    expect(sources.connectedSources.map((source) => source.id), [CatalogSourceId.mdblist]);
-    expect(sources.activeSource?.displayName, 'MDBList');
-    expect(sources.watchlistCapableSource?.id, CatalogSourceId.mdblist);
-
-    await trackers.onActiveProfileChanged('empty-profile');
-    await TrackerCoordinator.instance.flushWriteQueue();
-    sources.update(trackers, seerr);
-
-    expect(sources.connectedSources, isEmpty);
-    expect(sources.hasAnySource, isFalse);
-  });
-
   group('watchlist candidate cache', () {
     final item = testMediaItem(id: 'movie-1', serverId: 'server-1');
 

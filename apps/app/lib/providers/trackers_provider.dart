@@ -4,13 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../models/trackers/device_code.dart';
-import '../services/trackers/mdblist/mdblist_auth_service.dart';
-import '../services/trackers/mdblist/mdblist_client.dart';
-import '../services/trackers/mdblist/mdblist_tracker.dart';
-import '../services/trackers/simkl/simkl_auth_service.dart';
-import '../services/trackers/simkl/simkl_client.dart';
-import '../services/trackers/simkl/simkl_constants.dart';
-import '../services/trackers/simkl/simkl_tracker.dart';
 import '../services/trackers/trakt/trakt_auth_service.dart';
 import '../services/trackers/trakt/trakt_client.dart';
 import '../services/trackers/trakt/trakt_tracker.dart';
@@ -32,15 +25,13 @@ typedef TrackerSessionConnectPipeline =
       required void Function(TrackerSession enriched) assign,
     });
 
-/// Owns the active Simkl / Trakt / MDBList sessions for the
+/// Owns the active Trakt session for the
 /// currently-selected Plex profile. Single rebind seam:
 /// [onActiveProfileChanged] loads every session from its store and pushes it
 /// to the matching tracker.
 class TrackersProvider extends ChangeNotifier with DisposableChangeNotifierMixin {
-  /// [httpClientFactory] must return a fresh client for each eager auth owner
-  /// and for each short-lived Simkl client (enrichment, account lookups,
-  /// revoke). Eager owners' clients are closed when this provider is disposed;
-  /// a short-lived client closes its own when it is disposed.
+  /// [httpClientFactory] must return a fresh client for the eager auth owner,
+  /// which is closed when this provider is disposed.
   TrackersProvider({http.Client Function()? httpClientFactory})
     : this._(runConnectPipeline<TrackerSession>, httpClientFactory);
 
@@ -51,38 +42,17 @@ class TrackersProvider extends ChangeNotifier with DisposableChangeNotifierMixin
   }) : this._(connectPipeline, httpClientFactory);
 
   TrackersProvider._(this._connectPipeline, http.Client Function()? httpClientFactory)
-    : _httpClientFactory = httpClientFactory,
-      _simklAuth = httpClientFactory == null ? SimklAuthService() : SimklAuthService(httpClient: httpClientFactory()),
-      _traktAuth = httpClientFactory == null ? TraktAuthService() : TraktAuthService(httpClient: httpClientFactory()),
-      _mdblistAuth = httpClientFactory == null
-          ? MdblistAuthService()
-          : MdblistAuthService(httpClient: httpClientFactory());
+    : _traktAuth = httpClientFactory == null ? TraktAuthService() : TraktAuthService(httpClient: httpClientFactory());
 
   final TrackerSessionConnectPipeline _connectPipeline;
-  final http.Client Function()? _httpClientFactory;
-  final SimklAuthService _simklAuth;
   final TraktAuthService _traktAuth;
-  final MdblistAuthService _mdblistAuth;
 
-  final _TrackerSlot _simkl = _TrackerSlot(
-    TrackerService.simkl,
-    (session, {required onInvalidated, onUpdated}) =>
-        SimklTracker.instance.rebindSession(session, onSessionInvalidated: onInvalidated, onSessionUpdated: onUpdated),
-  );
   final _TrackerSlot _trakt = _TrackerSlot(
     TrackerService.trakt,
     (session, {required onInvalidated, onUpdated}) =>
         TraktTracker.instance.rebindSession(session, onSessionInvalidated: onInvalidated, onSessionUpdated: onUpdated),
   );
-  final _TrackerSlot _mdblist = _TrackerSlot(
-    TrackerService.mdblist,
-    (session, {required onInvalidated, onUpdated}) => MdblistTracker.instance.rebindSession(
-      session,
-      onSessionInvalidated: onInvalidated,
-      onSessionUpdated: onUpdated,
-    ),
-  );
-  late final List<_TrackerSlot> _slots = [_simkl, _trakt, _mdblist];
+  late final List<_TrackerSlot> _slots = [_trakt];
 
   String _activeUserUuid = '';
   int _profileBindingGeneration = 0;
@@ -90,31 +60,14 @@ class TrackersProvider extends ChangeNotifier with DisposableChangeNotifierMixin
   Completer<void>? _cancelCompleter;
   int _connectGeneration = 0;
 
-  TrackerSession? get simkl => _simkl.session;
   TrackerSession? get trakt => _trakt.session;
-  TrackerSession? get mdblist => _mdblist.session;
 
-  bool get isSimklConnected => _simkl.session != null;
   bool get isTraktConnected => _trakt.session != null;
-  bool get isMdblistConnected => _mdblist.session != null;
-
-  /// Whether the bound Simkl session predates AUTH V2. It keeps working until
-  /// Simkl retires V1; settings offers [reconnectSimkl] meanwhile.
-  bool get isSimklLegacy {
-    final session = _simkl.session;
-    return session != null && !SimklConstants.isV2AccessToken(session.accessToken);
-  }
 
   /// Cliente Trakt compartilhado com o tracker; nunca duplica a sessão de refresh.
   TraktClient? get traktCatalogClient => _trakt.session == null ? null : TraktTracker.instance.client;
 
-  /// Cliente do catálogo ligado à sessão ativa.
-  SimklClient? get simklCatalogClient => _simkl.session == null ? null : SimklTracker.instance.client;
-  MdblistClient? get mdblistCatalogClient => _mdblist.session == null ? null : MdblistTracker.instance.client;
-
-  String? get simklUsername => _simkl.session?.username;
   String? get traktUsername => _trakt.session?.username;
-  String? get mdblistUsername => _mdblist.session?.username;
 
   bool isConnecting(TrackerService service) => _connecting == service;
 
@@ -164,59 +117,6 @@ class TrackersProvider extends ChangeNotifier with DisposableChangeNotifierMixin
     safeNotifyListeners();
   }
 
-  Future<bool> connectSimkl({required void Function(DeviceCode code) onCodeReady}) =>
-      _runConnect(_simkl, authorize: () => _authorizeSimkl(onCodeReady), enrich: _enrichSimkl);
-
-  /// Move a legacy AUTH V1 session onto AUTH V2 through the device flow,
-  /// replacing it in place. Only runs while a legacy session is bound.
-  ///
-  /// Queued Simkl writes survive only when both tokens verifiably belong to
-  /// the same account; they then replay through the new token. A different or
-  /// unknown account gets the disconnect treatment: its rows are purged so
-  /// they cannot land in someone else's history.
-  Future<bool> reconnectSimkl({required void Function(DeviceCode code) onCodeReady}) {
-    final legacy = _simkl.session;
-    if (legacy == null || SimklConstants.isV2AccessToken(legacy.accessToken)) return Future.value(false);
-
-    var sameAccount = false;
-    return _runConnect(
-      _simkl,
-      replaces: legacy,
-      authorize: () => _authorizeSimkl(onCodeReady),
-      enrich: (raw) async {
-        final (fresh, previous) = await (_fetchSimklAccount(raw), _fetchSimklAccount(legacy)).wait;
-        sameAccount = fresh.accountId != null && fresh.accountId == previous.accountId;
-        if (!sameAccount) appLogger.i('Simkl: reconnected account differs or is unknown; dropping queued writes');
-        return fresh.username == null ? raw : raw.copyWith(username: fresh.username);
-      },
-      keepQueuedWrites: () => sameAccount,
-    );
-  }
-
-  /// AUTH V2 grants are revoked server-side, like MDBList's. Local state goes
-  /// first, so a failed revoke still leaves the user disconnected here. Legacy
-  /// V1 sessions have no revoke endpoint and stay valid on Simkl's side.
-  Future<void> disconnectSimkl() async {
-    final session = _simkl.session;
-    await _clearAndRebind(_simkl);
-    if (session == null) return;
-
-    // `revoke` logs and swallows its own failures and skips legacy sessions;
-    // disposal is the only thing this caller still owns.
-    final client = _shortLivedSimklClient(session);
-    try {
-      await client.revoke();
-    } finally {
-      client.dispose();
-    }
-  }
-
-  Future<TrackerSession?> _authorizeSimkl(void Function(DeviceCode code) onCodeReady) => _simklAuth.authorize(
-    onCodeReady: onCodeReady,
-    shouldCancel: _isConnectCancelled,
-    onCancel: _cancelCompleter!.future,
-  );
-
   Future<bool> connectTrakt({required void Function(DeviceCode code) onCodeReady}) => _runConnect(
     _trakt,
     authorize: () => _traktAuth.authorize(
@@ -240,34 +140,6 @@ class TrackersProvider extends ChangeNotifier with DisposableChangeNotifierMixin
       await client.revoke();
     } catch (e) {
       appLogger.w('Trakt: token revoke failed (already disconnected locally)', error: e);
-    } finally {
-      client.dispose();
-    }
-  }
-
-  Future<bool> connectMdblist({required void Function(DeviceCode code) onCodeReady}) => _runConnect(
-    _mdblist,
-    authorize: () => _mdblistAuth.authorize(
-      onCodeReady: onCodeReady,
-      shouldCancel: _isConnectCancelled,
-      onCancel: _cancelCompleter!.future,
-    ),
-    enrich: _enrichMdblist,
-  );
-
-  /// Like Trakt, MDBList can revoke its token server-side. Local state goes
-  /// first, so a failed revoke still leaves the user disconnected here — the
-  /// token just stays valid on MDBList's side until it expires.
-  Future<void> disconnectMdblist() async {
-    final session = _mdblist.session;
-    await _clearAndRebind(_mdblist);
-    if (session == null) return;
-
-    // `revoke` logs and swallows its own failures; disposal is the only thing
-    // this caller still owns.
-    final client = MdblistClient(session, onSessionInvalidated: () {});
-    try {
-      await client.revoke();
     } finally {
       client.dispose();
     }
@@ -369,50 +241,11 @@ class TrackersProvider extends ChangeNotifier with DisposableChangeNotifierMixin
     return !isDisposed && userUuid == _activeUserUuid && generation == _profileBindingGeneration;
   }
 
-  Future<TrackerSession> _enrichSimkl(TrackerSession raw) async {
-    final account = await _fetchSimklAccount(raw);
-    return account.username == null ? raw : raw.copyWith(username: account.username);
-  }
-
-  /// One `GET /users/settings` through a short-lived client: the display name
-  /// and the stable account id. Best-effort — either may come back null.
-  Future<({String? username, String? accountId})> _fetchSimklAccount(TrackerSession session) async {
-    final client = _shortLivedSimklClient(session);
-    try {
-      final settings = await client.getUserSettings();
-      return (
-        username: switch (settings?['user']) {
-          {'name': final String name} => name,
-          _ => null,
-        },
-        accountId: switch (settings?['account']) {
-          {'id': final Object id} => '$id',
-          _ => null,
-        },
-      );
-    } catch (e) {
-      appLogger.d('Simkl: getUserSettings failed (non-fatal)', error: e);
-      return (username: null, accountId: null);
-    } finally {
-      client.dispose();
-    }
-  }
-
-  SimklClient _shortLivedSimklClient(TrackerSession session) =>
-      SimklClient(session, onSessionInvalidated: () {}, httpClient: _httpClientFactory?.call());
-
   Future<TrackerSession> _enrichTrakt(TrackerSession raw) => enrichTrackerSessionUsername(
     session: raw,
     failureMessage: 'Trakt: getUserSettings failed (non-fatal)',
     createClient: () => TraktClient(raw, onSessionInvalidated: () {}),
     fetchUsername: (client) async => (await client.getUserSettings()).username,
-  );
-
-  Future<TrackerSession> _enrichMdblist(TrackerSession raw) => enrichTrackerSessionUsername(
-    session: raw,
-    failureMessage: 'MDBList: getUser failed (non-fatal)',
-    createClient: () => MdblistClient(raw, onSessionInvalidated: () {}),
-    fetchUsername: (client) async => (await client.getUser())?['username'] as String?,
   );
 
   /// Push a slot's session to its tracker, snapshotting the active profile and
@@ -452,9 +285,7 @@ class TrackersProvider extends ChangeNotifier with DisposableChangeNotifierMixin
   @override
   void dispose() {
     _invalidateConnect();
-    _simklAuth.dispose();
     _traktAuth.dispose();
-    _mdblistAuth.dispose();
     super.dispose();
   }
 }

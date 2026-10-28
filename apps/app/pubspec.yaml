@@ -135,9 +135,7 @@ flutter:
     - assets/trakt_circlemark.svg
     - assets/mal_mark.svg
     - assets/anilist_mark.svg
-    - assets/simkl_mark.svg
     - assets/seerr_mark.svg
-    - assets/mdblist_mark.svg
     - assets/go-noto-current-regular.ttf
     - assets/go-noto-kurrent-hangul.ttf
     - assets/shaders/nvscaler/

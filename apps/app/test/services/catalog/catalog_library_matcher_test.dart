@@ -684,7 +684,7 @@ void main() {
         ),
       );
       const row = CatalogItem(
-        source: CatalogSourceId.simkl,
+        source: CatalogSourceId.seerr,
         kind: MediaKind.movie,
         title: 'Your Name.',
         originalTitle: 'Kimi no Na wa.',
@@ -692,7 +692,7 @@ void main() {
         ids: CatalogItemIds(simkl: 210, tmdb: 372058),
       );
       const detail = CatalogItem(
-        source: CatalogSourceId.simkl,
+        source: CatalogSourceId.seerr,
         kind: MediaKind.movie,
         title: 'Your Name.',
         altTitles: ['君の名は。', '君の名は。'],

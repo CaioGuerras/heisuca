@@ -180,8 +180,6 @@ Future<_FakeCatalogSourcesProvider> _pumpExplore(
   );
   final mal = _FakeCatalogSource(CatalogSourceId.mal, 'MyAnimeList', malItemId);
   final anilist = _FakeCatalogSource(CatalogSourceId.anilist, 'AniList', 3);
-  final simkl = _FakeCatalogSource(CatalogSourceId.simkl, 'Simkl', 4);
-  final mdblist = _FakeCatalogSource(CatalogSourceId.mdblist, 'MDBList', 5);
   final plex = _FakeCatalogSource(
     CatalogSourceId.plex,
     'Plex',
@@ -190,15 +188,13 @@ Future<_FakeCatalogSourcesProvider> _pumpExplore(
     providerHubStyle: plexHubStyle,
   );
   final seerr = _FakeCatalogSource(CatalogSourceId.seerr, 'Seerr', 7);
-  final sources = _FakeCatalogSourcesProvider([trakt, mal, anilist, simkl, mdblist, plex, seerr]);
+  final sources = _FakeCatalogSourcesProvider([trakt, mal, anilist, plex, seerr]);
   final explore = ExploreProvider(sources);
   addTearDown(explore.dispose);
   addTearDown(sources.dispose);
   addTearDown(trakt.dispose);
   addTearDown(mal.dispose);
   addTearDown(anilist.dispose);
-  addTearDown(simkl.dispose);
-  addTearDown(mdblist.dispose);
   addTearDown(plex.dispose);
   addTearDown(seerr.dispose);
 
@@ -302,16 +298,16 @@ void main() {
     await tester.sendKeyEvent(LogicalKeyboardKey.select);
     await tester.pumpAndSettle();
 
-    for (final name in ['Trakt', 'MyAnimeList', 'AniList', 'Simkl', 'MDBList', 'Plex', 'Seerr']) {
+    for (final name in ['Trakt', 'MyAnimeList', 'AniList', 'Plex', 'Seerr']) {
       expect(find.text(name), findsAtLeast(1));
     }
-    expect(find.byType(CatalogSourceLogo), findsAtLeast(7));
+    expect(find.byType(CatalogSourceLogo), findsAtLeast(5));
 
-    await tester.tap(find.text('MDBList'));
+    await tester.tap(find.text('Seerr'));
     await tester.pumpAndSettle();
-    expect(sources.activeSource?.id, CatalogSourceId.mdblist);
-    expect(find.text('MDBList'), findsOneWidget);
-    expect(find.text('MDBList Movie'), findsAtLeast(1));
+    expect(sources.activeSource?.id, CatalogSourceId.seerr);
+    expect(find.text('Seerr'), findsOneWidget);
+    expect(find.text('Seerr Movie'), findsAtLeast(1));
   });
 
   testWidgets('a null-style Plex provider hub keeps the existing Explore shelf', (tester) async {

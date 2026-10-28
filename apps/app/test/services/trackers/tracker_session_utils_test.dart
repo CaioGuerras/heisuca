@@ -74,31 +74,6 @@ void main() {
       expect(session.expiresAt, 2000);
     });
 
-    test('builds Simkl AUTH V2 token sessions with a refresh token and expiry', () {
-      final session = TrackerSession.fromTokenResponse(TrackerService.simkl, {
-        'access_token': 'simkl_at_new',
-        'refresh_token': 'simkl_rt_new',
-        'expires_in': 604800,
-        'token_type': 'Bearer',
-        'scope': 'media:read media:write',
-        'created_at': 1000,
-      });
-
-      expect(session.accessToken, 'simkl_at_new');
-      expect(session.refreshToken, 'simkl_rt_new');
-      expect(session.expiresAt, 1000 + 604800);
-    });
-
-    test('rejects a Simkl token response without a refresh token', () {
-      expect(
-        () => TrackerSession.fromTokenResponse(TrackerService.simkl, {
-          'access_token': 'simkl_at_new',
-          'expires_in': 604800,
-          'created_at': 1000,
-        }),
-        throwsA(isA<TrackerAuthException>()),
-      );
-    });
   });
 
   // The migration-safety contract: a service-aware decode (the shape
@@ -106,17 +81,6 @@ void main() {
   // shape, and reject corrupt/truncated ones by throwing — TrackerAccountStore
   // swallows that into a clean re-auth rather than loading a broken session.
   group('persisted session validation', () {
-    test('decodes a legacy Simkl blob (no scope/refresh/expiry)', () {
-      final raw = encodeTrackerSessionJson({'access_token': 'simkl-at', 'username': 'carol', 'created_at': 1000});
-
-      final session = TrackerSession.decode(raw, service: TrackerService.simkl);
-
-      expect(session.accessToken, 'simkl-at');
-      expect(session.username, 'carol');
-      expect(session.refreshToken, isNull);
-      expect(session.expiresAt, isNull);
-    });
-
     test('decodes a legacy AniList blob (no refresh token)', () {
       final raw = encodeTrackerSessionJson({
         'access_token': 'anilist-at',
@@ -206,39 +170,5 @@ void main() {
       });
     });
 
-    test('Simkl accepts a legacy V1 blob with neither expiry nor refresh token', () {
-      final raw = encodeTrackerSessionJson({'access_token': 'at', 'created_at': 1000});
-
-      expect(TrackerSession.decode(raw, service: TrackerService.simkl).accessToken, 'at');
-    });
-
-    test('decodes a Simkl AUTH V2 blob', () {
-      final raw = encodeTrackerSessionJson({
-        'access_token': 'simkl_at_x',
-        'refresh_token': 'simkl_rt_x',
-        'expires_at': 2000,
-        'username': 'carol',
-        'created_at': 1000,
-      });
-
-      final session = TrackerSession.decode(raw, service: TrackerService.simkl);
-
-      expect(session.refreshToken, 'simkl_rt_x');
-      expect(session.expiresAt, 2000);
-    });
-
-    test('rejects a Simkl AUTH V2 blob missing the refresh token or the expiry', () {
-      for (final blob in <Map<String, dynamic>>[
-        {'access_token': 'simkl_at_x', 'expires_at': 2000, 'created_at': 1000},
-        {'access_token': 'simkl_at_x', 'refresh_token': '', 'expires_at': 2000, 'created_at': 1000},
-        {'access_token': 'simkl_at_x', 'refresh_token': 'simkl_rt_x', 'created_at': 1000},
-      ]) {
-        expect(
-          () => TrackerSession.decode(encodeTrackerSessionJson(blob), service: TrackerService.simkl),
-          throwsA(isA<TrackerAuthException>()),
-          reason: '$blob',
-        );
-      }
-    });
   });
 }

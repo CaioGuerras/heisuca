@@ -8,8 +8,6 @@ const _configPath = 'android/app/src/main/res/xml/network_security_config.xml';
 const _expectedDomains = <String>{
   'plex.tv',
   'trakt.tv',
-  'simkl.com',
-  'simkl.in',
   'jsdelivr.net',
   'image.tmdb.org',
 };
@@ -18,7 +16,6 @@ const _fixedEndpointSourcePaths = <String>[
   'lib/services/plex_discover_client.dart',
   'lib/services/plex_client/parts/live_tv.dart',
   'lib/services/trackers/trakt/trakt_constants.dart',
-  'lib/services/trackers/simkl/simkl_constants.dart',
   'lib/services/trackers/anime_lists_mapping_store.dart',
   'lib/services/trackers/fribb_mapping_store.dart',
   'lib/services/catalog/seerr_catalog_source.dart',

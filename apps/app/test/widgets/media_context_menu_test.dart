@@ -1570,7 +1570,7 @@ void main() {
 
     testWidgets('several capable sources open a per-source chooser', (tester) async {
       final trakt = _MenuWatchlistSource(CatalogSourceId.trakt, 'Trakt', resolveTo: const CatalogItemIds(imdb: 'tt1'));
-      final simkl = _MenuWatchlistSource(CatalogSourceId.simkl, 'Simkl', resolveTo: const CatalogItemIds(imdb: 'tt1'))
+      final simkl = _MenuWatchlistSource(CatalogSourceId.seerr, 'Simkl', resolveTo: const CatalogItemIds(imdb: 'tt1'))
         ..membership = true;
       final harness = await _pumpWatchlistMenu(tester, sources: [trakt, simkl]);
       await harness.catalogSources.watchlistCandidatesFor(

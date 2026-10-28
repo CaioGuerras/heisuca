@@ -55,8 +55,8 @@ void main() {
         },
       );
 
-      // Caio, 25/10: três donos OAuth restantes; MAL/AniList e seus clientes foram removidos.
-      expect(clients, hasLength(3));
+      // Só o Trakt tem dono OAuth; Simkl e MDBList saíram.
+      expect(clients, hasLength(1));
       for (final client in clients) {
         expect(client.closeCount, 0);
       }

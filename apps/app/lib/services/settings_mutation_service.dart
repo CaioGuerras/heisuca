@@ -16,8 +16,6 @@ import 'device_performance.dart';
 import 'companion_remote/companion_remote_host_controller.dart';
 import 'music/music_playback_service.dart';
 import 'settings_service.dart';
-import 'trackers/mdblist/mdblist_tracker.dart';
-import 'trackers/simkl/simkl_tracker.dart';
 import 'trackers/tracker.dart';
 import 'trackers/tracker_constants.dart';
 import 'trackers/trakt/trakt_tracker.dart';
@@ -115,9 +113,7 @@ class SettingsMutationService {
 
   static Tracker _trackerFor(TrackerService service) => switch (service) {
     TrackerService.mal || TrackerService.anilist => throw UnsupportedError('Serviço removido do Heisuca'),
-    TrackerService.simkl => SimklTracker.instance,
     TrackerService.trakt => TraktTracker.instance,
-    TrackerService.mdblist => MdblistTracker.instance,
   };
 
   static Future<void> _applyAppLocale(

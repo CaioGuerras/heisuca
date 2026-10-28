@@ -15,16 +15,12 @@ import '../profiles/profile.dart';
 import '../services/base_shared_preferences_service.dart';
 import '../services/catalog/library_watchlist_candidates.dart';
 import '../services/catalog/catalog_source.dart';
-import '../services/catalog/mdblist_catalog_source.dart';
 import '../services/catalog/plex_catalog_source.dart';
 import '../services/catalog/seerr_catalog_source.dart';
-import '../services/catalog/simkl_catalog_source.dart';
 import '../services/catalog/trakt_catalog_source.dart';
 import '../services/trackers/future_coalescer.dart';
 import '../services/plex_discover_client.dart';
 import '../services/seerr/seerr_client.dart';
-import '../services/trackers/mdblist/mdblist_client.dart';
-import '../services/trackers/simkl/simkl_client.dart';
 import '../services/trackers/trakt/trakt_client.dart';
 import 'seerr_account_provider.dart';
 import 'trackers_provider.dart';
@@ -102,10 +98,6 @@ class CatalogSourcesProvider extends ChangeNotifier with DisposableChangeNotifie
     equals: (previous, next) => previous == next,
   );
   final _CatalogSourceBinding<TraktClient, TraktCatalogSource> _trakt = _CatalogSourceBinding(TraktCatalogSource.new);
-  final _CatalogSourceBinding<SimklClient, SimklCatalogSource> _simkl = _CatalogSourceBinding(SimklCatalogSource.new);
-  final _CatalogSourceBinding<MdblistClient, MdblistCatalogSource> _mdblist = _CatalogSourceBinding(
-    MdblistCatalogSource.new,
-  );
   final _CatalogSourceBinding<SeerrClient, SeerrCatalogSource> _seerr = _CatalogSourceBinding(SeerrCatalogSource.new);
   int _profileBindingGeneration = 0;
   int _plexSessionGeneration = 0;
@@ -124,8 +116,6 @@ class CatalogSourcesProvider extends ChangeNotifier with DisposableChangeNotifie
 
   List<CatalogSource> get connectedSources => [
     ?_trakt.source,
-    ?_simkl.source,
-    ?_mdblist.source,
     ?_plex.source,
     ?_seerr.source,
   ];
@@ -288,8 +278,6 @@ class CatalogSourcesProvider extends ChangeNotifier with DisposableChangeNotifie
   void update(TrackersProvider trackers, SeerrAccountProvider seerr) {
     var changed = false;
     changed = _trakt.update(trackers.traktCatalogClient) || changed;
-    changed = _simkl.update(trackers.simklCatalogClient) || changed;
-    changed = _mdblist.update(trackers.mdblistCatalogClient) || changed;
     changed = _seerr.update(seerr.catalogClient) || changed;
     if (changed) {
       _invalidateWatchlistCandidates();
@@ -301,8 +289,6 @@ class CatalogSourcesProvider extends ChangeNotifier with DisposableChangeNotifie
   void dispose() {
     _plex.dispose();
     _trakt.dispose();
-    _mdblist.dispose();
-    _simkl.dispose();
     _seerr.dispose();
     super.dispose();
   }

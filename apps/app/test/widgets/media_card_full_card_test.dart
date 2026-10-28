@@ -206,7 +206,7 @@ void main() {
 
   testWidgets('windowed viewers render only when their period is present', (tester) async {
     final withoutPeriod = CatalogItem(
-      source: CatalogSourceId.simkl,
+      source: CatalogSourceId.seerr,
       kind: MediaKind.show,
       title: 'No Viewer Window',
       ids: const CatalogItemIds(simkl: 1),
@@ -217,7 +217,7 @@ void main() {
     expect(find.textContaining('37'), findsNothing);
 
     final withPeriod = CatalogItem(
-      source: CatalogSourceId.simkl,
+      source: CatalogSourceId.seerr,
       kind: MediaKind.show,
       title: 'Viewer Window',
       ids: const CatalogItemIds(simkl: 1),
@@ -317,7 +317,7 @@ void main() {
 
   testWidgets('recommendation badge prefers a user count and falls back to viewer percentage', (tester) async {
     final withCount = CatalogItem(
-      source: CatalogSourceId.simkl,
+      source: CatalogSourceId.seerr,
       kind: MediaKind.movie,
       title: 'Counted Recommendation',
       ids: const CatalogItemIds(simkl: 1),
@@ -330,7 +330,7 @@ void main() {
     expect(find.text(t.explore.detail.recommendedByPercent(percent: '42%')), findsNothing);
 
     final withPercent = CatalogItem(
-      source: CatalogSourceId.simkl,
+      source: CatalogSourceId.seerr,
       kind: MediaKind.movie,
       title: 'Percentage Recommendation',
       ids: const CatalogItemIds(simkl: 2),

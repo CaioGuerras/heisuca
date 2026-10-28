@@ -4,8 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:heisuca/models/trackers/device_code.dart';
-import 'package:heisuca/services/trackers/simkl/simkl_auth_service.dart';
-import 'package:heisuca/services/trackers/simkl/simkl_client.dart';
 import 'package:heisuca/services/trackers/tracker_connect_runner.dart';
 import 'package:heisuca/services/trackers/tracker_exceptions.dart';
 import 'package:heisuca/services/trackers/tracker_constants.dart';
@@ -101,7 +99,7 @@ void main() {
   });
 
   group('tracker API diagnostics', () {
-    test('rejected Trakt and Simkl bodies never reach the real connect catch', () async {
+    test('rejected Trakt bodies never reach the real connect catch', () async {
       final cases = <({String service, Future<void> Function() run, void Function() dispose})>[];
 
       final trakt = TraktClient(
@@ -110,13 +108,6 @@ void main() {
         httpClient: MockClient((_) async => http.Response(_rejectedBody, 503)),
       );
       cases.add((service: 'trakt', run: () async => trakt.getUserSettings(), dispose: trakt.dispose));
-
-      final simkl = SimklClient(
-        _session(),
-        onSessionInvalidated: () {},
-        httpClient: MockClient((_) async => http.Response(_rejectedBody, 503)),
-      );
-      cases.add((service: 'simkl', run: () async => simkl.getUserSettings(), dispose: simkl.dispose));
 
       try {
         for (final testCase in cases) {
@@ -157,38 +148,18 @@ void main() {
       _expectNoCanaries(expectedText: ['TrackerRateLimitException(trakt, retry-after: 23 s)']);
     });
 
-    test('Simkl refusals stay typed and body-free', () async {
-      final client = SimklClient(
-        _session(),
-        onSessionInvalidated: () {},
-        httpClient: MockClient((_) async => http.Response(_rejectedBody, 429, headers: {'retry-after': '23'})),
-      );
-      addTearDown(client.dispose);
-
-      expect(await _runThroughConnect(() async => client.getUserSettings(), label: 'simkl'), isFalse);
-      _expectNoCanaries(
-        expectedText: [
-          'Simkl: refused (HTTP 429, rate limit); holding requests for 23s',
-          'TrackerRateLimitException(simkl, retry-after: 23 s)',
-        ],
-      );
-    });
   });
 
   group('auth diagnostics', () {
-    test('Trakt and Simkl code-creation errors retain only local operation and status', () async {
+    test('Trakt code-creation errors retain only local operation and status', () async {
       final trakt = TraktAuthService(httpClient: MockClient((_) async => http.Response(_rejectedBody, 502)));
-      final simkl = SimklAuthService(httpClient: MockClient((_) async => http.Response(_rejectedBody, 503)));
       addTearDown(trakt.dispose);
-      addTearDown(simkl.dispose);
 
       expect(await _runThroughConnect(() async => trakt.createDeviceCode(), label: 'trakt'), isFalse);
-      expect(await _runThroughConnect(() async => simkl.createDeviceCode(), label: 'simkl'), isFalse);
 
       _expectNoCanaries(
         expectedText: [
           'DeviceCodeAuthFlowException: Trakt device code request failed: HTTP 502',
-          'DeviceCodeAuthFlowException: Simkl device code request failed: HTTP 503',
         ],
       );
     });

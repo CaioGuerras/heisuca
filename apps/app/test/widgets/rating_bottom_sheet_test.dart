@@ -10,8 +10,6 @@ import 'package:heisuca/media/media_server_client.dart';
 import 'package:heisuca/media/server_capabilities.dart';
 import 'package:heisuca/providers/trackers_provider.dart';
 import 'package:heisuca/services/base_shared_preferences_service.dart';
-import 'package:heisuca/services/trackers/mdblist/mdblist_tracker.dart';
-import 'package:heisuca/services/trackers/simkl/simkl_tracker.dart';
 import 'package:heisuca/services/trackers/tracker_account_store.dart';
 import 'package:heisuca/services/trackers/tracker_constants.dart';
 import 'package:heisuca/services/trackers/tracker_session.dart';
@@ -180,9 +178,7 @@ Future<void> _seedAllTrackerSessions(String uuid) async {
 /// The tracker singletons outlive a test; unbind the seeded sessions so the
 /// next case starts disconnected.
 void _resetTrackerBindings() {
-  SimklTracker.instance.rebindSession(null, onSessionInvalidated: () {});
   TraktTracker.instance.rebindSession(null, onSessionInvalidated: () {});
-  MdblistTracker.instance.rebindSession(null, onSessionInvalidated: () {});
 }
 
 /// Narrow stand-in for the media server: while laying out, the sheet reads only

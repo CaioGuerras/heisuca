@@ -315,3 +315,43 @@ class AbaVoce(unittest.TestCase):
     def test_sem_barra_usa_voce_ou_nada(self):
         self.assertEqual(aba_voce(parse_uiautomator(xml(no(desc='Você')))) ['desc'], 'Você')
         self.assertIsNone(aba_voce(parse_uiautomator(xml(no(text='Duna')))))
+
+
+from desastre import reconhecer_anr, achados_de_anr
+
+
+def dialogo(titulo, botao='Wait'):
+    return xml(no(text=titulo, b='[100,500][900,600]'), no('android.widget.Button', text='Close app', b='[100,700][400,800]'),
+               no('android.widget.Button', text=botao, b='[500,700][900,800]'))
+
+
+class AnrDeOutroApp(unittest.TestCase):
+    def test_launcher_em_ingles_e_portugues(self):
+        for titulo, nome in (("Pixel Launcher isn't responding", 'Pixel Launcher'),
+                             ('O Pixel Launcher não está respondendo', 'Pixel Launcher'),
+                             ('System UI is not responding', 'System UI')):
+            d = reconhecer_anr(parse_uiautomator(dialogo(titulo, 'Aguardar' if 'não' in titulo else 'Wait')))
+            self.assertEqual([(x['nome'], x['nosso']) for x in d], [(nome, False)])
+            self.assertEqual(d[0]['esperar']['centro'], (700, 750))
+
+    def test_nosso_app(self):
+        for titulo in ("Heisuca Teste isn't responding", 'Heisuca não está respondendo', "CGFLIX isn't responding"):
+            d = reconhecer_anr(parse_uiautomator(dialogo(titulo)))
+            self.assertTrue(d[0]['nosso'], titulo)
+
+    def test_tela_normal_nao_e_anr(self):
+        self.assertEqual(reconhecer_anr(parse_uiautomator(INICIO)), [])
+        self.assertEqual(reconhecer_anr(parse_uiautomator(xml(no(text='Servidor não está respondendo, tente de novo')))), [])
+        self.assertEqual(reconhecer_anr([]), [])
+
+    def test_achados_uma_vez_por_nome(self):
+        vistos = set()
+        d = reconhecer_anr(parse_uiautomator(dialogo("Pixel Launcher isn't responding")))
+        self.assertEqual(achados_de_anr(d, vistos), [('atenção', 'anr-de-outro-app', 'Pixel Launcher')])
+        self.assertEqual(achados_de_anr(d, vistos), [])
+        nosso = reconhecer_anr(parse_uiautomator(dialogo("Heisuca Teste isn't responding")))
+        self.assertEqual(achados_de_anr(nosso, vistos), [('vermelho', 'anr-do-app', 'Heisuca Teste')])
+
+    def test_sem_botao_esperar(self):
+        d = reconhecer_anr(parse_uiautomator(xml(no(text="Pixel Launcher isn't responding"))))
+        self.assertIsNone(d[0]['esperar'])

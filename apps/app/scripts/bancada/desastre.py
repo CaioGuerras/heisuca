@@ -407,3 +407,42 @@ def aba_voce(nos):
         return achar_texto(nos, 'Você')
     linha = [n for n in nos if n['clickable'] and n['centro'] and abs(n['centro'][1] - ref['centro'][1]) <= 40]
     return max(linha, key=lambda n: n['centro'][0]) if linha else None
+
+
+# ---------- diálogo de ANR de outro app (P6-4) ----------
+
+ANR_DIALOGO = re.compile(r"^(?:o |a )?(.+?) (?:isn't responding|is not responding|não está respondendo|nao esta respondendo)\.?$",
+                         re.I)
+BOTOES_ESPERAR = ('wait', 'aguardar', 'esperar')
+NOSSO_APP = ('heisuca', 'cgflix')
+
+
+def reconhecer_anr(nos):
+    """Diálogos de ANR na tela: lista de {nome, nosso, esperar}. 'nome' é só o rótulo do app, sem dados do aparelho."""
+    achados, botao = [], None
+    for n in nos:
+        if n['centro'] and any(r.strip().lower() in BOTOES_ESPERAR for r in _rotulos(n)):
+            botao = n
+            break
+    for n in nos:
+        for r in _rotulos(n):
+            m = ANR_DIALOGO.match(r.strip())
+            if m and len(r) <= 120:
+                nome = m.group(1).strip()
+                achados.append({'nome': nome, 'nosso': any(k in nome.lower() for k in NOSSO_APP), 'esperar': botao})
+    return achados
+
+
+def achados_de_anr(dialogos, vistos):
+    """Achados novos (uma vez por nome): ANR do nosso app = vermelho; de outro app = ATENÇÃO. Atualiza [vistos]."""
+    saida = []
+    for d in dialogos:
+        chave = d['nome'].lower()
+        if chave in vistos:
+            continue
+        vistos.add(chave)
+        if d['nosso']:
+            saida.append((VERMELHO, 'anr-do-app', d['nome']))
+        else:
+            saida.append((ATENCAO, 'anr-de-outro-app', d['nome']))
+    return saida

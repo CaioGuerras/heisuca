@@ -4,7 +4,7 @@ import subprocess
 import time
 
 from capturas import APP_ID, adb
-from desastre import (VERMELHO, aba_voce, achar_texto, app_em_primeiro_plano, assinatura_tela, campos_login, marco,
+from desastre import (VERMELHO, aba_voce, achados_de_anr, reconhecer_anr, achar_texto, app_em_primeiro_plano, assinatura_tela, campos_login, marco,
                       parse_uiautomator, teclado_visivel, tela_presa)
 
 CONTA = 'teste-sem-senha'
@@ -18,8 +18,50 @@ def texto(*args, tempo=30):
         return ''
 
 
+ANR_VISTOS = set()
+ANR_ACHADOS = []  # lista compartilhada com o desastrado (ligar_achados)
+
+
+def ligar_achados(lista):
+    global ANR_ACHADOS
+    ANR_ACHADOS = lista
+
+
+def tratar_anr(nos):
+    """Se há diálogo de ANR na tela: registra (uma vez por nome) e toca em Aguardar. Devolve True se tocou."""
+    dialogos = reconhecer_anr(nos)
+    if not dialogos:
+        return False
+    ANR_ACHADOS.extend(achados_de_anr(dialogos, ANR_VISTOS))
+    botao = next((d['esperar'] for d in dialogos if d['esperar']), None)
+    if botao:
+        tocar(botao)
+        return True
+    return False
+
+
 def dump():
-    """Hierarquia atual da tela como lista de nós ([] se o uiautomator falhar)."""
+    """Hierarquia atual da tela como lista de nós ([] se o uiautomator falhar).
+
+    Defesa em profundidade: um diálogo de ANR (do launcher do emulador, por exemplo) cobre o app e esconde tudo;
+    é tratado aqui, em toda leitura de tela, e a leitura é refeita.
+    """
+    nos = parse_uiautomator(_xml_do_dump())
+    if tratar_anr(nos):
+        time.sleep(2)
+        nos = parse_uiautomator(_xml_do_dump())
+    return nos
+
+
+def esperar_launcher(tempo=60):
+    """Espera até duas leituras seguidas sem diálogo de ANR (launcher do emulador lento no boot)."""
+    limpas, fim = 0, time.monotonic() + tempo
+    while time.monotonic() < fim and limpas < 2:
+        limpas = 0 if reconhecer_anr(dump_cru()) else limpas + 1
+        time.sleep(2)
+
+
+def dump_cru():
     return parse_uiautomator(_xml_do_dump())
 
 

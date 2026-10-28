@@ -16,7 +16,7 @@ from capturas import APP_ID, adb
 from desastre import (VERMELHO, ATENCAO, analisar_logcat, analisar_monkey, classificar, eventos_injetados,
                       filtrar_pid, listar_visivel, marco, pids_do_app, texto_tecnico_na_ui)
 from servidor import BancadaIndisponivel, Servidor, limpar_log
-from ui import (CONTA, abrir_app, dump, entrar_pela_interface, pid_do_app, recuperar, sair_pela_interface, texto)
+from ui import (CONTA, abrir_app, dump, esperar_launcher, ligar_achados, entrar_pela_interface, pid_do_app, recuperar, sair_pela_interface, texto)
 import caos
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -70,6 +70,11 @@ def main():
             raise BancadaIndisponivel('O pacote esperado não ficou instalado.')
         adb('shell', 'pm', 'grant', APP_ID, 'android.permission.POST_NOTIFICATIONS')
         adb('shell', 'settings', 'put', 'secure', 'immersive_mode_confirmations', 'confirmed')
+        # Diálogos de erro do sistema cobrem o app no emulador lento (run 40700645544: ANR do launcher). Nossos ANRs
+        # seguem no logcat. Restaurado no finally.
+        ligar_achados(achados)
+        adb('shell', 'settings', 'put', 'global', 'hide_error_dialogs', '1')
+        esperar_launcher(60)
         adb('logcat', '-G', '16M')
         adb('logcat', '-c')
         abrir_app()
@@ -138,6 +143,7 @@ def main():
                           'erro': f'{type(erro).__name__}: {detalhe}'.rstrip(': ')})
         codigo = 1
     finally:
+        adb('shell', 'settings', 'put', 'global', 'hide_error_dialogs', '0')
         adb('shell', 'am', 'force-stop', APP_ID)
         adb('shell', 'pm', 'clear', APP_ID)
         relatorio['achados'] = [{'gravidade': g, 'codigo': c, 'detalhe': limpo(d)} for g, c, d in achados]

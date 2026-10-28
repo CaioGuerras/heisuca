@@ -9,7 +9,7 @@ import socket
 import time
 
 from capturas import APP_ID, adb
-from desastre import (VERMELHO, ATENCAO, EtapaAmbiente, analisar_logcat, botoes_de_toque, comandos_iptables,
+from desastre import (aba_voce, VERMELHO, ATENCAO, EtapaAmbiente, analisar_logcat, botoes_de_toque, comandos_iptables,
                       densidade_atual, densidade_para_dp, escolher_cartao, executar_etapa, filtrar_pid, ips_do_host,
                       marco, mensagem_pt, nos_sem_rotulo, pids_do_app, tamanho_da_tela, texto_tecnico_na_ui,
                       usuario_inexistente)
@@ -39,7 +39,8 @@ class Ctx:
         """Toca em cada aba que existir, devolvendo quantas encontrou."""
         n = 0
         for nome in ('Biblioteca', 'Baixados', 'Você', 'Início'):
-            alvo = achar_texto(dump(), nome)
+            nos = dump()
+            alvo = aba_voce(nos) if nome == 'Você' else achar_texto(nos, nome)
             if alvo:
                 tocar(alvo)
                 n += 1
@@ -332,7 +333,8 @@ def e11_leitor_de_tela(ctx):
             ctx.achados.append((ATENCAO, 'talkback-ausente', 'TalkBack ausente na imagem; só a checagem de semântica'))
         sem = []
         for nome in ('Início', 'Biblioteca', 'Você'):
-            alvo = achar_texto(dump(), nome)
+            nos = dump()
+            alvo = aba_voce(nos) if nome == 'Você' else achar_texto(nos, nome)
             if alvo:
                 tocar(alvo)
                 time.sleep(2)

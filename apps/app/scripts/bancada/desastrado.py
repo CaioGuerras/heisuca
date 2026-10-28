@@ -14,7 +14,7 @@ from pathlib import Path
 
 from capturas import APP_ID, adb
 from desastre import (VERMELHO, ATENCAO, analisar_logcat, analisar_monkey, classificar, eventos_injetados,
-                      filtrar_pid, marco, pids_do_app, texto_tecnico_na_ui)
+                      filtrar_pid, listar_visivel, marco, pids_do_app, texto_tecnico_na_ui)
 from servidor import BancadaIndisponivel, Servidor, limpar_log
 from ui import (CONTA, abrir_app, dump, entrar_pela_interface, pid_do_app, recuperar, sair_pela_interface, texto)
 import caos
@@ -57,6 +57,8 @@ def main():
 
     achados, relatorio = [], {'semente': SEMENTE, 'eventos_pedidos': EVENTOS, 'pacote': APP_ID, 'estado': 'vermelho'}
     codigo = 1
+    passos, t0 = [], time.monotonic()
+    relatorio['login_passos'] = passos
     try:
         if not base.startswith(('https://', 'http://')) or CONTA.lower() not in [c.lower() for c in contas]:
             raise BancadaIndisponivel('Segredos ou a conta dedicada não foram disponibilizados ao job.')
@@ -72,7 +74,10 @@ def main():
         adb('logcat', '-c')
         abrir_app()
         pids = set(pid_do_app())
-        if not entrar_pela_interface(base):
+        def registrar(nome, nos):
+            passos.append({'passo': nome, 'segundos': round(time.monotonic() - t0), 'visivel': listar_visivel(nos, base, protegidos)})
+
+        if not entrar_pela_interface(base, registrar):
             raise RuntimeError('Login pela interface não chegou à tela inicial.')
         relatorio['login_pela_interface'] = True
         png = adb('exec-out', 'screencap', '-p').stdout

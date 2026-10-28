@@ -4,7 +4,7 @@ import subprocess
 import time
 
 from capturas import APP_ID, adb
-from desastre import (VERMELHO, achar_texto, app_em_primeiro_plano, assinatura_tela, campos_login, marco,
+from desastre import (VERMELHO, aba_voce, achar_texto, app_em_primeiro_plano, assinatura_tela, campos_login, marco,
                       parse_uiautomator, teclado_visivel, tela_presa)
 
 CONTA = 'teste-sem-senha'
@@ -50,13 +50,15 @@ def abrir_app():
     adb('shell', 'monkey', '-p', APP_ID, '-c', 'android.intent.category.LAUNCHER', '1')
 
 
-def esperar_marco(querido, tempo, passo=3):
+def esperar_marco(querido, tempo, passo=3, registrar=None, nome='espera'):
     """Espera um marco; também aceita o pedido de permissão do sistema. Devolve (marco, nós)."""
     limite = time.monotonic() + tempo
     nos = []
     while time.monotonic() < limite:
         nos = dump()
         m = marco(nos)
+        if registrar:
+            registrar(f'{nome} (marco={m})', nos)
         if m in querido:
             return m, nos
         permitir = achar_texto(nos, 'Permitir', 'Allow', 'While using the app')
@@ -66,25 +68,61 @@ def esperar_marco(querido, tempo, passo=3):
     return marco(nos), nos
 
 
-def entrar_pela_interface(servidor):
-    """Como uma pessoa: acha os campos no dump, digita servidor e conta, toca em Iniciar sessão."""
-    m, nos = esperar_marco({'login', 'inicio'}, 90)
+def fechar_teclado():
+    for _ in range(2):
+        if teclado_visivel(texto('shell', 'dumpsys', 'input_method')):
+            adb('shell', 'input', 'keyevent', '111')  # ESCAPE; o BACK fecha o teclado, mas pode sair da tela
+            time.sleep(1)
+            if teclado_visivel(texto('shell', 'dumpsys', 'input_method')):
+                adb('shell', 'input', 'keyevent', '4')
+                time.sleep(1)
+        else:
+            return
+
+
+def entrar_pela_interface(servidor, registrar=None):
+    """Como uma pessoa: acha os campos no dump, digita servidor e conta, toca em Iniciar sessão.
+
+    [registrar(nome, nos)] recebe cada passo para o diagnóstico (já sanitizado por quem chama).
+    O fluxo real (heisuca_login_screen.dart) não tem passo intermediário: um botão só, que sonda o servidor,
+    autentica e troca para a sessão. Depois do toque só se espera o marco.
+    """
+    rec = registrar or (lambda nome, nos: None)
+    m, nos = esperar_marco({'login', 'inicio'}, 90, passo=5, registrar=registrar, nome='abertura')
     if m == 'inicio':
         return True
+    rec('antes de digitar', nos)
     campos = campos_login(nos)
     if not all(campos.get(k) for k in ('servidor', 'usuario', 'botao')):
+        rec('campos do login não encontrados', nos)
         return False
     tocar(campos['servidor'])
     digitar(servidor)
+    time.sleep(2)
+    rec('após o servidor', dump())
     tocar(campos['usuario'])
     digitar(CONTA)
-    # Senha vazia: o campo fica como está. O teclado pode cobrir o botão: fecha só se estiver aberto.
-    if teclado_visivel(texto('shell', 'dumpsys', 'input_method')):
-        adb('shell', 'input', 'keyevent', '4')
+    time.sleep(1)
+    rec('após o usuário', dump())
+    # Senha vazia: o campo fica como está. O teclado cobre o botão: fecha antes de procurar.
+    fechar_teclado()
+    nos = dump()
+    botao = achar_texto(nos, 'Iniciar sessão')
+    if botao is None:
+        adb('shell', 'input', 'swipe', '270', '900', '270', '400')  # rola, caso o botão esteja abaixo da dobra
         time.sleep(1)
-    botao = achar_texto(dump(), 'Iniciar sessão') or campos['botao']
+        nos = dump()
+        botao = achar_texto(nos, 'Iniciar sessão')
+    rec('antes de tocar em Iniciar sessão', nos)
+    if botao is None:
+        rec('botão Iniciar sessão não achado', nos)
+        return False
     tocar(botao)
-    m, _ = esperar_marco({'inicio'}, 90)
+    time.sleep(2)
+    rec('após tocar em Iniciar sessão', dump())
+    m, nos = esperar_marco({'inicio'}, 90, passo=5, registrar=registrar, nome='espera do marco')
+    if m != 'inicio':
+        rec('falha: marco não apareceu', nos)
     return m == 'inicio'
 
 
@@ -118,7 +156,7 @@ def sair_pela_interface():
     nos = dump()
     if marco(nos) != 'inicio':
         return False
-    voce = achar_texto(nos, 'Você')
+    voce = aba_voce(nos)
     if not voce:
         return False
     tocar(voce)

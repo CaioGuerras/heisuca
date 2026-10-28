@@ -7,6 +7,9 @@ import re
 import time
 import uuid
 import xml.etree.ElementTree as ET
+from urllib.parse import urlsplit
+
+from servidor import limpar_log
 
 VERMELHO = 'vermelho'
 ATENCAO = 'atenção'
@@ -351,3 +354,56 @@ def executar_etapa(nome, etapa, achados, restaurar=None, depois=None, prazo_ok=l
     registro['achados'] = [{'gravidade': g, 'codigo': c, 'detalhe': d} for g, c, d in mine]
     achados.extend(mine)
     return registro
+
+
+# ---------- diagnóstico seguro do login (P6-3) ----------
+
+def pedacos_do_servidor(servidor):
+    """Tudo que identifica o servidor: URL, host, host:porta, host sem 'www.' e cada rótulo do host com 4+ letras."""
+    if not servidor:
+        return []
+    partes = urlsplit(servidor if '://' in servidor else 'https://' + servidor)
+    host = partes.hostname or ''
+    pedacos = {servidor.rstrip('/'), servidor.split('://', 1)[-1].rstrip('/')}
+    if host:
+        pedacos.update({host, host.removeprefix('www.')})
+        if partes.port:
+            pedacos.add(f'{host}:{partes.port}')
+        pedacos.update(r for r in host.split('.') if len(r) >= 4)
+    return sorted((p for p in pedacos if p), key=len, reverse=True)
+
+
+def sanear_texto(valor, servidor, nomes=()):
+    """Troca o servidor (inclusive pedaços e host sem esquema) por <servidor> e passa por limpar_log."""
+    for pedaco in pedacos_do_servidor(servidor):
+        valor = re.sub(re.escape(pedaco), '<servidor>', valor, flags=re.IGNORECASE)
+    return limpar_log(valor, list(nomes), servidor)
+
+
+def listar_visivel(nos, servidor, nomes=()):
+    """Textos e content-desc visíveis (sem bounds) para diagnóstico. EditText vira só a contagem de caracteres digitados."""
+    saida = []
+    for n in nos:
+        if n['cls'].endswith('EditText'):
+            dica = sanear_texto(n['hint'], servidor, nomes) if n['hint'] else ''
+            # Sem atributo hint, o texto pode ser a própria dica: só é "digitado" se o conteúdo não for a dica.
+            digitado = n['text'] if n['text'] and n['text'] != n['hint'] else ''
+            saida.append(f'EditText[{dica}] ' + (f'<digitado:{len(digitado)} caracteres>' if digitado else '<vazio>'))
+            continue
+        for r in (n['text'], n['desc']):
+            if r.strip():
+                saida.append(sanear_texto(r.strip(), servidor, nomes)[:200])
+    return saida
+
+
+def aba_voce(nos):
+    """Última aba da barra. O rótulo dela é o primeiro nome do usuário, não 'Você': acha pela linha de 'Baixados'."""
+    ref = None
+    for n in nos:
+        if n['centro'] and any(r.strip().lower() in ('baixados', 'favoritos') for r in _rotulos(n)):
+            ref = n
+            break
+    if ref is None:
+        return achar_texto(nos, 'Você')
+    linha = [n for n in nos if n['clickable'] and n['centro'] and abs(n['centro'][1] - ref['centro'][1]) <= 40]
+    return max(linha, key=lambda n: n['centro'][0]) if linha else None

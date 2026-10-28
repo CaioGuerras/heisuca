@@ -255,3 +255,63 @@ class Etapa(unittest.TestCase):
         reg, achados, chamadas = self.rodar(lambda: ordem.append('e'), prazo_ok=lambda: False)
         self.assertEqual((reg['resultado'], ordem, chamadas), ('pulada', [], []))
         self.assertEqual(achados[0][1], 'etapa-pulada')
+
+
+from desastre import sanear_texto, listar_visivel, pedacos_do_servidor, aba_voce
+
+SERVIDOR = 'https://filmes.exemplo-casa.com.br:8443/'
+
+
+class DiagnosticoLogin(unittest.TestCase):
+    def test_servidor_e_pedacos_nunca_aparecem(self):
+        texto = ('Falha em https://filmes.exemplo-casa.com.br:8443/System/Info; host filmes.exemplo-casa.com.br; '
+                 'sem esquema filmes.exemplo-casa.com.br:8443; pedaço exemplo-casa e FILMES')
+        saida = sanear_texto(texto, SERVIDOR, ['teste-sem-senha'])
+        for proibido in ('filmes', 'exemplo-casa', 'exemplo', '8443', 'https://'):
+            self.assertNotIn(proibido.lower(), saida.lower())
+        self.assertIn('<servidor>', saida)
+
+    def test_servidor_sem_esquema_e_vazio(self):
+        self.assertNotIn('casa', sanear_texto('abra minha-casa.com', 'minha-casa.com'))
+        self.assertEqual(sanear_texto('nada aqui', ''), 'nada aqui')
+        self.assertEqual(pedacos_do_servidor(''), [])
+
+    def test_conta_tambem_some(self):
+        self.assertNotIn('teste-sem-senha', sanear_texto('Olá teste-sem-senha', SERVIDOR, ['teste-sem-senha']))
+
+    def test_edittext_mascarado_e_dica_preservada(self):
+        nos = parse_uiautomator(xml(
+            no('android.widget.EditText', text='https://filmes.exemplo-casa.com.br:8443', hint='https://seuservidor.com'),
+            no('android.widget.EditText', text='teste-sem-senha', hint='Nome de usuário'),
+            no('android.widget.EditText', hint='Nome de usuário vazio'),
+            no(text='Iniciar sessão'),
+            no(desc='Erro em filmes.exemplo-casa.com.br')))
+        linhas = listar_visivel(nos, SERVIDOR, ['teste-sem-senha'])
+        junto = '\n'.join(linhas)
+        self.assertIn('EditText[[endereço omitido]] <digitado:39 caracteres>', linhas)
+        self.assertIn('EditText[Nome de usuário] <digitado:15 caracteres>', linhas)
+        self.assertIn('EditText[Nome de usuário vazio] <vazio>', linhas)
+        self.assertIn('Iniciar sessão', linhas)
+        for proibido in ('filmes', 'exemplo-casa', 'teste-sem-senha', '8443'):
+            self.assertNotIn(proibido, junto)
+
+    def test_texto_igual_a_dica_conta_como_vazio(self):
+        nos = parse_uiautomator(xml(no('android.widget.EditText', text='Nome de usuário', hint='Nome de usuário')))
+        self.assertEqual(listar_visivel(nos, SERVIDOR), ['EditText[Nome de usuário] <vazio>'])
+
+    def test_sem_bounds_na_saida(self):
+        nos = parse_uiautomator(xml(no(text='Início', b='[1,2][3,4]')))
+        self.assertNotIn('[1,2]', str(listar_visivel(nos, SERVIDOR)))
+
+
+class AbaVoce(unittest.TestCase):
+    def test_ultima_aba_da_linha_mesmo_com_o_nome_do_usuario(self):
+        nos = parse_uiautomator(xml(
+            no(desc='Início', b='[0,1100][100,1200]'), no(desc='Biblioteca', b='[100,1100][200,1200]'),
+            no(desc='Baixados', b='[200,1100][300,1200]'), no(desc='teste', b='[300,1100][400,1200]'),
+            no(text='Duna', b='[40,400][300,600]')))
+        self.assertEqual(aba_voce(nos)['desc'], 'teste')
+
+    def test_sem_barra_usa_voce_ou_nada(self):
+        self.assertEqual(aba_voce(parse_uiautomator(xml(no(desc='Você')))) ['desc'], 'Você')
+        self.assertIsNone(aba_voce(parse_uiautomator(xml(no(text='Duna')))))

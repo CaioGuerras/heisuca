@@ -111,7 +111,7 @@ jobs:
       - name: Testar limites nativos do buffer mpv
         run: |
           cd android
-          ./gradlew :app:testDebugUnitTest --tests app.heisuca.mpv.HeisucaBufferBudgetTest --tests app.heisuca.HeisucaPipParamsTest --tests app.heisuca.HeisucaDownloadNotificationTest --tests app.heisuca.mpv.MpvPlayerBackgroundAudioTest -PtargetAbi=arm64-v8a -PheisucaPreview=true
+          ./gradlew :app:testDebugUnitTest --tests app.heisuca.mpv.HeisucaBufferBudgetTest --tests app.heisuca.HeisucaPipParamsTest --tests app.heisuca.HeisucaDownloadNotificationTest --tests app.heisuca.mpv.MpvPlayerBackgroundAudioTest --tests app.heisuca.ExternalFileContainmentTest -PtargetAbi=arm64-v8a -PheisucaPreview=true
 
       - name: Compilar APK Release (arm64-v8a)
         run: |

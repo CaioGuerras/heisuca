@@ -13,8 +13,6 @@ import 'tracker_session.dart';
 /// before a profile has been selected).
 class TrackerAccountStore {
   static final Map<TrackerService, TrackerAccountStore> _stores = {
-    TrackerService.mal: TrackerAccountStore._(TrackerService.mal, 'mal_session'),
-    TrackerService.anilist: TrackerAccountStore._(TrackerService.anilist, 'anilist_session'),
     TrackerService.trakt: TrackerAccountStore._(TrackerService.trakt, 'trakt_session'),
   };
 

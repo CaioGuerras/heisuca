@@ -33,8 +33,6 @@ void main() {
   test('MAL/AniList não voltam pela opção de testes de mostrar todos os serviços', () {
     cgflixDebugShowAllServices = true;
     addTearDown(() => cgflixDebugShowAllServices = false);
-    expect(cgflixShowsTracker(TrackerService.mal), isFalse);
-    expect(cgflixShowsTracker(TrackerService.anilist), isFalse);
     expect(TrackerServiceInfo.all.map((info) => info.service).toSet(), {TrackerService.trakt});
   });
 }

@@ -112,7 +112,6 @@ class SettingsMutationService {
   }
 
   static Tracker _trackerFor(TrackerService service) => switch (service) {
-    TrackerService.mal || TrackerService.anilist => throw UnsupportedError('Serviço removido do Heisuca'),
     TrackerService.trakt => TraktTracker.instance,
   };
 

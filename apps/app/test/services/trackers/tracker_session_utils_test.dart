@@ -81,36 +81,6 @@ void main() {
   // shape, and reject corrupt/truncated ones by throwing — TrackerAccountStore
   // swallows that into a clean re-auth rather than loading a broken session.
   group('persisted session validation', () {
-    test('decodes a legacy AniList blob (no refresh token)', () {
-      final raw = encodeTrackerSessionJson({
-        'access_token': 'anilist-at',
-        'expires_at': 2000,
-        'username': 'alice',
-        'created_at': 1000,
-      });
-
-      final session = TrackerSession.decode(raw, service: TrackerService.anilist);
-
-      expect(session.accessToken, 'anilist-at');
-      expect(session.expiresAt, 2000);
-      expect(session.refreshToken, isNull);
-    });
-
-    test('decodes a legacy MAL blob', () {
-      final raw = encodeTrackerSessionJson({
-        'access_token': 'mal-at',
-        'refresh_token': 'mal-rt',
-        'expires_at': 2000,
-        'username': 'bob',
-        'created_at': 1000,
-      });
-
-      final session = TrackerSession.decode(raw, service: TrackerService.mal);
-
-      expect(session.refreshToken, 'mal-rt');
-      expect(session.expiresAt, 2000);
-    });
-
     test('decodes a legacy Trakt blob', () {
       final raw = encodeTrackerSessionJson({
         'access_token': 'trakt-at',
@@ -126,7 +96,7 @@ void main() {
     });
 
     test('rejects a MAL/Trakt blob missing the refresh token', () {
-      for (final service in const [TrackerService.mal, TrackerService.trakt]) {
+      for (final service in const [TrackerService.trakt]) {
         final raw = encodeTrackerSessionJson({'access_token': 'at', 'expires_at': 2000, 'created_at': 1000});
 
         expect(
@@ -138,7 +108,7 @@ void main() {
     });
 
     test('rejects a MAL/Trakt blob with an empty refresh token', () {
-      for (final service in const [TrackerService.mal, TrackerService.trakt]) {
+      for (final service in const [TrackerService.trakt]) {
         final raw = encodeTrackerSessionJson({
           'access_token': 'at',
           'refresh_token': '',
@@ -156,8 +126,6 @@ void main() {
 
     test('rejects a MAL/AniList/Trakt blob missing the expiry', () {
       final blobs = <TrackerService, Map<String, dynamic>>{
-        TrackerService.mal: {'access_token': 'at', 'refresh_token': 'rt', 'created_at': 1000},
-        TrackerService.anilist: {'access_token': 'at', 'created_at': 1000},
         TrackerService.trakt: {'access_token': 'at', 'refresh_token': 'rt', 'created_at': 1000},
       };
 

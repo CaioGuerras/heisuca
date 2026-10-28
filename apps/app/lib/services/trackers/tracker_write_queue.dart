@@ -143,12 +143,9 @@ class TrackerWriteQueue {
 
   /// Pause after each request during a drain. Trakt takes one authenticated
   /// POST/PUT/DELETE per second and answers a faster one with a 429, which
-  /// defers the rest of its rows to the next drain. Simkl has the same limit but
-  /// its client spaces every write itself; the other services only need a drain
-  /// not to burst.
+  /// defers the rest of its rows to the next drain.
   static Duration _requestSpacing(TrackerService service) => switch (service) {
     TrackerService.trakt => const Duration(seconds: 1),
-    _ => const Duration(milliseconds: 50),
   };
 
   final Future<void> Function(Duration) _pause;

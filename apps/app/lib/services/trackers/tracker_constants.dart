@@ -24,7 +24,7 @@ class TrackerConstants {
 /// Identifier used across the app to disambiguate per-service operations.
 /// The enum's `.name` forms part of the persistence key — do not rename
 /// without a migration.
-enum TrackerService { mal, anilist, trakt }
+enum TrackerService { trakt }
 
 /// Integrações disponíveis. Os IDs legados do enum ficam para ler dados já salvos.
 const heisucaTrackerServices = {TrackerService.trakt};

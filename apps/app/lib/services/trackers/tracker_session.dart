@@ -66,11 +66,8 @@ class TrackerSession {
     }
 
     switch (service) {
-      case TrackerService.mal:
       case TrackerService.trakt:
         _validateRefreshToken(service, refreshToken);
-        requireExpiry();
-      case TrackerService.anilist:
         requireExpiry();
     }
   }
@@ -78,19 +75,12 @@ class TrackerSession {
   factory TrackerSession.fromTokenResponse(TrackerService service, Map<String, dynamic> json) {
     final createdAt = (json['created_at'] as num?)?.toInt() ?? trackerSessionNowEpochSeconds();
     return switch (service) {
-      TrackerService.mal => TrackerSession(
-        accessToken: json['access_token'] as String,
-        refreshToken: _requireRefreshToken(service, json['refresh_token'] as String?),
-        expiresAt: createdAt + (json['expires_in'] as num).toInt(),
-        createdAt: createdAt,
-      ),
       TrackerService.trakt => TrackerSession(
         accessToken: json['access_token'] as String,
         refreshToken: _requireRefreshToken(service, json['refresh_token'] as String?),
         expiresAt: createdAt + (json['expires_in'] as num).toInt(),
         createdAt: createdAt,
       ),
-      _ => throw ArgumentError('Token-response sessions are not supported for ${service.name}'),
     };
   }
 

@@ -12,7 +12,9 @@ import 'package:provider/provider.dart';
 import '../cgflix/cgflix_detail.dart';
 import '../cgflix/cgflix_palette.dart';
 import '../cgflix/home/cgflix_actions.dart';
+import '../exceptions/media_server_exceptions.dart';
 import '../media/media_item.dart';
+import '../utils/app_logger.dart';
 import '../media/media_kind.dart';
 import '../media/media_file_info.dart';
 import '../providers/download_provider.dart';
@@ -382,8 +384,22 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
   }
 
   void _ensureSupplements() {
-    _related ??= Future.sync(() => _loadSupplement(false));
-    if (_item.kind == MediaKind.movie) _extras ??= Future.sync(() => _loadSupplement(true));
+    _related ??= _safeSupplement(false);
+    if (_item.kind == MediaKind.movie) _extras ??= _safeSupplement(true);
+  }
+
+  /// "Semelhantes" e "extras" são enfeite da ficha: falha (404, rede) nunca vira erro não tratado.
+  /// A lista de seções é preguiçosa: se o usuário sai antes de rolar até elas, nenhum FutureBuilder escutou a Future
+  /// e o erro iria para a zona (run 40712225508). Por isso o erro é tratado aqui, na criação: a seção some (lista vazia)
+  /// e o log leva só o tipo e o código HTTP, sem URL.
+  Future<List<MediaItem>> _safeSupplement(bool extras) async {
+    try {
+      return await _loadSupplement(extras);
+    } catch (e) {
+      final code = e is MediaServerHttpException && e.statusCode != null ? ' HTTP ${e.statusCode}' : '';
+      appLogger.w('Ficha: ${extras ? 'extras' : 'semelhantes'} indisponíveis (${e.runtimeType}$code)');
+      return const <MediaItem>[];
+    }
   }
 
   @override

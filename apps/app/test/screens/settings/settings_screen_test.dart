@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:heisuca/cgflix/cgflix_defaults.dart';
+import 'package:heisuca/cgflix/cgflix_login_checks.dart';
 import 'package:heisuca/connection/connection_registry.dart';
 import 'package:heisuca/database/app_database.dart';
 import 'package:heisuca/i18n/strings.g.dart';
@@ -314,16 +315,31 @@ void main() {
 
     await tester.tap(find.text(t.settings.watchTogetherRelay));
     await _pumpUi(tester);
-    await tester.enterText(find.byType(TextField), '  HTTP://Relay.Example.Test:8080/prefix///  ');
+    await tester.enterText(find.byType(TextField), '  HTTPS://Relay.Example.Test:8080/prefix///  ');
     await tester.tap(find.text(t.common.save));
     await _pumpUi(tester);
 
     expect(find.byType(AlertDialog), findsNothing);
-    expect(SettingsService.instance.read(SettingsService.customRelayUrl), 'http://relay.example.test:8080/prefix');
+    expect(SettingsService.instance.read(SettingsService.customRelayUrl), 'https://relay.example.test:8080/prefix');
 
     await tester.tap(find.text(t.settings.watchTogetherRelay));
     await _pumpUi(tester);
-    expect(find.widgetWithText(TextField, 'http://relay.example.test:8080/prefix'), findsOneWidget);
+    expect(find.widgetWithText(TextField, 'https://relay.example.test:8080/prefix'), findsOneWidget);
+  });
+
+  testWidgets('relay dialog refuses an external http:// base and does not persist it (b3513e7)', (tester) async {
+    final harness = await _pumpSettingsScreen(tester);
+    addTearDown(() => harness.dispose(tester));
+
+    await tester.tap(find.text(t.settings.watchTogetherRelay));
+    await _pumpUi(tester);
+    await tester.enterText(find.byType(TextField), 'http://relay.example.test:8080/prefix');
+    await tester.tap(find.text(t.common.save));
+    await _pumpUi(tester);
+
+    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(find.text(cgflixHttpsRequiredMessage), findsOneWidget);
+    expect(SettingsService.instance.read(SettingsService.customRelayUrl), isNull);
   });
 
   testWidgets('selected download folder becomes the persisted location', (tester) async {

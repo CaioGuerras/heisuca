@@ -213,13 +213,16 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
     }
   }
 
-  /// URL do servidor com o token do dialeto, ou `null` se [urlOrPath] aponta
-  /// para outra origem/esquema (legenda remota, `file:`, IP interno...). O token
-  /// só vai para a origem do próprio servidor.
+  /// URL do servidor com o token do dialeto SÓ quando é da origem do servidor;
+  /// URL externa permitida segue sem token; `null` se a política descarta
+  /// (`file:`, IP interno, rebaixamento https->http...). Ver resolveServerUrl.
   @override
   String? _withApiKeyOrNull(String urlOrPath) {
-    final uri = JellyfinImageAbsolutizer.resolveSameOrigin(baseUrl: connection.baseUrl, urlOrPath: urlOrPath);
-    if (uri == null) return null;
+    final resolved = JellyfinImageAbsolutizer.resolveServerUrl(baseUrl: connection.baseUrl, urlOrPath: urlOrPath);
+    if (resolved == null) return null;
+    // Outra origem (legenda remota, stream IPTV): vai como veio, SEM token.
+    if (!resolved.sameOrigin) return resolved.uri.toString();
+    final uri = resolved.uri;
     final params = Map<String, String>.from(uri.queryParameters)
       ..[connection.dialect.tokenQueryParam] = connection.accessToken;
     return uri.replace(queryParameters: params).toString();
@@ -665,7 +668,7 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
       // absolute URL with the dialect's token query parameter.
       final url = _withApiKeyOrNull(path);
       if (url == null) {
-        appLogger.w('Jellyfin subtitle ignored: URL outside the server origin');
+        appLogger.w('Jellyfin subtitle ignored: URL refused by the server URL policy');
         continue;
       }
       externalSubtitles.add(

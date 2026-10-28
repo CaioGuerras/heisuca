@@ -7,9 +7,12 @@ mixin _JellyfinImageDownloadMethods on _JellyfinClientInternals {
   @override
   String thumbnailUrl(String? path, {int? width, int? height, bool cover = true}) {
     if (path == null || path.isEmpty) return '';
-    // URL de outra origem não é buscada nem recebe o token.
-    final uri = JellyfinImageAbsolutizer.resolveSameOrigin(baseUrl: connection.baseUrl, urlOrPath: path);
-    if (uri == null) return '';
+    // Política de URL do servidor (ver resolveServerUrl): descartada = '';
+    // outra origem permitida volta como veio, sem token e sem parâmetros nossos.
+    final resolved = JellyfinImageAbsolutizer.resolveServerUrl(baseUrl: connection.baseUrl, urlOrPath: path);
+    if (resolved == null) return '';
+    if (!resolved.sameOrigin) return resolved.uri.toString();
+    final uri = resolved.uri;
     final params = Map<String, String>.from(uri.queryParameters);
     if (width != null && !params.containsKey('maxWidth') && !params.containsKey('MaxWidth')) {
       params['maxWidth'] = '$width';
@@ -27,7 +30,7 @@ mixin _JellyfinImageDownloadMethods on _JellyfinClientInternals {
   /// servidor; o resto (EPG com host de terceiros, `file:`, IP interno) é vazio.
   @override
   String externalImageUrl(String url, {int? width, int? height, bool cover = true}) =>
-      JellyfinImageAbsolutizer.resolveSameOrigin(baseUrl: connection.baseUrl, urlOrPath: url)?.toString() ?? '';
+      JellyfinImageAbsolutizer.resolveServerUrl(baseUrl: connection.baseUrl, urlOrPath: url)?.uri.toString() ?? '';
 
   @override
   Future<DownloadResolution> resolveDownload(MediaItem item, {int mediaIndex = 0, String? mediaSourceId}) async {
@@ -107,7 +110,7 @@ mixin _JellyfinImageDownloadMethods on _JellyfinClientInternals {
             : '/Videos/${_segment(item.id)}/${_segment(subtitleMediaSourceId)}/Subtitles/$index/$streamFile',
       );
       if (url == null) {
-        appLogger.w('Jellyfin download subtitle ignored: URL outside the server origin');
+        appLogger.w('Jellyfin download subtitle ignored: URL refused by the server URL policy');
         continue;
       }
       subtitles.add(

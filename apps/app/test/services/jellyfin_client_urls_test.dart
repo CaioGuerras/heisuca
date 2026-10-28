@@ -2964,7 +2964,7 @@ void main() {
       expect(uri.queryParameters['ApiKey'], 'tok-abc');
     });
 
-    test('getPlaybackInitialization drops subtitle URLs on another host and keeps the token on the server origin', () async {
+    test('getPlaybackInitialization keeps the token off subtitle URLs on another host', () async {
       final scoped = _clientWithPlaybackInfo(
         (_) async {
           return jsonResponse({
@@ -3015,8 +3015,7 @@ void main() {
       final byStream = {
         for (final sidecar in result.subtitleSidecars) sidecar.sourceStreamId: Uri.parse(sidecar.track.uri!),
       };
-      // P5: URL de outro host não é buscada (nem com token, nem sem).
-      expect(byStream.containsKey(3), isFalse);
+      expect(byStream[3].toString(), 'https://subs.example.org/files/3.srt?sig=1');
       expect(byStream[4]!.queryParameters['ApiKey'], 'tok-abc');
     });
 
@@ -3322,19 +3321,14 @@ void main() {
       expect(uri.queryParameters['api_key'], 'tok-abc');
     });
 
-    test('thumbnailUrl preserves existing auth and size parameters (same origin only)', () {
-      // P5: URL de outro host é descartada (string vazia).
-      expect(
-        client.thumbnailUrl('https://other.example/Items/x/Images/Primary?api_key=existing', width: 200, height: 300),
-        '',
-      );
+    test('thumbnailUrl preserves existing auth and size parameters', () {
       final url = client.thumbnailUrl(
-        'https://jf.example.com/Items/x/Images/Primary?api_key=existing&maxWidth=100',
+        'https://other.example/Items/x/Images/Primary?api_key=existing&maxWidth=100',
         width: 200,
         height: 300,
       );
       final uri = Uri.parse(url);
-      expect(uri.host, 'jf.example.com');
+      expect(uri.host, 'other.example');
       expect(uri.queryParameters['api_key'], 'existing');
       expect(uri.queryParameters['maxWidth'], '100');
       expect(uri.queryParameters['maxHeight'], '300');

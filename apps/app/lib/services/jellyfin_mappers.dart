@@ -1,3 +1,5 @@
+import 'dart:io' show InternetAddress, InternetAddressType;
+
 import '../media/media_browser_dialect.dart';
 import '../media/ids.dart';
 import '../media/media_hub.dart';
@@ -90,6 +92,14 @@ MediaVersion jellyfinMediaSourceToVersion(
 /// [baseUrl] and appending `&api_key=<accessToken>`. Pure string ops — safe
 /// to use from worker isolates and from the cache layer that doesn't hold a
 /// [JellyfinClient].
+/// Resultado de [JellyfinImageAbsolutizer.resolveServerUrl]: a URL final e se ela
+/// é da origem do servidor (a única que pode receber o token).
+class ResolvedServerUrl {
+  const ResolvedServerUrl(this.uri, {required this.sameOrigin});
+  final Uri uri;
+  final bool sameOrigin;
+}
+
 class JellyfinImageAbsolutizer {
   final String baseUrl;
   final String accessToken;
@@ -103,28 +113,42 @@ class JellyfinImageAbsolutizer {
     return Uri.parse('$cleanBase$cleanPath');
   }
 
-  /// Igual a [joinUri], mas só devolve URL que o app pode buscar com segurança:
-  /// caminho relativo (colado na base) ou URL absoluta http(s) da MESMA origem
-  /// (esquema + host + porta) do servidor configurado. Qualquer outra coisa
-  /// (`file:`, `content:`, `javascript:`, `data:`, outro host, IP interno,
-  /// `//host/x`, texto que não é URI) devolve `null`. Todo ponto que recebe URL
-  /// de imagem, legenda ou stream do servidor passa por aqui, e é por isso que
-  /// o token só é anexado a URL de origem confiável.
-  static Uri? resolveSameOrigin({required String baseUrl, required String urlOrPath}) {
+  /// Política ÚNICA para URL de imagem, legenda ou stream que chega do servidor
+  /// (P5, servidor malicioso). Devolve `null` quando a URL deve ser descartada:
+  ///
+  /// 1. esquema diferente de http/https (`file`, `content`, `javascript`,
+  ///    `data`, `intent`...), `//host/x` sem esquema, host vazio: sempre descarta;
+  /// 2. caminho relativo ou mesma origem (esquema + host + porta) do servidor:
+  ///    [ResolvedServerUrl.sameOrigin] = true, único caso que recebe o token;
+  /// 3. outra origem http(s): aceita, mas SEM token ([ResolvedServerUrl.sameOrigin]
+  ///    = false; quem monta a URL não anexa `api_key` nem cabeçalho). Descarta se
+  ///    o host é rede interna (loopback, link-local como 169.254.169.254, privadas,
+  ///    CGNAT, ULA, 0.0.0.0, `localhost`, `.local`, nome sem ponto, IP escrito em
+  ///    formato obscuro), A MENOS que o servidor configurado também esteja em rede
+  ///    interna (servidor na LAN);
+  /// 4. servidor https: URL externa http (rebaixamento) é descartada.
+  ///
+  /// Limite documentado: nome DNS público que resolve para IP interno (DNS
+  /// rebinding) não é detectado aqui; só a resolução pelo SO o revelaria.
+  static ResolvedServerUrl? resolveServerUrl({required String baseUrl, required String urlOrPath}) {
     final raw = Uri.tryParse(urlOrPath);
     final base = Uri.tryParse(baseUrl);
     if (raw == null || base == null) return null;
-    if (raw.hasScheme || raw.hasAuthority) {
-      final scheme = raw.scheme.toLowerCase();
-      if (scheme != 'http' && scheme != 'https') return null;
-      if (!isSameOrigin(base, raw)) return null;
-      return raw;
+    if (!raw.hasScheme && !raw.hasAuthority) {
+      try {
+        return ResolvedServerUrl(joinUri(baseUrl: baseUrl, urlOrPath: urlOrPath), sameOrigin: true);
+      } on FormatException {
+        return null;
+      }
     }
-    try {
-      return joinUri(baseUrl: baseUrl, urlOrPath: urlOrPath);
-    } on FormatException {
-      return null;
-    }
+    final scheme = raw.scheme.toLowerCase();
+    if ((scheme != 'http' && scheme != 'https') || raw.host.isEmpty) return null;
+    if (isSameOrigin(base, raw)) return ResolvedServerUrl(raw, sameOrigin: true);
+    // Credencial embutida (user:senha@host) nunca acompanha URL de terceiros.
+    if (raw.userInfo.isNotEmpty) return null;
+    if (base.scheme.toLowerCase() == 'https' && scheme != 'https') return null;
+    if (isInternalHost(raw.host) && !isInternalHost(base.host)) return null;
+    return ResolvedServerUrl(raw, sameOrigin: false);
   }
 
   /// Esquema, host (sem diferenciar maiúsculas) e porta iguais.
@@ -134,15 +158,63 @@ class JellyfinImageAbsolutizer {
       a.port == b.port &&
       a.host.isNotEmpty;
 
+  static final RegExp _numericLabel = RegExp(r'^(0x[0-9a-f]+|[0-9]+)$', caseSensitive: false);
+
+  /// Host que só existe dentro de uma rede privada ou da própria máquina:
+  /// loopback (127/8, ::1, localhost), link-local (169.254/16, fe80::/10),
+  /// privadas (10/8, 172.16/12, 192.168/16), CGNAT (100.64/10), ULA (fc00::/7),
+  /// 0.0.0.0/8, `*.local`/`*.internal`/`*.lan`/`*.home.arpa`/`*.localhost`, nome
+  /// sem ponto (rede local) e IPv4 em formato obscuro (decimal único, hex, octal).
+  static bool isInternalHost(String host) {
+    var h = host.toLowerCase();
+    if (h.startsWith('[') && h.endsWith(']')) h = h.substring(1, h.length - 1);
+    final address = InternetAddress.tryParse(h);
+    if (address != null) {
+      final bytes = address.rawAddress;
+      if (address.type == InternetAddressType.IPv6) {
+        // ::ffff:a.b.c.d (IPv4 mapeado) vale pelo IPv4 embutido.
+        final mapped = bytes.sublist(0, 10).every((b) => b == 0) && bytes[10] == 0xff && bytes[11] == 0xff;
+        if (mapped) return _internalV4(bytes.sublist(12));
+        if (bytes.every((b) => b == 0)) return true; // ::
+        if (bytes.sublist(0, 15).every((b) => b == 0) && bytes[15] == 1) return true; // ::1
+        if (bytes[0] == 0xfe && (bytes[1] & 0xc0) == 0x80) return true; // fe80::/10
+        if ((bytes[0] & 0xfe) == 0xfc) return true; // fc00::/7
+        return false;
+      }
+      return _internalV4(bytes);
+    }
+    if (h == 'localhost' || h.endsWith('.localhost')) return true;
+    final labels = h.split('.');
+    // Parece IPv4 mas o SO não aceitou como tal (2130706433, 0x7f.1, 0177.0.0.1):
+    // formato obscuro usado para driblar filtros; trata como interno.
+    if (labels.every(_numericLabel.hasMatch)) return true;
+    if (labels.length == 1) return true; // nome de rede local, sem ponto
+    for (final suffix in const ['local', 'internal', 'lan', 'intranet', 'home', 'corp', 'arpa']) {
+      if (labels.last == suffix) return true;
+    }
+    return false;
+  }
+
+  static bool _internalV4(List<int> b) =>
+      b[0] == 0 ||
+      b[0] == 10 ||
+      b[0] == 127 ||
+      (b[0] == 169 && b[1] == 254) ||
+      (b[0] == 172 && b[1] >= 16 && b[1] <= 31) ||
+      (b[0] == 192 && b[1] == 168) ||
+      (b[0] == 100 && b[1] >= 64 && b[1] <= 127);
+
   /// Caminho relativo vira URL absoluta com `api_key`; URL da mesma origem passa
-  /// intacta; qualquer outra origem/esquema devolve `null` (ver [resolveSameOrigin]).
+  /// intacta; URL de outra origem permitida passa intacta e SEM token; o resto
+  /// devolve `null` (ver [resolveServerUrl]).
   String? absolutize(String? path) {
     if (path == null || path.isEmpty) return path;
-    final uri = resolveSameOrigin(baseUrl: baseUrl, urlOrPath: path);
-    if (uri == null) return null;
-    if (uri.hasScheme && (path.startsWith('http://') || path.startsWith('https://'))) return path;
-    final params = Map<String, String>.from(uri.queryParameters)..['api_key'] = accessToken;
-    return uri.replace(queryParameters: params).toString();
+    final resolved = resolveServerUrl(baseUrl: baseUrl, urlOrPath: path);
+    if (resolved == null) return null;
+    if (!resolved.sameOrigin) return resolved.uri.toString();
+    if (resolved.uri.hasScheme && (path.startsWith('http://') || path.startsWith('https://'))) return path;
+    final params = Map<String, String>.from(resolved.uri.queryParameters)..['api_key'] = accessToken;
+    return resolved.uri.replace(queryParameters: params).toString();
   }
 
   /// Walk a [MediaItem] and replace every relative image path with the

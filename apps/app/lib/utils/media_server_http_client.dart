@@ -342,6 +342,12 @@ class MediaServerHttpClient {
     final trigger = _abortTrigger(requestAbort, abort);
     final request = http.AbortableRequest(method, uri, abortTrigger: trigger);
     request.headers.addAll({...defaultHeaders, ...?headers});
+    // URL absoluta de OUTRA origem que a do servidor (artes e legendas externas):
+    // nenhum cabeçalho de credencial acompanha o pedido.
+    final serverBase = Uri.tryParse(baseUrl);
+    if (serverBase != null && serverBase.host.isNotEmpty && !_sameOrigin(serverBase, uri)) {
+      request.headers.removeWhere((name, _) => _credentialHeaders.contains(name.toLowerCase()));
+    }
     _setBody(request, body);
 
     final scope = _RequestScope(this, uri, operation, requestAbort, timeout ?? receiveTimeout);
@@ -374,6 +380,11 @@ class MediaServerHttpClient {
       _activeAborts.remove(requestAbort);
     }
   }
+
+  static bool _sameOrigin(Uri a, Uri b) =>
+      a.scheme.toLowerCase() == b.scheme.toLowerCase() &&
+      a.host.toLowerCase() == b.host.toLowerCase() &&
+      a.port == b.port;
 
   static bool _isRedirectStatus(int status) =>
       status == 301 || status == 302 || status == 303 || status == 307 || status == 308;

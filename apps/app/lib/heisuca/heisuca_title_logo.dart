@@ -40,7 +40,9 @@ class HeisucaLogoResolver {
     final key = '${item.kind.name}:${item.id}';
     final saved = cache[key];
     if (saved != null && listEquals(saved.candidates, candidates) &&
-        DateTime.now().difference(saved.at) < const Duration(minutes: 10)) return saved.future;
+        DateTime.now().difference(saved.at) < const Duration(minutes: 10)) {
+      return saved.future;
+    }
     final future = _find(item, source, candidates);
     cache[key] = _LogoRequest(List.unmodifiable(candidates), future);
     return future;

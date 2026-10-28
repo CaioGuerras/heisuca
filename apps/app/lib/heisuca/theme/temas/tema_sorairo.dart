@@ -18,7 +18,7 @@ class TemaSorairo {
     static const temaCorFoco = Color(0xFF1F6FC5);
     static const temaCorFundo = Color(0xFFF1F7FD);
     static const temaCorPrimaria = Color(0xFF1F6FC5);
-    static const temaCorSelo = Color(0xFF1F6FC5); /** fundo do selo 炳素華; kanji = Color(0xFFFFF8F0) */
+    static const temaCorSelo = Color(0xFF1F6FC5); /// fundo do selo 炳素華; kanji = Color(0xFFFFF8F0)
     static const temaCorSuperficie = Color(0xFFFFFFFF);
     static const temaCorTexto = Color(0xFF14263A);
     static const temaCorTexto2 = Color(0xFF4A5E73);

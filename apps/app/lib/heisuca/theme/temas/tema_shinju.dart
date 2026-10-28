@@ -18,7 +18,7 @@ class TemaShinju {
     static const temaCorFoco = Color(0xFF7A6A55);
     static const temaCorFundo = Color(0xFFF6F3EE);
     static const temaCorPrimaria = Color(0xFF7A6A55);
-    static const temaCorSelo = Color(0xFF7A6A55); /** fundo do selo 炳素華; kanji = Color(0xFFFFF8F0) */
+    static const temaCorSelo = Color(0xFF7A6A55); /// fundo do selo 炳素華; kanji = Color(0xFFFFF8F0)
     static const temaCorSuperficie = Color(0xFFFFFFFF);
     static const temaCorTexto = Color(0xFF1E1B18);
     static const temaCorTexto2 = Color(0xFF5E574E);

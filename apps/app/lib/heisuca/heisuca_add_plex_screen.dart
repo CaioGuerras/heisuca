@@ -9,7 +9,6 @@ import '../navigation/profile_session_screen.dart';
 import '../profiles/active_profile_binder.dart';
 import '../profiles/active_profile_provider.dart';
 import '../profiles/plex_home_service.dart';
-import '../profiles/profile.dart';
 import '../profiles/profile_connection_registry.dart';
 import '../profiles/profile_selection_policy.dart';
 import '../providers/account_preferences_controller.dart';
@@ -68,14 +67,15 @@ class _HeisucaAddPlexScreenState extends State<HeisucaAddPlexScreen> {
           _isLoading = false;
           _errorMessage = 'Nenhum servidor Plex encontrado para esta conta (${registration.username}).';
         });
-        HapticFeedback.vibrate();
+        unawaited(HapticFeedback.vibrate());
         return;
       }
 
+      if (!mounted) return;
       final activeProfiles = context.read<ActiveProfileProvider>();
       await activeProfiles.initialize();
 
-      var profile = initialPlexHomeProfileFromCache(plexHome, connection);
+      final profile = initialPlexHomeProfileFromCache(plexHome, connection);
       if (profile != null) {
         await activeProfiles.activate(profile);
       } else {
@@ -111,7 +111,7 @@ class _HeisucaAddPlexScreenState extends State<HeisucaAddPlexScreen> {
       await context.read<AccountPreferencesController>().ensureActiveLoaded();
 
       if (!mounted) return;
-      HapticFeedback.mediumImpact();
+      unawaited(HapticFeedback.mediumImpact());
       if (widget.onLoginSuccess != null) {
         widget.onLoginSuccess!();
       } else {
@@ -127,7 +127,7 @@ class _HeisucaAddPlexScreenState extends State<HeisucaAddPlexScreen> {
         _isLoading = false;
         _errorMessage = 'Falha ao conectar com o Plex: ${e.toString().replaceAll('Exception:', '').trim()}';
       });
-      HapticFeedback.vibrate();
+      unawaited(HapticFeedback.vibrate());
     }
   }
 
@@ -176,7 +176,7 @@ class _HeisucaAddPlexScreenState extends State<HeisucaAddPlexScreen> {
                       width: 56.0,
                       height: 56.0,
                       decoration: BoxDecoration(
-                        color: accent.withOpacity(0.12),
+                        color: accent.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(16.0),
                       ),
                       child: const Icon(
@@ -298,7 +298,7 @@ class _HeisucaAddPlexScreenState extends State<HeisucaAddPlexScreen> {
                         decoration: BoxDecoration(
                           color: const Color(0xFF381520),
                           borderRadius: BorderRadius.circular(12.0),
-                          border: Border.all(color: const Color(0xFFFF5252).withOpacity(0.5)),
+                          border: Border.all(color: const Color(0xFFFF5252).withValues(alpha: 0.5)),
                         ),
                         child: Row(
                           children: [

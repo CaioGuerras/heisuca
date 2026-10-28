@@ -10,7 +10,6 @@
 // - Espaçamento inferior calibrado para a Ilha Flutuante (HeisucaFloatingIsland)
 import 'dart:async';
 import 'heisuca_motion.dart';
-import 'dart:ui' show FontFeature;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -117,8 +116,8 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
     _client = client;
     _feedClients = feeds;
     _repository = switch (client) {
-      JellyfinClient jf => CgflixHomeRepository(jf),
-      PlexClient plex => HeisucaPlexHomeRepository(plex, feedClients: feeds),
+      final JellyfinClient jf => CgflixHomeRepository(jf),
+      final PlexClient plex => HeisucaPlexHomeRepository(plex, feedClients: feeds),
       _ => null,
     };
     _onChanged();
@@ -384,8 +383,10 @@ class _HeisucaHeroState extends State<_HeisucaHero> {
             maxHeight: widget.height, pixelRatio: ratio, imageType: ImageType.art);
           final (w, h) = MediaImageHelper.getMemCacheDimensions(displayWidth: (width * ratio).round(),
             displayHeight: (widget.height * ratio).round(), imageType: ImageType.art);
-          if (url.isNotEmpty) unawaited(precacheImage(MediaImageHelper.serverArtworkProvider(imageUrl: url, memWidth: w, memHeight: h), context,
-            onError: (_, __) {}));
+          if (url.isNotEmpty) {
+            unawaited(precacheImage(MediaImageHelper.serverArtworkProvider(imageUrl: url, memWidth: w, memHeight: h), context,
+            onError: (_, _) {}));
+          }
         }
       }
     }
@@ -685,7 +686,7 @@ class _HeisucaContinueWatchingRow extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               itemCount: items.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 12.0),
+              separatorBuilder: (_, _) => const SizedBox(width: 12.0),
               itemBuilder: (ctx, index) {
                 final item = items[index];
                 return CgflixWideCard(
@@ -790,7 +791,7 @@ class _HeisucaTop10Row extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               itemCount: items.take(10).length,
-              separatorBuilder: (_, __) => const SizedBox(width: 10.0),
+              separatorBuilder: (_, _) => const SizedBox(width: 10.0),
               itemBuilder: (ctx, index) {
                 final item = items[index];
                 return CgflixTop10Card(
@@ -872,7 +873,7 @@ class _HeisucaShelfRow extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               itemCount: items.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8.0),
+              separatorBuilder: (_, _) => const SizedBox(width: 8.0),
               itemBuilder: (ctx, index) {
                 final item = items[index];
                 return _HomePosterWithCaption(
@@ -1018,7 +1019,7 @@ class _UpcomingRow extends StatelessWidget {
     try {
       final matched = await repository.resolveUpcoming(item);
       if (!context.mounted) return;
-      if (matched != null) { HeisucaTitleSheet.show(context, matched); return; }
+      if (matched != null) { unawaited(HeisucaTitleSheet.show(context, matched)); return; }
     } catch (_) { /* Oferece o fluxo real de pedidos se o item não puder ser aberto. */ }
     if (!context.mounted) return;
     await showModalBottomSheet<void>(sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: context, isScrollControlled: true, useSafeArea: true,
@@ -1042,7 +1043,7 @@ class _UpcomingRow extends StatelessWidget {
           style: TextStyle(fontSize: 17.5, fontWeight: FontWeight.w700, fontFamily: HeisucaTheme.fonteTitulo))),
         SizedBox(height: 180, child: ListView.separated(scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 16), itemCount: items.length,
-          separatorBuilder: (_, __) => const SizedBox(width: 8), itemBuilder: (context, index) {
+          separatorBuilder: (_, _) => const SizedBox(width: 8), itemBuilder: (context, index) {
             final item = items[index];
             return SizedBox(width: 80, child: InkWell(onTap: () => _open(context, item), child: Column(
               crossAxisAlignment: CrossAxisAlignment.start, children: [

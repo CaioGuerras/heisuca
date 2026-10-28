@@ -81,7 +81,11 @@ class _HeisucaLibraryScreenState extends State<HeisucaLibraryScreen> with Refres
       _sources = lists.expand((x) => x).toList();
       _selected = _sources.where((s) => s.library.globalKey == _pendingKey || s.key == _pendingKey).firstOrNull ?? _sources.firstOrNull;
       _pendingKey = null;
-      if (_selected != null) await _reload(); else setState(() => _loading = false);
+      if (_selected != null) {
+        await _reload();
+      } else {
+        setState(() => _loading = false);
+      }
     } catch (_) { if (mounted && generation == _sourceGeneration) setState(() { _loading = false; _error = 'Não foi possível carregar as bibliotecas.'; }); }
   }
   void _choose(_LibrarySource source) {

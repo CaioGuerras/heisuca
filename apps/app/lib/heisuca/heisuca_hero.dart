@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'heisuca_theme.dart';
 import 'heisuca_design_system.dart';
@@ -47,7 +46,7 @@ class HeisucaHero extends StatelessWidget {
             child: Image.network(
               backdropUrl,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
+              errorBuilder: (_, _, _) => Container(
                 color: HeisucaTheme.roxoFundo,
                 child: const Center(
                   child: Icon(Icons.movie_outlined, color: Colors.white24, size: 64),
@@ -102,7 +101,7 @@ class HeisucaHero extends StatelessWidget {
                           width: 220.0,
                           alignment: Alignment.bottomLeft,
                           fit: BoxFit.contain,
-                          errorBuilder: (_, __, ___) => Text(
+                          errorBuilder: (_, _, _) => Text(
                             title,
                             key: ValueKey('title_$title'),
                             style: HeisucaTypography.displayCinematic.copyWith(fontSize: 26),
@@ -193,8 +192,8 @@ class HeisucaHero extends StatelessWidget {
                     OutlinedButton.icon(
                       style: OutlinedButton.styleFrom(
                         foregroundColor: const Color(0xFFF4F1FA),
-                        backgroundColor: Colors.white.withOpacity(0.06),
-                        side: BorderSide(color: Colors.white.withOpacity(0.15), width: 0.75),
+                        backgroundColor: Colors.white.withValues(alpha: 0.06),
+                        side: BorderSide(color: Colors.white.withValues(alpha: 0.15), width: 0.75),
                         padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 12.0),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),

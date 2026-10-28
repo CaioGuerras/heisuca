@@ -22,7 +22,6 @@ import '../utils/media_image_helper.dart';
 import '../widgets/optimized_media_image.dart';
 import '../media/media_role.dart';
 import '../media/media_server_client.dart';
-import '../media/media_stream.dart';
 import 'heisuca_home_style.dart';
 import 'heisuca_poster_tile.dart';
 import 'heisuca_title_parts.dart';
@@ -426,7 +425,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
             Padding(padding: const EdgeInsets.fromLTRB(28, 14, 28, 0),
               child: _playButton(c)),
             const SizedBox(height: 6),
-            ListenableBuilder(listenable: store, builder: (_, __) => Row(mainAxisAlignment: MainAxisAlignment.center, spacing: 22, children: [
+            ListenableBuilder(listenable: store, builder: (_, _) => Row(mainAxisAlignment: MainAxisAlignment.center, spacing: 22, children: [
               IconButton(tooltip: store.isFavorite(_item) ? 'Remover dos favoritos' : 'Favoritar',
                 icon: Icon(store.isFavorite(_item) ? Icons.favorite_rounded : Icons.favorite_border_rounded), color: c.text,
                 onPressed: client?.capabilities.userFavorites == true ? () => store.toggleFavorite(context, _item) : null),
@@ -446,7 +445,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
               HeisucaSectionTitle('Elenco', colors: c),
               SizedBox(height: 152, child: ListView.separated(scrollDirection: Axis.horizontal, itemCount: _item.roles!.length,
                 padding: const EdgeInsets.symmetric(horizontal: HeisucaTitleMetrics.margin),
-                separatorBuilder: (_, __) => const SizedBox(width: 12), itemBuilder: (_, i) => _person(c, client, _item.roles![i]))),
+                separatorBuilder: (_, _) => const SizedBox(width: 12), itemBuilder: (_, i) => _person(c, client, _item.roles![i]))),
             ],
             if (_item.genres?.isNotEmpty == true) ...[
               HeisucaSectionTitle('Gêneros', colors: c),
@@ -628,12 +627,12 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
       SizedBox(height: width * 1.5 + HeisucaPosterTile.textBlockFor(context) + 10, child: snap.connectionState != ConnectionState.done
         ? ListView.separated(scrollDirection: Axis.horizontal, itemCount: 4,
             padding: const EdgeInsets.symmetric(horizontal: HeisucaTitleMetrics.margin),
-            separatorBuilder: (_, __) => const SizedBox(width: HeisucaTitleMetrics.gap),
-            itemBuilder: (_, __) => Align(alignment: Alignment.topCenter, child: Container(width: width, height: width * 1.5,
+            separatorBuilder: (_, _) => const SizedBox(width: HeisucaTitleMetrics.gap),
+            itemBuilder: (_, _) => Align(alignment: Alignment.topCenter, child: Container(width: width, height: width * 1.5,
               decoration: BoxDecoration(color: c.line, borderRadius: BorderRadius.circular(HeisucaTitleMetrics.cardRadius)))))
         : ListView.separated(scrollDirection: Axis.horizontal, itemCount: items.length,
             padding: const EdgeInsets.symmetric(horizontal: HeisucaTitleMetrics.margin),
-            separatorBuilder: (_, __) => const SizedBox(width: HeisucaTitleMetrics.gap),
+            separatorBuilder: (_, _) => const SizedBox(width: HeisucaTitleMetrics.gap),
             itemBuilder: (context, i) => HeisucaPosterTile(width: width, item: items[i], client: cgflixClientFor(context, items[i]),
               onTap: () { HapticFeedback.lightImpact(); HeisucaTitleSheet.show(context, items[i]); }))),
     ]);
@@ -646,7 +645,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
       HeisucaSectionTitle('Extras e trailers', colors: c),
       SizedBox(height: HeisucaTitleMetrics.landscapeCard * 9 / 16 + 44, child: ListView.separated(scrollDirection: Axis.horizontal,
         itemCount: items.length, padding: const EdgeInsets.symmetric(horizontal: HeisucaTitleMetrics.margin),
-        separatorBuilder: (_, __) => const SizedBox(width: HeisucaTitleMetrics.gap),
+        separatorBuilder: (_, _) => const SizedBox(width: HeisucaTitleMetrics.gap),
         itemBuilder: (context, i) {
           final item = items[i];
           final client = cgflixClientFor(context, item);
@@ -669,8 +668,10 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
   Widget _mediaInfoSection(HeisucaTitleColors c) => FutureBuilder<MediaFileInfo?>(future: _fileInfo, builder: (context, snap) {
     if (_fileInfo == null) return const SizedBox.shrink();
     if (snap.connectionState != ConnectionState.done) return const SizedBox.shrink();
-    if (snap.hasError) return Padding(padding: const EdgeInsets.only(top: 20), child: Center(child: TextButton(
+    if (snap.hasError) {
+      return Padding(padding: const EdgeInsets.only(top: 20), child: Center(child: TextButton(
       onPressed: () => setState(() { _fileInfo = null; _ensureFileInfo(); }), child: const Text('Informações da mídia: tentar novamente'))));
+    }
     final versions = snap.data?.versions ?? const <MediaFileVersion>[];
     if (versions.isEmpty) return const SizedBox.shrink();
     final version = versions[_versionIndex.clamp(0, versions.length - 1)];
@@ -706,6 +707,6 @@ class _EpisodeStripState extends State<_EpisodeStrip> {
   Widget build(BuildContext context) => ListView.separated(controller: _controller, scrollDirection: Axis.horizontal,
     physics: const HeisucaSnapPhysics(itemExtent: _extent),
     padding: const EdgeInsets.symmetric(horizontal: HeisucaTitleMetrics.margin),
-    itemCount: widget.children.length, separatorBuilder: (_, __) => const SizedBox(width: HeisucaTitleMetrics.gap),
+    itemCount: widget.children.length, separatorBuilder: (_, _) => const SizedBox(width: HeisucaTitleMetrics.gap),
     itemBuilder: (_, i) => widget.children[i]);
 }

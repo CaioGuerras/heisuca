@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'heisuca_theme.dart';
 import 'heisuca_logo.dart';
@@ -6,10 +5,6 @@ import 'heisuca_service_type.dart';
 import 'heisuca_login_screen.dart';
 import 'heisuca_add_webdav_screen.dart';
 import 'heisuca_add_smb_screen.dart';
-import '../media/media_browser_dialect.dart';
-import '../screens/settings/add_jellyfin_screen.dart';
-import '../navigation/profile_session_screen.dart';
-import '../utils/navigation_transitions.dart';
 
 /// Portal de entrada cinematográfico do Heisuca com suporte Multi-Serviço
 class HeisucaSelectServiceScreen extends StatelessWidget {
@@ -92,7 +87,7 @@ class HeisucaSelectServiceScreen extends StatelessWidget {
                       style: TextStyle(
                         fontFamily: HeisucaTheme.fonteTexto,
                         fontSize: 14.5,
-                        color: Colors.white.withOpacity(0.6),
+                        color: Colors.white.withValues(alpha: 0.6),
                         letterSpacing: 0.2,
                       ),
                     ),
@@ -113,7 +108,7 @@ class HeisucaSelectServiceScreen extends StatelessWidget {
                       child: Text(
                         'Escolha o servidor ou armazenamento para reproduzir em alta fidelidade.',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.white.withOpacity(0.55),
+                          color: Colors.white.withValues(alpha: 0.55),
                         ),
                       ),
                     ),
@@ -167,8 +162,8 @@ class _ServiceCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(HeisucaTheme.raioCard),
-        splashColor: HeisucaTheme.roxoPrimaria.withOpacity(0.12),
-        highlightColor: HeisucaTheme.roxoPrimaria.withOpacity(0.06),
+        splashColor: HeisucaTheme.roxoPrimaria.withValues(alpha: 0.12),
+        highlightColor: HeisucaTheme.roxoPrimaria.withValues(alpha: 0.06),
         child: Container(
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
@@ -176,14 +171,14 @@ class _ServiceCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(HeisucaTheme.raioCard),
             border: Border.all(
               color: isJellyfin
-                  ? HeisucaTheme.roxoPrimaria.withOpacity(0.4)
+                  ? HeisucaTheme.roxoPrimaria.withValues(alpha: 0.4)
                   : HeisucaTheme.roxoLinha,
               width: isJellyfin ? 1.5 : 1.0,
             ),
             boxShadow: isJellyfin
                 ? [
                     BoxShadow(
-                      color: HeisucaTheme.roxoPrimaria.withOpacity(0.08),
+                      color: HeisucaTheme.roxoPrimaria.withValues(alpha: 0.08),
                       blurRadius: 16,
                       offset: const Offset(0, 4),
                     ),
@@ -197,8 +192,8 @@ class _ServiceCard extends StatelessWidget {
                 height: 48,
                 decoration: BoxDecoration(
                   color: isJellyfin
-                      ? HeisucaTheme.roxoPrimaria.withOpacity(0.18)
-                      : Colors.white.withOpacity(0.05),
+                      ? HeisucaTheme.roxoPrimaria.withValues(alpha: 0.18)
+                      : Colors.white.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Icon(
@@ -228,8 +223,8 @@ class _ServiceCard extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
                             color: isJellyfin
-                                ? HeisucaTheme.roxoPrimaria.withOpacity(0.2)
-                                : Colors.white.withOpacity(0.08),
+                                ? HeisucaTheme.roxoPrimaria.withValues(alpha: 0.2)
+                                : Colors.white.withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(999),
                           ),
                           child: Text(
@@ -250,7 +245,7 @@ class _ServiceCard extends StatelessWidget {
                       style: TextStyle(
                         fontFamily: HeisucaTheme.fonteTexto,
                         fontSize: 13,
-                        color: Colors.white.withOpacity(0.55),
+                        color: Colors.white.withValues(alpha: 0.55),
                         height: 1.35,
                       ),
                     ),
@@ -260,7 +255,7 @@ class _ServiceCard extends StatelessWidget {
               const SizedBox(width: 8),
               Icon(
                 Icons.chevron_right_rounded,
-                color: Colors.white.withOpacity(0.35),
+                color: Colors.white.withValues(alpha: 0.35),
                 size: 22,
               ),
             ],

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'heisuca_dpad_focus.dart';
 import 'dart:ui' as ui;
 import '../cgflix/conta/cgflix_conta.dart';
@@ -367,7 +369,7 @@ class HeisucaProfileScreen extends StatelessWidget {
                   subColor: textSub,
                   iconColor: palette.danger,
                   onTap: () async {
-                    HapticFeedback.lightImpact();
+                    unawaited(HapticFeedback.lightImpact());
                     final confirm = await showConfirmDialog(
                       context,
                       title: t.common.logout,
@@ -441,7 +443,7 @@ class HeisucaProfileScreen extends StatelessWidget {
             Container(
               width: 38.0,
               height: 38.0,
-              decoration: BoxDecoration(color: iconColor.withOpacity(0.12), borderRadius: BorderRadius.circular(10.0)),
+              decoration: BoxDecoration(color: iconColor.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10.0)),
               child: Icon(icon, color: iconColor, size: 22.0, fill: iconFill),
             ),
             const SizedBox(width: 14.0),
@@ -471,7 +473,7 @@ class HeisucaProfileScreen extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(Symbols.chevron_right_rounded, color: subColor.withOpacity(0.6), size: 20.0),
+            Icon(Symbols.chevron_right_rounded, color: subColor.withValues(alpha: 0.6), size: 20.0),
           ],
         ),
       ),

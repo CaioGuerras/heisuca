@@ -162,7 +162,7 @@ extension CgflixJellyfinQueries on JellyfinClient {
   static bool _cgflixRouteMissing(int status) => status == 404 || status == 405;
 
   /// Modo infantil (contrato do cgflix-kids, PLANO_MODO_MARYANNE M1): com o token desta sessão,
-  /// o servidor cria/atualiza o usuário-sombra "<nome>-kids" filtrado por classificação e
+  /// o servidor cria/atualiza o usuário-sombra `<nome>-kids` filtrado por classificação e
   /// etiqueta infantil, e devolve a sessão dele. [teto]: "livre" ou "10".
   /// Erros: 401 token, 400 teto, 403 já é infantil, 409 nome ocupado, 429 limite, 404 sem o serviço.
   Future<({String token, String userId, String name})> cgflixActivateKids(String teto) async {

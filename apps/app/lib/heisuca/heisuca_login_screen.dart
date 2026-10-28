@@ -8,8 +8,6 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
 import '../cgflix/cgflix_palette.dart';
-import '../connection/connection.dart';
-import '../connection/connection_registry.dart';
 import '../exceptions/media_server_exceptions.dart';
 import '../media/media_browser_dialect.dart';
 import '../navigation/profile_session_screen.dart';
@@ -79,7 +77,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
     final rawUrl = _serverController.text.trim();
     if (rawUrl.isEmpty) {
       setState(() => _errorMessage = 'Por favor, informe o endereço do servidor.');
-      HapticFeedback.vibrate();
+      unawaited(HapticFeedback.vibrate());
       return;
     }
 
@@ -90,14 +88,14 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
 
     if (cgflixIsCleartextRefused(serverUrl)) {
       setState(() => _errorMessage = cgflixHttpsRequiredMessage);
-      HapticFeedback.vibrate();
+      unawaited(HapticFeedback.vibrate());
       return;
     }
 
     final username = _userController.text.trim();
     if (username.isEmpty) {
       setState(() => _errorMessage = 'Por favor, informe o seu nome de usuário.');
-      HapticFeedback.vibrate();
+      unawaited(HapticFeedback.vibrate());
       return;
     }
 
@@ -164,10 +162,11 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
           createdAt: now,
         );
         boundProfile = firstRunProfile;
-      } else if (boundProfile == null) {
-        boundProfile = activeProvider.profiles.first;
+      } else {
+        boundProfile ??= activeProvider.profiles.first;
       }
 
+      if (!mounted) return;
       await persistAndBindConnection(
         context: context,
         connection: connection,
@@ -181,6 +180,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
         firstRunProfile: firstRunProfile,
       );
 
+      if (!mounted) return;
       if (boundProfile.id == activeProvider.activeId) {
         await context.read<ActiveProfileBinder>().rebindIfActive(boundProfile.id);
       }
@@ -188,7 +188,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
       if (!mounted) return;
 
       // 5. Transição suave direto para o app sem telas legadas
-      HapticFeedback.mediumImpact();
+      unawaited(HapticFeedback.mediumImpact());
       if (widget.onLoginSuccess != null) {
         widget.onLoginSuccess!();
       } else {
@@ -212,7 +212,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
         _isLoading = false;
         _errorMessage = message;
       });
-      HapticFeedback.vibrate();
+      unawaited(HapticFeedback.vibrate());
     }
   }
 
@@ -261,7 +261,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
       sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: context,
       isScrollControlled: true,
       backgroundColor: sheetBg,
-      barrierColor: Colors.black.withOpacity(0.65),
+      barrierColor: Colors.black.withValues(alpha: 0.65),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28.0)),
       ),
@@ -626,9 +626,8 @@ class _GlassTextField extends StatelessWidget {
     this.obscureText = false,
     this.enabled = true,
     this.onSubmitted,
-    this.onChanged,
     this.suffixIcon,
-  });
+  }) : onChanged = null;
 
   final TextEditingController controller;
   final IconData prefixIcon;
@@ -712,7 +711,7 @@ class _SourceTile extends StatelessWidget {
               width: 44.0,
               height: 44.0,
               decoration: BoxDecoration(
-                color: brandColor.withOpacity(0.16),
+                color: brandColor.withValues(alpha: 0.16),
                 borderRadius: BorderRadius.circular(14.0),
               ),
               child: Icon(icon, color: brandColor, size: 24.0),
@@ -856,10 +855,11 @@ class _HeisucaQuickConnectModalState extends State<_HeisucaQuickConnectModal> {
           createdAt: now,
         );
         boundProfile = firstRunProfile;
-      } else if (boundProfile == null) {
-        boundProfile = activeProvider.profiles.first;
+      } else {
+        boundProfile ??= activeProvider.profiles.first;
       }
 
+      if (!mounted) return;
       await persistAndBindConnection(
         context: context,
         connection: connection,
@@ -873,6 +873,7 @@ class _HeisucaQuickConnectModalState extends State<_HeisucaQuickConnectModal> {
         firstRunProfile: firstRunProfile,
       );
 
+      if (!mounted) return;
       if (boundProfile.id == activeProvider.activeId) {
         await context.read<ActiveProfileBinder>().rebindIfActive(boundProfile.id);
       }
@@ -981,7 +982,7 @@ class _HeisucaQuickConnectModalState extends State<_HeisucaQuickConnectModal> {
                 decoration: BoxDecoration(
                   color: cardBg,
                   borderRadius: BorderRadius.circular(20.0),
-                  border: Border.all(color: accent.withOpacity(0.5), width: 1.5),
+                  border: Border.all(color: accent.withValues(alpha: 0.5), width: 1.5),
                 ),
                 child: Text(
                   formattedCode!,

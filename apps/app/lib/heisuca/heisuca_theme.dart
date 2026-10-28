@@ -42,9 +42,7 @@ class HeisucaTheme {
       colorScheme: ColorScheme.dark(
         primary: primaria,
         surface: superficie,
-        background: fundo,
         onSurface: Colors.white,
-        onBackground: Colors.white,
         outline: roxoLinha,
       ),
       fontFamily: fonteTexto,

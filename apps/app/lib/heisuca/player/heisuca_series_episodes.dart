@@ -81,9 +81,11 @@ class _HeisucaSeriesEpisodesState extends State<HeisucaSeriesEpisodes> with Tick
         _scroll.jumpTo(target.clamp(0.0, _scroll.position.maxScrollExtent));
       });
     } catch (_) {
-      if (mounted && request == _request) setState(() {
+      if (mounted && request == _request) {
+        setState(() {
         _loading = false; _error = 'Não foi possível carregar os episódios.';
       });
+      }
     }
   }
   @override Widget build(BuildContext context) {

@@ -1,5 +1,7 @@
 // Peças da página Sobre do Heisuca: dedicatória, cartões de tributo (Rosiel Victor e Locadora)
 // e créditos ao código aberto (GPL-3.0).
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -96,7 +98,7 @@ class _TributeCard extends StatelessWidget {
   final String url;
 
   Future<void> _openUrl() async {
-    HapticFeedback.selectionClick();
+    unawaited(HapticFeedback.selectionClick());
     final uri = Uri.parse(url);
     await launchUrl(uri, mode: LaunchMode.externalApplication);
   }

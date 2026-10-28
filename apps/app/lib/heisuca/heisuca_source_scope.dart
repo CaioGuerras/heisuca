@@ -54,8 +54,11 @@ class _HeisucaSourceScopeState extends State<HeisucaSourceScope> {
     if (!_profiles.isBinding) {
       if (_selected == null || !ids.contains(_selected)) {
         _selected = ids.firstOrNull;
-        if (_selected != null) unawaited(_prefs!.setString(_key, _selected!));
-        else unawaited(_prefs!.remove(_key));
+        if (_selected != null) {
+          unawaited(_prefs!.setString(_key, _selected!));
+        } else {
+          unawaited(_prefs!.remove(_key));
+        }
       }
     }
     // Durante binding, a identidade salva continua restritiva, nunca libera todos.

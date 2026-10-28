@@ -18,7 +18,7 @@ class TemaHisui {
     static const temaCorFoco = Color(0xFF047857);
     static const temaCorFundo = Color(0xFFF7F3EC);
     static const temaCorPrimaria = Color(0xFF047857);
-    static const temaCorSelo = Color(0xFF05805C); /** fundo do selo 炳素華; kanji = Color(0xFFFFF8F0) */
+    static const temaCorSelo = Color(0xFF05805C); /// fundo do selo 炳素華; kanji = Color(0xFFFFF8F0)
     static const temaCorSuperficie = Color(0xFFFFFDF8);
     static const temaCorTexto = Color(0xFF1C2421);
     static const temaCorTexto2 = Color(0xFF55625D);

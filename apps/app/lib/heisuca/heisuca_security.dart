@@ -69,7 +69,11 @@ class _HeisucaSecurityScreenState extends State<HeisucaSecurityScreen> {
     if (_busy) return;
     setState(() => _busy = true);
     final ok = await _security.authenticate('Confirmar alteração da proteção', deviceCredential: app);
-    if (ok) { if (app) await _security.setAppLock(value); else await _security.setKids(widget.parentId, value); }
+    if (ok) { if (app) {
+      await _security.setAppLock(value);
+    } else {
+      await _security.setKids(widget.parentId, value);
+    } }
     if (mounted) setState(() => _busy = false);
   }
   @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Segurança e biometria')),

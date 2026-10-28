@@ -47,16 +47,16 @@ class _HeisucaSearchScreenState extends State<HeisucaSearchScreen> {
     final bg = isLight ? const Color(0xFFF7F3EC) : const Color(0xFF0E0B16);
     final textTitle = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
     final textMuted = isLight ? const Color(0xFF64748B) : const Color(0xFFA99FBB);
-    final searchBg = isLight ? Colors.white : Colors.white.withOpacity(0.06);
-    final searchBorder = isLight ? const Color(0xFFCBD5E1) : Colors.white.withOpacity(0.12);
+    final searchBg = isLight ? Colors.white : Colors.white.withValues(alpha: 0.06);
+    final searchBorder = isLight ? const Color(0xFFCBD5E1) : Colors.white.withValues(alpha: 0.12);
     final searchHint = isLight ? const Color(0xFF94A3B8) : const Color(0xFF8E859E);
 
     final seerrBannerBg = isLight
-        ? const Color(0xFF047857).withOpacity(0.08)
-        : const Color(0xFF7A40F2).withOpacity(0.10);
+        ? const Color(0xFF047857).withValues(alpha: 0.08)
+        : const Color(0xFF7A40F2).withValues(alpha: 0.10);
     final seerrBannerBorder = isLight
-        ? const Color(0xFF047857).withOpacity(0.25)
-        : const Color(0xFF7A40F2).withOpacity(0.3);
+        ? const Color(0xFF047857).withValues(alpha: 0.25)
+        : const Color(0xFF7A40F2).withValues(alpha: 0.3);
     final seerrIconColor = isLight ? const Color(0xFF047857) : const Color(0xFFA78BFA);
     final seerrBtnGrad = isLight
         ? const [Color(0xFF059669), Color(0xFF047857)]
@@ -81,7 +81,7 @@ class _HeisucaSearchScreenState extends State<HeisucaSearchScreen> {
                   boxShadow: isLight
                       ? [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
+                            color: Colors.black.withValues(alpha: 0.04),
                             blurRadius: 8.0,
                             offset: const Offset(0, 2),
                           ),
@@ -227,8 +227,8 @@ class _HeisucaSearchScreenState extends State<HeisucaSearchScreen> {
   }
 
   Widget _buildLocalResultTile(String title, String subtitle, String quality, bool isLight, Color textTitle, Color textMuted) {
-    final tileBg = isLight ? Colors.white : Colors.white.withOpacity(0.04);
-    final tileBorder = isLight ? const Color(0xFFE2E8F0) : Colors.white.withOpacity(0.07);
+    final tileBg = isLight ? Colors.white : Colors.white.withValues(alpha: 0.04);
+    final tileBorder = isLight ? const Color(0xFFE2E8F0) : Colors.white.withValues(alpha: 0.07);
     final iconColor = isLight ? const Color(0xFF047857) : const Color(0xFF7A40F2);
 
     return Padding(
@@ -246,7 +246,7 @@ class _HeisucaSearchScreenState extends State<HeisucaSearchScreen> {
             boxShadow: isLight
                 ? [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.03),
+                      color: Colors.black.withValues(alpha: 0.03),
                       blurRadius: 8.0,
                       offset: const Offset(0, 2),
                     ),
@@ -297,7 +297,7 @@ class _HeisucaSearchScreenState extends State<HeisucaSearchScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 1.5),
                       decoration: BoxDecoration(
-                        color: isLight ? const Color(0xFFE2E8F0) : Colors.white.withOpacity(0.08),
+                        color: isLight ? const Color(0xFFE2E8F0) : Colors.white.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(3.0),
                       ),
                       child: Text(

@@ -3,7 +3,6 @@
 // - Pôsteres 2:3 e Cards 16:9 com Squircle 12dp, borda especular hairline (0.75dp) e sombra profunda
 // - Números Tabulares (FontFeature.tabularFigures) no Continuar Assistindo
 // - Top 10 alinhado na base com gradiente metálico
-import 'dart:ui' show FontFeature;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

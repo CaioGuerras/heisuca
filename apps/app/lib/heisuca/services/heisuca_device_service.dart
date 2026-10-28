@@ -32,7 +32,7 @@ class HeisucaDeviceProfile {
 
   String get hardwareSummary {
     final details = <String>[
-      if (chipset != null) chipset!,
+      ?chipset,
       if (totalMemBytes != null) '${(totalMemBytes! / (1024 * 1024 * 1024)).toStringAsFixed(1)} GiB RAM utilizável',
       if (maxRefreshRateHz != null) 'Tela até ${maxRefreshRateHz!.round()} Hz',
     ];

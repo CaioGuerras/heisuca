@@ -104,7 +104,7 @@ class _HeisucaOpeningSplashState extends State<HeisucaOpeningSplash> with Single
                     gradient: RadialGradient(
                       center: Alignment.center,
                       radius: 0.85,
-                      colors: [accent.withOpacity(0.40), glowColor.withOpacity(0.15), Colors.transparent],
+                      colors: [accent.withValues(alpha: 0.40), glowColor.withValues(alpha: 0.15), Colors.transparent],
                       stops: const [0.0, 0.50, 1.0],
                     ),
                   ),

@@ -87,7 +87,7 @@ class HeisucaKids extends ChangeNotifier {
   void debugReset() { _byKids.clear(); _loaded = false; }
 }
 
-/// Conexão do usuário infantil criado pelo cgflix-kids (contrato do servidor: nome "<pessoa>-kids").
+/// Conexão do usuário infantil criado pelo cgflix-kids (contrato do servidor: nome `<pessoa>-kids`).
 /// Nunca é emprestada nem ligada a um perfil adulto.
 bool heisucaIsKidsConnection(Connection connection) =>
     connection is JellyfinConnection && connection.userName.toLowerCase().endsWith('-kids');

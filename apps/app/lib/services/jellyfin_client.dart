@@ -630,9 +630,10 @@ class JellyfinClient
   }
 
   /// Encerra a sessão atual no servidor via `POST /Sessions/Logout`.
-  Future<void> logout() async {
+  /// Prazo curto: sem rede, sair da conta não pode esperar o timeout de leitura do cliente (até 120 s).
+  Future<void> logout({Duration prazo = const Duration(seconds: 5)}) async {
     try {
-      await _http.post('/Sessions/Logout');
+      await _http.post('/Sessions/Logout').timeout(prazo);
       appLogger.i('Sessão Jellyfin encerrada no servidor via /Sessions/Logout');
     } catch (e, st) {
       appLogger.w('Falha ao encerrar sessão Jellyfin no servidor', error: e, stackTrace: st);

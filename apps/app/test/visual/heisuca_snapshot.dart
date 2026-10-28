@@ -18,8 +18,7 @@ Future<void> heisucaLoadFonts() async {
   final sdk = Platform.environment['FLUTTER_ROOT'] ?? '${Platform.environment['HOME']}/sdk/flutter';
   await load('Inter', ['Regular', 'Medium', 'SemiBold', 'Bold', 'ExtraBold'].map((w) => 'assets/fonts/Inter-$w.ttf').toList());
   await load('MaterialIcons', ['$sdk/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf']);
-  final pubCache = Platform.environment['PUB_CACHE']
-      ?? (Directory('/home/caioguerras/.pub-cache').existsSync() ? '/home/caioguerras/.pub-cache' : '${Platform.environment['HOME']}/.pub-cache');
+  final pubCache = Platform.environment['PUB_CACHE'] ?? '${Platform.environment['HOME']}/.pub-cache';
   final pub = '$pubCache/hosted/pub.dev';
   final pubDir = Directory(pub);
   final symbols = pubDir.existsSync()

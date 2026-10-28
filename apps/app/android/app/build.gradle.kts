@@ -460,6 +460,24 @@ dependencies {
   // packaging rules.
   implementation(project(":libass"))
 
+  // Correções de segurança (P5, osv-scanner 28/10/2026). As versões vulneráveis vêm
+  // por transitividade e nenhuma dependência direta nossa tem versão nova que as corrija,
+  // então o piso é fixado aqui. Conferir/remover quando media3 e cronet subirem sozinhos.
+  constraints {
+    // CVE-2024-7254 (negação de serviço no protobuf): puxado por cronet-embedded/cronet-shared.
+    implementation("com.google.protobuf:protobuf-javalite:3.25.5") {
+      because("CVE-2024-7254: corrigido a partir da 3.25.5 (cronet-shared traz a 3.22.3)")
+    }
+    // CVE-2026-102554 (guava): puxado por media3-common 1.11.0. Variante -android obrigatória.
+    implementation("com.google.guava:guava:33.7.2-android") {
+      because("CVE-2026-102554: corrigido na 33.7.2-android (media3-common traz a 33.3.1-android)")
+    }
+    // CVE-2022-2390 (play-services-basement): puxado por cronet-api via media3-datasource-cronet.
+    implementation("com.google.android.gms:play-services-basement:18.0.2") {
+      because("CVE-2022-2390: corrigido na 18.0.2 (cronet-api traz a 18.0.0)")
+    }
+  }
+
   testImplementation("junit:junit:4.13.2")
   // Real android.util.* implementations for tests exercising media3 classes
   // (MatroskaExtractor uses SparseArray, which is a no-op stub on plain JVM)

@@ -158,7 +158,8 @@ def sessoes_restantes(base):
     try:
         cliente.autenticar(CONTA)
         sessoes = cliente.request('GET', '/Sessions') or []
-        restantes = sum(1 for s in sessoes if 'heisuca' in (s.get('Client') or '').lower()
+        # O app se anuncia como "CGFLIX <plataforma>" (lib/services/jellyfin_auth_header.dart, jellyfinClientName).
+        restantes = sum(1 for s in sessoes if (s.get('Client') or '').lower().startswith('cgflix')
                         and s.get('DeviceId') != cliente.device)
         return restantes
     except (BancadaIndisponivel, KeyError, TypeError):

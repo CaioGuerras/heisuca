@@ -11,8 +11,9 @@ env:
   GITLEAKS_VERSION: "8.30.1"
   OSV_VERSION: "2.7.0"
   # relatorio: classifica e resume sem falhar; bloquear: vermelho falha o job.
-  # (Segredo na árvore atual bloqueia sempre, independente do modo.)
-  SEGURANCA_MODO: relatorio
+  # Em bloquear: CVSS >= 7 de runtime fora de osv_aceitos.json e segredo no histórico falham;
+  # ferramentas de build seguem informativas. (Segredo na árvore atual bloqueia sempre.)
+  SEGURANCA_MODO: bloquear
 
 concurrency:
   group: heisuca-seguranca-${{ github.ref }}

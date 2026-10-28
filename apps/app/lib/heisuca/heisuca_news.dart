@@ -11,7 +11,7 @@ import '../providers/multi_server_provider.dart';
 import 'heisuca_logo.dart';
 import 'heisuca_theme.dart';
 
-const heisucaNewsVersion = '2.0.33';
+const heisucaNewsVersion = '2.0.34';
 const heisucaNewsAsset = 'assets/heisuca/CHANGELOG_USUARIO.md';
 
 bool heisucaNewsAvailable(BuildContext context) {

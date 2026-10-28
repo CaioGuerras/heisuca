@@ -3015,6 +3015,7 @@ void main() {
       final byStream = {
         for (final sidecar in result.subtitleSidecars) sidecar.sourceStreamId: Uri.parse(sidecar.track.uri!),
       };
+      // P5: URL de outro host (https) segue, mas SEM o token do servidor.
       expect(byStream[3].toString(), 'https://subs.example.org/files/3.srt?sig=1');
       expect(byStream[4]!.queryParameters['ApiKey'], 'tok-abc');
     });
@@ -3331,7 +3332,10 @@ void main() {
       expect(uri.host, 'other.example');
       expect(uri.queryParameters['api_key'], 'existing');
       expect(uri.queryParameters['maxWidth'], '100');
-      expect(uri.queryParameters['maxHeight'], '300');
+      // P5: URL de outra origem volta como veio (nada nosso é anexado).
+      expect(url, 'https://other.example/Items/x/Images/Primary?api_key=existing&maxWidth=100');
+      expect(uri.queryParameters.containsKey('maxHeight'), isFalse);
+      expect(url.contains('tok-abc'), isFalse);
     });
 
     test('thumbnailUrl returns empty string for null/empty path', () {

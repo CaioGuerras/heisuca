@@ -3,7 +3,7 @@
 /// to handle Plex API responses where numeric fields may arrive as strings
 /// (XML-to-JSON conversion).
 int? flexibleInt(Object? v) => switch (v) {
-  final num n => n.toInt(),
+  final num n when n.isFinite => n.toInt(),
   final String s => int.tryParse(s),
   _ => null,
 };

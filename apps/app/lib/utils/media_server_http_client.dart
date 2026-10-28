@@ -79,6 +79,28 @@ class AbortController {
 class MediaServerHttpClient {
   final http.Client _client;
 
+  /// Teto padrão do corpo lido para a memória ([_send] e [getBytes]). Um
+  /// servidor hostil (ou um proxy com defeito) pode mandar gigabytes; 64 MiB
+  /// cobre com folga a maior listagem JSON ou imagem legítima. Downloads para
+  /// arquivo ([downloadFile]) não passam por aqui: vão direto ao disco.
+  static const int defaultMaxResponseBytes = 64 * 1024 * 1024;
+
+  /// Máximo de redirecionamentos seguidos por requisição (laços terminam aqui).
+  static const int maxRedirects = 5;
+
+  /// Cabeçalhos que carregam credencial: nunca seguem para outra origem.
+  static const Set<String> _credentialHeaders = {
+    'authorization',
+    'proxy-authorization',
+    'x-emby-token',
+    'x-emby-authorization',
+    'x-mediabrowser-token',
+    'cookie',
+  };
+
+  /// Teto de corpo em memória desta instância (ver [defaultMaxResponseBytes]).
+  final int maxResponseBytes;
+
   /// Requests owned by this client, aborted at the transport on shutdown so an
   /// in-flight body raises [http.RequestAbortedException] instead of truncating.
   final Set<AbortController> _activeAborts = <AbortController>{};
@@ -96,6 +118,7 @@ class MediaServerHttpClient {
     Map<String, String> defaultHeaders = const {},
     this.connectTimeout = const Duration(seconds: 10),
     this.receiveTimeout = const Duration(seconds: 120),
+    this.maxResponseBytes = defaultMaxResponseBytes,
   }) : _client = client ?? platform.createPlatformClient(),
        defaultHeaders = Map.of(defaultHeaders);
 
@@ -166,7 +189,7 @@ class MediaServerHttpClient {
       timeout: timeout,
       abort: abort,
       consume: (streamed, scope) async {
-        final bytes = await scope.receive(streamed.stream.toBytes());
+        final bytes = await scope.receive(_readCapped(streamed, scope.uri));
         scope.logResponse(streamed.statusCode);
         return bytes;
       },
@@ -263,7 +286,7 @@ class MediaServerHttpClient {
           _ => scope.uri,
         };
 
-        final bytes = await scope.receive(streamed.stream.toBytes());
+        final bytes = await scope.receive(_readCapped(streamed, scope.uri));
         scope.logResponse(streamed.statusCode);
 
         dynamic data;
@@ -316,14 +339,16 @@ class MediaServerHttpClient {
 
     final requestAbort = AbortController();
     _activeAborts.add(requestAbort);
-    final request = http.AbortableRequest(method, uri, abortTrigger: _abortTrigger(requestAbort, abort));
+    final trigger = _abortTrigger(requestAbort, abort);
+    final request = http.AbortableRequest(method, uri, abortTrigger: trigger);
     request.headers.addAll({...defaultHeaders, ...?headers});
     _setBody(request, body);
 
     final scope = _RequestScope(this, uri, operation, requestAbort, timeout ?? receiveTimeout);
     try {
-      final streamed = await _withAbortOnTimeout(
-        _client.send(request),
+      final streamed = await _sendFollowingRedirects(
+        request,
+        trigger,
         timeout ?? connectTimeout,
         operation: '$operation ${uri.path} connect',
         abort: requestAbort,
@@ -348,6 +373,110 @@ class MediaServerHttpClient {
     } finally {
       _activeAborts.remove(requestAbort);
     }
+  }
+
+  static bool _isRedirectStatus(int status) =>
+      status == 301 || status == 302 || status == 303 || status == 307 || status == 308;
+
+  static bool _carriesCredentials(http.BaseRequest request) {
+    if (request.headers.keys.any((k) => _credentialHeaders.contains(k.toLowerCase()))) return true;
+    return request.url.queryParameters.keys.any((k) {
+      final key = k.toLowerCase();
+      return key == 'api_key' || key == 'apikey' || key == 'x-emby-token';
+    });
+  }
+
+  /// Envia [first] seguindo redirecionamentos À MÃO (o transporte não segue
+  /// sozinho), para a política ficar num lugar só e igual em todas as
+  /// plataformas:
+  ///
+  /// - no máximo [maxRedirects] saltos; laço (302 para si, A→B→A) vira
+  ///   [MediaServerHttpException] em tempo limitado (cada salto tem o prazo de
+  ///   conexão);
+  /// - só http/https;
+  /// - requisição com credencial (token em cabeçalho ou `api_key`) só segue
+  ///   para o MESMO host e sem rebaixar https para http; qualquer outro destino
+  ///   é recusado, então o token nunca chega a outro host. Sem credencial (a
+  ///   sondagem pública de endpoints) o salto cross-host segue, e quem chamou
+  ///   decide pela URL final em [http.BaseResponseWithUrl].
+  Future<http.StreamedResponse> _sendFollowingRedirects(
+    http.AbortableRequest first,
+    Future<void> trigger,
+    Duration connectLimit, {
+    required String operation,
+    required AbortController abort,
+  }) async {
+    var request = first;
+    for (var hop = 0; ; hop++) {
+      request.followRedirects = false;
+      final streamed = await _withAbortOnTimeout(
+        _client.send(request),
+        connectLimit,
+        operation: operation,
+        abort: abort,
+      );
+      final location = streamed.headers['location'];
+      if (!_isRedirectStatus(streamed.statusCode) || location == null || location.isEmpty) return streamed;
+      try {
+        await streamed.stream.drain<void>();
+      } catch (_) {}
+      if (hop >= maxRedirects) {
+        throw MediaServerHttpException(
+          type: MediaServerHttpErrorType.unknown,
+          requestUri: first.url,
+          message: 'Too many redirects',
+        );
+      }
+      final next = request.url.resolve(location);
+      if (next.scheme != 'http' && next.scheme != 'https') {
+        throw MediaServerHttpException(
+          type: MediaServerHttpErrorType.unknown,
+          requestUri: first.url,
+          message: 'Redirect to unsupported scheme refused',
+        );
+      }
+      final sameHost = next.host.toLowerCase() == request.url.host.toLowerCase();
+      final downgrade = request.url.scheme == 'https' && next.scheme == 'http';
+      if (_carriesCredentials(request) && (!sameHost || downgrade)) {
+        throw MediaServerHttpException(
+          type: MediaServerHttpErrorType.unknown,
+          requestUri: first.url,
+          message: 'Authenticated redirect to another host refused',
+        );
+      }
+      final keepsMethod = streamed.statusCode == 307 || streamed.statusCode == 308;
+      final asGet = !keepsMethod && request.method != 'GET' && request.method != 'HEAD';
+      final method = asGet ? 'GET' : request.method;
+      final nextRequest = http.AbortableRequest(method, next, abortTrigger: trigger);
+      nextRequest.headers.addAll(request.headers);
+      nextRequest.headers.removeWhere((k, _) => k.toLowerCase() == 'content-length');
+      if (asGet) {
+        nextRequest.headers.removeWhere((k, _) => k.toLowerCase() == 'content-type');
+      } else if (request.bodyBytes.isNotEmpty) {
+        nextRequest.bodyBytes = request.bodyBytes;
+      }
+      request = nextRequest;
+    }
+  }
+
+  /// Lê o corpo inteiro para a memória respeitando [maxResponseBytes]: recusa
+  /// já pelo Content-Length e, sem ele, corta ao passar do teto.
+  Future<Uint8List> _readCapped(http.StreamedResponse streamed, Uri uri) async {
+    final limit = maxResponseBytes;
+    MediaServerHttpException tooBig() => MediaServerHttpException(
+      type: MediaServerHttpErrorType.unknown,
+      statusCode: streamed.statusCode,
+      requestUri: uri,
+      message: 'Response body exceeds $limit bytes',
+    );
+    final declared = streamed.contentLength;
+    if (declared != null && declared > limit) throw tooBig();
+    final builder = BytesBuilder(copy: false);
+    await for (final chunk in streamed.stream) {
+      builder.add(chunk);
+      if (builder.length > limit) throw tooBig();
+    }
+    return builder.takeBytes();
   }
 
   void _abortActiveRequests() {

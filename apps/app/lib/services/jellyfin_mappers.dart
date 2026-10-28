@@ -16,10 +16,27 @@ import '../utils/resolution_label.dart';
 import 'file_info_parser.dart';
 import 'jellyfin_display_metadata.dart';
 
+/// Teto de caracteres de qualquer texto vindo do servidor (título, sinopse,
+/// tags). Um servidor hostil pode mandar campos de megabytes; a UI e o cache
+/// nunca precisam de mais que isso. O excedente é cortado, não descartado.
+const int jellyfinMaxTextLength = 16384;
+
+/// Lê um campo de texto do JSON do servidor sem lançar: devolve `null` quando
+/// o tipo não é String (número, lista, objeto) e corta no teto acima.
+String? _jfString(Object? value) {
+  if (value is! String) return null;
+  return value.length > jellyfinMaxTextLength ? value.substring(0, jellyfinMaxTextLength) : value;
+}
+
+/// Número decimal tolerante: `null` para tipo errado, NaN ou infinito.
+double? _jfDouble(Object? value) => value is num && value.isFinite ? value.toDouble() : null;
+
+bool? _jfBool(Object? value) => value is bool ? value : null;
+
 Map<String, dynamic>? jellyfinFirstVideoStream(Object? streams) {
   if (streams is! List) return null;
   for (final stream in streams) {
-    if (stream is Map<String, dynamic> && (stream['Type'] as String?)?.toLowerCase() == 'video') {
+    if (stream is Map<String, dynamic> && (_jfString(stream['Type']))?.toLowerCase() == 'video') {
       return stream;
     }
   }
@@ -50,16 +67,16 @@ MediaVersion jellyfinMediaSourceToVersion(
     width: exposeDimensions ? width : null,
     height: exposeDimensions ? height : null,
     videoResolution: resolutionLabelFromDimensions(width, height),
-    videoCodec: hasParsedVideo ? parsedVideo.codec : rawVideo?['Codec'] as String?,
+    videoCodec: hasParsedVideo ? parsedVideo.codec : _jfString(rawVideo?['Codec']),
     bitrate: bitrateKbpsFromBps(flexibleInt(source['Bitrate'])),
-    container: source['Container'] as String?,
+    container: _jfString(source['Container']),
     parts: [
       MediaPart(
         id: partId,
         streamPath: streamPath,
-        file: source['Path'] as String?,
+        file: _jfString(source['Path']),
         sizeBytes: flexibleInt(source['Size']),
-        container: source['Container'] as String?,
+        container: _jfString(source['Container']),
         durationMs: includePartDuration ? jellyfinTicksToMs(source['RunTimeTicks']) : null,
         streams: streams,
       ),
@@ -193,9 +210,9 @@ class JellyfinMappers {
     required JellyfinImageAbsolutizer? absolutizer,
     MediaBrowserDialect dialect = MediaBrowserDialect.jellyfin,
   }) {
-    final id = item['Id'] as String?;
+    final id = _jfString(item['Id']);
     if (id == null || id.isEmpty) return null;
-    final type = item['Type'] as String?;
+    final type = _jfString(item['Type']);
     // Untyped rows that Jellyfin still flags as folders (defensive — typed
     // Folder/CollectionFolder rows resolve via fromString) classify as
     // folders so folder browsing never falls back to raw-map sniffing.
@@ -217,18 +234,18 @@ class JellyfinMappers {
       id: id,
       kind: kind,
       guid: id,
-      title: item['Name'] as String?,
-      titleSort: item['SortName'] as String?,
-      summary: item['Overview'] as String?,
+      title: _jfString(item['Name']),
+      titleSort: _jfString(item['SortName']),
+      summary: _jfString(item['Overview']),
       tagline: _firstString(item['Taglines']),
       // Music: a compilation track's own performer(s) go into originalTitle
       // (matching Plex's convention) so MediaItem.trackArtistTitle can prefer
       // it over the album artist. Only set when it actually differs.
-      originalTitle: item['OriginalTitle'] as String? ?? _trackArtistsOriginalTitle(item),
+      originalTitle: _jfString(item['OriginalTitle']) ?? _trackArtistsOriginalTitle(item),
       studio: _firstStudioName(item['Studios']),
-      year: item['ProductionYear'] as int?,
-      originallyAvailableAt: jellyfinIsoToYmd(item['PremiereDate'] as String?),
-      contentRating: item['OfficialRating'] as String?,
+      year: flexibleInt(item['ProductionYear']),
+      originallyAvailableAt: jellyfinIsoToYmd(_jfString(item['PremiereDate'])),
+      contentRating: _jfString(item['OfficialRating']),
       // Music mirrors the episode hierarchy, matching Plex's parent chain:
       // track parent = album (AlbumId / Album), track grandparent = album
       // artist (AlbumArtists[0] / AlbumArtist), and an *album's* parent is its
@@ -236,20 +253,20 @@ class JellyfinMappers {
       // Video rows never carry the Album* fields, so the extra fallbacks are
       // inert for them.
       parentId:
-          item['SeasonId'] as String? ??
-          item['AlbumId'] as String? ??
+          _jfString(item['SeasonId']) ??
+          _jfString(item['AlbumId']) ??
           (kind == MediaKind.album ? _firstAlbumArtistId(item) : null) ??
-          item['ParentId'] as String?,
+          _jfString(item['ParentId']),
       parentTitle:
-          item['SeasonName'] as String? ??
-          item['Album'] as String? ??
-          (kind == MediaKind.album ? item['AlbumArtist'] as String? : null),
+          _jfString(item['SeasonName']) ??
+          _jfString(item['Album']) ??
+          (kind == MediaKind.album ? _jfString(item['AlbumArtist']) : null),
       parentThumbPath: _imagePath(item, 'SeasonId', 'SeasonPrimaryImageTag', 'Primary') ?? albumPrimaryImage,
-      parentIndex: item['ParentIndexNumber'] as int?,
-      index: item['IndexNumber'] as int?,
-      grandparentId: item['SeriesId'] as String? ?? (kind == MediaKind.track ? _firstAlbumArtistId(item) : null),
+      parentIndex: flexibleInt(item['ParentIndexNumber']),
+      index: flexibleInt(item['IndexNumber']),
+      grandparentId: _jfString(item['SeriesId']) ?? (kind == MediaKind.track ? _firstAlbumArtistId(item) : null),
       grandparentTitle:
-          item['SeriesName'] as String? ?? (kind == MediaKind.track ? item['AlbumArtist'] as String? : null),
+          _jfString(item['SeriesName']) ?? (kind == MediaKind.track ? _jfString(item['AlbumArtist']) : null),
       grandparentThumbPath: _seriesPrimaryImage(item),
       grandparentArtPath: grandparentBackdropPaths.firstOrNull,
       grandparentBackdropPaths: grandparentBackdropPaths.isEmpty ? null : grandparentBackdropPaths,
@@ -263,18 +280,18 @@ class JellyfinMappers {
       durationMs: jellyfinTicksToMs(item['RunTimeTicks']),
       viewOffsetMs: jellyfinTicksToMs(_userData(item)?['PlaybackPositionTicks']),
       viewCount: _viewCount(item),
-      lastViewedAt: jellyfinIsoToEpochSeconds(_userData(item)?['LastPlayedDate'] as String?),
+      lastViewedAt: jellyfinIsoToEpochSeconds(_jfString(_userData(item)?['LastPlayedDate'])),
       // leafCount also drives display counts. viewedLeafCount is watched-state
       // rollup and applies only to container kinds; Jellyfin may include
       // unrelated child counts on leaf DTOs.
       leafCount: leafCount,
       viewedLeafCount: kind.usesLeafWatchCounts ? _viewedLeafCount(item, leafCount) : null,
       childCount: childCount,
-      addedAt: jellyfinIsoToEpochSeconds(item['DateCreated'] as String?),
-      updatedAt: jellyfinIsoToEpochSeconds(item['DateLastSaved'] as String? ?? item['DateModified'] as String?),
-      rating: (item['CommunityRating'] as num?)?.toDouble(),
+      addedAt: jellyfinIsoToEpochSeconds(_jfString(item['DateCreated'])),
+      updatedAt: jellyfinIsoToEpochSeconds(_jfString(item['DateLastSaved']) ?? _jfString(item['DateModified'])),
+      rating: _jfDouble(item['CommunityRating']),
       ratings: _ratingSources(item, kind),
-      isFavorite: _userData(item)?['IsFavorite'] as bool?,
+      isFavorite: _jfBool(_userData(item)?['IsFavorite']),
       genres: _stringListOrNamePairs(item['Genres'], item['GenreItems']),
       directors: _peopleByType(item['People'], 'Director'),
       writers: _peopleByType(item['People'], 'Writer'),
@@ -294,7 +311,7 @@ class JellyfinMappers {
       libraryTitle: null,
       // Only present when the item came out of `/Playlists/{id}/Items`; the
       // playlist write endpoints address rows by this id, not the media id.
-      playlistItemId: item['PlaylistItemId'] as String?,
+      playlistItemId: _jfString(item['PlaylistItemId']),
       serverId: serverId,
       serverName: serverName,
       raw: item,
@@ -312,18 +329,18 @@ class JellyfinMappers {
     String? serverName,
     MediaBrowserDialect dialect = MediaBrowserDialect.jellyfin,
   }) {
-    final id = view['Id'] as String?;
+    final id = _jfString(view['Id']);
     if (id == null || id.isEmpty) return null;
-    final collectionType = view['CollectionType'] as String?;
-    final type = view['Type'] as String?;
+    final collectionType = _jfString(view['CollectionType']);
+    final type = _jfString(view['Type']);
     return MediaLibrary(
       id: id,
       backend: dialect.backend,
-      title: view['Name'] as String? ?? t.libraries.fallbackTitle,
+      title: _jfString(view['Name']) ?? t.libraries.fallbackTitle,
       kind: _libraryKindFromCollectionType(collectionType, type),
       defaultBrowseKinds: _defaultBrowseKindsFromCollectionType(collectionType, type),
-      updatedAt: jellyfinIsoToEpochSeconds(view['DateLastSaved'] as String? ?? view['DateModified'] as String?),
-      createdAt: jellyfinIsoToEpochSeconds(view['DateCreated'] as String?),
+      updatedAt: jellyfinIsoToEpochSeconds(_jfString(view['DateLastSaved']) ?? _jfString(view['DateModified'])),
+      createdAt: jellyfinIsoToEpochSeconds(_jfString(view['DateCreated'])),
       hidden: false,
       isShared: false,
       serverId: serverId,
@@ -452,7 +469,7 @@ class JellyfinMappers {
   static String? _firstStudioName(Object? list) {
     if (list is List && list.isNotEmpty) {
       final first = list.first;
-      if (first is Map<String, dynamic>) return first['Name'] as String?;
+      if (first is Map<String, dynamic>) return _jfString(first['Name']);
     }
     return null;
   }
@@ -485,7 +502,7 @@ class JellyfinMappers {
     final result = <String>[];
     for (final entry in list) {
       if (entry is Map<String, dynamic> && entry['Type'] == type) {
-        final name = entry['Name'] as String?;
+        final name = _jfString(entry['Name']);
         if (name != null) result.add(name);
       }
     }
@@ -499,9 +516,9 @@ class JellyfinMappers {
       if (entry is Map<String, dynamic> && (entry['Type'] == 'Actor' || entry['Type'] == 'GuestStar')) {
         result.add(
           MediaRole(
-            id: entry['Id'] as String?,
-            tag: entry['Name'] as String? ?? '',
-            role: entry['Role'] as String?,
+            id: _jfString(entry['Id']),
+            tag: _jfString(entry['Name']) ?? '',
+            role: _jfString(entry['Role']),
             thumbPath: _personImage(entry),
           ),
         );
@@ -511,8 +528,8 @@ class JellyfinMappers {
   }
 
   static String? _personImage(Map<String, dynamic> person) {
-    final id = person['Id'] as String?;
-    final tag = person['PrimaryImageTag'] as String?;
+    final id = _jfString(person['Id']);
+    final tag = _jfString(person['PrimaryImageTag']);
     if (id == null) return null;
     return _itemImagePath(id, 'Primary', tag: tag);
   }
@@ -522,7 +539,7 @@ class JellyfinMappers {
     final result = <MediaVersion>[];
     for (final src in sources) {
       if (src is! Map<String, dynamic>) continue;
-      final id = src['Id'] as String?;
+      final id = _jfString(src['Id']);
       if (id == null || id.isEmpty) continue;
       final streams = _mediaStreams(src['MediaStreams'], source: src);
       result.add(
@@ -534,7 +551,7 @@ class JellyfinMappers {
           streams: streams,
           includePartDuration: true,
           requireParsedVideoStreamForDimensions: true,
-          name: src['Name'] as String?,
+          name: _jfString(src['Name']),
         ),
       );
     }
@@ -626,7 +643,7 @@ class JellyfinMappers {
     final albumArtists = item['AlbumArtists'];
     if (albumArtists is List && albumArtists.isNotEmpty) {
       final first = albumArtists.first;
-      if (first is Map<String, dynamic>) return first['Id'] as String?;
+      if (first is Map<String, dynamic>) return _jfString(first['Id']);
     }
     return null;
   }
@@ -638,7 +655,7 @@ class JellyfinMappers {
     final artists = stringListFromRaw(item['Artists']);
     if (artists == null || artists.isEmpty) return null;
     final joined = artists.join(', ');
-    return joined == item['AlbumArtist'] as String? ? null : joined;
+    return joined == _jfString(item['AlbumArtist']) ? null : joined;
   }
 
   /// Album-cover fallback for Audio rows. Jellyfin normally supplies
@@ -646,20 +663,20 @@ class JellyfinMappers {
   /// older/incompletely scanned libraries can still serve a primary image by
   /// `AlbumId`. Keep the tag when present for cache invalidation.
   static String? _albumPrimaryImage(Map<String, dynamic> item) {
-    final albumId = item['AlbumId'] as String?;
+    final albumId = _jfString(item['AlbumId']);
     if (albumId == null || albumId.isEmpty) return null;
-    return _itemImagePath(albumId, 'Primary', tag: item['AlbumPrimaryImageTag'] as String?);
+    return _itemImagePath(albumId, 'Primary', tag: _jfString(item['AlbumPrimaryImageTag']));
   }
 
   static String? _seriesPrimaryImage(Map<String, dynamic> item) {
-    final seriesId = item['SeriesId'] as String?;
+    final seriesId = _jfString(item['SeriesId']);
     if (seriesId == null) return null;
-    final tag = item['SeriesPrimaryImageTag'] as String?;
+    final tag = _jfString(item['SeriesPrimaryImageTag']);
     return _itemImagePath(seriesId, 'Primary', tag: tag);
   }
 
   static String? _seriesBackdropImage(Map<String, dynamic> item) {
-    final seriesId = item['SeriesId'] as String?;
+    final seriesId = _jfString(item['SeriesId']);
     if (seriesId == null) return null;
     return _itemImagePath(seriesId, 'Backdrop', imageIndex: 0);
   }
@@ -669,7 +686,7 @@ class JellyfinMappers {
   /// `ParentBackdropItemId`/`ParentBackdropImageTags` pair Jellyfin inherits
   /// onto child items, falling back to a tagless URL when only the id exists.
   static List<String> _parentBackdropImagePaths(Map<String, dynamic> item) {
-    final parentId = item['ParentBackdropItemId'] as String?;
+    final parentId = _jfString(item['ParentBackdropItemId']);
     if (parentId == null || parentId.isEmpty) return const [];
     final paths = _backdropImagePaths(parentId, item['ParentBackdropImageTags']);
     return paths.isEmpty ? [_itemImagePath(parentId, 'Backdrop', imageIndex: 0)] : paths;
@@ -679,16 +696,16 @@ class JellyfinMappers {
   /// `ParentLogoItemId`/`ParentLogoImageTag`. Match Jellyfin web's hero
   /// card which always falls back to this for child items.
   static String? _parentLogoImage(Map<String, dynamic> item) {
-    final parentId = item['ParentLogoItemId'] as String?;
+    final parentId = _jfString(item['ParentLogoItemId']);
     if (parentId == null) return null;
-    final tag = item['ParentLogoImageTag'] as String?;
+    final tag = _jfString(item['ParentLogoImageTag']);
     return _itemImagePath(parentId, 'Logo', tag: tag);
   }
 
   static String? _imagePath(Map<String, dynamic> item, String idField, String tagField, String type) {
-    final id = item[idField] as String?;
+    final id = _jfString(item[idField]);
     if (id == null) return null;
-    final tag = item[tagField] as String?;
+    final tag = _jfString(item[tagField]);
     return _itemImagePath(id, type, tag: tag);
   }
 }

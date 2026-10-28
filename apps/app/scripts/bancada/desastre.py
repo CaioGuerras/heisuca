@@ -436,13 +436,10 @@ def listar_visivel(nos, servidor, nomes=()):
 
 def aba_voce(nos):
     """Última aba da barra. O rótulo dela é o primeiro nome do usuário, não 'Você': acha pela linha de 'Baixados'."""
-    ref = None
-    for n in nos:
-        if n['centro'] and any(r.strip().lower() in ('baixados', 'favoritos') for r in _rotulos(n)):
-            ref = n
-            break
-    if ref is None:
+    candidatos = [n for n in nos if n['centro'] and any(r.strip().lower() in ('início', 'biblioteca', 'baixados', 'favoritos') for r in _rotulos(n))]
+    if not candidatos:
         return achar_texto(nos, 'Você')
+    ref = max(candidatos, key=lambda n: n['centro'][1])
     linha = [n for n in nos if n['clickable'] and n['centro'] and abs(n['centro'][1] - ref['centro'][1]) <= 40]
     return max(linha, key=lambda n: n['centro'][0]) if linha else None
 
@@ -514,7 +511,8 @@ def tela_conhecida(nos):
         return 'perfil'
     if baixos & {'buscar', 'configurações'} and any(n['cls'].endswith('EditText') for n in nos):
         return 'busca'
-    if baixos & {'configurações', 'downloads automáticos', 'nenhum download automático', 'configurações heisuca'} \
-            or any(r.lower().startswith(('configurações heisuca', 'downloads automáticos')) for r in rotulos):
+    if baixos & {'configurações', 'downloads automáticos', 'nenhum download automático', 'configurações heisuca',
+                 'encontrar servidor', 'servidores jellyfin', 'adicionar servidor jellyfin'} \
+            or any(r.lower().startswith(('configurações heisuca', 'downloads automáticos', 'adicionar servidor')) for r in rotulos):
         return 'configuracoes'
     return None

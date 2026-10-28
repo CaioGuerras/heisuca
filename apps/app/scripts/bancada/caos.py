@@ -186,7 +186,7 @@ def e05_rede_no_video(ctx):
         sid = info.get('Id')
         if not sid:
             raise EtapaAmbiente('System/Info/Public: sem identificador do servidor')
-        video = passo('escolher_video', cli.escolher_video)
+        video = passo('escolher_video', lambda: cli.escolher_video(min_ticks=50 * 10_000_000, tipos='Movie,Episode', apenas_intacto=False))
         estado['video'] = video
         estado['anterior'] = video['UserData']
         link = f'plezy://play?content_id=plezy_{sid}_{video["Id"]}'
@@ -208,7 +208,7 @@ def e05_rede_no_video(ctx):
         cli, video = estado.get('cli'), estado.get('video')
         if cli and video:
             try:
-                passo('restaurar', lambda: cli.restaurar(video['Id'], estado['anterior']))
+                passo('restaurar', lambda: cli.restaurar(video['Id'], estado['anterior'], apenas_intacto=False))
             finally:
                 try:
                     cli.logout()

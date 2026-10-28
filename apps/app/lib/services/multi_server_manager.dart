@@ -1613,6 +1613,15 @@ class MultiServerManager {
   @visibleForTesting
   void debugTriggerEndpointsExhaustedForTesting(ServerId serverId) => _onServerEndpointsExhausted(serverId);
 
+  /// Encerra as sessões de todos os servidores que suportam logout remoto (Jellyfin).
+  Future<void> logoutAllServers() async {
+    final clients = <MediaServerClient>{..._clients.values, ..._jellyfinByCompoundId.values};
+    await Future.wait(
+      clients.whereType<JellyfinClient>().map((client) => client.logout()),
+      eagerError: false,
+    );
+  }
+
   /// Disconnect all servers, fire-and-forget.
   ///
   /// Registrations are dropped synchronously ([_detachAllClients] runs before

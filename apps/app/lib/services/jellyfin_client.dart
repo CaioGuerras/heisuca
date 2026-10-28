@@ -629,6 +629,16 @@ class JellyfinClient
     _offlineMode = offline;
   }
 
+  /// Encerra a sessão atual no servidor via `POST /Sessions/Logout`.
+  Future<void> logout() async {
+    try {
+      await _http.post('/Sessions/Logout');
+      appLogger.i('Sessão Jellyfin encerrada no servidor via /Sessions/Logout');
+    } catch (e, st) {
+      appLogger.w('Falha ao encerrar sessão Jellyfin no servidor', error: e, stackTrace: st);
+    }
+  }
+
   /// Expose the Jellyfin cache through the [MediaServerClient] interface so
   /// the shared `fetchWithCacheFallback` / `fetchWithCacheFirst` helpers
   /// route through the correct backend's cache substrate.

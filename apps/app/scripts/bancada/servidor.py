@@ -81,48 +81,69 @@ class Servidor:
     def item(self, item_id):
         return self.request('GET', f'/Users/{self.user}/Items/{item_id}')
 
-    def escolher_video(self):
+    def escolher_video(self, min_ticks=5 * 60 * 10_000_000, tipos='Movie', apenas_intacto=True):
         # M acrescenta Home/PiP/áudio/MediaSession: 30 s já não cobrem o percurso.
         # O contrato Jellyfin não tem filtro de duração; pagina sem inventar parâmetro.
         offset = 0
+        candidatos = []
         while True:
-            result = self.request('GET', f'/Users/{self.user}/Items', query={
-                'Recursive': 'true', 'IncludeItemTypes': 'Movie', 'IsPlayed': 'false',
+            query = {
+                'Recursive': 'true', 'IncludeItemTypes': tipos,
                 'IsVirtualItem': 'false', 'SortBy': 'Runtime', 'SortOrder': 'Ascending',
                 'Fields': 'MediaSources,MediaStreams', 'EnableUserData': 'true',
-                'StartIndex': offset, 'Limit': 200})
+                'StartIndex': offset, 'Limit': 200
+            }
+            if apenas_intacto:
+                query['IsPlayed'] = 'false'
+            result = self.request('GET', f'/Users/{self.user}/Items', query=query)
             rows = result.get('Items', [])
-            choices = []
             for row in rows:
                 ticks = row.get('RunTimeTicks', 0)
-                if ticks < 5 * 60 * 10_000_000 or not intacto(row.get('UserData', {})):
+                if ticks < min_ticks:
+                    continue
+                is_intacto = intacto(row.get('UserData', {}))
+                if apenas_intacto and not is_intacto:
                     continue
                 streams = row.get('MediaStreams', [])
                 avc = any(stream.get('Type') == 'Video' and stream.get('Codec', '').lower() in ('h264', 'avc')
                           for stream in streams)
-                choices.append((ticks > 10 * 60 * 10_000_000, not avc, ticks, row))
-            for _, _, _, row in sorted(choices, key=lambda choice: choice[:3]):
+                candidatos.append((not is_intacto, ticks > 10 * 60 * 10_000_000, not avc, ticks, row))
+            for _, _, _, _, row in sorted(candidatos, key=lambda choice: choice[:4]):
                 video = self.item(row['Id'])
-                if intacto(video.get('UserData', {})):
+                if not apenas_intacto or intacto(video.get('UserData', {})):
                     return video
             if len(rows) < 200:
                 break
             offset += len(rows)
-        raise BancadaIndisponivel('Nenhum filme sem histórico com duração suficiente para o percurso.')
+        raise BancadaIndisponivel('Nenhum filme sem histórico com duração suficiente para o percurso.'
+                                  if apenas_intacto else 'Nenhum vídeo disponível no servidor com os critérios informados.')
 
     def logout(self):
         self.request('POST', '/Sessions/Logout')
 
-    def restaurar(self, item_id, anterior):
-        if not intacto(anterior):
+    def restaurar(self, item_id, anterior, apenas_intacto=True):
+        if apenas_intacto and not intacto(anterior):
             raise RestauracaoFalhou('Restauração recusada: o item já tinha histórico antes do teste.')
         if self.ocupado(item=item_id):
             raise RestauracaoFalhou('Restauração pendente: outra sessão está usando o item.')
-        # API oficial: limpa os quatro campos de reprodução, preservando favorito/avaliação.
-        self.request('DELETE', f'/Users/{self.user}/PlayedItems/{item_id}')
-        atual = self.item(item_id)['UserData']
-        if estado(atual) != estado(anterior):
-            raise RestauracaoFalhou('O servidor não confirmou a restauração exata do estado anterior.')
+        if intacto(anterior):
+            self.request('DELETE', f'/Users/{self.user}/PlayedItems/{item_id}')
+            atual = self.item(item_id)['UserData']
+            if estado(atual) != estado(anterior):
+                raise RestauracaoFalhou('O servidor não confirmou a restauração exata do estado anterior.')
+        else:
+            if anterior.get('Played') is False and anterior.get('PlaybackPositionTicks', 0) == 0:
+                self.request('DELETE', f'/Users/{self.user}/PlayedItems/{item_id}')
+            elif anterior.get('Played') is True:
+                self.request('POST', f'/Users/{self.user}/PlayedItems/{item_id}')
+            corpo = {k: anterior[k] for k in ('PlaybackPositionTicks', 'PlayCount', 'Played', 'IsFavorite', 'Likes', 'Rating')
+                     if k in anterior and anterior[k] is not None}
+            for path in (f'/UserItems/{item_id}/UserData', f'/Users/{self.user}/Items/{item_id}/UserData'):
+                try:
+                    self.request('POST', path, body=corpo, query={'userId': self.user})
+                    break
+                except BancadaIndisponivel:
+                    pass
 
 
 def selecionar(base, names, factory=Servidor):

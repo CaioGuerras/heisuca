@@ -113,5 +113,23 @@ class SegurancaDaBancada(unittest.TestCase):
         for forbidden in ['Pessoa', 'PESSOA', 'exemplo.invalid', '0123456789abcdef']:
             self.assertNotIn(forbidden, result)
 
+    def test_escolher_video_caos_aceita_episodio_e_item_com_historico(self):
+        class Midias(ServidorFalso):
+            def request(self, method, path, body=None, query=None):
+                if path.endswith('/Items'):
+                    return {'Items': [
+                        {'Id': 'ep-1', 'RunTimeTicks': 60 * 10_000_000,
+                         'UserData': {**PRISTINO, 'Played': True},
+                         'MediaStreams': [{'Type': 'Video', 'Codec': 'h264'}]}]}
+                return {'Id': path.rsplit('/', 1)[-1], 'UserData': {**PRISTINO, 'Played': True}}
+        m = Midias()
+        video = m.escolher_video(min_ticks=50 * 10_000_000, tipos='Movie,Episode', apenas_intacto=False)
+        self.assertEqual(video['Id'], 'ep-1')
+
+    def test_restaurar_item_com_historico_nao_lanca_quando_apenas_intacto_falso(self):
+        client = ServidorFalso(data={**PRISTINO, 'Played': True, 'PlaybackPositionTicks': 500})
+        client.restaurar('filme', {**PRISTINO, 'Played': True, 'PlaybackPositionTicks': 500}, apenas_intacto=False)
+        self.assertTrue(any(method == 'POST' for method, _ in client.calls))
+
 
 if __name__ == '__main__': unittest.main()

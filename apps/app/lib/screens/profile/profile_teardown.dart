@@ -362,6 +362,9 @@ Future<void> logoutAllProfiles(BuildContext context, {CgflixSecureStore? secureS
     await scope.shelf.endProfileSession(activeOwner);
   }
 
+  // Encerra as sessões nos servidores remotos antes de limpar os dados locais
+  await scope.serverManager.logoutAllServers();
+
   // Credentials and the signed-out users' server-side preferences go first so
   // nothing below can read them back as the next sign-in's defaults.
   await scope.storage.clearUserData();

@@ -18,8 +18,13 @@ Future<void> heisucaLoadFonts() async {
   final sdk = Platform.environment['FLUTTER_ROOT'] ?? '${Platform.environment['HOME']}/sdk/flutter';
   await load('Inter', ['Regular', 'Medium', 'SemiBold', 'Bold', 'ExtraBold'].map((w) => 'assets/fonts/Inter-$w.ttf').toList());
   await load('MaterialIcons', ['$sdk/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf']);
-  final pub = '${Platform.environment['HOME']}/.pub-cache/hosted/pub.dev';
-  final symbols = Directory(pub).listSync().whereType<Directory>().where((d) => d.path.contains('material_symbols_icons-')).firstOrNull;
+  final pubCache = Platform.environment['PUB_CACHE']
+      ?? (Directory('/home/caioguerras/.pub-cache').existsSync() ? '/home/caioguerras/.pub-cache' : '${Platform.environment['HOME']}/.pub-cache');
+  final pub = '$pubCache/hosted/pub.dev';
+  final pubDir = Directory(pub);
+  final symbols = pubDir.existsSync()
+      ? pubDir.listSync().whereType<Directory>().where((d) => d.path.contains('material_symbols_icons-')).firstOrNull
+      : null;
   if (symbols != null) {
     for (final style in ['Rounded', 'Outlined']) {
       await load('packages/material_symbols_icons/MaterialSymbols$style', ['${symbols.path}/lib/fonts/MaterialSymbols$style.ttf']);

@@ -312,6 +312,16 @@ class AbaVoce(unittest.TestCase):
             no(text='Duna', b='[40,400][300,600]')))
         self.assertEqual(aba_voce(nos)['desc'], 'teste')
 
+    def test_tela_com_titulo_baixados_no_topo_acha_aba_voce_na_barra_inferior(self):
+        # Na tela de Baixados, o título do topo também se chama 'Baixados';
+        # a barra de navegação fica na parte inferior da tela.
+        nos = parse_uiautomator(xml(
+            no(text='Baixados', b='[40,100][300,200]'),
+            no(desc='Início', b='[0,1100][100,1200]'), no(desc='Biblioteca', b='[100,1100][200,1200]'),
+            no(desc='Baixados', b='[200,1100][300,1200]'), no(desc='teste', b='[300,1100][400,1200]'),
+            no(text='Downloads automáticos', b='[40,300][400,380]')))
+        self.assertEqual(aba_voce(nos)['desc'], 'teste')
+
     def test_sem_barra_usa_voce_ou_nada(self):
         self.assertEqual(aba_voce(parse_uiautomator(xml(no(desc='Você')))) ['desc'], 'Você')
         self.assertIsNone(aba_voce(parse_uiautomator(xml(no(text='Duna')))))
@@ -488,6 +498,7 @@ class RunReal(unittest.TestCase):
 
     def test_tela_downloads_automaticos_e_configuracoes(self):
         for rotulos in (('Voltar', 'Downloads automáticos', 'Nenhum download automático'),
-                        ('Configurações Heisuca\nReprodução, vídeo, áudio, legendas e fontes',)):
+                        ('Configurações Heisuca\nReprodução, vídeo, áudio, legendas e fontes',),
+                        ('Voltar', 'Adicionar servidor Jellyfin', 'Servidores Jellyfin na sua rede', 'Encontrar servidor')):
             nos = parse_uiautomator(xml(*[no(text=r) for r in rotulos]))
             self.assertEqual(tela_conhecida(nos), 'configuracoes', rotulos)

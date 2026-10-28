@@ -269,7 +269,14 @@ class CgflixSeerrRequests implements CgflixRequestsBackend, CgflixPersonCreditsB
   DateTime? _failedAt;
   static const _retryAfter = Duration(minutes: 2);
 
-  String get _storeKey => 'seerr_session:$accountKey';
+  /// Prefixo de todas as sessões do Seerr no armazenamento seguro (uma por conta).
+  static const sessionKeyPrefix = 'seerr_session:';
+
+  /// Logout: apaga do armazenamento seguro a sessão do Seerr de toda conta. [store] só nos testes.
+  static Future<void> clearAllSessions({CgflixSecureStore? store}) =>
+      (store ?? CgflixSecureStore.platform()).deleteWithPrefix(sessionKeyPrefix);
+
+  String get _storeKey => '$sessionKeyPrefix$accountKey';
 
   /// Sessão pronta (memória → armazenamento seguro → entrada pelo Quick Connect).
   Future<_Session> _ensureSession() async {

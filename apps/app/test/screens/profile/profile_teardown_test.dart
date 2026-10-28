@@ -4,6 +4,7 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:heisuca/cgflix/requests/cgflix_secure_store.dart';
 import 'package:heisuca/connection/connection.dart';
 import 'package:heisuca/connection/connection_registry.dart';
 import 'package:heisuca/database/app_database.dart';
@@ -22,7 +23,9 @@ import 'package:heisuca/providers/multi_server_provider.dart';
 import 'package:heisuca/providers/playback_state_provider.dart';
 import 'package:heisuca/screens/profile/profile_teardown.dart';
 import 'package:heisuca/services/plex_auth_service.dart';
+import 'package:heisuca/services/base_shared_preferences_service.dart';
 import 'package:heisuca/services/credential_vault.dart';
+import 'package:heisuca/services/sensitive_prefs.dart';
 import 'package:heisuca/services/multi_server_manager.dart';
 import 'package:heisuca/services/storage_service.dart';
 import 'package:heisuca/services/system_shelf_service.dart';
@@ -74,6 +77,9 @@ class _Downloads extends ChangeNotifier implements DownloadProvider {
   }
 
   @override
+  Future<void> detachDownloadsForLogout() async => events.add('detach-downloads');
+
+  @override
   Future<void> releaseDownloadsForProfileServers(String profileId, Set<String> serverIds) async {
     events.add('release-downloads:$profileId:${serverIds.toList()..sort()}');
   }
@@ -83,6 +89,9 @@ class _Downloads extends ChangeNotifier implements DownloadProvider {
 }
 
 class _Playback extends ChangeNotifier implements PlaybackStateProvider {
+  @override
+  void clearShuffle() {}
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -239,6 +248,50 @@ void main() {
     await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
     await tester.pumpAndSettle();
     expect(await harness.connections.get(account.id), isNotNull);
+  });
+
+  testWidgets('logout total não deixa credencial: Drift, prefs, sessões do Seerr e Keystore', (tester) async {
+    final events = <String>[];
+    final harness = await _pumpHarness(tester, events: events, channel: channel);
+    addTearDown(harness.dispose);
+    final store = CgflixMemorySecureStore();
+    CredentialVault.useSecureStoreForTesting(store);
+    addTearDown(CredentialVault.resetSecureStoreForTesting);
+
+    const homeUserUuid = 'aaaaaaaaaaaaaaaa';
+    final account = _plexAccount();
+    await _linkAccount(
+      harness,
+      account,
+      virtualProfileId: plexHomeProfileId(accountConnectionId: account.id, homeUserUuid: homeUserUuid),
+      homeUserUuid: homeUserUuid,
+    );
+
+    // Sobras de credencial nas prefs: slot legado do Plex, sessões do Seerr e de rastreadores
+    // (com e sem escopo de perfil).
+    final prefs = await BaseSharedPreferencesService.sharedCache();
+    await prefs.setString(legacyPlexTokenPref, 'plex-token-legado');
+    for (final base in [...trackerSessionBaseKeys, seerrSessionBaseKey]) {
+      await prefs.setString(base, 'sessao-sem-escopo');
+      await prefs.setString(profileScopedPrefsKey('active', base), 'sessao-do-perfil');
+    }
+    // Sessões do Seerr do CGFLIX (cookie) no armazenamento seguro, uma por conta.
+    await store.write('seerr_session:srv1:user1', 'cookie-1');
+    await store.write('seerr_session:srv2:user2', 'cookie-2');
+
+    await logoutAllProfiles(harness.context, secureStore: store);
+    await tester.pump();
+
+    // Drift: nenhuma conexão nem vínculo (com token cifrado).
+    expect(await harness.connections.list(), isEmpty);
+    expect(await harness.profileConnections.listForConnection(account.id), isEmpty);
+    // Prefs: nenhuma credencial.
+    await prefs.reloadCache();
+    expect(prefs.getString(legacyPlexTokenPref), isNull);
+    final leftovers = prefs.keys.where(isSensitivePrefKey).toList();
+    expect(leftovers, isEmpty, reason: 'credenciais que sobraram nas prefs: $leftovers');
+    // Armazenamento seguro: nenhuma sessão do Seerr.
+    expect(store.values.keys.where((k) => k.startsWith('seerr_session:')), isEmpty);
   });
 
 }

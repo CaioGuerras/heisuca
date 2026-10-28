@@ -42,7 +42,7 @@ internal object CgflixSecureStoreChannel {
         result.error("bad_args", "key is required", null)
         return@setMethodCallHandler
       }
-      if (call.method !in setOf("read", "write", "delete")) {
+      if (call.method !in setOf("read", "write", "delete", "deletePrefix")) {
         result.notImplemented()
         return@setMethodCallHandler
       }
@@ -52,6 +52,7 @@ internal object CgflixSecureStoreChannel {
             when (call.method) {
               "read" -> read(appContext, key)
               "write" -> write(appContext, key, call.argument<String>("value") ?: "")
+              "deletePrefix" -> deletePrefix(appContext, key) // aqui "key" é o prefixo
               else -> prefs(appContext).edit().remove(key).apply()
             }
           main.post { result.success(value as? String) }
@@ -86,6 +87,14 @@ internal object CgflixSecureStoreChannel {
     cipher.init(Cipher.ENCRYPT_MODE, secretKey())
     val sealed = cipher.iv + cipher.doFinal(value.toByteArray(Charsets.UTF_8))
     prefs(context).edit().putString(key, Base64.encodeToString(sealed, Base64.NO_WRAP)).apply()
+  }
+
+  /** Logout: apaga toda chave que começa com [prefix] (as sessões do Seerr), sem tocar nas outras. */
+  private fun deletePrefix(context: Context, prefix: String) {
+    val store = prefs(context)
+    val editor = store.edit()
+    store.all.keys.filter { it.startsWith(prefix) }.forEach { editor.remove(it) }
+    editor.apply()
   }
 
   private fun read(context: Context, key: String): String? {

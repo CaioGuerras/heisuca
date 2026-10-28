@@ -19,6 +19,7 @@ import '../../widgets/optimized_media_image.dart';
 import '../cgflix_palette.dart';
 import '../cgflix_style.dart';
 import '../home/cgflix_cards.dart';
+import 'cgflix_secure_store.dart';
 import 'cgflix_seerr.dart';
 
 // ---------------------------------------------------------------------------
@@ -29,6 +30,12 @@ abstract final class CgflixRequests {
   static CgflixRequestsBackend? debugOverride;
 
   static final _byAccount = <String, ({JellyfinClient client, CgflixSeerrRequests backend})>{};
+
+  /// Logout: esquece as sessões do Seerr na memória e no armazenamento seguro. [store] só nos testes.
+  static Future<void> clearSessions({CgflixSecureStore? store}) async {
+    _byAccount.clear();
+    await CgflixSeerrRequests.clearAllSessions(store: store);
+  }
 
   /// Pedidos da conta Jellyfin conectada (a mesma da Início); null sem Jellyfin.
   static CgflixRequestsBackend? of(BuildContext context) {

@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../cgflix/requests/cgflix_requests_ui.dart';
+import '../../cgflix/requests/cgflix_secure_store.dart';
 import '../../connection/connection_registry.dart';
 import '../../database/app_database.dart';
 import '../../database/download_operations.dart';
@@ -349,7 +351,8 @@ Future<bool> _plexAccountRemovalOwnsDownloads(
 /// Full logout: clear every profile, connection, credential, cached API
 /// row, and user-scoped pref, then reset to [AuthScreen]. The caller
 /// confirms first.
-Future<void> logoutAllProfiles(BuildContext context) async {
+/// [secureStore] só nos testes (padrão: o armazenamento seguro do aparelho).
+Future<void> logoutAllProfiles(BuildContext context, {CgflixSecureStore? secureStore}) async {
   final scope = SessionTeardownScope.of(context);
   final accountPreferences = context.read<AccountPreferencesController>();
   final playbackState = context.read<PlaybackStateProvider>();
@@ -362,6 +365,8 @@ Future<void> logoutAllProfiles(BuildContext context) async {
   // Credentials and the signed-out users' server-side preferences go first so
   // nothing below can read them back as the next sign-in's defaults.
   await scope.storage.clearUserData();
+  // A sessão do Seerr do CGFLIX (cookie) mora no armazenamento seguro, fora das prefs.
+  await CgflixRequests.clearSessions(store: secureStore);
   accountPreferences.repository.clear();
   // Downloads are device-local data, not credentials. Keep their physical
   // files and pinned metadata, but detach profile ownership before deleting

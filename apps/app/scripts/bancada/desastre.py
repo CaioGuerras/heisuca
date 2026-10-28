@@ -45,6 +45,7 @@ def parse_uiautomator(xml_text):
             'text': el.get('text') or '', 'desc': el.get('content-desc') or '', 'hint': el.get('hint') or '',
             'cls': el.get('class') or '', 'pkg': el.get('package') or '', 'bounds': b,
             'clickable': el.get('clickable') == 'true', 'enabled': el.get('enabled') != 'false',
+            'focused': el.get('focused') == 'true',
             'centro': ((b[0] + b[2]) // 2, (b[1] + b[3]) // 2) if b and b[2] > b[0] and b[3] > b[1] else None,
         })
     return nos
@@ -67,20 +68,57 @@ def achar_texto(nos, *textos, exato=True):
     return None
 
 
-def campos_login(nos):
-    """Servidor, usuário, senha e botão da tela de login.
+def campo_abaixo_do_rotulo(nos, rotulo):
+    """EditText imediatamente abaixo do rótulo (ex.: 'USUÁRIO'), pela posição e não pela ordem.
 
-    Procura primeiro pela dica/rótulo; se o Flutter não expuser a dica, cai na ordem dos EditText.
+    O uiautomator não expõe a dica dos campos do Flutter, e linhas novas (ex.: versão do servidor) deslocam tudo:
+    a única âncora estável é o rótulo em maiúsculas logo acima do campo.
+    """
+    alvo = rotulo.strip().lower()
+    rotulos = [n for n in nos if n['centro'] and not n['cls'].endswith('EditText')
+               and any(r.strip().lower() == alvo for r in _rotulos(n))]
+    editores = [n for n in nos if n['cls'].endswith('EditText') and n['centro']]
+    melhor = None
+    for r in rotulos:
+        base = r['bounds'][3]
+        abaixo = [e for e in editores if e['bounds'][1] >= base - 8
+                  and e['bounds'][0] < r['bounds'][2] + 400 and e['bounds'][2] > r['bounds'][0]]
+        if abaixo:
+            e = min(abaixo, key=lambda n: n['bounds'][1])
+            if melhor is None or e['bounds'][1] < melhor['bounds'][1]:
+                melhor = e
+    return melhor
+
+
+def tamanho_do_campo(nos, rotulo):
+    """Quantidade de caracteres no campo sob o rótulo (None se o campo não existe)."""
+    campo = campo_abaixo_do_rotulo(nos, rotulo)
+    return None if campo is None else len(campo['text'])
+
+
+def foco_no_campo(nos, campo):
+    """True se [campo] tem o foco; False se outro EditText tem; None se o aparelho não informa foco nenhum."""
+    editores = [n for n in nos if n['cls'].endswith('EditText')]
+    if not any(e['focused'] for e in editores):
+        return None
+    return any(e['focused'] and e['bounds'] == campo['bounds'] for e in editores)
+
+
+def campos_login(nos):
+    """Servidor, usuário, senha e botão da tela de login, achados pelos rótulos SERVIDOR, USUÁRIO e SENHA.
+
+    Sem rótulos (outra versão da tela), cai na dica e, por último, na ordem dos EditText.
     """
     editores = [n for n in nos if n['cls'].endswith('EditText') and n['centro']]
     achados = {
-        'servidor': achar_texto(editores, 'https://seu.servidor.com', 'https://seuservidor.com', exato=False),
-        'usuario': achar_texto(editores, 'Nome de usuário', exato=False),
-        'senha': None,
+        'servidor': campo_abaixo_do_rotulo(nos, 'SERVIDOR'),
+        'usuario': campo_abaixo_do_rotulo(nos, 'USUÁRIO'),
+        'senha': campo_abaixo_do_rotulo(nos, 'SENHA'),
     }
-    for n in editores:
-        if '•' in ''.join(_rotulos(n)) or n['cls'].endswith('EditText') and 'password' in n['cls'].lower():
-            achados['senha'] = n
+    if achados['servidor'] is None:
+        achados['servidor'] = achar_texto(editores, 'https://seu.servidor.com', 'https://seuservidor.com', exato=False)
+    if achados['usuario'] is None:
+        achados['usuario'] = achar_texto(editores, 'Nome de usuário', exato=False)
     restantes = [n for n in editores if n not in achados.values()]
     for chave in ('servidor', 'usuario', 'senha'):
         if achados[chave] is None and restantes and len(editores) >= 3:

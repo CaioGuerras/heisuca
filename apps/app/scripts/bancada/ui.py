@@ -4,7 +4,7 @@ import subprocess
 import time
 
 from capturas import APP_ID, adb
-from desastre import (VERMELHO, aba_voce, achados_de_anr, reconhecer_anr, achar_texto, app_em_primeiro_plano, assinatura_tela, campos_login, marco,
+from desastre import (VERMELHO, campo_abaixo_do_rotulo, foco_no_campo, tamanho_do_campo, aba_voce, achados_de_anr, reconhecer_anr, achar_texto, app_em_primeiro_plano, assinatura_tela, campos_login, marco,
                       parse_uiautomator, teclado_visivel, tela_presa)
 
 CONTA = 'teste-sem-senha'
@@ -122,8 +122,42 @@ def fechar_teclado():
             return
 
 
+def apagar_campo():
+    adb('shell', 'input', 'keyevent', '123')  # MOVE_END
+    adb('shell', 'input', 'keyevent', *['67'] * 80)  # DEL
+
+
+def preencher_campo(rotulo, valor, registrar=None):
+    """Toca no EditText sob [rotulo], confere o foco, digita e confere o tamanho. Uma repetição se algo não bater.
+
+    Refaz o dump a cada passo: a tela muda depois de digitar (linha de versão do servidor, teclado) e a posição
+    calculada antes cairia no campo de baixo. Devolve True se o campo ficou com len(valor) caracteres.
+    """
+    rec = registrar or (lambda nome, nos: None)
+    for tentativa in (1, 2):
+        campo = campo_abaixo_do_rotulo(dump(), rotulo)
+        if campo is None:
+            rec(f'campo {rotulo} não achado', dump())
+            return False
+        tocar(campo)
+        time.sleep(1)
+        nos = dump()
+        campo = campo_abaixo_do_rotulo(nos, rotulo)
+        if campo is None or foco_no_campo(nos, campo) is False:
+            continue  # o foco foi para outro campo: toca de novo
+        apagar_campo()
+        if valor:
+            digitar(valor)
+        time.sleep(1.5)
+        nos = dump()
+        rec(f'após {rotulo} (tentativa {tentativa})', nos)
+        if tamanho_do_campo(nos, rotulo) == len(valor):
+            return True
+    return False
+
+
 def entrar_pela_interface(servidor, registrar=None):
-    """Como uma pessoa: acha os campos no dump, digita servidor e conta, toca em Iniciar sessão.
+    """Como uma pessoa: acha cada campo pelo rótulo na hora, digita servidor e conta, toca em Iniciar sessão.
 
     [registrar(nome, nos)] recebe cada passo para o diagnóstico (já sanitizado por quem chama).
     O fluxo real (heisuca_login_screen.dart) não tem passo intermediário: um botão só, que sonda o servidor,
@@ -134,19 +168,14 @@ def entrar_pela_interface(servidor, registrar=None):
     if m == 'inicio':
         return True
     rec('antes de digitar', nos)
-    campos = campos_login(nos)
-    if not all(campos.get(k) for k in ('servidor', 'usuario', 'botao')):
+    if campo_abaixo_do_rotulo(nos, 'SERVIDOR') is None and not campos_login(nos).get('servidor'):
         rec('campos do login não encontrados', nos)
         return False
-    tocar(campos['servidor'])
-    digitar(servidor)
-    time.sleep(2)
-    rec('após o servidor', dump())
-    tocar(campos['usuario'])
-    digitar(CONTA)
-    time.sleep(1)
-    rec('após o usuário', dump())
-    # Senha vazia: o campo fica como está. O teclado cobre o botão: fecha antes de procurar.
+    for rotulo, valor in (('SERVIDOR', servidor), ('USUÁRIO', CONTA), ('SENHA', '')):
+        if not preencher_campo(rotulo, valor, registrar):
+            rec(f'falha: {rotulo} não ficou com o conteúdo certo', dump())
+            return False
+    # O teclado cobre o botão: fecha antes de procurar.
     fechar_teclado()
     nos = dump()
     botao = achar_texto(nos, 'Iniciar sessão')

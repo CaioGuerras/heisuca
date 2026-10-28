@@ -355,3 +355,69 @@ class AnrDeOutroApp(unittest.TestCase):
     def test_sem_botao_esperar(self):
         d = reconhecer_anr(parse_uiautomator(xml(no(text="Pixel Launcher isn't responding"))))
         self.assertIsNone(d[0]['esperar'])
+
+
+from desastre import campo_abaixo_do_rotulo, tamanho_do_campo, foco_no_campo
+
+
+def edit(texto='', b='[0,0][10,10]', focado=False):
+    return (f'<node class="android.widget.EditText" text="{texto}" content-desc="" bounds="{b}" '
+            f'clickable="true" enabled="true" focused="{"true" if focado else "false"}" package="{PKG}"/>')
+
+
+def tela_login(servidor='x' * 29, usuario='', senha='', versao=True, foco=None):
+    """Login real: rótulos em maiúsculas, EditText sem dica e, com o servidor digitado, a linha da versão empurra os campos."""
+    deslocamento = 60 if versao else 0
+    return xml(
+        no(text='SERVIDOR', b='[40,250][400,300]'),
+        edit(servidor, '[40,300][1040,420]', foco == 'servidor'),
+        no(text='Jellyfin 10.11.11 · CGFLIX', b='[40,425][700,470]') if versao else '',
+        no(text='USUÁRIO', b=f'[40,{460 + deslocamento}][400,{510 + deslocamento}]'),
+        edit(usuario, f'[40,{510 + deslocamento}][1040,{630 + deslocamento}]', foco == 'usuario'),
+        no(text='SENHA', b=f'[40,{680 + deslocamento}][400,{730 + deslocamento}]'),
+        edit(senha, f'[40,{730 + deslocamento}][1040,{850 + deslocamento}]', foco == 'senha'),
+        no('android.widget.Button', desc='Iniciar sessão', b='[40,1000][1040,1120]'))
+
+
+class CampoPeloRotulo(unittest.TestCase):
+    def test_acha_cada_campo_pela_posicao_com_a_linha_da_versao(self):
+        nos = parse_uiautomator(tela_login())
+        self.assertEqual(campo_abaixo_do_rotulo(nos, 'SERVIDOR')['bounds'], (40, 300, 1040, 420))
+        self.assertEqual(campo_abaixo_do_rotulo(nos, 'USUÁRIO')['bounds'], (40, 570, 1040, 690))
+        self.assertEqual(campo_abaixo_do_rotulo(nos, 'SENHA')['bounds'], (40, 790, 1040, 910))
+        c = campos_login(nos)
+        self.assertEqual([c[k]['bounds'][1] for k in ('servidor', 'usuario', 'senha')], [300, 570, 790])
+
+    def test_o_defeito_do_run_usuario_nao_cai_no_campo_da_senha(self):
+        # Posição calculada ANTES da linha da versão (usuário em y=560) cairia no campo errado depois dela.
+        antes = campos_login(parse_uiautomator(tela_login(versao=False)))
+        depois = campos_login(parse_uiautomator(tela_login(versao=True)))
+        self.assertNotEqual(antes['usuario']['centro'], depois['usuario']['centro'])
+        self.assertEqual(depois['usuario']['centro'][1], 630)
+
+    def test_tamanho_do_campo_confere_onde_o_texto_foi(self):
+        errado = parse_uiautomator(tela_login(usuario='', senha='teste-sem-senha'))   # o que aconteceu no run
+        certo = parse_uiautomator(tela_login(usuario='teste-sem-senha', senha=''))
+        self.assertEqual((tamanho_do_campo(errado, 'USUÁRIO'), tamanho_do_campo(errado, 'SENHA')), (0, 15))
+        self.assertEqual((tamanho_do_campo(certo, 'USUÁRIO'), tamanho_do_campo(certo, 'SENHA')), (15, 0))
+        self.assertIsNone(tamanho_do_campo([], 'USUÁRIO'))
+
+    def test_foco(self):
+        nos = parse_uiautomator(tela_login(foco='usuario'))
+        usuario, senha = campo_abaixo_do_rotulo(nos, 'USUÁRIO'), campo_abaixo_do_rotulo(nos, 'SENHA')
+        self.assertTrue(foco_no_campo(nos, usuario))
+        self.assertFalse(foco_no_campo(nos, senha))
+        sem_foco = parse_uiautomator(tela_login())
+        self.assertIsNone(foco_no_campo(sem_foco, usuario))
+
+    def test_rotulo_ausente_ou_sem_campo_abaixo(self):
+        self.assertIsNone(campo_abaixo_do_rotulo(parse_uiautomator(INICIO), 'USUÁRIO'))
+        so_rotulo = parse_uiautomator(xml(no(text='USUÁRIO', b='[40,460][400,510]')))
+        self.assertIsNone(campo_abaixo_do_rotulo(so_rotulo, 'USUÁRIO'))
+        # campo ACIMA do rótulo não vale
+        acima = parse_uiautomator(xml(edit('', '[40,100][1040,200]'), no(text='USUÁRIO', b='[40,460][400,510]')))
+        self.assertIsNone(campo_abaixo_do_rotulo(acima, 'USUÁRIO'))
+
+    def test_cai_na_ordem_quando_nao_ha_rotulos(self):
+        c = campos_login(parse_uiautomator(LOGIN_SEM_DICA))
+        self.assertEqual([c[k]['centro'][1] for k in ('servidor', 'usuario', 'senha')], [360, 560, 760])

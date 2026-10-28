@@ -14,7 +14,7 @@ from desastre import (aba_voce, VERMELHO, ATENCAO, EtapaAmbiente, analisar_logca
                       marco, mensagem_pt, nos_sem_rotulo, pids_do_app, tamanho_da_tela, texto_tecnico_na_ui,
                       usuario_inexistente)
 from servidor import Servidor, BancadaIndisponivel
-from ui import (CONTA, abrir_app, achar_texto, campos_login, dump, em_primeiro_plano, entrar_pela_interface,
+from ui import (preencher_campo, CONTA, abrir_app, achar_texto, campos_login, dump, em_primeiro_plano, entrar_pela_interface,
                 esperar_marco, pid_do_app, recuperar, sair_pela_interface, texto, tocar, digitar)
 
 PRAZO_TOTAL = 50 * 60  # segundos para todas as etapas; o job tem 90 min.
@@ -242,14 +242,6 @@ def e07_servidor_fora(ctx):
     rodar(ctx, '07-servidor-fora-do-ar', etapa, restaurar)
 
 
-def limpar_e_digitar(campo, valor):
-    tocar(campo)
-    adb('shell', 'input', 'keyevent', '123')
-    adb('shell', 'input', 'keyevent', *['67'] * 80)
-    if valor:
-        digitar(valor)
-
-
 def e08_senha_errada(ctx):
     def etapa():
         if not sair_pela_interface():
@@ -259,9 +251,10 @@ def e08_senha_errada(ctx):
             campos = campos_login(nos)
             if m != 'login' or not all(campos.get(k) for k in ('servidor', 'usuario', 'senha', 'botao')):
                 raise EtapaAmbiente('campos do login não encontrados')
-            limpar_e_digitar(campos['servidor'], ctx.base)
-            limpar_e_digitar(campos['usuario'], usuario_inexistente())
-            limpar_e_digitar(campos['senha'], f'senha-errada-{tentativa}')
+            for rotulo, valor in (('SERVIDOR', ctx.base), ('USUÁRIO', usuario_inexistente()),
+                                  ('SENHA', f'senha-errada-{tentativa}')):
+                if not preencher_campo(rotulo, valor):
+                    raise EtapaAmbiente(f'campo {rotulo} não ficou com o conteúdo digitado')
             adb('shell', 'input', 'keyevent', '4')
             time.sleep(1)
             botao = achar_texto(dump(), 'Iniciar sessão') or campos['botao']
@@ -269,11 +262,7 @@ def e08_senha_errada(ctx):
             time.sleep(8)
             ctx.achados += [(g, c, f'08-senha-errada #{tentativa + 1}: {d}') for g, c, d in checar_tela(ctx, 'senha errada')]
         # volta com a conta dedicada
-        m, nos = esperar_marco({'login'}, 20)
-        campos = campos_login(nos)
-        if m == 'login':
-            for k, v in (('servidor', ctx.base), ('usuario', CONTA), ('senha', '')):
-                limpar_e_digitar(campos[k], v)
+        esperar_marco({'login'}, 20)
         if not entrar_pela_interface(ctx.base):
             ctx.achados.append((VERMELHO, 'login-depois-das-falhas', 'a conta dedicada não voltou a entrar'))
     rodar(ctx, '08-senha-errada-5x', etapa)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Usuário desastrado: caixa-preta por adb. Login pela interface, monkey restrito ao pacote, detectores sobre os textos.
 
-Só usa a conta `teste-sem-senha` (senha vazia): nunca tenta senha errada em conta real. Nada de credencial em log ou artifact:
+Só usa a conta `teste-sem-senha` (senha vazia). A etapa de senha errada usa usuários INEXISTENTES gerados: nunca conta real. Nada de credencial em log ou artifact:
 tudo que sai passa por limpar_log. A classificação final é verde / ATENÇÃO / vermelho, como a bancada.
 """
 import json
@@ -13,143 +13,17 @@ import time
 from pathlib import Path
 
 from capturas import APP_ID, adb
-from desastre import (VERMELHO, ATENCAO, analisar_logcat, analisar_monkey, app_em_primeiro_plano, assinatura_tela,
-                      achar_texto, campos_login, classificar, eventos_injetados, filtrar_pid, marco,
-                      parse_uiautomator, pids_do_app, teclado_visivel, tela_presa, texto_tecnico_na_ui)
+from desastre import (VERMELHO, ATENCAO, analisar_logcat, analisar_monkey, classificar, eventos_injetados,
+                      filtrar_pid, marco, pids_do_app, texto_tecnico_na_ui)
 from servidor import BancadaIndisponivel, Servidor, limpar_log
+from ui import (CONTA, abrir_app, dump, entrar_pela_interface, pid_do_app, recuperar, sair_pela_interface, texto)
+import caos
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / '.bancada/desastrado'
-CONTA = 'teste-sem-senha'
 SEMENTE = 20261028
 EVENTOS = 5000
 APK = ROOT / 'build/app/outputs/flutter-apk/app-debug.apk'
-
-
-def texto(*args, tempo=30):
-    try:
-        r = subprocess.run(['adb', *args], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=tempo)
-        return r.stdout.decode(errors='replace')
-    except (subprocess.TimeoutExpired, OSError):
-        return ''
-
-
-def dump():
-    """Hierarquia atual da tela como lista de nós ([] se o uiautomator falhar)."""
-    return parse_uiautomator(_xml_do_dump())
-
-
-def _xml_do_dump():
-    bruto = texto('exec-out', 'uiautomator', 'dump', '/dev/stdout')
-    inicio, fim = bruto.find('<?xml'), bruto.rfind('</hierarchy>')
-    return bruto[inicio:fim + len('</hierarchy>')] if inicio >= 0 and fim > 0 else ''
-
-
-def tocar(no):
-    x, y = no['centro']
-    adb('shell', 'input', 'tap', str(x), str(y))
-
-
-def digitar(valor):
-    adb('shell', 'input', 'text', shlex.quote(valor.replace(' ', '%s')))
-
-
-def pid_do_app():
-    return [int(p) for p in texto('shell', 'pidof', APP_ID).split() if p.isdigit()]
-
-
-def em_primeiro_plano():
-    return app_em_primeiro_plano(texto('shell', 'dumpsys', 'activity', 'activities'), APP_ID)
-
-
-def abrir_app():
-    adb('shell', 'monkey', '-p', APP_ID, '-c', 'android.intent.category.LAUNCHER', '1')
-
-
-def esperar_marco(querido, tempo, passo=3):
-    """Espera um marco; também aceita o pedido de permissão do sistema. Devolve (marco, nós)."""
-    limite = time.monotonic() + tempo
-    nos = []
-    while time.monotonic() < limite:
-        nos = dump()
-        m = marco(nos)
-        if m in querido:
-            return m, nos
-        permitir = achar_texto(nos, 'Permitir', 'Allow', 'While using the app')
-        if permitir and 'permission' in permitir['pkg']:
-            tocar(permitir)
-        time.sleep(passo)
-    return marco(nos), nos
-
-
-def entrar_pela_interface(servidor):
-    """Como uma pessoa: acha os campos no dump, digita servidor e conta, toca em Iniciar sessão."""
-    m, nos = esperar_marco({'login', 'inicio'}, 90)
-    if m == 'inicio':
-        return True
-    campos = campos_login(nos)
-    if not all(campos.get(k) for k in ('servidor', 'usuario', 'botao')):
-        return False
-    tocar(campos['servidor'])
-    digitar(servidor)
-    tocar(campos['usuario'])
-    digitar(CONTA)
-    # Senha vazia: o campo fica como está. O teclado pode cobrir o botão: fecha só se estiver aberto.
-    if teclado_visivel(texto('shell', 'dumpsys', 'input_method')):
-        adb('shell', 'input', 'keyevent', '4')
-        time.sleep(1)
-    botao = achar_texto(dump(), 'Iniciar sessão') or campos['botao']
-    tocar(botao)
-    m, _ = esperar_marco({'inicio'}, 90)
-    return m == 'inicio'
-
-
-def recuperar(achados, rotulo):
-    """Volta a um estado utilizável. Devolve (marco, retomou). Três ações: Voltar, relançar, Home+relançar."""
-    acoes = [lambda: adb('shell', 'input', 'keyevent', '4'), abrir_app,
-             lambda: (adb('shell', 'input', 'keyevent', '3'), time.sleep(1), abrir_app())]
-    nos = dump()
-    dumps = [assinatura_tela(nos)]
-    if em_primeiro_plano() and marco(nos):
-        return marco(nos), True
-    for acao in acoes:
-        acao()
-        time.sleep(4)
-        nos = dump()
-        dumps.append(assinatura_tela(nos))
-        if em_primeiro_plano() and marco(nos):
-            return marco(nos), True
-    retomou = em_primeiro_plano()
-    # Tela estática com marco conhecido não é "presa"; só tela desconhecida e idêntica nas quatro leituras.
-    if retomou and marco(nos) is None and tela_presa(dumps):
-        achados.append((VERMELHO, 'tela-presa', f'{rotulo}: tela desconhecida igual após Voltar, relançar e Home+relançar'))
-        retomou = False
-    elif not retomou:
-        achados.append((VERMELHO, 'app-fora-do-primeiro-plano', f'{rotulo}: não voltou após relançar'))
-    return marco(nos), retomou
-
-
-def sair_pela_interface():
-    """Sair da conta pelo menu Você; devolve True se o app voltou ao login."""
-    nos = dump()
-    if marco(nos) != 'inicio':
-        return False
-    voce = achar_texto(nos, 'Você')
-    if not voce:
-        return False
-    tocar(voce)
-    time.sleep(2)
-    sair = achar_texto(dump(), 'Sair da conta')
-    if not sair:
-        return False
-    tocar(sair)
-    time.sleep(2)
-    confirmar = [n for n in dump() if n['centro'] and n['text'].strip() == 'Sair']
-    if not confirmar:
-        return False
-    tocar(confirmar[-1])
-    m, _ = esperar_marco({'login'}, 30)
-    return m == 'login'
 
 
 def sessoes_restantes(base):
@@ -227,6 +101,19 @@ def main():
         achados += analisar_logcat(logcat, APP_ID, pids)
         (OUT / 'logcat-app.log').write_text(limpo(filtrar_pid(logcat, pids))[-1500000:])
         relatorio['pids_do_app'] = len(pids)
+
+        # Roteiro de caos (P6-2): etapas independentes; cada uma recupera, confere marco e roda os detectores.
+        adb('logcat', '-c')
+        ctx = caos.Ctx(base, achados, limpo, OUT, pids)
+        try:
+            relatorio['etapas'] = caos.roteiro(ctx)
+        finally:
+            (OUT / 'logcat-caos.log').write_text(limpo('\n'.join(ctx.logcat_total))[-1500000:])
+            pids = ctx.pids
+        m, retomou = recuperar(achados, 'depois do caos')
+        relatorio['marco_final'] = m
+        if m is None:
+            achados.append((ATENCAO, 'sem-marco-final', 'nem tela inicial nem login depois do caos'))
 
         # Sessão: sair pela interface (se o monkey não deixou deslogado) e conferir no servidor.
         if marco(dump()) == 'inicio' and not sair_pela_interface():

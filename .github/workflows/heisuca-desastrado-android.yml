@@ -17,7 +17,7 @@ jobs:
   desastrado:
     name: Usuário desastrado no emulador (caixa-preta por adb)
     runs-on: ubuntu-latest
-    timeout-minutes: 70
+    timeout-minutes: 90
     defaults:
       run:
         working-directory: apps/app
@@ -140,7 +140,10 @@ jobs:
               summary.write('### Usuário desastrado: ' + report['estado'] + '\n\n')
               if report.get('motivo'): summary.write(report['motivo'] + '\n\n')
               summary.write(f"Monkey: semente {report.get('semente')}, {report.get('eventos_injetados')} de {report.get('eventos_pedidos')} eventos, pacote {report.get('pacote')}.\n\n")
-              for item in report.get('achados', [])[:30]:
+              for etapa in report.get('etapas', []):
+                  summary.write(f"- etapa {etapa['nome']}: {etapa['resultado']} ({etapa['inicio']}s a {etapa['fim']}s)\n")
+              summary.write('\n')
+              for item in report.get('achados', [])[:40]:
                   summary.write(f"- [{item['gravidade']}] {item['codigo']}: {item['detalhe']}\n")
               summary.write('\nConta dedicada com senha vazia; nenhuma tentativa de senha errada. Falha de infraestrutura nunca é verde.\n')
           if report['estado'] == 'vermelho':

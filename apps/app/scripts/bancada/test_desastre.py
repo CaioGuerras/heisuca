@@ -158,3 +158,100 @@ class Plano(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+from desastre import (nos_sem_rotulo, escolher_cartao, botoes_de_toque, densidade_para_dp, tamanho_da_tela,
+                      densidade_atual, usuario_inexistente, comandos_iptables, ips_do_host, executar_etapa,
+                      EtapaAmbiente, mensagem_pt)
+
+
+class Caos(unittest.TestCase):
+    def test_nos_sem_rotulo(self):
+        nos = parse_uiautomator(xml(
+            no('android.widget.ImageButton', b='[0,0][100,100]'),
+            no('android.view.View', desc='Buscar', b='[100,0][200,100]'),
+            no('android.view.View', b='[0,200][400,400]'), no(text='Título', b='[10,210][300,260]')))
+        # o grupo [0,200][400,400] está coberto por um filho rotulado; o ImageButton não
+        self.assertEqual(nos_sem_rotulo(nos), [('ImageButton', (0, 0, 100, 100))])
+        self.assertEqual(nos_sem_rotulo([]), [])
+
+    def test_ingles_de_rede_e_mensagem_pt(self):
+        nos = parse_uiautomator(xml(no(text='Connection refused'), no(text='Network is unreachable'),
+                                    no(text='Failed to load'), no(text='Sem conexão. Tente novamente.')))
+        self.assertEqual(len(texto_tecnico_na_ui(nos)), 3)
+        self.assertTrue(mensagem_pt(nos))
+        self.assertFalse(mensagem_pt(parse_uiautomator(xml(no(text='Início')))))
+        self.assertEqual(texto_tecnico_na_ui(parse_uiautomator(xml(no(text='Não foi possível conectar ao servidor')))), [])
+
+    def test_cartao_e_botoes(self):
+        nos = parse_uiautomator(xml(
+            no(desc='Início', b='[0,1100][100,1200]'), no(text='Duna', b='[40,400][300,600]'),
+            no(text='Assistir', b='[40,700][500,800]')))
+        self.assertEqual(escolher_cartao(nos, 540, 1200)['text'], 'Duna')
+        alvos = botoes_de_toque(nos, 540, 1200)
+        self.assertEqual([a['centro'] for a in alvos], [(170, 500), (270, 750), (50, 1150)])
+        self.assertIsNone(escolher_cartao([], 540, 1200))
+
+    def test_tela_e_densidade(self):
+        self.assertEqual(densidade_para_dp(540), 270)
+        self.assertEqual(densidade_para_dp(1080), 540)
+        saida = 'Physical size: 1080x2400\nOverride size: 540x1200\n'
+        self.assertEqual(tamanho_da_tela(saida), (540, 1200))
+        self.assertIsNone(tamanho_da_tela(''))
+        self.assertEqual(densidade_atual('Physical density: 420\nOverride density: 210'), 210)
+
+    def test_usuario_inexistente_e_iptables(self):
+        a, b = usuario_inexistente(), usuario_inexistente()
+        self.assertTrue(a.startswith('desastrado-') and a != b)
+        self.assertEqual(usuario_inexistente('abc'), 'desastrado-abc')
+        cmds = comandos_iptables(['1.2.3.4', '2001:db8::1'])
+        self.assertEqual(cmds[0], ['iptables', '-I', 'OUTPUT', '-d', '1.2.3.4', '-j', 'REJECT'])
+        self.assertEqual(cmds[1][0], 'ip6tables')
+        self.assertEqual(comandos_iptables(['1.2.3.4'], inserir=False)[0][1], '-D')
+        self.assertEqual(ips_do_host('https://x.exemplo/abc', lambda h: ['9.9.9.9', '9.9.9.9']), ['9.9.9.9'])
+        self.assertEqual(ips_do_host('sem-host', lambda h: ['1']), [])
+
+
+class Etapa(unittest.TestCase):
+    def rodar(self, etapa, **kw):
+        achados, chamadas = [], []
+        reg = executar_etapa('t', etapa, achados, restaurar=lambda: chamadas.append('r'), **kw)
+        return reg, achados, chamadas
+
+    def test_restauracao_sempre_chamada(self):
+        def falha(): raise ValueError('x')
+        for etapa in (lambda: None, falha, lambda: (_ for _ in ()).throw(EtapaAmbiente('sem root'))):
+            _, _, chamadas = self.rodar(etapa)
+            self.assertEqual(chamadas, ['r'])
+
+    def test_falha_de_ambiente_vira_atencao_com_motivo(self):
+        def sem_root(): raise EtapaAmbiente('sem root')
+        reg, achados, _ = self.rodar(sem_root)
+        self.assertEqual(reg['resultado'], 'ambiente')
+        self.assertEqual(achados, [('atenção', 'etapa-ambiente', 't: sem root')])
+
+    def test_excecao_nao_propaga_e_so_leva_o_tipo(self):
+        def falha(): raise ValueError('segredo-no-texto')
+        reg, achados, _ = self.rodar(falha)
+        self.assertEqual(reg['resultado'], 'erro')
+        self.assertNotIn('segredo', str(achados))
+
+    def test_falha_na_restauracao_e_registrada(self):
+        achados = []
+        def ruim(): raise OSError('x')
+        executar_etapa('t', lambda: None, achados, restaurar=ruim)
+        self.assertEqual(achados[0][1], 'restauracao-falhou')
+
+    def test_depois_roda_apos_restauracao_e_soma_achados(self):
+        ordem = []
+        achados = []
+        executar_etapa('t', lambda: ordem.append('e'), achados, restaurar=lambda: ordem.append('r'),
+                       depois=lambda: (ordem.append('d'), [('vermelho', 'x', 'y')])[1])
+        self.assertEqual(ordem, ['e', 'r', 'd'])
+        self.assertEqual(achados, [('vermelho', 'x', 'y')])
+
+    def test_prazo_esgotado_pula_sem_rodar(self):
+        ordem = []
+        reg, achados, chamadas = self.rodar(lambda: ordem.append('e'), prazo_ok=lambda: False)
+        self.assertEqual((reg['resultado'], ordem, chamadas), ('pulada', [], []))
+        self.assertEqual(achados[0][1], 'etapa-pulada')

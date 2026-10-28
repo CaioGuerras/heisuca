@@ -4,6 +4,8 @@ Nada aqui fala com o emulador: tudo recebe texto e devolve achados, para ser tes
 Achado = (gravidade, código, detalhe curto). Gravidades: 'vermelho' ou 'atenção'.
 """
 import re
+import time
+import uuid
 import xml.etree.ElementTree as ET
 
 VERMELHO = 'vermelho'
@@ -15,6 +17,8 @@ ORIGEM_PIP = re.compile(r'video_controls_header\.dart:59:12|mobile_video_control
 
 TEXTO_TECNICO = re.compile(
     r"\b[A-Z][A-Za-z]*Exception\b|\bException:|Failed host lookup|\bTypeError\b|\bNull check operator|type 'Null'|"
+    r"Connection (?:refused|closed|reset)|\btimed out\b|Network is unreachable|No address associated|"
+    r"HandshakeException|\bUnable to\b|\bFailed to\b|\bClientException\b|"
     r"\bNoSuchMethodError\b|\bStateError\b|\bRangeError\b|\bnull\b|\bError:|\bStack ?trace\b")
 
 
@@ -203,3 +207,147 @@ def classificar(achados, marco_final=None, retomou=True):
     if achados or marco_final is None:
         return 'ATENÇÃO'
     return 'verde'
+
+
+# ---------- caos (P6-2) ----------
+
+PT_MENSAGEM = re.compile(
+    r'sem conex|conexão|conexao|internet|offline|tente novamente|não foi possível|nao foi possivel|servidor|'
+    r'indisponível|usuário ou senha|senha incorreta|incorret|inválid', re.I)
+ABAS = ('início', 'biblioteca', 'baixados', 'você', 'favoritos')
+
+
+def mensagem_pt(nos):
+    """True se algum rótulo visível parece mensagem de erro/aviso em português."""
+    return any(PT_MENSAGEM.search(r) for n in nos for r in _rotulos(n) if len(r) <= 300)
+
+
+def nos_sem_rotulo(nos):
+    """Nós clicáveis e visíveis sem texto nem descrição (leitor de tela não saberia dizer o que são).
+
+    Devolve lista de (classe, limites). O nó 'pai' que só agrupa filhos rotulados não entra: se algum
+    descendente por limites tem rótulo, o nó está coberto.
+    """
+    sem = []
+    for n in nos:
+        if not n['clickable'] or not n['centro'] or _rotulos(n):
+            continue
+        b = n['bounds']
+        coberto = any(o is not n and o['bounds'] and _rotulos(o)
+                      and o['bounds'][0] >= b[0] and o['bounds'][1] >= b[1]
+                      and o['bounds'][2] <= b[2] and o['bounds'][3] <= b[3] for o in nos)
+        if not coberto:
+            sem.append((n['cls'].rsplit('.', 1)[-1], b))
+    return sem
+
+
+def escolher_cartao(nos, largura, altura):
+    """Primeiro nó clicável com rótulo, no miolo da tela e que não seja aba nem botão de navegação."""
+    for n in nos:
+        if not (n['clickable'] and n['centro'] and _rotulos(n)):
+            continue
+        if n['text'].strip().lower() in ABAS or n['desc'].strip().lower() in ABAS:
+            continue
+        x, y = n['centro']
+        if 0.15 * altura <= y <= 0.8 * altura and 0 < x < largura:
+            return n
+    return None
+
+
+def botoes_de_toque(nos, largura, altura, limite=6):
+    """Alvos para toque duplo/triplo: cartão, Play/Assistir e abas, no máximo [limite]."""
+    alvos = []
+    for rotulos in (('assistir', 'play', 'reproduzir'), ABAS):
+        for n in nos:
+            if n['clickable'] and n['centro'] and any(r.strip().lower() in rotulos for r in _rotulos(n)):
+                alvos.append(n)
+    cartao = escolher_cartao(nos, largura, altura)
+    if cartao:
+        alvos.insert(0, cartao)
+    vistos, saida = set(), []
+    for n in alvos:
+        if n['centro'] not in vistos:
+            vistos.add(n['centro'])
+            saida.append(n)
+    return saida[:limite]
+
+
+def densidade_para_dp(largura_px, dp_menor=320):
+    """Densidade (dpi) que deixa a menor largura em [dp_menor] dp: o 'tamanho de tela maior' do Android."""
+    return max(120, int(round(largura_px * 160 / dp_menor)))
+
+
+def tamanho_da_tela(saida_wm):
+    """Último 'WxH' de `wm size` (o override vence o físico)."""
+    achados = re.findall(r'(\d+)x(\d+)', saida_wm)
+    return (int(achados[-1][0]), int(achados[-1][1])) if achados else None
+
+
+def densidade_atual(saida_wm):
+    achados = re.findall(r'density:\s*(\d+)', saida_wm)
+    return int(achados[-1]) if achados else None
+
+
+def usuario_inexistente(sufixo=None):
+    return 'desastrado-' + (sufixo or uuid.uuid4().hex[:8])
+
+
+def comandos_iptables(ips, inserir=True):
+    """Comandos (sem 'adb shell') que bloqueiam/liberam a saída para [ips]; IPv6 usa ip6tables."""
+    saida = []
+    for ip in ips:
+        ferramenta = 'ip6tables' if ':' in ip else 'iptables'
+        saida.append([ferramenta, '-I' if inserir else '-D', 'OUTPUT', '-d', ip, '-j', 'REJECT'])
+    return saida
+
+
+def ips_do_host(url, resolver):
+    """IPs do host da URL, resolvidos por [resolver(host) -> lista de IPs]; sem duplicar."""
+    from urllib.parse import urlsplit
+    host = urlsplit(url).hostname
+    if not host:
+        return []
+    return sorted(set(resolver(host)))
+
+
+class EtapaAmbiente(Exception):
+    """A etapa não pôde rodar por causa do ambiente (sem root, sem pacote...): vira ATENÇÃO, não derruba as outras."""
+
+
+def executar_etapa(nome, etapa, achados, restaurar=None, depois=None, prazo_ok=lambda: True, relogio=time.monotonic):
+    """Roda uma etapa de caos de forma independente.
+
+    [restaurar] roda SEMPRE (finally), mesmo se a etapa falhar. [depois] (recuperação, marco e detectores)
+    roda depois da restauração e devolve achados. Nada propaga: exceção da etapa vira ATENÇÃO com o motivo.
+    Devolve o registro da etapa: nome, início/fim em segundos, resultado e achados.
+    """
+    registro = {'nome': nome, 'inicio': round(relogio(), 1), 'resultado': 'ok', 'achados': []}
+    mine = []
+    if not prazo_ok():
+        mine.append((ATENCAO, 'etapa-pulada', f'{nome}: prazo do job esgotado'))
+        registro['resultado'] = 'pulada'
+    else:
+        try:
+            try:
+                etapa()
+            except EtapaAmbiente as erro:
+                registro['resultado'] = 'ambiente'
+                mine.append((ATENCAO, 'etapa-ambiente', f'{nome}: {erro}'))
+            except Exception as erro:  # noqa: BLE001 - uma etapa nunca derruba as outras
+                registro['resultado'] = 'erro'
+                mine.append((ATENCAO, 'etapa-falhou', f'{nome}: {type(erro).__name__}'))
+        finally:
+            if restaurar:
+                try:
+                    restaurar()
+                except Exception as erro:  # noqa: BLE001
+                    mine.append((ATENCAO, 'restauracao-falhou', f'{nome}: {type(erro).__name__}'))
+        if depois:
+            try:
+                mine += depois()
+            except Exception as erro:  # noqa: BLE001
+                mine.append((ATENCAO, 'checagem-falhou', f'{nome}: {type(erro).__name__}'))
+    registro['fim'] = round(relogio(), 1)
+    registro['achados'] = [{'gravidade': g, 'codigo': c, 'detalhe': d} for g, c, d in mine]
+    achados.extend(mine)
+    return registro

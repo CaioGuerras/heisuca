@@ -218,19 +218,61 @@ class DownloadStorageService {
     return md5.convert(utf8.encode(combined)).toString();
   }
 
+  /// Pasta de mídia por servidor e item. Os dois ids vêm do servidor e passam
+  /// por [safePathComponent]; o resultado ainda é conferido contra a raiz de
+  /// downloads ([_requireWithin]) ANTES de criar qualquer diretório.
   Future<Directory> getMediaDirectory(ServerId serverId, String ratingKey) async {
     final baseDir = await getDownloadsDirectory();
-    return _ensureDirectoryExists(Directory(path.join(baseDir.path, serverId, ratingKey)));
+    final target = path.join(baseDir.path, safePathComponent(serverId), safePathComponent(ratingKey));
+    _requireWithin(baseDir.path, target);
+    return _ensureDirectoryExists(Directory(target));
   }
 
   Future<String> getVideoFilePath(ServerId serverId, String ratingKey, String extension) async {
     final mediaDir = await getMediaDirectory(serverId, ratingKey);
-    return path.join(mediaDir.path, 'video.$extension');
+    return path.join(mediaDir.path, 'video.${safeExtension(extension)}');
+  }
+
+  /// Segurança (P5): um id ou nome vindo do servidor vira UM componente de
+  /// caminho, nunca mais. Ids legítimos (hex do Jellyfin, número do Plex, UUID:
+  /// `[A-Za-z0-9][A-Za-z0-9._-]*`, até 128) passam intactos; qualquer outra
+  /// coisa (separadores, `..`, `%2e%2e`, controles, vazio, gigante, nome
+  /// reservado do Windows) tem os caracteres fora da lista trocados por `_`,
+  /// pontos iniciais removidos, é cortada e ganha um sufixo `~<md5>` do valor
+  /// original, para que ids diferentes não colidam depois de saneados.
+  static String safePathComponent(String raw) {
+    if (_plainComponent.hasMatch(raw) && !_reservedName.hasMatch(raw) && !raw.contains('..')) return raw;
+    var cleaned = raw.replaceAll(RegExp(r'[^A-Za-z0-9._-]'), '_').replaceFirst(RegExp(r'^\.+'), '');
+    if (cleaned.length > 100) cleaned = cleaned.substring(0, 100);
+    cleaned = cleaned.replaceAll('..', '_');
+    return '${cleaned.isEmpty ? '_' : cleaned}~${md5.convert(utf8.encode(raw)).toString().substring(0, 8)}';
+  }
+
+  /// Extensão de arquivo vinda do servidor: só `[A-Za-z0-9._-]` (começando por
+  /// alfanumérico, até 40, sem `..`). Fora disso vira `bin`.
+  static String safeExtension(String raw) {
+    if (_plainExtension.hasMatch(raw) && !raw.contains('..')) return raw;
+    return 'bin';
+  }
+
+  static final RegExp _plainComponent = RegExp(r'^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$');
+  static final RegExp _plainExtension = RegExp(r'^[A-Za-z0-9][A-Za-z0-9._-]{0,39}$');
+  static final RegExp _reservedName = RegExp(r'^(con|prn|aux|nul|com[1-9]|lpt[1-9])(\..*)?$', caseSensitive: false);
+
+  /// Garante que [candidate] (já canonicalizado) fica DENTRO de [root]. Última
+  /// barreira contra escrita fora da pasta do app, mesmo se um saneador falhar.
+  void _requireWithin(String root, String candidate) {
+    final canonicalRoot = path.canonicalize(root);
+    final canonical = path.canonicalize(candidate);
+    if (!path.isWithin(canonicalRoot, canonical)) {
+      throw DownloadStorageException('Path escapes the downloads directory', candidate, 'containment');
+    }
   }
 
   Future<Directory> getSubtitlesDirectory(ServerId serverId, String ratingKey) async {
     final mediaDir = await getMediaDirectory(serverId, ratingKey);
     final subtitlesDir = Directory(path.join(mediaDir.path, 'subtitles'));
+    _requireWithin(mediaDir.path, subtitlesDir.path);
     if (!await subtitlesDir.exists()) {
       await subtitlesDir.create(recursive: true);
     }
@@ -239,18 +281,39 @@ class DownloadStorageService {
 
   Future<String> getSubtitlePath(ServerId serverId, String ratingKey, int trackId, String extension) async {
     final subtitlesDir = await getSubtitlesDirectory(serverId, ratingKey);
-    return path.join(subtitlesDir.path, '$trackId.$extension');
+    return _subtitleFile(subtitlesDir.path, trackId, extension);
   }
+
+  /// `{trackId}.{ext}` dentro de [dir], com a extensão saneada e a contenção
+  /// conferida (a extensão da legenda é decidida pelo servidor).
+  String _subtitleFile(String dir, int trackId, String extension) {
+    final file = path.join(dir, '$trackId.${safeExtension(extension)}');
+    _requireWithin(dir, file);
+    return file;
+  }
+
+  /// Máximo de bytes (UTF-8) de um título dentro de um nome de arquivo ou pasta.
+  /// O limite comum dos sistemas de arquivos é 255 bytes por componente; sobra
+  /// espaço para ` (AAAA)`, ` [tag]` e a extensão.
+  static const int _maxTitleBytes = 120;
 
   /// Sanitize a filename by removing invalid filesystem characters
   String _sanitizeFileName(String name) {
-    // Remove invalid filesystem characters: < > : " / \ | ? *
-    // Also remove leading/trailing whitespace and dots
-    return name
-        .replaceAll(RegExp(r'[<>:"/\\|?*]'), '')
+    // Remove invalid filesystem characters: < > : " / \ | ? * e controles
+    // (U+0000..U+001F, U+007F). Also remove leading/trailing whitespace and dots.
+    var cleaned = name
+        .replaceAll(RegExp(r'[<>:"/\\|?*\u0000-\u001f\u007f]'), '')
         .replaceAll(RegExp(r'^\.+|\.+$'), '')
         .replaceAll('.', '_')
         .trim();
+    // Corta por bytes UTF-8, sem partir um caractere ao meio.
+    while (utf8.encode(cleaned).length > _maxTitleBytes) {
+      cleaned = cleaned.substring(0, cleaned.length - 1);
+    }
+    cleaned = cleaned.trim();
+    // `CON`, `NUL`... são nomes reservados no Windows.
+    if (_reservedName.hasMatch(cleaned)) cleaned = '_$cleaned';
+    return cleaned;
   }
 
   /// Ensure a directory exists, creating it if necessary.
@@ -269,6 +332,7 @@ class DownloadStorageService {
   /// Format a media title with optional year: "Title (YYYY)" or "Title"
   String _formatTitleWithYear(String title, int? year) {
     final sanitized = _sanitizeFileName(title);
+    if (sanitized.isEmpty) return year != null ? 'Unknown ($year)' : 'Unknown';
     return year != null ? '$sanitized ($year)' : sanitized;
   }
 
@@ -319,7 +383,9 @@ class DownloadStorageService {
   /// lists SAF uses so the two layouts cannot drift.
   Future<Directory> _downloadsSubdirectory(List<String> components) async {
     final baseDir = await getDownloadsDirectory();
-    return _ensureDirectoryExists(Directory(path.joinAll([baseDir.path, ...components])));
+    final target = path.joinAll([baseDir.path, ...components]);
+    _requireWithin(baseDir.path, target);
+    return _ensureDirectoryExists(Directory(target));
   }
 
   /// Get movie directory: downloads/Movies/{Movie Name (YYYY)}/
@@ -376,7 +442,7 @@ class DownloadStorageService {
   /// [showYear]: Pass the show's premiere year (not episode year)
   Future<String> getEpisodeSubtitlePath(MediaItem episode, int trackId, String extension, {int? showYear}) async {
     final subsDir = await getEpisodeSubtitlesDirectory(episode, showYear: showYear);
-    return path.join(subsDir.path, '$trackId.$extension');
+    return _subtitleFile(subsDir.path, trackId, extension);
   }
 
   Future<Directory> getMovieSubtitlesDirectory(MediaItem movie) async {
@@ -391,7 +457,7 @@ class DownloadStorageService {
 
   Future<String> getMovieSubtitlePath(MediaItem movie, int trackId, String extension) async {
     final subsDir = await getMovieSubtitlesDirectory(movie);
-    return path.join(subsDir.path, '$trackId.$extension');
+    return _subtitleFile(subsDir.path, trackId, extension);
   }
 
   /// Get album directory for a track: downloads/Music/{Artist}/{Album}/
@@ -562,7 +628,7 @@ class DownloadStorageService {
   }
 
   String getMovieSafFileName(MediaItem movie, String extension) {
-    return '${_getMovieFileBaseName(movie)}.$extension';
+    return '${_getMovieFileBaseName(movie)}.${safeExtension(extension)}';
   }
 
   /// Get the extension-less movie filename used for SAF lookups.
@@ -570,11 +636,11 @@ class DownloadStorageService {
 
   String getEpisodeSafFileName(MediaItem episode, String extension) {
     final fileName = _formatEpisodeFileName(episode);
-    return '$fileName.$extension';
+    return '$fileName.${safeExtension(extension)}';
   }
 
   String getTrackSafFileName(MediaItem track, String extension) {
-    return '${_formatTrackFileName(track)}.$extension';
+    return '${_formatTrackFileName(track)}.${safeExtension(extension)}';
   }
 
   /// Get the extension-less episode filename used for SAF lookups.
@@ -602,7 +668,7 @@ class DownloadStorageService {
     if (metadata.isTrack) {
       return (components: getTrackSafPathComponents(metadata), fileName: getTrackSafFileName(metadata, extension));
     }
-    return (components: [serverId!, metadata.id], fileName: 'video.$extension');
+    return (components: [safePathComponent(serverId!), safePathComponent(metadata.id)], fileName: 'video.${safeExtension(extension)}');
   }
 
   bool isSafUri(String storedPath) {

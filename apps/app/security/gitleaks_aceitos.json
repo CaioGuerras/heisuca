@@ -1,1 +1,6 @@
-[]
+[
+  {
+    "fingerprint": "98d13f406c1c6b835007727ccf1624b024afd1b3:apps/app/scripts/bancada/test_desastre.py:generic-api-key:469",
+    "motivo": "Falso positivo: valor de teste ('ApiKey=z'/token fictício) numa fixture do desastrado; trocado por XXXX-falso em bcd905d. Só no histórico."
+  }
+]

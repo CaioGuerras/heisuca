@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
-    <!-- App-internal files directory (getApplicationDocumentsDirectory on Android) -->
+    <!-- App-internal files directory (getApplicationSupportDirectory on Android) -->
     <files-path name="app_files" path="." />
     <!-- External files directory (fallback) -->
     <external-files-path name="external_files" path="." />
@@ -9,6 +9,9 @@
     <!-- Cache directories -->
     <cache-path name="cache" path="." />
     <external-cache-path name="external_cache" path="." />
-    <!-- Filesystem root (ultimate fallback for any absolute path) -->
+    <!-- Filesystem root: os downloads padrão ficam em <dados>/app_flutter/downloads (getApplicationDocumentsDirectory),
+         fora das raízes acima, e a pasta de download escolhida pode estar em cartão SD. A contenção é feita no emissor
+         (ExternalFileContainment, chamada por ExternalPlayerChannel antes de getUriForFile): nada dentro dos dados
+         privados do app, exceto app_flutter/downloads e o cache, ganha URI. -->
     <root-path name="root" path="" />
 </paths>

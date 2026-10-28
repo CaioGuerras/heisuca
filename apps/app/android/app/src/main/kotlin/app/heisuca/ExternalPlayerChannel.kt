@@ -184,7 +184,16 @@ internal class ExternalPlayerChannel(private val activity: Activity) {
     }
 
     val path = if (filePath.startsWith("file://")) filePath.removePrefix("file://") else filePath
-    val file = File(path)
+    // Contenção antes de qualquer getUriForFile: o root-path do FileProvider alcançaria shared_prefs e databases.
+    val file = ExternalFileContainment.resolveShareable(
+      path,
+      privateRoots = listOfNotNull(activity.applicationInfo.dataDir, activity.applicationInfo.deviceProtectedDataDir)
+        .map(::File),
+      allowedInsidePrivate = listOf(
+        File(activity.applicationInfo.dataDir, "app_flutter/downloads"),
+        activity.cacheDir
+      )
+    ) ?: throw IllegalArgumentException("Arquivo fora das pastas que o app pode compartilhar")
     val uri = FileProvider.getUriForFile(activity, "${activity.packageName}.fileprovider", file)
     return Source(uri, grantRead = true, fileName = file.name)
   }

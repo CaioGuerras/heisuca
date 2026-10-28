@@ -81,18 +81,23 @@ void main() {
     }
   });
 
-  // PENDENTE: o root-path de file_provider_paths.xml ainda é necessário. O diretório de downloads padrão
-  // vem de getApplicationDocumentsDirectory(), que no Android é <dados>/app_flutter (getDir("flutter")),
-  // fora de files-path e cache-path; sem o root-path, vídeos e legendas baixados não abrem no player externo.
-  // Remover só depois de mover os downloads para files/ ou de dar a eles um provider próprio.
-  test(
-    'FileProvider sem root-path (não emite URI para shared_prefs nem databases)',
-    () {
-      final paths = XmlDocument.parse(File('$_xmlDir/file_provider_paths.xml').readAsStringSync());
-      expect(paths.findAllElements('root-path'), isEmpty);
-    },
-    skip: 'pendente: downloads padrão ficam em app_flutter/, só coberto pelo root-path',
-  );
+  // O root-path é necessário (downloads padrão em app_flutter/downloads, cartão SD); a segurança vem da
+  // contenção no emissor, que tem de rodar antes de qualquer getUriForFile.
+  test('root-path só existe com a contenção chamada antes de getUriForFile', () {
+    final paths = XmlDocument.parse(File('$_xmlDir/file_provider_paths.xml').readAsStringSync());
+    final rootPaths = paths.findAllElements('root-path');
+    final kotlin = File('android/app/src/main/kotlin/app/heisuca/ExternalPlayerChannel.kt').readAsStringSync();
+    final contencao = kotlin.indexOf('ExternalFileContainment.resolveShareable');
+    final uri = kotlin.indexOf('FileProvider.getUriForFile');
+    expect(uri, greaterThan(0));
+    expect('FileProvider.getUriForFile'.allMatches(kotlin).length, 1, reason: 'todo URI deve sair do mesmo ponto');
+    if (rootPaths.isNotEmpty) {
+      expect(contencao, greaterThan(0), reason: 'root-path exige a contenção no emissor');
+      expect(contencao, lessThan(uri), reason: 'a contenção deve vir antes de getUriForFile');
+    }
+    // A contenção proíbe os dados privados exceto downloads e cache.
+    expect(kotlin, contains('app_flutter/downloads'));
+  });
 
   test('intent-filters de dados: só plezy://play e plezy://live', () {
     final hosts = <String>{};

@@ -12,7 +12,6 @@ import '../models/hotkey_model.dart';
 import '../models/shader_preset.dart';
 import '../navigation/navigation_tabs.dart';
 import '../providers/download_provider.dart';
-import '../providers/companion_remote_provider.dart';
 import '../providers/shader_provider.dart';
 import '../utils/platform_detector.dart';
 import 'agent_control_protocol.dart';
@@ -117,7 +116,6 @@ class AgentSettingsCommands {
             );
           }
           context.checkCurrent();
-          if (key == 'enable_companion_remote_server' && value == true && !context.hasProfile) return;
           if (!context.context.mounted) return;
           try {
             final failure = await const SettingsMutationService().applyEffects(
@@ -200,10 +198,6 @@ class AgentSettingsCommands {
         if (!PlatformDetector.shouldUseSideNavigation(context)) return 'This setting requires the sidebar layout.';
       case 'show_nav_bar_labels':
         if (PlatformDetector.shouldUseSideNavigation(context)) return 'This setting requires bottom navigation.';
-      case 'enable_companion_remote_server':
-        if (!PlatformDetector.shouldActAsRemoteHost(context)) {
-          return 'This device is a companion controller, not a host.';
-        }
       case 'start_in_fullscreen' || 'exit_fullscreen_on_player_close' || 'player_always_on_top':
         if (!desktop) return 'Window behavior requires a desktop platform.';
       case 'auto_pip':
@@ -513,9 +507,6 @@ class AgentSettingsCommands {
     final settings = SettingsService.instance;
     final pref = _prefs[key];
     final musicOwner = key == 'music_volume' ? context.context.read<MusicPlaybackService?>() : null;
-    final companionOwner = key == 'enable_companion_remote_server'
-        ? context.context.read<CompanionRemoteProvider?>()
-        : null;
     final Object? value;
     final bool hasOverride;
     final additional = <String, dynamic>{};
@@ -575,7 +566,6 @@ class AgentSettingsCommands {
     }
     context.checkCurrent();
     final needsProfileSession =
-        (key == 'enable_companion_remote_server' && value == true && !context.hasProfile) ||
         (key == 'music_volume' && musicOwner == null);
     final application = needsProfileSession ? 'nextProfileSession' : _application(key);
     final runtime = <String, dynamic>{
@@ -583,17 +573,6 @@ class AgentSettingsCommands {
       if (application == 'nextPlayback')
         'note': 'Saved default; this does not apply native properties to an already running player.',
     };
-    if (key == 'enable_companion_remote_server') {
-      final owner = companionOwner;
-      runtime.addAll({
-        'hostRunning': owner?.isHostServerRunning ?? false,
-        'state': application == 'nextProfileSession'
-            ? 'pendingProfileSession'
-            : owner?.status.name ?? 'ownerUnavailable',
-        if (settings.read(SettingsService.enableCompanionRemoteServer) && owner?.isCryptoReady != true)
-          'blocker': 'An active companion-compatible account identity is required.',
-      });
-    }
     if (key == 'music_volume') {
       final owner = musicOwner;
       runtime.addAll({

@@ -14,7 +14,6 @@ import 'package:heisuca/media/media_kind.dart';
 import 'package:heisuca/media/media_server_client.dart';
 import 'package:heisuca/mpv/models.dart';
 import 'package:heisuca/models/audio_channel_limit.dart';
-import 'package:heisuca/models/companion_remote/remote_command.dart';
 import 'package:heisuca/models/download_models.dart';
 import 'package:heisuca/mpv/player/audio_rendering_mode.dart';
 import 'package:heisuca/mpv/player/player.dart';
@@ -25,7 +24,6 @@ import 'package:heisuca/providers/multi_server_provider.dart';
 import 'package:heisuca/services/agent_control_protocol.dart';
 import 'package:heisuca/services/agent_playback_commands.dart';
 import 'package:heisuca/services/base_shared_preferences_service.dart';
-import 'package:heisuca/services/companion_remote/companion_remote_receiver.dart';
 import 'package:heisuca/services/media_controls_manager.dart';
 import 'package:heisuca/services/multi_server_manager.dart';
 import 'package:heisuca/services/music/music_playback_service.dart';
@@ -1837,26 +1835,6 @@ void main() {
       await pumpEventQueue();
       expect(await simulateKeyDownEvent(LogicalKeyboardKey.mediaPlayPause, platform: 'android'), isFalse);
       expect(await simulateKeyUpEvent(LogicalKeyboardKey.mediaPlayPause, platform: 'android'), isFalse);
-    });
-  });
-
-  group('companion remote transport', () {
-    test('remote transport buttons drive the live session until it stops', () async {
-      final receiver = CompanionRemoteReceiver.instance;
-      addTearDown(() => receiver.musicTransport = null);
-      await h.playTracks([t1, t2]);
-
-      receiver.handleCommand(const RemoteCommand(type: RemoteCommandType.nextTrack), null);
-      await pumpEventQueue();
-      expect(h.service.currentTrack?.id, 't2');
-
-      receiver.handleCommand(const RemoteCommand(type: RemoteCommandType.pause), null);
-      await pumpEventQueue();
-      expect(h.player.pauseCalls, 1);
-
-      await h.service.stop();
-      await pumpEventQueue();
-      expect(receiver.musicTransport, isNull);
     });
   });
 

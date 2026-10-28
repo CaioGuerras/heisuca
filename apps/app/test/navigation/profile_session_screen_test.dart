@@ -11,7 +11,6 @@ import 'package:heisuca/profiles/plex_home_service.dart';
 import 'package:heisuca/profiles/profile.dart';
 import 'package:heisuca/profiles/profile_connection_registry.dart';
 import 'package:heisuca/profiles/profile_registry.dart';
-import 'package:heisuca/providers/companion_remote_provider.dart';
 import 'package:heisuca/providers/discover_provider.dart';
 import 'package:heisuca/providers/hidden_libraries_provider.dart';
 import 'package:heisuca/providers/multi_server_provider.dart';
@@ -36,7 +35,6 @@ void main() {
     final graph = await _SessionGraph.create();
     final discoverProviders = <DiscoverProvider>[];
     final hiddenProviders = <HiddenLibrariesProvider>[];
-    final companionProviders = <CompanionRemoteProvider>[];
     final disposedActiveIds = <String>[];
     addTearDown(() async {
       await tester.pumpWidget(const SizedBox.shrink());
@@ -58,7 +56,6 @@ void main() {
       profileShellBuilder: (context) => _ProfileProbeShell(
         discoverProviders: discoverProviders,
         hiddenProviders: hiddenProviders,
-        companionProviders: companionProviders,
         disposedActiveIds: disposedActiveIds,
       ),
     );
@@ -69,11 +66,9 @@ void main() {
     expect(discoverProviders.single.profileId, owner.id);
     expect(discoverProviders, hasLength(1));
     expect(hiddenProviders, hasLength(1));
-    expect(companionProviders, hasLength(1));
     final ownerNavigator = profileNavigationRegistry.navigator;
     final ownerDiscover = discoverProviders.single;
     final ownerHidden = hiddenProviders.single;
-    final ownerCompanion = companionProviders.single;
     await ownerHidden.ensureInitialized();
     expect(ownerHidden.profileId, owner.id);
     expect(ownerHidden.hiddenLibraryKeys, {'srv:owner'});
@@ -92,9 +87,6 @@ void main() {
     expect(discoverProviders.last, isNot(same(ownerDiscover)));
     expect(hiddenProviders, hasLength(2));
     expect(hiddenProviders.last, isNot(same(ownerHidden)));
-    expect(companionProviders, hasLength(2));
-    expect(companionProviders.last, isNot(same(ownerCompanion)));
-    expect(ownerCompanion.isDisposed, isTrue);
     await hiddenProviders.last.ensureInitialized();
     expect(hiddenProviders.last.profileId, kids.id);
     expect(hiddenProviders.last.hiddenLibraryKeys, {'srv:kids'});
@@ -272,12 +264,10 @@ class _SessionGraph {
 class _ProfileProbeShell extends StatefulWidget {
   const _ProfileProbeShell({
     required this.discoverProviders,
-    required this.companionProviders,
     required this.hiddenProviders,
     required this.disposedActiveIds,
   });
 
-  final List<CompanionRemoteProvider> companionProviders;
   final List<DiscoverProvider> discoverProviders;
   final List<HiddenLibrariesProvider> hiddenProviders;
   final List<String> disposedActiveIds;
@@ -287,7 +277,6 @@ class _ProfileProbeShell extends StatefulWidget {
 }
 
 class _ProfileProbeShellState extends State<_ProfileProbeShell> {
-  CompanionRemoteProvider? _companionProvider;
   DiscoverProvider? _discoverProvider;
   HiddenLibrariesProvider? _hiddenProvider;
   String _activeId = 'none';
@@ -295,7 +284,6 @@ class _ProfileProbeShellState extends State<_ProfileProbeShell> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _companionProvider = context.read<CompanionRemoteProvider>();
     _discoverProvider = context.read<DiscoverProvider>();
     _hiddenProvider = context.read<HiddenLibrariesProvider>();
     _activeId = context.read<ActiveProfileProvider>().activeId ?? 'none';
@@ -304,9 +292,6 @@ class _ProfileProbeShellState extends State<_ProfileProbeShell> {
     }
     if (widget.hiddenProviders.isEmpty || !identical(widget.hiddenProviders.last, _hiddenProvider)) {
       widget.hiddenProviders.add(_hiddenProvider!);
-    }
-    if (widget.companionProviders.isEmpty || !identical(widget.companionProviders.last, _companionProvider)) {
-      widget.companionProviders.add(_companionProvider!);
     }
   }
 

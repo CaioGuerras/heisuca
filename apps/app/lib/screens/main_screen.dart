@@ -60,10 +60,7 @@ import '../services/multi_server_manager.dart';
 import '../services/offline_watch_sync_service.dart';
 import '../services/settings_service.dart';
 import '../providers/offline_mode_provider.dart';
-import '../services/companion_remote/companion_remote_host_controller.dart';
-import '../services/companion_remote/companion_remote_receiver.dart';
 import '../services/fullscreen_state_manager.dart';
-import '../providers/companion_remote_provider.dart';
 import '../utils/desktop_window_padding.dart';
 import '../utils/live_tv_deep_link.dart';
 import '../widgets/music/mini_player.dart';
@@ -121,10 +118,7 @@ bool shouldHandleDesktopRootEscape({
 /// mid-stream must resume the stream, not stack the root-navigator picker
 /// over the live player route, whose focus self-heal fights the picker for
 /// the remote (#2034) — the playback session already belongs to the profile
-/// that started it. Likewise never during a live companion-remote session:
-/// a phone driving another device backgrounds and sleeps constantly, and
-/// the picker + PIN would bury a session that already belongs to the
-/// profile that started it (#2087).
+/// that started it.
 @visibleForTesting
 bool shouldShowProfileSelectionOnResume({
   required bool resumedFromBackground,
@@ -132,14 +126,12 @@ bool shouldShowProfileSelectionOnResume({
   required bool alreadyShowingProfileSelection,
   required bool isMobilePlatform,
   required bool hasActiveVideoPlayback,
-  required bool hasActiveCompanionRemoteSession,
 }) {
   return resumedFromBackground &&
       !isOffline &&
       !alreadyShowingProfileSelection &&
       isMobilePlatform &&
-      !hasActiveVideoPlayback &&
-      !hasActiveCompanionRemoteSession;
+      !hasActiveVideoPlayback;
 }
 
 /// Latches whether the app has genuinely left the foreground since the last
@@ -618,11 +610,6 @@ class _MainScreenState extends State<MainScreen>
         // Ensure first login (or any unset profile state) requires explicit selection.
         await _promptForInitialProfileSelection();
         if (!mounted) return;
-
-        // Auto-start companion remote server once the active profile is known.
-        if (_companionRemoteSetup) {
-          unawaited(_autoStartCompanionRemoteServer());
-        }
       }
 
       // Focus content initially (replaces autofocus which caused focus stealing issues)
@@ -942,7 +929,6 @@ class _MainScreenState extends State<MainScreen>
     }
   }
 
-  bool _companionRemoteSetup = false;
   ValueChanged<String>? _systemShelfTapCallback;
 
   @override
@@ -981,12 +967,6 @@ class _MainScreenState extends State<MainScreen>
       _catalogSourcesProvider!.addListener(_handleCatalogSourcesChanged);
     }
 
-    // Wire up Companion Remote command routing (host devices only, once)
-    if (!_companionRemoteSetup && PlatformDetector.shouldActAsRemoteHost(context)) {
-      _companionRemoteSetup = true;
-      _setupCompanionRemote();
-    }
-
     _miniPlayerInsets = context.read<MiniPlayerInsetController?>();
 
     final scopedRouteObserver = ProfileNavigationScope.of(context).routeObserver;
@@ -997,64 +977,6 @@ class _MainScreenState extends State<MainScreen>
       if (route is PageRoute<dynamic>) {
         scopedRouteObserver.subscribe(this, route);
       }
-    }
-  }
-
-  void _setupCompanionRemote() {
-    final companionRemote = context.read<CompanionRemoteProvider>();
-    companionRemote.onCommandReceived = (command) {
-      if (mounted) {
-        CompanionRemoteReceiver.instance.handleCommand(command, context);
-      }
-    };
-
-    final receiver = CompanionRemoteReceiver.instance;
-    receiver.navigationOwner = this;
-    receiver.onTabNext = () {
-      final tabs = _getVisibleTabs(_isOffline);
-      final idx = tabs.indexWhere((t) => t.id == _currentTab);
-      if (idx >= 0) _selectTab(tabs[(idx + 1) % tabs.length].id);
-    };
-    receiver.onTabPrevious = () {
-      final tabs = _getVisibleTabs(_isOffline);
-      final idx = tabs.indexWhere((t) => t.id == _currentTab);
-      if (idx >= 0) _selectTab(tabs[(idx - 1 + tabs.length) % tabs.length].id);
-    };
-    receiver.onTabDiscover = () => _selectTab(NavigationTabId.discover);
-    receiver.onTabLibraries = () => _selectTab(NavigationTabId.libraries);
-    receiver.onTabSearch = () => _selectTab(NavigationTabId.search);
-    receiver.onTabDownloads = () => _selectTab(NavigationTabId.downloads);
-    receiver.onTabSettings = () => _selectTab(NavigationTabId.settings);
-    receiver.onHome = () {
-      final tabs = _getVisibleTabs(_isOffline);
-      if (tabs.isEmpty) return;
-      _selectTab(tabs.first.id);
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _sideNavKey.currentState?.focusHomeItem();
-      });
-    };
-    receiver.onSearchAction = (query) {
-      final trimmed = query?.trim() ?? '';
-      final hasQuery = trimmed.isNotEmpty;
-      // With a query, don't focus the input (which would auto-open the TV
-      // keyboard); submitSearchQuery runs the search and focuses results.
-      _selectTab(NavigationTabId.search, focusSearchInput: !hasQuery);
-      if (hasQuery) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _onScreen<SearchInputFocusable>(NavigationTabId.search, (screen) => screen.submitSearchQuery(trimmed));
-        });
-      }
-    };
-  }
-
-  Future<void> _autoStartCompanionRemoteServer() async {
-    try {
-      final settings = await SettingsService.getInstance();
-      if (!settings.read(SettingsService.enableCompanionRemoteServer)) return;
-      if (!mounted) return;
-      await startCompanionRemoteHost(context);
-    } catch (e) {
-      appLogger.e('CompanionRemote: Failed to auto-start server', error: e);
     }
   }
 
@@ -1082,23 +1004,6 @@ class _MainScreenState extends State<MainScreen>
     _contentFocusScope.dispose();
     _setTvosMenuPassthrough(false);
 
-    // Clean up only callbacks still owned by this screen. A replacement
-    // MainScreen may already have installed its callbacks this frame.
-    if (_companionRemoteSetup) {
-      final receiver = CompanionRemoteReceiver.instance;
-      if (identical(receiver.navigationOwner, this)) {
-        receiver.onTabNext = null;
-        receiver.onTabPrevious = null;
-        receiver.onTabDiscover = null;
-        receiver.onTabLibraries = null;
-        receiver.onTabSearch = null;
-        receiver.onTabDownloads = null;
-        receiver.onTabSettings = null;
-        receiver.onHome = null;
-        receiver.onSearchAction = null;
-        receiver.navigationOwner = null;
-      }
-    }
     final shelfCallback = _systemShelfTapCallback;
     final systemShelf = SystemShelfService();
     if (shelfCallback != null && identical(systemShelf.onShelfItemTap, shelfCallback)) {
@@ -1154,12 +1059,6 @@ class _MainScreenState extends State<MainScreen>
       alreadyShowingProfileSelection: _isShowingProfileSelection,
       isMobilePlatform: Platform.isAndroid || Platform.isIOS,
       hasActiveVideoPlayback: VideoPlayerScreenState.activeGlobalKey != null,
-      // Short-circuit on resumedFromBackground: the provider is lazy and
-      // otherwise unused on phones, so an unconditional read would create it
-      // on the first lifecycle event for users who never open the remote.
-      // isInSession, not isConnected: on resume the held reconnect cycle
-      // means the session is typically still `reconnecting` (#2035).
-      hasActiveCompanionRemoteSession: resumedFromBackground && context.read<CompanionRemoteProvider>().isInSession,
     )) {
       _showProfileSelectionOnResume();
     }

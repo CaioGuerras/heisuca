@@ -17,7 +17,6 @@ import 'package:heisuca/models/transcode_quality_preset.dart';
 import 'package:heisuca/mpv/models.dart';
 import 'package:heisuca/mpv/player/player_base.dart';
 import 'package:heisuca/providers/account_preferences_controller.dart';
-import 'package:heisuca/providers/companion_remote_provider.dart';
 import 'package:heisuca/providers/multi_server_provider.dart';
 import 'package:heisuca/providers/playback_state_provider.dart';
 import 'package:heisuca/screens/video_player_screen.dart';
@@ -132,7 +131,6 @@ void main() {
               ChangeNotifierProvider<MultiServerProvider>.value(value: multi.provider),
               ChangeNotifierProvider<OfflineWatchSyncService>.value(value: offlineWatch),
               ChangeNotifierProvider<AccountPreferencesController>.value(value: accountPreferences),
-              ChangeNotifierProvider(create: (_) => CompanionRemoteProvider()),
               ChangeNotifierProvider(create: (_) => WatchTogetherProvider()),
               Provider<AppDatabase>.value(value: db),
             ],

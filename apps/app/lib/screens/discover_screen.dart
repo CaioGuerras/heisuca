@@ -64,9 +64,6 @@ import 'libraries/state_messages.dart';
 import 'main_screen.dart';
 import '../navigation/settings_shortcut.dart';
 import '../watch_together/watch_together.dart';
-import '../providers/companion_remote_provider.dart';
-import '../widgets/companion_remote/remote_session_dialog.dart';
-import 'companion_remote/mobile_remote_screen.dart';
 
 class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({super.key});
@@ -802,26 +799,17 @@ class _DiscoverScreenState extends State<DiscoverScreen>
             ),
             const SizedBox(width: 12),
           ],
-          Consumer2<WatchTogetherProvider, CompanionRemoteProvider>(
-            builder: (context, watchTogether, companionRemote, _) {
-              final isDesktop = PlatformDetector.shouldActAsRemoteHost(context);
+          Consumer<WatchTogetherProvider>(
+            builder: (context, watchTogether, _) {
               void openWatchTogether() =>
                   Navigator.push(context, MaterialPageRoute(builder: (_) => const WatchTogetherScreen()));
-              void openCompanionRemote() {
-                if (isDesktop) {
-                  RemoteSessionDialog.show(context);
-                } else {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const MobileRemoteScreen()));
-                }
-              }
-
               return FocusableActionBar(
                 key: _actionBarKey,
                 onNavigateLeft: _navigateToSidebar,
                 onNavigateDown: _focusContentFromAppBar,
                 actions: [
-                  // CGFLIX: Recarregar (agora é puxar para atualizar), Assistir juntos e Controle remoto
-                  // saem do cabeçalho; os dois últimos ficam em Configurações > Avançado.
+                  // CGFLIX: Recarregar (agora é puxar para atualizar) e Assistir juntos
+                  // saem do cabeçalho; o segundo fica em Configurações > Avançado.
                   if (cgflixShowHomeHeaderExtras) ...[
                     FocusableAction(
                       icon: Symbols.refresh_rounded,
@@ -855,37 +843,6 @@ class _DiscoverScreenState extends State<DiscoverScreen>
                                 child: Text(
                                   '${watchTogether.participantCount}',
                                   style: TextStyle(color: colorScheme.onPrimary, fontSize: 10, fontWeight: .bold),
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                    // Companion Remote
-                    FocusableAction(
-                      onPressed: openCompanionRemote,
-                      child: Stack(
-                        children: [
-                          IconButton(
-                            icon: AppIcon(
-                              Symbols.phone_android_rounded,
-                              fill: companionRemote.isConnected ? 1 : 0,
-                              color: companionRemote.isConnected ? colorScheme.primary : foregroundColor,
-                            ),
-                            onPressed: openCompanionRemote,
-                            tooltip: t.companionRemote.title,
-                          ),
-                          if (companionRemote.isConnected)
-                            Positioned(
-                              top: 6,
-                              right: 6,
-                              child: Container(
-                                width: 8,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  color: Colors.green,
-                                  shape: BoxShape.circle,
-                                  border: Border.fromBorderSide(BorderSide(color: foregroundColor, width: 1)),
                                 ),
                               ),
                             ),

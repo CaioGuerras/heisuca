@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:heisuca/models/companion_remote/remote_command.dart';
 import 'package:heisuca/models/mpv_config_models.dart';
 import 'package:heisuca/watch_together/models/watch_session.dart';
 import 'package:heisuca/watch_together/services/recent_rooms_service.dart';
@@ -55,20 +54,5 @@ void main() {
       expect(() => RecentRoom.fromJson({'code': 'ABCD', 'lastUsed': 1700000000000}), throwsA(anything));
     });
 
-    test('RemoteCommand keeps compact protocol keys and unknown fallback', () {
-      const command = RemoteCommand(type: RemoteCommandType.volumeSet, data: {'value': 50});
-
-      expect(command.toJson(), {
-        't': RemoteCommandType.volumeSet.index,
-        'd': {'value': 50},
-      });
-
-      final decoded = RemoteCommand.fromJson(command.toJson());
-      expect(decoded.type, RemoteCommandType.volumeSet);
-      expect(decoded.data, {'value': 50});
-
-      final unknown = RemoteCommand.fromJson({'t': 999});
-      expect(unknown.type, RemoteCommandType.ping);
-    });
   });
 }

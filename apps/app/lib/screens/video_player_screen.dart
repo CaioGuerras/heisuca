@@ -44,7 +44,6 @@ import '../providers/download_provider.dart';
 import '../providers/multi_server_provider.dart';
 import '../providers/offline_mode_provider.dart';
 import '../providers/playback_state_provider.dart';
-import '../providers/companion_remote_provider.dart';
 import '../services/fullscreen_state_manager.dart';
 import '../services/car_ux_restrictions_service.dart';
 import '../services/driver_distraction.dart';
@@ -98,7 +97,6 @@ import 'video_player/episode_session_state.dart';
 import 'video_player/first_frame_gate.dart';
 import 'video_player/frame_rate_matcher.dart';
 import 'video_player/player_output_format.dart';
-import 'video_player/companion_remote_binding.dart';
 import 'video_player/media_controls_screen_controller.dart';
 import 'video_player/media_reload_outcome.dart';
 import 'video_player/spurious_eof_recovery.dart';
@@ -133,7 +131,7 @@ import '../utils/error_message_utils.dart';
 
 import 'video_player/auto_pip_readiness.dart';
 
-part 'video_player/parts/companion_remote.dart';
+part 'video_player/parts/track_cycling.dart';
 part 'video_player/parts/display_matching.dart';
 part 'video_player/parts/episode_navigation.dart';
 part 'video_player/parts/episode_queue.dart';
@@ -1004,22 +1002,6 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
   Future<void> _userRateMutation = Future<void>.value();
   Completer<void>? _nativeSeekDrain;
 
-  late final CompanionRemoteBinding _companionRemote = CompanionRemoteBinding(
-    player: () => player,
-    isMounted: () => mounted,
-    canControlPlayback: () => _canControlPlayback(),
-    volumeController: () => _volumeController,
-    hasNextItem: () => _hasNextItem,
-    onStop: () => _handleBackButton(),
-    onNavigateToNextItem: _navigateToNextItem,
-    onNavigateToPreviousItem: _navigateToPreviousItem,
-    skipByConfiguredStep: ({required bool forward}) => _skipByConfiguredStep(forward: forward),
-    onCycleSubtitles: () => _cycleSubtitleTrack(),
-    onCycleAudio: () => _cycleAudioTrack(),
-    onHome: () => _handleHomeButton(),
-    readProvider: () => context.read<CompanionRemoteProvider>(),
-  );
-
   /// Backend-neutral lookup. Returns whichever client (Plex or Jellyfin)
   /// owns this item. Used by the player initialization path.
   MediaServerClient? _getMediaServerClient(BuildContext context) {
@@ -1468,7 +1450,6 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
       CarUxRestrictionsService.instance.listenable.addListener(_handleCarRestrictionsChanged);
     }
 
-    _companionRemote.bind();
     _setupAppleTvRemotePlaybackActions();
 
     _sleepTimerSubscription = SleepTimerService().onPrompt.listen((_) {
@@ -2263,7 +2244,6 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
 
     final completer = Completer<void>();
     _routeExitOperation = completer.future;
-    final onHome = _companionRemote.savedOnHome;
     final navigationReady = Completer<void>();
     final deadline = Timer(_routeExitNavigationBudget, navigationReady.complete);
     final cleanup = Future<void>.sync(() => _shutdownVideo(pauseForRouteExit: !stop));
@@ -2291,7 +2271,7 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
       try {
         await navigationReady.future;
         deadline.cancel();
-        _removePlayerRoute(navigator, route, navigateHome: navigateHome, onHome: onHome);
+        _removePlayerRoute(navigator, route, navigateHome: navigateHome);
         completer.complete();
       } catch (error, stackTrace) {
         completer.completeError(error, stackTrace);
@@ -2361,14 +2341,12 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
     NavigatorState navigator,
     Route<dynamic> route, {
     required bool navigateHome,
-    VoidCallback? onHome,
   }) {
     // The navigator or the route went away on its own; nothing of ours is left.
     if (!navigator.mounted || !route.isActive) return;
     if (route.isCurrent && navigator.canPop()) {
       if (navigateHome) {
         navigator.popUntil((r) => r.isFirst);
-        onHome?.call();
       } else {
         navigator.pop(true);
       }
@@ -2443,8 +2421,6 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
     CarUxRestrictionsService.instance.listenable.removeListener(_handleCarRestrictionsChanged);
 
     _transitionGate.completeIdleWaiters();
-
-    _companionRemote.unbind();
 
     final isReplacingWithVideo = _isReplacingWithVideo;
     final successorLease = _videoPlayerRoute?.replacementWatchTogetherLease;
@@ -2953,7 +2929,6 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
     _live.resumeTimelineOnResume = false;
     _stopLiveTimelineUpdates();
     _progressTracker?.stopTracking();
-    _companionRemote.unbind();
     _detachFromWatchTogetherSession(exiting: true);
     _detachPipStateListener();
     _clearAutoPipEnteringCallback();

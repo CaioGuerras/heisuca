@@ -1,7 +1,7 @@
 // Configurações › Avançado (refino 2b, versão 1.6.1): uma subtela no fim da tela principal, com
 // tudo o que é técnico agrupado por assunto (cabeçalhos). Nada foi removido do app: o que saiu da
 // frente das Configurações veio para cá.
-//   - Recursos extras: Assistir juntos, Controle remoto (saíram da Início na Etapa 1E);
+//   - Recursos extras: Assistir juntos (saiu da Início na Etapa 1E; o Controle remoto foi removido);
 //   - Ao assistir (técnico): Reprodução avançada (reprodutor, decodificação, HDR, áudio, buffer),
 //     opções do mpv, detectar abertura pelos capítulos, nomes dos capítulos, espera antes de pular;
 //   - Legendas (técnico): estilo ASS (anime) e resolução da legenda;
@@ -13,14 +13,11 @@ import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import '../i18n/strings.g.dart';
-import '../screens/companion_remote/mobile_remote_screen.dart';
 import '../screens/settings/general_settings_screen.dart';
 import '../screens/settings/mpv_config_screen.dart';
 import '../screens/settings/playback_settings_screen.dart';
 import '../services/settings_service.dart';
-import '../utils/platform_detector.dart';
 import '../watch_together/watch_together.dart';
-import '../widgets/companion_remote/remote_session_dialog.dart';
 import '../widgets/setting_tile.dart';
 import '../widgets/settings_section.dart';
 import 'cgflix_config_itens.dart';
@@ -28,7 +25,7 @@ import 'cgflix_config_itens.dart';
 /// Rótulo do item da tela principal e título da subtela (iguais, como pede o padrão do Android).
 const cgflixAdvancedSummary = 'Contas e servidores, controle remoto e opções técnicas';
 
-/// Recursos extras: Assistir juntos e Controle remoto.
+/// Recursos extras: Assistir juntos.
 class CgflixAdvancedFeatures extends StatelessWidget {
   const CgflixAdvancedFeatures({super.key, this.extra = const []});
 
@@ -37,15 +34,6 @@ class CgflixAdvancedFeatures extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDesktop = PlatformDetector.shouldActAsRemoteHost(context);
-    void openRemote() {
-      if (isDesktop) {
-        RemoteSessionDialog.show(context);
-      } else {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => const MobileRemoteScreen()));
-      }
-    }
-
     return SettingsGroup(
       title: 'Recursos extras',
       children: [
@@ -54,15 +42,6 @@ class CgflixAdvancedFeatures extends StatelessWidget {
           title: 'Assistir juntos',
           subtitle: 'Assista ao mesmo filme ou série ao mesmo tempo que outra pessoa, cada um no seu aparelho.',
           destinationBuilder: (_) => const WatchTogetherScreen(),
-        ),
-        SettingNavigationTile(
-          icon: Symbols.phone_android_rounded,
-          title: 'Controle remoto',
-          // Explica o limite: não é um controle universal de TV.
-          subtitle:
-              'Controla OUTRO aparelho com o Heisuca aberto, na mesma rede Wi-Fi e na mesma conta. '
-              'Não reconhece TV comum.',
-          onTap: openRemote,
         ),
         ...extra,
       ],

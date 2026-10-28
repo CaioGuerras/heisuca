@@ -109,7 +109,6 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
   static const _kBackgroundDownloads = 'background_downloads';
   static const _kVideoPlayerControls = 'video_player_controls';
   static const _kVideoPlayerNavigation = 'video_player_navigation';
-  static const _kCompanionRemoteServer = 'companion_remote_server';
   static const _kDebugLogging = 'debug_logging';
   static const _kAutoHidePerformanceOverlay = 'auto_hide_performance_overlay';
   static const _kViewLogs = 'view_logs';
@@ -365,7 +364,7 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
   ];
 
   List<Widget> _cgflixControlsTiles(BuildContext context) {
-    if (!_keyboardShortcutsSupported && !PlatformDetector.shouldActAsRemoteHost(context)) return const [];
+    if (!_keyboardShortcutsSupported) return const [];
     final section = _buildControlsSection(context);
     return section is SettingsGroup ? section.children : const [];
   }
@@ -587,10 +586,8 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
     );
   }
 
-  /// Input devices: keyboard shortcuts on platforms with a physical keyboard,
-  /// and the companion-remote host on surfaces that can be controlled from a
-  /// phone. Either half may be absent; the caller skips the section when both
-  /// are.
+  /// Input devices: keyboard shortcuts on platforms with a physical keyboard.
+  /// The caller skips the section when there is none.
   Widget _buildControlsSection(BuildContext context) {
     final children = <Widget>[
       if (_keyboardService != null) ...[
@@ -614,14 +611,6 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
           subtitle: t.settings.videoPlayerNavigationDescription,
         ),
       ],
-      if (PlatformDetector.shouldActAsRemoteHost(context))
-        SettingSwitchTile(
-          focusNode: _focusTracker.get(_kCompanionRemoteServer),
-          pref: settings.SettingsService.enableCompanionRemoteServer,
-          icon: Symbols.phone_android_rounded,
-          title: t.settings.companionRemoteServer,
-          subtitle: t.settings.companionRemoteServerDescription,
-        ),
     ];
     // Keyboard platforms render nothing until the shortcuts service loads; an
     // empty SettingsGroup would paint a bare section title.

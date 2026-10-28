@@ -430,11 +430,6 @@ class _AudioPassthroughPref extends Pref<bool> {
   Future<void> writeTo(BaseSharedPreferencesService svc, bool value) => svc.writeBool(key, value);
 }
 
-String? _trimEmptyAsNull(String? v) {
-  final t = v?.trim();
-  return (t == null || t.isEmpty) ? null : t;
-}
-
 String? _normalizeRelayBaseUrl(String? value) {
   if (value == null || value.trim().isEmpty) return null;
   final endpoint = WatchTogetherRelayEndpoint.tryParseCustom(value);
@@ -845,11 +840,6 @@ class SettingsService extends BaseSharedPreferencesService {
     return NullableStringPref(profileScopedPrefsKey(profileId, 'metadata_recent_tags'));
   }
 
-  static final companionRemoteLastHostAddress = NullableStringPref(
-    'companion_remote_last_host_address',
-    transform: _trimEmptyAsNull,
-  );
-
   static final maxVolume = IntPref('max_volume', defaultValue: 100, transform: (v) => v.clamp(100, 300));
   static final downmixCenterBoost = IntPref('downmix_center_boost', transform: (v) => v.clamp(0, 12));
   // mpv's sub-pos range: values above 100 move subtitles further down than
@@ -899,10 +889,6 @@ class SettingsService extends BaseSharedPreferencesService {
   static const videoPlayerNavigationEnabled = BoolPref(
     'video_player_navigation_enabled',
     defaultValueProvider: PlatformDetector.isTV,
-  );
-  static const enableCompanionRemoteServer = BoolPref(
-    'enable_companion_remote_server',
-    defaultValueProvider: PlatformDetector.isDesktopOS,
   );
   static const startInFullscreen = BoolPref('start_in_fullscreen');
   static const exitFullscreenOnPlayerClose = BoolPref('exit_fullscreen_on_player_close');
@@ -1469,7 +1455,6 @@ class SettingsService extends BaseSharedPreferencesService {
     matchRefreshRate,
     matchDynamicRange,
     displaySwitchDelay,
-    enableCompanionRemoteServer,
     startInFullscreen,
     exitFullscreenOnPlayerClose,
   ];
@@ -1488,7 +1473,6 @@ class SettingsService extends BaseSharedPreferencesService {
     selectedExternalPlayer,
     customExternalPlayers,
     customRelayUrl,
-    companionRemoteLastHostAddress,
     rememberedBrightnessLevel,
     refusedVideoCodecs,
   ];

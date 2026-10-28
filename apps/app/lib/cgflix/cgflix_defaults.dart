@@ -12,7 +12,7 @@ AppLocale cgflixResolveDefaultLocale(Iterable<Locale> deviceLocales) {
   return resolved == AppLocale.en ? AppLocale.pt : resolved;
 }
 
-/// Cabeçalho da Início: Recarregar, Assistir juntos e Controle remoto ficam
+/// Cabeçalho da Início: Recarregar e Assistir juntos ficam
 /// escondidos (Recarregar virou "puxar para atualizar"; os outros dois estão
 /// em Configurações > Avançado). Mude para `true` para voltar ao original.
 const bool cgflixShowHomeHeaderExtras = false;

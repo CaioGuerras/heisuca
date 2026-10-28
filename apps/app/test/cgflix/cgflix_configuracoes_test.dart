@@ -57,7 +57,6 @@ void main() {
     // O técnico não está na frente (foi para Avançado).
     for (final tecnico in [
       'Assistir juntos',
-      'Controle remoto',
       'Opções do mpv',
       'Som de abertura',
       t.settings.forceSkipMarkerFallback,
@@ -87,7 +86,6 @@ void main() {
       t.connections.addConnection,
       'Recursos extras',
       'Assistir juntos',
-      'Controle remoto',
       'Ao assistir (técnico)',
       'Reprodução avançada',
       'Opções do mpv',

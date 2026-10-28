@@ -15,7 +15,6 @@ import '../../profiles/profile_connection_cleanup.dart';
 import '../../profiles/profile_connection_registry.dart';
 import '../../profiles/profile_registry.dart';
 import '../../providers/account_preferences_controller.dart';
-import '../../providers/companion_remote_provider.dart';
 import '../../providers/download_provider.dart';
 import '../../providers/discover_provider.dart';
 import '../../providers/hidden_libraries_provider.dart';
@@ -353,7 +352,6 @@ Future<bool> _plexAccountRemovalOwnsDownloads(
 Future<void> logoutAllProfiles(BuildContext context) async {
   final scope = SessionTeardownScope.of(context);
   final accountPreferences = context.read<AccountPreferencesController>();
-  final companionRemote = context.read<CompanionRemoteProvider>();
   final playbackState = context.read<PlaybackStateProvider>();
 
   final activeOwner = scope.active.activeId;
@@ -361,7 +359,6 @@ Future<void> logoutAllProfiles(BuildContext context) async {
     await scope.shelf.endProfileSession(activeOwner);
   }
 
-  await companionRemote.resetForLogout();
   // Credentials and the signed-out users' server-side preferences go first so
   // nothing below can read them back as the next sign-in's defaults.
   await scope.storage.clearUserData();

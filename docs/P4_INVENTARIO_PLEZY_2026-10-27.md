@@ -97,3 +97,36 @@ instalações antigas (para o app continuar apagando/ignorando dados antigos sem
 6. Assistir juntos e Controle remoto por último e só com decisão do produto (são visíveis e têm ganchos no player e na tela principal).
 Em todos: remover tradução (44 idiomas) com o script do slang e conferir `flutter analyze` e as suítes; preservar leitura das chaves
 históricas de preferências.
+
+---
+
+## Lote 2 — remoção executada (28/10/2026)
+
+Um commit por item, nesta ordem. Antes/depois do `flutter analyze` do projeto inteiro: 93 / 93 (os 93 já existiam; nenhum novo).
+
+| Item | Estado | O que saiu |
+|---|---|---|
+| 1. Discord / nomes Plezy | feito | comentário no `pubspec.yaml`; atalho local do libmpv renomeado para `heisuca.localMpvDir` / `HEISUCA_LOCAL_MPV_DIR` |
+| 2. Atualizador herdado | feito | `update_service`, `update_dialog`, seção Atualizações das configurações, verificação na abertura, `auto_updater` e as 3 sobrescritas de git, `api.github.com` das listas de domínios |
+| 3. Simkl e MDBList | feito | clientes, rastreadores, modelos, fontes de catálogo, tela compartilhada de rastreador, `simkl.com`/`simkl.in` |
+| 4. MAL / AniList | parcial | valores do `TrackerService`, loja de contas, validação de sessão |
+| 5. Trakt e sistema de rastreadores | feito | coordenador, fila de escrita, resolvedor de ids e mapeamentos de anime (Fribb / Anime-Lists), provedor, telas de Serviços, fonte de catálogo, comentários do Trakt na ficha, bloco de rastreadores da folha de avaliação (fica só a nota do servidor), prefs de scrobble/filtro, `trakt.tv`/`jsdelivr.net` das listas de domínios |
+| 6. Controle remoto (companion) | feito | servidor do desktop, descoberta na LAN, telas e diálogo, provedor, ganchos no player, na tela principal e na música |
+
+### Mantido de propósito
+- `plezy.testBuildType` e as classes de teste nativas `Plezy*` (lidos por `scripts/maestro/run_maestro_ci.py`); nomes de prefs/esquemas persistidos (`plezy_prefs`, `plezy://`, etc.).
+- `CatalogSourceId.mal/anilist/trakt` e os ids `mal/anilist/simkl` em `CatalogItemIds`: são dados em caches JSON e usados como exemplo em testes de catálogo. Saem quando o catálogo for reescrito.
+- Assistir juntos / relay e `web_socket_channel`.
+- Seerr: `future_coalescer` foi movido para `lib/utils`; a leitura de JSON ficou em `seerr_http_client.dart`.
+- Textos i18n dos serviços removidos continuam nos 44 arquivos de tradução (sem uso). O rótulo "Próximo" do teclado da TV ainda usa `t.companionRemote.remote.next`. Limpeza com o gerador de traduções fica para um lote próprio.
+- As chaves `*_session` (mal, anilist, simkl, trakt, mdblist) continuam em `lib/services/sensitive_prefs.dart`, então a saída de conta e a recuperação de preferências ainda as tratam como credenciais.
+
+### Chaves de preferência órfãs (sem leitura; o app não possui rotina de migração que apague chaves, então nada as limpa)
+- `mal_session`, `anilist_session`, `simkl_session`, `trakt_session`, `mdblist_session` (e as versões `user_<perfil>_...`).
+- `enable_<serviço>_scrobble`, `enable_trakt_watched_sync`, `tracker_library_filter_mode_<serviço>`, `tracker_library_filter_ids_<serviço>` (serviço = trakt, simkl, mdblist, mal, anilist), `tracker_write_queue` (e `user_<perfil>_tracker_write_queue`), `trakt_sync_queue`.
+- `fribb_anime_list_etag` e o arquivo em disco `anime-list-mini.json` (e o equivalente das Anime-Lists).
+- `auto_check_updates_on_startup`, `update_skipped_version`, `update_last_check_time`.
+- `enable_companion_remote_server`, `companion_remote_last_host_address`.
+
+### Testes removidos (só cobriam código removido)
+`test/services/trackers/*` (inclui os de Simkl/MDBList/Trakt, fila, resolvedor, Fribb e Anime-Lists), `test/providers/trackers_provider_test.dart`, `trackers_provider_trakt_test.dart`, `test/screens/settings/tracker_connect_launcher_test.dart`, `test/cgflix/cgflix_trakt_test.dart`, `test/services/catalog/{simkl,mdblist,trakt}_catalog_source_test.dart`, `test/widgets/device_code_dialog_test.dart`, `rating_bottom_sheet_test.dart`, `test/services/update_service_test.dart`, `test/services/settings_effect_failure_test.dart`, e os de companion: `companion_remote_provider_test`, `companion_remote_peer_service_test`, `companion_remote_receiver_test`, `companion_remote_lan_discovery_service_test`, `companion_remote_discovery_view_test`, `remote_session_dialog_test`, `companion_remote_callbacks_test`. Casos isolados saíram de `settings_service_test`, `settings_export_service_test`, `prefs_recovery_test` (adaptado para Seerr), `profile_teardown_test`, `guide_search_sheet_test`, `music_playback_service_test`, `main_screen_layout_test`, `json_model_round_trip_test`, `prefs_type_tolerance_test`, `profile_session_screen_test`, `heisuca_independence_test`. A tela `config-servicos` saiu da matriz do P3.

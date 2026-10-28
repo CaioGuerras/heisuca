@@ -51,12 +51,12 @@ jobs:
       - name: Varrer o histórico inteiro (redigido)
         run: |
           mkdir -p "$RUNNER_TEMP/relatorios"
-          gitleaks git --redact --no-banner --exit-code 0 \
+          gitleaks git --redact --no-banner --exit-code 0 --config .gitleaks.toml \
             --report-format json --report-path "$RUNNER_TEMP/relatorios/gitleaks-historico.json" .
 
       - name: Varrer a árvore atual (redigido)
         run: |
-          gitleaks dir --redact --no-banner --exit-code 0 \
+          gitleaks dir --redact --no-banner --exit-code 0 --config .gitleaks.toml \
             --report-format json --report-path "$RUNNER_TEMP/relatorios/gitleaks-arvore.json" .
 
       - name: Classificar achados
@@ -143,20 +143,35 @@ jobs:
             || { tail -40 "$RUNNER_TEMP/gradle-dependencies.log"; exit 1; }
           find . -name gradle.lockfile -not -path '*/build/*' | sort
 
-      - name: Varrer pubspec.lock e gradle.lockfile
+      - name: Varrer pubspec.lock e gradle.lockfile (runtime do APK e ferramentas de build)
         run: |
-          mkdir -p "$RUNNER_TEMP/relatorios"
-          args=()
-          while IFS= read -r f; do args+=("--lockfile=pubspec.lock:$f"); done < <(find . -name pubspec.lock -not -path '*/build/*' -not -path './.dart_tool/*' | sort)
-          while IFS= read -r f; do args+=("--lockfile=gradle.lockfile:$f"); done < <(find android -name gradle.lockfile -not -path '*/build/*' | sort)
-          printf 'Lockfiles varridos:\n'; printf '  %s\n' "${args[@]}"
+          mkdir -p "$RUNNER_TEMP/relatorios" "$RUNNER_TEMP/gradle-runtime"
+          # Runtime: só linhas com releaseRuntimeClasspath (o que entra no APK), formato preservado.
+          rt=()
+          n=0
+          while IFS= read -r f; do
+            n=$((n+1)); d="$RUNNER_TEMP/gradle-runtime/$n"; mkdir -p "$d"
+            python3 scripts/seguranca/osv_gate.py --filtrar-runtime "$f" "$d/gradle.lockfile"
+            rt+=("--lockfile=gradle.lockfile:$d/gradle.lockfile")
+          done < <(find android -name gradle.lockfile -not -path '*/build/*' | sort)
+          full=()
+          while IFS= read -r f; do full+=("--lockfile=gradle.lockfile:$f"); done < <(find android -name gradle.lockfile -not -path '*/build/*' | sort)
+          pub=()
+          while IFS= read -r f; do pub+=("--lockfile=pubspec.lock:$f"); done < <(find . -name pubspec.lock -not -path '*/build/*' -not -path './.dart_tool/*' | sort)
+          printf 'Runtime:\n'; printf '  %s\n' "${pub[@]}" "${rt[@]}"
           # Saídas do osv-scanner: 0 limpo, 1 com vulnerabilidades; outras = erro.
           rc=0
-          osv-scanner scan source "${args[@]}" --format json --output-file "$RUNNER_TEMP/relatorios/osv.json" || rc=$?
-          echo "osv-scanner rc=$rc"
+          osv-scanner scan source "${pub[@]}" "${rt[@]}" --format json --output-file "$RUNNER_TEMP/relatorios/osv.json" || rc=$?
+          echo "osv-scanner (runtime) rc=$rc"
           if [ "$rc" -ne 0 ] && [ "$rc" -ne 1 ]; then
             echo "::error::osv-scanner falhou (rc=$rc); confira o --help impresso no 1º passo"
             exit "$rc"
+          fi
+          if [ "${#full[@]}" -gt 0 ]; then
+            rc=0
+            osv-scanner scan source "${full[@]}" --format json --output-file "$RUNNER_TEMP/relatorios/osv-ferramentas.json" || rc=$?
+            echo "osv-scanner (lockfile completo) rc=$rc"
+            if [ "$rc" -ne 0 ] && [ "$rc" -ne 1 ]; then echo "::warning::varredura das ferramentas falhou (rc=$rc); seção informativa omitida"; fi
           fi
 
       - name: Classificar avisos
@@ -166,7 +181,7 @@ jobs:
             echo "### OSV: ATENÇÃO (Gradle não varrido)" >> "$GITHUB_STEP_SUMMARY"
             echo "Os gradle.lockfile não foram gerados neste run; veja o log do passo anterior." >> "$GITHUB_STEP_SUMMARY"
           fi
-          python3 scripts/seguranca/osv_gate.py "$RUNNER_TEMP/relatorios/osv.json" security/osv_aceitos.json
+          python3 scripts/seguranca/osv_gate.py "$RUNNER_TEMP/relatorios/osv.json" security/osv_aceitos.json "$RUNNER_TEMP/relatorios/osv-ferramentas.json"
 
       - name: Guardar relatório
         if: always()
@@ -174,7 +189,7 @@ jobs:
         with:
           name: heisuca-osv
           path: |
-            ${{ runner.temp }}/relatorios/osv.json
+            ${{ runner.temp }}/relatorios/osv*.json
             ${{ runner.temp }}/gradle-dependencies.log
           if-no-files-found: ignore
           retention-days: 14

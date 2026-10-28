@@ -514,6 +514,7 @@ def tela_conhecida(nos):
         return 'perfil'
     if baixos & {'buscar', 'configurações'} and any(n['cls'].endswith('EditText') for n in nos):
         return 'busca'
-    if 'configurações' in baixos:
+    if baixos & {'configurações', 'downloads automáticos', 'nenhum download automático', 'configurações heisuca'} \
+            or any(r.lower().startswith(('configurações heisuca', 'downloads automáticos')) for r in rotulos):
         return 'configuracoes'
     return None

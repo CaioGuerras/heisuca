@@ -460,13 +460,13 @@ class TelasConhecidas(unittest.TestCase):
 
 class CausaDoErro(unittest.TestCase):
     def test_http_e_caminho_sem_id_nem_token(self):
-        s = Servidor('https://x.exemplo', token='segredo')
-        erro = urllib.error.HTTPError('https://x.exemplo/Users/0123456789abcdef0123456789abcdef/Items?ApiKey=z', 401, 'x', {}, None)
+        s = Servidor('https://x.exemplo', token='XXXX-falso')
+        erro = urllib.error.HTTPError('https://x.exemplo/Users/aaaaaaaabbbbbbbbccccccccdddddddd/Items?chave=XXXX-falso', 401, 'x', {}, None)
         with mock.patch('servidor.urllib.request.urlopen', side_effect=erro):
             with self.assertRaises(BancadaIndisponivel):
-                s.request('GET', '/Users/0123456789abcdef0123456789abcdef/Items', query={'ApiKey': 'z'})
+                s.request('GET', '/Users/aaaaaaaabbbbbbbbccccccccdddddddd/Items', query={'chave': 'XXXX-falso'})
         self.assertEqual(s.ultimo_erro, 'GET /Users/<id>/Items -> HTTP 401')
-        for proibido in ('segredo', 'exemplo', 'ApiKey', '0123456789abcdef'):
+        for proibido in ('XXXX-falso', 'exemplo', 'chave', 'aaaaaaaabbbb'):
             self.assertNotIn(proibido, s.ultimo_erro)
 
     def test_timeout_e_rede(self):
@@ -475,3 +475,19 @@ class CausaDoErro(unittest.TestCase):
             with self.assertRaises(BancadaIndisponivel):
                 s.request('GET', '/System/Info/Public')
         self.assertEqual(s.ultimo_erro, 'GET /System/Info/Public -> TimeoutError')
+
+
+class RunReal(unittest.TestCase):
+    def test_confirmacao_sair_com_rotulo_em_descricao(self):
+        # Rótulos do run: título e botão 'Sair', texto de confirmação, Cancelar e a barreira 'Dispensar'.
+        nos = parse_uiautomator(xml(no(desc='Sair', b='[100,500][900,560]'), no(text='Quer mesmo sair?', b='[100,560][900,640]'),
+                                    no('android.widget.Button', desc='Cancelar', b='[100,700][400,800]'),
+                                    no('android.widget.Button', desc='Sair', b='[500,700][900,800]')))
+        com_rotulo = [n for n in nos if n['centro'] and any(r.strip().lower() == 'sair' for r in (n['text'], n['desc']))]
+        self.assertEqual(com_rotulo[-1]['centro'], (700, 750))
+
+    def test_tela_downloads_automaticos_e_configuracoes(self):
+        for rotulos in (('Voltar', 'Downloads automáticos', 'Nenhum download automático'),
+                        ('Configurações Heisuca\nReprodução, vídeo, áudio, legendas e fontes',)):
+            nos = parse_uiautomator(xml(*[no(text=r) for r in rotulos]))
+            self.assertEqual(tela_conhecida(nos), 'configuracoes', rotulos)

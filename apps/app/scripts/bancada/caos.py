@@ -295,20 +295,26 @@ def e09_texto_enorme(ctx):
     def etapa():
         # `input text` só aceita ASCII; emoji vai pela área de transferência quando o aparelho permitir.
         copiou = 'Unknown' not in texto('shell', 'cmd', 'clipboard', 'set-text', shlex.quote('🎬🔥😀'))
+        # A busca é o ícone 'Buscar' do topo da Início (heisuca_home_chrome.dart); a Biblioteca tem outro campo próprio.
+        inicio = achar_texto(dump(), 'Início')
+        if inicio:
+            tocar(inicio)
+            time.sleep(2)
         busca = achar_texto(dump(), 'Buscar', 'Busca', 'Pesquisar', 'Search')
         if busca:
             tocar(busca)
-            time.sleep(2)
-        campo = next((n for n in dump() if n['cls'].endswith('EditText') and n['centro']), None)
-        if campo:
-            tocar(campo)
-            if copiou:
-                adb('shell', 'input', 'keyevent', '279')
-            for _ in range(5):
-                digitar('Acao-cao_AE&<>"\'%' + 'x' * 380)
-            time.sleep(2)
-        else:
-            raise EtapaAmbiente('campo de busca não encontrado')
+            time.sleep(3)
+        nos = dump()
+        campo = next((n for n in nos if n['cls'].endswith('EditText') and n['centro']), None)
+        if not campo:
+            passo_visivel(ctx.diag, '09 busca não achada', nos)
+            raise EtapaAmbiente('campo de busca não encontrado (visível gravado em visivel_sem_marco)')
+        tocar(campo)
+        if copiou:
+            adb('shell', 'input', 'keyevent', '279')
+        for _ in range(5):
+            digitar('Acao-cao_AE&<>"\'%' + 'x' * 380)
+        time.sleep(2)
         if not copiou:
             ctx.achados.append((ATENCAO, 'emoji-nao-digitavel', '09: sem área de transferência pelo adb; testado só ASCII longo'))
     rodar(ctx, '09-emoji-e-texto-enorme', etapa)

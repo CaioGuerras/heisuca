@@ -275,8 +275,9 @@ def sair_pela_interface(passos=None):
     time.sleep(2.5)
     nos = dump()
     rec('3 confirmação', nos)
-    confirmar = [n for n in nos if n['centro'] and n['clickable'] and n['text'].strip().lower() == 'sair']
-    confirmar = confirmar or [n for n in nos if n['centro'] and n['text'].strip().lower() == 'sair']
+    # No run 40712225508 o rótulo vinha em content-desc (o texto vazio): vale texto OU descrição.
+    com_rotulo = [n for n in nos if n['centro'] and any(r.strip().lower() == 'sair' for r in (n['text'], n['desc']))]
+    confirmar = [n for n in com_rotulo if n['clickable']] or com_rotulo
     if not confirmar:
         rec('falha: botão Sair da confirmação não achado', nos)
         return False

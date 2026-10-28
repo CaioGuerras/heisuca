@@ -1,0 +1,180 @@
+name: Heisuca Segurança
+
+on:
+  push:
+    branches: ["gemini/**", "claude/**", "codex/heisuca-**"]
+    # Sem paths-ignore de propósito: segredo em docs também precisa ser pego.
+  workflow_dispatch:
+
+env:
+  FLUTTER_VERSION: "3.47.1"
+  GITLEAKS_VERSION: "8.30.1"
+  OSV_VERSION: "2.7.0"
+  # relatorio: classifica e resume sem falhar; bloquear: vermelho falha o job.
+  # (Segredo na árvore atual bloqueia sempre, independente do modo.)
+  SEGURANCA_MODO: relatorio
+
+concurrency:
+  group: heisuca-seguranca-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  gitleaks:
+    name: Segredos no código e no histórico (gitleaks)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Baixar gitleaks e conferir sha256
+        working-directory: ${{ runner.temp }}
+        run: |
+          base="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}"
+          tar_nome="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          sums_nome="gitleaks_${GITLEAKS_VERSION}_checksums.txt"
+          mkdir -p gitleaks-bin
+          curl -fsSL --retry 3 -o "$tar_nome" "$base/$tar_nome"
+          curl -fsSL --retry 3 -o "$sums_nome" "$base/$sums_nome"
+          grep -F "  $tar_nome" "$sums_nome" > esperado.txt
+          test "$(wc -l < esperado.txt)" -eq 1 || { echo "::error::checksum de $tar_nome não encontrado em $sums_nome"; exit 1; }
+          sha256sum -c esperado.txt
+          tar -xzf "$tar_nome" -C gitleaks-bin gitleaks
+          "$PWD/gitleaks-bin/gitleaks" version
+          echo "$PWD/gitleaks-bin" >> "$GITHUB_PATH"
+
+      - name: Varrer o histórico inteiro (redigido)
+        run: |
+          mkdir -p "$RUNNER_TEMP/relatorios"
+          gitleaks git --redact --no-banner --exit-code 0 \
+            --report-format json --report-path "$RUNNER_TEMP/relatorios/gitleaks-historico.json" .
+
+      - name: Varrer a árvore atual (redigido)
+        run: |
+          gitleaks dir --redact --no-banner --exit-code 0 \
+            --report-format json --report-path "$RUNNER_TEMP/relatorios/gitleaks-arvore.json" .
+
+      - name: Classificar achados
+        run: |
+          python3 apps/app/scripts/seguranca/gitleaks_gate.py \
+            "$RUNNER_TEMP/relatorios/gitleaks-historico.json" \
+            "$RUNNER_TEMP/relatorios/gitleaks-arvore.json" \
+            apps/app/security/gitleaks_aceitos.json
+
+      - name: Guardar relatórios redigidos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: heisuca-gitleaks
+          path: ${{ runner.temp }}/relatorios/*.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+  osv:
+    name: Dependências vulneráveis (osv-scanner)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: apps/app
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Baixar osv-scanner e conferir sha256
+        working-directory: ${{ runner.temp }}
+        run: |
+          base="https://github.com/google/osv-scanner/releases/download/v${OSV_VERSION}"
+          # Nome real do arquivo de checksums, pela API do release.
+          curl -fsSL --retry 3 -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/google/osv-scanner/releases/tags/v${OSV_VERSION}" -o release.json
+          echo "Assets do release:"
+          python3 -c 'import json;[print(" ", a["name"]) for a in json.load(open("release.json"))["assets"]]'
+          sums_nome="$(python3 -c 'import json;n=[a["name"] for a in json.load(open("release.json"))["assets"] if "sha256" in a["name"].lower() or "checksum" in a["name"].lower()];print(n[0] if n else "")')"
+          test -n "$sums_nome" || { echo "::error::arquivo de checksums não encontrado no release"; exit 1; }
+          bin_nome="osv-scanner_linux_amd64"
+          mkdir -p osv-bin
+          curl -fsSL --retry 3 -o "$bin_nome" "$base/$bin_nome"
+          curl -fsSL --retry 3 -o "$sums_nome" "$base/$sums_nome"
+          grep -E "[ *]${bin_nome}\$" "$sums_nome" > esperado.txt
+          test "$(wc -l < esperado.txt)" -eq 1 || { echo "::error::checksum de $bin_nome não encontrado em $sums_nome"; exit 1; }
+          sha256sum -c esperado.txt
+          install -m 0755 "$bin_nome" osv-bin/osv-scanner
+          echo "$PWD/osv-bin" >> "$GITHUB_PATH"
+          echo "--- osv-scanner --help ---"
+          osv-bin/osv-scanner --help || true
+          echo "--- osv-scanner scan source --help ---"
+          osv-bin/osv-scanner scan source --help || true
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Obter dependências Flutter
+        run: flutter pub get --no-example
+
+      - name: Gerar lockfiles do Gradle sem alterar o build
+        id: gradle_lock
+        continue-on-error: true
+        run: |
+          # Init script temporário: trava as versões resolvidas só nesta execução.
+          cat > "$RUNNER_TEMP/gradle-lock.init.gradle" <<'GRADLE'
+          allprojects {
+            dependencyLocking { lockAllConfigurations() }
+          }
+          GRADLE
+          cd android
+          ./gradlew --init-script "$RUNNER_TEMP/gradle-lock.init.gradle" :app:dependencies --write-locks -PtargetAbi=arm64-v8a > "$RUNNER_TEMP/gradle-dependencies.log" 2>&1 \
+            || { tail -40 "$RUNNER_TEMP/gradle-dependencies.log"; exit 1; }
+          find . -name gradle.lockfile -not -path '*/build/*' | sort
+
+      - name: Varrer pubspec.lock e gradle.lockfile
+        run: |
+          mkdir -p "$RUNNER_TEMP/relatorios"
+          args=()
+          while IFS= read -r f; do args+=("--lockfile=pubspec.lock:$f"); done < <(find . -name pubspec.lock -not -path '*/build/*' -not -path './.dart_tool/*' | sort)
+          while IFS= read -r f; do args+=("--lockfile=gradle.lockfile:$f"); done < <(find android -name gradle.lockfile -not -path '*/build/*' | sort)
+          printf 'Lockfiles varridos:\n'; printf '  %s\n' "${args[@]}"
+          # Saídas do osv-scanner: 0 limpo, 1 com vulnerabilidades; outras = erro.
+          rc=0
+          osv-scanner scan source "${args[@]}" --format json --output-file "$RUNNER_TEMP/relatorios/osv.json" || rc=$?
+          echo "osv-scanner rc=$rc"
+          if [ "$rc" -ne 0 ] && [ "$rc" -ne 1 ]; then
+            echo "::error::osv-scanner falhou (rc=$rc); confira o --help impresso no 1º passo"
+            exit "$rc"
+          fi
+
+      - name: Classificar avisos
+        run: |
+          if [ "${{ steps.gradle_lock.outcome }}" != "success" ]; then
+            echo "::warning::Lockfiles do Gradle não foram gerados; só o pubspec.lock foi varrido."
+            echo "### OSV: ATENÇÃO (Gradle não varrido)" >> "$GITHUB_STEP_SUMMARY"
+            echo "Os gradle.lockfile não foram gerados neste run; veja o log do passo anterior." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          python3 scripts/seguranca/osv_gate.py "$RUNNER_TEMP/relatorios/osv.json" security/osv_aceitos.json
+
+      - name: Guardar relatório
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: heisuca-osv
+          path: |
+            ${{ runner.temp }}/relatorios/osv.json
+            ${{ runner.temp }}/gradle-dependencies.log
+          if-no-files-found: ignore
+          retention-days: 14

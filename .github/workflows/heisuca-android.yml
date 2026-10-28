@@ -8,6 +8,10 @@ on:
 
 env:
   FLUTTER_VERSION: "3.47.1"
+  # MobSF fixo (última v4.x estável no Docker Hub em 28/10/2026).
+  MOBSF_TAG: "v4.5.3"
+  # relatorio: classifica e resume sem falhar; bloquear: vermelho falha o job.
+  MOBSF_MODO: relatorio
 
 concurrency:
   group: heisuca-android-${{ github.ref }}
@@ -150,3 +154,90 @@ jobs:
             apps/app/assets/heisuca/CHANGELOG_USUARIO.md
           retention-days: 14
 
+
+  mobsf:
+    name: Análise estática do APK (MobSF)
+    needs: apk
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Baixar o APK do build
+        uses: actions/download-artifact@v4
+        with:
+          name: heisuca-apk
+          path: ${{ runner.temp }}/apk
+
+      - name: Conferir que a tag fixa do MobSF existe no Docker Hub
+        run: |
+          code="$(curl -s -o "$RUNNER_TEMP/tag.json" -w '%{http_code}' \
+            "https://hub.docker.com/v2/repositories/opensecurity/mobile-security-framework-mobsf/tags/${MOBSF_TAG}")"
+          test "$code" = "200" || { echo "::error::tag ${MOBSF_TAG} não existe no Docker Hub (http $code)"; exit 1; }
+          echo "Tag ${MOBSF_TAG} confirmada."
+          echo "Tags v4.x mais recentes (para decidir a próxima atualização):"
+          curl -fsS "https://hub.docker.com/v2/repositories/opensecurity/mobile-security-framework-mobsf/tags?page_size=25&ordering=last_updated" \
+            | python3 -c 'import json,sys;[print(" ",t["name"],t["last_updated"][:10]) for t in json.load(sys.stdin)["results"] if t["name"].startswith("v4.")]'
+
+      - name: Subir o MobSF
+        run: |
+          # Chave aleatória só desta execução; mascarada e nunca impressa.
+          chave="$(openssl rand -hex 32)"
+          echo "::add-mask::$chave"
+          echo "MOBSF_API_KEY=$chave" >> "$GITHUB_ENV"
+          docker run -d --name mobsf -p 127.0.0.1:8000:8000 \
+            -e MOBSF_API_KEY="$chave" \
+            "opensecurity/mobile-security-framework-mobsf:${MOBSF_TAG}"
+          for i in $(seq 1 60); do
+            code="$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8000/api/v1/scans || true)"
+            # 401/403 = API de pé, só recusando sem chave; 200 = de pé.
+            case "$code" in 200|401|403|405) echo "MobSF respondeu (http $code) após $((i*5))s"; exit 0;; esac
+            sleep 5
+          done
+          docker logs --tail 80 mobsf | sed -E 's/[0-9a-f]{40,}/<oculto>/g'
+          echo "::error::MobSF não respondeu em 5 min"
+          exit 1
+
+      - name: Enviar o APK e gerar o relatório
+        run: |
+          mkdir -p "$RUNNER_TEMP/mobsf"
+          apk="$(ls "$RUNNER_TEMP"/apk/dist/*.apk "$RUNNER_TEMP"/apk/*.apk 2>/dev/null | head -1)"
+          test -n "$apk" || { echo "::error::APK não encontrado no artifact"; find "$RUNNER_TEMP/apk" -type f; exit 1; }
+          api=http://127.0.0.1:8000/api/v1
+          up="$(curl -fsS -H "Authorization: $MOBSF_API_KEY" -F "file=@$apk" "$api/upload")"
+          hash="$(printf '%s' "$up" | python3 -c 'import json,sys;print(json.load(sys.stdin)["hash"])')"
+          file_name="$(printf '%s' "$up" | python3 -c 'import json,sys;print(json.load(sys.stdin)["file_name"])')"
+          echo "Upload ok (hash $hash)"
+          curl -fsS --max-time 1500 -H "Authorization: $MOBSF_API_KEY" \
+            --data-urlencode "hash=$hash" --data-urlencode "scan_type=apk" --data-urlencode "file_name=$file_name" \
+            "$api/scan" -o "$RUNNER_TEMP/mobsf/scan.json"
+          curl -fsS -H "Authorization: $MOBSF_API_KEY" --data-urlencode "hash=$hash" \
+            "$api/report_json" -o "$RUNNER_TEMP/mobsf/report.json"
+          curl -fsS -H "Authorization: $MOBSF_API_KEY" --data-urlencode "hash=$hash" \
+            "$api/download_pdf" -o "$RUNNER_TEMP/mobsf/report.pdf" || echo "::warning::PDF não gerado"
+          python3 -c 'import json,sys;d=json.load(open(sys.argv[1]));print("Chaves do relatório:",sorted(d)[:60])' "$RUNNER_TEMP/mobsf/report.json"
+
+      - name: Classificar achados (portão MobSF)
+        run: python3 apps/app/scripts/seguranca/mobsf_gate.py "$RUNNER_TEMP/mobsf/report.json" apps/app/security/mobsf_aceitos.json
+
+      - name: Testar o portão MobSF
+        run: python3 -m unittest discover -s apps/app/scripts/seguranca -p 'test_*.py'
+
+      - name: Guardar relatório do MobSF
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: heisuca-mobsf
+          path: |
+            ${{ runner.temp }}/mobsf/report.json
+            ${{ runner.temp }}/mobsf/report.pdf
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Parar o MobSF
+        if: always()
+        run: docker rm -f mobsf || true

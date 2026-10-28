@@ -170,7 +170,12 @@ mixin _JellyfinClientInternals on MediaServerCacheMixin {
     bool audioProfile,
     bool burnSubtitles,
   });
-  String _withApiKey(String urlOrPath);
+  String? _withApiKeyOrNull(String urlOrPath);
+
+  /// Como [_withApiKeyOrNull], mas URL de outra origem aborta a reprodução com
+  /// erro tratado (stream/transcode que o servidor manda para fora de si).
+  String _withApiKey(String urlOrPath) =>
+      _withApiKeyOrNull(urlOrPath) ?? (throw const PlaybackException('Server returned a URL outside its own origin'));
 
   /// Positional core of the tolerant `/Items` array fetch. The browse part's
   /// implementation widens it with optional retry/abort/diagnostics knobs that

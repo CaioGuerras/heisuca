@@ -213,16 +213,13 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
     }
   }
 
+  /// URL do servidor com o token do dialeto, ou `null` se [urlOrPath] aponta
+  /// para outra origem/esquema (legenda remota, `file:`, IP interno...). O token
+  /// só vai para a origem do próprio servidor.
   @override
-  String _withApiKey(String urlOrPath) {
-    final uri = JellyfinImageAbsolutizer.joinUri(baseUrl: connection.baseUrl, urlOrPath: urlOrPath);
-    // A server-supplied absolute URL can point at another host (a remote
-    // subtitle provider, a tuner); the token only ever goes to the server's
-    // own origin.
-    final base = Uri.tryParse(connection.baseUrl);
-    if (base == null || uri.scheme != base.scheme || uri.host != base.host || uri.port != base.port) {
-      return uri.toString();
-    }
+  String? _withApiKeyOrNull(String urlOrPath) {
+    final uri = JellyfinImageAbsolutizer.resolveSameOrigin(baseUrl: connection.baseUrl, urlOrPath: urlOrPath);
+    if (uri == null) return null;
     final params = Map<String, String>.from(uri.queryParameters)
       ..[connection.dialect.tokenQueryParam] = connection.accessToken;
     return uri.replace(queryParameters: params).toString();
@@ -442,9 +439,14 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
       isOffline: false,
       isTranscoding: isTranscoding,
       fallbackReason: fallbackReason,
-      delivery: dialect.backend.name == 'jellyfin' ? HeisucaPlaybackDelivery.jellyfin(
-        method: playMethod, transcodingUrl: chosenSource?['TranscodingUrl'] is String ? chosenSource!['TranscodingUrl'] as String : null,
-      ) : null,
+      delivery: dialect.backend.name == 'jellyfin'
+          ? HeisucaPlaybackDelivery.jellyfin(
+              method: playMethod,
+              transcodingUrl: chosenSource?['TranscodingUrl'] is String
+                  ? chosenSource!['TranscodingUrl'] as String
+                  : null,
+            )
+          : null,
       activeAudioStreamId: requestedAudioStreamId,
       playSessionId: playSessionId,
       playMethod: playMethod,
@@ -661,7 +663,11 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
       if (path == null) continue;
       // Jellyfin's subtitle URL is a path relative to baseUrl; build the
       // absolute URL with the dialect's token query parameter.
-      final url = _withApiKey(path);
+      final url = _withApiKeyOrNull(path);
+      if (url == null) {
+        appLogger.w('Jellyfin subtitle ignored: URL outside the server origin');
+        continue;
+      }
       externalSubtitles.add(
         PlaybackSubtitleSidecar(
           sourceStreamId: track.id,

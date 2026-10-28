@@ -7,7 +7,9 @@ mixin _JellyfinImageDownloadMethods on _JellyfinClientInternals {
   @override
   String thumbnailUrl(String? path, {int? width, int? height, bool cover = true}) {
     if (path == null || path.isEmpty) return '';
-    final uri = JellyfinImageAbsolutizer.joinUri(baseUrl: connection.baseUrl, urlOrPath: path);
+    // URL de outra origem não é buscada nem recebe o token.
+    final uri = JellyfinImageAbsolutizer.resolveSameOrigin(baseUrl: connection.baseUrl, urlOrPath: path);
+    if (uri == null) return '';
     final params = Map<String, String>.from(uri.queryParameters);
     if (width != null && !params.containsKey('maxWidth') && !params.containsKey('MaxWidth')) {
       params['maxWidth'] = '$width';
@@ -21,9 +23,11 @@ mixin _JellyfinImageDownloadMethods on _JellyfinClientInternals {
   }
 
   /// Jellyfin doesn't expose an external-URL proxy endpoint comparable to
-  /// Plex's `/photo/:/transcode?url=...`. External URLs pass through.
+  /// Plex's `/photo/:/transcode?url=...`. Só passa URL da própria origem do
+  /// servidor; o resto (EPG com host de terceiros, `file:`, IP interno) é vazio.
   @override
-  String externalImageUrl(String url, {int? width, int? height, bool cover = true}) => url;
+  String externalImageUrl(String url, {int? width, int? height, bool cover = true}) =>
+      JellyfinImageAbsolutizer.resolveSameOrigin(baseUrl: connection.baseUrl, urlOrPath: url)?.toString() ?? '';
 
   @override
   Future<DownloadResolution> resolveDownload(MediaItem item, {int mediaIndex = 0, String? mediaSourceId}) async {
@@ -97,11 +101,15 @@ mixin _JellyfinImageDownloadMethods on _JellyfinClientInternals {
       final codec = fields.codec?.toLowerCase();
       final delivery = fields.deliveryUrl;
       final streamFile = _segment('Stream.${CodecUtils.getSubtitleExtension(codec)}');
-      final url = _withApiKey(
+      final url = _withApiKeyOrNull(
         delivery != null && delivery.isNotEmpty
             ? delivery
             : '/Videos/${_segment(item.id)}/${_segment(subtitleMediaSourceId)}/Subtitles/$index/$streamFile',
       );
+      if (url == null) {
+        appLogger.w('Jellyfin download subtitle ignored: URL outside the server origin');
+        continue;
+      }
       subtitles.add(
         DownloadSubtitleSpec(
           id: index,

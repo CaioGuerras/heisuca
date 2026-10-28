@@ -103,10 +103,44 @@ class JellyfinImageAbsolutizer {
     return Uri.parse('$cleanBase$cleanPath');
   }
 
+  /// Igual a [joinUri], mas só devolve URL que o app pode buscar com segurança:
+  /// caminho relativo (colado na base) ou URL absoluta http(s) da MESMA origem
+  /// (esquema + host + porta) do servidor configurado. Qualquer outra coisa
+  /// (`file:`, `content:`, `javascript:`, `data:`, outro host, IP interno,
+  /// `//host/x`, texto que não é URI) devolve `null`. Todo ponto que recebe URL
+  /// de imagem, legenda ou stream do servidor passa por aqui, e é por isso que
+  /// o token só é anexado a URL de origem confiável.
+  static Uri? resolveSameOrigin({required String baseUrl, required String urlOrPath}) {
+    final raw = Uri.tryParse(urlOrPath);
+    final base = Uri.tryParse(baseUrl);
+    if (raw == null || base == null) return null;
+    if (raw.hasScheme || raw.hasAuthority) {
+      final scheme = raw.scheme.toLowerCase();
+      if (scheme != 'http' && scheme != 'https') return null;
+      if (!isSameOrigin(base, raw)) return null;
+      return raw;
+    }
+    try {
+      return joinUri(baseUrl: baseUrl, urlOrPath: urlOrPath);
+    } on FormatException {
+      return null;
+    }
+  }
+
+  /// Esquema, host (sem diferenciar maiúsculas) e porta iguais.
+  static bool isSameOrigin(Uri a, Uri b) =>
+      a.scheme.toLowerCase() == b.scheme.toLowerCase() &&
+      a.host.toLowerCase() == b.host.toLowerCase() &&
+      a.port == b.port &&
+      a.host.isNotEmpty;
+
+  /// Caminho relativo vira URL absoluta com `api_key`; URL da mesma origem passa
+  /// intacta; qualquer outra origem/esquema devolve `null` (ver [resolveSameOrigin]).
   String? absolutize(String? path) {
     if (path == null || path.isEmpty) return path;
-    if (path.startsWith('http://') || path.startsWith('https://')) return path;
-    final uri = joinUri(baseUrl: baseUrl, urlOrPath: path);
+    final uri = resolveSameOrigin(baseUrl: baseUrl, urlOrPath: path);
+    if (uri == null) return null;
+    if (uri.hasScheme && (path.startsWith('http://') || path.startsWith('https://'))) return path;
     final params = Map<String, String>.from(uri.queryParameters)..['api_key'] = accessToken;
     return uri.replace(queryParameters: params).toString();
   }
@@ -115,9 +149,11 @@ class JellyfinImageAbsolutizer {
   /// absolute, self-authenticated form. Cheap — touches a handful of
   /// nullable strings and reuses the existing [MediaItem.copyWith].
   MediaItem applyTo(MediaItem item) {
-    final backdropPaths = item.backdropPaths?.map((path) => absolutize(path)!).toList(growable: false);
+    // Caminho de outra origem vira null e sai da lista (ver [absolutize]).
+    final backdropPaths = item.backdropPaths?.map(absolutize).whereType<String>().toList(growable: false);
     final grandparentBackdropPaths = item.grandparentBackdropPaths
-        ?.map((path) => absolutize(path)!)
+        ?.map(absolutize)
+        .whereType<String>()
         .toList(growable: false);
     return item.copyWith(
       thumbPath: absolutize(item.thumbPath),

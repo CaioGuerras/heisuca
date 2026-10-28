@@ -36,6 +36,7 @@ import '../services/data_aggregation_service.dart';
 import '../utils/app_logger.dart';
 import '../utils/catalog_navigation_helper.dart';
 import '../utils/desktop_window_padding.dart';
+import '../utils/url_utils.dart';
 import '../utils/formatters.dart';
 import '../utils/country_codes.dart';
 import '../utils/language_codes.dart';
@@ -595,9 +596,9 @@ class _CatalogItemDetailScreenState extends State<CatalogItemDetailScreen> {
   }
 
   Future<void> _openExternalUrl(String value) async {
-    final uri = Uri.tryParse(value);
-    if (uri == null || !uri.hasScheme) {
-      appLogger.d('Catalog external URL is invalid: $value');
+    final uri = webUrlOrNull(value);
+    if (uri == null) {
+      appLogger.d('Catalog external URL is invalid or not http(s)');
       return;
     }
     try {

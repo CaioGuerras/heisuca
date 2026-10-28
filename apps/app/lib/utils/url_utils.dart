@@ -116,3 +116,14 @@ List<String> expandBaseUrlCandidates(String input, {required List<BaseUrlGuess> 
   }
   return List.unmodifiable(candidates);
 }
+
+/// Link vindo de um servidor (trailer, link externo do catálogo) que o app pode
+/// abrir fora dele: só `http`/`https` com host. `javascript:`, `file:`,
+/// `content:`, `intent:`, `tel:` e afins retornam `null` (P5, servidor malicioso).
+Uri? webUrlOrNull(String? value) {
+  final uri = Uri.tryParse(value?.trim() ?? '');
+  if (uri == null) return null;
+  final scheme = uri.scheme.toLowerCase();
+  if ((scheme != 'http' && scheme != 'https') || uri.host.isEmpty) return null;
+  return uri;
+}

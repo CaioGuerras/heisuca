@@ -72,7 +72,9 @@ val prepareMpvFfmpegDevelopment = tasks.register("prepareMpvFfmpegDevelopment") 
       staging.mkdirs()
       try {
         providers.exec {
-          commandLine("curl", "-sfL", mpvFfmpegSourceUrl, "-o", sourceArchive.absolutePath)
+          // ffmpeg.org às vezes demora ou cai no CI (f3ff20d, 29/10): tenta de novo antes de falhar.
+          commandLine("curl", "-sfL", "--retry", "5", "--retry-all-errors", "--retry-delay", "10",
+            "--connect-timeout", "30", mpvFfmpegSourceUrl, "-o", sourceArchive.absolutePath)
         }.result.get().assertNormalExitValue()
       } catch (error: Exception) {
         throw GradleException("Failed to download FFmpeg $mpvFfmpegVersion headers", error)
@@ -193,7 +195,8 @@ val downloadLibdovi = tasks.register("downloadLibdovi") {
         val sourceUrl = "$doviBaseUrl/$archiveName"
         try {
           providers.exec {
-            commandLine("curl", "-sfL", sourceUrl, "-o", archive.absolutePath)
+            commandLine("curl", "-sfL", "--retry", "5", "--retry-all-errors", "--retry-delay", "10",
+              "--connect-timeout", "30", sourceUrl, "-o", archive.absolutePath)
           }.result.get().assertNormalExitValue()
         } catch (error: Exception) {
           throw GradleException("Failed to download $archiveName v$doviVersion", error)

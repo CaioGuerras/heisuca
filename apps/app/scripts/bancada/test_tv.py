@@ -10,10 +10,17 @@ from tv import (
     VERDE,
     VERMELHO,
     achar_apk,
+    captura_mudou,
+    checar_leanback,
     checar_saude,
     classificar_geral,
     classificar_tela,
+    diferenca_na_regiao,
     inspecionar_foco,
+    is_tela_inteira,
+    reconhecer_tela_tv,
+    tamanho_do_campo_tv,
+    verificar_inicio_vazio,
     verificar_player_preto,
     verificar_texto_pequeno,
 )
@@ -34,6 +41,27 @@ class TestTvBancada(unittest.TestCase):
         self.assertEqual(info['classe'], 'android.widget.Button')
         self.assertEqual(info['bounds'], [100, 200, 300, 400])
 
+    def test_inspecionar_foco_ignora_raiz_tela_inteira(self):
+        nos = [
+            # Nó raiz da janela ou view que cobre 1080p
+            {'text': '', 'cls': 'android.widget.FrameLayout', 'focused': True, 'bounds': (0, 0, 1920, 1080)},
+            # Nó filho interno realmente focado
+            {'text': 'Reproduzir', 'cls': 'android.widget.Button', 'focused': True, 'bounds': (200, 500, 400, 560)},
+        ]
+        info = inspecionar_foco(nos)
+        self.assertTrue(info['visivel'])
+        self.assertEqual(info['elemento'], 'Reproduzir')
+        self.assertEqual(info['bounds'], [200, 500, 400, 560])
+
+    def test_inspecionar_foco_apenas_raiz_focada(self):
+        nos = [
+            {'text': '', 'cls': 'android.widget.FrameLayout', 'focused': True, 'bounds': (0, 0, 1920, 1080)},
+        ]
+        info = inspecionar_foco(nos)
+        self.assertFalse(info['visivel'])
+        self.assertTrue(info['raiz'])
+        self.assertIsNone(info['elemento'])
+
     def test_inspecionar_foco_ausente(self):
         nos = [
             {'text': 'Início', 'cls': 'android.view.View', 'focused': False, 'bounds': (0, 0, 100, 50)},
@@ -44,13 +72,46 @@ class TestTvBancada(unittest.TestCase):
         self.assertIsNone(info['elemento'])
         self.assertIsNone(info['bounds'])
 
+    def test_is_tela_inteira(self):
+        self.assertTrue(is_tela_inteira([0, 0, 1920, 1080]))
+        self.assertTrue(is_tela_inteira([5, 5, 1915, 1075]))
+        self.assertFalse(is_tela_inteira([100, 200, 400, 300]))
+
+    def test_diferenca_na_regiao_com_pillow(self):
+        try:
+            from PIL import Image
+            img1 = Image.new('RGB', (100, 100), color=(0, 0, 0))
+            img2 = Image.new('RGB', (100, 100), color=(0, 0, 0))
+            img2.putpixel((50, 50), (255, 255, 255))
+            b1 = io.BytesIO()
+            img1.save(b1, format='PNG')
+            b2 = io.BytesIO()
+            img2.save(b2, format='PNG')
+
+            self.assertTrue(diferenca_na_regiao(b1.getvalue(), b2.getvalue(), [40, 40, 60, 60]))
+            self.assertFalse(diferenca_na_regiao(b1.getvalue(), b2.getvalue(), [0, 0, 20, 20]))
+        except ImportError:
+            pass
+
+    def test_captura_mudou(self):
+        try:
+            from PIL import Image
+            img1 = Image.new('RGB', (100, 100), color=(0, 0, 0))
+            img2 = Image.new('RGB', (100, 100), color=(255, 255, 255))
+            b1 = io.BytesIO()
+            img1.save(b1, format='PNG')
+            b2 = io.BytesIO()
+            img2.save(b2, format='PNG')
+
+            self.assertFalse(captura_mudou(b1.getvalue(), b1.getvalue()))
+            self.assertTrue(captura_mudou(b1.getvalue(), b2.getvalue()))
+        except ImportError:
+            pass
+
     def test_verificar_texto_pequeno(self):
         nos = [
-            # Texto pequeno (altura 12px < 18px)
             {'text': 'Texto minúsculo', 'bounds': (0, 0, 100, 12)},
-            # Texto normal (altura 24px)
             {'text': 'Texto normal', 'bounds': (0, 0, 100, 24)},
-            # Ponto ou hífen curto (deve ser ignorado)
             {'text': '·', 'bounds': (0, 0, 10, 8)},
         ]
         pequenos = verificar_texto_pequeno(nos, altura_minima=18)
@@ -58,13 +119,16 @@ class TestTvBancada(unittest.TestCase):
         self.assertEqual(pequenos[0]['texto'], 'Texto minúsculo')
         self.assertEqual(pequenos[0]['altura'], 12)
 
-    def test_classificar_tela(self):
+    def test_classificar_tela_criterios_completos(self):
         self.assertEqual(classificar_tela([]), VERDE)
         self.assertEqual(classificar_tela([{'gravidade': ATENCAO, 'codigo': 'foco-invisivel'}]), ATENCAO)
         self.assertEqual(classificar_tela([
             {'gravidade': ATENCAO, 'codigo': 'foco-invisivel'},
             {'gravidade': VERMELHO, 'codigo': 'player-preto'},
         ]), VERMELHO)
+        # Se captura não mudou ou elementos esperados não apareceram, é VERMELHO
+        self.assertEqual(classificar_tela([], cap_mudou=False), VERMELHO)
+        self.assertEqual(classificar_tela([], elementos_presentes=False), VERMELHO)
 
     def test_classificar_geral(self):
         telas_verdes = [
@@ -84,6 +148,55 @@ class TestTvBancada(unittest.TestCase):
             {'nome': 'player', 'estado': VERMELHO, 'achados': [{'gravidade': VERMELHO}]},
         ]
         self.assertEqual(classificar_geral(telas_com_vermelho, []), VERMELHO)
+
+    @patch('tv.texto')
+    def test_checar_leanback(self, mock_texto):
+        mock_texto.return_value = 'true\n'
+        self.assertTrue(checar_leanback())
+
+        mock_texto.return_value = 'false\n'
+        self.assertFalse(checar_leanback())
+
+    def test_reconhecer_tela_tv(self):
+        nos_login = [
+            {'text': 'Iniciar sessão', 'cls': 'android.widget.Button'},
+            {'text': '', 'cls': 'android.widget.EditText'},
+        ]
+        self.assertEqual(reconhecer_tela_tv(nos_login), 'login')
+
+        nos_inicio = [
+            {'text': 'Início', 'cls': 'android.widget.TextView'},
+            {'text': 'Buscar', 'cls': 'android.widget.TextView'},
+            {'text': 'Configurações', 'cls': 'android.widget.TextView'},
+        ]
+        self.assertEqual(reconhecer_tela_tv(nos_inicio), 'inicio')
+
+        self.assertIsNone(reconhecer_tela_tv([{'text': 'Outra tela'}]))
+
+    def test_verificar_inicio_vazio(self):
+        nos_vazio = [
+            # Trilho lateral esquerdo
+            {'text': 'Início', 'bounds': (0, 100, 150, 150), 'centro': (75, 125)},
+            {'text': 'Buscar', 'bounds': (0, 160, 150, 210), 'centro': (75, 185)},
+        ]
+        self.assertTrue(verificar_inicio_vazio(nos_vazio))
+
+        nos_com_linhas = [
+            # Trilho lateral
+            {'text': 'Início', 'bounds': (0, 100, 150, 150), 'centro': (75, 125)},
+            # Conteúdo na área central (x >= 200)
+            {'text': 'Continuar assistindo', 'bounds': (220, 100, 600, 150), 'centro': (410, 125), 'clickable': False},
+            {'text': 'Filme A', 'bounds': (220, 160, 420, 460), 'centro': (320, 310), 'clickable': True, 'focusable': True},
+        ]
+        self.assertFalse(verificar_inicio_vazio(nos_com_linhas))
+
+    def test_tamanho_do_campo_tv(self):
+        nos = [
+            {'text': 'USUÁRIO', 'desc': '', 'hint': '', 'cls': 'android.widget.TextView', 'bounds': (40, 100, 200, 140), 'centro': (120, 120)},
+            {'text': 'usuario_teste', 'desc': '', 'hint': '', 'cls': 'android.widget.EditText', 'bounds': (40, 150, 400, 200), 'centro': (220, 175)},
+        ]
+        self.assertEqual(tamanho_do_campo_tv(nos, 'USUÁRIO'), len('usuario_teste'))
+        self.assertIsNone(tamanho_do_campo_tv([], 'USUÁRIO'))
 
     @patch('tv.texto')
     def test_checar_saude_app_fechado(self, mock_texto):

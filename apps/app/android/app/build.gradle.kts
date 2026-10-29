@@ -360,6 +360,9 @@ android {
       // mpv-build tarballs win for std::from_chars<float>, while older
       // native consumers remain ABI-compatible.
       pickFirsts.add("lib/*/libc++_shared.so")
+      // Flutter 3.47 não suporta x86 (32-bit). Exclui resíduos de x86 para evitar
+      // INSTALL_FAILED_NO_MATCHING_ABIS por pasta de ABI incompleta (sem libflutter.so).
+      excludes.add("lib/x86/**")
     }
   }
 

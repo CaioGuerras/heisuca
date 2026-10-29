@@ -147,31 +147,20 @@ def preencher_campo(rotulo, valor, registrar=None):
     """
     rec = registrar or (lambda nome, nos: None)
     for tentativa in (1, 2):
-        fechar_teclado()
-        time.sleep(0.5)
-        nos_atual = dump()
-        campo = campo_abaixo_do_rotulo(nos_atual, rotulo)
+        campo = campo_abaixo_do_rotulo(dump(), rotulo)
         if campo is None:
-            chave = {'SERVIDOR': 'servidor', 'USUÁRIO': 'usuario', 'SENHA': 'senha'}.get(rotulo)
-            campo = campos_login(nos_atual).get(chave) if chave else None
-        if campo is None:
-            rec(f'campo {rotulo} não achado', nos_atual)
+            rec(f'campo {rotulo} não achado', dump())
             return False
         tocar(campo)
         time.sleep(1)
         nos = dump()
         campo = campo_abaixo_do_rotulo(nos, rotulo)
-        if campo is None:
-            chave = {'SERVIDOR': 'servidor', 'USUÁRIO': 'usuario', 'SENHA': 'senha'}.get(rotulo)
-            campo = campos_login(nos).get(chave) if chave else None
         if campo is None or foco_no_campo(nos, campo) is False:
             continue  # o foco foi para outro campo: toca de novo
         apagar_campo()
         if valor:
             digitar(valor)
         time.sleep(1.5)
-        fechar_teclado()
-        time.sleep(0.5)
         nos = dump()
         rec(f'após {rotulo} (tentativa {tentativa})', nos)
         if tamanho_do_campo(nos, rotulo) == len(valor):

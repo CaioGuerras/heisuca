@@ -73,14 +73,14 @@ jobs:
           - id: firetv-11
             nome: "Fire TV 11 (API 30)"
             api-level: 30
-            target: default
-            arch: x86_64
+            target: android-tv
+            arch: x86
             ram-size: 1536M
           - id: firetv-9
             nome: "Fire TV 9 (API 28)"
             api-level: 28
-            target: default
-            arch: x86_64
+            target: android-tv
+            arch: x86
             ram-size: 1024M
     steps:
       - uses: actions/checkout@v4
@@ -183,6 +183,8 @@ jobs:
                   for a in report.get('achados', [])[:30]:
                       summary.write(f"- [{a.get('gravidade')}] {a.get('codigo')}: {a.get('detalhe')}\n")
               summary.write('\nNavegação exclusiva por controle remoto (D-Pad). Sem credenciais nos logs/relatórios.\n')
+          if report['estado'] == 'vermelho':
+              raise SystemExit(1)
           PY
       - name: Guardar capturas e relatório da TV sem credenciais
         if: always()

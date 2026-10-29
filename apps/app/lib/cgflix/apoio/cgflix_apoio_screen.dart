@@ -6,6 +6,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import '../../widgets/app_icon.dart';
 import '../../widgets/focusable_list_tile.dart';
 import '../../widgets/settings_section.dart';
+import '../cgflix_palette.dart';
 import 'apoio.dart';
 
 const cgflixApoioTitulo = 'Apoie o Heisuca';
@@ -81,20 +82,46 @@ class CgflixApoioSettingsTile extends StatelessWidget {
   }
 }
 
-/// Linha discreta do Sobre.
+/// Linha discreta do Sobre (apoio com café, texto secundário, seta e toque >= 48 dp).
 class CgflixApoioAboutLine extends StatelessWidget {
   const CgflixApoioAboutLine({super.key});
 
   @override
   Widget build(BuildContext context) {
     if (!cgflixApoioAtual.disponivel) return const SizedBox.shrink();
+    final muted = context.cgflix.textMuted;
     return Center(
-      child: TextButton.icon(
+      child: TextButton(
         key: const ValueKey('cgflix-about-apoio'),
-        style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+        style: TextButton.styleFrom(
+          minimumSize: const Size(48, 48),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          foregroundColor: muted,
+        ).copyWith(
+          side: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.focused)) {
+              return BorderSide(color: context.cgflix.focusRing, width: 2);
+            }
+            return BorderSide.none;
+          }),
+        ),
         onPressed: () => cgflixAbrirApoio(context),
-        icon: const AppIcon(Symbols.favorite_rounded, fill: 1, size: 18, color: cgflixApoioRosa),
-        label: const Text('Gostou? Apoie o Heisuca'),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AppIcon(Symbols.coffee_rounded, fill: 1, size: 18, color: muted),
+            const SizedBox(width: 8),
+            Text(
+              'Apoiar o Heisuca',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: muted,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(width: 4),
+            AppIcon(Symbols.chevron_right_rounded, size: 18, color: muted),
+          ],
+        ),
       ),
     );
   }

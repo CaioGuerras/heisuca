@@ -1229,7 +1229,6 @@
     "title": "關於",
     "openSourceLicenses": "開源授權條款",
     "versionLabel": "版本 ${version}",
-    "appDescription": "一款精美的 Plex、Jellyfin 與 Emby Flutter 用戶端",
     "viewLicensesDescription": "查看第三方套件的授權條款"
   },
   "serverSelection": {

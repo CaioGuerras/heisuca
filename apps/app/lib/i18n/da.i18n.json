@@ -1234,7 +1234,6 @@
     "title": "Om",
     "openSourceLicenses": "Open source-licenser",
     "versionLabel": "Version ${version}",
-    "appDescription": "En smuk Plex-, Jellyfin- og Emby-klient bygget med Flutter",
     "viewLicensesDescription": "Se licenser for tredjepartsbiblioteker"
   },
   "serverSelection": {

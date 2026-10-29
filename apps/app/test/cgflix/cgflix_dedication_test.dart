@@ -18,10 +18,10 @@ void main() {
     await SettingsService.getInstance();
   });
 
-  testWidgets('Sobre mostra a dedicatória com o coração roxo e o verde', (tester) async {
-    await tester.pumpWidget(const MaterialApp(home: Scaffold(body: CgflixDedication())));
+  testWidgets('Sobre mostra a dedicatória com texto dedicado', (tester) async {
+    await tester.pumpWidget(MaterialApp(theme: cgflixAppTheme(), home: const Scaffold(body: CgflixDedication())));
     expect(find.text(cgflixDedicationText), findsOneWidget);
-    expect(find.descendant(of: find.byType(CgflixDedicationHearts), matching: find.byType(AppIcon)), findsNWidgets(2));
+    expect(find.byType(AppIcon), findsNothing);
   });
 
   testWidgets('Avançado não tem mais "Mostrar dedicatória"', (tester) async {

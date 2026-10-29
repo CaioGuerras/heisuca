@@ -1234,7 +1234,6 @@
     "title": "Hakkında",
     "openSourceLicenses": "Açık Kaynak Lisansları",
     "versionLabel": "Sürüm ${version}",
-    "appDescription": "Flutter için şık bir Plex, Jellyfin ve Emby istemcisi",
     "viewLicensesDescription": "Üçüncü taraf kütüphanelerin lisanslarını görüntüleyin"
   },
   "serverSelection": {

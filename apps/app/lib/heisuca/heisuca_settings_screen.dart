@@ -378,6 +378,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
             if (value != null) _save(settings.SettingsService.defaultQualityPreset, value);
           },
         )),
+        const SizedBox(height: 14.0),
         _buildSwitchTile(
           title: 'Pular Abertura Automático',
           subtitle: 'Usa os marcadores disponíveis no vídeo; sem eles, não avança.',

@@ -1,4 +1,3 @@
-import 'dart:ui';
 import '../../heisuca/heisuca_news.dart';
 import 'package:flutter/material.dart';
 import 'package:heisuca/widgets/app_icon.dart';
@@ -60,18 +59,9 @@ class AboutScreen extends StatelessWidget {
                             fontFeatures: const [FontFeature.tabularFigures()],
                           ),
                         ),
+                        const SizedBox(height: 24),
+                        const HeisucaTributeCards(),
                         const SizedBox(height: 16),
-                        const CgflixDedication(),
-                        const SizedBox(height: 20),
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 440),
-                          child: Text(
-                            t.about.appDescription,
-                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.45),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
                         const CgflixApoioAboutLine(),
                       ],
                     ),
@@ -94,6 +84,12 @@ class AboutScreen extends StatelessWidget {
                         },
                       ),
                     ],
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  const Center(
+                    child: CgflixDedication(),
                   ),
 
                   const SizedBox(height: 24),

@@ -1,0 +1,195 @@
+name: Heisuca TV Android
+
+on:
+  push:
+    branches: ["gemini/heisuca-**", "claude/**", "codex/heisuca-home-site"]
+    paths-ignore: ["docs/**", "AGENTS.md", "apps/app/CLAUDE.md"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: heisuca-tv-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Compilar APK de depuração para TV
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: apps/app
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.1"
+          channel: stable
+          cache: true
+      - name: Liberar espaço na VM
+        working-directory: /
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost "$AGENT_TOOLSDIRECTORY"
+      - name: Dependências
+        run: flutter pub get --no-example
+      - name: Compilar APK de depuração
+        env:
+          ORG_GRADLE_PROJECT_targetAbi: x86_64
+          ORG_GRADLE_PROJECT_heisucaPreview: "true"
+          GRADLE_OPTS: -Dorg.gradle.caching=false -Dorg.gradle.jvmargs=-Xmx3g
+        run: flutter build apk --debug --target-platform android-x64
+      - name: Publicar APK de depuração para os executores de TV
+        uses: actions/upload-artifact@v4
+        with:
+          name: heisuca-tv-debug-apk
+          path: apps/app/build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 1
+
+  tv:
+    name: ${{ matrix.perfil.nome }}
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    defaults:
+      run:
+        working-directory: apps/app
+    strategy:
+      fail-fast: false
+      matrix:
+        perfil:
+          - id: androidtv
+            nome: "Android TV / Google TV (API 34)"
+            api-level: 34
+            target: google-tv
+            arch: x86_64
+            ram-size: 2048M
+          - id: firetv-11
+            nome: "Fire TV 11 (API 30)"
+            api-level: 30
+            target: android-tv
+            arch: x86_64
+            ram-size: 1536M
+          - id: firetv-9
+            nome: "Fire TV 9 (API 28)"
+            api-level: 28
+            target: android-tv
+            arch: x86_64
+            ram-size: 1024M
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Preparar KVM e espaço
+        id: ambiente
+        timeout-minutes: 10
+        run: |
+          runner_cores=$(nproc)
+          avd_cores=$runner_cores
+          if [ "$avd_cores" -gt 4 ]; then avd_cores=4; fi
+          echo "CPUs disponíveis: $runner_cores; CPUs do AVD: $avd_cores"
+          echo "cores=$avd_cores" >> "$GITHUB_OUTPUT"
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/share/swift /usr/local/share/boost \
+            /usr/local/share/powershell /usr/local/share/chromium /usr/local/lib/node_modules \
+            /opt/hostedtoolcache/CodeQL /opt/hostedtoolcache/PyPy /opt/hostedtoolcache/go /opt/microsoft /opt/google
+          sudo docker image prune --all --force >/dev/null 2>&1 || true
+          df -h /
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules >/dev/null
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          if ! command -v ffmpeg >/dev/null; then
+            if [ -f /etc/apt/apt-mirrors.txt ]; then
+              sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' /etc/apt/apt-mirrors.txt
+            fi
+            sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update
+            sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y --no-install-recommends ffmpeg
+          fi
+          mkdir -p .bancada/tv/${{ matrix.perfil.id }}
+      - name: Baixar APK de depuração compilado
+        uses: actions/download-artifact@v4
+        with:
+          name: heisuca-tv-debug-apk
+          path: apps/app/build/app/outputs/flutter-apk/
+      - name: Emulador e percurso TV
+        id: percurso
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
+        env:
+          HEISUCA_TESTE_SERVIDOR: ${{ secrets.HEISUCA_TESTE_SERVIDOR }}
+          HEISUCA_TESTE_CONTAS: ${{ secrets.HEISUCA_TESTE_CONTAS }}
+        with:
+          api-level: ${{ matrix.perfil.api-level }}
+          target: ${{ matrix.perfil.target }}
+          arch: ${{ matrix.perfil.arch }}
+          profile: tv_1080p
+          cores: ${{ steps.ambiente.outputs.cores }}
+          ram-size: ${{ matrix.perfil.ram-size }}
+          heap-size: 512M
+          disable-animations: false
+          emulator-options: -no-window -gpu software -noaudio -no-boot-anim -camera-back none
+          working-directory: apps/app
+          script: |
+            for tentativa in 1 2 3 4 5; do timeout 30 adb wait-for-device || true; if adb root; then timeout 30 adb wait-for-device || true; break; fi; echo "Tentativa $tentativa/5 de adb root falhou, aguardando..."; sleep 3; done
+            timeout 45 adb wait-for-device
+            adb shell id
+            adb shell wm size
+            adb shell wm density
+            python3 scripts/bancada/tv.py --perfil ${{ matrix.perfil.id }}
+      - name: Classificar sem confundir infraestrutura com aprovação
+        if: always()
+        env:
+          RESULTADO_ETAPA: ${{ steps.percurso.outcome }}
+          PERFIL_ID: ${{ matrix.perfil.id }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          perfil = os.environ['PERFIL_ID']
+          path = Path(f'.bancada/tv/{perfil}/relatorio.json')
+          if not path.exists():
+              path.parent.mkdir(parents=True, exist_ok=True)
+              motivo = 'O emulador não chegou a executar o percurso de TV.'
+              path.write_text(json.dumps({'perfil': perfil, 'estado': 'vermelho', 'motivo': motivo, 'telas': [], 'achados': []}, ensure_ascii=False))
+          report = json.loads(path.read_text())
+          if os.environ['RESULTADO_ETAPA'] != 'success' and report.get('estado') in (None, 'verde'):
+              report['estado'] = 'vermelho'
+          path.write_text(json.dumps(report, ensure_ascii=False, indent=2))
+          if report['estado'] == 'ATENÇÃO':
+              print('::warning::' + (report.get('motivo') or f'Achados de atenção na TV ({perfil}).'))
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              summary.write(f"### Heisuca TV ({perfil}): {report['estado']}\n\n")
+              if report.get('motivo'):
+                  summary.write(report['motivo'] + '\n\n')
+              summary.write('| Tela | Estado | Foco Visível | BACK Retorna | Captura |\n')
+              summary.write('| --- | --- | --- | --- | --- |\n')
+              for t in report.get('telas', []):
+                  foco_str = 'Sim (' + str(t.get('foco', {}).get('elemento') or '') + ')' if t.get('foco', {}).get('visivel') else 'Não'
+                  back_str = 'Sim' if t.get('back_retorna') else 'Não'
+                  summary.write(f"| {t.get('titulo', t.get('nome'))} | {t.get('estado')} | {foco_str} | {back_str} | {t.get('captura', '')} |\n")
+              summary.write('\n')
+              if report.get('achados'):
+                  summary.write('#### Achados:\n')
+                  for a in report.get('achados', [])[:30]:
+                      summary.write(f"- [{a.get('gravidade')}] {a.get('codigo')}: {a.get('detalhe')}\n")
+              summary.write('\nNavegação exclusiva por controle remoto (D-Pad). Sem credenciais nos logs/relatórios.\n')
+          if report['estado'] == 'vermelho':
+              raise SystemExit(1)
+          PY
+      - name: Guardar capturas e relatório da TV sem credenciais
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: heisuca-tv-${{ matrix.perfil.id }}
+          path: apps/app/.bancada/tv/${{ matrix.perfil.id }}/
+          if-no-files-found: ignore
+          retention-days: 7

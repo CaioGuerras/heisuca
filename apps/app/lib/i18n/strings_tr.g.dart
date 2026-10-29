@@ -1323,7 +1323,6 @@ class _Translations$about$tr extends Translations$about$en {
 	@override String get title => 'Hakkında';
 	@override String get openSourceLicenses => 'Açık Kaynak Lisansları';
 	@override String versionLabel({required Object version}) => 'Sürüm ${version}';
-	@override String get appDescription => 'Flutter için şık bir Plex, Jellyfin ve Emby istemcisi';
 	@override String get viewLicensesDescription => 'Üçüncü taraf kütüphanelerin lisanslarını görüntüleyin';
 }
 
@@ -4137,7 +4136,6 @@ extension on TranslationsTr {
 			'about.title' => 'Hakkında',
 			'about.openSourceLicenses' => 'Açık Kaynak Lisansları',
 			'about.versionLabel' => ({required Object version}) => 'Sürüm ${version}',
-			'about.appDescription' => 'Flutter için şık bir Plex, Jellyfin ve Emby istemcisi',
 			'about.viewLicensesDescription' => 'Üçüncü taraf kütüphanelerin lisanslarını görüntüleyin',
 			'serverSelection.noServersFoundForAccount' => ({required Object username, required Object email}) => '${username} (${email}) için sunucu bulunamadı',
 			'serverSelection.failedToLoadServers' => ({required Object error}) => 'Sunucular yüklenemedi: ${error}',
@@ -4574,9 +4572,9 @@ extension on TranslationsTr {
 			'watchTogether.defaultDisplayName' => 'Kullanıcı',
 			'watchTogether.errors.timedOut' => 'Aktarıcı sunucusu zamanında yanıt vermedi',
 			'watchTogether.errors.connectionLost' => 'Oturum hazır olmadan bağlantı kapandı',
+			'watchTogether.errors.invalidRelayResponse' => 'Aktarıcı sunucusu beklenmeyen bir yanıt gönderdi',
 			_ => null,
 		} ?? switch (path) {
-			'watchTogether.errors.invalidRelayResponse' => 'Aktarıcı sunucusu beklenmeyen bir yanıt gönderdi',
 			'watchTogether.errors.sessionEnded' => 'Kurucu oturumu sonlandırdı',
 			'watchTogether.errors.sessionUnavailable' => 'Bu oturum sürdürülemiyor. Devam etmek için bir odaya katılın veya oda oluşturun.',
 			'downloads.title' => 'İndirmeler',
@@ -5088,9 +5086,9 @@ extension on TranslationsTr {
 			'addServer.authResponseIncomplete' => 'Sunucudan gelen oturum açma yanıtı eksikti',
 			'addServer.quickConnectRejected' => 'Quick Connect sunucu tarafından reddedildi',
 			'addServer.quickConnectNotJson' => 'Quick Connect yanıtı geçerli bir JSON değildi',
+			'addServer.quickConnectMissingFields' => 'Quick Connect yanıtında kod veya gizli anahtar eksik',
 			_ => null,
 		} ?? switch (path) {
-			'addServer.quickConnectMissingFields' => 'Quick Connect yanıtında kod veya gizli anahtar eksik',
 			'addServer.quickConnectPollRejected' => 'Quick Connect yoklaması sunucu tarafından reddedildi',
 			'addServer.serverTimedOut' => 'Sunucu zamanında yanıt vermedi',
 			'addServer.responseNotJson' => 'Sunucu yanıtı geçerli bir JSON değildi',

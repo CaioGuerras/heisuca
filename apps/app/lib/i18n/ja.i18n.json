@@ -1229,7 +1229,6 @@
     "title": "アプリについて",
     "openSourceLicenses": "オープンソースライセンス",
     "versionLabel": "バージョン ${version}",
-    "appDescription": "Flutter製の美しいPlex・Jellyfin・Embyクライアント",
     "viewLicensesDescription": "サードパーティライブラリのライセンスを表示"
   },
   "serverSelection": {

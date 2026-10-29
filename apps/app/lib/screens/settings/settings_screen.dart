@@ -177,7 +177,7 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
   Widget build(BuildContext context) {
     final hasLibraries = context.select<LibrariesProvider, bool>((p) => p.libraries.isNotEmpty);
 
-    if (OverlaySheetController.maybeOf(context) != null) {
+    if (widget.heisucaSection != null || OverlaySheetController.maybeOf(context) != null) {
       return _buildContent(context, hasLibraries: hasLibraries);
     }
 

@@ -1323,7 +1323,6 @@ class _Translations$about$de extends Translations$about$en {
 	@override String get title => 'Über';
 	@override String get openSourceLicenses => 'Open-Source-Lizenzen';
 	@override String versionLabel({required Object version}) => 'Version ${version}';
-	@override String get appDescription => 'Ein schöner, mit Flutter entwickelter Plex-, Jellyfin- und Emby-Client';
 	@override String get viewLicensesDescription => 'Lizenzen von Drittanbieter-Bibliotheken anzeigen';
 }
 
@@ -4137,7 +4136,6 @@ extension on TranslationsDe {
 			'about.title' => 'Über',
 			'about.openSourceLicenses' => 'Open-Source-Lizenzen',
 			'about.versionLabel' => ({required Object version}) => 'Version ${version}',
-			'about.appDescription' => 'Ein schöner, mit Flutter entwickelter Plex-, Jellyfin- und Emby-Client',
 			'about.viewLicensesDescription' => 'Lizenzen von Drittanbieter-Bibliotheken anzeigen',
 			'serverSelection.noServersFoundForAccount' => ({required Object username, required Object email}) => 'Keine Server gefunden für ${username} (${email})',
 			'serverSelection.failedToLoadServers' => ({required Object error}) => 'Server konnten nicht geladen werden: ${error}',
@@ -4574,9 +4572,9 @@ extension on TranslationsDe {
 			'watchTogether.defaultDisplayName' => 'Benutzer',
 			'watchTogether.errors.timedOut' => 'Der Relay-Server hat nicht rechtzeitig geantwortet',
 			'watchTogether.errors.connectionLost' => 'Die Verbindung wurde geschlossen, bevor die Sitzung bereit war',
+			'watchTogether.errors.invalidRelayResponse' => 'Der Relay-Server hat eine unerwartete Antwort gesendet',
 			_ => null,
 		} ?? switch (path) {
-			'watchTogether.errors.invalidRelayResponse' => 'Der Relay-Server hat eine unerwartete Antwort gesendet',
 			'watchTogether.errors.sessionEnded' => 'Der Host hat die Sitzung beendet',
 			'watchTogether.errors.sessionUnavailable' => 'Diese Sitzung kann nicht fortgesetzt werden. Tritt einem Raum bei oder erstelle einen, um fortzufahren.',
 			'downloads.title' => 'Downloads',
@@ -5088,9 +5086,9 @@ extension on TranslationsDe {
 			'addServer.authResponseIncomplete' => 'Die Anmeldeantwort des Servers war unvollständig',
 			'addServer.quickConnectRejected' => 'Quick Connect wurde vom Server abgelehnt',
 			'addServer.quickConnectNotJson' => 'Die Quick Connect-Antwort war kein gültiges JSON',
+			'addServer.quickConnectMissingFields' => 'In der Quick Connect-Antwort fehlt ein Code oder Geheimnis',
 			_ => null,
 		} ?? switch (path) {
-			'addServer.quickConnectMissingFields' => 'In der Quick Connect-Antwort fehlt ein Code oder Geheimnis',
 			'addServer.quickConnectPollRejected' => 'Die Quick Connect-Abfrage wurde vom Server abgelehnt',
 			'addServer.serverTimedOut' => 'Der Server hat nicht rechtzeitig geantwortet',
 			'addServer.responseNotJson' => 'Die Serverantwort war kein gültiges JSON',

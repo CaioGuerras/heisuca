@@ -1323,7 +1323,6 @@ class _Translations$about$nl extends Translations$about$en {
 	@override String get title => 'Over';
 	@override String get openSourceLicenses => 'Opensourcelicenties';
 	@override String versionLabel({required Object version}) => 'Versie ${version}';
-	@override String get appDescription => 'Een mooie Plex-, Jellyfin- en Emby-client voor Flutter';
 	@override String get viewLicensesDescription => 'Licenties van bibliotheken van derden bekijken';
 }
 
@@ -4137,7 +4136,6 @@ extension on TranslationsNl {
 			'about.title' => 'Over',
 			'about.openSourceLicenses' => 'Opensourcelicenties',
 			'about.versionLabel' => ({required Object version}) => 'Versie ${version}',
-			'about.appDescription' => 'Een mooie Plex-, Jellyfin- en Emby-client voor Flutter',
 			'about.viewLicensesDescription' => 'Licenties van bibliotheken van derden bekijken',
 			'serverSelection.noServersFoundForAccount' => ({required Object username, required Object email}) => 'Geen servers gevonden voor ${username} (${email})',
 			'serverSelection.failedToLoadServers' => ({required Object error}) => 'Kon servers niet laden: ${error}',
@@ -4574,9 +4572,9 @@ extension on TranslationsNl {
 			'watchTogether.defaultDisplayName' => 'Gebruiker',
 			'watchTogether.errors.timedOut' => 'De relayserver heeft niet op tijd gereageerd',
 			'watchTogether.errors.connectionLost' => 'De verbinding is verbroken voordat de sessie gereed was',
+			'watchTogether.errors.invalidRelayResponse' => 'De relayserver heeft een onverwacht antwoord verzonden',
 			_ => null,
 		} ?? switch (path) {
-			'watchTogether.errors.invalidRelayResponse' => 'De relayserver heeft een onverwacht antwoord verzonden',
 			'watchTogether.errors.sessionEnded' => 'De host heeft de sessie beëindigd',
 			'watchTogether.errors.sessionUnavailable' => 'Kan deze sessie niet hervatten. Neem deel aan of maak een kamer om door te gaan.',
 			'downloads.title' => 'Downloads',
@@ -5088,9 +5086,9 @@ extension on TranslationsNl {
 			'addServer.authResponseIncomplete' => 'Het aanmeldingsantwoord van de server was onvolledig',
 			'addServer.quickConnectRejected' => 'Quick Connect is door de server geweigerd',
 			'addServer.quickConnectNotJson' => 'Het Quick Connect-antwoord was geen geldige JSON',
+			'addServer.quickConnectMissingFields' => 'In het Quick Connect-antwoord ontbreekt een code of geheim',
 			_ => null,
 		} ?? switch (path) {
-			'addServer.quickConnectMissingFields' => 'In het Quick Connect-antwoord ontbreekt een code of geheim',
 			'addServer.quickConnectPollRejected' => 'Quick Connect-polling is door de server geweigerd',
 			'addServer.serverTimedOut' => 'De server heeft niet op tijd gereageerd',
 			'addServer.responseNotJson' => 'Het serverantwoord was geen geldige JSON',

@@ -1333,7 +1333,6 @@ class _Translations$about$pl extends Translations$about$en {
 	@override String get title => 'O aplikacji';
 	@override String get openSourceLicenses => 'Licencje oprogramowania open source';
 	@override String versionLabel({required Object version}) => 'Wersja ${version}';
-	@override String get appDescription => 'Piękny klient Plex, Jellyfin i Emby stworzony we Flutterze';
 	@override String get viewLicensesDescription => 'Wyświetl licencje bibliotek innych firm';
 }
 
@@ -4159,7 +4158,6 @@ extension on TranslationsPl {
 			'about.title' => 'O aplikacji',
 			'about.openSourceLicenses' => 'Licencje oprogramowania open source',
 			'about.versionLabel' => ({required Object version}) => 'Wersja ${version}',
-			'about.appDescription' => 'Piękny klient Plex, Jellyfin i Emby stworzony we Flutterze',
 			'about.viewLicensesDescription' => 'Wyświetl licencje bibliotek innych firm',
 			'serverSelection.noServersFoundForAccount' => ({required Object username, required Object email}) => 'Nie znaleziono serwerów dla ${username} (${email})',
 			'serverSelection.failedToLoadServers' => ({required Object error}) => 'Nie udało się załadować serwerów: ${error}',
@@ -4596,9 +4594,9 @@ extension on TranslationsPl {
 			'watchTogether.defaultDisplayName' => 'Użytkownik',
 			'watchTogether.errors.timedOut' => 'Serwer pośredniczący nie odpowiedział w wymaganym czasie',
 			'watchTogether.errors.connectionLost' => 'Połączenie zostało zamknięte, zanim sesja była gotowa',
+			'watchTogether.errors.invalidRelayResponse' => 'Serwer pośredniczący wysłał nieoczekiwaną odpowiedź',
 			_ => null,
 		} ?? switch (path) {
-			'watchTogether.errors.invalidRelayResponse' => 'Serwer pośredniczący wysłał nieoczekiwaną odpowiedź',
 			'watchTogether.errors.sessionEnded' => 'Gospodarz zakończył sesję',
 			'watchTogether.errors.sessionUnavailable' => 'Nie można wznowić tej sesji. Dołącz do pokoju lub utwórz go, aby kontynuować.',
 			'downloads.title' => 'Pobrania',
@@ -5110,9 +5108,9 @@ extension on TranslationsPl {
 			'addServer.authResponseIncomplete' => 'Odpowiedź logowania z serwera była niekompletna',
 			'addServer.quickConnectRejected' => 'Quick Connect został odrzucony przez serwer',
 			'addServer.quickConnectNotJson' => 'Odpowiedź Quick Connect ma nieprawidłowy format JSON',
+			'addServer.quickConnectMissingFields' => 'W odpowiedzi Quick Connect brakuje kodu lub sekretu',
 			_ => null,
 		} ?? switch (path) {
-			'addServer.quickConnectMissingFields' => 'W odpowiedzi Quick Connect brakuje kodu lub sekretu',
 			'addServer.quickConnectPollRejected' => 'Odpytywanie Quick Connect zostało odrzucone przez serwer',
 			'addServer.serverTimedOut' => 'Serwer nie odpowiedział w wymaganym czasie',
 			'addServer.responseNotJson' => 'Odpowiedź serwera ma nieprawidłowy format JSON',

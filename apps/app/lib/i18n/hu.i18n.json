@@ -1234,7 +1234,6 @@
     "title": "Névjegy",
     "openSourceLicenses": "Nyílt forráskódú licencek",
     "versionLabel": "Verzió: ${version}",
-    "appDescription": "Gyönyörű Flutter-kliens a Plexhez, a Jellyfinhez és az Embyhez",
     "viewLicensesDescription": "Külső fejlesztésű programkönyvtárak licenceinek megtekintése"
   },
   "serverSelection": {

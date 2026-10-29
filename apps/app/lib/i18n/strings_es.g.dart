@@ -1323,7 +1323,6 @@ class _Translations$about$es extends Translations$about$en {
 	@override String get title => 'Acerca de';
 	@override String get openSourceLicenses => 'Licencias de código abierto';
 	@override String versionLabel({required Object version}) => 'Versión ${version}';
-	@override String get appDescription => 'Un cliente de Plex, Jellyfin y Emby para Flutter';
 	@override String get viewLicensesDescription => 'Ver las licencias de bibliotecas de terceros';
 }
 
@@ -4137,7 +4136,6 @@ extension on TranslationsEs {
 			'about.title' => 'Acerca de',
 			'about.openSourceLicenses' => 'Licencias de código abierto',
 			'about.versionLabel' => ({required Object version}) => 'Versión ${version}',
-			'about.appDescription' => 'Un cliente de Plex, Jellyfin y Emby para Flutter',
 			'about.viewLicensesDescription' => 'Ver las licencias de bibliotecas de terceros',
 			'serverSelection.noServersFoundForAccount' => ({required Object username, required Object email}) => 'No se encontraron servidores para ${username} (${email})',
 			'serverSelection.failedToLoadServers' => ({required Object error}) => 'Error al cargar servidores: ${error}',
@@ -4574,9 +4572,9 @@ extension on TranslationsEs {
 			'watchTogether.defaultDisplayName' => 'Usuario',
 			'watchTogether.errors.timedOut' => 'El servidor de retransmisión no respondió a tiempo',
 			'watchTogether.errors.connectionLost' => 'La conexión se cerró antes de que la sesión estuviera lista',
+			'watchTogether.errors.invalidRelayResponse' => 'El servidor de retransmisión envió una respuesta inesperada',
 			_ => null,
 		} ?? switch (path) {
-			'watchTogether.errors.invalidRelayResponse' => 'El servidor de retransmisión envió una respuesta inesperada',
 			'watchTogether.errors.sessionEnded' => 'El anfitrión finalizó la sesión',
 			'watchTogether.errors.sessionUnavailable' => 'No se puede reanudar esta sesión. Únete a una sala o crea una para continuar.',
 			'downloads.title' => 'Descargas',
@@ -5088,9 +5086,9 @@ extension on TranslationsEs {
 			'addServer.authResponseIncomplete' => 'La respuesta de inicio de sesión del servidor estaba incompleta',
 			'addServer.quickConnectRejected' => 'Quick Connect fue rechazado por el servidor',
 			'addServer.quickConnectNotJson' => 'La respuesta de Quick Connect no era un JSON válido',
+			'addServer.quickConnectMissingFields' => 'La respuesta de Quick Connect no incluye el código o el secreto',
 			_ => null,
 		} ?? switch (path) {
-			'addServer.quickConnectMissingFields' => 'La respuesta de Quick Connect no incluye el código o el secreto',
 			'addServer.quickConnectPollRejected' => 'El servidor rechazó el sondeo de Quick Connect',
 			'addServer.serverTimedOut' => 'El servidor no respondió a tiempo',
 			'addServer.responseNotJson' => 'La respuesta del servidor no era un JSON válido',

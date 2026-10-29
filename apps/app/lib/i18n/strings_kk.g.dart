@@ -1323,7 +1323,6 @@ class _Translations$about$kk extends Translations$about$en {
 	@override String get title => 'Қолданба туралы';
 	@override String get openSourceLicenses => 'Ашық бастапқы код лицензиялары';
 	@override String versionLabel({required Object version}) => 'Нұсқа ${version}';
-	@override String get appDescription => 'Flutter негізіндегі ыңғайлы Plex, Jellyfin және Emby клиенті';
 	@override String get viewLicensesDescription => 'Үшінші тарап кітапханаларының лицензияларын көру';
 }
 
@@ -4137,7 +4136,6 @@ extension on TranslationsKk {
 			'about.title' => 'Қолданба туралы',
 			'about.openSourceLicenses' => 'Ашық бастапқы код лицензиялары',
 			'about.versionLabel' => ({required Object version}) => 'Нұсқа ${version}',
-			'about.appDescription' => 'Flutter негізіндегі ыңғайлы Plex, Jellyfin және Emby клиенті',
 			'about.viewLicensesDescription' => 'Үшінші тарап кітапханаларының лицензияларын көру',
 			'serverSelection.noServersFoundForAccount' => ({required Object username, required Object email}) => '${username} (${email}) үшін серверлер табылмады',
 			'serverSelection.failedToLoadServers' => ({required Object error}) => 'Серверлерді жүктеу қатесі: ${error}',
@@ -4574,9 +4572,9 @@ extension on TranslationsKk {
 			'watchTogether.defaultDisplayName' => 'Пайдаланушы',
 			'watchTogether.errors.timedOut' => 'Реле сервері уақытында жауап бермеді',
 			'watchTogether.errors.connectionLost' => 'Сеанс дайын болмай тұрып байланыс үзілді',
+			'watchTogether.errors.invalidRelayResponse' => 'Реле сервері күтпеген жауап жіберді',
 			_ => null,
 		} ?? switch (path) {
-			'watchTogether.errors.invalidRelayResponse' => 'Реле сервері күтпеген жауап жіберді',
 			'watchTogether.errors.sessionEnded' => 'Ұйымдастырушы сеансты аяқтады',
 			'watchTogether.errors.sessionUnavailable' => 'Бұл сеансты жалғастыру мүмкін емес. Жалғастыру үшін бөлмеге қосылыңыз немесе бөлме жасаңыз.',
 			'downloads.title' => 'Жүктеулер',
@@ -5088,9 +5086,9 @@ extension on TranslationsKk {
 			'addServer.authResponseIncomplete' => 'Сервердің кіру жауабы толық емес',
 			'addServer.quickConnectRejected' => 'Сервер Quick Connect сұрауын қабылдамады',
 			'addServer.quickConnectNotJson' => 'Quick Connect жауабы жарамды JSON болмады',
+			'addServer.quickConnectMissingFields' => 'Quick Connect жауабында код немесе құпия кілт жоқ',
 			_ => null,
 		} ?? switch (path) {
-			'addServer.quickConnectMissingFields' => 'Quick Connect жауабында код немесе құпия кілт жоқ',
 			'addServer.quickConnectPollRejected' => 'Сервер Quick Connect сұрауын тексеруді қабылдамады',
 			'addServer.serverTimedOut' => 'Сервер уақытында жауап бермеді',
 			'addServer.responseNotJson' => 'Сервер жауабы жарамды JSON болмады',

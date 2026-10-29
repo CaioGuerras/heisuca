@@ -1234,7 +1234,6 @@
     "title": "Қолданба туралы",
     "openSourceLicenses": "Ашық бастапқы код лицензиялары",
     "versionLabel": "Нұсқа ${version}",
-    "appDescription": "Flutter негізіндегі ыңғайлы Plex, Jellyfin және Emby клиенті",
     "viewLicensesDescription": "Үшінші тарап кітапханаларының лицензияларын көру"
   },
   "serverSelection": {

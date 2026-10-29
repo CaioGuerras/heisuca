@@ -1323,7 +1323,6 @@ class _Translations$about$bg extends Translations$about$en {
 	@override String get title => 'Относно';
 	@override String get openSourceLicenses => 'Лицензи с отворен код';
 	@override String versionLabel({required Object version}) => 'Версия ${version}';
-	@override String get appDescription => 'Красив клиент за Plex, Jellyfin и Emby, създаден с Flutter';
 	@override String get viewLicensesDescription => 'Виж лицензите на библиотеки на трети страни';
 }
 
@@ -4137,7 +4136,6 @@ extension on TranslationsBg {
 			'about.title' => 'Относно',
 			'about.openSourceLicenses' => 'Лицензи с отворен код',
 			'about.versionLabel' => ({required Object version}) => 'Версия ${version}',
-			'about.appDescription' => 'Красив клиент за Plex, Jellyfin и Emby, създаден с Flutter',
 			'about.viewLicensesDescription' => 'Виж лицензите на библиотеки на трети страни',
 			'serverSelection.noServersFoundForAccount' => ({required Object username, required Object email}) => 'Не са намерени сървъри за ${username} (${email})',
 			'serverSelection.failedToLoadServers' => ({required Object error}) => 'Неуспешно зареждане на сървъри: ${error}',
@@ -4574,9 +4572,9 @@ extension on TranslationsBg {
 			'watchTogether.defaultDisplayName' => 'Потребител',
 			'watchTogether.errors.timedOut' => 'Релейният сървър не отговори навреме',
 			'watchTogether.errors.connectionLost' => 'Връзката се затвори, преди сесията да е готова',
+			'watchTogether.errors.invalidRelayResponse' => 'Релейният сървър изпрати неочакван отговор',
 			_ => null,
 		} ?? switch (path) {
-			'watchTogether.errors.invalidRelayResponse' => 'Релейният сървър изпрати неочакван отговор',
 			'watchTogether.errors.sessionEnded' => 'Организаторът прекрати сесията',
 			'watchTogether.errors.sessionUnavailable' => 'Тази сесия не може да бъде възобновена. Присъединете се към стая или създайте нова, за да продължите.',
 			'downloads.title' => 'Изтегляния',
@@ -5088,9 +5086,9 @@ extension on TranslationsBg {
 			'addServer.authResponseIncomplete' => 'Отговорът за вход от сървъра беше непълен',
 			'addServer.quickConnectRejected' => 'Quick Connect беше отхвърлен от сървъра',
 			'addServer.quickConnectNotJson' => 'Отговорът на Quick Connect не беше валиден JSON',
+			'addServer.quickConnectMissingFields' => 'В отговора на Quick Connect липсва код или таен ключ',
 			_ => null,
 		} ?? switch (path) {
-			'addServer.quickConnectMissingFields' => 'В отговора на Quick Connect липсва код или таен ключ',
 			'addServer.quickConnectPollRejected' => 'Запитването на Quick Connect беше отхвърлено от сървъра',
 			'addServer.serverTimedOut' => 'Сървърът не отговори навреме',
 			'addServer.responseNotJson' => 'Отговорът на сървъра не беше валиден JSON',

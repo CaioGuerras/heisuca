@@ -13,47 +13,22 @@ import 'cgflix_palette.dart';
 
 const cgflixDedicationText = 'Feito com amor, para Isis e Heitor';
 
-/// Coração roxo (Shikkoku/Isis) e verde (Hisui/Heitor), os dois em qualquer tema.
-class CgflixDedicationHearts extends StatelessWidget {
-  const CgflixDedicationHearts({super.key, this.size = 22, this.spacing = 8});
-  final double size;
-  final double spacing;
-
-  @override
-  Widget build(BuildContext context) => ExcludeSemantics(
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        AppIcon(Symbols.favorite_rounded, fill: 1, color: CgflixPalette.isis.accent, size: size),
-        SizedBox(width: spacing),
-        AppIcon(Symbols.favorite_rounded, fill: 1, color: context.cgflix.dedication, size: size),
-      ],
-    ),
-  );
-}
-
-/// Dedicatória, centralizada abaixo da versão: coração roxo e coração verde.
+/// Dedicatória no fim, só o texto "Feito com amor, para Isis e Heitor" (sem os dois corações).
 class CgflixDedication extends StatelessWidget {
   const CgflixDedication({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600);
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(cgflixDedicationText, style: style, textAlign: TextAlign.center),
-        const SizedBox(height: 8),
-        const CgflixDedicationHearts(),
-        const SizedBox(height: 20),
-        const _HeisucaTributeCards(),
-      ],
+    final style = Theme.of(context).textTheme.bodySmall?.copyWith(
+      color: context.cgflix.textMuted,
+      fontWeight: FontWeight.w500,
     );
+    return Text(cgflixDedicationText, style: style, textAlign: TextAlign.center);
   }
 }
 
-class _HeisucaTributeCards extends StatelessWidget {
-  const _HeisucaTributeCards();
+class HeisucaTributeCards extends StatelessWidget {
+  const HeisucaTributeCards({super.key});
 
   @override
   Widget build(BuildContext context) {

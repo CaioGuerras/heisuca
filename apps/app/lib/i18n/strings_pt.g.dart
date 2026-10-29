@@ -1336,7 +1336,6 @@ class _Translations$about$pt extends Translations$about$en {
 	@override String get title => 'Sobre';
 	@override String get openSourceLicenses => 'Licenças de código aberto';
 	@override String versionLabel({required Object version}) => 'Versão ${version}';
-	@override String get appDescription => 'Os filmes e séries da família, em qualquer tela';
 	@override String get viewLicensesDescription => 'Ver as licenças de bibliotecas de terceiros';
 }
 
@@ -4245,7 +4244,6 @@ extension on TranslationsPt {
 			'about.title' => 'Sobre',
 			'about.openSourceLicenses' => 'Licenças de código aberto',
 			'about.versionLabel' => ({required Object version}) => 'Versão ${version}',
-			'about.appDescription' => 'Os filmes e séries da família, em qualquer tela',
 			'about.viewLicensesDescription' => 'Ver as licenças de bibliotecas de terceiros',
 			'serverSelection.noServersFoundForAccount' => ({required Object username, required Object email}) => 'Nenhum servidor encontrado para ${username} (${email})',
 			'serverSelection.failedToLoadServers' => ({required Object error}) => 'Não deu para carregar os servidores: ${error}',
@@ -4643,9 +4641,9 @@ extension on TranslationsPt {
 			'watchTogether.endSessionQuestion' => 'Encerrar sessão?',
 			'watchTogether.leaveSessionQuestion' => 'Sair da sessão?',
 			'watchTogether.endSessionConfirm' => 'Isso vai encerrar a sessão para todo mundo.',
+			'watchTogether.leaveSessionConfirm' => 'Você vai sair da sessão.',
 			_ => null,
 		} ?? switch (path) {
-			'watchTogether.leaveSessionConfirm' => 'Você vai sair da sessão.',
 			'watchTogether.endSessionConfirmOverlay' => 'Isso vai encerrar o Assistir juntos para todo mundo.',
 			'watchTogether.leaveSessionConfirmOverlay' => 'Você vai sair do Assistir juntos.',
 			'watchTogether.end' => 'Encerrar',
@@ -5157,9 +5155,9 @@ extension on TranslationsPt {
 			'services.deviceCode.waitingForAuthorization' => 'Esperando a autorização…',
 			'services.deviceCode.codeCopied' => 'Código copiado',
 			'services.oauthProxy.title' => ({required Object service}) => 'Entrar no ${service}',
+			'services.oauthProxy.body' => 'Leia este código QR ou abra o endereço em qualquer aparelho.',
 			_ => null,
 		} ?? switch (path) {
-			'services.oauthProxy.body' => 'Leia este código QR ou abra o endereço em qualquer aparelho.',
 			'services.oauthProxy.openToSignIn' => ({required Object service}) => 'Abrir ${service} para entrar',
 			'services.pendingAuth.copyUrl' => 'Copiar endereço de acesso',
 			'services.pendingAuth.urlCopied' => 'Endereço copiado',

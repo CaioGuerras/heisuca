@@ -1234,7 +1234,6 @@
     "title": "Informazioni",
     "openSourceLicenses": "Licenze open source",
     "versionLabel": "Versione ${version}",
-    "appDescription": "Un elegante client Plex, Jellyfin ed Emby per Flutter",
     "viewLicensesDescription": "Visualizza le licenze delle librerie di terze parti"
   },
   "serverSelection": {

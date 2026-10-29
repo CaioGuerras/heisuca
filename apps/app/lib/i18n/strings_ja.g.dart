@@ -1318,7 +1318,6 @@ class _Translations$about$ja extends Translations$about$en {
 	@override String get title => 'アプリについて';
 	@override String get openSourceLicenses => 'オープンソースライセンス';
 	@override String versionLabel({required Object version}) => 'バージョン ${version}';
-	@override String get appDescription => 'Flutter製の美しいPlex・Jellyfin・Embyクライアント';
 	@override String get viewLicensesDescription => 'サードパーティライブラリのライセンスを表示';
 }
 
@@ -4126,7 +4125,6 @@ extension on TranslationsJa {
 			'about.title' => 'アプリについて',
 			'about.openSourceLicenses' => 'オープンソースライセンス',
 			'about.versionLabel' => ({required Object version}) => 'バージョン ${version}',
-			'about.appDescription' => 'Flutter製の美しいPlex・Jellyfin・Embyクライアント',
 			'about.viewLicensesDescription' => 'サードパーティライブラリのライセンスを表示',
 			'serverSelection.noServersFoundForAccount' => ({required Object username, required Object email}) => '${username} (${email})のサーバーが見つかりません',
 			'serverSelection.failedToLoadServers' => ({required Object error}) => 'サーバーの読み込みに失敗しました: ${error}',
@@ -4563,9 +4561,9 @@ extension on TranslationsJa {
 			'watchTogether.defaultDisplayName' => 'ユーザー',
 			'watchTogether.errors.timedOut' => 'リレーサーバーが時間内に応答しませんでした',
 			'watchTogether.errors.connectionLost' => 'セッションの準備が整う前に接続が閉じられました',
+			'watchTogether.errors.invalidRelayResponse' => 'リレーサーバーから予期しない応答が返されました',
 			_ => null,
 		} ?? switch (path) {
-			'watchTogether.errors.invalidRelayResponse' => 'リレーサーバーから予期しない応答が返されました',
 			'watchTogether.errors.sessionEnded' => 'ホストがセッションを終了しました',
 			'watchTogether.errors.sessionUnavailable' => 'このセッションを再開できません。ルームに参加するか作成して続行してください。',
 			'downloads.title' => 'ダウンロード',
@@ -5077,9 +5075,9 @@ extension on TranslationsJa {
 			'addServer.authResponseIncomplete' => 'サーバーからのサインイン応答が不完全です',
 			'addServer.quickConnectRejected' => 'Quick Connectがサーバーに拒否されました',
 			'addServer.quickConnectNotJson' => 'Quick Connectのレスポンスが有効なJSONではありません',
+			'addServer.quickConnectMissingFields' => 'Quick Connectのレスポンスにコードまたはシークレットがありません',
 			_ => null,
 		} ?? switch (path) {
-			'addServer.quickConnectMissingFields' => 'Quick Connectのレスポンスにコードまたはシークレットがありません',
 			'addServer.quickConnectPollRejected' => 'Quick Connectのポーリングがサーバーに拒否されました',
 			'addServer.serverTimedOut' => 'サーバーが時間内に応答しませんでした',
 			'addServer.responseNotJson' => 'サーバーのレスポンスが有効なJSONではありません',

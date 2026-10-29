@@ -3313,9 +3313,6 @@ class Translations$about$en {
 	/// en: 'Version ${version}'
 	String versionLabel({required Object version}) => 'Version ${version}';
 
-	/// en: 'A beautiful Plex, Jellyfin, and Emby client for Flutter'
-	String get appDescription => 'A beautiful Plex, Jellyfin, and Emby client for Flutter';
-
 	/// en: 'View licenses of third-party libraries'
 	String get viewLicensesDescription => 'View licenses of third-party libraries';
 }
@@ -8489,7 +8486,6 @@ extension on Translations {
 			'about.title' => 'About',
 			'about.openSourceLicenses' => 'Open Source Licenses',
 			'about.versionLabel' => ({required Object version}) => 'Version ${version}',
-			'about.appDescription' => 'A beautiful Plex, Jellyfin, and Emby client for Flutter',
 			'about.viewLicensesDescription' => 'View licenses of third-party libraries',
 			'serverSelection.noServersFoundForAccount' => ({required Object username, required Object email}) => 'No servers found for ${username} (${email})',
 			'serverSelection.failedToLoadServers' => ({required Object error}) => 'Failed to load servers: ${error}',
@@ -8887,9 +8883,9 @@ extension on Translations {
 			'watchTogether.endSessionQuestion' => 'End Session?',
 			'watchTogether.leaveSessionQuestion' => 'Leave Session?',
 			'watchTogether.endSessionConfirm' => 'This will end the session for all participants.',
+			'watchTogether.leaveSessionConfirm' => 'You will be removed from the session.',
 			_ => null,
 		} ?? switch (path) {
-			'watchTogether.leaveSessionConfirm' => 'You will be removed from the session.',
 			'watchTogether.endSessionConfirmOverlay' => 'This will end the watch session for all participants.',
 			'watchTogether.leaveSessionConfirmOverlay' => 'You will be disconnected from the watch session.',
 			'watchTogether.end' => 'End',
@@ -9401,9 +9397,9 @@ extension on Translations {
 			'services.deviceCode.waitingForAuthorization' => 'Waiting for authorization…',
 			'services.deviceCode.codeCopied' => 'Code copied',
 			'services.oauthProxy.title' => ({required Object service}) => 'Sign in to ${service}',
+			'services.oauthProxy.body' => 'Scan this QR code or open the URL on any device.',
 			_ => null,
 		} ?? switch (path) {
-			'services.oauthProxy.body' => 'Scan this QR code or open the URL on any device.',
 			'services.oauthProxy.openToSignIn' => ({required Object service}) => 'Open ${service} to sign in',
 			'services.pendingAuth.copyUrl' => 'Copy sign-in URL',
 			'services.pendingAuth.urlCopied' => 'URL copied',

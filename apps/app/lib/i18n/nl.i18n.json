@@ -1234,7 +1234,6 @@
     "title": "Over",
     "openSourceLicenses": "Opensourcelicenties",
     "versionLabel": "Versie ${version}",
-    "appDescription": "Een mooie Plex-, Jellyfin- en Emby-client voor Flutter",
     "viewLicensesDescription": "Licenties van bibliotheken van derden bekijken"
   },
   "serverSelection": {

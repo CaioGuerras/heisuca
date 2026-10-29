@@ -1234,7 +1234,6 @@
     "title": "Sobre",
     "openSourceLicenses": "Licenças de código aberto",
     "versionLabel": "Versão ${version}",
-    "appDescription": "Os filmes e séries da família, em qualquer tela",
     "viewLicensesDescription": "Ver as licenças de bibliotecas de terceiros"
   },
   "serverSelection": {

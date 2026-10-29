@@ -1323,7 +1323,6 @@ class _Translations$about$da extends Translations$about$en {
 	@override String get title => 'Om';
 	@override String get openSourceLicenses => 'Open source-licenser';
 	@override String versionLabel({required Object version}) => 'Version ${version}';
-	@override String get appDescription => 'En smuk Plex-, Jellyfin- og Emby-klient bygget med Flutter';
 	@override String get viewLicensesDescription => 'Se licenser for tredjepartsbiblioteker';
 }
 
@@ -4137,7 +4136,6 @@ extension on TranslationsDa {
 			'about.title' => 'Om',
 			'about.openSourceLicenses' => 'Open source-licenser',
 			'about.versionLabel' => ({required Object version}) => 'Version ${version}',
-			'about.appDescription' => 'En smuk Plex-, Jellyfin- og Emby-klient bygget med Flutter',
 			'about.viewLicensesDescription' => 'Se licenser for tredjepartsbiblioteker',
 			'serverSelection.noServersFoundForAccount' => ({required Object username, required Object email}) => 'Ingen servere fundet for ${username} (${email})',
 			'serverSelection.failedToLoadServers' => ({required Object error}) => 'Kunne ikke indlæse servere: ${error}',
@@ -4574,9 +4572,9 @@ extension on TranslationsDa {
 			'watchTogether.defaultDisplayName' => 'Bruger',
 			'watchTogether.errors.timedOut' => 'Relayserveren svarede ikke i tide',
 			'watchTogether.errors.connectionLost' => 'Forbindelsen blev lukket, før sessionen var klar',
+			'watchTogether.errors.invalidRelayResponse' => 'Relayserveren sendte et uventet svar',
 			_ => null,
 		} ?? switch (path) {
-			'watchTogether.errors.invalidRelayResponse' => 'Relayserveren sendte et uventet svar',
 			'watchTogether.errors.sessionEnded' => 'Værten afsluttede sessionen',
 			'watchTogether.errors.sessionUnavailable' => 'Kan ikke genoptage denne session. Deltag i eller opret et rum for at fortsætte.',
 			'downloads.title' => 'Downloads',
@@ -5088,9 +5086,9 @@ extension on TranslationsDa {
 			'addServer.authResponseIncomplete' => 'Loginsvaret fra serveren var ufuldstændigt',
 			'addServer.quickConnectRejected' => 'Quick Connect blev afvist af serveren',
 			'addServer.quickConnectNotJson' => 'Quick Connect-svaret var ikke gyldig JSON',
+			'addServer.quickConnectMissingFields' => 'Quick Connect-svaret mangler en kode eller hemmelighed',
 			_ => null,
 		} ?? switch (path) {
-			'addServer.quickConnectMissingFields' => 'Quick Connect-svaret mangler en kode eller hemmelighed',
 			'addServer.quickConnectPollRejected' => 'Quick Connect-polling blev afvist af serveren',
 			'addServer.serverTimedOut' => 'Serveren svarede ikke i tide',
 			'addServer.responseNotJson' => 'Serversvaret var ikke gyldig JSON',

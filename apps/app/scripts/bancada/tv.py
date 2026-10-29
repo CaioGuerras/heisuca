@@ -150,6 +150,18 @@ def verificar_player_preto(png_bytes):
     return False
 
 
+def achar_apk(candidatos=None):
+    """Encontra o caminho do APK de depuração entre os candidatos."""
+    candidatos = candidatos if candidatos is not None else [
+        APK,
+        ROOT / 'build/app/outputs/flutter-apk/app-debug.apk',
+        ROOT / 'build/app/outputs/apk/debug/app-debug.apk',
+        Path('build/app/outputs/flutter-apk/app-debug.apk'),
+        Path('app-debug.apk'),
+    ]
+    return next((Path(c) for c in candidatos if Path(c).exists()), None)
+
+
 def classificar_tela(achados):
     """Classifica a tela individual entre verde, ATENÇÃO e vermelho."""
     if any(a.get('gravidade') == VERMELHO for a in achados):
@@ -192,11 +204,15 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
     rec(f'Iniciando bancada TV no perfil {perfil}...')
 
     # 1. Instala APK se disponível
-    if APK.exists():
-        rec(f'Instalando APK {APK}...')
-        adb('install', '-r', '-g', str(APK))
+    apk_alvo = achar_apk()
+    if apk_alvo:
+        rec(f'Instalando APK {apk_alvo}...')
+        res = adb('install', '-r', '-g', str(apk_alvo), capture_errors=True)
+        if res.returncode != 0 or b'Failure' in (res.stdout or b''):
+            out_err = res.stdout.decode('utf-8', 'replace').strip() if res.stdout else 'código de retorno diferente de zero'
+            rec(f'Aviso: falha na instalação do APK ({out_err}). Tentando continuar se já instalado...')
     else:
-        rec('APK não encontrado no caminho padrão; assumindo que já está instalado.')
+        rec('APK não encontrado nos caminhos padrão; assumindo que já está instalado.')
 
     # 2. Abre o app
     abrir_app()

@@ -25,6 +25,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - name: Liberar espaço na VM
+        working-directory: /
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost "$AGENT_TOOLSDIRECTORY"
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -34,18 +38,13 @@ jobs:
           flutter-version: "3.47.1"
           channel: stable
           cache: true
-      - name: Liberar espaço na VM
-        working-directory: /
-        run: |
-          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost "$AGENT_TOOLSDIRECTORY"
       - name: Dependências
         run: flutter pub get --no-example
       - name: Compilar APK de depuração
         env:
-          ORG_GRADLE_PROJECT_targetAbi: x86_64
           ORG_GRADLE_PROJECT_heisucaPreview: "true"
           GRADLE_OPTS: -Dorg.gradle.caching=false -Dorg.gradle.jvmargs=-Xmx3g
-        run: flutter build apk --debug --target-platform android-x64
+        run: flutter build apk --debug
       - name: Publicar APK de depuração para os executores de TV
         uses: actions/upload-artifact@v4
         with:
@@ -69,19 +68,19 @@ jobs:
             nome: "Android TV / Google TV (API 34)"
             api-level: 34
             target: google-tv
-            arch: x86_64
+            arch: x86
             ram-size: 2048M
           - id: firetv-11
             nome: "Fire TV 11 (API 30)"
             api-level: 30
             target: android-tv
-            arch: x86_64
+            arch: x86
             ram-size: 1536M
           - id: firetv-9
             nome: "Fire TV 9 (API 28)"
             api-level: 28
             target: android-tv
-            arch: x86_64
+            arch: x86
             ram-size: 1024M
     steps:
       - uses: actions/checkout@v4

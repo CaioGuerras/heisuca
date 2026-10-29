@@ -1,5 +1,6 @@
 import io
 import json
+from pathlib import Path
 import unittest
 from unittest.mock import patch, Mock
 
@@ -8,6 +9,7 @@ from tv import (
     ATENCAO,
     VERDE,
     VERMELHO,
+    achar_apk,
     checar_saude,
     classificar_geral,
     classificar_tela,
@@ -99,6 +101,16 @@ class TestTvBancada(unittest.TestCase):
         self.assertIsNotNone(erro)
         self.assertEqual(erro['gravidade'], VERMELHO)
         self.assertEqual(erro['codigo'], 'anr')
+
+    def test_achar_apk_candidatos(self):
+        with patch('pathlib.Path.exists') as mock_exists:
+            mock_exists.side_effect = [False, True]
+            achado = achar_apk([Path('/nao/existe/a.apk'), Path('/existe/b.apk')])
+            self.assertEqual(achado, Path('/existe/b.apk'))
+
+        with patch('pathlib.Path.exists') as mock_exists:
+            mock_exists.return_value = False
+            self.assertIsNone(achar_apk([Path('/nao/existe/a.apk')]))
 
     def test_sanitizacao_relatorio(self):
         servidor = 'https://jellyfin.segredo.org:8096'

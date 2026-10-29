@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-import '../focus/focusable_wrapper.dart';
 import '../i18n/strings.g.dart';
 import '../media/media_file_info.dart';
 import '../theme/mono_tokens.dart';
 import '../utils/formatters.dart';
 import '../utils/scroll_utils.dart';
-import '../utils/snackbar_helper.dart';
 import 'app_icon.dart';
 import 'bottom_sheet_page_scaffold.dart';
 import 'stat_chip.dart';
@@ -309,7 +306,6 @@ class _PartBlock extends StatelessWidget {
           title: partCount > 1 ? t.fileInfo.fileCounter(index: index + 1, count: partCount) : t.fileInfo.file,
           icon: Symbols.description_rounded,
           fields: _fileFields(),
-          leading: part.filePath == null ? null : _PathRow(path: part.filePath!),
         ),
         for (final kind in _kindOrder)
           if (part.streamsOfKind(kind).isNotEmpty)
@@ -348,63 +344,6 @@ class _PartBlock extends StatelessWidget {
       _InfoField.text(t.fileInfo.streamPath, part.streamKey, monospace: true),
       _InfoField.text(t.fileInfo.fileId, part.id, monospace: true),
     ];
-  }
-}
-
-/// Full-width, monospace, copyable — a path is the one value people extract.
-class _PathRow extends StatelessWidget {
-  final String path;
-
-  const _PathRow({required this.path});
-
-  Future<void> _copy(BuildContext context) async {
-    await Clipboard.setData(ClipboardData(text: path));
-    if (!context.mounted) return;
-    showSuccessSnackBar(context, t.fileInfo.pathCopied);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return FocusableWrapper(
-      semanticLabel: t.fileInfo.copyPath,
-      useBackgroundFocus: true,
-      disableScale: true,
-      onSelect: () => _copy(context),
-      // GestureDetector, not InkWell: the sheet renders inside an
-      // OverlaySheetHost with no guarantee of an ink-capable Material, and
-      // FocusableWrapper already draws the focus affordance.
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => _copy(context),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      t.fileInfo.path,
-                      style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(path, style: theme.textTheme.bodySmall?.copyWith(fontFamily: 'monospace', height: 1.35)),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              Tooltip(
-                message: t.fileInfo.copyPath,
-                child: AppIcon(Symbols.content_copy_rounded, size: 18, color: theme.colorScheme.onSurfaceVariant),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }
 
@@ -484,7 +423,7 @@ class _StreamGroup extends StatelessWidget {
       _InfoField.text(t.fileInfo.streamIdentifier, stream.streamIdentifier),
       _InfoField.text(t.fileInfo.streamIndex, stream.index?.toString()),
       _InfoField.text(t.fileInfo.comment, stream.comment),
-      _InfoField.text(t.fileInfo.sidecarFile, stream.filePath, monospace: true),
+      _InfoField.text(t.fileInfo.sidecarFile, stream.fileName, monospace: true),
       _InfoField.text(t.fileInfo.streamId, stream.id, monospace: true),
     ];
   }
@@ -582,22 +521,18 @@ class _InfoSection extends StatelessWidget {
   final List<String> chips;
   final List<_InfoField?> fields;
 
-  /// Rendered above the grid — used for the full-width path row.
-  final Widget? leading;
-
   const _InfoSection({
     required this.title,
     required this.icon,
     required this.fields,
     this.subtitle,
     this.chips = const [],
-    this.leading,
   });
 
   @override
   Widget build(BuildContext context) {
     final populated = fields.whereType<_InfoField>().toList(growable: false);
-    if (populated.isEmpty && leading == null) return const SizedBox.shrink();
+    if (populated.isEmpty) return const SizedBox.shrink();
 
     final theme = Theme.of(context);
     final mono = tokens(context);
@@ -643,7 +578,6 @@ class _InfoSection extends StatelessWidget {
               ],
             ),
           ],
-          if (leading != null) ...[const SizedBox(height: 8), leading!],
           if (populated.isNotEmpty) ...[const SizedBox(height: 4), _FieldGrid(fields: populated)],
         ],
       ),

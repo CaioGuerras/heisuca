@@ -587,8 +587,6 @@ class _Translations$fileInfo$da extends Translations$fileInfo$en {
 	@override String versionCounter({required Object index, required Object count}) => 'Version ${index} af ${count}';
 	@override String fileCounter({required Object index, required Object count}) => 'Fil ${index} af ${count}';
 	@override String get noStreams => 'Serveren rapporterede ingen strømme for denne fil.';
-	@override String get copyPath => 'Kopiér sti';
-	@override String get pathCopied => 'Filstien er kopieret';
 	@override String get codec => 'Codec';
 	@override String get codecTag => 'Codec-tag';
 	@override String get resolution => 'Opløsning';
@@ -648,7 +646,6 @@ class _Translations$fileInfo$da extends Translations$fileInfo$en {
 	@override String get temporary => 'Midlertidig';
 	@override String get timeBase => 'Tidsbase';
 	@override String get overallBitrate => 'Samlet bitrate';
-	@override String get path => 'Sti';
 	@override String get fileName => 'Filnavn';
 	@override String get size => 'Størrelse';
 	@override String get totalSize => 'Samlet størrelse';
@@ -3495,8 +3492,6 @@ extension on TranslationsDa {
 			'fileInfo.versionCounter' => ({required Object index, required Object count}) => 'Version ${index} af ${count}',
 			'fileInfo.fileCounter' => ({required Object index, required Object count}) => 'Fil ${index} af ${count}',
 			'fileInfo.noStreams' => 'Serveren rapporterede ingen strømme for denne fil.',
-			'fileInfo.copyPath' => 'Kopiér sti',
-			'fileInfo.pathCopied' => 'Filstien er kopieret',
 			'fileInfo.codec' => 'Codec',
 			'fileInfo.codecTag' => 'Codec-tag',
 			'fileInfo.resolution' => 'Opløsning',
@@ -3546,10 +3541,10 @@ extension on TranslationsDa {
 			'fileInfo.channels' => 'Kanaler',
 			'fileInfo.sampleRate' => 'Samplingshastighed',
 			'fileInfo.spatialAudio' => 'Rumlig lyd',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.textBased' => 'Tekstbaseret',
 			'fileInfo.subtitleFormat' => 'Sidecar-format',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.provider' => 'Udbydder',
 			'fileInfo.matchScore' => 'Matchscore',
 			'fileInfo.externalDelivery' => 'Kan leveres separat',
@@ -3558,7 +3553,6 @@ extension on TranslationsDa {
 			'fileInfo.temporary' => 'Midlertidig',
 			'fileInfo.timeBase' => 'Tidsbase',
 			'fileInfo.overallBitrate' => 'Samlet bitrate',
-			'fileInfo.path' => 'Sti',
 			'fileInfo.fileName' => 'Filnavn',
 			'fileInfo.size' => 'Størrelse',
 			'fileInfo.totalSize' => 'Samlet størrelse',
@@ -4060,11 +4054,11 @@ extension on TranslationsDa {
 			'libraries.failedToEmptyTrash' => ({required Object error}) => 'Kunne ikke tømme papirkurv: ${error}',
 			'libraries.analyzing' => ({required Object title}) => 'Analyserer "${title}"...',
 			'libraries.analysisStarted' => ({required Object title}) => 'Analyse startet for "${title}"',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Kunne ikke analysere bibliotek: ${error}',
 			'libraries.noLibrariesFound' => 'Ingen biblioteker fundet',
 			'libraries.allLibrariesHidden' => 'Alle biblioteker er skjult',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.hiddenLibrariesCount' => ({required Object count}) => 'Skjulte biblioteker (${count})',
 			'libraries.thisLibraryIsEmpty' => 'Dette bibliotek er tomt',
 			'libraries.noItemsMatchFilters' => 'Ingen elementer matcher de aktive filtre',
@@ -4574,11 +4568,11 @@ extension on TranslationsDa {
 			'watchTogether.defaultDisplayName' => 'Bruger',
 			'watchTogether.errors.timedOut' => 'Relayserveren svarede ikke i tide',
 			'watchTogether.errors.connectionLost' => 'Forbindelsen blev lukket, før sessionen var klar',
-			_ => null,
-		} ?? switch (path) {
 			'watchTogether.errors.invalidRelayResponse' => 'Relayserveren sendte et uventet svar',
 			'watchTogether.errors.sessionEnded' => 'Værten afsluttede sessionen',
 			'watchTogether.errors.sessionUnavailable' => 'Kan ikke genoptage denne session. Deltag i eller opret et rum for at fortsætte.',
+			_ => null,
+		} ?? switch (path) {
 			'downloads.title' => 'Downloads',
 			'downloads.manage' => 'Administrer',
 			'downloads.tvShows' => 'TV-serier',
@@ -5088,11 +5082,11 @@ extension on TranslationsDa {
 			'addServer.authResponseIncomplete' => 'Loginsvaret fra serveren var ufuldstændigt',
 			'addServer.quickConnectRejected' => 'Quick Connect blev afvist af serveren',
 			'addServer.quickConnectNotJson' => 'Quick Connect-svaret var ikke gyldig JSON',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.quickConnectMissingFields' => 'Quick Connect-svaret mangler en kode eller hemmelighed',
 			'addServer.quickConnectPollRejected' => 'Quick Connect-polling blev afvist af serveren',
 			'addServer.serverTimedOut' => 'Serveren svarede ikke i tide',
+			_ => null,
+		} ?? switch (path) {
 			'addServer.responseNotJson' => 'Serversvaret var ikke gyldig JSON',
 			'addServer.responseMissingIdentity' => ({required Object product}) => 'Svaret mangler et ID eller servernavn – er dette en ${product}-server?',
 			'addServer.probeFailed' => ({required Object error}) => 'Kunne ikke nå serveren: ${error}',

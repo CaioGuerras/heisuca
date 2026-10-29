@@ -587,8 +587,6 @@ class _Translations$fileInfo$az extends Translations$fileInfo$en {
 	@override String versionCounter({required Object count, required Object index}) => '${count}-dən ${index} versiya';
 	@override String fileCounter({required Object count, required Object index}) => '${count}-dən ${index} fayl';
 	@override String get noStreams => 'Server bu fayl üçün heç bir axın bildirmədi.';
-	@override String get copyPath => 'Yolu kopyala';
-	@override String get pathCopied => 'Fayl yolu kopyalandı';
 	@override String get codec => 'Kodek';
 	@override String get codecTag => 'Kodek teqi';
 	@override String get resolution => 'Ayırdetmə';
@@ -648,7 +646,6 @@ class _Translations$fileInfo$az extends Translations$fileInfo$en {
 	@override String get temporary => 'Müvəqqəti';
 	@override String get timeBase => 'Vaxt bazası';
 	@override String get overallBitrate => 'Ümumi bit sürəti';
-	@override String get path => 'Yol';
 	@override String get fileName => 'Fayl adı';
 	@override String get size => 'Həcm';
 	@override String get totalSize => 'Ümumi ölçü';
@@ -3495,8 +3492,6 @@ extension on TranslationsAz {
 			'fileInfo.versionCounter' => ({required Object count, required Object index}) => '${count}-dən ${index} versiya',
 			'fileInfo.fileCounter' => ({required Object count, required Object index}) => '${count}-dən ${index} fayl',
 			'fileInfo.noStreams' => 'Server bu fayl üçün heç bir axın bildirmədi.',
-			'fileInfo.copyPath' => 'Yolu kopyala',
-			'fileInfo.pathCopied' => 'Fayl yolu kopyalandı',
 			'fileInfo.codec' => 'Kodek',
 			'fileInfo.codecTag' => 'Kodek teqi',
 			'fileInfo.resolution' => 'Ayırdetmə',
@@ -3546,10 +3541,10 @@ extension on TranslationsAz {
 			'fileInfo.channels' => 'Kanallar',
 			'fileInfo.sampleRate' => 'Diskretləşdirmə tezliyi',
 			'fileInfo.spatialAudio' => 'Məkan səsi',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.textBased' => 'Mətn əsaslı',
 			'fileInfo.subtitleFormat' => 'Sidecar formatı',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.provider' => 'Provayder',
 			'fileInfo.matchScore' => 'Uyğunluq balı',
 			'fileInfo.externalDelivery' => 'Ayrıca ötürülə bilər',
@@ -3558,7 +3553,6 @@ extension on TranslationsAz {
 			'fileInfo.temporary' => 'Müvəqqəti',
 			'fileInfo.timeBase' => 'Vaxt bazası',
 			'fileInfo.overallBitrate' => 'Ümumi bit sürəti',
-			'fileInfo.path' => 'Yol',
 			'fileInfo.fileName' => 'Fayl adı',
 			'fileInfo.size' => 'Həcm',
 			'fileInfo.totalSize' => 'Ümumi ölçü',
@@ -4060,11 +4054,11 @@ extension on TranslationsAz {
 			'libraries.failedToEmptyTrash' => ({required Object error}) => 'Zibil qutusu təmizlənə bilmədi: ${error}',
 			'libraries.analyzing' => ({required Object title}) => '"${title}" analiz edilir...',
 			'libraries.analysisStarted' => ({required Object title}) => '"${title}" üçün analiz başladı',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Kitabxana analiz edilə bilmədi: ${error}',
 			'libraries.noLibrariesFound' => 'Kitabxana tapılmadı',
 			'libraries.allLibrariesHidden' => 'Bütün kitabxanalar gizlədilib',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.hiddenLibrariesCount' => ({required Object count}) => 'Gizli kitabxanalar (${count})',
 			'libraries.thisLibraryIsEmpty' => 'Bu kitabxana boşdur',
 			'libraries.noItemsMatchFilters' => 'Filtrlərə uyğun element tapılmadı',
@@ -4574,11 +4568,11 @@ extension on TranslationsAz {
 			'watchTogether.defaultDisplayName' => 'İstifadəçi',
 			'watchTogether.errors.timedOut' => 'Rele serveri vaxtında cavab vermədi',
 			'watchTogether.errors.connectionLost' => 'Bağlantı seans hazır olmamış kəsildi',
-			_ => null,
-		} ?? switch (path) {
 			'watchTogether.errors.invalidRelayResponse' => 'Rele serveri gözlənilməz cavab göndərdi',
 			'watchTogether.errors.sessionEnded' => 'Təşkilatçı seansı bitirdi',
 			'watchTogether.errors.sessionUnavailable' => 'Bu seansı davam etdirmək olmur. Davam etmək üçün otağa qoşulun və ya otaq yaradın.',
+			_ => null,
+		} ?? switch (path) {
 			'downloads.title' => 'Yükləmələr',
 			'downloads.manage' => 'İdarə et',
 			'downloads.tvShows' => 'TV Şoular',
@@ -5088,11 +5082,11 @@ extension on TranslationsAz {
 			'addServer.authResponseIncomplete' => 'Serverin giriş cavabı natamam idi',
 			'addServer.quickConnectRejected' => 'Quick Connect server tərəfindən rədd edildi',
 			'addServer.quickConnectNotJson' => 'Quick Connect cavabı etibarlı JSON deyildi',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.quickConnectMissingFields' => 'Quick Connect cavabında kod və ya məxfi açar yoxdur',
 			'addServer.quickConnectPollRejected' => 'Quick Connect sorğulaması server tərəfindən rədd edildi',
 			'addServer.serverTimedOut' => 'Server vaxtında cavab vermədi',
+			_ => null,
+		} ?? switch (path) {
 			'addServer.responseNotJson' => 'Server cavabı etibarlı JSON deyildi',
 			'addServer.responseMissingIdentity' => ({required Object product}) => 'Cavabda ID və ya server adı yoxdur — bu, ${product} serveridir?',
 			'addServer.probeFailed' => ({required Object error}) => 'Serverə çatmaq olmadı: ${error}',

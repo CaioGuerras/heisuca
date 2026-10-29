@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'dart:math' as math; import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import '../../media/media_item.dart';
@@ -471,8 +471,16 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
     ));
   }
 
-  Widget _buildBottomBar(BuildContext context) => SafeArea(top: false,
-    minimum: MediaQuery.systemGestureInsetsOf(context), child: _buildBottomBarWithoutInsets(context));
+  Widget _buildBottomBar(BuildContext context) {
+    final isPortrait = MediaQuery.orientationOf(context) == Orientation.portrait;
+    return SafeArea(
+      top: false,
+      left: isPortrait,
+      right: isPortrait,
+      minimum: MediaQuery.systemGestureInsetsOf(context),
+      child: _buildBottomBarWithoutInsets(context),
+    );
+  }
 
   Widget _buildBottomBarWithoutInsets(BuildContext _) {
     if (widget.isLive) {
@@ -536,17 +544,28 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
   }
 
   /// Wraps [child] in a SafeArea: full insets in portrait, horizontal-only in
-  /// landscape. The landscape header and timeline must still clear the notch
-  /// and rounded corners; only the vertical insets are dropped so the
-  /// controls can hug the top/bottom edges over the full-bleed video surface.
+  /// landscape with symmetric margins = max(left, right) of viewPadding to keep
+  /// controls centered on notched or punch-hole screens.
   Widget _conditionalSafeArea({
     required BuildContext context,
     required Widget child,
     bool top = true,
     bool bottom = true,
   }) {
-    final isPortrait = MediaQuery.orientationOf(context) == Orientation.portrait;
-    return SafeArea(top: isPortrait && top, bottom: isPortrait && bottom, child: child);
+    final mediaQuery = MediaQuery.of(context);
+    final isPortrait = mediaQuery.orientation == Orientation.portrait;
+    if (isPortrait) {
+      return SafeArea(top: top, bottom: bottom, child: child);
+    }
+    final gestureInsets = mediaQuery.systemGestureInsets;
+    final maxHorizontal = math.max(
+      math.max(mediaQuery.viewPadding.left, mediaQuery.viewPadding.right),
+      math.max(gestureInsets.left, gestureInsets.right),
+    );
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: maxHorizontal),
+      child: child,
+    );
   }
 }
 

@@ -587,8 +587,6 @@ class Translations$fileInfo$zh extends Translations$fileInfo$en {
 	@override String versionCounter({required Object index, required Object count}) => '第 ${index} 个版本，共 ${count} 个';
 	@override String fileCounter({required Object index, required Object count}) => '第 ${index} 个文件，共 ${count} 个';
 	@override String get noStreams => '服务器报告此文件没有媒体流。';
-	@override String get copyPath => '复制路径';
-	@override String get pathCopied => '文件路径已复制';
 	@override String get codec => '编解码器';
 	@override String get codecTag => '编码器标签';
 	@override String get resolution => '分辨率';
@@ -648,7 +646,6 @@ class Translations$fileInfo$zh extends Translations$fileInfo$en {
 	@override String get temporary => '临时';
 	@override String get timeBase => '时间基准';
 	@override String get overallBitrate => '总比特率';
-	@override String get path => '路径';
 	@override String get fileName => '文件名';
 	@override String get size => '大小';
 	@override String get totalSize => '总大小';
@@ -3484,8 +3481,6 @@ extension on TranslationsZh {
 			'fileInfo.versionCounter' => ({required Object index, required Object count}) => '第 ${index} 个版本，共 ${count} 个',
 			'fileInfo.fileCounter' => ({required Object index, required Object count}) => '第 ${index} 个文件，共 ${count} 个',
 			'fileInfo.noStreams' => '服务器报告此文件没有媒体流。',
-			'fileInfo.copyPath' => '复制路径',
-			'fileInfo.pathCopied' => '文件路径已复制',
 			'fileInfo.codec' => '编解码器',
 			'fileInfo.codecTag' => '编码器标签',
 			'fileInfo.resolution' => '分辨率',
@@ -3535,10 +3530,10 @@ extension on TranslationsZh {
 			'fileInfo.channels' => '声道',
 			'fileInfo.sampleRate' => '采样率',
 			'fileInfo.spatialAudio' => '空间音频',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.textBased' => '基于文本',
 			'fileInfo.subtitleFormat' => '外挂文件格式',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.provider' => '提供方',
 			'fileInfo.matchScore' => '匹配分数',
 			'fileInfo.externalDelivery' => '可单独提供',
@@ -3547,7 +3542,6 @@ extension on TranslationsZh {
 			'fileInfo.temporary' => '临时',
 			'fileInfo.timeBase' => '时间基准',
 			'fileInfo.overallBitrate' => '总比特率',
-			'fileInfo.path' => '路径',
 			'fileInfo.fileName' => '文件名',
 			'fileInfo.size' => '大小',
 			'fileInfo.totalSize' => '总大小',
@@ -4049,11 +4043,11 @@ extension on TranslationsZh {
 			'libraries.failedToEmptyTrash' => ({required Object error}) => '无法清空回收站：${error}',
 			'libraries.analyzing' => ({required Object title}) => '正在分析“${title}”…',
 			'libraries.analysisStarted' => ({required Object title}) => '已开始分析“${title}”',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.failedToAnalyze' => ({required Object error}) => '无法分析媒体库：${error}',
 			'libraries.noLibrariesFound' => '未找到媒体库',
 			'libraries.allLibrariesHidden' => '所有媒体库已隐藏',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.hiddenLibrariesCount' => ({required Object count}) => '已隐藏的媒体库 (${count})',
 			'libraries.thisLibraryIsEmpty' => '此媒体库为空',
 			'libraries.noItemsMatchFilters' => '没有项目符合当前筛选条件',
@@ -4563,11 +4557,11 @@ extension on TranslationsZh {
 			'watchTogether.defaultDisplayName' => '用户',
 			'watchTogether.errors.timedOut' => '中继服务器未及时响应',
 			'watchTogether.errors.connectionLost' => '会话准备就绪前连接已断开',
-			_ => null,
-		} ?? switch (path) {
 			'watchTogether.errors.invalidRelayResponse' => '中继服务器返回了意外的响应',
 			'watchTogether.errors.sessionEnded' => '主持人已结束会话',
 			'watchTogether.errors.sessionUnavailable' => '无法恢复此会话。请加入或创建房间以继续。',
+			_ => null,
+		} ?? switch (path) {
 			'downloads.title' => '下载',
 			'downloads.manage' => '管理',
 			'downloads.tvShows' => '电视剧',
@@ -5077,11 +5071,11 @@ extension on TranslationsZh {
 			'addServer.authResponseIncomplete' => '服务器返回的登录响应不完整',
 			'addServer.quickConnectRejected' => '服务器拒绝了 Quick Connect',
 			'addServer.quickConnectNotJson' => 'Quick Connect 响应不是有效的 JSON',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.quickConnectMissingFields' => 'Quick Connect 响应中缺少代码或密钥',
 			'addServer.quickConnectPollRejected' => '服务器拒绝了 Quick Connect 轮询',
 			'addServer.serverTimedOut' => '服务器未及时响应',
+			_ => null,
+		} ?? switch (path) {
 			'addServer.responseNotJson' => '服务器响应不是有效的 JSON',
 			'addServer.responseMissingIdentity' => ({required Object product}) => '响应中缺少 ID 或服务器名称——这是 ${product} 服务器吗？',
 			'addServer.probeFailed' => ({required Object error}) => '无法连接到服务器：${error}',

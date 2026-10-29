@@ -587,8 +587,6 @@ class _Translations$fileInfo$bg extends Translations$fileInfo$en {
 	@override String versionCounter({required Object index, required Object count}) => 'Версия ${index} от ${count}';
 	@override String fileCounter({required Object index, required Object count}) => 'Файл ${index} от ${count}';
 	@override String get noStreams => 'Сървърът не е отчел потоци за този файл.';
-	@override String get copyPath => 'Копирай пътя';
-	@override String get pathCopied => 'Пътят на файла е копиран';
 	@override String get codec => 'Кодек';
 	@override String get codecTag => 'Етикет на кодека';
 	@override String get resolution => 'Резолюция';
@@ -648,7 +646,6 @@ class _Translations$fileInfo$bg extends Translations$fileInfo$en {
 	@override String get temporary => 'Временен';
 	@override String get timeBase => 'Времева база';
 	@override String get overallBitrate => 'Общ битрейт';
-	@override String get path => 'Път';
 	@override String get fileName => 'Име на файла';
 	@override String get size => 'Размер';
 	@override String get totalSize => 'Общ размер';
@@ -3495,8 +3492,6 @@ extension on TranslationsBg {
 			'fileInfo.versionCounter' => ({required Object index, required Object count}) => 'Версия ${index} от ${count}',
 			'fileInfo.fileCounter' => ({required Object index, required Object count}) => 'Файл ${index} от ${count}',
 			'fileInfo.noStreams' => 'Сървърът не е отчел потоци за този файл.',
-			'fileInfo.copyPath' => 'Копирай пътя',
-			'fileInfo.pathCopied' => 'Пътят на файла е копиран',
 			'fileInfo.codec' => 'Кодек',
 			'fileInfo.codecTag' => 'Етикет на кодека',
 			'fileInfo.resolution' => 'Резолюция',
@@ -3546,10 +3541,10 @@ extension on TranslationsBg {
 			'fileInfo.channels' => 'Канали',
 			'fileInfo.sampleRate' => 'Честота на дискретизация',
 			'fileInfo.spatialAudio' => 'Пространствено аудио',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.textBased' => 'Текстов',
 			'fileInfo.subtitleFormat' => 'Сайдкар формат',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.provider' => 'Доставчик',
 			'fileInfo.matchScore' => 'Степен на съвпадение',
 			'fileInfo.externalDelivery' => 'Може да се предоставя отделно',
@@ -3558,7 +3553,6 @@ extension on TranslationsBg {
 			'fileInfo.temporary' => 'Временен',
 			'fileInfo.timeBase' => 'Времева база',
 			'fileInfo.overallBitrate' => 'Общ битрейт',
-			'fileInfo.path' => 'Път',
 			'fileInfo.fileName' => 'Име на файла',
 			'fileInfo.size' => 'Размер',
 			'fileInfo.totalSize' => 'Общ размер',
@@ -4060,11 +4054,11 @@ extension on TranslationsBg {
 			'libraries.failedToEmptyTrash' => ({required Object error}) => 'Неуспешно изпразване на кошчето: ${error}',
 			'libraries.analyzing' => ({required Object title}) => 'Анализиране на "${title}"...',
 			'libraries.analysisStarted' => ({required Object title}) => 'Анализът е стартиран за "${title}"',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Неуспешен анализ на библиотеката: ${error}',
 			'libraries.noLibrariesFound' => 'Не са намерени библиотеки',
 			'libraries.allLibrariesHidden' => 'Всички библиотеки са скрити',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.hiddenLibrariesCount' => ({required Object count}) => 'Скрити библиотеки (${count})',
 			'libraries.thisLibraryIsEmpty' => 'Тази библиотека е празна',
 			'libraries.noItemsMatchFilters' => 'Няма елементи, съответстващи на активните филтри',
@@ -4574,11 +4568,11 @@ extension on TranslationsBg {
 			'watchTogether.defaultDisplayName' => 'Потребител',
 			'watchTogether.errors.timedOut' => 'Релейният сървър не отговори навреме',
 			'watchTogether.errors.connectionLost' => 'Връзката се затвори, преди сесията да е готова',
-			_ => null,
-		} ?? switch (path) {
 			'watchTogether.errors.invalidRelayResponse' => 'Релейният сървър изпрати неочакван отговор',
 			'watchTogether.errors.sessionEnded' => 'Организаторът прекрати сесията',
 			'watchTogether.errors.sessionUnavailable' => 'Тази сесия не може да бъде възобновена. Присъединете се към стая или създайте нова, за да продължите.',
+			_ => null,
+		} ?? switch (path) {
 			'downloads.title' => 'Изтегляния',
 			'downloads.manage' => 'Управление',
 			'downloads.tvShows' => 'ТВ сериали',
@@ -5088,11 +5082,11 @@ extension on TranslationsBg {
 			'addServer.authResponseIncomplete' => 'Отговорът за вход от сървъра беше непълен',
 			'addServer.quickConnectRejected' => 'Quick Connect беше отхвърлен от сървъра',
 			'addServer.quickConnectNotJson' => 'Отговорът на Quick Connect не беше валиден JSON',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.quickConnectMissingFields' => 'В отговора на Quick Connect липсва код или таен ключ',
 			'addServer.quickConnectPollRejected' => 'Запитването на Quick Connect беше отхвърлено от сървъра',
 			'addServer.serverTimedOut' => 'Сървърът не отговори навреме',
+			_ => null,
+		} ?? switch (path) {
 			'addServer.responseNotJson' => 'Отговорът на сървъра не беше валиден JSON',
 			'addServer.responseMissingIdentity' => ({required Object product}) => 'В отговора липсва ID или име на сървъра — това сървър на ${product} ли е?',
 			'addServer.probeFailed' => ({required Object error}) => 'Сървърът не може да бъде достигнат: ${error}',

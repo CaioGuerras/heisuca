@@ -55,16 +55,17 @@ class HeisucaPlayerPill extends StatelessWidget {
       shape: StadiumBorder(side: BorderSide(color: active ? accent : Colors.white.withValues(alpha: .22), width: 1.2)),
       clipBehavior: Clip.antiAlias,
       child: InkWell(onTap: onTap, child: ConstrainedBox(
-        constraints: const BoxConstraints(minWidth: 48, minHeight: 48), child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: label == null ? 9 : 14, vertical: 9),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
+        constraints: const BoxConstraints(minWidth: 48, minHeight: 48), child: Center(
+        child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: label == null ? 0 : 14, vertical: 9),
+        child: Row(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center, children: [
           if (icon != null) Icon(icon, size: 20, color: active ? accent : Colors.white),
           if (icon != null && label != null) const SizedBox(width: 6),
           if (label != null) Text(label!, style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w600,
             fontFeatures: [FontFeature.tabularFigures()])),
           if (label != null && onTap != null) const Icon(Icons.arrow_drop_down_rounded, size: 20, color: Colors.white70),
         ]),
-      ))),
+      )))),
     ));
   }
 }

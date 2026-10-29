@@ -1448,12 +1448,6 @@ class Translations$fileInfo$en {
 	/// en: 'The server reported no streams for this file.'
 	String get noStreams => 'The server reported no streams for this file.';
 
-	/// en: 'Copy path'
-	String get copyPath => 'Copy path';
-
-	/// en: 'File path copied'
-	String get pathCopied => 'File path copied';
-
 	/// en: 'Codec'
 	String get codec => 'Codec';
 
@@ -1630,9 +1624,6 @@ class Translations$fileInfo$en {
 
 	/// en: 'Overall Bitrate'
 	String get overallBitrate => 'Overall Bitrate';
-
-	/// en: 'Path'
-	String get path => 'Path';
 
 	/// en: 'File Name'
 	String get fileName => 'File Name';
@@ -7818,8 +7809,6 @@ extension on Translations {
 			'fileInfo.versionCounter' => ({required Object index, required Object count}) => 'Version ${index} of ${count}',
 			'fileInfo.fileCounter' => ({required Object index, required Object count}) => 'File ${index} of ${count}',
 			'fileInfo.noStreams' => 'The server reported no streams for this file.',
-			'fileInfo.copyPath' => 'Copy path',
-			'fileInfo.pathCopied' => 'File path copied',
 			'fileInfo.codec' => 'Codec',
 			'fileInfo.codecTag' => 'Codec Tag',
 			'fileInfo.resolution' => 'Resolution',
@@ -7859,10 +7848,10 @@ extension on Translations {
 			'fileInfo.baseLayerCompatibility' => 'Base Layer Compatibility',
 			'fileInfo.avcBitstream' => 'AVC Bitstream',
 			'fileInfo.nalLengthSize' => 'NAL Length Size',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.scalingMatrix' => 'Custom Scaling Matrix',
 			'fileInfo.streamIdentifier' => 'Stream Identifier',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.streamIndex' => 'Stream Index',
 			'fileInfo.streamId' => 'Stream ID',
 			'fileInfo.language' => 'Language',
@@ -7881,7 +7870,6 @@ extension on Translations {
 			'fileInfo.temporary' => 'Temporary',
 			'fileInfo.timeBase' => 'Time Base',
 			'fileInfo.overallBitrate' => 'Overall Bitrate',
-			'fileInfo.path' => 'Path',
 			'fileInfo.fileName' => 'File Name',
 			'fileInfo.size' => 'Size',
 			'fileInfo.totalSize' => 'Total Size',
@@ -8373,11 +8361,11 @@ extension on Translations {
 			'errors.reasonCancelled' => 'the request was cancelled',
 			'errors.reasonUnexpected' => 'an unexpected error occurred',
 			'libraries.title' => 'Libraries',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.fallbackTitle' => 'Library',
 			'libraries.scanLibraryFiles' => 'Scan Library Files',
 			'libraries.scanLibrary' => 'Scan Library',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.analyze' => 'Analyze',
 			'libraries.analyzeLibrary' => 'Analyze Library',
 			'libraries.refreshMetadata' => 'Refresh Metadata',
@@ -8887,11 +8875,11 @@ extension on Translations {
 			'watchTogether.endSessionQuestion' => 'End Session?',
 			'watchTogether.leaveSessionQuestion' => 'Leave Session?',
 			'watchTogether.endSessionConfirm' => 'This will end the session for all participants.',
-			_ => null,
-		} ?? switch (path) {
 			'watchTogether.leaveSessionConfirm' => 'You will be removed from the session.',
 			'watchTogether.endSessionConfirmOverlay' => 'This will end the watch session for all participants.',
 			'watchTogether.leaveSessionConfirmOverlay' => 'You will be disconnected from the watch session.',
+			_ => null,
+		} ?? switch (path) {
 			'watchTogether.end' => 'End',
 			'watchTogether.leave' => 'Leave',
 			'watchTogether.syncing' => 'Syncing...',
@@ -9401,11 +9389,11 @@ extension on Translations {
 			'services.deviceCode.waitingForAuthorization' => 'Waiting for authorization…',
 			'services.deviceCode.codeCopied' => 'Code copied',
 			'services.oauthProxy.title' => ({required Object service}) => 'Sign in to ${service}',
-			_ => null,
-		} ?? switch (path) {
 			'services.oauthProxy.body' => 'Scan this QR code or open the URL on any device.',
 			'services.oauthProxy.openToSignIn' => ({required Object service}) => 'Open ${service} to sign in',
 			'services.pendingAuth.copyUrl' => 'Copy sign-in URL',
+			_ => null,
+		} ?? switch (path) {
 			'services.pendingAuth.urlCopied' => 'URL copied',
 			'services.libraryFilter.title' => 'Library filter',
 			'services.libraryFilter.subtitleAllSyncing' => 'Syncing all libraries',

@@ -597,8 +597,6 @@ class _Translations$fileInfo$pt extends Translations$fileInfo$en {
 	@override String versionCounter({required Object index, required Object count}) => 'Versão ${index} de ${count}';
 	@override String fileCounter({required Object index, required Object count}) => 'Arquivo ${index} de ${count}';
 	@override String get noStreams => 'O servidor não informou as faixas deste arquivo.';
-	@override String get copyPath => 'Copiar caminho';
-	@override String get pathCopied => 'Caminho do arquivo copiado';
 	@override String get codec => 'Codec';
 	@override String get codecTag => 'Tag do codec';
 	@override String get resolution => 'Resolução';
@@ -658,7 +656,6 @@ class _Translations$fileInfo$pt extends Translations$fileInfo$en {
 	@override String get temporary => 'Temporário';
 	@override String get timeBase => 'Base de tempo';
 	@override String get overallBitrate => 'Taxa de bits total';
-	@override String get path => 'Caminho';
 	@override String get fileName => 'Nome do arquivo';
 	@override String get size => 'Tamanho';
 	@override String get totalSize => 'Tamanho total';
@@ -3574,8 +3571,6 @@ extension on TranslationsPt {
 			'fileInfo.versionCounter' => ({required Object index, required Object count}) => 'Versão ${index} de ${count}',
 			'fileInfo.fileCounter' => ({required Object index, required Object count}) => 'Arquivo ${index} de ${count}',
 			'fileInfo.noStreams' => 'O servidor não informou as faixas deste arquivo.',
-			'fileInfo.copyPath' => 'Copiar caminho',
-			'fileInfo.pathCopied' => 'Caminho do arquivo copiado',
 			'fileInfo.codec' => 'Codec',
 			'fileInfo.codecTag' => 'Tag do codec',
 			'fileInfo.resolution' => 'Resolução',
@@ -3615,10 +3610,10 @@ extension on TranslationsPt {
 			'fileInfo.baseLayerCompatibility' => 'Compatibilidade da camada base',
 			'fileInfo.avcBitstream' => 'Bitstream AVC',
 			'fileInfo.nalLengthSize' => 'Tamanho do comprimento NAL',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.scalingMatrix' => 'Matriz de dimensionamento personalizada',
 			'fileInfo.streamIdentifier' => 'Identificador do fluxo',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.streamIndex' => 'Índice do fluxo',
 			'fileInfo.streamId' => 'ID do fluxo',
 			'fileInfo.language' => 'Idioma',
@@ -3637,7 +3632,6 @@ extension on TranslationsPt {
 			'fileInfo.temporary' => 'Temporário',
 			'fileInfo.timeBase' => 'Base de tempo',
 			'fileInfo.overallBitrate' => 'Taxa de bits total',
-			'fileInfo.path' => 'Caminho',
 			'fileInfo.fileName' => 'Nome do arquivo',
 			'fileInfo.size' => 'Tamanho',
 			'fileInfo.totalSize' => 'Tamanho total',
@@ -4129,11 +4123,11 @@ extension on TranslationsPt {
 			'errors.reasonCancelled' => 'o pedido foi cancelado',
 			'errors.reasonUnexpected' => 'aconteceu um erro inesperado',
 			'libraries.title' => 'Bibliotecas',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.fallbackTitle' => 'Biblioteca',
 			'libraries.scanLibraryFiles' => 'Procurar arquivos novos',
 			'libraries.scanLibrary' => 'Atualizar biblioteca',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.analyze' => 'Analisar',
 			'libraries.analyzeLibrary' => 'Analisar biblioteca',
 			'libraries.refreshMetadata' => 'Atualizar informações',
@@ -4643,11 +4637,11 @@ extension on TranslationsPt {
 			'watchTogether.endSessionQuestion' => 'Encerrar sessão?',
 			'watchTogether.leaveSessionQuestion' => 'Sair da sessão?',
 			'watchTogether.endSessionConfirm' => 'Isso vai encerrar a sessão para todo mundo.',
-			_ => null,
-		} ?? switch (path) {
 			'watchTogether.leaveSessionConfirm' => 'Você vai sair da sessão.',
 			'watchTogether.endSessionConfirmOverlay' => 'Isso vai encerrar o Assistir juntos para todo mundo.',
 			'watchTogether.leaveSessionConfirmOverlay' => 'Você vai sair do Assistir juntos.',
+			_ => null,
+		} ?? switch (path) {
 			'watchTogether.end' => 'Encerrar',
 			'watchTogether.leave' => 'Sair',
 			'watchTogether.syncing' => 'Sincronizando...',
@@ -5157,11 +5151,11 @@ extension on TranslationsPt {
 			'services.deviceCode.waitingForAuthorization' => 'Esperando a autorização…',
 			'services.deviceCode.codeCopied' => 'Código copiado',
 			'services.oauthProxy.title' => ({required Object service}) => 'Entrar no ${service}',
-			_ => null,
-		} ?? switch (path) {
 			'services.oauthProxy.body' => 'Leia este código QR ou abra o endereço em qualquer aparelho.',
 			'services.oauthProxy.openToSignIn' => ({required Object service}) => 'Abrir ${service} para entrar',
 			'services.pendingAuth.copyUrl' => 'Copiar endereço de acesso',
+			_ => null,
+		} ?? switch (path) {
 			'services.pendingAuth.urlCopied' => 'Endereço copiado',
 			'services.libraryFilter.title' => 'Filtro de bibliotecas',
 			'services.libraryFilter.subtitleAllSyncing' => 'Sincronizando todas as bibliotecas',

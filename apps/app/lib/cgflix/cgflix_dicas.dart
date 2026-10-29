@@ -109,6 +109,14 @@ enum CgflixDica {
     'Toque no botão da janelinha na tela do vídeo, ou saia do app com o vídeo tocando quando '
         '"Abrir a janelinha ao sair" estiver ligado. '
         'Arraste a janelinha para onde quiser; toque nela para voltar ao Heisuca.',
+  ),
+  filtrosImagem(
+    Symbols.auto_fix_high_rounded,
+    'Filtros de imagem',
+    'Melhoram a imagem no aparelho. Ficam em Ajustes no player.',
+    'Eles melhoram a nitidez da imagem direto no seu aparelho, sem exigir nada a mais do servidor. '
+        'No player, abra Ajustes › Filtros de imagem e escolha Anime4K ou ArtCNN para desenhos e animes, ou NVScaler para filmes e séries. '
+        'Como usam mais processamento, gastam mais bateria e podem esquentar celulares mais simples; para voltar ao padrão, basta escolher "Desligado".',
   );
 
   const CgflixDica(this.icone, this.titulo, this.resumo, this.texto);

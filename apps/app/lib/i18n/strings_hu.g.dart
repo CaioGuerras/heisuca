@@ -587,8 +587,6 @@ class _Translations$fileInfo$hu extends Translations$fileInfo$en {
 	@override String versionCounter({required Object index, required Object count}) => '${index}. verzió a(z) ${count} közül';
 	@override String fileCounter({required Object index, required Object count}) => '${index}. fájl a(z) ${count} közül';
 	@override String get noStreams => 'A szerver nem jelentett adatfolyamot ehhez a fájlhoz.';
-	@override String get copyPath => 'Útvonal másolása';
-	@override String get pathCopied => 'Fájlútvonal kimásolva';
 	@override String get codec => 'Kodek';
 	@override String get codecTag => 'Kodekcímke';
 	@override String get resolution => 'Felbontás';
@@ -648,7 +646,6 @@ class _Translations$fileInfo$hu extends Translations$fileInfo$en {
 	@override String get temporary => 'Ideiglenes';
 	@override String get timeBase => 'Időalap';
 	@override String get overallBitrate => 'Összesített bitráta';
-	@override String get path => 'Elérési út';
 	@override String get fileName => 'Fájlnév';
 	@override String get size => 'Méret';
 	@override String get totalSize => 'Teljes méret';
@@ -3495,8 +3492,6 @@ extension on TranslationsHu {
 			'fileInfo.versionCounter' => ({required Object index, required Object count}) => '${index}. verzió a(z) ${count} közül',
 			'fileInfo.fileCounter' => ({required Object index, required Object count}) => '${index}. fájl a(z) ${count} közül',
 			'fileInfo.noStreams' => 'A szerver nem jelentett adatfolyamot ehhez a fájlhoz.',
-			'fileInfo.copyPath' => 'Útvonal másolása',
-			'fileInfo.pathCopied' => 'Fájlútvonal kimásolva',
 			'fileInfo.codec' => 'Kodek',
 			'fileInfo.codecTag' => 'Kodekcímke',
 			'fileInfo.resolution' => 'Felbontás',
@@ -3546,10 +3541,10 @@ extension on TranslationsHu {
 			'fileInfo.channels' => 'Csatornák',
 			'fileInfo.sampleRate' => 'Mintavételi frekvencia',
 			'fileInfo.spatialAudio' => 'Térbeli hang',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.textBased' => 'Szövegalapú',
 			'fileInfo.subtitleFormat' => 'Kísérő formátum',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.provider' => 'Szolgáltató',
 			'fileInfo.matchScore' => 'Egyezési pontszám',
 			'fileInfo.externalDelivery' => 'Külön is kiszolgálható',
@@ -3558,7 +3553,6 @@ extension on TranslationsHu {
 			'fileInfo.temporary' => 'Ideiglenes',
 			'fileInfo.timeBase' => 'Időalap',
 			'fileInfo.overallBitrate' => 'Összesített bitráta',
-			'fileInfo.path' => 'Elérési út',
 			'fileInfo.fileName' => 'Fájlnév',
 			'fileInfo.size' => 'Méret',
 			'fileInfo.totalSize' => 'Teljes méret',
@@ -4060,11 +4054,11 @@ extension on TranslationsHu {
 			'libraries.failedToEmptyTrash' => ({required Object error}) => 'Nem sikerült a lomtár ürítése: ${error}',
 			'libraries.analyzing' => ({required Object title}) => '"${title}" elemzése...',
 			'libraries.analysisStarted' => ({required Object title}) => 'Elemzés elindítva a következőhöz: "${title}"',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Nem sikerült a könyvtár elemzése: ${error}',
 			'libraries.noLibrariesFound' => 'Nem találhatók könyvtárak',
 			'libraries.allLibrariesHidden' => 'Minden könyvtár el van rejtve',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.hiddenLibrariesCount' => ({required Object count}) => 'Rejtett könyvtárak (${count})',
 			'libraries.thisLibraryIsEmpty' => 'Ez a könyvtár üres',
 			'libraries.noItemsMatchFilters' => 'Nincs az aktív szűrőknek megfelelő elem',
@@ -4574,11 +4568,11 @@ extension on TranslationsHu {
 			'watchTogether.defaultDisplayName' => 'Felhasználó',
 			'watchTogether.errors.timedOut' => 'A relészerver nem válaszolt időben',
 			'watchTogether.errors.connectionLost' => 'A kapcsolat lezárult, mielőtt a munkamenet elkészült volna',
-			_ => null,
-		} ?? switch (path) {
 			'watchTogether.errors.invalidRelayResponse' => 'A relészerver váratlan választ küldött',
 			'watchTogether.errors.sessionEnded' => 'A házigazda befejezte a munkamenetet',
 			'watchTogether.errors.sessionUnavailable' => 'Ez a munkamenet nem folytatható. A folytatáshoz csatlakozz egy szobához vagy hozz létre egyet.',
+			_ => null,
+		} ?? switch (path) {
 			'downloads.title' => 'Letöltések',
 			'downloads.manage' => 'Kezelés',
 			'downloads.tvShows' => 'TV-sorozatok',
@@ -5088,11 +5082,11 @@ extension on TranslationsHu {
 			'addServer.authResponseIncomplete' => 'A szerver bejelentkezési válasza hiányos volt',
 			'addServer.quickConnectRejected' => 'A szerver elutasította a Quick Connect-kérést',
 			'addServer.quickConnectNotJson' => 'A Quick Connect válasza nem érvényes JSON',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.quickConnectMissingFields' => 'A Quick Connect válaszából hiányzik a kód vagy a titkos kulcs',
 			'addServer.quickConnectPollRejected' => 'A szerver elutasította a Quick Connect lekérdezését',
 			'addServer.serverTimedOut' => 'A szerver nem válaszolt időben',
+			_ => null,
+		} ?? switch (path) {
 			'addServer.responseNotJson' => 'A szerver válasza nem érvényes JSON',
 			'addServer.responseMissingIdentity' => ({required Object product}) => 'A válaszból hiányzik az azonosító vagy a szerver neve – ez valóban ${product}-szerver?',
 			'addServer.probeFailed' => ({required Object error}) => 'Nem sikerült elérni a szervert: ${error}',

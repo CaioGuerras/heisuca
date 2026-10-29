@@ -587,8 +587,6 @@ class _Translations$fileInfo$ko extends Translations$fileInfo$en {
 	@override String versionCounter({required Object index, required Object count}) => '버전 ${index} / ${count}';
 	@override String fileCounter({required Object index, required Object count}) => '파일 ${index} / ${count}';
 	@override String get noStreams => '서버에서 이 파일에 대한 스트림 정보를 보고하지 않았습니다.';
-	@override String get copyPath => '경로 복사';
-	@override String get pathCopied => '파일 경로가 복사되었습니다';
 	@override String get codec => '코덱';
 	@override String get codecTag => '코덱 태그';
 	@override String get resolution => '해상도';
@@ -648,7 +646,6 @@ class _Translations$fileInfo$ko extends Translations$fileInfo$en {
 	@override String get temporary => '임시';
 	@override String get timeBase => '시간 기준';
 	@override String get overallBitrate => '전체 비트레이트';
-	@override String get path => '경로';
 	@override String get fileName => '파일 이름';
 	@override String get size => '크기';
 	@override String get totalSize => '총 크기';
@@ -3484,8 +3481,6 @@ extension on TranslationsKo {
 			'fileInfo.versionCounter' => ({required Object index, required Object count}) => '버전 ${index} / ${count}',
 			'fileInfo.fileCounter' => ({required Object index, required Object count}) => '파일 ${index} / ${count}',
 			'fileInfo.noStreams' => '서버에서 이 파일에 대한 스트림 정보를 보고하지 않았습니다.',
-			'fileInfo.copyPath' => '경로 복사',
-			'fileInfo.pathCopied' => '파일 경로가 복사되었습니다',
 			'fileInfo.codec' => '코덱',
 			'fileInfo.codecTag' => '코덱 태그',
 			'fileInfo.resolution' => '해상도',
@@ -3535,10 +3530,10 @@ extension on TranslationsKo {
 			'fileInfo.channels' => '채널',
 			'fileInfo.sampleRate' => '샘플 레이트',
 			'fileInfo.spatialAudio' => '공간 오디오',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.textBased' => '텍스트 기반',
 			'fileInfo.subtitleFormat' => '사이드카 포맷',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.provider' => '제공자',
 			'fileInfo.matchScore' => '일치 점수',
 			'fileInfo.externalDelivery' => '별도 제공 가능',
@@ -3547,7 +3542,6 @@ extension on TranslationsKo {
 			'fileInfo.temporary' => '임시',
 			'fileInfo.timeBase' => '시간 기준',
 			'fileInfo.overallBitrate' => '전체 비트레이트',
-			'fileInfo.path' => '경로',
 			'fileInfo.fileName' => '파일 이름',
 			'fileInfo.size' => '크기',
 			'fileInfo.totalSize' => '총 크기',
@@ -4049,11 +4043,11 @@ extension on TranslationsKo {
 			'libraries.failedToEmptyTrash' => ({required Object error}) => '휴지통 비우기 실패: ${error}',
 			'libraries.analyzing' => ({required Object title}) => '"${title}" 분석 중...',
 			'libraries.analysisStarted' => ({required Object title}) => '"${title}" 분석 시작됨',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.failedToAnalyze' => ({required Object error}) => '미디어 라이브러리 분석 실패: ${error}',
 			'libraries.noLibrariesFound' => '미디어 라이브러리 없음',
 			'libraries.allLibrariesHidden' => '모든 라이브러리가 숨겨졌습니다',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.hiddenLibrariesCount' => ({required Object count}) => '숨겨진 라이브러리 (${count})',
 			'libraries.thisLibraryIsEmpty' => '이 미디어 라이브러리는 비어 있습니다',
 			'libraries.noItemsMatchFilters' => '활성화된 필터와 일치하는 항목이 없습니다',
@@ -4563,11 +4557,11 @@ extension on TranslationsKo {
 			'watchTogether.defaultDisplayName' => '사용자',
 			'watchTogether.errors.timedOut' => '릴레이 서버가 제시간에 응답하지 않았습니다',
 			'watchTogether.errors.connectionLost' => '세션이 준비되기 전에 연결이 종료되었습니다',
-			_ => null,
-		} ?? switch (path) {
 			'watchTogether.errors.invalidRelayResponse' => '릴레이 서버가 예기치 않은 응답을 보냈습니다',
 			'watchTogether.errors.sessionEnded' => '호스트가 세션을 종료했습니다',
 			'watchTogether.errors.sessionUnavailable' => '이 세션을 재개할 수 없습니다. 방에 참여하거나 만들어 계속하세요.',
+			_ => null,
+		} ?? switch (path) {
 			'downloads.title' => '다운로드',
 			'downloads.manage' => '관리',
 			'downloads.tvShows' => 'TV 프로그램',
@@ -5077,11 +5071,11 @@ extension on TranslationsKo {
 			'addServer.authResponseIncomplete' => '서버의 로그인 응답이 불완전합니다',
 			'addServer.quickConnectRejected' => '서버에서 Quick Connect를 거부했습니다',
 			'addServer.quickConnectNotJson' => 'Quick Connect 응답이 유효한 JSON이 아닙니다',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.quickConnectMissingFields' => 'Quick Connect 응답에 코드 또는 비밀 키가 없습니다',
 			'addServer.quickConnectPollRejected' => '서버에서 Quick Connect 폴링을 거부했습니다',
 			'addServer.serverTimedOut' => '서버가 제시간에 응답하지 않았습니다',
+			_ => null,
+		} ?? switch (path) {
 			'addServer.responseNotJson' => '서버 응답이 유효한 JSON이 아닙니다',
 			'addServer.responseMissingIdentity' => ({required Object product}) => '응답에 ID 또는 서버 이름이 없습니다. 이 서버가 ${product} 서버인가요?',
 			'addServer.probeFailed' => ({required Object error}) => '서버에 연결할 수 없습니다: ${error}',

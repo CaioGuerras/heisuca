@@ -587,8 +587,6 @@ class _Translations$fileInfo$uz extends Translations$fileInfo$en {
 	@override String versionCounter({required Object index, required Object count}) => '${index}-versiya (${count} tadan)';
 	@override String fileCounter({required Object index, required Object count}) => '${index}-fayl (${count} tadan)';
 	@override String get noStreams => 'Server ushbu fayl uchun oqimlar mavjud emasligini bildirdi.';
-	@override String get copyPath => 'Yoʻlni nusxalash';
-	@override String get pathCopied => 'Fayl yoʻli nusxalandi';
 	@override String get codec => 'Kodek';
 	@override String get codecTag => 'Kodek yorligʻi';
 	@override String get resolution => 'Oʻlchamlari (Resolution)';
@@ -648,7 +646,6 @@ class _Translations$fileInfo$uz extends Translations$fileInfo$en {
 	@override String get temporary => 'Vaqtinchalik';
 	@override String get timeBase => 'Vaqt bazasi';
 	@override String get overallBitrate => 'Umumiy bitreyt';
-	@override String get path => 'Yoʻl';
 	@override String get fileName => 'Fayl nomi';
 	@override String get size => 'Hajmi';
 	@override String get totalSize => 'Umumiy hajm';
@@ -3495,8 +3492,6 @@ extension on TranslationsUz {
 			'fileInfo.versionCounter' => ({required Object index, required Object count}) => '${index}-versiya (${count} tadan)',
 			'fileInfo.fileCounter' => ({required Object index, required Object count}) => '${index}-fayl (${count} tadan)',
 			'fileInfo.noStreams' => 'Server ushbu fayl uchun oqimlar mavjud emasligini bildirdi.',
-			'fileInfo.copyPath' => 'Yoʻlni nusxalash',
-			'fileInfo.pathCopied' => 'Fayl yoʻli nusxalandi',
 			'fileInfo.codec' => 'Kodek',
 			'fileInfo.codecTag' => 'Kodek yorligʻi',
 			'fileInfo.resolution' => 'Oʻlchamlari (Resolution)',
@@ -3546,10 +3541,10 @@ extension on TranslationsUz {
 			'fileInfo.channels' => 'Kanallar',
 			'fileInfo.sampleRate' => 'Namuna tezligi',
 			'fileInfo.spatialAudio' => 'Fazoviy audio',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.textBased' => 'Matnga asoslangan',
 			'fileInfo.subtitleFormat' => 'Yordamchi format',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.provider' => 'Provayder',
 			'fileInfo.matchScore' => 'Moslik darajasi',
 			'fileInfo.externalDelivery' => 'Alohida uzatilishi mumkin',
@@ -3558,7 +3553,6 @@ extension on TranslationsUz {
 			'fileInfo.temporary' => 'Vaqtinchalik',
 			'fileInfo.timeBase' => 'Vaqt bazasi',
 			'fileInfo.overallBitrate' => 'Umumiy bitreyt',
-			'fileInfo.path' => 'Yoʻl',
 			'fileInfo.fileName' => 'Fayl nomi',
 			'fileInfo.size' => 'Hajmi',
 			'fileInfo.totalSize' => 'Umumiy hajm',
@@ -4060,11 +4054,11 @@ extension on TranslationsUz {
 			'libraries.failedToEmptyTrash' => ({required Object error}) => 'Savatni tozalab boʻlmadi: ${error}',
 			'libraries.analyzing' => ({required Object title}) => '"${title}" tahlil qilinmoqda...',
 			'libraries.analysisStarted' => ({required Object title}) => '"${title}" uchun tahlil boshlandi',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Tahlil qilib boʻlmadi: ${error}',
 			'libraries.noLibrariesFound' => 'Kutubxonalar topilmadi',
 			'libraries.allLibrariesHidden' => 'Barcha kutubxonalar yashirilgan',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.hiddenLibrariesCount' => ({required Object count}) => 'Yashirin kutubxonalar (${count})',
 			'libraries.thisLibraryIsEmpty' => 'Ushbu kutubxona boʻsh',
 			'libraries.noItemsMatchFilters' => 'Filtrlarga mos keladigan elementlar topilmadi',
@@ -4574,11 +4568,11 @@ extension on TranslationsUz {
 			'watchTogether.defaultDisplayName' => 'Foydalanuvchi',
 			'watchTogether.errors.timedOut' => 'Rele serveri oʻz vaqtida javob bermadi',
 			'watchTogether.errors.connectionLost' => 'Seans tayyor boʻlmasidan ulanish uzildi',
-			_ => null,
-		} ?? switch (path) {
 			'watchTogether.errors.invalidRelayResponse' => 'Rele serveri kutilmagan javob yubordi',
 			'watchTogether.errors.sessionEnded' => 'Tashkilotchi seansni tugatdi',
 			'watchTogether.errors.sessionUnavailable' => 'Bu seansni davom ettirib boʻlmaydi. Davom etish uchun xonaga qoʻshiling yoki xona yarating.',
+			_ => null,
+		} ?? switch (path) {
 			'downloads.title' => 'Yuklamalar',
 			'downloads.manage' => 'Boshqarish',
 			'downloads.tvShows' => 'TV Shoular',
@@ -5088,11 +5082,11 @@ extension on TranslationsUz {
 			'addServer.authResponseIncomplete' => 'Serverdan kelgan kirish javobi toʻliq emas',
 			'addServer.quickConnectRejected' => 'Quick Connect server tomonidan rad etildi',
 			'addServer.quickConnectNotJson' => 'Quick Connect javobi yaroqli JSON emas',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.quickConnectMissingFields' => 'Quick Connect javobida kod yoki maxfiy kalit yoʻq',
 			'addServer.quickConnectPollRejected' => 'Quick Connect soʻrovi server tomonidan rad etildi',
 			'addServer.serverTimedOut' => 'Server oʻz vaqtida javob bermadi',
+			_ => null,
+		} ?? switch (path) {
 			'addServer.responseNotJson' => 'Server javobi yaroqli JSON emas',
 			'addServer.responseMissingIdentity' => ({required Object product}) => 'Javobda ID yoki server nomi yoʻq — bu ${product} serverimi?',
 			'addServer.probeFailed' => ({required Object error}) => 'Serverga ulanib boʻlmadi: ${error}',

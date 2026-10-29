@@ -587,8 +587,6 @@ class _Translations$fileInfo$kk extends Translations$fileInfo$en {
 	@override String versionCounter({required Object index, required Object count}) => 'Нұсқа ${index} / ${count}';
 	@override String fileCounter({required Object index, required Object count}) => 'Файл ${index} / ${count}';
 	@override String get noStreams => 'Сервер бұл файл үшін ағындар жоқ деп хабарлады.';
-	@override String get copyPath => 'Жолды көшіру';
-	@override String get pathCopied => 'Файл жолы көшірілді';
 	@override String get codec => 'Кодек';
 	@override String get codecTag => 'Кодек тегі';
 	@override String get resolution => 'Ажыратымдылық';
@@ -648,7 +646,6 @@ class _Translations$fileInfo$kk extends Translations$fileInfo$en {
 	@override String get temporary => 'Уақытша';
 	@override String get timeBase => 'Уақыт негізі';
 	@override String get overallBitrate => 'Жалпы биттік жылдамдық';
-	@override String get path => 'Жол';
 	@override String get fileName => 'Файл атауы';
 	@override String get size => 'Көлемі';
 	@override String get totalSize => 'Жалпы өлшемі';
@@ -3495,8 +3492,6 @@ extension on TranslationsKk {
 			'fileInfo.versionCounter' => ({required Object index, required Object count}) => 'Нұсқа ${index} / ${count}',
 			'fileInfo.fileCounter' => ({required Object index, required Object count}) => 'Файл ${index} / ${count}',
 			'fileInfo.noStreams' => 'Сервер бұл файл үшін ағындар жоқ деп хабарлады.',
-			'fileInfo.copyPath' => 'Жолды көшіру',
-			'fileInfo.pathCopied' => 'Файл жолы көшірілді',
 			'fileInfo.codec' => 'Кодек',
 			'fileInfo.codecTag' => 'Кодек тегі',
 			'fileInfo.resolution' => 'Ажыратымдылық',
@@ -3546,10 +3541,10 @@ extension on TranslationsKk {
 			'fileInfo.channels' => 'Арналар',
 			'fileInfo.sampleRate' => 'Дискретизация жиілігі',
 			'fileInfo.spatialAudio' => 'Кеңістіктік аудио',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.textBased' => 'Мәтіндік',
 			'fileInfo.subtitleFormat' => 'Қосалқы формат',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.provider' => 'Провайдер',
 			'fileInfo.matchScore' => 'Сәйкестік ұпайы',
 			'fileInfo.externalDelivery' => 'Бөлек жеткізілуі мүмкін',
@@ -3558,7 +3553,6 @@ extension on TranslationsKk {
 			'fileInfo.temporary' => 'Уақытша',
 			'fileInfo.timeBase' => 'Уақыт негізі',
 			'fileInfo.overallBitrate' => 'Жалпы биттік жылдамдық',
-			'fileInfo.path' => 'Жол',
 			'fileInfo.fileName' => 'Файл атауы',
 			'fileInfo.size' => 'Көлемі',
 			'fileInfo.totalSize' => 'Жалпы өлшемі',
@@ -4060,11 +4054,11 @@ extension on TranslationsKk {
 			'libraries.failedToEmptyTrash' => ({required Object error}) => 'Себетті тазалау мүмкін болмады: ${error}',
 			'libraries.analyzing' => ({required Object title}) => '"${title}" талдануда...',
 			'libraries.analysisStarted' => ({required Object title}) => '"${title}" үшін талдау басталды',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Талдау жасау мүмкін болмады: ${error}',
 			'libraries.noLibrariesFound' => 'Кітапханалар табылмады',
 			'libraries.allLibrariesHidden' => 'Барлық кітапханалар жасырылған',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.hiddenLibrariesCount' => ({required Object count}) => 'Жасырын кітапханалар (${count})',
 			'libraries.thisLibraryIsEmpty' => 'Бұл кітапхана бос',
 			'libraries.noItemsMatchFilters' => 'Фильтрлерге сәйкес элементтер табылмады',
@@ -4574,11 +4568,11 @@ extension on TranslationsKk {
 			'watchTogether.defaultDisplayName' => 'Пайдаланушы',
 			'watchTogether.errors.timedOut' => 'Реле сервері уақытында жауап бермеді',
 			'watchTogether.errors.connectionLost' => 'Сеанс дайын болмай тұрып байланыс үзілді',
-			_ => null,
-		} ?? switch (path) {
 			'watchTogether.errors.invalidRelayResponse' => 'Реле сервері күтпеген жауап жіберді',
 			'watchTogether.errors.sessionEnded' => 'Ұйымдастырушы сеансты аяқтады',
 			'watchTogether.errors.sessionUnavailable' => 'Бұл сеансты жалғастыру мүмкін емес. Жалғастыру үшін бөлмеге қосылыңыз немесе бөлме жасаңыз.',
+			_ => null,
+		} ?? switch (path) {
 			'downloads.title' => 'Жүктеулер',
 			'downloads.manage' => 'Басқару',
 			'downloads.tvShows' => 'TV Шоулар',
@@ -5088,11 +5082,11 @@ extension on TranslationsKk {
 			'addServer.authResponseIncomplete' => 'Сервердің кіру жауабы толық емес',
 			'addServer.quickConnectRejected' => 'Сервер Quick Connect сұрауын қабылдамады',
 			'addServer.quickConnectNotJson' => 'Quick Connect жауабы жарамды JSON болмады',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.quickConnectMissingFields' => 'Quick Connect жауабында код немесе құпия кілт жоқ',
 			'addServer.quickConnectPollRejected' => 'Сервер Quick Connect сұрауын тексеруді қабылдамады',
 			'addServer.serverTimedOut' => 'Сервер уақытында жауап бермеді',
+			_ => null,
+		} ?? switch (path) {
 			'addServer.responseNotJson' => 'Сервер жауабы жарамды JSON болмады',
 			'addServer.responseMissingIdentity' => ({required Object product}) => 'Жауапта ID немесе сервер атауы жоқ — бұл ${product} сервері ме?',
 			'addServer.probeFailed' => ({required Object error}) => 'Серверге қосылу мүмкін болмады: ${error}',

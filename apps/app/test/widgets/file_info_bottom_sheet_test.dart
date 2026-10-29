@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:heisuca/focus/focusable_wrapper.dart';
 import 'package:heisuca/focus/input_mode_tracker.dart';
 import 'package:heisuca/i18n/strings.g.dart';
 import 'package:heisuca/media/media_file_info.dart';
@@ -79,7 +77,8 @@ void main() {
     expect(find.text('stereo (2 ch)'), findsOneWidget);
     expect(find.text('44.1 kHz'), findsOneWidget);
     expect(find.text('16 bit'), findsOneWidget);
-    expect(find.text(path), findsOneWidget);
+    expect(find.text('01 Ready Lets Go.flac'), findsOneWidget);
+    expect(find.text(path), findsNothing);
 
     // Nothing video-shaped may leak into a track's sheet.
     expect(find.text('Video'), findsNothing);
@@ -287,54 +286,6 @@ void main() {
     expect(find.text('NotoSans.otf'), findsOneWidget);
   });
 
-  testWidgets('tapping a path copies its full value and confirms the action', (tester) async {
-    const path = '/media/movies/Example Movie (2026)/Example Movie.mkv';
-    final clipboardCalls = _interceptClipboard();
-    const fileInfo = MediaFileInfo(
-      versions: [
-        MediaFileVersion(parts: [MediaFilePart(filePath: path)]),
-      ],
-    );
-
-    await _pumpSheet(tester, fileInfo: fileInfo);
-    await tester.tap(find.text(path));
-    await tester.pumpAndSettle();
-
-    expect(clipboardCalls, hasLength(1));
-    expect(clipboardCalls.single.method, 'Clipboard.setData');
-    expect(clipboardCalls.single.arguments, <String, dynamic>{'text': path});
-    expect(find.text('File path copied'), findsOneWidget);
-  });
-
-  testWidgets('keyboard select activates the focused path row and copies its full value', (tester) async {
-    const path = '/media/tv/Example Show/Season 01/Episode 01.mkv';
-    final clipboardCalls = _interceptClipboard();
-    const fileInfo = MediaFileInfo(
-      versions: [
-        MediaFileVersion(parts: [MediaFilePart(filePath: path)]),
-      ],
-    );
-
-    await _pumpSheet(tester, fileInfo: fileInfo);
-    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
-    await tester.pump();
-
-    final pathWrapper = find.ancestor(of: find.text(path), matching: find.byType(FocusableWrapper));
-    expect(pathWrapper, findsOneWidget);
-    final pathFocus = find.descendant(of: pathWrapper, matching: find.byType(Focus)).first;
-    final pathFocusNode = tester.widget<Focus>(pathFocus).focusNode!;
-    pathFocusNode.requestFocus();
-    await tester.pump();
-    expect(pathFocusNode.hasFocus, isTrue);
-
-    await tester.sendKeyEvent(LogicalKeyboardKey.select);
-    await tester.pumpAndSettle();
-
-    expect(clipboardCalls, hasLength(1));
-    expect(clipboardCalls.single.arguments, <String, dynamic>{'text': path});
-    expect(find.text('File path copied'), findsOneWidget);
-  });
-
   testWidgets('field grid uses two columns when wide and one column when narrow', (tester) async {
     const fileInfo = MediaFileInfo(versions: [MediaFileVersion(container: 'mkv', durationMs: 123000)]);
 
@@ -347,6 +298,39 @@ void main() {
     final narrowContainerDx = tester.getTopLeft(find.text('Container')).dx;
     final narrowDurationDx = tester.getTopLeft(find.text('Duration')).dx;
     expect(narrowDurationDx, moreOrLessEquals(narrowContainerDx));
+  });
+
+  testWidgets('F9: folha renderizada com part que tem caminho não contém "/" de caminho nem o rótulo Caminho', (tester) async {
+    const path = '/home/user/data/media/movies/Example Movie (2026)/Example Movie.mkv';
+    const fileInfo = MediaFileInfo(
+      versions: [
+        MediaFileVersion(
+          parts: [
+            MediaFilePart(
+              filePath: path,
+              fileSize: 1048576,
+              container: 'mkv',
+              durationMs: 3600000,
+            ),
+          ],
+        ),
+      ],
+    );
+
+    await _pumpSheet(tester, fileInfo: fileInfo, title: 'Example Movie');
+
+    // Rótulos que devem ficar
+    expect(find.text('Example Movie.mkv'), findsOneWidget);
+    expect(find.text('File'), findsOneWidget);
+    expect(find.text('Container'), findsOneWidget);
+    expect(find.text('MKV'), findsOneWidget);
+
+    // Não deve conter o rótulo Path/Caminho nem o caminho absoluto com "/"
+    expect(find.text('Path'), findsNothing);
+    expect(find.text('Caminho'), findsNothing);
+    expect(find.text(path), findsNothing);
+    expect(find.textContaining('/home/'), findsNothing);
+    expect(find.textContaining('media/'), findsNothing);
   });
 }
 
@@ -373,15 +357,4 @@ Future<void> _pumpSheet(
     ),
   );
   await tester.pump();
-}
-
-List<MethodCall> _interceptClipboard() {
-  final calls = <MethodCall>[];
-  final messenger = TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
-  messenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
-    if (call.method == 'Clipboard.setData') calls.add(call);
-    return null;
-  });
-  addTearDown(() => messenger.setMockMethodCallHandler(SystemChannels.platform, null));
-  return calls;
 }

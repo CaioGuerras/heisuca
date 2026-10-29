@@ -14,8 +14,8 @@ void main() {
   });
   const cases = [
     ('widgets/video_controls_header.dart:59:12', 'right', 151),
-    ('mobile_video_controls.dart:387:16', 'right', 7.2),
-    ('mobile_video_controls.dart:237:14', 'bottom', 212),
+    ('mobile_video_controls.dart:389:16', 'right', 7.2),
+    ('mobile_video_controls.dart:239:14', 'bottom', 212),
   ];
   for (final entry in cases) {
     test('HUD conhecido: ${entry.$1}, só na fase e janela PiP', () {

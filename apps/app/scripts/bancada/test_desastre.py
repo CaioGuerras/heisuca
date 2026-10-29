@@ -99,7 +99,7 @@ LOGCAT = f'''10-28 10:00:00.100  1000  1000 I ActivityManager: Start proc 4321:{
 10-28 10:00:01.000  4321  4321 I flutter : tudo bem
 10-28 10:00:02.000  4321  4321 E flutter : [ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: Bad state: x
 10-28 10:00:03.000  4321  4321 E flutter : A RenderFlex overflowed by 12 pixels on the right.
-10-28 10:00:03.001  4321  4321 E flutter : The relevant error-causing widget was: Row  mobile_video_controls.dart:237:14
+10-28 10:00:03.001  4321  4321 E flutter : The relevant error-causing widget was: Row  mobile_video_controls.dart:239:14
 10-28 10:00:04.000  4321  4400 E AndroidRuntime: FATAL EXCEPTION: main
 10-28 10:00:04.001  4321  4400 E AndroidRuntime: Process: {PKG}, PID: 4321
 10-28 10:00:05.000  1000  1010 E ActivityManager: ANR in {PKG} (app.heisuca.player.teste.home/.MainActivity)

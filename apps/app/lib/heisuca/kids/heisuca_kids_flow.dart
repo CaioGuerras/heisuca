@@ -181,7 +181,7 @@ class _HeisucaKidsSetupScreenState extends State<HeisucaKidsSetupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final palette = CgflixPalette.forVariant(_variant ?? CgflixThemeVariant.heitor);
+    final palette = context.cgflix;
 
     Widget page({required String title, required String body, List<Widget> children = const []}) => ListView(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 24), children: [
@@ -207,7 +207,7 @@ class _HeisucaKidsSetupScreenState extends State<HeisucaKidsSetupScreen> {
             ])),
             if (selected) Icon(Icons.check_circle_rounded, color: palette.accent),
           ])))));
-    return Theme(data: cgflixAppTheme(_variant ?? CgflixThemeVariant.heitor), child: Scaffold(
+    return Scaffold(
       backgroundColor: palette.background,
       appBar: AppBar(backgroundColor: Colors.transparent, foregroundColor: palette.onGlass, elevation: 0,
         title: Text('Modo infantil · ${_step + 1} de 3', style: TextStyle(color: palette.onGlass, fontSize: 15))),
@@ -261,7 +261,7 @@ class _HeisucaKidsSetupScreenState extends State<HeisucaKidsSetupScreen> {
             child: Text(_step < 2 ? 'Continuar' : 'Criar PIN e ativar')),
         ])),
       ])),
-    ));
+    );
   }
 }
 

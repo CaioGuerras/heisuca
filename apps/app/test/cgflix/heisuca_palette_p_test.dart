@@ -17,16 +17,16 @@ import 'package:heisuca/heisuca/heisuca_theme.dart';
 
 void main() {
   setUp(resetSharedPreferencesForTest);
-  test('P2 Hisui escuro permanece escolhido depois da abertura', () async {
+  test('F3 dark salvo migra para Shikkoku depois da abertura', () async {
     final service = await settings.SettingsService.getInstance();
     await service.write(settings.SettingsService.themeMode, settings.ThemeMode.dark);
     final provider = ThemeProvider();
     await Future<void>.delayed(Duration.zero);
-    expect(provider.themeMode, settings.ThemeMode.dark);
-    expect(provider.darkTheme.scaffoldBackgroundColor, const Color(0xFF051F20));
+    expect(provider.themeMode, settings.ThemeMode.oled);
+    expect(provider.darkTheme.scaffoldBackgroundColor, const Color(0xFF17151C));
     expect(cgflixDarkTheme(provider.themeMode), provider.darkTheme);
     provider.dispose();
-    expect(service.read(settings.SettingsService.themeMode), settings.ThemeMode.dark);
+    expect(service.read(settings.SettingsService.themeMode), settings.ThemeMode.oled);
   });
   test('P2 contraste e cores da marca não alteram o modo infantil', () {
     for (final p in [CgflixPalette.ichigo, CgflixPalette.sorairo]) {
@@ -79,7 +79,7 @@ void main() {
   for (final entry in [
     (true, true, const Color(0xFF17151C), const Color(0xFF292531), const Color(0xFFE2DDE7)),
     (false, false, const Color(0xFFDAF1DE), const Color(0xFFFFFFFF), const Color(0xFF051F20)),
-    (true, false, const Color(0xFF051F20), const Color(0xFF0B2B26), const Color(0xFFDAF1DE)),
+    (true, false, const Color(0xFF17151C), const Color(0xFF292531), const Color(0xFFE2DDE7)),
   ]) {
     test('P2 tokens e Material concordam: dark=${entry.$1}, oled=${entry.$2}', () {
       final theme = monoTheme(dark: entry.$1, oled: entry.$2);

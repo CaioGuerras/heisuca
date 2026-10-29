@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:heisuca/cgflix/cgflix_palette.dart';
 import 'package:heisuca/cgflix/cgflix_theme.dart';
 import 'package:heisuca/heisuca/heisuca_profile_screen.dart';
 import 'package:heisuca/heisuca/kids/heisuca_kids.dart';
@@ -103,11 +102,11 @@ void main() {
       await tester.pumpAndSettle();
       final field = find.byType(TextField);
       final theme = Theme.of(tester.element(field));
-      final background = CgflixPalette.forVariant(variant).background;
+      final background = CgflixPalette.of(tester.element(field)).background;
       final label = theme.inputDecorationTheme.labelStyle?.color ?? theme.colorScheme.onSurfaceVariant;
       final ratio = (label.computeLuminance() + .05) / (background.computeLuminance() + .05);
       expect(ratio < 1 ? 1 / ratio : ratio, greaterThanOrEqualTo(4.5));
-      expect(theme.brightness, Brightness.light);
+      expect(theme.brightness, Brightness.dark); // F2: herda o tema do app (Shikkoku) na configuração
       expect(tester.takeException(), isNull);
     });
   }

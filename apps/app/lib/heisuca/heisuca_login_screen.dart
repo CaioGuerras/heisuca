@@ -24,6 +24,7 @@ import '../services/storage_service.dart';
 import '../utils/app_logger.dart';
 import '../utils/device_identity.dart';
 import '../utils/navigation_transitions.dart';
+import '../utils/platform_detector.dart';
 import 'heisuca_add_plex_screen.dart';
 import 'heisuca_design_system.dart';
 import 'heisuca_logo.dart';
@@ -405,17 +406,20 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Topo: Ícone discreto de Conexão Rápida no canto superior direito
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.qr_code_2_rounded, color: accent, size: 26.0),
-                            tooltip: 'Conexão Rápida',
-                            onPressed: _showQuickConnectModal,
-                          ),
-                        ],
-                      ),
+                      // Topo: Ícone discreto de Conexão Rápida no canto superior direito (apenas layout de TV)
+                      if (PlatformDetector.isTV())
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.qr_code_2_rounded, color: accent, size: 26.0),
+                              tooltip: 'Conexão Rápida',
+                              onPressed: _showQuickConnectModal,
+                            ),
+                          ],
+                        )
+                      else
+                        const SizedBox.shrink(),
 
                       // Bloco Central: Logo Heisuca, Formulário e Botão de Conectar
                       Column(

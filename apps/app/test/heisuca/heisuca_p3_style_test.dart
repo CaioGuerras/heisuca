@@ -45,7 +45,6 @@ void main() {
   for (final (name, theme) in [
     ('Shikkoku', cgflixAppTheme()),
     ('Hisui claro', cgflixLightTheme()),
-    ('Hisui escuro', cgflixDarkTheme(settings.ThemeMode.dark)),
   ]) {
     testWidgets('P3 $name: outras fontes usam a superfície do tema', (tester) async {
       await tester.pumpWidget(MaterialApp(theme: theme, home: const HeisucaLoginScreen()));

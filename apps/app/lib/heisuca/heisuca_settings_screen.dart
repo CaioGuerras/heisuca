@@ -337,12 +337,11 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
           final choices = [
             ('Shikkoku', 'Escuro', settings.ThemeMode.oled, CgflixPalette.isis),
             ('Hisui', 'Claro', settings.ThemeMode.light, CgflixPalette.heitor),
-            ('Hisui escuro', 'Escuro', settings.ThemeMode.dark, CgflixPalette.hisuiDark),
           ];
           return Wrap(spacing: 12, runSpacing: 12, children: [
             for (final choice in choices)
               SizedBox(
-                width: constraints.maxWidth < 380 ? constraints.maxWidth : (constraints.maxWidth - 24) / 3,
+                width: constraints.maxWidth < 380 ? constraints.maxWidth : (constraints.maxWidth - 12) / 2,
                 child: _buildThemeOptionCard(
                   title: choice.$1,
                   subtitle: choice.$2,

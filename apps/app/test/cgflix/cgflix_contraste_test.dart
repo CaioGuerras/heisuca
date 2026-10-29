@@ -14,7 +14,6 @@ void main() {
   for (final (name, s, p) in [
     ('Shikkoku', cgflixIsisScheme, CgflixPalette.isis),
     ('Hisui claro', cgflixHeitorScheme, CgflixPalette.heitor),
-    ('Hisui escuro', cgflixHisuiDarkScheme, CgflixPalette.hisuiDark),
   ]) {
     final backgrounds = {
       'canvas': p.background,
@@ -69,8 +68,8 @@ void main() {
     });
   }
 
-  test('anel de foco (focusRing) ≥ 3:1 no canvas e na superfície das 5 paletas', () {
-    for (final p in [CgflixPalette.isis, CgflixPalette.heitor, CgflixPalette.hisuiDark,
+  test('anel de foco (focusRing) ≥ 3:1 no canvas e na superfície das 4 paletas', () {
+    for (final p in [CgflixPalette.isis, CgflixPalette.heitor,
         CgflixPalette.ichigo, CgflixPalette.sorairo]) {
       for (final bg in [p.background, p.surface]) {
         expect(contrast(p.focusRing, bg), greaterThanOrEqualTo(3), reason: '${p.variant}');
@@ -86,12 +85,5 @@ void main() {
     for (final fg in [p.text, p.textMuted, p.accent, p.accentSoft, p.success, p.danger, p.focusRing]) {
       expect(fg, isNot(pale));
     }
-  });
-
-  test('Hisui escuro: sup3 é fundo; secundário sobre ele vira principal', () {
-    const p = CgflixPalette.hisuiDark;
-    expect(cgflixHisuiDarkScheme.surfaceContainerHighest, const Color(0xFF235347));
-    expect(p.textOn(cgflixHisuiDarkScheme.surfaceContainerHighest), p.text);
-    expect(p.accent, isNot(const Color(0xFF235347)));
   });
 }

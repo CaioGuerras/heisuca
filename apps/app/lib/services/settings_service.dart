@@ -263,6 +263,23 @@ class _AutomotiveUiScalePref extends Pref<double> {
       svc.writeDouble(key, value.clamp(AutomotiveUiScale.min, AutomotiveUiScale.max).toDouble());
 }
 
+/// Migrates saved 'dark' (Hisui escuro removed in F3) to Shikkoku (ThemeMode.oled).
+class _ThemeModePref extends EnumPref<ThemeMode> {
+  const _ThemeModePref()
+    : super('theme_mode', values: ThemeMode.values, defaultValueProvider: SettingsService._tvAwareThemeModeDefault);
+
+  @override
+  ThemeMode readFrom(BaseSharedPreferencesService svc) {
+    final stored = svc.readNullableString(key);
+    if (stored == null) return resolvedDefault;
+    if (stored == 'dark') {
+      svc.prefs.setString(key, ThemeMode.oled.name);
+      return ThemeMode.oled;
+    }
+    return values.firstWhere((v) => v.name == stored, orElse: () => resolvedDefault);
+  }
+}
+
 /// Migrates from the legacy `use_season_poster` boolean key.
 class _EpisodePosterModePref extends EnumPref<EpisodePosterMode> {
   const _EpisodePosterModePref()
@@ -881,11 +898,7 @@ class SettingsService extends BaseSharedPreferencesService {
   static final displaySwitchDelay = IntPref('display_switch_delay', transform: (v) => v.clamp(0, 10));
 
   static ThemeMode _tvAwareThemeModeDefault() => ThemeMode.oled; // CGFLIX: tema escuro OLED em todos os aparelhos
-  static const themeMode = EnumPref<ThemeMode>(
-    'theme_mode',
-    values: ThemeMode.values,
-    defaultValueProvider: _tvAwareThemeModeDefault,
-  );
+  static const themeMode = _ThemeModePref();
   static const videoPlayerNavigationEnabled = BoolPref(
     'video_player_navigation_enabled',
     defaultValueProvider: PlatformDetector.isTV,

@@ -54,11 +54,9 @@ bool get _forceIsis => PlatformDetector.isTV();
 /// Tema da vaga "clara" do MaterialApp: Heitor (na TV, Isis).
 ThemeData cgflixLightTheme() => cgflixAppTheme(_forceIsis ? CgflixThemeVariant.isis : CgflixThemeVariant.heitor);
 
-/// Tema escuro: Shikkoku por padrão; Hisui escuro pela escolha persistida.
+/// Tema escuro: Shikkoku por padrão.
 ThemeData cgflixDarkTheme([settings.ThemeMode mode = settings.ThemeMode.oled]) =>
-    !_forceIsis && mode == settings.ThemeMode.dark
-        ? monoTheme(dark: true)
-        : cgflixAppTheme(CgflixThemeVariant.isis);
+    cgflixAppTheme(CgflixThemeVariant.isis);
 
 /// A escolha "Tema" das Configurações reaproveita a preferência `themeMode` do upstream (assim a
 /// troca na hora, o "Automático" e a abertura nativa do Android já funcionam):
@@ -87,11 +85,14 @@ class CgflixPageTransitionsBuilder extends PredictiveBackPageTransitionsBuilder 
 }
 
 /// Marca do CGFLIX sobre o tema do upstream. [oled] = Isis; o tema claro do upstream vira o
-/// Hisui; o escuro comum representa Hisui escuro.
+/// Hisui; no modo escuro comum ou com sistema escuro vale Shikkoku (Isis).
 /// [kids] troca o claro do Heitor pela paleta infantil (Ichigo/Sorairo), com o mesmo desenho.
 ThemeData cgflixBrandTheme(ThemeData theme, {required bool oled, CgflixThemeVariant? kids}) {
-  final palette = kids != null ? CgflixPalette.forVariant(kids)
-      : oled ? CgflixPalette.isis : (theme.brightness == Brightness.light ? CgflixPalette.heitor : CgflixPalette.hisuiDark);
+  final palette = kids != null
+      ? CgflixPalette.forVariant(kids)
+      : (oled || theme.brightness == Brightness.dark)
+          ? CgflixPalette.isis
+          : CgflixPalette.heitor;
   final accent = palette.accent;
   final branded = theme.copyWith(
     textTheme: _heisucaTypography(theme.textTheme),
@@ -112,7 +113,7 @@ ThemeData cgflixBrandTheme(ThemeData theme, {required bool oled, CgflixThemeVari
   );
   return switch (palette.variant) {
     CgflixThemeVariant.isis => _isis(branded),
-    CgflixThemeVariant.heitor => _heitor(branded, s: palette.isLight ? cgflixHeitorScheme : cgflixHisuiDarkScheme, p: palette),
+    CgflixThemeVariant.heitor => _heitor(branded, s: cgflixHeitorScheme, p: palette),
     CgflixThemeVariant.ichigo => _heitor(branded, s: cgflixIchigoScheme, p: CgflixPalette.ichigo),
     CgflixThemeVariant.sorairo => _heitor(branded, s: cgflixSorairoScheme, p: CgflixPalette.sorairo),
   };

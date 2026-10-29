@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:heisuca/cgflix/cgflix_palette.dart';
 import 'package:heisuca/cgflix/cgflix_theme.dart';
 import 'package:heisuca/heisuca/heisuca_context_menu.dart';
 import 'package:heisuca/heisuca/heisuca_floating_island.dart';
@@ -87,7 +86,7 @@ void main() {
       expect(find.text('SENHA'), findsOneWidget);
       expect(find.text('Iniciar sessão'), findsOneWidget);
       expect(find.text('Outros servidores e pastas locais'), findsOneWidget);
-      expect(find.byIcon(Icons.qr_code_2_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.qr_code_2_rounded), findsNothing);
     });
 
     testWidgets('monta sem erro no modo claro', (tester) async {
@@ -176,15 +175,15 @@ void main() {
       expect(find.text('Funções e desempenho'), findsNothing);
     });
 
-    testWidgets('Hisui escuro salva a escolha real do seletor', (tester) async {
+    testWidgets('seletor de tema salva a escolha real', (tester) async {
       await _montar(tester, CgflixThemeVariant.isis, const HeisucaSettingsScreen());
-      final choice = find.text('Hisui escuro');
+      final choice = find.text('Hisui');
       await tester.ensureVisible(choice);
       await tester.pumpAndSettle();
       await tester.tap(choice);
       await tester.pumpAndSettle();
       final service = await settings.SettingsService.getInstance();
-      expect(service.read(settings.SettingsService.themeMode), settings.ThemeMode.dark);
+      expect(service.read(settings.SettingsService.themeMode), settings.ThemeMode.light);
     });
 
     testWidgets('monta abas Geral e Avançado com reconhecimento de aparelho e seletor de tema', (tester) async {
@@ -197,7 +196,7 @@ void main() {
       expect(find.text('Aparência e Tema'), findsOneWidget);
       expect(find.text('Shikkoku'), findsOneWidget);
       expect(find.text('Hisui'), findsOneWidget);
-      expect(find.text('Hisui escuro'), findsOneWidget);
+      expect(find.text('Hisui escuro'), findsNothing);
       expect(find.text('Qualidade de reprodução'), findsOneWidget);
 
       await tester.tap(find.text('Avançado'));

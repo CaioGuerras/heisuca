@@ -106,43 +106,6 @@ const cgflixHeitorScheme = ColorScheme(
   inversePrimary: Color(0xFFDAF1DE),
 );
 
-const cgflixHisuiDarkScheme = ColorScheme(
-  brightness: Brightness.dark,
-  primary: heisucaHisuiAccent,
-  onPrimary: heisucaHisuiDarkCanvas,
-  primaryContainer: heisucaHisuiDarkSurface2,
-  onPrimaryContainer: Color(0xFFDAF1DE),
-  secondary: heisucaHisuiAccent,
-  onSecondary: heisucaHisuiDarkCanvas,
-  secondaryContainer: heisucaHisuiDarkSurface2,
-  onSecondaryContainer: Color(0xFFDAF1DE),
-  tertiary: heisucaHisuiAccent,
-  onTertiary: heisucaHisuiDarkCanvas,
-  tertiaryContainer: heisucaHisuiDarkSurface2,
-  onTertiaryContainer: Color(0xFFDAF1DE),
-  error: Color(0xFFE07A7A),
-  onError: heisucaHisuiDarkCanvas,
-  errorContainer: heisucaHisuiDarkSurface,
-  onErrorContainer: Color(0xFFDAF1DE),
-  surface: heisucaHisuiDarkCanvas,
-  onSurface: Color(0xFFDAF1DE),
-  onSurfaceVariant: Color(0xFFDAF1DE),
-  surfaceDim: heisucaHisuiDarkCanvas,
-  surfaceBright: heisucaHisuiDarkSurface,
-  surfaceContainerLowest: heisucaHisuiDarkSurface,
-  surfaceContainerLow: heisucaHisuiDarkSurface,
-  surfaceContainer: heisucaHisuiDarkSurface,
-  surfaceContainerHigh: heisucaHisuiDarkSurface2,
-  surfaceContainerHighest: heisucaHisuiDarkSurface3,
-  outline: heisucaHisuiDarkSurface3,
-  outlineVariant: Color(0x14DAF1DE),
-  shadow: Color(0xFF000000),
-  scrim: Color(0xFF000000),
-  inverseSurface: Color(0xFFDAF1DE),
-  onInverseSurface: heisucaHisuiDarkCanvas,
-  inversePrimary: heisucaHisuiDarkCanvas,
-);
-
 /// Esquemas Material do modo infantil (mesmo esqueleto do Heitor, cores dos tokens oficiais).
 const cgflixIchigoScheme = ColorScheme(
   brightness: Brightness.light,
@@ -436,51 +399,6 @@ class CgflixPalette extends ThemeExtension<CgflixPalette> {
     emblemAsset: 'assets/heisuca/selo_pequeno_hisui.svg',
   );
 
-  static const hisuiDark = CgflixPalette(
-    variant: CgflixThemeVariant.heitor,
-    light: false,
-    background: heisucaHisuiDarkCanvas,
-    surface: heisucaHisuiDarkSurface,
-    surfaceHigh: heisucaHisuiDarkSurface2,
-    accent: heisucaHisuiAccent,
-    accentSoft: heisucaHisuiAccent,
-    action: heisucaHisuiAccent,
-    onAction: heisucaHisuiDarkCanvas,
-    progress: heisucaHisuiAccent,
-    progressTrack: heisucaHisuiDarkSurface3,
-    textMuted: heisucaHisuiAccent,
-    divider: Color(0x14DAF1DE),
-    heroVeil: [Color(0xB3051F20), Color(0x00051F20), Color(0x00051F20), Color(0xF0051F20), heisucaHisuiDarkCanvas],
-    topVeil: [Color(0xE6051F20), Color(0x99051F20), Color(0x00051F20)],
-    sheetVeil: [Color(0x000B2B26), Color(0x000B2B26), heisucaHisuiDarkSurface],
-    glass: Color(0xE60B2B26),
-    glassBorder: heisucaHisuiDarkSurface3,
-    onGlass: Color(0xFFDAF1DE),
-    chipSelected: heisucaHisuiDarkSurface2,
-    chipSelectedBorder: Color(0xFFDAF1DE),
-    pressed: Color(0x24DAF1DE),
-    hovered: Color(0x14DAF1DE),
-    focused: Color(0x24DAF1DE),
-    focusRing: Color(0xFFDAF1DE),
-    secondaryAction: heisucaHisuiDarkSurface2,
-    onSecondaryAction: Color(0xFFDAF1DE),
-    photoButton: Color(0xCC051F20),
-    onPhotoButton: Color(0xFFDAF1DE),
-    badge: heisucaHisuiDarkSurface2,
-    badgeBorder: heisucaHisuiDarkSurface3,
-    onBadge: Color(0xFFDAF1DE),
-    success: heisucaHisuiAccent,
-    danger: Color(0xFFE07A7A),
-    dedication: heisucaHisuiAccent,
-    rankStroke: heisucaHisuiAccent,
-    cardShadow: [BoxShadow(color: Color(0x14000000), blurRadius: 12, offset: Offset(0, 4))],
-    brandArc: [Color(0xFFDAF1DE),heisucaHisuiAccent,heisucaHisuiAccent,heisucaHisuiDarkSurface3],
-    brandPlay: [Color(0xFFDAF1DE),heisucaHisuiAccent,heisucaHisuiAccent],
-    brandGlow: Color(0x338EB69B),
-    brandShine: Color(0x33DAF1DE),
-    emblemAsset: 'assets/heisuca/selo_pequeno_shikkoku.svg',
-  );
-
   /// Modo infantil (decisão de 18/10): só entram pelo perfil infantil, nunca no seletor de tema.
   /// Cores dos tokens oficiais da marca (pesquisa_apps/marca/tokens/temas/{ichigo,sorairo}).
   static const ichigo = CgflixPalette(
@@ -581,8 +499,7 @@ class CgflixPalette extends ThemeExtension<CgflixPalette> {
   Color get text => variant == CgflixThemeVariant.ichigo ? cgflixIchigoScheme.onSurface
       : variant == CgflixThemeVariant.sorairo ? cgflixSorairoScheme.onSurface
       : isLight ? cgflixHeitorScheme.onSurface
-      : variant == CgflixThemeVariant.isis ? cgflixIsisScheme.onSurface
-      : cgflixHisuiDarkScheme.onSurface;
+      : cgflixIsisScheme.onSurface;
 
   /// Escolha de papel de texto pelo fundo real (WCAG AA, texto normal).
   /// Mantém o secundário nas camadas em que há contraste; em camadas altas

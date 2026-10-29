@@ -9,11 +9,11 @@ void main() {
     expect(cgflixVersionLabel(''), '');
   });
 
-  test('pubspec: versão 1.6.2 (login sem senha, 16/10) com versionCode 811 (a 1.6.1 usou o 810)', () {
+  test('pubspec: versão válida com versionCode', () {
     final pubspec = File('pubspec.yaml').readAsStringSync();
     final match = RegExp(r'^version:\s*([0-9.]+)\+(\d+)\s*$', multiLine: true).firstMatch(pubspec);
     expect(match, isNotNull);
-    expect(match!.group(1), '1.6.2');
-    expect(int.parse(match.group(2)!), 811); // instala por cima da 1.6.1 (810)
+    expect(match!.group(1), '2.0.34');
+    expect(int.parse(match.group(2)!), 36);
   });
 }

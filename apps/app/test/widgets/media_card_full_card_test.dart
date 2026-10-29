@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:heisuca/focus/card_focus_scope.dart';
 import 'package:heisuca/focus/focus_glow_overlay.dart';
 import 'package:heisuca/focus/focus_theme.dart';
 import 'package:heisuca/focus/input_mode_tracker.dart';
@@ -420,7 +421,7 @@ void main() {
     // The crisp focus border stays in-card as a foreground decoration; the glow
     // is no longer in the background decoration.
     final borderContainer = tester.widget<AnimatedContainer>(
-      find.descendant(of: find.byType(FocusGlowOverlay), matching: find.byType(AnimatedContainer)).first,
+      find.descendant(of: find.byType(CardFocusBorder), matching: find.byType(AnimatedContainer)).first,
     );
     expect(borderContainer.decoration, isNull);
     final border = (borderContainer.foregroundDecoration as BoxDecoration).border as Border;

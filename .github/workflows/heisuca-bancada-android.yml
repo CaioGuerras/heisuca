@@ -106,7 +106,15 @@ jobs:
           emulator-options: -no-window -gpu software -noaudio -no-boot-anim -camera-back none
           working-directory: apps/app
           script: |
-            adb root
+            for tentativa in 1 2 3 4 5; do
+              timeout 30 adb wait-for-device || true
+              if adb root; then
+                timeout 30 adb wait-for-device || true
+                break
+              fi
+              echo "Tentativa $tentativa/5 de adb root falhou, aguardando..."
+              sleep 3
+            done
             timeout 45 adb wait-for-device
             adb shell id
             # 40312145102: pressão CPU 91%, main pronta esperando CPU por 169 s.

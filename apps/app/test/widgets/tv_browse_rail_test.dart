@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:heisuca/focus/card_focus_scope.dart';
 import 'package:heisuca/focus/dpad_navigator.dart';
 import 'package:heisuca/focus/input_mode_tracker.dart';
 import 'package:heisuca/database/app_database.dart';
@@ -705,13 +706,13 @@ void main() {
     // The focused card mounts a leader (CompositedTransformTarget); scope to it
     // so we measure the focused card's in-card border container.
     final cardFinder = find
-        .descendant(of: find.byType(CompositedTransformTarget), matching: find.byType(AnimatedContainer))
+        .descendant(of: find.byType(CardFocusBorder), matching: find.byType(AnimatedContainer))
         .first;
     final borderContainer = tester.widget<AnimatedContainer>(cardFinder);
     final border = (borderContainer.foregroundDecoration as BoxDecoration).border as Border;
     final cardSize = tester.getSize(cardFinder);
     final focusScale = tester.widget<AnimatedScale>(
-      find.ancestor(of: cardFinder, matching: find.byType(AnimatedScale)).first,
+      find.ancestor(of: cardFinder, matching: find.byType(AnimatedScale)).last,
     );
 
     // The border stays in-card; the glow now renders in an overlay that follows

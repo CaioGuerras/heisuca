@@ -12,7 +12,7 @@ void main() {
     expect(BrCode.crc16(exemplo), '1D3D');
   });
 
-  test('payload do CGFLIX campo a campo (igual ao do CGFLIX Lite)', () {
+  test('payload do Heisuca campo a campo (BR Code estático)', () {
     const esperado =
         '000201' // 00: versão
         '2636' // 26: conta Pix (36 caracteres)
@@ -21,10 +21,10 @@ void main() {
         '52040000' // 52: categoria
         '5303986' // 53: real
         '5802BR' // 58: país
-        '5906CGFLIX' // 59: nome
+        '5907HEISUCA' // 59: nome
         '6014RIO DE JANEIRO' // 60: cidade
         '62070503***' // 62/05: txid
-        '6304030A'; // 63: CRC
+        '630454DB'; // 63: CRC
     expect(_cgflix(), esperado);
   });
 

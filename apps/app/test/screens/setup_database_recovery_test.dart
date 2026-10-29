@@ -5,6 +5,7 @@ import 'package:heisuca/i18n/strings.g.dart';
 import 'package:heisuca/main.dart';
 import 'package:heisuca/screens/auth_screen.dart';
 import 'package:heisuca/services/base_shared_preferences_service.dart';
+import 'package:heisuca/utils/platform_detector.dart';
 
 import '../test_helpers/prefs.dart';
 
@@ -12,6 +13,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(resetSharedPreferencesForTest);
+  tearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
 
   test('only recoveryRequired bypasses setup; fresh follows ordinary bootstrap path', () {
     expect(shouldBypassSetupForDatabaseRecovery(TvosDatabaseRecoveryOutcome.recoveryRequired), isTrue);
@@ -49,6 +51,7 @@ void main() {
   });
 
   testWidgets('AuthScreen visibly renders recovery notice with Plex and Jellyfin actions', (tester) async {
+    TvDetectionService.debugSetAppleTVOverride(true);
     await tester.pumpWidget(
       TranslationProvider(
         child: MaterialApp(
@@ -70,6 +73,7 @@ void main() {
   });
 
   testWidgets('fresh AuthScreen has normal actions without recovery notice', (tester) async {
+    TvDetectionService.debugSetAppleTVOverride(true);
     await tester.pumpWidget(TranslationProvider(child: const MaterialApp(home: AuthScreen(initializeServices: false))));
     await tester.pump();
 

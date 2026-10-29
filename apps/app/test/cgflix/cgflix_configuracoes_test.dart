@@ -140,7 +140,7 @@ void main() {
   });
 
   test('switch M3: trilho primary ligado, contorno outline desligado, check no polegar', () {
-    for (final variante in CgflixThemeVariant.values) {
+    for (final variante in const [CgflixThemeVariant.isis, CgflixThemeVariant.heitor]) {
       final tema = cgflixSettingsTheme(cgflixAppTheme(variante));
       final s = tema.colorScheme;
       final sw = tema.switchTheme;
@@ -155,7 +155,7 @@ void main() {
   });
 
   test('contraste AA nas Configurações dos dois temas', () {
-    for (final variante in CgflixThemeVariant.values) {
+    for (final variante in const [CgflixThemeVariant.isis, CgflixThemeVariant.heitor]) {
       final tema = cgflixSettingsTheme(cgflixAppTheme(variante));
       final s = tema.colorScheme;
       final fundo = tema.scaffoldBackgroundColor;

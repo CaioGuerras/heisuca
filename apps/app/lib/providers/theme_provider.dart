@@ -20,8 +20,7 @@ class ThemeProvider extends ChangeNotifier with DisposableChangeNotifierMixin, W
     // async path below lands a microtask too late for the first build.
     final loaded = settings.SettingsService.instanceOrNull;
     if (loaded != null) {
-      final mode = loaded.read(settings.SettingsService.themeMode);
-      _themeMode = mode == settings.ThemeMode.dark ? settings.ThemeMode.oled : mode;
+      _themeMode = loaded.read(settings.SettingsService.themeMode);
     }
     _settingsBinding = SettingsBindingOwner(
       prefs: const [settings.SettingsService.themeMode],
@@ -47,10 +46,9 @@ class ThemeProvider extends ChangeNotifier with DisposableChangeNotifierMixin, W
   }
 
   void _syncThemeMode(settings.ThemeMode mode, {bool forceNotify = false}) {
-    final effectiveMode = mode == settings.ThemeMode.dark ? settings.ThemeMode.oled : mode;
-    final changed = _themeMode != effectiveMode;
-    _themeMode = effectiveMode;
-    _updateSplashTheme(effectiveMode);
+    final changed = _themeMode != mode;
+    _themeMode = mode;
+    _updateSplashTheme(mode);
     if (changed || forceNotify) safeNotifyListeners();
   }
 
@@ -93,10 +91,9 @@ class ThemeProvider extends ChangeNotifier with DisposableChangeNotifierMixin, W
   static const _themeChannel = MethodChannel('app.heisuca/theme');
 
   Future<void> setThemeMode(settings.ThemeMode mode) async {
-    final effectiveMode = mode == settings.ThemeMode.dark ? settings.ThemeMode.oled : mode;
-    if (_themeMode == effectiveMode) return;
     final service = _settingsBinding.settings ?? await settings.SettingsService.getInstance();
-    await service.write(settings.SettingsService.themeMode, effectiveMode);
+    await service.write(settings.SettingsService.themeMode, mode);
+    final effectiveMode = service.read(settings.SettingsService.themeMode);
     if (_settingsBinding.settings == null) _syncThemeMode(effectiveMode);
   }
 

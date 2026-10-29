@@ -2822,7 +2822,7 @@ void main() {
       await tester.pump();
       await tester.pump();
       await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump(const Duration(milliseconds: 500));
       await tester.pump();
     }
 
@@ -2883,9 +2883,7 @@ void main() {
           mediaType: 'episode',
         ),
       );
-      await tester.pump();
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
+      await settleDetail(tester);
     }
 
     void deleteExact(String id, {String serverId = 'server_1', bool downloadOnly = false}) {

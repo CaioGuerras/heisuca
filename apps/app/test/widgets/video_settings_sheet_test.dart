@@ -126,6 +126,8 @@ void main() {
     await _pumpSheetViaOverlayRoute(tester, player);
 
     await tester.scrollUntilVisible(find.text('Audio Channels'), 300, scrollable: find.byType(Scrollable).first);
+    await tester.ensureVisible(find.text('Audio Channels'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Audio Channels'));
     await tester.pumpAndSettle();
     for (final label in ['Original', 'Up to 5.1', 'Stereo']) {

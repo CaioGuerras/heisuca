@@ -289,9 +289,9 @@ void main() {
           ),
         ),
       );
-      expect(find.text('Aperte o play'), findsOneWidget);
+      expect(find.text(cgflixSlogan), findsOneWidget);
       expect(tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity)).opacity, 1);
-      final texto = tester.widget<Text>(find.text('Aperte o play'));
+      final texto = tester.widget<Text>(find.text(cgflixSlogan));
       expect(texto.style?.color, CgflixPalette.forVariant(variante).textMuted);
     });
   }

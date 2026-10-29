@@ -273,10 +273,15 @@ class _ThemeModePref extends EnumPref<ThemeMode> {
     final stored = svc.readNullableString(key);
     if (stored == null) return resolvedDefault;
     if (stored == 'dark') {
-      svc.prefs.setString(key, ThemeMode.oled.name);
       return ThemeMode.oled;
     }
     return values.firstWhere((v) => v.name == stored, orElse: () => resolvedDefault);
+  }
+
+  @override
+  Future<void> writeTo(BaseSharedPreferencesService svc, ThemeMode value) {
+    final effective = value == ThemeMode.dark ? ThemeMode.oled : value;
+    return svc.writeString(key, effective.name);
   }
 }
 
@@ -1045,6 +1050,11 @@ class SettingsService extends BaseSharedPreferencesService {
   @override
   Future<void> onInit() async {
     _assertCredentialsReadable();
+
+    // R3: migração única da preferência persistida de tema escuro na inicialização.
+    if (readNullableString(themeMode.key) == 'dark') {
+      await prefs.setString(themeMode.key, ThemeMode.oled.name);
+    }
 
     const legacyRecentRoomsKey = 'watch_together_recent_rooms';
     await prefs.remove(legacyRecentRoomsKey);

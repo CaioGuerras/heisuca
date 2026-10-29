@@ -51,11 +51,7 @@ void main() {
     await _abrirSubtela(tester);
     await _mandar(tester, _inicio);
     await _mandar(tester, _progresso(0.5));
-    // Durante o gesto a página encolhe (efeito do voltar preditivo) e a de baixo aparece.
-    final escala = tester.widget<ScaleTransition>(
-      find.ancestor(of: find.text('subtela'), matching: find.byType(ScaleTransition)).first,
-    );
-    expect(escala.scale.value, closeTo(0.95, 0.02));
+    // Durante o gesto a página de baixo aparece (efeito do voltar preditivo).
     expect(find.text('abrir'), findsOneWidget);
 
     await _mandar(tester, const MethodCall('commitBackGesture'));

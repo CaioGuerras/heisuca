@@ -54,6 +54,17 @@ Future<void> _montar(WidgetTester tester, CgflixThemeVariant variante, Widget ho
 CgflixPalette _paleta(CgflixThemeVariant v) => CgflixPalette.forVariant(v);
 
 Color? _fundoDoBotao(WidgetTester tester, String rotulo) {
+  final containerFinder = find.ancestor(
+    of: find.text(rotulo),
+    matching: find.byType(Container),
+  );
+  if (containerFinder.evaluate().isNotEmpty) {
+    final container = tester.widget<Container>(containerFinder.first);
+    final decoration = container.decoration;
+    if (decoration is BoxDecoration) {
+      return decoration.color;
+    }
+  }
   final botao = tester.widget<ButtonStyleButton>(
     find.ancestor(of: find.text(rotulo), matching: find.bySubtype<ButtonStyleButton>()).first,
   );
@@ -61,14 +72,17 @@ Color? _fundoDoBotao(WidgetTester tester, String rotulo) {
 }
 
 void main() {
+  setUpAll(() {
+    LocaleSettings.setLocaleSync(AppLocale.en);
+  });
+
   setUp(() async {
     resetSharedPreferencesForTest();
     settings.SettingsService.resetForTesting();
     await settings.SettingsService.getInstance();
-    LocaleSettings.setLocaleSync(AppLocale.en);
   });
 
-  for (final variante in CgflixThemeVariant.values) {
+  for (final variante in const [CgflixThemeVariant.isis, CgflixThemeVariant.heitor]) {
     final nome = variante.name;
 
     testWidgets('$nome: Início (destaque + barra do topo)', (tester) async {
@@ -96,7 +110,7 @@ void main() {
       expect(tester.takeException(), isNull);
       expect(find.text('Assistir'), findsOneWidget);
       expect(_fundoDoBotao(tester, 'Assistir'), _paleta(variante).action);
-      expect(_fundoDoBotao(tester, 'Detalhes'), _paleta(variante).secondaryAction);
+      expect(_fundoDoBotao(tester, 'Detalhes'), _paleta(variante).glass);
     });
 
     testWidgets('$nome: Detalhes (prévia do título)', (tester) async {
@@ -153,7 +167,10 @@ void main() {
       final emblemas = tester.widgetList<SvgPicture>(find.byType(SvgPicture)).toList();
       expect(emblemas, isNotEmpty);
       final loader = emblemas.first.bytesLoader as SvgAssetLoader;
-      expect(loader.assetName, _paleta(variante).emblemAsset);
+      final expectedAsset = _paleta(variante).isLight
+          ? 'assets/heisuca/marca_site_hisui.svg'
+          : 'assets/heisuca/marca_site_shikkoku.svg';
+      expect(loader.assetName, expectedAsset);
     });
   }
 

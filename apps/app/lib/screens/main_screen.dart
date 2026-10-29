@@ -1,5 +1,9 @@
 import '../heisuca/heisuca_motion.dart'; // CGFLIX: entrada de abas sem perder estado.
 import '../heisuca/heisuca_library_screen.dart';
+import '../heisuca/tv/heisuca_tv_home_screen.dart';
+import '../heisuca/tv/heisuca_tv_menu.dart';
+import '../heisuca/tv/heisuca_tv_settings_screen.dart';
+import '../heisuca/tv/heisuca_tv_back_handler.dart';
 import '../cgflix/cgflix_navigation.dart';
 import '../heisuca/heisuca_floating_island.dart';
 import '../heisuca/kids/heisuca_kids_flow.dart';
@@ -20,7 +24,7 @@ export '../navigation/main_screen_scope.dart'
 import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'
-    show HardwareKeyboard, KeyDownEvent, KeyRepeatEvent, KeyUpEvent, LogicalKeyboardKey;
+    show HardwareKeyboard, KeyDownEvent, KeyRepeatEvent, KeyUpEvent, LogicalKeyboardKey, SystemNavigator;
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
@@ -1124,9 +1128,15 @@ class _MainScreenState extends State<MainScreen>
 
     return switch (tab) {
       NavigationTabId.discover =>
-        cgflixUseYouTab(context) // CGFLIX: no celular a Início é Heisuca Flagship (Esboço 03B)
-            ? HeisucaHomeScreen(key: _screenKeys[tab], onOpenLibrary: _selectLibrary)
-            : DiscoverScreen(key: _screenKeys[tab]),
+        PlatformDetector.isTV()
+            ? HeisucaTvHomeScreen(
+                key: _screenKeys[tab],
+                onOpenMenu: _openTvMenu,
+                onSelectDestination: _handleTvDestination,
+              )
+            : cgflixUseYouTab(context) // CGFLIX: no celular a Início é Heisuca Flagship (Esboço 03B)
+                ? HeisucaHomeScreen(key: _screenKeys[tab], onOpenLibrary: _selectLibrary)
+                : DiscoverScreen(key: _screenKeys[tab]),
       NavigationTabId.explore => ExploreScreen(key: _screenKeys[tab]),
       NavigationTabId.libraries => cgflixUseYouTab(context) && !_isOffline
           ? HeisucaLibraryScreen(key: _screenKeys[tab], initialLibraryKey: _selectedLibraryGlobalKey,
@@ -1139,8 +1149,44 @@ class _MainScreenState extends State<MainScreen>
       NavigationTabId.liveTv => LiveTvScreen(key: _screenKeys[tab]),
       NavigationTabId.search => SearchScreen(key: _screenKeys[tab]),
       NavigationTabId.downloads => DownloadsScreen(key: _screenKeys[tab]),
-      NavigationTabId.settings => SettingsScreen(key: _screenKeys[tab]),
+      NavigationTabId.settings => PlatformDetector.isTV()
+          ? const HeisucaTvSettingsScreen()
+          : SettingsScreen(key: _screenKeys[tab]),
     };
+  }
+
+  void _openTvMenu() {
+    HeisucaTvMenu.show(
+      context,
+      onSelectDestination: _handleTvDestination,
+    );
+  }
+
+  void _handleTvDestination(String destination) {
+    switch (destination) {
+      case 'Início':
+        _selectTab(NavigationTabId.discover);
+        break;
+      case 'Filmes':
+      case 'Séries':
+      case 'Animes':
+        final librariesProvider = context.read<LibrariesProvider>();
+        final lib = librariesProvider.libraries.where((l) =>
+          l.title.toLowerCase().contains(destination.toLowerCase())
+        ).firstOrNull;
+        if (lib != null) {
+          _selectLibrary(lib.globalKey);
+        } else {
+          _selectTab(NavigationTabId.discover);
+        }
+        break;
+      case 'Buscar':
+        _selectTab(NavigationTabId.search);
+        break;
+      case 'Ajustes':
+        _selectTab(NavigationTabId.settings);
+        break;
+    }
   }
 
   /// Normalize tab ID when switching between offline/online modes.
@@ -1495,12 +1541,53 @@ class _MainScreenState extends State<MainScreen>
       return KeyEventResult.handled;
     }
 
+    if (PlatformDetector.isTV()) {
+      if (event.logicalKey.isBackKey) {
+        if (event is KeyUpEvent) {
+          final res = _handleTvBack();
+          BackKeyCoordinator.markHandled();
+          return res;
+        }
+        return KeyEventResult.handled;
+      }
+      return KeyEventResult.ignored;
+    }
+
     if (!_isSidebarFocused) {
       // Content focused → move to sidebar
       return handleBackKeyAction(event, _focusSidebar);
     }
 
     return _handleMainBackKeyAction(event);
+  }
+
+  KeyEventResult _handleTvBack() {
+    // 1. Se não estiver na aba Início, volta para Início
+    final homeTab = _getVisibleTabs(_isOffline).firstOrNull?.id ?? NavigationTabId.discover;
+    if (_currentTab != homeTab) {
+      _selectTab(homeTab);
+      return KeyEventResult.handled;
+    }
+
+    // 2. No Início: confere se o foco está no destaque
+    final homeState = _screenKeys[NavigationTabId.discover]?.currentState;
+    if (homeState is HeisucaTvHomeScreenState) {
+      if (!homeState.isAtHeroDestaque) {
+        homeState.scrollToDestaqueAndFocus();
+        return KeyEventResult.handled;
+      }
+    }
+
+    // 3. Já está no destaque: no Fire TV pede confirmação curta; no Google TV sai direto
+    if (PlatformDetector.isFireTV()) {
+      HeisucaTvBackHandler.showExitConfirmationDialog(context).then((confirmed) {
+        if (confirmed) SystemNavigator.pop();
+      });
+      return KeyEventResult.handled;
+    } else {
+      SystemNavigator.pop();
+      return KeyEventResult.handled;
+    }
   }
 
   /// F11 toggles OS fullscreen from anywhere in the main UI. The in-player
@@ -1953,10 +2040,14 @@ class _MainScreenState extends State<MainScreen>
       return SettingValueBuilder<bool>(
         pref: SettingsService.alwaysKeepSidebarOpen,
         builder: (context, alwaysExpanded, _) {
-          final targetContentOffset = _sideNavigationWidth(context, alwaysExpanded: alwaysExpanded);
-          final reservedContentOffset = alwaysExpanded
-              ? SideNavigationRailState.expandedWidth
-              : SideNavigationRailState.collapsedWidthForContext(context);
+          final targetContentOffset = PlatformDetector.isTV()
+              ? 0.0
+              : _sideNavigationWidth(context, alwaysExpanded: alwaysExpanded);
+          final reservedContentOffset = PlatformDetector.isTV()
+              ? 0.0
+              : alwaysExpanded
+                  ? SideNavigationRailState.expandedWidth
+                  : SideNavigationRailState.collapsedWidthForContext(context);
 
           return OverlaySheetHost(
             onOpenChanged: _handleOverlaySheetOpenChanged,
@@ -2046,13 +2137,14 @@ class _MainScreenState extends State<MainScreen>
                               ),
                             ),
                           ),
-                          Positioned(
-                            top: 0,
-                            bottom: 0,
-                            left: 0,
-                            child: FocusScope(
-                              node: _sidebarFocusScope,
-                              child: SideNavigationRail(
+                          if (!PlatformDetector.isTV())
+                            Positioned(
+                              top: 0,
+                              bottom: 0,
+                              left: 0,
+                              child: FocusScope(
+                                node: _sidebarFocusScope,
+                                child: SideNavigationRail(
                                 key: _sideNavKey,
                                 selectedTab: _currentTab,
                                 selectedLibraryKey: _selectedLibraryGlobalKey,

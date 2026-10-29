@@ -72,6 +72,7 @@ class TvDetectionService {
   static final AsyncSingleton<TvDetectionService> _singleton = AsyncSingleton();
   @visibleForTesting
   static set debugDetectionGate(Future<void>? value) => _singleton.debugGate = value;
+  static bool? _debugTvOverride;
   static bool? _debugAppleTVOverride;
   static bool? _debugAutomotiveOverride;
   bool _detected = false;
@@ -178,7 +179,7 @@ class TvDetectionService {
   ///
   /// App code goes through the [PlatformDetector] facade ([PlatformDetector.isTV]
   /// and siblings); these raw accessors exist for the facade and tests.
-  static bool isTVSync() => _debugAppleTVOverride ?? _singleton.instance?.isTV ?? false;
+  static bool isTVSync() => _debugTvOverride ?? _debugAppleTVOverride ?? _singleton.instance?.isTV ?? false;
 
   /// Synchronous Apple TV check (returns false if not initialized or not tvOS).
   static bool isAppleTVSync() => _debugAppleTVOverride ?? (_tvosBuild || _singleton.instance?._isAppleTV == true);
@@ -199,6 +200,7 @@ class TvDetectionService {
   @visibleForTesting
   static void debugReset() {
     _singleton.debugReset();
+    _debugTvOverride = null;
     _debugAppleTVOverride = null;
     _debugAutomotiveOverride = null;
   }
@@ -206,12 +208,25 @@ class TvDetectionService {
   static List<String> tvDetectionReasonsSync() => _singleton.instance?._effectiveDetectionReasons ?? const [];
 
   /// Convenience setter that forwards to the singleton if available.
-  static void setForceTVSync(bool value) => _singleton.instance?.setForceTv(value);
+  static void setForceTVSync(bool value) {
+    _debugTvOverride = value;
+    _singleton.instance?.setForceTv(value);
+  }
 }
 
 class PlatformDetector {
   static bool isTV() {
     return TvDetectionService.isTVSync();
+  }
+
+  static void setForceTVSync(bool value) {
+    TvDetectionService.setForceTVSync(value);
+  }
+
+  static bool isFireTV() {
+    if (!isTV()) return false;
+    final reasons = TvDetectionService.tvDetectionReasonsSync();
+    return reasons.contains('fire_tv');
   }
 
   static bool isAppleTV() {

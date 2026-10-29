@@ -172,24 +172,25 @@ class DevicePerformance {
 
   /// Flutter image-cache budget per platform/tier — kept modest to leave
   /// headroom for Skia decode buffers.
-  static void applyImageCacheBudget() {
+  static void applyImageCacheBudget({bool? lowRamOverride}) {
     _detectDisplayBudget();
     final cache = PaintingBinding.instance.imageCache;
-    if (PlatformDetector.isDesktopOS()) {
+    final isLowRam = lowRamOverride ??
+        (systemLowRam == true || (_singleton.instance?._totalMemBytes != null && _singleton.instance!._totalMemBytes! < (2 * 1024 * 1024 * 1024)));
+
+    if (PlatformDetector.isTV()) {
+      if (isLowRam) {
+        // TV com pouca RAM (Fire Stick 1 GB / isLowRamDevice): 50 MB
+        cache.maximumSize = 300;
+        cache.maximumSizeBytes = 50 << 20; // 50MB
+      } else {
+        cache.maximumSize = 500;
+        cache.maximumSizeBytes = ((64 << 20) * displayBudgetFactor()).round();
+      }
+    } else if (PlatformDetector.isDesktopOS()) {
       cache.maximumSize = 1000;
       cache.maximumSizeBytes = 150 << 20; // 150MB
     } else if (isReduced) {
-      // Tiles decode at full TV DPR even on this tier (#2020), so the byte
-      // budget matches the TV baseline. The display budget factor is pinned
-      // to 1.0 here, keeping the ceiling fixed.
-      cache.maximumSize = 400;
-      cache.maximumSizeBytes = 64 << 20; // 64MB
-    } else if (PlatformDetector.isTV()) {
-      // TV boxes share limited RAM with 4K video decode buffers. The byte
-      // budget follows the display budget: 4K-surface artwork carries up to
-      // 2× the pixels per entry (64MB baseline → 128MB at 4K).
-      cache.maximumSize = 500;
-      cache.maximumSizeBytes = ((64 << 20) * displayBudgetFactor()).round();
     } else if (isFlagshipHardware) {
       // Heisuca Flagship (8GB-12GB+ RAM): 250MB decoded image cache & 1500 entries
       // to eliminate all re-decode hitching during 120Hz/144Hz scrolling.

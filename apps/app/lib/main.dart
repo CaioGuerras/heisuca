@@ -1742,10 +1742,11 @@ class SetupScreen extends StatefulWidget {
 class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
   String _statusMessage = '';
 
-  // Heisuca: a troca de tela espera a abertura terminar (teto de 3 s se o callback não vier).
+  // Heisuca: a troca de tela espera a abertura terminar (teto de 4 s se o callback não vier).
   final Completer<void> _aberturaConcluida = Completer<void>();
-  Future<void> _aguardarAbertura() => _aberturaConcluida.future.timeout(const Duration(seconds: 3), onTimeout: () {});
+  Future<void> _aguardarAbertura() => _aberturaConcluida.future.timeout(const Duration(seconds: 4), onTimeout: () {});
   bool _enteringOffline = false;
+  Future<void>? _homePreloadFuture;
 
   // Per-server connection status: serverId -> (name, connected?)
   final Map<String, (String name, bool? connected)> _serverStatus = {};
@@ -2090,6 +2091,7 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
   @override
   Widget build(BuildContext context) {
     return HeisucaOpeningSplash(
+      preloadFuture: _homePreloadFuture,
       onAnimationFinished: () {
         if (!_aberturaConcluida.isCompleted) _aberturaConcluida.complete();
       },

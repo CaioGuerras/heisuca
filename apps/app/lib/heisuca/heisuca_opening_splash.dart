@@ -12,11 +12,13 @@ class HeisucaOpeningSplash extends StatefulWidget {
   const HeisucaOpeningSplash({
     super.key,
     required this.onAnimationFinished,
-    this.duration = const Duration(milliseconds: 2200),
+    this.duration = const Duration(milliseconds: 1000),
+    this.preloadFuture,
   });
 
   final VoidCallback onAnimationFinished;
   final Duration duration;
+  final Future<void>? preloadFuture;
 
   @override
   State<HeisucaOpeningSplash> createState() => _HeisucaOpeningSplashState();
@@ -63,10 +65,27 @@ class _HeisucaOpeningSplashState extends State<HeisucaOpeningSplash> with Single
     _started = true;
     if (DevicePerformance.isReduced || MediaQuery.disableAnimationsOf(context)) {
       _controller.duration = Duration.zero;
+      _controller.forward().then((_) {
+        if (!mounted) return;
+        widget.onAnimationFinished();
+      });
+      return;
     }
-    _controller.forward().then((_) {
+
+    _controller.forward();
+
+    // Abertura com preload: piso de ~1 s, teto de ~4 s
+    final minDelay = Future.delayed(widget.duration);
+    final preload = widget.preloadFuture?.timeout(
+      const Duration(milliseconds: 4000),
+      onTimeout: () {},
+    ) ?? Future.value();
+
+    Future.wait([minDelay, preload]).then((_) {
       if (!mounted) return;
-      if (!DevicePerformance.isReduced && !MediaQuery.disableAnimationsOf(context)) HapticFeedback.lightImpact();
+      if (!DevicePerformance.isReduced && !MediaQuery.disableAnimationsOf(context)) {
+        HapticFeedback.lightImpact();
+      }
       widget.onAnimationFinished();
     });
   }

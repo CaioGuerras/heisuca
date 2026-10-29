@@ -1,4 +1,5 @@
 import '../heisuca/heisuca_title_sheet.dart';
+import '../heisuca/tv/heisuca_tv_title_screen.dart';
 import 'platform_detector.dart';
 import 'package:flutter/material.dart';
 import '../i18n/strings.g.dart';
@@ -278,6 +279,12 @@ Future<MediaNavigationResult> navigateToMediaItemDetails(
     final catalogItem = mi.catalogItem;
     if (catalogItem == null) return MediaNavigationResult.unsupported;
     await navigateToCatalogItem(context, catalogItem);
+    return MediaNavigationResult.navigated;
+  }
+
+  if (!isOffline && PlatformDetector.isTV() && (mi.kind == MediaKind.movie || mi.kind == MediaKind.show || mi.kind == MediaKind.season || mi.kind == MediaKind.episode)) {
+    await HeisucaTvTitleScreen.show(context, metadataOverride ?? mi);
+    if (context.mounted) onRefresh?.call(mi);
     return MediaNavigationResult.navigated;
   }
 

@@ -13,7 +13,7 @@ void main() {
     final pubspec = File('pubspec.yaml').readAsStringSync();
     final match = RegExp(r'^version:\s*([0-9.]+)\+(\d+)\s*$', multiLine: true).firstMatch(pubspec);
     expect(match, isNotNull);
-    expect(match!.group(1), '2.0.34');
-    expect(int.parse(match.group(2)!), 36);
+    expect(match!.group(1), matches(RegExp(r'^\d+\.\d+\.\d+$')));
+    expect(int.parse(match.group(2)!), greaterThan(0)); // a versão muda a cada entrega; o formato não
   });
 }

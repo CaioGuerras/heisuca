@@ -413,6 +413,16 @@ class CampoPeloRotulo(unittest.TestCase):
         self.assertEqual((tamanho_do_campo(certo, 'USUÁRIO'), tamanho_do_campo(certo, 'SENHA')), (15, 0))
         self.assertIsNone(tamanho_do_campo([], 'USUÁRIO'))
 
+    def test_tamanho_do_campo_com_fallback_campos_login(self):
+        # Quando o rótulo USUÁRIO não está na árvore, mas os 3 campos existem pela ordem
+        nos_sem_rotulos = parse_uiautomator(xml(
+            edit('https://meu.servidor.com', '[40,100][1040,200]'),
+            edit('usuario_teste', '[40,300][1040,400]'),
+            edit('', '[40,500][1040,600]'),
+        ))
+        self.assertEqual(tamanho_do_campo(nos_sem_rotulos, 'USUÁRIO'), len('usuario_teste'))
+        self.assertEqual(tamanho_do_campo(nos_sem_rotulos, 'SENHA'), 0)
+
     def test_foco(self):
         nos = parse_uiautomator(tela_login(foco='usuario'))
         usuario, senha = campo_abaixo_do_rotulo(nos, 'USUÁRIO'), campo_abaixo_do_rotulo(nos, 'SENHA')

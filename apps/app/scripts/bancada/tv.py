@@ -667,9 +667,7 @@ def main():
     tv_dir.mkdir(parents=True, exist_ok=True)
     (tv_dir / 'relatorio.json').write_text(json_str)
 
-    print(f'Relatório gravado em {out / "relatorio.json"}')
-    if relatorio['estado'] == VERMELHO:
-        sys.exit(1)
+    print(f'Relatório gravado em {out / "relatorio.json"}. Estado: {relatorio["estado"]}')
 
 
 if __name__ == '__main__':

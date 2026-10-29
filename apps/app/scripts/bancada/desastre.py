@@ -93,6 +93,9 @@ def campo_abaixo_do_rotulo(nos, rotulo):
 def tamanho_do_campo(nos, rotulo):
     """Quantidade de caracteres no campo sob o rótulo (None se o campo não existe)."""
     campo = campo_abaixo_do_rotulo(nos, rotulo)
+    if campo is None:
+        chave = {'SERVIDOR': 'servidor', 'USUÁRIO': 'usuario', 'SENHA': 'senha'}.get(rotulo)
+        campo = campos_login(nos).get(chave) if chave else None
     return None if campo is None else len(campo['text'])
 
 

@@ -588,8 +588,6 @@ class _Translations$fileInfo$zh_Hant extends Translations$fileInfo$zh {
 	@override String versionCounter({required Object index, required Object count}) => '第 ${index} 個版本，共 ${count} 個';
 	@override String fileCounter({required Object index, required Object count}) => '第 ${index} 個檔案，共 ${count} 個';
 	@override String get noStreams => '伺服器回報此檔案沒有串流。';
-	@override String get copyPath => '複製路徑';
-	@override String get pathCopied => '已複製檔案路徑';
 	@override String get codec => '編解碼器';
 	@override String get codecTag => '編解碼器標籤';
 	@override String get resolution => '解析度';
@@ -649,7 +647,6 @@ class _Translations$fileInfo$zh_Hant extends Translations$fileInfo$zh {
 	@override String get temporary => '暫時';
 	@override String get timeBase => '時間基準';
 	@override String get overallBitrate => '總位元率';
-	@override String get path => '路徑';
 	@override String get fileName => '檔案名稱';
 	@override String get size => '大小';
 	@override String get totalSize => '總大小';
@@ -3484,8 +3481,6 @@ extension on TranslationsZhHant {
 			'fileInfo.versionCounter' => ({required Object index, required Object count}) => '第 ${index} 個版本，共 ${count} 個',
 			'fileInfo.fileCounter' => ({required Object index, required Object count}) => '第 ${index} 個檔案，共 ${count} 個',
 			'fileInfo.noStreams' => '伺服器回報此檔案沒有串流。',
-			'fileInfo.copyPath' => '複製路徑',
-			'fileInfo.pathCopied' => '已複製檔案路徑',
 			'fileInfo.codec' => '編解碼器',
 			'fileInfo.codecTag' => '編解碼器標籤',
 			'fileInfo.resolution' => '解析度',
@@ -3535,10 +3530,10 @@ extension on TranslationsZhHant {
 			'fileInfo.channels' => '聲道數',
 			'fileInfo.sampleRate' => '取樣率',
 			'fileInfo.spatialAudio' => '空間音訊',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.textBased' => '文字型',
 			'fileInfo.subtitleFormat' => '附屬檔案格式',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.provider' => '提供者',
 			'fileInfo.matchScore' => '相符度',
 			'fileInfo.externalDelivery' => '可分開傳送',
@@ -3547,7 +3542,6 @@ extension on TranslationsZhHant {
 			'fileInfo.temporary' => '暫時',
 			'fileInfo.timeBase' => '時間基準',
 			'fileInfo.overallBitrate' => '總位元率',
-			'fileInfo.path' => '路徑',
 			'fileInfo.fileName' => '檔案名稱',
 			'fileInfo.size' => '大小',
 			'fileInfo.totalSize' => '總大小',
@@ -4049,11 +4043,11 @@ extension on TranslationsZhHant {
 			'libraries.failedToEmptyTrash' => ({required Object error}) => '無法清空垃圾桶：${error}',
 			'libraries.analyzing' => ({required Object title}) => '正在分析「${title}」…',
 			'libraries.analysisStarted' => ({required Object title}) => '已開始分析「${title}」',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.failedToAnalyze' => ({required Object error}) => '無法分析媒體庫：${error}',
 			'libraries.noLibrariesFound' => '找不到媒體庫',
 			'libraries.allLibrariesHidden' => '所有媒體庫都已隱藏',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.hiddenLibrariesCount' => ({required Object count}) => '已隱藏的媒體庫（${count}）',
 			'libraries.thisLibraryIsEmpty' => '此媒體庫為空',
 			'libraries.noItemsMatchFilters' => '沒有符合目前篩選條件的項目',
@@ -4563,11 +4557,11 @@ extension on TranslationsZhHant {
 			'watchTogether.errors.timedOut' => '中繼伺服器未及時回應',
 			'watchTogether.errors.connectionLost' => '工作階段就緒前連線已中斷',
 			'watchTogether.errors.invalidRelayResponse' => '中繼伺服器傳回了非預期的回應',
-			_ => null,
-		} ?? switch (path) {
 			'watchTogether.errors.sessionEnded' => '主持人已結束工作階段',
 			'watchTogether.errors.sessionUnavailable' => '無法恢復此工作階段。請加入或建立房間以繼續。',
 			'downloads.title' => '下載',
+			_ => null,
+		} ?? switch (path) {
 			'downloads.manage' => '管理',
 			'downloads.tvShows' => '影集',
 			'downloads.movies' => '電影',
@@ -5077,11 +5071,11 @@ extension on TranslationsZhHant {
 			'addServer.quickConnectRejected' => 'Quick Connect 遭到伺服器拒絕',
 			'addServer.quickConnectNotJson' => 'Quick Connect 回應不是有效的 JSON',
 			'addServer.quickConnectMissingFields' => 'Quick Connect 回應缺少代碼或密鑰',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.quickConnectPollRejected' => 'Quick Connect 輪詢遭到伺服器拒絕',
 			'addServer.serverTimedOut' => '伺服器未及時回應',
 			'addServer.responseNotJson' => '伺服器回應不是有效的 JSON',
+			_ => null,
+		} ?? switch (path) {
 			'addServer.responseMissingIdentity' => ({required Object product}) => '回應缺少 ID 或伺服器名稱——這是 ${product} 伺服器嗎？',
 			'addServer.probeFailed' => ({required Object error}) => '無法連線至伺服器：${error}',
 			'addServer.enterAtLeastOneUrl' => ({required Object product}) => '請輸入至少一個 ${product} 伺服器 URL',

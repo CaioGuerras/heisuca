@@ -587,8 +587,6 @@ class _Translations$fileInfo$es extends Translations$fileInfo$en {
 	@override String versionCounter({required Object index, required Object count}) => 'Versión ${index} de ${count}';
 	@override String fileCounter({required Object index, required Object count}) => 'Archivo ${index} de ${count}';
 	@override String get noStreams => 'El servidor no informó de ningún flujo para este archivo.';
-	@override String get copyPath => 'Copiar ruta';
-	@override String get pathCopied => 'Ruta del archivo copiada';
 	@override String get codec => 'Códec';
 	@override String get codecTag => 'Etiqueta de códec';
 	@override String get resolution => 'Resolución';
@@ -648,7 +646,6 @@ class _Translations$fileInfo$es extends Translations$fileInfo$en {
 	@override String get temporary => 'Temporal';
 	@override String get timeBase => 'Base de tiempo';
 	@override String get overallBitrate => 'Tasa de bits total';
-	@override String get path => 'Ruta';
 	@override String get fileName => 'Nombre de archivo';
 	@override String get size => 'Tamaño';
 	@override String get totalSize => 'Tamaño total';
@@ -3494,8 +3491,6 @@ extension on TranslationsEs {
 			'fileInfo.versionCounter' => ({required Object index, required Object count}) => 'Versión ${index} de ${count}',
 			'fileInfo.fileCounter' => ({required Object index, required Object count}) => 'Archivo ${index} de ${count}',
 			'fileInfo.noStreams' => 'El servidor no informó de ningún flujo para este archivo.',
-			'fileInfo.copyPath' => 'Copiar ruta',
-			'fileInfo.pathCopied' => 'Ruta del archivo copiada',
 			'fileInfo.codec' => 'Códec',
 			'fileInfo.codecTag' => 'Etiqueta de códec',
 			'fileInfo.resolution' => 'Resolución',
@@ -3545,10 +3540,10 @@ extension on TranslationsEs {
 			'fileInfo.channels' => 'Canales',
 			'fileInfo.sampleRate' => 'Frecuencia de muestreo',
 			'fileInfo.spatialAudio' => 'Audio espacial',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.textBased' => 'Basado en texto',
 			'fileInfo.subtitleFormat' => 'Formato de archivo auxiliar',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.provider' => 'Proveedor',
 			'fileInfo.matchScore' => 'Puntuación de coincidencia',
 			'fileInfo.externalDelivery' => 'Puede servirse por separado',
@@ -3557,7 +3552,6 @@ extension on TranslationsEs {
 			'fileInfo.temporary' => 'Temporal',
 			'fileInfo.timeBase' => 'Base de tiempo',
 			'fileInfo.overallBitrate' => 'Tasa de bits total',
-			'fileInfo.path' => 'Ruta',
 			'fileInfo.fileName' => 'Nombre de archivo',
 			'fileInfo.size' => 'Tamaño',
 			'fileInfo.totalSize' => 'Tamaño total',
@@ -4059,11 +4053,11 @@ extension on TranslationsEs {
 			'libraries.failedToEmptyTrash' => ({required Object error}) => 'Error al vaciar papelera: ${error}',
 			'libraries.analyzing' => ({required Object title}) => 'Analizando "${title}"...',
 			'libraries.analysisStarted' => ({required Object title}) => 'Análisis iniciado para "${title}"',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Error al analizar la biblioteca: ${error}',
 			'libraries.noLibrariesFound' => 'No se encontraron bibliotecas',
 			'libraries.allLibrariesHidden' => 'Todas las bibliotecas están ocultas',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.hiddenLibrariesCount' => ({required Object count}) => 'Bibliotecas ocultas (${count})',
 			'libraries.thisLibraryIsEmpty' => 'Esta biblioteca está vacía',
 			'libraries.noItemsMatchFilters' => 'Ningún elemento coincide con los filtros activos',
@@ -4573,11 +4567,11 @@ extension on TranslationsEs {
 			'watchTogether.errors.timedOut' => 'El servidor de retransmisión no respondió a tiempo',
 			'watchTogether.errors.connectionLost' => 'La conexión se cerró antes de que la sesión estuviera lista',
 			'watchTogether.errors.invalidRelayResponse' => 'El servidor de retransmisión envió una respuesta inesperada',
-			_ => null,
-		} ?? switch (path) {
 			'watchTogether.errors.sessionEnded' => 'El anfitrión finalizó la sesión',
 			'watchTogether.errors.sessionUnavailable' => 'No se puede reanudar esta sesión. Únete a una sala o crea una para continuar.',
 			'downloads.title' => 'Descargas',
+			_ => null,
+		} ?? switch (path) {
 			'downloads.manage' => 'Gestionar',
 			'downloads.tvShows' => 'Series de TV',
 			'downloads.movies' => 'Películas',
@@ -5087,11 +5081,11 @@ extension on TranslationsEs {
 			'addServer.quickConnectRejected' => 'Quick Connect fue rechazado por el servidor',
 			'addServer.quickConnectNotJson' => 'La respuesta de Quick Connect no era un JSON válido',
 			'addServer.quickConnectMissingFields' => 'La respuesta de Quick Connect no incluye el código o el secreto',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.quickConnectPollRejected' => 'El servidor rechazó el sondeo de Quick Connect',
 			'addServer.serverTimedOut' => 'El servidor no respondió a tiempo',
 			'addServer.responseNotJson' => 'La respuesta del servidor no era un JSON válido',
+			_ => null,
+		} ?? switch (path) {
 			'addServer.responseMissingIdentity' => ({required Object product}) => 'A la respuesta le falta un ID o el nombre del servidor. ¿Es este un servidor ${product}?',
 			'addServer.probeFailed' => ({required Object error}) => 'No se pudo conectar con el servidor: ${error}',
 			'addServer.enterAtLeastOneUrl' => ({required Object product}) => 'Introduce al menos una URL de servidor ${product}',

@@ -587,8 +587,6 @@ class _Translations$fileInfo$sv extends Translations$fileInfo$en {
 	@override String versionCounter({required Object index, required Object count}) => 'Version ${index} av ${count}';
 	@override String fileCounter({required Object index, required Object count}) => 'Fil ${index} av ${count}';
 	@override String get noStreams => 'Servern rapporterade inga strömmar för den här filen.';
-	@override String get copyPath => 'Kopiera sökväg';
-	@override String get pathCopied => 'Filsökväg kopierad';
 	@override String get codec => 'Kodek';
 	@override String get codecTag => 'Codec-tagg';
 	@override String get resolution => 'Upplösning';
@@ -648,7 +646,6 @@ class _Translations$fileInfo$sv extends Translations$fileInfo$en {
 	@override String get temporary => 'Tillfällig';
 	@override String get timeBase => 'Tidsbas';
 	@override String get overallBitrate => 'Total bithastighet';
-	@override String get path => 'Sökväg';
 	@override String get fileName => 'Filnamn';
 	@override String get size => 'Storlek';
 	@override String get totalSize => 'Total storlek';
@@ -3494,8 +3491,6 @@ extension on TranslationsSv {
 			'fileInfo.versionCounter' => ({required Object index, required Object count}) => 'Version ${index} av ${count}',
 			'fileInfo.fileCounter' => ({required Object index, required Object count}) => 'Fil ${index} av ${count}',
 			'fileInfo.noStreams' => 'Servern rapporterade inga strömmar för den här filen.',
-			'fileInfo.copyPath' => 'Kopiera sökväg',
-			'fileInfo.pathCopied' => 'Filsökväg kopierad',
 			'fileInfo.codec' => 'Kodek',
 			'fileInfo.codecTag' => 'Codec-tagg',
 			'fileInfo.resolution' => 'Upplösning',
@@ -3545,10 +3540,10 @@ extension on TranslationsSv {
 			'fileInfo.channels' => 'Kanaler',
 			'fileInfo.sampleRate' => 'Samplingsfrekvens',
 			'fileInfo.spatialAudio' => 'Rumsligt ljud',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.textBased' => 'Textbaserad',
 			'fileInfo.subtitleFormat' => 'Sidecar-format',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.provider' => 'Leverantör',
 			'fileInfo.matchScore' => 'Matchningspoäng',
 			'fileInfo.externalDelivery' => 'Kan levereras separat',
@@ -3557,7 +3552,6 @@ extension on TranslationsSv {
 			'fileInfo.temporary' => 'Tillfällig',
 			'fileInfo.timeBase' => 'Tidsbas',
 			'fileInfo.overallBitrate' => 'Total bithastighet',
-			'fileInfo.path' => 'Sökväg',
 			'fileInfo.fileName' => 'Filnamn',
 			'fileInfo.size' => 'Storlek',
 			'fileInfo.totalSize' => 'Total storlek',
@@ -4059,11 +4053,11 @@ extension on TranslationsSv {
 			'libraries.failedToEmptyTrash' => ({required Object error}) => 'Det gick inte att tömma papperskorgen: ${error}',
 			'libraries.analyzing' => ({required Object title}) => 'Analyserar "${title}"...',
 			'libraries.analysisStarted' => ({required Object title}) => 'Analysen har startat för "${title}"',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Det gick inte att analysera biblioteket: ${error}',
 			'libraries.noLibrariesFound' => 'Inga bibliotek hittades',
 			'libraries.allLibrariesHidden' => 'Alla bibliotek är dolda',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.hiddenLibrariesCount' => ({required Object count}) => 'Dolda bibliotek (${count})',
 			'libraries.thisLibraryIsEmpty' => 'Detta bibliotek är tomt',
 			'libraries.noItemsMatchFilters' => 'Inga objekt matchar de aktiva filtren',
@@ -4573,11 +4567,11 @@ extension on TranslationsSv {
 			'watchTogether.errors.timedOut' => 'Reläservern svarade inte i tid',
 			'watchTogether.errors.connectionLost' => 'Anslutningen stängdes innan sessionen var klar',
 			'watchTogether.errors.invalidRelayResponse' => 'Reläservern skickade ett oväntat svar',
-			_ => null,
-		} ?? switch (path) {
 			'watchTogether.errors.sessionEnded' => 'Värden avslutade sessionen',
 			'watchTogether.errors.sessionUnavailable' => 'Det går inte att återuppta sessionen. Gå med i eller skapa ett rum för att fortsätta.',
 			'downloads.title' => 'Nedladdningar',
+			_ => null,
+		} ?? switch (path) {
 			'downloads.manage' => 'Hantera',
 			'downloads.tvShows' => 'TV-serier',
 			'downloads.movies' => 'Filmer',
@@ -5087,11 +5081,11 @@ extension on TranslationsSv {
 			'addServer.quickConnectRejected' => 'Quick Connect avvisades av servern',
 			'addServer.quickConnectNotJson' => 'Quick Connect-svaret var inte ett giltigt JSON-svar',
 			'addServer.quickConnectMissingFields' => 'Quick Connect-svaret saknar en kod eller hemlig nyckel',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.quickConnectPollRejected' => 'Servern avvisade avsökningen för Quick Connect',
 			'addServer.serverTimedOut' => 'Servern svarade inte i tid',
 			'addServer.responseNotJson' => 'Serversvaret var inte ett giltigt JSON-svar',
+			_ => null,
+		} ?? switch (path) {
 			'addServer.responseMissingIdentity' => ({required Object product}) => 'Svaret saknar ett ID eller servernamn – är det här en ${product}-server?',
 			'addServer.probeFailed' => ({required Object error}) => 'Kunde inte nå servern: ${error}',
 			'addServer.enterAtLeastOneUrl' => ({required Object product}) => 'Ange minst en server-URL för ${product}',

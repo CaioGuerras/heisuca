@@ -43,6 +43,27 @@ void main() {
     }
   });
 
+  test('F8: dica de filtros de imagem existe, sem jargão e com orientações claras', () {
+    final dica = CgflixDica.values.firstWhere(
+      (d) => d.name == 'filtrosImagem',
+      orElse: () => throw StateError('CgflixDica.filtrosImagem não encontrada'),
+    );
+    expect(dica.titulo, 'Filtros de imagem');
+    expect(dica.resumo, contains('imagem'));
+    expect(dica.texto, contains('aparelho'));
+    expect(dica.texto, contains('servidor'));
+    expect(dica.texto, contains('Anime4K'));
+    expect(dica.texto, contains('ArtCNN'));
+    expect(dica.texto, contains('NVScaler'));
+    expect(dica.texto, contains('bateria'));
+    expect(dica.texto, contains('Desligado'));
+    expect(dica.texto, contains('Ajustes'));
+    // Sem jargão proibido
+    for (final jargao in ['shader', 'upscale', 'glsl']) {
+      expect(dica.texto.toLowerCase(), isNot(contains(jargao)));
+    }
+  });
+
   testWidgets('dica do player: aparece na primeira vez e some com um toque', (tester) async {
     await tester.pumpWidget(_app(_player()));
     expect(find.byKey(const ValueKey('cgflix-dica-player')), findsOneWidget);

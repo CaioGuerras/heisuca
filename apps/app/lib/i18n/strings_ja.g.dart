@@ -587,8 +587,6 @@ class _Translations$fileInfo$ja extends Translations$fileInfo$en {
 	@override String versionCounter({required Object index, required Object count}) => 'バージョン ${index} / ${count}';
 	@override String fileCounter({required Object index, required Object count}) => 'ファイル ${index} / ${count}';
 	@override String get noStreams => 'サーバーはこのファイルにストリームがないと報告しました。';
-	@override String get copyPath => 'パスをコピー';
-	@override String get pathCopied => 'ファイルパスをコピーしました';
 	@override String get codec => 'コーデック';
 	@override String get codecTag => 'コーデックタグ';
 	@override String get resolution => '解像度';
@@ -648,7 +646,6 @@ class _Translations$fileInfo$ja extends Translations$fileInfo$en {
 	@override String get temporary => '一時的';
 	@override String get timeBase => 'タイムベース';
 	@override String get overallBitrate => '全体ビットレート';
-	@override String get path => 'パス';
 	@override String get fileName => 'ファイル名';
 	@override String get size => 'サイズ';
 	@override String get totalSize => '合計サイズ';
@@ -3483,8 +3480,6 @@ extension on TranslationsJa {
 			'fileInfo.versionCounter' => ({required Object index, required Object count}) => 'バージョン ${index} / ${count}',
 			'fileInfo.fileCounter' => ({required Object index, required Object count}) => 'ファイル ${index} / ${count}',
 			'fileInfo.noStreams' => 'サーバーはこのファイルにストリームがないと報告しました。',
-			'fileInfo.copyPath' => 'パスをコピー',
-			'fileInfo.pathCopied' => 'ファイルパスをコピーしました',
 			'fileInfo.codec' => 'コーデック',
 			'fileInfo.codecTag' => 'コーデックタグ',
 			'fileInfo.resolution' => '解像度',
@@ -3534,10 +3529,10 @@ extension on TranslationsJa {
 			'fileInfo.channels' => 'チャンネル',
 			'fileInfo.sampleRate' => 'サンプルレート',
 			'fileInfo.spatialAudio' => '空間オーディオ',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.textBased' => 'テキストベース',
 			'fileInfo.subtitleFormat' => 'サイドカーフォーマット',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.provider' => 'プロバイダー',
 			'fileInfo.matchScore' => '一致スコア',
 			'fileInfo.externalDelivery' => '個別に配信可能',
@@ -3546,7 +3541,6 @@ extension on TranslationsJa {
 			'fileInfo.temporary' => '一時的',
 			'fileInfo.timeBase' => 'タイムベース',
 			'fileInfo.overallBitrate' => '全体ビットレート',
-			'fileInfo.path' => 'パス',
 			'fileInfo.fileName' => 'ファイル名',
 			'fileInfo.size' => 'サイズ',
 			'fileInfo.totalSize' => '合計サイズ',
@@ -4048,11 +4042,11 @@ extension on TranslationsJa {
 			'libraries.failedToEmptyTrash' => ({required Object error}) => 'ゴミ箱を空にできませんでした: ${error}',
 			'libraries.analyzing' => ({required Object title}) => '「${title}」を解析中…',
 			'libraries.analysisStarted' => ({required Object title}) => '「${title}」の解析を開始しました',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'ライブラリの解析に失敗しました: ${error}',
 			'libraries.noLibrariesFound' => 'ライブラリが見つかりません',
 			'libraries.allLibrariesHidden' => 'すべてのライブラリが非表示です',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.hiddenLibrariesCount' => ({required Object count}) => '非表示のライブラリ (${count})',
 			'libraries.thisLibraryIsEmpty' => 'このライブラリは空です',
 			'libraries.noItemsMatchFilters' => '有効なフィルターに一致する項目はありません',
@@ -4562,11 +4556,11 @@ extension on TranslationsJa {
 			'watchTogether.errors.timedOut' => 'リレーサーバーが時間内に応答しませんでした',
 			'watchTogether.errors.connectionLost' => 'セッションの準備が整う前に接続が閉じられました',
 			'watchTogether.errors.invalidRelayResponse' => 'リレーサーバーから予期しない応答が返されました',
-			_ => null,
-		} ?? switch (path) {
 			'watchTogether.errors.sessionEnded' => 'ホストがセッションを終了しました',
 			'watchTogether.errors.sessionUnavailable' => 'このセッションを再開できません。ルームに参加するか作成して続行してください。',
 			'downloads.title' => 'ダウンロード',
+			_ => null,
+		} ?? switch (path) {
 			'downloads.manage' => '管理',
 			'downloads.tvShows' => 'テレビ番組',
 			'downloads.movies' => '映画',
@@ -5076,11 +5070,11 @@ extension on TranslationsJa {
 			'addServer.quickConnectRejected' => 'Quick Connectがサーバーに拒否されました',
 			'addServer.quickConnectNotJson' => 'Quick Connectのレスポンスが有効なJSONではありません',
 			'addServer.quickConnectMissingFields' => 'Quick Connectのレスポンスにコードまたはシークレットがありません',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.quickConnectPollRejected' => 'Quick Connectのポーリングがサーバーに拒否されました',
 			'addServer.serverTimedOut' => 'サーバーが時間内に応答しませんでした',
 			'addServer.responseNotJson' => 'サーバーのレスポンスが有効なJSONではありません',
+			_ => null,
+		} ?? switch (path) {
 			'addServer.responseMissingIdentity' => ({required Object product}) => 'レスポンスにIDまたはサーバー名がありません。これは${product}サーバーですか？',
 			'addServer.probeFailed' => ({required Object error}) => 'サーバーに接続できませんでした: ${error}',
 			'addServer.enterAtLeastOneUrl' => ({required Object product}) => '${product}サーバーのURLを1つ以上入力してください',

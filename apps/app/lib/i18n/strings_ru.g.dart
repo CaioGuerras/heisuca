@@ -587,8 +587,6 @@ class _Translations$fileInfo$ru extends Translations$fileInfo$en {
 	@override String versionCounter({required Object index, required Object count}) => 'Версия ${index} из ${count}';
 	@override String fileCounter({required Object index, required Object count}) => 'Файл ${index} из ${count}';
 	@override String get noStreams => 'Сервер не сообщил о потоках для этого файла.';
-	@override String get copyPath => 'Копировать путь';
-	@override String get pathCopied => 'Путь к файлу скопирован';
 	@override String get codec => 'Кодек';
 	@override String get codecTag => 'Тег кодека';
 	@override String get resolution => 'Разрешение';
@@ -648,7 +646,6 @@ class _Translations$fileInfo$ru extends Translations$fileInfo$en {
 	@override String get temporary => 'Временный';
 	@override String get timeBase => 'Временная база';
 	@override String get overallBitrate => 'Общий битрейт';
-	@override String get path => 'Путь';
 	@override String get fileName => 'Имя файла';
 	@override String get size => 'Размер';
 	@override String get totalSize => 'Общий размер';
@@ -3516,8 +3513,6 @@ extension on TranslationsRu {
 			'fileInfo.versionCounter' => ({required Object index, required Object count}) => 'Версия ${index} из ${count}',
 			'fileInfo.fileCounter' => ({required Object index, required Object count}) => 'Файл ${index} из ${count}',
 			'fileInfo.noStreams' => 'Сервер не сообщил о потоках для этого файла.',
-			'fileInfo.copyPath' => 'Копировать путь',
-			'fileInfo.pathCopied' => 'Путь к файлу скопирован',
 			'fileInfo.codec' => 'Кодек',
 			'fileInfo.codecTag' => 'Тег кодека',
 			'fileInfo.resolution' => 'Разрешение',
@@ -3567,10 +3562,10 @@ extension on TranslationsRu {
 			'fileInfo.channels' => 'Каналы',
 			'fileInfo.sampleRate' => 'Частота дискретизации',
 			'fileInfo.spatialAudio' => 'Пространственное аудио',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.textBased' => 'Текстовый',
 			'fileInfo.subtitleFormat' => 'Формат файла-спутника',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.provider' => 'Провайдер',
 			'fileInfo.matchScore' => 'Оценка совпадения',
 			'fileInfo.externalDelivery' => 'Может передаваться отдельно',
@@ -3579,7 +3574,6 @@ extension on TranslationsRu {
 			'fileInfo.temporary' => 'Временный',
 			'fileInfo.timeBase' => 'Временная база',
 			'fileInfo.overallBitrate' => 'Общий битрейт',
-			'fileInfo.path' => 'Путь',
 			'fileInfo.fileName' => 'Имя файла',
 			'fileInfo.size' => 'Размер',
 			'fileInfo.totalSize' => 'Общий размер',
@@ -4081,11 +4075,11 @@ extension on TranslationsRu {
 			'libraries.failedToEmptyTrash' => ({required Object error}) => 'Не удалось очистить корзину: ${error}',
 			'libraries.analyzing' => ({required Object title}) => 'Анализ "${title}"...',
 			'libraries.analysisStarted' => ({required Object title}) => 'Анализ начат для "${title}"',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Не удалось проанализировать библиотеку: ${error}',
 			'libraries.noLibrariesFound' => 'Библиотеки не найдены',
 			'libraries.allLibrariesHidden' => 'Все библиотеки скрыты',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.hiddenLibrariesCount' => ({required Object count}) => 'Скрытые библиотеки (${count})',
 			'libraries.thisLibraryIsEmpty' => 'Эта библиотека пуста',
 			'libraries.noItemsMatchFilters' => 'Нет элементов, соответствующих активным фильтрам',
@@ -4595,11 +4589,11 @@ extension on TranslationsRu {
 			'watchTogether.errors.timedOut' => 'Сервер ретрансляции не ответил вовремя',
 			'watchTogether.errors.connectionLost' => 'Соединение закрылось до того, как сессия была готова',
 			'watchTogether.errors.invalidRelayResponse' => 'Сервер ретрансляции прислал неожиданный ответ',
-			_ => null,
-		} ?? switch (path) {
 			'watchTogether.errors.sessionEnded' => 'Организатор завершил сессию',
 			'watchTogether.errors.sessionUnavailable' => 'Не удалось возобновить эту сессию. Присоединитесь к комнате или создайте её, чтобы продолжить.',
 			'downloads.title' => 'Загрузки',
+			_ => null,
+		} ?? switch (path) {
 			'downloads.manage' => 'Управление',
 			'downloads.tvShows' => 'Сериалы',
 			'downloads.movies' => 'Фильмы',
@@ -5109,11 +5103,11 @@ extension on TranslationsRu {
 			'addServer.quickConnectRejected' => 'Quick Connect был отклонён сервером',
 			'addServer.quickConnectNotJson' => 'Ответ Quick Connect не является допустимым JSON',
 			'addServer.quickConnectMissingFields' => 'В ответе Quick Connect отсутствует код или секрет',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.quickConnectPollRejected' => 'Опрос Quick Connect был отклонён сервером',
 			'addServer.serverTimedOut' => 'Сервер не ответил вовремя',
 			'addServer.responseNotJson' => 'Ответ сервера не является допустимым JSON',
+			_ => null,
+		} ?? switch (path) {
 			'addServer.responseMissingIdentity' => ({required Object product}) => 'В ответе отсутствует идентификатор или имя сервера. Это точно сервер ${product}?',
 			'addServer.probeFailed' => ({required Object error}) => 'Не удалось связаться с сервером: ${error}',
 			'addServer.enterAtLeastOneUrl' => ({required Object product}) => 'Введите хотя бы один URL сервера ${product}',

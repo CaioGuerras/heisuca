@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:heisuca/cgflix/cgflix_theme.dart';
+import 'package:heisuca/heisuca/player/heisuca_player_hud.dart';
 import 'package:heisuca/i18n/strings.g.dart';
 import 'package:heisuca/services/settings_service.dart';
 import 'package:heisuca/widgets/overlay_sheet.dart';
@@ -19,7 +20,12 @@ import '../visual/heisuca_snapshot.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  Future<({List<String> calls, List<double> rates})> pumpHud(WidgetTester tester, {bool snapshot = false, EdgeInsets gestures = EdgeInsets.zero}) async {
+  Future<({List<String> calls, List<double> rates})> pumpHud(
+    WidgetTester tester, {
+    bool snapshot = false,
+    EdgeInsets gestures = EdgeInsets.zero,
+    EdgeInsets viewPadding = EdgeInsets.zero,
+  }) async {
     resetSharedPreferencesForTest();
     SettingsService.resetForTesting();
     await SettingsService.getInstance();
@@ -46,7 +52,14 @@ void main() {
     );
     await tester.pumpWidget(ChangeNotifierProvider.value(value: watch, child: MaterialApp(
       debugShowCheckedModeBanner: false,
-      builder: (context, child) => MediaQuery(data: MediaQuery.of(context).copyWith(systemGestureInsets: gestures), child: child!),
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(
+          systemGestureInsets: gestures,
+          viewPadding: viewPadding,
+          padding: viewPadding,
+        ),
+        child: child!,
+      ),
       theme: cgflixAppTheme(CgflixThemeVariant.isis).copyWith(platform: TargetPlatform.android),
       home: Scaffold(backgroundColor: const Color(0xff2a3550), body: OverlaySheetHost(child: MobileVideoControls(
         player: player, heisucaTrackState: state,
@@ -98,5 +111,33 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
     await expectLater(find.byType(MaterialApp), matchesGoldenFile('../visual/out/player_hud.png'));
     await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('F7: player em paisagem com furo/entalhe assimétrico aplica margem horizontal simétrica', (tester) async {
+    await pumpHud(tester, viewPadding: const EdgeInsets.only(left: 48, right: 0));
+    final timeline = tester.getRect(find.byType(TimelineSlider));
+    final leftMargin = timeline.left;
+    final rightMargin = 986 - timeline.right;
+    expect(leftMargin, equals(rightMargin));
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('F7: botões redondos do topo têm centro do ícone igual ao centro do botão (tolerância 1 px)', (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      theme: cgflixAppTheme(CgflixThemeVariant.isis),
+      home: Scaffold(
+        body: Center(
+          child: HeisucaPlayerPill(
+            icon: Symbols.picture_in_picture_alt_rounded,
+            semanticLabel: 'Janelinha',
+            onTap: () {},
+          ),
+        ),
+      ),
+    ));
+    final buttonRect = tester.getRect(find.byType(HeisucaPlayerPill));
+    final iconRect = tester.getRect(find.byIcon(Symbols.picture_in_picture_alt_rounded));
+    expect((buttonRect.center.dx - iconRect.center.dx).abs(), lessThanOrEqualTo(1.0));
+    expect((buttonRect.center.dy - iconRect.center.dy).abs(), lessThanOrEqualTo(1.0));
   });
 }

@@ -587,8 +587,6 @@ class _Translations$fileInfo$tr extends Translations$fileInfo$en {
 	@override String versionCounter({required Object index, required Object count}) => 'Sürüm ${index} / ${count}';
 	@override String fileCounter({required Object index, required Object count}) => 'Dosya ${index} / ${count}';
 	@override String get noStreams => 'Sunucu bu dosya için hiçbir akış bildirmedi.';
-	@override String get copyPath => 'Yolu Kopyala';
-	@override String get pathCopied => 'Dosya yolu kopyalandı';
 	@override String get codec => 'Kodek';
 	@override String get codecTag => 'Codec Etiketi';
 	@override String get resolution => 'Çözünürlük';
@@ -648,7 +646,6 @@ class _Translations$fileInfo$tr extends Translations$fileInfo$en {
 	@override String get temporary => 'Geçici';
 	@override String get timeBase => 'Zaman Tabanı';
 	@override String get overallBitrate => 'Genel Bit Hızı';
-	@override String get path => 'Yol';
 	@override String get fileName => 'Dosya Adı';
 	@override String get size => 'Boyut';
 	@override String get totalSize => 'Toplam Boyut';
@@ -3494,8 +3491,6 @@ extension on TranslationsTr {
 			'fileInfo.versionCounter' => ({required Object index, required Object count}) => 'Sürüm ${index} / ${count}',
 			'fileInfo.fileCounter' => ({required Object index, required Object count}) => 'Dosya ${index} / ${count}',
 			'fileInfo.noStreams' => 'Sunucu bu dosya için hiçbir akış bildirmedi.',
-			'fileInfo.copyPath' => 'Yolu Kopyala',
-			'fileInfo.pathCopied' => 'Dosya yolu kopyalandı',
 			'fileInfo.codec' => 'Kodek',
 			'fileInfo.codecTag' => 'Codec Etiketi',
 			'fileInfo.resolution' => 'Çözünürlük',
@@ -3545,10 +3540,10 @@ extension on TranslationsTr {
 			'fileInfo.channels' => 'Kanallar',
 			'fileInfo.sampleRate' => 'Örnekleme Hızı',
 			'fileInfo.spatialAudio' => 'Uzamsal Ses',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.textBased' => 'Metin Tabanlı',
 			'fileInfo.subtitleFormat' => 'Yan Dosya Biçimi',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.provider' => 'Sağlayıcı',
 			'fileInfo.matchScore' => 'Eşleşme Puanı',
 			'fileInfo.externalDelivery' => 'Ayrı Olarak Sunulabilir',
@@ -3557,7 +3552,6 @@ extension on TranslationsTr {
 			'fileInfo.temporary' => 'Geçici',
 			'fileInfo.timeBase' => 'Zaman Tabanı',
 			'fileInfo.overallBitrate' => 'Genel Bit Hızı',
-			'fileInfo.path' => 'Yol',
 			'fileInfo.fileName' => 'Dosya Adı',
 			'fileInfo.size' => 'Boyut',
 			'fileInfo.totalSize' => 'Toplam Boyut',
@@ -4059,11 +4053,11 @@ extension on TranslationsTr {
 			'libraries.failedToEmptyTrash' => ({required Object error}) => 'Çöp boşaltılamadı: ${error}',
 			'libraries.analyzing' => ({required Object title}) => '"${title}" analiz ediliyor...',
 			'libraries.analysisStarted' => ({required Object title}) => '"${title}" için analiz başladı',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Kitaplık analiz edilemedi: ${error}',
 			'libraries.noLibrariesFound' => 'Kitaplık bulunamadı',
 			'libraries.allLibrariesHidden' => 'Tüm kitaplıklar gizli',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.hiddenLibrariesCount' => ({required Object count}) => 'Gizli kitaplıklar (${count})',
 			'libraries.thisLibraryIsEmpty' => 'Bu kitaplık boş',
 			'libraries.noItemsMatchFilters' => 'Etkin filtrelerle eşleşen öge yok',
@@ -4573,11 +4567,11 @@ extension on TranslationsTr {
 			'watchTogether.errors.timedOut' => 'Aktarıcı sunucusu zamanında yanıt vermedi',
 			'watchTogether.errors.connectionLost' => 'Oturum hazır olmadan bağlantı kapandı',
 			'watchTogether.errors.invalidRelayResponse' => 'Aktarıcı sunucusu beklenmeyen bir yanıt gönderdi',
-			_ => null,
-		} ?? switch (path) {
 			'watchTogether.errors.sessionEnded' => 'Kurucu oturumu sonlandırdı',
 			'watchTogether.errors.sessionUnavailable' => 'Bu oturum sürdürülemiyor. Devam etmek için bir odaya katılın veya oda oluşturun.',
 			'downloads.title' => 'İndirmeler',
+			_ => null,
+		} ?? switch (path) {
 			'downloads.manage' => 'Yönet',
 			'downloads.tvShows' => 'TV Dizileri',
 			'downloads.movies' => 'Filmler',
@@ -5087,11 +5081,11 @@ extension on TranslationsTr {
 			'addServer.quickConnectRejected' => 'Quick Connect sunucu tarafından reddedildi',
 			'addServer.quickConnectNotJson' => 'Quick Connect yanıtı geçerli bir JSON değildi',
 			'addServer.quickConnectMissingFields' => 'Quick Connect yanıtında kod veya gizli anahtar eksik',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.quickConnectPollRejected' => 'Quick Connect yoklaması sunucu tarafından reddedildi',
 			'addServer.serverTimedOut' => 'Sunucu zamanında yanıt vermedi',
 			'addServer.responseNotJson' => 'Sunucu yanıtı geçerli bir JSON değildi',
+			_ => null,
+		} ?? switch (path) {
 			'addServer.responseMissingIdentity' => ({required Object product}) => 'Yanıtta kimlik veya sunucu adı eksik — bu bir ${product} sunucusu mu?',
 			'addServer.probeFailed' => ({required Object error}) => 'Sunucuya ulaşılamadı: ${error}',
 			'addServer.enterAtLeastOneUrl' => ({required Object product}) => 'En az bir ${product} sunucu URL\'si girin',

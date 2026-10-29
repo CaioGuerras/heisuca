@@ -16,7 +16,7 @@ ATENCAO = 'atenção'
 
 # Mesmos arquivos da exceção do HUD do PiP em integration_test/support/pip_overflow_policy.dart.
 # Aqui não há como saber a fase nem a largura da janela, então o overflow continua vermelho; a origem só é anotada.
-ORIGEM_PIP = re.compile(r'video_controls_header\.dart:59:12|mobile_video_controls\.dart:(?:387:16|237:14)')
+ORIGEM_PIP = re.compile(r'video_controls_header\.dart:59:12|mobile_video_controls\.dart:(?:389:16|239:14)')
 
 TEXTO_TECNICO = re.compile(
     r"\b[A-Z][A-Za-z]*Exception\b|\bException:|Failed host lookup|\bTypeError\b|\bNull check operator|type 'Null'|"

@@ -587,8 +587,6 @@ class _Translations$fileInfo$nl extends Translations$fileInfo$en {
 	@override String versionCounter({required Object index, required Object count}) => 'Versie ${index} van ${count}';
 	@override String fileCounter({required Object index, required Object count}) => 'Bestand ${index} van ${count}';
 	@override String get noStreams => 'De server rapporteerde geen streams voor dit bestand.';
-	@override String get copyPath => 'Pad kopiëren';
-	@override String get pathCopied => 'Bestandspad gekopieerd';
 	@override String get codec => 'Codec';
 	@override String get codecTag => 'Codec-tag';
 	@override String get resolution => 'Resolutie';
@@ -648,7 +646,6 @@ class _Translations$fileInfo$nl extends Translations$fileInfo$en {
 	@override String get temporary => 'Tijdelijk';
 	@override String get timeBase => 'Tijdbasis';
 	@override String get overallBitrate => 'Totale bitrate';
-	@override String get path => 'Pad';
 	@override String get fileName => 'Bestandsnaam';
 	@override String get size => 'Grootte';
 	@override String get totalSize => 'Totale grootte';
@@ -3494,8 +3491,6 @@ extension on TranslationsNl {
 			'fileInfo.versionCounter' => ({required Object index, required Object count}) => 'Versie ${index} van ${count}',
 			'fileInfo.fileCounter' => ({required Object index, required Object count}) => 'Bestand ${index} van ${count}',
 			'fileInfo.noStreams' => 'De server rapporteerde geen streams voor dit bestand.',
-			'fileInfo.copyPath' => 'Pad kopiëren',
-			'fileInfo.pathCopied' => 'Bestandspad gekopieerd',
 			'fileInfo.codec' => 'Codec',
 			'fileInfo.codecTag' => 'Codec-tag',
 			'fileInfo.resolution' => 'Resolutie',
@@ -3545,10 +3540,10 @@ extension on TranslationsNl {
 			'fileInfo.channels' => 'Kanalen',
 			'fileInfo.sampleRate' => 'Samplingsnelheid',
 			'fileInfo.spatialAudio' => 'Ruimtelijke audio',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.textBased' => 'Op tekst gebaseerd',
 			'fileInfo.subtitleFormat' => 'Sidecar-formaat',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.provider' => 'Provider',
 			'fileInfo.matchScore' => 'Matchscore',
 			'fileInfo.externalDelivery' => 'Kan afzonderlijk worden geleverd',
@@ -3557,7 +3552,6 @@ extension on TranslationsNl {
 			'fileInfo.temporary' => 'Tijdelijk',
 			'fileInfo.timeBase' => 'Tijdbasis',
 			'fileInfo.overallBitrate' => 'Totale bitrate',
-			'fileInfo.path' => 'Pad',
 			'fileInfo.fileName' => 'Bestandsnaam',
 			'fileInfo.size' => 'Grootte',
 			'fileInfo.totalSize' => 'Totale grootte',
@@ -4059,11 +4053,11 @@ extension on TranslationsNl {
 			'libraries.failedToEmptyTrash' => ({required Object error}) => 'Kon prullenbak niet legen: ${error}',
 			'libraries.analyzing' => ({required Object title}) => 'Analyseren "${title}"...',
 			'libraries.analysisStarted' => ({required Object title}) => 'Analyse gestart voor "${title}"',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Kon bibliotheek niet analyseren: ${error}',
 			'libraries.noLibrariesFound' => 'Geen bibliotheken gevonden',
 			'libraries.allLibrariesHidden' => 'Alle bibliotheken zijn verborgen',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.hiddenLibrariesCount' => ({required Object count}) => 'Verborgen bibliotheken (${count})',
 			'libraries.thisLibraryIsEmpty' => 'Deze bibliotheek is leeg',
 			'libraries.noItemsMatchFilters' => 'Geen items komen overeen met de actieve filters',
@@ -4573,11 +4567,11 @@ extension on TranslationsNl {
 			'watchTogether.errors.timedOut' => 'De relayserver heeft niet op tijd gereageerd',
 			'watchTogether.errors.connectionLost' => 'De verbinding is verbroken voordat de sessie gereed was',
 			'watchTogether.errors.invalidRelayResponse' => 'De relayserver heeft een onverwacht antwoord verzonden',
-			_ => null,
-		} ?? switch (path) {
 			'watchTogether.errors.sessionEnded' => 'De host heeft de sessie beëindigd',
 			'watchTogether.errors.sessionUnavailable' => 'Kan deze sessie niet hervatten. Neem deel aan of maak een kamer om door te gaan.',
 			'downloads.title' => 'Downloads',
+			_ => null,
+		} ?? switch (path) {
 			'downloads.manage' => 'Beheren',
 			'downloads.tvShows' => 'Series',
 			'downloads.movies' => 'Films',
@@ -5087,11 +5081,11 @@ extension on TranslationsNl {
 			'addServer.quickConnectRejected' => 'Quick Connect is door de server geweigerd',
 			'addServer.quickConnectNotJson' => 'Het Quick Connect-antwoord was geen geldige JSON',
 			'addServer.quickConnectMissingFields' => 'In het Quick Connect-antwoord ontbreekt een code of geheim',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.quickConnectPollRejected' => 'Quick Connect-polling is door de server geweigerd',
 			'addServer.serverTimedOut' => 'De server heeft niet op tijd gereageerd',
 			'addServer.responseNotJson' => 'Het serverantwoord was geen geldige JSON',
+			_ => null,
+		} ?? switch (path) {
 			'addServer.responseMissingIdentity' => ({required Object product}) => 'In het antwoord ontbreekt een ID of servernaam — is dit een ${product}-server?',
 			'addServer.probeFailed' => ({required Object error}) => 'Kon de server niet bereiken: ${error}',
 			'addServer.enterAtLeastOneUrl' => ({required Object product}) => 'Voer ten minste één URL van een ${product}-server in',

@@ -546,8 +546,9 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
   }
 
   /// Wraps [child] in a SafeArea: full insets in portrait, horizontal-only in
-  /// landscape with symmetric margins = max(left, right) of viewPadding to keep
-  /// controls centered on notched or punch-hole screens.
+  /// landscape. Em paisagem a margem é simétrica, max(esquerda, direita): com a
+  /// câmera num lado só (Edge 60 Pro), os controles ficam centrados na tela.
+  /// O SafeArea consome o recuo, para nenhum filho reaplicar só o lado da câmera.
   Widget _conditionalSafeArea({
     required BuildContext context,
     required Widget child,
@@ -559,13 +560,11 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
     if (isPortrait) {
       return SafeArea(top: top, bottom: bottom, child: child);
     }
-    final gestureInsets = mediaQuery.systemGestureInsets;
-    final maxHorizontal = math.max(
-      math.max(mediaQuery.viewPadding.left, mediaQuery.viewPadding.right),
-      math.max(gestureInsets.left, gestureInsets.right),
-    );
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: maxHorizontal),
+    final lado = math.max(mediaQuery.padding.left, mediaQuery.padding.right);
+    return SafeArea(
+      top: false,
+      bottom: false,
+      minimum: EdgeInsets.symmetric(horizontal: lado),
       child: child,
     );
   }

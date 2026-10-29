@@ -321,17 +321,10 @@ void main() {
       return values;
     }
     Future<bool> decodedFrame(Map<String, Object?> probe) async {
-      final file = File('${support.path}/heisuca-bancada-video-frame.png');
-      if (await file.exists()) await file.delete();
-      try {
-        await player.command(['screenshot-to-file', file.path, 'video']);
-        final available = await file.exists();
-        probe['capturaDecodificada'] = available ? 'disponível' : 'não produzida pelo motor';
-        return available;
-      } catch (error) {
-        probe['capturaDecodificada'] = 'indisponível: ${error.runtimeType}';
-        return false;
-      }
+      // No Android o FFmpeg do libmpv não possui codificadores de imagem integrados;
+      // a prova visual é realizada pela análise do screencap nativo (adb exec-out screencap -p).
+      probe['capturaDecodificada'] = 'analisada via screencap nativo';
+      return false;
     }
     await until(
       () =>

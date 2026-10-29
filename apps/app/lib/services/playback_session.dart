@@ -85,6 +85,8 @@ class PlaybackSession {
 
   int get mediaIndex => context.result.selectedMediaIndex;
 
+  MediaVersion? get selectedVersion => context.result.selectedVersion;
+
   List<MediaVersion> get availableVersions => context.result.availableVersions;
 
   MediaSourceInfo? get mediaInfo => context.result.mediaInfo;

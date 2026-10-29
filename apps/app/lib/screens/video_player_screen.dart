@@ -81,6 +81,7 @@ import '../providers/shader_provider.dart';
 import '../providers/account_preferences_controller.dart';
 import '../utils/app_logger.dart';
 import '../utils/dialogs.dart';
+import '../services/media_source_ranker.dart';
 import '../utils/log_redaction_manager.dart';
 import '../utils/immersive_mode_guard.dart';
 import '../utils/live_tv_player_navigation.dart';
@@ -870,6 +871,8 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
   bool _showStillWatchingPrompt = false;
   final ValueNotifier<int> _stillWatchingCountdown = ValueNotifier<int>(30);
   Timer? _stillWatchingTimer;
+  Timer? _renderWatchdogTimer;
+  bool _renderWatchdogDisarmed = false;
   late final FocusNode _stillWatchingPauseFocusNode;
   late final FocusNode _stillWatchingContinueFocusNode;
 
@@ -2477,6 +2480,7 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
     _tvSuspend.dispose();
 
     _stillWatchingTimer?.cancel();
+    _renderWatchdogTimer?.cancel();
     _stillWatchingCountdown.dispose();
 
     _liveSeek.dispose();
@@ -2922,6 +2926,7 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
     _tvSuspend.cancelGrace();
     _episode.autoPlayTimer?.cancel();
     _stillWatchingTimer?.cancel();
+    _renderWatchdogTimer?.cancel();
     _abortCurrentOpen('playback shutdown');
     _liveSeek.cancel();
     _relativeSkip.cancel();

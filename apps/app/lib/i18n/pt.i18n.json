@@ -849,7 +849,11 @@
     "streamSelectionUnavailable": "Não dá para trocar áudio ou legenda neste vídeo",
     "streamSelectionFailed": "Não deu para trocar o áudio ou a legenda. Tente de novo.",
     "trackSelectionNotRemembered": "Esta escolha de áudio ou legenda vale só para este vídeo.",
-    "serverUnavailableForProfile": "Nenhum servidor disponível para este perfil"
+    "serverUnavailableForProfile": "Nenhum servidor disponível para este perfil",
+    "unplayableMediaTitle": "Este aparelho não consegue tocar este arquivo",
+    "unplayableMediaPlayVersion": "Tocar versão ${resolution}",
+    "unplayableMediaTryAnyway": "Tentar assim mesmo",
+    "unplayableMediaBack": "Voltar"
   },
   "subtitlingStyling": {
     "text": "Texto",

@@ -48,6 +48,7 @@ import '../models/transcode_quality_preset.dart';
 import '../media/media_source_info.dart';
 import '../media/media_sort.dart';
 import '../media/media_version.dart';
+import 'media_source_ranker.dart';
 import '../utils/app_logger.dart';
 import '../utils/device_identity.dart';
 import '../utils/failover_http_client.dart';

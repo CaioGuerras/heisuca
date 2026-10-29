@@ -2484,6 +2484,18 @@ class Translations$messages$en {
 
 	/// en: 'No server is available for the active profile'
 	String get serverUnavailableForProfile => 'No server is available for the active profile';
+
+	/// en: 'This device cannot play this file'
+	String get unplayableMediaTitle => 'This device cannot play this file';
+
+	/// en: 'Play ${resolution} version'
+	String unplayableMediaPlayVersion({required Object resolution}) => 'Play ${resolution} version';
+
+	/// en: 'Try anyway'
+	String get unplayableMediaTryAnyway => 'Try anyway';
+
+	/// en: 'Go back'
+	String get unplayableMediaBack => 'Go back';
 }
 
 // Path: subtitlingStyling
@@ -8136,6 +8148,10 @@ extension on Translations {
 			'messages.streamSelectionFailed' => 'Could not apply the selected streams',
 			'messages.trackSelectionNotRemembered' => 'This track choice applies to the current playback only.',
 			'messages.serverUnavailableForProfile' => 'No server is available for the active profile',
+			'messages.unplayableMediaTitle' => 'This device cannot play this file',
+			'messages.unplayableMediaPlayVersion' => ({required Object resolution}) => 'Play ${resolution} version',
+			'messages.unplayableMediaTryAnyway' => 'Try anyway',
+			'messages.unplayableMediaBack' => 'Go back',
 			'subtitlingStyling.text' => 'Text',
 			'subtitlingStyling.border' => 'Border',
 			'subtitlingStyling.background' => 'Background',
@@ -8357,12 +8373,12 @@ extension on Translations {
 			'errors.reasonServerError' => 'the server reported an error',
 			'errors.reasonCancelled' => 'the request was cancelled',
 			'errors.reasonUnexpected' => 'an unexpected error occurred',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.title' => 'Libraries',
 			'libraries.fallbackTitle' => 'Library',
 			'libraries.scanLibraryFiles' => 'Scan Library Files',
 			'libraries.scanLibrary' => 'Scan Library',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.analyze' => 'Analyze',
 			'libraries.analyzeLibrary' => 'Analyze Library',
 			'libraries.refreshMetadata' => 'Refresh Metadata',
@@ -8871,12 +8887,12 @@ extension on Translations {
 			'watchTogether.endSessionQuestion' => 'End Session?',
 			'watchTogether.leaveSessionQuestion' => 'Leave Session?',
 			'watchTogether.endSessionConfirm' => 'This will end the session for all participants.',
+			_ => null,
+		} ?? switch (path) {
 			'watchTogether.leaveSessionConfirm' => 'You will be removed from the session.',
 			'watchTogether.endSessionConfirmOverlay' => 'This will end the watch session for all participants.',
 			'watchTogether.leaveSessionConfirmOverlay' => 'You will be disconnected from the watch session.',
 			'watchTogether.end' => 'End',
-			_ => null,
-		} ?? switch (path) {
 			'watchTogether.leave' => 'Leave',
 			'watchTogether.syncing' => 'Syncing...',
 			'watchTogether.joinWatchSession' => 'Join Watch Session',
@@ -9385,12 +9401,12 @@ extension on Translations {
 			'services.deviceCode.waitingForAuthorization' => 'Waiting for authorization…',
 			'services.deviceCode.codeCopied' => 'Code copied',
 			'services.oauthProxy.title' => ({required Object service}) => 'Sign in to ${service}',
+			_ => null,
+		} ?? switch (path) {
 			'services.oauthProxy.body' => 'Scan this QR code or open the URL on any device.',
 			'services.oauthProxy.openToSignIn' => ({required Object service}) => 'Open ${service} to sign in',
 			'services.pendingAuth.copyUrl' => 'Copy sign-in URL',
 			'services.pendingAuth.urlCopied' => 'URL copied',
-			_ => null,
-		} ?? switch (path) {
 			'services.libraryFilter.title' => 'Library filter',
 			'services.libraryFilter.subtitleAllSyncing' => 'Syncing all libraries',
 			'services.libraryFilter.subtitleNoneSyncing' => 'Nothing syncing',

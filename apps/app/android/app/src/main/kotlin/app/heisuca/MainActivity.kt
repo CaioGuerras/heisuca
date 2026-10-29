@@ -926,7 +926,15 @@ class MainActivity : FlutterActivity() {
         "getDeviceName" -> result.success(getDeviceName())
         "getPerformanceSignals" -> result.success(getPerformanceSignals())
         "getHeisucaDeviceProfile" -> result.success(getHeisucaDeviceProfile())
-        "getVideoDecodeCapabilities" -> result.success(MediaCodecQuery.hardwareVideoDecodeSupport())
+        "getVideoDecodeCapabilities" -> {
+          val display = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            runCatching { this.display }.getOrNull()
+          } else {
+            @Suppress("DEPRECATION")
+            windowManager.defaultDisplay
+          }
+          result.success(MediaCodecQuery.queryCapabilities(display))
+        }
         "getBackgroundWorkSignals" -> result.success(
           BackgroundWorkClassifier.toMap(BackgroundWorkDiagnostics.read(this))
         )

@@ -256,6 +256,47 @@ extension _VideoPlayerPlaybackStartMethods on VideoPlayerScreenState {
       Duration? resumePosition;
       MediaServerClient? mediaClientForTracks;
 
+      if (!_renderWatchdogDisarmed && result.selectedVersion != null && !isVersionPlayable(result.selectedVersion!)) {
+        final selectedVersion = result.selectedVersion!;
+        final formatReason = formatVersionReason(selectedVersion);
+        MediaVersion? altVersion;
+        int? altIndex;
+        for (var i = 0; i < result.availableVersions.length; i++) {
+          final v = result.availableVersions[i];
+          if (v.id != selectedVersion.id && isVersionPlayable(v)) {
+            altVersion = v;
+            altIndex = i;
+            break;
+          }
+        }
+        final altRes = altVersion?.videoResolution ??
+            (altVersion?.height != null ? '${altVersion!.height}p' : null);
+
+        if (!mounted || !attempt.isCurrent) return;
+
+        final action = await showUnplayableMediaDialog(
+          context,
+          formatReason: formatReason,
+          alternativeResolution: altRes,
+        );
+
+        if (!attempt.isCurrent || !mounted) return;
+
+        if (action == UnplayableMediaAction.back) {
+          unawaited(_handleBackButton());
+          return;
+        } else if (action == UnplayableMediaAction.playVersion && altIndex != null) {
+          _requestedMediaSourceId = altVersion?.id;
+          unawaited(_reloadMediaInPlace(
+            metadata: _currentMetadata,
+            selectedMediaIndex: altIndex,
+            selectedMediaSourceId: altVersion?.id,
+            reason: 'unplayable version alternative',
+          ));
+          return;
+        }
+      }
+
       // A null result (staleness guard or hook aborted the flow) needs no
       // handling here: the finally below is the only post-open work.
       await _openResolvedMedia(
@@ -299,6 +340,7 @@ extension _VideoPlayerPlaybackStartMethods on VideoPlayerScreenState {
           return mounted && player == currentPlayer;
         },
         afterMediaOpened: (shouldAutoPlay, holdPlaybackStart, wtOwnsStart) async {
+          _armPlaybackRenderWatchdog(currentPlayer, attempt.generation);
           // Attach player to Watch Together session for sync (if in session).
           // With a frame-rate startup gate pending, sync readiness waits for
           // its release so the group start can't fire mid display switch.

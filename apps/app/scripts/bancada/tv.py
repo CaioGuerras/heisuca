@@ -26,7 +26,7 @@ from desastre import (
     parse_uiautomator,
     reconhecer_anr,
 )
-from servidor import Servidor, limpar_log
+from servidor import BancadaIndisponivel, Servidor, limpar_log, selecionar
 import ui
 from ui import (
     CONTA,
@@ -455,7 +455,7 @@ def preencher_campo_tv(rotulo, valor, registrar=None):
     return False
 
 
-def fazer_login_tv(base, registrar=None):
+def fazer_login_tv(base, conta=CONTA, registrar=None):
     """Realiza autenticação completa na TV com fechamento de teclado e espera pelo menu lateral."""
     rec = registrar or (lambda msg: None)
     for tentativa in range(1, 26):
@@ -476,7 +476,7 @@ def fazer_login_tv(base, registrar=None):
     rec('Preenchendo campos de login...')
     if not preencher_campo_tv('SERVIDOR', base, registrar=lambda step, n: rec(f'login: {step}')):
         return False
-    if not preencher_campo_tv('USUÁRIO', CONTA, registrar=lambda step, n: rec(f'login: {step}')):
+    if not preencher_campo_tv('USUÁRIO', conta, registrar=lambda step, n: rec(f'login: {step}')):
         return False
     if not preencher_campo_tv('SENHA', '', registrar=lambda step, n: rec(f'login: {step}')):
         return False
@@ -506,7 +506,7 @@ def fazer_login_tv(base, registrar=None):
     return False
 
 
-def percorrer_tv(base, perfil='googletv-36', out_dir=None, registrar=None):
+def percorrer_tv(base, perfil='googletv-36', out_dir=None, registrar=None, conta=CONTA):
     """Executa o roteiro completo de TV navegando somente via controle remoto."""
     rec = registrar or (lambda msg: print(f'[TV-0] {msg}', flush=True))
     out = Path(out_dir or (DEFAULT_OUT / perfil))
@@ -562,9 +562,9 @@ def percorrer_tv(base, perfil='googletv-36', out_dir=None, registrar=None):
     abrir_app_tv(registrar=rec)
     time.sleep(3)
 
-    # 3. Login pela interface com a conta dedicada
+    # 3. Login pela interface com a conta escolhida (sem senha)
     rec('Autenticando via tela com a conta de teste...')
-    sucesso_login = fazer_login_tv(base, registrar=rec)
+    sucesso_login = fazer_login_tv(base, conta=conta, registrar=rec)
     if not sucesso_login:
         cap_fail = out / '00_falha_login.png'
         capturar_png(cap_fail)
@@ -1091,7 +1091,16 @@ def main():
     out = Path(args.saida) if args.saida else (DEFAULT_OUT / args.perfil)
     out.mkdir(parents=True, exist_ok=True)
 
-    relatorio = percorrer_tv(base, perfil=args.perfil, out_dir=out)
+    # A `teste-sem-senha` não tem bibliotecas (de propósito): o Início fica vazio e o percurso para.
+    # Mesma regra da bancada do celular: conta do rodízio livre e com vídeo seguro (run 41073856934).
+    try:
+        cliente, conta, _video = selecionar(base, contas)
+        cliente.logout()
+    except BancadaIndisponivel as erro:
+        relatorio = {'perfil': args.perfil, 'estado': VERMELHO, 'motivo': str(erro), 'telas': [], 'achados': []}
+    else:
+        relatorio = percorrer_tv(base, perfil=args.perfil, out_dir=out, conta=conta)
+        relatorio['conta'] = 'dedicada' if conta.lower() == CONTA else 'rodízio'
 
     json_str = limpo(json.dumps(relatorio, ensure_ascii=False, indent=2))
     (out / 'relatorio.json').write_text(json_str)

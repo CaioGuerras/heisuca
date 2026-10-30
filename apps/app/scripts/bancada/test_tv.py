@@ -1,4 +1,5 @@
 import io
+import tempfile
 import json
 from pathlib import Path
 import unittest
@@ -282,6 +283,24 @@ class TestTvBancada(unittest.TestCase):
         res = tv.percorrer_tv('http://teste:8096', perfil='firetv-11')
         self.assertEqual(res['estado'], VERMELHO)
         self.assertEqual(res['achados'][0]['codigo'], 'sem-leanback')
+
+    @patch('tv.percorrer_tv')
+    @patch('tv.selecionar')
+    def test_main_percorre_com_conta_do_rodizio(self, mock_selecionar, mock_percorrer):
+        # A teste-sem-senha não tem bibliotecas: o percurso usa a conta livre com vídeo (run 41073856934).
+        cliente = Mock()
+        mock_selecionar.return_value = (cliente, 'conta-rodizio', {'Id': 'x'})
+        mock_percorrer.return_value = {'perfil': 'googletv-36', 'estado': VERDE, 'telas': [], 'achados': []}
+        ambiente = {'HEISUCA_TESTE_SERVIDOR': 'http://teste:8096', 'HEISUCA_TESTE_CONTAS': 'teste-sem-senha\nconta-rodizio'}
+        with tempfile.TemporaryDirectory() as pasta, patch.dict('os.environ', ambiente), \
+                patch('sys.argv', ['tv.py', '--saida', pasta]), patch('tv.ROOT', Path(pasta)):
+            tv.main()
+            relatorio = json.loads((Path(pasta) / 'relatorio.json').read_text())
+        mock_selecionar.assert_called_once_with('http://teste:8096', ['teste-sem-senha', 'conta-rodizio'])
+        cliente.logout.assert_called_once()
+        self.assertEqual(mock_percorrer.call_args.kwargs['conta'], 'conta-rodizio')
+        self.assertEqual(relatorio['conta'], 'rodízio')
+        self.assertNotIn('conta-rodizio', json.dumps(relatorio))
 
     @patch('tv.checar_leanback')
     @patch('tv.achar_apk')

@@ -12,6 +12,7 @@ from tv import (
     VERDE,
     VERMELHO,
     achar_apk,
+    avaliar_retorno_da_busca,
     captura_mudou,
     checar_leanback,
     checar_saude,
@@ -210,6 +211,16 @@ class TestTvBancada(unittest.TestCase):
 
         self.assertIsNone(reconhecer_tela_tv([{'text': 'Outra tela'}]))
         self.assertIsNone(reconhecer_tela_tv([{'desc': '▶  Assistir'}, {'desc': 'Episódios'}]))
+
+    def test_retorno_da_busca_exige_inicio(self):
+        # 47df8a9: o BACK saía da Busca, mas a bancada não conferia e o passo seguinte falhava às cegas.
+        inicio = [{'desc': '▶  Assistir', 'cls': 'android.widget.Button'}, {'desc': 'Detalhes', 'cls': 'android.widget.Button'}]
+        self.assertIsNone(avaliar_retorno_da_busca(inicio))
+        busca = [{'hint': 'Buscar', 'cls': 'android.widget.EditText', 'focused': True}, {'text': 'Filmes'}]
+        achado = avaliar_retorno_da_busca(busca)
+        self.assertEqual(achado['gravidade'], 'vermelho')
+        self.assertEqual(achado['codigo'], 'busca-presa')
+        self.assertEqual(avaliar_retorno_da_busca([])['codigo'], 'busca-presa')
 
     @patch('tv.back')
     @patch('tv.dump_tv')

@@ -409,6 +409,21 @@ def reconhecer_tela_tv(nos):
     return None
 
 
+def avaliar_retorno_da_busca(nos):
+    """Achado quando o BACK não leva da Busca ao Início (campo de texto na tela conta como preso).
+
+    Antes de 30/10 a bancada só conferia a saúde e dava verde com o app preso na Busca: o OK
+    seguinte reabria o teclado e o passo das Configurações falhava sem apontar a causa.
+    """
+    if reconhecer_tela_tv(nos) != 'inicio':
+        return {
+            'gravidade': VERMELHO,
+            'codigo': 'busca-presa',
+            'detalhe': 'BACK na Busca não voltou ao Início',
+        }
+    return None
+
+
 def voltar_ao_inicio(max_backs=4, espera=2.0):
     """Um BACK por vez até reconhecer o Início; nunca dá BACK no Início (fecha o app).
 
@@ -1039,7 +1054,7 @@ def percorrer_tv(base, perfil='googletv-36', out_dir=None, registrar=None, conta
 
     # A Busca abre com o teclado: o 1º BACK só o fecha (Google TV, 30/10).
     nos_pos_back, _ = voltar_ao_inicio()
-    erro_back = checar_saude(nos_pos_back, 'BACK na Busca')
+    erro_back = checar_saude(nos_pos_back, 'BACK na Busca') or avaliar_retorno_da_busca(nos_pos_back)
     if erro_back:
         achados_busca.append(erro_back)
         back_retorna_busca = False

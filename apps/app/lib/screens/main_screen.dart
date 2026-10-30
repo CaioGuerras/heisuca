@@ -1573,7 +1573,14 @@ class _MainScreenState extends State<MainScreen>
 
   /// TV: volta à aba Início (a TV não tem barra lateral para onde o BACK levaria).
   void _goHomeTab() {
-    if (_currentTab != _homeTab) _selectTab(_homeTab);
+    if (_currentTab == _homeTab) return;
+    _selectTab(_homeTab);
+    // O Início da TV não é FocusableTab, então o _selectTab não move o foco: ele ficava no campo da Busca,
+    // montado fora da tela no IndexedStack, e o OK seguinte reabria o teclado lá (bancada da TV, 30/10).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final homeState = _screenKeys[NavigationTabId.discover]?.currentState;
+      if (homeState is HeisucaTvHomeScreenState) homeState.scrollToDestaqueAndFocus();
+    });
   }
 
   KeyEventResult _handleTvBack() {

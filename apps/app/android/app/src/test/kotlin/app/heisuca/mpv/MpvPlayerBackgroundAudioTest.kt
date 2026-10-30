@@ -13,39 +13,6 @@ import java.util.concurrent.ConcurrentLinkedQueue
 
 @RunWith(RobolectricTestRunner::class)
 class MpvPlayerBackgroundAudioTest {
-  @Test fun reativarAudioAguardaSuperficieRealQuandoVisivel() {
-    val operations = ConcurrentLinkedQueue<String>()
-    val core = MpvPlayerCore(Robolectric.buildActivity(Activity::class.java).setup().get(),
-      audioOnly = false,
-      propertyWriter = { key, value -> operations.add("$key=$value"); Unit },
-      commandRunner = { args -> operations.add(args.joinToString(" ")); null })
-    core.propertyReaderOverride = { "7" }
-    try {
-      assertTrue(change(core, true).isSuccess)
-      operations.clear()
-
-      core.setVisible(true)
-      shadowOf(Looper.getMainLooper()).idle()
-
-      var restored = false
-      core.setBackgroundAudio(false) { restored = it.isSuccess }
-      shadowOf(Looper.getMainLooper()).idle()
-      Thread.sleep(20)
-
-      assertFalse("vid não deve ser restaurado antes da superfície real", operations.contains("vid=7"))
-
-      core.notifyRealSurfaceAttached()
-      val deadline = System.nanoTime() + 2_000_000_000L
-      while (!restored && System.nanoTime() < deadline) {
-        shadowOf(Looper.getMainLooper()).idle()
-        Thread.sleep(5)
-      }
-      assertTrue("deve confirmar restauro após sinal da superfície", restored)
-      assertTrue("vid deve ser restaurado após superfície", operations.contains("vid=7"))
-      assertTrue("seek deve ser chamado após superfície", operations.contains("seek 0 relative exact"))
-    } finally { core.dispose() }
-  }
-
   @Test fun superficieRealAposPlaceholderComVidAtivoExecutaSeek() {
     val operations = ConcurrentLinkedQueue<String>()
     val core = MpvPlayerCore(Robolectric.buildActivity(Activity::class.java).setup().get(),

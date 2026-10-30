@@ -17,8 +17,25 @@ Map<String, Object?>? pipHudWarning(FlutterErrorDetails details, {
       !width.isFinite || !height.isFinite || width <= 0 || width > 320 || height <= 0) return null;
   final message = details.exceptionAsString();
   if (!message.startsWith('A RenderFlex overflowed by ')) return null;
-  final source = details.toDiagnosticsNode().toStringDeep();
+  String source;
+  try {
+    source = details.toDiagnosticsNode().toStringDeep();
+  } catch (_) {
+    final buffer = StringBuffer();
+    if (details.context != null) buffer.writeln(details.context.toString());
+    if (details.informationCollector != null) {
+      try {
+        for (final node in details.informationCollector!()) {
+          buffer.writeln(node.toStringDeep());
+        }
+      } catch (_) {}
+    }
+    buffer.writeln(message);
+    source = buffer.toString();
+  }
   if (!knownPipHudOverflow(message: message, source: source, phase: phase, width: width, height: height)) return null;
-  final widget = RegExp(r'(video_controls_header\.dart:59:12|mobile_video_controls\.dart:(?:389:16|239:14))').firstMatch(source)!.group(1);
+  final match = RegExp(r'(video_controls_header\.dart:59:12|mobile_video_controls\.dart:(?:389:16|239:14))').firstMatch(source);
+  if (match == null) return null;
+  final widget = match.group(1);
   return {'tipo': 'overflow HUD PiP', 'widget': widget, 'fase': phase, 'larguraDp': width, 'alturaDp': height};
 }

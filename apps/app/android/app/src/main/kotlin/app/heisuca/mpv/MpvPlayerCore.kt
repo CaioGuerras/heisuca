@@ -2100,7 +2100,6 @@ class MpvPlayerCore private constructor(
           }
           applyVideoRectLayout(force = needsAttach)
           videoOutputRestoring = false
-          notifyRealSurfaceAttached()
           applyDeferredResumeIfNeeded(p, reason)
           if (wasPausedForSurfaceLoss) {
             pausedForSurfaceLoss = false
@@ -2221,7 +2220,6 @@ class MpvPlayerCore private constructor(
           attachedOsdSurface = osd
           hasAttachedSurface = true
           attachedToPlaceholder = isPlaceholder
-          if (isPlaceholder) invalidateRealSurfaceSignal()
           lastAppliedSurfaceSize = null
           // The Android destruction barrier covers consumer retirement only.
           // Pause, sizing and resume must not keep its main-thread caller waiting.
@@ -3042,58 +3040,16 @@ class MpvPlayerCore private constructor(
 
   @Volatile private var backgroundVideoTrack: String? = null
   @Volatile var continueListeningAllowed: Boolean = false
-  @Volatile internal var renderVisible: Boolean = false
-  @Volatile private var realSurfaceAttachedSignal: CompletableDeferred<Unit>? = null
-
-  internal fun notifyRealSurfaceAttached() {
-    synchronized(this) {
-      realSurfaceAttachedSignal?.complete(Unit)
-      realSurfaceAttachedSignal = null
-    }
-  }
-
-  internal fun invalidateRealSurfaceSignal() {
-    synchronized(this) {
-      if (realSurfaceAttachedSignal?.isCompleted == true) {
-        realSurfaceAttachedSignal = null
-      }
-    }
-  }
 
   fun setBackgroundAudio(enabled: Boolean, onComplete: (Result<Unit>) -> Unit) {
-    if (!enabled && backgroundVideoTrack != null && !audioOnly) {
-      scope.launch {
-        try {
-          if (renderVisible && (!hasAttachedRealSurface() || videoOutputRestoring)) {
-            val signal = synchronized(this@MpvPlayerCore) {
-              if (hasAttachedRealSurface() && !videoOutputRestoring) null
-              else realSurfaceAttachedSignal ?: CompletableDeferred<Unit>().also { realSurfaceAttachedSignal = it }
-            }
-            if (signal != null) {
-              PlayerDebugLog.d(TAG) { "Aguardando anexação da superfície real antes de restaurar vid..." }
-              withTimeoutOrNull(2_000L) {
-                signal.await()
-              }
-            }
-          }
-        } catch (e: Exception) {
-          PlayerDebugLog.d(TAG) { "Exceção ao aguardar superfície real: ${e.message}" }
-        }
-        submitMpvOperation(writeOperations, "áudio fora do app", onComplete) {
-          restoreBackgroundAudioVid()
-        }
-      }
-    } else {
-      submitMpvOperation(writeOperations, "áudio fora do app", onComplete) {
-        if (enabled && backgroundVideoTrack == null) {
-          val previous = readProperty("vid") ?: error("Faixa de vídeo indisponível")
-          writeProperty("vid", "no")
-          backgroundVideoTrack = previous
-          invalidateRealSurfaceSignal()
-          PlayerDebugLog.d(TAG) { "vid desativado para áudio fora do app: previous=$previous" }
-        } else if (!enabled) {
-          restoreBackgroundAudioVid()
-        }
+    submitMpvOperation(writeOperations, "áudio fora do app", onComplete) {
+      if (enabled && backgroundVideoTrack == null) {
+        val previous = readProperty("vid") ?: error("Faixa de vídeo indisponível")
+        writeProperty("vid", "no")
+        backgroundVideoTrack = previous
+        PlayerDebugLog.d(TAG) { "vid desativado para áudio fora do app: previous=$previous" }
+      } else if (!enabled) {
+        restoreBackgroundAudioVid()
       }
     }
   }
@@ -3102,6 +3058,15 @@ class MpvPlayerCore private constructor(
     backgroundVideoTrack?.let { previous ->
       writeProperty("vid", previous)
       PlayerDebugLog.d(TAG) { "vid restaurado: previous=$previous attachedToPlaceholder=$attachedToPlaceholder hasRealSurface=${hasAttachedRealSurface()}" }
+      try {
+        val p = player
+        if (p != null) {
+          applySurfaceSizeInternal(p, force = true)
+          applyVideoRectLayout(force = true)
+        }
+      } catch (e: Exception) {
+        Log.w(TAG, "Failed to reapply surface size after vid restore", e)
+      }
       // Com vid=no, o áudio avança sem a cadeia de vídeo. Ao reativar,
       // ressincroniza no ponto atual (sem mudar faixa nem estado de pausa),
       // como rebuildVideoOutput faz após reconstruir com a faixa suspensa.
@@ -3113,7 +3078,6 @@ class MpvPlayerCore private constructor(
   override fun setVisible(visible: Boolean) {
     // Audio-only: no render layer to show or hide — tolerated no-op.
     if (audioOnly || disposing) return
-    renderVisible = visible
     runOnMain {
       if (disposing) return@runOnMain
       surfaceContainer?.visibility = if (visible) View.VISIBLE else View.INVISIBLE

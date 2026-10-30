@@ -35,4 +35,33 @@ void main() {
       expect(allowed(width: 321), isFalse);
     });
   }
+
+  test('trata exceção ao inspecionar elemento já descartado (disposed RenderFlex)', () {
+    final details = _ThrowingDiagnosticsFlutterErrorDetails(
+      exception: FlutterError('A RenderFlex overflowed by 10 pixels on the bottom.'),
+      library: 'rendering library',
+      informationCollector: () => [
+        ErrorDescription('The overflowed RenderFlex was: RenderFlex#527a5 relayoutBoundary=up1 DISPOSED OVERFLOWING'),
+        ErrorDescription('creator: Column ← MobileVideoControls ← [mobile_video_controls.dart:239:14]'),
+      ],
+    );
+
+    final warning = pipHudWarning(details, phase: 'ativo', width: 200, height: 100);
+    expect(warning, isNotNull);
+    expect(warning!['tipo'], 'overflow HUD PiP');
+    expect(warning['widget'], 'mobile_video_controls.dart:239:14');
+  });
+}
+
+class _ThrowingDiagnosticsFlutterErrorDetails extends FlutterErrorDetails {
+  _ThrowingDiagnosticsFlutterErrorDetails({
+    required super.exception,
+    super.library,
+    super.informationCollector,
+  });
+
+  @override
+  DiagnosticsNode toDiagnosticsNode({String? name, DiagnosticsTreeStyle? style}) {
+    throw FlutterError('Element._debugCheckStateIsActiveForAncestorLookup was called on a disposed element');
+  }
 }

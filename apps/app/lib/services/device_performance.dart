@@ -191,6 +191,8 @@ class DevicePerformance {
       cache.maximumSize = 1000;
       cache.maximumSizeBytes = 150 << 20; // 150MB
     } else if (isReduced) {
+      cache.maximumSize = 400;
+      cache.maximumSizeBytes = 64 << 20; // 64MB
     } else if (isFlagshipHardware) {
       // Heisuca Flagship (8GB-12GB+ RAM): 250MB decoded image cache & 1500 entries
       // to eliminate all re-decode hitching during 120Hz/144Hz scrolling.

@@ -18,6 +18,7 @@ import 'connection/connection.dart';
 import 'connection/connection_bootstrap.dart';
 import 'connection/connection_registry.dart';
 import 'heisuca/heisuca_opening_splash.dart';
+import 'heisuca/heisuca_home_preloader.dart';
 import 'heisuca/heisuca_login_screen.dart';
 import 'navigation/profile_navigation_scope.dart';
 import 'navigation/profile_session_screen.dart';
@@ -1744,9 +1745,9 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
 
   // Heisuca: a troca de tela espera a abertura terminar (teto de 4 s se o callback não vier).
   final Completer<void> _aberturaConcluida = Completer<void>();
+  final Completer<void> _homePreloadCompleter = Completer<void>();
   Future<void> _aguardarAbertura() => _aberturaConcluida.future.timeout(const Duration(seconds: 4), onTimeout: () {});
   bool _enteringOffline = false;
-  Future<void>? _homePreloadFuture;
 
   // Per-server connection status: serverId -> (name, connected?)
   final Map<String, (String name, bool? connected)> _serverStatus = {};
@@ -1765,6 +1766,7 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
   }
 
   Future<void> _enterOfflineMode() async {
+    if (!_homePreloadCompleter.isCompleted) _homePreloadCompleter.complete();
     if (_enteringOffline) return;
     _enteringOffline = true;
     _setStatus(t.common.startingOfflineMode);
@@ -1776,6 +1778,7 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
 
   Future<void> _loadSavedCredentials() async {
     if (shouldBypassSetupForDatabaseRecovery(widget.databaseRecoveryOutcome)) {
+      if (!_homePreloadCompleter.isCompleted) _homePreloadCompleter.complete();
       final message = t.auth.localDataRecoveryRequired;
       final debugRouter = widget.debugRecoveryRequiredRouter;
       if (debugRouter != null) {
@@ -1982,6 +1985,12 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
       return;
     }
 
+    // Preload do Início (destaque, Continuar, 1ª fileira e artes) para abertura ágil
+    final multiServer = context.read<MultiServerProvider>();
+    unawaited(HeisucaHomePreloader.preloadHomeDataAndArt(context, multiServer: multiServer).whenComplete(() {
+      if (!_homePreloadCompleter.isCompleted) _homePreloadCompleter.complete();
+    }));
+
     // Repopulate metadata for downloaded items now that per-backend caches
     // are resolvable (the Connections row + live MediaBrowser client are in
     // place). Without this the downloads list and sync-rule titles render
@@ -2091,7 +2100,7 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
   @override
   Widget build(BuildContext context) {
     return HeisucaOpeningSplash(
-      preloadFuture: _homePreloadFuture,
+      preloadFuture: _homePreloadCompleter.future,
       onAnimationFinished: () {
         if (!_aberturaConcluida.isCompleted) _aberturaConcluida.complete();
       },

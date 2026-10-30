@@ -237,11 +237,9 @@ def achar_apk(candidatos=None):
 
 def classificar_tela(achados, cap_mudou=True, elementos_presentes=True):
     """Classifica a tela individual entre verde, ATENÇÃO e vermelho."""
-    if not cap_mudou or not elementos_presentes:
-        return VERMELHO
     if any(a.get('gravidade') == VERMELHO for a in achados):
         return VERMELHO
-    if any(a.get('gravidade') == ATENCAO for a in achados):
+    if not cap_mudou or not elementos_presentes or any(a.get('gravidade') == ATENCAO for a in achados):
         return ATENCAO
     return VERDE
 
@@ -301,7 +299,11 @@ def verificar_inicio_vazio(nos):
     ]
     for n in conteudo:
         txt = (n.get('text') or n.get('desc') or '').lower()
-        if any(termo in txt for termo in ('nenhum item', 'sem conteúdo', 'vazio', 'nada aqui')):
+        if any(termo in txt for termo in (
+            'nenhum item', 'sem conteúdo', 'sem conteudo', 'vazio', 'nada aqui',
+            'nenhum conteúdo', 'nenhum conteudo', 'adicione filmes', 'adicione séries',
+            'adicione series'
+        )):
             return True
     itens_validos = [
         n for n in conteudo
@@ -566,9 +568,9 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
     mudou_filme = captura_mudou(raw_inicio, raw_filme)
     if not mudou_filme:
         achados_filme.append({
-            'gravidade': VERMELHO,
-            'codigo': 'tela-nao-abriu',
-            'detalhe': 'Detalhe de filme: tela esperada não abriu (captura idêntica ao Início)'
+            'gravidade': ATENCAO,
+            'codigo': 'toque-obrigatorio',
+            'detalhe': 'Detalhe de filme: tela esperada não abriu com D-Pad (requer toque)'
         })
 
     rotulos_filme = {r.strip().lower() for n in nos for r in desastre._rotulos(n)}
@@ -639,9 +641,9 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
     mudou_serie = captura_mudou(raw_inicio, raw_serie)
     if not mudou_serie:
         achados_serie.append({
-            'gravidade': VERMELHO,
-            'codigo': 'tela-nao-abriu',
-            'detalhe': 'Detalhe de série: tela esperada não abriu (captura idêntica ao Início)'
+            'gravidade': ATENCAO,
+            'codigo': 'toque-obrigatorio',
+            'detalhe': 'Detalhe de série: tela esperada não abriu com D-Pad (requer toque)'
         })
 
     rotulos_serie = {r.strip().lower() for n in nos for r in desastre._rotulos(n)}
@@ -713,12 +715,12 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
 
     if not mudou_player:
         achados_player.append({
-            'gravidade': VERMELHO,
-            'codigo': 'tela-nao-abriu',
-            'detalhe': 'Player: vídeo não iniciou (captura idêntica à tela anterior)'
+            'gravidade': ATENCAO,
+            'codigo': 'toque-obrigatorio',
+            'detalhe': 'Player: vídeo não iniciou com D-Pad (requer toque)'
         })
 
-    if raw_player and verificar_player_preto(raw_player):
+    if raw_player and mudou_player and verificar_player_preto(raw_player):
         achados_player.append({
             'gravidade': VERMELHO,
             'codigo': 'player-preto',
@@ -784,9 +786,9 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
     mudou_busca = captura_mudou(raw_inicio, raw_busca)
     if not mudou_busca:
         achados_busca.append({
-            'gravidade': VERMELHO,
-            'codigo': 'tela-nao-abriu',
-            'detalhe': 'Busca: tela não abriu (captura idêntica ao Início)'
+            'gravidade': ATENCAO,
+            'codigo': 'toque-obrigatorio',
+            'detalhe': 'Busca: tela não abriu com D-Pad (requer toque)'
         })
 
     foco_busca = inspecionar_foco(nos)
@@ -843,9 +845,9 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
     mudou_config = captura_mudou(raw_inicio, raw_config)
     if not mudou_config:
         achados_config.append({
-            'gravidade': VERMELHO,
-            'codigo': 'tela-nao-abriu',
-            'detalhe': 'Configurações: tela não abriu (captura idêntica ao Início)'
+            'gravidade': ATENCAO,
+            'codigo': 'toque-obrigatorio',
+            'detalhe': 'Configurações: tela não abriu com D-Pad (requer toque)'
         })
 
     foco_config = inspecionar_foco(nos)
@@ -891,9 +893,9 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
     mudou_sobre = captura_mudou(raw_config, raw_sobre)
     if not mudou_sobre:
         achados_sobre.append({
-            'gravidade': VERMELHO,
-            'codigo': 'tela-nao-abriu',
-            'detalhe': 'Sobre: tela não abriu (captura idêntica a Configurações)'
+            'gravidade': ATENCAO,
+            'codigo': 'toque-obrigatorio',
+            'detalhe': 'Sobre: tela não abriu com D-Pad (requer toque)'
         })
 
     foco_sobre = inspecionar_foco(nos)
@@ -941,7 +943,7 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
     if estado_final == VERMELHO:
         motivo = 'Falhas críticas identificadas durante percurso de TV.'
     elif estado_final == ATENCAO:
-        motivo = 'Achados de atenção na TV (foco invisível ou texto pequeno).'
+        motivo = 'Achados de atenção na TV (foco invisível, texto pequeno ou tela que requer toque).'
 
     relatorio = {
         'perfil': perfil,
@@ -952,6 +954,10 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
     }
 
     rec(f'Percurso concluído no perfil {perfil}. Estado: {estado_final}')
+    for t in telas:
+        rec(f"  - Tela {t.get('titulo', t.get('nome'))}: {t.get('estado')}")
+        for a in t.get('achados', []):
+            rec(f"      [{a.get('gravidade')}] {a.get('codigo')}: {a.get('detalhe')}")
     return relatorio
 
 

@@ -232,6 +232,50 @@ val downloadLibdovi = tasks.register("downloadLibdovi") {
   }
 }
 
+val sqlite3X86Dir = layout.buildDirectory.dir("x86-sqlite-jni").get().asFile
+val sqlite3X86Sha256 = "6d73649ad5896eb276aca304456b8664c0f9a82d6c7785c5975d43e0462d3777"
+val sqlite3X86Url = "https://github.com/simolus3/sqlite3.dart/releases/download/sqlite3-3.5.0/libsqlite3.ia32.android.so"
+
+val downloadX86Sqlite = tasks.register("downloadX86Sqlite") {
+  val outputFile = File(sqlite3X86Dir, "x86/libsqlite3.so")
+  val manifest = File(sqlite3X86Dir, ".manifest")
+  inputs.property("url", sqlite3X86Url)
+  inputs.property("sha256", sqlite3X86Sha256)
+  outputs.files(outputFile, manifest)
+  doLast {
+    val staging = File(sqlite3X86Dir.parentFile, "${sqlite3X86Dir.name}.staging-${UUID.randomUUID()}")
+    try {
+      val x86Folder = File(staging, "x86").apply { mkdirs() }
+      val targetFile = File(x86Folder, "libsqlite3.so")
+      try {
+        providers.exec {
+          commandLine("curl", "-sfL", "--retry", "5", "--retry-all-errors", "--retry-delay", "10",
+            "--connect-timeout", "30", sqlite3X86Url, "-o", targetFile.absolutePath)
+        }.result.get().assertNormalExitValue()
+      } catch (error: Exception) {
+        throw GradleException("Failed to download sqlite3 x86 binary", error)
+      }
+      verifySha256(targetFile, sqlite3X86Sha256, "libsqlite3.ia32.android.so")
+      File(staging, ".manifest").writeText("sha256=$sqlite3X86Sha256\n")
+      promoteDirectory(staging, sqlite3X86Dir)
+    } finally {
+      staging.deleteRecursively()
+    }
+  }
+}
+
+val engineVersion: String by lazy {
+  val flutterSdk = (findProperty("flutter.sdk") as? String)
+    ?: System.getenv("FLUTTER_ROOT")
+    ?: Properties().apply {
+      val f = rootProject.file("local.properties")
+      if (f.exists()) f.inputStream().use { load(it) }
+    }.getProperty("flutter.sdk")
+    ?: ""
+  val versionFile = file("$flutterSdk/bin/internal/engine.version")
+  if (versionFile.exists()) versionFile.readText().trim() else ""
+}
+
 val heisucaPreview = providers.gradleProperty("heisucaPreview").orNull == "true"
 
 android {
@@ -360,9 +404,6 @@ android {
       // mpv-build tarballs win for std::from_chars<float>, while older
       // native consumers remain ABI-compatible.
       pickFirsts.add("lib/*/libc++_shared.so")
-      // Flutter 3.47 não suporta x86 (32-bit). Exclui resíduos de x86 para evitar
-      // INSTALL_FAILED_NO_MATCHING_ABIS por pasta de ABI incompleta (sem libflutter.so).
-      excludes.add("lib/x86/**")
     }
   }
 
@@ -373,6 +414,7 @@ android {
       // is :libmpv's extractLibmpvNative output (the tarballs' 16 KB-capable
       // libc++), wired below via the JniLibFolders dependency.
       jniLibs.srcDir(libmpvLibcxxJniDir)
+      jniLibs.srcDir(sqlite3X86Dir)
     }
   }
 
@@ -428,15 +470,18 @@ tasks.matching { it.name.contains("CMake") || it.name.contains("externalNative")
 }
 
 tasks.matching { it.name.startsWith("pre") && it.name.endsWith("Build") }.configureEach {
-  dependsOn(prepareMpvFfmpegDevelopment)
+  dependsOn(prepareMpvFfmpegDevelopment, downloadX86Sqlite)
 }
 // Gradle snapshots jniLibs source dirs before task execution; this keeps the
 // extracted libmpv libc++ directory present during input discovery.
 tasks.matching { it.name.startsWith("merge") && it.name.endsWith("JniLibFolders") }.configureEach {
-  dependsOn(":libmpv:extractLibmpvNative")
+  dependsOn(":libmpv:extractLibmpvNative", downloadX86Sqlite)
 }
 
 dependencies {
+  if (engineVersion.isNotEmpty()) {
+    debugImplementation("io.flutter:x86_debug:1.0.0-$engineVersion")
+  }
   // mpv Kotlin API + JNI glue live in-project; the prebuilt libmpv/FFmpeg .so
   // set rides along from the module's extracted mpv-build tarballs.
   implementation(project(":libmpv"))

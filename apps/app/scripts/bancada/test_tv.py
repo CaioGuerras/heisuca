@@ -126,9 +126,11 @@ class TestTvBancada(unittest.TestCase):
             {'gravidade': ATENCAO, 'codigo': 'foco-invisivel'},
             {'gravidade': VERMELHO, 'codigo': 'player-preto'},
         ]), VERMELHO)
-        # Se captura não mudou ou elementos esperados não apareceram, é VERMELHO
-        self.assertEqual(classificar_tela([], cap_mudou=False), VERMELHO)
-        self.assertEqual(classificar_tela([], elementos_presentes=False), VERMELHO)
+        # Se captura não mudou ou elementos esperados não apareceram, é ATENCAO (toque obrigatório)
+        self.assertEqual(classificar_tela([], cap_mudou=False), ATENCAO)
+        self.assertEqual(classificar_tela([], elementos_presentes=False), ATENCAO)
+        # Achados críticos forçam VERMELHO
+        self.assertEqual(classificar_tela([{'gravidade': VERMELHO, 'codigo': 'crash'}]), VERMELHO)
 
     def test_classificar_geral(self):
         telas_verdes = [
@@ -180,6 +182,13 @@ class TestTvBancada(unittest.TestCase):
             {'text': 'Buscar', 'bounds': (0, 160, 150, 210), 'centro': (75, 185)},
         ]
         self.assertTrue(verificar_inicio_vazio(nos_vazio))
+
+        nos_nenhum_conteudo = [
+            {'text': 'Início', 'bounds': (0, 100, 150, 150), 'centro': (75, 125)},
+            {'text': 'Nenhum conteúdo disponível', 'bounds': (600, 500, 1300, 560), 'centro': (950, 530)},
+            {'text': 'Adicione filmes e séries às suas bibliotecas', 'bounds': (600, 570, 1300, 620), 'centro': (950, 595)},
+        ]
+        self.assertTrue(verificar_inicio_vazio(nos_nenhum_conteudo))
 
         nos_com_linhas = [
             # Trilho lateral

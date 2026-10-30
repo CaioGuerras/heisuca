@@ -249,6 +249,28 @@ class TestTvBancada(unittest.TestCase):
         self.assertIn('[endereço omitido]', json_limpo)
         self.assertIn('[conta omitida]', json_limpo)
 
+    @patch('tv.checar_leanback')
+    def test_percorrer_tv_sem_leanback(self, mock_leanback):
+        mock_leanback.return_value = False
+        res = tv.percorrer_tv('http://teste:8096', perfil='firetv-11')
+        self.assertEqual(res['estado'], VERMELHO)
+        self.assertEqual(res['achados'][0]['codigo'], 'sem-leanback')
+
+    @patch('tv.checar_leanback')
+    @patch('tv.achar_apk')
+    @patch('tv.adb')
+    def test_percorrer_tv_falha_instalacao_apk(self, mock_adb, mock_achar_apk, mock_leanback):
+        mock_leanback.return_value = True
+        mock_achar_apk.return_value = Path('/tmp/app.apk')
+        mock_res = Mock()
+        mock_res.returncode = 1
+        mock_res.stdout = b'Failure [INSTALL_FAILED_NO_MATCHING_ABIS]'
+        mock_adb.return_value = mock_res
+        res = tv.percorrer_tv('http://teste:8096', perfil='firetv-9')
+        self.assertEqual(res['estado'], VERMELHO)
+        self.assertEqual(res['achados'][0]['codigo'], 'falha-instalacao-apk')
+        self.assertIn('INSTALL_FAILED_NO_MATCHING_ABIS', res['motivo'])
+
 
 if __name__ == '__main__':
     unittest.main()

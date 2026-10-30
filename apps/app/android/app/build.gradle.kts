@@ -265,13 +265,21 @@ val downloadX86Sqlite = tasks.register("downloadX86Sqlite") {
 }
 
 val engineVersion: String by lazy {
-  val flutterSdk = (findProperty("flutter.sdk") as? String)
-    ?: System.getenv("FLUTTER_ROOT")
-    ?: Properties().apply {
-      val f = rootProject.file("local.properties")
-      if (f.exists()) f.inputStream().use { load(it) }
-    }.getProperty("flutter.sdk")
-    ?: ""
+  val fromProp = (findProperty("flutter.sdk") as? String)
+  val fromEnv = System.getenv("FLUTTER_ROOT") ?: System.getenv("FLUTTER_HOME")
+  val fromLocalProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+  }.getProperty("flutter.sdk")
+  val fromWhich = try {
+    val p = ProcessBuilder("which", "flutter").start()
+    val out = p.inputStream.bufferedReader().readText().trim()
+    if (p.waitFor() == 0 && out.isNotEmpty()) {
+      File(out).parentFile?.parentFile?.absolutePath
+    } else null
+  } catch (_: Exception) { null }
+
+  val flutterSdk = listOfNotNull(fromProp, fromEnv, fromLocalProps, fromWhich).firstOrNull { it.isNotBlank() } ?: ""
   val versionFile = file("$flutterSdk/bin/internal/engine.version")
   if (versionFile.exists()) versionFile.readText().trim() else ""
 }
@@ -318,6 +326,10 @@ android {
       versionCode = (flutter.versionCode ?: 0) + 3000
       ndk {
         abiFilters += listOf("armeabi-v7a", "arm64-v8a")
+      }
+    } else {
+      ndk {
+        abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
       }
     }
   }

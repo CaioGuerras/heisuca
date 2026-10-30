@@ -274,19 +274,53 @@ def checar_leanback():
         return False
 
 
+TERMOS_LOGIN = {
+    'iniciar sessão', 'iniciar sessao', 'iniciar', 'iniciando sessão...', 'iniciando sessao...',
+    'sign in', 'log in', 'login'
+}
+TERMOS_INICIO = {'início', 'inicio', 'home', 'descobrir', 'explore'}
+DESTINOS_NAV_TV = {
+    'bibliotecas', 'biblioteca', 'libraries', 'library',
+    'buscar', 'pesquisar', 'search',
+    'configurações', 'configuracoes', 'ajustes', 'settings',
+    'live tv', 'ao vivo', 'live',
+    'você', 'voce', 'you',
+    'baixados', 'downloads', 'download',
+    'filmes', 'séries', 'series', 'movies', 'shows'
+}
+TERMOS_VAZIO = (
+    'nenhum item', 'sem conteúdo', 'sem conteudo', 'vazio', 'nada aqui',
+    'nenhum conteúdo', 'nenhum conteudo', 'adicione filmes', 'adicione séries',
+    'adicione series', 'no items', 'no content', 'empty'
+)
+
+
 def reconhecer_tela_tv(nos):
     """Identifica se a tela atual de TV é 'inicio', 'login' ou None."""
     if not nos:
         return None
     rotulos = {r.strip().lower() for n in nos for r in (n.get('text'), n.get('desc'), n.get('hint')) if r}
-    # Login: botão Iniciar sessão e campos de texto
-    if 'iniciar sessão' in rotulos and any(n.get('cls', '').endswith('EditText') for n in nos):
-        return 'login'
-    # Início na TV: 'início' ou 'inicio'/'descobrir' junto com destinos da navegação lateral
-    tem_inicio = bool(rotulos & {'início', 'inicio', 'descobrir'})
-    destinos_tv = {'bibliotecas', 'biblioteca', 'buscar', 'pesquisar', 'configurações', 'configuracoes', 'ajustes', 'live tv', 'você', 'baixados'}
-    if tem_inicio and bool(rotulos & destinos_tv):
+    tem_editores = any(n.get('cls', '').endswith('EditText') for n in nos)
+
+    # 1. Login: campos de texto + botão ou termos característicos de login
+    if tem_editores:
+        if bool(rotulos & TERMOS_LOGIN) or any('iniciar' in r or 'sign in' in r for r in rotulos):
+            return 'login'
+        if any(r in rotulos for r in ('servidor', 'server', 'usuário', 'usuario', 'username')):
+            return 'login'
+        if len([n for n in nos if n.get('cls', '').endswith('EditText')]) >= 2:
+            return 'login'
+
+    # 2. Início na TV: sem editores de login, possui menu lateral com destinos
+    tem_inicio = bool(rotulos & TERMOS_INICIO)
+    tem_destinos = bool(rotulos & DESTINOS_NAV_TV)
+    if tem_inicio and tem_destinos:
         return 'inicio'
+    if len(rotulos & (TERMOS_INICIO | DESTINOS_NAV_TV)) >= 2 and not tem_editores:
+        return 'inicio'
+    if tem_inicio and not tem_editores and len(nos) > 3:
+        return 'inicio'
+
     return None
 
 
@@ -299,11 +333,7 @@ def verificar_inicio_vazio(nos):
     ]
     for n in conteudo:
         txt = (n.get('text') or n.get('desc') or '').lower()
-        if any(termo in txt for termo in (
-            'nenhum item', 'sem conteúdo', 'sem conteudo', 'vazio', 'nada aqui',
-            'nenhum conteúdo', 'nenhum conteudo', 'adicione filmes', 'adicione séries',
-            'adicione series'
-        )):
+        if any(termo in txt for termo in TERMOS_VAZIO):
             return True
     itens_validos = [
         n for n in conteudo
@@ -360,7 +390,7 @@ def preencher_campo_tv(rotulo, valor, registrar=None):
 def fazer_login_tv(base, registrar=None):
     """Realiza autenticação completa na TV com fechamento de teclado e espera pelo menu lateral."""
     rec = registrar or (lambda msg: None)
-    for _ in range(15):
+    for _ in range(25):
         nos = dump()
         tela = reconhecer_tela_tv(nos)
         if tela == 'inicio':
@@ -384,14 +414,19 @@ def fazer_login_tv(base, registrar=None):
     fechar_teclado()
     time.sleep(1)
     nos = dump()
-    botao = achar_texto(nos, 'Iniciar sessão')
+    botao = achar_texto(nos, 'Iniciar sessão', 'iniciar sessao', 'sign in', 'login', exato=False)
+    if botao is None:
+        dpad_down()
+        time.sleep(1)
+        nos = dump()
+        botao = achar_texto(nos, 'Iniciar sessão', 'iniciar sessao', 'sign in', 'login', exato=False)
     if botao is None:
         rec('Botão Iniciar sessão não encontrado')
         return False
     tocar(botao)
 
     rec('Aguardando transição para tela Início da TV...')
-    for _ in range(30):
+    for _ in range(35):
         time.sleep(2)
         nos = dump()
         if reconhecer_tela_tv(nos) == 'inicio':
@@ -574,7 +609,7 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
         })
 
     rotulos_filme = {r.strip().lower() for n in nos for r in desastre._rotulos(n)}
-    elementos_filme = bool(rotulos_filme & {'reproduzir', 'assistir', 'trailer', 'sinopse', 'detalhes', 'informações'})
+    elementos_filme = bool(rotulos_filme & {'reproduzir', 'assistir', 'trailer', 'sinopse', 'detalhes', 'informações', 'play', 'watch', 'details', 'info', 'overview'})
     if not elementos_filme and mudou_filme:
         achados_filme.append({
             'gravidade': ATENCAO,
@@ -647,7 +682,7 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
         })
 
     rotulos_serie = {r.strip().lower() for n in nos for r in desastre._rotulos(n)}
-    elementos_serie = bool(rotulos_serie & {'temporada', 'temporadas', 'episódio', 'episódios', 'série', 'reproduzir'})
+    elementos_serie = bool(rotulos_serie & {'temporada', 'temporadas', 'episódio', 'episódios', 'série', 'reproduzir', 'season', 'seasons', 'episode', 'episodes', 'series', 'play'})
     if not elementos_serie and mudou_serie:
         achados_serie.append({
             'gravidade': ATENCAO,

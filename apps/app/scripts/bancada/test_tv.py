@@ -166,12 +166,33 @@ class TestTvBancada(unittest.TestCase):
         ]
         self.assertEqual(reconhecer_tela_tv(nos_login), 'login')
 
+        nos_login_en = [
+            {'text': 'Sign in', 'cls': 'android.widget.Button'},
+            {'text': '', 'cls': 'android.widget.EditText'},
+        ]
+        self.assertEqual(reconhecer_tela_tv(nos_login_en), 'login')
+
+        nos_login_campos = [
+            {'text': 'Server', 'cls': 'android.widget.TextView'},
+            {'text': '', 'cls': 'android.widget.EditText'},
+            {'text': 'Username', 'cls': 'android.widget.TextView'},
+            {'text': '', 'cls': 'android.widget.EditText'},
+        ]
+        self.assertEqual(reconhecer_tela_tv(nos_login_campos), 'login')
+
         nos_inicio = [
             {'text': 'Início', 'cls': 'android.widget.TextView'},
             {'text': 'Buscar', 'cls': 'android.widget.TextView'},
             {'text': 'Configurações', 'cls': 'android.widget.TextView'},
         ]
         self.assertEqual(reconhecer_tela_tv(nos_inicio), 'inicio')
+
+        nos_inicio_en = [
+            {'desc': 'Home', 'cls': 'android.view.View'},
+            {'desc': 'Search', 'cls': 'android.view.View'},
+            {'desc': 'Settings', 'cls': 'android.view.View'},
+        ]
+        self.assertEqual(reconhecer_tela_tv(nos_inicio_en), 'inicio')
 
         self.assertIsNone(reconhecer_tela_tv([{'text': 'Outra tela'}]))
 
@@ -189,6 +210,12 @@ class TestTvBancada(unittest.TestCase):
             {'text': 'Adicione filmes e séries às suas bibliotecas', 'bounds': (600, 570, 1300, 620), 'centro': (950, 595)},
         ]
         self.assertTrue(verificar_inicio_vazio(nos_nenhum_conteudo))
+
+        nos_nenhum_conteudo_en = [
+            {'desc': 'Home', 'bounds': (0, 100, 150, 150), 'centro': (75, 125)},
+            {'text': 'No content available', 'bounds': (600, 500, 1300, 560), 'centro': (950, 530)},
+        ]
+        self.assertTrue(verificar_inicio_vazio(nos_nenhum_conteudo_en))
 
         nos_com_linhas = [
             # Trilho lateral

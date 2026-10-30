@@ -327,9 +327,16 @@ android {
       ndk {
         abiFilters += listOf("armeabi-v7a", "arm64-v8a")
       }
-    } else {
-      ndk {
-        abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+    } else if (heisucaPreview) {
+      val targetAbiProp = project.findProperty("targetAbi") as String?
+      if (!targetAbiProp.isNullOrBlank()) {
+        ndk {
+          abiFilters += listOf(targetAbiProp)
+        }
+      } else {
+        ndk {
+          abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+        }
       }
     }
   }

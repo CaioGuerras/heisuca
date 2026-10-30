@@ -82,6 +82,21 @@ void main() {
       expect(await resultFuture, UnplayableMediaAction.playVersion);
     });
 
+    testWidgets('botão Voltar retorna UnplayableMediaAction.back', (tester) async {
+      final hostContext = await _pumpHost(tester);
+      final resultFuture = showUnplayableMediaDialog(
+        hostContext,
+        formatReason: 'HEVC em 1080p',
+      );
+      await tester.pumpAndSettle();
+
+      final backFinder = find.widgetWithText(DialogActionButton, t.messages.unplayableMediaBack);
+      expect(backFinder, findsOneWidget);
+      await tester.tap(backFinder);
+      await tester.pumpAndSettle();
+      expect(await resultFuture, UnplayableMediaAction.back);
+    });
+
     test('formatMediaSourceReason formata codec, bit depth e resolução corretamente', () {
       final src4k10 = {
         'MediaStreams': [

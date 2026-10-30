@@ -16,6 +16,7 @@ extension _VideoPlayerPlaybackStartMethods on VideoPlayerScreenState {
     _firstFrame.resetRenderedForAttempt();
     _hasFatalPlaybackError = false;
     _dismissPlaybackFailure();
+    _renderWatchdogDisarmed = false;
     // 503s observed from here on belong to this attempt's open.
     _http503Watchdog.disarm();
 

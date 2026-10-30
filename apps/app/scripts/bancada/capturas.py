@@ -3,6 +3,7 @@ import base64
 import json
 import re
 import subprocess
+import time
 from foco import coletar_foco
 from acoes import perform
 from imagem import analisar
@@ -11,6 +12,18 @@ APP_ID = 'app.heisuca.player.teste.home'
 REMOTE = '/sdcard/heisuca-bancada.mp4'
 # Marcos cuja imagem é analisada em pixels: se faltarem, a bancada fica vermelha.
 MARCOS_ANALISADOS = ('06-player', '21-imagem-apos-audio')
+# Cena escura do próprio filme não é superfície preta (30/10, run 40984981192: letreiro da
+# abertura em fundo preto deu 1,8%). O vídeo segue tocando até o ACK, então a captura é
+# repetida; superfície preta de verdade continua preta em todas e mantém o vermelho.
+TENTATIVAS_IMAGEM = 6
+INTERVALO_IMAGEM = 1.5
+
+
+def screencap():
+    png = adb('exec-out', 'screencap', '-p', check=True).stdout
+    if not png.startswith(b'\x89PNG\r\n\x1a\n') or len(png) < 24:
+        raise RuntimeError('Captura nativa inválida.')
+    return png
 
 
 def adb(*args, check=False, capture_errors=False):
@@ -78,9 +91,7 @@ class Capturas:
             self.stop(stops[name])
         if name in ('02-inicio', '05-player-inicio', '07-ficha-retorno'):
             self.start()
-        png = adb('exec-out', 'screencap', '-p', check=True).stdout
-        if not png.startswith(b'\x89PNG\r\n\x1a\n') or len(png) < 24:
-            raise RuntimeError('Captura nativa inválida.')
+        png = screencap()
         (self.output / f'{name}.png').write_bytes(png)
         if event.get('decodedFrame') is True:
             # Caminho fixo, nunca fornecido pelo evento: não pode ler arquivo privado arbitrário.
@@ -92,6 +103,15 @@ class Capturas:
         image = None
         if name in MARCOS_ANALISADOS:
             image = analisar(png, event.get('geometriaVideo'))
+            attempt = 1
+            while image['imagem'] == 'não' and attempt < TENTATIVAS_IMAGEM:
+                (self.output / f'{name}-escura-{attempt}.png').write_bytes(png)
+                time.sleep(INTERVALO_IMAGEM)
+                png = screencap()
+                (self.output / f'{name}.png').write_bytes(png)
+                image = analisar(png, event.get('geometriaVideo'))
+                attempt += 1
+            image['tentativas'] = attempt
             (self.output / f'{name}-imagem.json').write_text(json.dumps(image, ensure_ascii=False, indent=2))
             print('BANCADA_IMAGEM: ' + json.dumps({'marco': name, **image}, ensure_ascii=False), flush=True)
             if image['imagem'] == 'não':

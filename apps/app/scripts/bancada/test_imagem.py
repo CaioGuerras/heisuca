@@ -56,6 +56,11 @@ def png_luma(width, height, light_pixels, level=255):
 
 
 class ImagemNativa(unittest.TestCase):
+    def setUp(self):
+        intervalo = patch('capturas.INTERVALO_IMAGEM', 0)
+        intervalo.start()
+        self.addCleanup(intervalo.stop)
+
     def test_limiar_mede_fracao_e_nao_um_pixel_isolado(self):
         geometry = geometria(100, 100)
         geometry['video'].update({'largura': 100, 'altura': 100})
@@ -143,3 +148,32 @@ class ImagemNativa(unittest.TestCase):
                 capture.handle({'seq': 1, 'name': '21-imagem-apos-audio', 'geometriaVideo': geometria(64, 36)})
             self.assertEqual(capture.last, 0)
             self.assertFalse(any('ack' in str(call.args) for call in adb.call_args_list))
+
+    @patch('capturas.adb')
+    def test_preto_em_todas_as_tentativas_continua_vermelho(self, adb):
+        adb.return_value = subprocess.CompletedProcess([], 0, png_preto())
+        with tempfile.TemporaryDirectory() as tmp, redirect_stdout(io.StringIO()):
+            capture = Capturas(Path(tmp))
+            with self.assertRaisesRegex(RuntimeError, 'Imagem nativa preta'):
+                capture.handle({'seq': 1, 'name': '21-imagem-apos-audio', 'geometriaVideo': geometria(64, 36)})
+            screencaps = [call for call in adb.call_args_list if call.args[:2] == ('exec-out', 'screencap')]
+            self.assertEqual(len(screencaps), 6)
+            self.assertFalse(any('ack' in str(call.args) for call in adb.call_args_list))
+
+    @patch('capturas.adb')
+    def test_cena_escura_do_filme_recebe_nova_captura(self, adb):
+        # Run 40984981192: letreiro da abertura em fundo preto (1,8%); o quadro seguinte tem imagem.
+        quadros = iter([png_preto(), png_preto(127)])
+        def responder(*args, **kwargs):
+            if args[:2] == ('exec-out', 'screencap'):
+                return subprocess.CompletedProcess([], 0, next(quadros))
+            return subprocess.CompletedProcess([], 0, b'')
+        adb.side_effect = responder
+        with tempfile.TemporaryDirectory() as tmp, redirect_stdout(io.StringIO()):
+            capture = Capturas(Path(tmp))
+            capture.handle({'seq': 1, 'name': '21-imagem-apos-audio', 'geometriaVideo': geometria(64, 36)})
+            image = json.loads((Path(tmp) / '21-imagem-apos-audio-imagem.json').read_text())
+            self.assertEqual(image['imagem'], 'sim')
+            self.assertEqual(image['tentativas'], 2)
+            self.assertTrue((Path(tmp) / '21-imagem-apos-audio-escura-1.png').exists())
+            self.assertEqual(capture.last, 1)

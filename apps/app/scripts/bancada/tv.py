@@ -929,10 +929,14 @@ def percorrer_tv(base, perfil='googletv-36', out_dir=None, registrar=None, conta
 
     # Sair do player com BACK
     rec('Player: saindo com BACK...')
-    back(espera=1.5)
-    back(espera=2.5)
-
-    nos_pos_player = dump_tv()
+    # Um BACK por vez até voltar ao Início: o 1º pode só fechar o painel de áudio/legenda.
+    # Dois BACK fixos fechavam o app no Google TV quando o 1º já saía do player (30/10).
+    nos_pos_player = []
+    for _ in range(3):
+        back(espera=2.0)
+        nos_pos_player = dump_tv()
+        if reconhecer_tela_tv(nos_pos_player) == 'inicio':
+            break
     erro_sair = checar_saude(nos_pos_player, 'Saída do player')
     if erro_sair:
         achados_player.append(erro_sair)

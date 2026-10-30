@@ -244,6 +244,18 @@ class TestTvBancada(unittest.TestCase):
         ]
         self.assertFalse(verificar_inicio_vazio(nos_com_linhas))
 
+        # Modelo A (30/10): destaque presente + Continuar assistindo sem itens não é Início vazio
+        nos_modelo_a = [
+            {'text': 'EM ALTA NO BRASIL · Nº 1', 'bounds': (48, 390, 400, 420), 'centro': (224, 405)},
+            {'text': '▶  Assistir', 'bounds': (42, 736, 270, 810), 'centro': (156, 773), 'focusable': True, 'focused': True},
+            {'text': 'Detalhes', 'bounds': (288, 740, 478, 808), 'centro': (383, 774), 'focusable': True},
+            {'text': 'Continuar assistindo', 'bounds': (48, 780, 380, 815), 'centro': (214, 797)},
+            {'text': 'Nenhum item em andamento', 'bounds': (48, 930, 380, 960), 'centro': (214, 945)},
+        ]
+        self.assertFalse(verificar_inicio_vazio(nos_modelo_a))
+        # Só a fileira vazia, sem destaque nem linhas: continua vazio
+        self.assertTrue(verificar_inicio_vazio(nos_modelo_a[3:]))
+
     def test_tamanho_do_campo_tv(self):
         nos = [
             {'text': 'USUÁRIO', 'desc': '', 'hint': '', 'cls': 'android.widget.TextView', 'bounds': (40, 100, 200, 140), 'centro': (120, 120)},

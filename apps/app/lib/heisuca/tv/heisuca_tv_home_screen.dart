@@ -201,11 +201,13 @@ class HeisucaTvHomeScreenState extends State<HeisucaTvHomeScreen> {
                         ),
                       ),
 
-                      // Informações do Destaque
+                      // Informações do Destaque, ancoradas acima da fileira Continuar assistindo
+                      // (24 de margem + 225 da fileira + 12 + ~40 do título = ~301, mais folga). Com 270 o título
+                      // da fileira cobria os botões quando o nome do destaque quebrava em 2 linhas (30/10).
                       if (hero != null)
                         Positioned(
                           left: 48,
-                          bottom: 270,
+                          bottom: 350,
                           right: 600,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,

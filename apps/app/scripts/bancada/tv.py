@@ -440,11 +440,18 @@ def abrir_destino_tv(destino, rec=None):
 
 
 def verificar_inicio_vazio(nos):
-    """Detecta se a tela de Início na TV está vazia (sem linhas de conteúdo fora do trilho lateral)."""
+    """Detecta se a tela de Início na TV está vazia (sem linhas de conteúdo fora do trilho lateral).
+
+    Modelo A: o destaque com [Assistir] + [Detalhes] já é conteúdo do servidor, e a fileira Continuar
+    assistindo sem itens ("Nenhum item em andamento") é estado normal de conta nova, não Início vazio."""
+    rotulos = [(n.get('text') or n.get('desc') or '').strip().lower() for n in nos]
+    if 'detalhes' in rotulos and any('assistir' in r and r != 'continuar assistindo' for r in rotulos):
+        return False
     conteudo = [
         n for n in nos
         if n.get('centro') and n['centro'][0] >= 200
         and not is_tela_inteira(n.get('bounds'))
+        and 'em andamento' not in (n.get('text') or n.get('desc') or '').lower()
     ]
     for n in conteudo:
         txt = (n.get('text') or n.get('desc') or '').lower()
@@ -455,6 +462,26 @@ def verificar_inicio_vazio(nos):
         if (n.get('text') or n.get('desc')) or n.get('clickable') or n.get('focusable')
     ]
     return len(itens_validos) < 2
+
+
+def focar_destaque_tv(alvo, registrar=None):
+    """Leva o foco ao botão `alvo` ('assistir' ou 'detalhes') do destaque do Início modelo A.
+
+    Sobe até achar um dos dois botões (no máximo 4 vezes) e anda para o lado certo; devolve True se o foco
+    terminou no alvo. Evita o percurso às cegas por contagem de teclas, que dependia de onde o foco estava."""
+    rec = registrar or (lambda msg, nos=None: None)
+    for _ in range(5):
+        texto = (inspecionar_foco(dump_tv()).get('texto') or '').lower()
+        if alvo in texto:
+            return True
+        if 'detalhes' in texto:
+            dpad_left()
+        elif 'assistir' in texto and 'continuar' not in texto:
+            dpad_right()
+        else:
+            dpad_up()
+    rec(f'foco não chegou ao botão {alvo} do destaque')
+    return False
 
 
 def tamanho_do_campo_tv(nos, rotulo):
@@ -712,8 +739,8 @@ def percorrer_tv(base, perfil='googletv-36', out_dir=None, registrar=None, conta
     # TELA 2: Detalhe de filme
     # ==========================================
     rec('2. Detalhe de filme')
-    # Move para o primeiro cartão e seleciona
-    dpad_right()
+    # Abre o detalhe pelo botão [Detalhes] do destaque
+    focar_destaque_tv('detalhes', registrar=rec)
     dpad_center(espera=3.0)
 
     nos = dump_tv()
@@ -858,9 +885,9 @@ def percorrer_tv(base, perfil='googletv-36', out_dir=None, registrar=None, conta
     # TELA 4: Player (reproduzir, pausar, avançar 10s, áudio/legenda, sair)
     # ==========================================
     rec('4. Player')
-    dpad_right()
-    dpad_center(espera=2.0)
-    dpad_center(espera=4.0)
+    # Toca o destaque pelo botão [Assistir]
+    focar_destaque_tv('assistir', registrar=rec)
+    dpad_center(espera=6.0)
 
     nos = dump_tv()
     erro = checar_saude(nos, 'Player')

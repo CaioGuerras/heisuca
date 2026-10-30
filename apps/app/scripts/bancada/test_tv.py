@@ -298,6 +298,51 @@ class TestTvBancada(unittest.TestCase):
         self.assertEqual(res['achados'][0]['codigo'], 'falha-instalacao-apk')
         self.assertIn('INSTALL_FAILED_NO_MATCHING_ABIS', res['motivo'])
 
+    @patch('subprocess.run')
+    def test_dump_tv_via_exec_out(self, mock_run):
+        xml_exemplo = '<?xml version="1.0"?><hierarchy><node text="Início" class="android.widget.TextView" bounds="[0,0][100,50]" /></hierarchy>'
+        mock_run.return_value = Mock(returncode=0, stdout=xml_exemplo.encode('utf-8'))
+        nos = tv.dump_tv()
+        self.assertEqual(len(nos), 1)
+        self.assertEqual(nos[0]['text'], 'Início')
+
+    @patch('tv.dump')
+    @patch('tv.adb')
+    @patch('subprocess.run')
+    def test_dump_tv_fallback_sdcard(self, mock_run, mock_adb, mock_dump):
+        # 1. Falha em /dev/tty e /dev/stdout
+        # 2. Sucesso no cat do /sdcard/tv_dump.xml
+        xml_exemplo = '<?xml version="1.0"?><hierarchy><node text="Login" class="android.widget.TextView" bounds="[0,0][100,50]" /></hierarchy>'
+        mock_run.side_effect = [
+            Mock(returncode=1, stdout=b''),
+            Mock(returncode=1, stdout=b''),
+            Mock(returncode=0, stdout=xml_exemplo.encode('utf-8')),
+        ]
+        nos = tv.dump_tv()
+        self.assertEqual(len(nos), 1)
+        self.assertEqual(nos[0]['text'], 'Login')
+        mock_dump.assert_not_called()
+
+    @patch('tv.adb')
+    @patch('tv.texto')
+    def test_abrir_app_tv(self, mock_texto, mock_adb):
+        # Primeiro plano direto na MainActivity
+        mock_texto.return_value = 'mResumedActivity=app.heisuca.player.teste.home/app.heisuca.MainActivity\n'
+        tv.abrir_app_tv()
+        mock_adb.assert_any_call('shell', 'am', 'start', '-n', 'app.heisuca.player.teste.home/app.heisuca.MainActivity')
+
+    @patch('subprocess.run')
+    def test_salvar_logcat(self, mock_run):
+        mock_run.return_value = Mock(returncode=0, stdout=b'log de teste\n')
+        destino = Path('/tmp/test_tv_logcat.log')
+        try:
+            tv.salvar_logcat(destino)
+            self.assertTrue(destino.exists())
+            self.assertEqual(destino.read_bytes(), b'log de teste\n')
+        finally:
+            if destino.exists():
+                destino.unlink()
+
 
 if __name__ == '__main__':
     unittest.main()

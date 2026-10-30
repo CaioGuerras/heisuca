@@ -118,6 +118,55 @@ def capturar_png(destino):
     return b''
 
 
+def salvar_logcat(destino):
+    """Salva dump do logcat em destino sem credenciais."""
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        r = subprocess.run(['adb', 'logcat', '-d'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=10)
+        if r.returncode == 0 and r.stdout:
+            destino.write_bytes(r.stdout)
+    except Exception:
+        pass
+
+
+def dump_tv():
+    """Hierarquia atual da tela como lista de nós para TV, com fallback resiliente para arquivo."""
+    # 1. Tenta exec-out com /dev/tty e /dev/stdout
+    for dev in ('/dev/tty', '/dev/stdout'):
+        try:
+            r = subprocess.run(['adb', 'exec-out', 'uiautomator', 'dump', dev],
+                               stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=6)
+            bruto = r.stdout.decode('utf-8', 'replace')
+            inicio, fim = bruto.find('<?xml'), bruto.rfind('</hierarchy>')
+            if inicio >= 0 and fim > 0:
+                xml = bruto[inicio:fim + len('</hierarchy>')]
+                nos = parse_uiautomator(xml)
+                if nos:
+                    return nos
+        except Exception:
+            pass
+
+    # 2. Fallback universal garantido: dump em arquivo no dispositivo
+    try:
+        remote = '/sdcard/tv_dump.xml'
+        adb('shell', 'uiautomator', 'dump', remote)
+        r = subprocess.run(['adb', 'exec-out', 'cat', remote],
+                           stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=8)
+        adb('shell', 'rm', '-f', remote)
+        bruto = r.stdout.decode('utf-8', 'replace')
+        inicio, fim = bruto.find('<?xml'), bruto.rfind('</hierarchy>')
+        if inicio >= 0 and fim > 0:
+            xml = bruto[inicio:fim + len('</hierarchy>')]
+            nos = parse_uiautomator(xml)
+            if nos:
+                return nos
+    except Exception:
+        pass
+
+    # 3. Fallback final via ui.dump()
+    return dump()
+
+
 def is_tela_inteira(bounds, largura=1920, altura=1080):
     """Retorna True se o bounds ocupa praticamente toda a tela (nó raiz)."""
     if not bounds or len(bounds) != 4:
@@ -295,6 +344,27 @@ TERMOS_VAZIO = (
 )
 
 
+def abrir_app_tv(registrar=None):
+    """Abre o aplicativo Heisuca na TV com múltiplos mecanismos resilientes."""
+    rec = registrar or (lambda msg: None)
+    rec('Iniciando app Heisuca via am start direto na MainActivity...')
+    adb('shell', 'am', 'force-stop', APP_ID)
+    time.sleep(1)
+    adb('shell', 'am', 'start', '-n', f'{APP_ID}/app.heisuca.MainActivity')
+    time.sleep(3)
+    atividades = texto('shell', 'dumpsys', 'activity', 'activities')
+    if not app_em_primeiro_plano(atividades, APP_ID):
+        rec('Tentando iniciar via alias Leanback (.IconeIsis)...')
+        adb('shell', 'am', 'start', '-a', 'android.intent.action.MAIN',
+            '-c', 'android.intent.category.LEANBACK_LAUNCHER', '-n', f'{APP_ID}/.IconeIsis')
+        time.sleep(3)
+    atividades = texto('shell', 'dumpsys', 'activity', 'activities')
+    if not app_em_primeiro_plano(atividades, APP_ID):
+        rec('Tentando iniciar via monkey...')
+        abrir_app()
+        time.sleep(3)
+
+
 def reconhecer_tela_tv(nos):
     """Identifica se a tela atual de TV é 'inicio', 'login' ou None."""
     if not nos:
@@ -302,23 +372,20 @@ def reconhecer_tela_tv(nos):
     rotulos = {r.strip().lower() for n in nos for r in (n.get('text'), n.get('desc'), n.get('hint')) if r}
     tem_editores = any(n.get('cls', '').endswith('EditText') for n in nos)
 
-    # 1. Login: campos de texto + botão ou termos característicos de login
+    # 1. Login: campos de texto (EditText) presentes na tela
     if tem_editores:
-        if bool(rotulos & TERMOS_LOGIN) or any('iniciar' in r or 'sign in' in r for r in rotulos):
-            return 'login'
-        if any(r in rotulos for r in ('servidor', 'server', 'usuário', 'usuario', 'username')):
-            return 'login'
-        if len([n for n in nos if n.get('cls', '').endswith('EditText')]) >= 2:
-            return 'login'
+        return 'login'
 
-    # 2. Início na TV: sem editores de login, possui menu lateral com destinos
+    # 2. Início na TV: sem editores de login, possui menu lateral com destinos ou termo de início
     tem_inicio = bool(rotulos & TERMOS_INICIO)
     tem_destinos = bool(rotulos & DESTINOS_NAV_TV)
     if tem_inicio and tem_destinos:
         return 'inicio'
-    if len(rotulos & (TERMOS_INICIO | DESTINOS_NAV_TV)) >= 2 and not tem_editores:
+    if len(rotulos & (TERMOS_INICIO | DESTINOS_NAV_TV)) >= 2:
         return 'inicio'
-    if tem_inicio and not tem_editores and len(nos) > 3:
+    if tem_inicio and len(nos) > 3:
+        return 'inicio'
+    if tem_destinos and len(nos) >= 2:
         return 'inicio'
 
     return None
@@ -357,7 +424,7 @@ def preencher_campo_tv(rotulo, valor, registrar=None):
     for tentativa in (1, 2):
         fechar_teclado()
         time.sleep(0.5)
-        nos_atual = dump()
+        nos_atual = dump_tv()
         campo = campo_abaixo_do_rotulo(nos_atual, rotulo)
         if campo is None:
             chave = {'SERVIDOR': 'servidor', 'USUÁRIO': 'usuario', 'SENHA': 'senha'}.get(rotulo)
@@ -367,7 +434,7 @@ def preencher_campo_tv(rotulo, valor, registrar=None):
             return False
         tocar(campo)
         time.sleep(1)
-        nos = dump()
+        nos = dump_tv()
         campo = campo_abaixo_do_rotulo(nos, rotulo)
         if campo is None:
             chave = {'SERVIDOR': 'servidor', 'USUÁRIO': 'usuario', 'SENHA': 'senha'}.get(rotulo)
@@ -378,7 +445,7 @@ def preencher_campo_tv(rotulo, valor, registrar=None):
         time.sleep(1.5)
         fechar_teclado()
         time.sleep(0.5)
-        nos = dump()
+        nos = dump_tv()
         rec(f'após {rotulo} (tentativa {tentativa})', nos)
         tam = tamanho_do_campo_tv(nos, rotulo)
         if tam == len(valor):
@@ -390,14 +457,16 @@ def preencher_campo_tv(rotulo, valor, registrar=None):
 def fazer_login_tv(base, registrar=None):
     """Realiza autenticação completa na TV com fechamento de teclado e espera pelo menu lateral."""
     rec = registrar or (lambda msg: None)
-    for _ in range(25):
-        nos = dump()
+    for tentativa in range(1, 26):
+        nos = dump_tv()
         tela = reconhecer_tela_tv(nos)
         if tela == 'inicio':
-            rec('App já estava autenticado na tela Início')
+            rec(f'Tentativa {tentativa}: App já estava autenticado na tela Início')
             return True
         if tela == 'login':
+            rec(f'Tentativa {tentativa}: Tela de login detectada')
             break
+        rec(f'Aguardando tela de login ou início (tentativa {tentativa}/25, nós={len(nos)})...')
         time.sleep(2)
     else:
         rec('Tela de login ou início não apareceu após abertura')
@@ -413,12 +482,12 @@ def fazer_login_tv(base, registrar=None):
 
     fechar_teclado()
     time.sleep(1)
-    nos = dump()
+    nos = dump_tv()
     botao = achar_texto(nos, 'Iniciar sessão', 'iniciar sessao', 'sign in', 'login', exato=False)
     if botao is None:
         dpad_down()
         time.sleep(1)
-        nos = dump()
+        nos = dump_tv()
         botao = achar_texto(nos, 'Iniciar sessão', 'iniciar sessao', 'sign in', 'login', exato=False)
     if botao is None:
         rec('Botão Iniciar sessão não encontrado')
@@ -426,12 +495,13 @@ def fazer_login_tv(base, registrar=None):
     tocar(botao)
 
     rec('Aguardando transição para tela Início da TV...')
-    for _ in range(35):
+    for tentativa in range(1, 36):
         time.sleep(2)
-        nos = dump()
+        nos = dump_tv()
         if reconhecer_tela_tv(nos) == 'inicio':
-            rec('Login bem-sucedido: tela Início detectada')
+            rec(f'Login bem-sucedido: tela Início detectada após {tentativa * 2}s')
             return True
+        rec(f'Aguardando Início após login ({tentativa}/35, nós={len(nos)})...')
     return False
 
 
@@ -454,6 +524,7 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
             'codigo': 'sem-leanback',
             'detalhe': f'Perfil {perfil} não possui a feature android.software.leanback (pm has-feature retornou falso)'
         })
+        salvar_logcat(out / 'logcat-tv.log')
         return {
             'perfil': perfil,
             'estado': VERMELHO,
@@ -470,6 +541,7 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
         if res.returncode != 0 or b'Failure' in (res.stdout or b''):
             out_err = res.stdout.decode('utf-8', 'replace').strip() if res.stdout else 'código de retorno diferente de zero'
             rec(f'Falha na instalação do APK: {out_err}')
+            salvar_logcat(out / 'logcat-tv.log')
             achados_globais.append({
                 'gravidade': VERMELHO,
                 'codigo': 'falha-instalacao-apk',
@@ -486,7 +558,7 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
         rec('APK não encontrado nos caminhos padrão; assumindo que já está instalado.')
 
     # 2. Abre o app
-    abrir_app()
+    abrir_app_tv(registrar=rec)
     time.sleep(3)
 
     # 3. Login pela interface com a conta dedicada
@@ -495,6 +567,7 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
     if not sucesso_login:
         cap_fail = out / '00_falha_login.png'
         capturar_png(cap_fail)
+        salvar_logcat(out / 'logcat-tv.log')
         achados_globais.append({
             'gravidade': VERMELHO,
             'codigo': 'falha-login',
@@ -515,7 +588,7 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
     # TELA 1: Início (linhas)
     # ==========================================
     rec('1. Início (linhas)')
-    nos = dump()
+    nos = dump_tv()
     erro = checar_saude(nos, 'Início')
     achados_inicio = [erro] if erro else []
 
@@ -535,7 +608,7 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
         # Tenta acordar foco com DPAD_DOWN
         dpad_down()
         raw_inicio_dpad = capturar_png(out / '01_inicio_foco.png')
-        nos = dump()
+        nos = dump_tv()
         foco_inicio = inspecionar_foco(nos)
         if foco_inicio['visivel']:
             foco_inicio['mudanca_visual'] = diferenca_na_regiao(raw_inicio, raw_inicio_dpad, foco_inicio['bounds'])
@@ -578,6 +651,7 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
             'codigo': 'percurso-incompleto',
             'detalhe': 'Percurso interrompido pois a tela Início não carregou linhas de conteúdo'
         })
+        salvar_logcat(out / 'logcat-tv.log')
         return {
             'perfil': perfil,
             'estado': VERMELHO,
@@ -594,7 +668,7 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
     dpad_right()
     dpad_center(espera=3.0)
 
-    nos = dump()
+    nos = dump_tv()
     erro = checar_saude(nos, 'Detalhe de filme')
     achados_filme = [erro] if erro else []
 
@@ -635,7 +709,7 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
 
     # Teste de BACK
     back(espera=2.0)
-    nos_pos_back = dump()
+    nos_pos_back = dump_tv()
     erro_back = checar_saude(nos_pos_back, 'BACK no detalhe de filme')
     if erro_back:
         achados_filme.append(erro_back)
@@ -667,7 +741,7 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
     dpad_right()
     dpad_center(espera=3.0)
 
-    nos = dump()
+    nos = dump_tv()
     erro = checar_saude(nos, 'Detalhe de série')
     achados_serie = [erro] if erro else []
 
@@ -708,7 +782,7 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
 
     # Teste de BACK
     back(espera=2.0)
-    nos_pos_back = dump()
+    nos_pos_back = dump_tv()
     erro_back = checar_saude(nos_pos_back, 'BACK no detalhe de série')
     if erro_back:
         achados_serie.append(erro_back)
@@ -740,7 +814,7 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
     dpad_center(espera=2.0)
     dpad_center(espera=4.0)
 
-    nos = dump()
+    nos = dump_tv()
     erro = checar_saude(nos, 'Player')
     achados_player = [erro] if erro else []
 
@@ -783,7 +857,7 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
     back(espera=1.5)
     back(espera=2.5)
 
-    nos_pos_player = dump()
+    nos_pos_player = dump_tv()
     erro_sair = checar_saude(nos_pos_player, 'Saída do player')
     if erro_sair:
         achados_player.append(erro_sair)
@@ -801,7 +875,7 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
         'achados': achados_player,
     })
 
-    if reconhecer_tela_tv(dump()) != 'inicio':
+    if reconhecer_tela_tv(dump_tv()) != 'inicio':
         back(espera=2.0)
 
     # ==========================================
@@ -812,7 +886,7 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
     dpad_left()
     tecla(KEY_SEARCH, espera=2.0)
 
-    nos = dump()
+    nos = dump_tv()
     erro = checar_saude(nos, 'Busca')
     achados_busca = [erro] if erro else []
 
@@ -843,7 +917,7 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
         })
 
     back(espera=2.0)
-    nos_pos_back = dump()
+    nos_pos_back = dump_tv()
     erro_back = checar_saude(nos_pos_back, 'BACK na Busca')
     if erro_back:
         achados_busca.append(erro_back)
@@ -871,7 +945,7 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
         dpad_down(espera=0.5)
     dpad_center(espera=2.5)
 
-    nos = dump()
+    nos = dump_tv()
     erro = checar_saude(nos, 'Configurações')
     achados_config = [erro] if erro else []
 
@@ -919,7 +993,7 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
         dpad_down(espera=0.5)
     dpad_center(espera=2.0)
 
-    nos = dump()
+    nos = dump_tv()
     erro = checar_saude(nos, 'Sobre')
     achados_sobre = [erro] if erro else []
 
@@ -950,7 +1024,7 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
         })
 
     back(espera=2.0)
-    nos_pos_back = dump()
+    nos_pos_back = dump_tv()
     erro_back = checar_saude(nos_pos_back, 'BACK na tela Sobre')
     if erro_back:
         achados_sobre.append(erro_back)
@@ -988,6 +1062,7 @@ def percorrer_tv(base, perfil='androidtv', out_dir=None, registrar=None):
         'achados': achados_globais + [a for t in telas for a in t.get('achados', [])]
     }
 
+    salvar_logcat(out / 'logcat-tv.log')
     rec(f'Percurso concluído no perfil {perfil}. Estado: {estado_final}')
     for t in telas:
         rec(f"  - Tela {t.get('titulo', t.get('nome'))}: {t.get('estado')}")

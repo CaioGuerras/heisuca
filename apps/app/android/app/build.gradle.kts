@@ -233,6 +233,9 @@ val downloadLibdovi = tasks.register("downloadLibdovi") {
 }
 
 val heisucaPreview = providers.gradleProperty("heisucaPreview").orNull == "true"
+// Build da Play (AAB): pacote do app publicado e só com a chave do Heisuca (key.properties), nunca a de debug.
+val heisucaLoja = providers.gradleProperty("heisucaLoja").orNull == "true"
+if (heisucaLoja && heisucaPreview) throw GradleException("heisucaLoja e heisucaPreview não podem ir juntos")
 
 android {
   buildFeatures { buildConfig = true }
@@ -252,7 +255,11 @@ android {
   }
 
   defaultConfig {
-    applicationId = if (heisucaPreview) "app.heisuca.player.teste.home" else "app.heisuca.player.teste"
+    applicationId = when {
+      heisucaLoja -> "app.heisuca.player"
+      heisucaPreview -> "app.heisuca.player.teste.home"
+      else -> "app.heisuca.player.teste"
+    }
     manifestPlaceholders["heisucaAppLabel"] = if (heisucaPreview) "Heisuca Teste" else "Heisuca"
     minSdk = 25 // Fire OS 6.x (API 25); :libmpv shares the same floor
     targetSdk = flutter.targetSdkVersion
@@ -308,7 +315,9 @@ android {
         signingConfig = signingConfigs.getByName("release")
       }
       // If key.properties doesn't exist, it will use debug signing for CI builds
-      else {
+      else if (heisucaLoja) {
+        throw GradleException("heisucaLoja exige android/key.properties (chave do Heisuca)")
+      } else {
         signingConfig = signingConfigs.getByName("debug") // CGFLIX: APK instalável sem keystore
       }
       ndk {

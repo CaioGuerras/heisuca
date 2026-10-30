@@ -465,17 +465,27 @@ def tocar_avatar_tv():
     time.sleep(1.5)
 
 
+def resumo_foco_tv(nos):
+    """Diagnóstico curto para o log da bancada: tela reconhecida e elemento focado."""
+    foco = inspecionar_foco(nos)
+    return f"tela={reconhecer_tela_tv(nos)} foco={foco['elemento']!r} {foco['bounds']}"
+
+
 def abrir_destino_tv(destino, rec=None):
     """Abre um destino pelo menu do avatar só com D-Pad: sobe até o avatar, OK, desce até o item, OK.
     Devolve (abriu_por_dpad, menu_abriu). O menu abre sempre focado em Início."""
     rec = rec or (lambda msg: None)
     por_dpad = False
+    rec(f'{destino}: antes dos UP: {resumo_foco_tv(dump_tv())}')
     for _ in range(6):
         dpad_up(espera=0.6)
+    rec(f'{destino}: depois dos UP: {resumo_foco_tv(dump_tv())}')
     dpad_center(espera=1.5)
-    if menu_tv_aberto(dump_tv()):
+    nos = dump_tv()
+    if menu_tv_aberto(nos):
         por_dpad = True
     else:
+        rec(f'{destino}: depois do OK: {resumo_foco_tv(nos)}')
         rec(f'{destino}: menu do avatar não abriu por D-Pad; tentando pelo toque no avatar')
         tocar_avatar_tv()
         if not menu_tv_aberto(dump_tv()):

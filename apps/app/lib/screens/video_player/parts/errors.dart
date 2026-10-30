@@ -325,4 +325,98 @@ extension _VideoPlayerErrorMethods on VideoPlayerScreenState {
 
     await _trackManager?.onBackendSwitched();
   }
+
+  /// Vigia de reprodução: se em 8 s do play o mpv não renderizou nenhum quadro
+  /// (ou quadros perdidos > 30 %), pausa e mostra o aviso.
+  void _armPlaybackRenderWatchdog(Player currentPlayer, int generation) {
+    _renderWatchdogTimer?.cancel();
+    _renderWatchdogTimer = null;
+    if (_renderWatchdogDisarmed) return;
+
+    void scheduleCheck() {
+      _renderWatchdogTimer?.cancel();
+      _renderWatchdogTimer = Timer(const Duration(seconds: 8), () async {
+        _renderWatchdogTimer = null;
+        if (!mounted || _shuttingDown || _isExiting.value || _renderWatchdogDisarmed) return;
+        if (player != currentPlayer || !_isCurrentPlaybackGeneration(generation, currentPlayer)) return;
+
+        // Se o player está em buffering ou pausado, não é stall de decodificação.
+        if (currentPlayer.state.buffering || currentPlayer.state.playing == false) {
+          return;
+        }
+
+        final hasRendered = currentPlayer.state.hasRenderedFrame || _firstFrame.rendered;
+        var stallDetected = false;
+        if (!hasRendered) {
+          stallDetected = true;
+        } else {
+          final frameDrop = int.tryParse(await currentPlayer.getProperty('frame-drop-count') ?? '') ?? 0;
+          if (frameDrop > 0) {
+            final fps = double.tryParse(await currentPlayer.getProperty('container-fps') ?? '') ??
+                double.tryParse(await currentPlayer.getProperty('estimated-vf-fps') ?? '') ??
+                24.0;
+            final timePos = double.tryParse(await currentPlayer.getProperty('time-pos') ?? '') ?? 0.0;
+            final expectedFrames = (timePos * fps).round();
+
+            if (expectedFrames >= 48 && (frameDrop / expectedFrames) > 0.30) {
+              stallDetected = true;
+            }
+          }
+        }
+
+        if (stallDetected && mounted && !_isExiting.value) {
+          await currentPlayer.pause();
+
+          final version = _playbackSession?.selectedVersion;
+          final formatReason = version != null ? formatVersionReason(version) : 'Vídeo';
+
+          MediaVersion? altVersion;
+          int? altIndex;
+          final avail = _availableVersions;
+          for (var i = 0; i < avail.length; i++) {
+            final v = avail[i];
+            if (v.id != version?.id && isVersionPlayable(v)) {
+              altVersion = v;
+              altIndex = i;
+              break;
+            }
+          }
+          final altRes = altVersion?.videoResolution ??
+              (altVersion?.height != null ? '${altVersion!.height}p' : null);
+
+          if (!mounted || _isExiting.value) return;
+
+          final action = await showUnplayableMediaDialog(
+            context,
+            formatReason: formatReason,
+            alternativeResolution: altRes,
+          );
+
+          if (!mounted || _isExiting.value) return;
+
+          if (action == UnplayableMediaAction.back) {
+            unawaited(_handleBackButton());
+          } else if (action == UnplayableMediaAction.playVersion && altIndex != null) {
+            unawaited(_switchPlaybackSource(newMediaIndex: altIndex));
+          } else if (action == UnplayableMediaAction.tryAnyway) {
+            _renderWatchdogDisarmed = true;
+            await currentPlayer.play();
+          }
+        }
+      });
+    }
+
+    final outcome = _playbackAttempt?.outcome;
+    if (outcome != null && !outcome.isSettled) {
+      outcome.fileLoaded.then((loaded) {
+        if (!mounted || _shuttingDown || _isExiting.value || _renderWatchdogDisarmed) return;
+        if (player != currentPlayer || !_isCurrentPlaybackGeneration(generation, currentPlayer)) return;
+        if (loaded) {
+          scheduleCheck();
+        }
+      });
+    } else {
+      scheduleCheck();
+    }
+  }
 }

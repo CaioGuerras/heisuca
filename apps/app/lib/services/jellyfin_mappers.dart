@@ -666,6 +666,10 @@ class JellyfinMappers {
     return nullIfEmptyList(result);
   }
 
+  /// Streams de uma MediaSource crua, no mesmo formato de [_mediaVersions].
+  static List<MediaStream> mediaStreamsOfSource(Map<String, dynamic> source) =>
+      _mediaStreams(source['MediaStreams'], source: source);
+
   static List<MediaStream> _mediaStreams(Object? raw, {Map<String, dynamic>? source}) {
     if (raw is! List) return const [];
     final result = <MediaStream>[];
@@ -704,6 +708,8 @@ class JellyfinMappers {
           hdr: isVideo && jellyfinVideoStreamIsHdr(source ?? const <String, dynamic>{}, s),
           dolbyVision: isDolbyVision,
           dolbyVisionProfile: isDolbyVision ? jellyfinDolbyVisionProfile(s) : null,
+          profile: isVideo ? s['Profile']?.toString() : null,
+          bitDepth: isVideo ? flexibleInt(s['BitDepth']) : null,
           forced: f.isForced,
           sidecarPath: f.isExternalFile ? f.deliveryUrl : null,
         ),

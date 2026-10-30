@@ -669,6 +669,7 @@ extension _VideoPlayerReloadMethods on VideoPlayerScreenState {
             return isCurrentReload();
           },
           afterMediaOpened: (_, holdPlaybackStart, _) async {
+            _armPlaybackRenderWatchdog(currentPlayer, _transitionGate.generation);
             if (wtOwnsStart && holdPlaybackStart) reloadStartupHold = Completer<void>();
             _episode.completionLatch.reset();
             if (isItemChange) {

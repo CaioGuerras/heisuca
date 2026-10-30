@@ -299,6 +299,59 @@ Future<void> showServerBusyDialog(BuildContext context) async {
   );
 }
 
+/// Actions returned by [showUnplayableMediaDialog].
+enum UnplayableMediaAction {
+  playVersion,
+  tryAnyway,
+  back,
+}
+
+/// Shows warning modal when a media file cannot be decoded by hardware or software.
+/// Buttons:
+/// - [Tocar versão <res>] (if alternative resolution is available)
+/// - [Tentar assim mesmo]
+/// - [Voltar]
+/// First button receives initial autofocus for D-pad navigation.
+Future<UnplayableMediaAction> showUnplayableMediaDialog(
+  BuildContext context, {
+  required String formatReason,
+  String? alternativeResolution,
+}) async {
+  final hasAlternative = alternativeResolution != null && alternativeResolution.isNotEmpty;
+  final result = await showScopedDialog<UnplayableMediaAction>(
+    context: context,
+    barrierDismissible: false,
+    builder: (ctx) => AlertDialog(
+      title: Text(t.messages.unplayableMediaTitle),
+      content: Text(formatReason),
+      actions: [
+        if (hasAlternative)
+          DialogActionButton(
+            autofocus: true,
+            isPrimary: true,
+            onPressed: () => Navigator.of(ctx).pop(UnplayableMediaAction.playVersion),
+            label: t.messages.unplayableMediaPlayVersion(resolution: alternativeResolution),
+            style: FilledButton.styleFrom(padding: _buttonPadding, shape: _buttonShape),
+          ),
+        DialogActionButton(
+          autofocus: !hasAlternative,
+          isPrimary: !hasAlternative,
+          onPressed: () => Navigator.of(ctx).pop(UnplayableMediaAction.tryAnyway),
+          label: t.messages.unplayableMediaTryAnyway,
+          style: FilledButton.styleFrom(padding: _buttonPadding, shape: _buttonShape),
+        ),
+        DialogActionButton(
+          autofocus: false,
+          onPressed: () => Navigator.of(ctx).pop(UnplayableMediaAction.back),
+          label: t.messages.unplayableMediaBack,
+          style: FilledButton.styleFrom(padding: _buttonPadding, shape: _buttonShape),
+        ),
+      ],
+    ),
+  );
+  return result ?? UnplayableMediaAction.back;
+}
+
 /// Shows a delete confirmation dialog.
 /// Convenience wrapper around [showConfirmDialog] with destructive styling.
 Future<bool> showDeleteConfirmation(

@@ -272,6 +272,8 @@ List<MediaVersion> jellyfinSourcesToVersions(List<dynamic> sources) {
         versionId: sourceId.isNotEmpty ? sourceId : i.toString(),
         partId: i.toString(),
         streamPath: sourceId,
+        // Sem os streams o isVersionPlayable não vê perfil, 10 bits nem HDR.
+        streams: JellyfinMappers.mediaStreamsOfSource(src),
         name: useName ? src['Name'] as String? : null,
       ),
     );

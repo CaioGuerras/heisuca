@@ -78,4 +78,18 @@ class MediaCodecQueryTest {
       MediaCodecQuery.hardwareVideoDecodeSupport(setOf("video/avc", "video/hevc"))
     )
   }
+
+  @Test
+  fun queryCapabilitiesReturnsExpectedStructureAndOldHevcAv1Keys() {
+    val caps = MediaCodecQuery.queryCapabilities(null)
+    assertTrue(caps.containsKey("hevc"))
+    assertTrue(caps.containsKey("av1"))
+    assertTrue(caps.containsKey("displaySupports4k"))
+    assertTrue(caps.containsKey("codecs"))
+    val codecs = caps["codecs"] as Map<*, *>
+    assertTrue(codecs.containsKey("h264"))
+    assertTrue(codecs.containsKey("hevc"))
+    assertTrue(codecs.containsKey("av1"))
+    assertTrue(codecs.containsKey("vp9"))
+  }
 }

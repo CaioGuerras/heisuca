@@ -993,6 +993,10 @@ class _Translations$messages$pt extends Translations$messages$en {
 	@override String get streamSelectionFailed => 'Não deu para trocar o áudio ou a legenda. Tente de novo.';
 	@override String get trackSelectionNotRemembered => 'Esta escolha de áudio ou legenda vale só para este vídeo.';
 	@override String get serverUnavailableForProfile => 'Nenhum servidor disponível para este perfil';
+	@override String get unplayableMediaTitle => 'Este aparelho não consegue tocar este arquivo';
+	@override String unplayableMediaPlayVersion({required Object resolution}) => 'Tocar versão ${resolution}';
+	@override String get unplayableMediaTryAnyway => 'Tentar assim mesmo';
+	@override String get unplayableMediaBack => 'Voltar';
 }
 
 // Path: subtitlingStyling
@@ -3900,6 +3904,10 @@ extension on TranslationsPt {
 			'messages.streamSelectionFailed' => 'Não deu para trocar o áudio ou a legenda. Tente de novo.',
 			'messages.trackSelectionNotRemembered' => 'Esta escolha de áudio ou legenda vale só para este vídeo.',
 			'messages.serverUnavailableForProfile' => 'Nenhum servidor disponível para este perfil',
+			'messages.unplayableMediaTitle' => 'Este aparelho não consegue tocar este arquivo',
+			'messages.unplayableMediaPlayVersion' => ({required Object resolution}) => 'Tocar versão ${resolution}',
+			'messages.unplayableMediaTryAnyway' => 'Tentar assim mesmo',
+			'messages.unplayableMediaBack' => 'Voltar',
 			'subtitlingStyling.text' => 'Texto',
 			'subtitlingStyling.border' => 'Contorno',
 			'subtitlingStyling.background' => 'Fundo',
@@ -4121,12 +4129,12 @@ extension on TranslationsPt {
 			'errors.reasonServerError' => 'o servidor teve um problema',
 			'errors.reasonCancelled' => 'o pedido foi cancelado',
 			'errors.reasonUnexpected' => 'aconteceu um erro inesperado',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.title' => 'Bibliotecas',
 			'libraries.fallbackTitle' => 'Biblioteca',
 			'libraries.scanLibraryFiles' => 'Procurar arquivos novos',
 			'libraries.scanLibrary' => 'Atualizar biblioteca',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.analyze' => 'Analisar',
 			'libraries.analyzeLibrary' => 'Analisar biblioteca',
 			'libraries.refreshMetadata' => 'Atualizar informações',
@@ -4635,12 +4643,12 @@ extension on TranslationsPt {
 			'watchTogether.endSessionQuestion' => 'Encerrar sessão?',
 			'watchTogether.leaveSessionQuestion' => 'Sair da sessão?',
 			'watchTogether.endSessionConfirm' => 'Isso vai encerrar a sessão para todo mundo.',
+			_ => null,
+		} ?? switch (path) {
 			'watchTogether.leaveSessionConfirm' => 'Você vai sair da sessão.',
 			'watchTogether.endSessionConfirmOverlay' => 'Isso vai encerrar o Assistir juntos para todo mundo.',
 			'watchTogether.leaveSessionConfirmOverlay' => 'Você vai sair do Assistir juntos.',
 			'watchTogether.end' => 'Encerrar',
-			_ => null,
-		} ?? switch (path) {
 			'watchTogether.leave' => 'Sair',
 			'watchTogether.syncing' => 'Sincronizando...',
 			'watchTogether.joinWatchSession' => 'Entrar na sessão',
@@ -5149,12 +5157,12 @@ extension on TranslationsPt {
 			'services.deviceCode.waitingForAuthorization' => 'Esperando a autorização…',
 			'services.deviceCode.codeCopied' => 'Código copiado',
 			'services.oauthProxy.title' => ({required Object service}) => 'Entrar no ${service}',
+			_ => null,
+		} ?? switch (path) {
 			'services.oauthProxy.body' => 'Leia este código QR ou abra o endereço em qualquer aparelho.',
 			'services.oauthProxy.openToSignIn' => ({required Object service}) => 'Abrir ${service} para entrar',
 			'services.pendingAuth.copyUrl' => 'Copiar endereço de acesso',
 			'services.pendingAuth.urlCopied' => 'Endereço copiado',
-			_ => null,
-		} ?? switch (path) {
 			'services.libraryFilter.title' => 'Filtro de bibliotecas',
 			'services.libraryFilter.subtitleAllSyncing' => 'Sincronizando todas as bibliotecas',
 			'services.libraryFilter.subtitleNoneSyncing' => 'Nada a sincronizar',

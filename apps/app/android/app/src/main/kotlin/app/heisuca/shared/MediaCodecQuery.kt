@@ -3,6 +3,7 @@ package app.heisuca.shared
 import android.media.MediaCodecInfo
 import android.media.MediaCodecList
 import android.os.Build
+import android.view.Display
 import java.util.Locale
 
 /** Canonical decoder lookup and hardware classification for native playback. */
@@ -21,6 +22,162 @@ internal object MediaCodecQuery {
   fun hardwareVideoDecodeSupport(
     hardwareMimeTypes: Set<String> = hardwareDecoderMimeTypes()
   ): Map<String, Boolean> = HARDWARE_GATED_VIDEO_MIME_TYPES.mapValues { (_, mimeType) -> mimeType in hardwareMimeTypes }
+
+  /**
+   * Whether the active display mode supports 4K (3840x2160 or higher).
+   */
+  fun displaySupports4k(display: Display?): Boolean {
+    if (display == null) return false
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      val modes = try {
+        display.supportedModes
+      } catch (e: Throwable) {
+        null
+      } ?: return false
+      return modes.any { mode ->
+        val maxDim = maxOf(mode.physicalWidth, mode.physicalHeight)
+        val minDim = minOf(mode.physicalWidth, mode.physicalHeight)
+        maxDim >= 3840 && minDim >= 2160
+      }
+    }
+    return false
+  }
+
+  /**
+   * Details per codec (hardware decoder present, supported profiles, max resolution and fps).
+   * Profiles checked:
+   * - H.264: High, High 10
+   * - HEVC: Main, Main 10
+   * - AV1: Main, Main 10
+   * - VP9: 0, 2
+   * Max resolution/fps checked via VideoCapabilities.areSizeAndRateSupported for:
+   * 3840x2160@24/60 and 1920x1080@60.
+   */
+  fun queryCodecDetails(
+    codecKind: Int = MediaCodecList.REGULAR_CODECS
+  ): Map<String, Map<String, Any>> {
+    val codecs = mapOf(
+      "h264" to "video/avc",
+      "hevc" to "video/hevc",
+      "av1" to "video/av01",
+      "vp9" to "video/x-vnd.on2.vp9"
+    )
+
+    val allDecoders = try {
+      MediaCodecList(codecKind).codecInfos.filter { !it.isEncoder && isHardwareAccelerated(it) }
+    } catch (e: Throwable) {
+      emptyList()
+    }
+
+    val result = mutableMapOf<String, Map<String, Any>>()
+
+    for ((codecKey, mimeType) in codecs) {
+      val matchingDecoders = allDecoders.filter { info ->
+        info.supportedTypes.any { it.equals(mimeType, ignoreCase = true) }
+      }
+
+      val hasHardware = matchingDecoders.isNotEmpty()
+      val profiles = mutableSetOf<String>()
+      var can4k60 = false
+      var can4k24 = false
+      var can1080p60 = false
+
+      for (decoder in matchingDecoders) {
+        val caps = try {
+          decoder.getCapabilitiesForType(mimeType)
+        } catch (e: Throwable) {
+          null
+        } ?: continue
+
+        val profileLevels = caps.profileLevels
+        if (profileLevels != null) {
+          for (pl in profileLevels) {
+            when (codecKey) {
+              "h264" -> {
+                if (pl.profile == MediaCodecInfo.CodecProfileLevel.AVCProfileHigh) profiles.add("high")
+                if (pl.profile == MediaCodecInfo.CodecProfileLevel.AVCProfileHigh10) profiles.add("high10")
+              }
+              "hevc" -> {
+                if (pl.profile == MediaCodecInfo.CodecProfileLevel.HEVCProfileMain) profiles.add("main")
+                if (pl.profile == MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10) profiles.add("main10")
+              }
+              "av1" -> {
+                if (pl.profile == 1) profiles.add("main")
+                if (pl.profile == 2) profiles.add("main10")
+              }
+              "vp9" -> {
+                if (pl.profile == MediaCodecInfo.CodecProfileLevel.VP9Profile0) {
+                  profiles.add("0")
+                  profiles.add("profile0")
+                }
+                if (pl.profile == MediaCodecInfo.CodecProfileLevel.VP9Profile2) {
+                  profiles.add("2")
+                  profiles.add("profile2")
+                }
+              }
+            }
+          }
+        }
+
+        val videoCaps = caps.videoCapabilities
+        if (videoCaps != null) {
+          if (!can4k60) {
+            can4k60 = try { videoCaps.areSizeAndRateSupported(3840, 2160, 60.0) } catch (e: Throwable) { false }
+          }
+          if (!can4k24) {
+            can4k24 = try { videoCaps.areSizeAndRateSupported(3840, 2160, 24.0) } catch (e: Throwable) { false }
+          }
+          if (!can1080p60) {
+            can1080p60 = try { videoCaps.areSizeAndRateSupported(1920, 1080, 60.0) } catch (e: Throwable) { false }
+          }
+        }
+      }
+
+      val maxRes = when {
+        can4k60 -> "4k60"
+        can4k24 -> "4k24"
+        can1080p60 -> "1080p60"
+        hasHardware -> "supported"
+        else -> "none"
+      }
+
+      result[codecKey] = mapOf(
+        "hardware" to hasHardware,
+        "profiles" to profiles.toList(),
+        "max_resolution" to maxRes,
+        "can_4k_60" to can4k60,
+        "can_4k_24" to can4k24,
+        "can_1080p_60" to can1080p60,
+        "supports_4k" to (can4k60 || can4k24),
+        "supports_1080p60" to can1080p60
+      )
+    }
+
+    return result
+  }
+
+  /**
+   * Complete hardware decode capabilities, keeping the legacy `hevc` and `av1` booleans
+   * while adding per-codec profiles, maximum resolution/fps, and 4K display capability.
+   */
+  fun queryCapabilities(
+    display: Display? = null,
+    codecKind: Int = MediaCodecList.REGULAR_CODECS
+  ): Map<String, Any> {
+    val codecs = queryCodecDetails(codecKind)
+    val display4k = displaySupports4k(display)
+    val hevcHw = codecs["hevc"]?.get("hardware") == true
+    val av1Hw = codecs["av1"]?.get("hardware") == true
+
+    return mapOf(
+      "hevc" to hevcHw,
+      "av1" to av1Hw,
+      "displaySupports4k" to display4k,
+      "display_4k" to display4k,
+      "codecs" to codecs,
+      "profiles" to codecs.mapValues { (_, v) -> (v["profiles"] as? List<*>) ?: emptyList<String>() }
+    )
+  }
 
   /**
    * Every MIME type served by a hardware decoder, lowercased. One walk answers

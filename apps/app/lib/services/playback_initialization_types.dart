@@ -16,7 +16,9 @@ class PlaybackInitializationOptions {
   final MediaItem metadata;
 
   /// Picks among multiple `MediaSources[]` versions when an item has them.
-  final int selectedMediaIndex;
+  /// Nulo = sem escolha: o backend decide (no Jellyfin, o ranqueador de
+  /// versões). 0 é uma escolha como outra qualquer, nunca sentinela.
+  final int? selectedMediaIndex;
 
   /// Stable backend source id for the selected media version. Jellyfin merged
   /// versions can reorder between item fetches, so this wins over index there.

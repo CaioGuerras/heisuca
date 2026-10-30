@@ -3709,7 +3709,7 @@ class PlexClient
     try {
       final data = await getVideoPlaybackData(
         options.metadata.id,
-        mediaIndex: options.selectedMediaIndex,
+        mediaIndex: options.selectedMediaIndex ?? 0,
         selectedMediaSourceId: options.selectedMediaSourceId,
         preferredVersionSignature: options.preferredVersionSignature,
       );

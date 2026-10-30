@@ -64,23 +64,183 @@ class VideoDecodeCapabilities {
   /// "yes" from an assumed one. Both are set together or not at all.
   bool? _hardwareHevc;
   bool? _hardwareAv1;
+  bool? _displaySupports4k;
+  Map<String, List<String>>? _codecProfiles;
+  Map<String, String>? _codecMaxResolutions;
+  Map<String, bool>? _codecHardware;
 
   /// Get the singleton, probing the platform's decoders on first call.
   static Future<VideoDecodeCapabilities> getInstance() =>
       _singleton.getInstance(VideoDecodeCapabilities._, (instance) => instance._detect());
 
+  static VideoDecodeCapabilities? get instanceOrNull => _singleton.instance;
+
+  static VideoDecodeCapabilities get current => _singleton.instance ?? VideoDecodeCapabilities._();
+
   Future<void> _detect() async {
     try {
       final result = await deviceChannel.invokeMapMethod<String, dynamic>('getVideoDecodeCapabilities');
       if (result == null) return;
-      _hardwareHevc = result['hevc'] == true;
-      _hardwareAv1 = result['av1'] == true;
+      _applyResult(result);
     } on MissingPluginException {
       // Desktop, or a stale native build — keep advertising both.
     } on PlatformException {
       // Decoder enumeration failed — keep advertising both.
     }
   }
+
+  void _applyResult(Map<String, dynamic> result) {
+    _hardwareHevc = result['hevc'] == true;
+    _hardwareAv1 = result['av1'] == true;
+    if (result.containsKey('displaySupports4k') || result.containsKey('display_4k')) {
+      _displaySupports4k = result['displaySupports4k'] == true || result['display_4k'] == true;
+    }
+    final rawCodecs = result['codecs'];
+    if (rawCodecs is Map) {
+      _codecProfiles = {};
+      _codecMaxResolutions = {};
+      _codecHardware = {};
+      rawCodecs.forEach((k, v) {
+        if (v is Map) {
+          final codecName = k.toString().toLowerCase();
+          _codecHardware![codecName] = v['hardware'] == true;
+          final profiles = v['profiles'];
+          if (profiles is List) {
+            _codecProfiles![codecName] = profiles.map((p) => p.toString().toLowerCase()).toList();
+          }
+          final maxRes = v['max_resolution'];
+          if (maxRes != null) {
+            _codecMaxResolutions![codecName] = maxRes.toString().toLowerCase();
+          }
+        }
+      });
+    }
+    final rawProfiles = result['profiles'];
+    if (rawProfiles is Map && _codecProfiles == null) {
+      _codecProfiles = {};
+      rawProfiles.forEach((k, v) {
+        if (v is List) {
+          _codecProfiles![k.toString().toLowerCase()] = v.map((p) => p.toString().toLowerCase()).toList();
+        }
+      });
+    }
+  }
+
+  /// Whether the display supports 4K playback (3840x2160 or higher).
+  /// If unprobed or probe failed, defaults to true ("sonda falhou = assume suporte").
+  static bool get displaySupports4k => _singleton.instance?._displaySupports4k ?? true;
+
+  /// Check whether hardware decode supports [codec], [profile], [bitDepth] and [width]/[height].
+  /// If unprobed or probe failed, defaults to true.
+  static bool canHardwareDecode({
+    required String codec,
+    String? profile,
+    int? bitDepth,
+    int? width,
+    int? height,
+  }) {
+    final instance = _singleton.instance;
+    if (instance == null) return true;
+    return instance.checkHardwareDecode(
+      codec: codec,
+      profile: profile,
+      bitDepth: bitDepth,
+      width: width,
+      height: height,
+    );
+  }
+
+  bool checkHardwareDecode({
+    required String codec,
+    String? profile,
+    int? bitDepth,
+    int? width,
+    int? height,
+  }) {
+    final normCodec = _normalizeCodec(codec);
+    if (normCodec == null) return true;
+
+    final ranked = RankedVideoCodec.fromServerCodec(codec);
+    if (ranked != null && isRefusedByUser(ranked)) return false;
+
+    if (normCodec == 'hevc') {
+      if (_hardwareHevc == false) return false;
+    } else if (normCodec == 'av1') {
+      if (_hardwareAv1 == false) return false;
+    }
+
+    if (_codecHardware != null && _codecHardware![normCodec] == false) {
+      return false;
+    }
+
+    final is10Bit = (bitDepth != null && bitDepth > 8) ||
+        (profile != null && (profile.contains('10') || profile.toLowerCase().contains('hi10p')));
+
+    final profiles = _codecProfiles?[normCodec];
+    if (profiles != null) {
+      if (normCodec == 'h264') {
+        if (is10Bit && !profiles.contains('high10')) return false;
+      } else if (normCodec == 'hevc') {
+        if (is10Bit && !profiles.contains('main10')) return false;
+      } else if (normCodec == 'av1') {
+        if (is10Bit && !profiles.contains('main10')) return false;
+      } else if (normCodec == 'vp9') {
+        if (is10Bit && !profiles.contains('2') && !profiles.contains('profile2')) return false;
+      }
+    } else {
+      if (normCodec == 'h264' && is10Bit) {
+        if (_codecHardware != null) return false;
+      }
+    }
+
+    final is4k = (width != null && width > 1920) || (height != null && height > 1080);
+    if (is4k) {
+      final maxRes = _codecMaxResolutions?[normCodec];
+      if (maxRes != null && maxRes != '4k60' && maxRes != '4k24' && maxRes != 'supported') {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /// Check whether the device can smoothly software-decode the stream.
+  /// On mobile/TV (Android/iOS), 4K, 10-bit HEVC/H.264, and AV1 drop frames or artifact.
+  static bool canSoftwareDecode({
+    required String codec,
+    String? profile,
+    int? bitDepth,
+    int? width,
+    int? height,
+  }) {
+    if (kIsWeb) return false;
+    // On desktop, CPUs software-decode adequately.
+    if (defaultTargetPlatform == TargetPlatform.macOS ||
+        defaultTargetPlatform == TargetPlatform.linux ||
+        defaultTargetPlatform == TargetPlatform.windows) {
+      return true;
+    }
+
+    final is10Bit = (bitDepth != null && bitDepth > 8) ||
+        (profile != null && (profile.contains('10') || profile.toLowerCase().contains('hi10p')));
+    final is4k = (width != null && width > 1920) || (height != null && height > 1080);
+
+    if (is4k) return false;
+    final normCodec = _normalizeCodec(codec);
+    if (normCodec == 'hevc' && is10Bit) return false;
+    if (normCodec == 'h264' && is10Bit) return false;
+    if (normCodec == 'av1') return false;
+
+    return true;
+  }
+
+  static String? _normalizeCodec(String? codec) => switch (codec?.toLowerCase()) {
+    'h264' || 'avc' || 'avc1' => 'h264',
+    'hevc' || 'h265' || 'hev1' => 'hevc',
+    'av1' || 'av01' => 'av1',
+    'vp9' => 'vp9',
+    _ => codec?.toLowerCase(),
+  };
 
   /// Whether [codec] should be advertised to a media server. Safe before init.
   static bool accepts(RankedVideoCodec codec) {
@@ -127,8 +287,20 @@ class VideoDecodeCapabilities {
   /// Test-only: drop the memoized probe, optionally seeding measured results
   /// so the sync accessors can be exercised without a platform channel.
   @visibleForTesting
-  static void debugReset({bool? hardwareHevc, bool? hardwareAv1}) {
-    if (hardwareHevc == null && hardwareAv1 == null) {
+  static void debugReset({
+    bool? hardwareHevc,
+    bool? hardwareAv1,
+    bool? displaySupports4k,
+    Map<String, bool>? codecHardware,
+    Map<String, List<String>>? codecProfiles,
+    Map<String, String>? codecMaxResolutions,
+  }) {
+    if (hardwareHevc == null &&
+        hardwareAv1 == null &&
+        displaySupports4k == null &&
+        codecHardware == null &&
+        codecProfiles == null &&
+        codecMaxResolutions == null) {
       _singleton.debugReset();
       return;
     }
@@ -136,5 +308,9 @@ class VideoDecodeCapabilities {
     _singleton.debugReset(instance: instance);
     instance._hardwareHevc = hardwareHevc;
     instance._hardwareAv1 = hardwareAv1;
+    instance._displaySupports4k = displaySupports4k;
+    instance._codecHardware = codecHardware;
+    instance._codecProfiles = codecProfiles;
+    instance._codecMaxResolutions = codecMaxResolutions;
   }
 }

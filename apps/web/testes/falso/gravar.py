@@ -21,7 +21,7 @@ SAI = Path(__file__).resolve().parent / "dados"
 (SAI / "img").mkdir(parents=True, exist_ok=True); (SAI / "video").mkdir(exist_ok=True)
 
 def g(p):
-    with urllib.request.urlopen(urllib.request.Request(B + p, headers={"X-Emby-Token": jf._k}), timeout=60) as r:
+    with urllib.request.urlopen(urllib.request.Request(B + p, headers={"Authorization": f'MediaBrowser Token="{jf._k}"'}), timeout=60) as r:
         return json.load(r)
 
 def limpar(x):
@@ -132,7 +132,7 @@ def baixar(p):
     caminho, nome = p; destino = SAI / "img" / f"{nome}.jpg"
     if destino.exists(): return 0
     try:
-        with urllib.request.urlopen(urllib.request.Request(B + caminho, headers={"X-Emby-Token": jf._k}), timeout=60) as r:
+        with urllib.request.urlopen(urllib.request.Request(B + caminho, headers={"Authorization": f'MediaBrowser Token="{jf._k}"'}), timeout=60) as r:
             destino.write_bytes(r.read()); return 1
     except Exception: return 0
 unicos = list(dict(pedidos).items())   # (caminho, nome) sem repetir

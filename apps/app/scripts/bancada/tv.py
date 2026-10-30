@@ -909,6 +909,11 @@ def percorrer_tv(base, perfil='googletv-36', out_dir=None, registrar=None, conta
         })
 
     if raw_player and mudou_player and verificar_player_preto(raw_player):
+        # Filme que abre com fade em preto (30/10, Google TV): só é defeito se continuar preto 4 s depois.
+        rec('Player: captura preta, conferindo de novo em 4 s...')
+        time.sleep(4.0)
+        raw_player = capturar_png(cap_player) or raw_player
+    if raw_player and mudou_player and verificar_player_preto(raw_player):
         achados_player.append({
             'gravidade': VERMELHO,
             'codigo': 'player-preto',

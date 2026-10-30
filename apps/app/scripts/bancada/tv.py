@@ -305,6 +305,12 @@ def classificar_geral(telas, achados_globais):
     return VERDE
 
 
+def tem_rotulo(nos, chaves):
+    """True se algum rótulo da tela contém uma das chaves (o botão vem como "▶  Assistir", não "assistir")."""
+    rotulos = [r.strip().lower() for n in nos for r in desastre._rotulos(n)]
+    return any(c in r for r in rotulos for c in chaves)
+
+
 def checar_saude(nos, rotulo):
     """Checa se o app travou (ANR) ou saiu de primeiro plano."""
     dialogos = reconhecer_anr(nos)
@@ -757,8 +763,7 @@ def percorrer_tv(base, perfil='googletv-36', out_dir=None, registrar=None, conta
             'detalhe': 'Detalhe de filme: tela esperada não abriu com D-Pad (requer toque)'
         })
 
-    rotulos_filme = {r.strip().lower() for n in nos for r in desastre._rotulos(n)}
-    elementos_filme = bool(rotulos_filme & {'reproduzir', 'assistir', 'trailer', 'sinopse', 'detalhes', 'informações', 'play', 'watch', 'details', 'info', 'overview'})
+    elementos_filme = tem_rotulo(nos, {'reproduzir', 'assistir', 'trailer', 'sinopse', 'detalhes', 'informações', 'play', 'watch', 'details', 'info', 'overview'})
     if not elementos_filme and mudou_filme:
         achados_filme.append({
             'gravidade': ATENCAO,
@@ -830,8 +835,7 @@ def percorrer_tv(base, perfil='googletv-36', out_dir=None, registrar=None, conta
             'detalhe': 'Detalhe de série: tela esperada não abriu com D-Pad (requer toque)'
         })
 
-    rotulos_serie = {r.strip().lower() for n in nos for r in desastre._rotulos(n)}
-    elementos_serie = bool(rotulos_serie & {'temporada', 'temporadas', 'episódio', 'episódios', 'série', 'reproduzir', 'season', 'seasons', 'episode', 'episodes', 'series', 'play'})
+    elementos_serie = tem_rotulo(nos, {'temporada', 'temporadas', 'episódio', 'episódios', 'série', 'reproduzir', 'season', 'seasons', 'episode', 'episodes', 'series', 'play'})
     if not elementos_serie and mudou_serie:
         achados_serie.append({
             'gravidade': ATENCAO,

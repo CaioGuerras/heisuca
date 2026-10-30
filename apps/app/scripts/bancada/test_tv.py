@@ -391,6 +391,11 @@ class TestTvBancada(unittest.TestCase):
             if destino.exists():
                 destino.unlink()
 
+    def test_tem_rotulo_por_trecho(self):
+        nos = [{'text': '▶  Assistir', 'desc': '', 'hint': ''}, {'text': 'Áudio e legenda', 'desc': '', 'hint': ''}]
+        self.assertTrue(tv.tem_rotulo(nos, {'assistir'}))
+        self.assertFalse(tv.tem_rotulo(nos, {'temporada'}))
+
 
 if __name__ == '__main__':
     unittest.main()

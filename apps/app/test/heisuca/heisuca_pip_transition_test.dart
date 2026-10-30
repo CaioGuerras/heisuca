@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../integration_test/support/pip_overflow_policy.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
@@ -93,10 +92,25 @@ void main() {
     await tester.pump();
     expect(find.byType(MobileVideoControls), findsOneWidget);
     expect(tester.takeException(), isNull);
+
+    // Fechar a janelinha (bancada 30/10): o aviso de saída chega com a janela
+    // ainda em 228×128; o HUD não pode voltar antes de a janela crescer.
+    pip.isPipActive.value = true;
+    await tester.pump();
+    tester.view.physicalSize = const Size(227.8, 128);
+    await tester.pump();
+    pip.isPipActive.value = false;
+    await tester.pump();
+    expect(find.byType(MobileVideoControls), findsNothing);
+    expect(tester.takeException(), isNull);
+    tester.view.physicalSize = const Size(986, 444);
+    await tester.pump();
+    expect(find.byType(MobileVideoControls), findsOneWidget);
+    expect(tester.takeException(), isNull);
     chrome.cancelAutoHide();
     await tester.pumpWidget(const SizedBox.shrink());
   });
-  testWidgets('P1: regra reconhece diagnóstico real do HUD pequeno e rejeita janela cheia', (tester) async {
+  testWidgets('P1: janela de PiP sem aviso do Android não monta o HUD nem estoura', (tester) async {
     resetSharedPreferencesForTest();
     SettingsService.resetForTesting();
     final settings = await SettingsService.getInstance();
@@ -155,17 +169,12 @@ void main() {
       else original?.call(details);
     };
     addTearDown(() => FlutterError.onError = original);
+    // Antes (até 30/10) esta janela estourava o HUD em 196 px; a regra de
+    // tolerância segue testada em test/bancada/pip_overflow_policy_test.dart.
     tester.view.physicalSize = const Size(240.8, 108.2);
     await tester.pump();
-    expect(errors, isNotEmpty);
-    for (final details in errors) {
-      expect(pipHudWarning(details, phase: 'entrada', width: 240.8, height: 108.2), isNotNull);
-      final source = details.toDiagnosticsNode().toStringDeep();
-      expect(knownPipHudOverflow(message: details.exceptionAsString(), source: source,
-        phase: 'entrada', width: 240.8, height: 108.2), isTrue, reason: source);
-      expect(knownPipHudOverflow(message: details.exceptionAsString(), source: source,
-        phase: 'fora', width: 986, height: 444), isFalse);
-    }
+    expect(errors, isEmpty);
+    expect(find.byType(MobileVideoControls), findsNothing);
     chrome.cancelAutoHide();
     await tester.pumpWidget(const SizedBox.shrink());
   });

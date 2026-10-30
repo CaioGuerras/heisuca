@@ -755,6 +755,9 @@ class PlexVideoControls extends StatefulWidget {
 
 class _PlexVideoControlsState extends State<PlexVideoControls>
     with WindowListener, ListenableBindingsMixin, MountedSetStateMixin {
+  /// Janela com lado menor abaixo disto é tamanho de PiP, não de tela.
+  static const double _pipWindowMaxShortestSide = 200;
+
   bool get _showControls => widget.chromeController.controlsVisible;
   bool get _hasRenderedFirstFrame => widget.hasFirstFrame?.value ?? true;
 
@@ -1190,10 +1193,15 @@ class _PlexVideoControlsState extends State<PlexVideoControls>
 
     // O Android anuncia a entrada antes de redimensionar a janela. O HUD já
     // deve estar ausente nessa transição, além de permanecer ausente no PiP.
+    // Ao fechar a janelinha a ordem se inverte: o aviso de saída chega com a
+    // janela ainda pequena (228×128 na bancada). Por isso o tamanho da janela
+    // também retira o HUD; nenhum celular tem lado menor que 200 dp.
     return ListenableBuilder(
       listenable: Listenable.merge([_pipService.isPipActive, _pipService.isPipTransitioning]),
       builder: (context, _) {
-        if ((_pipService.isPipActive.value || _pipService.isPipTransitioning.value) && !Platform.isMacOS) {
+        final pipSizedWindow = MediaQuery.sizeOf(context).shortestSide < _pipWindowMaxShortestSide;
+        if ((_pipService.isPipActive.value || _pipService.isPipTransitioning.value || pipSizedWindow) &&
+            !Platform.isMacOS) {
           return const SizedBox.shrink();
         }
         return Focus(

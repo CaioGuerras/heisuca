@@ -20,11 +20,12 @@ class HeisucaHomePreloader {
     BuildContext context, {
     required MultiServerProvider multiServer,
   }) async {
+    HeisucaHomeRepository? repo;
     try {
       final client = multiServer.serverManager.navigationOnlineClients.values.firstOrNull;
       final feeds = multiServer.serverManager.visibleOnlineClients.values.whereType<JellyfinClient>().toList();
 
-      final repo = switch (client) {
+      repo = switch (client) {
         final JellyfinClient jf => CgflixHomeRepository(jf),
         final PlexClient plex => HeisucaPlexHomeRepository(plex, feedClients: feeds),
         _ => null,
@@ -32,29 +33,38 @@ class HeisucaHomePreloader {
 
       if (repo == null) return;
 
-      // 1. Busca Início (destaque, Continuar, 1ª fileira) em paralelo
-      final heroFuture = repo.watchHero().first.timeout(
-        const Duration(seconds: 3),
-        onTimeout: () => const CgflixRowData(items: []),
-      );
-      final cwFuture = repo.watchRow(CgflixRowKind.continueWatching).first.timeout(
-        const Duration(seconds: 3),
-        onTimeout: () => const CgflixRowData(items: []),
-      );
-      final trendingFuture = repo.watchTrending().first.timeout(
-        const Duration(seconds: 3),
-        onTimeout: () => const CgflixRowData(items: []),
-      );
+      // 1. Busca Início (destaque, Continuar, 1ª fileira) em paralelo com tratamento de erro
+      final heroFuture = repo
+          .watchHero()
+          .first
+          .catchError((_) => const CgflixRowData(items: []))
+          .timeout(
+            const Duration(seconds: 3),
+            onTimeout: () => const CgflixRowData(items: []),
+          );
+      final cwFuture = repo
+          .watchRow(CgflixRowKind.continueWatching)
+          .first
+          .catchError((_) => const CgflixRowData(items: []))
+          .timeout(
+            const Duration(seconds: 3),
+            onTimeout: () => const CgflixRowData(items: []),
+          );
+      final trendingFuture = repo
+          .watchTrending()
+          .first
+          .catchError((_) => const CgflixRowData(items: []))
+          .timeout(
+            const Duration(seconds: 3),
+            onTimeout: () => const CgflixRowData(items: []),
+          );
 
       final results = await Future.wait([heroFuture, cwFuture, trendingFuture]);
       final heroItem = results[0].items.firstOrNull;
       final cwItems = results[1].items;
       final trendingItems = results[2].items;
 
-      if (!context.mounted) {
-        repo.dispose();
-        return;
-      }
+      if (!context.mounted) return;
 
       // 2. Pré-carrega arte do destaque (backdrop)
       final precacheFutures = <Future<void>>[];
@@ -80,7 +90,15 @@ class HeisucaHomePreloader {
               memWidth: memWidth,
               memHeight: memHeight,
             );
-            precacheFutures.add(precacheImage(provider, context).catchError((_) {}));
+            precacheFutures.add(
+              precacheImage(
+                provider,
+                context,
+                onError: (Object exception, StackTrace? stackTrace) {
+                  // Precache é uma otimização: falhas não devem ser reportadas como exceções ao framework
+                },
+              ).catchError((_) {}),
+            );
           }
         }
       }
@@ -109,7 +127,15 @@ class HeisucaHomePreloader {
               memWidth: memWidth,
               memHeight: memHeight,
             );
-            precacheFutures.add(precacheImage(provider, context).catchError((_) {}));
+            precacheFutures.add(
+              precacheImage(
+                provider,
+                context,
+                onError: (Object exception, StackTrace? stackTrace) {
+                  // Precache é uma otimização: falhas não devem ser reportadas como exceções ao framework
+                },
+              ).catchError((_) {}),
+            );
           }
         }
       }
@@ -120,9 +146,10 @@ class HeisucaHomePreloader {
           onTimeout: () => const [],
         );
       }
-      repo.dispose();
     } catch (_) {
       // Ignora falhas para nunca travar a inicialização do app
+    } finally {
+      repo?.dispose();
     }
   }
 }

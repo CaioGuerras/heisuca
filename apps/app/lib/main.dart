@@ -1871,6 +1871,7 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
       // regression doesn't go silent.
       appLogger.e('Setup: failed to load connections; returning to auth', error: e, stackTrace: st);
 
+      if (!_homePreloadCompleter.isCompleted) _homePreloadCompleter.complete();
       if (mounted) {
         unawaited(
           _aguardarAbertura().then((_) {
@@ -1882,6 +1883,7 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
     }
 
     if (allConnections.isEmpty) {
+      if (!_homePreloadCompleter.isCompleted) _homePreloadCompleter.complete();
       if (mounted) {
         unawaited(
           _aguardarAbertura().then((_) {
@@ -1925,6 +1927,7 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
     if (!mounted) return;
 
     if (activeProfile.active == null && activeProfile.profiles.isEmpty) {
+      if (!_homePreloadCompleter.isCompleted) _homePreloadCompleter.complete();
       appLogger.w('Setup: stored connections exist but no profiles resolved after bootstrap; returning to auth');
       unawaited(
         _aguardarAbertura().then((_) {
@@ -2043,6 +2046,7 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
 
   @override
   void dispose() {
+    if (!_homePreloadCompleter.isCompleted) _homePreloadCompleter.complete();
     _statusSub?.cancel();
     _connectProgressSub?.cancel();
     super.dispose();

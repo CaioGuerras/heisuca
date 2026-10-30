@@ -322,5 +322,31 @@ void main() {
       await tester.pump(const Duration(milliseconds: 600));
       expect(finished, true);
     });
+
+    testWidgets('G1.7 Resiliência de preload: erro no preloadFuture não trava a abertura', (tester) async {
+      var finished = false;
+      final errorFuture = Future<void>.error(Exception('rede indisponível'))..ignore();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: HeisucaOpeningSplash(
+            onAnimationFinished: () => finished = true,
+            preloadFuture: errorFuture,
+          ),
+        ),
+      );
+
+      // Aguarda o piso da abertura
+      await tester.pump(const Duration(milliseconds: 1100));
+      expect(finished, true);
+    });
+
+    test('G1.1 Detecção de TV: Apple TV tem precedência mesmo se forceTv for falso', () {
+      TvDetectionService.setForceTVSync(false);
+      TvDetectionService.debugSetAppleTVOverride(true);
+      expect(PlatformDetector.isTV(), true);
+
+      TvDetectionService.debugSetAppleTVOverride(null);
+      expect(PlatformDetector.isTV(), false);
+    });
   });
 }

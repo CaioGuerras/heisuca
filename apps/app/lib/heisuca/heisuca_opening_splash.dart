@@ -76,16 +76,19 @@ class _HeisucaOpeningSplashState extends State<HeisucaOpeningSplash> with Single
 
     // Abertura com preload: piso de ~1 s, teto de ~4 s
     final minDelay = Future.delayed(widget.duration);
-    final preload = widget.preloadFuture?.timeout(
+    final preload = (widget.preloadFuture?.catchError((_) {}) ?? Future.value()).timeout(
       const Duration(milliseconds: 4000),
       onTimeout: () {},
-    ) ?? Future.value();
+    );
 
     Future.wait([minDelay, preload]).then((_) {
       if (!mounted) return;
       if (!DevicePerformance.isReduced && !MediaQuery.disableAnimationsOf(context)) {
         HapticFeedback.lightImpact();
       }
+      widget.onAnimationFinished();
+    }).catchError((_) {
+      if (!mounted) return;
       widget.onAnimationFinished();
     });
   }

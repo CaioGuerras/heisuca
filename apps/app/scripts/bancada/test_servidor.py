@@ -1,5 +1,7 @@
+import io
 import unittest
 from copy import deepcopy
+from unittest import mock
 
 from servidor import BancadaIndisponivel, RestauracaoFalhou, Servidor, estado, intacto, limpar_log, selecionar
 
@@ -75,6 +77,42 @@ class SegurancaDaBancada(unittest.TestCase):
             def ocupado(self): raise BancadaIndisponivel('Sem resposta')
             def logout(self): pass
         with self.assertRaises(BancadaIndisponivel): selecionar('https://exemplo.invalid', ['teste'], Fake)
+
+    def test_token_vai_no_authorization_porque_o_servidor_recusa_o_cabecalho_legado(self):
+        # 30/10: EnableLegacyAuthorization=false; só X-Emby-Token dava 401 em todas as contas.
+        enviados = []
+        def urlopen(request, timeout):
+            enviados.append(dict(request.header_items()))
+            return io.BytesIO(b'[]')
+        client = Servidor('https://exemplo.invalid', 'token-falso', 'abc-def', 'aparelho')
+        with mock.patch('servidor.urllib.request.urlopen', side_effect=urlopen):
+            client.request('GET', '/Sessions')
+        self.assertIn('Token="token-falso"', enviados[0]['Authorization'])
+        self.assertIn('DeviceId="aparelho"', enviados[0]['Authorization'])
+
+    def test_login_sem_token_nao_manda_token_vazio(self):
+        enviados = []
+        def urlopen(request, timeout):
+            enviados.append(dict(request.header_items()))
+            return io.BytesIO(b'{}')
+        with mock.patch('servidor.urllib.request.urlopen', side_effect=urlopen):
+            Servidor('https://exemplo.invalid', device='aparelho').request('POST', '/Users/AuthenticateByName', {})
+        self.assertNotIn('Token=', enviados[0]['Authorization'])
+        self.assertNotIn('X-emby-token', enviados[0])
+
+    def test_rodizio_esgotado_mostra_o_ultimo_erro_do_servidor(self):
+        class Fake:
+            token = 'token'
+            def __init__(self, base): self.ultimo_erro = None
+            def autenticar(self, name): pass
+            def ocupado(self):
+                self.ultimo_erro = 'GET /Sessions -> HTTP 401'
+                raise BancadaIndisponivel('Sem resposta')
+            def logout(self): pass
+        with self.assertRaises(BancadaIndisponivel) as erro:
+            selecionar('https://exemplo.invalid', ['teste'], Fake)
+        self.assertIn('GET /Sessions -> HTTP 401', str(erro.exception))
+        self.assertNotIn('token', str(erro.exception))
 
     def test_sessao_pausada_tambem_faz_conta_ser_poupada(self):
         client = ServidorFalso(sessions=[{'UserId': 'ABCDEF', 'DeviceId': 'outro',

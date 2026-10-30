@@ -25,6 +25,7 @@ import 'package:heisuca/profiles/active_profile_provider.dart';
 import 'package:heisuca/profiles/profile_registry.dart';
 import 'package:heisuca/screens/search_screen.dart';
 import 'package:heisuca/screens/video_player_screen.dart';
+import 'package:heisuca/services/jellyfin_auth_header.dart';
 import 'package:heisuca/services/jellyfin_client.dart';
 import 'package:heisuca/utils/pointer_scroll_axis.dart';
 import 'package:heisuca/utils/semantics_tree_gate.dart';
@@ -262,6 +263,17 @@ void main() {
     final http = HttpClient();
     try {
       final request = await http.getUrl(Uri.parse('${connection.baseUrl.replaceFirst(RegExp(r'/$'), '')}/Sessions'));
+      // O servidor recusa X-Emby-Token sozinho (EnableLegacyAuthorization=false desde 30/10).
+      request.headers.set(
+        'Authorization',
+        buildJellyfinAuthHeader(
+          clientName: 'Heisuca bancada',
+          clientVersion: '1',
+          deviceName: 'Bancada Android',
+          deviceId: connection.deviceId,
+          accessToken: connection.accessToken,
+        ),
+      );
       request.headers.set('X-Emby-Token', connection.accessToken);
       final response = await request.close();
       if (response.statusCode != 200) throw StateError('Não foi possível conferir as sessões antes do vídeo.');

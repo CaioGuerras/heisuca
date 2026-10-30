@@ -51,8 +51,12 @@ class Servidor:
         url = self.base + path
         if query:
             url += '?' + urllib.parse.urlencode(query, doseq=True, safe=',')
-        headers = {'Authorization': f'MediaBrowser Client="Heisuca bancada", Device="Bancada Android", DeviceId="{self.device}", Version="1"',
-                   'Content-Type': 'application/json'}
+        autorizacao = f'MediaBrowser Client="Heisuca bancada", Device="Bancada Android", DeviceId="{self.device}", Version="1"'
+        # Desde 30/10 o servidor está com EnableLegacyAuthorization=false: só o Token dentro do
+        # Authorization vale; X-Emby-Token sozinho dá 401. O cabeçalho legado fica para servidores antigos.
+        if self.token:
+            autorizacao += f', Token="{self.token}"'
+        headers = {'Authorization': autorizacao, 'Content-Type': 'application/json'}
         if self.token:
             headers['X-Emby-Token'] = self.token
         request = urllib.request.Request(url, method=method, headers=headers,
@@ -162,6 +166,7 @@ class Servidor:
 
 
 def selecionar(base, names, factory=Servidor):
+    ultimo = None  # 'GET /Sessions -> HTTP 401': sem isto a causa some atrás de "nenhuma conta livre"
     for name in names:
         name = name.strip()
         if not name or name.lower().endswith('-kids'):
@@ -175,9 +180,11 @@ def selecionar(base, names, factory=Servidor):
             video = client.escolher_video()
             return client, name, video
         except BancadaIndisponivel:
+            ultimo = getattr(client, 'ultimo_erro', None) or ultimo
             if client.token:
                 try:
                     client.logout()
                 except BancadaIndisponivel:
                     pass
-    raise BancadaIndisponivel('Nenhuma conta livre com vídeo seguro disponível.')
+    motivo = f' Último erro do servidor: {ultimo}.' if ultimo else ''
+    raise BancadaIndisponivel('Nenhuma conta livre com vídeo seguro disponível.' + motivo)

@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../cgflix/cgflix_palette.dart';
@@ -12,11 +15,26 @@ class HeisucaOpeningSplash extends StatefulWidget {
   const HeisucaOpeningSplash({
     super.key,
     required this.onAnimationFinished,
-    this.duration = const Duration(milliseconds: 2200),
+    this.duration = const Duration(milliseconds: 1000),
+    this.minimoSemCache = const Duration(milliseconds: 2200),
+    this.teto = const Duration(milliseconds: 4000),
+    this.preloadFuture,
   });
 
   final VoidCallback onAnimationFinished;
+
+  /// Animação e piso quando o Início já está no cache (Caio, 30/10: 1 s).
   final Duration duration;
+
+  /// Piso quando o Início precisa vir da rede (Caio, 30/10: 2,2 s).
+  final Duration minimoSemCache;
+
+  /// Tempo máximo de espera pelo preload (Caio, 30/10: 4 s).
+  final Duration teto;
+
+  /// Preload do Início; responde `true` quando os dados vieram do cache.
+  /// Sem preload, vale o piso com cache. Erro ou estouro do teto contam como sem cache.
+  final Future<bool>? preloadFuture;
 
   @override
   State<HeisucaOpeningSplash> createState() => _HeisucaOpeningSplashState();
@@ -63,12 +81,35 @@ class _HeisucaOpeningSplashState extends State<HeisucaOpeningSplash> with Single
     _started = true;
     if (DevicePerformance.isReduced || MediaQuery.disableAnimationsOf(context)) {
       _controller.duration = Duration.zero;
+      _controller.forward().then((_) {
+        if (!mounted) return;
+        widget.onAnimationFinished();
+      });
+      return;
     }
-    _controller.forward().then((_) {
-      if (!mounted) return;
-      if (!DevicePerformance.isReduced && !MediaQuery.disableAnimationsOf(context)) HapticFeedback.lightImpact();
-      widget.onAnimationFinished();
-    });
+
+    // Háptico no início da animação, não no fim da espera (Caio, 30/10)
+    HapticFeedback.lightImpact();
+    _controller.forward();
+    unawaited(_aguardarPreload());
+  }
+
+  /// Piso de 1 s com cache e 2,2 s sem cache, contados do início; teto de 4 s no preload.
+  Future<void> _aguardarPreload() async {
+    final relogio = clock.stopwatch()..start();
+    var comCache = true;
+    final preload = widget.preloadFuture;
+    if (preload != null) {
+      try {
+        comCache = await preload.timeout(widget.teto, onTimeout: () => false);
+      } catch (_) {
+        comCache = false;
+      }
+    }
+    final restante = (comCache ? widget.duration : widget.minimoSemCache) - relogio.elapsed;
+    if (restante > Duration.zero) await Future<void>.delayed(restante);
+    if (!mounted) return;
+    widget.onAnimationFinished();
   }
 
   @override

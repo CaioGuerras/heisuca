@@ -188,14 +188,15 @@ class MediaImageHelper {
 
     switch (imageType) {
       case ImageType.art:
+        final maxArtWidth = PlatformDetector.isTV() ? 1920.0 : double.infinity;
         if (DevicePerformance.isReduced) {
           // No 1.1× cover overshoot, capped at ~720p.
           return roundDimensions(
-            min(targetWidth, _reducedMaxArtWidth.toDouble()),
+            min(targetWidth, min(_reducedMaxArtWidth.toDouble(), maxArtWidth)),
             min(targetHeight, _reducedMaxArtHeight.toDouble()),
           );
         }
-        final coverWidth = targetWidth * 1.1;
+        final coverWidth = min(targetWidth * 1.1, maxArtWidth);
         final coverHeight = targetHeight * 1.1;
 
         return roundDimensions(coverWidth, coverHeight);
@@ -217,8 +218,15 @@ class MediaImageHelper {
         return roundDimensions(size, size);
 
       case ImageType.poster:
-        final calculatedWidth = min(targetWidth, targetHeight * (2 / 3));
-        final calculatedHeight = calculatedWidth * (3 / 2);
+        var calculatedWidth = min(targetWidth, targetHeight * (2 / 3));
+        var calculatedHeight = calculatedWidth * (3 / 2);
+        if (PlatformDetector.isTV()) {
+          // TV: pôster <= 720p
+          if (calculatedHeight > 720) {
+            calculatedHeight = 720;
+            calculatedWidth = calculatedHeight * (2 / 3);
+          }
+        }
         return roundDimensions(calculatedWidth, calculatedHeight);
     }
   }

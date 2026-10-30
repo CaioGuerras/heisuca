@@ -72,6 +72,7 @@ class TvDetectionService {
   static final AsyncSingleton<TvDetectionService> _singleton = AsyncSingleton();
   @visibleForTesting
   static set debugDetectionGate(Future<void>? value) => _singleton.debugGate = value;
+  static bool? _debugTvOverride;
   static bool? _debugAppleTVOverride;
   static bool? _debugAutomotiveOverride;
   bool _detected = false;
@@ -178,7 +179,10 @@ class TvDetectionService {
   ///
   /// App code goes through the [PlatformDetector] facade ([PlatformDetector.isTV]
   /// and siblings); these raw accessors exist for the facade and tests.
-  static bool isTVSync() => _debugAppleTVOverride ?? _singleton.instance?.isTV ?? false;
+  /// TV = detectada || forçada nas configurações. O override de teste só soma
+  /// (`true` força TV); nunca desliga a detecção de uma TV real.
+  static bool isTVSync() =>
+      _debugAppleTVOverride == true || _debugTvOverride == true || (_singleton.instance?.isTV ?? false);
 
   /// Synchronous Apple TV check (returns false if not initialized or not tvOS).
   static bool isAppleTVSync() => _debugAppleTVOverride ?? (_tvosBuild || _singleton.instance?._isAppleTV == true);
@@ -191,6 +195,12 @@ class TvDetectionService {
     _debugAppleTVOverride = value;
   }
 
+  /// Força TV em teste sem inicializar o serviço; `null` ou `false` voltam à detecção.
+  @visibleForTesting
+  static void debugSetTvOverride(bool? value) {
+    _debugTvOverride = value;
+  }
+
   @visibleForTesting
   static void debugSetAutomotiveOverride(bool? value) {
     _debugAutomotiveOverride = value;
@@ -199,6 +209,7 @@ class TvDetectionService {
   @visibleForTesting
   static void debugReset() {
     _singleton.debugReset();
+    _debugTvOverride = null;
     _debugAppleTVOverride = null;
     _debugAutomotiveOverride = null;
   }
@@ -212,6 +223,12 @@ class TvDetectionService {
 class PlatformDetector {
   static bool isTV() {
     return TvDetectionService.isTVSync();
+  }
+
+  static bool isFireTV() {
+    if (!isTV()) return false;
+    final reasons = TvDetectionService.tvDetectionReasonsSync();
+    return reasons.contains('fire_tv');
   }
 
   static bool isAppleTV() {

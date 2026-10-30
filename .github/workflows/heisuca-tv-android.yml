@@ -65,6 +65,9 @@ jobs:
         working-directory: apps/app
     strategy:
       fail-fast: false
+      # Um perfil por vez: com a Bancada Android tocando ao mesmo tempo, os dois perfis escolhiam a
+      # mesma conta livre e o 3º play caía no limite de 2 telas (403, run 41114730834, 30/10).
+      max-parallel: 1
       matrix:
         perfil:
           # O Google só publica imagem de TV x86_64 na API 36 (antes: x86 de 32 bits ou arm64).

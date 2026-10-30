@@ -27,6 +27,7 @@ from tv import (
     verificar_inicio_vazio,
     verificar_player_preto,
     verificar_texto_pequeno,
+    voltar_ao_inicio,
 )
 from servidor import limpar_log
 
@@ -209,6 +210,35 @@ class TestTvBancada(unittest.TestCase):
 
         self.assertIsNone(reconhecer_tela_tv([{'text': 'Outra tela'}]))
         self.assertIsNone(reconhecer_tela_tv([{'desc': '▶  Assistir'}, {'desc': 'Episódios'}]))
+
+    @patch('tv.back')
+    @patch('tv.dump_tv')
+    def test_voltar_ao_inicio_um_back_por_vez(self, mock_dump, mock_back):
+        inicio = [{'desc': 'Detalhes'}, {'desc': '▶  Assistir'}]
+        busca = [{'cls': 'android.widget.EditText', 'hint': 'Buscar filmes, séries'}]
+        # Busca: o 1º BACK só fecha o teclado (a tela continua na Busca); o 2º volta ao Início.
+        mock_dump.side_effect = [busca, busca, inicio]
+        nos, backs = voltar_ao_inicio()
+        self.assertEqual(nos, inicio)
+        self.assertEqual(backs, 2)
+        self.assertEqual(mock_back.call_count, 2)
+
+    @patch('tv.back')
+    @patch('tv.dump_tv')
+    def test_voltar_ao_inicio_nao_da_back_no_inicio(self, mock_dump, mock_back):
+        # BACK no Início fecha o app (androidtv, 30/10).
+        mock_dump.return_value = [{'desc': 'Detalhes'}, {'desc': '▶  Assistir'}]
+        _, backs = voltar_ao_inicio()
+        self.assertEqual(backs, 0)
+        mock_back.assert_not_called()
+
+    @patch('tv.back')
+    @patch('tv.dump_tv')
+    def test_voltar_ao_inicio_respeita_limite(self, mock_dump, mock_back):
+        mock_dump.return_value = [{'text': 'Outra tela'}]
+        _, backs = voltar_ao_inicio(max_backs=3)
+        self.assertEqual(backs, 3)
+        self.assertEqual(mock_back.call_count, 3)
 
     def test_menu_tv_aberto(self):
         menu = [{'desc': 'Família\nTrocar perfil'}] + [{'desc': d} for d in ITENS_MENU_TV]

@@ -409,6 +409,20 @@ def reconhecer_tela_tv(nos):
     return None
 
 
+def voltar_ao_inicio(max_backs=4, espera=2.0):
+    """Um BACK por vez até reconhecer o Início; nunca dá BACK no Início (fecha o app).
+
+    O 1º BACK pode só fechar o teclado da Busca (o campo pede o teclado de novo) ou o painel
+    de áudio/legenda do player (30/10). Devolve (nós da última leitura, BACKs dados)."""
+    nos = dump_tv()
+    backs = 0
+    while backs < max_backs and reconhecer_tela_tv(nos) != 'inicio':
+        back(espera=espera)
+        backs += 1
+        nos = dump_tv()
+    return nos, backs
+
+
 def menu_tv_aberto(nos):
     """O menu do avatar está na tela (cartão com Trocar perfil e os destinos)."""
     rotulos = {r.strip().lower() for n in nos for r in (n.get('text'), n.get('desc')) if r}
@@ -950,14 +964,15 @@ def percorrer_tv(base, perfil='googletv-36', out_dir=None, registrar=None, conta
 
     # Sair do player com BACK
     rec('Player: saindo com BACK...')
-    # Um BACK por vez até voltar ao Início: o 1º pode só fechar o painel de áudio/legenda.
-    # Dois BACK fixos fechavam o app no Google TV quando o 1º já saía do player (30/10).
-    nos_pos_player = []
-    for _ in range(3):
-        back(espera=2.0)
-        nos_pos_player = dump_tv()
-        if reconhecer_tela_tv(nos_pos_player) == 'inicio':
-            break
+    # Se o player já fechou sozinho (ex.: servidor negou o play por limite de telas, 403), o app
+    # volta ao Início e um BACK ali fecha o app (androidtv, 30/10): registra e não dá BACK.
+    if reconhecer_tela_tv(dump_tv()) == 'inicio':
+        achados_player.append({
+            'gravidade': VERMELHO,
+            'codigo': 'player-fechou-sozinho',
+            'detalhe': 'Player voltou ao Início antes do BACK (play negado ou erro; ver logcat e limite de telas)'
+        })
+    nos_pos_player, _ = voltar_ao_inicio()
     erro_sair = checar_saude(nos_pos_player, 'Saída do player')
     if erro_sair:
         achados_player.append(erro_sair)
@@ -975,8 +990,7 @@ def percorrer_tv(base, perfil='googletv-36', out_dir=None, registrar=None, conta
         'achados': achados_player,
     })
 
-    if reconhecer_tela_tv(dump_tv()) != 'inicio':
-        back(espera=2.0)
+    voltar_ao_inicio()
 
     # ==========================================
     # TELA 5: Busca
@@ -1023,8 +1037,8 @@ def percorrer_tv(base, perfil='googletv-36', out_dir=None, registrar=None, conta
             'detalhe': f'{len(pequenos)} textos pequenos na Busca'
         })
 
-    back(espera=2.0)
-    nos_pos_back = dump_tv()
+    # A Busca abre com o teclado: o 1º BACK só o fecha (Google TV, 30/10).
+    nos_pos_back, _ = voltar_ao_inicio()
     erro_back = checar_saude(nos_pos_back, 'BACK na Busca')
     if erro_back:
         achados_busca.append(erro_back)
@@ -1046,8 +1060,7 @@ def percorrer_tv(base, perfil='googletv-36', out_dir=None, registrar=None, conta
     # TELA 6: Configurações
     # ==========================================
     rec('6. Configurações')
-    if reconhecer_tela_tv(dump_tv()) != 'inicio':
-        back(espera=2.0)
+    voltar_ao_inicio()
     config_dpad, menu_ok = abrir_destino_tv('Ajustes', rec)
 
     nos = dump_tv()

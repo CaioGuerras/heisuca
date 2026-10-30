@@ -415,6 +415,18 @@ def menu_tv_aberto(nos):
     return any('trocar perfil' in r for r in rotulos) and 'ajustes' in rotulos and 'buscar' in rotulos
 
 
+def achado_menu_preso(nos, destino):
+    """Depois do OK no item, o menu tem de fechar. Menu ainda aberto = o D-Pad não anda entre os itens (defeito do app:
+    na TV, sem D-Pad no menu não há como chegar a Buscar nem a Ajustes)."""
+    if not menu_tv_aberto(nos):
+        return None
+    return {
+        'gravidade': VERMELHO,
+        'codigo': 'menu-preso',
+        'detalhe': f'{destino}: o menu do avatar ficou aberto depois do OK; o D-Pad não anda entre os itens',
+    }
+
+
 def tocar_avatar_tv():
     """Plano B: toca o avatar (48+29, 36+29 na tela de referência 1920×1080, escalada para a tela real)."""
     m = re.search(r'(\d+)x(\d+)', texto('shell', 'wm', 'size') or '')
@@ -975,6 +987,9 @@ def percorrer_tv(base, perfil='googletv-36', out_dir=None, registrar=None, conta
     nos = dump_tv()
     erro = checar_saude(nos, 'Busca')
     achados_busca = [erro] if erro else []
+    preso = achado_menu_preso(nos, 'Buscar')
+    if preso:
+        achados_busca.append(preso)
     if not busca_dpad:
         achados_busca.append({
             'gravidade': ATENCAO if menu_ok else VERMELHO,
@@ -1038,6 +1053,9 @@ def percorrer_tv(base, perfil='googletv-36', out_dir=None, registrar=None, conta
     nos = dump_tv()
     erro = checar_saude(nos, 'Configurações')
     achados_config = [erro] if erro else []
+    preso = achado_menu_preso(nos, 'Ajustes')
+    if preso:
+        achados_config.append(preso)
     if not config_dpad:
         achados_config.append({
             'gravidade': ATENCAO if menu_ok else VERMELHO,

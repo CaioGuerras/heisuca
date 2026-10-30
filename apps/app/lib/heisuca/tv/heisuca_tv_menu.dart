@@ -75,8 +75,11 @@ class _HeisucaTvMenuState extends State<HeisucaTvMenu> {
     final profileName = activeProfile?.displayName ?? 'Família';
     final initial = profileName.isNotEmpty ? profileName[0].toUpperCase() : 'T';
 
+    // O cartão só escuta o Voltar que sobe dos itens; não pega o foco para si, senão o autofocus do item
+    // (Início) perde a vez e o D-Pad não entra na lista (bancada da TV, 30/10: menu preso em Início).
     return Focus(
-      autofocus: true,
+      canRequestFocus: false,
+      skipTraversal: true,
       onKeyEvent: (node, event) {
         if (event is KeyDownEvent) {
           if (event.logicalKey == LogicalKeyboardKey.escape ||

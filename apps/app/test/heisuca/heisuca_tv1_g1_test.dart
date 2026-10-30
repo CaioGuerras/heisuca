@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:package_info_plus/package_info_plus.dart';
@@ -108,6 +109,53 @@ void main() {
       await tester.tap(find.text('Filmes'));
       await tester.pumpAndSettle();
       expect(selectedDestination, 'Filmes');
+      expect(find.byType(HeisucaTvMenu), findsNothing);
+    });
+
+    testWidgets('G1.1b Menu do avatar anda só com D-Pad: foco em Início, desce até Buscar e abre', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1920, 1080));
+      addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
+
+      var selectedDestination = '';
+      await tester.pumpWidget(
+        fixture.wrap(
+          MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => TextButton(
+                  autofocus: true,
+                  onPressed: () => showDialog(
+                    context: context,
+                    builder: (ctx) => HeisucaTvMenu(
+                      onSelectDestination: (dest) {
+                        selectedDestination = dest;
+                        Navigator.of(ctx).pop();
+                      },
+                    ),
+                  ),
+                  child: const Text('abrir'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(find.byType(HeisucaTvMenu), findsOneWidget);
+
+      // O foco abre num item do menu (Início), não no cartão.
+      final foco = FocusManager.instance.primaryFocus!.context!;
+      expect(find.descendant(of: find.byWidget(foco.widget), matching: find.text('Início')), findsOneWidget);
+
+      for (var i = 0; i < 4; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+      }
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(selectedDestination, 'Buscar');
       expect(find.byType(HeisucaTvMenu), findsNothing);
     });
 

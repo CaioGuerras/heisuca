@@ -8,6 +8,7 @@ from unittest.mock import patch, Mock
 import tv
 from tv import (
     ATENCAO,
+    achado_menu_preso,
     VERDE,
     VERMELHO,
     achar_apk,
@@ -213,6 +214,13 @@ class TestTvBancada(unittest.TestCase):
         menu = [{'desc': 'Família\nTrocar perfil'}] + [{'desc': d} for d in ITENS_MENU_TV]
         self.assertTrue(menu_tv_aberto(menu))
         self.assertFalse(menu_tv_aberto(menu[1:]))
+
+    def test_achado_menu_preso(self):
+        menu = [{'desc': 'Claudia\nTrocar perfil'}] + [{'desc': d} for d in ITENS_MENU_TV]
+        achado = achado_menu_preso(menu, 'Buscar')
+        self.assertEqual(achado['gravidade'], VERMELHO)
+        self.assertEqual(achado['codigo'], 'menu-preso')
+        self.assertIsNone(achado_menu_preso([{'text': 'Buscar'}, {'text': 'Digite o título'}], 'Buscar'))
 
     def test_verificar_inicio_vazio(self):
         nos_vazio = [

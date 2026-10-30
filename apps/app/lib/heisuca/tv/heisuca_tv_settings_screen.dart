@@ -8,6 +8,7 @@ import '../../screens/profile/profile_switch_screen.dart';
 import '../../screens/settings/about_screen.dart';
 import '../../services/settings_service.dart';
 import '../heisuca_theme.dart';
+import 'heisuca_tv_canvas.dart';
 
 /// Ajustes oficiais do Heisuca na TV — Enxuto.
 /// Apenas 7 itens focáveis por D-pad:
@@ -96,7 +97,8 @@ class _HeisucaTvSettingsScreenState extends State<HeisucaTvSettingsScreen> {
       _ => 'Normal (38)',
     };
 
-    return Scaffold(
+    return HeisucaTvCanvas(
+      child: Scaffold(
       backgroundColor: const Color(0xFF17151C),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 36),
@@ -213,6 +215,7 @@ class _HeisucaTvSettingsScreenState extends State<HeisucaTvSettingsScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 }

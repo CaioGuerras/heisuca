@@ -166,6 +166,39 @@ void main() {
       expect(find.byKey(const Key('heisuca-tv-continue-row')), findsOneWidget);
     });
 
+    testWidgets('G1.2b Início Modelo A cabe na TV 1080p real (960×540 dp, densidade 2)', (tester) async {
+      // O Google TV trabalha em 960×540 dp: sem a tela de referência (HeisucaTvCanvas) o destaque
+      // de 1080 de altura passava da tela e Assistir/Detalhes ficavam fora dela (bancada de 30/10).
+      await tester.binding.setSurfaceSize(const Size(960, 540));
+      addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
+
+      final testItem = MediaItem.jellyfin(
+        id: 'destaque-1',
+        serverId: 'srv-1',
+        title: 'O Menino e a Garça',
+        kind: MediaKind.movie,
+        year: 2024,
+        durationMs: 7440000,
+      );
+
+      await tester.pumpWidget(
+        fixture.wrap(
+          MaterialApp(
+            home: Scaffold(body: HeisucaTvHomeScreen(heroItem: testItem)),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      const tela = Rect.fromLTWH(0, 0, 960, 540);
+      for (final chave in ['heisuca-tv-hero-play', 'heisuca-tv-hero-details', 'heisuca-tv-avatar-button']) {
+        final rect = tester.getRect(find.byKey(Key(chave)));
+        expect(tela.contains(rect.topLeft) && tela.contains(rect.bottomRight - const Offset(0.01, 0.01)), isTrue,
+            reason: '$chave fora da tela: $rect');
+      }
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('G1.3 Título TV: Continuar em foco, áudio/legenda, versão e temporadas', (tester) async {
       await tester.binding.setSurfaceSize(const Size(1920, 1080));
       addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));

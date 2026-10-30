@@ -11,6 +11,7 @@ import argparse
 import io
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -338,6 +339,10 @@ DESTINOS_NAV_TV = {
     'baixados', 'downloads', 'download',
     'filmes', 'séries', 'series', 'movies', 'shows'
 }
+# Modelo A da TV (Heisuca TV-1, 30/10): sem trilho lateral; a Início é o destaque com [Assistir]/[Detalhes]
+# e o menu sai do avatar no topo (Início, Filmes, Séries, Animes, Buscar, Ajustes).
+TERMOS_INICIO_MODELO_A = ('em alta no brasil', 'continuar assistindo')
+ITENS_MENU_TV = ('Início', 'Filmes', 'Séries', 'Animes', 'Buscar', 'Ajustes')
 TERMOS_VAZIO = (
     'nenhum item', 'sem conteúdo', 'sem conteudo', 'vazio', 'nada aqui',
     'nenhum conteúdo', 'nenhum conteudo', 'adicione filmes', 'adicione séries',
@@ -377,7 +382,13 @@ def reconhecer_tela_tv(nos):
     if tem_editores:
         return 'login'
 
-    # 2. Início na TV: sem editores de login, possui menu lateral com destinos ou termo de início
+    # 2. Início do modelo A: destaque com [Assistir] + [Detalhes] ou faixa "Em alta no Brasil"
+    if any(t in r for r in rotulos for t in TERMOS_INICIO_MODELO_A):
+        return 'inicio'
+    if 'detalhes' in rotulos and any('assistir' in r for r in rotulos):
+        return 'inicio'
+
+    # 3. Início no trilho antigo: menu lateral com destinos ou termo de início
     tem_inicio = bool(rotulos & TERMOS_INICIO)
     tem_destinos = bool(rotulos & DESTINOS_NAV_TV)
     if tem_inicio and tem_destinos:
@@ -390,6 +401,42 @@ def reconhecer_tela_tv(nos):
         return 'inicio'
 
     return None
+
+
+def menu_tv_aberto(nos):
+    """O menu do avatar está na tela (cartão com Trocar perfil e os destinos)."""
+    rotulos = {r.strip().lower() for n in nos for r in (n.get('text'), n.get('desc')) if r}
+    return any('trocar perfil' in r for r in rotulos) and 'ajustes' in rotulos and 'buscar' in rotulos
+
+
+def tocar_avatar_tv():
+    """Plano B: toca o avatar (48+29, 36+29 na tela de referência 1920×1080, escalada para a tela real)."""
+    m = re.search(r'(\d+)x(\d+)', texto('shell', 'wm', 'size') or '')
+    largura = int(m.group(1)) if m else 1920
+    escala = largura / 1920
+    adb('shell', 'input', 'tap', str(round(77 * escala)), str(round(65 * escala)))
+    time.sleep(1.5)
+
+
+def abrir_destino_tv(destino, rec=None):
+    """Abre um destino pelo menu do avatar só com D-Pad: sobe até o avatar, OK, desce até o item, OK.
+    Devolve (abriu_por_dpad, menu_abriu). O menu abre sempre focado em Início."""
+    rec = rec or (lambda msg: None)
+    por_dpad = False
+    for _ in range(6):
+        dpad_up(espera=0.6)
+    dpad_center(espera=1.5)
+    if menu_tv_aberto(dump_tv()):
+        por_dpad = True
+    else:
+        rec(f'{destino}: menu do avatar não abriu por D-Pad; tentando pelo toque no avatar')
+        tocar_avatar_tv()
+        if not menu_tv_aberto(dump_tv()):
+            return False, False
+    for _ in range(ITENS_MENU_TV.index(destino)):
+        dpad_down(espera=0.5)
+    dpad_center(espera=2.5)
+    return por_dpad, True
 
 
 def verificar_inicio_vazio(nos):
@@ -883,13 +930,17 @@ def percorrer_tv(base, perfil='googletv-36', out_dir=None, registrar=None, conta
     # TELA 5: Busca
     # ==========================================
     rec('5. Busca')
-    dpad_left()
-    dpad_left()
-    tecla(KEY_SEARCH, espera=2.0)
+    busca_dpad, menu_ok = abrir_destino_tv('Buscar', rec)
 
     nos = dump_tv()
     erro = checar_saude(nos, 'Busca')
     achados_busca = [erro] if erro else []
+    if not busca_dpad:
+        achados_busca.append({
+            'gravidade': ATENCAO if menu_ok else VERMELHO,
+            'codigo': 'menu-avatar',
+            'detalhe': 'Busca: o menu do avatar não abriu por D-Pad' + ('' if menu_ok else ' nem por toque')
+        })
 
     cap_busca = out / '04_busca.png'
     raw_busca = capturar_png(cap_busca)
@@ -940,15 +991,19 @@ def percorrer_tv(base, perfil='googletv-36', out_dir=None, registrar=None, conta
     # TELA 6: Configurações
     # ==========================================
     rec('6. Configurações')
-    dpad_left()
-    dpad_left()
-    for _ in range(5):
-        dpad_down(espera=0.5)
-    dpad_center(espera=2.5)
+    if reconhecer_tela_tv(dump_tv()) != 'inicio':
+        back(espera=2.0)
+    config_dpad, menu_ok = abrir_destino_tv('Ajustes', rec)
 
     nos = dump_tv()
     erro = checar_saude(nos, 'Configurações')
     achados_config = [erro] if erro else []
+    if not config_dpad:
+        achados_config.append({
+            'gravidade': ATENCAO if menu_ok else VERMELHO,
+            'codigo': 'menu-avatar',
+            'detalhe': 'Ajustes: o menu do avatar não abriu por D-Pad' + ('' if menu_ok else ' nem por toque')
+        })
 
     cap_config = out / '09_configuracoes.png'
     raw_config = capturar_png(cap_config)
@@ -990,7 +1045,8 @@ def percorrer_tv(base, perfil='googletv-36', out_dir=None, registrar=None, conta
     # TELA 7: Sobre
     # ==========================================
     rec('7. Sobre')
-    for _ in range(6):
+    # Ajustes da TV: foco inicial em Perfil; Sobre é a 6ª linha (Perfil, Áudio, Legenda, Tamanho, Ainda está aí?, Sobre).
+    for _ in range(5):
         dpad_down(espera=0.5)
     dpad_center(espera=2.0)
 

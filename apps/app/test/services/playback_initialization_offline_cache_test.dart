@@ -493,7 +493,7 @@ class _StreamingPlaybackClient implements MediaServerClient {
     return PlaybackInitializationResult(
       availableVersions: const [],
       videoUrl: 'https://server/stream/${options.selectedMediaIndex}',
-      selectedMediaIndex: options.selectedMediaIndex,
+      selectedMediaIndex: options.selectedMediaIndex ?? 0,
     );
   }
 

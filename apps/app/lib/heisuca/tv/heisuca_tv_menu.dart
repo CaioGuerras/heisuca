@@ -6,6 +6,7 @@ import '../../profiles/active_profile_provider.dart';
 import '../../screens/profile/profile_switch_screen.dart';
 import '../../profiles/profile_avatar.dart';
 import '../heisuca_theme.dart';
+import 'heisuca_tv_canvas.dart';
 
 /// Menu oficial do Heisuca na TV (cartão sobreposto à tela).
 /// Acionado pelo avatar no topo esquerdo.
@@ -30,13 +31,15 @@ class HeisucaTvMenu extends StatefulWidget {
     return showDialog(
       context: context,
       barrierColor: const Color(0x990C0B0F),
-      builder: (ctx) => HeisucaTvMenu(
-        onSelectDestination: (dest) {
-          Navigator.of(ctx).pop();
-          onSelectDestination(dest);
-        },
-        initialDestination: initialDestination,
-        onClose: () => Navigator.of(ctx).pop(),
+      builder: (ctx) => HeisucaTvCanvas(
+        child: HeisucaTvMenu(
+          onSelectDestination: (dest) {
+            Navigator.of(ctx).pop();
+            onSelectDestination(dest);
+          },
+          initialDestination: initialDestination,
+          onClose: () => Navigator.of(ctx).pop(),
+        ),
       ),
     );
   }

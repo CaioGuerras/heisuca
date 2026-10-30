@@ -8,6 +8,7 @@ import '../../widgets/optimized_media_image.dart';
 import '../../cgflix/home/cgflix_actions.dart';
 import '../heisuca_theme.dart';
 import '../heisuca_title_sheet.dart';
+import 'heisuca_tv_canvas.dart';
 
 /// Ficha de Conteúdo oficial do Heisuca na TV (Filmes e Séries).
 /// - Fundo escurecido com backdrop e gradiente cinemático.
@@ -144,7 +145,8 @@ class _HeisucaTvTitleScreenState extends State<HeisucaTvTitleScreen> {
 
     final imagePath = _item.artPath ?? _item.thumbPath;
 
-    return Scaffold(
+    return HeisucaTvCanvas(
+      child: Scaffold(
       backgroundColor: const Color(0xFF17151C),
       body: Stack(
         fit: StackFit.expand,
@@ -325,6 +327,7 @@ class _HeisucaTvTitleScreenState extends State<HeisucaTvTitleScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 

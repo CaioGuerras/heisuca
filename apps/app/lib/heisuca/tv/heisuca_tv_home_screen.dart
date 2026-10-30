@@ -17,6 +17,7 @@ import '../heisuca_theme.dart';
 import 'heisuca_tv_header.dart';
 import 'heisuca_tv_menu.dart';
 import 'heisuca_tv_title_screen.dart';
+import 'heisuca_tv_canvas.dart';
 
 /// Início Flagship Heisuca na TV — Modelo A ("Destaque grande", estilo Apple TV).
 /// - Destaque em tela cheia com arte de fundo e gradientes laterais/inferiores.
@@ -163,7 +164,8 @@ class HeisucaTvHomeScreenState extends State<HeisucaTvHomeScreen> {
   Widget build(BuildContext context) {
     final hero = _activeHero ?? widget.heroItem;
 
-    return Scaffold(
+    return HeisucaTvCanvas(
+      child: Scaffold(
       backgroundColor: const Color(0xFF17151C), // BG
       body: Stack(
         children: [
@@ -336,6 +338,7 @@ class HeisucaTvHomeScreenState extends State<HeisucaTvHomeScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 

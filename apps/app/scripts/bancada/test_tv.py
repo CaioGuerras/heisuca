@@ -20,6 +20,8 @@ from tv import (
     inspecionar_foco,
     is_tela_inteira,
     reconhecer_tela_tv,
+    menu_tv_aberto,
+    ITENS_MENU_TV,
     tamanho_do_campo_tv,
     verificar_inicio_vazio,
     verificar_player_preto,
@@ -195,7 +197,22 @@ class TestTvBancada(unittest.TestCase):
         ]
         self.assertEqual(reconhecer_tela_tv(nos_inicio_en), 'inicio')
 
+        # Modelo A (30/10): destaque com Assistir/Detalhes, sem trilho lateral
+        nos_modelo_a = [
+            {'desc': 'EM ALTA NO BRASIL · Nº 1\nO Homem do Norte', 'cls': 'android.view.View'},
+            {'desc': '▶  Assistir', 'cls': 'android.widget.Button'},
+            {'desc': 'Detalhes', 'cls': 'android.widget.Button'},
+        ]
+        self.assertEqual(reconhecer_tela_tv(nos_modelo_a), 'inicio')
+        self.assertEqual(reconhecer_tela_tv(nos_modelo_a[1:]), 'inicio')
+
         self.assertIsNone(reconhecer_tela_tv([{'text': 'Outra tela'}]))
+        self.assertIsNone(reconhecer_tela_tv([{'desc': '▶  Assistir'}, {'desc': 'Episódios'}]))
+
+    def test_menu_tv_aberto(self):
+        menu = [{'desc': 'Família\nTrocar perfil'}] + [{'desc': d} for d in ITENS_MENU_TV]
+        self.assertTrue(menu_tv_aberto(menu))
+        self.assertFalse(menu_tv_aberto(menu[1:]))
 
     def test_verificar_inicio_vazio(self):
         nos_vazio = [

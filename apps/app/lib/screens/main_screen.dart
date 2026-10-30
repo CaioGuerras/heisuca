@@ -5,6 +5,7 @@ import '../heisuca/tv/heisuca_tv_menu.dart';
 import '../heisuca/tv/heisuca_tv_settings_screen.dart';
 import '../heisuca/tv/heisuca_tv_back_handler.dart';
 import '../cgflix/cgflix_navigation.dart';
+import '../cgflix/home/cgflix_home_logic.dart';
 import '../heisuca/heisuca_floating_island.dart';
 import '../heisuca/kids/heisuca_kids_flow.dart';
 import '../heisuca/heisuca_home_screen.dart';
@@ -1170,10 +1171,17 @@ class _MainScreenState extends State<MainScreen>
       case 'Filmes':
       case 'Séries':
       case 'Animes':
-        final librariesProvider = context.read<LibrariesProvider>();
-        final lib = librariesProvider.libraries.where((l) =>
-          l.title.toLowerCase().contains(destination.toLowerCase())
-        ).firstOrNull;
+        // Mesmas regras dos chips do Início: tipo da biblioteca (CollectionType), não o nome;
+        // Animes = biblioteca de séries chamada "Animes".
+        final kind = switch (destination) {
+          'Filmes' => CgflixChipKind.movies,
+          'Séries' => CgflixChipKind.shows,
+          _ => CgflixChipKind.animes,
+        };
+        final lib = cgflixLibraryChips(context.read<LibrariesProvider>().libraries)
+            .where((chip) => chip.kind == kind)
+            .firstOrNull
+            ?.library;
         if (lib != null) {
           _selectLibrary(lib.globalKey);
         } else {

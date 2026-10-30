@@ -13,14 +13,16 @@ import 'heisuca_plex_home_repository.dart';
 /// Busca o destaque, Continuar assistindo e a 1ª fileira ("Em alta no Brasil")
 /// e pré-carrega as imagens correspondentes na memória (ImageCache) para que
 /// a tela surja pronta e sem engasgos assim que a splash terminar.
+/// Responde `true` quando o destaque ou a 1ª fileira vieram do cache (abertura de 1 s).
 class HeisucaHomePreloader {
   const HeisucaHomePreloader._();
 
-  static Future<void> preloadHomeDataAndArt(
+  static Future<bool> preloadHomeDataAndArt(
     BuildContext context, {
     required MultiServerProvider multiServer,
   }) async {
     HeisucaHomeRepository? repo;
+    var comCache = false;
     try {
       final client = multiServer.serverManager.navigationOnlineClients.values.firstOrNull;
       final feeds = multiServer.serverManager.visibleOnlineClients.values.whereType<JellyfinClient>().toList();
@@ -31,7 +33,7 @@ class HeisucaHomePreloader {
         _ => null,
       };
 
-      if (repo == null) return;
+      if (repo == null) return comCache;
 
       // 1. Busca Início (destaque, Continuar, 1ª fileira) em paralelo com tratamento de erro
       final heroFuture = repo
@@ -63,8 +65,9 @@ class HeisucaHomePreloader {
       final heroItem = results[0].items.firstOrNull;
       final cwItems = results[1].items;
       final trendingItems = results[2].items;
+      comCache = results[0].fromCache || results[2].fromCache;
 
-      if (!context.mounted) return;
+      if (!context.mounted) return comCache;
 
       // 2. Pré-carrega arte do destaque (backdrop)
       final precacheFutures = <Future<void>>[];
@@ -151,5 +154,6 @@ class HeisucaHomePreloader {
     } finally {
       repo?.dispose();
     }
+    return comCache;
   }
 }

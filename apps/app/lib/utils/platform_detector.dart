@@ -179,11 +179,10 @@ class TvDetectionService {
   ///
   /// App code goes through the [PlatformDetector] facade ([PlatformDetector.isTV]
   /// and siblings); these raw accessors exist for the facade and tests.
-  static bool isTVSync() {
-    if (_debugAppleTVOverride == true) return true;
-    if (_debugTvOverride != null) return _debugTvOverride!;
-    return _singleton.instance?.isTV ?? false;
-  }
+  /// TV = detectada || forçada nas configurações. O override de teste só soma
+  /// (`true` força TV); nunca desliga a detecção de uma TV real.
+  static bool isTVSync() =>
+      _debugAppleTVOverride == true || _debugTvOverride == true || (_singleton.instance?.isTV ?? false);
 
   /// Synchronous Apple TV check (returns false if not initialized or not tvOS).
   static bool isAppleTVSync() => _debugAppleTVOverride ?? (_tvosBuild || _singleton.instance?._isAppleTV == true);
@@ -194,6 +193,12 @@ class TvDetectionService {
   @visibleForTesting
   static void debugSetAppleTVOverride(bool? value) {
     _debugAppleTVOverride = value;
+  }
+
+  /// Força TV em teste sem inicializar o serviço; `null` ou `false` voltam à detecção.
+  @visibleForTesting
+  static void debugSetTvOverride(bool? value) {
+    _debugTvOverride = value;
   }
 
   @visibleForTesting
@@ -212,19 +217,12 @@ class TvDetectionService {
   static List<String> tvDetectionReasonsSync() => _singleton.instance?._effectiveDetectionReasons ?? const [];
 
   /// Convenience setter that forwards to the singleton if available.
-  static void setForceTVSync(bool value) {
-    _debugTvOverride = value;
-    _singleton.instance?.setForceTv(value);
-  }
+  static void setForceTVSync(bool value) => _singleton.instance?.setForceTv(value);
 }
 
 class PlatformDetector {
   static bool isTV() {
     return TvDetectionService.isTVSync();
-  }
-
-  static void setForceTVSync(bool value) {
-    TvDetectionService.setForceTVSync(value);
   }
 
   static bool isFireTV() {

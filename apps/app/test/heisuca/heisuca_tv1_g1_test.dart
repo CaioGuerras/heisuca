@@ -42,13 +42,13 @@ void main() {
   setUp(() async {
     resetSharedPreferencesForTest();
     await LocaleSettings.setLocale(AppLocale.pt);
-    PlatformDetector.setForceTVSync(true);
+    TvDetectionService.debugSetTvOverride(true);
     fixture = HeisucaP3Fixture();
     await fixture.initialize(settings.ThemeMode.dark);
   });
 
   tearDown(() {
-    PlatformDetector.setForceTVSync(false);
+    TvDetectionService.debugSetTvOverride(null);
   });
 
   group('TV-1 G1: Telas de TV no Modelo A', () {
@@ -303,49 +303,73 @@ void main() {
       expect(dims.$2 <= 720, true);
     });
 
-    testWidgets('G1.7 Abertura com preload: respeita piso de ~1s e teto de ~4s', (tester) async {
+    Future<bool Function()> abrir(WidgetTester tester, Future<bool>? preload) async {
       var finished = false;
       await tester.pumpWidget(
         MaterialApp(
-          home: HeisucaOpeningSplash(
-            onAnimationFinished: () => finished = true,
-            preloadFuture: Future.delayed(const Duration(milliseconds: 200)),
-          ),
+          home: HeisucaOpeningSplash(onAnimationFinished: () => finished = true, preloadFuture: preload),
         ),
       );
+      return () => finished;
+    }
 
-      // Aos 500ms ainda não terminou (piso de 1s)
-      await tester.pump(const Duration(milliseconds: 500));
-      expect(finished, false);
-
-      // Aos 1000ms+ termina pois o preload já completou
-      await tester.pump(const Duration(milliseconds: 600));
-      expect(finished, true);
+    testWidgets('G1.7 Abertura com cache: piso de 1 s', (tester) async {
+      final terminou = await abrir(tester, Future.delayed(const Duration(milliseconds: 200), () => true));
+      await tester.pump(const Duration(milliseconds: 900));
+      expect(terminou(), false);
+      await tester.pump(const Duration(milliseconds: 150));
+      expect(terminou(), true);
     });
 
-    testWidgets('G1.7 Resiliência de preload: erro no preloadFuture não trava a abertura', (tester) async {
-      var finished = false;
-      final errorFuture = Future<void>.error(Exception('rede indisponível'))..ignore();
-      await tester.pumpWidget(
-        MaterialApp(
-          home: HeisucaOpeningSplash(
-            onAnimationFinished: () => finished = true,
-            preloadFuture: errorFuture,
-          ),
-        ),
-      );
+    testWidgets('G1.7 Abertura sem cache: piso de 2,2 s', (tester) async {
+      final terminou = await abrir(tester, Future.delayed(const Duration(milliseconds: 200), () => false));
+      await tester.pump(const Duration(milliseconds: 2100));
+      expect(terminou(), false);
+      await tester.pump(const Duration(milliseconds: 150));
+      expect(terminou(), true);
+    });
 
-      // Aguarda o piso da abertura
-      await tester.pump(const Duration(milliseconds: 1100));
-      expect(finished, true);
+    testWidgets('G1.7 Abertura com preload lento e cache: sai quando o preload responde', (tester) async {
+      final terminou = await abrir(tester, Future.delayed(const Duration(milliseconds: 1500), () => true));
+      await tester.pump(const Duration(milliseconds: 1400));
+      expect(terminou(), false);
+      await tester.pump(const Duration(milliseconds: 150));
+      expect(terminou(), true);
+    });
+
+    testWidgets('G1.7 Abertura: teto de 4 s quando o preload não responde', (tester) async {
+      final terminou = await abrir(tester, Completer<bool>().future);
+      await tester.pump(const Duration(milliseconds: 3900));
+      expect(terminou(), false);
+      await tester.pump(const Duration(milliseconds: 150));
+      expect(terminou(), true);
+    });
+
+    testWidgets('G1.7 Resiliência de preload: erro conta como sem cache e não trava a abertura', (tester) async {
+      final erro = Future<bool>.error(Exception('rede indisponível'))..ignore();
+      final terminou = await abrir(tester, erro);
+      await tester.pump(const Duration(milliseconds: 2100));
+      expect(terminou(), false);
+      await tester.pump(const Duration(milliseconds: 150));
+      expect(terminou(), true);
     });
 
     test('G1.1 Detecção de TV: Apple TV tem precedência mesmo se forceTv for falso', () {
+      TvDetectionService.debugSetTvOverride(null);
       TvDetectionService.setForceTVSync(false);
       TvDetectionService.debugSetAppleTVOverride(true);
       expect(PlatformDetector.isTV(), true);
 
       TvDetectionService.debugSetAppleTVOverride(null);
+      expect(PlatformDetector.isTV(), false);
+    });
+
+    test('G1.1 Detecção de TV: desligar o modo TV nas configurações não desliga uma TV', () {
+      // Importar/restaurar configurações chama setForceTVSync(false); a TV continua TV.
+      TvDetectionService.debugSetTvOverride(true);
+      TvDetectionService.setForceTVSync(false);
+      expect(PlatformDetector.isTV(), true);
+      TvDetectionService.debugSetTvOverride(false);
       expect(PlatformDetector.isTV(), false);
     });
   });

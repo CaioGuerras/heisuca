@@ -1112,8 +1112,13 @@ class _MainScreenState extends State<MainScreen>
           child: cgflixUseYouTab(context)
               ? HeisucaTabStack(index: _currentIndex, children: _screens)
               : IndexedStack(index: _currentIndex, clipBehavior: Clip.none, children: [
+                  // Aba oculta fora do foco: senão o D-Pad da TV entra nela (o UP do destaque caía no campo
+                  // da Busca, que fica no alto, em vez do avatar; bancada da TV, 30/10).
                   for (var i = 0; i < _screens.length; i++)
-                    TickerMode(enabled: i == _currentIndex, child: _screens[i]),
+                    ExcludeFocus(
+                      excluding: i != _currentIndex,
+                      child: TickerMode(enabled: i == _currentIndex, child: _screens[i]),
+                    ),
                 ]),
         ),
       ],
@@ -1575,8 +1580,7 @@ class _MainScreenState extends State<MainScreen>
   void _goHomeTab() {
     if (_currentTab == _homeTab) return;
     _selectTab(_homeTab);
-    // O Início da TV não é FocusableTab, então o _selectTab não move o foco: ele ficava no campo da Busca,
-    // montado fora da tela no IndexedStack, e o OK seguinte reabria o teclado lá (bancada da TV, 30/10).
+    // O Início da TV não é FocusableTab, então o _selectTab não move o foco para o destaque.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final homeState = _screenKeys[NavigationTabId.discover]?.currentState;
       if (homeState is HeisucaTvHomeScreenState) homeState.scrollToDestaqueAndFocus();
@@ -1826,11 +1830,12 @@ class _MainScreenState extends State<MainScreen>
       }
     }
 
-    if (wasMounted) {
+    if (wasMounted && cgflixUseYouTab(context)) {
       notifySelectedScreen();
     } else {
       // A promoted slot does not have a State until this setState has built.
       // Imperative visibility/focus work must wait rather than silently miss.
+      // No IndexedStack (TV e desktop) a aba só sai do ExcludeFocus depois desse build.
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted || _currentTab != tab) return;
         notifySelectedScreen();

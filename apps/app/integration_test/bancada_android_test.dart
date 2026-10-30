@@ -397,7 +397,11 @@ void main() {
     print('BANCADA_RESTART_CONFIRMADO: 18-voltar-do-audio');
     expect(await player.getProperty('vid'), isNot('no'));
     position = player.currentPosition;
-    await until(() => player.currentPosition >= position + const Duration(seconds: 2), 'vídeo avança após restaurar a imagem');
+    await until(
+      () => player.currentPosition >= position + const Duration(seconds: 4),
+      'vídeo avança após restaurar a imagem',
+      seconds: 30,
+    );
     final restoredProbe = await videoProbe();
     binding.reportData!['imagemAposAudio'] = restoredProbe;
     final restoredDecoded = await decodedFrame(restoredProbe);

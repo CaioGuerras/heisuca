@@ -348,6 +348,9 @@ DESTINOS_NAV_TV = {
 # Modelo A da TV (Heisuca TV-1, 30/10): sem trilho lateral; a Início é o destaque com [Assistir]/[Detalhes]
 # e o menu sai do avatar no topo (Início, Filmes, Séries, Animes, Buscar, Ajustes).
 TERMOS_INICIO_MODELO_A = ('em alta no brasil', 'continuar assistindo')
+# Campo da Busca (dica do SearchInputField). Na TV ele é readOnly e não vem como EditText; sem
+# esta regra a Busca passava por Início e o voltar_ao_inicio não dava BACK nenhum (30/10).
+TERMOS_BUSCA_TV = ('buscar filmes', 'search movies')
 ITENS_MENU_TV = ('Início', 'Filmes', 'Séries', 'Animes', 'Buscar', 'Ajustes')
 TERMOS_VAZIO = (
     'nenhum item', 'sem conteúdo', 'sem conteudo', 'vazio', 'nada aqui',
@@ -378,7 +381,7 @@ def abrir_app_tv(registrar=None):
 
 
 def reconhecer_tela_tv(nos):
-    """Identifica se a tela atual de TV é 'inicio', 'login' ou None."""
+    """Identifica se a tela atual de TV é 'inicio', 'login', 'busca' ou None."""
     if not nos:
         return None
     rotulos = {r.strip().lower() for n in nos for r in (n.get('text'), n.get('desc'), n.get('hint')) if r}
@@ -387,6 +390,10 @@ def reconhecer_tela_tv(nos):
     # 1. Login: campos de texto (EditText) presentes na tela
     if tem_editores:
         return 'login'
+
+    # 1b. Busca: o campo com a dica de busca está na tela
+    if any(r.startswith(t) for r in rotulos for t in TERMOS_BUSCA_TV):
+        return 'busca'
 
     # 2. Início do modelo A: destaque com [Assistir] + [Detalhes] ou faixa "Em alta no Brasil"
     if any(t in r for r in rotulos for t in TERMOS_INICIO_MODELO_A):

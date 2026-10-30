@@ -209,6 +209,18 @@ class TestTvBancada(unittest.TestCase):
         self.assertEqual(reconhecer_tela_tv(nos_modelo_a), 'inicio')
         self.assertEqual(reconhecer_tela_tv(nos_modelo_a[1:]), 'inicio')
 
+        # Busca da TV (30/10): campo readOnly (sem EditText) e chips de filtro não contam como Início
+        nos_busca = [
+            {'text': 'Buscar', 'cls': 'android.view.View'},
+            {'desc': 'Buscar filmes, séries, músicas...', 'cls': 'android.view.View'},
+            {'text': 'Filmes', 'cls': 'android.view.View'},
+            {'text': 'Séries', 'cls': 'android.view.View'},
+            {'text': 'Início', 'cls': 'android.view.View'},
+        ]
+        self.assertEqual(reconhecer_tela_tv(nos_busca), 'busca')
+        self.assertIsNotNone(avaliar_retorno_da_busca(nos_busca))
+        self.assertIsNone(avaliar_retorno_da_busca(nos_modelo_a))
+
         self.assertIsNone(reconhecer_tela_tv([{'text': 'Outra tela'}]))
         self.assertIsNone(reconhecer_tela_tv([{'desc': '▶  Assistir'}, {'desc': 'Episódios'}]))
 

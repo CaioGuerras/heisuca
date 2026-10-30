@@ -27,6 +27,47 @@ void main() {
     expect(focusCalls, 1);
   });
 
+  testWidgets('goHomeOf chama a ação do escopo e diz se havia uma', (tester) async {
+    var homeCalls = 0;
+    late BuildContext comAcao;
+    late BuildContext semAcao;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Column(
+          children: [
+            MainScreenFocusScope(
+              focusSidebar: () {},
+              sideNavigationWidth: 0,
+              goHome: () => homeCalls++,
+              child: Builder(
+                builder: (context) {
+                  comAcao = context;
+                  return const SizedBox.shrink();
+                },
+              ),
+            ),
+            MainScreenFocusScope(
+              focusSidebar: () {},
+              sideNavigationWidth: 0,
+              child: Builder(
+                builder: (context) {
+                  semAcao = context;
+                  return const SizedBox.shrink();
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    expect(MainScreenFocusScope.goHomeOf(comAcao), isTrue);
+    expect(homeCalls, 1);
+    // Sem goHome (fora da TV), a Busca segue para a barra lateral.
+    expect(MainScreenFocusScope.goHomeOf(semAcao), isFalse);
+  });
+
   testWidgets('focusSidebarOf is a no-op without a scope', (tester) async {
     late BuildContext childContext;
 

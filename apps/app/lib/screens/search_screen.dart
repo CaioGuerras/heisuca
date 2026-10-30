@@ -335,6 +335,13 @@ class _SearchScreenState extends State<SearchScreen>
     MainScreenFocusScope.focusSidebarOf(context);
   }
 
+  /// BACK sem texto: na TV volta ao Início (sem barra lateral, o foco ficava no campo e o
+  /// teclado reabria, prendendo o usuário na Busca; bancada da TV, 30/10).
+  void _backFromSearch() {
+    if (PlatformDetector.isTV() && MainScreenFocusScope.goHomeOf(context)) return;
+    _navigateToSidebar();
+  }
+
   /// Chip display order. `folder`/`unknown` are never search kinds, and
   /// `clip`/`photo` rows (rare Plex extras) stay reachable under "All"
   /// without a chip of their own.
@@ -497,7 +504,7 @@ class _SearchScreenState extends State<SearchScreen>
                     : null,
                 onNavigateUp: focusSearchInput,
                 onNavigateDown: _focusFirstResult,
-                onBack: _navigateToSidebar,
+                onBack: _backFromSearch,
               ),
             ],
           ],
@@ -575,7 +582,7 @@ class _SearchScreenState extends State<SearchScreen>
                   if (searchController.text.isNotEmpty) {
                     searchController.clear();
                   } else {
-                    _navigateToSidebar();
+                    _backFromSearch();
                   }
                 },
               ),

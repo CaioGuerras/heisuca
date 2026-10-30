@@ -29,6 +29,9 @@ class MainScreenFocusScope extends InheritedModel<MainScreenScopeAspect> {
   final void Function(String libraryGlobalKey)? selectLibrary;
   final VoidCallback? openSettings;
 
+  /// TV: volta à aba Início. Na TV não há barra lateral; é o destino do BACK nas outras abas.
+  final VoidCallback? goHome;
+
   const MainScreenFocusScope({
     super.key,
     required this.focusSidebar,
@@ -39,6 +42,7 @@ class MainScreenFocusScope extends InheritedModel<MainScreenScopeAspect> {
     this.viewportWidth,
     this.selectLibrary,
     this.openSettings,
+    this.goHome,
     required super.child,
   });
 
@@ -54,6 +58,14 @@ class MainScreenFocusScope extends InheritedModel<MainScreenScopeAspect> {
   /// Focuses the sidebar without registering an inherited dependency.
   static void focusSidebarOf(BuildContext context) {
     of(context, listen: false)?.focusSidebar();
+  }
+
+  /// Volta à aba Início; false quando não há escopo ou ele não oferece a ação.
+  static bool goHomeOf(BuildContext context) {
+    final goHome = of(context, listen: false)?.goHome;
+    if (goHome == null) return false;
+    goHome();
+    return true;
   }
 
   static MainScreenFocusScope? _dependOn(BuildContext context, MainScreenScopeAspect aspect) {

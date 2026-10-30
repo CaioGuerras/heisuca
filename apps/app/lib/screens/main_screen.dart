@@ -1569,11 +1569,17 @@ class _MainScreenState extends State<MainScreen>
     return _handleMainBackKeyAction(event);
   }
 
+  NavigationTabId get _homeTab => _getVisibleTabs(_isOffline).firstOrNull?.id ?? NavigationTabId.discover;
+
+  /// TV: volta à aba Início (a TV não tem barra lateral para onde o BACK levaria).
+  void _goHomeTab() {
+    if (_currentTab != _homeTab) _selectTab(_homeTab);
+  }
+
   KeyEventResult _handleTvBack() {
     // 1. Se não estiver na aba Início, volta para Início
-    final homeTab = _getVisibleTabs(_isOffline).firstOrNull?.id ?? NavigationTabId.discover;
-    if (_currentTab != homeTab) {
-      _selectTab(homeTab);
+    if (_currentTab != _homeTab) {
+      _goHomeTab();
       return KeyEventResult.handled;
     }
 
@@ -2101,6 +2107,7 @@ class _MainScreenState extends State<MainScreen>
                     viewportWidth: viewportWidth,
                     selectLibrary: _selectLibrary,
                     openSettings: _openSettings,
+                    goHome: PlatformDetector.isTV() ? _goHomeTab : null,
                     child: SideNavigationScope(
                       child: Stack(
                         clipBehavior: Clip.hardEdge,

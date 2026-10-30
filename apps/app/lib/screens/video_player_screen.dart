@@ -449,7 +449,8 @@ class VideoPlayerScreen extends StatefulWidget {
   final AudioTrack? preferredAudioTrack;
   final SubtitleTrack? preferredSubtitleTrack;
   final SubtitleTrack? preferredSecondarySubtitleTrack;
-  final int selectedMediaIndex;
+  /// Nulo quando ninguém escolheu a versão (o backend decide).
+  final int? selectedMediaIndex;
   final String? selectedMediaSourceId;
 
   /// Version signature of a saved preference backing [selectedMediaIndex]
@@ -485,7 +486,7 @@ class VideoPlayerScreen extends StatefulWidget {
     this.preferredAudioTrack,
     this.preferredSubtitleTrack,
     this.preferredSecondarySubtitleTrack,
-    this.selectedMediaIndex = 0,
+    this.selectedMediaIndex,
     this.selectedMediaSourceId,
     this.preferredVersionSignature,
     this.isOffline = false,
@@ -714,6 +715,10 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
   String? _wtSwitchToastShownForKey;
 
   late int _effectiveSelectedMediaIndex;
+
+  /// Índice a pedir no próximo resolve: nulo enquanto ninguém escolheu (o
+  /// backend ranqueia); [_commitPlaybackSession] fixa o efetivo depois.
+  int? _requestedMediaIndex;
 
   /// Media source id to request on the next resolve: the caller's initial
   /// selection, then re-synced to the session's post-fallback effective id
@@ -1051,6 +1056,7 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
   void _commitPlaybackSession(PlaybackSession session) {
     _playbackSession = session;
     _effectiveSelectedMediaIndex = session.mediaIndex;
+    _requestedMediaIndex = session.mediaIndex;
     _requestedMediaSourceId = session.mediaSourceId;
     _selectedQualityPreset = session.qualityPreset;
     _selectedAudioStreamId = session.audioStreamId;
@@ -1376,14 +1382,15 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
       this,
       VideoPlayerLaunchIdentity(
         metadata: widget.metadata,
-        mediaIndex: widget.selectedMediaIndex,
+        mediaIndex: widget.selectedMediaIndex ?? 0,
         selectedMediaSourceId: widget.selectedMediaSourceId,
         selectedQualityPreset: widget.selectedQualityPreset,
         isOffline: widget.isOffline,
         routeKind: widget.isLive ? VideoPlayerRouteKind.liveTv : VideoPlayerRouteKind.vod,
       ),
     );
-    _effectiveSelectedMediaIndex = widget.selectedMediaIndex;
+    _effectiveSelectedMediaIndex = widget.selectedMediaIndex ?? 0;
+    _requestedMediaIndex = widget.selectedMediaIndex;
     _requestedMediaSourceId = widget.selectedMediaSourceId;
 
     // Reused across in-place quality/version/audio switches so the
@@ -1744,7 +1751,7 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
         _playbackDataFuture = playbackResolver.resolve(
           PlaybackInitializationOptions(
             metadata: _currentMetadata,
-            selectedMediaIndex: _effectiveSelectedMediaIndex,
+            selectedMediaIndex: _requestedMediaIndex,
             selectedMediaSourceId: _requestedMediaSourceId,
             preferredVersionSignature: widget.preferredVersionSignature,
             qualityPreset: _selectedQualityPreset,

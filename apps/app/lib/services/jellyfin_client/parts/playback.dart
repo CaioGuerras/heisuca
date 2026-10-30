@@ -706,10 +706,12 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
   /// [sourceId] wins when present because Jellyfin plugins may reorder merged
   /// `MediaSources` between requests. [sourceIndex] is clamped to the valid
   /// range as a fallback to mirror Plex's `parseVideoPlaybackDataFromJson`.
+  /// [sourceIndex] nulo = ninguém escolheu: o ranqueador decide. Qualquer
+  /// número, inclusive 0, é escolha explícita e é respeitado.
   @override
   Future<JellyfinPlaybackBundle?> fetchPlaybackBundle(
     String itemId, {
-    int sourceIndex = 0,
+    int? sourceIndex,
     String? sourceId,
     String? preferredSignature,
   }) async {
@@ -726,14 +728,14 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
 
   JellyfinPlaybackBundle? _playbackBundleFromRaw(
     Map<String, dynamic> raw, {
-    int sourceIndex = 0,
+    int? sourceIndex,
     String? sourceId,
     String? preferredSignature,
   }) {
     final sources = raw['MediaSources'];
     if (sources is! List || sources.isEmpty) return null;
     final availableVersions = jellyfinSourcesToVersions(sources);
-    var index = sourceIndex;
+    var index = sourceIndex ?? 0;
     final requestedSourceId = sourceId?.trim();
     var resolvedBySourceId = false;
     if (requestedSourceId != null && requestedSourceId.isNotEmpty) {
@@ -760,7 +762,7 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
     }
 
     if (!resolvedBySourceId && !resolvedBySignature) {
-      if (sourceIndex != 0) {
+      if (sourceIndex != null) {
         index = sourceIndex;
       } else {
         final ranked = rankMediaSources(sources);

@@ -175,7 +175,7 @@ extension _VideoPlayerPlaybackStartMethods on VideoPlayerScreenState {
         playbackContext = await playbackResolver.resolve(
           PlaybackInitializationOptions(
             metadata: _currentMetadata,
-            selectedMediaIndex: _effectiveSelectedMediaIndex,
+            selectedMediaIndex: _requestedMediaIndex,
             selectedMediaSourceId: _requestedMediaSourceId,
             qualityPreset: _selectedQualityPreset,
             selectedAudioStreamId: _selectedAudioStreamId,
@@ -209,7 +209,7 @@ extension _VideoPlayerPlaybackStartMethods on VideoPlayerScreenState {
       final result = playbackContext.result;
       if (!attempt.isCurrent) return;
       if (widget.strictMediaSelection &&
-          (result.selectedMediaIndex != widget.selectedMediaIndex ||
+          ((widget.selectedMediaIndex != null && result.selectedMediaIndex != widget.selectedMediaIndex) ||
               (widget.selectedMediaSourceId != null &&
                   (result.selectedMediaSourceId ?? result.selectedVersion?.id) != widget.selectedMediaSourceId))) {
         widget.launchObserver?.mark('failed', failure: 'staleMediaSelection');

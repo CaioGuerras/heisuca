@@ -11,6 +11,7 @@ import 'package:heisuca/media/media_server_client.dart';
 import 'package:heisuca/services/jellyfin_api_cache.dart';
 import 'package:heisuca/services/jellyfin_client.dart';
 import 'package:heisuca/services/plex_api_cache.dart';
+import 'package:heisuca/services/video_decode_capabilities.dart';
 
 import '../test_helpers/backend_client_fixtures.dart';
 
@@ -213,6 +214,48 @@ void main() {
       final mid = await client.fetchPlaybackBundle('item-2', sourceIndex: 1);
       expect(mid!.selectedSourceId, 'src-B');
       expect(mid.container, 'mp4');
+      client.close();
+    });
+
+    test('sourceIndex 0 explícito vence o ranqueador; nulo deixa o ranqueador escolher', () async {
+      // Aparelho sem HEVC: o ranqueador prefere a H.264 (índice 1).
+      VideoDecodeCapabilities.debugReset(
+        hardwareHevc: false,
+        hardwareAv1: false,
+        displaySupports4k: false,
+        codecHardware: {'h264': true, 'hevc': false, 'av1': false},
+      );
+      addTearDown(VideoDecodeCapabilities.debugReset);
+      final body = jsonEncode({
+        'Id': 'item-g3',
+        'Type': 'Movie',
+        'MediaSources': [
+          {
+            'Id': 'src-hevc',
+            'Container': 'mkv',
+            'MediaStreams': [
+              {'Type': 'Video', 'Codec': 'hevc', 'Profile': 'Main', 'Height': 1080, 'Width': 1920},
+            ],
+          },
+          {
+            'Id': 'src-h264',
+            'Container': 'mkv',
+            'MediaStreams': [
+              {'Type': 'Video', 'Codec': 'h264', 'Profile': 'High', 'Height': 1080, 'Width': 1920},
+            ],
+          },
+        ],
+      });
+      final client = buildClient(body);
+
+      final auto = await client.fetchPlaybackBundle('item-g3');
+      expect(auto!.selectedSourceId, 'src-h264');
+      expect(auto.selectedSourceIndex, 1);
+
+      // Antes o 0 era sentinela de "sem escolha" e o ranqueador o sobrescrevia.
+      final explicit = await client.fetchPlaybackBundle('item-g3', sourceIndex: 0);
+      expect(explicit!.selectedSourceId, 'src-hevc');
+      expect(explicit.selectedSourceIndex, 0);
       client.close();
     });
 

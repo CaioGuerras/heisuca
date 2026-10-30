@@ -133,6 +133,8 @@ List<MediaStream> _mediaStreamsFromPlexPart(Object? raw, {Map<String, dynamic>? 
         hdr: isHdr,
         dolbyVision: isDolbyVision,
         dolbyVisionProfile: doviProfile,
+        profile: kind == MediaStreamKind.video ? stream['profile']?.toString() : null,
+        bitDepth: kind == MediaStreamKind.video ? flexibleInt(stream['bitDepth']) : null,
         forced: flexibleBool(stream['forced']),
         sidecarPath: kind == MediaStreamKind.subtitle ? stream['key']?.toString() : null,
       ),

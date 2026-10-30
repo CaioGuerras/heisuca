@@ -134,7 +134,7 @@ mixin _JellyfinClientInternals on MediaServerCacheMixin {
   Future<List<String>> _fetchFilterFacet(String endpoint, String? libraryId);
   Future<JellyfinPlaybackBundle?> fetchPlaybackBundle(
     String itemId, {
-    int sourceIndex = 0,
+    int? sourceIndex,
     String? sourceId,
     String? preferredSignature,
   });

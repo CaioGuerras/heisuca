@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:heisuca/services/jellyfin_media_info_mapper.dart';
 import 'package:heisuca/services/media_source_ranker.dart';
 import 'package:heisuca/services/video_decode_capabilities.dart';
 
@@ -120,6 +121,35 @@ void main() {
 
       expect(isSourcePlayable(animeHi10p), isFalse);
       expect(formatMediaSourceReason(animeHi10p), 'H.264 10-bit em 1080p');
+    });
+
+    test('versão: anime H.264 Hi10P SDR sem High10 -> isVersionPlayable false', () {
+      VideoDecodeCapabilities.debugReset(
+        codecHardware: {'h264': true},
+        codecProfiles: {
+          'h264': ['high'], // sem high10
+        },
+      );
+
+      Map<String, dynamic> fonte(String id, String profile, int bitDepth) => {
+        'Id': id,
+        'Container': 'mkv',
+        'Width': 1920,
+        'Height': 1080,
+        'MediaStreams': [
+          // SDR: sem VideoRange HDR, o 10 bits só aparece em BitDepth.
+          {'Type': 'Video', 'Index': 0, 'Codec': 'h264', 'Profile': profile, 'BitDepth': bitDepth},
+          {'Type': 'Audio', 'Index': 1, 'Language': 'jpn'},
+        ],
+      };
+
+      final versions = jellyfinSourcesToVersions([
+        fonte('src-hi10p', 'High 10', 10),
+        fonte('src-high', 'High', 8),
+      ]);
+
+      expect(isVersionPlayable(versions[0]), isFalse);
+      expect(isVersionPlayable(versions[1]), isTrue);
     });
 
     test('tabela: sonda vazia -> mantém a 1ª fonte', () {

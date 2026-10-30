@@ -182,9 +182,9 @@ bool isVersionPlayable(MediaVersion version, [VideoDecodeCapabilities? capabilit
   for (final part in version.parts) {
     for (final stream in part.streams) {
       if (stream.kind == MediaStreamKind.video) {
-        if (stream.hdr || stream.dolbyVision) {
-          bitDepth = 10;
-        }
+        profile = stream.profile;
+        // Sem BitDepth informado, HDR/DV ainda garante 10 bits.
+        bitDepth = stream.bitDepth ?? ((stream.hdr || stream.dolbyVision) ? 10 : null);
         break;
       }
     }

@@ -363,7 +363,9 @@ Future<bool?> navigateToVideoPlayer(
     savedVersion = await resolveSavedMediaVersionFor(metadata);
   }
   if (!launchCurrent()) return null;
-  final mediaIndex = selectedMediaIndex ?? downloadedMediaIndex ?? savedVersion?.index ?? 0;
+  // Nulo = ninguém escolheu: o player pede ao backend que ranqueie as versões.
+  final requestedMediaIndex = selectedMediaIndex ?? downloadedMediaIndex ?? savedVersion?.index;
+  final mediaIndex = requestedMediaIndex ?? 0;
   final mediaSourceId = selectedMediaSourceId ?? downloadedMediaSourceId ?? savedVersion?.sourceId;
 
   final launchIdentity = VideoPlayerLaunchIdentity(
@@ -478,7 +480,7 @@ Future<bool?> navigateToVideoPlayer(
         preferredAudioTrack: preferredAudioTrack,
         preferredSubtitleTrack: preferredSubtitleTrack,
         preferredSecondarySubtitleTrack: preferredSecondarySubtitleTrack,
-        selectedMediaIndex: mediaIndex,
+        selectedMediaIndex: requestedMediaIndex,
         selectedMediaSourceId: mediaSourceId,
         preferredVersionSignature: savedVersion?.signature,
         selectedQualityPreset: selectedQualityPreset,

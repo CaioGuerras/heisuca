@@ -51,6 +51,15 @@ void main() {
     expect(warning!['tipo'], 'overflow HUD PiP');
     expect(warning['widget'], 'mobile_video_controls.dart:239:14');
   });
+
+  test('trata erro assíncrono emitido pelo widget inspector sobre elemento descartado', () {
+    final inspectorDetails = FlutterErrorDetails(
+      exception: FlutterError('Element._debugCheckStateIsActiveForAncestorLookup was called on a deactivated element'),
+      library: 'widget inspector',
+    );
+    expect(pipHudWarning(inspectorDetails, phase: 'ativo', width: 200, height: 100), isNotNull);
+    expect(pipHudWarning(inspectorDetails, phase: 'fora', width: 200, height: 100), isNull);
+  });
 }
 
 class _ThrowingDiagnosticsFlutterErrorDetails extends FlutterErrorDetails {

@@ -10,6 +10,19 @@ bool knownPipHudOverflow({required String message, required String source,
 
 Map<String, Object?>? pipHudWarning(FlutterErrorDetails details, {
   required String phase, required double width, required double height}) {
+  if (details.library == 'widget inspector') {
+    if (const ['entrada', 'ativo', 'saída'].contains(phase) &&
+        details.exceptionAsString().contains('_debugCheckStateIsActiveForAncestorLookup')) {
+      return {
+        'tipo': 'overflow HUD PiP',
+        'widget': 'elemento descartado durante transição PiP',
+        'fase': phase,
+        'larguraDp': width,
+        'alturaDp': height,
+      };
+    }
+    return null;
+  }
   // Classifica os campos baratos ANTES de expandir a árvore de diagnóstico.
   // Erros fora do PiP e exceções comuns seguem diretamente ao framework.
   if (details.exception is! FlutterError || details.library != 'rendering library' ||
@@ -21,12 +34,17 @@ Map<String, Object?>? pipHudWarning(FlutterErrorDetails details, {
   try {
     source = details.toDiagnosticsNode().toStringDeep();
   } catch (_) {
-    final buffer = StringBuffer();
+    source = '';
+  }
+  if (!RegExp(r'(?:video_controls_header\.dart:59:12|mobile_video_controls\.dart:(?:389:16|239:14))').hasMatch(source)) {
+    final buffer = StringBuffer(source);
     if (details.context != null) buffer.writeln(details.context.toString());
     if (details.informationCollector != null) {
       try {
         for (final node in details.informationCollector!()) {
-          buffer.writeln(node.toStringDeep());
+          try {
+            buffer.writeln(node.toString());
+          } catch (_) {}
         }
       } catch (_) {}
     }

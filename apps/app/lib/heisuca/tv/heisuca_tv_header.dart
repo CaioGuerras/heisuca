@@ -5,7 +5,7 @@ import '../../profiles/active_profile_provider.dart';
 import '../../profiles/profile_avatar.dart';
 import '../heisuca_theme.dart';
 
-/// Topo oficial do Heisuca na TV: Avatar no canto superior esquerdo com o logo 炳素華 HEISUCA ao lado.
+/// Topo oficial do Heisuca na TV: Avatar no canto superior esquerdo com o nome HEISUCA ao lado.
 /// Foco no avatar abre o menu principal da TV.
 class HeisucaTvHeader extends StatefulWidget {
   const HeisucaTvHeader({
@@ -126,31 +126,16 @@ class _HeisucaTvHeaderState extends State<HeisucaTvHeader> {
           ),
           if (widget.showLogo) ...[
             const SizedBox(width: 20),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Text(
-                  '炳素華',
-                  style: TextStyle(
-                    fontFamily: 'WenQuanYi Micro Hei',
-                    fontSize: 26,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFFC82B3D), // Selo carmim
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Text(
-                  'HEISUCA',
-                  style: TextStyle(
-                    fontFamily: HeisucaTheme.fonteTexto,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 4.0,
-                    color: const Color(0xFFF2EFF5),
-                  ),
-                ),
-              ],
+            // Só o nome; os kanji carmim antes dele ficavam feios na TV (Caio, 31/10).
+            Text(
+              'HEISUCA',
+              style: TextStyle(
+                fontFamily: HeisucaTheme.fonteTexto,
+                fontSize: 22,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 4.0,
+                color: const Color(0xFFF2EFF5),
+              ),
             ),
           ],
         ],

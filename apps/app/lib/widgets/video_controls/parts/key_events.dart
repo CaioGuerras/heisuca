@@ -86,6 +86,18 @@ extension _PlexVideoControlsKeyEventMethods on _PlexVideoControlsState {
       });
     }
 
+    if (PlatformDetector.isTV() &&
+        (navigationKey == PlayerNavigationKey.back || navigationKey == PlayerNavigationKey.physicalEscape) &&
+        ((_desktopControlsKey.currentState?.isTvPanelFocused ?? false) ||
+            (_desktopControlsKey.currentState?.isTimelineFocused ?? false) ||
+            _showControls)) {
+      return handlePlayerNavigationKeyAction(event, navigationKey, () {
+        _desktopControlsKey.currentState?.unfocusTvPanel();
+        widget.chromeController.hide();
+        _hideControls();
+      });
+    }
+
     // A skip prompt is a local layer like the sheet and the content strip
     // above it: Select takes the skip, Back declines it. Without this stage the
     // only key that reads as "no thanks" on a remote is also the one that walks
@@ -282,7 +294,7 @@ extension _PlexVideoControlsKeyEventMethods on _PlexVideoControlsState {
     // The chrome deliberately stays down — the screen announces the accepted
     // command with a centred transient disc instead (#1676).
     if (transportCommand != null) {
-      if ((videoPlayerNavigationPreference() || isMobile) && event is KeyDownEvent) {
+      if ((playerDirectionalNavigationEnabled() || isMobile) && event is KeyDownEvent) {
         unawaited(_playOrPause(command: transportCommand));
       }
       return KeyEventResult.handled;
@@ -334,7 +346,11 @@ extension _PlexVideoControlsKeyEventMethods on _PlexVideoControlsState {
       // key into nothing. This is the same key that just switched the app into
       // keyboard mode, so focus has to become visible or the two diverge.
       if (_focusNode.hasPrimaryFocus) {
-        _desktopControlsKey.currentState?.requestPlayPauseFocus();
+        if (PlatformDetector.isTV()) {
+          _desktopControlsKey.currentState?.requestTvPanelFocus();
+        } else {
+          _desktopControlsKey.currentState?.requestPlayPauseFocus();
+        }
       }
       return KeyEventResult.handled;
     }

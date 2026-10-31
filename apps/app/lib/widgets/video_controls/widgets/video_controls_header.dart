@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:heisuca/utils/formatters.dart';
+import 'package:heisuca/utils/platform_detector.dart';
 
 import '../../../cgflix/cgflix_units.dart';
 import '../../../media/media_item.dart';
@@ -122,19 +123,27 @@ class VideoControlsHeader extends StatelessWidget {
       secondLineParts.add(formatDurationTextual(metadata.durationMs!));
     }
 
+    final isTv = PlatformDetector.isTV();
     return Column(
       crossAxisAlignment: .start,
       children: [
         Text(
           metadata.grandparentTitle ?? itemTitle,
-          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: .bold),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: isTv ? 32 : 16,
+            fontWeight: FontWeight.bold,
+          ),
           maxLines: 1,
           overflow: .ellipsis,
         ),
         if (secondLineParts.isNotEmpty)
           Text(
             toBulletedString(secondLineParts),
-            style: const TextStyle(color: Colors.white70, fontSize: 14),
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: isTv ? 24 : 14,
+            ),
             maxLines: 1,
             overflow: .ellipsis,
           ),

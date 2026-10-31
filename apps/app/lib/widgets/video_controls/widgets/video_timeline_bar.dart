@@ -4,6 +4,7 @@ import '../../../mpv/mpv.dart';
 import '../../../media/media_source_info.dart';
 import '../../../services/scrub_preview_source.dart';
 import '../../../utils/formatters.dart';
+import '../../../utils/platform_detector.dart';
 import 'timeline_slider.dart';
 
 /// Encapsulates the StreamBuilder stack for video timeline with timestamps.
@@ -146,10 +147,10 @@ class VideoTimelineBar extends StatelessWidget {
     );
   }
 
-  static const _timestampStyle = TextStyle(
+  TextStyle get _timestampStyle => TextStyle(
     color: Colors.white,
-    fontSize: 14,
-    fontFeatures: [FontFeature.tabularFigures()],
+    fontSize: PlatformDetector.isTV() ? 24 : 14,
+    fontFeatures: const [FontFeature.tabularFigures()],
   );
 
   Widget _buildTimestamp(Duration time) {

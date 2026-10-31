@@ -740,10 +740,18 @@ class SettingsService extends BaseSharedPreferencesService {
   /// from the server-side view offset (#2303). Off preserves resume behavior.
   static const shuffleStartsFromBeginning = BoolPref('shuffle_starts_from_beginning');
 
+  static int _defaultPlayNextCountdown() => PlatformDetector.isTV() ? 8 : 5;
+
   /// Seconds the Play Next prompt counts down before auto-advancing (#1827).
   /// 0 skips the prompt entirely and starts the next episode immediately.
   /// Only consulted while [autoPlayNextEpisode] is on.
-  static final playNextCountdown = IntPref('play_next_countdown', defaultValue: 5, transform: (v) => v.clamp(0, 30));
+  /// TV defaults to 8 seconds; other platforms default to 5 seconds.
+  static final playNextCountdown = IntPref(
+    'play_next_countdown',
+    defaultValue: 5,
+    defaultValueProvider: _defaultPlayNextCountdown,
+    transform: (v) => v.clamp(0, 30),
+  );
 
   /// Touch gestures on the player surface (#1810). Each defaults on; the
   /// edge swipes gate [MobileEdgeAdjustmentTracker] tracking and the zoom

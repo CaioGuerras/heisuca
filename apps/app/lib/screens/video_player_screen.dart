@@ -1,4 +1,5 @@
 import '../heisuca/services/heisuca_episode_attention.dart';
+import '../services/device_performance.dart';
 import 'dart:async';
 import '../services/playback_launch_observer.dart';
 import '../media/ids.dart';
@@ -1358,7 +1359,7 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
       // (#1938); the staged chrome handling is TV/desktop behavior (#4443b761
       // applied it to the phone system-back path too, so back stopped
       // closing the player).
-      exitPlayerBeforeChrome: () => PlatformDetector.isMobile(context),
+      exitPlayerBeforeChrome: () => PlatformDetector.isMobile(context) && !PlatformDetector.isTV(),
       exitFullscreenIfActive: FullscreenStateManager().exitFullscreenIfActive,
       // macOS fullscreen belongs to the app window, while HTPC-style player
       // navigation treats physical Escape as semantic Back. In both cases the
@@ -1858,6 +1859,17 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
         await currentPlayer.setLogLevel(debugLoggingEnabled ? 'v' : 'warn');
       }
       await currentPlayer.setProperty('hwdec', _getHwdecValue(enableHardwareDecoding));
+
+      if (PlatformDetector.isTV()) {
+        final isLowRam = DevicePerformance.systemLowRam == true ||
+            DevicePerformance.isLowEndHardware ||
+            (DevicePerformance.totalMemBytes != null && DevicePerformance.totalMemBytes! < (2 * 1024 * 1024 * 1024));
+        if (isLowRam) {
+          // Em TV com pouca RAM (Fire Stick 1 GB / isLowRamDevice): cache do demuxer entre 32 e 48 MB
+          await currentPlayer.setProperty('demuxer-max-bytes', '${32 * 1024 * 1024}');
+          await currentPlayer.setProperty('demuxer-max-back-bytes', '${16 * 1024 * 1024}');
+        }
+      }
 
       // Deinterlacing (#2149) is mpv-only by design — ExoPlayer has no filter
       // chain. `auto` deinterlaces only content flagged interlaced. Wrapped:
@@ -3022,7 +3034,7 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
           // The chrome deliberately stays down; _remoteTransport announces the
           // accepted command with a centred transient disc instead (#1676).
           final transportCommand = classifyTransportKey(event.logicalKey);
-          if (videoPlayerNavigationPreference() && !PlatformDetector.isAppleTV() && transportCommand != null) {
+          if (playerDirectionalNavigationEnabled() && !PlatformDetector.isAppleTV() && transportCommand != null) {
             if (event is KeyDownEvent) {
               unawaited(_remoteTransport(transportCommand, source: 'Hardware media key'));
             }

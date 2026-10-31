@@ -236,6 +236,12 @@ val heisucaPreview = providers.gradleProperty("heisucaPreview").orNull == "true"
 // Build da Play (AAB): pacote do app publicado e só com a chave do Heisuca (key.properties), nunca a de debug.
 val heisucaLoja = providers.gradleProperty("heisucaLoja").orNull == "true"
 if (heisucaLoja && heisucaPreview) throw GradleException("heisucaLoja e heisucaPreview não podem ir juntos")
+// APK universal sem split (ex.: -PheisucaAbis=armeabi-v7a,arm64-v8a para Fire TV Stick/TV box de 32 bits): o
+// --target-platform do Flutter não filtra as libs nativas dos plugins, que viriam também para x86_64.
+val heisucaAbis = providers.gradleProperty("heisucaAbis").orNull
+  ?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
+val heisucaAbisConhecidas = listOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
+if (!heisucaAbisConhecidas.containsAll(heisucaAbis)) throw GradleException("heisucaAbis desconhecida: $heisucaAbis")
 
 android {
   buildFeatures { buildConfig = true }
@@ -369,6 +375,9 @@ android {
       // mpv-build tarballs win for std::from_chars<float>, while older
       // native consumers remain ABI-compatible.
       pickFirsts.add("lib/*/libc++_shared.so")
+      if (heisucaAbis.isNotEmpty()) {
+        excludes += (heisucaAbisConhecidas - heisucaAbis.toSet()).map { abi -> "lib/$abi/**" }
+      }
     }
   }
 

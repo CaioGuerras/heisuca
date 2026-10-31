@@ -155,7 +155,7 @@ jobs:
           retention-days: 14
 
       # Universal arm + arm64 para Fire TV Stick e TV box de 32 bits (sideload pelo Downloader; .aab não serve).
-      # Sem -PtargetAbi: o preparo do FFmpeg cobre todas as ABIs e o Flutter filtra as duas pedidas.
+      # Sem -PtargetAbi: o preparo do FFmpeg cobre todas as ABIs; -PheisucaAbis tira do pacote as libs de x86/x86_64.
       # versionCode igual ao do split arm64 (2000 + build) para um poder substituir o outro sem "downgrade".
       - name: Compilar APK Release universal (armeabi-v7a + arm64-v8a)
         run: |
@@ -166,7 +166,7 @@ jobs:
           build_number=$(sed -n 's/^version: *[^+]*+\([0-9]\+\).*/\1/p' pubspec.yaml)
           [ -n "$build_number" ] || { echo "::error::build number não encontrado no pubspec.yaml"; exit 1; }
           rm -f build/app/outputs/flutter-apk/app-release.apk
-          flutter build apk --release --target-platform android-arm,android-arm64 --build-number "$((2000 + build_number))" "${preview_args[@]}" --dart-define=GIT_COMMIT=${{ github.sha }}
+          flutter build apk --release --target-platform android-arm,android-arm64 --build-number "$((2000 + build_number))" -PheisucaAbis=armeabi-v7a,arm64-v8a "${preview_args[@]}" --dart-define=GIT_COMMIT=${{ github.sha }}
 
       - name: Conferir ABIs, pacote e assinatura do APK universal
         run: |

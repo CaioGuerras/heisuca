@@ -642,6 +642,7 @@ abstract class _FocusableTextInputBase extends StatelessWidget {
   final bool obscureText;
   final bool autocorrect;
   final bool enableSuggestions;
+  final Iterable<String>? autofillHints;
   final bool? enableInteractiveSelection;
   final int? maxLength;
   final int? maxLines;
@@ -676,6 +677,7 @@ abstract class _FocusableTextInputBase extends StatelessWidget {
     this.obscureText = false,
     this.autocorrect = true,
     this.enableSuggestions = true,
+    this.autofillHints,
     this.enableInteractiveSelection,
     this.maxLength,
     this.maxLines = 1,
@@ -1517,6 +1519,7 @@ class FocusableTextField extends _FocusableTextInputBase {
     super.obscureText,
     super.autocorrect,
     super.enableSuggestions,
+    super.autofillHints,
     super.enableInteractiveSelection,
     super.maxLength,
     super.maxLines,
@@ -1563,6 +1566,7 @@ class FocusableTextField extends _FocusableTextInputBase {
         autofocus: autofocus,
         autocorrect: autocorrect,
         enableSuggestions: enableSuggestions,
+        autofillHints: autofillHints,
         obscureText: obscureText,
         maxLength: maxLength,
         maxLines: maxLines,
@@ -1609,6 +1613,7 @@ class FocusableTextFormField extends _FocusableTextInputBase {
     super.obscureText,
     super.autocorrect,
     super.enableSuggestions,
+    super.autofillHints,
     super.enableInteractiveSelection,
     super.maxLength,
     super.maxLines,
@@ -1656,6 +1661,7 @@ class FocusableTextFormField extends _FocusableTextInputBase {
         autofocus: autofocus,
         autocorrect: autocorrect,
         enableSuggestions: enableSuggestions,
+        autofillHints: autofillHints,
         obscureText: obscureText,
         maxLength: maxLength,
         maxLines: maxLines,

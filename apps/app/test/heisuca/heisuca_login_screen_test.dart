@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:heisuca/cgflix/cgflix_theme.dart';
 import 'package:heisuca/heisuca/heisuca_login_screen.dart';
@@ -37,6 +38,44 @@ void main() {
 
       expect(find.byIcon(Icons.qr_code_2_rounded), findsOneWidget);
       expect(find.byTooltip('Conexão Rápida'), findsOneWidget);
+    });
+  });
+
+  group('HeisucaLoginScreen T1 TV native text input focus bridge', () {
+    testWidgets('foco no campo de usuário em TV chama setNativeTextInputFocused(true) e false ao desfocar', (tester) async {
+      TvDetectionService.debugReset();
+      await TvDetectionService.getInstance(forceTv: true);
+      TvDetectionService.setForceTVSync(true);
+
+      const channel = MethodChannel('app.heisuca/text_input');
+      final sentStates = <bool>[];
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, (call) async {
+        if (call.method == 'setNativeTextInputFocused') {
+          sentStates.add(call.arguments as bool);
+        }
+        return null;
+      });
+      addTearDown(() {
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, null);
+      });
+
+      await tester.pumpWidget(_montar(const HeisucaLoginScreen()));
+      await tester.pump();
+
+      final userField = find.byKey(const ValueKey('heisuca-login-user'));
+      expect(userField, findsOneWidget);
+
+      await tester.tap(userField);
+      await tester.pump();
+      await tester.pump();
+
+      expect(sentStates, [true]);
+
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pump();
+      await tester.pump();
+
+      expect(sentStates, [true, false]);
     });
   });
 }

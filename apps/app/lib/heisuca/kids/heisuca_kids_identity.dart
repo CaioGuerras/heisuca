@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+import '../../focus/focusable_text_field.dart';
 import '../../profiles/active_profile_provider.dart';
 import '../../profiles/profile_registry.dart';
 import 'heisuca_kids.dart';
@@ -124,7 +125,7 @@ class _HeisucaKidsIdentityScreenState extends State<HeisucaKidsIdentityScreen> {
             child: const Icon(Icons.add_a_photo_outlined, size: 32)))))),
       Center(child: TextButton(onPressed: _saving ? null : _pick, child: Text(photo == null ? 'Escolher foto' : 'Trocar foto'))),
       const SizedBox(height: 8),
-      TextField(controller: _name, maxLength: 24, textCapitalization: TextCapitalization.words,
+      FocusableTextField(controller: _name, maxLength: 24, textCapitalization: TextCapitalization.words,
         decoration: const InputDecoration(labelText: 'Nome da criança', helperText: 'Aparece no "Oi, …!" da abertura')),
       const SizedBox(height: 16),
       const Text('Tema do app', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),

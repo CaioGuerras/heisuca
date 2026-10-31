@@ -1,5 +1,6 @@
 import 'heisuca_dpad_focus.dart';
 import '../cgflix/cgflix_login_checks.dart';
+import '../focus/focusable_text_field.dart';
 import 'heisuca_motion.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -651,7 +652,7 @@ class _GlassTextField extends StatelessWidget {
     final outline = OutlineInputBorder(
       borderRadius: BorderRadius.circular(HeisucaTheme.raioInput),
       borderSide: BorderSide(color: borderColor));
-    return TextField(
+    return FocusableTextField(
       controller: controller,
       enabled: enabled,
       obscureText: obscureText,

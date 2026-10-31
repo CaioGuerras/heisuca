@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../focus/focusable_text_field.dart';
 import 'heisuca_theme.dart';
 
 /// Diagnóstico WebDAV: ainda não adiciona uma fonte ao catálogo.
@@ -216,7 +217,7 @@ class _CampoTexto extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 6),
-        TextFormField(
+        FocusableTextFormField(
           controller: controller,
           obscureText: obscureText,
           validator: validator,

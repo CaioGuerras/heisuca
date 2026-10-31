@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../cgflix/cgflix_palette.dart';
 import '../cgflix/home/cgflix_actions.dart';
+import '../focus/focusable_text_field.dart';
 import '../media/library_query.dart';
 import '../media/media_item.dart';
 import '../media/media_kind.dart';
@@ -137,7 +138,7 @@ class _HeisucaLibraryScreenState extends State<HeisucaLibraryScreen> with Refres
             label: const Text('Favoritos'),
             onPressed: () => cgflixOpenFavorites(context, fav)),
         ])),
-      Padding(padding: const EdgeInsets.fromLTRB(16, 6, 16, 10), child: TextField(controller: _search,
+      Padding(padding: const EdgeInsets.fromLTRB(16, 6, 16, 10), child: FocusableTextField(controller: _search,
         decoration: const InputDecoration(hintText: 'Buscar nesta biblioteca', prefixIcon: Icon(Icons.search)),
         onChanged: (_) { _debounce?.cancel(); _debounce = Timer(const Duration(milliseconds: 300), _reload); })),
       if (_loading) const LinearProgressIndicator(minHeight: 2),

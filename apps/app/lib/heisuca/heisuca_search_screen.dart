@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import '../cgflix/cgflix_palette.dart';
+import '../focus/focusable_text_field.dart';
 import 'heisuca_design_system.dart';
 import 'heisuca_seerr_sheet.dart';
 import 'heisuca_theme.dart';
@@ -94,7 +95,7 @@ class _HeisucaSearchScreenState extends State<HeisucaSearchScreen> {
                     Icon(Symbols.search_rounded, color: textMuted, size: 22.0),
                     const SizedBox(width: 10.0),
                     Expanded(
-                      child: TextField(
+                      child: FocusableTextField(
                         controller: _searchController,
                         style: TextStyle(
                           fontFamily: HeisucaTheme.fonteTexto,

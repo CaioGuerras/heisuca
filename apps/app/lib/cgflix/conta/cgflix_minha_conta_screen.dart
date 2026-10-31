@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import '../../focus/focusable_text_field.dart';
 import '../../utils/app_logger.dart';
 import '../../utils/snackbar_helper.dart';
 import '../../widgets/app_icon.dart';
@@ -302,7 +303,7 @@ class _CampoSenhaState extends State<_CampoSenha> {
   bool _visivel = false;
 
   @override
-  Widget build(BuildContext context) => TextField(
+  Widget build(BuildContext context) => FocusableTextField(
     controller: widget.controller,
     obscureText: !_visivel,
     autocorrect: false,

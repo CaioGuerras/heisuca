@@ -9,6 +9,7 @@ import 'package:uuid/uuid.dart';
 import '../../cgflix/cgflix_theme.dart';
 import 'heisuca_kids_photo.dart';
 import '../../connection/connection.dart';
+import '../../focus/focusable_text_field.dart';
 import '../../profiles/active_profile_provider.dart';
 import '../../profiles/profile.dart';
 import '../../profiles/profile_activation.dart';
@@ -218,7 +219,7 @@ class _HeisucaKidsSetupScreenState extends State<HeisucaKidsSetupScreen> {
                 'Pedidos, downloads, configurações e troca de perfil ficam escondidos.\n\n'
                 'Para sair do modo infantil, o app pede o PIN do responsável.'),
           page(title: 'Para quem é?', body: 'Escolha o nome, a foto e o tema do perfil infantil.', children: [
-            TextField(controller: _name, maxLength: 24, textCapitalization: TextCapitalization.words,
+            FocusableTextField(controller: _name, maxLength: 24, textCapitalization: TextCapitalization.words,
               style: TextStyle(color: palette.onGlass),
               decoration: const InputDecoration(labelText: 'Nome da criança', hintText: 'Como aparece no “Oi, …!”')),
             if (_photo != null) Center(child: Padding(padding: const EdgeInsets.symmetric(vertical: 12),

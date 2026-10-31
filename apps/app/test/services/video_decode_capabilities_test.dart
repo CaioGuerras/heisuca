@@ -137,4 +137,33 @@ void main() {
       expect(acceptsAv1(), isTrue);
     });
   });
+
+  test('nova sonda não herda profiles_4k da anterior (adendo 3, item 5)', () {
+    VideoDecodeCapabilities.debugReset(
+      codecProfiles4k: {
+        'av1': ['main10'],
+      },
+    );
+    final caps = VideoDecodeCapabilities.current;
+    caps.debugApplyProbe(<String, dynamic>{
+      'hevc': true,
+      'av1': true,
+      'codecs': {
+        'hevc': {
+          'hardware': true,
+          'profiles': ['main'],
+          'max_resolution': '4k60',
+          'profiles_4k': ['main'],
+        },
+        'av1': {
+          'hardware': true,
+          'profiles': ['main', 'main10'],
+          'max_resolution': '4k60',
+        },
+      },
+    });
+    // A sonda nova não prova AV1 Main10 em 4K: o ['main10'] antigo não vale.
+    expect(caps.checkHardwareDecode(codec: 'av1', profile: 'main', bitDepth: 10, width: 3840, height: 2160), isFalse);
+    expect(caps.checkHardwareDecode(codec: 'av1', profile: 'main', bitDepth: 10, width: 1920, height: 1080), isTrue);
+  });
 }

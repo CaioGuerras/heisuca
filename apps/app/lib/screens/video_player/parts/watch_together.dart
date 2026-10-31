@@ -243,7 +243,7 @@ extension _VideoPlayerWatchTogetherMethods on VideoPlayerScreenState {
     if (!mounted || !watchTogether.isPlaybackLeaseCurrent(lease)) return false;
     final outcome = await _reloadMediaInPlace(
       metadata: metadata,
-      selectedMediaIndex: savedVersion?.index ?? 0,
+      selectedMediaIndex: savedVersion?.index,
       selectedMediaSourceId: savedVersion?.sourceId,
       preferredVersionSignature: savedVersion?.signature,
       qualityPreset: _selectedQualityPreset,

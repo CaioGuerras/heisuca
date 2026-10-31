@@ -1006,7 +1006,8 @@ void main() {
             'MediaSources': [
               {
                 'Id': 'src-1',
-                'TranscodingUrl': '/Videos/item-1/master.m3u8?MediaSourceId=src-1&PlaySessionId=play-session-1&TranscodeReasons=ContainerBitrateExceedsLimit',
+                'TranscodingUrl':
+                    '/Videos/item-1/master.m3u8?MediaSourceId=src-1&PlaySessionId=play-session-1&TranscodeReasons=ContainerBitrateExceedsLimit',
                 'MediaStreams': [
                   {'Index': 0, 'Type': 'Audio', 'Codec': 'aac', 'Language': 'eng', 'DisplayTitle': 'English - AAC'},
                   {
@@ -2085,6 +2086,8 @@ void main() {
             'Id': 'src-1',
             'Container': 'mkv',
             'MediaStreams': [
+              // Vídeo com prova: sem ela o índice 1 cru não passa no portão de HW.
+              {'Index': 0, 'Type': 'Video', 'Codec': 'h264', 'Width': 1920, 'Height': 1080},
               {'Index': 1, 'Type': 'Audio', 'Codec': 'aac', 'Language': 'eng'},
               {'Index': 4, 'Type': 'Audio', 'Codec': 'flac', 'Language': 'jpn'},
             ],
@@ -2094,6 +2097,7 @@ void main() {
             'Container': 'mp4',
             'DefaultAudioStreamIndex': 8,
             'MediaStreams': [
+              {'Index': 0, 'Type': 'Video', 'Codec': 'h264', 'Width': 1920, 'Height': 1080},
               {'Index': 8, 'Type': 'Audio', 'Codec': 'aac', 'Language': 'eng'},
             ],
           },

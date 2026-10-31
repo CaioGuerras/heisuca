@@ -1696,6 +1696,8 @@ void main() {
                     {
                       'id': 7,
                       'container': 'mkv',
+                      // Faixa de vídeo com prova: sem ela o índice cru não passa no portão de HW.
+                      'videoCodec': 'h264',
                       'bitrate': 13137,
                       'height': 1080,
                       'Part': [
@@ -1705,6 +1707,7 @@ void main() {
                     {
                       'id': 8,
                       'container': 'mkv',
+                      'videoCodec': 'h264',
                       'bitrate': 13137,
                       'height': 1080,
                       'Part': [

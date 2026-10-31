@@ -56,9 +56,11 @@ PlexVideoPlaybackData parsePlexVideoPlaybackDataFromJson(
   Map<String, dynamic>? metadataJson, {
   required String baseUrl,
   required String? token,
-  int mediaIndex = 0,
+  int? mediaIndex,
   String? selectedMediaSourceId,
   String? preferredVersionSignature,
+  String? inheritedVersionSignature,
+  bool rawIndexNeedsHardware = false,
   void Function(int requestedIndex, int fallbackIndex)? onVersionFallback,
 }) {
   String? videoUrl;
@@ -73,6 +75,8 @@ PlexVideoPlaybackData parsePlexVideoPlaybackDataFromJson(
       mediaIndex: mediaIndex,
       mediaSourceId: selectedMediaSourceId,
       preferredVersionSignature: preferredVersionSignature,
+      inheritedVersionSignature: inheritedVersionSignature,
+      rawIndexNeedsHardware: rawIndexNeedsHardware,
       onVersionFallback: onVersionFallback,
     );
     if (selection != null) {

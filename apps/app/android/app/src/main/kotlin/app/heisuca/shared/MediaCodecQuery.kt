@@ -52,6 +52,14 @@ internal object MediaCodecQuery {
    * - VP9: 0, 2
    * Max resolution/fps checked via VideoCapabilities.areSizeAndRateSupported for:
    * 3840x2160@24/60 and 1920x1080@60.
+   *
+   * Medida real, sem palpite: decoder de hardware que não responde à taxa
+   * (comum em TV box) é medido pelo tamanho (`isSizeSupported`) e pelos limites
+   * `supportedWidths/Heights`; "ter hardware" sozinho não prova 4K. Perfil e
+   * nível são cruzados no MESMO decoder: `profiles_4k` só lista um perfil se
+   * aquele decoder aceita 3840x2160 e declara nível suficiente para 4K nele
+   * (HEVC/VP9/AV1 nível 5, H.264 nível 5.1). Ex.: Main10 só até o nível 4.1
+   * não conta como Main10 em 4K.
    */
   fun queryCodecDetails(
     codecKind: Int = MediaCodecList.REGULAR_CODECS
@@ -81,6 +89,11 @@ internal object MediaCodecQuery {
       var can4k60 = false
       var can4k24 = false
       var can1080p60 = false
+      var fits4k = false
+      var fits1080 = false
+      var maxWidth = 0
+      var maxHeight = 0
+      val profiles4k = mutableSetOf<String>()
 
       for (decoder in matchingDecoders) {
         val caps = try {
@@ -92,35 +105,30 @@ internal object MediaCodecQuery {
         val profileLevels = caps.profileLevels
         if (profileLevels != null) {
           for (pl in profileLevels) {
-            when (codecKey) {
-              "h264" -> {
-                if (pl.profile == MediaCodecInfo.CodecProfileLevel.AVCProfileHigh) profiles.add("high")
-                if (pl.profile == MediaCodecInfo.CodecProfileLevel.AVCProfileHigh10) profiles.add("high10")
-              }
-              "hevc" -> {
-                if (pl.profile == MediaCodecInfo.CodecProfileLevel.HEVCProfileMain) profiles.add("main")
-                if (pl.profile == MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10) profiles.add("main10")
-              }
-              "av1" -> {
-                if (pl.profile == 1) profiles.add("main")
-                if (pl.profile == 2) profiles.add("main10")
-              }
-              "vp9" -> {
-                if (pl.profile == MediaCodecInfo.CodecProfileLevel.VP9Profile0) {
-                  profiles.add("0")
-                  profiles.add("profile0")
-                }
-                if (pl.profile == MediaCodecInfo.CodecProfileLevel.VP9Profile2) {
-                  profiles.add("2")
-                  profiles.add("profile2")
-                }
-              }
-            }
+            profiles.addAll(profileNames(codecKey, pl.profile))
           }
         }
 
         val videoCaps = caps.videoCapabilities
         if (videoCaps != null) {
+          val decoderFits4k = try { videoCaps.isSizeSupported(3840, 2160) } catch (e: Throwable) { false }
+          if (decoderFits4k) fits4k = true
+          if (!fits1080) {
+            fits1080 = try { videoCaps.isSizeSupported(1920, 1080) } catch (e: Throwable) { false }
+          }
+          val width = try { videoCaps.supportedWidths.upper } catch (e: Throwable) { 0 }
+          val height = try { videoCaps.supportedHeights.upper } catch (e: Throwable) { 0 }
+          // Guarda o par do decoder de maior área (não mistura largura de um
+          // com altura de outro).
+          if (width.toLong() * height > maxWidth.toLong() * maxHeight) {
+            maxWidth = width
+            maxHeight = height
+          }
+          if (decoderFits4k && profileLevels != null) {
+            for (pl in profileLevels) {
+              profiles4k.addAll(profilesFor4k(codecKey, pl.profile, pl.level))
+            }
+          }
           if (!can4k60) {
             can4k60 = try { videoCaps.areSizeAndRateSupported(3840, 2160, 60.0) } catch (e: Throwable) { false }
           }
@@ -133,13 +141,7 @@ internal object MediaCodecQuery {
         }
       }
 
-      val maxRes = when {
-        can4k60 -> "4k60"
-        can4k24 -> "4k24"
-        can1080p60 -> "1080p60"
-        hasHardware -> "supported"
-        else -> "none"
-      }
+      val maxRes = maxResolutionLabel(hasHardware, can4k60, can4k24, fits4k, can1080p60, fits1080)
 
       result[codecKey] = mapOf(
         "hardware" to hasHardware,
@@ -148,12 +150,87 @@ internal object MediaCodecQuery {
         "can_4k_60" to can4k60,
         "can_4k_24" to can4k24,
         "can_1080p_60" to can1080p60,
-        "supports_4k" to (can4k60 || can4k24),
-        "supports_1080p60" to can1080p60
+        "supports_4k" to (can4k60 || can4k24 || fits4k),
+        "supports_1080p60" to can1080p60,
+        "max_width" to maxWidth,
+        "max_height" to maxHeight,
+        "profiles_4k" to profiles4k.toList()
       )
     }
 
     return result
+  }
+
+  /**
+   * Rótulo da resolução máxima medida. Sem medida de tamanho nem de taxa o
+   * resultado é "sd" (há hardware, mas nada prova 1080p nem 4K); nunca o
+   * antigo "supported", que o app tratava como 4K.
+   */
+  internal fun maxResolutionLabel(
+    hasHardware: Boolean,
+    can4k60: Boolean,
+    can4k24: Boolean,
+    fits4k: Boolean,
+    can1080p60: Boolean,
+    fits1080: Boolean
+  ): String = when {
+    !hasHardware -> "none"
+    can4k60 -> "4k60"
+    can4k24 -> "4k24"
+    fits4k -> "4k"
+    can1080p60 -> "1080p60"
+    fits1080 -> "1080p"
+    else -> "sd"
+  }
+
+  /** Nível mínimo para 3840x2160, por codec (constantes do CodecProfileLevel). */
+  internal fun minLevelFor4k(codecKey: String): Int? = when (codecKey) {
+    "h264" -> MediaCodecInfo.CodecProfileLevel.AVCLevel51
+    "hevc" -> MediaCodecInfo.CodecProfileLevel.HEVCMainTierLevel5
+    "vp9" -> MediaCodecInfo.CodecProfileLevel.VP9Level5
+    "av1" -> MediaCodecInfo.CodecProfileLevel.AV1Level5
+    else -> null
+  }
+
+  /**
+   * Nomes do perfil [profile] que valem em 4K num decoder que já aceita
+   * 3840x2160, se o [level] declarado para esse perfil chega ao mínimo.
+   */
+  internal fun profilesFor4k(codecKey: String, profile: Int, level: Int): List<String> {
+    val minLevel = minLevelFor4k(codecKey) ?: return emptyList()
+    if (level < minLevel) return emptyList()
+    return profileNames(codecKey, profile)
+  }
+
+  /**
+   * Nomes que o Dart usa para o [profile] do CodecProfileLevel. No AV1, HDR10
+   * e HDR10+ são Main10 com metadado: decoder que só anuncia esses perfis
+   * decodifica Main10 (constantes da API 29, inlinadas na compilação).
+   */
+  internal fun profileNames(codecKey: String, profile: Int): List<String> = when (codecKey) {
+    "h264" -> when (profile) {
+      MediaCodecInfo.CodecProfileLevel.AVCProfileHigh -> listOf("high")
+      MediaCodecInfo.CodecProfileLevel.AVCProfileHigh10 -> listOf("high10")
+      else -> emptyList()
+    }
+    "hevc" -> when (profile) {
+      MediaCodecInfo.CodecProfileLevel.HEVCProfileMain -> listOf("main")
+      MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10 -> listOf("main10")
+      else -> emptyList()
+    }
+    "av1" -> when (profile) {
+      MediaCodecInfo.CodecProfileLevel.AV1ProfileMain8 -> listOf("main")
+      MediaCodecInfo.CodecProfileLevel.AV1ProfileMain10,
+      MediaCodecInfo.CodecProfileLevel.AV1ProfileMain10HDR10,
+      MediaCodecInfo.CodecProfileLevel.AV1ProfileMain10HDR10Plus -> listOf("main10")
+      else -> emptyList()
+    }
+    "vp9" -> when (profile) {
+      MediaCodecInfo.CodecProfileLevel.VP9Profile0 -> listOf("0", "profile0")
+      MediaCodecInfo.CodecProfileLevel.VP9Profile2 -> listOf("2", "profile2")
+      else -> emptyList()
+    }
+    else -> emptyList()
   }
 
   /**

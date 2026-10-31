@@ -69,6 +69,13 @@ class VideoDecodeCapabilities {
   Map<String, String>? _codecMaxResolutions;
   Map<String, bool>? _codecHardware;
 
+  /// Limites medidos no aparelho (sonda nova): maior largura/altura aceitas
+  /// pelo decoder de hardware e perfis válidos em 4K no MESMO decoder (perfil
+  /// com nível suficiente). Nulo = sonda antiga, sem a medida.
+  Map<String, int>? _codecMaxWidths;
+  Map<String, int>? _codecMaxHeights;
+  Map<String, List<String>>? _codecProfiles4k;
+
   /// Get the singleton, probing the platform's decoders on first call.
   static Future<VideoDecodeCapabilities> getInstance() =>
       _singleton.getInstance(VideoDecodeCapabilities._, (instance) => instance._detect());
@@ -100,6 +107,11 @@ class VideoDecodeCapabilities {
       _codecProfiles = {};
       _codecMaxResolutions = {};
       _codecHardware = {};
+      _codecMaxWidths = {};
+      _codecMaxHeights = {};
+      // Nulo = sonda sem profiles_4k; zerado aqui para não herdar perfis de
+      // uma sonda anterior.
+      _codecProfiles4k = null;
       rawCodecs.forEach((k, v) {
         if (v is Map) {
           final codecName = k.toString().toLowerCase();
@@ -111,6 +123,16 @@ class VideoDecodeCapabilities {
           final maxRes = v['max_resolution'];
           if (maxRes != null) {
             _codecMaxResolutions![codecName] = maxRes.toString().toLowerCase();
+          }
+          final maxWidth = v['max_width'];
+          final maxHeight = v['max_height'];
+          if (maxWidth is num && maxHeight is num && maxWidth > 0 && maxHeight > 0) {
+            _codecMaxWidths![codecName] = maxWidth.toInt();
+            _codecMaxHeights![codecName] = maxHeight.toInt();
+          }
+          final profiles4k = v['profiles_4k'];
+          if (profiles4k is List) {
+            (_codecProfiles4k ??= {})[codecName] = profiles4k.map((p) => p.toString().toLowerCase()).toList();
           }
         }
       });
@@ -132,13 +154,7 @@ class VideoDecodeCapabilities {
 
   /// Check whether hardware decode supports [codec], [profile], [bitDepth] and [width]/[height].
   /// If unprobed or probe failed, defaults to true.
-  static bool canHardwareDecode({
-    required String codec,
-    String? profile,
-    int? bitDepth,
-    int? width,
-    int? height,
-  }) {
+  static bool canHardwareDecode({required String codec, String? profile, int? bitDepth, int? width, int? height}) {
     final instance = _singleton.instance;
     if (instance == null) return true;
     return instance.checkHardwareDecode(
@@ -150,13 +166,7 @@ class VideoDecodeCapabilities {
     );
   }
 
-  bool checkHardwareDecode({
-    required String codec,
-    String? profile,
-    int? bitDepth,
-    int? width,
-    int? height,
-  }) {
+  bool checkHardwareDecode({required String codec, String? profile, int? bitDepth, int? width, int? height}) {
     final normCodec = _normalizeCodec(codec);
     if (normCodec == null) return true;
 
@@ -173,31 +183,41 @@ class VideoDecodeCapabilities {
       return false;
     }
 
-    final is10Bit = (bitDepth != null && bitDepth > 8) ||
-        (profile != null && (profile.contains('10') || profile.toLowerCase().contains('hi10p')));
+    final is10Bit = _is10Bit(profile, bitDepth);
 
     final profiles = _codecProfiles?[normCodec];
     if (profiles != null) {
-      if (normCodec == 'h264') {
-        if (is10Bit && !profiles.contains('high10')) return false;
-      } else if (normCodec == 'hevc') {
-        if (is10Bit && !profiles.contains('main10')) return false;
-      } else if (normCodec == 'av1') {
-        if (is10Bit && !profiles.contains('main10')) return false;
-      } else if (normCodec == 'vp9') {
-        if (is10Bit && !profiles.contains('2') && !profiles.contains('profile2')) return false;
-      }
+      if (is10Bit && !profiles.contains(_tenBitProfile(normCodec))) return false;
     } else {
       if (normCodec == 'h264' && is10Bit) {
         if (_codecHardware != null) return false;
       }
     }
 
-    final is4k = (width != null && width > 1920) || (height != null && height > 1080);
-    if (is4k) {
+    // Tamanho: o máximo medido manda (aceita também o vídeo em pé).
+    final maxWidth = _codecMaxWidths?[normCodec];
+    final maxHeight = _codecMaxHeights?[normCodec];
+    if (maxWidth != null && maxHeight != null && (width != null || height != null)) {
+      final w = width ?? 0;
+      final h = height ?? 0;
+      final fits = (w <= maxWidth && h <= maxHeight) || (w <= maxHeight && h <= maxWidth);
+      if (!fits) return false;
+    }
+
+    if (isAbove1080p(width: width, height: height)) {
+      // Acima de 1080p só com prova de 4K: taxa (4k60/4k24) ou tamanho ("4k")
+      // medidos. "supported" (sonda antiga: havia hardware, sem medida) não
+      // prova nada.
       final maxRes = _codecMaxResolutions?[normCodec];
-      if (maxRes != null && maxRes != '4k60' && maxRes != '4k24' && maxRes != 'supported') {
+      if (maxRes != null && maxRes != '4k60' && maxRes != '4k24' && maxRes != '4k') {
         return false;
+      }
+      // Perfil × nível no mesmo decoder: Main10 até o nível 4.1 decodifica
+      // 1080p, não 4K.
+      final profiles4k = _codecProfiles4k?[normCodec];
+      if (_codecProfiles4k != null) {
+        if (profiles4k == null || profiles4k.isEmpty) return false;
+        if (is10Bit && !profiles4k.contains(_tenBitProfile(normCodec))) return false;
       }
     }
 
@@ -206,13 +226,7 @@ class VideoDecodeCapabilities {
 
   /// Check whether the device can smoothly software-decode the stream.
   /// On mobile/TV (Android/iOS), 4K, 10-bit HEVC/H.264, and AV1 drop frames or artifact.
-  static bool canSoftwareDecode({
-    required String codec,
-    String? profile,
-    int? bitDepth,
-    int? width,
-    int? height,
-  }) {
+  static bool canSoftwareDecode({required String codec, String? profile, int? bitDepth, int? width, int? height}) {
     if (kIsWeb) return false;
     // On desktop, CPUs software-decode adequately.
     if (defaultTargetPlatform == TargetPlatform.macOS ||
@@ -221,11 +235,9 @@ class VideoDecodeCapabilities {
       return true;
     }
 
-    final is10Bit = (bitDepth != null && bitDepth > 8) ||
-        (profile != null && (profile.contains('10') || profile.toLowerCase().contains('hi10p')));
-    final is4k = (width != null && width > 1920) || (height != null && height > 1080);
+    final is10Bit = _is10Bit(profile, bitDepth);
 
-    if (is4k) return false;
+    if (isAbove1080p(width: width, height: height)) return false;
     final normCodec = _normalizeCodec(codec);
     if (normCodec == 'hevc' && is10Bit) return false;
     if (normCodec == 'h264' && is10Bit) return false;
@@ -233,6 +245,22 @@ class VideoDecodeCapabilities {
 
     return true;
   }
+
+  /// Acima da faixa 1080p. 1920x1088 (altura alinhada a 16) e 2048x1080
+  /// (2K DCI) ainda são 1080p.
+  static bool isAbove1080p({int? width, int? height}) =>
+      (width != null && width > 2048) || (height != null && height > 1088);
+
+  static bool _is10Bit(String? profile, int? bitDepth) =>
+      (bitDepth != null && bitDepth > 8) ||
+      (profile != null && (profile.contains('10') || profile.toLowerCase().contains('hi10p')));
+
+  /// Nome que a sonda dá ao perfil de 10 bits de cada codec.
+  static String _tenBitProfile(String codec) => switch (codec) {
+    'h264' => 'high10',
+    'vp9' => '2',
+    _ => 'main10',
+  };
 
   static String? _normalizeCodec(String? codec) => switch (codec?.toLowerCase()) {
     'h264' || 'avc' || 'avc1' => 'h264',
@@ -284,6 +312,11 @@ class VideoDecodeCapabilities {
     return refused.isEmpty ? probe : '$probe refused=${refused.join(',')}';
   }
 
+  /// Test-only: aplica uma resposta da sonda na instância atual (como o
+  /// [_detect] faz), sem canal de plataforma.
+  @visibleForTesting
+  void debugApplyProbe(Map<String, dynamic> result) => _applyResult(result);
+
   /// Test-only: drop the memoized probe, optionally seeding measured results
   /// so the sync accessors can be exercised without a platform channel.
   @visibleForTesting
@@ -294,8 +327,14 @@ class VideoDecodeCapabilities {
     Map<String, bool>? codecHardware,
     Map<String, List<String>>? codecProfiles,
     Map<String, String>? codecMaxResolutions,
+    Map<String, int>? codecMaxWidths,
+    Map<String, int>? codecMaxHeights,
+    Map<String, List<String>>? codecProfiles4k,
   }) {
     if (hardwareHevc == null &&
+        codecMaxWidths == null &&
+        codecMaxHeights == null &&
+        codecProfiles4k == null &&
         hardwareAv1 == null &&
         displaySupports4k == null &&
         codecHardware == null &&
@@ -312,5 +351,8 @@ class VideoDecodeCapabilities {
     instance._codecHardware = codecHardware;
     instance._codecProfiles = codecProfiles;
     instance._codecMaxResolutions = codecMaxResolutions;
+    instance._codecMaxWidths = codecMaxWidths;
+    instance._codecMaxHeights = codecMaxHeights;
+    instance._codecProfiles4k = codecProfiles4k;
   }
 }

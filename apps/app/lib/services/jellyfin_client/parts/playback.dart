@@ -259,6 +259,7 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
           sourceId: options.selectedMediaSourceId,
           preferredSignature: options.preferredVersionSignature,
           inheritedSignature: options.inheritedVersionSignature,
+          rawIndexNeedsHardware: true,
         ),
       );
     } catch (error, stackTrace) {
@@ -708,7 +709,10 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
   /// `MediaSources` between requests. [sourceIndex] is clamped to the valid
   /// range as a fallback to mirror Plex's `parseVideoPlaybackDataFromJson`.
   /// [sourceIndex] nulo = ninguém escolheu: o ranqueador decide. Qualquer
-  /// número, inclusive 0, é escolha explícita e é respeitado.
+  /// número, inclusive 0, é escolha explícita e é respeitado — exceto com
+  /// [rawIndexNeedsHardware] (reprodução): aí o índice sem id nem assinatura
+  /// só vale se o aparelho decodificar a fonte por hardware. Downloads e
+  /// player externo seguem com o índice como está.
   @override
   Future<JellyfinPlaybackBundle?> fetchPlaybackBundle(
     String itemId, {
@@ -716,6 +720,7 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
     String? sourceId,
     String? preferredSignature,
     String? inheritedSignature,
+    bool rawIndexNeedsHardware = false,
   }) async {
     final item = await fetchItemFreshCacheFirst(itemId);
     final raw = item?.raw;
@@ -726,6 +731,7 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
       sourceId: sourceId,
       preferredSignature: preferredSignature,
       inheritedSignature: inheritedSignature,
+      rawIndexNeedsHardware: rawIndexNeedsHardware,
     );
   }
 
@@ -735,6 +741,7 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
     String? sourceId,
     String? preferredSignature,
     String? inheritedSignature,
+    bool rawIndexNeedsHardware = false,
   }) {
     final sources = raw['MediaSources'];
     if (sources is! List || sources.isEmpty) return null;
@@ -787,8 +794,19 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
       }
     }
 
+    // Na reprodução, índice cru sem id nem assinatura não é escolha do
+    // usuário (escolha manual sempre leva o sourceId): costuma ser o índice
+    // do episódio anterior ou o 0 de um retry. Só vale se este aparelho
+    // decodifica essa fonte por hardware; senão quem decide é o ranqueador.
     if (!resolvedBySourceId && !resolvedBySignature) {
-      if (sourceIndex != null && !staleSourceIndex) {
+      final rawSource = sourceIndex != null && sourceIndex >= 0 && sourceIndex < sources.length
+          ? sources[sourceIndex]
+          : null;
+      // Sem o portão, o índice fora do intervalo segue limitado a 0 abaixo.
+      if (sourceIndex != null &&
+          !staleSourceIndex &&
+          (!rawIndexNeedsHardware ||
+              (rawSource is Map<String, dynamic> && (sources.length == 1 || isSourceHardwareDecodable(rawSource))))) {
         index = sourceIndex;
       } else {
         final ranked = rankMediaSources(sources);

@@ -138,6 +138,7 @@ mixin _JellyfinClientInternals on MediaServerCacheMixin {
     String? sourceId,
     String? preferredSignature,
     String? inheritedSignature,
+    bool rawIndexNeedsHardware = false,
   });
   String buildDirectStreamUrl(
     String itemId, {
@@ -177,7 +178,8 @@ mixin _JellyfinClientInternals on MediaServerCacheMixin {
   /// Como [_withApiKeyOrNull], mas URL descartada pela política aborta a
   /// reprodução com erro tratado.
   String _withApiKey(String urlOrPath) =>
-      _withApiKeyOrNull(urlOrPath) ?? (throw const PlaybackException('Server returned a URL that the app refuses to open'));
+      _withApiKeyOrNull(urlOrPath) ??
+      (throw const PlaybackException('Server returned a URL that the app refuses to open'));
 
   /// Positional core of the tolerant `/Items` array fetch. The browse part's
   /// implementation widens it with optional retry/abort/diagnostics knobs that

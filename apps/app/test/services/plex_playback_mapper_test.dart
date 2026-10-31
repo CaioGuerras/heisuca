@@ -1,7 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:heisuca/media/media_file_info.dart';
+import 'package:heisuca/models/plex/plex_video_playback_data.dart';
 import 'package:heisuca/services/plex_playback_mapper.dart';
 import 'package:heisuca/services/plex_mappers.dart';
+import 'package:heisuca/services/video_decode_capabilities.dart';
 
 void main() {
   group('parsePlexVideoPlaybackDataFromJson', () {
@@ -540,6 +542,106 @@ void main() {
       final subtitles = part.streamsOfKind(MediaStreamKind.subtitle).toList();
       expect(subtitles.map((stream) => stream.id), [null, 'cea-608', '402']);
       expect(subtitles.map((stream) => stream.ordinal), [1, 2, 3]);
+    });
+  });
+
+  group('ranqueador do Plex na reprodução (item 5 + adendo 2)', () {
+    // ep. 2 com [4K HEVC 10-bit, 1080p H.264]; o ep. 1 tinha [1080p, 4K].
+    Map<String, dynamic> ep2() => {
+      'Media': [
+        {
+          'id': 201,
+          'videoResolution': '4k',
+          'videoCodec': 'hevc',
+          'container': 'mkv',
+          'Part': [
+            {
+              'id': 21,
+              'key': '/library/parts/21/file.mkv',
+              'accessible': 1,
+              'exists': 1,
+              'Stream': [
+                {
+                  'id': 1,
+                  'streamType': 1,
+                  'codec': 'hevc',
+                  'profile': 'main 10',
+                  'bitDepth': 10,
+                  'width': 3840,
+                  'height': 2160,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          'id': 202,
+          'videoResolution': '1080',
+          'videoCodec': 'h264',
+          'container': 'mkv',
+          'Part': [
+            {
+              'id': 22,
+              'key': '/library/parts/22/file.mkv',
+              'accessible': 1,
+              'exists': 1,
+              'Stream': [
+                {'id': 2, 'streamType': 1, 'codec': 'h264', 'profile': 'high', 'width': 1920, 'height': 1080},
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    setUp(() {
+      // TV 1080p sem HEVC Main10 por hardware.
+      VideoDecodeCapabilities.debugReset(
+        hardwareHevc: true,
+        hardwareAv1: false,
+        displaySupports4k: false,
+        codecHardware: {'h264': true, 'hevc': true, 'av1': false},
+        codecProfiles: {
+          'h264': ['high'],
+          'hevc': ['main'],
+        },
+      );
+    });
+    tearDown(VideoDecodeCapabilities.debugReset);
+
+    PlexVideoPlaybackData abrir({
+      int? mediaIndex,
+      String? id,
+      String? preferida,
+      String? herdada,
+      bool portao = true,
+    }) => parsePlexVideoPlaybackDataFromJson(
+      ep2(),
+      baseUrl: 'http://plex:32400',
+      token: 'tok',
+      mediaIndex: mediaIndex,
+      selectedMediaSourceId: id,
+      preferredVersionSignature: preferida,
+      inheritedVersionSignature: herdada,
+      rawIndexNeedsHardware: portao,
+    );
+
+    test('sem escolha salva, sem índice e com a 4K herdada do ep. 1 toca a 1080p', () {
+      expect(abrir().mediaInfo?.mediaSourceId, '202');
+      expect(abrir(herdada: '4k:hevc:mkv').mediaInfo?.mediaSourceId, '202');
+    });
+
+    test('índice cru do episódio anterior não vale sem hardware na reprodução', () {
+      expect(abrir(mediaIndex: 0).mediaInfo?.mediaSourceId, '202');
+    });
+
+    test('fora da reprodução (download) o índice explícito segue respeitado', () {
+      expect(abrir(mediaIndex: 0, portao: false).mediaInfo?.mediaSourceId, '201');
+    });
+
+    test('escolha manual (id) e assinatura salva do usuário vencem o aparelho', () {
+      expect(abrir(mediaIndex: 1, id: '201').mediaInfo?.mediaSourceId, '201');
+      expect(abrir(preferida: '4k:hevc:mkv').mediaInfo?.mediaSourceId, '201');
     });
   });
 }

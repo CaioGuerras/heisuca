@@ -199,11 +199,22 @@ extension _VideoPlayerErrorMethods on VideoPlayerScreenState {
     unawaited(_reopenAfterFailure(request));
   }
 
+  static bool _retryKeepsMediaIndex(_PlaybackOpenRequest request) =>
+      request.mediaIndex != null &&
+      (request.mediaSourceId != null ||
+          request.preferredVersionSignature != null ||
+          request.inheritedVersionSignature != null);
+
   Future<void> _reopenAfterFailure(_PlaybackOpenRequest request) async {
     final outcome = await _reloadMediaInPlace(
       metadata: request.metadata,
-      selectedMediaIndex: request.mediaIndex,
+      // Índice cru sem id nem assinatura não é escolha: vai nulo e o backend
+      // ranqueia (nunca o 0 às cegas).
+      selectedMediaIndex: _retryKeepsMediaIndex(request) ? request.mediaIndex : null,
+      backendPicksVersion: !_retryKeepsMediaIndex(request),
       selectedMediaSourceId: request.mediaSourceId,
+      preferredVersionSignature: request.preferredVersionSignature,
+      inheritedVersionSignature: request.inheritedVersionSignature,
       qualityPreset: request.qualityPreset,
       selectedAudioStreamId: request.audioStreamId,
       useCurrentAudioStreamSelection: false,
@@ -352,7 +363,8 @@ extension _VideoPlayerErrorMethods on VideoPlayerScreenState {
         } else {
           final frameDrop = int.tryParse(await currentPlayer.getProperty('frame-drop-count') ?? '') ?? 0;
           if (frameDrop > 0) {
-            final fps = double.tryParse(await currentPlayer.getProperty('container-fps') ?? '') ??
+            final fps =
+                double.tryParse(await currentPlayer.getProperty('container-fps') ?? '') ??
                 double.tryParse(await currentPlayer.getProperty('estimated-vf-fps') ?? '') ??
                 24.0;
             final timePos = double.tryParse(await currentPlayer.getProperty('time-pos') ?? '') ?? 0.0;
@@ -381,8 +393,7 @@ extension _VideoPlayerErrorMethods on VideoPlayerScreenState {
               break;
             }
           }
-          final altRes = altVersion?.videoResolution ??
-              (altVersion?.height != null ? '${altVersion!.height}p' : null);
+          final altRes = altVersion?.videoResolution ?? (altVersion?.height != null ? '${altVersion!.height}p' : null);
 
           if (!mounted || _isExiting.value) return;
 

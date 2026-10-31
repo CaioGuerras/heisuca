@@ -149,11 +149,12 @@ extension _VideoPlayerPlaybackStartMethods on VideoPlayerScreenState {
     // re-run exactly this open, resolve included.
     _currentOpenRequest = _PlaybackOpenRequest(
       metadata: _currentMetadata,
-      mediaIndex: _effectiveSelectedMediaIndex,
+      mediaIndex: _requestedMediaIndex,
       mediaSourceId: _requestedMediaSourceId,
       qualityPreset: _selectedQualityPreset,
       audioStreamId: _selectedAudioStreamId,
       resumePosition: widget.initialPosition,
+      preferredVersionSignature: widget.preferredVersionSignature,
     );
 
     // Capture providers before async gaps
@@ -270,8 +271,7 @@ extension _VideoPlayerPlaybackStartMethods on VideoPlayerScreenState {
             break;
           }
         }
-        final altRes = altVersion?.videoResolution ??
-            (altVersion?.height != null ? '${altVersion!.height}p' : null);
+        final altRes = altVersion?.videoResolution ?? (altVersion?.height != null ? '${altVersion!.height}p' : null);
 
         if (!mounted || !attempt.isCurrent) return;
 
@@ -288,12 +288,14 @@ extension _VideoPlayerPlaybackStartMethods on VideoPlayerScreenState {
           return;
         } else if (action == UnplayableMediaAction.playVersion && altIndex != null) {
           _requestedMediaSourceId = altVersion?.id;
-          unawaited(_reloadMediaInPlace(
-            metadata: _currentMetadata,
-            selectedMediaIndex: altIndex,
-            selectedMediaSourceId: altVersion?.id,
-            reason: 'unplayable version alternative',
-          ));
+          unawaited(
+            _reloadMediaInPlace(
+              metadata: _currentMetadata,
+              selectedMediaIndex: altIndex,
+              selectedMediaSourceId: altVersion?.id,
+              reason: 'unplayable version alternative',
+            ),
+          );
           return;
         }
       }

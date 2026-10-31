@@ -1912,9 +1912,11 @@ class PlexClient
   /// response is already available.
   PlexVideoPlaybackData parseVideoPlaybackDataFromJson(
     Map<String, dynamic>? metadataJson, {
-    int mediaIndex = 0,
+    int? mediaIndex = 0,
     String? selectedMediaSourceId,
     String? preferredVersionSignature,
+    String? inheritedVersionSignature,
+    bool rawIndexNeedsHardware = false,
   }) {
     return parsePlexVideoPlaybackDataFromJson(
       metadataJson,
@@ -1923,6 +1925,8 @@ class PlexClient
       mediaIndex: mediaIndex,
       selectedMediaSourceId: selectedMediaSourceId,
       preferredVersionSignature: preferredVersionSignature,
+      inheritedVersionSignature: inheritedVersionSignature,
+      rawIndexNeedsHardware: rawIndexNeedsHardware,
       onVersionFallback: (requested, fallback) {
         appLogger.w('Version $requested inaccessible/missing — falling back to version $fallback');
       },
@@ -1970,9 +1974,11 @@ class PlexClient
   /// later poll inside the freshness window is served the stale snapshot.
   Future<PlexVideoPlaybackData> getVideoPlaybackData(
     String ratingKey, {
-    int mediaIndex = 0,
+    int? mediaIndex = 0,
     String? selectedMediaSourceId,
     String? preferredVersionSignature,
+    String? inheritedVersionSignature,
+    bool rawIndexNeedsHardware = false,
     bool forceRefresh = false,
   }) async {
     // Fresh-cache-first: the detail screen writes a strict superset of this
@@ -1998,6 +2004,8 @@ class PlexClient
               mediaIndex: mediaIndex,
               selectedMediaSourceId: selectedMediaSourceId,
               preferredVersionSignature: preferredVersionSignature,
+              inheritedVersionSignature: inheritedVersionSignature,
+              rawIndexNeedsHardware: rawIndexNeedsHardware,
             );
           }
         } on FormatException {
@@ -2022,6 +2030,8 @@ class PlexClient
       mediaIndex: mediaIndex,
       selectedMediaSourceId: selectedMediaSourceId,
       preferredVersionSignature: preferredVersionSignature,
+      inheritedVersionSignature: inheritedVersionSignature,
+      rawIndexNeedsHardware: rawIndexNeedsHardware,
     );
   }
 
@@ -3709,10 +3719,13 @@ class PlexClient
     try {
       final data = await getVideoPlaybackData(
         options.metadata.id,
-        mediaIndex: options.selectedMediaIndex ?? 0,
+        // Nulo = sem escolha: o ranqueador de versões decide (mesmos pesos
+        // do Jellyfin). A herdada só vale com decodificação por hardware.
+        mediaIndex: options.selectedMediaIndex,
         selectedMediaSourceId: options.selectedMediaSourceId,
-        // Plex não usa o ranqueador do aparelho: a herdada segue como antes.
-        preferredVersionSignature: options.preferredVersionSignature ?? options.inheritedVersionSignature,
+        preferredVersionSignature: options.preferredVersionSignature,
+        inheritedVersionSignature: options.inheritedVersionSignature,
+        rawIndexNeedsHardware: true,
       );
 
       if (!data.hasValidVideoUrl) {

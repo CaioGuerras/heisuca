@@ -354,6 +354,7 @@ extension _VideoPlayerReloadMethods on VideoPlayerScreenState {
     String? selectedMediaSourceId,
     String? preferredVersionSignature,
     String? inheritedVersionSignature,
+    bool backendPicksVersion = false,
     TranscodeQualityPreset? qualityPreset,
     int? selectedAudioStreamId,
     Duration? resumePosition,
@@ -480,7 +481,11 @@ extension _VideoPlayerReloadMethods on VideoPlayerScreenState {
 
       if (!isCurrentReload()) return MediaReloadOutcome.superseded;
 
-      final targetMediaIndex = selectedMediaIndex ?? _effectiveSelectedMediaIndex;
+      // Troca de item sem escolha (ou [backendPicksVersion], o retry de uma
+      // abertura sem escolha): nulo, o backend ranqueia as versões do item.
+      // O índice em tela pode ser de outro item ou de um 0 provisório.
+      final targetMediaIndex =
+          selectedMediaIndex ?? (isItemChange || backendPicksVersion ? null : _effectiveSelectedMediaIndex);
       final targetQualityPreset = qualityPreset ?? _selectedQualityPreset;
       final downloadOutranksQuality = _downloadOutranksQuality;
       final targetAudioStreamId = useCurrentAudioStreamSelection
@@ -488,7 +493,7 @@ extension _VideoPlayerReloadMethods on VideoPlayerScreenState {
           : selectedAudioStreamId;
       final targetLaunchIdentity = VideoPlayerLaunchIdentity(
         metadata: metadata,
-        mediaIndex: targetMediaIndex,
+        mediaIndex: targetMediaIndex ?? 0,
         selectedMediaSourceId: selectedMediaSourceId,
         selectedQualityPreset: targetQualityPreset,
         isOffline: _offlineLibraryMode,
@@ -501,6 +506,8 @@ extension _VideoPlayerReloadMethods on VideoPlayerScreenState {
         qualityPreset: targetQualityPreset,
         audioStreamId: targetAudioStreamId,
         resumePosition: resumePosition,
+        preferredVersionSignature: preferredVersionSignature,
+        inheritedVersionSignature: inheritedVersionSignature,
       );
       final preservesRequestedSubtitleSource =
           !isItemChange &&

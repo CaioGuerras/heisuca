@@ -34,6 +34,7 @@ import '../utils/app_logger.dart';
 import '../utils/global_key_utils.dart';
 import '../utils/json_utils.dart';
 import 'file_info_parser.dart';
+import 'media_source_ranker.dart';
 import 'plex_constants.dart';
 
 part 'plex_mappers.g.dart';
@@ -1295,13 +1296,22 @@ class PlexMappers {
 
 /// Authoritative version and playable-part selection shared by cache previews
 /// and playback. A stable id wins over a sibling-version signature and index.
+///
+/// Mesma prioridade do Jellyfin: id > assinatura salva > assinatura herdada
+/// (só se o aparelho decodificar por hardware) > índice > ranqueador
+/// ([rankMediaVersions]). [mediaIndex] nulo = ninguém escolheu. Com
+/// [rawIndexNeedsHardware] (reprodução), o índice sem id nem assinatura só
+/// vale se o aparelho decodificar a versão por hardware; prévias, downloads e
+/// player externo seguem com o índice como está.
 typedef PlexPlaybackSelection = ({List<Map> media, List<MediaVersion> versions, int mediaIndex, int partIndex});
 
 PlexPlaybackSelection? resolvePlexPlaybackSelection(
   Map<String, dynamic> metadata, {
-  int mediaIndex = 0,
+  int? mediaIndex = 0,
   String? mediaSourceId,
   String? preferredVersionSignature,
+  String? inheritedVersionSignature,
+  bool rawIndexNeedsHardware = false,
   void Function(int requestedIndex, int fallbackIndex)? onVersionFallback,
   bool preferPlayable = true,
 }) {
@@ -1313,21 +1323,55 @@ PlexPlaybackSelection? resolvePlexPlaybackSelection(
   final versions = [for (final value in media) PlexMappers.mediaVersionFromJson(Map<String, dynamic>.from(value))];
   final requestedId = mediaSourceId?.trim();
   final byId = requestedId == null || requestedId.isEmpty ? -1 : versions.indexWhere((v) => v.id == requestedId);
+  int? chosen;
+  // Assinatura que não casa (ou herdada sem hardware) torna o índice junto
+  // dela suspeito: ele é de outro item.
+  var staleIndex = false;
   if (byId >= 0) {
-    mediaIndex = byId;
-  } else if (preferredVersionSignature != null && preferredVersionSignature.isNotEmpty) {
-    mediaIndex = MediaVersion.findMatchingIndex(versions, {preferredVersionSignature}) ?? mediaIndex;
-  }
-  if (mediaIndex < 0 || mediaIndex >= versions.length) mediaIndex = 0;
-  if (preferPlayable && !versions[mediaIndex].isPlayable) {
-    final fallback = versions.indexWhere((v) => v.isPlayable);
-    if (fallback >= 0) {
-      onVersionFallback?.call(mediaIndex, fallback);
-      mediaIndex = fallback;
+    chosen = byId;
+  } else {
+    if (preferredVersionSignature != null && preferredVersionSignature.isNotEmpty) {
+      chosen = MediaVersion.findMatchingIndex(versions, {preferredVersionSignature});
+      if (chosen == null) staleIndex = true;
+    }
+    if (chosen == null && inheritedVersionSignature != null && inheritedVersionSignature.isNotEmpty) {
+      final inherited = MediaVersion.findMatchingIndex(versions, {inheritedVersionSignature});
+      if (inherited != null && isVersionHardwareDecodable(versions[inherited])) {
+        chosen = inherited;
+      } else {
+        staleIndex = true;
+      }
     }
   }
-  final playablePart = preferPlayable ? versions[mediaIndex].parts.indexWhere((part) => part.isPlayable) : 0;
-  return (media: media, versions: versions, mediaIndex: mediaIndex, partIndex: playablePart < 0 ? 0 : playablePart);
+  if (chosen == null) {
+    final raw = mediaIndex;
+    final rawInRange = raw != null && raw >= 0 && raw < versions.length;
+    final rawAccepted =
+        rawInRange &&
+        (!rawIndexNeedsHardware ||
+            (!staleIndex && (versions.length == 1 || isVersionHardwareDecodable(versions[raw]))));
+    if (rawAccepted) {
+      chosen = raw;
+    } else if (raw == null || rawIndexNeedsHardware) {
+      final ranked = rankMediaVersions(versions);
+      chosen = preferPlayable
+          ? ranked.firstWhere((i) => versions[i].isPlayable, orElse: () => ranked.first)
+          : ranked.first;
+    } else {
+      chosen = 0;
+    }
+  }
+  var index = chosen;
+  if (index < 0 || index >= versions.length) index = 0;
+  if (preferPlayable && !versions[index].isPlayable) {
+    final fallback = versions.indexWhere((v) => v.isPlayable);
+    if (fallback >= 0) {
+      onVersionFallback?.call(index, fallback);
+      index = fallback;
+    }
+  }
+  final playablePart = preferPlayable ? versions[index].parts.indexWhere((part) => part.isPlayable) : 0;
+  return (media: media, versions: versions, mediaIndex: index, partIndex: playablePart < 0 ? 0 : playablePart);
 }
 
 MediaSourceInfo? plexMediaSourceInfoForSelection(

@@ -92,4 +92,30 @@ class MediaCodecQueryTest {
     assertTrue(codecs.containsKey("av1"))
     assertTrue(codecs.containsKey("vp9"))
   }
+  @Test
+  fun hardwareSemMedidaNaoViraQuatroK() {
+    // Antes: hardware presente sem resposta de taxa virava "supported" (= 4K).
+    assertEquals("sd", MediaCodecQuery.maxResolutionLabel(true, false, false, false, false, false))
+    assertEquals("1080p", MediaCodecQuery.maxResolutionLabel(true, false, false, false, false, true))
+    assertEquals("4k", MediaCodecQuery.maxResolutionLabel(true, false, false, true, false, true))
+    assertEquals("4k60", MediaCodecQuery.maxResolutionLabel(true, true, true, true, true, true))
+    assertEquals("none", MediaCodecQuery.maxResolutionLabel(false, false, false, false, false, false))
+  }
+
+  @Test
+  fun main10SoContaEmQuatroKComNivelCinco() {
+    val main10 = android.media.MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10
+    val nivel41 = android.media.MediaCodecInfo.CodecProfileLevel.HEVCMainTierLevel41
+    val nivel51 = android.media.MediaCodecInfo.CodecProfileLevel.HEVCMainTierLevel51
+    assertTrue(MediaCodecQuery.profilesFor4k("hevc", main10, nivel41).isEmpty())
+    assertEquals(listOf("main10"), MediaCodecQuery.profilesFor4k("hevc", main10, nivel51))
+    val high = android.media.MediaCodecInfo.CodecProfileLevel.AVCProfileHigh
+    assertTrue(
+      MediaCodecQuery.profilesFor4k("h264", high, android.media.MediaCodecInfo.CodecProfileLevel.AVCLevel5).isEmpty()
+    )
+    assertEquals(
+      listOf("high"),
+      MediaCodecQuery.profilesFor4k("h264", high, android.media.MediaCodecInfo.CodecProfileLevel.AVCLevel51)
+    )
+  }
 }

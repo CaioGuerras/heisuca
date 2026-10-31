@@ -376,6 +376,65 @@ void main() {
       client.close();
     });
 
+    test('ep. 1 [1080p, 4K] → ep. 2 [4K, 1080p] sem Main10 e sem escolha salva toca 1080p (adendo 2)', () async {
+      // TV 1080p sem HEVC Main10 por hardware.
+      VideoDecodeCapabilities.debugReset(
+        hardwareHevc: true,
+        hardwareAv1: false,
+        displaySupports4k: false,
+        codecHardware: {'h264': true, 'hevc': true, 'av1': false},
+        codecProfiles: {
+          'h264': ['high'],
+          'hevc': ['main'],
+        },
+      );
+      addTearDown(VideoDecodeCapabilities.debugReset);
+      final client = buildClient(
+        jsonEncode({
+          'Id': 'ep-2',
+          'Type': 'Episode',
+          'MediaSources': [
+            {
+              'Id': 'src-4k',
+              'Container': 'mkv',
+              'MediaStreams': [
+                {'Type': 'Video', 'Codec': 'hevc', 'Profile': 'Main 10', 'BitDepth': 10, 'Height': 2160, 'Width': 3840},
+              ],
+            },
+            {
+              'Id': 'src-1080',
+              'Container': 'mkv',
+              'MediaStreams': [
+                {'Type': 'Video', 'Codec': 'h264', 'Profile': 'High', 'Height': 1080, 'Width': 1920},
+              ],
+            },
+          ],
+        }),
+      );
+
+      // A navegação de episódio não manda índice: o ranqueador escolhe.
+      final semIndice = await client.fetchPlaybackBundle('ep-2', rawIndexNeedsHardware: true);
+      expect(semIndice!.selectedSourceId, 'src-1080');
+
+      // Índice 1 do ep. 1 (a 4K) chegando cru na reprodução não vale sem hardware.
+      final indiceCru = await client.fetchPlaybackBundle('ep-2', sourceIndex: 0, rawIndexNeedsHardware: true);
+      expect(indiceCru!.selectedSourceId, 'src-1080');
+
+      // Fora da reprodução (download, player externo) o índice explícito segue respeitado.
+      final semPortao = await client.fetchPlaybackBundle('ep-2', sourceIndex: 0);
+      expect(semPortao!.selectedSourceId, 'src-4k');
+
+      // Escolha manual (sourceId) sempre vence.
+      final manual = await client.fetchPlaybackBundle(
+        'ep-2',
+        sourceId: 'src-4k',
+        sourceIndex: 1,
+        rawIndexNeedsHardware: true,
+      );
+      expect(manual!.selectedSourceId, 'src-4k');
+      client.close();
+    });
+
     test('selects sourceId before sourceIndex when both are provided', () async {
       final body = jsonEncode({
         'Id': 'item-4',

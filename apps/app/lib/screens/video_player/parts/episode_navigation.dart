@@ -189,7 +189,10 @@ extension _VideoPlayerEpisodeNavigationMethods on VideoPlayerScreenState {
             );
       return await _reloadMediaInPlace(
         metadata: episodeMetadata,
-        selectedMediaIndex: _effectiveSelectedMediaIndex,
+        // Sem escolha salva o índice vai nulo: a versão vem da assinatura
+        // (salva ou herdada, esta só com hardware) ou do ranqueador do
+        // próximo episódio, cuja lista pode estar em outra ordem.
+        selectedMediaIndex: null,
         selectedMediaSourceId: null,
         preferredVersionSignature: savedVersionSignature,
         inheritedVersionSignature: savedVersionSignature == null ? currentVersionSignature : null,

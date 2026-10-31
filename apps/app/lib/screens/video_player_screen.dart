@@ -367,11 +367,21 @@ class _PlaybackOpenRequest {
     required this.qualityPreset,
     required this.audioStreamId,
     required this.resumePosition,
+    this.preferredVersionSignature,
+    this.inheritedVersionSignature,
   });
 
   final MediaItem metadata;
+
+  /// Nulo quando ninguém escolheu a versão: o retry volta ao ranqueador em vez
+  /// de cair no índice 0 às cegas.
   final int? mediaIndex;
   final String? mediaSourceId;
+
+  /// Assinaturas que acompanharam esta abertura (escolha salva / versão do
+  /// episódio anterior), repassadas no retry para o backend reconferir.
+  final String? preferredVersionSignature;
+  final String? inheritedVersionSignature;
   final TranscodeQualityPreset qualityPreset;
   final int? audioStreamId;
   final Duration? resumePosition;
@@ -381,6 +391,8 @@ class _PlaybackOpenRequest {
       metadata.globalKey == other.metadata.globalKey &&
       mediaIndex == other.mediaIndex &&
       mediaSourceId == other.mediaSourceId &&
+      preferredVersionSignature == other.preferredVersionSignature &&
+      inheritedVersionSignature == other.inheritedVersionSignature &&
       qualityPreset == other.qualityPreset &&
       audioStreamId == other.audioStreamId;
 
@@ -391,6 +403,8 @@ class _PlaybackOpenRequest {
     qualityPreset: qualityPreset,
     audioStreamId: audioStreamId,
     resumePosition: position,
+    preferredVersionSignature: preferredVersionSignature,
+    inheritedVersionSignature: inheritedVersionSignature,
   );
 }
 
@@ -449,6 +463,7 @@ class VideoPlayerScreen extends StatefulWidget {
   final AudioTrack? preferredAudioTrack;
   final SubtitleTrack? preferredSubtitleTrack;
   final SubtitleTrack? preferredSecondarySubtitleTrack;
+
   /// Nulo quando ninguém escolheu a versão (o backend decide).
   final int? selectedMediaIndex;
   final String? selectedMediaSourceId;
@@ -2347,11 +2362,7 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
 
   /// Removes the player route this exit accepted, whatever sits on top of it
   /// by the time the navigation budget expires (#2290).
-  void _removePlayerRoute(
-    NavigatorState navigator,
-    Route<dynamic> route, {
-    required bool navigateHome,
-  }) {
+  void _removePlayerRoute(NavigatorState navigator, Route<dynamic> route, {required bool navigateHome}) {
     // The navigator or the route went away on its own; nothing of ours is left.
     if (!navigator.mounted || !route.isActive) return;
     if (route.isCurrent && navigator.canPop()) {

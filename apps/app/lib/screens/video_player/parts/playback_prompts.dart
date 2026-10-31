@@ -121,7 +121,7 @@ extension _VideoPlayerPlaybackPromptMethods on VideoPlayerScreenState {
       final settings = await SettingsService.getInstance();
       if (!mounted) return;
       final autoPlayEnabled = !serverStopped && settings.read(SettingsService.autoPlayNextEpisode);
-      final countdownSeconds = PlatformDetector.isTV() ? 8 : settings.read(SettingsService.playNextCountdown);
+      final countdownSeconds = settings.read(SettingsService.playNextCountdown);
 
       // A zero countdown (#1827) behaves like the PiP path above: no prompt,
       // straight into the next episode.

@@ -315,6 +315,49 @@ void main() {
       await tester.pump(const Duration(seconds: 4));
     });
 
+    test('G2.2b: playNextCountdown tem padrão 8 s na TV e respeita escolha do usuário (inclusive 0 = sem contagem)', () async {
+      // 1. Padrão na TV quando não modificado deve ser 8 s
+      TvDetectionService.debugSetTvOverride(true);
+      expect(
+        settings.read(SettingsService.playNextCountdown),
+        8,
+        reason: 'Padrão na TV quando usuário não mudou a opção deve ser 8 s',
+      );
+
+      // 2. Padrão fora da TV quando não modificado deve ser 5 s
+      TvDetectionService.debugSetTvOverride(false);
+      expect(
+        settings.read(SettingsService.playNextCountdown),
+        5,
+        reason: 'Padrão em dispositivos não-TV quando usuário não mudou a opção deve ser 5 s',
+      );
+
+      // 3. Usuário escolhe 0 (sem contagem / imediato) na TV
+      TvDetectionService.debugSetTvOverride(true);
+      await settings.write(SettingsService.playNextCountdown, 0);
+      expect(
+        settings.read(SettingsService.playNextCountdown),
+        0,
+        reason: 'Escolha do usuário 0 deve ser respeitada na TV',
+      );
+
+      // 4. Usuário escolhe 15 s na TV
+      await settings.write(SettingsService.playNextCountdown, 15);
+      expect(
+        settings.read(SettingsService.playNextCountdown),
+        15,
+        reason: 'Escolha do usuário 15 s deve ser respeitada na TV',
+      );
+
+      // 5. Reset restaura o padrão de 8 s na TV
+      await settings.reset(SettingsService.playNextCountdown);
+      expect(
+        settings.read(SettingsService.playNextCountdown),
+        8,
+        reason: 'Reset na TV volta ao padrão de 8 s',
+      );
+    });
+
     testWidgets('G2.3: "Ainda está aí?" após 3 episódios sem tecla', (tester) async {
       final attention = HeisucaEpisodeAttention();
 

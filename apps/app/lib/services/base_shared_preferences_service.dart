@@ -444,13 +444,14 @@ class BoolPref extends Pref<bool> {
 
 class IntPref extends Pref<int> {
   final int defaultValue;
+  final int Function()? defaultValueProvider;
   final int Function(int)? transform;
-  const IntPref(super.key, {this.defaultValue = 0, this.transform});
+  const IntPref(super.key, {this.defaultValue = 0, this.defaultValueProvider, this.transform});
   @override
-  int get resolvedDefault => defaultValue;
+  int get resolvedDefault => defaultValueProvider?.call() ?? defaultValue;
   @override
   int readFrom(BaseSharedPreferencesService svc) {
-    final raw = svc.readInt(key, defaultValue: defaultValue);
+    final raw = svc.readInt(key, defaultValue: resolvedDefault);
     return transform == null ? raw : transform!(raw);
   }
 

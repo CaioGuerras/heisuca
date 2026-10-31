@@ -58,7 +58,7 @@ void main() {
       library: 'widget inspector',
     );
     expect(pipHudWarning(inspectorDetails, phase: 'ativo', width: 200, height: 100), isNotNull);
-    expect(pipHudWarning(inspectorDetails, phase: 'fora', width: 200, height: 100), isNotNull);
+    expect(pipHudWarning(inspectorDetails, phase: 'fora', width: 200, height: 100), isNull);
 
     // Mensagem autêntica do framework Flutter quando um Element desativado é inspecionado
     final realFlutterInspectorDetails = FlutterErrorDetails(
@@ -67,7 +67,7 @@ void main() {
       stack: StackTrace.fromString('#0 Element._debugCheckStateIsActiveForAncestorLookup\n#1 _describeRelevantUserCode\n#2 _parseDiagnosticsNode'),
     );
     expect(pipHudWarning(realFlutterInspectorDetails, phase: 'saída', width: 200, height: 100), isNotNull);
-    expect(pipHudWarning(realFlutterInspectorDetails, phase: 'fora', width: 200, height: 100), isNotNull);
+    expect(pipHudWarning(realFlutterInspectorDetails, phase: 'fora', width: 200, height: 100), isNull);
 
     // Erros não relacionados do widget inspector continuam propagando para o framework
     final unrelatedInspectorDetails = FlutterErrorDetails(

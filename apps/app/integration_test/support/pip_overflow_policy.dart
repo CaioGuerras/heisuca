@@ -18,7 +18,7 @@ Map<String, Object?>? pipHudWarning(FlutterErrorDetails details, {
         exceptionStr.contains('deactivated widget') ||
         stackStr.contains('_debugCheckStateIsActiveForAncestorLookup') ||
         stackStr.contains('_describeRelevantUserCode');
-    if (isAncestorLookupError) {
+    if (const ['entrada', 'ativo', 'saída'].contains(phase) && isAncestorLookupError) {
       return {
         'tipo': 'overflow HUD PiP',
         'widget': 'elemento descartado durante transição PiP',

@@ -872,6 +872,9 @@ class _PlexVideoControlsState extends State<PlexVideoControls>
   final ValueNotifier<bool> _autoSkipActive = ValueNotifier<bool>(false);
   // Skip button dismiss state
   bool _skipButtonDismissed = false;
+  // Recusa explícita (Voltar no botão). Só ela esconde o botão com o HUD
+  // aberto na TV; o descarte por tempo ou por esconder o HUD não.
+  bool _skipMarkerRefused = false;
   Timer? _skipButtonDismissTimer;
   // Performance overlay
   bool get _showPerformanceOverlay => _settings.read(SettingsService.showPerformanceOverlay);

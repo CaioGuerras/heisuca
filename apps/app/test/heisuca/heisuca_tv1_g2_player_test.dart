@@ -1137,5 +1137,54 @@ void main() {
 
       await tester.pumpWidget(const SizedBox.shrink());
     });
+
+    testWidgets('G2.16: TV: só a recusa explícita esconde o botão com o HUD aberto; esconder o HUD não', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1920, 1080));
+      addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
+
+      final introMarker = MediaMarker(id: 1, type: 'intro', startTimeOffset: 10000, endTimeOffset: 45000);
+
+      await tester.pumpWidget(
+        wrapWithShell(
+          PlexVideoControls(
+            player: player,
+            volumeController: volume,
+            metadata: testMediaItem(id: 'skip-reabrir-test', title: 'Episódio 1', grandparentTitle: 'Série Teste'),
+            initialMarkers: [introMarker],
+            toastController: toast,
+            chromeController: chrome,
+            hasFirstFrame: hasFirstFrame,
+            canNavigateMediaItems: true,
+            canControl: true,
+            onBack: () {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      InputModeTracker.reportNonPointerInput();
+      player.emitPosition(const Duration(seconds: 15));
+      await tester.pumpAndSettle();
+      expect(find.byType(SkipMarkerButton), findsOneWidget);
+
+      // Abre e fecha o HUD sem recusar: esconder o HUD descarta o botão por baixo
+      chrome.show();
+      await tester.pumpAndSettle();
+      chrome.hide();
+      await tester.pumpAndSettle();
+
+      // Reabrir o HUD ainda dentro da abertura tem de trazer o "Pular abertura" de volta
+      chrome.show();
+      await tester.pumpAndSettle();
+      expect(chrome.controlsVisible, isTrue);
+      expect(find.byType(SkipMarkerButton), findsOneWidget,
+          reason: 'Descarte por esconder o HUD não é recusa: com o HUD aberto o botão volta');
+
+      // Deixa vencer o descarte por tempo (7 s) para não sobrar timer pendente
+      await tester.pump(const Duration(seconds: 8));
+      await tester.pumpAndSettle();
+
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
   });
 }

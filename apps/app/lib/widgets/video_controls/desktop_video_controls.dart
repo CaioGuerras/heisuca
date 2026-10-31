@@ -333,7 +333,7 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
 
   bool get isTimelineFocused => _timelineFocusNode.hasFocus;
 
-  /// Unfocus any TV bottom panel nodes when the panel is dismissed.
+  /// Unfocus any TV bottom panel nodes and control nodes when controls are dismissed.
   void unfocusTvPanel() {
     _timelineSeek.flush();
     _resetSeekState();
@@ -341,6 +341,14 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
     _tvSubtitleFocusNode.unfocus();
     _tvEpisodesFocusNode.unfocus();
     _timelineFocusNode.unfocus();
+    _playPauseFocusNode.unfocus();
+    _volumeFocusNode.unfocus();
+    for (final node in _buttonFocusNodes) {
+      node.unfocus();
+    }
+    for (final node in _trackControlFocusNodes) {
+      node.unfocus();
+    }
   }
 
   /// Hide content strip (called by parent when controls hide)

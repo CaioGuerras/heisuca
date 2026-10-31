@@ -26,6 +26,7 @@ import 'package:heisuca/widgets/video_controls/desktop_video_controls.dart';
 import 'package:heisuca/widgets/video_controls/player_chrome_controller.dart';
 import 'package:heisuca/widgets/video_controls/video_controls.dart';
 import 'package:heisuca/widgets/video_controls/widgets/player_toast_indicator.dart';
+import 'package:heisuca/widgets/video_controls/widgets/video_timeline_bar.dart';
 
 import '../test_helpers/media_items.dart';
 import '../test_helpers/prefs.dart';
@@ -170,7 +171,7 @@ void main() {
     await database.close();
   });
 
-  Widget wrapWithShell(Widget child) => InputModeTracker(
+  Widget wrapWithShell(Widget child, {TargetPlatform? platform}) => InputModeTracker(
     child: MultiProvider(
       providers: [
         Provider<AppDatabase>.value(value: database),
@@ -178,7 +179,10 @@ void main() {
         ChangeNotifierProvider<WatchTogetherProvider>.value(value: watchTogether),
       ],
       child: MaterialApp(
-        theme: ThemeData(extensions: const [testMonoTokens]),
+        theme: ThemeData(
+          platform: platform,
+          extensions: const [testMonoTokens],
+        ),
         home: Scaffold(
           body: SizedBox(
             width: 1920,
@@ -670,6 +674,159 @@ void main() {
         expect(await player.getProperty('demuxer-max-bytes'), '${32 * 1024 * 1024}');
         expect(await player.getProperty('demuxer-max-back-bytes'), '${16 * 1024 * 1024}');
       }
+    });
+
+    testWidgets('G2.10: Desktop: Escape com controles visíveis fecha os controles e não sai do player', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1920, 1080));
+      addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
+      addTearDown(() => TvDetectionService.debugSetTvOverride(true));
+
+      TvDetectionService.debugSetTvOverride(false);
+      var playerExitCount = 0;
+      chrome.show();
+
+      await tester.pumpWidget(
+        wrapWithShell(
+          PlexVideoControls(
+            player: player,
+            volumeController: volume,
+            metadata: testMediaItem(id: 'desktop-back-test', title: 'Episódio 1', grandparentTitle: 'Série Teste'),
+            toastController: toast,
+            chromeController: chrome,
+            hasFirstFrame: hasFirstFrame,
+            canNavigateMediaItems: true,
+            canControl: true,
+            onBack: () => playerExitCount++,
+          ),
+          platform: TargetPlatform.linux,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(chrome.controlsVisible, isTrue);
+
+      final desktopState = tester.state<DesktopVideoControlsState>(find.byType(DesktopVideoControls));
+
+      // Foca na timeline no Desktop
+      final timelineFinder = find.byType(VideoTimelineBar);
+      expect(timelineFinder, findsOneWidget);
+      final focusWidgets = tester.widgetList<Focus>(find.descendant(of: timelineFinder, matching: find.byType(Focus)));
+      for (final focusWidget in focusWidgets) {
+        if (focusWidget.focusNode != null) {
+          focusWidget.focusNode!.requestFocus();
+          break;
+        }
+      }
+      await tester.pumpAndSettle();
+      expect(desktopState.isTimelineFocused, isTrue);
+
+      // Pressiona Escape no Desktop com timeline focada
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      // No Desktop, Escape com foco na timeline deve fechar os controles e NUNCA sair do player
+      expect(chrome.controlsVisible, isFalse, reason: 'Escape no Desktop deve fechar os controles quando visíveis');
+      expect(playerExitCount, 0, reason: 'Escape com controles visíveis não deve sair do player');
+      expect(screenBackDispositions, isEmpty, reason: 'Escape com controles visíveis não deve vazar para a rota');
+
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
+    testWidgets('G2.11: unfocusTvPanel remove foco da timeline e nós de controles', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1920, 1080));
+      addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
+
+      chrome.show();
+      await tester.pumpWidget(
+        wrapWithShell(
+          PlexVideoControls(
+            player: player,
+            volumeController: volume,
+            metadata: testMediaItem(id: 'unfocus-test', title: 'Episódio 1', grandparentTitle: 'Série Teste'),
+            toastController: toast,
+            chromeController: chrome,
+            hasFirstFrame: hasFirstFrame,
+            canNavigateMediaItems: true,
+            canControl: true,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final desktopState = tester.state<DesktopVideoControlsState>(find.byType(DesktopVideoControls));
+      desktopState.requestTvPanelFocus();
+      await tester.pumpAndSettle();
+      expect(desktopState.isTvPanelFocused, isTrue);
+
+      // Chama unfocusTvPanel
+      desktopState.unfocusTvPanel();
+      await tester.pump();
+
+      expect(desktopState.isTvPanelFocused, isFalse, reason: 'Painel TV não deve reter foco');
+      expect(desktopState.isTimelineFocused, isFalse, reason: 'Timeline não deve reter foco');
+
+      await tester.pump(const Duration(seconds: 4));
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
+    testWidgets('G2.12: Painel não fecha por timeout durante navegação contínua entre as pílulas', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1920, 1080));
+      addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
+
+      chrome.show();
+      await tester.pumpWidget(
+        wrapWithShell(
+          PlexVideoControls(
+            player: player,
+            volumeController: volume,
+            metadata: testMediaItem(id: 'autohide-nav-test', title: 'Episódio 1', grandparentTitle: 'Série Teste'),
+            toastController: toast,
+            chromeController: chrome,
+            hasFirstFrame: hasFirstFrame,
+            canNavigateMediaItems: true,
+            canControl: true,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final desktopState = tester.state<DesktopVideoControlsState>(find.byType(DesktopVideoControls));
+      desktopState.requestTvPanelFocus();
+      await tester.pumpAndSettle();
+      expect(desktopState.isTvPanelFocused, isTrue);
+      expect(chrome.controlsVisible, isTrue);
+
+      // Espera 2s (menor que o timeout de 4s na TV)
+      await tester.pump(const Duration(seconds: 2));
+      expect(chrome.controlsVisible, isTrue);
+
+      // Navega para a pílula de legendas com seta para a direita
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pumpAndSettle();
+
+      // Espera mais 2s (total 4s desde o início; se o timer não tivesse sido renovado, os controles teriam sumido)
+      await tester.pump(const Duration(seconds: 2));
+      expect(chrome.controlsVisible, isTrue, reason: 'Controles continuam visíveis pois houve atividade de navegação');
+
+      // Navega para a pílula de episódios com seta para a direita
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pumpAndSettle();
+
+      // Espera mais 2s (total 6s acumulados)
+      await tester.pump(const Duration(seconds: 2));
+      expect(chrome.controlsVisible, isTrue, reason: 'Controles continuam visíveis durante interação contínua');
+
+      // Agora deixa passar 4s e 100ms sem nenhuma tecla: deve fechar por inatividade
+      await tester.pump(const Duration(seconds: 4, milliseconds: 100));
+      expect(chrome.controlsVisible, isFalse, reason: 'Após 4s completos sem tecla os controles fecham na TV');
+
+      await tester.pumpWidget(const SizedBox.shrink());
     });
   });
 }

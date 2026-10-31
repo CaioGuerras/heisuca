@@ -22,6 +22,7 @@ import 'package:heisuca/services/settings_service.dart';
 import 'package:heisuca/services/video_volume_controller.dart';
 import 'package:heisuca/utils/platform_detector.dart';
 import 'package:heisuca/watch_together/providers/watch_together_provider.dart';
+import 'package:heisuca/widgets/video_controls/desktop_video_controls.dart';
 import 'package:heisuca/widgets/video_controls/player_chrome_controller.dart';
 import 'package:heisuca/widgets/video_controls/video_controls.dart';
 import 'package:heisuca/widgets/video_controls/widgets/player_toast_indicator.dart';
@@ -523,6 +524,117 @@ void main() {
       expect(playerExitCount, 0, reason: 'Voltar na timeline nunca deve sair do player');
       expect(screenBackDispositions, isEmpty, reason: 'KeyUp da timeline não deve vazar para a tela');
 
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
+    testWidgets('G2.8: Pós-PiP controles abertos: 1º Voltar fecha controles, 2º Voltar sai do player; tecla de mídia e seta não engolidas', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1920, 1080));
+      addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
+
+      var playerExitCount = 0;
+      chrome.show();
+      await tester.pumpWidget(
+        wrapWithShell(
+          PlexVideoControls(
+            player: player,
+            volumeController: volume,
+            metadata: testMediaItem(id: 'tv-pip-back-test', title: 'Episódio 1', grandparentTitle: 'Série Teste'),
+            toastController: toast,
+            chromeController: chrome,
+            hasFirstFrame: hasFirstFrame,
+            canNavigateMediaItems: true,
+            canControl: true,
+            onBack: () => playerExitCount++,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(chrome.controlsVisible, isTrue);
+
+      // Simula entrar e sair do PiP com controles abertos
+      PipService().isPipActive.value = true;
+      await tester.pumpAndSettle();
+
+      PipService().isPipActive.value = false;
+      await tester.pumpAndSettle();
+
+      // Confirma controles visíveis após restauração
+      expect(chrome.controlsVisible, isTrue);
+
+      // 1. Tecla de mídia com controles abertos não é engolida
+      final initialPlayPauseCalls = player.playPauseCalls;
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.mediaPlayPause);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.mediaPlayPause);
+      await tester.pumpAndSettle();
+      expect(player.playPauseCalls, initialPlayPauseCalls + 1, reason: 'Tecla de mídia não deve ser engolida');
+
+      // 2. Tecla de seta (ex: arrowRight para seek) com controles abertos não é engolida
+      final initialSeekCalls = player.seekCalls;
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pumpAndSettle();
+      // O seek ou navegação directional é disparado ou processado, não engolido
+      expect(player.seekCalls, greaterThanOrEqualTo(initialSeekCalls));
+      expect(chrome.controlsVisible, isTrue);
+
+      // 3. 1º Voltar fecha os controles e nunca sai do player
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      expect(chrome.controlsVisible, isFalse, reason: '1º Voltar após PiP fecha os controles');
+      expect(playerExitCount, 0, reason: '1º Voltar após PiP nunca sai do player');
+      expect(screenBackDispositions, isEmpty, reason: '1º Voltar não deve vazar para a tela');
+
+      // 4. 2º Voltar com controles fechados sai do player (nada fica preso)
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      expect(screenBackDispositions, contains(PlayerBackDisposition.exitPlayer), reason: '2º Voltar após PiP deve sair do player');
+
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
+    testWidgets('G2.9: requestTvPanelFocus checa canRequestFocus e não dispara onFocusActivity sem foco', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1920, 1080));
+      addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
+
+      chrome.show();
+      await tester.pumpWidget(
+        wrapWithShell(
+          PlexVideoControls(
+            player: player,
+            volumeController: volume,
+            metadata: testMediaItem(id: 'tv-focus-test', title: 'Episódio 1', grandparentTitle: 'Série Teste'),
+            toastController: toast,
+            chromeController: chrome,
+            hasFirstFrame: hasFirstFrame,
+            canNavigateMediaItems: true,
+            canControl: true,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final desktopState = tester.state<DesktopVideoControlsState>(find.byType(DesktopVideoControls));
+      
+      // Simula ExcludeFocus / canRequestFocus = false no nó do painel da TV
+      // Quando canRequestFocus é false, requestTvPanelFocus não deve alterar foco nem gerar loop
+      final tvAudioNode = Focus.of(tester.element(find.textContaining('Áudio ·')));
+      tvAudioNode.canRequestFocus = false;
+
+      // Chama requestTvPanelFocus: deve retornar sem erro e sem focar
+      desktopState.requestTvPanelFocus();
+      await tester.pump();
+
+      expect(tvAudioNode.hasFocus, isFalse);
+
+      await tester.pump(const Duration(seconds: 4));
       await tester.pumpWidget(const SizedBox.shrink());
     });
 

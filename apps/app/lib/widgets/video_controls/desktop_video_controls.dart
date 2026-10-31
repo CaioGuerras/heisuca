@@ -324,8 +324,8 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
 
   /// Move focus to the TV bottom panel (Audio pill).
   void requestTvPanelFocus() {
+    if (!mounted || !_tvAudioFocusNode.canRequestFocus) return;
     _tvAudioFocusNode.requestFocus();
-    widget.onFocusActivity?.call();
   }
 
   bool get isTvPanelFocused =>
@@ -335,6 +335,8 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
 
   /// Unfocus any TV bottom panel nodes when the panel is dismissed.
   void unfocusTvPanel() {
+    _timelineSeek.flush();
+    _resetSeekState();
     _tvAudioFocusNode.unfocus();
     _tvSubtitleFocusNode.unfocus();
     _tvEpisodesFocusNode.unfocus();
@@ -553,16 +555,6 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
   /// Handle key events for timeline navigation
   KeyEventResult _handleTimelineKeyEvent(FocusNode _, KeyEvent event) {
     final key = event.logicalKey;
-
-    if (event.logicalKey.isBackKey) {
-      return handleBackKeyAction(event, () {
-        _timelineSeek.flush();
-        _resetSeekState();
-        unfocusTvPanel();
-        widget.chromeController?.hide();
-        widget.onHideControls?.call();
-      });
-    }
 
     // Handle key release: commit the accumulated scrub target with a single
     // seek (a no-op when nothing is pending) and reset progressive seek state.
@@ -1243,13 +1235,6 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
         return Focus(
           focusNode: focusNode,
           onKeyEvent: (node, event) {
-            if (event.logicalKey.isBackKey) {
-              return handleBackKeyAction(event, () {
-                unfocusTvPanel();
-                widget.chromeController?.hide();
-                widget.onHideControls?.call();
-              });
-            }
             if (!event.isActionable) return KeyEventResult.ignored;
             if (event.logicalKey.isSelectKey && event is KeyDownEvent) {
               onPressed();

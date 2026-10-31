@@ -87,12 +87,14 @@ extension _PlexVideoControlsKeyEventMethods on _PlexVideoControlsState {
     }
 
     if (PlatformDetector.isTV() &&
+        (navigationKey == PlayerNavigationKey.back || navigationKey == PlayerNavigationKey.physicalEscape) &&
         ((_desktopControlsKey.currentState?.isTvPanelFocused ?? false) ||
             (_desktopControlsKey.currentState?.isTimelineFocused ?? false) ||
             _showControls)) {
       return handlePlayerNavigationKeyAction(event, navigationKey, () {
         _desktopControlsKey.currentState?.unfocusTvPanel();
         widget.chromeController.hide();
+        _hideControls();
       });
     }
 
@@ -332,10 +334,6 @@ extension _PlexVideoControlsKeyEventMethods on _PlexVideoControlsState {
           if (shouldStartHiddenDirectionalSeek(event)) {
             _hiddenDirectionalSeek(forward: key == LogicalKeyboardKey.arrowRight, isRepeat: event is KeyRepeatEvent);
           }
-        } else if (PlatformDetector.isTV() && key.isDownKey) {
-          _flushHiddenDirectionalSeek();
-          _showControlsWithFocus();
-          _desktopControlsKey.currentState?.requestTvPanelFocus();
         } else {
           _flushHiddenDirectionalSeek();
           _showControlsWithFocus();

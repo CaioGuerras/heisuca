@@ -140,7 +140,7 @@ extension _PlexVideoControlsKeyEventMethods on _PlexVideoControlsState {
     if ((tvWantsBack || desktopControlFocused || desktopEscapeWithControls) &&
         (navigationKey == PlayerNavigationKey.back || navigationKey == PlayerNavigationKey.physicalEscape)) {
       return handlePlayerNavigationKeyAction(event, navigationKey, () {
-        _desktopControlsKey.currentState?.unfocusTvPanel();
+        _desktopControlsKey.currentState?.unfocusControls();
         widget.chromeController.hide();
         _hideControls();
         if (PlatformDetector.isTV()) {

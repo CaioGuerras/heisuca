@@ -1000,6 +1000,11 @@ void main() {
       expect(chrome.controlsVisible, isTrue, reason: '1º Voltar recusa o pulo mas mantém o HUD aberto');
       expect(playerExitCount, 0, reason: '1º Voltar não deve sair do player');
 
+      // Avança a posição dentro do mesmo marcador (16s): o botão deve continuar oculto
+      player.emitPosition(const Duration(seconds: 16));
+      await tester.pump();
+      expect(find.byType(SkipMarkerButton), findsNothing, reason: 'Avançar posição dentro do mesmo marcador não deve reexibir o botão recusado');
+
       // 2º Voltar (KeyDown + KeyUp): deve fechar o HUD sem sair do player
       await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
       await tester.pump();
@@ -1068,6 +1073,68 @@ void main() {
       expect(chrome.controlsVisible, isTrue, reason: 'Primeiro D-pad após recolher HUD não deve ser engolido');
 
       await tester.pump(const Duration(seconds: 4));
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
+    testWidgets('G2.15: TV: recusar pulo de abertura não reaparece botão nem auto-pula ao avançar posição dentro do mesmo marcador', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1920, 1080));
+      addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
+
+      await settings.write(SettingsService.skipIntroMode, SkipMarkerMode.auto);
+      addTearDown(() async => settings.write(SettingsService.skipIntroMode, SkipMarkerMode.button));
+
+      var playerExitCount = 0;
+      final introMarker = MediaMarker(id: 1, type: 'intro', startTimeOffset: 10000, endTimeOffset: 45000);
+
+      await tester.pumpWidget(
+        wrapWithShell(
+          PlexVideoControls(
+            player: player,
+            volumeController: volume,
+            metadata: testMediaItem(id: 'skip-auto-test', title: 'Episódio 1', grandparentTitle: 'Série Teste'),
+            initialMarkers: [introMarker],
+            toastController: toast,
+            chromeController: chrome,
+            hasFirstFrame: hasFirstFrame,
+            canNavigateMediaItems: true,
+            canControl: true,
+            onBack: () => playerExitCount++,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Entra em modo teclado/controle remoto e emite playhead dentro da abertura (15s)
+      InputModeTracker.reportNonPointerInput();
+      player.emitPosition(const Duration(seconds: 15));
+      await tester.pumpAndSettle();
+
+      // Precondição: o botão "Pular abertura" surge na tela
+      expect(find.byType(SkipMarkerButton), findsOneWidget, reason: 'Botão de pular abertura deve estar visível');
+
+      // 1º Voltar: recusa o pulo e para o auto-skip
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SkipMarkerButton), findsNothing, reason: 'Voltar deve recusar o pulo');
+      expect(playerExitCount, 0, reason: 'Voltar não deve sair do player');
+
+      // Avança a posição dentro do mesmo marcador (16s, 17s, 20s)
+      player.emitPosition(const Duration(seconds: 16));
+      await tester.pump();
+      expect(find.byType(SkipMarkerButton), findsNothing, reason: 'Botão não deve reaparecer ao avançar posição no mesmo marcador');
+
+      player.emitPosition(const Duration(seconds: 20));
+      await tester.pump();
+      expect(find.byType(SkipMarkerButton), findsNothing, reason: 'Botão continua oculto');
+
+      // Aguarda mais tempo que o delay de auto-skip (padrão ~2s ou mais) para garantir que não pula sozinho
+      await tester.pump(const Duration(seconds: 5));
+      expect(player.state.position, isNot(equals(const Duration(milliseconds: 45000))), reason: 'Auto-skip não deve disparar após ser recusado');
+      expect(find.byType(SkipMarkerButton), findsNothing, reason: 'Botão permanece oculto durante toda a abertura');
+
       await tester.pumpWidget(const SizedBox.shrink());
     });
   });

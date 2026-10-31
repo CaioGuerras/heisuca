@@ -17,6 +17,16 @@ const heisucaHisuiDarkSurface2 = Color(0xFF163832);
 const heisucaHisuiAccent = Color(0xFF8EB69B);
 const heisucaHisuiDarkSurface3 = Color(0xFF235347);
 
+/// App de TV: um tema só, azul (decisão de 31/10; @uiux.build). A TV é sempre escura.
+const heisucaTvCanvas = Color(0xFF111522);
+const heisucaTvSurface = Color(0xFF1E263B);
+const heisucaTvSurface2 = Color(0xFF303D59);
+const heisucaTvSurface3 = Color(0xFF3D4B6A);
+const heisucaTvDetail = Color(0xFF536684);
+const heisucaTvAccent = Color(0xFFBAC6D9);
+const heisucaTvText = Color(0xFFDCE3EF);
+const heisucaTvLine = Color(0x14DCE3EF);
+
 /// Os dois temas do CGFLIX (nomes de família, escolhidos pelo dono).
 enum CgflixThemeVariant {
   isis,
@@ -67,6 +77,44 @@ const cgflixIsisScheme = ColorScheme(
   inverseSurface: heisucaShikkokuText,
   onInverseSurface: heisucaShikkokuCanvas,
   inversePrimary: heisucaShikkokuCanvas,
+);
+
+/// TV: mesmo desenho do Shikkoku com a paleta azul.
+const cgflixTvScheme = ColorScheme(
+  brightness: Brightness.dark,
+  primary: heisucaTvAccent,
+  onPrimary: heisucaTvCanvas,
+  primaryContainer: heisucaTvSurface2,
+  onPrimaryContainer: heisucaTvText,
+  secondary: heisucaTvAccent,
+  onSecondary: heisucaTvCanvas,
+  secondaryContainer: heisucaTvSurface2,
+  onSecondaryContainer: heisucaTvText,
+  tertiary: heisucaTvAccent,
+  onTertiary: heisucaTvCanvas,
+  tertiaryContainer: heisucaTvSurface2,
+  onTertiaryContainer: heisucaTvText,
+  error: Color(0xFFD96B6B),
+  onError: heisucaTvCanvas,
+  errorContainer: heisucaTvSurface,
+  onErrorContainer: heisucaTvText,
+  surface: heisucaTvCanvas,
+  onSurface: heisucaTvText,
+  onSurfaceVariant: heisucaTvText,
+  surfaceDim: heisucaTvCanvas,
+  surfaceBright: heisucaTvSurface,
+  surfaceContainerLowest: heisucaTvSurface,
+  surfaceContainerLow: heisucaTvSurface,
+  surfaceContainer: heisucaTvSurface,
+  surfaceContainerHigh: heisucaTvSurface2,
+  surfaceContainerHighest: heisucaTvSurface3,
+  outline: Color(0x61FFFFFF),
+  outlineVariant: heisucaTvLine,
+  shadow: Color(0xFF000000),
+  scrim: Color(0xFF000000),
+  inverseSurface: heisucaTvText,
+  onInverseSurface: heisucaTvCanvas,
+  inversePrimary: heisucaTvCanvas,
 );
 
 const cgflixHeitorScheme = ColorScheme(
@@ -351,6 +399,53 @@ class CgflixPalette extends ThemeExtension<CgflixPalette> {
     brandPlay: [heisucaShikkokuText,heisucaShikkokuAccent,Color(0xFFAAA2B3)],
     brandGlow: Color(0x33C7BBD4),
     brandShine: Color(0x33E2DDE7),
+    emblemAsset: 'assets/heisuca/selo_pequeno_shikkoku.svg',
+  );
+
+  /// TV (sempre escura, um tema só): Shikkoku com a paleta azul. Mantém a variante isis
+  /// para as preferências e os contratos de cor.
+  static const tv = CgflixPalette(
+    variant: CgflixThemeVariant.isis,
+    light: false,
+    background: heisucaTvCanvas,
+    surface: heisucaTvSurface,
+    surfaceHigh: heisucaTvSurface2,
+    accent: heisucaTvAccent,
+    accentSoft: heisucaTvAccent,
+    action: heisucaTvAccent,
+    onAction: heisucaTvCanvas,
+    progress: heisucaTvAccent,
+    progressTrack: heisucaTvSurface3,
+    textMuted: Color(0xFF98A9C4),
+    divider: heisucaTvLine,
+    heroVeil: [Color(0xB3111522), Color(0x00111522), Color(0x00111522), Color(0xF0111522), heisucaTvCanvas],
+    topVeil: [Color(0xE6111522), Color(0x99111522), Color(0x00111522)],
+    sheetVeil: [Color(0x001E263B), Color(0x001E263B), heisucaTvSurface],
+    glass: Color(0xE61E263B),
+    glassBorder: heisucaTvSurface2,
+    onGlass: heisucaTvText,
+    chipSelected: heisucaTvSurface2,
+    chipSelectedBorder: heisucaTvText,
+    pressed: Color(0x24DCE3EF),
+    hovered: heisucaTvLine,
+    focused: Color(0x24DCE3EF),
+    focusRing: heisucaTvText,
+    secondaryAction: heisucaTvSurface2,
+    onSecondaryAction: heisucaTvText,
+    photoButton: Color(0xCC111522),
+    onPhotoButton: heisucaTvText,
+    badge: heisucaTvSurface2,
+    badgeBorder: heisucaTvSurface2,
+    onBadge: heisucaTvText,
+    success: heisucaHisuiAccent,
+    danger: Color(0xFFD96B6B),
+    dedication: heisucaTvAccent,
+    rankStroke: heisucaTvAccent,
+    cardShadow: [BoxShadow(color: Color(0x14000000), blurRadius: 12, offset: Offset(0, 4))],
+    brandArc: [heisucaTvText,heisucaTvAccent,Color(0xFF98A9C4),heisucaTvDetail],
+    brandPlay: [heisucaTvText,heisucaTvAccent,Color(0xFF98A9C4)],
+    brandGlow: Color(0x33BAC6D9),
+    brandShine: Color(0x33DCE3EF),
     emblemAsset: 'assets/heisuca/selo_pequeno_shikkoku.svg',
   );
 

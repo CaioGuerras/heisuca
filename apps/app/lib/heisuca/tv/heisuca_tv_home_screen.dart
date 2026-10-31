@@ -171,7 +171,7 @@ class HeisucaTvHomeScreenState extends State<HeisucaTvHomeScreen> {
 
     return HeisucaTvCanvas(
       child: Scaffold(
-      backgroundColor: const Color(0xFF17151C), // BG
+      backgroundColor: const Color(0xFF111522), // BG
       body: Stack(
         children: [
           // 1. Fundo do Destaque (Arte de fundo em tela cheia com gradientes)
@@ -225,7 +225,7 @@ class HeisucaTvHomeScreenState extends State<HeisucaTvHomeScreen> {
                                   fontSize: 24,
                                   fontWeight: FontWeight.w600,
                                   letterSpacing: 2.0,
-                                  color: const Color(0xFFC7BBD4), // AC
+                                  color: const Color(0xFFBAC6D9), // AC
                                 ),
                               ),
                               const SizedBox(height: 12),
@@ -238,7 +238,7 @@ class HeisucaTvHomeScreenState extends State<HeisucaTvHomeScreen> {
                                   fontSize: 64,
                                   fontWeight: FontWeight.w700,
                                   height: 1.1,
-                                  color: const Color(0xFFF2EFF5), // TX
+                                  color: const Color(0xFFEEF2F8), // TX
                                 ),
                               ),
                               const SizedBox(height: 14),
@@ -254,7 +254,7 @@ class HeisucaTvHomeScreenState extends State<HeisucaTvHomeScreen> {
                                     fontSize: 26,
                                     fontWeight: FontWeight.w400,
                                     height: 1.3,
-                                    color: const Color(0xFFE2DDE7),
+                                    color: const Color(0xFFDCE3EF),
                                   ),
                                 ),
                               const SizedBox(height: 28),
@@ -307,7 +307,7 @@ class HeisucaTvHomeScreenState extends State<HeisucaTvHomeScreen> {
                                   fontFamily: HeisucaTheme.fonteTitulo,
                                   fontSize: 30,
                                   fontWeight: FontWeight.w600,
-                                  color: Color(0xFFF2EFF5),
+                                  color: Color(0xFFEEF2F8),
                                 ),
                               ),
                             ),
@@ -374,7 +374,7 @@ class HeisucaTvHomeScreenState extends State<HeisucaTvHomeScreen> {
         fontFamily: HeisucaTheme.fonteTexto,
         fontSize: 26,
         fontWeight: FontWeight.w500,
-        color: const Color(0xFFCFC8D8), // TX2
+        color: const Color(0xFFC9D2E2), // TX2
       ),
     );
   }
@@ -471,7 +471,7 @@ class _TvContinueCardState extends State<_TvContinueCard> {
             width: 400,
             height: 225,
             decoration: BoxDecoration(
-              color: const Color(0xFF292531),
+              color: const Color(0xFF1E263B),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: _focused ? Colors.white : Colors.white.withValues(alpha: 0.1),
@@ -498,7 +498,7 @@ class _TvContinueCardState extends State<_TvContinueCard> {
                     fit: BoxFit.cover,
                   )
                 else
-                  Container(color: const Color(0xFF3B3346)),
+                  Container(color: const Color(0xFF27314A)),
 
                 // Gradiente escuro inferior para leitura
                 const DecoratedBox(
@@ -528,7 +528,7 @@ class _TvContinueCardState extends State<_TvContinueCard> {
                         style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFFE2DDE7),
+                          color: Color(0xFFDCE3EF),
                         ),
                       ),
                     ],
@@ -544,7 +544,7 @@ class _TvContinueCardState extends State<_TvContinueCard> {
                     value: progress,
                     minHeight: 6,
                     backgroundColor: Colors.white.withValues(alpha: 0.2),
-                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFC7BBD4)),
+                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFBAC6D9)),
                   ),
                 ),
               ],
@@ -576,7 +576,7 @@ class _TvHeroBackdrop extends StatelessWidget {
             fit: BoxFit.cover,
           )
         else
-          Container(color: const Color(0xFF3A3346)),
+          Container(color: const Color(0xFF27314A)),
 
         // Gradiente da esquerda (escurece onde fica o texto e botões)
         const DecoratedBox(
@@ -585,9 +585,9 @@ class _TvHeroBackdrop extends StatelessWidget {
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
               colors: [
-                Color(0xF717151C), // 97% opacidade
-                Color(0xBF17151C), // 75%
-                Color(0x0D17151C), // 5%
+                Color(0xF7111522), // 97% opacidade
+                Color(0xBF111522), // 75%
+                Color(0x0D111522), // 5%
               ],
               stops: [0.0, 0.45, 0.85],
             ),
@@ -601,8 +601,8 @@ class _TvHeroBackdrop extends StatelessWidget {
               begin: Alignment.bottomCenter,
               end: Alignment.topCenter,
               colors: [
-                Color(0xFF17151C),
-                Color(0x0017151C),
+                Color(0xFF111522),
+                Color(0x00111522),
               ],
               stops: [0.0, 0.5],
             ),
@@ -720,7 +720,7 @@ class _TvButtonPillState extends State<_TvButtonPill> {
                 fontFamily: HeisucaTheme.fonteTexto,
                 fontSize: 26,
                 fontWeight: active ? FontWeight.w700 : FontWeight.w600,
-                color: active ? const Color(0xFF17151C) : const Color(0xFFF2EFF5),
+                color: active ? const Color(0xFF111522) : const Color(0xFFEEF2F8),
               ),
             ),
           ),
@@ -756,7 +756,7 @@ class _TvMediaRow extends StatelessWidget {
               fontFamily: HeisucaTheme.fonteTitulo,
               fontSize: 30,
               fontWeight: FontWeight.w600,
-              color: Color(0xFFF2EFF5),
+              color: Color(0xFFEEF2F8),
             ),
           ),
         ),
@@ -829,7 +829,7 @@ class _TvPosterCardState extends State<_TvPosterCard> {
             width: 180,
             height: 270,
             decoration: BoxDecoration(
-              color: const Color(0xFF292531),
+              color: const Color(0xFF1E263B),
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
                 color: _focused ? Colors.white : Colors.transparent,
@@ -853,7 +853,7 @@ class _TvPosterCardState extends State<_TvPosterCard> {
                     fit: BoxFit.cover,
                   )
                 : Container(
-                    color: const Color(0xFF3B3346),
+                    color: const Color(0xFF27314A),
                     alignment: Alignment.center,
                     padding: const EdgeInsets.all(12),
                     child: Text(

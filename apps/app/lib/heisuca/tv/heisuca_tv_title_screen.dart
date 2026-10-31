@@ -162,7 +162,7 @@ class _HeisucaTvTitleScreenState extends State<HeisucaTvTitleScreen> {
 
     return HeisucaTvCanvas(
       child: Scaffold(
-      backgroundColor: const Color(0xFF17151C),
+      backgroundColor: const Color(0xFF111522),
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -183,9 +183,9 @@ class _HeisucaTvTitleScreenState extends State<HeisucaTvTitleScreen> {
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
                 colors: [
-                  Color(0xF717151C),
-                  Color(0xBF17151C),
-                  Color(0x2617151C),
+                  Color(0xF7111522),
+                  Color(0xBF111522),
+                  Color(0x26111522),
                 ],
                 stops: [0.0, 0.5, 0.9],
               ),
@@ -196,7 +196,7 @@ class _HeisucaTvTitleScreenState extends State<HeisucaTvTitleScreen> {
               gradient: LinearGradient(
                 begin: Alignment.bottomCenter,
                 end: Alignment.topCenter,
-                colors: [Color(0xFF17151C), Color(0x0017151C)],
+                colors: [Color(0xFF111522), Color(0x00111522)],
                 stops: [0.0, 0.6],
               ),
             ),
@@ -237,7 +237,7 @@ class _HeisucaTvTitleScreenState extends State<HeisucaTvTitleScreen> {
                     fontFamily: HeisucaTheme.fonteTitulo,
                     fontSize: 64,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFFF2EFF5),
+                    color: Color(0xFFEEF2F8),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -258,7 +258,7 @@ class _HeisucaTvTitleScreenState extends State<HeisucaTvTitleScreen> {
                         fontFamily: HeisucaTheme.fonteTexto,
                         fontSize: 26,
                         height: 1.3,
-                        color: Color(0xFFE2DDE7),
+                        color: Color(0xFFDCE3EF),
                       ),
                     ),
                   ),
@@ -373,7 +373,7 @@ class _HeisucaTvTitleScreenState extends State<HeisucaTvTitleScreen> {
         fontFamily: HeisucaTheme.fonteTexto,
         fontSize: 26,
         fontWeight: FontWeight.w500,
-        color: Color(0xFFCFC8D8),
+        color: Color(0xFFC9D2E2),
       ),
     );
   }
@@ -382,7 +382,7 @@ class _HeisucaTvTitleScreenState extends State<HeisucaTvTitleScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF292531),
+        backgroundColor: const Color(0xFF1E263B),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Áudio e legenda', style: TextStyle(color: Colors.white, fontSize: 28)),
         content: Column(
@@ -408,7 +408,7 @@ class _HeisucaTvTitleScreenState extends State<HeisucaTvTitleScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF292531),
+        backgroundColor: const Color(0xFF1E263B),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Versão do vídeo', style: TextStyle(color: Colors.white, fontSize: 28)),
         content: const Text('Versão 1080p H.264 (decodificada por hardware)',
@@ -530,7 +530,7 @@ class _TvActionPillState extends State<_TvActionPill> {
                 fontFamily: HeisucaTheme.fonteTexto,
                 fontSize: 26,
                 fontWeight: active ? FontWeight.w700 : FontWeight.w600,
-                color: active ? const Color(0xFF17151C) : const Color(0xFFF2EFF5),
+                color: active ? const Color(0xFF111522) : const Color(0xFFEEF2F8),
               ),
             ),
           ),
@@ -597,7 +597,7 @@ class _TvSeasonChipState extends State<_TvSeasonChip> {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: active || widget.isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: active ? const Color(0xFF17151C) : const Color(0xFFF2EFF5),
+                color: active ? const Color(0xFF111522) : const Color(0xFFEEF2F8),
               ),
             ),
           ),
@@ -661,7 +661,7 @@ class _TvEpisodeCardState extends State<_TvEpisodeCard> {
           child: Container(
             width: 320,
             decoration: BoxDecoration(
-              color: const Color(0xFF292531),
+              color: const Color(0xFF1E263B),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: _focused ? Colors.white : Colors.white.withValues(alpha: 0.1),
@@ -692,7 +692,7 @@ class _TvEpisodeCardState extends State<_TvEpisodeCard> {
                           fit: BoxFit.cover,
                         )
                       else
-                        Container(color: const Color(0xFF3B3346)),
+                        Container(color: const Color(0xFF27314A)),
 
                       if (progress > 0)
                         Positioned(
@@ -703,7 +703,7 @@ class _TvEpisodeCardState extends State<_TvEpisodeCard> {
                             value: progress,
                             minHeight: 5,
                             backgroundColor: Colors.white.withValues(alpha: 0.2),
-                            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFC7BBD4)),
+                            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFBAC6D9)),
                           ),
                         ),
                     ],
@@ -721,7 +721,7 @@ class _TvEpisodeCardState extends State<_TvEpisodeCard> {
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFFF2EFF5),
+                          color: Color(0xFFEEF2F8),
                         ),
                       ),
                       if (durLabel.isNotEmpty)
@@ -729,7 +729,7 @@ class _TvEpisodeCardState extends State<_TvEpisodeCard> {
                           durLabel,
                           style: const TextStyle(
                             fontSize: 18,
-                            color: Color(0xFFB9B1C4),
+                            color: Color(0xFFABB8CE),
                           ),
                         ),
                     ],

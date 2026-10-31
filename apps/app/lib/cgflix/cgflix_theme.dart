@@ -48,7 +48,7 @@ ThemeData cgflixAppTheme([CgflixThemeVariant variant = CgflixThemeVariant.isis])
   CgflixThemeVariant.ichigo || CgflixThemeVariant.sorairo => monoTheme(dark: false, kids: variant),
 };
 
-/// TV fica sempre na Isis (tema claro na TV está fora do escopo).
+/// TV fica sempre no tema escuro, com a paleta azul própria (um tema só; 31/10).
 bool get _forceIsis => PlatformDetector.isTV();
 
 /// Tema da vaga "clara" do MaterialApp: Heitor (na TV, Isis).
@@ -91,7 +91,7 @@ ThemeData cgflixBrandTheme(ThemeData theme, {required bool oled, CgflixThemeVari
   final palette = kids != null
       ? CgflixPalette.forVariant(kids)
       : (oled || theme.brightness == Brightness.dark)
-          ? CgflixPalette.isis
+          ? (_forceIsis ? CgflixPalette.tv : CgflixPalette.isis)
           : CgflixPalette.heitor;
   final accent = palette.accent;
   final branded = theme.copyWith(
@@ -112,7 +112,9 @@ ThemeData cgflixBrandTheme(ThemeData theme, {required bool oled, CgflixThemeVari
     ),
   );
   return switch (palette.variant) {
-    CgflixThemeVariant.isis => _isis(branded),
+    CgflixThemeVariant.isis => identical(palette, CgflixPalette.tv)
+        ? _heitor(branded, s: cgflixTvScheme, p: CgflixPalette.tv)
+        : _isis(branded),
     CgflixThemeVariant.heitor => _heitor(branded, s: cgflixHeitorScheme, p: palette),
     CgflixThemeVariant.ichigo => _heitor(branded, s: cgflixIchigoScheme, p: CgflixPalette.ichigo),
     CgflixThemeVariant.sorairo => _heitor(branded, s: cgflixSorairoScheme, p: CgflixPalette.sorairo),

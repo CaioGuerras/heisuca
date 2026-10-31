@@ -99,7 +99,7 @@ class _HeisucaTvSettingsScreenState extends State<HeisucaTvSettingsScreen> {
 
     return HeisucaTvCanvas(
       child: Scaffold(
-      backgroundColor: const Color(0xFF17151C),
+      backgroundColor: const Color(0xFF111522),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 36),
         child: Column(
@@ -119,7 +119,7 @@ class _HeisucaTvSettingsScreenState extends State<HeisucaTvSettingsScreen> {
                     fontFamily: HeisucaTheme.fonteTitulo,
                     fontSize: 36,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFFF2EFF5),
+                    color: Color(0xFFEEF2F8),
                   ),
                 ),
               ],
@@ -189,7 +189,7 @@ class _HeisucaTvSettingsScreenState extends State<HeisucaTvSettingsScreen> {
                       final confirmed = await showDialog<bool>(
                         context: context,
                         builder: (ctx) => AlertDialog(
-                          backgroundColor: const Color(0xFF292531),
+                          backgroundColor: const Color(0xFF1E263B),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                           title: const Text('Sair do Heisuca?', style: TextStyle(color: Colors.white, fontSize: 26)),
                           actions: [
@@ -270,7 +270,7 @@ class _TvSettingsRowState extends State<_TvSettingsRow> {
             decoration: BoxDecoration(
               color: active
                   ? Colors.white
-                  : const Color(0xFF292531), // SUP
+                  : const Color(0xFF1E263B), // SUP
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: active ? Colors.white : Colors.white.withValues(alpha: 0.08),
@@ -299,8 +299,8 @@ class _TvSettingsRowState extends State<_TvSettingsRow> {
                           fontSize: 26,
                           fontWeight: FontWeight.w700,
                           color: active
-                              ? (widget.isDestructive ? const Color(0xFFC82B3D) : const Color(0xFF17151C))
-                              : (widget.isDestructive ? const Color(0xFFEF4444) : const Color(0xFFF2EFF5)),
+                              ? (widget.isDestructive ? const Color(0xFFC82B3D) : const Color(0xFF111522))
+                              : (widget.isDestructive ? const Color(0xFFEF4444) : const Color(0xFFEEF2F8)),
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -309,7 +309,7 @@ class _TvSettingsRowState extends State<_TvSettingsRow> {
                         style: TextStyle(
                           fontFamily: HeisucaTheme.fonteTexto,
                           fontSize: 22,
-                          color: active ? const Color(0xFF45404F) : const Color(0xFFB9B1C4),
+                          color: active ? const Color(0xFF303D59) : const Color(0xFFABB8CE),
                         ),
                       ),
                     ],
@@ -319,7 +319,7 @@ class _TvSettingsRowState extends State<_TvSettingsRow> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: active ? const Color(0xFF17151C) : Colors.white.withValues(alpha: 0.12),
+                      color: active ? const Color(0xFF111522) : Colors.white.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -327,7 +327,7 @@ class _TvSettingsRowState extends State<_TvSettingsRow> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
-                        color: active ? Colors.white : const Color(0xFFF2EFF5),
+                        color: active ? Colors.white : const Color(0xFFEEF2F8),
                       ),
                     ),
                   )
@@ -335,7 +335,7 @@ class _TvSettingsRowState extends State<_TvSettingsRow> {
                   Icon(
                     Icons.chevron_right,
                     size: 30,
-                    color: active ? const Color(0xFF17151C) : Colors.white54,
+                    color: active ? const Color(0xFF111522) : Colors.white54,
                   ),
               ],
             ),

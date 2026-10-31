@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:heisuca/cgflix/cgflix_theme.dart';
 import 'package:heisuca/services/settings_service.dart' as settings;
+import 'package:heisuca/utils/platform_detector.dart';
 
 void main() {
   test('Isis (padrão): escuro, Obsidian Plum', () {
@@ -12,6 +13,18 @@ void main() {
     expect(theme.colorScheme.surface, const Color(0xFF17151C));
     expect(theme.progressIndicatorTheme.color, const Color(0xFFC7BBD4));
     expect(theme.extension<CgflixPalette>(), CgflixPalette.isis);
+  });
+
+  test('TV: um tema só, azul, mesmo com a escolha clara', () {
+    TvDetectionService.debugSetTvOverride(true);
+    addTearDown(() => TvDetectionService.debugSetTvOverride(null));
+    for (final theme in [cgflixLightTheme(), cgflixDarkTheme()]) {
+      expect(theme.brightness, Brightness.dark);
+      expect(theme.scaffoldBackgroundColor, const Color(0xFF111522));
+      expect(theme.colorScheme, cgflixTvScheme);
+      expect(theme.extension<CgflixPalette>(), CgflixPalette.tv);
+    }
+    expect(cgflixMaterialThemeMode(settings.ThemeMode.light), ThemeMode.dark);
   });
 
   test('Heitor: claro, fundo #f4fcee, botões e foco em primary verde', () {

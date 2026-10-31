@@ -134,7 +134,7 @@ class _HeisucaTvHeaderState extends State<HeisucaTvHeader> {
                 fontSize: 22,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 4.0,
-                color: const Color(0xFFF2EFF5),
+                color: const Color(0xFFEEF2F8),
               ),
             ),
           ],

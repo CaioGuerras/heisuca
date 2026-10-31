@@ -14,6 +14,7 @@ void main() {
   for (final (name, s, p) in [
     ('Shikkoku', cgflixIsisScheme, CgflixPalette.isis),
     ('Hisui claro', cgflixHeitorScheme, CgflixPalette.heitor),
+    ('TV azul', cgflixTvScheme, CgflixPalette.tv),
   ]) {
     final backgrounds = {
       'canvas': p.background,
@@ -69,7 +70,7 @@ void main() {
   }
 
   test('anel de foco (focusRing) ≥ 3:1 no canvas e na superfície das 4 paletas', () {
-    for (final p in [CgflixPalette.isis, CgflixPalette.heitor,
+    for (final p in [CgflixPalette.isis, CgflixPalette.heitor, CgflixPalette.tv,
         CgflixPalette.ichigo, CgflixPalette.sorairo]) {
       for (final bg in [p.background, p.surface]) {
         expect(contrast(p.focusRing, bg), greaterThanOrEqualTo(3), reason: '${p.variant}');

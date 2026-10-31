@@ -50,14 +50,14 @@ class HeisucaTvBackHandler {
   static Future<bool> showExitConfirmationDialog(BuildContext context) async {
     final result = await showDialog<bool>(
       context: context,
-      barrierColor: const Color(0x990C0B0F),
+      barrierColor: const Color(0x990A0C14),
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF292531),
+        backgroundColor: const Color(0xFF1E263B),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: const Text(
           'Deseja sair do Heisuca?',
           style: TextStyle(
-            color: Color(0xFFF2EFF5),
+            color: Color(0xFFEEF2F8),
             fontSize: 28,
             fontWeight: FontWeight.w700,
           ),
@@ -69,7 +69,7 @@ class HeisucaTvBackHandler {
             child: const Text(
               'Cancelar',
               style: TextStyle(
-                color: Color(0xFFB9B1C4),
+                color: Color(0xFFABB8CE),
                 fontSize: 22,
                 fontWeight: FontWeight.w600,
               ),
@@ -79,7 +79,7 @@ class HeisucaTvBackHandler {
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
-              foregroundColor: const Color(0xFF17151C),
+              foregroundColor: const Color(0xFF111522),
               padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             ),

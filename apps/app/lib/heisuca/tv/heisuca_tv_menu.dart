@@ -30,7 +30,7 @@ class HeisucaTvMenu extends StatefulWidget {
   }) {
     return showDialog(
       context: context,
-      barrierColor: const Color(0x990C0B0F),
+      barrierColor: const Color(0x990A0C14),
       builder: (ctx) => HeisucaTvCanvas(
         child: HeisucaTvMenu(
           onSelectDestination: (dest) {
@@ -99,7 +99,7 @@ class _HeisucaTvMenuState extends State<HeisucaTvMenu> {
           width: 520,
           height: 640,
           decoration: BoxDecoration(
-            color: const Color(0xFF292531), // SUP
+            color: const Color(0xFF1E263B), // SUP
             borderRadius: BorderRadius.circular(28),
             boxShadow: [
               BoxShadow(
@@ -159,7 +159,7 @@ class _HeisucaTvMenuState extends State<HeisucaTvMenu> {
                             fontFamily: HeisucaTheme.fonteTitulo,
                             fontSize: 26,
                             fontWeight: FontWeight.w700,
-                            color: const Color(0xFFF2EFF5),
+                            color: const Color(0xFFEEF2F8),
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -184,7 +184,7 @@ class _HeisucaTvMenuState extends State<HeisucaTvMenu> {
               const SizedBox(height: 18),
               Container(
                 height: 1,
-                color: const Color(0xFFE2DDE7).withValues(alpha: 0.15),
+                color: const Color(0xFFDCE3EF).withValues(alpha: 0.15),
               ),
               const SizedBox(height: 14),
 
@@ -221,7 +221,7 @@ class _HeisucaTvMenuState extends State<HeisucaTvMenu> {
                     fontFamily: HeisucaTheme.fonteTexto,
                     fontSize: 20,
                     fontWeight: FontWeight.w400,
-                    color: const Color(0xFFB9B1C4),
+                    color: const Color(0xFFABB8CE),
                   ),
                 ),
               ),
@@ -301,8 +301,8 @@ class _TvMenuItemPillState extends State<_TvMenuItemPill> {
                 fontSize: widget.fontSize,
                 fontWeight: active ? FontWeight.w700 : (widget.isSelected ? FontWeight.w600 : FontWeight.w500),
                 color: active
-                    ? const Color(0xFF17151C) // Fundo branco -> texto escuro
-                    : const Color(0xFFF2EFF5),
+                    ? const Color(0xFF111522) // Fundo branco -> texto escuro
+                    : const Color(0xFFEEF2F8),
               ),
             ),
           ),

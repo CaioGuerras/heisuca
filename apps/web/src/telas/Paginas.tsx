@@ -225,7 +225,7 @@ export function ComoUsar({ s }: { s: Sessao }) {
         <details class="duvida"><summary>Como eu saio da conta?<Icone nome="keyboard_arrow_down" tamanho={22} /></summary>
           <p>Toque na sua foto, na barra de baixo, e escolha <strong>Sair</strong>. O endereço do servidor fica lembrado para a próxima entrada.</p></details>
         <details class="duvida"><summary>Como troco as cores?<Icone nome="keyboard_arrow_down" tamanho={22} /></summary>
-          <p>Toque na sua foto e escolha <strong>Tema</strong>: Roxo (escuro), Verde (claro) ou Automático, que segue o aparelho.</p></details>
+          <p>Toque na sua foto e escolha <strong>Tema</strong>: Cinza-lilás (escuro), Verde (claro) ou Automático, que segue o aparelho.</p></details>
       </div>
     </Pagina>
   );

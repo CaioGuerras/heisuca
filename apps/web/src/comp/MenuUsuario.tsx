@@ -19,7 +19,7 @@ import './menu-usuario.css';
 
 export const AJUDA_COMPLETA = 'heisuca.ajuda.completa';
 const ajudaCompleta = () => { try { return localStorage.getItem(AJUDA_COMPLETA) === '1'; } catch { return false; } };
-const NOMES: Record<Escolha, string> = { roxo: 'Roxo', verde: 'Verde', auto: 'Automático' };
+const NOMES: Record<Escolha, string> = { roxo: 'Cinza-lilás', verde: 'Verde', auto: 'Automático' };
 
 export function MenuUsuario({ s, ancora, fechar, sair }: { s: Sessao; ancora: HTMLElement | null; fechar: () => void; sair: () => void }) {
   const [temas, setTemas] = useState(false);

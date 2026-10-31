@@ -167,7 +167,7 @@
 .player .girando svg { animation: pl-gira 1s linear infinite; }
 @keyframes pl-gira { to { transform: rotate(360deg); } }
 /* tema claro (Verde): o player continua escuro; a primária verde escura não lê sobre preto, usa a clara do Hisui */
-[data-tema="hisui"] .player { --hs-tema-cor-primaria: #34d399; }
+[data-tema="hisui"] .player { --hs-tema-cor-primaria: #8eb69b; }
 
 /* celular em pé: uma coluna rolável, o painel sobe de baixo */
 @media (max-width: 599px) {

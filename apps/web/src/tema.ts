@@ -1,4 +1,4 @@
-// Temas do site (PLANO §2.1): Roxo = Shikkoku (escuro, padrão), Verde = Hisui (claro), Automático = segue o aparelho
+// Temas do site (PLANO §2.1): Roxo = Shikkoku (cinza-lilás escuro, padrão; o nome interno "roxo" fica por compatibilidade), Verde = Hisui (claro), Automático = segue o aparelho
 // (escuro → Roxo, claro → Verde), igual ao app CGFLIX. Kids e Shinju (iOS) não existem no site.
 export type Escolha = 'roxo' | 'verde' | 'auto';
 export type Tema = 'shikkoku' | 'hisui';

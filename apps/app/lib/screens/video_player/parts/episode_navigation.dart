@@ -151,10 +151,15 @@ extension _VideoPlayerEpisodeNavigationMethods on VideoPlayerScreenState {
       // Carry the playing version to the next episode by signature — its Media
       // list may order versions differently, so the bare index is a guess and
       // the source id is per-episode.
+      // Só a escolha explícita salva vence o aparelho; a versão que está
+      // tocando pode ter vindo do ranqueador e vai como herdada (exige
+      // decodificação por hardware no próximo episódio).
       final currentVersionSignature =
           _effectiveSelectedMediaIndex >= 0 && _effectiveSelectedMediaIndex < _availableVersions.length
           ? _availableVersions[_effectiveSelectedMediaIndex].signature
           : null;
+      // A checagem de "superseded" logo abaixo cobre também este await.
+      final savedVersionSignature = (await resolveSavedMediaVersionFor(episodeMetadata))?.signature;
       // Users who curate per-episode selections server-side (e.g. via Plex Auto
       // Languages) opt out of carrying tracks across episodes entirely: with no
       // preferences, both audio and subtitles start at the server-selected
@@ -186,7 +191,8 @@ extension _VideoPlayerEpisodeNavigationMethods on VideoPlayerScreenState {
         metadata: episodeMetadata,
         selectedMediaIndex: _effectiveSelectedMediaIndex,
         selectedMediaSourceId: null,
-        preferredVersionSignature: currentVersionSignature,
+        preferredVersionSignature: savedVersionSignature,
+        inheritedVersionSignature: savedVersionSignature == null ? currentVersionSignature : null,
         qualityPreset: _selectedQualityPreset,
         // Stream ids are per-part: the previous episode's audio id is
         // meaningless on the new item, so let preferences pick the track.

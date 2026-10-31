@@ -3711,7 +3711,8 @@ class PlexClient
         options.metadata.id,
         mediaIndex: options.selectedMediaIndex ?? 0,
         selectedMediaSourceId: options.selectedMediaSourceId,
-        preferredVersionSignature: options.preferredVersionSignature,
+        // Plex não usa o ranqueador do aparelho: a herdada segue como antes.
+        preferredVersionSignature: options.preferredVersionSignature ?? options.inheritedVersionSignature,
       );
 
       if (!data.hasValidVideoUrl) {

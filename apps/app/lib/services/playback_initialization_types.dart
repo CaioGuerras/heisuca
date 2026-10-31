@@ -31,6 +31,13 @@ class PlaybackInitializationOptions {
   /// sourceId > signature > index > backend fallback.
   final String? preferredVersionSignature;
 
+  /// Assinatura da versão que tocava no item anterior (próximo episódio), sem
+  /// ser escolha do usuário. Só vale se o aparelho decodificar essa versão por
+  /// hardware; senão quem decide é o ranqueador (ex.: ep. 1 só em HEVC 10-bit,
+  /// ep. 2 com H.264 numa TV box sem Main10 → H.264). Escolha explícita salva
+  /// vai em [preferredVersionSignature], que sempre vence.
+  final String? inheritedVersionSignature;
+
   /// Transcode preset. `original` means direct-play; anything else asks the
   /// server to transcode when supported.
   final TranscodeQualityPreset qualityPreset;
@@ -69,6 +76,7 @@ class PlaybackInitializationOptions {
     required this.selectedMediaIndex,
     this.selectedMediaSourceId,
     this.preferredVersionSignature,
+    this.inheritedVersionSignature,
     this.qualityPreset = TranscodeQualityPreset.original,
     this.audioQualityPreset,
     this.selectedAudioStreamId,

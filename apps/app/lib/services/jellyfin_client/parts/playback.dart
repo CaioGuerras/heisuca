@@ -258,6 +258,7 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
           sourceIndex: options.selectedMediaIndex,
           sourceId: options.selectedMediaSourceId,
           preferredSignature: options.preferredVersionSignature,
+          inheritedSignature: options.inheritedVersionSignature,
         ),
       );
     } catch (error, stackTrace) {
@@ -714,6 +715,7 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
     int? sourceIndex,
     String? sourceId,
     String? preferredSignature,
+    String? inheritedSignature,
   }) async {
     final item = await fetchItemFreshCacheFirst(itemId);
     final raw = item?.raw;
@@ -723,6 +725,7 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
       sourceIndex: sourceIndex,
       sourceId: sourceId,
       preferredSignature: preferredSignature,
+      inheritedSignature: inheritedSignature,
     );
   }
 
@@ -731,6 +734,7 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
     int? sourceIndex,
     String? sourceId,
     String? preferredSignature,
+    String? inheritedSignature,
   }) {
     final sources = raw['MediaSources'];
     if (sources is! List || sources.isEmpty) return null;
@@ -748,19 +752,38 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
     // Saved-preference signature: only meaningful when the id didn't pin a
     // source (Resume rows omit MediaSources, so launch passes a signature and
     // a stored index that may not fit this item's source ordering).
-    // A assinatura é escolha do usuário: vence mesmo sem decodificador de
-    // hardware (o aviso antes do play oferece outra versão). Se ela não casa
-    // com nenhuma versão deste item, o índice junto dela é de outro item e
-    // quem decide é o ranqueador.
+    // [preferredSignature] é escolha explícita salva do usuário: vence mesmo
+    // sem decodificador de hardware (o aviso antes do play oferece outra
+    // versão). [inheritedSignature] é só a versão que tocava no episódio
+    // anterior: vale apenas se este aparelho a decodifica por hardware.
+    // Assinatura que não casa (ou herdada sem hardware) torna o índice junto
+    // dela suspeito — ele é de outro item — e quem decide é o ranqueador.
     var resolvedBySignature = false;
     var staleSourceIndex = false;
-    if (!resolvedBySourceId && preferredSignature != null && preferredSignature.isNotEmpty) {
-      final bySignature = MediaVersion.findMatchingIndex(availableVersions, {preferredSignature});
-      if (bySignature != null && bySignature >= 0 && bySignature < sources.length) {
-        index = bySignature;
+    int? matchSignature(String? signature) {
+      if (signature == null || signature.isEmpty) return null;
+      final found = MediaVersion.findMatchingIndex(availableVersions, {signature});
+      if (found != null && found >= 0 && found < sources.length) return found;
+      staleSourceIndex = true;
+      return null;
+    }
+
+    if (!resolvedBySourceId) {
+      final byPreferred = matchSignature(preferredSignature);
+      if (byPreferred != null) {
+        index = byPreferred;
         resolvedBySignature = true;
       } else {
-        staleSourceIndex = true;
+        final byInherited = matchSignature(inheritedSignature);
+        if (byInherited != null) {
+          final cand = sources[byInherited];
+          if (cand is Map<String, dynamic> && isSourceHardwareDecodable(cand)) {
+            index = byInherited;
+            resolvedBySignature = true;
+          } else {
+            staleSourceIndex = true;
+          }
+        }
       }
     }
 

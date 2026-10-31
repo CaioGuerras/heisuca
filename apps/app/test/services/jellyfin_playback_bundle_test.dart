@@ -305,6 +305,77 @@ void main() {
       client.close();
     });
 
+    test('versão herdada do episódio anterior exige hardware; escolha salva vence (auditoria 74fd693)', () async {
+      // Caso real: ep. 1 só tinha HEVC 10-bit (tocou por falta de opção); o
+      // ep. 2 tem HEVC 10-bit + H.264 e a TV box não tem Main10 por hardware.
+      VideoDecodeCapabilities.debugReset(
+        hardwareHevc: false,
+        hardwareAv1: false,
+        displaySupports4k: false,
+        codecHardware: {'h264': true, 'hevc': false, 'av1': false},
+      );
+      addTearDown(VideoDecodeCapabilities.debugReset);
+      Map<String, dynamic> hevc10() => {
+        'Id': 'src-hevc10',
+        'Container': 'mkv',
+        'MediaStreams': [
+          {'Type': 'Video', 'Codec': 'hevc', 'Profile': 'Main 10', 'BitDepth': 10, 'Height': 1080, 'Width': 1920},
+        ],
+      };
+      final ep1 = buildClient(
+        jsonEncode({
+          'Id': 'ep-1',
+          'Type': 'Episode',
+          'MediaSources': [hevc10()],
+        }),
+      );
+      final playing = await ep1.fetchPlaybackBundle('ep-1');
+      expect(playing!.selectedSourceId, 'src-hevc10');
+      final inherited = playing.availableVersions[playing.selectedSourceIndex].signature;
+      ep1.close();
+
+      final client = buildClient(
+        jsonEncode({
+          'Id': 'ep-2',
+          'Type': 'Episode',
+          'MediaSources': [
+            hevc10(),
+            {
+              'Id': 'src-h264',
+              'Container': 'mkv',
+              'MediaStreams': [
+                {'Type': 'Video', 'Codec': 'h264', 'Profile': 'High', 'Height': 1080, 'Width': 1920},
+              ],
+            },
+          ],
+        }),
+      );
+
+      // Herdada sem hardware: nem ela nem o índice 0 do ep. 1 valem; o
+      // ranqueador vai para a H.264.
+      final next = await client.fetchPlaybackBundle('ep-2', sourceIndex: 0, inheritedSignature: inherited);
+      expect(next!.selectedSourceId, 'src-h264');
+
+      // A mesma versão como escolha explícita salva do usuário vence o aparelho.
+      final saved = await client.fetchPlaybackBundle('ep-2', sourceIndex: 0, preferredSignature: inherited);
+      expect(saved!.selectedSourceId, 'src-hevc10');
+
+      // Aparelho com Main10 por hardware: a herdada continua valendo.
+      VideoDecodeCapabilities.debugReset(
+        hardwareHevc: true,
+        hardwareAv1: false,
+        displaySupports4k: false,
+        codecHardware: {'h264': true, 'hevc': true, 'av1': false},
+        codecProfiles: {
+          'h264': ['high'],
+          'hevc': ['main', 'main10'],
+        },
+      );
+      final withMain10 = await client.fetchPlaybackBundle('ep-2', sourceIndex: 1, inheritedSignature: inherited);
+      expect(withMain10!.selectedSourceId, 'src-hevc10');
+      client.close();
+    });
+
     test('selects sourceId before sourceIndex when both are provided', () async {
       final body = jsonEncode({
         'Id': 'item-4',

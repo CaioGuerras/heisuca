@@ -242,7 +242,10 @@ String formatVersionReason(MediaVersion version) {
     for (final stream in part.streams) {
       if (stream.kind != MediaStreamKind.video) continue;
       final profile = stream.profile?.toLowerCase() ?? '';
-      is10Bit = (stream.bitDepth ?? 0) > 8 ||
+      // Acumula: basta uma parte em 10-bit; a parte seguinte não apaga a
+      // marca da anterior (o `break` só sai do laço interno).
+      is10Bit = is10Bit ||
+          (stream.bitDepth ?? 0) > 8 ||
           profile.contains('10') ||
           stream.hdr ||
           stream.dolbyVision;

@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:heisuca/media/media_version.dart';
 import 'package:heisuca/services/jellyfin_media_info_mapper.dart';
 import 'package:heisuca/services/media_source_ranker.dart';
 import 'package:heisuca/services/video_decode_capabilities.dart';
@@ -291,6 +292,21 @@ void main() {
       ]);
       expect(formatVersionReason(versions[0]), 'H.264 10-bit em 1080p');
       expect(formatVersionReason(versions[1]), 'H.264 em 1080p');
+    });
+
+    test('rótulo: parte seguinte em 8-bit não apaga o 10-bit da anterior', () {
+      final versions = jellyfinSourcesToVersions([
+        fonte('h264-hi10p', 'h264', 'High 10', 10, 1920, 1080),
+        h264_1080,
+      ]);
+      final multi = MediaVersion(
+        id: 'multi',
+        width: 1920,
+        height: 1080,
+        videoCodec: 'h264',
+        parts: [...versions[0].parts, ...versions[1].parts],
+      );
+      expect(formatVersionReason(multi), 'H.264 10-bit em 1080p');
     });
   });
 }

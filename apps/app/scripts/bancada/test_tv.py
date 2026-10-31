@@ -24,6 +24,8 @@ from tv import (
     reconhecer_tela_tv,
     menu_tv_aberto,
     ITENS_MENU_TV,
+    campo_abaixo_do_rotulo_tv,
+    campos_login_tv,
     tamanho_do_campo_tv,
     verificar_inicio_vazio,
     verificar_player_preto,
@@ -186,6 +188,18 @@ class TestTvBancada(unittest.TestCase):
         ]
         self.assertEqual(reconhecer_tela_tv(nos_login_campos), 'login')
 
+        # TV Heisuca com FocusableTextField: antes do foco, o campo tem readOnly: true (android.view.View)
+        nos_login_tv = [
+            {'text': 'SERVIDOR', 'cls': 'android.view.View', 'bounds': (40, 200, 200, 240), 'centro': (120, 220)},
+            {'text': '', 'cls': 'android.view.View', 'clickable': True, 'bounds': (40, 250, 600, 320), 'centro': (320, 285)},
+            {'text': 'USUÁRIO', 'cls': 'android.view.View', 'bounds': (40, 340, 200, 380), 'centro': (120, 360)},
+            {'text': '', 'cls': 'android.view.View', 'clickable': True, 'bounds': (40, 390, 600, 460), 'centro': (320, 425)},
+            {'text': 'SENHA', 'cls': 'android.view.View', 'bounds': (40, 480, 200, 520), 'centro': (120, 500)},
+            {'text': '', 'cls': 'android.view.View', 'clickable': True, 'bounds': (40, 530, 600, 600), 'centro': (320, 565)},
+            {'desc': 'Iniciar sessão', 'cls': 'android.view.View', 'clickable': True, 'bounds': (40, 620, 600, 690), 'centro': (320, 655)},
+        ]
+        self.assertEqual(reconhecer_tela_tv(nos_login_tv), 'login')
+
         nos_inicio = [
             {'text': 'Início', 'cls': 'android.widget.TextView'},
             {'text': 'Buscar', 'cls': 'android.widget.TextView'},
@@ -223,6 +237,25 @@ class TestTvBancada(unittest.TestCase):
 
         self.assertIsNone(reconhecer_tela_tv([{'text': 'Outra tela'}]))
         self.assertIsNone(reconhecer_tela_tv([{'desc': '▶  Assistir'}, {'desc': 'Episódios'}]))
+
+    def test_campos_login_tv_focusable_text_field(self):
+        nos = [
+            {'text': 'SERVIDOR', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 200, 200, 240), 'centro': (120, 220)},
+            {'text': 'https://teste.com', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'bounds': (40, 250, 600, 320), 'centro': (320, 285)},
+            {'text': 'USUÁRIO', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 340, 200, 380), 'centro': (120, 360)},
+            {'text': 'admin', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'bounds': (40, 390, 600, 460), 'centro': (320, 425)},
+            {'text': 'SENHA', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 480, 200, 520), 'centro': (120, 500)},
+            {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'bounds': (40, 530, 600, 600), 'centro': (320, 565)},
+            {'text': '', 'desc': 'Iniciar sessão', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'bounds': (40, 620, 600, 690), 'centro': (320, 655)},
+        ]
+        self.assertEqual(tamanho_do_campo_tv(nos, 'SERVIDOR'), len('https://teste.com'))
+        self.assertEqual(tamanho_do_campo_tv(nos, 'USUÁRIO'), len('admin'))
+        self.assertEqual(tamanho_do_campo_tv(nos, 'SENHA'), 0)
+        campos = campos_login_tv(nos)
+        self.assertEqual(campos['servidor']['centro'], (320, 285))
+        self.assertEqual(campos['usuario']['centro'], (320, 425))
+        self.assertEqual(campos['senha']['centro'], (320, 565))
+        self.assertIsNotNone(campos['botao'])
 
     def test_retorno_da_busca_exige_inicio(self):
         # 47df8a9: o BACK saía da Busca, mas a bancada não conferia e o passo seguinte falhava às cegas.

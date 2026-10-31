@@ -387,8 +387,13 @@ def reconhecer_tela_tv(nos):
     rotulos = {r.strip().lower() for n in nos for r in (n.get('text'), n.get('desc'), n.get('hint')) if r}
     tem_editores = any(n.get('cls', '').endswith('EditText') for n in nos)
 
-    # 1. Login: campos de texto (EditText) presentes na tela
-    if tem_editores:
+    # 1. Login: campos de texto (EditText) presentes na tela ou termos inequívocos de login na TV
+    tem_termos_login = (
+        'iniciar sessão' in rotulos or 'iniciar sessao' in rotulos or 'sign in' in rotulos or
+        bool({'servidor', 'usuário'} <= rotulos) or bool({'servidor', 'usuario'} <= rotulos) or
+        bool({'server', 'username'} <= rotulos)
+    )
+    if tem_editores or tem_termos_login:
         return 'login'
 
     # 1b. Busca: o campo com a dica de busca está na tela
@@ -555,12 +560,45 @@ def focar_destaque_tv(alvo, registrar=None):
     return False
 
 
-def tamanho_do_campo_tv(nos, rotulo):
-    """Quantidade de caracteres no campo sob o rótulo com fallback para campos_login."""
+def campo_abaixo_do_rotulo_tv(nos, rotulo):
+    """Localiza campo abaixo do rótulo na TV com fallback para FocusableTextField (android.view.View)."""
     campo = campo_abaixo_do_rotulo(nos, rotulo)
+    if campo is not None:
+        return campo
+    alvo = rotulo.strip().lower()
+    rotulos = [n for n in nos if n.get('centro') and not n.get('cls', '').endswith('EditText')
+               and any(r.strip().lower() == alvo for r in (n.get('text'), n.get('desc'), n.get('hint')) if r)]
+    candidatos = [n for n in nos if n.get('centro') and (n.get('clickable') or n.get('focused'))
+                  and not any(r.strip().lower() == alvo for r in (n.get('text'), n.get('desc'), n.get('hint')) if r)]
+    melhor = None
+    for r in rotulos:
+        base = r['bounds'][3]
+        abaixo = [c for c in candidatos if c['bounds'][1] >= base - 8
+                  and c['bounds'][0] < r['bounds'][2] + 400 and c['bounds'][2] > r['bounds'][0]]
+        if abaixo:
+            c = min(abaixo, key=lambda n: n['bounds'][1])
+            if melhor is None or c['bounds'][1] < melhor['bounds'][1]:
+                melhor = c
+    return melhor
+
+
+def campos_login_tv(nos):
+    """Servidor, usuário, senha e botão na TV, compatível com FocusableTextField."""
+    achados = {
+        'servidor': campo_abaixo_do_rotulo_tv(nos, 'SERVIDOR'),
+        'usuario': campo_abaixo_do_rotulo_tv(nos, 'USUÁRIO'),
+        'senha': campo_abaixo_do_rotulo_tv(nos, 'SENHA'),
+    }
+    achados['botao'] = achar_texto(nos, 'Iniciar sessão', 'iniciar sessao', 'sign in', 'login', exato=False)
+    return achados
+
+
+def tamanho_do_campo_tv(nos, rotulo):
+    """Quantidade de caracteres no campo sob o rótulo com fallback para campos_login_tv."""
+    campo = campo_abaixo_do_rotulo_tv(nos, rotulo)
     if campo is None:
         chave = {'SERVIDOR': 'servidor', 'USUÁRIO': 'usuario', 'SENHA': 'senha'}.get(rotulo)
-        campo = campos_login(nos).get(chave) if chave else None
+        campo = campos_login_tv(nos).get(chave) if chave else None
     return None if campo is None else len(campo.get('text', ''))
 
 
@@ -571,20 +609,20 @@ def preencher_campo_tv(rotulo, valor, registrar=None):
         fechar_teclado()
         time.sleep(0.5)
         nos_atual = dump_tv()
-        campo = campo_abaixo_do_rotulo(nos_atual, rotulo)
+        campo = campo_abaixo_do_rotulo_tv(nos_atual, rotulo)
         if campo is None:
             chave = {'SERVIDOR': 'servidor', 'USUÁRIO': 'usuario', 'SENHA': 'senha'}.get(rotulo)
-            campo = campos_login(nos_atual).get(chave) if chave else None
+            campo = campos_login_tv(nos_atual).get(chave) if chave else None
         if campo is None:
             rec(f'campo {rotulo} não achado', nos_atual)
             return False
         tocar(campo)
         time.sleep(1)
         nos = dump_tv()
-        campo = campo_abaixo_do_rotulo(nos, rotulo)
+        campo = campo_abaixo_do_rotulo_tv(nos, rotulo)
         if campo is None:
             chave = {'SERVIDOR': 'servidor', 'USUÁRIO': 'usuario', 'SENHA': 'senha'}.get(rotulo)
-            campo = campos_login(nos).get(chave) if chave else None
+            campo = campos_login_tv(nos).get(chave) if chave else None
         apagar_campo()
         if valor:
             digitar(valor)

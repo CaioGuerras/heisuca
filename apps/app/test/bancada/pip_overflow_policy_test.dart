@@ -13,7 +13,7 @@ void main() {
     }
   });
   const cases = [
-    ('widgets/video_controls_header.dart:59:12', 'right', 151),
+    ('widgets/video_controls_header.dart:60:12', 'right', 151),
     ('mobile_video_controls.dart:389:16', 'right', 7.2),
     ('mobile_video_controls.dart:239:14', 'bottom', 212),
   ];

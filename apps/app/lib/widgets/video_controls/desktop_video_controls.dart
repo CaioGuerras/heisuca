@@ -6,7 +6,6 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter/services.dart';
 
 import '../../focus/dpad_navigator.dart';
-import '../../focus/key_event_utils.dart';
 import '../../media/media_item.dart';
 import '../../media/media_kind.dart';
 import '../../media/stepped_seek.dart';
@@ -333,7 +332,22 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
 
   bool get isTimelineFocused => _timelineFocusNode.hasFocus;
 
-  /// Unfocus any TV bottom panel nodes when the panel is dismissed.
+  bool get isPlayPauseFocused => _playPauseFocusNode.hasFocus;
+
+  bool get isVolumeFocused => _volumeFocusNode.hasFocus;
+
+  bool get isAnyControlFocused =>
+      isTvPanelFocused ||
+      isTimelineFocused ||
+      _playPauseFocusNode.hasFocus ||
+      _volumeFocusNode.hasFocus ||
+      _buttonFocusNodes.any((node) => node.hasFocus) ||
+      _trackControlFocusNodes.any((node) => node.hasFocus);
+
+  /// Alias for unfocusTvPanel to reflect that all controls are unfocused.
+  void unfocusControls() => unfocusTvPanel();
+
+  /// Unfocus any TV bottom panel nodes and control nodes when controls are dismissed.
   void unfocusTvPanel() {
     _timelineSeek.flush();
     _resetSeekState();
@@ -341,6 +355,14 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
     _tvSubtitleFocusNode.unfocus();
     _tvEpisodesFocusNode.unfocus();
     _timelineFocusNode.unfocus();
+    _playPauseFocusNode.unfocus();
+    _volumeFocusNode.unfocus();
+    for (final node in _buttonFocusNodes) {
+      node.unfocus();
+    }
+    for (final node in _trackControlFocusNodes) {
+      node.unfocus();
+    }
   }
 
   /// Hide content strip (called by parent when controls hide)

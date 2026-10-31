@@ -13,6 +13,7 @@ import 'package:heisuca/focus/input_mode_tracker.dart';
 import 'package:heisuca/heisuca/services/heisuca_episode_attention.dart';
 import 'package:heisuca/i18n/strings.g.dart';
 import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_source_info.dart';
 import 'package:heisuca/mpv/mpv.dart';
 import 'package:heisuca/providers/playback_state_provider.dart';
 import 'package:heisuca/screens/video_player/widgets/player_prompt_overlays.dart';
@@ -26,6 +27,8 @@ import 'package:heisuca/widgets/video_controls/desktop_video_controls.dart';
 import 'package:heisuca/widgets/video_controls/player_chrome_controller.dart';
 import 'package:heisuca/widgets/video_controls/video_controls.dart';
 import 'package:heisuca/widgets/video_controls/widgets/player_toast_indicator.dart';
+import 'package:heisuca/widgets/video_controls/widgets/skip_marker_button.dart';
+import 'package:heisuca/widgets/video_controls/widgets/video_timeline_bar.dart';
 
 import '../test_helpers/media_items.dart';
 import '../test_helpers/prefs.dart';
@@ -170,7 +173,7 @@ void main() {
     await database.close();
   });
 
-  Widget wrapWithShell(Widget child) => InputModeTracker(
+  Widget wrapWithShell(Widget child, {TargetPlatform? platform}) => InputModeTracker(
     child: MultiProvider(
       providers: [
         Provider<AppDatabase>.value(value: database),
@@ -178,7 +181,10 @@ void main() {
         ChangeNotifierProvider<WatchTogetherProvider>.value(value: watchTogether),
       ],
       child: MaterialApp(
-        theme: ThemeData(extensions: const [testMonoTokens]),
+        theme: ThemeData(
+          platform: platform,
+          extensions: const [testMonoTokens],
+        ),
         home: Scaffold(
           body: SizedBox(
             width: 1920,
@@ -670,6 +676,466 @@ void main() {
         expect(await player.getProperty('demuxer-max-bytes'), '${32 * 1024 * 1024}');
         expect(await player.getProperty('demuxer-max-back-bytes'), '${16 * 1024 * 1024}');
       }
+    });
+
+    testWidgets('G2.10: Desktop: Escape com controles visíveis fecha os controles e não sai do player', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1920, 1080));
+      addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
+      addTearDown(() => TvDetectionService.debugSetTvOverride(true));
+
+      TvDetectionService.debugSetTvOverride(false);
+      var playerExitCount = 0;
+      chrome.show();
+
+      await tester.pumpWidget(
+        wrapWithShell(
+          PlexVideoControls(
+            player: player,
+            volumeController: volume,
+            metadata: testMediaItem(id: 'desktop-back-test', title: 'Episódio 1', grandparentTitle: 'Série Teste'),
+            toastController: toast,
+            chromeController: chrome,
+            hasFirstFrame: hasFirstFrame,
+            canNavigateMediaItems: true,
+            canControl: true,
+            onBack: () => playerExitCount++,
+          ),
+          platform: TargetPlatform.linux,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(chrome.controlsVisible, isTrue);
+
+      final desktopState = tester.state<DesktopVideoControlsState>(find.byType(DesktopVideoControls));
+
+      // Foca na timeline no Desktop
+      final timelineFinder = find.byType(VideoTimelineBar);
+      expect(timelineFinder, findsOneWidget);
+      final focusWidgets = tester.widgetList<Focus>(find.descendant(of: timelineFinder, matching: find.byType(Focus)));
+      for (final focusWidget in focusWidgets) {
+        if (focusWidget.focusNode != null) {
+          focusWidget.focusNode!.requestFocus();
+          break;
+        }
+      }
+      await tester.pumpAndSettle();
+      expect(desktopState.isTimelineFocused, isTrue);
+
+      // Pressiona Escape no Desktop com timeline focada
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      // No Desktop, Escape com foco na timeline deve fechar os controles e NUNCA sair do player
+      expect(chrome.controlsVisible, isFalse, reason: 'Escape no Desktop deve fechar os controles quando visíveis');
+      expect(playerExitCount, 0, reason: 'Escape com controles visíveis não deve sair do player');
+      expect(screenBackDispositions, isEmpty, reason: 'Escape com controles visíveis não deve vazar para a rota');
+
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
+    testWidgets('G2.10c: Desktop: Escape com foco em Play/Pause ou Volume fecha controles e não vaza para a rota', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1920, 1080));
+      addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
+      addTearDown(() => TvDetectionService.debugSetTvOverride(true));
+
+      TvDetectionService.debugSetTvOverride(false);
+      var playerExitCount = 0;
+      chrome.show();
+
+      await tester.pumpWidget(
+        wrapWithShell(
+          PlexVideoControls(
+            player: player,
+            volumeController: volume,
+            metadata: testMediaItem(id: 'desktop-play-pause-volume-escape-test', title: 'Episódio 1', grandparentTitle: 'Série Teste'),
+            toastController: toast,
+            chromeController: chrome,
+            hasFirstFrame: hasFirstFrame,
+            canNavigateMediaItems: true,
+            canControl: true,
+            onBack: () => playerExitCount++,
+          ),
+          platform: TargetPlatform.linux,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(chrome.controlsVisible, isTrue);
+
+      // (a) Testa foco no botão Play/Pause
+      final playPauseFocus = tester.widgetList<Focus>(
+        find.byType(Focus),
+      ).firstWhere((w) => w.focusNode != null && w.focusNode!.debugLabel == 'PlayPause');
+      playPauseFocus.focusNode!.requestFocus();
+      await tester.pumpAndSettle();
+      expect(playPauseFocus.focusNode!.hasFocus, isTrue);
+
+      // Pressiona Escape com foco no Play/Pause
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      expect(chrome.controlsVisible, isFalse, reason: 'Escape com foco no Play/Pause deve fechar controles');
+      expect(playerExitCount, 0, reason: 'Escape com foco no Play/Pause não deve sair do player');
+      expect(screenBackDispositions, isEmpty, reason: 'Escape com foco no Play/Pause não deve vazar para a rota');
+
+      // (b) Reabre os controles e testa foco no botão Volume
+      chrome.show();
+      await tester.pumpAndSettle();
+      expect(chrome.controlsVisible, isTrue);
+
+      final volumeFocus = tester.widgetList<Focus>(
+        find.byType(Focus),
+      ).firstWhere((w) => w.focusNode != null && w.focusNode!.debugLabel == 'Volume');
+      volumeFocus.focusNode!.requestFocus();
+      await tester.pumpAndSettle();
+      expect(volumeFocus.focusNode!.hasFocus, isTrue);
+
+      // Pressiona Escape com foco no Volume
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      expect(chrome.controlsVisible, isFalse, reason: 'Escape com foco no Volume deve fechar controles');
+      expect(playerExitCount, 0, reason: 'Escape com foco no Volume não deve sair do player');
+      expect(screenBackDispositions, isEmpty, reason: 'Escape com foco no Volume não deve vazar para a rota');
+
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
+    testWidgets('G2.10d: Desktop: Escape com controles abertos por mouse/hover sem foco fecha controles e não vaza para a rota', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1920, 1080));
+      addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
+      addTearDown(() => TvDetectionService.debugSetTvOverride(true));
+
+      TvDetectionService.debugSetTvOverride(false);
+      var playerExitCount = 0;
+      chrome.show();
+
+      await tester.pumpWidget(
+        wrapWithShell(
+          PlexVideoControls(
+            player: player,
+            volumeController: volume,
+            metadata: testMediaItem(id: 'desktop-hover-escape-test', title: 'Episódio 1', grandparentTitle: 'Série Teste'),
+            toastController: toast,
+            chromeController: chrome,
+            hasFirstFrame: hasFirstFrame,
+            canNavigateMediaItems: true,
+            canControl: true,
+            onBack: () => playerExitCount++,
+          ),
+          platform: TargetPlatform.linux,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Controles estão visíveis (como por hover do mouse), mas nenhum botão de controle tem foco
+      expect(chrome.controlsVisible, isTrue);
+
+      final desktopState = tester.state<DesktopVideoControlsState>(find.byType(DesktopVideoControls));
+      expect(desktopState.isAnyControlFocused, isFalse);
+      expect(desktopState.isTvPanelFocused, isFalse);
+      expect(desktopState.isTimelineFocused, isFalse);
+
+      // Pressiona Escape
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      expect(chrome.controlsVisible, isFalse, reason: 'Escape com controles abertos por mouse/hover sem foco deve fechar controles');
+      expect(playerExitCount, 0, reason: 'Escape com controles abertos por mouse/hover não deve sair do player');
+      expect(screenBackDispositions, isEmpty, reason: 'Escape com controles abertos por mouse/hover não deve vazar para a rota');
+
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
+    testWidgets('G2.11: unfocusTvPanel remove foco da timeline e nós de controles', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1920, 1080));
+      addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
+
+      chrome.show();
+      await tester.pumpWidget(
+        wrapWithShell(
+          PlexVideoControls(
+            player: player,
+            volumeController: volume,
+            metadata: testMediaItem(id: 'unfocus-test', title: 'Episódio 1', grandparentTitle: 'Série Teste'),
+            toastController: toast,
+            chromeController: chrome,
+            hasFirstFrame: hasFirstFrame,
+            canNavigateMediaItems: true,
+            canControl: true,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final desktopState = tester.state<DesktopVideoControlsState>(find.byType(DesktopVideoControls));
+      desktopState.requestTvPanelFocus();
+      await tester.pumpAndSettle();
+      expect(desktopState.isTvPanelFocused, isTrue);
+
+      // Chama unfocusTvPanel
+      desktopState.unfocusTvPanel();
+      await tester.pump();
+
+      expect(desktopState.isTvPanelFocused, isFalse, reason: 'Painel TV não deve reter foco');
+      expect(desktopState.isTimelineFocused, isFalse, reason: 'Timeline não deve reter foco');
+
+      await tester.pump(const Duration(seconds: 4));
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
+    testWidgets('G2.12: Painel não fecha por timeout durante navegação contínua entre as pílulas', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1920, 1080));
+      addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
+
+      chrome.show();
+      await tester.pumpWidget(
+        wrapWithShell(
+          PlexVideoControls(
+            player: player,
+            volumeController: volume,
+            metadata: testMediaItem(id: 'autohide-nav-test', title: 'Episódio 1', grandparentTitle: 'Série Teste'),
+            toastController: toast,
+            chromeController: chrome,
+            hasFirstFrame: hasFirstFrame,
+            canNavigateMediaItems: true,
+            canControl: true,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final desktopState = tester.state<DesktopVideoControlsState>(find.byType(DesktopVideoControls));
+      desktopState.requestTvPanelFocus();
+      await tester.pumpAndSettle();
+      expect(desktopState.isTvPanelFocused, isTrue);
+      expect(chrome.controlsVisible, isTrue);
+
+      // Espera 2s (menor que o timeout de 4s na TV)
+      await tester.pump(const Duration(seconds: 2));
+      expect(chrome.controlsVisible, isTrue);
+
+      // Navega para a pílula de legendas com seta para a direita
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pumpAndSettle();
+
+      // Espera mais 2s (total 4s desde o início; se o timer não tivesse sido renovado, os controles teriam sumido)
+      await tester.pump(const Duration(seconds: 2));
+      expect(chrome.controlsVisible, isTrue, reason: 'Controles continuam visíveis pois houve atividade de navegação');
+
+      // Navega para a pílula de episódios com seta para a direita
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pumpAndSettle();
+
+      // Espera mais 2s (total 6s acumulados)
+      await tester.pump(const Duration(seconds: 2));
+      expect(chrome.controlsVisible, isTrue, reason: 'Controles continuam visíveis durante interação contínua');
+
+      // Agora deixa passar 4s e 100ms sem nenhuma tecla: deve fechar por inatividade
+      await tester.pump(const Duration(seconds: 4, milliseconds: 100));
+      expect(chrome.controlsVisible, isFalse, reason: 'Após 4s completos sem tecla os controles fecham na TV');
+
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
+    testWidgets('G2.13: TV: com "Pular abertura" visível e HUD aberto, 1º Voltar recusa o pulo e mantém o HUD, 2º fecha o HUD, 3º sai do player', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1920, 1080));
+      addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
+
+      var playerExitCount = 0;
+      final introMarker = MediaMarker(id: 1, type: 'intro', startTimeOffset: 10000, endTimeOffset: 45000);
+
+      await tester.pumpWidget(
+        wrapWithShell(
+          PlexVideoControls(
+            player: player,
+            volumeController: volume,
+            metadata: testMediaItem(id: 'skip-back-test', title: 'Episódio 1', grandparentTitle: 'Série Teste'),
+            initialMarkers: [introMarker],
+            toastController: toast,
+            chromeController: chrome,
+            hasFirstFrame: hasFirstFrame,
+            canNavigateMediaItems: true,
+            canControl: true,
+            onBack: () => playerExitCount++,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Entra em modo teclado/controle remoto e emite playhead dentro da abertura
+      InputModeTracker.reportNonPointerInput();
+      player.emitPosition(const Duration(seconds: 15));
+      await tester.pumpAndSettle();
+
+      // Precondição: o botão "Pular abertura" surge na tela
+      expect(find.byType(SkipMarkerButton), findsOneWidget, reason: 'Botão de pular abertura deve estar visível');
+
+      // Abre os controles / HUD
+      chrome.show();
+      await tester.pumpAndSettle();
+      expect(chrome.controlsVisible, isTrue, reason: 'HUD deve estar aberto');
+      expect(find.byType(SkipMarkerButton), findsOneWidget, reason: 'Botão de pular continua visível com HUD aberto');
+
+      // 1º Voltar (KeyDown + KeyUp): deve recusar o pulo (descartar o botão) e MANTER o HUD aberto
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SkipMarkerButton), findsNothing, reason: '1º Voltar deve recusar o pulo e ocultar o botão');
+      expect(chrome.controlsVisible, isTrue, reason: '1º Voltar recusa o pulo mas mantém o HUD aberto');
+      expect(playerExitCount, 0, reason: '1º Voltar não deve sair do player');
+
+      // Avança a posição dentro do mesmo marcador (16s): o botão deve continuar oculto
+      player.emitPosition(const Duration(seconds: 16));
+      await tester.pump();
+      expect(find.byType(SkipMarkerButton), findsNothing, reason: 'Avançar posição dentro do mesmo marcador não deve reexibir o botão recusado');
+
+      // 2º Voltar (KeyDown + KeyUp): deve fechar o HUD sem sair do player
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      expect(chrome.controlsVisible, isFalse, reason: '2º Voltar fecha o HUD');
+      expect(playerExitCount, 0, reason: '2º Voltar fecha controles sem sair do player');
+
+      // 3º Voltar (KeyDown + KeyUp): sai do player
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      expect(screenBackDispositions, contains(PlayerBackDisposition.exitPlayer), reason: '3º Voltar deve sair do player');
+
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
+    testWidgets('G2.14: TV: esconder HUD pelo Back devolve foco à superfície do player e próximo D-pad não é engolido', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1920, 1080));
+      addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
+
+      chrome.show();
+      await tester.pumpWidget(
+        wrapWithShell(
+          PlexVideoControls(
+            player: player,
+            volumeController: volume,
+            metadata: testMediaItem(id: 'dpad-swallow-test', title: 'Episódio 1', grandparentTitle: 'Série Teste'),
+            toastController: toast,
+            chromeController: chrome,
+            hasFirstFrame: hasFirstFrame,
+            canNavigateMediaItems: true,
+            canControl: true,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Foca no painel da TV
+      final desktopState = tester.state<DesktopVideoControlsState>(find.byType(DesktopVideoControls));
+      desktopState.requestTvPanelFocus();
+      await tester.pumpAndSettle();
+      expect(desktopState.isTvPanelFocused, isTrue);
+      expect(chrome.controlsVisible, isTrue);
+
+      // Aperta Voltar para fechar os controles
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      expect(chrome.controlsVisible, isFalse, reason: 'Voltar fecha os controles');
+
+      // G2-b: foco deve ser devolvido à superfície do player (nó de controles)
+      expect(FocusManager.instance.primaryFocus?.debugLabel, 'PlayerSurface', reason: 'Superfície do player deve reter foco após recolher HUD');
+
+      // Próximo D-pad (seta para baixo) não pode ser engolido: deve reabrir controles
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pumpAndSettle();
+
+      expect(chrome.controlsVisible, isTrue, reason: 'Primeiro D-pad após recolher HUD não deve ser engolido');
+
+      await tester.pump(const Duration(seconds: 4));
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
+    testWidgets('G2.15: TV: recusar pulo de abertura não reaparece botão nem auto-pula ao avançar posição dentro do mesmo marcador', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1920, 1080));
+      addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
+
+      await settings.write(SettingsService.skipIntroMode, SkipMarkerMode.auto);
+      addTearDown(() async => settings.write(SettingsService.skipIntroMode, SkipMarkerMode.button));
+
+      var playerExitCount = 0;
+      final introMarker = MediaMarker(id: 1, type: 'intro', startTimeOffset: 10000, endTimeOffset: 45000);
+
+      await tester.pumpWidget(
+        wrapWithShell(
+          PlexVideoControls(
+            player: player,
+            volumeController: volume,
+            metadata: testMediaItem(id: 'skip-auto-test', title: 'Episódio 1', grandparentTitle: 'Série Teste'),
+            initialMarkers: [introMarker],
+            toastController: toast,
+            chromeController: chrome,
+            hasFirstFrame: hasFirstFrame,
+            canNavigateMediaItems: true,
+            canControl: true,
+            onBack: () => playerExitCount++,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Entra em modo teclado/controle remoto e emite playhead dentro da abertura (15s)
+      InputModeTracker.reportNonPointerInput();
+      player.emitPosition(const Duration(seconds: 15));
+      await tester.pumpAndSettle();
+
+      // Precondição: o botão "Pular abertura" surge na tela
+      expect(find.byType(SkipMarkerButton), findsOneWidget, reason: 'Botão de pular abertura deve estar visível');
+
+      // 1º Voltar: recusa o pulo e para o auto-skip
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SkipMarkerButton), findsNothing, reason: 'Voltar deve recusar o pulo');
+      expect(playerExitCount, 0, reason: 'Voltar não deve sair do player');
+
+      // Avança a posição dentro do mesmo marcador (16s, 17s, 20s)
+      player.emitPosition(const Duration(seconds: 16));
+      await tester.pump();
+      expect(find.byType(SkipMarkerButton), findsNothing, reason: 'Botão não deve reaparecer ao avançar posição no mesmo marcador');
+
+      player.emitPosition(const Duration(seconds: 20));
+      await tester.pump();
+      expect(find.byType(SkipMarkerButton), findsNothing, reason: 'Botão continua oculto');
+
+      // Aguarda mais tempo que o delay de auto-skip (padrão ~2s ou mais) para garantir que não pula sozinho
+      await tester.pump(const Duration(seconds: 5));
+      expect(player.state.position, isNot(equals(const Duration(milliseconds: 45000))), reason: 'Auto-skip não deve disparar após ser recusado');
+      expect(find.byType(SkipMarkerButton), findsNothing, reason: 'Botão permanece oculto durante toda a abertura');
+
+      await tester.pumpWidget(const SizedBox.shrink());
     });
   });
 }

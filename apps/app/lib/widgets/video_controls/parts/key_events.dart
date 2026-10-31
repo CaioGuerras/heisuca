@@ -86,18 +86,6 @@ extension _PlexVideoControlsKeyEventMethods on _PlexVideoControlsState {
       });
     }
 
-    if (PlatformDetector.isTV() &&
-        (navigationKey == PlayerNavigationKey.back || navigationKey == PlayerNavigationKey.physicalEscape) &&
-        ((_desktopControlsKey.currentState?.isTvPanelFocused ?? false) ||
-            (_desktopControlsKey.currentState?.isTimelineFocused ?? false) ||
-            _showControls)) {
-      return handlePlayerNavigationKeyAction(event, navigationKey, () {
-        _desktopControlsKey.currentState?.unfocusTvPanel();
-        widget.chromeController.hide();
-        _hideControls();
-      });
-    }
-
     // A skip prompt is a local layer like the sheet and the content strip
     // above it: Select takes the skip, Back declines it. Without this stage the
     // only key that reads as "no thanks" on a remote is also the one that walks
@@ -116,18 +104,49 @@ extension _PlexVideoControlsKeyEventMethods on _PlexVideoControlsState {
     // coming up, or a prompt opening, genuinely moves the key back to the
     // screen's stages, so those release the claim mid-press.
     final skipMarkerOwnsPress = event is KeyDownEvent
-        ? shouldDismissSkipMarkerOnBack(
-            navigationKey: navigationKey,
-            controlsVisible: _showControls,
-            skipMarkerButtonVisible: _isSkipMarkerButtonVisible,
-            canControl: widget.canControl,
-            isMobile: isMobile,
-            playbackPromptOpen: widget.playbackPromptOpen,
-          )
-        : _skipMarkerOwnsBackPress && !_showControls && !widget.playbackPromptOpen;
+        ? ((_isSkipMarkerButtonVisible &&
+                widget.canControl &&
+                !widget.playbackPromptOpen &&
+                !isMobile &&
+                (navigationKey == PlayerNavigationKey.back || navigationKey == PlayerNavigationKey.physicalEscape) &&
+                (PlatformDetector.isTV() || _skipMarkerFocusNode.hasFocus)) ||
+            shouldDismissSkipMarkerOnBack(
+              navigationKey: navigationKey,
+              controlsVisible: _showControls,
+              skipMarkerButtonVisible: _isSkipMarkerButtonVisible,
+              canControl: widget.canControl,
+              isMobile: isMobile,
+              playbackPromptOpen: widget.playbackPromptOpen,
+            ))
+        : _skipMarkerOwnsBackPress &&
+            !widget.playbackPromptOpen &&
+            (!_showControls || PlatformDetector.isTV() || _skipMarkerFocusNode.hasFocus);
     _skipMarkerOwnsBackPress = event is KeyUpEvent ? false : skipMarkerOwnsPress;
     if (skipMarkerOwnsPress) {
       return handlePlayerNavigationKeyAction(event, navigationKey, _dismissSkipMarker);
+    }
+
+    final tvWantsBack = PlatformDetector.isTV() &&
+        ((_desktopControlsKey.currentState?.isTvPanelFocused ?? false) ||
+            (_desktopControlsKey.currentState?.isTimelineFocused ?? false) ||
+            _showControls ||
+            widget.chromeController.controlsVisible);
+    final desktopControlFocused = !isMobile &&
+        (_desktopControlsKey.currentState?.isAnyControlFocused ?? false);
+    final desktopEscapeWithControls = !isMobile &&
+        navigationKey == PlayerNavigationKey.physicalEscape &&
+        (_showControls || widget.chromeController.controlsVisible);
+
+    if ((tvWantsBack || desktopControlFocused || desktopEscapeWithControls) &&
+        (navigationKey == PlayerNavigationKey.back || navigationKey == PlayerNavigationKey.physicalEscape)) {
+      return handlePlayerNavigationKeyAction(event, navigationKey, () {
+        _desktopControlsKey.currentState?.unfocusControls();
+        widget.chromeController.hide();
+        _hideControls();
+        if (PlatformDetector.isTV()) {
+          _claimPlayerSurfaceFocus();
+        }
+      });
     }
 
     // The enclosing player screen is the sole owner of fullscreen, chrome,

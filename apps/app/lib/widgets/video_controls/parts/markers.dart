@@ -231,7 +231,7 @@ extension _PlexVideoControlsMarkerMethods on _PlexVideoControlsState {
     hasMarker: _currentMarker != null,
     hasPlayNextPrompt: widget.playNextFocusNode != null,
     skipButtonDismissed: _skipButtonDismissed,
-    controlsVisible: _showControls,
+    controlsVisible: PlatformDetector.isTV() && _skipButtonDismissed ? false : _showControls,
   );
 
   void _activateSkipMarker() {
@@ -259,7 +259,11 @@ extension _PlexVideoControlsMarkerMethods on _PlexVideoControlsState {
     _setControlsState(() {
       _skipButtonDismissed = true;
     });
-    if (!_showControls) _releaseSkipMarkerFocusToSurface();
+    if (!_showControls) {
+      _releaseSkipMarkerFocusToSurface();
+    } else if (PlatformDetector.isTV()) {
+      _desktopControlsKey.currentState?.requestPlayPauseFocus();
+    }
   }
 
   Widget _buildSkipMarkerButton() {

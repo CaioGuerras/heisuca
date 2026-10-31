@@ -86,7 +86,10 @@ extension _PlexVideoControlsKeyEventMethods on _PlexVideoControlsState {
       });
     }
 
-    if (PlatformDetector.isTV() && (_desktopControlsKey.currentState?.isTvPanelFocused ?? false)) {
+    if (PlatformDetector.isTV() &&
+        ((_desktopControlsKey.currentState?.isTvPanelFocused ?? false) ||
+            (_desktopControlsKey.currentState?.isTimelineFocused ?? false) ||
+            _showControls)) {
       return handlePlayerNavigationKeyAction(event, navigationKey, () {
         _desktopControlsKey.currentState?.unfocusTvPanel();
         widget.chromeController.hide();

@@ -6,6 +6,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter/services.dart';
 
 import '../../focus/dpad_navigator.dart';
+import '../../focus/key_event_utils.dart';
 import '../../media/media_item.dart';
 import '../../media/media_kind.dart';
 import '../../media/stepped_seek.dart';
@@ -330,6 +331,8 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
   bool get isTvPanelFocused =>
       _tvAudioFocusNode.hasFocus || _tvSubtitleFocusNode.hasFocus || _tvEpisodesFocusNode.hasFocus;
 
+  bool get isTimelineFocused => _timelineFocusNode.hasFocus;
+
   /// Unfocus any TV bottom panel nodes when the panel is dismissed.
   void unfocusTvPanel() {
     _tvAudioFocusNode.unfocus();
@@ -550,6 +553,16 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
   /// Handle key events for timeline navigation
   KeyEventResult _handleTimelineKeyEvent(FocusNode _, KeyEvent event) {
     final key = event.logicalKey;
+
+    if (event.logicalKey.isBackKey) {
+      return handleBackKeyAction(event, () {
+        _timelineSeek.flush();
+        _resetSeekState();
+        unfocusTvPanel();
+        widget.chromeController?.hide();
+        widget.onHideControls?.call();
+      });
+    }
 
     // Handle key release: commit the accumulated scrub target with a single
     // seek (a no-op when nothing is pending) and reset progressive seek state.
@@ -1230,14 +1243,16 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
         return Focus(
           focusNode: focusNode,
           onKeyEvent: (node, event) {
+            if (event.logicalKey.isBackKey) {
+              return handleBackKeyAction(event, () {
+                unfocusTvPanel();
+                widget.chromeController?.hide();
+                widget.onHideControls?.call();
+              });
+            }
             if (!event.isActionable) return KeyEventResult.ignored;
             if (event.logicalKey.isSelectKey && event is KeyDownEvent) {
               onPressed();
-              return KeyEventResult.handled;
-            }
-            if (event.logicalKey.isBackKey && event is KeyDownEvent) {
-              focusNode.unfocus();
-              widget.onFocusActivity?.call();
               return KeyEventResult.handled;
             }
             return onKeyEvent(event);

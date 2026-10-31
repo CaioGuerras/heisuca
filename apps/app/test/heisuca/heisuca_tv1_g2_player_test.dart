@@ -207,7 +207,7 @@ void main() {
   );
 
   group('TV-1 G2: Player de TV', () {
-    testWidgets('G2.1: Tecla OK na TV pausa/continua e controles somem após 5 s', (tester) async {
+    testWidgets('G2.1: Tecla OK na TV pausa/continua e controles somem após 4 s', (tester) async {
       await tester.binding.setSurfaceSize(const Size(1920, 1080));
       addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
 
@@ -236,12 +236,12 @@ void main() {
       await tester.pumpAndSettle();
       expect(playPauseToggled, 1, reason: 'OK na TV pausa ou continua o vídeo');
 
-      // 2. Na TV, o delay de auto-hide dos controles é de 5s
+      // 2. Na TV, o delay de auto-hide dos controles é de 4s
       expect(chrome.controlsVisible, isTrue);
-      await tester.pump(const Duration(seconds: 4));
-      expect(chrome.controlsVisible, isTrue, reason: 'Após 4s os controles ainda continuam visíveis na TV');
-      await tester.pump(const Duration(seconds: 2));
-      expect(chrome.controlsVisible, isFalse, reason: 'Após 5s sem tecla os controles somem na TV');
+      await tester.pump(const Duration(seconds: 3));
+      expect(chrome.controlsVisible, isTrue, reason: 'Após 3s os controles ainda continuam visíveis na TV');
+      await tester.pump(const Duration(seconds: 1, milliseconds: 100));
+      expect(chrome.controlsVisible, isFalse, reason: 'Após 4s sem tecla os controles somem na TV');
 
       await tester.pumpWidget(const SizedBox.shrink());
     });
@@ -447,7 +447,82 @@ void main() {
       expect(find.byIcon(Icons.volume_up), findsNothing);
 
       // Esgota o timer de auto-hide dos controles na TV (4s)
-      await tester.pump(const Duration(seconds: 5));
+      await tester.pump(const Duration(seconds: 4));
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
+    testWidgets('G2.6b: Voltar numa pílula (KeyDown+KeyUp) e na timeline fecha painel/controles e nunca sai do player', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1920, 1080));
+      addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
+
+      var playerExitCount = 0;
+      chrome.show();
+      await tester.pumpWidget(
+        wrapWithShell(
+          PlexVideoControls(
+            player: player,
+            volumeController: volume,
+            metadata: testMediaItem(id: 'tv-back-test', title: 'Episódio 1', grandparentTitle: 'Série Teste'),
+            toastController: toast,
+            chromeController: chrome,
+            hasFirstFrame: hasFirstFrame,
+            canNavigateMediaItems: true,
+            canControl: true,
+            onBack: () => playerExitCount++,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Foco inicial na superfície ou abrir painel com seta para baixo
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pumpAndSettle();
+
+      // Confirma que o foco está no painel da TV (pílula Áudio)
+      final audioPillFinder = find.textContaining('Áudio ·');
+      expect(audioPillFinder, findsOneWidget);
+      expect(chrome.controlsVisible, isTrue);
+
+      // (a) Voltar na pílula: KeyDown seguido de KeyUp
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      // Deve fechar os controles/painel e NUNCA sair do player
+      expect(chrome.controlsVisible, isFalse, reason: 'Voltar na pílula deve fechar os controles');
+      expect(playerExitCount, 0, reason: 'Voltar na pílula nunca deve sair do player');
+      expect(screenBackDispositions, isEmpty, reason: 'KeyUp não deve vazar para a rota/tela');
+
+      // (b) Agora reabre os controles e foca na timeline
+      chrome.show();
+      await tester.pumpAndSettle();
+      expect(chrome.controlsVisible, isTrue);
+
+      // Foca no painel e sobe para a timeline
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pumpAndSettle();
+
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.arrowUp);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.arrowUp);
+      await tester.pumpAndSettle();
+
+      // Voltar na timeline: KeyDown seguido de KeyUp
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      // Deve fechar os controles e NUNCA sair do player
+      expect(chrome.controlsVisible, isFalse, reason: 'Voltar na timeline deve fechar os controles');
+      expect(playerExitCount, 0, reason: 'Voltar na timeline nunca deve sair do player');
+      expect(screenBackDispositions, isEmpty, reason: 'KeyUp da timeline não deve vazar para a tela');
+
       await tester.pumpWidget(const SizedBox.shrink());
     });
 

@@ -71,6 +71,9 @@ extension _PlexVideoControlsVisibilityMethods on _PlexVideoControlsState {
     if (const bool.fromEnvironment('PLEZY_MAESTRO_E2E')) {
       return const Duration(seconds: 30);
     }
+    if (PlatformDetector.isTV()) {
+      return const Duration(seconds: 4);
+    }
     final isMobile = (Platform.isIOS || Platform.isAndroid) && !PlatformDetector.isTV();
     if (isMobile || playerDirectionalNavigationEnabled()) {
       return const Duration(seconds: 5);

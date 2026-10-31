@@ -5,7 +5,8 @@ import 'video_decode_capabilities.dart';
 /// Pure ranking function for Jellyfin MediaSources based on device capabilities.
 ///
 /// Returns the ordered list of sources by:
-/// (a) hardware decodable
+/// (a) hardware decodable, then software decodable (an undecodable source
+///     only wins when nothing else plays)
 /// (b) has Portuguese audio ('por', 'pt', etc.) or subtitle ('por', 'pt', 'pb', etc.)
 /// (c) highest resolution the display can show (4K only on a 4K display)
 List<Map<String, dynamic>> rankMediaSources(
@@ -37,6 +38,15 @@ List<Map<String, dynamic>> rankMediaSources(
       height: height,
     );
 
+    final swDecodable = !hwDecodable &&
+        VideoDecodeCapabilities.canSoftwareDecode(
+          codec: codec,
+          profile: profile,
+          bitDepth: bitDepth,
+          width: width,
+          height: height,
+        );
+
     final hasPt = _hasPortuguese(source);
 
     final h = height ?? 0;
@@ -56,6 +66,7 @@ List<Map<String, dynamic>> rankMediaSources(
       index: i,
       source: source,
       hwDecodable: hwDecodable,
+      swDecodable: swDecodable,
       hasPt: hasPt,
       resolutionScore: resolutionScore,
     ));
@@ -65,6 +76,9 @@ List<Map<String, dynamic>> rankMediaSources(
     // (a) Decodable by hardware
     if (a.hwDecodable != b.hwDecodable) {
       return a.hwDecodable ? -1 : 1;
+    }
+    if (a.swDecodable != b.swDecodable) {
+      return a.swDecodable ? -1 : 1;
     }
     // (b) Has Portuguese (audio or subtitle)
     if (a.hasPt != b.hasPt) {
@@ -221,13 +235,18 @@ String formatVersionReason(MediaVersion version) {
     _ => codec,
   };
 
+  // Mesma regra do isVersionPlayable: BitDepth, perfil (Main 10, High 10,
+  // Hi10P) ou HDR/DV.
   bool is10Bit = false;
   for (final part in version.parts) {
     for (final stream in part.streams) {
-      if (stream.kind == MediaStreamKind.video && (stream.hdr || stream.dolbyVision)) {
-        is10Bit = true;
-        break;
-      }
+      if (stream.kind != MediaStreamKind.video) continue;
+      final profile = stream.profile?.toLowerCase() ?? '';
+      is10Bit = (stream.bitDepth ?? 0) > 8 ||
+          profile.contains('10') ||
+          stream.hdr ||
+          stream.dolbyVision;
+      break;
     }
   }
 
@@ -307,6 +326,7 @@ class _ScoredSource {
   final int index;
   final Map<String, dynamic> source;
   final bool hwDecodable;
+  final bool swDecodable;
   final bool hasPt;
   final int resolutionScore;
 
@@ -314,6 +334,7 @@ class _ScoredSource {
     required this.index,
     required this.source,
     required this.hwDecodable,
+    required this.swDecodable,
     required this.hasPt,
     required this.resolutionScore,
   });

@@ -259,6 +259,52 @@ void main() {
       client.close();
     });
 
+    test('assinatura do usuário vence o aparelho; assinatura de outro item deixa o ranqueador escolher', () async {
+      // Aparelho sem HEVC: sozinho, o ranqueador iria para a H.264.
+      VideoDecodeCapabilities.debugReset(
+        hardwareHevc: false,
+        hardwareAv1: false,
+        displaySupports4k: false,
+        codecHardware: {'h264': true, 'hevc': false, 'av1': false},
+      );
+      addTearDown(VideoDecodeCapabilities.debugReset);
+      final body = jsonEncode({
+        'Id': 'item-manual',
+        'Type': 'Movie',
+        'MediaSources': [
+          {
+            'Id': 'src-hevc',
+            'Container': 'mkv',
+            'MediaStreams': [
+              {'Type': 'Video', 'Codec': 'hevc', 'Profile': 'Main 10', 'BitDepth': 10, 'Height': 2160, 'Width': 3840},
+            ],
+          },
+          {
+            'Id': 'src-h264',
+            'Container': 'mkv',
+            'MediaStreams': [
+              {'Type': 'Video', 'Codec': 'h264', 'Profile': 'High', 'Height': 1080, 'Width': 1920},
+            ],
+          },
+        ],
+      });
+      final client = buildClient(body);
+
+      final auto = await client.fetchPlaybackBundle('item-manual');
+      expect(auto!.selectedSourceId, 'src-h264');
+
+      // O usuário escolheu a HEVC antes: a escolha vence, mesmo sem decodificador.
+      final hevcSignature = auto.availableVersions[0].signature;
+      final manual = await client.fetchPlaybackBundle('item-manual', sourceIndex: 0, preferredSignature: hevcSignature);
+      expect(manual!.selectedSourceId, 'src-hevc');
+
+      // Assinatura salva noutro item (nenhuma versão casa): o índice 0 que veio
+      // junto não vale aqui e o ranqueador escolhe a H.264.
+      final stale = await client.fetchPlaybackBundle('item-manual', sourceIndex: 0, preferredSignature: '480:mpeg2:x');
+      expect(stale!.selectedSourceId, 'src-h264');
+      client.close();
+    });
+
     test('selects sourceId before sourceIndex when both are provided', () async {
       final body = jsonEncode({
         'Id': 'item-4',

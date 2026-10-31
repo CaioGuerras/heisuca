@@ -200,4 +200,97 @@ void main() {
       expect(ranked.first['Id'], 'src-pt');
     });
   });
+
+  // Tabela pedida em 31/10 (versão pelo aparelho): cada linha é um aparelho e
+  // um conjunto de versões do mesmo filme; a escolha manual fica nos testes do
+  // bundle (jellyfin_playback_bundle_test.dart).
+  group('versão pelo aparelho (tabela 31/10)', () {
+    Map<String, dynamic> fonte(String id, String codec, String profile, int bitDepth, int width, int height) => {
+      'Id': id,
+      'Container': 'mkv',
+      'Width': width,
+      'Height': height,
+      'MediaStreams': [
+        {'Type': 'Video', 'Codec': codec, 'Profile': profile, 'BitDepth': bitDepth, 'Width': width, 'Height': height},
+        {'Type': 'Audio', 'Language': 'por'},
+      ],
+    };
+
+    final h264_1080 = fonte('h264-1080', 'h264', 'High', 8, 1920, 1080);
+    final hevc10_4k = fonte('hevc10-4k', 'hevc', 'Main 10', 10, 3840, 2160);
+    final hevc8_1080 = fonte('hevc8-1080', 'hevc', 'Main', 8, 1920, 1080);
+
+    void boxSemMain10({bool tela4k = true}) => VideoDecodeCapabilities.debugReset(
+      hardwareHevc: true,
+      displaySupports4k: tela4k,
+      codecHardware: {'h264': true, 'hevc': true},
+      codecProfiles: {'h264': ['high'], 'hevc': ['main']},
+      codecMaxResolutions: {'h264': '1080p60', 'hevc': '4k60'},
+    );
+
+    void tvComMain10() => VideoDecodeCapabilities.debugReset(
+      hardwareHevc: true,
+      displaySupports4k: true,
+      codecHardware: {'h264': true, 'hevc': true},
+      codecProfiles: {'h264': ['high'], 'hevc': ['main', 'main10']},
+      codecMaxResolutions: {'h264': '4k60', 'hevc': '4k60'},
+    );
+
+    test('1 versão: devolvida como está, mesmo que o aparelho não a decodifique', () {
+      boxSemMain10();
+      final ranked = rankMediaSources([hevc10_4k]);
+      expect(ranked.map((s) => s['Id']), ['hevc10-4k']);
+    });
+
+    test('H.264 + HEVC 10-bit em aparelho sem Main10 -> H.264', () {
+      boxSemMain10();
+      expect(rankMediaSources([hevc10_4k, h264_1080]).first['Id'], 'h264-1080');
+    });
+
+    test('H.264 + HEVC 10-bit em aparelho com Main10 e tela 4K -> HEVC 4K', () {
+      tvComMain10();
+      expect(rankMediaSources([h264_1080, hevc10_4k]).first['Id'], 'hevc10-4k');
+    });
+
+    test('4K em tela 1080p -> 1080p, mesmo com Main10', () {
+      VideoDecodeCapabilities.debugReset(
+        hardwareHevc: true,
+        displaySupports4k: false,
+        codecHardware: {'h264': true, 'hevc': true},
+        codecProfiles: {'h264': ['high'], 'hevc': ['main', 'main10']},
+        codecMaxResolutions: {'h264': '1080p60', 'hevc': '4k60'},
+      );
+      expect(rankMediaSources([hevc10_4k, h264_1080]).first['Id'], 'h264-1080');
+    });
+
+    test('4K em tela 4K mas decodificador HEVC só até 1080p -> 1080p', () {
+      VideoDecodeCapabilities.debugReset(
+        hardwareHevc: true,
+        displaySupports4k: true,
+        codecHardware: {'h264': true, 'hevc': true},
+        codecProfiles: {'h264': ['high'], 'hevc': ['main', 'main10']},
+        codecMaxResolutions: {'h264': '1080p60', 'hevc': '1080p60'},
+      );
+      expect(rankMediaSources([hevc10_4k, h264_1080]).first['Id'], 'h264-1080');
+    });
+
+    test('sem HEVC por hardware: HEVC 8-bit 1080p (software) vence HEVC 10-bit 4K', () {
+      VideoDecodeCapabilities.debugReset(
+        hardwareHevc: false,
+        displaySupports4k: true,
+        codecHardware: {'h264': true, 'hevc': false},
+        codecProfiles: {'h264': ['high']},
+      );
+      expect(rankMediaSources([hevc10_4k, hevc8_1080]).first['Id'], 'hevc8-1080');
+    });
+
+    test('rótulo da versão marca 10-bit por BitDepth/perfil (Hi10P SDR)', () {
+      final versions = jellyfinSourcesToVersions([
+        fonte('h264-hi10p', 'h264', 'High 10', 10, 1920, 1080),
+        h264_1080,
+      ]);
+      expect(formatVersionReason(versions[0]), 'H.264 10-bit em 1080p');
+      expect(formatVersionReason(versions[1]), 'H.264 em 1080p');
+    });
+  });
 }

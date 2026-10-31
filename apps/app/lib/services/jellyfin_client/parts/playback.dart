@@ -748,21 +748,24 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
     // Saved-preference signature: only meaningful when the id didn't pin a
     // source (Resume rows omit MediaSources, so launch passes a signature and
     // a stored index that may not fit this item's source ordering).
-    // Com assinatura salva, ela vale se for decodável.
+    // A assinatura é escolha do usuário: vence mesmo sem decodificador de
+    // hardware (o aviso antes do play oferece outra versão). Se ela não casa
+    // com nenhuma versão deste item, o índice junto dela é de outro item e
+    // quem decide é o ranqueador.
     var resolvedBySignature = false;
+    var staleSourceIndex = false;
     if (!resolvedBySourceId && preferredSignature != null && preferredSignature.isNotEmpty) {
       final bySignature = MediaVersion.findMatchingIndex(availableVersions, {preferredSignature});
       if (bySignature != null && bySignature >= 0 && bySignature < sources.length) {
-        final cand = sources[bySignature];
-        if (cand is Map<String, dynamic> && isSourceHardwareDecodable(cand)) {
-          index = bySignature;
-          resolvedBySignature = true;
-        }
+        index = bySignature;
+        resolvedBySignature = true;
+      } else {
+        staleSourceIndex = true;
       }
     }
 
     if (!resolvedBySourceId && !resolvedBySignature) {
-      if (sourceIndex != null) {
+      if (sourceIndex != null && !staleSourceIndex) {
         index = sourceIndex;
       } else {
         final ranked = rankMediaSources(sources);

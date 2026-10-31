@@ -70,6 +70,7 @@ void main() {
     String serverMachineId = 'srv-1',
     String userId = 'usr-1',
     bool failItem = false,
+    String? transcodingUrl,
   }) {
     final requestedPaths = <String>[];
     final client = testJellyfinClient(
@@ -95,8 +96,16 @@ void main() {
         final match = RegExp(r'/Items/([^/?]+)').firstMatch(req.url.path);
         final itemId = match?.group(1) ?? 'item-1';
         final kind = itemId.startsWith('show') ? 'Series' : (itemId.startsWith('ep') ? 'Episode' : 'Movie');
+        final data = itemJson(itemId, kind: kind);
+        if (req.url.path.contains('/PlaybackInfo')) {
+          data['PlaySessionId'] = 'sess-warmup-$itemId';
+          if (transcodingUrl != null) {
+            (data['MediaSources'] as List).first['TranscodingUrl'] = transcodingUrl;
+            (data['MediaSources'] as List).first['SupportsDirectPlay'] = false;
+          }
+        }
         return http.Response(
-          jsonEncode(itemJson(itemId, kind: kind)),
+          jsonEncode(data),
           200,
           headers: {'content-type': 'application/json'},
         );
@@ -228,7 +237,9 @@ void main() {
 
       expect(init.videoUrl, isNotNull);
       expect(init.playMethod, 'DirectPlay');
-      expect(requests.length, countBeforePlay, reason: 'Play dentro de 60 s deve reutilizar o cache sem novas chamadas');
+      expect(init.playSessionId, isNull);
+      final itemFetches = requests.where((r) => !r.contains('/PlaybackInfo')).length;
+      expect(itemFetches, countBeforePlay, reason: 'Play dentro de 60 s deve reutilizar o bundle em cache sem novo fetchItem');
     });
 
     test('5. Play após 61 s pede de novo', () async {
@@ -402,7 +413,9 @@ void main() {
       );
 
       expect(init.videoUrl, isNotNull);
-      expect(requests.length, countBeforePlay, reason: 'Episódio pré-aquecido via série foi aproveitado com 0 novas chamadas');
+      expect(init.playSessionId, isNull);
+      final epFetches = requests.where((r) => r.contains('/Items/ep-next') && !r.contains('/PlaybackInfo')).length;
+      expect(epFetches, 1, reason: 'Episódio pré-aquecido via série foi aproveitado com 0 novas chamadas de fetchPlaybackBundle');
     });
 
     test('Cache respeita limite máximo de 8 itens (LRU)', () {
@@ -431,6 +444,193 @@ void main() {
       for (int i = 2; i < 10; i++) {
         expect(service.get(serverId: 'srv-1', userId: 'usr-1', itemId: 'item-$i'), isNotNull);
       }
+    });
+
+    test('Auditoria 1: PlaybackInfo e PlaySessionId preservados pelo caminho normal (sem return paralelo duplicado)', () async {
+      final (client, requests) = createMockClient(
+        transcodingUrl: '/Videos/movie-auditoria-1/stream.m3u8?PlaySessionId=sess-warmup-movie-auditoria-1',
+      );
+      addTearDown(client.close);
+
+      final item = testMediaItem(
+        id: 'movie-auditoria-1',
+        backend: MediaBackend.jellyfin,
+        kind: MediaKind.movie,
+        serverId: 'srv-1',
+      );
+
+      // Pré-aquece
+      JellyfinPlaybackWarmupService.instance.onCardFocused(
+        client: client,
+        item: item,
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 750));
+      await JellyfinPlaybackWarmupService.instance.inFlightWarmup;
+
+      // Executa getPlaybackInitialization pedindo transcode
+      final init = await client.getPlaybackInitialization(
+        PlaybackInitializationOptions(
+          metadata: item,
+          selectedMediaIndex: 0,
+          qualityPreset: TranscodeQualityPreset.p720_4mbps,
+        ),
+      );
+
+      // O caminho normal DEVE negociar e reter o PlaySessionId gerado pelo servidor e o método Transcode
+      expect(init.isTranscoding, isTrue);
+      expect(init.playMethod, 'Transcode');
+      expect(init.playSessionId, 'sess-warmup-movie-auditoria-1',
+          reason: 'getPlaybackInitialization deve seguir o caminho normal e registrar playSessionId');
+    });
+
+    test('Auditoria 3: onFocusLost com requisição em voo NÃO descarta o bundle: put() é chamado ao concluir', () async {
+      Completer<http.Response>? completer;
+      final client = testJellyfinClient(
+        connection: testJellyfinConnection(
+          machineId: 'srv-1',
+          userId: 'usr-1',
+        ),
+        handler: (req) async {
+          if (req.url.path.contains('movie-auditoria-3')) {
+            completer = Completer<http.Response>();
+            return completer!.future;
+          }
+          return http.Response(jsonEncode(itemJson('default')), 200, headers: {'content-type': 'application/json'});
+        },
+      );
+      addTearDown(client.close);
+
+      final item = testMediaItem(
+        id: 'movie-auditoria-3',
+        backend: MediaBackend.jellyfin,
+        kind: MediaKind.movie,
+        serverId: 'srv-1',
+      );
+
+      // Foca no cartão e aguarda o debounce de 700 ms para entrar em voo
+      JellyfinPlaybackWarmupService.instance.onCardFocused(
+        client: client,
+        item: item,
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 750));
+      expect(completer, isNotNull, reason: 'Requisição deve estar em voo');
+
+      // Em voo, usuário perde o foco
+      JellyfinPlaybackWarmupService.instance.onFocusLost();
+
+      // Completa a requisição em voo
+      completer!.complete(http.Response(
+        jsonEncode(itemJson('movie-auditoria-3')),
+        200,
+        headers: {'content-type': 'application/json'},
+      ));
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+
+      // O bundle deve ter sido salvo no cache via put()
+      final cached = JellyfinPlaybackWarmupService.instance.get(
+        serverId: 'srv-1',
+        userId: 'usr-1',
+        itemId: 'movie-auditoria-3',
+      );
+      expect(cached, isNotNull,
+          reason: 'Bundle que terminou após onFocusLost deve estar salvo no cache');
+    });
+
+    test('Auditoria 4: sourceIndex: 0 explícito NÃO equivale a auto (null) e sourceId deve casar', () {
+      final service = JellyfinPlaybackWarmupService.instance;
+      const dummyBundle = JellyfinPlaybackBundle(
+        availableVersions: [],
+        selectedSource: {},
+        chapters: [],
+        selectedSourceIndex: 0,
+        selectedSourceId: 'src-alpha',
+        container: 'mkv',
+      );
+
+      // 1. Armazena com auto (sourceIndex: null)
+      service.put(
+        serverId: 'srv-1',
+        userId: 'usr-1',
+        itemId: 'movie-auditoria-4',
+        sourceIndex: null,
+        bundle: dummyBundle,
+      );
+
+      // Busca com 0 explícito NÃO pode encontrar auto
+      final res0 = service.get(
+        serverId: 'srv-1',
+        userId: 'usr-1',
+        itemId: 'movie-auditoria-4',
+        sourceIndex: 0,
+      );
+      expect(res0, isNull, reason: 'sourceIndex: 0 explícito não equivale a auto (null)');
+
+      // 2. Armazena com sourceId: 'src-alpha'
+      service.put(
+        serverId: 'srv-1',
+        userId: 'usr-1',
+        itemId: 'movie-auditoria-4-src',
+        sourceId: 'src-alpha',
+        bundle: dummyBundle,
+      );
+
+      // Busca com sourceId: 'src-beta' não deve encontrar
+      final resBeta = service.get(
+        serverId: 'srv-1',
+        userId: 'usr-1',
+        itemId: 'movie-auditoria-4-src',
+        sourceId: 'src-beta',
+      );
+      expect(resBeta, isNull, reason: 'sourceId diferente não pode casar');
+    });
+
+    test('Auditoria 5: pedido antigo que termina depois não zera _inFlightBundle do pedido novo', () async {
+      Completer<http.Response>? completerA;
+      Completer<http.Response>? completerB;
+
+      final client = testJellyfinClient(
+        connection: testJellyfinConnection(
+          machineId: 'srv-1',
+          userId: 'usr-1',
+        ),
+        handler: (req) async {
+          if (req.url.path.contains('item-A')) {
+            completerA = Completer<http.Response>();
+            return completerA!.future;
+          }
+          if (req.url.path.contains('item-B')) {
+            completerB = Completer<http.Response>();
+            return completerB!.future;
+          }
+          return http.Response(jsonEncode(itemJson('default')), 200, headers: {'content-type': 'application/json'});
+        },
+      );
+      addTearDown(client.close);
+
+      final itemA = testMediaItem(id: 'item-A', backend: MediaBackend.jellyfin, serverId: 'srv-1');
+      final itemB = testMediaItem(id: 'item-B', backend: MediaBackend.jellyfin, serverId: 'srv-1');
+
+      // 1. Foca item A e aguarda debounce
+      JellyfinPlaybackWarmupService.instance.onCardFocused(client: client, item: itemA);
+      await Future<void>.delayed(const Duration(milliseconds: 750));
+      expect(completerA, isNotNull);
+
+      // 2. Foca item B e aguarda debounce
+      JellyfinPlaybackWarmupService.instance.onCardFocused(client: client, item: itemB);
+      await Future<void>.delayed(const Duration(milliseconds: 750));
+      expect(completerB, isNotNull);
+
+      // 3. Completa pedido A (antigo)
+      completerA!.complete(http.Response(jsonEncode(itemJson('item-A')), 200, headers: {'content-type': 'application/json'}));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+
+      // 4. inFlightWarmup AINDA deve estar ativo (apontando para B)
+      expect(JellyfinPlaybackWarmupService.instance.inFlightWarmup, isNotNull,
+          reason: 'Conclusão do pedido antigo não pode zerar o inFlightBundle do novo');
+
+      // Completa pedido B para limpar
+      completerB!.complete(http.Response(jsonEncode(itemJson('item-B')), 200, headers: {'content-type': 'application/json'}));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
     });
   });
 }

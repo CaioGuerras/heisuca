@@ -483,7 +483,6 @@ class _TvActionPillState extends State<_TvActionPill> {
       onShowFocusHighlight: (v) {
         if (mounted && _focused != v) {
           setState(() => _focused = v);
-          widget.onFocusChange?.call(v);
         }
       },
       actions: {
@@ -644,14 +643,7 @@ class _TvEpisodeCardState extends State<_TvEpisodeCard> {
           HeisucaTvPlaybackWarmup.onFocusLost();
         }
       },
-      onShowFocusHighlight: (v) {
-        setState(() => _focused = v);
-        if (v) {
-          HeisucaTvPlaybackWarmup.onCardFocused(context, widget.episode);
-        } else {
-          HeisucaTvPlaybackWarmup.onFocusLost();
-        }
-      },
+      onShowFocusHighlight: (v) => setState(() => _focused = v),
       actions: {
         ActivateIntent: CallbackAction<ActivateIntent>(
           onInvoke: (_) {

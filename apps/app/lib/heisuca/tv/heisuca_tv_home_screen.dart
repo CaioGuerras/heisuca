@@ -452,14 +452,7 @@ class _TvContinueCardState extends State<_TvContinueCard> {
           HeisucaTvPlaybackWarmup.onFocusLost();
         }
       },
-      onShowFocusHighlight: (v) {
-        setState(() => _focused = v);
-        if (v) {
-          HeisucaTvPlaybackWarmup.onCardFocused(context, widget.item);
-        } else {
-          HeisucaTvPlaybackWarmup.onFocusLost();
-        }
-      },
+      onShowFocusHighlight: (v) => setState(() => _focused = v),
       actions: {
         ActivateIntent: CallbackAction<ActivateIntent>(
           onInvoke: (_) {
@@ -680,7 +673,6 @@ class _TvButtonPillState extends State<_TvButtonPill> {
       onShowFocusHighlight: (v) {
         if (mounted && _focused != v) {
           setState(() => _focused = v);
-          widget.onFocusChange?.call(v);
         }
       },
       actions: {
@@ -818,14 +810,7 @@ class _TvPosterCardState extends State<_TvPosterCard> {
           HeisucaTvPlaybackWarmup.onFocusLost();
         }
       },
-      onShowFocusHighlight: (v) {
-        setState(() => _focused = v);
-        if (v) {
-          HeisucaTvPlaybackWarmup.onCardFocused(context, widget.item);
-        } else {
-          HeisucaTvPlaybackWarmup.onFocusLost();
-        }
-      },
+      onShowFocusHighlight: (v) => setState(() => _focused = v),
       actions: {
         ActivateIntent: CallbackAction<ActivateIntent>(
           onInvoke: (_) {

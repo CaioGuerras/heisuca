@@ -90,18 +90,20 @@ class JellyfinPlaybackWarmupService {
     int? sourceIndex,
     String? sourceId,
     String? preferredSignature,
+    String? inheritedSignature,
   }) {
-    return '${sourceIndex ?? 'auto'}:${sourceId ?? ''}:${preferredSignature ?? ''}';
+    final idx = sourceIndex == null ? 'auto' : '$sourceIndex';
+    final sid = sourceId ?? '';
+    final pref = preferredSignature ?? '';
+    final inh = inheritedSignature ?? '';
+    return '$idx:$sid:$pref:$inh';
   }
 
   bool _matchesKey(PlaybackCacheKey a, PlaybackCacheKey b) {
-    if (a.serverId != b.serverId || a.userId != b.userId || a.itemId != b.itemId) {
-      return false;
-    }
-    if (a.versionKey == b.versionKey) return true;
-    final aAuto = a.versionKey.startsWith('auto:') || a.versionKey.startsWith('0:');
-    final bAuto = b.versionKey.startsWith('auto:') || b.versionKey.startsWith('0:');
-    return aAuto && bAuto;
+    return a.serverId == b.serverId &&
+        a.userId == b.userId &&
+        a.itemId == b.itemId &&
+        a.versionKey == b.versionKey;
   }
 
   void put({
@@ -111,6 +113,7 @@ class JellyfinPlaybackWarmupService {
     int? sourceIndex,
     String? sourceId,
     String? preferredSignature,
+    String? inheritedSignature,
     required JellyfinPlaybackBundle bundle,
   }) {
     final key = PlaybackCacheKey(
@@ -121,6 +124,7 @@ class JellyfinPlaybackWarmupService {
         sourceIndex: sourceIndex,
         sourceId: sourceId,
         preferredSignature: preferredSignature,
+        inheritedSignature: inheritedSignature,
       ),
     );
     _cache.remove(key);
@@ -140,6 +144,7 @@ class JellyfinPlaybackWarmupService {
     int? sourceIndex,
     String? sourceId,
     String? preferredSignature,
+    String? inheritedSignature,
   }) {
     final key = PlaybackCacheKey(
       serverId: serverId,
@@ -149,28 +154,10 @@ class JellyfinPlaybackWarmupService {
         sourceIndex: sourceIndex,
         sourceId: sourceId,
         preferredSignature: preferredSignature,
+        inheritedSignature: inheritedSignature,
       ),
     );
-    var entry = _cache[key];
-    if (entry == null && (sourceId == null || sourceId.isEmpty) && (preferredSignature == null || preferredSignature.isEmpty)) {
-      if (sourceIndex == 0) {
-        final altKey = PlaybackCacheKey(
-          serverId: serverId,
-          userId: userId,
-          itemId: itemId,
-          versionKey: makeVersionKey(sourceIndex: null),
-        );
-        entry = _cache[altKey];
-      } else if (sourceIndex == null) {
-        final altKey = PlaybackCacheKey(
-          serverId: serverId,
-          userId: userId,
-          itemId: itemId,
-          versionKey: makeVersionKey(sourceIndex: 0),
-        );
-        entry = _cache[altKey];
-      }
-    }
+    final entry = _cache[key];
     if (entry == null) return null;
 
     final age = clock().difference(entry.createdAt);
@@ -178,6 +165,11 @@ class JellyfinPlaybackWarmupService {
       _cache.remove(key);
       return null;
     }
+
+    // LRU verdadeiro: ao acessar, move a entrada para o final do LinkedHashMap
+    _cache.remove(key);
+    _cache[key] = entry;
+
     return entry.bundle;
   }
 
@@ -188,6 +180,7 @@ class JellyfinPlaybackWarmupService {
     int? sourceIndex,
     String? sourceId,
     String? preferredSignature,
+    String? inheritedSignature,
   }) async {
     final cached = get(
       serverId: serverId,
@@ -196,6 +189,7 @@ class JellyfinPlaybackWarmupService {
       sourceIndex: sourceIndex,
       sourceId: sourceId,
       preferredSignature: preferredSignature,
+      inheritedSignature: inheritedSignature,
     );
     if (cached != null) return cached;
 
@@ -208,6 +202,7 @@ class JellyfinPlaybackWarmupService {
           sourceIndex: sourceIndex,
           sourceId: sourceId,
           preferredSignature: preferredSignature,
+          inheritedSignature: inheritedSignature,
         ),
       );
       if (_matchesKey(_inFlightKey!, key)) {
@@ -221,6 +216,7 @@ class JellyfinPlaybackWarmupService {
           sourceIndex: sourceIndex,
           sourceId: sourceId,
           preferredSignature: preferredSignature,
+          inheritedSignature: inheritedSignature,
         );
       }
     }
@@ -295,12 +291,20 @@ class JellyfinPlaybackWarmupService {
           preferredSignature: saved?.signature,
         );
         _inFlightBundle = future;
-        final bundle = await future;
-        _inFlightBundle = null;
-        _inFlightKey = null;
 
-        if (requestId != _currentRequestId) return;
+        JellyfinPlaybackBundle? bundle;
+        try {
+          bundle = await future;
+        } finally {
+          // Pedido antigo que termina depois não zera _inFlightBundle do pedido novo
+          if (identical(_inFlightBundle, future)) {
+            _inFlightBundle = null;
+            _inFlightKey = null;
+          }
+        }
 
+        // onFocusLost não pode descartar o bundle que já está em voo: terminou → put() sempre;
+        // o requestId só decide se ele vira o "atual".
         if (bundle != null) {
           put(
             serverId: client.connection.serverMachineId,
@@ -313,8 +317,6 @@ class JellyfinPlaybackWarmupService {
           );
         }
       } catch (e, st) {
-        _inFlightBundle = null;
-        _inFlightKey = null;
         appLogger.d('Jellyfin playback warmup failed silently', error: e, stackTrace: st);
       }
     });

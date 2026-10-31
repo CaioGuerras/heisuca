@@ -244,75 +244,29 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
   @override
   Future<PlaybackInitializationResult> getPlaybackInitialization(PlaybackInitializationOptions options) async {
     final metadata = options.metadata;
-    if (PlatformDetector.isTV()) {
-      final cachedBundle = await JellyfinPlaybackWarmupService.instance.getOrWaitInFlight(
-        serverId: connection.serverMachineId,
-        userId: connection.userId,
-        itemId: metadata.id,
-        sourceIndex: options.selectedMediaIndex,
-        sourceId: options.selectedMediaSourceId,
-        preferredSignature: options.preferredVersionSignature,
-      );
-      if (cachedBundle != null) {
-        final bundle = cachedBundle;
-        var mediaInfo = jellyfinMediaSourceToMediaSourceInfo(
-          bundle.selectedSource,
-          chapters: bundle.chapters,
-          trickplay: bundle.trickplay,
-          mediaIndex: bundle.selectedSourceIndex,
-        );
-        final isTrack = metadata.kind == MediaKind.track;
-        final requestedAudioStreamId = options.selectedAudioStreamId == null
-            ? options.preferredAudioTrack == null
-                ? null
-                : findSourceAudioTrackForIntent(options.preferredAudioTrack!, mediaInfo.audioTracks)?.id
-            : _validJellyfinAudioStreamId(options.selectedAudioStreamId, mediaInfo);
-        final effectiveAudioStreamId = _resolveJellyfinAudioStreamId(requestedAudioStreamId, mediaInfo);
-        mediaInfo = _withSelectedJellyfinAudioStream(mediaInfo, effectiveAudioStreamId);
-
-        final subtitleSidecars = isTrack
-            ? const <PlaybackSubtitleSidecar>[]
-            : _buildExternalSubtitles(
-                metadata.id,
-                bundle.selectedSourceId,
-                mediaInfo,
-                isTranscoding: false,
-              );
-        mediaInfo = _withSidecarBackedSubtitleIdentity(mediaInfo, subtitleSidecars);
-
-        final pinnedSourceId = _normalizedSourceId(bundle.selectedSourceId);
-        final videoUrl = isTrack
-            ? buildAudioDirectStreamUrl(metadata.id, container: bundle.container, mediaSourceId: pinnedSourceId)
-            : buildDirectStreamUrl(metadata.id, container: bundle.container, mediaSourceId: pinnedSourceId);
-
-        return PlaybackInitializationResult(
-          availableVersions: bundle.availableVersions,
-          videoUrl: videoUrl,
-          mediaInfo: mediaInfo,
-          subtitleSidecars: subtitleSidecars,
-          isOffline: false,
-          isTranscoding: false,
-          fallbackReason: null,
-          delivery: dialect.backend.name == 'jellyfin'
-              ? HeisucaPlaybackDelivery.jellyfin(
-                  method: 'DirectPlay',
-                  transcodingUrl: null,
-                )
-              : null,
-          activeAudioStreamId: requestedAudioStreamId,
-          playSessionId: null,
-          playMethod: 'DirectPlay',
-          selectedMediaIndex: bundle.selectedSourceIndex,
-        );
-      }
-    }
-    final JellyfinPlaybackBundle? bundle;
+    JellyfinPlaybackBundle? bundle;
     try {
+      if (PlatformDetector.isTV()) {
+        try {
+          bundle = await JellyfinPlaybackWarmupService.instance.getOrWaitInFlight(
+            serverId: connection.serverMachineId,
+            userId: connection.userId,
+            itemId: metadata.id,
+            sourceIndex: options.selectedMediaIndex,
+            sourceId: options.selectedMediaSourceId,
+            preferredSignature: options.preferredVersionSignature,
+            inheritedSignature: options.inheritedVersionSignature,
+          );
+        } catch (e, st) {
+          appLogger.w('Jellyfin playback warmup lookup failed; falling back to normal fetch', error: e, stackTrace: st);
+        }
+      }
+
       // An immediate connection error is asked again (see
       // [retryTransientMediaServerCall]); the deadline only backstops the
       // HTTP layer's own connect + receive budgets, so it never cuts a slow
       // but working server short.
-      bundle = await retryTransientMediaServerCall(
+      bundle ??= await retryTransientMediaServerCall(
         operation: 'Jellyfin playback item',
         deadline: MediaServerTimeouts.connect + MediaServerTimeouts.receive,
         call: (_, _) => fetchPlaybackBundle(
@@ -780,15 +734,20 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
     String? inheritedSignature,
   }) async {
     if (PlatformDetector.isTV()) {
-      final cached = JellyfinPlaybackWarmupService.instance.get(
-        serverId: connection.serverMachineId,
-        userId: connection.userId,
-        itemId: itemId,
-        sourceIndex: sourceIndex,
-        sourceId: sourceId,
-        preferredSignature: preferredSignature,
-      );
-      if (cached != null) return cached;
+      try {
+        final cached = JellyfinPlaybackWarmupService.instance.get(
+          serverId: connection.serverMachineId,
+          userId: connection.userId,
+          itemId: itemId,
+          sourceIndex: sourceIndex,
+          sourceId: sourceId,
+          preferredSignature: preferredSignature,
+          inheritedSignature: inheritedSignature,
+        );
+        if (cached != null) return cached;
+      } catch (e, st) {
+        appLogger.w('Jellyfin playback warmup cache lookup failed', error: e, stackTrace: st);
+      }
     }
     final item = await fetchItemFreshCacheFirst(itemId);
     final raw = item?.raw;
@@ -801,15 +760,20 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
       inheritedSignature: inheritedSignature,
     );
     if (bundle != null && PlatformDetector.isTV()) {
-      JellyfinPlaybackWarmupService.instance.put(
-        serverId: connection.serverMachineId,
-        userId: connection.userId,
-        itemId: itemId,
-        sourceIndex: sourceIndex,
-        sourceId: sourceId,
-        preferredSignature: preferredSignature,
-        bundle: bundle,
-      );
+      try {
+        JellyfinPlaybackWarmupService.instance.put(
+          serverId: connection.serverMachineId,
+          userId: connection.userId,
+          itemId: itemId,
+          sourceIndex: sourceIndex,
+          sourceId: sourceId,
+          preferredSignature: preferredSignature,
+          inheritedSignature: inheritedSignature,
+          bundle: bundle,
+        );
+      } catch (e, st) {
+        appLogger.w('Jellyfin playback warmup cache put failed', error: e, stackTrace: st);
+      }
     }
     return bundle;
   }

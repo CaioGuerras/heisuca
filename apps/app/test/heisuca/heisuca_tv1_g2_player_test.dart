@@ -736,6 +736,126 @@ void main() {
       await tester.pumpWidget(const SizedBox.shrink());
     });
 
+    testWidgets('G2.10c: Desktop: Escape com foco em Play/Pause ou Volume fecha controles e não vaza para a rota', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1920, 1080));
+      addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
+      addTearDown(() => TvDetectionService.debugSetTvOverride(true));
+
+      TvDetectionService.debugSetTvOverride(false);
+      var playerExitCount = 0;
+      chrome.show();
+
+      await tester.pumpWidget(
+        wrapWithShell(
+          PlexVideoControls(
+            player: player,
+            volumeController: volume,
+            metadata: testMediaItem(id: 'desktop-play-pause-volume-escape-test', title: 'Episódio 1', grandparentTitle: 'Série Teste'),
+            toastController: toast,
+            chromeController: chrome,
+            hasFirstFrame: hasFirstFrame,
+            canNavigateMediaItems: true,
+            canControl: true,
+            onBack: () => playerExitCount++,
+          ),
+          platform: TargetPlatform.linux,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(chrome.controlsVisible, isTrue);
+
+      // (a) Testa foco no botão Play/Pause
+      final playPauseFocus = tester.widgetList<Focus>(
+        find.byType(Focus),
+      ).firstWhere((w) => w.focusNode != null && w.focusNode!.debugLabel == 'PlayPause');
+      playPauseFocus.focusNode!.requestFocus();
+      await tester.pumpAndSettle();
+      expect(playPauseFocus.focusNode!.hasFocus, isTrue);
+
+      // Pressiona Escape com foco no Play/Pause
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      expect(chrome.controlsVisible, isFalse, reason: 'Escape com foco no Play/Pause deve fechar controles');
+      expect(playerExitCount, 0, reason: 'Escape com foco no Play/Pause não deve sair do player');
+      expect(screenBackDispositions, isEmpty, reason: 'Escape com foco no Play/Pause não deve vazar para a rota');
+
+      // (b) Reabre os controles e testa foco no botão Volume
+      chrome.show();
+      await tester.pumpAndSettle();
+      expect(chrome.controlsVisible, isTrue);
+
+      final volumeFocus = tester.widgetList<Focus>(
+        find.byType(Focus),
+      ).firstWhere((w) => w.focusNode != null && w.focusNode!.debugLabel == 'Volume');
+      volumeFocus.focusNode!.requestFocus();
+      await tester.pumpAndSettle();
+      expect(volumeFocus.focusNode!.hasFocus, isTrue);
+
+      // Pressiona Escape com foco no Volume
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      expect(chrome.controlsVisible, isFalse, reason: 'Escape com foco no Volume deve fechar controles');
+      expect(playerExitCount, 0, reason: 'Escape com foco no Volume não deve sair do player');
+      expect(screenBackDispositions, isEmpty, reason: 'Escape com foco no Volume não deve vazar para a rota');
+
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
+    testWidgets('G2.10d: Desktop: Escape com controles abertos por mouse/hover sem foco fecha controles e não vaza para a rota', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1920, 1080));
+      addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
+      addTearDown(() => TvDetectionService.debugSetTvOverride(true));
+
+      TvDetectionService.debugSetTvOverride(false);
+      var playerExitCount = 0;
+      chrome.show();
+
+      await tester.pumpWidget(
+        wrapWithShell(
+          PlexVideoControls(
+            player: player,
+            volumeController: volume,
+            metadata: testMediaItem(id: 'desktop-hover-escape-test', title: 'Episódio 1', grandparentTitle: 'Série Teste'),
+            toastController: toast,
+            chromeController: chrome,
+            hasFirstFrame: hasFirstFrame,
+            canNavigateMediaItems: true,
+            canControl: true,
+            onBack: () => playerExitCount++,
+          ),
+          platform: TargetPlatform.linux,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Controles estão visíveis (como por hover do mouse), mas nenhum botão de controle tem foco
+      expect(chrome.controlsVisible, isTrue);
+
+      final desktopState = tester.state<DesktopVideoControlsState>(find.byType(DesktopVideoControls));
+      expect(desktopState.isAnyControlFocused, isFalse);
+      expect(desktopState.isTvPanelFocused, isFalse);
+      expect(desktopState.isTimelineFocused, isFalse);
+
+      // Pressiona Escape
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      expect(chrome.controlsVisible, isFalse, reason: 'Escape com controles abertos por mouse/hover sem foco deve fechar controles');
+      expect(playerExitCount, 0, reason: 'Escape com controles abertos por mouse/hover não deve sair do player');
+      expect(screenBackDispositions, isEmpty, reason: 'Escape com controles abertos por mouse/hover não deve vazar para a rota');
+
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
     testWidgets('G2.11: unfocusTvPanel remove foco da timeline e nós de controles', (tester) async {
       await tester.binding.setSurfaceSize(const Size(1920, 1080));
       addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));

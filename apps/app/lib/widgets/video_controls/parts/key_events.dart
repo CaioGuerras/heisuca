@@ -129,12 +129,15 @@ extension _PlexVideoControlsKeyEventMethods on _PlexVideoControlsState {
     final tvWantsBack = PlatformDetector.isTV() &&
         ((_desktopControlsKey.currentState?.isTvPanelFocused ?? false) ||
             (_desktopControlsKey.currentState?.isTimelineFocused ?? false) ||
-            _showControls);
+            _showControls ||
+            widget.chromeController.controlsVisible);
     final desktopControlFocused = !isMobile &&
-        ((_desktopControlsKey.currentState?.isTvPanelFocused ?? false) ||
-            (_desktopControlsKey.currentState?.isTimelineFocused ?? false));
+        (_desktopControlsKey.currentState?.isAnyControlFocused ?? false);
+    final desktopEscapeWithControls = !isMobile &&
+        navigationKey == PlayerNavigationKey.physicalEscape &&
+        (_showControls || widget.chromeController.controlsVisible);
 
-    if ((tvWantsBack || desktopControlFocused) &&
+    if ((tvWantsBack || desktopControlFocused || desktopEscapeWithControls) &&
         (navigationKey == PlayerNavigationKey.back || navigationKey == PlayerNavigationKey.physicalEscape)) {
       return handlePlayerNavigationKeyAction(event, navigationKey, () {
         _desktopControlsKey.currentState?.unfocusTvPanel();

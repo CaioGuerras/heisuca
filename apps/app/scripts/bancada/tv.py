@@ -439,6 +439,13 @@ def voltar_ao_inicio(max_backs=4, espera=2.0):
     nos = dump_tv()
     backs = 0
     while backs < max_backs and reconhecer_tela_tv(nos) != 'inicio':
+        if reconhecer_tela_tv(nos) is None:
+            # Tela não reconhecida pode ser leitura no meio da transição: reler antes do BACK, que no
+            # Início fecha o app (Google TV, 31/10: o 3º BACK da Busca caiu no Início e foi ao launcher).
+            time.sleep(espera)
+            nos = dump_tv()
+            if reconhecer_tela_tv(nos) == 'inicio':
+                break
         back(espera=espera)
         backs += 1
         nos = dump_tv()

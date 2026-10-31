@@ -255,9 +255,22 @@ class TestTvBancada(unittest.TestCase):
         self.assertEqual(backs, 0)
         mock_back.assert_not_called()
 
+    @patch('tv.time.sleep')
     @patch('tv.back')
     @patch('tv.dump_tv')
-    def test_voltar_ao_inicio_respeita_limite(self, mock_dump, mock_back):
+    def test_voltar_ao_inicio_rele_tela_nao_reconhecida(self, mock_dump, mock_back, _sleep):
+        # Google TV, 31/10: leitura no meio da transição não reconhece o Início; o BACK seguinte fecharia o app.
+        inicio = [{'desc': 'Detalhes'}, {'desc': '▶  Assistir'}]
+        busca = [{'cls': 'android.widget.EditText', 'hint': 'Buscar filmes, séries'}]
+        mock_dump.side_effect = [busca, busca, [], inicio]
+        nos, backs = voltar_ao_inicio()
+        self.assertEqual(nos, inicio)
+        self.assertEqual(backs, 2)
+
+    @patch('tv.time.sleep')
+    @patch('tv.back')
+    @patch('tv.dump_tv')
+    def test_voltar_ao_inicio_respeita_limite(self, mock_dump, mock_back, _sleep):
         mock_dump.return_value = [{'text': 'Outra tela'}]
         _, backs = voltar_ao_inicio(max_backs=3)
         self.assertEqual(backs, 3)

@@ -1912,7 +1912,7 @@ class PlexClient
   /// response is already available.
   PlexVideoPlaybackData parseVideoPlaybackDataFromJson(
     Map<String, dynamic>? metadataJson, {
-    int? mediaIndex = 0,
+    int? mediaIndex,
     String? selectedMediaSourceId,
     String? preferredVersionSignature,
     String? inheritedVersionSignature,
@@ -1974,7 +1974,7 @@ class PlexClient
   /// later poll inside the freshness window is served the stale snapshot.
   Future<PlexVideoPlaybackData> getVideoPlaybackData(
     String ratingKey, {
-    int? mediaIndex = 0,
+    int? mediaIndex,
     String? selectedMediaSourceId,
     String? preferredVersionSignature,
     String? inheritedVersionSignature,

@@ -56,7 +56,7 @@ PlexVideoPlaybackData parsePlexVideoPlaybackDataFromJson(
   Map<String, dynamic>? metadataJson, {
   required String baseUrl,
   required String? token,
-  int? mediaIndex = 0,
+  int? mediaIndex,
   String? selectedMediaSourceId,
   String? preferredVersionSignature,
   String? inheritedVersionSignature,

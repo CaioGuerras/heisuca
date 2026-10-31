@@ -354,4 +354,75 @@ void main() {
       expect(isVersionHardwareDecodable(hdr), isFalse);
     });
   });
+
+  group('adendo 3 (revisão da Dum-e)', () {
+    /// Decoder até 1080p: sem prova de tamanho, a fonte conta como 4K e não
+    /// ganha hardware.
+    void decoder1080() => VideoDecodeCapabilities.debugReset(
+      hardwareHevc: true,
+      displaySupports4k: false,
+      codecHardware: {'h264': true, 'hevc': true},
+      codecProfiles: {
+        'h264': ['high'],
+        'hevc': ['main'],
+      },
+      codecMaxResolutions: {'h264': '1080p60', 'hevc': '1080p60'},
+    );
+
+    test('item 2: "480p"/"SD" no meio do texto prova SD; "sdr" não', () {
+      decoder1080();
+      expect(isSourceHardwareDecodable(fonte('480', 'h264', name: 'Filme 480p')), isTrue);
+      expect(isSourceHardwareDecodable(fonte('576', 'h264', name: 'Filme (576i)')), isTrue);
+      expect(isSourceHardwareDecodable(fonte('sd', 'h264', displayTitle: 'SD H264')), isTrue);
+      expect(isSourceHardwareDecodable(fonte('sdr', 'h264', displayTitle: 'H264 SDR')), isFalse);
+      expect(isVersionHardwareDecodable(versao('plex-sd', codec: 'h264', resolution: 'sd')), isTrue);
+
+      // "Filme 480p" não cai no pior caso (4K) e vence a sem prova.
+      final ranked = rankMediaSources([
+        fonte('sem-prova', 'h264', name: 'Filme'),
+        fonte('480', 'h264', name: 'Filme 480p'),
+      ]);
+      expect(ranked.first['Id'], '480');
+    });
+
+    test('item 3: versão sem faixa de vídeo perde para H.264 1080p com prova', () {
+      tv1080SemMain10();
+      final semVideo = <String, dynamic>{
+        'Id': 'sem-video',
+        'Container': 'mkv',
+        'MediaStreams': [
+          {'Type': 'Audio', 'Language': 'por'},
+        ],
+      };
+      // A com prova está sem PT: antes, a sem vídeo ganhava como "hardware + PT".
+      final h264 = <String, dynamic>{
+        'Id': 'h264-1080',
+        'Container': 'mkv',
+        'MediaStreams': [
+          {'Type': 'Video', 'Codec': 'h264', 'Profile': 'High', 'BitDepth': 8, 'Width': 1920, 'Height': 1080},
+          {'Type': 'Audio', 'Language': 'eng'},
+        ],
+      };
+      expect(rankMediaSources([semVideo, h264]).first['Id'], 'h264-1080');
+      expect(isSourceHardwareDecodable(semVideo), isFalse);
+      // Tocabilidade (diálogo "não toca") segue leniente.
+      expect(isSourcePlayable(semVideo), isTrue);
+
+      // Plex: versão sem codec nem streams de vídeo.
+      final plexSem = MediaVersion(
+        id: 'plex-sem',
+        container: 'mkv',
+        parts: [
+          MediaPart(
+            id: 'p',
+            streams: [MediaStream(id: 'a', kind: MediaStreamKind.audio, languageCode: 'por')],
+          ),
+        ],
+      );
+      final plex1080 = versao('plex-1080', codec: 'h264', width: 1920, height: 1080, language: 'eng');
+      expect(rankMediaVersions([plexSem, plex1080]), [1, 0]);
+      expect(isVersionHardwareDecodable(plexSem), isFalse);
+      expect(isVersionPlayable(plexSem), isTrue);
+    });
+  });
 }

@@ -109,6 +109,9 @@ class VideoDecodeCapabilities {
       _codecHardware = {};
       _codecMaxWidths = {};
       _codecMaxHeights = {};
+      // Nulo = sonda sem profiles_4k; zerado aqui para não herdar perfis de
+      // uma sonda anterior.
+      _codecProfiles4k = null;
       rawCodecs.forEach((k, v) {
         if (v is Map) {
           final codecName = k.toString().toLowerCase();
@@ -308,6 +311,11 @@ class VideoDecodeCapabilities {
     ];
     return refused.isEmpty ? probe : '$probe refused=${refused.join(',')}';
   }
+
+  /// Test-only: aplica uma resposta da sonda na instância atual (como o
+  /// [_detect] faz), sem canal de plataforma.
+  @visibleForTesting
+  void debugApplyProbe(Map<String, dynamic> result) => _applyResult(result);
 
   /// Test-only: drop the memoized probe, optionally seeding measured results
   /// so the sync accessors can be exercised without a platform channel.

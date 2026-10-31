@@ -118,4 +118,24 @@ class MediaCodecQueryTest {
       MediaCodecQuery.profilesFor4k("h264", high, android.media.MediaCodecInfo.CodecProfileLevel.AVCLevel51)
     )
   }
+
+  @Test
+  fun av1Hdr10EHdr10PlusContamComoMain10() {
+    // Constantes da API 29 inlinadas na compilação: valem também nos SDKs 25/28 do teste.
+    val main8 = android.media.MediaCodecInfo.CodecProfileLevel.AV1ProfileMain8
+    val main10 = android.media.MediaCodecInfo.CodecProfileLevel.AV1ProfileMain10
+    val hdr10 = android.media.MediaCodecInfo.CodecProfileLevel.AV1ProfileMain10HDR10
+    val hdr10Plus = android.media.MediaCodecInfo.CodecProfileLevel.AV1ProfileMain10HDR10Plus
+    val nivel5 = android.media.MediaCodecInfo.CodecProfileLevel.AV1Level5
+    val nivel41 = android.media.MediaCodecInfo.CodecProfileLevel.AV1Level41
+    assertEquals(0x1000, hdr10)
+    assertEquals(0x2000, hdr10Plus)
+
+    assertEquals(listOf("main"), MediaCodecQuery.profileNames("av1", main8))
+    listOf(main10, hdr10, hdr10Plus).forEach { perfil ->
+      assertEquals(listOf("main10"), MediaCodecQuery.profileNames("av1", perfil))
+      assertEquals(listOf("main10"), MediaCodecQuery.profilesFor4k("av1", perfil, nivel5))
+      assertTrue(MediaCodecQuery.profilesFor4k("av1", perfil, nivel41).isEmpty())
+    }
+  }
 }

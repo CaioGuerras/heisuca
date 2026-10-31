@@ -105,30 +105,7 @@ internal object MediaCodecQuery {
         val profileLevels = caps.profileLevels
         if (profileLevels != null) {
           for (pl in profileLevels) {
-            when (codecKey) {
-              "h264" -> {
-                if (pl.profile == MediaCodecInfo.CodecProfileLevel.AVCProfileHigh) profiles.add("high")
-                if (pl.profile == MediaCodecInfo.CodecProfileLevel.AVCProfileHigh10) profiles.add("high10")
-              }
-              "hevc" -> {
-                if (pl.profile == MediaCodecInfo.CodecProfileLevel.HEVCProfileMain) profiles.add("main")
-                if (pl.profile == MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10) profiles.add("main10")
-              }
-              "av1" -> {
-                if (pl.profile == 1) profiles.add("main")
-                if (pl.profile == 2) profiles.add("main10")
-              }
-              "vp9" -> {
-                if (pl.profile == MediaCodecInfo.CodecProfileLevel.VP9Profile0) {
-                  profiles.add("0")
-                  profiles.add("profile0")
-                }
-                if (pl.profile == MediaCodecInfo.CodecProfileLevel.VP9Profile2) {
-                  profiles.add("2")
-                  profiles.add("profile2")
-                }
-              }
-            }
+            profiles.addAll(profileNames(codecKey, pl.profile))
           }
         }
 
@@ -211,7 +188,7 @@ internal object MediaCodecQuery {
     "h264" -> MediaCodecInfo.CodecProfileLevel.AVCLevel51
     "hevc" -> MediaCodecInfo.CodecProfileLevel.HEVCMainTierLevel5
     "vp9" -> MediaCodecInfo.CodecProfileLevel.VP9Level5
-    "av1" -> 0x1000 // AV1Level5 (constante só existe a partir da API 29)
+    "av1" -> MediaCodecInfo.CodecProfileLevel.AV1Level5
     else -> null
   }
 
@@ -222,29 +199,38 @@ internal object MediaCodecQuery {
   internal fun profilesFor4k(codecKey: String, profile: Int, level: Int): List<String> {
     val minLevel = minLevelFor4k(codecKey) ?: return emptyList()
     if (level < minLevel) return emptyList()
-    return when (codecKey) {
-      "h264" -> when (profile) {
-        MediaCodecInfo.CodecProfileLevel.AVCProfileHigh -> listOf("high")
-        MediaCodecInfo.CodecProfileLevel.AVCProfileHigh10 -> listOf("high10")
-        else -> emptyList()
-      }
-      "hevc" -> when (profile) {
-        MediaCodecInfo.CodecProfileLevel.HEVCProfileMain -> listOf("main")
-        MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10 -> listOf("main10")
-        else -> emptyList()
-      }
-      "av1" -> when (profile) {
-        1 -> listOf("main")
-        2 -> listOf("main10")
-        else -> emptyList()
-      }
-      "vp9" -> when (profile) {
-        MediaCodecInfo.CodecProfileLevel.VP9Profile0 -> listOf("0", "profile0")
-        MediaCodecInfo.CodecProfileLevel.VP9Profile2 -> listOf("2", "profile2")
-        else -> emptyList()
-      }
+    return profileNames(codecKey, profile)
+  }
+
+  /**
+   * Nomes que o Dart usa para o [profile] do CodecProfileLevel. No AV1, HDR10
+   * e HDR10+ são Main10 com metadado: decoder que só anuncia esses perfis
+   * decodifica Main10 (constantes da API 29, inlinadas na compilação).
+   */
+  internal fun profileNames(codecKey: String, profile: Int): List<String> = when (codecKey) {
+    "h264" -> when (profile) {
+      MediaCodecInfo.CodecProfileLevel.AVCProfileHigh -> listOf("high")
+      MediaCodecInfo.CodecProfileLevel.AVCProfileHigh10 -> listOf("high10")
       else -> emptyList()
     }
+    "hevc" -> when (profile) {
+      MediaCodecInfo.CodecProfileLevel.HEVCProfileMain -> listOf("main")
+      MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10 -> listOf("main10")
+      else -> emptyList()
+    }
+    "av1" -> when (profile) {
+      MediaCodecInfo.CodecProfileLevel.AV1ProfileMain8 -> listOf("main")
+      MediaCodecInfo.CodecProfileLevel.AV1ProfileMain10,
+      MediaCodecInfo.CodecProfileLevel.AV1ProfileMain10HDR10,
+      MediaCodecInfo.CodecProfileLevel.AV1ProfileMain10HDR10Plus -> listOf("main10")
+      else -> emptyList()
+    }
+    "vp9" -> when (profile) {
+      MediaCodecInfo.CodecProfileLevel.VP9Profile0 -> listOf("0", "profile0")
+      MediaCodecInfo.CodecProfileLevel.VP9Profile2 -> listOf("2", "profile2")
+      else -> emptyList()
+    }
+    else -> emptyList()
   }
 
   /**

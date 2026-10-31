@@ -242,6 +242,10 @@ class _VersionFacts {
 
 /// Pior nível entre os streams: um stream sem decodificação reprova a versão.
 _Decode _decodeLevel(_VersionFacts facts, VideoDecodeCapabilities caps, {bool assumeWorstSize = false}) {
+  // Sem faixa de vídeo não há prova de hardware: o ranqueador (e o portão de
+  // reaproveitar índice) trata como software, abaixo de quem tem prova; a
+  // tocabilidade segue leniente e não acusa a versão.
+  if (facts.tracks.isEmpty) return assumeWorstSize ? _Decode.software : _Decode.hardware;
   var worst = _Decode.hardware;
   for (final track in facts.tracks) {
     final sizeKnown = track.width != null || track.height != null;
@@ -359,7 +363,8 @@ _VersionFacts _factsFromVersion(MediaVersion version) {
     if (RegExp(r'(^|[^a-z0-9])(4k|2160p?|uhd)([^a-z0-9]|$)').hasMatch(text)) return (3840, 2160);
     if (RegExp(r'(^|[^a-z0-9])(1080[pi]?|fhd)([^a-z0-9]|$)').hasMatch(text)) return (1920, 1080);
     if (RegExp(r'(^|[^a-z0-9])(720p?|hd)([^a-z0-9]|$)').hasMatch(text)) return (1280, 720);
-    if (RegExp(r'^(sd|480p?|576p?)$').hasMatch(text)) return (720, 480);
+    // Mesmo delimitador das linhas acima: "Filme 480p" casa, "sdr" não.
+    if (RegExp(r'(^|[^a-z0-9])(sd|480[pi]?|576[pi]?)([^a-z0-9]|$)').hasMatch(text)) return (720, 480);
   }
   return null;
 }

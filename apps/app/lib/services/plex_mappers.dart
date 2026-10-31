@@ -1307,7 +1307,7 @@ typedef PlexPlaybackSelection = ({List<Map> media, List<MediaVersion> versions, 
 
 PlexPlaybackSelection? resolvePlexPlaybackSelection(
   Map<String, dynamic> metadata, {
-  int? mediaIndex = 0,
+  int? mediaIndex,
   String? mediaSourceId,
   String? preferredVersionSignature,
   String? inheritedVersionSignature,

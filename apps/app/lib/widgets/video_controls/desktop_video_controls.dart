@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 
 import '../../focus/dpad_navigator.dart';
 import '../../media/media_item.dart';
+import '../../media/media_kind.dart';
 import '../../media/stepped_seek.dart';
 import '../../mpv/mpv.dart';
 import '../../media/media_source_info.dart';
@@ -19,8 +20,10 @@ import '../../utils/platform_detector.dart';
 import '../../utils/formatters.dart';
 import '../../i18n/strings.g.dart';
 import '../../models/livetv_capture_buffer.dart';
+import '../overlay_sheet.dart';
 import 'models/track_controls_state.dart';
 import 'player_chrome_controller.dart';
+import 'sheets/track_sheet.dart';
 import 'widgets/content_strip.dart';
 import 'widgets/content_strip_panel.dart';
 import 'widgets/live_timeline_bar.dart';
@@ -177,6 +180,9 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
   late final FocusNode _nextItemFocusNode;
   late final FocusNode _goToLiveFocusNode;
   late final FocusNode _timelineFocusNode;
+  late final FocusNode _tvAudioFocusNode;
+  late final FocusNode _tvSubtitleFocusNode;
+  late final FocusNode _tvEpisodesFocusNode;
 
   late final FocusNode _volumeFocusNode;
 
@@ -215,6 +221,9 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
     _nextItemFocusNode = FocusNode(debugLabel: 'NextItem');
     _goToLiveFocusNode = FocusNode(debugLabel: 'GoToLive');
     _timelineFocusNode = FocusNode(debugLabel: 'Timeline');
+    _tvAudioFocusNode = FocusNode(debugLabel: 'TvAudio');
+    _tvSubtitleFocusNode = FocusNode(debugLabel: 'TvSubtitle');
+    _tvEpisodesFocusNode = FocusNode(debugLabel: 'TvEpisodes');
     _volumeFocusNode = FocusNode(debugLabel: 'Volume');
 
     // Create focus nodes for track controls (up to 8 buttons)
@@ -287,6 +296,9 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
     _nextItemFocusNode.dispose();
     _goToLiveFocusNode.dispose();
     _timelineFocusNode.dispose();
+    _tvAudioFocusNode.dispose();
+    _tvSubtitleFocusNode.dispose();
+    _tvEpisodesFocusNode.dispose();
     _volumeFocusNode.dispose();
     for (final node in _trackControlFocusNodes) {
       node.dispose();
@@ -300,15 +312,30 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
     }
   }
 
-  /// Move focus to the play/pause button.
-  ///
-  /// Raw mechanism: it does not decide whether focus *should* enter the chrome.
-  /// A key that raises the chrome makes that decision with
-  /// `eventRequestsFocusNavigation` before queueing a play/pause focus request
-  /// on the chrome; internal hand-offs (the skip-marker button's
-  /// ArrowDown, an item swap) are already inside a focus session.
+  /// Move focus to the play/pause button (or TV panel on TV).
   void requestPlayPauseFocus() {
-    _playPauseFocusNode.requestFocus();
+    if (PlatformDetector.isTV()) {
+      requestTvPanelFocus();
+    } else {
+      _playPauseFocusNode.requestFocus();
+    }
+  }
+
+  /// Move focus to the TV bottom panel (Audio pill).
+  void requestTvPanelFocus() {
+    _tvAudioFocusNode.requestFocus();
+    widget.onFocusActivity?.call();
+  }
+
+  bool get isTvPanelFocused =>
+      _tvAudioFocusNode.hasFocus || _tvSubtitleFocusNode.hasFocus || _tvEpisodesFocusNode.hasFocus;
+
+  /// Unfocus any TV bottom panel nodes when the panel is dismissed.
+  void unfocusTvPanel() {
+    _tvAudioFocusNode.unfocus();
+    _tvSubtitleFocusNode.unfocus();
+    _tvEpisodesFocusNode.unfocus();
+    _timelineFocusNode.unfocus();
   }
 
   /// Hide content strip (called by parent when controls hide)
@@ -404,14 +431,18 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
     });
     widget.onContentStripVisibilityChanged?.call(false);
 
-    // Return focus to the last focused button (or play/pause as fallback)
+    // Return focus to the last focused button (or play/pause/TV episodes as fallback)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      final target = _lastFocusedButtonNode;
-      if (target != null && target.context != null) {
-        target.requestFocus();
+      if (PlatformDetector.isTV()) {
+        _tvEpisodesFocusNode.requestFocus();
       } else {
-        _playPauseFocusNode.requestFocus();
+        final target = _lastFocusedButtonNode;
+        if (target != null && target.context != null) {
+          target.requestFocus();
+        } else {
+          _playPauseFocusNode.requestFocus();
+        }
       }
       widget.onFocusActivity?.call();
     });
@@ -545,11 +576,15 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
       return KeyEventResult.handled;
     }
 
-    // DOWN arrow - move focus to play/pause button and reset seek state
+    // DOWN arrow - move focus to play/pause button (or TV panel on TV) and reset seek state
     if (key == LogicalKeyboardKey.arrowDown) {
       _timelineSeek.flush();
       _resetSeekState();
-      _playPauseFocusNode.requestFocus();
+      if (PlatformDetector.isTV()) {
+        requestTvPanelFocus();
+      } else {
+        _playPauseFocusNode.requestFocus();
+      }
       widget.onFocusActivity?.call();
       return KeyEventResult.handled;
     }
@@ -702,7 +737,10 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
     return DesktopAppBarHelper.wrapWithGestureDetector(topBar, opaque: true);
   }
 
-  Widget _buildBottomControlsContent(BuildContext _, {required bool hasFrame}) {
+  Widget _buildBottomControlsContent(BuildContext context, {required bool hasFrame}) {
+    if (PlatformDetector.isTV()) {
+      return _buildTvBottomControlsContent(context, hasFrame: hasFrame);
+    }
     final canInteract = _canControl && hasFrame;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -989,6 +1027,246 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
       onKeyEvent: (node, event) => _handleButtonKeyEvent(node, event, index),
       onFocusChange: _onFocusChange,
       onPressed: onPressed,
+    );
+  }
+
+  Widget _buildTvBottomControlsContent(BuildContext context, {required bool hasFrame}) {
+    final canInteract = _canControl && hasFrame;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isCompact = constraints.maxWidth < 1000;
+        return Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: isCompact ? 16 : 48,
+            vertical: isCompact ? 12 : 24,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              VideoTimelineBar(
+                player: widget.player,
+                chapters: widget.chapters,
+                chaptersLoaded: widget.chaptersLoaded,
+                showChapterMarkersOnTimeline: widget.showChapterMarkersOnTimeline,
+                onSeek: widget.onSeek,
+                onSeekEnd: widget.onSeekEnd,
+                onScrubStart: widget.onScrubStart,
+                onScrubEnd: widget.onScrubEnd,
+                horizontalLayout: true,
+                focusNode: _timelineFocusNode,
+                onKeyEvent: _handleTimelineKeyEvent,
+                onFocusChange: _onFocusChange,
+                enabled: canInteract,
+                thumbnailDataBuilder: widget.thumbnailDataBuilder,
+                showKeyRepeatThumbnail: _showKeyRepeatThumbnail,
+                previewPosition: _timelineSeek.pendingPosition,
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildTvPillButton(
+                            focusNode: _tvAudioFocusNode,
+                            stream: widget.player.streams.track,
+                            labelBuilder: (track) {
+                              final audio = track.audio;
+                              final title = audio?.title ?? audio?.language ?? 'Português';
+                              return 'Áudio · $title';
+                            },
+                            onPressed: () {
+                              widget.onCancelAutoHide?.call();
+                              OverlaySheetController.of(context)
+                                  .show(
+                                    builder: (_) => TrackSheet(
+                                      player: widget.player,
+                                      trackControlsState: widget.trackControlsState,
+                                    ),
+                                  )
+                                  .whenComplete(() => widget.onStartAutoHide?.call());
+                            },
+                            onKeyEvent: (event) {
+                              if (!event.isActionable) return KeyEventResult.ignored;
+                              final key = event.logicalKey;
+                              if (key == LogicalKeyboardKey.arrowRight) {
+                                _tvSubtitleFocusNode.requestFocus();
+                                widget.onFocusActivity?.call();
+                                return KeyEventResult.handled;
+                              }
+                              if (key == LogicalKeyboardKey.arrowUp) {
+                                _timelineFocusNode.requestFocus();
+                                widget.onFocusActivity?.call();
+                                return KeyEventResult.handled;
+                              }
+                              return KeyEventResult.ignored;
+                            },
+                          ),
+                          const SizedBox(width: 12),
+                          _buildTvPillButton(
+                            focusNode: _tvSubtitleFocusNode,
+                            stream: widget.player.streams.track,
+                            labelBuilder: (track) {
+                              final sub = track.subtitle;
+                              final title = (sub == null || sub.id == SubtitleTrack.off.id)
+                                  ? 'Desligada'
+                                  : (sub.title ?? sub.language ?? 'Ligada');
+                              return 'Legenda · $title';
+                            },
+                            onPressed: () {
+                              widget.onCancelAutoHide?.call();
+                              OverlaySheetController.of(context)
+                                  .show(
+                                    builder: (_) => TrackSheet(
+                                      player: widget.player,
+                                      trackControlsState: widget.trackControlsState,
+                                    ),
+                                  )
+                                  .whenComplete(() => widget.onStartAutoHide?.call());
+                            },
+                            onKeyEvent: (event) {
+                              if (!event.isActionable) return KeyEventResult.ignored;
+                              final key = event.logicalKey;
+                              if (key == LogicalKeyboardKey.arrowLeft) {
+                                _tvAudioFocusNode.requestFocus();
+                                widget.onFocusActivity?.call();
+                                return KeyEventResult.handled;
+                              }
+                              if (key == LogicalKeyboardKey.arrowRight) {
+                                _tvEpisodesFocusNode.requestFocus();
+                                widget.onFocusActivity?.call();
+                                return KeyEventResult.handled;
+                              }
+                              if (key == LogicalKeyboardKey.arrowUp) {
+                                _timelineFocusNode.requestFocus();
+                                widget.onFocusActivity?.call();
+                                return KeyEventResult.handled;
+                              }
+                              return KeyEventResult.ignored;
+                            },
+                          ),
+                          const SizedBox(width: 12),
+                          _buildTvPillButtonStatic(
+                            focusNode: _tvEpisodesFocusNode,
+                            label: widget.metadata.kind == MediaKind.movie ? 'Capítulos' : 'Episódios',
+                            onPressed: () {
+                              _showContentStrip();
+                            },
+                            onKeyEvent: (event) {
+                              if (!event.isActionable) return KeyEventResult.ignored;
+                              final key = event.logicalKey;
+                              if (key == LogicalKeyboardKey.arrowLeft) {
+                                _tvSubtitleFocusNode.requestFocus();
+                                widget.onFocusActivity?.call();
+                                return KeyEventResult.handled;
+                              }
+                              if (key == LogicalKeyboardKey.arrowUp) {
+                                _timelineFocusNode.requestFocus();
+                                widget.onFocusActivity?.call();
+                                return KeyEventResult.handled;
+                              }
+                              return KeyEventResult.ignored;
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  if (!isCompact) ...[
+                    const SizedBox(width: 16),
+                    const Text(
+                      '← → 10 s · ↓ painel · Voltar sai',
+                      style: TextStyle(
+                        color: Colors.white54,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTvPillButton({
+    required FocusNode focusNode,
+    required Stream<TrackSelection> stream,
+    required String Function(TrackSelection) labelBuilder,
+    required VoidCallback onPressed,
+    required KeyEventResult Function(KeyEvent) onKeyEvent,
+  }) {
+    return StreamBuilder<TrackSelection>(
+      stream: stream,
+      initialData: widget.player.state.track,
+      builder: (context, snapshot) {
+        final label = labelBuilder(snapshot.data ?? widget.player.state.track);
+        return _buildTvPillButtonStatic(
+          focusNode: focusNode,
+          label: label,
+          onPressed: onPressed,
+          onKeyEvent: onKeyEvent,
+        );
+      },
+    );
+  }
+
+  Widget _buildTvPillButtonStatic({
+    required FocusNode focusNode,
+    required String label,
+    required VoidCallback onPressed,
+    required KeyEventResult Function(KeyEvent) onKeyEvent,
+  }) {
+    return ListenableBuilder(
+      listenable: focusNode,
+      builder: (context, _) {
+        final isFocused = focusNode.hasFocus;
+        return Focus(
+          focusNode: focusNode,
+          onKeyEvent: (node, event) {
+            if (!event.isActionable) return KeyEventResult.ignored;
+            if (event.logicalKey.isSelectKey && event is KeyDownEvent) {
+              onPressed();
+              return KeyEventResult.handled;
+            }
+            if (event.logicalKey.isBackKey && event is KeyDownEvent) {
+              focusNode.unfocus();
+              widget.onFocusActivity?.call();
+              return KeyEventResult.handled;
+            }
+            return onKeyEvent(event);
+          },
+          onFocusChange: (has) {
+            if (has) widget.onFocusActivity?.call();
+          },
+          child: GestureDetector(
+            onTap: onPressed,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+              decoration: BoxDecoration(
+                color: isFocused ? Colors.white : Colors.white.withValues(alpha: 0.14),
+                borderRadius: const BorderRadius.all(Radius.circular(30)),
+                border: isFocused ? Border.all(color: Colors.white, width: 2) : null,
+              ),
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: isFocused ? const Color(0xFF17151C) : const Color(0xFFF2EFF5),
+                  fontSize: 16,
+                  fontWeight: isFocused ? FontWeight.w700 : FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

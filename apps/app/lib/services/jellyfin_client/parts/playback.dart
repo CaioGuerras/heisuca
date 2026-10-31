@@ -244,13 +244,29 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
   @override
   Future<PlaybackInitializationResult> getPlaybackInitialization(PlaybackInitializationOptions options) async {
     final metadata = options.metadata;
-    final JellyfinPlaybackBundle? bundle;
+    JellyfinPlaybackBundle? bundle;
     try {
+      if (PlatformDetector.isTV()) {
+        try {
+          bundle = await JellyfinPlaybackWarmupService.instance.getOrWaitInFlight(
+            serverId: connection.serverMachineId,
+            userId: connection.userId,
+            itemId: metadata.id,
+            sourceIndex: options.selectedMediaIndex,
+            sourceId: options.selectedMediaSourceId,
+            preferredSignature: options.preferredVersionSignature,
+            inheritedSignature: options.inheritedVersionSignature,
+          );
+        } catch (e, st) {
+          appLogger.w('Jellyfin playback warmup lookup failed; falling back to normal fetch', error: e, stackTrace: st);
+        }
+      }
+
       // An immediate connection error is asked again (see
       // [retryTransientMediaServerCall]); the deadline only backstops the
       // HTTP layer's own connect + receive budgets, so it never cuts a slow
       // but working server short.
-      bundle = await retryTransientMediaServerCall(
+      bundle ??= await retryTransientMediaServerCall(
         operation: 'Jellyfin playback item',
         deadline: MediaServerTimeouts.connect + MediaServerTimeouts.receive,
         call: (_, _) => fetchPlaybackBundle(
@@ -722,10 +738,26 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
     String? inheritedSignature,
     bool rawIndexNeedsHardware = false,
   }) async {
+    if (PlatformDetector.isTV()) {
+      try {
+        final cached = JellyfinPlaybackWarmupService.instance.get(
+          serverId: connection.serverMachineId,
+          userId: connection.userId,
+          itemId: itemId,
+          sourceIndex: sourceIndex,
+          sourceId: sourceId,
+          preferredSignature: preferredSignature,
+          inheritedSignature: inheritedSignature,
+        );
+        if (cached != null) return cached;
+      } catch (e, st) {
+        appLogger.w('Jellyfin playback warmup cache lookup failed', error: e, stackTrace: st);
+      }
+    }
     final item = await fetchItemFreshCacheFirst(itemId);
     final raw = item?.raw;
     if (raw is! Map<String, dynamic>) return null;
-    return _playbackBundleFromRaw(
+    final bundle = _playbackBundleFromRaw(
       raw,
       sourceIndex: sourceIndex,
       sourceId: sourceId,
@@ -733,6 +765,23 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
       inheritedSignature: inheritedSignature,
       rawIndexNeedsHardware: rawIndexNeedsHardware,
     );
+    if (bundle != null && PlatformDetector.isTV()) {
+      try {
+        JellyfinPlaybackWarmupService.instance.put(
+          serverId: connection.serverMachineId,
+          userId: connection.userId,
+          itemId: itemId,
+          sourceIndex: sourceIndex,
+          sourceId: sourceId,
+          preferredSignature: preferredSignature,
+          inheritedSignature: inheritedSignature,
+          bundle: bundle,
+        );
+      } catch (e, st) {
+        appLogger.w('Jellyfin playback warmup cache put failed', error: e, stackTrace: st);
+      }
+    }
+    return bundle;
   }
 
   JellyfinPlaybackBundle? _playbackBundleFromRaw(

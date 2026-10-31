@@ -9,6 +9,7 @@ import '../../cgflix/home/cgflix_actions.dart';
 import '../heisuca_theme.dart';
 import '../heisuca_title_sheet.dart';
 import 'heisuca_tv_canvas.dart';
+import 'heisuca_tv_playback_warmup.dart';
 
 /// Ficha de Conteúdo oficial do Heisuca na TV (Filmes e Séries).
 /// - Fundo escurecido com backdrop e gradiente cinemático.
@@ -61,11 +62,19 @@ class _HeisucaTvTitleScreenState extends State<HeisucaTvTitleScreen> {
     _targetEpisode = widget.targetEpisode;
     if (_seasons.isEmpty && _episodes.isEmpty) {
       _loadDetails();
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _playFocusNode.hasFocus) {
+          final target = _targetEpisode ?? _episodes.firstOrNull ?? _item;
+          HeisucaTvPlaybackWarmup.onCardFocused(context, target);
+        }
+      });
     }
   }
 
   @override
   void dispose() {
+    HeisucaTvPlaybackWarmup.onFocusLost();
     _playFocusNode.dispose();
     _tracksFocusNode.dispose();
     _versionFocusNode.dispose();
@@ -100,7 +109,13 @@ class _HeisucaTvTitleScreenState extends State<HeisucaTvTitleScreen> {
     } catch (_) {
       // Ignora erro em teste
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (mounted) {
+        setState(() => _loading = false);
+        if (_playFocusNode.hasFocus) {
+          final target = _targetEpisode ?? _episodes.firstOrNull ?? _item;
+          HeisucaTvPlaybackWarmup.onCardFocused(context, target);
+        }
+      }
     }
   }
 
@@ -259,6 +274,13 @@ class _HeisucaTvTitleScreenState extends State<HeisucaTvTitleScreen> {
                       text: playLabel,
                       isPrimary: true,
                       onTap: () => _play(playTarget),
+                      onFocusChange: (focused) {
+                        if (focused) {
+                          HeisucaTvPlaybackWarmup.onCardFocused(context, playTarget);
+                        } else {
+                          HeisucaTvPlaybackWarmup.onFocusLost();
+                        }
+                      },
                     ),
                     const SizedBox(width: 20),
                     _TvActionPill(
@@ -410,6 +432,7 @@ class _TvActionPill extends StatefulWidget {
     this.focusNode,
     this.autofocus = false,
     this.isPrimary = false,
+    this.onFocusChange,
   });
 
   final String text;
@@ -417,6 +440,7 @@ class _TvActionPill extends StatefulWidget {
   final FocusNode? focusNode;
   final bool autofocus;
   final bool isPrimary;
+  final ValueChanged<bool>? onFocusChange;
 
   @override
   State<_TvActionPill> createState() => _TvActionPillState();
@@ -445,6 +469,7 @@ class _TvActionPillState extends State<_TvActionPill> {
   void _onFocusChange() {
     if (mounted && _focused != _focusNode.hasFocus) {
       setState(() => _focused = _focusNode.hasFocus);
+      widget.onFocusChange?.call(_focusNode.hasFocus);
     }
   }
 
@@ -455,7 +480,11 @@ class _TvActionPillState extends State<_TvActionPill> {
     return FocusableActionDetector(
       focusNode: _focusNode,
       autofocus: widget.autofocus,
-      onShowFocusHighlight: (v) => setState(() => _focused = v),
+      onShowFocusHighlight: (v) {
+        if (mounted && _focused != v) {
+          setState(() => _focused = v);
+        }
+      },
       actions: {
         ActivateIntent: CallbackAction<ActivateIntent>(
           onInvoke: (_) {
@@ -607,6 +636,13 @@ class _TvEpisodeCardState extends State<_TvEpisodeCard> {
         : '';
 
     return FocusableActionDetector(
+      onFocusChange: (v) {
+        if (v) {
+          HeisucaTvPlaybackWarmup.onCardFocused(context, widget.episode);
+        } else {
+          HeisucaTvPlaybackWarmup.onFocusLost();
+        }
+      },
       onShowFocusHighlight: (v) => setState(() => _focused = v),
       actions: {
         ActivateIntent: CallbackAction<ActivateIntent>(

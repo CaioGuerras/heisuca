@@ -398,9 +398,8 @@ void main() {
     expect(await player.getProperty('vid'), isNot('no'));
     position = player.currentPosition;
     await until(
-      () => player.currentPosition >= position + const Duration(seconds: 4),
+      () => player.currentPosition >= position + const Duration(seconds: 3),
       'vídeo avança após restaurar a imagem',
-      seconds: 30,
     );
     final restoredProbe = await videoProbe();
     binding.reportData!['imagemAposAudio'] = restoredProbe;

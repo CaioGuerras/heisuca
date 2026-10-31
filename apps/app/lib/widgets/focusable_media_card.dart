@@ -5,6 +5,7 @@ import '../focus/focusable_wrapper.dart';
 import '../media/media_item.dart';
 import '../services/settings_service.dart';
 import '../utils/platform_detector.dart';
+import '../heisuca/tv/heisuca_tv_playback_warmup.dart';
 import 'media_card.dart';
 
 /// A focusable wrapper for MediaCard that handles D-pad navigation.
@@ -134,7 +135,16 @@ class _FocusableMediaCardState extends State<FocusableMediaCard> {
       onNavigateLeft: widget.onNavigateLeft,
       onNavigateRight: widget.onNavigateRight,
       onBack: widget.onBack,
-      onFocusChange: widget.onFocusChange,
+      onFocusChange: (v) {
+        widget.onFocusChange?.call(v);
+        if (PlatformDetector.isTV()) {
+          if (v && widget.item is MediaItem) {
+            HeisucaTvPlaybackWarmup.onCardFocused(context, widget.item as MediaItem);
+          } else {
+            HeisucaTvPlaybackWarmup.onFocusLost();
+          }
+        }
+      },
       enableLongPress: true,
       disableScale: widget.disableScale,
       focusScale: widget.fullBleedImage ? FocusTheme.fullCardFocusScale : FocusTheme.focusScale,

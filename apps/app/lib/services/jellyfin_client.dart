@@ -76,6 +76,8 @@ import 'jellyfin_mappers.dart';
 import 'jellyfin_media_info_mapper.dart';
 import 'jellyfin_playback_bundle.dart';
 import 'jellyfin_playback_urls.dart';
+import 'jellyfin_playback_warmup_service.dart';
+import '../utils/platform_detector.dart';
 import 'jellyfin_trickplay_service.dart';
 import 'media_browser_paths.dart';
 import 'playback_initialization_types.dart';
@@ -634,6 +636,7 @@ class JellyfinClient
   /// Encerra a sessão atual no servidor via `POST /Sessions/Logout`.
   /// Prazo curto: sem rede, sair da conta não pode esperar o timeout de leitura do cliente (até 120 s).
   Future<void> logout({Duration prazo = const Duration(seconds: 5)}) async {
+    JellyfinPlaybackWarmupService.instance.clear();
     try {
       await _http.post('/Sessions/Logout').timeout(prazo);
       appLogger.i('Sessão Jellyfin encerrada no servidor via /Sessions/Logout');

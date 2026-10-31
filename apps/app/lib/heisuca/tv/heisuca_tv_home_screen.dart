@@ -18,6 +18,7 @@ import 'heisuca_tv_header.dart';
 import 'heisuca_tv_menu.dart';
 import 'heisuca_tv_title_screen.dart';
 import 'heisuca_tv_canvas.dart';
+import 'heisuca_tv_playback_warmup.dart';
 
 /// Início Flagship Heisuca na TV — Modelo A ("Destaque grande", estilo Apple TV).
 /// - Destaque em tela cheia com arte de fundo e gradientes laterais/inferiores.
@@ -82,6 +83,7 @@ class HeisucaTvHomeScreenState extends State<HeisucaTvHomeScreen> {
 
   @override
   void dispose() {
+    HeisucaTvPlaybackWarmup.onFocusLost();
     _scrollController.dispose();
     heroPlayFocusNode.dispose();
     heroDetailsFocusNode.dispose();
@@ -126,6 +128,9 @@ class HeisucaTvHomeScreenState extends State<HeisucaTvHomeScreen> {
       final heroRow = await repo.watchHero().first.timeout(const Duration(seconds: 4));
       if (mounted && heroRow.items.isNotEmpty) {
         setState(() => _activeHero = heroRow.items.first);
+        if (heroPlayFocusNode.hasFocus) {
+          HeisucaTvPlaybackWarmup.onCardFocused(context, heroRow.items.first);
+        }
       }
 
       // 2. Continuar assistindo
@@ -263,6 +268,13 @@ class HeisucaTvHomeScreenState extends State<HeisucaTvHomeScreen> {
                                     text: '▶  Assistir',
                                     isPrimary: true,
                                     onTap: () => _playItem(hero),
+                                    onFocusChange: (focused) {
+                                      if (focused) {
+                                        HeisucaTvPlaybackWarmup.onCardFocused(context, hero);
+                                      } else {
+                                        HeisucaTvPlaybackWarmup.onFocusLost();
+                                      }
+                                    },
                                   ),
                                   const SizedBox(width: 24),
                                   _TvButtonPill(
@@ -433,7 +445,21 @@ class _TvContinueCardState extends State<_TvContinueCard> {
         : 0.35;
 
     return FocusableActionDetector(
-      onShowFocusHighlight: (v) => setState(() => _focused = v),
+      onFocusChange: (v) {
+        if (v) {
+          HeisucaTvPlaybackWarmup.onCardFocused(context, widget.item);
+        } else {
+          HeisucaTvPlaybackWarmup.onFocusLost();
+        }
+      },
+      onShowFocusHighlight: (v) {
+        setState(() => _focused = v);
+        if (v) {
+          HeisucaTvPlaybackWarmup.onCardFocused(context, widget.item);
+        } else {
+          HeisucaTvPlaybackWarmup.onFocusLost();
+        }
+      },
       actions: {
         ActivateIntent: CallbackAction<ActivateIntent>(
           onInvoke: (_) {
@@ -603,6 +629,7 @@ class _TvButtonPill extends StatefulWidget {
     this.focusNode,
     this.autofocus = false,
     this.isPrimary = true,
+    this.onFocusChange,
   });
 
   final String text;
@@ -610,6 +637,7 @@ class _TvButtonPill extends StatefulWidget {
   final FocusNode? focusNode;
   final bool autofocus;
   final bool isPrimary;
+  final ValueChanged<bool>? onFocusChange;
 
   @override
   State<_TvButtonPill> createState() => _TvButtonPillState();
@@ -638,6 +666,7 @@ class _TvButtonPillState extends State<_TvButtonPill> {
   void _onFocusChange() {
     if (mounted && _focused != _focusNode.hasFocus) {
       setState(() => _focused = _focusNode.hasFocus);
+      widget.onFocusChange?.call(_focusNode.hasFocus);
     }
   }
 
@@ -648,7 +677,12 @@ class _TvButtonPillState extends State<_TvButtonPill> {
     return FocusableActionDetector(
       focusNode: _focusNode,
       autofocus: widget.autofocus,
-      onShowFocusHighlight: (v) => setState(() => _focused = v),
+      onShowFocusHighlight: (v) {
+        if (mounted && _focused != v) {
+          setState(() => _focused = v);
+          widget.onFocusChange?.call(v);
+        }
+      },
       actions: {
         ActivateIntent: CallbackAction<ActivateIntent>(
           onInvoke: (_) {
@@ -777,7 +811,21 @@ class _TvPosterCardState extends State<_TvPosterCard> {
     final item = widget.item;
 
     return FocusableActionDetector(
-      onShowFocusHighlight: (v) => setState(() => _focused = v),
+      onFocusChange: (v) {
+        if (v) {
+          HeisucaTvPlaybackWarmup.onCardFocused(context, widget.item);
+        } else {
+          HeisucaTvPlaybackWarmup.onFocusLost();
+        }
+      },
+      onShowFocusHighlight: (v) {
+        setState(() => _focused = v);
+        if (v) {
+          HeisucaTvPlaybackWarmup.onCardFocused(context, widget.item);
+        } else {
+          HeisucaTvPlaybackWarmup.onFocusLost();
+        }
+      },
       actions: {
         ActivateIntent: CallbackAction<ActivateIntent>(
           onInvoke: (_) {

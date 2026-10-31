@@ -13,6 +13,7 @@ import 'package:heisuca/focus/input_mode_tracker.dart';
 import 'package:heisuca/heisuca/services/heisuca_episode_attention.dart';
 import 'package:heisuca/i18n/strings.g.dart';
 import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_source_info.dart';
 import 'package:heisuca/mpv/mpv.dart';
 import 'package:heisuca/providers/playback_state_provider.dart';
 import 'package:heisuca/screens/video_player/widgets/player_prompt_overlays.dart';
@@ -26,6 +27,7 @@ import 'package:heisuca/widgets/video_controls/desktop_video_controls.dart';
 import 'package:heisuca/widgets/video_controls/player_chrome_controller.dart';
 import 'package:heisuca/widgets/video_controls/video_controls.dart';
 import 'package:heisuca/widgets/video_controls/widgets/player_toast_indicator.dart';
+import 'package:heisuca/widgets/video_controls/widgets/skip_marker_button.dart';
 import 'package:heisuca/widgets/video_controls/widgets/video_timeline_bar.dart';
 
 import '../test_helpers/media_items.dart';
@@ -826,6 +828,126 @@ void main() {
       await tester.pump(const Duration(seconds: 4, milliseconds: 100));
       expect(chrome.controlsVisible, isFalse, reason: 'Após 4s completos sem tecla os controles fecham na TV');
 
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
+    testWidgets('G2.13: TV: com "Pular abertura" visível e HUD aberto, 1º Voltar recusa o pulo e mantém o HUD, 2º fecha o HUD, 3º sai do player', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1920, 1080));
+      addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
+
+      var playerExitCount = 0;
+      final introMarker = MediaMarker(id: 1, type: 'intro', startTimeOffset: 10000, endTimeOffset: 45000);
+
+      await tester.pumpWidget(
+        wrapWithShell(
+          PlexVideoControls(
+            player: player,
+            volumeController: volume,
+            metadata: testMediaItem(id: 'skip-back-test', title: 'Episódio 1', grandparentTitle: 'Série Teste'),
+            initialMarkers: [introMarker],
+            toastController: toast,
+            chromeController: chrome,
+            hasFirstFrame: hasFirstFrame,
+            canNavigateMediaItems: true,
+            canControl: true,
+            onBack: () => playerExitCount++,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Entra em modo teclado/controle remoto e emite playhead dentro da abertura
+      InputModeTracker.reportNonPointerInput();
+      player.emitPosition(const Duration(seconds: 15));
+      await tester.pumpAndSettle();
+
+      // Precondição: o botão "Pular abertura" surge na tela
+      expect(find.byType(SkipMarkerButton), findsOneWidget, reason: 'Botão de pular abertura deve estar visível');
+
+      // Abre os controles / HUD
+      chrome.show();
+      await tester.pumpAndSettle();
+      expect(chrome.controlsVisible, isTrue, reason: 'HUD deve estar aberto');
+      expect(find.byType(SkipMarkerButton), findsOneWidget, reason: 'Botão de pular continua visível com HUD aberto');
+
+      // 1º Voltar (KeyDown + KeyUp): deve recusar o pulo (descartar o botão) e MANTER o HUD aberto
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SkipMarkerButton), findsNothing, reason: '1º Voltar deve recusar o pulo e ocultar o botão');
+      expect(chrome.controlsVisible, isTrue, reason: '1º Voltar recusa o pulo mas mantém o HUD aberto');
+      expect(playerExitCount, 0, reason: '1º Voltar não deve sair do player');
+
+      // 2º Voltar (KeyDown + KeyUp): deve fechar o HUD sem sair do player
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      expect(chrome.controlsVisible, isFalse, reason: '2º Voltar fecha o HUD');
+      expect(playerExitCount, 0, reason: '2º Voltar fecha controles sem sair do player');
+
+      // 3º Voltar (KeyDown + KeyUp): sai do player
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      expect(screenBackDispositions, contains(PlayerBackDisposition.exitPlayer), reason: '3º Voltar deve sair do player');
+
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
+    testWidgets('G2.14: TV: esconder HUD pelo Back devolve foco à superfície do player e próximo D-pad não é engolido', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1920, 1080));
+      addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
+
+      chrome.show();
+      await tester.pumpWidget(
+        wrapWithShell(
+          PlexVideoControls(
+            player: player,
+            volumeController: volume,
+            metadata: testMediaItem(id: 'dpad-swallow-test', title: 'Episódio 1', grandparentTitle: 'Série Teste'),
+            toastController: toast,
+            chromeController: chrome,
+            hasFirstFrame: hasFirstFrame,
+            canNavigateMediaItems: true,
+            canControl: true,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Foca no painel da TV
+      final desktopState = tester.state<DesktopVideoControlsState>(find.byType(DesktopVideoControls));
+      desktopState.requestTvPanelFocus();
+      await tester.pumpAndSettle();
+      expect(desktopState.isTvPanelFocused, isTrue);
+      expect(chrome.controlsVisible, isTrue);
+
+      // Aperta Voltar para fechar os controles
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      expect(chrome.controlsVisible, isFalse, reason: 'Voltar fecha os controles');
+
+      // G2-b: foco deve ser devolvido à superfície do player (nó de controles)
+      expect(FocusManager.instance.primaryFocus?.debugLabel, 'PlayerSurface', reason: 'Superfície do player deve reter foco após recolher HUD');
+
+      // Próximo D-pad (seta para baixo) não pode ser engolido: deve reabrir controles
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pump();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pumpAndSettle();
+
+      expect(chrome.controlsVisible, isTrue, reason: 'Primeiro D-pad após recolher HUD não deve ser engolido');
+
+      await tester.pump(const Duration(seconds: 4));
       await tester.pumpWidget(const SizedBox.shrink());
     });
   });

@@ -374,8 +374,11 @@ android {
       // sourceSets rule below makes the runtime :libmpv extracts from the
       // mpv-build tarballs win for std::from_chars<float>, while older
       // native consumers remain ABI-compatible.
-      pickFirsts.add("lib/*/libc++_shared.so")
-      if (heisucaAbis.isNotEmpty()) {
+      if (heisucaAbis.isEmpty()) {
+        pickFirsts.add("lib/*/libc++_shared.so")
+      } else {
+        // pickFirst vence exclude no AGP: limitar às ABIs pedidas para o libc++ das outras sair também.
+        heisucaAbis.forEach { abi -> pickFirsts.add("lib/$abi/libc++_shared.so") }
         excludes += (heisucaAbisConhecidas - heisucaAbis.toSet()).map { abi -> "lib/$abi/**" }
       }
     }

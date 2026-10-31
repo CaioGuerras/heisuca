@@ -154,6 +154,47 @@ jobs:
             apps/app/assets/heisuca/CHANGELOG_USUARIO.md
           retention-days: 14
 
+      # Universal arm + arm64 para Fire TV Stick e TV box de 32 bits (sideload pelo Downloader; .aab não serve).
+      # Sem -PtargetAbi: o preparo do FFmpeg cobre todas as ABIs e o Flutter filtra as duas pedidas.
+      # versionCode igual ao do split arm64 (2000 + build) para um poder substituir o outro sem "downgrade".
+      - name: Compilar APK Release universal (armeabi-v7a + arm64-v8a)
+        run: |
+          preview_args=()
+          if [[ "$GITHUB_REF_NAME" == codex/heisuca-* || "$GITHUB_REF_NAME" == claude/heisuca-* ]]; then
+            preview_args+=(-PheisucaPreview=true)
+          fi
+          build_number=$(sed -n 's/^version: *[^+]*+\([0-9]\+\).*/\1/p' pubspec.yaml)
+          [ -n "$build_number" ] || { echo "::error::build number não encontrado no pubspec.yaml"; exit 1; }
+          rm -f build/app/outputs/flutter-apk/app-release.apk
+          flutter build apk --release --target-platform android-arm,android-arm64 --build-number "$((2000 + build_number))" "${preview_args[@]}" --dart-define=GIT_COMMIT=${{ github.sha }}
+
+      - name: Conferir ABIs, pacote e assinatura do APK universal
+        run: |
+          apk=build/app/outputs/flutter-apk/app-release.apk
+          python3 scripts/heisuca-validar-apk.py "$apk"
+          libs=$(unzip -Z1 "$apk" 'lib/*')
+          for abi in armeabi-v7a arm64-v8a; do
+            for so in libmpv.so libflutter.so libapp.so; do
+              grep -qx "lib/$abi/$so" <<<"$libs" || { echo "::error::falta lib/$abi/$so no APK universal"; exit 1; }
+            done
+          done
+          extra=$(grep -v -e '^lib/armeabi-v7a/' -e '^lib/arm64-v8a/' <<<"$libs" || true)
+          [ -z "$extra" ] || { echo "::error::ABI inesperada no APK universal:"; echo "$extra"; exit 1; }
+          echo "Bibliotecas por ABI:"; awk -F/ '{print $2}' <<<"$libs" | sort | uniq -c
+          "$ANDROID_HOME/build-tools/36.1.0/aapt" dump badging "$apk" | grep -E "^package:|native-code"
+          mkdir -p dist-universal
+          cp "$apk" dist-universal/heisuca-universal-armeabi-v7a-arm64-v8a.apk
+          ls -lh dist-universal
+
+      - name: Publicar Artifact Heisuca APK universal
+        uses: actions/upload-artifact@v4
+        with:
+          name: heisuca-apk-universal
+          path: |
+            apps/app/dist-universal/*.apk
+            apps/app/assets/heisuca/CHANGELOG_USUARIO.md
+          retention-days: 14
+
 
   # AAB da Play (app.heisuca.player): só depois do portão do APK e só quando pedido (disparo manual ou "[aab]" na
   # mensagem do commit), para não dobrar o tempo de cada push. Sem a chave do Heisuca o job falha (nada de debug).

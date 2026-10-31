@@ -2590,9 +2590,10 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
     if (_reclaimingFocus) return;
     if (!_screenFocusNode.hasFocus && mounted && !_isExiting.value) {
       _reclaimingFocus = true;
+      final route = _videoPlayerRoute ?? ModalRoute.of(context);
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _reclaimingFocus = false;
-        if (mounted && !_isExiting.value && !_screenFocusNode.hasFocus && ModalRoute.of(context)?.isCurrent == true) {
+        if (mounted && !_isExiting.value && !_screenFocusNode.hasFocus && route?.isCurrent == true) {
           _screenFocusNode.requestFocus();
         }
       });

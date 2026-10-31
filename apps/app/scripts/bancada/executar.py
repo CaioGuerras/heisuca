@@ -87,7 +87,7 @@ def main():
                             line = 'Resposta do driver recebida.\n'
                         safe = limpar_log(line, protected, base)
                         if 'BANCADA_OCUPADA' in safe: report['ocupada'] = True
-                        if any(marker in safe for marker in ('BANCADA_RETORNO:', 'BANCADA_ROTAS_ANTES:', 'BANCADA_POP_NATIVO', 'BANCADA_FORA_DO_APP:')):
+                        if any(marker in safe for marker in ('BANCADA_RETORNO:', 'BANCADA_ROTAS_ANTES:', 'BANCADA_POP_NATIVO', 'BANCADA_FORA_DO_APP:', 'BANCADA_ATENCAO:')):
                             print(safe.strip(), flush=True)
                         log.write(safe[:2000])
                         log.flush()
@@ -200,7 +200,7 @@ def main():
             print('Prova do player: ' + json.dumps(report['video'], ensure_ascii=False))
         if result_code != 0 and (OUT / 'execucao.log').exists():
             print('Diagnóstico final (já redigido, sem credenciais):')
-            print(''.join((OUT / 'execucao.log').read_text().splitlines(keepends=True)[-60:]))
+            print(''.join((OUT / 'execucao.log').read_text().splitlines(keepends=True)[-120:]))
     return result_code
 
 

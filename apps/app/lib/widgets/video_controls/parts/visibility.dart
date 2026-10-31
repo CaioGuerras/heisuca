@@ -336,23 +336,25 @@ extension _PlexVideoControlsVisibilityMethods on _PlexVideoControlsState {
   void _claimPlayerSurfaceFocus() {
     if (_sheetIsOpen()) return;
     _focusNode.requestFocus();
+    final route = ModalRoute.of(context);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Re-check: a sheet or a route can open during the frame we deferred
       // over, and the retry must not pull the remote back out of it.
       if (!mounted || _focusNode.hasPrimaryFocus || _sheetIsOpen()) return;
-      if (ModalRoute.of(context)?.isCurrent != true) return;
+      if (route?.isCurrent != true) return;
       _focusNode.requestFocus();
     });
   }
 
-  bool _sheetIsOpen() => OverlaySheetController.maybeOf(context)?.isOpen ?? false;
+  bool _sheetIsOpen() => (mounted ? OverlaySheetController.maybeOf(context)?.isOpen : false) ?? false;
 
   void _requestPlayPauseFocus() {
+    final sheetIsOpen = _sheetIsOpen();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !widget.chromeController.controlsVisible) return;
       // Never steal focus from an open sheet (same rule as
       // _claimPlayerSurfaceFocus).
-      if (OverlaySheetController.maybeOf(context)?.isOpen ?? false) return;
+      if (sheetIsOpen || _sheetIsOpen()) return;
       _desktopControlsKey.currentState?.requestPlayPauseFocus();
     });
   }

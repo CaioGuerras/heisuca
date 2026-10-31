@@ -35,4 +35,75 @@ void main() {
       expect(allowed(width: 321), isFalse);
     });
   }
+
+  test('trata exceção ao inspecionar elemento já descartado (disposed RenderFlex)', () {
+    final details = _ThrowingDiagnosticsFlutterErrorDetails(
+      exception: FlutterError('A RenderFlex overflowed by 10 pixels on the bottom.'),
+      library: 'rendering library',
+      informationCollector: () => [
+        ErrorDescription('The overflowed RenderFlex was: RenderFlex#527a5 relayoutBoundary=up1 DISPOSED OVERFLOWING'),
+        ErrorDescription('creator: Column ← MobileVideoControls ← [mobile_video_controls.dart:239:14]'),
+      ],
+    );
+
+    final warning = pipHudWarning(details, phase: 'ativo', width: 200, height: 100);
+    expect(warning, isNotNull);
+    expect(warning!['tipo'], 'overflow HUD PiP');
+    expect(warning['widget'], 'mobile_video_controls.dart:239:14');
+  });
+
+  test('trata erro assíncrono emitido pelo widget inspector sobre elemento descartado', () {
+    final inspectorDetails = FlutterErrorDetails(
+      exception: FlutterError('Element._debugCheckStateIsActiveForAncestorLookup was called on a deactivated element'),
+      library: 'widget inspector',
+    );
+    expect(pipHudWarning(inspectorDetails, phase: 'ativo', width: 200, height: 100), isNotNull);
+    expect(pipHudWarning(inspectorDetails, phase: 'fora', width: 200, height: 100), isNull);
+
+    // Mensagem autêntica do framework Flutter quando um Element desativado é inspecionado
+    final realFlutterInspectorDetails = FlutterErrorDetails(
+      exception: FlutterError("Looking up a deactivated widget's ancestor is unsafe. At this point the state of the widget's element tree is no longer stable."),
+      library: 'widget inspector',
+      stack: StackTrace.fromString('#0 Element._debugCheckStateIsActiveForAncestorLookup\n#1 _describeRelevantUserCode\n#2 _parseDiagnosticsNode'),
+    );
+    expect(pipHudWarning(realFlutterInspectorDetails, phase: 'saída', width: 200, height: 100), isNotNull);
+    expect(pipHudWarning(realFlutterInspectorDetails, phase: 'fora', width: 200, height: 100), isNull);
+
+    // Erros não relacionados do widget inspector continuam propagando para o framework
+    final unrelatedInspectorDetails = FlutterErrorDetails(
+      exception: FlutterError('Outro erro do widget inspector não relacionado a elemento descartado'),
+      library: 'widget inspector',
+    );
+    expect(pipHudWarning(unrelatedInspectorDetails, phase: 'ativo', width: 200, height: 100), isNull);
+    expect(pipHudWarning(unrelatedInspectorDetails, phase: 'fora', width: 200, height: 100), isNull);
+  });
+
+  test('trata RenderFlex DISPOSED OVERFLOWING autêntico sem criador expandido', () {
+    final details = _ThrowingDiagnosticsFlutterErrorDetails(
+      exception: FlutterError('A RenderFlex overflowed by 196 pixels on the bottom.'),
+      library: 'rendering library',
+      informationCollector: () => [
+        ErrorDescription('The specific RenderFlex in question is: RenderFlex#527a5 DISPOSED OVERFLOWING:'),
+        ErrorDescription('constraints: BoxConstraints(0.0<=w<=227.8, 0.0<=h<=40.0)'),
+      ],
+    );
+
+    final warning = pipHudWarning(details, phase: 'ativo', width: 227.8, height: 128.0);
+    expect(warning, isNotNull);
+    expect(warning!['tipo'], 'overflow HUD PiP');
+    expect(warning['widget'], 'mobile_video_controls.dart:239:14');
+  });
+}
+
+class _ThrowingDiagnosticsFlutterErrorDetails extends FlutterErrorDetails {
+  _ThrowingDiagnosticsFlutterErrorDetails({
+    required super.exception,
+    super.library,
+    super.informationCollector,
+  });
+
+  @override
+  DiagnosticsNode toDiagnosticsNode({String? name, DiagnosticsTreeStyle? style}) {
+    throw FlutterError('Element._debugCheckStateIsActiveForAncestorLookup was called on a disposed element');
+  }
 }

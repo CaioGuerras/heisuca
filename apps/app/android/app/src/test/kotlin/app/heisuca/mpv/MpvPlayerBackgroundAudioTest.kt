@@ -2,6 +2,7 @@ package app.heisuca.mpv
 
 import android.app.Activity
 import android.os.Looper
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -12,6 +13,67 @@ import java.util.concurrent.ConcurrentLinkedQueue
 
 @RunWith(RobolectricTestRunner::class)
 class MpvPlayerBackgroundAudioTest {
+  @Test fun reativarAudioAguardaSuperficieRealQuandoVisivel() {
+    val operations = ConcurrentLinkedQueue<String>()
+    val core = MpvPlayerCore(Robolectric.buildActivity(Activity::class.java).setup().get(),
+      audioOnly = false,
+      propertyWriter = { key, value -> operations.add("$key=$value"); Unit },
+      commandRunner = { args -> operations.add(args.joinToString(" ")); null })
+    core.propertyReaderOverride = { "7" }
+    try {
+      assertTrue(change(core, true).isSuccess)
+      core.renderVisible = true
+      var restored = false
+      core.setBackgroundAudio(false) { restored = it.isSuccess }
+      shadowOf(Looper.getMainLooper()).idle()
+      Thread.sleep(50)
+      assertFalse("vid não deve ser restaurado antes da superfície real", operations.contains("vid=7"))
+      assertFalse("callback não deve concluir antes da superfície real", restored)
+
+      core.notifyRealSurfaceAttached()
+      val deadline = System.nanoTime() + 3_000_000_000L
+      while (!restored && System.nanoTime() < deadline) {
+        shadowOf(Looper.getMainLooper()).idle()
+        Thread.sleep(5)
+      }
+      assertTrue("callback deve concluir após notificar superfície real", restored)
+      assertTrue("vid deve ser restaurado após notificar superfície real", operations.contains("vid=7"))
+      assertTrue("seek deve ser executado após notificar superfície real", operations.contains("seek 0 relative exact"))
+    } finally { core.dispose() }
+  }
+
+  @Test fun superficieRealAposPlaceholderComVidAtivoExecutaSeek() {
+    val operations = ConcurrentLinkedQueue<String>()
+    val core = MpvPlayerCore(Robolectric.buildActivity(Activity::class.java).setup().get(),
+      audioOnly = false,
+      propertyWriter = { key, value -> operations.add("$key=$value"); Unit },
+      commandRunner = { args -> operations.add(args.joinToString(" ")); null })
+    core.propertyReaderOverride = { "7" }
+    try {
+      runBlocking {
+        core.handleRealSurfaceAttachedAfterPlaceholder("teste")
+      }
+      assertTrue("deve executar seek 0 relative exact ao anexar superfície real com vid ativo",
+        operations.contains("seek 0 relative exact"))
+    } finally { core.dispose() }
+  }
+
+  @Test fun superficieRealAposPlaceholderComVidDesligadoNaoExecutaSeek() {
+    val operations = ConcurrentLinkedQueue<String>()
+    val core = MpvPlayerCore(Robolectric.buildActivity(Activity::class.java).setup().get(),
+      audioOnly = false,
+      propertyWriter = { key, value -> operations.add("$key=$value"); Unit },
+      commandRunner = { args -> operations.add(args.joinToString(" ")); null })
+    core.propertyReaderOverride = { "no" }
+    try {
+      runBlocking {
+        core.handleRealSurfaceAttachedAfterPlaceholder("teste")
+      }
+      assertFalse("não deve executar seek se vid for no",
+        operations.contains("seek 0 relative exact"))
+    } finally { core.dispose() }
+  }
+
   @Test fun reativarVideoRessincronizaNoPontoAtualSemTrocarFaixa() {
     val operations = ConcurrentLinkedQueue<String>()
     val core = MpvPlayerCore(Robolectric.buildActivity(Activity::class.java).setup().get(),

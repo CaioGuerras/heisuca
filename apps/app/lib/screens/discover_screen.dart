@@ -212,8 +212,9 @@ class _DiscoverScreenState extends State<DiscoverScreen>
       return;
     }
 
+    final route = ModalRoute.of(context);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !(ModalRoute.of(context)?.isCurrent ?? false)) return;
+      if (!mounted || !(route?.isCurrent ?? false)) return;
       _actionBarKey.currentState?.requestFocusOnFirst();
     });
   }
@@ -265,9 +266,10 @@ class _DiscoverScreenState extends State<DiscoverScreen>
       }
     }
 
+    final route = ModalRoute.of(context);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      if (!_isTabVisible || !(ModalRoute.of(context)?.isCurrent ?? false)) {
+      if (!_isTabVisible || !(route?.isCurrent ?? false)) {
         _pendingTvBrowseRailFocus = false;
         return;
       }
@@ -387,8 +389,9 @@ class _DiscoverScreenState extends State<DiscoverScreen>
         _focusTvBrowseRailWhenReady();
       } else if (!PlatformDetector.isTV() && _onDeck.isNotEmpty) {
         _initialLoadComplete = true;
+        final route = ModalRoute.of(context);
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!mounted || !(ModalRoute.of(context)?.isCurrent ?? false)) return;
+          if (!mounted || !(route?.isCurrent ?? false)) return;
           if (_heroFocusNode.canRequestFocus) {
             _heroFocusNode.requestFocus();
           }

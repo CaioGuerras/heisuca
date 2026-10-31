@@ -3980,6 +3980,9 @@ class ExoPlayerCore(private val activity: Activity) :
     val current = exoPlayer ?: return
     current.trackSelectionParameters = current.trackSelectionParameters.buildUpon()
       .setTrackTypeDisabled(C.TRACK_TYPE_VIDEO, enabled).build()
+    if (!enabled) {
+      current.seekTo(current.currentPosition)
+    }
   }
 
   override fun setVisible(visible: Boolean) {

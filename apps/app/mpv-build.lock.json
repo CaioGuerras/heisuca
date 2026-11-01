@@ -26,15 +26,15 @@
       "assetBase": "https://github.com/edde746/mpv-build/releases/download/binaries-linux",
       "assets": {
         "aarch64": {
-          "asset": "libmpv-linux-52b991183e5f-aarch64.tar.zst",
-          "checksum": "280611b23e02781f2010b48cf7a10193642b2f61e1ed2160a4abe8d03489ca57"
+          "asset": "libmpv-linux-fa32d419053a-aarch64.tar.zst",
+          "checksum": "0816a0208558f471b706fa745bb44a12602b4223c23adb212184477210a2aaa4"
         },
         "x86_64": {
-          "asset": "libmpv-linux-52b991183e5f-x86_64.tar.zst",
-          "checksum": "e958c2bbe2c323f39631283f756749c91d2e7d7a56e5531b6b0f469279ac6dd3"
+          "asset": "libmpv-linux-fa32d419053a-x86_64.tar.zst",
+          "checksum": "d77f69d296590860acf058d8b8c16932c08f8aac3bcb6737d90fddc34fbf4376"
         }
       },
-      "key": "52b991183e5f"
+      "key": "fa32d419053a"
     },
     "windows": {
       "assetBase": "https://github.com/edde746/mpv-build/releases/download/binaries-windows",

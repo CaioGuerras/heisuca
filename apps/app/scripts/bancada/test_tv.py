@@ -445,75 +445,124 @@ class TestTvBancada(unittest.TestCase):
             # Preencheu SERVIDOR e USUÁRIO, mas parou ao detectar Início antes de SENHA
             self.assertEqual(preenchidos, ['SERVIDOR', 'USUÁRIO'])
 
-    def test_fazer_login_tv_aciona_botao_com_dpad(self):
+    def test_fazer_login_tv_envio_via_senha_sem_dpad_center_no_botao(self):
+        # K5a/K5d: Envio do login NÃO usa DPAD_CENTER sobre o botão nem toca no botão
         nos_login = [
             {'text': 'SERVIDOR', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 200, 200, 240), 'centro': (120, 220)},
             {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 250, 600, 320), 'centro': (320, 285)},
             {'text': 'USUÁRIO', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 340, 200, 380), 'centro': (120, 360)},
             {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 390, 600, 460), 'centro': (320, 425)},
             {'text': 'SENHA', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 480, 200, 520), 'centro': (120, 500)},
-            {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 530, 600, 600), 'centro': (320, 565)},
+            {'text': '', 'desc': '', 'hint': '••••••••', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 530, 600, 600), 'centro': (320, 565)},
             {'text': '', 'desc': 'Iniciar sessão', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'bounds': (40, 620, 600, 690), 'centro': (320, 655)},
         ]
-        nos_login_focado = [
+        nos_inicio = [
+            {'text': '', 'desc': 'EM ALTA NO BRASIL · Nº 1\nO Homem do Norte', 'hint': '', 'cls': 'android.view.View', 'bounds': (48, 390, 400, 420), 'centro': (224, 405)},
+            {'text': '', 'desc': '▶  Assistir', 'hint': '', 'cls': 'android.widget.Button', 'bounds': (42, 736, 270, 810), 'centro': (156, 773)},
+            {'text': '', 'desc': 'Detalhes', 'hint': '', 'cls': 'android.widget.Button', 'bounds': (288, 740, 478, 808), 'centro': (383, 774)},
+        ]
+        # Sequência de dumps: detecção, servidor, usuário, pós-preenchimento, abertura overlay, envio, início
+        dumps = [nos_login, nos_login, nos_login, nos_login, nos_login, nos_login, nos_login, nos_inicio]
+        chamadas_tocar = []
+
+        with patch('tv.dump_tv', side_effect=lambda: dumps.pop(0) if dumps else nos_inicio), \
+             patch('tv.preencher_campo_tv', return_value=True), \
+             patch('tv.fechar_teclado'), \
+             patch('tv.tocar', lambda no: chamadas_tocar.append(no['centro'])), \
+             patch('time.sleep'):
+            res = fazer_login_tv('http://10.0.2.2:8096', 'teste-sem-senha')
+            self.assertTrue(res)
+            # K5a/K5d: NÃO deve tocar no botão Iniciar sessão (320, 655)
+            self.assertNotIn((320, 655), chamadas_tocar)
+
+    def test_fazer_login_tv_espera_aborta_ao_ver_overlay(self):
+        # K5c/K5d: Na espera do Início, se o dump mostrar o overlay do teclado, aborta na hora
+        nos_login = [
             {'text': 'SERVIDOR', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 200, 200, 240), 'centro': (120, 220)},
             {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 250, 600, 320), 'centro': (320, 285)},
             {'text': 'USUÁRIO', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 340, 200, 380), 'centro': (120, 360)},
             {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 390, 600, 460), 'centro': (320, 425)},
             {'text': 'SENHA', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 480, 200, 520), 'centro': (120, 500)},
-            {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 530, 600, 600), 'centro': (320, 565)},
-            {'text': '', 'desc': 'Iniciar sessão', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'focused': True, 'bounds': (40, 620, 600, 690), 'centro': (320, 655)},
+            {'text': '', 'desc': '', 'hint': '••••••••', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 530, 600, 600), 'centro': (320, 565)},
+            {'text': '', 'desc': 'Iniciar sessão', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'bounds': (40, 620, 600, 690), 'centro': (320, 655)},
+        ]
+        nos_overlay = [
+            {'text': 'Space', 'desc': '', 'hint': '', 'cls': 'android.view.View'},
+            {'text': 'Del', 'desc': '', 'hint': '', 'cls': 'android.view.View'},
+            {'text': 'Shift', 'desc': '', 'hint': '', 'cls': 'android.view.View'},
+        ]
+        # Após a etapa de preenchimento, o dump retorna o overlay do teclado aberto durante a espera do início
+        # 1: detecção de login, 2: servidor, 3: usuário, 4: senha, 5: pós-preenchimento
+        dumps = [nos_login, nos_login, nos_login, nos_login, nos_login, nos_login, nos_login, nos_overlay]
+        contagem_dumps = [0]
+
+        def mock_dump():
+            contagem_dumps[0] += 1
+            if dumps:
+                return dumps.pop(0)
+            return nos_overlay
+
+        with patch('tv.dump_tv', side_effect=mock_dump), \
+             patch('tv.preencher_campo_tv', return_value=True), \
+             patch('tv.fechar_teclado'), \
+             patch('tv.tocar'), \
+             patch('tv.dpad_center'), \
+             patch('time.sleep'):
+            res = fazer_login_tv('http://10.0.2.2:8096', 'teste-sem-senha')
+            self.assertFalse(res)
+            # K5c/K5d: Deve abortar na hora ao ver o overlay, sem fazer as 35 esperas da transição
+            self.assertLess(contagem_dumps[0], 15)
+
+    def test_fazer_login_tv_limpa_senha_se_nao_vazia(self):
+        # K5b: Antes de enviar, confere se SENHA está vazia. Se tiver caractere, apaga pelo overlay (Limpar).
+        nos_login_com_senha_preenchida = [
+            {'text': 'SERVIDOR', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 200, 200, 240), 'centro': (120, 220)},
+            {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 250, 600, 320), 'centro': (320, 285)},
+            {'text': 'USUÁRIO', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 340, 200, 380), 'centro': (120, 360)},
+            {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 390, 600, 460), 'centro': (320, 425)},
+            {'text': 'SENHA', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 480, 200, 520), 'centro': (120, 500)},
+            {'text': '•', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 530, 600, 600), 'centro': (320, 565)},
+            {'text': '', 'desc': 'Iniciar sessão', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'bounds': (40, 620, 600, 690), 'centro': (320, 655)},
+        ]
+        nos_overlay_com_senha = [
+            {'text': 'Space', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (0, 0, 50, 50), 'centro': (25, 25)},
+            {'text': 'Del', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (50, 0, 100, 50), 'centro': (75, 25)},
+            {'text': 'Shift', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (100, 0, 150, 50), 'centro': (125, 25)},
+            {'text': 'Limpar', 'desc': 'Limpar', 'hint': '', 'cls': 'android.view.View', 'bounds': (500, 500, 600, 600), 'centro': (550, 550)},
+            {'text': '•', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 530, 600, 600), 'centro': (320, 565)},
+        ]
+        nos_overlay_limpo = [
+            {'text': 'Space', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (0, 0, 50, 50), 'centro': (25, 25)},
+            {'text': 'Del', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (50, 0, 100, 50), 'centro': (75, 25)},
+            {'text': 'Shift', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (100, 0, 150, 50), 'centro': (125, 25)},
+            {'text': 'Limpar', 'desc': 'Limpar', 'hint': '', 'cls': 'android.view.View', 'bounds': (500, 500, 600, 600), 'centro': (550, 550)},
         ]
         nos_inicio = [
             {'text': '', 'desc': 'EM ALTA NO BRASIL · Nº 1\nO Homem do Norte', 'hint': '', 'cls': 'android.view.View', 'bounds': (48, 390, 400, 420), 'centro': (224, 405)},
             {'text': '', 'desc': '▶  Assistir', 'hint': '', 'cls': 'android.widget.Button', 'bounds': (42, 736, 270, 810), 'centro': (156, 773)},
             {'text': '', 'desc': 'Detalhes', 'hint': '', 'cls': 'android.widget.Button', 'bounds': (288, 740, 478, 808), 'centro': (383, 774)},
         ]
-        dumps = [nos_login, nos_login, nos_login, nos_login, nos_login, nos_login, nos_login_focado, nos_inicio]
-        chamadas = []
+        dumps = [
+            nos_login_com_senha_preenchida,  # detecção
+            nos_login_com_senha_preenchida,  # servidor
+            nos_login_com_senha_preenchida,  # usuário
+            nos_login_com_senha_preenchida,  # senha detectada com caractere
+            nos_overlay_com_senha,           # overlay aberto mostrando caractere na senha
+            nos_overlay_limpo,               # dump dentro de limpar_overlay_teclado_tv
+            nos_overlay_limpo,               # dump após limpar
+            nos_inicio,                      # início
+        ]
+        chamadas_tocar = []
 
         with patch('tv.dump_tv', side_effect=lambda: dumps.pop(0) if dumps else nos_inicio), \
              patch('tv.preencher_campo_tv', return_value=True), \
              patch('tv.fechar_teclado'), \
-             patch('tv.tocar', lambda no: chamadas.append(('tocar', no['centro']))), \
-             patch('tv.dpad_down', lambda *a: chamadas.append('dpad_down')), \
-             patch('tv.dpad_center', lambda *a: chamadas.append('dpad_center')), \
+             patch('tv.tocar', lambda no: chamadas_tocar.append(no['centro'])), \
              patch('time.sleep'):
             res = fazer_login_tv('http://10.0.2.2:8096', 'teste-sem-senha')
             self.assertTrue(res)
-            self.assertIn('dpad_down', chamadas)
-            self.assertIn('dpad_center', chamadas)
-
-    def test_fazer_login_tv_nao_da_dpad_down_quando_botao_ja_focado(self):
-        nos_login_focado = [
-            {'text': 'SERVIDOR', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 200, 200, 240), 'centro': (120, 220)},
-            {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 250, 600, 320), 'centro': (320, 285)},
-            {'text': 'USUÁRIO', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 340, 200, 380), 'centro': (120, 360)},
-            {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 390, 600, 460), 'centro': (320, 425)},
-            {'text': 'SENHA', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 480, 200, 520), 'centro': (120, 500)},
-            {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 530, 600, 600), 'centro': (320, 565)},
-            {'text': '', 'desc': 'Iniciar sessão', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'focused': True, 'bounds': (40, 620, 600, 690), 'centro': (320, 655)},
-        ]
-        nos_inicio = [
-            {'text': '', 'desc': 'EM ALTA NO BRASIL · Nº 1\nO Homem do Norte', 'hint': '', 'cls': 'android.view.View', 'bounds': (48, 390, 400, 420), 'centro': (224, 405)},
-            {'text': '', 'desc': '▶  Assistir', 'hint': '', 'cls': 'android.widget.Button', 'bounds': (42, 736, 270, 810), 'centro': (156, 773)},
-            {'text': '', 'desc': 'Detalhes', 'hint': '', 'cls': 'android.widget.Button', 'bounds': (288, 740, 478, 808), 'centro': (383, 774)},
-        ]
-        dumps = [nos_login_focado, nos_login_focado, nos_login_focado, nos_login_focado, nos_login_focado, nos_login_focado, nos_inicio]
-        chamadas = []
-
-        with patch('tv.dump_tv', side_effect=lambda: dumps.pop(0) if dumps else nos_inicio), \
-             patch('tv.preencher_campo_tv', return_value=True), \
-             patch('tv.fechar_teclado'), \
-             patch('tv.tocar', lambda no: chamadas.append(('tocar', no['centro']))), \
-             patch('tv.dpad_down', lambda *a: chamadas.append('dpad_down')), \
-             patch('tv.dpad_center', lambda *a: chamadas.append('dpad_center')), \
-             patch('time.sleep'):
-            res = fazer_login_tv('http://10.0.2.2:8096', 'teste-sem-senha')
-            self.assertTrue(res)
-            # Como o botão já estava focado, não deve dar dpad_down além dele
-            self.assertNotIn('dpad_down', chamadas)
-            self.assertIn('dpad_center', chamadas)
+            # K5b: Tecla Limpar (550, 550) deve ter sido acionada
+            self.assertIn((550, 550), chamadas_tocar)
 
     def test_reconhecer_tela_tv_iniciando_sessao_e_inicio_vazio(self):
         # Durante o envio, botão fica 'Iniciando sessão...'

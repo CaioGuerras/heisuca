@@ -805,6 +805,69 @@ def preencher_campo_tv(rotulo, valor, registrar=None):
     return False
 
 
+def senha_esta_vazia_tv(nos):
+    """Confere se o campo SENHA está vazio (sem caracteres digitados)."""
+    try:
+        tam = tamanho_do_campo_tv(nos, 'SENHA')
+        if tam is not None and tam > 0:
+            return False
+    except Exception:
+        pass
+    for n in nos:
+        txt = (n.get('text') or n.get('desc') or '').strip()
+        if txt and txt != '••••••••' and all(c in ('*', '•') for c in txt):
+            return False
+    return True
+
+
+def limpar_overlay_teclado_tv(registrar=None):
+    """Aciona a tecla Limpar no overlay do teclado virtual da TV (K5b)."""
+    rec = registrar or (lambda msg: None)
+    nos = dump_tv()
+    btn = achar_texto(nos, 'limpar', 'clear', exato=False)
+    if btn:
+        rec('Tecla Limpar encontrada no dump; acionando...')
+        tocar(btn)
+        time.sleep(0.3)
+        dpad_center(0.3)
+        return
+    rec('Navegando via D-pad até a tecla Limpar (linha 4, col 9)...')
+    for _ in range(4):
+        dpad_down(0.1)
+    for _ in range(8):
+        dpad_right(0.1)
+    dpad_center(0.3)
+    time.sleep(0.3)
+
+
+def acionar_concluir_teclado_virtual(registrar=None):
+    """Aciona a tecla Concluir (✓) no teclado virtual do app ou envia ENTER físico com overlay aberto (K5a)."""
+    rec = registrar or (lambda msg: None)
+    nos = dump_tv()
+    btn = achar_texto(nos, 'concluir', 'done', 'ok', exato=False)
+    if btn:
+        rec('Tecla Concluir encontrada no dump; acionando...')
+        tocar(btn)
+        time.sleep(0.3)
+        dpad_center(0.5)
+        return
+
+    rec('Enviando login via tecla Concluir / ENTER físico com overlay do teclado aberto...')
+    # K5a: Manda ENTER físico com o overlay aberto (chama onSubmitted -> _signInDirect)
+    adb('shell', 'input', 'keyevent', '66')
+    time.sleep(0.5)
+
+    # Se ainda estiver aberto, navega D-pad até a tecla Concluir (linha 4, col 11)
+    nos_pos = dump_tv()
+    if teclado_virtual_tv_aberto(nos_pos):
+        rec('Overlay ainda aberto após keyevent 66; navegando D-pad até Concluir (✓)...')
+        for _ in range(4):
+            dpad_down(0.1)
+        for _ in range(10):
+            dpad_right(0.1)
+        dpad_center(0.5)
+
+
 def fazer_login_tv(base, conta=CONTA, registrar=None):
     """Realiza autenticação completa na TV com fechamento de teclado e espera pelo menu lateral."""
     rec = registrar or (lambda msg: None)
@@ -824,7 +887,7 @@ def fazer_login_tv(base, conta=CONTA, registrar=None):
         return False
 
     rec('Preenchendo campos de login...')
-    for rotulo, val in [('SERVIDOR', base), ('USUÁRIO', conta), ('SENHA', '')]:
+    for rotulo, val in [('SERVIDOR', base), ('USUÁRIO', conta)]:
         nos = dump_tv()
         tela = reconhecer_tela_tv(nos)
         if tela in ('inicio', 'inicio-vazio'):
@@ -840,84 +903,75 @@ def fazer_login_tv(base, conta=CONTA, registrar=None):
                 return True
             return False
 
-    fechar_teclado()
-    time.sleep(1)
     nos = dump_tv()
     tela = reconhecer_tela_tv(nos)
     if tela in ('inicio', 'inicio-vazio'):
-        rec('Login bem-sucedido: tela Início detectada após preencher campos')
+        rec('Login bem-sucedido: tela Início detectada após preencher usuário')
         return True
     if tela != 'login':
-        rec(f'Tela não é mais login ({tela!r}) antes de clicar no botão')
+        rec(f'Tela não é mais login ({tela!r}) após preencher usuário')
         return False
 
-    botao = achar_texto(nos, 'Iniciar sessão', 'iniciar sessao', 'sign in', 'login', exato=False)
-    if botao is None:
-        dpad_down(0.5)
-        time.sleep(1)
-        nos = dump_tv()
-        tela = reconhecer_tela_tv(nos)
-        if tela in ('inicio', 'inicio-vazio'):
-            rec('Login bem-sucedido: tela Início detectada após dpad_down')
-            return True
-        botao = achar_texto(nos, 'Iniciar sessão', 'iniciar sessao', 'sign in', 'login', exato=False)
-    if botao is None:
-        rec('Botão Iniciar sessão não encontrado')
-        return False
+    # K5a: Envia o login pelo caminho que o app garante: com o foco na SENHA (vazia),
+    # abre o overlay e acione a tecla Concluir (✓) ou manda ENTER físico com o overlay aberto.
+    rec('Preparando campo SENHA para envio do login...')
+    campo_senha = campo_abaixo_do_rotulo_tv(nos, 'SENHA')
+    if campo_senha is None:
+        chave = {'SERVIDOR': 'servidor', 'USUÁRIO': 'usuario', 'SENHA': 'senha'}.get('SENHA')
+        campo_senha = campos_login_tv(nos).get(chave)
 
-    rec('Navegando foco até o botão Iniciar sessão...')
-    termos_botao = ('iniciar sessão', 'iniciar sessao', 'sign in', 'login', 'iniciar')
-    focado = False
-    for passo in range(6):
-        nos = dump_tv()
-        tela = reconhecer_tela_tv(nos)
-        if tela in ('inicio', 'inicio-vazio'):
-            rec('Login bem-sucedido: tela Início detectada durante navegação')
-            return True
-        foco = inspecionar_foco(nos)
-        foco_txt = (foco.get('texto') or foco.get('elemento') or '').strip().lower()
-        if any(t in foco_txt for t in termos_botao):
-            rec(f'Botão Iniciar sessão focado no passo {passo}: {foco_txt!r}')
-            focado = True
-            break
-        if 'outros servidores' in foco_txt or 'pastas locais' in foco_txt:
-            rec(f'Foco passou do botão para {foco_txt!r}, subindo...')
-            dpad_up(0.5)
-            continue
-        if foco.get('visivel') and foco.get('bounds') and botao.get('bounds'):
-            if foco['bounds'][1] > botao['bounds'][1] + 10:
-                dpad_up(0.5)
-            else:
-                dpad_down(0.5)
+    # Abre o overlay do teclado virtual no campo SENHA se ainda não estiver aberto
+    if not teclado_virtual_tv_aberto(nos):
+        if campo_senha:
+            tocar(campo_senha)
+            time.sleep(0.5)
         else:
             dpad_down(0.5)
-        time.sleep(0.3)
-
-    if not focado:
-        rec('Foco no botão não confirmado pelo dump; tocando no botão antes do D-pad center')
-        tocar(botao)
+            time.sleep(0.3)
+        dpad_center(0.8)
         time.sleep(0.5)
+        nos = dump_tv()
 
-    rec('Acionando botão Iniciar sessão (D-pad center)...')
-    dpad_center(1.5)
+    # K5b: Antes de enviar, confira que a SENHA está vazia. Se tiver caractere, apague pelo próprio overlay (Limpar).
+    if not senha_esta_vazia_tv(nos):
+        rec('SENHA contém caractere; acionando Limpar no overlay do teclado...')
+        limpar_overlay_teclado_tv(registrar=rec)
+        time.sleep(0.5)
+        nos = dump_tv()
+
+    # K5a: Aciona Concluir (✓) ou ENTER físico com o overlay aberto (NÃO navega até o botão nem usa dpad_center nele)
+    rec('Enviando login via teclado virtual da TV (Concluir / ENTER físico)...')
+    acionar_concluir_teclado_virtual(registrar=rec)
 
     rec('Aguardando transição para tela Início da TV...')
-    for tentativa in range(1, 36):
-        time.sleep(2)
+    for tentativa in range(1, 20):
+        time.sleep(1.5)
         nos = dump_tv()
         tela = reconhecer_tela_tv(nos)
         if tela in ('inicio', 'inicio-vazio'):
-            rec(f'Login bem-sucedido: tela Início detectada após {tentativa * 2}s')
+            rec(f'Login bem-sucedido: tela Início detectada após {tentativa * 1.5:.1f}s')
             return True
-        if tentativa in (2, 5, 10) and tela == 'login':
-            rec(f'Ainda em tela de login na tentativa {tentativa}/35; tentando acionar botão novamente...')
-            foco = inspecionar_foco(nos)
-            foco_txt = (foco.get('texto') or foco.get('elemento') or '').strip().lower()
-            if not any(t in foco_txt for t in termos_botao):
-                tocar(botao)
-                time.sleep(0.5)
-            dpad_center(1.5)
-        rec(f'Aguardando Início após login ({tentativa}/35, nós={len(nos)})...')
+
+        # K5c: Se o dump mostrar o overlay do teclado, saia na hora com motivo claro
+        if teclado_virtual_tv_aberto(nos):
+            rec('Falha no login: overlay do teclado virtual permaneceu aberto após envio')
+            return False
+
+        # Se houver mensagem de erro visível na tela de login
+        erro = achar_texto(nos, 'não foi possível conectar', 'incorretos', 'verifique o endereço', exato=False)
+        if erro:
+            texto_erro = erro.get('text') or erro.get('desc') or 'erro de autenticação'
+            rec(f'Falha no login: mensagem de erro detectada na tela: {texto_erro!r}')
+            return False
+
+        # K5c: Se o dump ainda mostrar a tela login sem carregamento ativo após envio, saia na hora
+        carregando = achar_texto(nos, 'Iniciando sessão...', 'Iniciando sessao...', exato=False)
+        if tela == 'login' and not carregando and tentativa >= 2:
+            rec('Falha no login: permaneceu na tela de login sem carregamento ativo após envio')
+            return False
+
+        rec(f'Aguardando Início após login ({tentativa}/20, tela={tela}, nós={len(nos)})...')
+    rec('Tempo limite aguardando transição para tela Início')
     return False
 
 

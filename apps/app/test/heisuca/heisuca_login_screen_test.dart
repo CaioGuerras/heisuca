@@ -3,7 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:heisuca/cgflix/cgflix_theme.dart';
 import 'package:heisuca/heisuca/heisuca_login_screen.dart';
+import 'package:heisuca/services/settings_service.dart';
 import 'package:heisuca/utils/platform_detector.dart';
+
+import '../test_helpers/prefs.dart';
 
 Widget _montar(Widget child) => MaterialApp(
   theme: cgflixAppTheme(CgflixThemeVariant.isis),
@@ -43,6 +46,10 @@ void main() {
 
   group('HeisucaLoginScreen T1 TV native text input focus bridge', () {
     testWidgets('foco no campo de usuário em TV chama setNativeTextInputFocused(true) e false ao desfocar', (tester) async {
+      resetSharedPreferencesForTest();
+      final settings = await SettingsService.getInstance();
+      await settings.write(SettingsService.tvUseNativeKeyboard, true);
+
       TvDetectionService.debugReset();
       await TvDetectionService.getInstance(forceTv: true);
       TvDetectionService.setForceTVSync(true);

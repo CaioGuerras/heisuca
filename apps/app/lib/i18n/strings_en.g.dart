@@ -1191,6 +1191,12 @@ class Translations$settings$en {
 	/// en: 'Force TV layout. For devices that don't auto-detect. Requires restart.'
 	String get forceTvModeDescription => 'Force TV layout. For devices that don\'t auto-detect. Requires restart.';
 
+	/// en: 'Use TV keyboard'
+	String get tvUseNativeKeyboard => 'Use TV keyboard';
+
+	/// en: 'Use the TV system keyboard instead of the app's virtual keyboard'
+	String get tvUseNativeKeyboardDescription => 'Use the TV system keyboard instead of the app\'s virtual keyboard';
+
 	/// en: 'Start in fullscreen'
 	String get startInFullscreen => 'Start in fullscreen';
 
@@ -7717,6 +7723,8 @@ extension on Translations {
 			'settings.requireProfileSelectionOnOpenDescription' => 'Show profile selection every time the app is opened',
 			'settings.forceTvMode' => 'Force TV mode',
 			'settings.forceTvModeDescription' => 'Force TV layout. For devices that don\'t auto-detect. Requires restart.',
+			'settings.tvUseNativeKeyboard' => 'Use TV keyboard',
+			'settings.tvUseNativeKeyboardDescription' => 'Use the TV system keyboard instead of the app\'s virtual keyboard',
 			'settings.startInFullscreen' => 'Start in fullscreen',
 			'settings.startInFullscreenDescription' => 'Open Heisuca in fullscreen mode at launch',
 			'settings.exitFullscreenOnPlayerClose' => 'Exit fullscreen on player close',
@@ -7857,10 +7865,10 @@ extension on Translations {
 			'fileInfo.baseLayerCompatibility' => 'Base Layer Compatibility',
 			'fileInfo.avcBitstream' => 'AVC Bitstream',
 			'fileInfo.nalLengthSize' => 'NAL Length Size',
-			'fileInfo.scalingMatrix' => 'Custom Scaling Matrix',
-			'fileInfo.streamIdentifier' => 'Stream Identifier',
 			_ => null,
 		} ?? switch (path) {
+			'fileInfo.scalingMatrix' => 'Custom Scaling Matrix',
+			'fileInfo.streamIdentifier' => 'Stream Identifier',
 			'fileInfo.streamIndex' => 'Stream Index',
 			'fileInfo.streamId' => 'Stream ID',
 			'fileInfo.language' => 'Language',
@@ -8371,10 +8379,10 @@ extension on Translations {
 			'errors.reasonRefused' => 'the server refused the request',
 			'errors.reasonNotFound' => 'the item is no longer on the server',
 			'errors.reasonServerError' => 'the server reported an error',
-			'errors.reasonCancelled' => 'the request was cancelled',
-			'errors.reasonUnexpected' => 'an unexpected error occurred',
 			_ => null,
 		} ?? switch (path) {
+			'errors.reasonCancelled' => 'the request was cancelled',
+			'errors.reasonUnexpected' => 'an unexpected error occurred',
 			'libraries.title' => 'Libraries',
 			'libraries.fallbackTitle' => 'Library',
 			'libraries.scanLibraryFiles' => 'Scan Library Files',
@@ -8885,10 +8893,10 @@ extension on Translations {
 			'watchTogether.endSession' => 'End Session',
 			'watchTogether.leaveSession' => 'Leave Session',
 			'watchTogether.endSessionQuestion' => 'End Session?',
-			'watchTogether.leaveSessionQuestion' => 'Leave Session?',
-			'watchTogether.endSessionConfirm' => 'This will end the session for all participants.',
 			_ => null,
 		} ?? switch (path) {
+			'watchTogether.leaveSessionQuestion' => 'Leave Session?',
+			'watchTogether.endSessionConfirm' => 'This will end the session for all participants.',
 			'watchTogether.leaveSessionConfirm' => 'You will be removed from the session.',
 			'watchTogether.endSessionConfirmOverlay' => 'This will end the watch session for all participants.',
 			'watchTogether.leaveSessionConfirmOverlay' => 'You will be disconnected from the watch session.',
@@ -9399,10 +9407,10 @@ extension on Translations {
 			'services.deviceCode.openToActivate' => ({required Object service}) => 'Open ${service} to activate',
 			'services.deviceCode.copyCode' => 'Copy activation code',
 			'services.deviceCode.waitingForAuthorization' => 'Waiting for authorization…',
-			'services.deviceCode.codeCopied' => 'Code copied',
-			'services.oauthProxy.title' => ({required Object service}) => 'Sign in to ${service}',
 			_ => null,
 		} ?? switch (path) {
+			'services.deviceCode.codeCopied' => 'Code copied',
+			'services.oauthProxy.title' => ({required Object service}) => 'Sign in to ${service}',
 			'services.oauthProxy.body' => 'Scan this QR code or open the URL on any device.',
 			'services.oauthProxy.openToSignIn' => ({required Object service}) => 'Open ${service} to sign in',
 			'services.pendingAuth.copyUrl' => 'Copy sign-in URL',

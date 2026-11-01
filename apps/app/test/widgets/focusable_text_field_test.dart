@@ -9,13 +9,17 @@ import 'package:heisuca/focus/focusable_text_field.dart';
 import 'package:heisuca/focus/input_mode_tracker.dart';
 import 'package:heisuca/focus/key_event_utils.dart';
 import 'package:heisuca/services/gamepad_service.dart';
+import 'package:heisuca/services/settings_service.dart';
 import 'package:heisuca/utils/platform_detector.dart';
+
+import '../test_helpers/prefs.dart';
 
 void main() {
   tearDown(() {
     TvDetectionService.debugSetAppleTVOverride(null);
     TvDetectionService.setForceTVSync(false);
     GamepadService.debugNativeTextInputFocusHandler = null;
+    SettingsService.resetForTesting();
     // TV back tests arm the suppressor on KeyDown; a test ending mid-press
     // would leak the armed state into the next test (flutter_test clears the
     // hardware observer that would otherwise end it with the press).
@@ -793,6 +797,9 @@ void main() {
 
   group('Android TV native IME visibility', () {
     setUp(() async {
+      resetSharedPreferencesForTest();
+      final settings = await SettingsService.getInstance();
+      await settings.write(SettingsService.tvUseNativeKeyboard, true);
       await TvDetectionService.getInstance(forceTv: true);
       TvDetectionService.setForceTVSync(true);
     });
@@ -1072,8 +1079,9 @@ void main() {
     expect(find.byType(Dialog), findsNothing);
   });
 
-  testWidgets('Android TV automatic single-line input uses the platform field', (tester) async {
+  testWidgets('Android TV automatic single-line input uses the virtual keyboard by default', (tester) async {
     TvDetectionService.debugSetAppleTVOverride(null);
+    resetSharedPreferencesForTest();
     await TvDetectionService.getInstance(forceTv: true);
     TvDetectionService.setForceTVSync(true);
     final controller = TextEditingController();
@@ -1092,14 +1100,41 @@ void main() {
     fieldFocusNode.requestFocus();
     await tester.pumpAndSettle();
 
-    // `automatic` opens the docked native IME on focus: the read-only
-    // activation gate lifts and no Flutter overlay may appear.
+    // Default on Android TV: in-app virtual keyboard overlay
+    expect(tester.widget<TextField>(find.byType(TextField)).readOnly, isTrue);
+    expect(find.byKey(const Key('tv_virtual_keyboard_panel')), findsOneWidget);
+  });
+
+  testWidgets('Android TV automatic single-line input uses the platform field when tvUseNativeKeyboard is enabled', (tester) async {
+    TvDetectionService.debugSetAppleTVOverride(null);
+    resetSharedPreferencesForTest();
+    final settings = await SettingsService.getInstance();
+    await settings.write(SettingsService.tvUseNativeKeyboard, true);
+    await TvDetectionService.getInstance(forceTv: true);
+    TvDetectionService.setForceTVSync(true);
+    final controller = TextEditingController();
+    final fieldFocusNode = FocusNode(debugLabel: 'server_url_field');
+    addTearDown(controller.dispose);
+    addTearDown(fieldFocusNode.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: FocusableTextFormField(controller: controller, focusNode: fieldFocusNode),
+        ),
+      ),
+    );
+
+    fieldFocusNode.requestFocus();
+    await tester.pumpAndSettle();
+
     expect(tester.widget<TextField>(find.byType(TextField)).readOnly, isFalse);
     expect(find.byKey(const Key('tv_virtual_keyboard_panel')), findsNothing);
   });
 
-  testWidgets('Android TV automatic multiline input uses the platform field', (tester) async {
+  testWidgets('Android TV automatic multiline input uses the virtual keyboard by default', (tester) async {
     TvDetectionService.debugSetAppleTVOverride(null);
+    resetSharedPreferencesForTest();
     await TvDetectionService.getInstance(forceTv: true);
     TvDetectionService.setForceTVSync(true);
     final controller = TextEditingController();
@@ -1123,8 +1158,38 @@ void main() {
     fieldFocusNode.requestFocus();
     await tester.pumpAndSettle();
 
-    // Unlike Apple TV's modal fullscreen keyboard, the docked Android IME
-    // hosts multiline input natively — no Flutter overlay.
+    expect(tester.widget<TextField>(find.byType(TextField)).readOnly, isTrue);
+    expect(find.byKey(const Key('tv_virtual_keyboard_panel')), findsOneWidget);
+  });
+
+  testWidgets('Android TV automatic multiline input uses the platform field when tvUseNativeKeyboard is enabled', (tester) async {
+    TvDetectionService.debugSetAppleTVOverride(null);
+    resetSharedPreferencesForTest();
+    final settings = await SettingsService.getInstance();
+    await settings.write(SettingsService.tvUseNativeKeyboard, true);
+    await TvDetectionService.getInstance(forceTv: true);
+    TvDetectionService.setForceTVSync(true);
+    final controller = TextEditingController();
+    final fieldFocusNode = FocusNode(debugLabel: 'notes_field');
+    addTearDown(controller.dispose);
+    addTearDown(fieldFocusNode.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: FocusableTextField(
+            controller: controller,
+            focusNode: fieldFocusNode,
+            keyboardType: TextInputType.multiline,
+            maxLines: 4,
+          ),
+        ),
+      ),
+    );
+
+    fieldFocusNode.requestFocus();
+    await tester.pumpAndSettle();
+
     expect(tester.widget<TextField>(find.byType(TextField)).readOnly, isFalse);
     expect(find.byKey(const Key('tv_virtual_keyboard_panel')), findsNothing);
   });

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../services/gamepad_service.dart';
+import '../services/settings_service.dart';
 import '../utils/platform_detector.dart';
 import '../utils/text_input_diagnostics.dart';
 import '../widgets/tv_virtual_keyboard.dart';
@@ -31,7 +32,9 @@ bool _usesTvKeyboard({required TvTextInputPresentation presentation, TextInputTy
   if (!PlatformDetector.isTV()) return false;
   return switch (presentation) {
     TvTextInputPresentation.automatic =>
-      PlatformDetector.isAppleTV() && _isMultilineTextInput(keyboardType: keyboardType, maxLines: maxLines),
+      PlatformDetector.isAppleTV()
+          ? _isMultilineTextInput(keyboardType: keyboardType, maxLines: maxLines)
+          : !(SettingsService.instanceOrNull?.read(SettingsService.tvUseNativeKeyboard) ?? false),
     TvTextInputPresentation.platform => false,
     TvTextInputPresentation.flutterOverlay => true,
   };

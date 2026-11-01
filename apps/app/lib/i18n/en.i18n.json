@@ -384,6 +384,8 @@
     "requireProfileSelectionOnOpenDescription": "Show profile selection every time the app is opened",
     "forceTvMode": "Force TV mode",
     "forceTvModeDescription": "Force TV layout. For devices that don't auto-detect. Requires restart.",
+    "tvUseNativeKeyboard": "Use TV keyboard",
+    "tvUseNativeKeyboardDescription": "Use the TV system keyboard instead of the app's virtual keyboard",
     "startInFullscreen": "Start in fullscreen",
     "startInFullscreenDescription": "Open Heisuca in fullscreen mode at launch",
     "exitFullscreenOnPlayerClose": "Exit fullscreen on player close",

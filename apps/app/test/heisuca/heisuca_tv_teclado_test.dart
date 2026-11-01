@@ -9,6 +9,7 @@ import 'package:heisuca/focus/focusable_text_field.dart';
 import 'package:heisuca/heisuca/heisuca_add_webdav_screen.dart';
 import 'package:heisuca/heisuca/heisuca_library_screen.dart';
 import 'package:heisuca/heisuca/heisuca_search_screen.dart';
+import 'package:heisuca/i18n/strings.g.dart';
 import 'package:heisuca/heisuca/kids/heisuca_kids.dart';
 import 'package:heisuca/heisuca/kids/heisuca_kids_flow.dart';
 import 'package:heisuca/heisuca/kids/heisuca_kids_identity.dart';
@@ -23,8 +24,11 @@ import 'package:heisuca/profiles/active_profile_provider.dart';
 import 'package:heisuca/profiles/profile.dart';
 import 'package:heisuca/providers/multi_server_provider.dart';
 import 'package:heisuca/screens/profile/pin_entry_dialog.dart';
+import 'package:heisuca/screens/settings/general_settings_screen.dart';
 import 'package:heisuca/services/data_aggregation_service.dart';
 import 'package:heisuca/services/multi_server_manager.dart';
+import 'package:heisuca/services/settings_service.dart';
+import '../test_helpers/prefs.dart';
 import 'package:heisuca/utils/media_server_http_client.dart';
 import 'package:heisuca/utils/platform_detector.dart';
 
@@ -41,6 +45,8 @@ class _Profiles extends ChangeNotifier implements ActiveProfileProvider {
   String? avatarUrlFor(String profileId) => null;
   @override
   bool get isBinding => false;
+  @override
+  bool get hasMultipleProfiles => profiles.length > 1;
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -90,7 +96,16 @@ class _MockClient extends MediaServerClient {
 void main() {
   final sentStates = <bool>[];
 
+  setUpAll(() async {
+    await LocaleSettings.setLocale(AppLocale.pt);
+  });
+
   setUp(() async {
+    resetSharedPreferencesForTest();
+    SettingsService.resetForTesting();
+    final settings = await SettingsService.getInstance();
+    await settings.write(SettingsService.tvUseNativeKeyboard, true);
+
     sentStates.clear();
     TvDetectionService.debugReset();
     await TvDetectionService.getInstance(forceTv: true);
@@ -296,6 +311,171 @@ void main() {
       await tester.pump();
       await tester.pump();
       expect(sentStates.last, isFalse);
+    });
+  });
+
+  group('K1: Teclado próprio do app vs IME nativo conforme tvUseNativeKeyboard', () {
+    testWidgets('TV Android e preferência desligada (padrão) usa teclado próprio (overlay Flutter)', (tester) async {
+      resetSharedPreferencesForTest();
+      SettingsService.resetForTesting();
+      final settings = await SettingsService.getInstance();
+      await settings.write(SettingsService.tvUseNativeKeyboard, false);
+      TvDetectionService.debugReset();
+      await TvDetectionService.getInstance(forceTv: true);
+      TvDetectionService.setForceTVSync(true);
+      TvDetectionService.debugSetAppleTVOverride(false);
+
+      final controller = TextEditingController();
+      final focusNode = FocusNode();
+      addTearDown(() {
+        controller.dispose();
+        focusNode.dispose();
+        TvDetectionService.debugReset();
+        TvDetectionService.setForceTVSync(false);
+      });
+
+      await tester.pumpWidget(MaterialApp(
+        theme: cgflixAppTheme(CgflixThemeVariant.isis),
+        home: Scaffold(
+          body: FocusableTextField(
+            controller: controller,
+            focusNode: focusNode,
+            autofocus: true,
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      final textField = tester.widget<TextField>(find.byType(TextField));
+      expect(textField.readOnly, isTrue, reason: 'Campo deve ser readOnly para não abrir IME nativo');
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.select);
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('tv_virtual_keyboard_panel')), findsOneWidget,
+          reason: 'Overlay do teclado virtual do Heisuca deve abrir');
+    });
+
+    testWidgets('TV Android e preferência ligada usa IME nativo', (tester) async {
+      resetSharedPreferencesForTest();
+      SettingsService.resetForTesting();
+      final settings = await SettingsService.getInstance();
+      await settings.write(SettingsService.tvUseNativeKeyboard, true);
+      TvDetectionService.debugReset();
+      await TvDetectionService.getInstance(forceTv: true);
+      TvDetectionService.setForceTVSync(true);
+      TvDetectionService.debugSetAppleTVOverride(false);
+
+      final controller = TextEditingController();
+      final focusNode = FocusNode();
+      addTearDown(() {
+        controller.dispose();
+        focusNode.dispose();
+        TvDetectionService.debugReset();
+        TvDetectionService.setForceTVSync(false);
+      });
+
+      await tester.pumpWidget(MaterialApp(
+        theme: cgflixAppTheme(CgflixThemeVariant.isis),
+        home: Scaffold(
+          body: FocusableTextField(
+            controller: controller,
+            focusNode: focusNode,
+            autofocus: true,
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.select);
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('tv_virtual_keyboard_panel')), findsNothing,
+          reason: 'Overlay do teclado virtual NÃO deve abrir quando tvUseNativeKeyboard está ligado');
+    });
+  });
+
+  group('K2: Interruptor tvUseNativeKeyboard nas configurações gerais', () {
+    testWidgets('exibe "Usar teclado da TV" na TV e alterna a preferência ao clicar', (tester) async {
+      resetSharedPreferencesForTest();
+      SettingsService.resetForTesting();
+      LocaleSettings.setLocaleSync(AppLocale.pt);
+
+      tester.view.physicalSize = const Size(1920, 1080);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      final settings = await SettingsService.getInstance();
+      await settings.write(SettingsService.tvUseNativeKeyboard, false);
+
+      TvDetectionService.debugSetTvOverride(true);
+      addTearDown(() => TvDetectionService.debugSetTvOverride(null));
+
+      final profile = Profile.local(id: 'main', displayName: 'Usuário', createdAt: DateTime(2026, 10, 23));
+      final profiles = _Profiles(profile);
+      addTearDown(profiles.dispose);
+
+      expect(t.settings.tvUseNativeKeyboard, 'Usar teclado da TV');
+      LocaleSettings.setLocaleSync(AppLocale.en);
+      expect(t.settings.tvUseNativeKeyboard, 'Use TV keyboard');
+      LocaleSettings.setLocaleSync(AppLocale.pt);
+
+      await tester.pumpWidget(ChangeNotifierProvider<ActiveProfileProvider>.value(
+        value: profiles,
+        child: TranslationProvider(
+          child: MaterialApp(
+            locale: const Locale('pt'),
+            theme: cgflixAppTheme(CgflixThemeVariant.isis),
+            home: const Scaffold(body: GeneralSettingsScreen()),
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      final tileFinder = find.text(t.settings.tvUseNativeKeyboard);
+      expect(tileFinder, findsOneWidget, reason: 'Tile deve ser visível na TV');
+
+      await tester.tap(tileFinder);
+      await tester.pumpAndSettle();
+
+      expect(settings.read(SettingsService.tvUseNativeKeyboard), isTrue,
+          reason: 'Clicar no interruptor deve ligar tvUseNativeKeyboard');
+    });
+
+    testWidgets('não exibe "Usar teclado da TV" fora da TV (celular/desktop)', (tester) async {
+      resetSharedPreferencesForTest();
+      SettingsService.resetForTesting();
+      LocaleSettings.setLocaleSync(AppLocale.pt);
+
+      await SettingsService.getInstance();
+
+      TvDetectionService.debugReset();
+      await TvDetectionService.getInstance(forceTv: false);
+      TvDetectionService.setForceTVSync(false);
+      TvDetectionService.debugSetTvOverride(false);
+      addTearDown(() {
+        TvDetectionService.debugReset();
+        TvDetectionService.debugSetTvOverride(null);
+      });
+
+      final profile = Profile.local(id: 'main', displayName: 'Usuário', createdAt: DateTime(2026, 10, 23));
+      final profiles = _Profiles(profile);
+      addTearDown(profiles.dispose);
+
+      await tester.pumpWidget(ChangeNotifierProvider<ActiveProfileProvider>.value(
+        value: profiles,
+        child: TranslationProvider(
+          child: MaterialApp(
+            locale: const Locale('pt'),
+            theme: cgflixAppTheme(CgflixThemeVariant.isis),
+            home: const Scaffold(body: GeneralSettingsScreen()),
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.text(t.settings.tvUseNativeKeyboard), findsNothing,
+          reason: 'Tile não deve ser visível fora da TV');
     });
   });
 }

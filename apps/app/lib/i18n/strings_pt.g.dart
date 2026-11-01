@@ -493,6 +493,8 @@ class _Translations$settings$pt extends Translations$settings$en {
 	@override String get requireProfileSelectionOnOpenDescription => 'Mostrar a escolha de perfil sempre que abrir o app';
 	@override String get forceTvMode => 'Forçar modo TV';
 	@override String get forceTvModeDescription => 'Usar o visual de TV em aparelhos que não são reconhecidos como TV. Precisa reiniciar o app.';
+	@override String get tvUseNativeKeyboard => 'Usar teclado da TV';
+	@override String get tvUseNativeKeyboardDescription => 'Usar o teclado do sistema da TV em vez do teclado do aplicativo';
 	@override String get startInFullscreen => 'Iniciar em tela cheia';
 	@override String get startInFullscreenDescription => 'Abrir o Heisuca em tela cheia';
 	@override String get exitFullscreenOnPlayerClose => 'Sair da tela cheia ao fechar o reprodutor';
@@ -3473,6 +3475,8 @@ extension on TranslationsPt {
 			'settings.requireProfileSelectionOnOpenDescription' => 'Mostrar a escolha de perfil sempre que abrir o app',
 			'settings.forceTvMode' => 'Forçar modo TV',
 			'settings.forceTvModeDescription' => 'Usar o visual de TV em aparelhos que não são reconhecidos como TV. Precisa reiniciar o app.',
+			'settings.tvUseNativeKeyboard' => 'Usar teclado da TV',
+			'settings.tvUseNativeKeyboardDescription' => 'Usar o teclado do sistema da TV em vez do teclado do aplicativo',
 			'settings.startInFullscreen' => 'Iniciar em tela cheia',
 			'settings.startInFullscreenDescription' => 'Abrir o Heisuca em tela cheia',
 			'settings.exitFullscreenOnPlayerClose' => 'Sair da tela cheia ao fechar o reprodutor',
@@ -3613,10 +3617,10 @@ extension on TranslationsPt {
 			'fileInfo.baseLayerCompatibility' => 'Compatibilidade da camada base',
 			'fileInfo.avcBitstream' => 'Bitstream AVC',
 			'fileInfo.nalLengthSize' => 'Tamanho do comprimento NAL',
-			'fileInfo.scalingMatrix' => 'Matriz de dimensionamento personalizada',
-			'fileInfo.streamIdentifier' => 'Identificador do fluxo',
 			_ => null,
 		} ?? switch (path) {
+			'fileInfo.scalingMatrix' => 'Matriz de dimensionamento personalizada',
+			'fileInfo.streamIdentifier' => 'Identificador do fluxo',
 			'fileInfo.streamIndex' => 'Índice do fluxo',
 			'fileInfo.streamId' => 'ID do fluxo',
 			'fileInfo.language' => 'Idioma',
@@ -4127,10 +4131,10 @@ extension on TranslationsPt {
 			'errors.reasonRefused' => 'o servidor recusou o pedido',
 			'errors.reasonNotFound' => 'o item não está mais no servidor',
 			'errors.reasonServerError' => 'o servidor teve um problema',
-			'errors.reasonCancelled' => 'o pedido foi cancelado',
-			'errors.reasonUnexpected' => 'aconteceu um erro inesperado',
 			_ => null,
 		} ?? switch (path) {
+			'errors.reasonCancelled' => 'o pedido foi cancelado',
+			'errors.reasonUnexpected' => 'aconteceu um erro inesperado',
 			'libraries.title' => 'Bibliotecas',
 			'libraries.fallbackTitle' => 'Biblioteca',
 			'libraries.scanLibraryFiles' => 'Procurar arquivos novos',
@@ -4641,10 +4645,10 @@ extension on TranslationsPt {
 			'watchTogether.endSession' => 'Encerrar sessão',
 			'watchTogether.leaveSession' => 'Sair da sessão',
 			'watchTogether.endSessionQuestion' => 'Encerrar sessão?',
-			'watchTogether.leaveSessionQuestion' => 'Sair da sessão?',
-			'watchTogether.endSessionConfirm' => 'Isso vai encerrar a sessão para todo mundo.',
 			_ => null,
 		} ?? switch (path) {
+			'watchTogether.leaveSessionQuestion' => 'Sair da sessão?',
+			'watchTogether.endSessionConfirm' => 'Isso vai encerrar a sessão para todo mundo.',
 			'watchTogether.leaveSessionConfirm' => 'Você vai sair da sessão.',
 			'watchTogether.endSessionConfirmOverlay' => 'Isso vai encerrar o Assistir juntos para todo mundo.',
 			'watchTogether.leaveSessionConfirmOverlay' => 'Você vai sair do Assistir juntos.',
@@ -5155,10 +5159,10 @@ extension on TranslationsPt {
 			'services.deviceCode.openToActivate' => ({required Object service}) => 'Abrir ${service} para ativar',
 			'services.deviceCode.copyCode' => 'Copiar código de ativação',
 			'services.deviceCode.waitingForAuthorization' => 'Esperando a autorização…',
-			'services.deviceCode.codeCopied' => 'Código copiado',
-			'services.oauthProxy.title' => ({required Object service}) => 'Entrar no ${service}',
 			_ => null,
 		} ?? switch (path) {
+			'services.deviceCode.codeCopied' => 'Código copiado',
+			'services.oauthProxy.title' => ({required Object service}) => 'Entrar no ${service}',
 			'services.oauthProxy.body' => 'Leia este código QR ou abra o endereço em qualquer aparelho.',
 			'services.oauthProxy.openToSignIn' => ({required Object service}) => 'Abrir ${service} para entrar',
 			'services.pendingAuth.copyUrl' => 'Copiar endereço de acesso',

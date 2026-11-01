@@ -27,6 +27,9 @@ from tv import (
     campo_abaixo_do_rotulo_tv,
     campos_login_tv,
     tamanho_do_campo_tv,
+    MAPA_TECLAS_VIRTUAL_TV,
+    digitar_dpad_tv_virtual_keyboard,
+    preencher_campo_tv,
     verificar_inicio_vazio,
     verificar_player_preto,
     verificar_texto_pequeno,
@@ -269,6 +272,45 @@ class TestTvBancada(unittest.TestCase):
         self.assertEqual(tamanho_do_campo_tv(nos_desc, 'SERVIDOR'), len('http://10.0.2.2:8096'))
         self.assertEqual(tamanho_do_campo_tv(nos_desc, 'USUÁRIO'), len('teste-sem-senha'))
         self.assertEqual(tamanho_do_campo_tv(nos_desc, 'SENHA'), 0)  # placeholder de senha não conta como texto digitado
+
+    def test_digitar_dpad_tv_virtual_keyboard(self):
+        chamadas = []
+        with patch('tv.dpad_up', lambda *a: chamadas.append('up')), \
+             patch('tv.dpad_down', lambda *a: chamadas.append('down')), \
+             patch('tv.dpad_left', lambda *a: chamadas.append('left')), \
+             patch('tv.dpad_right', lambda *a: chamadas.append('right')), \
+             patch('tv.dpad_center', lambda *a: chamadas.append('center')), \
+             patch('tv.adb', lambda *a: chamadas.append(('adb', a))):
+            ok = digitar_dpad_tv_virtual_keyboard('ab')
+            self.assertTrue(ok)
+            self.assertIn('center', chamadas)
+            self.assertIn(('adb', ('shell', 'input', 'keyevent', '66')), chamadas)
+
+    def test_preencher_campo_tv_k3(self):
+        chamadas = []
+        nos_vazio = [
+            {'text': 'SERVIDOR', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 200, 200, 240), 'centro': (120, 220)},
+            {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'enabled': True, 'bounds': (40, 250, 600, 320), 'centro': (320, 285)},
+        ]
+        nos_preenchido = [
+            {'text': 'SERVIDOR', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 200, 200, 240), 'centro': (120, 220)},
+            {'text': 'http://10.0.2.2:8096', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'enabled': True, 'bounds': (40, 250, 600, 320), 'centro': (320, 285)},
+        ]
+        dumps = [nos_vazio, nos_preenchido]
+
+        with patch('tv.dump_tv', side_effect=lambda: dumps.pop(0) if dumps else nos_preenchido), \
+             patch('tv.fechar_teclado'), \
+             patch('tv.tocar', lambda no: chamadas.append(('tocar', no['centro']))), \
+             patch('tv.dpad_center', lambda *a: chamadas.append('dpad_center')), \
+             patch('tv.apagar_campo'), \
+             patch('tv.digitar', lambda txt: chamadas.append(('digitar', txt))), \
+             patch('tv.adb', lambda *a: chamadas.append(('adb', a))), \
+             patch('time.sleep'):
+            res = preencher_campo_tv('SERVIDOR', 'http://10.0.2.2:8096')
+            self.assertTrue(res)
+            self.assertIn(('tocar', (320, 285)), chamadas)
+            self.assertIn('dpad_center', chamadas)
+            self.assertIn(('digitar', 'http://10.0.2.2:8096'), chamadas)
 
     def test_retorno_da_busca_exige_inicio(self):
         # 47df8a9: o BACK saía da Busca, mas a bancada não conferia e o passo seguinte falhava às cegas.

@@ -608,8 +608,50 @@ def tamanho_do_campo_tv(nos, rotulo):
     return len(texto)
 
 
+MAPA_TECLAS_VIRTUAL_TV = {
+    '1': (0, 1), '2': (0, 2), '3': (0, 3), '4': (0, 4), '5': (0, 5),
+    '6': (0, 6), '7': (0, 7), '8': (0, 8), '9': (0, 9), '0': (0, 10),
+    'q': (1, 1), 'w': (1, 2), 'e': (1, 3), 'r': (1, 4), 't': (1, 5),
+    'y': (1, 6), 'u': (1, 7), 'i': (1, 8), 'o': (1, 9), 'p': (1, 10),
+    'a': (2, 1), 's': (2, 2), 'd': (2, 3), 'f': (2, 4), 'g': (2, 5),
+    'h': (2, 6), 'j': (2, 7), 'k': (2, 8), 'l': (2, 9), "'": (2, 10),
+    'z': (3, 2), 'x': (3, 3), 'c': (3, 4), 'v': (3, 5), 'b': (3, 6),
+    'n': (3, 7), 'm': (3, 8), '.': (3, 9), '-': (3, 10),
+    ' ': (4, 1), '@': (4, 2), '#': (4, 3), '_': (4, 4), '/': (4, 5),
+    ':': (4, 6), '=': (4, 7), '&': (4, 8),
+}
+
+
+def digitar_dpad_tv_virtual_keyboard(valor):
+    """Navega pelas teclas do teclado virtual do Flutter usando D-pad (K3)."""
+    curr_r, curr_c = 0, 1
+    for char in valor.lower():
+        if char not in MAPA_TECLAS_VIRTUAL_TV:
+            continue
+        dest_r, dest_c = MAPA_TECLAS_VIRTUAL_TV[char]
+        dr = dest_r - curr_r
+        dc = dest_c - curr_c
+        if dr > 0:
+            for _ in range(dr):
+                dpad_down(0.1)
+        elif dr < 0:
+            for _ in range(-dr):
+                dpad_up(0.1)
+        if dc > 0:
+            for _ in range(dc):
+                dpad_right(0.1)
+        elif dc < 0:
+            for _ in range(-dc):
+                dpad_left(0.1)
+        curr_r, curr_c = dest_r, dest_c
+        dpad_center(0.1)
+    # Pressionar Enter / Done para concluir a digitação no overlay
+    adb('shell', 'input', 'keyevent', '66')
+    return True
+
+
 def preencher_campo_tv(rotulo, valor, registrar=None):
-    """Preenche campo na TV fechando teclado para evitar sobreposição."""
+    """Preenche campo no login da TV via teclado do app (overlay virtual ou tecla física/D-pad)."""
     rec = registrar or (lambda msg, nos: None)
     for tentativa in (1, 2):
         fechar_teclado()
@@ -623,23 +665,51 @@ def preencher_campo_tv(rotulo, valor, registrar=None):
             rec(f'campo {rotulo} não achado', nos_atual)
             return False
         tocar(campo)
-        time.sleep(1)
-        nos = dump_tv()
-        campo = campo_abaixo_do_rotulo_tv(nos, rotulo)
-        if campo is None:
-            chave = {'SERVIDOR': 'servidor', 'USUÁRIO': 'usuario', 'SENHA': 'senha'}.get(rotulo)
-            campo = campos_login_tv(nos).get(chave) if chave else None
+        time.sleep(0.5)
+        # K3: Com foco no campo, aperte DPAD_CENTER para abrir o overlay do teclado do app
+        dpad_center(0.8)
+        time.sleep(0.5)
+
+        if not valor:
+            # Campo sem valor (ex.: senha vazia)
+            fechar_teclado()
+            adb('shell', 'input', 'keyevent', '66')
+            time.sleep(0.5)
+            nos = dump_tv()
+            rec(f'após {rotulo} vazio (tentativa {tentativa})', nos)
+            return True
+
         apagar_campo()
-        if valor:
-            digitar(valor)
-        time.sleep(1.5)
+        # K3: Se o overlay aceitar tecla física (adb shell input text), usa isso
+        digitar(valor)
+        time.sleep(1.0)
+        adb('shell', 'input', 'keyevent', '66')
+        time.sleep(0.5)
+
         nos_digitado = dump_tv()
         tam_digitado = tamanho_do_campo_tv(nos_digitado, rotulo)
         if tam_digitado == len(valor):
             fechar_teclado()
             time.sleep(0.5)
-            rec(f'após {rotulo} (tentativa {tentativa})', nos_digitado)
+            rec(f'após {rotulo} via tecla física (tentativa {tentativa})', nos_digitado)
             return True
+
+        # K3: Se não aceitar tecla física, navega pelas teclas com D-pad
+        rec(f'{rotulo}: tecla física não preencheu (tam={tam_digitado}), navegando com D-pad...', nos_digitado)
+        tocar(campo)
+        time.sleep(0.5)
+        dpad_center(0.8)
+        apagar_campo()
+        if digitar_dpad_tv_virtual_keyboard(valor):
+            time.sleep(1.0)
+            nos_dpad = dump_tv()
+            tam_dpad = tamanho_do_campo_tv(nos_dpad, rotulo)
+            if tam_dpad == len(valor):
+                fechar_teclado()
+                time.sleep(0.5)
+                rec(f'após {rotulo} via D-pad virtual (tentativa {tentativa})', nos_dpad)
+                return True
+
         fechar_teclado()
         time.sleep(0.5)
         nos = dump_tv()

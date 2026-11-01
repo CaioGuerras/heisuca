@@ -40,15 +40,15 @@
       "assetBase": "https://github.com/edde746/mpv-build/releases/download/binaries-windows",
       "assets": {
         "aarch64": {
-          "asset": "libmpv-windows-8dbcea0c526c-aarch64.zip",
-          "checksum": "27e93e919ab40bf343746a124a6e611321c55b372d62e7cc96304470acfc77d8"
+          "asset": "libmpv-windows-6fcf15b6f9d0-aarch64.zip",
+          "checksum": "c00371400b0488e0caa6767370ff9a8341ae9a5c029b71dde631483c47122f01"
         },
         "x86_64": {
-          "asset": "libmpv-windows-8dbcea0c526c-x86_64.zip",
-          "checksum": "adec908248bdec069b3c42e706780f1a836768ab68c96699bc5d377870082669"
+          "asset": "libmpv-windows-6fcf15b6f9d0-x86_64.zip",
+          "checksum": "d5db23e511cadc056710762596f51beb4ed7c2023e0db0c94e56ed24693d7641"
         }
       },
-      "key": "8dbcea0c526c"
+      "key": "6fcf15b6f9d0"
     }
   },
   "commit": "b15bf59c043b45f9ad7fa227b2cc7d3164daf58f",

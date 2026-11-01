@@ -426,6 +426,36 @@ class TestTvBancada(unittest.TestCase):
             # Preencheu SERVIDOR e USUÁRIO, mas parou ao detectar Início antes de SENHA
             self.assertEqual(preenchidos, ['SERVIDOR', 'USUÁRIO'])
 
+    def test_fazer_login_tv_aciona_botao_com_dpad(self):
+        nos_login = [
+            {'text': 'SERVIDOR', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 200, 200, 240), 'centro': (120, 220)},
+            {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 250, 600, 320), 'centro': (320, 285)},
+            {'text': 'USUÁRIO', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 340, 200, 380), 'centro': (120, 360)},
+            {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 390, 600, 460), 'centro': (320, 425)},
+            {'text': 'SENHA', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 480, 200, 520), 'centro': (120, 500)},
+            {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 530, 600, 600), 'centro': (320, 565)},
+            {'text': '', 'desc': 'Iniciar sessão', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'bounds': (40, 620, 600, 690), 'centro': (320, 655)},
+        ]
+        nos_inicio = [
+            {'text': '', 'desc': 'EM ALTA NO BRASIL · Nº 1\nO Homem do Norte', 'hint': '', 'cls': 'android.view.View', 'bounds': (48, 390, 400, 420), 'centro': (224, 405)},
+            {'text': '', 'desc': '▶  Assistir', 'hint': '', 'cls': 'android.widget.Button', 'bounds': (42, 736, 270, 810), 'centro': (156, 773)},
+            {'text': '', 'desc': 'Detalhes', 'hint': '', 'cls': 'android.widget.Button', 'bounds': (288, 740, 478, 808), 'centro': (383, 774)},
+        ]
+        dumps = [nos_login, nos_login, nos_login, nos_login, nos_login, nos_inicio]
+        chamadas = []
+
+        with patch('tv.dump_tv', side_effect=lambda: dumps.pop(0) if dumps else nos_inicio), \
+             patch('tv.preencher_campo_tv', return_value=True), \
+             patch('tv.fechar_teclado'), \
+             patch('tv.tocar', lambda no: chamadas.append(('tocar', no['centro']))), \
+             patch('tv.dpad_down', lambda *a: chamadas.append('dpad_down')), \
+             patch('tv.dpad_center', lambda *a: chamadas.append('dpad_center')), \
+             patch('time.sleep'):
+            res = fazer_login_tv('http://10.0.2.2:8096', 'teste-sem-senha')
+            self.assertTrue(res)
+            self.assertIn('dpad_down', chamadas)
+            self.assertIn('dpad_center', chamadas)
+
     def test_retorno_da_busca_exige_inicio(self):
         # 47df8a9: o BACK saía da Busca, mas a bancada não conferia e o passo seguinte falhava às cegas.
         inicio = [{'desc': '▶  Assistir', 'cls': 'android.widget.Button'}, {'desc': 'Detalhes', 'cls': 'android.widget.Button'}]

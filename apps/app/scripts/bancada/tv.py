@@ -669,8 +669,8 @@ def preencher_campo_tv(rotulo, valor, registrar=None):
         # K4b: Antes de cada passo (início de cada tentativa), se reconhecer_tela_tv não for mais 'login',
         # pare de mandar teclas. Se a tela for 'inicio', o login deu certo.
         tela = reconhecer_tela_tv(nos_atual)
-        if tela == 'inicio':
-            rec(f'{rotulo}: tela é inicio no início da tentativa {tentativa}', nos_atual)
+        if tela in ('inicio', 'inicio-vazio'):
+            rec(f'{rotulo}: tela é {tela!r} no início da tentativa {tentativa}', nos_atual)
             return True
         if tela is not None and tela != 'login':
             rec(f'{rotulo}: tela não é mais login ({tela!r}) no início da tentativa {tentativa}', nos_atual)
@@ -697,7 +697,7 @@ def preencher_campo_tv(rotulo, valor, registrar=None):
             time.sleep(0.5)
             nos = dump_tv()
             rec(f'após {rotulo} vazio (tentativa {tentativa})', nos)
-            if reconhecer_tela_tv(nos) == 'inicio':
+            if reconhecer_tela_tv(nos) in ('inicio', 'inicio-vazio'):
                 return True
             return True
 
@@ -708,7 +708,7 @@ def preencher_campo_tv(rotulo, valor, registrar=None):
         # K4a: Sem keyevent 66 aqui. Verifica se a tela mudou após digitar.
         nos_digitado = dump_tv()
         tela_digitado = reconhecer_tela_tv(nos_digitado)
-        if tela_digitado == 'inicio':
+        if tela_digitado in ('inicio', 'inicio-vazio'):
             rec(f'{rotulo}: tela mudou para inicio após digitar', nos_digitado)
             return True
         if tela_digitado is not None and tela_digitado != 'login':
@@ -730,7 +730,7 @@ def preencher_campo_tv(rotulo, valor, registrar=None):
         # K4b: Antes do caminho D-pad, se reconhecer_tela_tv não for mais 'login',
         # pare de mandar teclas. Se a tela for 'inicio', o login deu certo.
         tela_pos = reconhecer_tela_tv(nos_digitado)
-        if tela_pos == 'inicio':
+        if tela_pos in ('inicio', 'inicio-vazio'):
             rec(f'{rotulo}: tela mudou para inicio antes do caminho D-pad', nos_digitado)
             return True
         if tela_pos is not None and tela_pos != 'login':
@@ -759,7 +759,7 @@ def preencher_campo_tv(rotulo, valor, registrar=None):
             # Confira pelo tamanho_do_campo_tv com o overlay JÁ FECHADO.
             nos_dpad = dump_tv()
             tela_dpad = reconhecer_tela_tv(nos_dpad)
-            if tela_dpad == 'inicio':
+            if tela_dpad in ('inicio', 'inicio-vazio'):
                 rec(f'{rotulo}: tela mudou para inicio após D-pad virtual', nos_dpad)
                 return True
             if tela_dpad is not None and tela_dpad != 'login':
@@ -777,7 +777,7 @@ def preencher_campo_tv(rotulo, valor, registrar=None):
         time.sleep(0.5)
         nos = dump_tv()
         tela_fim = reconhecer_tela_tv(nos)
-        if tela_fim == 'inicio':
+        if tela_fim in ('inicio', 'inicio-vazio'):
             rec(f'{rotulo}: tela mudou para inicio no fim da tentativa {tentativa}', nos)
             return True
         if tela_fim is not None and tela_fim != 'login':
@@ -798,7 +798,7 @@ def fazer_login_tv(base, conta=CONTA, registrar=None):
     for tentativa in range(1, 26):
         nos = dump_tv()
         tela = reconhecer_tela_tv(nos)
-        if tela == 'inicio':
+        if tela in ('inicio', 'inicio-vazio'):
             rec(f'Tentativa {tentativa}: App já estava autenticado na tela Início')
             return True
         if tela == 'login':
@@ -814,7 +814,7 @@ def fazer_login_tv(base, conta=CONTA, registrar=None):
     for rotulo, val in [('SERVIDOR', base), ('USUÁRIO', conta), ('SENHA', '')]:
         nos = dump_tv()
         tela = reconhecer_tela_tv(nos)
-        if tela == 'inicio':
+        if tela in ('inicio', 'inicio-vazio'):
             rec(f'Login bem-sucedido: tela Início detectada antes de preencher {rotulo}')
             return True
         if tela != 'login':
@@ -822,7 +822,7 @@ def fazer_login_tv(base, conta=CONTA, registrar=None):
             return False
         if not preencher_campo_tv(rotulo, val, registrar=lambda step, n=None: rec(f'login: {step}')):
             nos = dump_tv()
-            if reconhecer_tela_tv(nos) == 'inicio':
+            if reconhecer_tela_tv(nos) in ('inicio', 'inicio-vazio'):
                 rec(f'Login bem-sucedido: tela Início detectada após {rotulo}')
                 return True
             return False
@@ -830,34 +830,45 @@ def fazer_login_tv(base, conta=CONTA, registrar=None):
     fechar_teclado()
     time.sleep(1)
     nos = dump_tv()
-    if reconhecer_tela_tv(nos) == 'inicio':
+    tela = reconhecer_tela_tv(nos)
+    if tela in ('inicio', 'inicio-vazio'):
         rec('Login bem-sucedido: tela Início detectada após preencher campos')
         return True
-    if reconhecer_tela_tv(nos) != 'login':
-        rec(f'Tela não é mais login ({reconhecer_tela_tv(nos)!r}) antes de clicar no botão')
+    if tela != 'login':
+        rec(f'Tela não é mais login ({tela!r}) antes de clicar no botão')
         return False
 
     botao = achar_texto(nos, 'Iniciar sessão', 'iniciar sessao', 'sign in', 'login', exato=False)
     if botao is None:
-        dpad_down()
+        dpad_down(0.5)
         time.sleep(1)
         nos = dump_tv()
-        if reconhecer_tela_tv(nos) == 'inicio':
+        tela = reconhecer_tela_tv(nos)
+        if tela in ('inicio', 'inicio-vazio'):
             rec('Login bem-sucedido: tela Início detectada após dpad_down')
             return True
         botao = achar_texto(nos, 'Iniciar sessão', 'iniciar sessao', 'sign in', 'login', exato=False)
     if botao is None:
         rec('Botão Iniciar sessão não encontrado')
         return False
+
+    rec('Acionando botão Iniciar sessão (D-pad e toque)...')
     tocar(botao)
+    dpad_down(0.5)
+    dpad_center(1.5)
 
     rec('Aguardando transição para tela Início da TV...')
     for tentativa in range(1, 36):
         time.sleep(2)
         nos = dump_tv()
-        if reconhecer_tela_tv(nos) == 'inicio':
+        tela = reconhecer_tela_tv(nos)
+        if tela in ('inicio', 'inicio-vazio'):
             rec(f'Login bem-sucedido: tela Início detectada após {tentativa * 2}s')
             return True
+        if tentativa in (2, 5, 10) and tela == 'login':
+            rec(f'Ainda em tela de login na tentativa {tentativa}/35; tentando acionar botão novamente...')
+            tocar(botao)
+            dpad_center(1.5)
         rec(f'Aguardando Início após login ({tentativa}/35, nós={len(nos)})...')
     return False
 

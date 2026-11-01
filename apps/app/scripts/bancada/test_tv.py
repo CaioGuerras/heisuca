@@ -257,6 +257,19 @@ class TestTvBancada(unittest.TestCase):
         self.assertEqual(campos['senha']['centro'], (320, 565))
         self.assertIsNotNone(campos['botao'])
 
+        # Nós com valor em desc (estrutura gerada pelo AccessibilityBridge do Flutter em FocusableTextField readOnly)
+        nos_desc = [
+            {'text': 'SERVIDOR', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 200, 200, 240), 'centro': (120, 220)},
+            {'text': '', 'desc': 'http://10.0.2.2:8096', 'hint': '', 'cls': 'android.view.View', 'enabled': True, 'bounds': (40, 250, 600, 320), 'centro': (320, 285)},
+            {'text': 'USUÁRIO', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 340, 200, 380), 'centro': (120, 360)},
+            {'text': '', 'desc': 'teste-sem-senha', 'hint': '', 'cls': 'android.view.View', 'enabled': True, 'bounds': (40, 390, 600, 460), 'centro': (320, 425)},
+            {'text': 'SENHA', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 480, 200, 520), 'centro': (120, 500)},
+            {'text': '', 'desc': '••••••••', 'hint': '', 'cls': 'android.view.View', 'enabled': True, 'bounds': (40, 530, 600, 600), 'centro': (320, 565)},
+        ]
+        self.assertEqual(tamanho_do_campo_tv(nos_desc, 'SERVIDOR'), len('http://10.0.2.2:8096'))
+        self.assertEqual(tamanho_do_campo_tv(nos_desc, 'USUÁRIO'), len('teste-sem-senha'))
+        self.assertEqual(tamanho_do_campo_tv(nos_desc, 'SENHA'), 0)  # placeholder de senha não conta como texto digitado
+
     def test_retorno_da_busca_exige_inicio(self):
         # 47df8a9: o BACK saía da Busca, mas a bancada não conferia e o passo seguinte falhava às cegas.
         inicio = [{'desc': '▶  Assistir', 'cls': 'android.widget.Button'}, {'desc': 'Detalhes', 'cls': 'android.widget.Button'}]

@@ -1077,7 +1077,21 @@ class _FocusableTextInputHostState extends State<_FocusableTextInputHost> with W
     if (!widget.input.enabled || !widget.input._usesNativeTvKeyboard) return;
     _hasSeenNativeTextInputFocus = true;
     _suppressNativeTextInputForCurrentFocus = false;
-    _beginNativeTextInput();
+    final node = _installedFocusNode ?? _effectiveFocusNode;
+    if (node.hasFocus) {
+      _beginNativeTextInput();
+      return;
+    }
+    node.requestFocus();
+    final generation = _nativeTextInputGeneration;
+    scheduleMicrotask(() {
+      if (mounted &&
+          generation == _nativeTextInputGeneration &&
+          identical(node, _installedFocusNode) &&
+          node.hasFocus) {
+        _beginNativeTextInput();
+      }
+    });
   }
 
   VoidCallback? get _effectiveOnEditingComplete {

@@ -568,7 +568,7 @@ def campo_abaixo_do_rotulo_tv(nos, rotulo):
     alvo = rotulo.strip().lower()
     rotulos = [n for n in nos if n.get('centro') and not n.get('cls', '').endswith('EditText')
                and any(r.strip().lower() == alvo for r in (n.get('text'), n.get('desc'), n.get('hint')) if r)]
-    candidatos = [n for n in nos if n.get('centro') and (n.get('clickable') or n.get('focused'))
+    candidatos = [n for n in nos if n.get('centro') and (n.get('clickable') or n.get('focused') or n.get('enabled'))
                   and not any(r.strip().lower() == alvo for r in (n.get('text'), n.get('desc'), n.get('hint')) if r)]
     melhor = None
     for r in rotulos:
@@ -599,7 +599,13 @@ def tamanho_do_campo_tv(nos, rotulo):
     if campo is None:
         chave = {'SERVIDOR': 'servidor', 'USUÁRIO': 'usuario', 'SENHA': 'senha'}.get(rotulo)
         campo = campos_login_tv(nos).get(chave) if chave else None
-    return None if campo is None else len(campo.get('text', ''))
+    if campo is None:
+        return None
+    texto = campo.get('text') or campo.get('desc') or ''
+    dicas = {'https://seuservidor.com', 'https://seu.servidor.com', 'nome de usuário', 'nome de usuario', '••••••••'}
+    if texto.strip().lower() in dicas:
+        return 0
+    return len(texto)
 
 
 def preencher_campo_tv(rotulo, valor, registrar=None):
@@ -627,6 +633,13 @@ def preencher_campo_tv(rotulo, valor, registrar=None):
         if valor:
             digitar(valor)
         time.sleep(1.5)
+        nos_digitado = dump_tv()
+        tam_digitado = tamanho_do_campo_tv(nos_digitado, rotulo)
+        if tam_digitado == len(valor):
+            fechar_teclado()
+            time.sleep(0.5)
+            rec(f'após {rotulo} (tentativa {tentativa})', nos_digitado)
+            return True
         fechar_teclado()
         time.sleep(0.5)
         nos = dump_tv()

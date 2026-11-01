@@ -362,6 +362,25 @@ class TestTvBancada(unittest.TestCase):
             # K4a/K4c: preencher_campo_tv NUNCA deve chamar keyevent 66
             self.assertNotIn(('adb', ('shell', 'input', 'keyevent', '66')), chamadas)
 
+    def test_preencher_campo_tv_senha_vazia_preserva_foco_e_nao_abre_teclado(self):
+        chamadas = []
+        nos_login = [
+            {'text': 'SENHA', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 480, 200, 520), 'centro': (120, 500)},
+            {'text': '', 'desc': '', 'hint': '••••••••', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 530, 600, 600), 'centro': (320, 565)},
+        ]
+        with patch('tv.dump_tv', return_value=nos_login), \
+             patch('tv.fechar_teclado'), \
+             patch('tv.tocar', lambda no: chamadas.append(('tocar', no))), \
+             patch('tv.dpad_center', lambda *a: chamadas.append('dpad_center')), \
+             patch('tv.back', lambda *a: chamadas.append('back')), \
+             patch('time.sleep'):
+            res = preencher_campo_tv('SENHA', '')
+            self.assertTrue(res)
+            # Para senha vazia que já está sem texto, não deve abrir overlay virtual nem dar back indevido
+            self.assertNotIn('dpad_center', chamadas)
+            self.assertNotIn('back', chamadas)
+            self.assertEqual([c for c in chamadas if c[0] == 'tocar'], [])
+
     def test_preencher_campo_tv_para_quando_inicio(self):
         chamadas = []
         nos_inicio = [
@@ -436,12 +455,21 @@ class TestTvBancada(unittest.TestCase):
             {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 530, 600, 600), 'centro': (320, 565)},
             {'text': '', 'desc': 'Iniciar sessão', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'bounds': (40, 620, 600, 690), 'centro': (320, 655)},
         ]
+        nos_login_focado = [
+            {'text': 'SERVIDOR', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 200, 200, 240), 'centro': (120, 220)},
+            {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 250, 600, 320), 'centro': (320, 285)},
+            {'text': 'USUÁRIO', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 340, 200, 380), 'centro': (120, 360)},
+            {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 390, 600, 460), 'centro': (320, 425)},
+            {'text': 'SENHA', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 480, 200, 520), 'centro': (120, 500)},
+            {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 530, 600, 600), 'centro': (320, 565)},
+            {'text': '', 'desc': 'Iniciar sessão', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'focused': True, 'bounds': (40, 620, 600, 690), 'centro': (320, 655)},
+        ]
         nos_inicio = [
             {'text': '', 'desc': 'EM ALTA NO BRASIL · Nº 1\nO Homem do Norte', 'hint': '', 'cls': 'android.view.View', 'bounds': (48, 390, 400, 420), 'centro': (224, 405)},
             {'text': '', 'desc': '▶  Assistir', 'hint': '', 'cls': 'android.widget.Button', 'bounds': (42, 736, 270, 810), 'centro': (156, 773)},
             {'text': '', 'desc': 'Detalhes', 'hint': '', 'cls': 'android.widget.Button', 'bounds': (288, 740, 478, 808), 'centro': (383, 774)},
         ]
-        dumps = [nos_login, nos_login, nos_login, nos_login, nos_login, nos_inicio]
+        dumps = [nos_login, nos_login, nos_login, nos_login, nos_login, nos_login, nos_login_focado, nos_inicio]
         chamadas = []
 
         with patch('tv.dump_tv', side_effect=lambda: dumps.pop(0) if dumps else nos_inicio), \
@@ -455,6 +483,53 @@ class TestTvBancada(unittest.TestCase):
             self.assertTrue(res)
             self.assertIn('dpad_down', chamadas)
             self.assertIn('dpad_center', chamadas)
+
+    def test_fazer_login_tv_nao_da_dpad_down_quando_botao_ja_focado(self):
+        nos_login_focado = [
+            {'text': 'SERVIDOR', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 200, 200, 240), 'centro': (120, 220)},
+            {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 250, 600, 320), 'centro': (320, 285)},
+            {'text': 'USUÁRIO', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 340, 200, 380), 'centro': (120, 360)},
+            {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 390, 600, 460), 'centro': (320, 425)},
+            {'text': 'SENHA', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 480, 200, 520), 'centro': (120, 500)},
+            {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 530, 600, 600), 'centro': (320, 565)},
+            {'text': '', 'desc': 'Iniciar sessão', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'focused': True, 'bounds': (40, 620, 600, 690), 'centro': (320, 655)},
+        ]
+        nos_inicio = [
+            {'text': '', 'desc': 'EM ALTA NO BRASIL · Nº 1\nO Homem do Norte', 'hint': '', 'cls': 'android.view.View', 'bounds': (48, 390, 400, 420), 'centro': (224, 405)},
+            {'text': '', 'desc': '▶  Assistir', 'hint': '', 'cls': 'android.widget.Button', 'bounds': (42, 736, 270, 810), 'centro': (156, 773)},
+            {'text': '', 'desc': 'Detalhes', 'hint': '', 'cls': 'android.widget.Button', 'bounds': (288, 740, 478, 808), 'centro': (383, 774)},
+        ]
+        dumps = [nos_login_focado, nos_login_focado, nos_login_focado, nos_login_focado, nos_login_focado, nos_login_focado, nos_inicio]
+        chamadas = []
+
+        with patch('tv.dump_tv', side_effect=lambda: dumps.pop(0) if dumps else nos_inicio), \
+             patch('tv.preencher_campo_tv', return_value=True), \
+             patch('tv.fechar_teclado'), \
+             patch('tv.tocar', lambda no: chamadas.append(('tocar', no['centro']))), \
+             patch('tv.dpad_down', lambda *a: chamadas.append('dpad_down')), \
+             patch('tv.dpad_center', lambda *a: chamadas.append('dpad_center')), \
+             patch('time.sleep'):
+            res = fazer_login_tv('http://10.0.2.2:8096', 'teste-sem-senha')
+            self.assertTrue(res)
+            # Como o botão já estava focado, não deve dar dpad_down além dele
+            self.assertNotIn('dpad_down', chamadas)
+            self.assertIn('dpad_center', chamadas)
+
+    def test_reconhecer_tela_tv_iniciando_sessao_e_inicio_vazio(self):
+        # Durante o envio, botão fica 'Iniciando sessão...'
+        nos_carregando = [
+            {'text': 'SERVIDOR', 'cls': 'android.view.View'},
+            {'text': 'Iniciando sessão...', 'cls': 'android.view.View'},
+        ]
+        self.assertEqual(reconhecer_tela_tv(nos_carregando), 'login')
+
+        # Início modelo A com conta nova sem itens
+        nos_inicio_vazio = [
+            {'text': 'HEISUCA', 'cls': 'android.view.View'},
+            {'text': 'Continuar assistindo', 'cls': 'android.view.View'},
+            {'text': 'Nenhum item em andamento', 'cls': 'android.view.View'},
+        ]
+        self.assertEqual(reconhecer_tela_tv(nos_inicio_vazio), 'inicio')
 
     def test_retorno_da_busca_exige_inicio(self):
         # 47df8a9: o BACK saía da Busca, mas a bancada não conferia e o passo seguinte falhava às cegas.

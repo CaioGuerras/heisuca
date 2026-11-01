@@ -347,7 +347,12 @@ DESTINOS_NAV_TV = {
 }
 # Modelo A da TV (Heisuca TV-1, 30/10): sem trilho lateral; a Início é o destaque com [Assistir]/[Detalhes]
 # e o menu sai do avatar no topo (Início, Filmes, Séries, Animes, Buscar, Ajustes).
-TERMOS_INICIO_MODELO_A = ('em alta no brasil', 'continuar assistindo')
+TERMOS_INICIO_MODELO_A = (
+    'em alta no brasil',
+    'continuar assistindo',
+    'nenhum item em andamento',
+    'em alta no heisuca',
+)
 # Campo da Busca (dica do SearchInputField). Na TV ele é readOnly e não vem como EditText; sem
 # esta regra a Busca passava por Início e o voltar_ao_inicio não dava BACK nenhum (30/10).
 TERMOS_BUSCA_TV = ('buscar filmes', 'search movies')
@@ -389,7 +394,8 @@ def reconhecer_tela_tv(nos):
 
     # 1. Login: campos de texto (EditText) presentes na tela ou termos inequívocos de login na TV
     tem_termos_login = (
-        'iniciar sessão' in rotulos or 'iniciar sessao' in rotulos or 'sign in' in rotulos or
+        bool(rotulos & TERMOS_LOGIN) or
+        any(any(tl in r for tl in TERMOS_LOGIN) for r in rotulos) or
         bool({'servidor', 'usuário'} <= rotulos) or bool({'servidor', 'usuario'} <= rotulos) or
         bool({'server', 'username'} <= rotulos)
     )
@@ -676,6 +682,12 @@ def preencher_campo_tv(rotulo, valor, registrar=None):
             rec(f'{rotulo}: tela não é mais login ({tela!r}) no início da tentativa {tentativa}', nos_atual)
             return False
 
+        if not valor:
+            tam_atual = tamanho_do_campo_tv(nos_atual, rotulo)
+            if tam_atual == 0 or tam_atual is None:
+                rec(f'{rotulo}: campo já está vazio sem abrir teclado (tentativa {tentativa})', nos_atual)
+                return True
+
         campo = campo_abaixo_do_rotulo_tv(nos_atual, rotulo)
         if campo is None:
             chave = {'SERVIDOR': 'servidor', 'USUÁRIO': 'usuario', 'SENHA': 'senha'}.get(rotulo)
@@ -690,13 +702,14 @@ def preencher_campo_tv(rotulo, valor, registrar=None):
         time.sleep(0.5)
 
         if not valor:
-            # Campo sem valor (ex.: senha vazia)
+            # Campo sem valor que precisou ser aberto para limpar (tam_atual > 0)
+            apagar_campo()
             # K4a: Fecha o overlay via BACK (sem keyevent 66)
             back(0.5)
             fechar_teclado()
             time.sleep(0.5)
             nos = dump_tv()
-            rec(f'após {rotulo} vazio (tentativa {tentativa})', nos)
+            rec(f'após {rotulo} limpo (tentativa {tentativa})', nos)
             if reconhecer_tela_tv(nos) in ('inicio', 'inicio-vazio'):
                 return True
             return True
@@ -852,9 +865,40 @@ def fazer_login_tv(base, conta=CONTA, registrar=None):
         rec('Botão Iniciar sessão não encontrado')
         return False
 
-    rec('Acionando botão Iniciar sessão (D-pad e toque)...')
-    tocar(botao)
-    dpad_down(0.5)
+    rec('Navegando foco até o botão Iniciar sessão...')
+    termos_botao = ('iniciar sessão', 'iniciar sessao', 'sign in', 'login', 'iniciar')
+    focado = False
+    for passo in range(6):
+        nos = dump_tv()
+        tela = reconhecer_tela_tv(nos)
+        if tela in ('inicio', 'inicio-vazio'):
+            rec('Login bem-sucedido: tela Início detectada durante navegação')
+            return True
+        foco = inspecionar_foco(nos)
+        foco_txt = (foco.get('texto') or foco.get('elemento') or '').strip().lower()
+        if any(t in foco_txt for t in termos_botao):
+            rec(f'Botão Iniciar sessão focado no passo {passo}: {foco_txt!r}')
+            focado = True
+            break
+        if 'outros servidores' in foco_txt or 'pastas locais' in foco_txt:
+            rec(f'Foco passou do botão para {foco_txt!r}, subindo...')
+            dpad_up(0.5)
+            continue
+        if foco.get('visivel') and foco.get('bounds') and botao.get('bounds'):
+            if foco['bounds'][1] > botao['bounds'][1] + 10:
+                dpad_up(0.5)
+            else:
+                dpad_down(0.5)
+        else:
+            dpad_down(0.5)
+        time.sleep(0.3)
+
+    if not focado:
+        rec('Foco no botão não confirmado pelo dump; tocando no botão antes do D-pad center')
+        tocar(botao)
+        time.sleep(0.5)
+
+    rec('Acionando botão Iniciar sessão (D-pad center)...')
     dpad_center(1.5)
 
     rec('Aguardando transição para tela Início da TV...')
@@ -867,7 +911,11 @@ def fazer_login_tv(base, conta=CONTA, registrar=None):
             return True
         if tentativa in (2, 5, 10) and tela == 'login':
             rec(f'Ainda em tela de login na tentativa {tentativa}/35; tentando acionar botão novamente...')
-            tocar(botao)
+            foco = inspecionar_foco(nos)
+            foco_txt = (foco.get('texto') or foco.get('elemento') or '').strip().lower()
+            if not any(t in foco_txt for t in termos_botao):
+                tocar(botao)
+                time.sleep(0.5)
             dpad_center(1.5)
         rec(f'Aguardando Início após login ({tentativa}/35, nós={len(nos)})...')
     return False

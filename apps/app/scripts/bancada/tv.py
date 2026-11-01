@@ -622,8 +622,16 @@ MAPA_TECLAS_VIRTUAL_TV = {
 }
 
 
+def teclado_virtual_tv_aberto(nos):
+    """Detecta se o overlay do teclado virtual da TV está na tela."""
+    if not nos:
+        return False
+    rotulos = {r.strip().lower() for n in nos for r in (n.get('text'), n.get('desc'), n.get('hint')) if r}
+    return bool({'space', 'del'} <= rotulos or 'shift' in rotulos)
+
+
 def digitar_dpad_tv_virtual_keyboard(valor):
-    """Navega pelas teclas do teclado virtual do Flutter usando D-pad (K3)."""
+    """Navega pelas teclas do teclado virtual do Flutter usando D-pad (K3, K4a)."""
     curr_r, curr_c = 0, 1
     for char in valor.lower():
         if char not in MAPA_TECLAS_VIRTUAL_TV:
@@ -645,18 +653,29 @@ def digitar_dpad_tv_virtual_keyboard(valor):
                 dpad_left(0.1)
         curr_r, curr_c = dest_r, dest_c
         dpad_center(0.1)
-    # Pressionar Enter / Done para concluir a digitação no overlay
-    adb('shell', 'input', 'keyevent', '66')
+    # K4a: Fecha o overlay do teclado virtual via BACK (que no overlay só faz pop, sem keyevent 66)
+    back(0.5)
     return True
 
 
 def preencher_campo_tv(rotulo, valor, registrar=None):
     """Preenche campo no login da TV via teclado do app (overlay virtual ou tecla física/D-pad)."""
-    rec = registrar or (lambda msg, nos: None)
+    rec = registrar or (lambda msg, nos=None: None)
     for tentativa in (1, 2):
         fechar_teclado()
         time.sleep(0.5)
         nos_atual = dump_tv()
+
+        # K4b: Antes de cada passo (início de cada tentativa), se reconhecer_tela_tv não for mais 'login',
+        # pare de mandar teclas. Se a tela for 'inicio', o login deu certo.
+        tela = reconhecer_tela_tv(nos_atual)
+        if tela == 'inicio':
+            rec(f'{rotulo}: tela é inicio no início da tentativa {tentativa}', nos_atual)
+            return True
+        if tela is not None and tela != 'login':
+            rec(f'{rotulo}: tela não é mais login ({tela!r}) no início da tentativa {tentativa}', nos_atual)
+            return False
+
         campo = campo_abaixo_do_rotulo_tv(nos_atual, rotulo)
         if campo is None:
             chave = {'SERVIDOR': 'servidor', 'USUÁRIO': 'usuario', 'SENHA': 'senha'}.get(rotulo)
@@ -672,21 +691,35 @@ def preencher_campo_tv(rotulo, valor, registrar=None):
 
         if not valor:
             # Campo sem valor (ex.: senha vazia)
+            # K4a: Fecha o overlay via BACK (sem keyevent 66)
+            back(0.5)
             fechar_teclado()
-            adb('shell', 'input', 'keyevent', '66')
             time.sleep(0.5)
             nos = dump_tv()
             rec(f'após {rotulo} vazio (tentativa {tentativa})', nos)
+            if reconhecer_tela_tv(nos) == 'inicio':
+                return True
             return True
 
         apagar_campo()
         # K3: Se o overlay aceitar tecla física (adb shell input text), usa isso
         digitar(valor)
         time.sleep(1.0)
-        adb('shell', 'input', 'keyevent', '66')
-        time.sleep(0.5)
-
+        # K4a: Sem keyevent 66 aqui. Verifica se a tela mudou após digitar.
         nos_digitado = dump_tv()
+        tela_digitado = reconhecer_tela_tv(nos_digitado)
+        if tela_digitado == 'inicio':
+            rec(f'{rotulo}: tela mudou para inicio após digitar', nos_digitado)
+            return True
+        if tela_digitado is not None and tela_digitado != 'login':
+            rec(f'{rotulo}: tela mudou para {tela_digitado!r} após digitar', nos_digitado)
+            return False
+
+        # K4a: Se o overlay ainda estiver aberto, fecha com BACK para inspecionar o campo fechado
+        if teclado_virtual_tv_aberto(nos_digitado):
+            back(0.5)
+            nos_digitado = dump_tv()
+
         tam_digitado = tamanho_do_campo_tv(nos_digitado, rotulo)
         if tam_digitado == len(valor):
             fechar_teclado()
@@ -694,15 +727,45 @@ def preencher_campo_tv(rotulo, valor, registrar=None):
             rec(f'após {rotulo} via tecla física (tentativa {tentativa})', nos_digitado)
             return True
 
+        # K4b: Antes do caminho D-pad, se reconhecer_tela_tv não for mais 'login',
+        # pare de mandar teclas. Se a tela for 'inicio', o login deu certo.
+        tela_pos = reconhecer_tela_tv(nos_digitado)
+        if tela_pos == 'inicio':
+            rec(f'{rotulo}: tela mudou para inicio antes do caminho D-pad', nos_digitado)
+            return True
+        if tela_pos is not None and tela_pos != 'login':
+            rec(f'{rotulo}: tela mudou para {tela_pos!r} antes do caminho D-pad', nos_digitado)
+            return False
+
+        campo_novo = campo_abaixo_do_rotulo_tv(nos_digitado, rotulo)
+        if campo_novo is None:
+            chave = {'SERVIDOR': 'servidor', 'USUÁRIO': 'usuario', 'SENHA': 'senha'}.get(rotulo)
+            campo_novo = campos_login_tv(nos_digitado).get(chave) if chave else None
+        if campo_novo is None:
+            rec(f'{rotulo}: campo não mais visível antes do caminho D-pad', nos_digitado)
+            return False
+        campo = campo_novo
+
         # K3: Se não aceitar tecla física, navega pelas teclas com D-pad
         rec(f'{rotulo}: tecla física não preencheu (tam={tam_digitado}), navegando com D-pad...', nos_digitado)
         tocar(campo)
         time.sleep(0.5)
         dpad_center(0.8)
+        time.sleep(0.5)
         apagar_campo()
         if digitar_dpad_tv_virtual_keyboard(valor):
-            time.sleep(1.0)
+            time.sleep(0.5)
+            # K4a: O overlay já foi fechado pelo back() no fim de digitar_dpad_tv_virtual_keyboard.
+            # Confira pelo tamanho_do_campo_tv com o overlay JÁ FECHADO.
             nos_dpad = dump_tv()
+            tela_dpad = reconhecer_tela_tv(nos_dpad)
+            if tela_dpad == 'inicio':
+                rec(f'{rotulo}: tela mudou para inicio após D-pad virtual', nos_dpad)
+                return True
+            if tela_dpad is not None and tela_dpad != 'login':
+                rec(f'{rotulo}: tela mudou para {tela_dpad!r} após D-pad virtual', nos_dpad)
+                return False
+
             tam_dpad = tamanho_do_campo_tv(nos_dpad, rotulo)
             if tam_dpad == len(valor):
                 fechar_teclado()
@@ -713,6 +776,14 @@ def preencher_campo_tv(rotulo, valor, registrar=None):
         fechar_teclado()
         time.sleep(0.5)
         nos = dump_tv()
+        tela_fim = reconhecer_tela_tv(nos)
+        if tela_fim == 'inicio':
+            rec(f'{rotulo}: tela mudou para inicio no fim da tentativa {tentativa}', nos)
+            return True
+        if tela_fim is not None and tela_fim != 'login':
+            rec(f'{rotulo}: tela mudou para {tela_fim!r} no fim da tentativa {tentativa}', nos)
+            return False
+
         rec(f'após {rotulo} (tentativa {tentativa})', nos)
         tam = tamanho_do_campo_tv(nos, rotulo)
         if tam == len(valor):
@@ -740,21 +811,40 @@ def fazer_login_tv(base, conta=CONTA, registrar=None):
         return False
 
     rec('Preenchendo campos de login...')
-    if not preencher_campo_tv('SERVIDOR', base, registrar=lambda step, n: rec(f'login: {step}')):
-        return False
-    if not preencher_campo_tv('USUÁRIO', conta, registrar=lambda step, n: rec(f'login: {step}')):
-        return False
-    if not preencher_campo_tv('SENHA', '', registrar=lambda step, n: rec(f'login: {step}')):
-        return False
+    for rotulo, val in [('SERVIDOR', base), ('USUÁRIO', conta), ('SENHA', '')]:
+        nos = dump_tv()
+        tela = reconhecer_tela_tv(nos)
+        if tela == 'inicio':
+            rec(f'Login bem-sucedido: tela Início detectada antes de preencher {rotulo}')
+            return True
+        if tela != 'login':
+            rec(f'Tela não é mais login ({tela!r}) antes de preencher {rotulo}')
+            return False
+        if not preencher_campo_tv(rotulo, val, registrar=lambda step, n=None: rec(f'login: {step}')):
+            nos = dump_tv()
+            if reconhecer_tela_tv(nos) == 'inicio':
+                rec(f'Login bem-sucedido: tela Início detectada após {rotulo}')
+                return True
+            return False
 
     fechar_teclado()
     time.sleep(1)
     nos = dump_tv()
+    if reconhecer_tela_tv(nos) == 'inicio':
+        rec('Login bem-sucedido: tela Início detectada após preencher campos')
+        return True
+    if reconhecer_tela_tv(nos) != 'login':
+        rec(f'Tela não é mais login ({reconhecer_tela_tv(nos)!r}) antes de clicar no botão')
+        return False
+
     botao = achar_texto(nos, 'Iniciar sessão', 'iniciar sessao', 'sign in', 'login', exato=False)
     if botao is None:
         dpad_down()
         time.sleep(1)
         nos = dump_tv()
+        if reconhecer_tela_tv(nos) == 'inicio':
+            rec('Login bem-sucedido: tela Início detectada após dpad_down')
+            return True
         botao = achar_texto(nos, 'Iniciar sessão', 'iniciar sessao', 'sign in', 'login', exato=False)
     if botao is None:
         rec('Botão Iniciar sessão não encontrado')

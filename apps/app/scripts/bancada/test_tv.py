@@ -28,8 +28,10 @@ from tv import (
     campos_login_tv,
     tamanho_do_campo_tv,
     MAPA_TECLAS_VIRTUAL_TV,
+    teclado_virtual_tv_aberto,
     digitar_dpad_tv_virtual_keyboard,
     preencher_campo_tv,
+    fazer_login_tv,
     verificar_inicio_vazio,
     verificar_player_preto,
     verificar_texto_pequeno,
@@ -273,6 +275,16 @@ class TestTvBancada(unittest.TestCase):
         self.assertEqual(tamanho_do_campo_tv(nos_desc, 'USUÁRIO'), len('teste-sem-senha'))
         self.assertEqual(tamanho_do_campo_tv(nos_desc, 'SENHA'), 0)  # placeholder de senha não conta como texto digitado
 
+    def test_teclado_virtual_tv_aberto(self):
+        nos_teclado = [
+            {'text': 'Space', 'desc': '', 'hint': '', 'cls': 'android.view.View'},
+            {'text': 'Del', 'desc': '', 'hint': '', 'cls': 'android.view.View'},
+            {'text': 'Shift', 'desc': '', 'hint': '', 'cls': 'android.view.View'},
+        ]
+        self.assertTrue(teclado_virtual_tv_aberto(nos_teclado))
+        self.assertFalse(teclado_virtual_tv_aberto([{'text': 'Início'}]))
+        self.assertFalse(teclado_virtual_tv_aberto([]))
+
     def test_digitar_dpad_tv_virtual_keyboard(self):
         chamadas = []
         with patch('tv.dpad_up', lambda *a: chamadas.append('up')), \
@@ -280,11 +292,14 @@ class TestTvBancada(unittest.TestCase):
              patch('tv.dpad_left', lambda *a: chamadas.append('left')), \
              patch('tv.dpad_right', lambda *a: chamadas.append('right')), \
              patch('tv.dpad_center', lambda *a: chamadas.append('center')), \
+             patch('tv.back', lambda *a: chamadas.append('back')), \
              patch('tv.adb', lambda *a: chamadas.append(('adb', a))):
             ok = digitar_dpad_tv_virtual_keyboard('ab')
             self.assertTrue(ok)
             self.assertIn('center', chamadas)
-            self.assertIn(('adb', ('shell', 'input', 'keyevent', '66')), chamadas)
+            self.assertIn('back', chamadas)
+            # K4a: Tirar os keyevent 66 do fim de digitar_dpad_tv_virtual_keyboard
+            self.assertNotIn(('adb', ('shell', 'input', 'keyevent', '66')), chamadas)
 
     def test_preencher_campo_tv_k3(self):
         chamadas = []
@@ -311,6 +326,105 @@ class TestTvBancada(unittest.TestCase):
             self.assertIn(('tocar', (320, 285)), chamadas)
             self.assertIn('dpad_center', chamadas)
             self.assertIn(('digitar', 'http://10.0.2.2:8096'), chamadas)
+
+    def test_preencher_campo_tv_k4_sem_keyevent_66(self):
+        chamadas = []
+        nos_login = [
+            {'text': 'SERVIDOR', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 200, 200, 240), 'centro': (120, 220)},
+            {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 250, 600, 320), 'centro': (320, 285)},
+            {'text': 'USUÁRIO', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 340, 200, 380), 'centro': (120, 360)},
+            {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 390, 600, 460), 'centro': (320, 425)},
+            {'text': 'SENHA', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 480, 200, 520), 'centro': (120, 500)},
+            {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 530, 600, 600), 'centro': (320, 565)},
+            {'text': '', 'desc': 'Iniciar sessão', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'bounds': (40, 620, 600, 690), 'centro': (320, 655)},
+        ]
+        nos_login_preenchido = [
+            {'text': 'SERVIDOR', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 200, 200, 240), 'centro': (120, 220)},
+            {'text': 'http://10.0.2.2:8096', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 250, 600, 320), 'centro': (320, 285)},
+            {'text': 'USUÁRIO', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 340, 200, 380), 'centro': (120, 360)},
+            {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 390, 600, 460), 'centro': (320, 425)},
+            {'text': 'SENHA', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 480, 200, 520), 'centro': (120, 500)},
+            {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 530, 600, 600), 'centro': (320, 565)},
+            {'text': '', 'desc': 'Iniciar sessão', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'bounds': (40, 620, 600, 690), 'centro': (320, 655)},
+        ]
+        dumps = [nos_login, nos_login_preenchido]
+
+        with patch('tv.dump_tv', side_effect=lambda: dumps.pop(0) if dumps else nos_login_preenchido), \
+             patch('tv.fechar_teclado'), \
+             patch('tv.tocar', lambda no: chamadas.append(('tocar', no['centro']))), \
+             patch('tv.dpad_center', lambda *a: chamadas.append('dpad_center')), \
+             patch('tv.apagar_campo'), \
+             patch('tv.digitar', lambda txt: chamadas.append(('digitar', txt))), \
+             patch('tv.adb', lambda *a: chamadas.append(('adb', a))), \
+             patch('time.sleep'):
+            res = preencher_campo_tv('SERVIDOR', 'http://10.0.2.2:8096')
+            self.assertTrue(res)
+            # K4a/K4c: preencher_campo_tv NUNCA deve chamar keyevent 66
+            self.assertNotIn(('adb', ('shell', 'input', 'keyevent', '66')), chamadas)
+
+    def test_preencher_campo_tv_para_quando_inicio(self):
+        chamadas = []
+        nos_inicio = [
+            {'text': '', 'desc': 'EM ALTA NO BRASIL · Nº 1\nO Homem do Norte', 'hint': '', 'cls': 'android.view.View', 'bounds': (48, 390, 400, 420), 'centro': (224, 405)},
+            {'text': '', 'desc': '▶  Assistir', 'hint': '', 'cls': 'android.widget.Button', 'bounds': (42, 736, 270, 810), 'centro': (156, 773)},
+            {'text': '', 'desc': 'Detalhes', 'hint': '', 'cls': 'android.widget.Button', 'bounds': (288, 740, 478, 808), 'centro': (383, 774)},
+        ]
+        with patch('tv.dump_tv', return_value=nos_inicio), \
+             patch('tv.fechar_teclado'), \
+             patch('tv.tocar', lambda no: chamadas.append(('tocar', no))), \
+             patch('tv.dpad_center', lambda *a: chamadas.append('dpad_center')), \
+             patch('tv.apagar_campo', lambda: chamadas.append('apagar_campo')), \
+             patch('tv.digitar', lambda txt: chamadas.append(('digitar', txt))), \
+             patch('tv.adb', lambda *a: chamadas.append(('adb', a))), \
+             patch('time.sleep'):
+            res = preencher_campo_tv('USUÁRIO', 'teste-sem-senha')
+            # K4b/K4c: se a tela já é inicio, considera sucesso e não manda nenhuma tecla
+            self.assertTrue(res)
+            self.assertEqual(chamadas, [])
+
+    def test_fazer_login_tv_reconhece_inicio_durante_preenchimento(self):
+        chamadas = []
+        nos_inicio = [
+            {'text': '', 'desc': 'EM ALTA NO BRASIL · Nº 1\nO Homem do Norte', 'hint': '', 'cls': 'android.view.View', 'bounds': (48, 390, 400, 420), 'centro': (224, 405)},
+            {'text': '', 'desc': '▶  Assistir', 'hint': '', 'cls': 'android.widget.Button', 'bounds': (42, 736, 270, 810), 'centro': (156, 773)},
+            {'text': '', 'desc': 'Detalhes', 'hint': '', 'cls': 'android.widget.Button', 'bounds': (288, 740, 478, 808), 'centro': (383, 774)},
+        ]
+        with patch('tv.dump_tv', return_value=nos_inicio), \
+             patch('tv.fechar_teclado'), \
+             patch('time.sleep'):
+            # Se o app já está na tela Início, fazer_login_tv retorna True imediatamente
+            self.assertTrue(fazer_login_tv('http://10.0.2.2:8096', 'teste-sem-senha'))
+
+    def test_fazer_login_tv_para_quando_inicio_apos_usuario(self):
+        # Simula transição para Início logo após USUÁRIO: SENHA e botão não devem ser acionados
+        nos_login = [
+            {'text': 'SERVIDOR', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 200, 200, 240), 'centro': (120, 220)},
+            {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 250, 600, 320), 'centro': (320, 285)},
+            {'text': 'USUÁRIO', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'bounds': (40, 340, 200, 380), 'centro': (120, 360)},
+            {'text': '', 'desc': '', 'hint': '', 'cls': 'android.view.View', 'clickable': True, 'enabled': True, 'bounds': (40, 390, 600, 460), 'centro': (320, 425)},
+            {'desc': 'Iniciar sessão', 'cls': 'android.view.View', 'clickable': True, 'bounds': (40, 620, 600, 690), 'centro': (320, 655)},
+        ]
+        nos_inicio = [
+            {'text': '', 'desc': 'EM ALTA NO BRASIL · Nº 1\nO Homem do Norte', 'hint': '', 'cls': 'android.view.View', 'bounds': (48, 390, 400, 420), 'centro': (224, 405)},
+            {'text': '', 'desc': '▶  Assistir', 'hint': '', 'cls': 'android.widget.Button', 'bounds': (42, 736, 270, 810), 'centro': (156, 773)},
+            {'text': '', 'desc': 'Detalhes', 'hint': '', 'cls': 'android.widget.Button', 'bounds': (288, 740, 478, 808), 'centro': (383, 774)},
+        ]
+        dumps = [nos_login, nos_login, nos_login, nos_inicio]
+        preenchidos = []
+
+        def mock_preencher(rotulo, valor, registrar=None):
+            preenchidos.append(rotulo)
+            return True
+
+        with patch('tv.dump_tv', side_effect=lambda: dumps.pop(0) if dumps else nos_inicio), \
+             patch('tv.preencher_campo_tv', side_effect=mock_preencher), \
+             patch('tv.fechar_teclado'), \
+             patch('tv.tocar', lambda botao: self.fail("Não deveria tocar no botão")), \
+             patch('time.sleep'):
+            res = fazer_login_tv('http://10.0.2.2:8096', 'teste-sem-senha')
+            self.assertTrue(res)
+            # Preencheu SERVIDOR e USUÁRIO, mas parou ao detectar Início antes de SENHA
+            self.assertEqual(preenchidos, ['SERVIDOR', 'USUÁRIO'])
 
     def test_retorno_da_busca_exige_inicio(self):
         # 47df8a9: o BACK saía da Busca, mas a bancada não conferia e o passo seguinte falhava às cegas.

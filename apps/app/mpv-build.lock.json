@@ -37,18 +37,18 @@
       "key": "1969ddb9cb26"
     },
     "windows": {
-      "assetBase": "https://github.com/edde746/mpv-build/releases/download/binaries-c09832dcccbf",
+      "assetBase": "https://github.com/edde746/mpv-build/releases/download/binaries-3e8e78a488d1",
       "assets": {
         "aarch64": {
-          "asset": "libmpv-windows-b4827f238130-aarch64.zip",
-          "checksum": "c1ac70b21a94d90632b8253ceab5b843ba24347c01eacf8e57cb9083f06d2204"
+          "asset": "libmpv-windows-11149e8aa3fa-aarch64.zip",
+          "checksum": "95e9e8628f9a5ef59edea88fb9a309ae35f203192f8007c32f1c022dcb396f8f"
         },
         "x86_64": {
-          "asset": "libmpv-windows-b4827f238130-x86_64.zip",
-          "checksum": "8b00ac1b3b98f056f0485d83f389d7fb86037ee532f6898bba69174f27b805fe"
+          "asset": "libmpv-windows-11149e8aa3fa-x86_64.zip",
+          "checksum": "80de79d3322f1a1cf925c2efa3846bdbfb4ea3bf1c58fa3a94fd7f8eb931a7b0"
         }
       },
-      "key": "b4827f238130"
+      "key": "11149e8aa3fa"
     }
   },
   "commit": "4fb660d6bc9857326cc0e362aa497c125fc18e3e",

@@ -33,6 +33,8 @@ val media3Version = "1.11.0"
 val mpvFfmpegVersion = "8.0.1"
 val mpvFfmpegSourceSha256 = "05ee0b03119b45c0bdb4df654b96802e909e0a752f72e4fe3794f487229e5a41"
 val mpvFfmpegSourceUrl = "https://ffmpeg.org/releases/ffmpeg-$mpvFfmpegVersion.tar.xz"
+// Origens do tarball, na ordem de tentativa. Qualquer uma só vale se o sha256 acima conferir.
+val mpvFfmpegSourceUrls = listOf(mpvFfmpegSourceUrl)
 val mpvFfmpegDevelopmentDir = layout.buildDirectory.dir("libmpv-ffmpeg-development").get().asFile
 
 // Build the Media3 JNI adapter against the same shared FFmpeg libraries that
@@ -70,16 +72,36 @@ val prepareMpvFfmpegDevelopment = tasks.register("prepareMpvFfmpegDevelopment") 
       val includeDir = File(staging, "include")
       val nativeDir = File(staging, "native")
       staging.mkdirs()
-      try {
-        providers.exec {
-          // ffmpeg.org às vezes demora ou cai no CI (f3ff20d, 29/10): tenta de novo antes de falhar.
-          commandLine("curl", "-sfL", "--retry", "5", "--retry-all-errors", "--retry-delay", "10",
-            "--connect-timeout", "30", mpvFfmpegSourceUrl, "-o", sourceArchive.absolutePath)
-        }.result.get().assertNormalExitValue()
-      } catch (error: Exception) {
-        throw GradleException("Failed to download FFmpeg $mpvFfmpegVersion headers", error)
+      // ffmpeg.org cai ou demora nos runners (01, 03 e 06/11: 5 builds do vigia do mpv falharam aqui).
+      // O curl --retry só cobre erro de transporte; um arquivo truncado ou servido por engano passava
+      // direto e só o sha256 reclamava. Por isso cada tentativa baixa E confere o sha256, e uma falha
+      // numa origem não impede as seguintes.
+      var downloaded = false
+      var lastDownloadError: Exception? = null
+      for (url in mpvFfmpegSourceUrls) {
+        for (attempt in 1..3) {
+          try {
+            providers.exec {
+              commandLine(
+                "curl", "-sSfL", "--retry", "3", "--retry-all-errors", "--retry-delay", "10",
+                "--connect-timeout", "30", "--max-time", "300", url, "-o", sourceArchive.absolutePath
+              )
+            }.result.get().assertNormalExitValue()
+            verifySha256(sourceArchive, mpvFfmpegSourceSha256, "FFmpeg $mpvFfmpegVersion source")
+            downloaded = true
+            break
+          } catch (error: Exception) {
+            lastDownloadError = error
+            sourceArchive.delete()
+            logger.warn("FFmpeg $mpvFfmpegVersion: tentativa $attempt/3 em $url falhou: ${error.message}")
+            if (attempt < 3) Thread.sleep(15_000)
+          }
+        }
+        if (downloaded) break
       }
-      verifySha256(sourceArchive, mpvFfmpegSourceSha256, "FFmpeg $mpvFfmpegVersion source")
+      if (!downloaded) {
+        throw GradleException("Failed to download FFmpeg $mpvFfmpegVersion headers", lastDownloadError)
+      }
 
       val extractedSource = File(staging, "source").apply { mkdirs() }
       try {

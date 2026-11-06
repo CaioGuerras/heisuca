@@ -97,7 +97,9 @@ val downloadLibmpv = tasks.register("downloadLibmpv") {
           val checksum = mpvAssets.getValue(abi).getValue("checksum")
           try {
             providers.exec {
-              commandLine("curl", "-sfL", "$mpvAssetBase/$asset", "-o", staged.absolutePath)
+              // Mesmo endurecimento do FFmpeg: sem retry, um soluço do GitHub derrubava o job inteiro.
+              commandLine("curl", "-sSfL", "--retry", "5", "--retry-all-errors", "--retry-delay", "10",
+                "--connect-timeout", "30", "--max-time", "600", "$mpvAssetBase/$asset", "-o", staged.absolutePath)
             }.result.get().assertNormalExitValue()
           } catch (error: Exception) {
             throw GradleException("Failed to download $asset (mpv-build $mpvKey)", error)

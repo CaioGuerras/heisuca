@@ -4,6 +4,7 @@ foreach(_var IN ITEMS
         LIBASS_VERSION
         LIBASS_SHA256
         LIBASS_ZIP_URL
+        LIBASS_ZIP_MIRROR_URL
         LIBASS_CACHE_DIR
         LIBASS_ROOT
         LIBASS_ARCHIVE
@@ -28,8 +29,15 @@ if(NOT EXISTS "${LIBASS_ARCHIVE}" OR NOT EXISTS "${LIBASS_HEADER}")
     # file(DOWNLOAD) não repete sozinho: tenta até 4 vezes, cada uma conferindo o sha256 fixado.
     set(_libass_ok FALSE)
     foreach(_attempt RANGE 1 4)
-        message(STATUS "Fetching fork libass ${LIBASS_VERSION} from ${LIBASS_ZIP_URL} (attempt ${_attempt}/4)")
-        file(DOWNLOAD "${LIBASS_ZIP_URL}" "${_libass_zip}"
+        # Alterna origens: uma fora do ar não derruba o build (o espelho fica nas tentativas ímpares).
+        math(EXPR _libass_impar "${_attempt} % 2")
+        if(_libass_impar)
+            set(_libass_url "${LIBASS_ZIP_MIRROR_URL}")
+        else()
+            set(_libass_url "${LIBASS_ZIP_URL}")
+        endif()
+        message(STATUS "Fetching fork libass ${LIBASS_VERSION} from ${_libass_url} (attempt ${_attempt}/4)")
+        file(DOWNLOAD "${_libass_url}" "${_libass_zip}"
             EXPECTED_HASH "SHA256=${LIBASS_SHA256}"
             TLS_VERIFY ON
             TIMEOUT 300
@@ -47,7 +55,7 @@ if(NOT EXISTS "${LIBASS_ARCHIVE}" OR NOT EXISTS "${LIBASS_HEADER}")
         endif()
     endforeach()
     if(NOT _libass_ok)
-        message(FATAL_ERROR "Failed to download libass ${LIBASS_VERSION} from ${LIBASS_ZIP_URL}: ${_libass_dl}")
+        message(FATAL_ERROR "Failed to download libass ${LIBASS_VERSION} from all sources: ${_libass_dl}")
     endif()
 
     file(REMOVE_RECURSE "${LIBASS_ROOT}")

@@ -46,4 +46,3 @@ export function trocarPara(id: string): Sessao | null {
   if (s) gravar(ATUAL, s);
   return s;
 }
-

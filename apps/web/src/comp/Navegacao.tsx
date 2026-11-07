@@ -6,7 +6,7 @@
 //  Ilha: flutuante, centralizada, de vidro: Início · Biblioteca · Favoritos · [foto] Usuário.
 import type { ComponentChildren } from 'preact';
 import { useRef } from 'preact/hooks';
-import { fotoUsuario, type Sessao } from '../api/jellyfin';
+import { fotoUsuario, type Sessao } from '../api/servidor.ts';
 import { irAba, ultimaBiblioteca, type Rota } from '../rota';
 import { Icone } from './Icone';
 import { Logo } from './Logo';

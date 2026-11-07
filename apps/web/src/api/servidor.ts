@@ -1,145 +1,96 @@
-// Servidores Jellyfin: achar o endereço certo, guardar os servidores e as sessões de cada um, entrar por senha ou por
-// Quick Connect. Só Jellyfin (PLANO §2 e §3.2). Nada de servidor pré-preenchido: o produto é a suíte, não o CGSERVER.
-import { cabecalho, type Sessao } from './jellyfin';
+// Contrato comum. Cada chamada leva sua sessão: chamadas pendentes não seguem a troca de servidor.
+import type { Sessao, TipoServidor, Item, Pessoa, Hashes, EmBreve, Usuario, LegendaRemota } from './tipos.ts';
+import { jellyfin } from './jellyfin.ts';
+export type * from './tipos.ts';
+export { quandoExpirar } from './expiracao.ts';
+export { entradaJellyfin } from './entrada-jellyfin.ts';
 
-export type Servidor = { url: string; id: string; nome: string; versao?: string };
-
-const SERVIDORES = 'heisuca.servidores';   // [Servidor] na ordem do último uso
-const SESSOES = 'heisuca.sessoes';         // { [idDoServidor]: Sessao }
-const ATUAL = 'heisuca.sessao';            // a sessão em uso (mesma chave do M1, para não deslogar ninguém)
-
-const ler = <T,>(chave: string, padrao: T): T => { try { return JSON.parse(localStorage.getItem(chave) || '') ?? padrao; } catch { return padrao; } };
-const gravar = (chave: string, v: unknown) => { try { localStorage.setItem(chave, JSON.stringify(v)); } catch { /* modo privado */ } };
-
-export const servidoresSalvos = (): Servidor[] => ler<Servidor[]>(SERVIDORES, []);
-export const ultimoServidor = (): Servidor | null => servidoresSalvos()[0] ?? null;
-
-function lembrarServidor(s: Servidor) {
-  gravar(SERVIDORES, [s, ...servidoresSalvos().filter(x => x.id !== s.id)].slice(0, 8));
+// Suporte estático do adaptador; disponibilidade de Quick Connect/Seerr continua na detecção atual.
+export type Capacidades = { favoritos: boolean; trocarSenha: boolean; foto: boolean; legendasRemotas: boolean;
+  capitulos: boolean; emAlta: boolean; emBreve: boolean };
+export interface ApiServidor {
+  bibliotecas(s: Sessao): Promise<Item[]>;
+  bibliotecasDeVideo(s: Sessao): Promise<Item[]>;
+  continuar(s: Sessao): Promise<Item[]>;
+  proximos(s: Sessao): Promise<Item[]>;
+  novidades(s: Sessao, bibliotecaId: string, limite?: number): Promise<Item[]>;
+  destaque(s: Sessao, limite?: number): Promise<Item[]>;
+  daBiblioteca(s: Sessao, bibliotecaId: string, inicio?: number, limite?: number): Promise<{ Items: Item[]; TotalRecordCount: number }>;
+  daColecao(s: Sessao, colecaoId: string): Promise<Item[]>;
+  favoritos(s: Sessao, bibliotecaId: string, limite?: number): Promise<{ Items: Item[]; TotalRecordCount: number }>;
+  buscar(s: Sessao, termo: string, bibliotecaId: string): Promise<Item[]>;
+  porIds(s: Sessao, ids: string[]): Promise<Item[]>;
+  item(s: Sessao, id: string): Promise<Item>;
+  temporadas(s: Sessao, serieId: string): Promise<Item[]>;
+  episodios(s: Sessao, serieId: string, temporadaId: string): Promise<Item[]>;
+  proximoDaSerie(s: Sessao, serieId: string): Promise<Item | null>;
+  seguinte(s: Sessao, ep: Item): Promise<Item | null>;
+  anterior(s: Sessao, ep: Item): Promise<Item | null>;
+  emAlta(s: Sessao): Promise<{ titulo: string; itens: Item[] }>;
+  emBreve(s: Sessao, tipo: 'tv' | 'movie'): Promise<EmBreve[]>;
+  capaBiblioteca(s: Sessao, i: Item): string;
+  capa(s: Sessao, i: Item, altura?: number): string;
+  fundo(s: Sessao, i: Item, largura?: number): string;
+  logo(s: Sessao, i: Item, largura?: number): string;
+  paisagem(s: Sessao, i: Item, largura?: number): string;
+  fotoPessoa(s: Sessao, p: Pessoa, largura?: number): string;
+  fotoUsuario(s: Sessao, largura?: number): string;
+  hashDe(s: Sessao, i: Item | null | undefined, tipo?: keyof Hashes): string | undefined;
+  temArte(s: Sessao, i: Item): boolean;
+  marcarAssistido(s: Sessao, id: string, sim: boolean): Promise<Item['UserData']>;
+  favoritar(s: Sessao, id: string, sim: boolean): Promise<Item['UserData']>;
+  euMesmo(s: Sessao): Promise<Usuario>;
+  trocarSenha(s: Sessao, atual: string, nova: string): Promise<unknown>;
+  trocarFoto(s: Sessao, arquivo: Blob): Promise<unknown>;
+  removerFoto(s: Sessao): Promise<unknown>;
+  buscarLegendas(s: Sessao, itemId: string, idioma: string): Promise<LegendaRemota[]>;
+  baixarLegenda(s: Sessao, itemId: string, legendaId: string): Promise<unknown>;
+  capacidades(): Readonly<Capacidades>;
 }
 
-export function sessaoAtual(): Sessao | null { return ler<Sessao | null>(ATUAL, null); }
-
-export function guardarSessao(s: Sessao) {
-  gravar(ATUAL, s);
-  if (s.servidorId) gravar(SESSOES, { ...ler<Record<string, Sessao>>(SESSOES, {}), [s.servidorId]: s });
+// Uma instância por tipo, sem leitura de localStorage. Plex será registrado na etapa 2.
+const adaptadores: Partial<Record<TipoServidor, ApiServidor>> = { jellyfin };
+export function adaptador(tipo: TipoServidor): ApiServidor {
+  const api = adaptadores[tipo];
+  if (!api) throw new Error(`Adaptador ${tipo} ainda não disponível.`);
+  return api;
 }
+export const apiDe = (s: Sessao): ApiServidor => adaptador(s.tipo);
 
-// Sair: esquece a sessão deste servidor; o servidor continua lembrado (a tela de entrada já vem com o endereço).
-export function esquecerSessao() {
-  const s = sessaoAtual();
-  try { localStorage.removeItem(ATUAL); } catch { /* nada */ }
-  if (s?.servidorId) { const t = ler<Record<string, Sessao>>(SESSOES, {}); delete t[s.servidorId]; gravar(SESSOES, t); }
-}
-
-// Trocar de servidor: se já há sessão guardada nele, entra direto; senão devolve null (vai para a tela de entrada).
-export function trocarPara(id: string): Sessao | null {
-  const s = ler<Record<string, Sessao>>(SESSOES, {})[id] || null;
-  const srv = servidoresSalvos().find(x => x.id === id);
-  if (srv) lembrarServidor(srv);
-  if (s) gravar(ATUAL, s);
-  return s;
-}
-
-// ---- endereço ----
-export class ErroEntrada extends Error {
-  campo: 'servidor' | 'usuario' | 'senha' | 'geral';
-  constructor(campo: ErroEntrada['campo'], msg: string) { super(msg); this.campo = campo; }
-}
-
-// "netflix.exemplo.com" → ["https://netflix.exemplo.com", "https://netflix.exemplo.com/jellyfin"]
-// (os clientes oficiais tentam o mesmo: muita gente publica o Jellyfin em /jellyfin atrás do proxy)
-export function candidatos(entrada: string): string[] {
-  let u = entrada.trim().replace(/\s+/g, '');
-  if (!u) return [];
-  if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
-  u = u.replace(/\/+(web\/?(index\.html)?(#.*)?)?$/i, '').replace(/\/+$/, '');
-  const c = [u];
-  if (!/\/jellyfin$/i.test(u)) c.push(u + '/jellyfin');
-  return c;
-}
-
-// só localhost é "confiável" para o navegador; http://192.168… (rede de casa) é bloqueado num site em https (conteúdo misto)
-const local = (u: string) => /^http:\/\/(localhost|127\.\d+\.\d+\.\d+|\[::1\])(:\d+)?(\/|$)/i.test(u);
-
-async function comPrazo(url: string, ms = 7000, init?: RequestInit): Promise<Response> {
-  const c = new AbortController(); const t = setTimeout(() => c.abort(), ms);
-  try { return await fetch(url, { ...init, signal: c.signal }); } finally { clearTimeout(t); }
-}
-
-// Acha o servidor: GET /System/Info/Public (público, com CORS "*" no Jellyfin padrão).
-export async function descobrir(entrada: string): Promise<Servidor> {
-  const c = candidatos(entrada);
-  if (!c.length) throw new ErroEntrada('servidor', 'Digite o endereço do servidor.');
-  // site em https não fala com servidor http (o navegador bloqueia: "conteúdo misto")
-  if (location.protocol === 'https:' && c[0].startsWith('http://') && !local(c[0]))
-    throw new ErroEntrada('servidor', 'Pelo navegador, só dá para entrar em servidores com https://. Use o endereço https do servidor ou um app Heisuca.');
-  for (const url of c) {
-    try {
-      const r = await comPrazo(`${url}/System/Info/Public`);
-      if (!r.ok) continue;
-      const d = await r.json() as { Id?: string; ServerName?: string; Version?: string; ProductName?: string };
-      if (!d?.Id) continue;
-      return { url, id: d.Id, nome: d.ServerName || new URL(url).hostname, versao: d.Version };
-    } catch { /* tenta o próximo */ }
-  }
-  throw new ErroEntrada('servidor', 'Não achei um servidor Jellyfin nesse endereço.');
-}
-
-type Autenticacao = { AccessToken: string; User: { Id: string; Name: string; PrimaryImageTag?: string } };
-function sessaoDe(srv: Servidor, d: Autenticacao): Sessao {
-  return { servidor: srv.url, servidorId: srv.id, nomeServidor: srv.nome, token: d.AccessToken, usuarioId: d.User.Id,
-    nome: d.User.Name, fotoTag: d.User.PrimaryImageTag };
-}
-
-export async function entrarComSenha(srv: Servidor, usuario: string, senha: string): Promise<Sessao> {
-  if (!usuario.trim()) throw new ErroEntrada('usuario', 'Digite o usuário.');
-  let r: Response;
-  try {
-    r = await comPrazo(`${srv.url}/Users/AuthenticateByName`, 15000, {
-      method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: cabecalho() },
-      body: JSON.stringify({ Username: usuario.trim(), Pw: senha }),
-    });
-  } catch { throw new ErroEntrada('geral', 'O servidor não respondeu. Tente de novo.'); }
-  if (r.status === 401) throw new ErroEntrada('senha', 'Usuário ou senha incorretos.');
-  if (!r.ok) throw new ErroEntrada('geral', `O servidor recusou a entrada (${r.status}).`);
-  const s = sessaoDe(srv, await r.json());
-  lembrarServidor(srv); guardarSessao(s);
-  return s;
-}
-
-// ---- Quick Connect (entrar com um código autorizado em outro aparelho já conectado) ----
-export async function quickConnectLigado(srv: Servidor): Promise<boolean> {
-  try { const r = await comPrazo(`${srv.url}/QuickConnect/Enabled`); return r.ok && (await r.json()) === true; } catch { return false; }
-}
-
-export type PedidoQC = { codigo: string; segredo: string };
-export async function iniciarQuickConnect(srv: Servidor): Promise<PedidoQC> {
-  const r = await comPrazo(`${srv.url}/QuickConnect/Initiate`, 10000, { method: 'POST', headers: { Authorization: cabecalho() } });
-  if (!r.ok) throw new ErroEntrada('geral', 'O Quick Connect está desligado neste servidor.');
-  const d = await r.json() as { Code: string; Secret: string };
-  return { codigo: d.Code, segredo: d.Secret };
-}
-
-// Espera a autorização (o código vale ~10 min no servidor); devolve a sessão ou null se cancelado.
-export async function esperarQuickConnect(srv: Servidor, p: PedidoQC, cancelado: () => boolean): Promise<Sessao | null> {
-  while (!cancelado()) {
-    await new Promise(ok => setTimeout(ok, 2500));
-    if (cancelado()) return null;
-    try {
-      const r = await comPrazo(`${srv.url}/QuickConnect/Connect?Secret=${encodeURIComponent(p.segredo)}`, 8000, { headers: { Authorization: cabecalho() } });
-      if (r.status === 404 || r.status === 400) throw new ErroEntrada('geral', 'O código venceu. Peça outro.');
-      if (!r.ok) continue;
-      const d = await r.json() as { Authenticated?: boolean; authenticated?: boolean };
-      if (!(d.Authenticated ?? d.authenticated)) continue;
-      const a = await comPrazo(`${srv.url}/Users/AuthenticateWithQuickConnect`, 10000, {
-        method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: cabecalho() }, body: JSON.stringify({ Secret: p.segredo }),
-      });
-      if (!a.ok) throw new ErroEntrada('geral', 'A autorização falhou. Peça outro código.');
-      const s = sessaoDe(srv, await a.json());
-      lembrarServidor(srv); guardarSessao(s);
-      return s;
-    } catch (e) { if (e instanceof ErroEntrada) throw e; /* rede: tenta de novo */ }
-  }
-  return null;
-}
+// Fachada mantém chamadas explícitas das telas, sem expor transporte/URLs específicos de Jellyfin.
+export const bibliotecas: ApiServidor['bibliotecas'] = (s, ...args) => apiDe(s).bibliotecas(s, ...args);
+export const bibliotecasDeVideo: ApiServidor['bibliotecasDeVideo'] = (s, ...args) => apiDe(s).bibliotecasDeVideo(s, ...args);
+export const continuar: ApiServidor['continuar'] = (s, ...args) => apiDe(s).continuar(s, ...args);
+export const proximos: ApiServidor['proximos'] = (s, ...args) => apiDe(s).proximos(s, ...args);
+export const novidades: ApiServidor['novidades'] = (s, ...args) => apiDe(s).novidades(s, ...args);
+export const destaque: ApiServidor['destaque'] = (s, ...args) => apiDe(s).destaque(s, ...args);
+export const daBiblioteca: ApiServidor['daBiblioteca'] = (s, ...args) => apiDe(s).daBiblioteca(s, ...args);
+export const daColecao: ApiServidor['daColecao'] = (s, ...args) => apiDe(s).daColecao(s, ...args);
+export const favoritos: ApiServidor['favoritos'] = (s, ...args) => apiDe(s).favoritos(s, ...args);
+export const buscar: ApiServidor['buscar'] = (s, ...args) => apiDe(s).buscar(s, ...args);
+export const porIds: ApiServidor['porIds'] = (s, ...args) => apiDe(s).porIds(s, ...args);
+export const item: ApiServidor['item'] = (s, ...args) => apiDe(s).item(s, ...args);
+export const temporadas: ApiServidor['temporadas'] = (s, ...args) => apiDe(s).temporadas(s, ...args);
+export const episodios: ApiServidor['episodios'] = (s, ...args) => apiDe(s).episodios(s, ...args);
+export const proximoDaSerie: ApiServidor['proximoDaSerie'] = (s, ...args) => apiDe(s).proximoDaSerie(s, ...args);
+export const seguinte: ApiServidor['seguinte'] = (s, ...args) => apiDe(s).seguinte(s, ...args);
+export const anterior: ApiServidor['anterior'] = (s, ...args) => apiDe(s).anterior(s, ...args);
+export const emAlta: ApiServidor['emAlta'] = (s, ...args) => apiDe(s).emAlta(s, ...args);
+export const emBreve: ApiServidor['emBreve'] = (s, ...args) => apiDe(s).emBreve(s, ...args);
+export const capaBiblioteca: ApiServidor['capaBiblioteca'] = (s, ...args) => apiDe(s).capaBiblioteca(s, ...args);
+export const capa: ApiServidor['capa'] = (s, ...args) => apiDe(s).capa(s, ...args);
+export const fundo: ApiServidor['fundo'] = (s, ...args) => apiDe(s).fundo(s, ...args);
+export const logo: ApiServidor['logo'] = (s, ...args) => apiDe(s).logo(s, ...args);
+export const paisagem: ApiServidor['paisagem'] = (s, ...args) => apiDe(s).paisagem(s, ...args);
+export const fotoPessoa: ApiServidor['fotoPessoa'] = (s, ...args) => apiDe(s).fotoPessoa(s, ...args);
+export const fotoUsuario: ApiServidor['fotoUsuario'] = (s, ...args) => apiDe(s).fotoUsuario(s, ...args);
+export const hashDe: ApiServidor['hashDe'] = (s, ...args) => apiDe(s).hashDe(s, ...args);
+export const temArte: ApiServidor['temArte'] = (s, ...args) => apiDe(s).temArte(s, ...args);
+export const marcarAssistido: ApiServidor['marcarAssistido'] = (s, ...args) => apiDe(s).marcarAssistido(s, ...args);
+export const favoritar: ApiServidor['favoritar'] = (s, ...args) => apiDe(s).favoritar(s, ...args);
+export const euMesmo: ApiServidor['euMesmo'] = (s, ...args) => apiDe(s).euMesmo(s, ...args);
+export const trocarSenha: ApiServidor['trocarSenha'] = (s, ...args) => apiDe(s).trocarSenha(s, ...args);
+export const trocarFoto: ApiServidor['trocarFoto'] = (s, ...args) => apiDe(s).trocarFoto(s, ...args);
+export const removerFoto: ApiServidor['removerFoto'] = (s, ...args) => apiDe(s).removerFoto(s, ...args);
+export const buscarLegendas: ApiServidor['buscarLegendas'] = (s, ...args) => apiDe(s).buscarLegendas(s, ...args);
+export const baixarLegenda: ApiServidor['baixarLegenda'] = (s, ...args) => apiDe(s).baixarLegenda(s, ...args);

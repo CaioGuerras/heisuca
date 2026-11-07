@@ -1,7 +1,8 @@
 // Seerr (pedidos) na mesma origem do Jellyfin (/__seerr/). Login automático por Quick Connect, como no site atual
 // (cgflix-nav.js): o Seerr gera o código, esta aba o autoriza no Jellyfin com o login da própria pessoa e o Seerr conclui.
 // Sem segunda senha e sem o token do Jellyfin sair daqui. Dado do Seerr só vira texto (o JSX escapa), nunca HTML.
-import { autorizarQuickConnect, type Sessao } from './jellyfin';
+import type { Sessao } from './tipos.ts';
+import { entradaJellyfin } from './servidor.ts';
 
 export type Resultado = {
   id: number; mediaType: 'movie' | 'tv' | 'person'; title?: string; name?: string; posterPath?: string;
@@ -48,7 +49,7 @@ let sessao: Promise<{ id: number }> | null = null, dono = '';
 async function entrar(s: Sessao) {
   const qc = await req<{ code: string; secret: string }>(s, '/auth/jellyfin/quickconnect/initiate', 'POST');
   if (!/^[0-9]{4,8}$/.test(String(qc.code)) || !qc.secret) throw new Error('quickconnect');
-  await autorizarQuickConnect(s, String(qc.code));
+  await entradaJellyfin.autorizarQuickConnect(s, String(qc.code));
   await req(s, '/auth/jellyfin/quickconnect/authenticate', 'POST', { secret: qc.secret });
   return req<{ id: number }>(s, '/auth/me');
 }

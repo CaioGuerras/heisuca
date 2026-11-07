@@ -1,7 +1,7 @@
 // Nomes das faixas de áudio e legenda como no painel do app completo (app_completo/…foto25): a língua em português na
 // linha de cima e o detalhe (título da faixa · formato · canais) embaixo, em vez do DisplayTitle cru do servidor
 // ("Português (Brasil) - Portuguese - AAC - Stereo - Padrão", reprovado em heisuca_reprovado/…foto20).
-import type { Fluxo } from '../api/jellyfin';
+import type { Fluxo } from '../api/servidor.ts';
 
 // o Jellyfin manda ISO 639-2 (3 letras); o Intl entende melhor o código de 2 letras
 const ISO: Record<string, string> = {

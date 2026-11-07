@@ -3,7 +3,7 @@
 //  Paisagem 16:9 (Continuar/Próximo): ▶ no centro, tempo "26:44 / 40:39", barra de progresso, título + "T1:E1 · nome".
 //  Biblioteca 16:9 (Mídia): a capa da biblioteca e o nome embaixo.  Top 10: número em contorno alinhado à base do pôster.
 import type { JSX } from 'preact';
-import { capa, hashDe, imagem, paisagem, type EmBreve, type Item, type Sessao } from '../api/jellyfin';
+import { capa, hashDe, capaBiblioteca, paisagem, type EmBreve, type Item, type Sessao } from '../api/servidor.ts';
 import { useDados } from '../estado/usuario';
 import { Icone } from './Icone';
 import { Imagem } from './Imagem';
@@ -29,11 +29,11 @@ export const nomeDe = (i: Item) => i.Type === 'Episode' ? (i.SeriesName || i.Nam
 type Base = { s: Sessao; i: Item; aoAbrir: (i: Item) => void; prioridade?: boolean };
 
 export function CartaoPoster({ s, i, aoAbrir, prioridade }: Base) {
-  const d = useDados(i), acoes = useAcoes(s, i), n = nota(i);
+  const d = useDados(s, i), acoes = useAcoes(s, i), n = nota(i);
   return (
     <button class="cartao cartao-poster" onClick={() => aoAbrir(i)} {...acoes} aria-label={`${nomeDe(i)}${anos(i) ? `, ${anos(i)}` : ''}`}>
       <span class="cartao-arte">
-        <Imagem src={capa(s, i, 360)} hash={hashDe(i, 'Primary')} prioridade={prioridade} />
+        <Imagem src={capa(s, i, 360)} hash={hashDe(s, i, 'Primary')} prioridade={prioridade} />
         {n && <span class="cartao-nota">{n}</span>}
         {d.Played && <span class="cartao-visto"><Icone nome="check" tamanho={14} /></span>}
       </span>
@@ -44,13 +44,13 @@ export function CartaoPoster({ s, i, aoAbrir, prioridade }: Base) {
 }
 
 export function CartaoPaisagem({ s, i, aoAbrir, prioridade, tempo = false }: Base & { tempo?: boolean }) {
-  const d = useDados(i), acoes = useAcoes(s, i);
+  const d = useDados(s, i), acoes = useAcoes(s, i);
   const dur = (i.RunTimeTicks || 0) / TICKS, pos = (d.PlaybackPositionTicks || 0) / TICKS;
   const pct = d.PlayedPercentage ?? (dur ? pos / dur * 100 : 0);
   return (
     <button class="cartao cartao-paisagem" onClick={() => aoAbrir(i)} {...acoes} aria-label={`${nomeDe(i)} ${episodio(i)}`}>
       <span class="cartao-arte">
-        <Imagem src={paisagem(s, i, 480)} hash={hashDe(i, i.Type === 'Episode' ? 'Primary' : 'Backdrop')} prioridade={prioridade} />
+        <Imagem src={paisagem(s, i, 480)} hash={hashDe(s, i, i.Type === 'Episode' ? 'Primary' : 'Backdrop')} prioridade={prioridade} />
         <span class="cartao-play"><Icone nome="play_arrow" cheio tamanho={26} /></span>
         {tempo && dur > 0 && <span class="cartao-tempo">{relogio(pos)} / {relogio(dur)}</span>}
         {pct > 0 && <span class="cartao-barra"><span style={{ width: `${Math.min(100, pct)}%` }} /></span>}
@@ -62,11 +62,11 @@ export function CartaoPaisagem({ s, i, aoAbrir, prioridade, tempo = false }: Bas
 }
 
 export function CartaoBiblioteca({ s, b, aoAbrir }: { s: Sessao; b: Item; aoAbrir: (b: Item) => void }) {
-  const img = b.ImageTags?.Primary ? imagem(s, b.Id, 'Primary', b.ImageTags.Primary, { largura: 480 }) : '';
+  const img = capaBiblioteca(s, b);
   return (
     <button class="cartao cartao-biblioteca" onClick={() => aoAbrir(b)} aria-label={b.Name}>
       <span class="cartao-arte">
-        <Imagem src={img} hash={hashDe(b, 'Primary')} />
+        <Imagem src={img} hash={hashDe(s, b, 'Primary')} />
         {!img && <span class="cartao-biblioteca-nome">{b.Name}</span>}
       </span>
       <span class="cartao-nome uma-linha">{b.Name}</span>
@@ -79,7 +79,7 @@ export function CartaoTop10({ s, i, n, aoAbrir }: Base & { n: number }) {
   return (
     <button class="cartao cartao-top10" onClick={() => aoAbrir(i)} {...acoes} aria-label={`${n}º, ${nomeDe(i)}`}>
       <span class="cartao-numero" aria-hidden="true">{n}</span>
-      <span class="cartao-arte"><Imagem src={capa(s, i, 360)} hash={hashDe(i, 'Primary')} prioridade /></span>
+      <span class="cartao-arte"><Imagem src={capa(s, i, 360)} hash={hashDe(s, i, 'Primary')} prioridade /></span>
     </button>
   );
 }

@@ -3,7 +3,7 @@
 //  Sem abas (Séries/Episódios/Gêneros/Pastas) e sem ordenar/filtrar: ordem alfabética. Grade de pôsteres 2:3 (3 colunas no
 //  celular, mais no computador) que carrega aos poucos ao rolar. Botão direito no cartão: visto · favoritar.
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { bibliotecasDeVideo, daBiblioteca, hashDe, type Item, type Sessao } from '../api/jellyfin';
+import { bibliotecasDeVideo, daBiblioteca, hashDe, type Item, type Sessao } from '../api/servidor.ts';
 import { usePaleta } from '../cor/paleta';
 import { CartaoPoster, EsqueletoCartoes } from '../comp/Cartoes';
 import { Folha } from '../comp/Folha';
@@ -78,7 +78,7 @@ function Grade({ s, bid }: { s: Sessao; bid: string }) {
   const [fim, setFim] = useState(false);
   const [erro, setErro] = useState(false);
   const carregando = useRef(false), sentinela = useRef<HTMLDivElement>(null), qtd = useRef(0);
-  usePaleta(hashDe(itens[0], 'Primary'));
+  usePaleta(hashDe(s, itens[0], 'Primary'));
 
   const mais = () => {
     if (!bid || carregando.current || fim) return;

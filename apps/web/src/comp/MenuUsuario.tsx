@@ -7,8 +7,8 @@
 // Tema: abre ali mesmo, dentro do balão, só com os nomes (sem amostra de cor; §2.1); a tela muda na hora.
 import type { JSX } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
-import type { Sessao } from '../api/jellyfin';
-import { servidoresSalvos } from '../api/servidor';
+import type { Sessao } from '../api/servidor.ts';
+import { servidoresSalvos } from '../api/contas.ts';
 import { abrirServidores } from '../estado/casca';
 import { escolhaAtual, escolherTema, type Escolha } from '../tema';
 import { irPagina } from '../rota';

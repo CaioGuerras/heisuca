@@ -12,7 +12,7 @@
 // Sessão G/H (Caio 20/10): transição com sobreposição suave entre as fases, curvas de entrada/saída contínuas e calibração
 // refinada para entrada rápida mantendo a nobreza e respiração do selo.
 import { useEffect, useLayoutEffect, useRef } from 'preact/hooks';
-import type { Sessao } from '../api/jellyfin';
+import type { Sessao } from '../api/servidor.ts';
 import { animar, CURVA, reduzido, voar } from '../anim/voo';
 import { corDaBase, paletaDe } from '../cor/paleta';
 import { css, deLch, misturar, paraLch, type RGB } from '../cor/oklch';
@@ -71,7 +71,7 @@ export function Transicao({ s, de, clique, curta = false, fim }: { s: Sessao; de
       const d = await Promise.race([pronto, espera(MAXIMO - revela - passou()).then(() => null)]);
       await espera((menos ? 1200 : curta ? MINIMO_CURTA : MINIMO) - revela - passou());
       if (acabou) return;
-      const p = paletaDe(corDaBase(hashDoDestaque(d?.destaque[0])));
+      const p = paletaDe(corDaBase(hashDoDestaque(s, d?.destaque[0])));
       const final = css(p.pagina);
       if (menos) {
         await Promise.all([animar(l, [{ opacity: 1 }, { opacity: 0 }], 200),
@@ -79,7 +79,7 @@ export function Transicao({ s, de, clique, curta = false, fim }: { s: Sessao; de
         await animar(r, [{ opacity: 1 }, { opacity: 0 }], 200);
       } else {
         respira?.pause();   // o selo para onde está, e o campo nasce exatamente sobre ele
-        await abrirSelo(r, c, q, p.pagina, corDaBase(hashDoDestaque(d?.destaque[0])), p.escuro);
+        await abrirSelo(r, c, q, p.pagina, corDaBase(hashDoDestaque(s, d?.destaque[0])), p.escuro);
       }
     })().catch(e => avisarErro(`transição: ${e instanceof Error ? e.message : String(e)}`))
       // aconteça o que acontecer na animação, a pessoa nunca fica presa aqui: a home abre

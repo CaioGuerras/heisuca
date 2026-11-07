@@ -1,32 +1,10 @@
+import type { ApiServidor } from './servidor.ts';
 // Cliente Jellyfin mínimo, escrito do zero (só fetch). Cada função é um endpoint da API REST oficial (10.9+).
 // Regra do PLANO §1.7: só aparece dado que o servidor tem; nada de valor inventado na falta.
-export const VERSAO = '0.2.0';
-
-export type Sessao = {
-  servidor: string; token: string; usuarioId: string; nome: string;
-  servidorId?: string; nomeServidor?: string; fotoTag?: string;
-};
-export type Hashes = Partial<Record<'Primary' | 'Backdrop' | 'Thumb' | 'Logo' | 'Banner', Record<string, string>>>;
-export type Pessoa = { Id: string; Name: string; Role?: string; Type?: string; PrimaryImageTag?: string };
-export type Capitulo = { Name?: string; StartPositionTicks: number };
-export type Item = {
-  Id: string; Name: string; Type: string; SeriesName?: string; SeriesId?: string; SeasonId?: string; SeasonName?: string;
-  ProductionYear?: number; PremiereDate?: string; EndDate?: string; Status?: string; Overview?: string;
-  ImageTags?: Record<string, string>; BackdropImageTags?: string[]; ImageBlurHashes?: Hashes;
-  ParentBackdropItemId?: string; ParentBackdropImageTags?: string[]; ParentThumbItemId?: string; ParentThumbImageTag?: string;
-  SeriesPrimaryImageTag?: string; ParentLogoItemId?: string; ParentLogoImageTag?: string; ParentId?: string;
-  IndexNumber?: number; ParentIndexNumber?: number; CollectionType?: string; ChildCount?: number;
-  OfficialRating?: string; CommunityRating?: number; RunTimeTicks?: number; Genres?: string[]; Taglines?: string[];
-  Studios?: { Name: string }[]; People?: Pessoa[]; Chapters?: Capitulo[]; MediaStreams?: Fluxo[];
-  UserData?: { PlayedPercentage?: number; Played?: boolean; PlaybackPositionTicks?: number; UnplayedItemCount?: number; IsFavorite?: boolean };
-};
-
-export function idAparelho(): string {
-  let id = '';
-  try { id = localStorage.getItem('heisuca.aparelho') || ''; } catch { /* modo privado */ }
-  if (!id) { id = Math.random().toString(36).slice(2) + Date.now().toString(36); try { localStorage.setItem('heisuca.aparelho', id); } catch { /* nada */ } }
-  return id;
-}
+import { VERSAO, idAparelho } from './contas.ts';
+import { notificarExpiracao } from './expiracao.ts';
+import type { Sessao, Hashes, Pessoa, Item, Usuario, LegendaRemota, Fluxo, EmBreve } from './tipos.ts';
+export type { Sessao, Item, Fluxo, LegendaRemota } from './tipos.ts';
 
 export function cabecalho(token?: string): string {
   const p = [`Client="Heisuca"`, `Device="Navegador"`, `DeviceId="${idAparelho()}"`, `Version="${VERSAO}"`];
@@ -34,17 +12,13 @@ export function cabecalho(token?: string): string {
   return 'MediaBrowser ' + p.join(', ');
 }
 
-// 401 = a sessão venceu (senha trocada em outro aparelho, token apagado): o app volta para a entrada.
-let aoExpirar: (() => void) | null = null;
-export const quandoExpirar = (f: (() => void) | null) => { aoExpirar = f; };
-
 export async function pedir(s: Sessao, metodo: string, caminho: string, corpo?: unknown, keepalive = false, tipo = 'application/json'): Promise<Response> {
   const r = await fetch(s.servidor + caminho, {
     method: metodo, keepalive,
     headers: { Authorization: cabecalho(s.token), ...(corpo === undefined ? {} : { 'Content-Type': tipo }) },
     body: corpo === undefined ? undefined : typeof corpo === 'string' ? corpo : JSON.stringify(corpo),
   });
-  if (r.status === 401) { aoExpirar?.(); throw new Error('sessão vencida'); }
+  if (r.status === 401) { notificarExpiracao(); throw new Error('sessão vencida'); }
   if (!r.ok) throw new Error(`${caminho.split('?')[0]}: ${r.status}`);
   return r;
 }
@@ -54,7 +28,7 @@ export const obter = <T,>(s: Sessao, caminho: string): Promise<T> => pedir(s, 'G
 // Sempre WebP: o site exige Safari 15+/Chrome/Edge/Firefox atuais, todos leem WebP; o Jellyfin 10.11 converte na hora
 // (e guarda em cache). Mesma qualidade do JPEG, arquivo bem menor; logos mantêm a transparência (WebP tem alfa).
 const WEBP = 'format=Webp';
-type Medida = { largura?: number; altura?: number; qualidade?: number };
+export type Medida = { largura?: number; altura?: number; qualidade?: number };
 export function imagem(s: Sessao, id: string, tipo: string, tag?: string, m: Medida = {}, indice?: number): string {
   const q = [m.largura && `fillWidth=${Math.round(m.largura)}`, m.altura && `fillHeight=${Math.round(m.altura)}`,
     `quality=${m.qualidade ?? 85}`, WEBP, tag && `tag=${tag}`].filter(Boolean).join('&');
@@ -181,8 +155,6 @@ export const favoritar = (s: Sessao, id: string, sim: boolean) =>
   pedir(s, sim ? 'POST' : 'DELETE', `/UserFavoriteItems/${id}?userId=${s.usuarioId}`).then(r => r.json() as Promise<Item['UserData']>);
 
 // ---- conta ----
-export type Usuario = { Id: string; Name: string; HasPassword?: boolean; PrimaryImageTag?: string;
-  Policy?: { IsAdministrator?: boolean; EnableSubtitleManagement?: boolean } };
 export const euMesmo = (s: Sessao) => obter<Usuario>(s, `/Users/${s.usuarioId}`);
 export const trocarSenha = (s: Sessao, atual: string, nova: string) =>
   pedir(s, 'POST', `/Users/${s.usuarioId}/Password`, { CurrentPw: atual, NewPw: nova });
@@ -194,21 +166,12 @@ export async function trocarFoto(s: Sessao, arquivo: Blob) {
 export const removerFoto = (s: Sessao) => pedir(s, 'DELETE', `/Users/${s.usuarioId}/Images/Primary`);
 
 // ---- legendas pela internet (plugin Open Subtitles; precisa da permissão "gerenciar legendas": PLANO §13) ----
-export type LegendaRemota = { Id: string; Name?: string; ProviderName?: string; Format?: string; DownloadCount?: number;
-  ThreeLetterISOLanguageName?: string; IsHashMatch?: boolean; Comment?: string };
 export const buscarLegendas = (s: Sessao, itemId: string, idioma: 'pob' | 'por' | string) =>
   obter<LegendaRemota[]>(s, `/Items/${itemId}/RemoteSearch/Subtitles/${idioma}`);
 export const baixarLegenda = (s: Sessao, itemId: string, legendaId: string) =>
   pedir(s, 'POST', `/Items/${itemId}/RemoteSearch/Subtitles/${encodeURIComponent(legendaId)}`);
 
 // ---- reprodução ----
-export type Fluxo = {
-  Index: number; Type: 'Video' | 'Audio' | 'Subtitle' | string; Codec?: string; Language?: string; DisplayTitle?: string;
-  Title?: string; IsDefault?: boolean; IsForced?: boolean; IsExternal?: boolean; IsTextSubtitleStream?: boolean;
-  DeliveryMethod?: 'External' | 'Encode' | 'Embed' | 'Hls' | 'Drop'; DeliveryUrl?: string; Channels?: number; ChannelLayout?: string;
-  Width?: number; Height?: number; Profile?: string; RealFrameRate?: number; AverageFrameRate?: number; BitRate?: number;
-  VideoRange?: string; VideoRangeType?: string; SampleRate?: number; AspectRatio?: string; BitDepth?: number;
-};
 export type Fonte = {
   Id: string; Container?: string; RunTimeTicks?: number; SupportsDirectPlay: boolean; SupportsDirectStream: boolean;
   SupportsTranscoding: boolean; TranscodingUrl?: string; MediaStreams: Fluxo[]; Size?: number; Bitrate?: number;
@@ -252,7 +215,6 @@ export async function emAlta(s: Sessao): Promise<{ titulo: string; itens: Item[]
 
 // Em breve: calendário do Sonarr/Radarr pelo plugin Home Screen Sections; o embreve.json diz, por id, o item do Jellyfin
 // (temos → título) ou o TMDB (não temos → pedir). Mesma lógica do site atual.
-export type EmBreve = { nome: string; sub: string; capa: string; jf?: string; tmdb?: number; tipo: 'tv' | 'movie' };
 type Secao = { Items?: { Name?: string; SeriesName?: string; PremiereDate?: string; ProviderIds?: Record<string, string>; Id?: string }[] };
 let mapaEmBreve: Promise<{ m: Record<string, { jf: string | null; tmdb?: number }>; s: Record<string, { jf: string | null; tmdb?: number; nome?: string }> }> | null = null;
 export async function emBreve(s: Sessao, tipo: 'tv' | 'movie'): Promise<EmBreve[]> {
@@ -279,3 +241,51 @@ export async function emBreve(s: Sessao, tipo: 'tv' | 'movie'): Promise<EmBreve[
 // aparelhos de terceiros (PLANO §10: isso fica para os apps)
 export const autorizarQuickConnect = (s: Sessao, codigo: string) =>
   pedir(s, 'POST', `/QuickConnect/Authorize?code=${encodeURIComponent(codigo)}&userId=${s.usuarioId}`);
+
+// Busca por biblioteca: mesma URL da tela antiga (limite 30), sem alterar a junção na tela.
+export const buscar = (s: Sessao, termo: string, bibliotecaId: string) =>
+  obter<{ Items: Item[] }>(s, `/Items?userId=${s.usuarioId}&parentId=${bibliotecaId}&searchTerm=${encodeURIComponent(termo)}` +
+    '&recursive=true&includeItemTypes=Movie,Series&limit=30&fields=Overview,ProductionYear,OfficialRating,CommunityRating&enableImageTypes=Primary&imageTypeLimit=1').then(d => d.Items);
+export const temArte = (_s: Sessao, i: Item) => !!(i.BackdropImageTags?.length && i.ImageTags?.Logo);
+export const capaBiblioteca = (s: Sessao, i: Item) => i.ImageTags?.Primary ? imagem(s, i.Id, 'Primary', i.ImageTags.Primary, { largura: 480 }) : '';
+
+const capacidadesJellyfin = Object.freeze({ favoritos: true, trocarSenha: true, foto: true, legendasRemotas: true, capitulos: true, emAlta: true, emBreve: true });
+export const jellyfin: ApiServidor = {
+  bibliotecas,
+  bibliotecasDeVideo,
+  continuar,
+  proximos,
+  novidades,
+  destaque: paraDestaque,
+  daBiblioteca,
+  daColecao,
+  favoritos: favoritosDe,
+  buscar,
+  porIds,
+  item,
+  temporadas,
+  episodios,
+  proximoDaSerie,
+  seguinte,
+  anterior,
+  emAlta,
+  emBreve,
+  capaBiblioteca,
+  capa,
+  fundo,
+  logo,
+  paisagem,
+  fotoPessoa,
+  fotoUsuario,
+  hashDe: (_s, i, tipo) => hashDe(i, tipo),
+  temArte,
+  marcarAssistido,
+  favoritar,
+  euMesmo,
+  trocarSenha,
+  trocarFoto,
+  removerFoto,
+  buscarLegendas,
+  baixarLegenda,
+  capacidades: () => capacidadesJellyfin,
+};

@@ -6,7 +6,7 @@
 // Só dado real: linha sem valor não aparece (PLANO §1.7).
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { daColecao, episodios, fotoPessoa, fundo, hashDe, item, logo, paisagem, proximoDaSerie, temporadas,
-  type Fluxo, type Item, type Pessoa, type Sessao } from '../api/jellyfin';
+  type Fluxo, type Item, type Pessoa, type Sessao } from '../api/servidor.ts';
 import { usePaleta } from '../cor/paleta';
 import { CartaoPoster, EsqueletoCartoes, nota, relogio } from '../comp/Cartoes';
 import { Fileira } from '../comp/Fileira';
@@ -81,7 +81,7 @@ export function Titulo({ s, id }: { s: Sessao; id: string }) {
     }).catch(() => vivo && setErro(true));
     return () => { vivo = false; };
   }, [id, s.token]);
-  usePaleta(hashDe(it, 'Backdrop') || hashDe(it, 'Primary'));
+  usePaleta(hashDe(s, it, 'Backdrop') || hashDe(s, it, 'Primary'));
 
   if (erro) return (
     <main class="titulo titulo-erro">
@@ -246,7 +246,7 @@ function Cabeca({ s, it }: { s: Sessao; it: Item }) {
   return (
     <header class="titulo-cabeca">
       <div class="titulo-arte">
-        <Imagem src={arte || undefined} hash={hashDe(it, 'Backdrop')} prioridade />
+        <Imagem src={arte || undefined} hash={hashDe(s, it, 'Backdrop')} prioridade />
       </div>
       <div class="titulo-marca">
         {lg && !semLogo ? <img class="titulo-logo" src={lg} alt={it.Name} onError={() => setSemLogo(true)} />
@@ -282,7 +282,7 @@ function Acao({ pequena, rotulo, alvo, inicio }: { pequena: string[]; rotulo: st
 }
 
 function Botoes({ s, it }: { s: Sessao; it: Item }) {
-  const d = useDados(it);
+  const d = useDados(s, it);
   const erro = () => avisar('Não deu certo. Tente de novo.');
   return (
     <div class="titulo-botoes">
@@ -346,7 +346,7 @@ function Episodios({ s, eps, atual }: { s: Sessao; eps: Item[] | null; atual: It
 }
 
 function CartaoEp({ s, e, atual }: { s: Sessao; e: Item; atual: boolean }) {
-  const d = useDados(e), acoes = useAcoes(s, e);
+  const d = useDados(s, e), acoes = useAcoes(s, e);
   const dur = (e.RunTimeTicks || 0) / TICKS, pos = (d.PlaybackPositionTicks || 0) / TICKS;
   const pct = d.PlayedPercentage ?? (dur && pos ? pos / dur * 100 : 0);
   const titulo = `${e.IndexNumber !== undefined ? `${e.IndexNumber}. ` : ''}${e.Name}`;
@@ -354,7 +354,7 @@ function CartaoEp({ s, e, atual }: { s: Sessao; e: Item; atual: boolean }) {
     <button class={`titulo-ep${atual ? ' atual' : ''}`} onClick={() => irVer(e.Id, d.PlaybackPositionTicks || undefined)} {...acoes}
       aria-current={atual ? 'true' : undefined} aria-label={`${titulo}${d.Played ? ', visto' : ''}`}>
       <span class="titulo-ep-arte">
-        <Imagem src={paisagem(s, e, 480)} hash={hashDe(e, 'Primary')} />
+        <Imagem src={paisagem(s, e, 480)} hash={hashDe(s, e, 'Primary')} />
         {d.Played && <span class="cartao-visto"><Icone nome="check" tamanho={14} /></span>}
         {pct > 0 && !d.Played && <span class="cartao-barra"><span style={{ width: `${Math.min(100, pct)}%` }} /></span>}
       </span>
@@ -364,11 +364,11 @@ function CartaoEp({ s, e, atual }: { s: Sessao; e: Item; atual: boolean }) {
 }
 
 function LinhaEp({ s, e, atual }: { s: Sessao; e: Item; atual: boolean }) {
-  const d = useDados(e);
+  const d = useDados(s, e);
   return (
     <li>
       <button class={`titulo-linha${atual ? ' atual' : ''}`} onClick={() => irVer(e.Id, d.PlaybackPositionTicks || undefined)}>
-        <span class="titulo-linha-arte"><Imagem src={paisagem(s, e, 320)} hash={hashDe(e, 'Primary')} />
+        <span class="titulo-linha-arte"><Imagem src={paisagem(s, e, 320)} hash={hashDe(s, e, 'Primary')} />
           {d.Played && <span class="cartao-visto"><Icone nome="check" tamanho={14} /></span>}</span>
         <span class="titulo-linha-texto">
           <strong class="uma-linha">{e.IndexNumber !== undefined ? `${e.IndexNumber}. ` : ''}{e.Name}</strong>

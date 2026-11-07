@@ -4,7 +4,7 @@
 //  Ao rolar, a logo sobe com a página e encaixa no topo, entre a marca e a busca (…home_rolada).
 //  Fileiras: Continuar (em andamento + próximos, numa só) · Em alta no Brasil · uma por biblioteca · Em breve (no fim).
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
-import { fundo, hashDe, logo, type EmBreve, type Item, type Sessao } from '../api/jellyfin';
+import { fundo, hashDe, logo, type EmBreve, type Item, type Sessao } from '../api/servidor.ts';
 import { usePaleta } from '../cor/paleta';
 import { anos, CartaoEmBreve, CartaoPaisagem, CartaoPoster, CartaoTop10, EsqueletoCartoes, nota } from '../comp/Cartoes';
 import { Fileira } from '../comp/Fileira';
@@ -34,7 +34,7 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
   }, [s.token]);
   const lista = d?.destaque || [];
   const atual = lista[n];
-  usePaleta(hashDoDestaque(atual));
+  usePaleta(hashDoDestaque(s, atual));
 
   const ir = (k: number) => { if (!lista.length) return; const x = (k + lista.length) % lista.length; setN(x); setVistos(v => new Set(v).add(x)); };
   // troca automática; para com o dedo/mouse em cima e enquanto a logo está encaixada no topo (a cor da página não muda
@@ -91,7 +91,7 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
         <div class="destaque-artes">
           {lista.map((i, k) => vistos.has(k) && (
             <Imagem key={i.Id} classe={`destaque-arte${k === n ? ' atual' : ''}`} src={fundo(s, i, Math.min(1920, Math.round(innerWidth * devicePixelRatio)))}
-              hash={hashDe(i, 'Backdrop')} prioridade={k === 0} />
+              hash={hashDe(s, i, 'Backdrop')} prioridade={k === 0} />
           ))}
           {!lista.length && <span class="destaque-arte atual esqueleto" />}
         </div>

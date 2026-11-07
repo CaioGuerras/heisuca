@@ -1,8 +1,8 @@
 // A casca do app: abertura → (entrada) → transição → telas (PLANO §3.1). A logo voa entre as três primeiras.
 import type { JSX } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
-import { quandoExpirar, type EmBreve, type Sessao } from './api/jellyfin';
-import { esquecerSessao, guardarSessao, sessaoAtual, type Servidor } from './api/servidor';
+import { quandoExpirar, type EmBreve, type Sessao } from './api/servidor.ts';
+import { esquecerSessao, guardarSessao, sessaoAtual, type Servidor } from './api/contas.ts';
 import { sairDoSeerr } from './api/seerr';
 import { Aviso } from './comp/Aviso';
 import { MenuContexto } from './comp/MenuContexto';

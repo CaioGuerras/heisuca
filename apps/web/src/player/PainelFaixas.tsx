@@ -3,7 +3,7 @@
 // nunca fica preso sobre o vídeo (erro de heisuca_reprovado/…foto20).
 // "Buscar legendas…" só para quem tem a permissão de gerenciar legendas: busca PT-BR (pob) e mostra Portugal (por) à parte.
 import { useEffect, useRef, useState } from 'preact/hooks';
-import type { Fluxo, LegendaRemota } from '../api/jellyfin';
+import type { Fluxo, LegendaRemota } from '../api/servidor.ts';
 import { Icone } from '../comp/Icone';
 import { rotuloFaixa } from './faixas';
 

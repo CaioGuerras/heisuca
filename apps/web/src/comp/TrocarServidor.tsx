@@ -1,7 +1,7 @@
 // "Trocar servidor" discreto (Caio 19/10: só Jellyfin). Lista os servidores já usados; tocar troca na hora se a sessão
 // dele estiver guardada, senão abre a entrada com o endereço preenchido. "Adicionar servidor" abre a entrada vazia.
-import type { Sessao } from '../api/jellyfin';
-import { servidoresSalvos, trocarPara, type Servidor } from '../api/servidor';
+import type { Sessao } from '../api/servidor.ts';
+import { servidoresSalvos, trocarPara, type Servidor } from '../api/contas.ts';
 import { Folha } from './Folha';
 import { Icone } from './Icone';
 

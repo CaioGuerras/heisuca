@@ -1,7 +1,7 @@
 // Botão direito no cartão (no celular, tocar e segurar): Marcar como visto/não visto e Favoritar/Desfavoritar
 // (Caio 18/10 22:24; PLANO §4). Um menu só na página, aberto onde o ponteiro estava.
 import { useEffect, useRef, useState } from 'preact/hooks';
-import type { Item, Sessao } from '../api/jellyfin';
+import type { Item, Sessao } from '../api/servidor.ts';
 import { alternarFavorito, alternarVisto, dadosDe } from '../estado/usuario';
 import { avisar } from './Aviso';
 import { Icone } from './Icone';
@@ -12,7 +12,7 @@ type Aberto = { x: number; y: number; titulo: string; opcoes: Opcao[] };
 let abrir: ((a: Aberto) => void) | null = null;
 
 function opcoesDe(s: Sessao, i: Item): Opcao[] {
-  const d = dadosDe(i), nome = i.Type === 'Episode' ? `${i.SeriesName} ${i.Name}` : i.Name;
+  const d = dadosDe(s, i), nome = i.Type === 'Episode' ? `${i.SeriesName} ${i.Name}` : i.Name;
   return [
     { rotulo: d.Played ? 'Marcar como não visto' : 'Marcar como visto', icone: 'flag', cheio: !d.Played,
       acao: () => alternarVisto(s, i).then(v => avisar(v ? `${nome}: visto.` : `${nome}: não visto.`)).catch(() => avisar('Não deu certo. Tente de novo.')) },

@@ -1,7 +1,7 @@
 // Folha de pedido (Seerr): filme pede direto; série escolhe as temporadas (padrão: todas as que ainda não foram pedidas).
 // Mesma regra do site atual e do app completo; agora dentro da Folha contida.
 import { useEffect, useState } from 'preact/hooks';
-import type { Sessao } from '../api/jellyfin';
+import type { Sessao } from '../api/servidor.ts';
 import { detalhe, mensagemDeErro, pedir, poster, SELO, type Temporada } from '../api/seerr';
 import { avisar } from './Aviso';
 import { Folha } from './Folha';

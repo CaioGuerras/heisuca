@@ -3,7 +3,7 @@
 //  pôster 2:3, nota, ✓ e título + anos. Sincronizado com o servidor (o favorito do Jellyfin); o que for desfavoritado
 //  aqui mesmo (botão direito / segurar) some na hora.
 import { useEffect, useState } from 'preact/hooks';
-import { bibliotecasDeVideo, favoritosDe, hashDe, type Item, type Sessao } from '../api/jellyfin';
+import { bibliotecasDeVideo, favoritos, hashDe, type Item, type Sessao } from '../api/servidor.ts';
 import { fundoDesfocado, usePaleta } from '../cor/paleta';
 import { CartaoPoster, EsqueletoCartoes } from '../comp/Cartoes';
 import { Fileira } from '../comp/Fileira';
@@ -23,7 +23,7 @@ export function Favoritos({ s }: { s: Sessao }) {
   useEffect(() => {
     let vivo = true;
     bibliotecasDeVideo(s)
-      .then(libs => Promise.all(libs.map(b => favoritosDe(s, b.Id, 60).then(r => ({ biblioteca: b, itens: r.Items })).catch(() => ({ biblioteca: b, itens: [] as Item[] })))))
+      .then(libs => Promise.all(libs.map(b => favoritos(s, b.Id, 60).then(r => ({ biblioteca: b, itens: r.Items })).catch(() => ({ biblioteca: b, itens: [] as Item[] })))))
       .then(l => { if (vivo) setSecoes(l.filter(x => x.itens.length)); })
       .catch(() => { if (vivo) setSecoes([]); });
     return () => { vivo = false; };
@@ -34,11 +34,11 @@ export function Favoritos({ s }: { s: Sessao }) {
     return () => removeEventListener('scroll', f);
   }, []);
 
-  const visiveis = (secoes || []).map(x => ({ ...x, itens: x.itens.filter(i => dadosDe(i).IsFavorite !== false) })).filter(x => x.itens.length);
+  const visiveis = (secoes || []).map(x => ({ ...x, itens: x.itens.filter(i => dadosDe(s, i).IsFavorite !== false) })).filter(x => x.itens.length);
   const primeiro = visiveis[0]?.itens[0];
-  const hashCor = hashDe(primeiro, 'Backdrop') || hashDe(primeiro, 'Primary');
+  const hashCor = hashDe(s, primeiro, 'Backdrop') || hashDe(s, primeiro, 'Primary');
   usePaleta(hashCor ?? null);
-  const desfocado = fundoDesfocado(hashDe(primeiro, 'Primary') || hashCor);
+  const desfocado = fundoDesfocado(hashDe(s, primeiro, 'Primary') || hashCor);
   const abrir = (i: Item) => irTitulo(i.Type === 'Episode' && i.SeriesId ? i.SeriesId : i.Id);
   const alternar = (id: string) => setAbertas(a => { const n = new Set(a); if (n.has(id)) n.delete(id); else n.add(id); return n; });
 

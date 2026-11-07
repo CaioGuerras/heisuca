@@ -1,8 +1,8 @@
 // Tudo o que a home mostra, carregado com prioridade: a 2ª animação (transição) espera a fase crítica
 // (Destaque, Continuar e Em alta com imagens decodificadas), e a home já nasce montada por baixo dela (PLANO §3.1 e §3.3).
 // As fileiras inferiores (novidades por biblioteca e em breve) carregam em paralelo e enriquecem a página suavemente.
-import { bibliotecasDeVideo, continuar, emAlta, emBreve, fundo, hashDe, logo, novidades, paraDestaque, proximos,
-  type EmBreve, type Item, type Sessao } from '../api/jellyfin';
+import { bibliotecasDeVideo, continuar, emAlta, emBreve, fundo, hashDe, logo, novidades, destaque as paraDestaque, proximos, temArte,
+  type EmBreve, type Item, type Sessao } from '../api/servidor.ts';
 
 export type DadosCriticos = {
   destaque: Item[];
@@ -41,8 +41,7 @@ export function prepararInicio(s: Sessao, renovar = false): Promise<DadosInicio>
       emAlta(s).catch(() => ({ titulo: '', itens: [] as Item[] })),
     ]);
 
-    const temArte = (i: Item) => !!(i.BackdropImageTags?.length && i.ImageTags?.Logo);
-    const destaque = [...alta.itens.filter(temArte), ...recentes]
+    const destaque = [...alta.itens.filter(i => temArte(s, i)), ...recentes]
       .filter((i, k, l) => l.findIndex(x => x.Id === i.Id) === k)
       .slice(0, 9);
 
@@ -96,4 +95,4 @@ export async function decodificarPrimeiras(s: Sessao, d: DadosCriticos, largura 
   await Promise.all(urls.map(u => { const i = new Image(); i.src = u; return i.decode().catch(() => undefined); }));
 }
 
-export const hashDoDestaque = (i?: Item | null) => hashDe(i, 'Backdrop') || hashDe(i, 'Primary');
+export const hashDoDestaque = (s: Sessao, i?: Item | null) => hashDe(s, i, 'Backdrop') || hashDe(s, i, 'Primary');

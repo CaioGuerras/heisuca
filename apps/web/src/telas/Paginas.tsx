@@ -1,10 +1,11 @@
+import { VERSAO } from '../api/contas.ts';
 // Páginas do menu do usuário (PLANO §9–§12), todas na moldura simples de Pagina.tsx (← + título):
 //  Minha conta (§10, ref/app_completo/…minha_conta) · Como usar (§11) · Baixar os apps (§12) · Sobre (§9) ·
 //  Meus pedidos (só com Seerr) · Apoiar o Heisuca ("Em breve").
 // Nada do CGSERVER aqui (sem CGFLIX, sem endereço, sem regras da casa, sem Stremio): o site serve a qualquer servidor.
 import type { ComponentChildren } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { euMesmo, fotoUsuario, removerFoto, trocarFoto, trocarSenha, VERSAO, type Sessao } from '../api/jellyfin';
+import { euMesmo, fotoUsuario, removerFoto, trocarFoto, trocarSenha, type Sessao } from '../api/servidor.ts';
 import { detalhe, meusPedidos, poster, SELO, temSeerr, type Pedido } from '../api/seerr';
 import { avisar } from '../comp/Aviso';
 import { Icone } from '../comp/Icone';

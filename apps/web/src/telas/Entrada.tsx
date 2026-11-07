@@ -2,9 +2,11 @@
 // logo · "Digite o endereço do servidor" (✓ nome do servidor quando responde) · Usuário · Senha · Iniciar sessão.
 // Quick Connect no ícone do canto superior direito. Sem "Guardar esta conta", sem URL repetida, sem cabeçalhos avançados.
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
-import type { Sessao } from '../api/jellyfin';
-import { descobrir, entrarComSenha, ErroEntrada, esperarQuickConnect, iniciarQuickConnect, quickConnectLigado, ultimoServidor,
-  type PedidoQC, type Servidor } from '../api/servidor';
+import type { Sessao } from '../api/servidor.ts';
+import { entradaJellyfin } from '../api/servidor.ts';
+import type { PedidoQC } from '../api/entrada-jellyfin.ts';
+import { ultimoServidor, type Servidor } from '../api/contas.ts';
+const { descobrir, entrarComSenha, ErroEntrada, esperarQuickConnect, iniciarQuickConnect, quickConnectLigado } = entradaJellyfin;
 import { esmaecer, voar } from '../anim/voo';
 import { usePaleta } from '../cor/paleta';
 import { Folha } from '../comp/Folha';

@@ -4,7 +4,7 @@
 //  "Disponível para pedir": só se o servidor tiver Seerr (temSeerr); "+ Pedir" abre a FolhaPedido (série escolhe temporadas).
 //  "Meus pedidos ›" mora aqui (saiu do menu do usuário): discreto, no título da seção e sob o campo enquanto não há busca.
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { bibliotecasDeVideo, capa, hashDe, obter, type Item, type Sessao } from '../api/jellyfin';
+import { bibliotecasDeVideo, capa, hashDe, buscar, type Item, type Sessao } from '../api/servidor.ts';
 import { buscar as buscarSeerr, poster, SELO, temSeerr, type Resultado } from '../api/seerr';
 import { usePaleta } from '../cor/paleta';
 import { nota } from '../comp/Cartoes';
@@ -15,15 +15,12 @@ import { irPagina, irTitulo, voltar } from '../rota';
 import './busca.css';
 
 const ESPERA = 300, MINIMO = 2;
-const CAMPOS = 'fields=Overview,ProductionYear,OfficialRating,CommunityRating&enableImageTypes=Primary&imageTypeLimit=1';
 type Achado = Item & { biblioteca?: string };
 
 // busca em cada biblioteca de vídeo: assim cada resultado sabe de qual biblioteca veio (o ParentId do item é a pasta, não a biblioteca)
 async function buscarAcervo(s: Sessao, termo: string): Promise<Achado[]> {
   const libs = (await bibliotecasDeVideo(s)).filter(b => b.CollectionType !== 'boxsets');
-  const q = encodeURIComponent(termo);
-  const listas = await Promise.all(libs.map(b => obter<{ Items: Item[] }>(s, `/Items?userId=${s.usuarioId}&parentId=${b.Id}&searchTerm=${q}` +
-    `&recursive=true&includeItemTypes=Movie,Series&limit=30&${CAMPOS}`).then(d => d.Items.map(i => ({ ...i, biblioteca: b.Name, tipoLib: b.CollectionType })),
+  const listas = await Promise.all(libs.map(b => buscar(s, termo, b.Id).then(itens => itens.map(i => ({ ...i, biblioteca: b.Name, tipoLib: b.CollectionType })),
       () => [] as (Achado & { tipoLib?: string })[])));
   // o mesmo item em duas bibliotecas: fica a que é do tipo dele (filme em biblioteca de filmes, série em biblioteca de séries)
   const doTipo = (i: Achado & { tipoLib?: string }) => (i.Type === 'Movie' ? 'movies' : 'tvshows') === i.tipoLib;
@@ -116,7 +113,7 @@ export function Busca({ s }: { s: Sessao }) {
             {doAcervo.map(i => (
               <li key={i.Id}>
                 <button class="busca-item" onClick={() => irTitulo(i.Id)}>
-                  <Imagem classe="busca-capa" src={capa(s, i, 330)} hash={hashDe(i, 'Primary')} alt="" />
+                  <Imagem classe="busca-capa" src={capa(s, i, 330)} hash={hashDe(s, i, 'Primary')} alt="" />
                   <span class="busca-texto">
                     <strong class="busca-nome">{i.Name}</strong>
                     {linhaInfo(i) && <small class="busca-info">{linhaInfo(i)}</small>}

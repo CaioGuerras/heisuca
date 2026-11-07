@@ -28,7 +28,7 @@ Selo 炳素華 escolhido; a cor do selo segue o tema (`FOLHA_C_TEMAS.png`). Kanj
 
 | Tema | Selo | Kanji × selo | Selo × fundo | Selo × superfície |
 |---|---|---|---|---|
-| Shikkoku | `#7444E0` (= botão primário) | 5,5 | 3,4 | 3,1 |
+| Shikkoku | `#8155E3` (07/11, sobre cinza-lilás; antes `#7444E0`) | 4,6 | 3,7 | 3,1 |
 | Hisui | `#05805C` (jade ajustado; `#047857` dava 2,9 na superfície) | 4,7 | 3,2+ | 3,2 |
 | Ichigo | `#D62D45` | 4,6 | 4,5 | 4,9 |
 | Sorairo | `#1F6FC5` | 4,8 | 4,7 | 5,1 |

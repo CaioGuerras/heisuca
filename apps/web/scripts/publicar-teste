@@ -67,7 +67,7 @@ def main():
     subprocess.run(["find", "dist", "-type", "f", "(", "-name", "*.js", "-o", "-name", "*.css", "-o", "-name", "*.html",
                     "-o", "-name", "*.svg", "-o", "-name", "*.json", "-o", "-name", "*.wasm", ")", "-exec", "gzip", "-9", "-k", "-f", "{}", "+"], cwd=WEB, check=True)
     vps(f"mkdir -p {DEST}")
-    subprocess.run(["rsync", "-a", "--delete", "-e", "ssh -o BatchMode=yes", f"{WEB}/dist/", f"vps:{DEST}/"], check=True)
+    subprocess.run(["rsync", "-a", "--delete", "--exclude=/locadora/", "-e", "ssh -o BatchMode=yes", f"{WEB}/dist/", f"vps:{DEST}/"], check=True)
     vps(f"chmod -R a+rX /var/www/heisuca")
     return 0 if trocar_nginx(True) else 1
 

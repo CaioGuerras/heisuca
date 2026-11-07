@@ -1,0 +1,40 @@
+{
+  "base": "ff7e787",
+  "s": {
+    "servidor": "https://midia.example.invalid",
+    "token": "credencial-ficticia",
+    "usuarioId": "usuario-exemplo",
+    "nome": "Teste"
+  },
+  "i": {
+    "Id": "item-opaco",
+    "Name": "Exemplo",
+    "Type": "Movie",
+    "ImageTags": {
+      "Primary": "capa-opaca",
+      "Logo": "logo-opaco"
+    },
+    "BackdropImageTags": [
+      "fundo-opaco"
+    ]
+  },
+  "f": {
+    "Id": "fonte-opaca",
+    "Container": "mp4",
+    "SupportsDirectPlay": true,
+    "SupportsDirectStream": true,
+    "SupportsTranscoding": true,
+    "MediaStreams": []
+  },
+  "urls": {
+    "item": "https://midia.example.invalid/Items/item-opaco?userId=usuario-exemplo&fields=Overview,Genres,Taglines,Studios,People,Chapters,MediaStreams,ChildCount,PrimaryImageAspectRatio,ProductionYear,PremiereDate,EndDate,Status,OfficialRating,CommunityRating&enableImageTypes=Primary,Backdrop,Thumb,Logo&imageTypeLimit=1",
+    "episodios": "https://midia.example.invalid/Shows/serie-opaca/Episodes?userId=usuario-exemplo&seasonId=temporada-opaca&fields=Overview,MediaStreams&enableImageTypes=Primary,Backdrop,Thumb,Logo&imageTypeLimit=1",
+    "capa": "https://midia.example.invalid/Items/item-opaco/Images/Primary?fillHeight=360&quality=90&format=Webp&tag=capa-opaca",
+    "fundo": "https://midia.example.invalid/Items/item-opaco/Images/Backdrop/0?fillWidth=1920&quality=80&format=Webp&tag=fundo-opaco",
+    "logo": "https://midia.example.invalid/Items/item-opaco/Images/Logo?fillWidth=600&quality=90&format=Webp&tag=logo-opaco",
+    "urlDireta": "https://midia.example.invalid/Videos/item-opaco/stream?static=true&mediaSourceId=fonte-opaca&playSessionId=sessao-opaca&deviceId=aparelho-ficticio&api_key=credencial-ficticia",
+    "legenda": "https://midia.example.invalid/Videos/item-opaco/Subtitles/2/Stream.vtt?api_key=credencial-ficticia",
+    "anexo": "https://midia.example.invalid/Videos/item-opaco/Attachments/0?nome=fonte.ttf&api_key=credencial-ficticia",
+    "buscar": "https://midia.example.invalid/Items?userId=usuario-exemplo&parentId=biblioteca-opaca&searchTerm=a%C3%A7%C3%A3o%20%26%20lua&recursive=true&includeItemTypes=Movie,Series&limit=30&fields=Overview,ProductionYear,OfficialRating,CommunityRating&enableImageTypes=Primary&imageTypeLimit=1"
+  }
+}

@@ -7,6 +7,8 @@ project("asskt")
 set(LIBASS_VERSION "0.18.3")
 set(LIBASS_SHA256 "fc98637752695d7cf9e26b02befaa634dd4cad25a2f38fba80de814bfd310a17")
 set(LIBASS_ZIP_URL "https://github.com/edde746/libass/releases/download/${LIBASS_VERSION}/libass-android-${LIBASS_VERSION}.zip")
+# Espelho (CaioGuerras/heisuca-deps): mesmo sha256; tentado primeiro nas tentativas ímpares.
+set(LIBASS_ZIP_MIRROR_URL "https://github.com/CaioGuerras/heisuca-deps/releases/download/deps-2026-11/libass-android-${LIBASS_VERSION}.zip")
 
 # Gradle passes one cache root so per-ABI CMake builds share the download.
 if(NOT DEFINED LIBASS_CACHE_DIR)
@@ -26,6 +28,7 @@ add_custom_command(
         "-DLIBASS_VERSION=${LIBASS_VERSION}"
         "-DLIBASS_SHA256=${LIBASS_SHA256}"
         "-DLIBASS_ZIP_URL=${LIBASS_ZIP_URL}"
+        "-DLIBASS_ZIP_MIRROR_URL=${LIBASS_ZIP_MIRROR_URL}"
         "-DLIBASS_CACHE_DIR=${LIBASS_CACHE_DIR}"
         "-DLIBASS_ROOT=${LIBASS_ROOT}"
         "-DLIBASS_ARCHIVE=${LIBASS_ARCHIVE}"

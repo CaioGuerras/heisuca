@@ -34,7 +34,10 @@ val mpvFfmpegVersion = "8.0.1"
 val mpvFfmpegSourceSha256 = "05ee0b03119b45c0bdb4df654b96802e909e0a752f72e4fe3794f487229e5a41"
 val mpvFfmpegSourceUrl = "https://ffmpeg.org/releases/ffmpeg-$mpvFfmpegVersion.tar.xz"
 // Origens do tarball, na ordem de tentativa. Qualquer uma só vale se o sha256 acima conferir.
-val mpvFfmpegSourceUrls = listOf(mpvFfmpegSourceUrl)
+// Espelho primeiro (CaioGuerras/heisuca-deps): ffmpeg.org caiu nos runners em 01, 03 e 06/11.
+val mpvFfmpegMirrorUrl =
+  "https://github.com/CaioGuerras/heisuca-deps/releases/download/deps-2026-11/ffmpeg-$mpvFfmpegVersion.tar.xz"
+val mpvFfmpegSourceUrls = listOf(mpvFfmpegMirrorUrl, mpvFfmpegSourceUrl)
 val mpvFfmpegDevelopmentDir = layout.buildDirectory.dir("libmpv-ffmpeg-development").get().asFile
 
 // Build the Media3 JNI adapter against the same shared FFmpeg libraries that

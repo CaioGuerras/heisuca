@@ -1,6 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
+import ts from 'typescript';
 import { apiDe, adaptador, quandoExpirar } from '../src/api/servidor.ts';
 import { sessaoAtual, trocarPara, servidoresSalvos, esquecerSessao } from '../src/api/contas.ts';
 import { alternarFavorito, alternarVisto, dadosDe } from '../src/estado/usuario.ts';
@@ -18,15 +20,46 @@ function armazenamento(inicio: Record<string, string> = {}) {
   return dados;
 }
 
-test('importar o contrato e a API em Node não exige document nem acessa localStorage', async () => {
-  Object.defineProperty(globalThis, 'localStorage', { configurable: true, get() { throw new Error('não ler'); } });
-  const api = await import('../src/api/servidor.ts');
-  assert.equal(api.apiDe(s), api.adaptador('jellyfin'));
-  assert.equal(api.apiDe({ ...s, servidor: 'https://outro.example.invalid' }), api.apiDe(s));
+test('importar o contrato/API em processo novo não exige document nem lê armazenamento', () => {
+  const arquivo = new URL('../src/api/servidor.ts', import.meta.url).href;
+  const r = spawnSync(process.execPath, ['--input-type=module', '-e', `
+    Object.defineProperty(globalThis, 'document', { get() { throw new Error('não tocar DOM'); } });
+    Object.defineProperty(globalThis, 'localStorage', { get() { throw new Error('não ler armazenamento'); } });
+    const api = await import(${JSON.stringify(arquivo)});
+    if (!api.adaptador('jellyfin')) throw new Error('sem adaptador');
+  `], { encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stderr);
+  assert.equal(apiDe(s), adaptador('jellyfin'));
+  assert.equal(apiDe({ ...s, servidor: 'https://outro.example.invalid' }), apiDe(s));
   assert.throws(() => adaptador('plex'), /ainda não disponível/);
-  assert.equal(typeof globalThis.document, 'undefined');
   assert.deepEqual(apiDe(s).capacidades(), { favoritos: true, trocarSenha: true, foto: true,
     legendasRemotas: true, capitulos: true, emAlta: true, emBreve: true });
+});
+
+function importsDeJellyfin(texto: string): string[] {
+  const fonte = ts.createSourceFile('arquivo.tsx', texto, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const encontrados: string[] = [];
+  const visitar = (n: ts.Node) => {
+    let alvo: ts.Node | undefined;
+    if (ts.isImportDeclaration(n) || ts.isExportDeclaration(n)) alvo = n.moduleSpecifier;
+    if (ts.isCallExpression(n) && n.expression.kind === ts.SyntaxKind.ImportKeyword) alvo = n.arguments[0];
+    if (alvo && ts.isStringLiteralLike(alvo) && /(?:^|\/)api\/jellyfin(?:\.ts)?$/.test(alvo.text)) encontrados.push(alvo.text);
+    ts.forEachChild(n, visitar);
+  };
+  visitar(fonte);
+  return encontrados;
+}
+
+test('fora de src/api nenhum import estático, dinâmico ou reexport alcança Jellyfin', async () => {
+  assert.equal(importsDeJellyfin(`import { x } from '../api/jellyfin'; import('../api/jellyfin.ts'); export * from '../api/jellyfin';`).length, 3);
+  assert.equal(importsDeJellyfin(`// import('../api/jellyfin')\nconst x = "api/jellyfin";`).length, 0);
+  const raiz = new URL('../src/', import.meta.url);
+  const falhas: string[] = [];
+  for (const caminho of await readdir(raiz, { recursive: true })) {
+    if (caminho.startsWith('api/') || !/\.tsx?$/.test(caminho)) continue;
+    for (const alvo of importsDeJellyfin(await readFile(new URL(caminho, raiz), 'utf8'))) falhas.push(caminho + ': ' + alvo);
+  }
+  assert.deepEqual(falhas, []);
 });
 
 test('sessões/servidores antigos recebem tipo em todos os caminhos sem perder login', () => {
@@ -117,5 +150,114 @@ test('assistido/favorito não se misturam entre servidores/usuários com o mesmo
     globalThis.fetch = async () => { throw new Error('rede'); };
     await assert.rejects(alternarFavorito(b, it), /rede/);
     assert.deepEqual(dadosDe(b, it), it.UserData); assert.equal(dadosDe(a, it).IsFavorite, true);
+  } finally { globalThis.fetch = anterior; }
+});
+
+const opcoes = { inicioTicks: 150_000_000, perfil: { Name: 'Navegador fictício' } };
+const fonte = () => ({ ...antiga.f, RunTimeTicks: 900_000_000, DefaultAudioStreamIndex: 1, DefaultSubtitleStreamIndex: 2,
+  MediaStreams: [ { Index: 0, Type: 'Video', Codec: 'h264' }, { Index: 1, Type: 'Audio', IsDefault: true },
+    { Index: 2, Type: 'Subtitle', Codec: 'vtt', DeliveryMethod: 'External', DeliveryUrl: '/Videos/item-opaco/Subtitles/2/Stream.vtt' },
+    { Index: 3, Type: 'Subtitle', Codec: 'ass', DeliveryMethod: 'External', DeliveryUrl: '/Videos/item-opaco/Subtitles/3/Stream.ass?api_key=ja-ficticia' },
+    { Index: 4, Type: 'Subtitle', Codec: 'pgssub', DeliveryMethod: 'Encode' },
+    { Index: 5, Type: 'Subtitle', Codec: 'vtt', DeliveryMethod: 'Embed' } ],
+  MediaAttachments: [{ MimeType: 'font/ttf', DeliveryUrl: '/Videos/item-opaco/Attachments/0?nome=fonte.ttf' },
+    { MimeType: 'image/jpeg', DeliveryUrl: '/Videos/item-opaco/Attachments/1' }] });
+
+test('preparar direto mantém URL antiga, perfil, faixas/URLs absolutas e anexos ASS', async () => {
+  armazenamento({ 'heisuca.aparelho': 'aparelho-ficticio' });
+  const anterior = globalThis.fetch;
+  let corpo: Record<string, unknown> = {};
+  globalThis.fetch = async (_u, init) => {
+    corpo = JSON.parse(String(init?.body));
+    return new Response(JSON.stringify({ PlaySessionId: 'sessao-opaca', MediaSources: [fonte()] }));
+  };
+  try {
+    const p = await apiDe(s).preparar(s, i, opcoes);
+    assert.equal(p.url, antiga.urls.urlDireta); assert.equal(p.tipo, 'direto'); assert.equal(p.metodo, 'direto');
+    assert.equal(p.fonteId, antiga.f.Id); assert.equal(p.container, 'mp4'); assert.equal(p.duracaoTicks, 900_000_000);
+    assert.equal(p.inicioAplicado, 0); assert.equal(p.audioPadrao, 1); assert.equal(p.legendaPadrao, 2);
+    assert.equal(p.fluxos[2].url, antiga.urls.legenda); assert.deepEqual(p.fontesAss, [antiga.urls.anexo]);
+    assert.equal(p.fluxos[2].entrega, 'externa'); assert.equal(p.fluxos[4].entrega, 'gravada');
+    assert.equal(p.fluxos[5].entrega, 'embutida');
+    assert.ok(p.fluxos[3].url?.endsWith('?api_key=ja-ficticia'));
+    assert.equal('DeliveryMethod' in p.fluxos[2], false); assert.equal('DeliveryUrl' in p.fluxos[2], false);
+    for (const url of [...p.fluxos.filter(f => f.url).map(f => f.url!), ...p.fontesAss]) assert.equal(new URL(url).origin, s.servidor);
+    assert.deepEqual(corpo.DeviceProfile, opcoes.perfil);
+    assert.equal(corpo.EnableDirectPlay, true); assert.equal(corpo.EnableDirectStream, true);
+    // O Player mantém a política de início: o pedido antigo não enviava StartTimeTicks.
+    assert.equal('StartTimeTicks' in corpo, false);
+  } finally { globalThis.fetch = anterior; }
+});
+
+test('preparar HLS distingue remux/conversão e respeita semDireto e faixas escolhidas', async () => {
+  armazenamento(); const anterior = globalThis.fetch;
+  const f = { ...fonte(), SupportsDirectPlay: false, TranscodingUrl: '/hls/inicio.m3u8?media=opaca' };
+  const pedidos: Record<string, unknown>[] = [];
+  globalThis.fetch = async (_u, init) => {
+    pedidos.push(JSON.parse(String(init?.body)));
+    return new Response(JSON.stringify({ PlaySessionId: 'hls-opaca', MediaSources: [f] }));
+  };
+  try {
+    let p = await apiDe(s).preparar(s, i, opcoes);
+    assert.equal(p.tipo, 'hls'); assert.equal(p.metodo, 'remux');
+    assert.equal(p.url, `${s.servidor}/hls/inicio.m3u8?media=opaca&api_key=${s.token}`);
+    f.SupportsDirectStream = false;
+    p = await apiDe(s).preparar(s, i, opcoes); assert.equal(p.metodo, 'conversao');
+    f.SupportsDirectPlay = true;
+    p = await apiDe(s).preparar(s, i, { ...opcoes, semDireto: true, audio: 3, legenda: -1 });
+    assert.equal(p.tipo, 'hls'); assert.equal(pedidos[2].EnableDirectPlay, false);
+    assert.equal(pedidos[2].AudioStreamIndex, 3); assert.equal(pedidos[2].SubtitleStreamIndex, -1);
+  } finally { globalThis.fetch = anterior; }
+});
+
+test('preparar retorna limiteTelas e preserva falhas de fonte/fluxo indisponível', async () => {
+  armazenamento(); const anterior = globalThis.fetch;
+  let info: unknown = { PlaySessionId: '', MediaSources: [], ErrorCode: 'NotAllowed' };
+  globalThis.fetch = async () => new Response(JSON.stringify(info));
+  try {
+    assert.equal((await apiDe(s).preparar(s, i, opcoes)).erro, 'limiteTelas');
+    info = { PlaySessionId: '', MediaSources: [] };
+    await assert.rejects(apiDe(s).preparar(s, i, opcoes), /Sem fonte de vídeo/);
+    info = { PlaySessionId: '', MediaSources: [{ ...fonte(), SupportsDirectPlay: false }] };
+    await assert.rejects(apiDe(s).preparar(s, i, opcoes), /não pode ser tocado/);
+  } finally { globalThis.fetch = anterior; }
+});
+
+test('faixas relê PlaybackInfo sem trocar o plano/sessão, com legenda nova pronta', async () => {
+  armazenamento(); const anterior = globalThis.fetch; let n = 0;
+  globalThis.fetch = async () => {
+    const f = fonte();
+    if (n++) f.MediaStreams.push({ Index: 6, Type: 'Subtitle', Codec: 'vtt', DeliveryMethod: 'External', DeliveryUrl: '/nova.vtt' });
+    return new Response(JSON.stringify({ PlaySessionId: `sessao-${n}`, MediaSources: [f] }));
+  };
+  try {
+    const p = await apiDe(s).preparar(s, i, opcoes);
+    const novas = await apiDe(s).faixas(s, p, opcoes);
+    assert.equal(p.sessaoReproducao, 'sessao-1'); assert.equal(p.fluxos.length, 6);
+    assert.equal(novas.length, 7); assert.equal(novas[6].url, `${s.servidor}/nova.vtt?api_key=${s.token}`);
+  } finally { globalThis.fetch = anterior; }
+});
+
+test('relatos neutros preservam corpo Jellyfin e keepalive no fim/parar', async () => {
+  armazenamento({ 'heisuca.aparelho': 'aparelho-ficticio' });
+  const anterior = globalThis.fetch;
+  const chamadas: { url: string; init?: RequestInit }[] = [];
+  globalThis.fetch = async (url, init) => {
+    chamadas.push({ url: String(url), init });
+    return new Response(JSON.stringify({ PlaySessionId: 'sessao-opaca', MediaSources: [fonte()] }));
+  };
+  try {
+    const api = apiDe(s), p = await api.preparar(s, i, opcoes);
+    chamadas.length = 0;
+    for (const fase of ['inicio', 'progresso', 'fim'] as const)
+      await api.relatar(s, p, fase, { posicaoTicks: 321, pausado: true, audio: 1, legenda: -1, motivo: 'concluido' });
+    assert.deepEqual(chamadas.map(c => c.url), ['/Sessions/Playing', '/Sessions/Playing/Progress', '/Sessions/Playing/Stopped'].map(c => s.servidor + c));
+    assert.deepEqual(chamadas.map(c => c.init?.keepalive), [false, false, true]);
+    assert.deepEqual(JSON.parse(String(chamadas[2].init?.body)), { ItemId: i.Id, MediaSourceId: antiga.f.Id,
+      PlaySessionId: 'sessao-opaca', PositionTicks: 321, IsPaused: true, PlayMethod: 'DirectPlay', AudioStreamIndex: 1,
+      SubtitleStreamIndex: -1, CanSeek: true });
+    await api.parar(s, p);
+    assert.equal(chamadas[3].init?.method, 'DELETE'); assert.equal(chamadas[3].init?.keepalive, true);
+    assert.equal(chamadas[3].url, `${s.servidor}/Videos/ActiveEncodings?deviceId=aparelho-ficticio&playSessionId=sessao-opaca`);
   } finally { globalThis.fetch = anterior; }
 });

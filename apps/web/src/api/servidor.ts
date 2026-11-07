@@ -1,5 +1,5 @@
 // Contrato comum. Cada chamada leva sua sessão: chamadas pendentes não seguem a troca de servidor.
-import type { Sessao, TipoServidor, Item, Pessoa, Hashes, EmBreve, Usuario, LegendaRemota } from './tipos.ts';
+import type { Sessao, TipoServidor, Item, Pessoa, Hashes, EmBreve, Usuario, LegendaRemota, OpcoesReproducao, Plano, FluxoPlano, PosicaoRelato } from './tipos.ts';
 import { jellyfin } from './jellyfin.ts';
 export type * from './tipos.ts';
 export { quandoExpirar } from './expiracao.ts';
@@ -45,6 +45,10 @@ export interface ApiServidor {
   removerFoto(s: Sessao): Promise<unknown>;
   buscarLegendas(s: Sessao, itemId: string, idioma: string): Promise<LegendaRemota[]>;
   baixarLegenda(s: Sessao, itemId: string, legendaId: string): Promise<unknown>;
+  preparar(s: Sessao, item: Pick<Item, 'Id'>, opcoes: OpcoesReproducao): Promise<Plano>;
+  faixas(s: Sessao, plano: Plano, opcoes: OpcoesReproducao): Promise<FluxoPlano[]>;
+  relatar(s: Sessao, plano: Plano, fase: 'inicio' | 'progresso' | 'fim', posicao: PosicaoRelato): Promise<unknown>;
+  parar(s: Sessao, plano: Plano): Promise<unknown>;
   capacidades(): Readonly<Capacidades>;
 }
 
@@ -94,3 +98,7 @@ export const trocarFoto: ApiServidor['trocarFoto'] = (s, ...args) => apiDe(s).tr
 export const removerFoto: ApiServidor['removerFoto'] = (s, ...args) => apiDe(s).removerFoto(s, ...args);
 export const buscarLegendas: ApiServidor['buscarLegendas'] = (s, ...args) => apiDe(s).buscarLegendas(s, ...args);
 export const baixarLegenda: ApiServidor['baixarLegenda'] = (s, ...args) => apiDe(s).baixarLegenda(s, ...args);
+export const preparar: ApiServidor['preparar'] = (s, ...args) => apiDe(s).preparar(s, ...args);
+export const faixas: ApiServidor['faixas'] = (s, ...args) => apiDe(s).faixas(s, ...args);
+export const relatar: ApiServidor['relatar'] = (s, ...args) => apiDe(s).relatar(s, ...args);
+export const parar: ApiServidor['parar'] = (s, ...args) => apiDe(s).parar(s, ...args);

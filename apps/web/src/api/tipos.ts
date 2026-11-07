@@ -35,3 +35,19 @@ export type Fluxo = {
   VideoRange?: string; VideoRangeType?: string; SampleRate?: number; AspectRatio?: string; BitDepth?: number;
 };
 export type EmBreve = { nome: string; sub: string; capa: string; jf?: string; tmdb?: number; tipo: 'tv' | 'movie' };
+
+// O perfil vem do navegador; o adaptador recebe dados e não importa api/perfil.ts.
+export type OpcoesReproducao = { inicioTicks: number; audio?: number; legenda?: number; semDireto?: boolean;
+  perfil: Record<string, unknown> };
+export type FluxoPlano = Omit<Fluxo, 'DeliveryMethod' | 'DeliveryUrl'> & {
+  url?: string; entrega?: 'externa' | 'gravada' | 'embutida';
+};
+export type Plano = {
+  itemId: string; url: string; tipo: 'direto' | 'hls'; metodo: 'direto' | 'remux' | 'conversao';
+  sessaoReproducao: string; fonteId: string; container?: string; duracaoTicks?: number;
+  /** Posição em ticks já aplicada pelo servidor à origem do fluxo (Jellyfin atual: zero). */
+  inicioAplicado: number; fluxos: FluxoPlano[]; fontesAss: string[];
+  audioPadrao?: number; legendaPadrao?: number; erro?: 'limiteTelas'; cabecalhos?: Record<string, string>;
+};
+export type PosicaoRelato = { posicaoTicks: number; pausado: boolean; audio?: number; legenda?: number;
+  motivo?: 'concluido' | 'abandono' };

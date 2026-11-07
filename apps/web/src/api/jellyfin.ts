@@ -3,7 +3,7 @@ import type { ApiServidor } from './servidor.ts';
 // Regra do PLANO §1.7: só aparece dado que o servidor tem; nada de valor inventado na falta.
 import { VERSAO, idAparelho } from './contas.ts';
 import { notificarExpiracao } from './expiracao.ts';
-import type { Sessao, Hashes, Pessoa, Item, Usuario, LegendaRemota, Fluxo, EmBreve } from './tipos.ts';
+import type { Sessao, Hashes, Pessoa, Item, Usuario, LegendaRemota, Fluxo, EmBreve, Plano, FluxoPlano, OpcoesReproducao, PosicaoRelato } from './tipos.ts';
 export type { Sessao, Item, Fluxo, LegendaRemota } from './tipos.ts';
 
 export function cabecalho(token?: string): string {
@@ -172,13 +172,13 @@ export const baixarLegenda = (s: Sessao, itemId: string, legendaId: string) =>
   pedir(s, 'POST', `/Items/${itemId}/RemoteSearch/Subtitles/${encodeURIComponent(legendaId)}`);
 
 // ---- reprodução ----
-export type Fonte = {
+type Fonte = {
   Id: string; Container?: string; RunTimeTicks?: number; SupportsDirectPlay: boolean; SupportsDirectStream: boolean;
   SupportsTranscoding: boolean; TranscodingUrl?: string; MediaStreams: Fluxo[]; Size?: number; Bitrate?: number;
   DefaultAudioStreamIndex?: number; DefaultSubtitleStreamIndex?: number;
   MediaAttachments?: { Codec?: string; MimeType?: string; FileName?: string; DeliveryUrl?: string }[];
 };
-export type Reproducao = { PlaySessionId: string; MediaSources: Fonte[]; ErrorCode?: string };
+type Reproducao = { PlaySessionId: string; MediaSources: Fonte[]; ErrorCode?: string };
 
 export const infoReproducao = (s: Sessao, id: string, corpo: Record<string, unknown>) =>
   pedir(s, 'POST', `/Items/${id}/PlaybackInfo?userId=${s.usuarioId}`, { UserId: s.usuarioId, ...corpo }).then(r => r.json() as Promise<Reproducao>);
@@ -191,11 +191,11 @@ export function urlDireta(s: Sessao, id: string, f: Fonte, sessaoReproducao: str
 export const urlServidor = (s: Sessao, caminho: string) =>
   s.servidor + caminho + (caminho.includes('api_key=') || caminho.includes('ApiKey=') ? '' : `${caminho.includes('?') ? '&' : '?'}api_key=${s.token}`);
 
-export type Relato = {
+type Relato = {
   ItemId: string; MediaSourceId: string; PlaySessionId: string; PositionTicks: number; IsPaused: boolean;
   PlayMethod: 'DirectPlay' | 'DirectStream' | 'Transcode'; AudioStreamIndex?: number; SubtitleStreamIndex?: number; CanSeek: boolean;
 };
-export const relatar = (s: Sessao, fase: 'inicio' | 'progresso' | 'fim', r: Relato) =>
+const relatarJellyfin = (s: Sessao, fase: 'inicio' | 'progresso' | 'fim', r: Relato) =>
   pedir(s, 'POST', fase === 'inicio' ? '/Sessions/Playing' : fase === 'progresso' ? '/Sessions/Playing/Progress' : '/Sessions/Playing/Stopped',
     r, fase === 'fim').catch(() => undefined);
 
@@ -249,6 +249,51 @@ export const buscar = (s: Sessao, termo: string, bibliotecaId: string) =>
 export const temArte = (_s: Sessao, i: Item) => !!(i.BackdropImageTags?.length && i.ImageTags?.Logo);
 export const capaBiblioteca = (s: Sessao, i: Item) => i.ImageTags?.Primary ? imagem(s, i.Id, 'Primary', i.ImageTags.Primary, { largura: 480 }) : '';
 
+
+const fluxosDoPlano = (s: Sessao, fluxos: Fluxo[]): FluxoPlano[] => fluxos.map(f => {
+  const { DeliveryMethod, DeliveryUrl, ...dados } = f;
+  return { ...dados, ...(f.Type === 'Subtitle' ? {
+    entrega: DeliveryMethod === 'External' ? 'externa' : DeliveryMethod === 'Encode' ? 'gravada' : 'embutida',
+    url: DeliveryUrl ? urlServidor(s, DeliveryUrl) : undefined,
+  } : {}) };
+});
+const corpoReproducao = (o: OpcoesReproducao) => ({
+  DeviceProfile: o.perfil, MaxStreamingBitrate: 140_000_000, AutoOpenLiveStream: true,
+  AudioStreamIndex: o.audio, SubtitleStreamIndex: o.legenda,
+  EnableDirectPlay: !o.semDireto, EnableDirectStream: true, EnableTranscoding: true,
+});
+async function preparar(s: Sessao, i: Pick<Item, 'Id'>, o: OpcoesReproducao): Promise<Plano> {
+  const info = await infoReproducao(s, i.Id, corpoReproducao(o)), f = info.MediaSources[0];
+  if (!f) {
+    if (info.ErrorCode === 'NotAllowed') return { itemId: i.Id, url: '', tipo: 'direto', metodo: 'direto',
+      sessaoReproducao: info.PlaySessionId, fonteId: '', inicioAplicado: 0, fluxos: [], fontesAss: [], erro: 'limiteTelas' };
+    throw new Error(info.ErrorCode || 'Sem fonte de vídeo.');
+  }
+  const direto = f.SupportsDirectPlay && !o.semDireto;
+  if (!direto && !f.TranscodingUrl) throw new Error('Este vídeo não pode ser tocado neste aparelho.');
+  return { itemId: i.Id, url: direto ? urlDireta(s, i.Id, f, info.PlaySessionId) : urlServidor(s, f.TranscodingUrl!),
+    tipo: direto ? 'direto' : 'hls', metodo: direto ? 'direto' : f.SupportsDirectStream ? 'remux' : 'conversao',
+    sessaoReproducao: info.PlaySessionId, fonteId: f.Id, container: f.Container, duracaoTicks: f.RunTimeTicks,
+    inicioAplicado: 0, fluxos: fluxosDoPlano(s, f.MediaStreams),
+    fontesAss: (f.MediaAttachments || []).filter(a => a.DeliveryUrl && /font|ttf|otf|woff/i.test(`${a.MimeType} ${a.FileName} ${a.Codec}`))
+      .slice(0, 8).map(a => urlServidor(s, a.DeliveryUrl!)),
+    audioPadrao: f.DefaultAudioStreamIndex, legendaPadrao: f.DefaultSubtitleStreamIndex,
+  };
+}
+// Relê apenas faixas; não cria nem troca a sessão/plano em reprodução.
+async function faixas(s: Sessao, p: Plano, o: OpcoesReproducao): Promise<FluxoPlano[]> {
+  const info = await infoReproducao(s, p.itemId, corpoReproducao(o));
+  const lista = info.MediaSources[0]?.MediaStreams;
+  if (!lista) throw new Error('sem lista de faixas');
+  return fluxosDoPlano(s, lista);
+}
+function relatar(s: Sessao, p: Plano, fase: 'inicio' | 'progresso' | 'fim', r: PosicaoRelato) {
+  return relatarJellyfin(s, fase, { ItemId: p.itemId, MediaSourceId: p.fonteId, PlaySessionId: p.sessaoReproducao,
+    PositionTicks: r.posicaoTicks, IsPaused: r.pausado, PlayMethod: p.metodo === 'direto' ? 'DirectPlay' : p.metodo === 'remux' ? 'DirectStream' : 'Transcode',
+    AudioStreamIndex: r.audio, SubtitleStreamIndex: r.legenda, CanSeek: true });
+}
+const parar = (s: Sessao, p: Plano) => pararConversao(s, p.sessaoReproducao);
+
 const capacidadesJellyfin = Object.freeze({ favoritos: true, trocarSenha: true, foto: true, legendasRemotas: true, capitulos: true, emAlta: true, emBreve: true });
 export const jellyfin: ApiServidor = {
   bibliotecas,
@@ -287,5 +332,6 @@ export const jellyfin: ApiServidor = {
   removerFoto,
   buscarLegendas,
   baixarLegenda,
+  preparar, faixas, relatar, parar,
   capacidades: () => capacidadesJellyfin,
 };

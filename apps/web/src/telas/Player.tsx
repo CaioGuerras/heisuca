@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import './player.css';
 import type Hls from 'hls.js/light';
 import {
-  anterior, baixarLegenda, buscarLegendas, euMesmo, infoReproducao, item, paisagem, pararConversao, relatar, seguinte,
-  urlDireta, urlServidor, type Fluxo, type Fonte, type Item, type LegendaRemota, type Relato, type Sessao,
-} from '../api/jellyfin';
+  anterior, baixarLegenda, buscarLegendas, euMesmo, preparar, faixas, item, paisagem, parar, relatar, seguinte,
+  type FluxoPlano, type Plano, type Item, type LegendaRemota, type PosicaoRelato, type Sessao,
+} from '../api/servidor.ts';
 import { hlsNativo, marcarMkvFalhou, perfilDoAparelho } from '../api/perfil';
 import { avisarErro } from '../aviso';
 import { avisar } from '../comp/Aviso';
@@ -17,9 +17,8 @@ import { voltar } from '../rota';
 // fim do episódio: passa sozinho para o próximo depois desta contagem (Caio 19/10 noite, dúvida 19)
 const CONTAGEM = 10;
 
-type Metodo = Relato['PlayMethod'];
 type Carga = { audio?: number; legenda?: number; ticks?: number; semDireto?: boolean };
-type Estado = { fonte: Fonte; sessao: string; metodo: Metodo; audio?: number; legenda: number; url: string; hls: boolean };
+type Estado = { plano: Plano; audio?: number; legenda: number; url: string; hls: boolean };
 
 const TICKS = 10_000_000;
 const relogio = (seg: number) => {
@@ -27,11 +26,11 @@ const relogio = (seg: number) => {
   const h = Math.floor(seg / 3600), m = Math.floor(seg / 60) % 60, s = Math.floor(seg % 60);
   return (h ? `${h}:${String(m).padStart(2, '0')}` : String(m)) + `:${String(s).padStart(2, '0')}`;
 };
-const eAss = (f?: Fluxo) => !!f && (f.Codec === 'ass' || f.Codec === 'ssa');
-const nomeFluxo = (f: Fluxo) => f.DisplayTitle || f.Title || f.Language || `Faixa ${f.Index}`;
+const eAss = (f?: FluxoPlano) => !!f && (f.Codec === 'ass' || f.Codec === 'ssa');
+const nomeFluxo = (f: FluxoPlano) => f.DisplayTitle || f.Title || f.Language || `Faixa ${f.Index}`;
 // faixa de áudio que o navegador toca por conta própria (a padrão do arquivo, senão a primeira)
-const audioDoArquivo = (fonte: Fonte) => {
-  const a = fonte.MediaStreams.filter(x => x.Type === 'Audio');
+const audioDoArquivo = (plano: Plano) => {
+  const a = plano.fluxos.filter(x => x.Type === 'Audio');
   return (a.find(x => x.IsDefault) || a[0])?.Index;
 };
 // teclas de controle remoto (Tizen/webOS) além do teclado
@@ -63,52 +62,47 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
   const playBtn = useRef<HTMLButtonElement>(null);
   const toque = useRef({ tipo: 'mouse', visivel: true });
 
-  const relato = (): Relato | null => {
+  const relato = (): PosicaoRelato | null => {
     const x = est.current, v = video.current;
     if (!x || !v) return null;
-    return { ItemId: id, MediaSourceId: x.fonte.Id, PlaySessionId: x.sessao, PositionTicks: Math.round(v.currentTime * TICKS),
-      IsPaused: v.paused, PlayMethod: x.metodo, AudioStreamIndex: x.audio, SubtitleStreamIndex: x.legenda, CanSeek: true };
+    return { posicaoTicks: Math.round(v.currentTime * TICKS), pausado: v.paused, audio: x.audio, legenda: x.legenda };
+  };
+
+  const reportar = (fase: 'inicio' | 'progresso' | 'fim', r: PosicaoRelato) => {
+    const x = est.current;
+    if (x) return relatar(s, x.plano, fase, r);
   };
 
   function encerrar() {
     const r = relato(), x = est.current;
-    if (r && iniciou.current) relatar(s, 'fim', r);
-    if (x?.hls) pararConversao(s, x.sessao);
+    if (r && iniciou.current) reportar('fim', { ...r, motivo: 'abandono' });
+    if (x?.hls) parar(s, x.plano);
     iniciou.current = false;
     hls.current?.destroy(); hls.current = null;
   }
 
-  const corpo = (o: Carga) => ({
-    DeviceProfile: perfilDoAparelho(), MaxStreamingBitrate: 140_000_000, AutoOpenLiveStream: true,
-    AudioStreamIndex: o.audio, SubtitleStreamIndex: o.legenda,
-    EnableDirectPlay: !o.semDireto, EnableDirectStream: true, EnableTranscoding: true,
+  const opcoes = (o: Carga) => ({
+    inicioTicks: o.ticks || 0, audio: o.audio, legenda: o.legenda, semDireto: o.semDireto, perfil: perfilDoAparelho(),
   });
+  const conferirPlano = (p: Plano) => {
+    if (p.erro === 'limiteTelas') throw new Error('Sua conta já está usando todas as telas. Feche o vídeo em outro aparelho e tente de novo.');
+    return p;
+  };
 
   async function carregar(c: Carga) {
     setEspera(true); setErro('');
     try {
-      let info = await infoReproducao(s, id, corpo(c));
-      let fonte = info.MediaSources[0];
-      if (!fonte) throw new Error(info.ErrorCode === 'NotAllowed'
-        ? 'Sua conta já está usando todas as telas. Feche o vídeo em outro aparelho e tente de novo.'
-        : info.ErrorCode || 'Sem fonte de vídeo.');
-      let audio = c.audio ?? fonte.DefaultAudioStreamIndex;
-      const legenda = c.legenda ?? fonte.DefaultSubtitleStreamIndex ?? -1;
+      let plano = conferirPlano(await preparar(s, { Id: id }, opcoes(c)));
+      let audio = c.audio ?? plano.audioPadrao;
+      const legenda = c.legenda ?? plano.legendaPadrao ?? -1;
       // o navegador não troca a faixa de áudio sozinho: se a escolhida não é a do arquivo, o servidor remonta (HLS)
-      const audios = fonte.MediaStreams.filter(x => x.Type === 'Audio').length;
-      if (fonte.SupportsDirectPlay && !c.semDireto && audios > 1 && audio !== undefined && audio !== audioDoArquivo(fonte)) {
-        info = await infoReproducao(s, id, corpo({ ...c, audio, legenda, semDireto: true }));
-        fonte = info.MediaSources[0];
+      const audios = plano.fluxos.filter(x => x.Type === 'Audio').length;
+      if (plano.tipo === 'direto' && !c.semDireto && audios > 1 && audio !== undefined && audio !== audioDoArquivo(plano)) {
+        plano = conferirPlano(await preparar(s, { Id: id }, opcoes({ ...c, audio, legenda, semDireto: true })));
         c = { ...c, semDireto: true };
       }
-      audio = c.audio ?? fonte.DefaultAudioStreamIndex ?? audio;
-      const direto = fonte.SupportsDirectPlay && !c.semDireto;
-      if (!direto && !fonte.TranscodingUrl) throw new Error('Este vídeo não pode ser tocado neste aparelho.');
-      const x: Estado = {
-        fonte, sessao: info.PlaySessionId, audio, legenda,
-        metodo: direto ? 'DirectPlay' : fonte.SupportsDirectStream ? 'DirectStream' : 'Transcode',
-        url: direto ? urlDireta(s, id, fonte, info.PlaySessionId) : urlServidor(s, fonte.TranscodingUrl!), hls: !direto,
-      };
+      audio = c.audio ?? plano.audioPadrao ?? audio;
+      const x: Estado = { plano, audio, legenda, url: plano.url, hls: plano.tipo === 'hls' };
       encerrar();
       est.current = x; setE(x);
       await ligar(x, (c.ticks || 0) / TICKS);
@@ -171,7 +165,7 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
 
   // progresso a cada 10 s enquanto toca
   useEffect(() => {
-    const t = setInterval(() => { const r = relato(); if (r && iniciou.current && !r.IsPaused) relatar(s, 'progresso', r); }, 10_000);
+    const t = setInterval(() => { const r = relato(); if (r && iniciou.current && !r.pausado) reportar('progresso', r); }, 10_000);
     return () => clearInterval(t);
   }, [id]);
 
@@ -182,16 +176,16 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
       playing: () => {
         setEspera(false); setTocando(true); setFim(false);
         const r = relato(); if (!r) return;
-        if (!iniciou.current) { iniciou.current = true; relatar(s, 'inicio', r); } else relatar(s, 'progresso', r);
+        if (!iniciou.current) { iniciou.current = true; reportar('inicio', r); } else reportar('progresso', r);
       },
-      pause: () => { setTocando(false); const r = relato(); if (r && iniciou.current) relatar(s, 'progresso', r); },
+      pause: () => { setTocando(false); const r = relato(); if (r && iniciou.current) reportar('progresso', r); },
       waiting: () => setEspera(true),
       canplay: () => setEspera(false),
       timeupdate: () => setPos(v.currentTime),
       durationchange: () => setDur(v.duration),
       volumechange: () => setVolume({ nivel: v.volume, mudo: v.muted }),
-      seeked: () => { const r = relato(); if (r && iniciou.current) relatar(s, 'progresso', r); },
-      ended: () => { const r = relato(); if (r) relatar(s, 'fim', r); iniciou.current = false; setFim(true); setVisivel(true); },
+      seeked: () => { const r = relato(); if (r && iniciou.current) reportar('progresso', r); },
+      ended: () => { const r = relato(); if (r) reportar('fim', { ...r, motivo: 'concluido' }); iniciou.current = false; setFim(true); setVisivel(true); },
       error: () => {
         // tocar direto falhou (codec que o navegador disse aceitar e não aceita): tenta pelo servidor
         const x = est.current;
@@ -208,7 +202,7 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
   // nenhum quadro de vídeo = vai pelo servidor (remonta em HLS, sem converter o vídeo) a partir do mesmo ponto
   useEffect(() => {
     const v = video.current;
-    if (!v || !e || e.hls || !e.fonte.MediaStreams.some(x => x.Type === 'Video')) return;
+    if (!v || !e || e.hls || !e.plano.fluxos.some(x => x.Type === 'Video')) return;
     let t = 0;
     const conferir = () => {
       clearTimeout(t);
@@ -216,9 +210,9 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
         if (v.paused || est.current !== e) return;
         const quadros = v.getVideoPlaybackQuality?.().totalVideoFrames;
         if (v.videoWidth > 0 && quadros !== 0) return;
-        const codec = e.fonte.MediaStreams.find(x => x.Type === 'Video')?.Codec;
-        avisarErro(`sem quadro no direto: ${e.fonte.Container}/${codec} largura=${v.videoWidth} quadros=${quadros} ${navigator.userAgent}`);
-        if (e.fonte.Container === 'mkv') marcarMkvFalhou();
+        const codec = e.plano.fluxos.find(x => x.Type === 'Video')?.Codec;
+        avisarErro(`sem quadro no direto: ${e.plano.container}/${codec} largura=${v.videoWidth} quadros=${quadros} ${navigator.userAgent}`);
+        if (e.plano.container === 'mkv') marcarMkvFalhou();
         carregar({ audio: e.audio, legenda: e.legenda, ticks: Math.round(v.currentTime * TICKS), semDireto: true });
       }, 3000);
     };
@@ -239,16 +233,13 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
   // legenda ASS: desenhada pelo JASSUB (wasm de ~2 MB, carregado só aqui) com as fontes anexadas ao arquivo
   useEffect(() => {
     const v = video.current;
-    const l = e?.fonte.MediaStreams.find(x => x.Index === e.legenda);
-    if (!v || !e || !eAss(l) || l!.DeliveryMethod !== 'External' || !l!.DeliveryUrl) return;
+    const l = e?.plano.fluxos.find(x => x.Index === e.legenda);
+    if (!v || !e || !eAss(l) || l!.entrega !== 'externa' || !l!.url) return;
     let fim = false, r: { destroy(): Promise<void> } | null = null;
-    const fontes = (e.fonte.MediaAttachments || [])
-      .filter(a => a.DeliveryUrl && /font|ttf|otf|woff/i.test(`${a.MimeType} ${a.FileName} ${a.Codec}`))
-      .slice(0, 8)
-      .map(a => urlServidor(s, a.DeliveryUrl!));
+    const fontes = e.plano.fontesAss;
     import('jassub').then(({ default: J }) => {
       if (fim) return;
-      r = new J({ video: v, subUrl: urlServidor(s, l!.DeliveryUrl!), fonts: fontes, maxRenderHeight: 1080 });
+      r = new J({ video: v, subUrl: l!.url!, fonts: fontes, maxRenderHeight: 1080 });
     }); // falha aqui vira unhandledrejection e cai no log do nginx (main.tsx)
     return () => { fim = true; r?.destroy().catch(() => undefined); };
   }, [e]);
@@ -326,20 +317,20 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
     return () => removeEventListener('keydown', f, true);
   }, [visivel, menu]);
 
-  const fonte = e?.fonte;
-  const audios = fonte?.MediaStreams.filter(x => x.Type === 'Audio') || [];
-  const legendas = fonte?.MediaStreams.filter(x => x.Type === 'Subtitle') || [];
+  const plano = e?.plano;
+  const audios = plano?.fluxos.filter(x => x.Type === 'Audio') || [];
+  const legendas = plano?.fluxos.filter(x => x.Type === 'Subtitle') || [];
   // texto simples vira <track>; ASS vai para o JASSUB (efeito acima)
-  const externas = legendas.filter(x => x.DeliveryMethod === 'External' && x.DeliveryUrl && !eAss(x));
+  const externas = legendas.filter(x => x.entrega === 'externa' && x.url && !eAss(x));
   const posTicks = () => Math.round((video.current?.currentTime || 0) * TICKS);
   function escolherAudio(i: number) { setMenu(false); if (e && i !== e.audio) carregar({ audio: i, legenda: e.legenda, ticks: posTicks() }); }
   function escolherLegenda(i: number) {
     setMenu(false);
     if (!e || i === e.legenda) return;
     const nova = legendas.find(x => x.Index === i);
-    const atualGravada = legendas.find(x => x.Index === e.legenda)?.DeliveryMethod === 'Encode';
+    const atualGravada = legendas.find(x => x.Index === e.legenda)?.entrega === 'gravada';
     // texto por fora troca na hora; legenda gravada no vídeo (ou sair dela) pede nova carga
-    if (!atualGravada && (i === -1 || (nova?.DeliveryMethod === 'External' && nova.DeliveryUrl))) {
+    if (!atualGravada && (i === -1 || (nova?.entrega === 'externa' && nova.url))) {
       const x = { ...e, legenda: i }; est.current = x; setE(x);
     } else carregar({ audio: e.audio, legenda: i, ticks: posTicks() });
   }
@@ -349,10 +340,8 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
     const x = est.current;
     if (!x) return;
     await baixarLegenda(s, id, r.Id);
-    const antes = new Set(x.fonte.MediaStreams.filter(f => f.Type === 'Subtitle').map(f => f.Index));
-    const info = await infoReproducao(s, id, corpo({ audio: x.audio, legenda: x.legenda, semDireto: x.hls }));
-    const lista = info.MediaSources[0]?.MediaStreams;
-    if (!lista) throw new Error('sem lista de faixas');
+    const antes = new Set(x.plano.fluxos.filter(f => f.Type === 'Subtitle').map(f => f.Index));
+    const lista = await faixas(s, x.plano, opcoes({ audio: x.audio, legenda: x.legenda, semDireto: x.hls }));
     const nova = lista.filter(f => f.Type === 'Subtitle' && !antes.has(f.Index)).pop();
     setMenu(false);
     const atual = est.current;
@@ -363,10 +352,10 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
       return;
     }
     avisar('Legenda baixada e ligada');
-    const atualGravada = atual.fonte.MediaStreams.find(f => f.Index === atual.legenda)?.DeliveryMethod === 'Encode';
-    if (!atualGravada && nova.DeliveryMethod === 'External' && nova.DeliveryUrl && !eAss(nova)) {
+    const atualGravada = atual.plano.fluxos.find(f => f.Index === atual.legenda)?.entrega === 'gravada';
+    if (!atualGravada && nova.entrega === 'externa' && nova.url && !eAss(nova)) {
       // texto por fora: entra como <track> sem recarregar o vídeo
-      const y = { ...atual, fonte: { ...atual.fonte, MediaStreams: lista }, legenda: nova.Index };
+      const y = { ...atual, plano: { ...atual.plano, fluxos: lista }, legenda: nova.Index };
       est.current = y; setE(y);
     } else carregar({ audio: atual.audio, legenda: nova.Index, ticks: posTicks() });
   }
@@ -399,8 +388,8 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
         }}
         onDblClick={() => { if (toque.current.tipo === 'mouse') tela(); }}>
         {e && externas.map(x => (
-          <track key={`${e.sessao}-${x.Index}`} id={`l${x.Index}`} kind="subtitles" label={nomeFluxo(x)}
-            srcLang={x.Language || 'und'} src={urlServidor(s, x.DeliveryUrl!)} />
+          <track key={`${e.plano.sessaoReproducao}-${x.Index}`} id={`l${x.Index}`} kind="subtitles" label={nomeFluxo(x)}
+            srcLang={x.Language || 'und'} src={x.url!} />
         ))}
       </video>
 

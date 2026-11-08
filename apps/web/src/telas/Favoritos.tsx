@@ -11,11 +11,19 @@ import { Fileira } from '../comp/Fileira';
 import { Topo } from '../comp/Navegacao';
 import { Icone } from '../comp/Icone';
 import { dadosDe, useMudancas } from '../estado/usuario';
-import { irTitulo } from '../rota';
+import { irAba, irTitulo } from '../rota';
 import './favoritos.css';
 
 type Secao = { biblioteca: Item; itens: Item[]; total: number; erro: boolean };
 const LIMITE = 60;
+// Linha abaixo do título: "12 títulos em 3 bibliotecas", com o total real de cada biblioteca menos o que foi
+// desfavoritado aqui (os que não vieram na 1ª página entram pelo total do servidor). Vazio = nada a dizer.
+export function resumo(l: { total: number; carregados: number; visiveis: number }[]) {
+  const t = l.reduce((n, x) => n + Math.max(x.visiveis, x.total - (x.carregados - x.visiveis)), 0);
+  const b = l.filter(x => x.visiveis).length;
+  if (!t || !b) return '';
+  return `${t.toLocaleString('pt-BR')} ${t === 1 ? 'título' : 'títulos'}${b > 1 ? ` em ${b} bibliotecas` : ''}`;
+}
 
 export function Favoritos({ s }: { s: Sessao }) {
   const [secoes, setSecoes] = useState<Secao[] | null>(null);
@@ -50,6 +58,7 @@ export function Favoritos({ s }: { s: Sessao }) {
   const hashCor = hashDe(s, primeiro, 'Backdrop') || hashDe(s, primeiro, 'Primary');
   usePaleta(hashCor ?? null);
   const desfocado = fundoDesfocado(hashDe(s, primeiro, 'Primary') || hashCor);
+  const linha = resumo(visiveis.map(x => ({ total: x.secao.total, carregados: x.secao.itens.length, visiveis: x.itens.length })));
   const abrir = (i: Item) => irTitulo(i.Type === 'Episode' && i.SeriesId ? i.SeriesId : i.Id);
   const completar = async (secao: Secao) => {
     const id = secao.biblioteca.Id, rodada = ciclo.current;
@@ -76,12 +85,20 @@ export function Favoritos({ s }: { s: Sessao }) {
     <main class="favoritos">
       {desfocado && <div class="favoritos-fundo" aria-hidden="true" style={{ backgroundImage: `url(${desfocado})` }} />}
       <Topo fundo={rolou} />
-      <h1 class="favoritos-titulo">Favoritos</h1>
-      {!secoes && <Fileira titulo="Favoritos"><EsqueletoCartoes n={4} /></Fileira>}
+      <header class="favoritos-cabeca">
+        <h1 class="favoritos-titulo">Favoritos</h1>
+        {linha && <p class="favoritos-resumo">{linha}</p>}
+      </header>
+      {/* carregando: o esqueleto de uma seção (barra no lugar do nome), sem repetir "Favoritos" logo abaixo do título */}
+      {!secoes && <section class="fileira favoritos-carregando" aria-busy="true" aria-label="Carregando favoritos">
+        <header class="fileira-cabeca"><span class="favoritos-barra esqueleto" /></header>
+        <div class="fileira-trilho"><EsqueletoCartoes n={8} /></div>
+      </section>}
       {erro && <div class="favoritos-vazio" role="status"><p>Não deu para carregar os favoritos.</p>
         <button class="pilula pilula-tema" onClick={() => setTentativa(t => t + 1)}>Tentar de novo</button></div>}
       {secoes && !erro && !visiveis.length && <div class="favoritos-vazio">
         <Icone nome="favorite" tamanho={36} /><p>Toque em ♡ num título para <span style={{ whiteSpace: 'nowrap' }}>guardá-lo</span> aqui.</p>
+        <button class="pilula pilula-tema" onClick={() => irAba('b')}><Icone nome="video_library" tamanho={20} />Abrir a Biblioteca</button>
       </div>}
       {visiveis.map(({ secao, itens }) => {
         const b = secao.biblioteca, ocupada = ocupadas.has(b.Id);

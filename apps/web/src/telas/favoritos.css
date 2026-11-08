@@ -5,8 +5,12 @@
 .favoritos-fundo { position: absolute; pointer-events: none; top: 0; left: 0; right: 0; height: 80vh; z-index: -1;
   background-size: cover; background-position: center top; opacity: .08;
   -webkit-mask-image: linear-gradient(#000, transparent); mask-image: linear-gradient(#000, transparent); }
-.favoritos-titulo { margin: 16px var(--hs-margem) 24px; font-family: var(--hs-tema-fonte-titulo);
+.favoritos-cabeca { margin: 16px var(--hs-margem) 24px; }
+.favoritos-titulo { margin: 0; font-family: var(--hs-tema-fonte-titulo);
   font-size: clamp(26px, 3.6vw, 44px); font-weight: 600; line-height: 1.08; letter-spacing: -.035em; }
+.favoritos-resumo { margin: 6px 0 0; font-size: 14px; line-height: 1.4; color: var(--hs-texto); font-weight: 450; font-variant-numeric: tabular-nums; }
+.favoritos-barra { display: block; width: 132px; height: 18px; border-radius: 9px; }
+.favoritos-carregando .fileira-trilho { overflow: hidden; }
 .favoritos .cartao-sub, .favoritos .fileira-tudo { color: var(--hs-texto); }
 .favoritos .fileira:first-of-type { margin-top: 6px; }
 .favoritos .fileira-cabeca { min-height: 44px; margin-bottom: 8px; }
@@ -17,12 +21,24 @@
   text-align: center; color: var(--hs-texto); font-size: 15px; line-height: 1.6; }
 .favoritos-vazio > .icone { box-sizing: content-box; padding: 22px; border-radius: 50%; background: var(--hs-linha); }
 .favoritos-vazio p { margin: 0; }
+.favoritos-vazio .pilula { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; }
+.favoritos-vazio .pilula:focus-visible, .favoritos-estado .pilula:focus-visible { outline: 2px solid var(--hs-texto); outline-offset: 3px; }
+/* Foco do teclado: anel visível nos 2 temas; na grade aberta só a arte se ergue (o nome não cresce sobre o vizinho). */
+.favoritos button.cartao:focus-visible { outline: none; }
+.favoritos-grade-corpo button.cartao, .favoritos-grade-corpo button.cartao:hover, .favoritos-grade-corpo button.cartao:focus-visible { transform: none; }
+.favoritos-grade-corpo .cartao-nome { white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow-wrap: anywhere; }
+@media (hover: hover) and (pointer: fine) {
+  .favoritos-grade-corpo button.cartao:hover .cartao-arte, .favoritos-grade-corpo button.cartao:focus-visible .cartao-arte { transform: translateY(-4px); }
+}
+@media (prefers-reduced-motion: reduce) { .favoritos-grade-corpo .cartao-arte { transform: none !important; } }
 .favoritos-grade-corpo { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px var(--hs-vao);
   padding: 14px var(--hs-margem) 6px; }
 .favoritos-grade-corpo .cartao-poster { width: auto; min-width: 0; }
 .favoritos-estado { margin: 0 var(--hs-margem); color: var(--hs-texto); font-size: 14px; overflow-wrap: anywhere; }
 .favoritos-estado p { margin: 12px 0; }
 .favoritos-estado .pilula { margin-bottom: 12px; }
+/* anel do foco com prioridade sobre a sombra do hover (inclusive a do Hisui) */
+main.favoritos button.cartao:focus-visible .cartao-arte { box-shadow: 0 0 0 2px var(--hs-pagina), 0 0 0 4px var(--hs-texto); }
 @media (min-width: 600px) {
   .favoritos-grade-corpo { grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); }
 }

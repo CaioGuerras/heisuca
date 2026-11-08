@@ -62,15 +62,16 @@ export function CartaoPaisagem({ s, i, aoAbrir, prioridade, tempo = false }: Bas
   );
 }
 
-export function CartaoBiblioteca({ s, b, aoAbrir }: { s: Sessao; b: Item; aoAbrir: (b: Item) => void }) {
+export function CartaoBiblioteca({ s, b, aoAbrir, sobreposto = false }: { s: Sessao; b: Item; aoAbrir: (b: Item) => void; sobreposto?: boolean }) {
   const img = capaBiblioteca(s, b);
   return (
     <button class="cartao cartao-biblioteca" onClick={() => aoAbrir(b)} aria-label={b.Name}>
       <span class="cartao-arte">
         <Imagem src={img} hash={hashDe(s, b, 'Primary')} />
-        {!img && <span class="cartao-biblioteca-nome">{b.Name}</span>}
+        {!img && !sobreposto && <span class="cartao-biblioteca-nome">{b.Name}</span>}
+        {sobreposto && <span class="cartao-biblioteca-legenda uma-linha">{b.Name}</span>}
       </span>
-      <span class="cartao-nome uma-linha">{b.Name}</span>
+      {!sobreposto && <span class="cartao-nome uma-linha">{b.Name}</span>}
     </button>
   );
 }

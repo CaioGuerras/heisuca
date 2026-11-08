@@ -188,15 +188,11 @@ function Pagina({ s, it }: { s: Sessao; it: Item }) {
       {serie && (
         <section class="titulo-eps">
           <header class="titulo-eps-cabeca">
-            <button class="titulo-temp" onClick={() => setEscolhendo(true)} disabled={temps.length < 2} aria-haspopup="dialog">
+            <button class="titulo-temp" onClick={() => setEscolhendo(true)} disabled={temps.length < 2} aria-haspopup="dialog" aria-expanded={escolhendo}>
               <span>{temp?.Name || 'Temporada'}</span>{temps.length > 1 && <Icone nome="keyboard_arrow_down" tamanho={22} />}
             </button>
             {!!eps?.length && <button class="fileira-tudo" onClick={() => setLista(true)}>Ver tudo<Icone nome="chevron_right" tamanho={20} /></button>}
           </header>
-          {temps.length > 1 && <div class="titulo-temporadas" role="group" aria-label="Escolher temporada">
-            {temps.map(t => <button key={t.Id} class="titulo-temporada" aria-pressed={t.Id === tempSel}
-              onClick={() => setTempSel(t.Id)}>{t.Name}</button>)}
-          </div>}
           <Episodios key={tempSel} s={s} eps={eps} atual={atual} />
         </section>
       )}
@@ -408,10 +404,7 @@ function Elenco({ s, pessoas }: { s: Sessao; pessoas: Pessoa[] }) {
         const f = fotoPessoa(s, p, 240);
         return (
           <div key={p.Id} class="titulo-pessoa">
-            <span class="titulo-pessoa-foto">
-              {f ? <Imagem src={f} hash={(p as Pessoa & { ImageBlurHashes?: { Primary?: Record<string, string> } }).ImageBlurHashes?.Primary?.[p.PrimaryImageTag || '']} />
-                : <span class="titulo-silhueta"><Icone nome="person" cheio tamanho={34} /></span>}
-            </span>
+            <FotoElenco key={f} src={f} hash={(p as Pessoa & { ImageBlurHashes?: { Primary?: Record<string, string> } }).ImageBlurHashes?.Primary?.[p.PrimaryImageTag || '']} />
             <strong class="titulo-pessoa-nome">{p.Name}</strong>
             {p.Role && <span class="titulo-pessoa-papel">{p.Role}</span>}
           </div>
@@ -419,6 +412,14 @@ function Elenco({ s, pessoas }: { s: Sessao; pessoas: Pessoa[] }) {
       })}
     </Fileira>
   );
+}
+
+function FotoElenco({ src, hash }: { src?: string; hash?: string }) {
+  const [falhou, setFalhou] = useState(false);
+  return <span class="titulo-pessoa-foto">
+    {src && !falhou ? <Imagem src={src} hash={hash} aoErro={() => setFalhou(true)} />
+      : <span class="titulo-silhueta"><Icone nome="person" cheio tamanho={34} /></span>}
+  </span>;
 }
 
 function InfoMidia({ video, audios }: { video?: Fluxo; audios: Fluxo[] }) {
@@ -429,14 +430,15 @@ function InfoMidia({ video, audios }: { video?: Fluxo; audios: Fluxo[] }) {
     ['Quadros por segundo', fps(video)],
     ['Taxa de bits', taxa(video.BitRate)],
   ] : [];
+  const audio = audios.map((a, k) => ({
+    nome: audios.length > 1 ? `Faixa ${k + 1}` : '',
+    linhas: ([['Idioma', idioma(a)], ['Codec', codec(a.Codec)], ['Canais', canais(a)],
+      ['Padrão', a.IsDefault === undefined ? '' : a.IsDefault ? 'Sim' : 'Não']] as [string, string][]).filter(l => l[1].trim()),
+  })).filter(a => a.linhas.length);
   const cartoes = [
-    { titulo: 'Vídeo', icone: 'videocam', linhas: linhasVideo.filter(l => l[1].trim()) },
-    ...audios.map((a, k) => ({
-      titulo: audios.length > 1 ? `Áudio ${k + 1}` : 'Áudio', icone: 'music_note',
-      linhas: ([['Idioma', idioma(a)], ['Codec', codec(a.Codec)], ['Canais', canais(a)],
-        ['Padrão', a.IsDefault === undefined ? '' : a.IsDefault ? 'Sim' : 'Não']] as [string, string][]).filter(l => l[1].trim()),
-    })),
-  ].filter(c => c.linhas.length);
+    { titulo: 'Vídeo', icone: 'videocam', faixas: [{ nome: '', linhas: linhasVideo.filter(l => l[1].trim()) }].filter(f => f.linhas.length) },
+    { titulo: 'Áudio', icone: 'music_note', faixas: audio },
+  ].filter(c => c.faixas.length);
   if (!cartoes.length) return null;
   return (
     <section class="titulo-bloco">
@@ -445,7 +447,10 @@ function InfoMidia({ video, audios }: { video?: Fluxo; audios: Fluxo[] }) {
         {cartoes.map(c => (
           <div key={c.titulo} class="titulo-midia-cartao">
             <h3><Icone nome={c.icone} cheio tamanho={20} />{c.titulo}</h3>
-            <dl>{c.linhas.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
+            {c.faixas.map((f, k) => <div key={k} class="titulo-midia-faixa">
+              {f.nome && <h4>{f.nome}</h4>}
+              <dl>{f.linhas.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
+            </div>)}
           </div>
         ))}
       </div>

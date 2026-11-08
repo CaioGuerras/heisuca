@@ -15,7 +15,7 @@
 .campo input { width: 100%; height: 52px; padding: 0 18px; border-radius: 14px; border: 1px solid var(--hs-linha); background: var(--hs-superficie);
   color: var(--hs-texto); font-size: 16px; transition: border-color .2s, background-color .2s, box-shadow .2s; }
 .campo input::placeholder { color: var(--hs-texto-2); }
-.campo input:focus { border-color: var(--hs-realce); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--hs-realce) 18%, transparent); }
+.campo input:focus { border-color: var(--hs-realce); outline: none; box-shadow: 0 0 0 1px var(--hs-realce); } /* sem color-mix: o alvo é chrome88 */
 .campo input[aria-invalid="true"] { border-color: var(--hs-erro); }
 /* "✓ nome do servidor": uma linha reservada sob o endereço, bem discreta */
 .entrada-servidor { display: flex; align-items: center; gap: 6px; min-height: 18px; margin: -2px 8px 4px; font-size: 13px; line-height: 18px;

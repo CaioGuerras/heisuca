@@ -7,6 +7,7 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { daColecao, episodios, fotoPessoa, fundo, hashDe, item, logo, paisagem, proximoDaSerie, temporadas,
   type Fluxo, type Item, type Pessoa, type Sessao } from '../api/servidor.ts';
+import { selosDeMidia } from '../dados/selos';
 import { usePaleta } from '../cor/paleta';
 import { CartaoPoster, EsqueletoCartoes, nota, relogio } from '../comp/Cartoes';
 import { Fileira } from '../comp/Fileira';
@@ -139,6 +140,7 @@ function Pagina({ s, it }: { s: Sessao; it: Item }) {
   const fluxos = fonteMidia?.MediaStreams || [];
   const video = fluxos.find(f => f.Type === 'Video');
   const audios = fluxos.filter(f => f.Type === 'Audio');
+  const selos = selosDeMidia(fluxos);
 
   // linha pequena: 3 temps. · 1h2min · 1080p H264 SDR
   const nTemps = temps.filter(t => (t.IndexNumber ?? 0) > 0).length;
@@ -171,6 +173,9 @@ function Pagina({ s, it }: { s: Sessao; it: Item }) {
     <main class="titulo">
       <BotaoVoltar />
       <Cabeca s={s} it={it} />
+      {selos.length > 0 && <ul class="titulo-selos" aria-label="Disponível neste título">
+        {selos.map(selo => <li key={selo}>{selo}</li>)}
+      </ul>}
       <Acao pequena={pequena} rotulo={rotulo} alvo={alvo} inicio={inicio} />
       <Botoes s={s} it={it} />
       {sinopse && <Sinopse marca={sinopse.marca} texto={sinopse.texto} />}

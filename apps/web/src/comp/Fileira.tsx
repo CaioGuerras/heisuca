@@ -15,8 +15,8 @@ export function Fileira({ titulo, verTudo, children, classe = '' }:
     f(); t.addEventListener('scroll', f, { passive: true });
     const ro = new ResizeObserver(f); ro.observe(t);
     return () => { t.removeEventListener('scroll', f); ro.disconnect(); };
-  }, []);
-  const rolar = (dir: number) => { const t = trilho.current; if (t) t.scrollBy({ left: dir * t.clientWidth * 0.85, behavior: 'smooth' }); };
+  }, [children]);
+  const rolar = (dir: number) => { const t = trilho.current; if (t) t.scrollBy({ left: dir * t.clientWidth * 0.85, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); };
   return (
     <section class={`fileira ${classe}`}>
       <header class="fileira-cabeca">
@@ -24,9 +24,9 @@ export function Fileira({ titulo, verTudo, children, classe = '' }:
         {verTudo && <button class="fileira-tudo" onClick={verTudo}>Ver tudo<Icone nome="chevron_right" tamanho={20} /></button>}
       </header>
       <div class="fileira-corpo">
-        {!ponta.ini && <button class="fileira-seta esq" aria-label="Voltar" onClick={() => rolar(-1)}><Icone nome="chevron_left" tamanho={28} /></button>}
+        {!ponta.ini && <button class="fileira-seta esq" aria-label={`Voltar em ${titulo}`} onClick={() => rolar(-1)}><Icone nome="chevron_left" tamanho={28} /></button>}
         <div class="fileira-trilho" ref={trilho}>{children}</div>
-        {!ponta.fim && <button class="fileira-seta dir" aria-label="Avançar" onClick={() => rolar(1)}><Icone nome="chevron_right" tamanho={28} /></button>}
+        {!ponta.fim && <button class="fileira-seta dir" aria-label={`Avançar em ${titulo}`} onClick={() => rolar(1)}><Icone nome="chevron_right" tamanho={28} /></button>}
       </div>
     </section>
   );

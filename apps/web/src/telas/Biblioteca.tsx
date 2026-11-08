@@ -38,8 +38,8 @@ export function Biblioteca({ s, id }: { s: Sessao; id?: string }) {
     <main class="biblioteca">
       <header class="biblioteca-topo">
         <button class="redondo" onClick={voltar} aria-label="Voltar"><Icone nome="arrow_back" tamanho={24} /></button>
-        <h1 class="uma-linha">{atual?.Name || ''}</h1>
-        <button class="redondo" onClick={() => setMenu(true)} aria-label="Trocar de biblioteca" aria-haspopup="dialog" disabled={!libs?.length}>
+        <h1 class="uma-linha" title={atual?.Name}>{atual?.Name || 'Biblioteca'}</h1>
+        <button class="redondo" onClick={() => setMenu(true)} aria-label="Trocar de biblioteca" aria-haspopup="dialog" aria-expanded={menu} disabled={!libs?.length}>
           <Icone nome="menu" tamanho={24} />
         </button>
       </header>
@@ -107,10 +107,11 @@ function Grade({ s, bid }: { s: Sessao; bid: string }) {
   return (
     <>
       {desfocado && <div class="biblioteca-fundo" aria-hidden="true" style={{ backgroundImage: `url(${desfocado})` }} />}
-      <div class="biblioteca-grade" aria-busy={ocupado}>
+      <div class="biblioteca-grade" role="region" aria-label="Títulos da biblioteca" aria-busy={ocupado}>
         {itens.map((i, k) => <CartaoPoster key={i.Id} s={s} i={i} prioridade={k < 9} aoAbrir={x => irTitulo(x.Id)} />)}
         {!fim && !erro && <EsqueletoCartoes n={total === null ? 12 : 6} />}
       </div>
+      <p class="visualmente-oculto" role="status">{ocupado ? 'Carregando títulos…' : total !== null && !erro ? `${itens.length} de ${total} títulos` : ''}</p>
       {fim && total === 0 && <p class="biblioteca-vazio texto-2">Nada nesta biblioteca ainda.</p>}
       {erro && <p class="biblioteca-vazio"><button class="pilula pilula-vidro" onClick={mais}>Não carregou. Tentar de novo</button></p>}
       <div ref={sentinela} class="biblioteca-sentinela" aria-hidden="true" />

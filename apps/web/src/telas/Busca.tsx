@@ -8,6 +8,7 @@ import { bibliotecasDeVideo, capa, hashDe, buscar, type Item, type Sessao } from
 import { buscar as buscarSeerr, poster, SELO, temSeerr, type Resultado } from '../api/seerr';
 import { usePaleta } from '../cor/paleta';
 import { nota } from '../comp/Cartoes';
+import { Classificacao } from '../comp/Classificacao';
 import { Icone } from '../comp/Icone';
 import { Imagem } from '../comp/Imagem';
 import { FolhaPedido, type Alvo } from '../comp/Pedido';
@@ -40,7 +41,7 @@ const duracao = (ticks?: number) => {
   return h ? `${h}h ${String(m % 60).padStart(2, '0')}m` : `${m}m`;
 };
 // a duração só faz sentido no filme (na série o servidor dá a média de um episódio)
-const linhaInfo = (i: Item) => [i.OfficialRating, i.ProductionYear, i.Type === 'Movie' ? duracao(i.RunTimeTicks) : '',
+const linhaInfo = (i: Item) => [i.ProductionYear, i.Type === 'Movie' ? duracao(i.RunTimeTicks) : '',
   nota(i) && `${nota(i)}★`].filter(Boolean).join(' • ');
 
 type Estado<T> = { termo: string; itens: T[] | null; erro?: boolean };
@@ -107,10 +108,15 @@ export function Busca({ s }: { s: Sessao }) {
         </div>}
         {!ativo && texto.trim().length === 1 && <p class="busca-dica texto-2">Digite mais uma letra.</p>}
         {!ativo && seerr && <MeusPedidos classe="busca-pedidos-solto" />}
-        {nada && <div class="busca-vazio"><Icone nome="search_off" tamanho={40} /><p>Nada encontrado para “{termo}”.</p></div>}
+        {nada && !acervo.erro && !(seerr && pedir.erro) && <div class="busca-vazio"><Icone nome="search_off" tamanho={40} />
+          <p>Nada encontrado para “{termo}”.</p><small>Tente outro título ou confira como ele está escrito.</small>
+        </div>}
         {ativo && doAcervo && acervo.erro && <p class="busca-dica texto-2">Não deu para buscar no servidor agora. Tente de novo.</p>}
+        {ativo && seerr && pedir.termo === termo && pedir.erro && <p class="busca-dica texto-2">Pedidos indisponíveis agora.</p>}
 
-        {ativo && !doAcervo && <ul class="busca-lista">{[0, 1, 2].map(n => <li key={n} class="busca-item"><span class="busca-capa esqueleto" /><span class="busca-esq"><span class="esqueleto" /><span class="esqueleto" /><span class="esqueleto" /></span></li>)}</ul>}
+        {ativo && !doAcervo && <><span class="visualmente-oculto">Buscando títulos…</span>
+          <ul class="busca-lista" aria-hidden="true">{[0, 1, 2].map(n => <li key={n} class="busca-item"><span class="busca-capa esqueleto" /><span class="busca-esq"><span class="esqueleto" /><span class="esqueleto" /><span class="esqueleto" /></span></li>)}</ul>
+        </>}
         {doAcervo && doAcervo.length > 0 && (
           <ul class="busca-lista">
             {doAcervo.map(i => (
@@ -119,7 +125,11 @@ export function Busca({ s }: { s: Sessao }) {
                   <Imagem classe="busca-capa" src={capa(s, i, 330)} hash={hashDe(s, i, 'Primary')} alt="" />
                   <span class="busca-texto">
                     <strong class="busca-nome">{i.Name}</strong>
-                    {linhaInfo(i) && <small class="busca-info">{linhaInfo(i)}</small>}
+                    {(i.OfficialRating || linhaInfo(i)) && <span class="busca-info">
+                      {i.OfficialRating && <Classificacao valor={i.OfficialRating} />}
+                      {i.OfficialRating && linhaInfo(i) && <span aria-hidden="true">•</span>}
+                      {linhaInfo(i) && <span>{linhaInfo(i)}</span>}
+                    </span>}
                     {i.Overview && <span class="busca-sinopse">{i.Overview}</span>}
                     <small class="busca-origem"><Icone nome="dns" tamanho={16} />{[servidor, i.biblioteca].filter(Boolean).join(' • ')}</small>
                   </span>
@@ -133,7 +143,6 @@ export function Busca({ s }: { s: Sessao }) {
           <section class="busca-pedir" aria-label="Disponível para pedir">
             <div class="busca-pedir-cabeca"><h2 class="titulo-secao">Disponível para pedir</h2><MeusPedidos /></div>
             <p class="texto-2">Ainda não temos. Peça e avisamos quando chegar.</p>
-            {pedir.erro && <p class="texto-2">Pedidos indisponíveis agora.</p>}
             <ul class="busca-lista">
               {(paraPedir || [0, 1].map(n => ({ id: -1 - n } as Resultado))).map(r => {
                 if (r.id < 0) return <li key={r.id} class="pedir-item"><span class="pedir-capa esqueleto" /><span class="busca-esq"><span class="esqueleto" /><span class="esqueleto" /></span></li>;

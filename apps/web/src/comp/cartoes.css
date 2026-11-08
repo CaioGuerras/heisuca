@@ -54,7 +54,7 @@
 .cartao:focus-visible { z-index: 3; transform: translateY(-3px) scale(1.05);
   outline: 2px solid var(--hs-texto); outline-offset: 4px; border-radius: var(--hs-raio-cartao); }
 .cartao:focus-visible .cartao-arte { box-shadow: 0 12px 24px rgb(0 0 0 / .3); }
-.cartao-nome, .cartao-sub { max-width: 100%; }
+.cartao-nome, .cartao-sub { display: block; width: 100%; min-width: 0; max-width: 100%; }
 @media (prefers-reduced-motion: reduce) {
   button.cartao:hover, button.cartao:focus-visible, .cartao:active .cartao-arte { transform: none; }
 }

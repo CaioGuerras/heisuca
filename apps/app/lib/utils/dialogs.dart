@@ -299,6 +299,8 @@ Future<void> showServerBusyDialog(BuildContext context) async {
   );
 }
 
+enum UnplayableMediaCause { unsupportedFormat, slowDeliveryOrDevice }
+
 /// Actions returned by [showUnplayableMediaDialog].
 enum UnplayableMediaAction {
   playVersion,
@@ -316,14 +318,19 @@ Future<UnplayableMediaAction> showUnplayableMediaDialog(
   BuildContext context, {
   required String formatReason,
   String? alternativeResolution,
+  UnplayableMediaCause cause = UnplayableMediaCause.unsupportedFormat,
 }) async {
   final hasAlternative = alternativeResolution != null && alternativeResolution.isNotEmpty;
   final result = await showScopedDialog<UnplayableMediaAction>(
     context: context,
     barrierDismissible: false,
     builder: (ctx) => AlertDialog(
-      title: Text(t.messages.unplayableMediaTitle),
-      content: Text(formatReason),
+      title: Text(cause == UnplayableMediaCause.unsupportedFormat ? 'Formato sem suporte' : 'Reprodução lenta'),
+      content: Text(
+        cause == UnplayableMediaCause.unsupportedFormat
+            ? 'Este aparelho não oferece suporte ao formato desta versão.\n\n$formatReason'
+            : 'O vídeo está chegando devagar ou o aparelho está lento.\n\n$formatReason',
+      ),
       actions: [
         if (hasAlternative)
           DialogActionButton(

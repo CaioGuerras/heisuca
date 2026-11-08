@@ -11,14 +11,15 @@ import '../heisuca_theme.dart';
 import 'heisuca_tv_canvas.dart';
 
 /// Ajustes oficiais do Heisuca na TV — Enxuto.
-/// Apenas 7 itens focáveis por D-pad:
+/// Apenas 8 itens focáveis por D-pad:
 /// 1. Perfil
 /// 2. Áudio padrão
 /// 3. Legenda padrão
 /// 4. Tamanho da legenda
 /// 5. "Ainda está aí?" (ligado/desligado)
-/// 6. Sobre
-/// 7. Sair
+/// 6. Desempenho na tela
+/// 7. Sobre
+/// 8. Sair
 class HeisucaTvSettingsScreen extends StatefulWidget {
   const HeisucaTvSettingsScreen({super.key});
 
@@ -31,6 +32,7 @@ class _HeisucaTvSettingsScreenState extends State<HeisucaTvSettingsScreen> {
   String _subtitleLang = 'Português';
   int _subtitleSize = 38;
   bool _stillWatching = true;
+  bool _performanceOverlay = false;
 
   @override
   void initState() {
@@ -45,6 +47,7 @@ class _HeisucaTvSettingsScreenState extends State<HeisucaTvSettingsScreen> {
       _subtitleSize = settings.read(SettingsService.subtitleFontSize);
       final count = settings.read(SettingsService.stillWatchingEpisodes);
       _stillWatching = count > 0;
+      _performanceOverlay = settings.read(SettingsService.showPerformanceOverlay);
       final lang = settings.read(SettingsService.subtitleSearchLanguage);
       _subtitleLang = (lang == 'por' || lang == 'pt') ? 'Português' : 'Desligada';
     }
@@ -83,6 +86,12 @@ class _HeisucaTvSettingsScreenState extends State<HeisucaTvSettingsScreen> {
     setState(() => _stillWatching = next);
     final settings = SettingsService.instanceOrNull;
     await settings?.write(SettingsService.stillWatchingEpisodes, next ? 3 : 0);
+  }
+
+  Future<void> _togglePerformanceOverlay() async {
+    final next = !_performanceOverlay;
+    setState(() => _performanceOverlay = next);
+    await SettingsService.instanceOrNull?.write(SettingsService.showPerformanceOverlay, next);
   }
 
   @override
@@ -166,6 +175,12 @@ class _HeisucaTvSettingsScreenState extends State<HeisucaTvSettingsScreen> {
                     title: 'Ainda está aí?',
                     value: _stillWatching ? 'Ligado (após 3 episódios)' : 'Desligado',
                     onTap: _toggleStillWatching,
+                  ),
+                  const SizedBox(height: 16),
+                  _TvSettingsRow(
+                    title: 'Desempenho na tela',
+                    value: _performanceOverlay ? 'Ligado' : 'Desligado',
+                    onTap: _togglePerformanceOverlay,
                   ),
                   const SizedBox(height: 16),
                   _TvSettingsRow(

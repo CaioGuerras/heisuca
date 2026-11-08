@@ -1,5 +1,6 @@
 import '../heisuca/services/heisuca_episode_attention.dart';
 import '../services/device_performance.dart';
+import '../services/playback_diagnostics.dart';
 import 'dart:async';
 import '../services/playback_launch_observer.dart';
 import '../media/ids.dart';
@@ -894,6 +895,7 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
   Timer? _stillWatchingTimer;
   Timer? _renderWatchdogTimer;
   bool _renderWatchdogDisarmed = false;
+  PlaybackDiagnostics? _playbackDiagnostics;
   late final FocusNode _stillWatchingPauseFocusNode;
   late final FocusNode _stillWatchingContinueFocusNode;
 
@@ -1113,6 +1115,9 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
   /// mutation drain at their replacement-open boundary.
   _PlaybackAttempt _beginPlaybackAttempt(Player currentPlayer, {bool isMediaReload = false}) {
     _playbackAttempt?.outcome.abort('superseded by a newer playback attempt');
+    unawaited(_playbackDiagnostics?.close());
+    final diagnostics = _playbackDiagnostics =
+        PlatformDetector.isTV() ? PlaybackDiagnostics(player: currentPlayer) : null;
     final trackMutationDrain = _trackManager?.invalidatePendingSelection() ?? Future<void>.value();
     final previousGeneration = _transitionGate.generation;
     final generation = _transitionGate.beginGeneration(isMediaReload: isMediaReload);
@@ -1127,7 +1132,7 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
     } else {
       _observedLaunchGeneration ??= generation;
     }
-    return _playbackAttempt = _PlaybackAttempt._(
+    final attempt = _playbackAttempt = _PlaybackAttempt._(
       this,
       generation,
       currentPlayer,
@@ -1149,6 +1154,13 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
         }),
       ]).then<void>((_) {}),
     );
+    unawaited(attempt.outcome.fileLoaded.then((loaded) {
+      if (loaded && identical(_playbackAttempt, attempt)) diagnostics?.fileLoaded();
+    }));
+    unawaited(attempt.outcome.firstFrame.then((ready) {
+      if (ready && identical(_playbackAttempt, attempt)) diagnostics?.firstFrame();
+    }));
+    return attempt;
   }
 
   bool _isCurrentPlaybackGeneration(int generation, Player currentPlayer) {
@@ -1166,6 +1178,8 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
   /// and dispose — before the player closes its streams, so nothing waits on
   /// a `Stream.first` that can only die with them.
   void _abortCurrentOpen(String reason) {
+    unawaited(_playbackDiagnostics?.close());
+    _playbackDiagnostics = null;
     _playbackAttempt?.outcome.abort(reason);
     unawaited(_trackManager?.invalidatePendingSelection());
     _http503Watchdog.disarm();

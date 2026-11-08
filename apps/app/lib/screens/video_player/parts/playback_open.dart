@@ -1014,6 +1014,8 @@ extension _VideoPlayerOpenMethods on VideoPlayerScreenState {
     void Function()? onOpened,
     void Function(bool available)? onMediaAvailabilityChanged,
   }) async {
+    final diagnostics = isCurrent() ? _playbackDiagnostics : null;
+    diagnostics?.setVersion(session.selectedVersion);
     final displayCriteria = result.mediaInfo?.displayCriteria;
 
     final frameRatePlan = await _prepareFrameRateForOpen(
@@ -1076,7 +1078,10 @@ extension _VideoPlayerOpenMethods on VideoPlayerScreenState {
         play: deferAutomotiveStart ? shouldAutoPlay && !PlatformDetector.isAutomotive() : shouldAutoPlay,
         externalSubtitlesAtOpen: openSubtitleSelection.sidecarsAtOpen,
         shouldContinue: isCurrent,
-        onOpening: onOpening,
+        onOpening: () {
+          onOpening?.call();
+          diagnostics?.opening();
+        },
         onOpened: onOpened,
         onMediaAvailabilityChanged: onMediaAvailabilityChanged,
       );

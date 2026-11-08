@@ -258,7 +258,9 @@ extension _VideoPlayerPlaybackStartMethods on VideoPlayerScreenState {
       Duration? resumePosition;
       MediaServerClient? mediaClientForTracks;
 
+      _playbackDiagnostics?.setVersion(result.selectedVersion);
       if (!_renderWatchdogDisarmed && result.selectedVersion != null && !isVersionPlayable(result.selectedVersion!)) {
+        unawaited(_playbackDiagnostics?.watchdog(decision: 'unsupportedFormat'));
         final selectedVersion = result.selectedVersion!;
         final formatReason = formatVersionReason(selectedVersion);
         MediaVersion? altVersion;
@@ -271,13 +273,16 @@ extension _VideoPlayerPlaybackStartMethods on VideoPlayerScreenState {
             break;
           }
         }
-        final altRes = altVersion?.videoResolution ?? (altVersion?.height != null ? '${altVersion!.height}p' : null);
+        final altRes = altVersion == null ? null :
+              (altVersion.videoResolution?.trim().isNotEmpty ?? false) ? altVersion.videoResolution!.trim() :
+            (altVersion.height != null ? '${altVersion.height}p' : '${altIndex! + 1}');
 
         if (!mounted || !attempt.isCurrent) return;
 
         final action = await showUnplayableMediaDialog(
           context,
           formatReason: formatReason,
+          cause: UnplayableMediaCause.unsupportedFormat,
           alternativeResolution: altRes,
         );
 

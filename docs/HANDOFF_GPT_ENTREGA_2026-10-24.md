@@ -27,7 +27,7 @@ APKs de TESTE retidos até revisão do Claude, sem distribuição automática ao
 - [Android A verde](https://github.com/CaioGuerras/heisuca/actions/runs/42522036852), incluindo MobSF;
   [TV A verde](https://github.com/CaioGuerras/heisuca/actions/runs/42522036862),
   [Segurança A verde](https://github.com/CaioGuerras/heisuca/actions/runs/42522036829).
-  Bancada Android A `42522036746` verde; usuário desastrado A `42522036855` em acompanhamento.
+  Bancada Android A `42522036746` e usuário desastrado A `42522036855` verdes.
 - APKs retidos para revisão do Claude: [ARM64](https://github.com/CaioGuerras/heisuca/actions/runs/42522036852/artifacts/13634197588)
   e [universal](https://github.com/CaioGuerras/heisuca/actions/runs/42522036852/artifacts/13634750128).
   Certificado de ambos: `d415544dae728cd8d402827f1bf17b6af00b2443295b3bad8b463d65d3acd4c1` (igual ao Sobre na base).
@@ -49,8 +49,59 @@ APKs de TESTE retidos até revisão do Claude, sem distribuição automática ao
   Usada `MainScreen` real, rotas reais e teclado Flutter; HTTP e canal de saída isolados por fixtures.
 - Análise estrita de MainScreen, menu e testes: **No issues found**.
 - Logs: `/tmp/ultron-tv-b-red-final.log`, `/tmp/ultron-tv-b-green.log`, `/tmp/ultron-tv-b-analyze.log`.
-- Portão local verde: 161 Python, 2.222 Flutter (3 pulados), 8 Impeller. CI/suíte completa em acompanhamento.
-  Não testado em aparelho; desfazer reverter o commit B.
+- Commit B: `a04f89847028d51c1f170b454d35f784c58c5226`. Portão local verde: 161 Python, 2.222 Flutter (3 pulados), 8 Impeller.
+- Suíte completa B: **9.211 passaram, 59 pulados, 10 falharam**, mesmos casos da base, zero falhas novas.
+  Prova `/tmp/ultron-tv-b-comparison.json`.
+- [Android B verde](https://github.com/CaioGuerras/heisuca/actions/runs/42524688994), incluindo MobSF;
+  [TV B verde](https://github.com/CaioGuerras/heisuca/actions/runs/42524688984),
+  [Segurança B verde](https://github.com/CaioGuerras/heisuca/actions/runs/42524689116).
+- Bancada Android B `42524689098`: **falhou** em “reprodução avançando” (timeout no player), antes do retorno do menu.
+  Causa raiz não atribuída a infraestrutura ou ao B; não é aprovação. Usuário desastrado B `42524689183` verde.
+- APKs B retidos: [ARM64](https://github.com/CaioGuerras/heisuca/actions/runs/42524688994/artifacts/13634814439)
+  e [universal](https://github.com/CaioGuerras/heisuca/actions/runs/42524688994/artifacts/13635059216).
+  Certificado igual à base/A: `d415544dae728cd8d402827f1bf17b6af00b2443295b3bad8b463d65d3acd4c1`.
+  SHA APK ARM64 `2f89a095509b9b6b7e5137f9dbe6f44b1cb7a5230d4bcd66bda28edc04a88601`;
+  universal `a583eb524eb22b5d7303fd6614dcca3ebff9a647efbaf9760e9c365280c845db`.
+- Não testado em aparelho; desfazer reverter `a04f898`.
+
+### Pacote C — diagnóstico local e diálogo por causa — 2.0.34+41
+
+- Na TV, cada tentativa/geração tem um registro privado em `app-support/logs/playback.jsonl` e
+  `playback.previous.jsonl`, até **512 KiB por slot**, fila limitada a 64 escritas, gravações em série.
+  Erro de disco é contabilizado e não interrompe o vídeo. `droppedRecords`/`writeFailures` informam perdas do registro.
+- Só campos técnicos permitidos: motor configurado/real, codec/perfil/bit depth/resolução já carregados,
+  hwdec, quadros/perdas, cache, tempo até o primeiro quadro, buffering com duração e saltos solicitados/observados.
+  Sem URL, cabeçalho, credencial, caminho do arquivo de mídia, nome/ID do usuário ou chamada HTTP.
+- Primeiro quadro usa o outcome qualificado pela fonte e geração (sinal do player, sem alegar medição física do painel).
+  Registra tempo desde o pedido e desde a abertura. Estatísticas têm horário/duração de leitura; buffering informa evento/snapshot.
+- **Limite explícito:** o mpv atual não fornece contador real de quadros renderizados; esse campo fica `null` e
+  `renderedFramesAvailability=notReported`. O ExoPlayer fornece o contador. Posição × FPS não é apresentada como contagem real.
+- Leitura local a cada 2 s, sem sobreposição; encerramento cancela timer/subscrições e impede consulta tardia ao motor aposentado.
+  O arquivo é interno ao app; backup e transferência Android já eram bloqueados na base (manifesto/regras preservados).
+- Diálogo: `unsupportedFormat` → “Formato sem suporte”; `slowDeliveryOrDevice` →
+  “O vídeo está chegando devagar ou o aparelho está lento.”. Alternativa só com outra versão tocável,
+  inclusive quando falta resolução (rótulo pelo índice); Tentar assim mesmo/Voltar preservados.
+- Ajustes da TV expõe **Desempenho na tela**, desligado por padrão; a opção existente persiste.
+  Overlay compacto azul com Sora/Inter e corpo 22, visível também com os controles recolhidos.
+- Vigia preservado: **8 s, mínimo 48 quadros esperados, perdas >30%**. Registra seus insumos/veredito,
+  inclusive pausa/buffering/desarmado. `DemuxerBudget`, `LoadControlPolicy`, `BufferingStallPolicy` e applicationIds intactos.
+- TDD: quatro casos do registro e quatro de UI falharam antes das implementações; casos adicionais de leitura
+  aposentada, buffering inicial e falso salto ao ficar parado também falharam antes das correções.
+  **11 novos + 35 existentes de TV/player passaram**.
+  Testes cobrem ambos os motores, campos, rotação/JSON íntegro, rede negada, falha de disco, ciclo de vida e causas/ações.
+- O contrato G1.5 foi atualizado para oito itens em Ajustes; o D-pad chega a Sair após a rolagem.
+- Análise estrita dos **13 arquivos Dart**: **No issues found**.
+- Logs: `/tmp/ultron-tv-c-record-red.log`, `/tmp/ultron-tv-c-ui-red.log`, `/tmp/ultron-tv-c-retired-red.log`,
+  `/tmp/ultron-tv-c-buffer-red.log`, `/tmp/ultron-tv-c-jump-red.log`, `/tmp/ultron-tv-c-new-green.log`,
+  `/tmp/ultron-tv-c-settings-green.log`, `/tmp/ultron-tv-c-analyze.log`.
+- Portão local verde: **161 Python, 2.233 Flutter (3 pulados), 8 Impeller**.
+- A primeira suíte completa C terminou em 9.221/59/11: as dez falhas da base e um teste legado esperando o título antigo.
+  Contrato atualizado para título e texto por causa, mantendo foco/ações: **4 passaram** (`/tmp/ultron-tv-c-dialog-green.log`).
+  Suíte integral sem filtro após esse ajuste e CI finais em acompanhamento; não se declara zero falhas novas antes de encerrar.
+  Logs `*-pre-buffer-fix.log`/`*-before-*.log` são execuções anteriores, interrompidas ou superadas,
+  e **não são prova da entrega final**.
+- Não testado na TCL nem com o arquivo real de Naruto. O pacote mede e diferencia causas; não declara resolvida a reprodução.
+  APK retido para revisão Claude. Desfazer: reverter o commit C; para APK de retorno, manter build number crescente.
 
 ## 08/11/2026 — Sobre único no Android (Ultron)
 

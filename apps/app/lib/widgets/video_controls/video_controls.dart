@@ -878,7 +878,8 @@ class _PlexVideoControlsState extends State<PlexVideoControls>
   Timer? _skipButtonDismissTimer;
   // Performance overlay
   bool get _showPerformanceOverlay => _settings.read(SettingsService.showPerformanceOverlay);
-  bool get _autoHidePerformanceOverlay => _settings.read(SettingsService.autoHidePerformanceOverlay);
+  bool get _autoHidePerformanceOverlay =>
+      !PlatformDetector.isTV() && _settings.read(SettingsService.autoHidePerformanceOverlay);
   // Long-press 2x speed state
   bool _isLongPressing = false;
   // Subtitle visibility toggle state

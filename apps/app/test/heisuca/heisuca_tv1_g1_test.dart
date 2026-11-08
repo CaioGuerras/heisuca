@@ -342,7 +342,7 @@ void main() {
       expect(confirmationShown, true);
     });
 
-    testWidgets('G1.5 Ajustes na TV enxutos: apenas os 7 itens previstos', (tester) async {
+    testWidgets('G1.5 Ajustes na TV: oito itens, incluindo desempenho; Sair acessível pelo D-pad', (tester) async {
       await tester.binding.setSurfaceSize(const Size(1920, 1080));
       addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
 
@@ -362,8 +362,15 @@ void main() {
       expect(find.text('Legenda padrão'), findsOneWidget);
       expect(find.text('Tamanho da legenda'), findsOneWidget);
       expect(find.text('Ainda está aí?'), findsOneWidget);
+      expect(find.text('Desempenho na tela'), findsOneWidget);
       expect(find.text('Sobre'), findsOneWidget);
+      for (var i = 0; i < 7; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+      }
       expect(find.text('Sair'), findsOneWidget);
+      final focused = FocusManager.instance.primaryFocus!.context!;
+      expect(find.descendant(of: find.byWidget(focused.widget), matching: find.text('Sair')), findsOneWidget);
 
       // Não deve ter opções de celular (Downloads, Geral, etc.)
       expect(find.text('Downloads'), findsNothing);

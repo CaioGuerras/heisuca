@@ -342,26 +342,41 @@ extension _VideoPlayerErrorMethods on VideoPlayerScreenState {
   void _armPlaybackRenderWatchdog(Player currentPlayer, int generation) {
     _renderWatchdogTimer?.cancel();
     _renderWatchdogTimer = null;
-    if (_renderWatchdogDisarmed) return;
+    if (_renderWatchdogDisarmed) {
+      unawaited(_playbackDiagnostics?.watchdog(decision: 'disabled', inputs: {'watchdogDisarmed': true}));
+      return;
+    }
 
     void scheduleCheck() {
+      final armedAt = Stopwatch()..start();
       _renderWatchdogTimer?.cancel();
       _renderWatchdogTimer = Timer(const Duration(seconds: 8), () async {
         _renderWatchdogTimer = null;
         if (!mounted || _shuttingDown || _isExiting.value || _renderWatchdogDisarmed) return;
         if (player != currentPlayer || !_isCurrentPlaybackGeneration(generation, currentPlayer)) return;
 
-        // Se o player está em buffering ou pausado, não é stall de decodificação.
+        final diagnostics = _playbackDiagnostics;
+        // Pausa/buffering não são um veredito sobre suporte ao formato.
         if (currentPlayer.state.buffering || currentPlayer.state.playing == false) {
+          unawaited(diagnostics?.watchdog(decision: 'pausedOrBuffering', inputs: {
+            'watchdogElapsedMs': armedAt.elapsedMilliseconds,
+            'buffering': currentPlayer.state.buffering, 'playing': currentPlayer.state.playing,
+            'hasRendered': currentPlayer.state.hasRenderedFrame || _firstFrame.rendered,
+          }));
           return;
         }
 
         final hasRendered = currentPlayer.state.hasRenderedFrame || _firstFrame.rendered;
         var stallDetected = false;
+        int? measuredDrop;
+        double? measuredFps;
+        double? measuredPosition;
+        int? measuredExpected;
         if (!hasRendered) {
           stallDetected = true;
         } else {
           final frameDrop = int.tryParse(await currentPlayer.getProperty('frame-drop-count') ?? '') ?? 0;
+          measuredDrop = frameDrop;
           if (frameDrop > 0) {
             final fps =
                 double.tryParse(await currentPlayer.getProperty('container-fps') ?? '') ??
@@ -369,12 +384,23 @@ extension _VideoPlayerErrorMethods on VideoPlayerScreenState {
                 24.0;
             final timePos = double.tryParse(await currentPlayer.getProperty('time-pos') ?? '') ?? 0.0;
             final expectedFrames = (timePos * fps).round();
+            measuredFps = fps;
+            measuredPosition = timePos;
+            measuredExpected = expectedFrames;
 
             if (expectedFrames >= 48 && (frameDrop / expectedFrames) > 0.30) {
               stallDetected = true;
             }
           }
         }
+
+        unawaited(diagnostics?.watchdog(decision: stallDetected ? 'slowDeliveryOrDevice' : 'healthy', inputs: {
+          'watchdogElapsedMs': armedAt.elapsedMilliseconds,
+          'buffering': currentPlayer.state.buffering, 'playing': currentPlayer.state.playing,
+          'hasRendered': hasRendered, 'watchdogFrameDropCount': measuredDrop,
+          'watchdogFps': measuredFps, 'watchdogTimePos': measuredPosition,
+          'watchdogExpectedFrames': measuredExpected,
+        }));
 
         if (stallDetected && mounted && !_isExiting.value) {
           await currentPlayer.pause();
@@ -393,13 +419,16 @@ extension _VideoPlayerErrorMethods on VideoPlayerScreenState {
               break;
             }
           }
-          final altRes = altVersion?.videoResolution ?? (altVersion?.height != null ? '${altVersion!.height}p' : null);
+          final altRes = altVersion == null ? null :
+              (altVersion.videoResolution?.trim().isNotEmpty ?? false) ? altVersion.videoResolution!.trim() :
+              (altVersion.height != null ? '${altVersion.height}p' : '${altIndex! + 1}');
 
           if (!mounted || _isExiting.value) return;
 
           final action = await showUnplayableMediaDialog(
             context,
             formatReason: formatReason,
+            cause: UnplayableMediaCause.slowDeliveryOrDevice,
             alternativeResolution: altRes,
           );
 

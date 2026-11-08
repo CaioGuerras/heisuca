@@ -39,8 +39,11 @@ void main() {
       await tester.pumpAndSettle();
 
       // Title and reason
-      expect(find.text(t.messages.unplayableMediaTitle), findsOneWidget);
-      expect(find.text('HEVC 10-bit em 4K'), findsOneWidget);
+      expect(find.text('Formato sem suporte'), findsOneWidget);
+      expect(
+        find.text('Este aparelho não oferece suporte ao formato desta versão.\n\nHEVC 10-bit em 4K'),
+        findsOneWidget,
+      );
 
       // Buttons
       expect(find.text(t.messages.unplayableMediaTryAnyway), findsOneWidget);

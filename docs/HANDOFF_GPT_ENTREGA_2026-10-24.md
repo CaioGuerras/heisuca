@@ -95,13 +95,41 @@ APKs de TESTE retidos até revisão do Claude, sem distribuição automática ao
   `/tmp/ultron-tv-c-buffer-red.log`, `/tmp/ultron-tv-c-jump-red.log`, `/tmp/ultron-tv-c-new-green.log`,
   `/tmp/ultron-tv-c-settings-green.log`, `/tmp/ultron-tv-c-analyze.log`.
 - Portão local verde: **161 Python, 2.233 Flutter (3 pulados), 8 Impeller**.
-- A primeira suíte completa C terminou em 9.221/59/11: as dez falhas da base e um teste legado esperando o título antigo.
-  Contrato atualizado para título e texto por causa, mantendo foco/ações: **4 passaram** (`/tmp/ultron-tv-c-dialog-green.log`).
-  Suíte integral sem filtro após esse ajuste e CI finais em acompanhamento; não se declara zero falhas novas antes de encerrar.
+- O teste legado do diálogo agora confere título e texto por causa, mantendo foco/ações: **4 passaram**
+  (`/tmp/ultron-tv-c-dialog-green.log`).
+- Suíte integral final sem filtro: **9.222 passaram, 59 pulados, 10 falharam**. Comparação exata dos nomes com `fbb9998`:
+  **zero falhas novas**, nenhuma falha da base omitida. `/tmp/ultron-tv-c-full.log` e `/tmp/ultron-tv-c-comparison.json`.
+  As dez falhas existentes são: perfil local (1), editor mpv TV (6), recuperação do banco (1), controles de vídeo (2).
+- Commit C: `2f2f79a667c2f321ec25ccbd6d5b8488b78b274b`; versão **2.0.34+41**.
+  Preservado o documento paralelo do Claude `2dba3aa`; C reaplicado por cima sem conflito/merge/push forçado.
+- [Android C verde](https://github.com/CaioGuerras/heisuca/actions/runs/42530849726), incluindo MobSF, portão Flutter,
+  testes nativos e validação dos dois APKs; AAB pulado.
+  [TV C verde](https://github.com/CaioGuerras/heisuca/actions/runs/42530849800): Google TV e TV box de 1,5 GB passaram.
+  [Segurança C verde](https://github.com/CaioGuerras/heisuca/actions/runs/42530849792): OSV e gitleaks.
+  Bancada Android C `42530849862` verde; usuário desastrado C `42530850060` em execução às 22:56 UTC (não é aprovação).
+- APKs C de TESTE retidos: [ARM64](https://github.com/CaioGuerras/heisuca/actions/runs/42530849726/artifacts/13638225401)
+  e [universal](https://github.com/CaioGuerras/heisuca/actions/runs/42530849726/artifacts/13638255841), expiram em 22/11.
+  Pacote `app.heisuca.player.teste.home`, nome Heisuca Teste. Build/manifesto/providers/assinaturas conferidos pelo CI.
+  Certificado de ambos igual à base/A/B: `d415544dae728cd8d402827f1bf17b6af00b2443295b3bad8b463d65d3acd4c1`.
+  SHA-256 APK ARM64: `e373d0ddfa0be9b79ecf831515f08b5ec78e4078ae1e9cb4cc7abf656d7c6ad6`;
+  universal: `a93aff60bcc6e20c3207bb66fe7cad01552871ac72569b437e0a1e9140d6cfe2`.
+  Digests ZIP: ARM64 `69d1d35dd23ee29532a1b1431333037ab47d9fcbd549d84e9c676e63c36c7804`;
+  universal `10a58191a6c087c792f002fb928400754c67ec1b143f5348350db68e1f5b4878`.
   Logs `*-pre-buffer-fix.log`/`*-before-*.log` são execuções anteriores, interrompidas ou superadas,
   e **não são prova da entrega final**.
 - Não testado na TCL nem com o arquivo real de Naruto. O pacote mede e diferencia causas; não declara resolvida a reprodução.
   APK retido para revisão Claude. Desfazer: reverter o commit C; para APK de retorno, manter build number crescente.
+
+### Fechamento e revisão
+
+- Três commits de implementação separados: A `bf7f634`, B `a04f898`, C `2f2f79a`; testes escritos/executados antes das correções.
+  Registro final em commit somente de documentação. Base real era `2.0.34+38`, portanto builds de TESTE +39/+40/+41.
+- Cópia: `~/cgflix/handoffs/HANDOFF_ULTRON_ANDROID_TV_2026-11-08.md`; revisão independente Claude ainda pendente.
+  APKs não distribuídos ao Caio. Não houve release, AAB, merge, PR, alteração no servidor, telemetria ou acesso a segredos.
+- Checkout compartilhado `~/heisuca` preservado em `54d6053`, inclusive seus três itens não rastreados preexistentes.
+  Worktree próprio `~/TMP/ultron-android-sobre`. Ajuste temporário local de concorrência arquivado e fora do Git.
+- Desfazer: reverter primeiro o registro final, depois C `2f2f79a`, B `a04f898` e A `bf7f634`, nessa ordem.
+  Preservar `2dba3aa` (documento paralelo do Claude); não apagar dados/perfis nem baixar o build number para reinstalar.
 
 ## 08/11/2026 — Sobre único no Android (Ultron)
 

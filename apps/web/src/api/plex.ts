@@ -1,6 +1,6 @@
 // Adaptador PMS. Referência medida: services/plex_client.dart e plex_mappers.dart (master).
 import type { ApiServidor } from './servidor.ts';
-import type { Sessao, Item, Pessoa, Fluxo, OpcoesReproducao, Plano } from './tipos.ts';
+import type { Sessao, Item, Pessoa, Fluxo, OpcoesReproducao, Plano, FluxoPlano, PosicaoRelato } from './tipos.ts';
 import { urlPlex, respostaPlex, ErroPlex, type QueryPlex } from './plex-tv.ts';
 import { notificarExpiracao } from './expiracao.ts';
 
@@ -137,8 +137,89 @@ const naoSuportado = async (): Promise<never> => { throw new Error('naoSuportado
 const capacidades = Object.freeze({ favoritos: false, trocarSenha: false, foto: false, legendasRemotas: false,
   capitulos: true, emAlta: false, emBreve: false });
 
-// Reprodução é implementada no commit seguinte, após o catálogo/entrada verde.
-const preparar = (_s: Sessao, _i: Pick<Item, 'Id'>, _o: OpcoesReproducao): Promise<Plano> => naoSuportado();
+// SRT externo é convertido aqui; o Player continua recebendo apenas URLs prontas.
+export function srtParaVtt(texto: string): string {
+  const s = texto.replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n').trim();
+  if (s.startsWith('WEBVTT')) return s + '\n';
+  let tempos = 0;
+  const convertido = s.split('\n').map(linha => {
+    if (!/^\s*\d{1,2}:\d{2}:\d{2}[,.]\d{3}\s+-->/.test(linha)) return linha;
+    tempos++;
+    return linha.replace(/(\d{1,2}:\d{2}:\d{2}),(\d{3})/g, '$1.$2');
+  }).join('\n');
+  if (!tempos) throw new Error('Legenda SRT inválida.');
+  return 'WEBVTT\n\n' + convertido + '\n';
+}
+const blobs = new Map<string, string[]>();
+function liberar(p: Plano) {
+  for (const url of blobs.get(p.sessaoReproducao) || []) URL.revokeObjectURL(url);
+  blobs.delete(p.sessaoReproducao);
+}
+async function lerFluxos(s: Sessao, m: Metadado, sessao: string): Promise<FluxoPlano[]> {
+  const criadas: string[] = [];
+  try {
+    const lista: FluxoPlano[] = [];
+    for (const f of streams(m)) {
+      const base: FluxoPlano = fluxo(f);
+      if (f.streamType !== 3) { lista.push(base); continue; }
+      const codec = f.codec?.toLowerCase();
+      if (!f.key || !['srt', 'vtt', 'webvtt', 'ass', 'ssa'].includes(codec || '')) {
+        lista.push({ ...base, entrega: 'embutida' }); continue;
+      }
+      let url = urlPlex(s.servidor, f.key, s.token);
+      if (codec === 'srt') {
+        const texto = await (await pedir(s, f.key)).text();
+        url = URL.createObjectURL(new Blob([srtParaVtt(texto)], { type: 'text/vtt' }));
+        criadas.push(url);
+      }
+      lista.push({ ...base, entrega: 'externa', url });
+    }
+    if (criadas.length) blobs.set(sessao, [...(blobs.get(sessao) || []), ...criadas]);
+    return lista;
+  } catch (e) { for (const url of criadas) URL.revokeObjectURL(url); throw e; }
+}
+async function detalhe(s: Sessao, chave: string): Promise<Metadado> {
+  const m = metadata(await ler(s, `/library/metadata/${cod(chave)}`))[0];
+  if (!m) throw new Error('Item Plex não encontrado.');
+  return m;
+}
+type PerfilDireto = { Type?: string; Container?: string; VideoCodec?: string; AudioCodec?: string };
+const contem = (lista: string | undefined, valor: string) => (lista || '').toLowerCase().split(',').map(x => x.trim()).includes(valor.toLowerCase());
+function aceita(m: Metadado, o: OpcoesReproducao): boolean {
+  const media = m.Media?.[0], part = media?.Part?.[0], faixas = streams(m);
+  const container = part?.container || media?.container || '';
+  if (o.semDireto || !part?.key || ['mkv', 'matroska'].includes(container.toLowerCase())) return false;
+  const video = faixas.find(f => f.streamType === 1)?.codec || media?.videoCodec || '';
+  const audio = faixas.find(f => f.streamType === 2 && f.default) || faixas.find(f => f.streamType === 2);
+  const codecAudio = audio?.codec || media?.audioCodec;
+  const perfis = o.perfil.DirectPlayProfiles as PerfilDireto[] | undefined;
+  return !!video && !!perfis?.some(p => p.Type === 'Video' && contem(p.Container, container) && contem(p.VideoCodec, video)
+    && (!codecAudio || contem(p.AudioCodec, codecAudio)));
+}
+const padrao = (faixas: Stream[], tipo: number) => faixas.find(f => f.streamType === tipo && f.selected)?.id
+  ?? faixas.find(f => f.streamType === tipo && f.selected === undefined && f.default)?.id;
+async function preparar(s: Sessao, i: Pick<Item, 'Id'>, o: OpcoesReproducao): Promise<Plano> {
+  const m = await detalhe(s, i.Id);
+  if (!aceita(m, o)) return naoSuportado();
+  const media = m.Media![0], part = media.Part![0];
+  const sessao = typeof globalThis.crypto?.randomUUID === 'function' ? globalThis.crypto.randomUUID()
+    : 'plex-' + Date.now().toString(36) + Math.random().toString(36).slice(2);
+  return { itemId: i.Id, fonteId: String(part.id), container: part.container || media.container,
+    duracaoTicks: ticks(part.duration ?? media.duration ?? m.duration), url: urlPlex(s.servidor, part.key!, s.token),
+    tipo: 'direto', metodo: 'direto', inicioAplicado: 0, sessaoReproducao: sessao,
+    fluxos: await lerFluxos(s, m, sessao), fontesAss: [], audioPadrao: padrao(streams(m), 2), legendaPadrao: padrao(streams(m), 3) ?? -1 };
+}
+async function relatar(s: Sessao, p: Plano, fase: 'inicio' | 'progresso' | 'fim', r: PosicaoRelato) {
+  if (fase === 'fim') liberar(p);
+  // Fato medido (plex_client.dart:2164-2179): POST sem corpo, não GET.
+  const chamadas = [pedir(s, '/:/timeline', { ratingKey: p.itemId, key: '/library/metadata/' + p.itemId,
+    state: fase === 'fim' ? 'stopped' : r.pausado ? 'paused' : 'playing',
+    time: Math.round(r.posicaoTicks / 10_000), duration: p.duracaoTicks === undefined ? undefined : Math.round(p.duracaoTicks / 10_000),
+    'X-Plex-Session-Identifier': p.sessaoReproducao }, 'POST', true).catch(() => undefined)];
+  if (fase === 'fim' && r.motivo === 'concluido') chamadas.push(pedir(s, '/:/scrobble',
+    { key: p.itemId, identifier: 'com.plexapp.plugins.library' }, 'GET', true).catch(() => undefined));
+  return Promise.all(chamadas);
+}
 export const plex: ApiServidor = {
   bibliotecas, bibliotecasDeVideo, continuar, proximos: s => continuar(s).then(l => l.filter(i => i.Type === 'Episode')),
   novidades, destaque, daBiblioteca, daColecao: (s, id) => todos(s, `/library/collections/${cod(id)}/children`),
@@ -160,5 +241,7 @@ export const plex: ApiServidor = {
   euMesmo: async s => ({ Id: s.usuarioId, Name: s.nome, PrimaryImageTag: s.fotoTag, Policy: { EnableSubtitleManagement: false } }),
   favoritar: naoSuportado, trocarSenha: naoSuportado, trocarFoto: naoSuportado, removerFoto: naoSuportado,
   buscarLegendas: naoSuportado, baixarLegenda: naoSuportado, capacidades: () => capacidades,
-  preparar, faixas: naoSuportado, relatar: naoSuportado, parar: async () => undefined,
+  preparar, faixas: async (s, p) => lerFluxos(s, await detalhe(s, p.itemId), p.sessaoReproducao), relatar,
+  // Direto não possui transcode a encerrar. Só libera blobs locais; nenhuma timeline stopped duplicada.
+  parar: async (_s, p) => { liberar(p); },
 };

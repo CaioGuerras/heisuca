@@ -202,3 +202,88 @@ test('Plex não é importado fora de src/api, nem por import dinâmico/reexport'
   }
   assert.deepEqual(falhas,[]);
 });
+
+const perfil = { DirectPlayProfiles:[{Type:'Video',Container:'mp4,m4v,webm',VideoCodec:'h264,vp9',AudioCodec:'aac,opus'}] };
+const opcoes = { inicioTicks:120_000_000, perfil };
+const fetchNativo = globalThis.fetch;
+const srt = '\uFEFF1\r\n00:00:01,250 --> 00:00:02,750\r\nOlá, mundo.\r\n\r\n2\r\n00:00:03,000 --> 00:00:05,000\r\n<i>Teste</i>\r\n';
+
+test('Plex prepara direto: perfil, token, índices, SRT blob VTT, ASS/VTT externas e embutida', async () => {
+  await comFetch(c => c.url.pathname === '/library/streams/12' ? new Response(srt) : json({MediaContainer:{Metadata:[filme]}}), async chamadas => {
+    const p = await api.preparar(s,{Id:'101'},opcoes);
+    assert.equal(p.tipo,'direto'); assert.equal(p.metodo,'direto'); assert.equal(p.fonteId,'501'); assert.equal(p.container,'mp4');
+    assert.equal(p.inicioAplicado,0); assert.equal(p.duracaoTicks,1_000_000_000); assert.equal(p.audioPadrao,11); assert.equal(p.legendaPadrao,12);
+    assert.equal(p.erro,undefined); assert.deepEqual(p.fontesAss,[]);
+    assert.equal(new URL(p.url).pathname,'/library/parts/501/arquivo.mp4'); assert.equal(new URL(p.url).searchParams.get('X-Plex-Token'),s.token);
+    const l = p.fluxos.find(f => f.Index === 12)!;
+    assert.equal(l.entrega,'externa'); assert.ok(l.url?.startsWith('blob:'));
+    const vtt = await fetchNativo(l.url!).then(r => r.text());
+    assert.equal(vtt,'WEBVTT\n\n1\n00:00:01.250 --> 00:00:02.750\nOlá, mundo.\n\n2\n00:00:03.000 --> 00:00:05.000\n<i>Teste</i>\n');
+    for (const n of [13,15]) { const f = p.fluxos.find(f => f.Index === n)!;
+      assert.equal(f.entrega,'externa'); assert.equal(new URL(f.url!).searchParams.get('X-Plex-Token'),s.token); }
+    assert.equal(p.fluxos.find(f => f.Index === 14)?.entrega,'embutida');
+    assert.ok(!p.fluxos.some(f => f.entrega === 'gravada'));
+    assert.ok(chamadas.every(c => c.init?.method !== 'PUT' && c.init?.body === undefined));
+    assert.ok(chamadas.every(c => Object.keys(c.init?.headers || {}).join(',') === 'Accept'));
+    await api.parar(s,p);
+    await assert.rejects(fetchNativo(l.url!)); // o encerramento libera a URL blob sem stopped duplicado
+  });
+});
+
+test('Plex recusa MKV, codecs incompatíveis e semDireto, sem PUT ou transcode', async () => {
+  const mkv = {...filme,Media:[{...filme.Media[0],container:'mkv'}]};
+  await comFetch(() => json({MediaContainer:{Metadata:[mkv]}}), async chamadas => {
+    await assert.rejects(api.preparar(s,{Id:'101'},opcoes), /^Error: naoSuportado$/);
+    assert.equal(chamadas.length,1);
+  });
+  await comFetch(() => json({MediaContainer:{Metadata:[filme]}}), async chamadas => {
+    await assert.rejects(api.preparar(s,{Id:'101'},{...opcoes,semDireto:true}), /naoSuportado/);
+    await assert.rejects(api.preparar(s,{Id:'101'},{...opcoes,perfil:{DirectPlayProfiles:[{Type:'Video',Container:'mp4',VideoCodec:'hevc',AudioCodec:'aac'}]}}), /naoSuportado/);
+    await assert.rejects(api.preparar(s,{Id:'101'},{...opcoes,perfil:{DirectPlayProfiles:[{Type:'Video',Container:'mp4',VideoCodec:'h264',AudioCodec:'flac'}]}}), /naoSuportado/);
+    assert.ok(chamadas.every(c => c.url.pathname === '/library/metadata/101' && c.init?.method === 'GET'));
+  });
+});
+
+test('Plex relê faixas, cria nova sessão por preparar e usa -1 sem legenda escolhida', async () => {
+  const m = {...filme,Media:[{...filme.Media[0],Part:[{...filme.Media[0].Part[0],Stream:filme.Media[0].Part[0].Stream.filter((f: {streamType:number}) => f.streamType !== 3)}]}]};
+  let leitura = 0;
+  await comFetch(c => {
+    if (c.url.pathname === '/library/streams/12') return new Response(srt);
+    leitura++;
+    return json({MediaContainer:{Metadata:leitura > 2 ? [filme] : [m]}});
+  }, async () => {
+    const a = await api.preparar(s,{Id:'101'},opcoes), b = await api.preparar(s,{Id:'101'},opcoes);
+    assert.notEqual(a.sessaoReproducao,b.sessaoReproducao); assert.equal(a.legendaPadrao,-1);
+    const faixas = await api.faixas(s,a,opcoes);
+    assert.equal(faixas.length,6); await api.parar(s,a); await api.parar(s,b);
+  });
+});
+
+test('Plex timeline em ms usa POST medido, stopped único com parar e scrobble no concluído', async () => {
+  await comFetch(c => c.url.pathname === '/library/streams/12' ? new Response(srt) : json({MediaContainer:{Metadata:[filme]}}), async chamadas => {
+    const p = await api.preparar(s,{Id:'101'},opcoes); chamadas.length = 0;
+    for (const [fase,pausado] of [['inicio',false],['progresso',true],['fim',false]] as const)
+      await api.relatar(s,p,fase,{posicaoTicks:700_000_000,pausado,motivo:fase === 'fim' ? 'concluido' : undefined});
+    await api.parar(s,p);
+    const timeline = chamadas.filter(c => c.url.pathname === '/:/timeline');
+    assert.deepEqual(timeline.map(c => c.url.searchParams.get('state')),['playing','paused','stopped']);
+    assert.ok(timeline.every(c => c.init?.method === 'POST' && c.init?.keepalive === true && c.init?.body === undefined));
+    assert.equal(timeline[2].url.searchParams.get('time'),'70000'); assert.equal(timeline[2].url.searchParams.get('duration'),'100000');
+    assert.equal(timeline[2].url.searchParams.get('key'),'/library/metadata/101');
+    assert.equal(timeline[2].url.searchParams.get('ratingKey'),'101'); assert.equal(timeline[2].url.searchParams.get('X-Plex-Session-Identifier'),p.sessaoReproducao);
+    assert.equal(chamadas.filter(c => c.url.pathname === '/:/scrobble').length,1);
+    assert.ok(chamadas.every(c => c.init?.keepalive && c.url.searchParams.get('X-Plex-Token') === s.token));
+    assert.ok(chamadas.every(c => Object.keys(c.init?.headers || {}).join(',') === 'Accept'));
+  });
+});
+
+test('Plex fim manda scrobble independentemente de falha na timeline; abandono não marca assistido', async () => {
+  const p = {itemId:'101',url:'',tipo:'direto' as const,metodo:'direto' as const,sessaoReproducao:'sessao-ficticia',fonteId:'501',duracaoTicks:50000,inicioAplicado:0,fluxos:[],fontesAss:[]};
+  await comFetch(() => { throw new TypeError('rede'); }, async chamadas => {
+    await assert.doesNotReject(api.relatar(s,p,'fim',{posicaoTicks:50000,pausado:true,motivo:'concluido'}));
+    assert.deepEqual(chamadas.map(c => c.url.pathname),['/:/timeline','/:/scrobble']);
+    chamadas.length = 0;
+    await api.relatar(s,p,'fim',{posicaoTicks:50000,pausado:true,motivo:'abandono'}); await api.parar(s,p);
+    assert.deepEqual(chamadas.map(c => c.url.pathname),['/:/timeline']);
+  });
+});

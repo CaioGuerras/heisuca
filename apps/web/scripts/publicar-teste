@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Publica a build de TESTE do site em https://netflix.docaio.com.br/__heisuca/ (VPS).
+"""Publica a build de TESTE do site em https://heisuca.docaio.com.br/ (VPS, /etc/nginx/sites-enabled/heisuca).
 
 Mesmo domínio do Jellyfin: a API e as imagens saem do mesmo endereço, sem CORS. A build de teste só aceita os logins
 de VITE_SO_USUARIO (o Caio e a conta da bancada) até o Caio aprovar (regra R1, NOVA_FASE §2).
-Desfazer: ./publicar-teste --remover (tira o bloco do nginx; a pasta /var/www/heisuca fica).
+O nginx do subdomínio já está fixo na VPS; o script só copia a build. O bloco antigo /__heisuca no site do Jellyfin
+virou redirecionamento: --nginx (obsoleto) e --remover ficam só para registro.
 """
 import os, re, subprocess, sys, time
 from pathlib import Path
@@ -69,7 +70,10 @@ def main():
     vps(f"mkdir -p {DEST}")
     subprocess.run(["rsync", "-a", "--delete", "-e", "ssh -p 22022 -o BatchMode=yes", f"{WEB}/dist/", f"root@143.95.215.156:{DEST}/"], check=True)
     vps(f"chmod -R a+rX /var/www/heisuca")
-    return 0 if trocar_nginx(True) else 1
+    if "--nginx" in sys.argv:  # obsoleto: o subdomínio heisuca tem nginx próprio
+        return 0 if trocar_nginx(True) else 1
+    print("PUBLICADO em https://heisuca.docaio.com.br/")
+    return 0
 
 
 if __name__ == "__main__":

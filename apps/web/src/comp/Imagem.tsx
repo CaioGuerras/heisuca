@@ -2,11 +2,11 @@
 import { useEffect, useMemo, useState } from 'preact/hooks';
 import { corMedia, fundoDesfocado } from '../cor/paleta';
 
-type Props = { src?: string; alt?: string; hash?: string; classe?: string; prioridade?: boolean };
+type Props = { src?: string; alt?: string; hash?: string; classe?: string; prioridade?: boolean; aoErro?: () => void };
 export function Imagem(props: Props) {
   return <Conteudo key={props.src || ''} {...props} />;
 }
-function Conteudo({ src, alt = '', hash, classe = '', prioridade = false }: Props) {
+function Conteudo({ src, alt = '', hash, classe = '', prioridade = false, aoErro }: Props) {
   const [ok, setOk] = useState(false);
   const [falhou, setFalhou] = useState(false);
   const [desfocado, setDesfocado] = useState('');
@@ -22,7 +22,7 @@ function Conteudo({ src, alt = '', hash, classe = '', prioridade = false }: Prop
             const img = e.currentTarget;
             await img.decode().catch(() => undefined);
             setOk(true);
-          }} onError={() => setFalhou(true)} />
+          }} onError={() => { setFalhou(true); aoErro?.(); }} />
       )}
     </span>
   );

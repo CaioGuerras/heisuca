@@ -134,6 +134,17 @@
       linear-gradient(180deg, var(--hs-pagina) 0%, rgba(var(--hs-pagina-rgb), .8) 8%, var(--hs-pagina-0) 24%, var(--hs-pagina-0) calc(100% - 390px), rgba(var(--hs-pagina-rgb), .98) calc(100% - 290px), var(--hs-pagina) calc(100% - 250px));
   }
 }
+/* Hisui ≥ 601 px = cartão, como no celular (Caio, 08/11: "faça o recomendado"). A arte escura dissolvida no claro deixava
+   uma borda cinza no topo (v13/verde/desk_inicio). A arte vira cartão 21:9 (no máx. 52vh) com cantos e sombra do tema,
+   sem véu, e o texto fica embaixo, sobre a página. Os véus acima ficam só como histórico até a próxima rodada. */
+@media (min-width: 601px) {
+  [data-tema="hisui"] .destaque { height: auto; max-height: none; min-height: 0; justify-content: flex-start;
+    padding-top: calc(var(--hs-topo-respiro) + 48px); }
+  [data-tema="hisui"] .destaque-artes { position: relative; inset: auto; flex: none; width: 100%; aspect-ratio: 21 / 9;
+    max-height: 52vh; border-radius: var(--hs-raio-cartao); box-shadow: var(--hs-sombra); }
+  [data-tema="hisui"] .destaque-artes::after, [data-tema="hisui"] .destaque-artes::before { display: none; }
+  [data-tema="hisui"] .destaque-texto { margin-top: 16px; }
+}
 /* Hisui em qualquer largura: o topo do destaque já é a cor da página (A1), então a palavra usa a cor do texto, sem sombra.
    Antes isso só valia ≥ 1024 px e, no celular, a palavra ficava branca sobre o pastel (rodada 7, verde/cel_inicio). */
 [data-tema="hisui"] .tela-inicio .topo:not(.com-fundo) .topo-marca .palavra path { fill: var(--hs-texto); }

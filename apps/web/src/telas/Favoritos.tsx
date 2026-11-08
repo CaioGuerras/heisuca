@@ -2,7 +2,8 @@
 //  O mesmo topo da home; fundo desfocado tirado do 1º favorito; uma seção por biblioteca (nome + "Ver tudo ›") com
 //  pôster 2:3, nota, ✓ e título + anos. Sincronizado com o servidor (o favorito do Jellyfin); o que for desfavoritado
 //  aqui mesmo (botão direito / segurar) some na hora.
-import { useEffect, useState } from 'preact/hooks';
+import { Fragment } from 'preact';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { bibliotecasDeVideo, favoritos, hashDe, type Item, type Sessao } from '../api/servidor.ts';
 import { fundoDesfocado, usePaleta } from '../cor/paleta';
 import { CartaoPoster, EsqueletoCartoes } from '../comp/Cartoes';
@@ -13,35 +14,63 @@ import { dadosDe, useMudancas } from '../estado/usuario';
 import { irTitulo } from '../rota';
 import './favoritos.css';
 
-type Secao = { biblioteca: Item; itens: Item[] };
+type Secao = { biblioteca: Item; itens: Item[]; total: number; erro: boolean };
+const LIMITE = 60;
 
 export function Favoritos({ s }: { s: Sessao }) {
   const [secoes, setSecoes] = useState<Secao[] | null>(null);
   const [abertas, setAbertas] = useState<Set<string>>(new Set());
   const [rolou, setRolou] = useState(false);
+  const [erro, setErro] = useState(false);
+  const [tentativa, setTentativa] = useState(0);
+  const [ocupadas, setOcupadas] = useState<Set<string>>(new Set());
+  const ciclo = useRef(0), carregando = useRef(new Set<string>());
   useMudancas();
 
   useEffect(() => {
-    let vivo = true;
+    const rodada = ++ciclo.current;
+    setSecoes(null); setErro(false); setAbertas(new Set()); setOcupadas(new Set()); carregando.current.clear();
     bibliotecasDeVideo(s)
-      .then(libs => Promise.all(libs.map(b => favoritos(s, b.Id, 60).then(r => ({ biblioteca: b, itens: r.Items })).catch(() => ({ biblioteca: b, itens: [] as Item[] })))))
-      .then(l => { if (vivo) setSecoes(l.filter(x => x.itens.length)); })
-      .catch(() => { if (vivo) setSecoes([]); });
-    return () => { vivo = false; };
-  }, [s.token]);
+      .then(libs => Promise.all((rodada === ciclo.current ? libs : []).map(b => favoritos(s, b.Id, LIMITE)
+        .then(r => ({ biblioteca: b, itens: r.Items, total: r.TotalRecordCount, erro: false }))
+        .catch(() => ({ biblioteca: b, itens: [] as Item[], total: 0, erro: true })))))
+      .then(l => { if (rodada === ciclo.current) setSecoes(l); })
+      .catch(() => { if (rodada === ciclo.current) { setSecoes([]); setErro(true); } });
+    return () => { ciclo.current++; };
+  }, [s.token, s.servidor, s.usuarioId, tentativa]);
   useEffect(() => {
     const f = () => setRolou(scrollY > 8);
     f(); addEventListener('scroll', f, { passive: true });
     return () => removeEventListener('scroll', f);
   }, []);
 
-  const visiveis = (secoes || []).map(x => ({ ...x, itens: x.itens.filter(i => dadosDe(s, i).IsFavorite !== false) })).filter(x => x.itens.length);
-  const primeiro = visiveis[0]?.itens[0];
+  const visiveis = (secoes || []).map(secao => ({ secao, itens: secao.itens.filter(i => dadosDe(s, i).IsFavorite !== false) }))
+    .filter(x => x.itens.length || x.secao.erro);
+  const primeiro = visiveis.find(x => x.itens.length)?.itens[0];
   const hashCor = hashDe(s, primeiro, 'Backdrop') || hashDe(s, primeiro, 'Primary');
   usePaleta(hashCor ?? null);
   const desfocado = fundoDesfocado(hashDe(s, primeiro, 'Primary') || hashCor);
   const abrir = (i: Item) => irTitulo(i.Type === 'Episode' && i.SeriesId ? i.SeriesId : i.Id);
-  const alternar = (id: string) => setAbertas(a => { const n = new Set(a); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+  const completar = async (secao: Secao) => {
+    const id = secao.biblioteca.Id, rodada = ciclo.current;
+    if (carregando.current.has(id)) return;
+    carregando.current.add(id); setOcupadas(new Set(carregando.current));
+    try {
+      // O adaptador já aceita limite: a consulta completa só acontece ao pedir “Ver tudo”.
+      const r = await favoritos(s, id, Math.max(LIMITE, secao.total));
+      if (rodada === ciclo.current) setSecoes(l => l && l.map(x => x.biblioteca.Id === id
+        ? { ...x, itens: r.Items, total: r.TotalRecordCount, erro: false } : x));
+    } catch {
+      if (rodada === ciclo.current) setSecoes(l => l && l.map(x => x.biblioteca.Id === id ? { ...x, erro: true } : x));
+    } finally {
+      if (rodada === ciclo.current) { carregando.current.delete(id); setOcupadas(new Set(carregando.current)); }
+    }
+  };
+  const alternar = (secao: Secao) => {
+    const id = secao.biblioteca.Id;
+    setAbertas(a => { const n = new Set(a); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+    if (!abertas.has(id) && secao.itens.length < secao.total) void completar(secao);
+  };
 
   return (
     <main class="favoritos">
@@ -49,22 +78,39 @@ export function Favoritos({ s }: { s: Sessao }) {
       <Topo fundo={rolou} />
       <h1 class="favoritos-titulo">Favoritos</h1>
       {!secoes && <Fileira titulo="Favoritos"><EsqueletoCartoes n={4} /></Fileira>}
-      {secoes && !visiveis.length && <div class="favoritos-vazio">
+      {erro && <div class="favoritos-vazio" role="status"><p>Não deu para carregar os favoritos.</p>
+        <button class="pilula pilula-tema" onClick={() => setTentativa(t => t + 1)}>Tentar de novo</button></div>}
+      {secoes && !erro && !visiveis.length && <div class="favoritos-vazio">
         <Icone nome="favorite" tamanho={36} /><p>Toque em ♡ num título para <span style={{ whiteSpace: 'nowrap' }}>guardá-lo</span> aqui.</p>
       </div>}
-      {visiveis.map(({ biblioteca: b, itens }) => abertas.has(b.Id) ? (
-        <section key={b.Id} class="fileira favoritos-grade">
-          <header class="fileira-cabeca">
-            <h2 class="titulo-secao">{b.Name}</h2>
-            <button class="fileira-tudo" onClick={() => alternar(b.Id)} aria-expanded="true">Mostrar menos</button>
-          </header>
-          <div class="favoritos-grade-corpo">{itens.map(i => <CartaoPoster key={i.Id} s={s} i={i} aoAbrir={abrir} />)}</div>
-        </section>
-      ) : (
-        <Fileira key={b.Id} titulo={b.Name} verTudo={() => alternar(b.Id)}>
-          {itens.map((i, k) => <CartaoPoster key={i.Id} s={s} i={i} prioridade={k < 4} aoAbrir={abrir} />)}
-        </Fileira>
-      ))}
+      {visiveis.map(({ secao, itens }) => {
+        const b = secao.biblioteca, ocupada = ocupadas.has(b.Id);
+        const totalVisivel = secao.total - (secao.itens.length - itens.length);
+        return <Fragment key={b.Id}>
+          {abertas.has(b.Id) ? (
+            <section class="fileira favoritos-grade" aria-busy={ocupada}>
+              <header class="fileira-cabeca">
+                <h2 class="titulo-secao">{b.Name}</h2>
+                <button class="fileira-tudo" onClick={() => alternar(secao)} aria-expanded="true">Mostrar menos</button>
+              </header>
+              <div class="favoritos-grade-corpo">{itens.map(i => <CartaoPoster key={i.Id} s={s} i={i} aoAbrir={abrir} />)}</div>
+            </section>
+          ) : (
+            <Fileira titulo={b.Name} verTudo={itens.length ? () => alternar(secao) : undefined}>
+              {itens.map((i, k) => <CartaoPoster key={i.Id} s={s} i={i} prioridade={k < 4} aoAbrir={abrir} />)}
+            </Fileira>
+          )}
+          <div class="favoritos-estado" role="status" aria-busy={ocupada}>
+            {ocupada ? <p>Carregando favoritos…</p> : secao.erro ? <>
+              <p>Não deu para carregar os favoritos de {b.Name}.</p>
+              <button class="pilula pilula-tema" onClick={() => void completar(secao)}>Tentar de novo</button>
+            </> : abertas.has(b.Id) && secao.itens.length < secao.total ? <>
+              <p>Mostrando {itens.length} de {totalVisivel} favoritos.</p>
+              <button class="pilula pilula-tema" onClick={() => void completar(secao)}>Tentar carregar todos</button>
+            </> : null}
+          </div>
+        </Fragment>;
+      })}
     </main>
   );
 }

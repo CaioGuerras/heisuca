@@ -20,6 +20,9 @@
 .favoritos-grade-corpo { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px var(--hs-vao);
   padding: 14px var(--hs-margem) 6px; }
 .favoritos-grade-corpo .cartao-poster { width: auto; min-width: 0; }
+.favoritos-estado { margin: 0 var(--hs-margem); color: var(--hs-texto); font-size: 14px; overflow-wrap: anywhere; }
+.favoritos-estado p { margin: 12px 0; }
+.favoritos-estado .pilula { margin-bottom: 12px; }
 @media (min-width: 600px) {
   .favoritos-grade-corpo { grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); }
 }

@@ -109,7 +109,6 @@ function Pagina({ s, it }: { s: Sessao; it: Item }) {
   const [tempSel, setTempSel] = useState<string>('');
   const [eps, setEps] = useState<Item[] | null>(null);
   const [filhos, setFilhos] = useState<Item[] | null>(null);    // títulos da coleção
-  const [escolhendo, setEscolhendo] = useState(false);
   const [lista, setLista] = useState(false);
   const cacheEps = useRef(new Map<string, Item[]>());
 
@@ -188,9 +187,7 @@ function Pagina({ s, it }: { s: Sessao; it: Item }) {
       {serie && (
         <section class="titulo-eps">
           <header class="titulo-eps-cabeca">
-            <button class="titulo-temp" onClick={() => setEscolhendo(true)} disabled={temps.length < 2} aria-haspopup="dialog" aria-expanded={escolhendo}>
-              <span>{temp?.Name || 'Temporada'}</span>{temps.length > 1 && <Icone nome="keyboard_arrow_down" tamanho={22} />}
-            </button>
+            <SeletorTemporadas temps={temps} selecionada={tempSel} selecionar={setTempSel} />
             {!!eps?.length && <button class="fileira-tudo" onClick={() => setLista(true)}>Ver tudo<Icone nome="chevron_right" tamanho={20} /></button>}
           </header>
           <Episodios key={tempSel} s={s} eps={eps} atual={atual} />
@@ -218,20 +215,6 @@ function Pagina({ s, it }: { s: Sessao; it: Item }) {
       <InfoMidia video={video} audios={audios} />
 
       {serie && (
-        <Folha aberta={escolhendo} fechar={() => setEscolhendo(false)} titulo="Temporadas" classe="titulo-folha">
-          <ul class="lista-opcoes">
-            {temps.map(t => (
-              <li key={t.Id}>
-                <button class="opcao-linha" aria-current={t.Id === tempSel ? 'true' : undefined} onClick={() => { setTempSel(t.Id); setEscolhendo(false); }}>
-                  <span class="opcao-texto"><strong>{t.Name}</strong>{t.ChildCount ? <small>{t.ChildCount} {t.ChildCount === 1 ? 'episódio' : 'episódios'}</small> : null}</span>
-                  {t.Id === tempSel && <span class="opcao-marca"><Icone nome="check" tamanho={22} /></span>}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </Folha>
-      )}
-      {serie && (
         <Folha aberta={lista} fechar={() => setLista(false)} titulo={temp?.Name || 'Episódios'} classe="titulo-folha titulo-folha-eps">
           <ul class="titulo-lista">
             {(eps || []).map(e => <LinhaEp key={e.Id} s={s} e={e} atual={e.Id === atual?.Id} />)}
@@ -240,6 +223,37 @@ function Pagina({ s, it }: { s: Sessao; it: Item }) {
       )}
     </main>
   );
+}
+
+// A mesma escolha abre em folha no celular e junto do botão no computador (§5).
+function SeletorTemporadas({ temps, selecionada, selecionar }: { temps: Item[]; selecionada: string; selecionar: (id: string) => void }) {
+  const [aberta, setAberta] = useState(false);
+  const [computador, setComputador] = useState(() => matchMedia('(min-width: 720px)').matches);
+  const ancora = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    const media = matchMedia('(min-width: 720px)');
+    const atualizar = () => setComputador(media.matches);
+    media.addEventListener('change', atualizar);
+    return () => media.removeEventListener('change', atualizar);
+  }, []);
+  const atual = temps.find(t => t.Id === selecionada);
+  return <>
+    <button ref={ancora} class="titulo-temp" onClick={() => setAberta(true)} disabled={temps.length < 2} aria-haspopup="dialog" aria-expanded={aberta}>
+      <span>{atual?.Name || 'Temporada'}</span>{temps.length > 1 && <Icone nome="keyboard_arrow_down" tamanho={22} />}
+    </button>
+    <Folha aberta={aberta} fechar={() => setAberta(false)} titulo="Temporadas" classe="titulo-folha"
+      variante={computador ? 'balao' : 'folha'} ancora={ancora.current}>
+      <ul class="lista-opcoes">
+        {temps.map(t => <li key={t.Id}>
+          <button class="opcao-linha" aria-current={t.Id === selecionada ? 'true' : undefined}
+            onClick={() => { selecionar(t.Id); setAberta(false); }}>
+            <span class="opcao-texto"><strong>{t.Name}</strong>{t.ChildCount ? <small>{t.ChildCount} {t.ChildCount === 1 ? 'episódio' : 'episódios'}</small> : null}</span>
+            {t.Id === selecionada && <span class="opcao-marca"><Icone nome="check" tamanho={22} /></span>}
+          </button>
+        </li>)}
+      </ul>
+    </Folha>
+  </>;
 }
 
 function Cabeca({ s, it }: { s: Sessao; it: Item }) {

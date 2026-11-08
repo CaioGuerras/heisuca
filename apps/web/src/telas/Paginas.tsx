@@ -294,7 +294,9 @@ export function Apps() {
 }
 
 // ---------------------------------------------------------------- Sobre (§9)
-const CODIGO = 'https://github.com/caioguerras/heisuca';
+// Nome, versão, "Nada entre você e o filme.", GPL-3.0 com o link do código, créditos (bibliotecas, Rosiel Victor e a Locadora
+// só pelo nome, sem endereço) e a dedicatória sem nomes da família (NOVA_FASE/BASE_MARCA).
+const CODIGO = 'https://github.com/CaioGuerras/heisuca';
 const BIBLIOTECAS = [
   ['Preact', 'MIT', 'a base do site'], ['hls.js', 'Apache-2.0', 'vídeo em partes (HLS)'], ['JASSUB', 'MIT', 'legendas ASS'],
   ['blurhash', 'MIT', 'as cores tiradas do pôster'], ['Material Symbols', 'Apache-2.0', 'os ícones'],
@@ -305,70 +307,49 @@ export function Sobre() {
   return (
     <Pagina titulo="Sobre" classe="sobre">
       <section class="sobre-marca">
+        <h2 class="visualmente-oculto">Heisuca. Nada entre você e o filme.</h2>
         <Logo classe="sobre-logo" comSlogan />
-        <p class="texto-2 sobre-versao">Versão {VERSAO}</p>
+        <p class="sobre-versao">Versão {VERSAO}</p>
       </section>
-
-      <section class="cartao-pagina sobre-bloco">
-        <h2>Agradecimentos</h2>
-        <div class="sobre-dedicatorias">
-          <div class="sobre-card-tributo">
-            <div class="sobre-tributo-cabeca">
-              <span class="sobre-tributo-icone"><Icone nome="favorite" cheio tamanho={20} /></span>
-              <div class="sobre-tributo-info">
-                <h3>Rosiel Victor</h3>
-                <p class="texto-2">Por sempre apoiar a fazer essas coisas rsrs.</p>
-              </div>
-            </div>
-            <a class="pilula pilula-clara sobre-tributo-botao" href="https://all.dev.br" target="_blank" rel="noopener noreferrer">
-              <span>all.dev.br</span>
-              <Icone nome="open_in_new" tamanho={16} />
-            </a>
-          </div>
-
-          <div class="sobre-card-tributo">
-            <div class="sobre-tributo-cabeca">
-              <span class="sobre-tributo-icone"><Icone nome="movie" cheio tamanho={20} /></span>
-              <div class="sobre-tributo-info">
-                <h3>Comunidade Locadora</h3>
-                <p class="texto-2">Por até rir às vezes mas sempre me encorajar a evoluir, mesmo que cheio de HnR no site.</p>
-              </div>
-            </div>
-            <a class="pilula pilula-clara sobre-tributo-botao" href="https://locadora.cc" target="_blank" rel="noopener noreferrer">
-              <span>locadora.cc</span>
-              <Icone nome="open_in_new" tamanho={16} />
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <details class="cartao-pagina sobre-retratil">
-        <summary class="sobre-retratil-sumario">
-          <span>
-            <strong>Código aberto e créditos</strong>
-            <small class="texto-2">Licença GPL-3.0, repositório e bibliotecas utilizadas</small>
-          </span>
-          <Icone nome="expand_more" tamanho={22} />
-        </summary>
-        <div class="sobre-retratil-corpo">
-          <div class="sobre-subbloco">
-            <h3>Código aberto</h3>
-            <p class="texto-2">O Heisuca é software livre, sob a licença GPL-3.0: qualquer pessoa pode ver, estudar e melhorar o código.</p>
-            <a class="ajuda-acao" href={CODIGO} target="_blank" rel="noopener noreferrer"><Icone nome="code" tamanho={20} />Ver o código no GitHub<Icone nome="open_in_new" tamanho={18} /></a>
-          </div>
-          <div class="sobre-subbloco">
-            <h3>Bibliotecas e licenças</h3>
-            <ul class="sobre-creditos">
-              {BIBLIOTECAS.map(([nome, lic, uso]) => <li key={nome}><strong>{nome}</strong><span class="texto-2">{uso}</span><small>{lic}</small></li>)}
-            </ul>
-          </div>
-        </div>
-      </details>
 
       {/* com os passos todos marcados, o Como usar sai do menu e fica aqui (revisão de 19/10: "vai pra dentro das configurações") */}
-      {completa && <button class="cartao-pagina sobre-ajuda" onClick={() => irPagina('ajuda')}><Icone nome="help" tamanho={24} />
-        <span><strong>Como usar</strong><small class="texto-2">Os passos e as dúvidas</small></span><Icone nome="chevron_right" tamanho={22} /></button>}
-      <p class="sobre-dedicatoria">Para a família, que sempre se reuniu diante da tela.</p>
+      {completa && <button class="cartao-pagina sobre-linha" onClick={() => irPagina('ajuda')}>
+        <span class="sobre-icone" aria-hidden="true"><Icone nome="help" tamanho={22} /></span>
+        <span class="sobre-linha-texto"><strong>Como usar</strong><small class="texto-2">Os passos e as dúvidas</small></span>
+        <Icone nome="chevron_right" tamanho={22} classe="sobre-seta" /></button>}
+
+      <section class="cartao-pagina sobre-codigo">
+        <div class="sobre-cabeca">
+          <span class="sobre-icone" aria-hidden="true"><Icone nome="code" tamanho={22} /></span>
+          <div><h2>Código aberto</h2><small class="texto-2">Licença GPL-3.0</small></div>
+        </div>
+        <p class="texto-2">O Heisuca é software livre: qualquer pessoa pode ver, estudar e melhorar o código.</p>
+        <a class="pilula pilula-clara sobre-botao" href={CODIGO} target="_blank" rel="noopener noreferrer">
+          Ver o código no GitHub<Icone nome="open_in_new" tamanho={18} /></a>
+      </section>
+
+      <h2 class="titulo-secao sobre-titulo">Agradecimentos</h2>
+      <ul class="sobre-agradece">
+        <li class="cartao-pagina">
+          <span class="sobre-icone" aria-hidden="true"><Icone nome="favorite" cheio tamanho={20} /></span>
+          <div><h3>Rosiel Victor</h3><p class="texto-2">Por sempre apoiar a fazer essas coisas rsrs.</p>
+            <a class="sobre-link" href="https://all.dev.br" target="_blank" rel="noopener noreferrer">all.dev.br<Icone nome="open_in_new" tamanho={16} /></a></div>
+        </li>
+        <li class="cartao-pagina">
+          <span class="sobre-icone" aria-hidden="true"><Icone nome="movie" cheio tamanho={20} /></span>
+          <div><h3>Locadora</h3><p class="texto-2">Por até rir às vezes mas sempre me encorajar a evoluir, mesmo que cheio de HnR no site.</p></div>
+        </li>
+      </ul>
+
+      <details class="cartao-pagina sobre-retratil">
+        <summary><span><strong>Bibliotecas e licenças</strong><small class="texto-2">O que o Heisuca usa, com crédito</small></span>
+          <Icone nome="keyboard_arrow_down" tamanho={22} classe="sobre-seta" /></summary>
+        <ul class="sobre-creditos">
+          {BIBLIOTECAS.map(([nome, lic, uso]) => <li key={nome}><strong>{nome}</strong><span class="texto-2">{uso}</span><small>{lic}</small></li>)}
+        </ul>
+      </details>
+
+      <p class="sobre-dedicatoria"><Icone nome="favorite" cheio tamanho={18} />Para a família, que sempre se reuniu diante da tela.</p>
     </Pagina>
   );
 }

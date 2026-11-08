@@ -35,6 +35,7 @@ test('Home rende a ordem do plano, usa a origem da API e abre biblioteca pelo ca
   const biblioteca = { ...filme('lib'), Name: 'Filmes' };
   const modulo = { exports: {} as Record<string, any> };
   const vazio = { destaque: [], continuar: [filme('antigo-merge')],
+    retomar: [ep('em-curso', 's1')], proximos: [ep('proximo', 's2')], bibliotecas: [],
     emAlta: { titulo: 'Em alta no Brasil', itens: [filme('top')] },
     porBiblioteca: [], emBreve: { tv: [], movie: [] } };
   const js = ts.transpileModule(readFileSync(new URL('../src/telas/Inicio.tsx', import.meta.url), 'utf8'), {
@@ -56,7 +57,7 @@ test('Home rende a ordem do plano, usa a origem da API e abre biblioteca pelo ca
     };
     if (nome.endsWith('/dados/inicio')) return {
       prepararInicio: async () => vazio,
-      carregarSecundario: async () => ({ porBiblioteca: [{ biblioteca, itens: [filme('novidade')] }],
+      carregarSecundario: async () => ({ bibliotecas: [biblioteca], porBiblioteca: [{ biblioteca, itens: [filme('novidade')] }],
         emBreve: { tv: [], movie: [{ nome: 'Estreia', tipo: 'movie' }] } }),
       hashDoDestaque: () => '',
     };
@@ -73,7 +74,7 @@ test('Home rende a ordem do plano, usa a origem da API e abre biblioteca pelo ca
   const arvore = modulo.exports.Inicio({ s: { token: 't', servidor: 'falso', usuarioId: 'u' }, pedir: () => {} });
   const fileiras = arvore.props.children.flat(Infinity).filter((n: any) => n?.type === 'fileira-teste');
   assert.deepEqual(Array.from(fileiras, (n: any) => n.props.titulo), ['Continuar', 'Próximo', 'Em alta no Brasil', 'Mídia', 'Filmes', 'Em breve']);
-  assert.deepEqual(chamadas.sort(), ['bibliotecas', 'continuar', 'proximos']);
+  assert.deepEqual(chamadas, []);
   assert.equal(fileiras[0].props.children[0].props.i.Id, 'em-curso');
   assert.equal(fileiras[1].props.children.length, 1);
   assert.equal(fileiras[1].props.children[0].props.i.Id, 'proximo');

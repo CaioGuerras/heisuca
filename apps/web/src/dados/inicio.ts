@@ -3,14 +3,18 @@
 // As fileiras inferiores (novidades por biblioteca e em breve) carregam em paralelo e enriquecem a página suavemente.
 import { bibliotecasDeVideo, continuar, emAlta, emBreve, fundo, hashDe, logo, novidades, destaque as paraDestaque, pode, proximos, temArte,
   type EmBreve, type Item, type Sessao } from '../api/servidor.ts';
+import { montarFileiras } from '../comp/fileiras-inicio.ts';
 
 export type DadosCriticos = {
   destaque: Item[];
+  retomar: Item[];
+  proximos: Item[];
   continuar: Item[];
   emAlta: { titulo: string; itens: Item[] };
 };
 
 export type DadosSecundarios = {
+  bibliotecas: Item[];
   porBiblioteca: { biblioteca: Item; itens: Item[] }[];
   emBreve: { tv: EmBreve[]; movie: EmBreve[] };
 };
@@ -19,17 +23,13 @@ export type DadosInicio = DadosCriticos & DadosSecundarios;
 
 const cacheCritico = new Map<string, Promise<DadosCriticos>>();
 const cacheSecundario = new Map<string, Promise<DadosSecundarios>>();
+const secundarioVazio = (): DadosSecundarios => ({ bibliotecas: [], porBiblioteca: [], emBreve: { tv: [], movie: [] } });
 
 export function prepararInicio(s: Sessao, renovar = false): Promise<DadosInicio> {
   const chave = `${s.servidor}|${s.usuarioId}`;
   if (!renovar && cacheCritico.has(chave)) {
-    const pCritico = cacheCritico.get(chave)!;
-    const pSec = cacheSecundario.get(chave);
-    if (pSec) {
-      return Promise.all([pCritico, pSec.catch(() => ({ porBiblioteca: [], emBreve: { tv: [], movie: [] } }))])
-        .then(([c, sec]) => ({ ...c, ...sec }));
-    }
-    return pCritico.then(c => ({ ...c, porBiblioteca: [], emBreve: { tv: [], movie: [] } }));
+    // A Home reutiliza o crítico da transição sem esperar as fileiras secundárias.
+    return cacheCritico.get(chave)!.then(c => ({ ...c, ...secundarioVazio() }));
   }
 
   // 1. Fase Crítica: Destaque, Continuar e Em Alta (resolve rápido)
@@ -46,15 +46,7 @@ export function prepararInicio(s: Sessao, renovar = false): Promise<DadosInicio>
       .filter((i, k, l) => l.findIndex(x => x.Id === i.Id) === k)
       .slice(0, 9);
 
-    const vistas = new Set<string>();
-    const continuarTudo = [...cont, ...prox].filter(i => {
-      const k = i.SeriesId || i.Id;
-      if (vistas.has(k)) return false;
-      vistas.add(k);
-      return true;
-    });
-
-    return { destaque, continuar: continuarTudo, emAlta: alta };
+    return { destaque, ...montarFileiras(cont, prox), emAlta: alta };
   })();
 
   cacheCritico.set(chave, pCritico);
@@ -70,7 +62,7 @@ export function prepararInicio(s: Sessao, renovar = false): Promise<DadosInicio>
       pode(s, 'emBreve') ? emBreve(s, 'tv').catch(() => []) : [],
       pode(s, 'emBreve') ? emBreve(s, 'movie').catch(() => []) : [],
     ]);
-    return { porBiblioteca, emBreve: { tv, movie } };
+    return { bibliotecas: libs, porBiblioteca, emBreve: { tv, movie } };
   })();
 
   cacheSecundario.set(chave, pSecundario);
@@ -79,14 +71,13 @@ export function prepararInicio(s: Sessao, renovar = false): Promise<DadosInicio>
   // A transição espera apenas a fase crítica
   return pCritico.then(c => ({
     ...c,
-    porBiblioteca: [],
-    emBreve: { tv: [], movie: [] },
+    ...secundarioVazio(),
   }));
 }
 
 export function carregarSecundario(s: Sessao): Promise<DadosSecundarios> {
   const chave = `${s.servidor}|${s.usuarioId}`;
-  return cacheSecundario.get(chave) ?? Promise.resolve({ porBiblioteca: [], emBreve: { tv: [], movie: [] } });
+  return cacheSecundario.get(chave) ?? Promise.resolve(secundarioVazio());
 }
 
 // imagens que precisam estar decodificadas antes da home aparecer: o 1º destaque (fundo + logo) e o começo do Continuar

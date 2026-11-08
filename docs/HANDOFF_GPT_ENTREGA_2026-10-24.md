@@ -1,5 +1,30 @@
 # Heisuca — entrega da rodada de 24/10/2026
 
+## 08/11/2026 — TV, pacotes A/B/C (Ultron)
+
+Ordem: `handoffs/ORDEM_ULTRON_TV_2026-11-08.md` no CGFLIX. Base exata `fbb9998`.
+Ramo único `codex/heisuca-home-site`, worktree próprio; sem servidor, applicationIds, telemetria ou produção.
+APKs de TESTE retidos até revisão do Claude, sem distribuição automática ao Caio.
+
+### Pacote A — títulos e painel local por fileira — 2.0.34+39
+
+- Um título de uma linha com reticências sob cada pôster; fileira fixa de 330 px.
+- Painel fixo de 192 px com título, ano/classificação/duração e até três linhas de sinopse.
+- `ValueNotifier` por fileira, debounce de 120 ms, sem animação do painel nem rede ao focar.
+  Retirado o pré-aquecimento de reprodução dos pôsteres dessas fileiras; nenhuma consulta por item.
+- Só os cartões que ganham/perdem destaque podem reconstruir; cartão não envolvido e fileira permanecem estáveis.
+- Azul oficial, Sora/Inter, corpo de 22; escala de foco respeita reduzir movimento/aparelho reduzido.
+- Caminhos conferidos: Jellyfin `CgflixHomeRepository` usa `cgflixFetchRawItems`/`cgflixFetchLatestRaw`, ambos com
+  `_hubRowFields` que inclui `Overview`; nenhum `Fields` sobrescrito na consulta da home.
+  Plex `HeisucaPlexHomeRepository` preserva itens de `fetchLibraryPage`/`findByExternalIds`; o mapper preserva `summary`.
+- TDD: dois casos executados antes da correção: **0 passaram, 2 falharam** (painel e título inexistentes).
+  Após: **2 passaram** (foco real em TV, debounce, altura sem sinopse, reticências, reconstruções).
+- Análise estrita dos dois arquivos Dart: **No issues found**.
+- Evidências locais: `/tmp/ultron-tv-a-red.log`, `/tmp/ultron-tv-a-green.log`, `/tmp/ultron-tv-a-analyze.log`.
+- Portão local verde: 161 Python, 2.218 Flutter (3 pulados), 8 Impeller. CI em acompanhamento;
+  resultados finais na cópia de handoff em `~/cgflix/handoffs/`.
+- Não testado em aparelho. Desfazer: reverter o commit do pacote A, sem alterar dados/perfis.
+
 ## 08/11/2026 — Sobre único no Android (Ultron)
 
 Base: `master` em `6ff2ca9`; entrega no ramo Android combinado `codex/heisuca-home-site`.

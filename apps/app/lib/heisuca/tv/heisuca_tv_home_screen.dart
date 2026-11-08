@@ -14,6 +14,7 @@ import '../../cgflix/home/cgflix_home_logic.dart';
 import '../../cgflix/home/cgflix_home_repository.dart';
 import '../heisuca_plex_home_repository.dart';
 import '../heisuca_theme.dart';
+import '../heisuca_motion.dart';
 import 'heisuca_tv_header.dart';
 import 'heisuca_tv_menu.dart';
 import 'heisuca_tv_title_screen.dart';
@@ -326,7 +327,7 @@ class HeisucaTvHomeScreenState extends State<HeisucaTvHomeScreen> {
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.only(top: 36, bottom: 20),
-                    child: _TvMediaRow(
+                    child: HeisucaTvMediaRow(
                       title: 'Em alta no Heisuca',
                       items: _trending,
                       onItemTap: _openDetails,
@@ -339,7 +340,7 @@ class HeisucaTvHomeScreenState extends State<HeisucaTvHomeScreen> {
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.only(top: 24, bottom: 20),
-                      child: _TvMediaRow(
+                      child: HeisucaTvMediaRow(
                         title: lib.title,
                         items: _libraryItems[lib.id]!,
                         onItemTap: _openDetails,
@@ -357,19 +358,8 @@ class HeisucaTvHomeScreenState extends State<HeisucaTvHomeScreen> {
   }
 
   Widget _buildMetadataLine(MediaItem item) {
-    final parts = <String>[];
-    if (item.year != null) parts.add('${item.year}');
-    if (item.rating != null) parts.add('${item.rating}');
-    if (item.durationMs != null && item.durationMs! > 0) {
-      final totalMin = item.durationMs! ~/ 60000;
-      final h = totalMin ~/ 60;
-      final m = totalMin % 60;
-      parts.add(h > 0 ? '$h h ${m.toString().padLeft(2, '0')}' : '$m min');
-    }
-    parts.add('Dublado');
-
     return Text(
-      parts.join(' · '),
+      '${_tvMetadata(item)} · Dublado',
       style: TextStyle(
         fontFamily: HeisucaTheme.fonteTexto,
         fontSize: 26,
@@ -730,142 +720,205 @@ class _TvButtonPillState extends State<_TvButtonPill> {
   }
 }
 
-/// Fileira horizontal de itens do acervo para TV
-class _TvMediaRow extends StatelessWidget {
-  const _TvMediaRow({
-    required this.title,
-    required this.items,
-    required this.onItemTap,
-  });
+// Metadados já carregados; classificação indicativa não é a nota do público.
+String _tvMetadata(MediaItem item) {
+  final parts = <String>[
+    if (item.year != null) '${item.year}',
+    if (item.contentRating?.isNotEmpty ?? false) item.contentRating!,
+  ];
+  if ((item.durationMs ?? 0) > 0) {
+    final minutes = item.durationMs! ~/ 60000;
+    parts.add(minutes >= 60 ? '${minutes ~/ 60} h ${(minutes % 60).toString().padLeft(2, '0')}' : '$minutes min');
+  }
+  return parts.join(' · ');
+}
 
+/// Fileira com informação local: o foco só notifica seu painel, sem consulta de rede.
+class HeisucaTvMediaRow extends StatefulWidget {
+  const HeisucaTvMediaRow({super.key, required this.title, required this.items, required this.onItemTap});
   final String title;
   final List<MediaItem> items;
   final ValueChanged<MediaItem> onItemTap;
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 48),
-          child: Text(
-            title,
-            style: const TextStyle(
-              fontFamily: HeisucaTheme.fonteTitulo,
-              fontSize: 30,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFFEEF2F8),
+  State<HeisucaTvMediaRow> createState() => _TvMediaRowState();
+}
+
+class _TvMediaRowState extends State<HeisucaTvMediaRow> {
+  final _focusedItem = ValueNotifier<MediaItem?>(null);
+  Timer? _debounce;
+  MediaItem? _pendingItem;
+
+  void _focus(MediaItem item, bool focused) {
+    if (!focused && _pendingItem?.id != item.id) return;
+    _debounce?.cancel();
+    _pendingItem = focused ? item : null;
+    if (focused) {
+      _debounce = Timer(const Duration(milliseconds: 120), () => _focusedItem.value = item);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant HeisucaTvMediaRow oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.items != widget.items) {
+      _debounce?.cancel();
+      _focusedItem.value = widget.items.where((item) => item.id == _focusedItem.value?.id).firstOrNull;
+    }
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _focusedItem.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 48),
+        child: Text(
+          widget.title,
+          style: const TextStyle(
+            fontFamily: HeisucaTheme.fonteTitulo,
+            fontSize: 30,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFFEEF2F8),
+          ),
+        ),
+      ),
+      SizedBox(
+        key: const ValueKey('tv-row-info'),
+        height: 192,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 8),
+          child: ValueListenableBuilder<MediaItem?>(
+            valueListenable: _focusedItem,
+            builder: (context, item, child) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item?.displayTitle ?? '',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontFamily: HeisucaTheme.fonteTitulo,
+                    fontSize: 28,
+                    color: Color(0xFFEEF2F8),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  item == null ? '' : _tvMetadata(item),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontFamily: HeisucaTheme.fonteTexto, fontSize: 22, color: Color(0xFFBAC6D9)),
+                ),
+                const SizedBox(height: 6),
+                Expanded(
+                  child: Text(
+                    item?.summary ?? '',
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontFamily: HeisucaTheme.fonteTexto,
+                      fontSize: 22,
+                      height: 1.3,
+                      color: Color(0xFFDCE3EF),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
-        const SizedBox(height: 16),
-        SizedBox(
-          height: 280,
-          child: ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 48),
-            scrollDirection: Axis.horizontal,
-            itemCount: items.length,
-            separatorBuilder: (context, index) => const SizedBox(width: 20),
-            itemBuilder: (context, index) {
-              final item = items[index];
-              return _TvPosterCard(
-                item: item,
-                onTap: () => onItemTap(item),
-              );
-            },
-          ),
+      ),
+      SizedBox(
+        height: 330,
+        child: ListView.separated(
+          padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 10),
+          scrollDirection: Axis.horizontal,
+          itemCount: widget.items.length,
+          separatorBuilder: (context, index) => const SizedBox(width: 20),
+          itemBuilder: (context, index) {
+            final item = widget.items[index];
+            return _TvPosterCard(
+              item: item,
+              onTap: () => widget.onItemTap(item),
+              onFocusChange: (focused) => _focus(item, focused),
+            );
+          },
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
 }
 
 class _TvPosterCard extends StatefulWidget {
-  const _TvPosterCard({
-    required this.item,
-    required this.onTap,
-  });
-
+  const _TvPosterCard({required this.item, required this.onTap, required this.onFocusChange});
   final MediaItem item;
   final VoidCallback onTap;
-
+  final ValueChanged<bool> onFocusChange;
   @override
   State<_TvPosterCard> createState() => _TvPosterCardState();
 }
 
 class _TvPosterCardState extends State<_TvPosterCard> {
   bool _focused = false;
-
   @override
   Widget build(BuildContext context) {
     final item = widget.item;
-
-    return FocusableActionDetector(
-      onFocusChange: (v) {
-        if (v) {
-          HeisucaTvPlaybackWarmup.onCardFocused(context, widget.item);
-        } else {
-          HeisucaTvPlaybackWarmup.onFocusLost();
-        }
-      },
-      onShowFocusHighlight: (v) => setState(() => _focused = v),
-      actions: {
-        ActivateIntent: CallbackAction<ActivateIntent>(
-          onInvoke: (_) {
-            widget.onTap();
-            return null;
-          },
-        ),
-      },
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: AnimatedScale(
-          scale: _focused ? 1.06 : 1.0,
-          duration: const Duration(milliseconds: 140),
-          curve: Curves.easeOutCubic,
-          child: Container(
-            width: 180,
-            height: 270,
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E263B),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: _focused ? Colors.white : Colors.transparent,
-                width: _focused ? 3.5 : 0.0,
-              ),
-              boxShadow: _focused
-                  ? [
-                      BoxShadow(
-                        color: Colors.white.withValues(alpha: 0.3),
-                        blurRadius: 16,
-                        spreadRadius: 2,
-                      ),
-                    ]
-                  : null,
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: (item.thumbPath != null || item.artPath != null)
-                ? OptimizedMediaImage(
-                    imagePath: item.thumbPath ?? item.artPath,
-                    imageType: ImageType.poster,
-                    fit: BoxFit.cover,
-                  )
-                : Container(
-                    color: const Color(0xFF27314A),
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.all(12),
-                    child: Text(
-                      item.displayTitle,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
+    return SizedBox(
+      width: 180,
+      child: FocusableActionDetector(
+        onFocusChange: widget.onFocusChange,
+        onShowFocusHighlight: (v) => setState(() => _focused = v),
+        actions: {
+          ActivateIntent: CallbackAction<ActivateIntent>(
+            onInvoke: (_) {
+              widget.onTap();
+              return null;
+            },
+          ),
+        },
+        child: GestureDetector(
+          onTap: widget.onTap,
+          child: Column(
+            children: [
+              AnimatedScale(
+                scale: _focused ? 1.06 : 1,
+                duration: HeisucaMotion.reduced(context) ? Duration.zero : const Duration(milliseconds: 140),
+                child: Container(
+                  width: 180,
+                  height: 270,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E263B),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: _focused ? const Color(0xFFEEF2F8) : Colors.transparent, width: 3.5),
                   ),
+                  clipBehavior: Clip.antiAlias,
+                  child: (item.thumbPath != null || item.artPath != null)
+                      ? OptimizedMediaImage(
+                          imagePath: item.thumbPath ?? item.artPath,
+                          imageType: ImageType.poster,
+                          fit: BoxFit.cover,
+                        )
+                      : const SizedBox.expand(),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                item.displayTitle,
+                key: ValueKey('tv-poster-title-${item.id}'),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontFamily: HeisucaTheme.fonteTexto, fontSize: 22, color: Color(0xFFDCE3EF)),
+              ),
+            ],
           ),
         ),
       ),

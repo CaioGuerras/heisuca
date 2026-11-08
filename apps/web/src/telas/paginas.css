@@ -1,7 +1,7 @@
 /* Páginas do menu do usuário (PLANO §9–§12). Moldura em pagina.css; aqui só o conteúdo. */
 .cartao-pagina { background: var(--hs-superficie); border-radius: 18px; padding: 16px; box-shadow: inset 0 0 0 1px var(--hs-linha); }
 .cartao-pagina h2 { margin: 0; font-size: 16.5px; font-weight: 650; }
-.pagina-corpo { max-width: 640px; }
+.pagina { --pagina-largura: 640px; }
 .selo-em-breve, .selo-disponivel { flex: none; display: inline-block; padding: 5px 11px; border-radius: var(--hs-raio-total); font-size: 12.5px;
   font-weight: 600; letter-spacing: .02em; color: var(--hs-texto-2); box-shadow: inset 0 0 0 1px var(--hs-linha); margin: 0; }
 .selo-disponivel { color: var(--hs-tema-cor-botao-texto); background: var(--hs-tema-cor-botao-fundo); box-shadow: none; }
@@ -135,7 +135,7 @@
 .apps-icone-ativo { background: var(--hs-tema-cor-botao-fundo); color: var(--hs-tema-cor-botao-texto); }
 .apps .apps-titulo { margin: 30px 0 12px; }
 .apps-grade { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-@media (min-width: 600px) { .apps-grade { grid-template-columns: 1fr 1fr; } .apps-app { flex-wrap: wrap; } }
+/* uma coluna em toda largura: em 640 px a grade de 2 espremia os nomes em 3 linhas ao lado do selo */
 .apps-app h3 { margin: 0; font-size: 15.5px; font-weight: 600; display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; }
 .apps-app-atual { box-shadow: inset 0 0 0 1.5px var(--hs-realce); }
 .apps-app-atual .apps-icone { color: var(--hs-realce); }

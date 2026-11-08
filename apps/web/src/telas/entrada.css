@@ -44,5 +44,5 @@
 .entrada-plex .qc { padding: 6px 0 0; }
 .entrada-plex .plex-codigo { font-size: 22px !important; letter-spacing: .08em; word-break: break-all; }
 .entrada-plex a.entrada-botao { display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; margin: 4px 0 14px; }
-.entrada-cancelar { margin-top: 12px; height: 44px; padding: 0 22px; }
+.entrada-cancelar { display: block; margin: 12px auto 0; height: 44px; padding: 0 22px; }
 .plex-servidores { text-align: left; margin: 0 0 4px; }

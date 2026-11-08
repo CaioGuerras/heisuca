@@ -97,3 +97,33 @@ test('sobre: slogan, GPL-3.0 com o link do código, Locadora só pelo nome e ded
   assert.match(sobre, /Para a família, que sempre se reuniu diante da tela\./);
   assert.doesNotMatch(sobre, /Isis|Heitor|Caio|Guerras/);
 });
+
+import { recursosFaltando, type Ambiente } from '../src/dados/suporte.ts';
+const fn = () => undefined;
+const cssQue = (nao: string[] = []) => ({ supports: (p: string) => !nao.includes(p) });
+const moderno = (): Ambiente => ({ fetch: fn, Promise: fn, IntersectionObserver: fn, ResizeObserver: fn, AbortController: fn,
+  URLSearchParams: fn, requestAnimationFrame: fn, matchMedia: fn, CSS: cssQue() });
+
+test('§3.4: navegador com tudo segue para o site normal (nenhum recurso faltando)', () => {
+  assert.deepEqual(recursosFaltando(moderno()), []);
+});
+test('§3.4: falta de fetch, Promise ou IntersectionObserver aparece pelo nome do recurso', () => {
+  for (const k of ['fetch', 'Promise', 'IntersectionObserver'] as const) {
+    const w = moderno(); delete w[k];
+    assert.deepEqual(recursosFaltando(w), [k]);
+  }
+  assert.deepEqual(recursosFaltando({ ...moderno(), fetch: 'não é função' }), ['fetch']);
+});
+test('§3.4: CSS sem variáveis, sem CSS.supports ou com supports que lança conta como faltando', () => {
+  assert.deepEqual(recursosFaltando({ ...moderno(), CSS: cssQue(['--hs-teste']) }), ['CSS custom properties']);
+  assert.deepEqual(recursosFaltando({ ...moderno(), CSS: cssQue(['aspect-ratio']) }), ['aspect-ratio']);
+  assert.equal(recursosFaltando({ ...moderno(), CSS: undefined }).length, 4);
+  assert.equal(recursosFaltando({ ...moderno(), CSS: { supports: () => { throw new Error('x'); } } }).length, 4);
+});
+test('§3.4: o teste não olha nome de aparelho (userAgent de TV com tudo = site normal)', () => {
+  const w = { ...moderno(), navigator: { userAgent: 'Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/537.36 Chrome/85' } } as Ambiente;
+  assert.deepEqual(recursosFaltando(w), []);
+  assert.equal(recursosFaltando({}).length, 12);
+  const fonte = readFileSync(new URL('../src/dados/suporte.ts', import.meta.url), 'utf8');
+  assert.doesNotMatch(fonte, /userAgent|Tizen|webOS|SmartTV/);
+});

@@ -16,6 +16,10 @@
     rgba(var(--hs-pagina-rgb), .88) 62%,
     var(--hs-pagina) 78%
   ); }
+/* Shikkoku: sem preto na arte; as sombras dissolvem na cor da série (mesma regra do destaque do Início). */
+[data-tema="shikkoku"] .titulo-arte:not(.esqueleto)::before { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background-color: var(--hs-pagina); mix-blend-mode: lighten; transition: background-color var(--hs-tempo-cor) var(--hs-curva-padrao); }
+.titulo-arte:not(.esqueleto)::after { z-index: 2; }
 .titulo > .titulo-arte.esqueleto { border-radius: 0; }
 
 .titulo-cabeca { position: relative; }

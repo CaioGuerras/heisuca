@@ -12,6 +12,10 @@
   background:
     linear-gradient(90deg, var(--hs-pagina) 0%, rgba(var(--hs-pagina-rgb), .4) 8%, var(--hs-pagina-0) 24%, var(--hs-pagina-0) 76%, rgba(var(--hs-pagina-rgb), .4) 92%, var(--hs-pagina) 100%),
     linear-gradient(180deg, var(--hs-pagina) 0%, rgba(var(--hs-pagina-rgb), .22) 12%, var(--hs-pagina-0) 28%, rgba(var(--hs-pagina-rgb), .25) 44%, var(--hs-pagina) 70%); }
+/* Shikkoku: o preto da foto vira a cor da própria página (max por canal com --hs-pagina). Sem isso, arte escura deixava
+   mancha preta no alto à esquerda e uma faixa escura sob o topo, sobre a página marrom/roxa (rodada 7, desk_inicio). */
+[data-tema="shikkoku"] .destaque-artes::before { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background-color: var(--hs-pagina); mix-blend-mode: lighten; transition: background-color var(--hs-tempo-cor) var(--hs-curva-padrao); }
 @keyframes destaque-revela { from { opacity: 0; } to { opacity: 1; } }
 
 /* sem z-index aqui: a logo precisa subir por cima do véu do topo (z 30) quando encaixa */

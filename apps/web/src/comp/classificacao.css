@@ -7,4 +7,8 @@
 .selo-idade.idade-14 { background: #e87524; color: #151515; border-color: #e87524; }
 .selo-idade.idade-16 { background: #c4212a; color: #fff; border-color: #c4212a; }
 .selo-idade.idade-18 { background: #151515; color: #fff; border-color: #888; }
+/* TV-14/PG-13 conservam o texto estrangeiro e o contorno; as cores ClassInd permanecem. */
+[data-tema="hisui"] .selo-idade:not([class*="idade-"]) {
+  background: rgba(var(--hs-superficie-rgb), .9); color: var(--hs-texto); border-color: currentColor;
+}
 @media (min-width: 600px) { .selo-idade { min-width: 24px; font-size: 11px; line-height: 16px; } }

@@ -74,6 +74,22 @@
   .destaque-casa { min-height: 56px; }
   .destaque-logo { max-width: min(64vw, 260px); max-height: 56px; }
 }
+
+/* Hisui desktop: o centro/direita fica livre; o véu cobre a esquerda e só os 290 px do texto.
+   Stops em px acompanham a altura real da casa/logo, sem espalhar pastel por toda a fotografia.
+   Mantém o eixo central usado pelo encaixe da marca no topo. Celular e Shikkoku preservados. */
+@media (min-width: 1024px) {
+  [data-tema="hisui"] .destaque { min-height: 560px; }
+  [data-tema="hisui"] .destaque-artes::after {
+    background:
+      linear-gradient(90deg, var(--hs-pagina) 0%, var(--hs-pagina) 18%, rgba(var(--hs-pagina-rgb), .96) 24%, var(--hs-pagina-0) 48%, var(--hs-pagina-0) 97%, var(--hs-pagina) 100%),
+      linear-gradient(180deg, var(--hs-pagina) 0%, var(--hs-pagina-0) 10%, var(--hs-pagina-0) calc(100% - 390px), rgba(var(--hs-pagina-rgb), .98) calc(100% - 290px), var(--hs-pagina) calc(100% - 250px));
+  }
+  [data-tema="hisui"] .destaque-estrela { color: #5c3b00; }
+  /* A palavra agora pousa sobre a borda clara; retira a sombra escura do canto. */
+  [data-tema="hisui"] .tela-inicio .topo:not(.com-fundo) .topo-marca .palavra path { fill: var(--hs-texto); }
+  [data-tema="hisui"] .tela-inicio .topo:not(.com-fundo) .topo-marca svg { filter: none; }
+}
 @media (prefers-reduced-motion: reduce) {
   .destaque-arte.atual, .destaque-texto { animation: none !important; }
 }

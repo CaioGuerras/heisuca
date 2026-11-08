@@ -185,6 +185,9 @@
   list-style: none; padding: 0 var(--hs-margem); margin: 12px 0 4px; }
 .titulo-selos li { padding: 3px 9px; border: 1px solid var(--hs-linha); border-radius: 6px;
   background: var(--hs-pagina); color: var(--hs-texto); font-size: 10px; font-weight: 600; letter-spacing: .04em; }
+[data-tema="hisui"] .titulo-selos li {
+  background: rgba(var(--hs-superficie-rgb), .9); color: var(--hs-texto); border-color: rgb(35 83 71 / .24);
+}
 @media (min-width: 600px) { .titulo-selos li { font-size: 11px; padding: 4px 10px; } }
 .titulo-nome { overflow-wrap: anywhere; }
 .titulo-ep:focus-visible .titulo-ep-arte { box-shadow: inset 0 0 0 2px var(--hs-realce); }

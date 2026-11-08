@@ -86,16 +86,18 @@ test('como usar: marcar e desmarcar; progresso ignora id que não vale mais', ()
 });
 
 import { readFileSync } from 'node:fs';
-test('sobre: slogan, GPL-3.0 com o link do código, Locadora só pelo nome e dedicatória sem nomes da família', () => {
+test('sobre: slogan, GPL-3.0 com o link do código, Locadora com link, selo de IA e dedicatória (Caio, 08/11)', () => {
   const fonte = readFileSync(new URL('../src/telas/Paginas.tsx', import.meta.url), 'utf8');
   const sobre = fonte.slice(fonte.indexOf('export function Sobre'), fonte.indexOf('// ---------------------------------------------------------------- Meus pedidos'));
   assert.match(sobre, /Nada entre você e o filme\./);
   assert.match(sobre, /GPL-3\.0/);
   assert.match(fonte, /const CODIGO = 'https:\/\/github\.com\/CaioGuerras\/heisuca'/);
   assert.match(sobre, /<h3>Locadora<\/h3>/);
-  assert.doesNotMatch(sobre, /locadora\.cc|href="[^"]*locadora/i);
-  assert.match(sobre, /Para a família, que sempre se reuniu diante da tela\./);
-  assert.doesNotMatch(sobre, /Isis|Heitor|Caio|Guerras/);
+  assert.match(sobre, /href="https:\/\/locadora\.cc"/);
+  assert.match(sobre, /🤖<\/span>Feito em parceria com IA: Claude, Codex e Gemini\./);
+  assert.match(sobre, /Feito com amor, para Isis e Heitor/);
+  assert.match(sobre, /nome="handshake"/);
+  assert.doesNotMatch(sobre, /Para a família/);
 });
 
 import { recursosFaltando, type Ambiente } from '../src/dados/suporte.ts';

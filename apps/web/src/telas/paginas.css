@@ -229,3 +229,5 @@ button.pedidos-item:hover, button.pedidos-item:focus-visible { background: var(-
 .apoiar-rodape-dados strong { color: var(--hs-texto); font-weight: 600; }
 .sobre-selo { margin: 28px 0 0; text-align: center; font-size: .85rem; }
 .sobre-selo + .sobre-dedicatoria { margin-top: 12px; }
+.sobre-robo { font-size: 1.4rem; line-height: 1; }
+.sobre-dedicatoria + .sobre-selo { margin-top: 4px; }

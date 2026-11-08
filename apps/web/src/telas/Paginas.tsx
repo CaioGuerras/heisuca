@@ -304,7 +304,7 @@ export function Apps() {
 
 // ---------------------------------------------------------------- Sobre (§9)
 // Nome, versão, "Nada entre você e o filme.", GPL-3.0 com o link do código, créditos (bibliotecas, Rosiel Victor e a Locadora
-// só pelo nome, sem endereço) e a dedicatória sem nomes da família (NOVA_FASE/BASE_MARCA).
+// com o link) e a dedicatória discreta como no app (Caio, 08/11: a dedicatória fica em todo lugar; o link não atrapalha).
 const CODIGO = 'https://github.com/CaioGuerras/heisuca';
 const BIBLIOTECAS = [
   ['Preact', 'MIT', 'a base do site'], ['hls.js', 'Apache-2.0', 'vídeo em partes (HLS)'], ['JASSUB', 'MIT', 'legendas ASS'],
@@ -340,13 +340,14 @@ export function Sobre() {
       <h2 class="titulo-secao sobre-titulo">Agradecimentos</h2>
       <ul class="sobre-agradece">
         <li class="cartao-pagina">
-          <span class="sobre-icone" aria-hidden="true"><Icone nome="favorite" cheio tamanho={20} /></span>
+          <span class="sobre-icone" aria-hidden="true"><Icone nome="handshake" cheio tamanho={20} /></span>
           <div><h3>Rosiel Victor</h3><p class="texto-2">Por sempre apoiar a fazer essas coisas rsrs.</p>
             <a class="sobre-link" href="https://all.dev.br" target="_blank" rel="noopener noreferrer">all.dev.br<Icone nome="open_in_new" tamanho={16} /></a></div>
         </li>
         <li class="cartao-pagina">
           <span class="sobre-icone" aria-hidden="true"><Icone nome="movie" cheio tamanho={20} /></span>
-          <div><h3>Locadora</h3><p class="texto-2">Por até rir às vezes mas sempre me encorajar a evoluir, mesmo que cheio de HnR no site.</p></div>
+          <div><h3>Locadora</h3><p class="texto-2">Por até rir às vezes mas sempre me encorajar a evoluir, mesmo que cheio de HnR no site.</p>
+            <a class="sobre-link" href="https://locadora.cc" target="_blank" rel="noopener noreferrer">locadora.cc<Icone nome="open_in_new" tamanho={16} /></a></div>
         </li>
       </ul>
 
@@ -358,9 +359,8 @@ export function Sobre() {
         </ul>
       </details>
 
-      <p class="sobre-selo texto-2">Feito em parceria com IA: Claude, Codex e Gemini.</p>
-
-      <p class="sobre-dedicatoria"><Icone nome="favorite" cheio tamanho={18} />Para a família, que sempre se reuniu diante da tela.</p>
+      <p class="sobre-dedicatoria"><span class="sobre-robo" aria-hidden="true">🤖</span>Feito em parceria com IA: Claude, Codex e Gemini.</p>
+      <p class="sobre-selo texto-2">Feito com amor, para Isis e Heitor</p>
     </Pagina>
   );
 }

@@ -1,0 +1,10 @@
+/* Faixas ClassInd; caracteres AA sobre cada cor, inclusive nos dois temas. */
+.selo-idade { display: inline-flex; justify-content: center; align-items: center; min-width: 20px; border: 1px solid currentColor;
+  border-radius: 4px; padding: 2px 4px; font-size: 10px; line-height: 14px; font-weight: 700; letter-spacing: 0; vertical-align: middle; }
+.selo-idade.idade-L { background: #007a3d; color: #fff; border-color: #007a3d; }
+.selo-idade.idade-10 { background: #006bb6; color: #fff; border-color: #006bb6; }
+.selo-idade.idade-12 { background: #f6c700; color: #151515; border-color: #f6c700; }
+.selo-idade.idade-14 { background: #e87524; color: #151515; border-color: #e87524; }
+.selo-idade.idade-16 { background: #c4212a; color: #fff; border-color: #c4212a; }
+.selo-idade.idade-18 { background: #151515; color: #fff; border-color: #888; }
+@media (min-width: 600px) { .selo-idade { min-width: 24px; font-size: 11px; line-height: 16px; } }

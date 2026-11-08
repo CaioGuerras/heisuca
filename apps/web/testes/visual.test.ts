@@ -2,7 +2,25 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { selosDeMidia } from '../src/dados/selos.ts';
 import type { Fluxo } from '../src/api/tipos.ts';
+import { progressoAssistido } from '../src/dados/progresso.ts';
 const fluxo = (Type: string, dados: Partial<Fluxo> = {}): Fluxo => ({ Index: 0, Type, ...dados });
+
+test('progresso prefere percentual explícito e limita metadados fora da faixa', () => {
+  assert.equal(progressoAssistido({ PlayedPercentage: 0, PlaybackPositionTicks: 50 }, 100), 0);
+  assert.equal(progressoAssistido({ PlayedPercentage: 37, PlaybackPositionTicks: 50 }, 100), 37);
+  assert.equal(progressoAssistido({ PlayedPercentage: -10 }), 0);
+  assert.equal(progressoAssistido({ PlayedPercentage: 150 }), 100);
+  assert.equal(progressoAssistido({ Played: true, PlayedPercentage: 5 }), 100);
+});
+test('progresso só usa ticks com duração válida e tolera valores não finitos', () => {
+  assert.equal(progressoAssistido(undefined), 0);
+  assert.equal(progressoAssistido({ PlaybackPositionTicks: 25 }, 100), 25);
+  assert.equal(progressoAssistido({ PlaybackPositionTicks: 25 }), 0);
+  assert.equal(progressoAssistido({ PlaybackPositionTicks: 25 }, 0), 0);
+  assert.equal(progressoAssistido({ PlaybackPositionTicks: 25 }, -10), 0);
+  assert.equal(progressoAssistido({ PlayedPercentage: NaN, PlaybackPositionTicks: 25 }, 100), 25);
+  assert.equal(progressoAssistido({ PlayedPercentage: Infinity, PlaybackPositionTicks: Infinity }, 100), 0);
+});
 
 test('selos omitem dados ausentes, legendas parciais e idiomas desconhecidos', () => {
   assert.deepEqual(selosDeMidia([]), []);

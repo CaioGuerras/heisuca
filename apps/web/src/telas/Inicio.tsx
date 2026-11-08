@@ -8,6 +8,7 @@ import { fundo, hashDe, logo, type EmBreve, type Item, type Sessao } from '../ap
 import { usePaleta } from '../cor/paleta';
 import { anos, CartaoEmBreve, CartaoPaisagem, CartaoPoster, CartaoTop10, EsqueletoCartoes, nota } from '../comp/Cartoes';
 import { Fileira } from '../comp/Fileira';
+import { Classificacao } from '../comp/Classificacao';
 import { Icone } from '../comp/Icone';
 import { Imagem } from '../comp/Imagem';
 import { Topo } from '../comp/Navegacao';
@@ -20,7 +21,7 @@ const TROCA = 8000;
 export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void }) {
   const [d, setD] = useState<DadosInicio | null>(null);
   const [n, setN] = useState(0);
-  const [vistos, setVistos] = useState<Set<number>>(new Set([0]));
+  const [anterior, setAnterior] = useState<number | null>(null);
   const [encaixou, setEncaixou] = useState(false);
   const [pausado, setPausado] = useState(false);
   const troca = useRef(0);
@@ -29,7 +30,7 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
 
   useEffect(() => {
     let vivo = true;
-    setD(null); setN(0); setVistos(new Set([0]));
+    setD(null); setN(0); setAnterior(null);
     prepararInicio(s).then(critico => {
       if (!vivo) return;
       setD(critico);
@@ -45,12 +46,14 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
 
   const ir = async (k: number, automatica = false) => {
     if (!lista.length) return;
-    const x = (k + lista.length) % lista.length, i = lista[x], pedido = ++troca.current;
+    const x = (k + lista.length) % lista.length, i = lista[x];
+    if (x === n) return;
+    const pedido = ++troca.current;
     // A arte anterior permanece inteira até a próxima arte e logo estarem prontas.
     await Promise.all([fundo(s, i, Math.min(1920, Math.round(innerWidth * devicePixelRatio))), logo(s, i, 600)]
       .filter(Boolean).map(async src => { const img = new Image(); img.src = src; await img.decode().catch(() => undefined); }));
     if (pedido !== troca.current || (automatica && (parado.current.ponteiro || parado.current.foco || pausado || document.hidden || matchMedia('(prefers-reduced-motion: reduce)').matches))) return;
-    setVistos(v => new Set(v).add(x)); setN(x);
+    setAnterior(n); setN(x);
   };
   // troca automática; para com o dedo/mouse em cima e enquanto a logo está encaixada no topo (a cor da página não muda
   // enquanto a pessoa lê as fileiras)
@@ -106,10 +109,11 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
           if (Math.abs(dx) > 50) ir(n + (dx < 0 ? 1 : -1));
         }}>
         <div class="destaque-artes">
-          {lista.map((i, k) => vistos.has(k) && (
-            <Imagem key={i.Id} classe={`destaque-arte${k === n ? ' atual' : ''}`} src={fundo(s, i, Math.min(1920, Math.round(innerWidth * devicePixelRatio)))}
-              hash={hashDe(s, i, 'Backdrop')} prioridade={k === 0} />
-          ))}
+          {[anterior, n].map(k => {
+            const i = k === null ? null : lista[k];
+            return i && <Imagem key={i.Id} classe={`destaque-arte${k === n ? ' atual' : ''}`} src={fundo(s, i, Math.min(1920, Math.round(innerWidth * devicePixelRatio)))}
+              hash={hashDe(s, i, 'Backdrop')} prioridade />;
+          })}
           {!lista.length && <span class="destaque-arte atual esqueleto" />}
         </div>
         {atual && (
@@ -123,7 +127,7 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
               {nota(atual) && <span class="destaque-nota"><span class="destaque-estrela" aria-hidden="true">★</span>{nota(atual)}</span>}
               {anos(atual) && <span>{anos(atual)}</span>}
               {generos && <span class="destaque-generos">{generos}</span>}
-              {atual.OfficialRating && <span><span class="selo-idade">{atual.OfficialRating}</span></span>}
+              {atual.OfficialRating && <span><Classificacao valor={atual.OfficialRating} /></span>}
             </span>
             {atual.Overview && <span class="destaque-sinopse duas-linhas"><b>「{atual.Name}」</b> {atual.Overview}</span>}
           </button>

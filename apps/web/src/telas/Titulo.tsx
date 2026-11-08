@@ -8,9 +8,12 @@ import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { daColecao, episodios, fotoPessoa, fundo, hashDe, item, logo, paisagem, proximoDaSerie, temporadas,
   type Fluxo, type Item, type Pessoa, type Sessao } from '../api/servidor.ts';
 import { selosDeMidia } from '../dados/selos';
+import { progressoAssistido } from '../dados/progresso';
+import { totalEpisodios } from '../dados/acabamento';
 import { usePaleta } from '../cor/paleta';
 import { CartaoPoster, EsqueletoCartoes, nota, relogio } from '../comp/Cartoes';
 import { Fileira } from '../comp/Fileira';
+import { Classificacao } from '../comp/Classificacao';
 import { Folha } from '../comp/Folha';
 import { Icone } from '../comp/Icone';
 import { Imagem } from '../comp/Imagem';
@@ -144,8 +147,10 @@ function Pagina({ s, it }: { s: Sessao; it: Item }) {
 
   // linha pequena: 3 temps. · 1h2min · 1080p H264 SDR
   const nTemps = temps.filter(t => (t.IndexNumber ?? 0) > 0).length;
+  const nEps = totalEpisodios(temps);
   const pequena = [
-    serie && nTemps ? `${nTemps} ${nTemps === 1 ? 'temp.' : 'temps.'}` : '',
+    serie && nTemps ? `${nTemps} ${nTemps === 1 ? 'temporada' : 'temporadas'}` : '',
+    serie && nEps !== null ? `${nEps} ${nEps === 1 ? 'episódio' : 'episódios'}` : '',
     colecao && filhos?.length ? `${filhos.length} ${filhos.length === 1 ? 'título' : 'títulos'}` : '',
     duracao(serie ? atual?.RunTimeTicks : it.RunTimeTicks),
     resumoVideo(video),
@@ -188,6 +193,10 @@ function Pagina({ s, it }: { s: Sessao; it: Item }) {
             </button>
             {!!eps?.length && <button class="fileira-tudo" onClick={() => setLista(true)}>Ver tudo<Icone nome="chevron_right" tamanho={20} /></button>}
           </header>
+          {temps.length > 1 && <div class="titulo-temporadas" role="group" aria-label="Escolher temporada">
+            {temps.map(t => <button key={t.Id} class="titulo-temporada" aria-pressed={t.Id === tempSel}
+              onClick={() => setTempSel(t.Id)}>{t.Name}</button>)}
+          </div>}
           <Episodios key={tempSel} s={s} eps={eps} atual={atual} />
         </section>
       )}
@@ -258,7 +267,7 @@ function Cabeca({ s, it }: { s: Sessao; it: Item }) {
           : <h1 class="titulo-nome">{it.Name}</h1>}
         {lg && !semLogo && <h1 class="visualmente-oculto">{it.Name}</h1>}
         {(meta.length > 0 || it.OfficialRating) && (
-          <p class="titulo-meta">{meta.map((m, k) => <span key={k}>{m}</span>)}{it.OfficialRating && <span class="selo-idade">{it.OfficialRating}</span>}</p>
+          <p class="titulo-meta">{meta.map((m, k) => <span key={k}>{m}</span>)}{it.OfficialRating && <Classificacao valor={it.OfficialRating} />}</p>
         )}
       </div>
     </header>
@@ -352,12 +361,11 @@ function Episodios({ s, eps, atual }: { s: Sessao; eps: Item[] | null; atual: It
 
 function CartaoEp({ s, e, atual }: { s: Sessao; e: Item; atual: boolean }) {
   const d = useDados(s, e), acoes = useAcoes(s, e);
-  const dur = (e.RunTimeTicks || 0) / TICKS, pos = (d.PlaybackPositionTicks || 0) / TICKS;
-  const pct = d.PlayedPercentage ?? (dur && pos ? pos / dur * 100 : 0);
+  const pct = progressoAssistido(d, e.RunTimeTicks);
   const titulo = `${e.IndexNumber !== undefined ? `${e.IndexNumber}. ` : ''}${e.Name}`;
   return (
     <button class={`titulo-ep${atual ? ' atual' : ''}`} onClick={() => irVer(e.Id, d.PlaybackPositionTicks || undefined)} {...acoes}
-      aria-current={atual ? 'true' : undefined} aria-label={`${titulo}${d.Played ? ', visto' : ''}`}>
+      aria-current={atual ? 'true' : undefined} aria-label={`${titulo}${d.Played ? ', visto' : pct > 0 ? `, ${Math.round(pct)}% assistido` : ''}`}>
       <span class="titulo-ep-arte">
         <Imagem src={paisagem(s, e, 480)} hash={hashDe(s, e, 'Primary')} />
         {d.Played && <span class="cartao-visto"><Icone nome="check" tamanho={14} /></span>}
@@ -370,11 +378,16 @@ function CartaoEp({ s, e, atual }: { s: Sessao; e: Item; atual: boolean }) {
 
 function LinhaEp({ s, e, atual }: { s: Sessao; e: Item; atual: boolean }) {
   const d = useDados(s, e);
+  const pct = progressoAssistido(d, e.RunTimeTicks);
+  const titulo = `${e.IndexNumber !== undefined ? `${e.IndexNumber}. ` : ''}${e.Name}`;
   return (
     <li>
-      <button class={`titulo-linha${atual ? ' atual' : ''}`} onClick={() => irVer(e.Id, d.PlaybackPositionTicks || undefined)}>
+      <button class={`titulo-linha${atual ? ' atual' : ''}`} onClick={() => irVer(e.Id, d.PlaybackPositionTicks || undefined)}
+        aria-current={atual ? 'true' : undefined} aria-label={`${titulo}${d.Played ? ', visto' : pct > 0 ? `, ${Math.round(pct)}% assistido` : ''}`}>
         <span class="titulo-linha-arte"><Imagem src={paisagem(s, e, 320)} hash={hashDe(s, e, 'Primary')} />
-          {d.Played && <span class="cartao-visto"><Icone nome="check" tamanho={14} /></span>}</span>
+          {d.Played && <span class="cartao-visto" aria-hidden="true"><Icone nome="check" tamanho={14} /></span>}
+          {pct > 0 && !d.Played && <span class="cartao-barra" aria-hidden="true"><span style={{ width: `${pct}%` }} /></span>}
+        </span>
         <span class="titulo-linha-texto">
           <strong class="uma-linha">{e.IndexNumber !== undefined ? `${e.IndexNumber}. ` : ''}{e.Name}</strong>
           {duracao(e.RunTimeTicks) && <small>{duracao(e.RunTimeTicks)}</small>}

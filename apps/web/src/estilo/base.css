@@ -109,8 +109,8 @@ p, .sinopse, .destaque-sinopse { text-wrap: pretty; }
 /* esqueleto (carregando) */
 .esqueleto { background: var(--hs-linha); border-radius: var(--hs-raio-cartao); position: relative; overflow: hidden; }
 .esqueleto::after { content: ''; position: absolute; inset: 0; transform: translateX(-100%);
-  background: linear-gradient(90deg, transparent, rgb(255 255 255 / .07), transparent);
-  animation: hs-brilho 1.4s infinite; }
+  background: linear-gradient(90deg, transparent 15%, var(--hs-texto) 50%, transparent 85%); opacity: .09;
+  animation: hs-brilho 1.6s cubic-bezier(.4, 0, .2, 1) infinite; pointer-events: none; }
 @keyframes hs-brilho { to { transform: translateX(100%); } }
 
 /* aviso curto (toast) */
@@ -122,4 +122,5 @@ p, .sinopse, .destaque-sinopse { text-wrap: pretty; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; scroll-behavior: auto !important; }
+  .esqueleto::after { animation: none !important; content: none; }
 }

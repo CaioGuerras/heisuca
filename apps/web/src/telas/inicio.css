@@ -33,6 +33,7 @@
 .destaque-meta > .destaque-generos { flex: 0 1 auto; min-width: 0; display: block; overflow: hidden; text-overflow: ellipsis; }
 .destaque-generos::before { display: inline-block; vertical-align: -1px; }
 .destaque-estrela { color: #f5b301; margin-right: 3px; font-size: 1.15em; line-height: 1; }
+[data-tema="hisui"] .destaque-estrela { color: #5c3b00; }   /* âmbar escuro no claro, em toda largura */
 .destaque-sinopse { font-size: 11px; line-height: 1.45; color: var(--hs-texto); max-width: 600px; font-weight: 400; }
 .destaque-sinopse b { font-weight: 600; }
 .destaque-controles { position: relative; display: flex; align-items: center; gap: 10px; margin-top: 6px; }
@@ -93,7 +94,6 @@
       linear-gradient(90deg, var(--hs-pagina) 0%, var(--hs-pagina) 18%, rgba(var(--hs-pagina-rgb), .96) 24%, var(--hs-pagina-0) 48%, var(--hs-pagina-0) 90%, rgba(var(--hs-pagina-rgb), .8) 98%, var(--hs-pagina) 100%),
       linear-gradient(180deg, var(--hs-pagina) 0%, rgba(var(--hs-pagina-rgb), .8) 8%, var(--hs-pagina-0) 24%, var(--hs-pagina-0) calc(100% - 390px), rgba(var(--hs-pagina-rgb), .98) calc(100% - 290px), var(--hs-pagina) calc(100% - 250px));
   }
-  [data-tema="hisui"] .destaque-estrela { color: #5c3b00; }
   /* A palavra agora pousa sobre a borda clara; retira a sombra escura do canto. */
   [data-tema="hisui"] .tela-inicio .topo:not(.com-fundo) .topo-marca .palavra path { fill: var(--hs-texto); }
   [data-tema="hisui"] .tela-inicio .topo:not(.com-fundo) .topo-marca svg { filter: none; }

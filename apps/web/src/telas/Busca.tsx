@@ -13,28 +13,10 @@ import { Icone } from '../comp/Icone';
 import { Imagem } from '../comp/Imagem';
 import { FolhaPedido, type Alvo } from '../comp/Pedido';
 import { irPagina, irTitulo, voltar } from '../rota';
+import { criarBusca, buscaInicial, type EstadoBusca } from './busca-progressiva.ts';
 import './busca.css';
 
 const ESPERA = 300, MINIMO = 2;
-type Achado = Item & { biblioteca?: string };
-
-// busca em cada biblioteca de vídeo: assim cada resultado sabe de qual biblioteca veio (o ParentId do item é a pasta, não a biblioteca)
-async function buscarAcervo(s: Sessao, termo: string): Promise<Achado[]> {
-  const libs = (await bibliotecasDeVideo(s)).filter(b => b.CollectionType !== 'boxsets');
-  const listas = await Promise.all(libs.map(b => buscar(s, termo, b.Id).then(itens => itens.map(i => ({ ...i, biblioteca: b.Name, tipoLib: b.CollectionType })),
-      () => [] as (Achado & { tipoLib?: string })[])));
-  // o mesmo item em duas bibliotecas: fica a que é do tipo dele (filme em biblioteca de filmes, série em biblioteca de séries)
-  const doTipo = (i: Achado & { tipoLib?: string }) => (i.Type === 'Movie' ? 'movies' : 'tvshows') === i.tipoLib;
-  const pos = new Map<string, number>(), saida: (Achado & { tipoLib?: string })[] = [];
-  for (const l of listas) for (const i of l) {
-    const n = pos.get(i.Id);
-    if (n === undefined) { pos.set(i.Id, saida.length); saida.push(i); } else if (!doTipo(saida[n]) && doTipo(i)) saida[n] = i;
-  }
-  // os que começam com o termo primeiro; depois a ordem do servidor (relevância)
-  const t = termo.toLowerCase();
-  return saida.map((i, n) => ({ i, n, p: i.Name.toLowerCase().startsWith(t) ? 0 : 1 })).sort((a, b) => a.p - b.p || a.n - b.n).map(x => x.i);
-}
-
 const duracao = (ticks?: number) => {
   if (!ticks) return '';
   const m = Math.round(ticks / 6e8), h = Math.floor(m / 60);
@@ -49,41 +31,59 @@ type Estado<T> = { termo: string; itens: T[] | null; erro?: boolean };
 export function Busca({ s }: { s: Sessao }) {
   usePaleta(null);
   const [texto, setTexto] = useState('');
-  const [termo, setTermo] = useState('');
-  const [acervo, setAcervo] = useState<Estado<Achado>>({ termo: '', itens: null });
+  const termo = texto.trim();
+  const [acervo, setAcervo] = useState<EstadoBusca & { termo: string }>({ termo: '', ...buscaInicial });
   const [pedir, setPedir] = useState<Estado<Resultado>>({ termo: '', itens: null });
+  const [repetirPedidos, setRepetirPedidos] = useState(0);
   const [seerr, setSeerr] = useState(false);
   const [alvo, setAlvo] = useState<Alvo | null>(null);
   const [pedidos, setPedidos] = useState<Set<number>>(new Set());
   const campo = useRef<HTMLInputElement>(null);
 
   useEffect(() => { temSeerr(s).then(setSeerr); campo.current?.focus({ preventScroll: true }); }, [s.servidor]);
-  // 300 ms depois de parar de digitar
+  const busca = useRef<ReturnType<typeof criarBusca> | null>(null);
+  const fim = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const t = texto.trim();
-    if (t.length < MINIMO) { setTermo(''); return; }
-    const id = setTimeout(() => setTermo(t), ESPERA);
-    return () => clearTimeout(id);
-  }, [texto]);
+    if (termo.length < MINIMO) return;
+    setAcervo({ termo, ...buscaInicial });
+    const atual = criarBusca(termo, () => bibliotecasDeVideo(s),
+      (b, inicio, sinal) => buscar(s, termo, b.Id, inicio, 30, sinal), e => setAcervo({ termo, ...e }));
+    busca.current = atual;
+    const id = setTimeout(() => { void atual.carregar(); }, ESPERA);
+    return () => { clearTimeout(id); atual.cancelar(); };
+  }, [termo, s]);
   useEffect(() => {
-    if (!termo) return;
+    if (termo.length < MINIMO || !seerr) return;
+    setPedir({ termo, itens: null });
     let vivo = true;
-    buscarAcervo(s, termo).then(itens => vivo && setAcervo({ termo, itens }), () => vivo && setAcervo({ termo, itens: [], erro: true }));
-    return () => { vivo = false; };
-  }, [termo]);
-  useEffect(() => {
-    if (!termo || !seerr) return;
-    let vivo = true;
-    buscarSeerr(s, termo).then(itens => vivo && setPedir({ termo, itens }), () => vivo && setPedir({ termo, itens: [], erro: true }));
-    return () => { vivo = false; };
-  }, [termo, seerr]);
+    const id = setTimeout(() => {
+      buscarSeerr(s, termo).then(itens => vivo && setPedir({ termo, itens }), () => vivo && setPedir({ termo, itens: [], erro: true }));
+    }, ESPERA);
+    return () => { vivo = false; clearTimeout(id); };
+  }, [termo, seerr, s, repetirPedidos]);
 
-  const limpar = () => { setTexto(''); setTermo(''); campo.current?.focus(); };
+  const alterar = (valor: string) => {
+    if (valor.trim() !== termo) {
+      busca.current?.cancelar();
+      setAcervo({ termo: '', ...buscaInicial });
+      setPedir({ termo: '', itens: null });
+    }
+    setTexto(valor);
+  };
+  const limpar = () => { alterar(''); campo.current?.focus(); };
   const ativo = termo.length >= MINIMO;
   const doAcervo = ativo && acervo.termo === termo ? acervo.itens : null;
   const paraPedir = ativo && seerr && pedir.termo === termo ? pedir.itens : null;
-  const carregando = ativo && (!doAcervo || (seerr && !paraPedir));
-  const nada = ativo && doAcervo && !doAcervo.length && (!seerr || (paraPedir && !paraPedir.length));
+  const carregando = ativo && (!doAcervo || acervo.carregando || (seerr && !paraPedir));
+  const nada = ativo && !carregando && doAcervo && !doAcervo.length && (!seerr || (paraPedir && !paraPedir.length));
+  useEffect(() => {
+    if (!doAcervo || acervo.carregando || acervo.erro || !acervo.mais || !fim.current) return;
+    const observador = new IntersectionObserver(entradas => {
+      if (entradas.some(e => e.isIntersecting)) void busca.current?.carregar();
+    }, { rootMargin: '400px 0px' });
+    observador.observe(fim.current);
+    return () => observador.disconnect();
+  }, [doAcervo, acervo.carregando, acervo.erro, acervo.mais]);
   const servidor = s.nomeServidor || 'Servidor';
 
   return (
@@ -96,7 +96,7 @@ export function Busca({ s }: { s: Sessao }) {
         <label class="busca-campo">
           <Icone nome="search" tamanho={24} />
           <input ref={campo} type="search" enterkeyhint="search" autocomplete="off" spellcheck={false} placeholder="Filmes e séries"
-            aria-label="Buscar filmes e séries" value={texto} onInput={e => setTexto((e.target as HTMLInputElement).value)}
+            aria-label="Buscar filmes e séries" value={texto} onInput={e => alterar((e.target as HTMLInputElement).value)}
             onKeyDown={e => { if (e.key === 'Escape' && texto) { e.preventDefault(); limpar(); } }} />
           {texto && <button class="busca-limpar" onClick={limpar} aria-label="Limpar"><Icone nome="close" tamanho={24} /></button>}
         </label>
@@ -111,8 +111,10 @@ export function Busca({ s }: { s: Sessao }) {
         {nada && !acervo.erro && !(seerr && pedir.erro) && <div class="busca-vazio"><Icone nome="search_off" tamanho={40} />
           <p>Nada encontrado para “{termo}”.</p><small>Tente outro título ou confira como ele está escrito.</small>
         </div>}
-        {ativo && doAcervo && acervo.erro && <p class="busca-dica texto-2">Não deu para buscar no servidor agora. Tente de novo.</p>}
-        {ativo && seerr && pedir.termo === termo && pedir.erro && <p class="busca-dica texto-2">Pedidos indisponíveis agora.</p>}
+        {ativo && seerr && pedir.termo === termo && pedir.erro && <div class="busca-estado" role="status">
+          <p>Pedidos indisponíveis agora.</p>
+          <button class="pilula" onClick={() => setRepetirPedidos(n => n + 1)}>Tentar de novo</button>
+        </div>}
 
         {ativo && !doAcervo && <><span class="visualmente-oculto">Buscando títulos…</span>
           <ul class="busca-lista" aria-hidden="true">{[0, 1, 2].map(n => <li key={n} class="busca-item"><span class="busca-capa esqueleto" /><span class="busca-esq"><span class="esqueleto" /><span class="esqueleto" /><span class="esqueleto" /></span></li>)}</ul>
@@ -138,6 +140,16 @@ export function Busca({ s }: { s: Sessao }) {
             ))}
           </ul>
         )}
+
+        {ativo && doAcervo && <>
+          {acervo.erro && <div class="busca-estado" role="status">
+            <p>{doAcervo.length ? 'Não deu para carregar todos os títulos.' : 'Não deu para buscar no servidor agora.'}</p>
+            <button class="pilula" onClick={() => { void busca.current?.carregar(); }}>Tentar de novo</button>
+          </div>}
+          <div ref={fim} class="busca-fim">
+            {acervo.carregando && <small>Buscando mais títulos…</small>}
+          </div>
+        </>}
 
         {seerr && ativo && (paraPedir === null ? doAcervo !== null : paraPedir.length > 0) && (
           <section class="busca-pedir" aria-label="Disponível para pedir">

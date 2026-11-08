@@ -1,4 +1,4 @@
-import type { ApiServidor } from './servidor.ts';
+import type { ApiServidor, PaginaBusca } from './servidor.ts';
 // Cliente Jellyfin mínimo, escrito do zero (só fetch). Cada função é um endpoint da API REST oficial (10.9+).
 // Regra do PLANO §1.7: só aparece dado que o servidor tem; nada de valor inventado na falta.
 import { VERSAO, idAparelho } from './contas.ts';
@@ -242,10 +242,22 @@ export async function emBreve(s: Sessao, tipo: 'tv' | 'movie'): Promise<EmBreve[
 export const autorizarQuickConnect = (s: Sessao, codigo: string) =>
   pedir(s, 'POST', `/QuickConnect/Authorize?code=${encodeURIComponent(codigo)}&userId=${s.usuarioId}`);
 
-// Busca por biblioteca: mesma URL da tela antiga (limite 30), sem alterar a junção na tela.
-export const buscar = (s: Sessao, termo: string, bibliotecaId: string) =>
-  obter<{ Items: Item[] }>(s, `/Items?userId=${s.usuarioId}&parentId=${bibliotecaId}&searchTerm=${encodeURIComponent(termo)}` +
-    '&recursive=true&includeItemTypes=Movie,Series&limit=30&fields=Overview,ProductionYear,OfficialRating,CommunityRating&enableImageTypes=Primary&imageTypeLimit=1').then(d => d.Items);
+// Sem início, conserva a chamada antiga. A Busca progressiva recebe página, total e cancelamento.
+export function buscar(s: Sessao, termo: string, bibliotecaId: string): Promise<Item[]>;
+export function buscar(s: Sessao, termo: string, bibliotecaId: string, inicio: number, limite?: number, sinal?: AbortSignal): Promise<PaginaBusca>;
+export async function buscar(s: Sessao, termo: string, bibliotecaId: string, inicio?: number, limite = 30, sinal?: AbortSignal) {
+  const caminho = `/Items?userId=${s.usuarioId}&parentId=${bibliotecaId}&searchTerm=${encodeURIComponent(termo)}` +
+    `&recursive=true&includeItemTypes=Movie,Series&limit=${inicio === undefined ? 30 : limite}` +
+    '&fields=Overview,ProductionYear,OfficialRating,CommunityRating&enableImageTypes=Primary&imageTypeLimit=1';
+  if (inicio === undefined) return obter<{ Items: Item[] }>(s, caminho).then(d => d.Items);
+  const r = await fetch(s.servidor + caminho + `&StartIndex=${inicio}&EnableTotalRecordCount=true`, {
+    headers: { Authorization: cabecalho(s.token) }, signal: sinal,
+  });
+  if (r.status === 401) { notificarExpiracao(); throw new Error('sessão vencida'); }
+  if (!r.ok) throw new Error(`Busca: ${r.status}`);
+  const d = await r.json() as PaginaBusca;
+  return { Items: d.Items || [], TotalRecordCount: d.TotalRecordCount ?? (d.Items || []).length };
+}
 export const temArte = (_s: Sessao, i: Item) => !!(i.BackdropImageTags?.length && i.ImageTags?.Logo);
 export const capaBiblioteca = (s: Sessao, i: Item) => i.ImageTags?.Primary ? imagem(s, i.Id, 'Primary', i.ImageTags.Primary, { largura: 480 }) : '';
 

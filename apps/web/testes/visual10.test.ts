@@ -50,3 +50,18 @@ test('páginas 1-10 / 11-12 vêm antes da fileira e, ≥ 720 px, ficam na linha 
   // celular: acima da fileira, com a margem da página
   assert.equal(decl(titulo, '.titulo-paginas', 'padding', null), '0 var(--hs-margem) 6px');
 });
+
+test('pausa do destaque: barras cheias por CSS (o "pause" de contorno some); play continua o SVG', () => {
+  const inicio = postcss.parse(ler('../src/telas/inicio.css'));
+  const P = '.destaque-pausa:not([aria-pressed="true"]) .icone';
+  assert.equal(decl(inicio, P + ' svg', 'visibility', null), 'hidden');
+  assert.equal(decl(inicio, P + '::before', 'background', null), 'currentColor');
+  assert.equal(decl(inicio, P + '::before', 'left', null), '3.5px');
+  assert.equal(decl(inicio, P + '::after', 'right', null), '3.5px');
+});
+
+test('busca: a lista compensa o padding lateral do item (capa alinhada com o campo)', () => {
+  const busca = postcss.parse(ler('../src/telas/busca.css'));
+  const pad = (decl(busca, '.busca-item', 'padding', null) || '').split(' ')[1];
+  assert.equal(decl(busca, '.busca-lista', 'margin', null), `0 -${pad}`);
+});

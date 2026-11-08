@@ -9,8 +9,12 @@
 .ajuda-acao { display: inline-flex; align-items: center; gap: 4px; margin-top: 10px; padding: 8px 6px 8px 0; font-weight: 600; font-size: 15px;
   color: var(--hs-realce); text-decoration: none; border-radius: 8px; }
 .ajuda-acao:hover { text-decoration: underline; text-underline-offset: 3px; }
-.pagina-vazia { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 64px 16px; text-align: center; color: var(--hs-texto-2); }
-.pagina-vazia p { margin: 0; }
+/* vazio e erro no mesmo desenho da Busca e dos Favoritos: ícone num círculo, frase em Sora, ação em pílula */
+.pagina-vazia { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 56px 16px; text-align: center; color: var(--hs-texto-2); }
+.pagina-vazia > .icone { box-sizing: content-box; padding: 18px; border-radius: 50%; background: var(--hs-linha); }
+.pagina-vazia p { margin: 0; max-width: 28ch; font-family: var(--hs-tema-fonte-titulo); font-size: clamp(18px, 2.6vw, 22px); line-height: 1.3;
+  letter-spacing: -.02em; color: var(--hs-texto); }
+.pagina-vazia-botao { min-height: 44px; margin-top: 8px; padding: 0 24px; font-size: 15px; font-weight: 600; }
 .icone.em-linha { vertical-align: -3px; margin: 0 1px; }
 
 /* ---- Minha conta (ref/app_completo/…minha_conta): foto grande no centro, ações em pílula, senha abaixo de uma linha fina ---- */

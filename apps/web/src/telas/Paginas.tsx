@@ -362,6 +362,8 @@ const quando = (iso: string) => { const d = new Date(iso); return isNaN(+d) ? ''
 export function MeusPedidos({ s }: { s: Sessao }) {
   const [lista, setLista] = useState<Linha[] | null>(null);
   const [erro, setErro] = useState(false);
+  const [vez, setVez] = useState(0);   // "Tentar de novo" pede tudo outra vez
+  const tentar = () => { setErro(false); setLista(null); setVez(v => v + 1); };
   useEffect(() => {
     let vivo = true;
     temSeerr(s).then(tem => { if (!tem) throw new Error('sem seerr'); return meusPedidos(s); })
@@ -374,11 +376,12 @@ export function MeusPedidos({ s }: { s: Sessao }) {
       })
       .catch(() => vivo && setErro(true));
     return () => { vivo = false; };
-  }, [s.servidor]);
+  }, [s.servidor, vez]);
 
   return (
     <Pagina titulo="Meus pedidos" classe="pedidos">
-      {erro ? <p class="texto-2">Não deu para ver os pedidos agora. Tente de novo mais tarde.</p>
+      {erro ? <div class="pagina-vazia" role="alert"><Icone nome="cloud_off" tamanho={40} /><p>Não deu para ver os pedidos agora.</p>
+            <button class="pilula pilula-clara pagina-vazia-botao" onClick={tentar}>Tentar de novo</button></div>
         : !lista ? <ul class="pedidos-lista">{[0, 1, 2].map(n => <li key={n} class="pedidos-item"><span class="pedidos-capa esqueleto" /><span class="pedidos-esq"><span class="esqueleto" /><span class="esqueleto" /></span></li>)}</ul>
         : !lista.length ? <div class="pagina-vazia"><Icone nome="playlist_add_check" tamanho={40} /><p>Você ainda não pediu nada.</p>
             <button class="ajuda-acao" onClick={() => irPagina('busca')}>Buscar e pedir<Icone nome="chevron_right" tamanho={20} /></button></div>

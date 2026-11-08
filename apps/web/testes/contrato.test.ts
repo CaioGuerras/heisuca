@@ -43,7 +43,7 @@ function importsDeJellyfin(texto: string): string[] {
     let alvo: ts.Node | undefined;
     if (ts.isImportDeclaration(n) || ts.isExportDeclaration(n)) alvo = n.moduleSpecifier;
     if (ts.isCallExpression(n) && n.expression.kind === ts.SyntaxKind.ImportKeyword) alvo = n.arguments[0];
-    if (alvo && ts.isStringLiteralLike(alvo) && /(?:^|\/)api\/(?:jellyfin|plex(?:-tv)?)(?:\.ts)?$/.test(alvo.text)) encontrados.push(alvo.text);
+    if (alvo && ts.isStringLiteralLike(alvo) && /(?:^|\/)api\/jellyfin(?:\.ts)?$/.test(alvo.text)) encontrados.push(alvo.text);
     ts.forEachChild(n, visitar);
   };
   visitar(fonte);

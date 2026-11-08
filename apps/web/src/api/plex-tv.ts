@@ -9,7 +9,7 @@ export class ErroPlex extends Error {
 export function urlPlex(base: string, caminho: string, token?: string, query: QueryPlex = {}): string {
   const u = new URL(caminho, base.replace(/\/$/, '') + '/');
   // Não enviar a credencial a uma origem que apareceu num caminho de mídia/metadados.
-  if (u.origin !== new URL(base).origin) throw new Error('Endereço Plex incompatível.');
+  if (u.protocol !== 'https:' || u.origin !== new URL(base).origin) throw new Error('Endereço Plex incompatível.');
   const identidade = { 'X-Plex-Client-Identifier': idAparelho(), 'X-Plex-Product': 'Heisuca',
     'X-Plex-Version': VERSAO, 'X-Plex-Platform': 'Web', 'X-Plex-Device': 'Navegador', 'X-Plex-Token': token };
   for (const [k, v] of Object.entries({ ...query, ...identidade })) if (v !== undefined) u.searchParams.set(k, String(v));
@@ -45,11 +45,13 @@ function esperar(ms: number, sinal: AbortSignal): Promise<void> {
 export async function esperarPin(pin: PinPlex, sinal: AbortSignal): Promise<string> {
   while (true) {
     cancelado(sinal);
-    let d: { authToken?: string };
+    let d: { authToken?: string } = {};
     try { d = await tv(`/pins/${pin.id}`, undefined, { code: pin.code }, 'GET', sinal); }
     catch (e) {
       if (e instanceof ErroPlex && (e.status === 404 || e.status === 410)) throw new Error('O código Plex venceu. Peça outro.');
-      throw e;
+      cancelado(sinal);
+      // Como no Android, falha transitória não invalida um PIN ainda pendente.
+      if (e instanceof ErroPlex && e.status < 500 && e.status !== 429) throw e;
     }
     cancelado(sinal);
     if (d.authToken) return d.authToken;
@@ -62,13 +64,13 @@ export async function conta(tokenConta: string): Promise<ContaPlex> {
 }
 const prioridade = (c: ConexaoPlex) => c.relay ? 2 : c.local ? 0 : 1;
 export function conexoesPermitidas(r: RecursoPlex): ConexaoPlex[] {
-  return r.connections.filter(c => {
+  return (r.connections || []).filter(c => {
     try { return new URL(c.uri).protocol === 'https:' && (!c.local || r.publicAddressMatches === true); } catch { return false; }
   }).sort((a, b) => prioridade(a) - prioridade(b));
 }
 export async function servidores(tokenConta: string): Promise<RecursoPlex[]> {
   const recursos = await tv<(RecursoPlex & { provides?: string })[]>('/resources', tokenConta, { includeHttps: 1, includeRelay: 1 });
-  return recursos.filter(r => r.provides?.split(',').includes('server') && r.accessToken && r.clientIdentifier)
+  return recursos.filter(r => r.provides?.split(',').map(x => x.trim()).includes('server') && r.accessToken && r.clientIdentifier)
     .map(r => ({ ...r, connections: conexoesPermitidas(r) }));
 }
 // Mesmo endpoint autenticado usado no Android (plex_client.dart:3334-3350).

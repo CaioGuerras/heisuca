@@ -14,7 +14,7 @@ type Metadado = { ratingKey?: string | number; key?: string; type?: string; titl
   index?: number; parentIndex?: number; year?: number; originallyAvailableAt?: string; contentRating?: string;
   audienceRating?: number; rating?: number; summary?: string; tagline?: string; studio?: string; childCount?: number;
   Genre?: { tag: string }[]; Role?: { id: number; tag: string; role?: string; thumb?: string }[];
-  Chapter?: { tag?: string; startTimeOffset: number }[]; Media?: Media[]; duration?: number; viewOffset?: number;
+  Chapter?: { tag?: string; title?: string; startTimeOffset: number }[]; Media?: Media[]; duration?: number; viewOffset?: number;
   viewCount?: number; leafCount?: number; viewedLeafCount?: number; thumb?: string; art?: string; grandparentArt?: string;
   grandparentThumb?: string; Image?: { type: string; url: string }[]; addedAt?: number };
 type Container = { Metadata?: Metadado[]; Directory?: Metadado[]; Hub?: Container[]; totalSize?: number; size?: number };
@@ -32,14 +32,14 @@ function fluxo(f: Stream): Fluxo {
     BitRate: f.bitrate === undefined ? undefined : f.bitrate * 1000 };
 }
 function mapear(m: Metadado): Item {
-  const i: Item = { Id: id(m.ratingKey) || '', Type: tipo[m.type || ''] || '', Name: m.title || '',
+  const i: Item = { Id: id(m.ratingKey ?? m.key) || '', Type: tipo[m.type || ''] || '', Name: m.title || '',
     SeriesName: m.grandparentTitle, SeasonName: m.parentTitle, SeriesId: id(m.grandparentRatingKey), SeasonId: id(m.parentRatingKey),
     ParentId: id(m.parentRatingKey), IndexNumber: m.index, ParentIndexNumber: m.parentIndex, ProductionYear: m.year,
     PremiereDate: m.originallyAvailableAt, OfficialRating: m.contentRating, CommunityRating: m.audienceRating ?? m.rating,
     Overview: m.summary, Taglines: m.tagline ? [m.tagline] : undefined, Genres: m.Genre?.map(g => g.tag),
     Studios: m.studio ? [{ Name: m.studio }] : undefined, ChildCount: m.childCount,
     People: m.Role?.map(p => ({ Id: String(p.id), Name: p.tag, Role: p.role, PrimaryImageTag: p.thumb })),
-    Chapters: m.Chapter?.map(c => ({ Name: c.tag, StartPositionTicks: ticks(c.startTimeOffset)! })),
+    Chapters: m.Chapter?.map(c => ({ Name: c.tag ?? c.title, StartPositionTicks: ticks(c.startTimeOffset)! })),
     MediaStreams: streams(m).map(fluxo), RunTimeTicks: ticks(m.duration),
     ImageTags: { ...(m.thumb ? { Primary: m.thumb } : {}),
       ...(m.Image?.find(i => i.type === 'clearLogo')?.url ? { Logo: m.Image.find(i => i.type === 'clearLogo')!.url } : {}) },
@@ -61,6 +61,9 @@ async function ler(s: Sessao, caminho: string, query?: QueryPlex): Promise<Conta
 }
 const metadata = (d: Container) => d.Metadata || [];
 const itens = (d: Container) => metadata(d).map(mapear);
+// Hubs podem combinar Metadata e Directory (plex_mappers.dart:241-256).
+const itensHub = (d: Container) => [...metadata(d), ...(d.Directory || []).map(m => ({ ...m,
+  type: m.type || (m.leafCount !== undefined || m.childCount !== undefined ? 'show' : '') }))].map(mapear);
 async function todos(s: Sessao, caminho: string): Promise<Item[]> {
   const saida: Item[] = [], paginas = new Set<string>(); let inicio = 0;
   while (true) {
@@ -81,7 +84,7 @@ const bibliotecasDeVideo = (s: Sessao) => bibliotecas(s).then(l => l.filter(b =>
 async function continuar(s: Sessao): Promise<Item[]> {
   const d = await ler(s, '/hubs', { identifier: 'home.continue,home.ondeck' });
   const saida: Item[] = [];
-  for (const i of (d.Hub || []).flatMap(itens)) {
+  for (const i of (d.Hub || []).flatMap(itensHub)) {
     const n = saida.findIndex(x => x.Id === i.Id || (i.Type === 'Episode' && i.SeriesId && x.SeriesId === i.SeriesId));
     if (n < 0) saida.push(i);
     else if (!saida[n].UserData?.PlaybackPositionTicks && i.UserData?.PlaybackPositionTicks) saida[n] = i;
@@ -122,7 +125,7 @@ async function daBiblioteca(s: Sessao, biblioteca: string, inicio = 0, limite = 
 const folhas = (s: Sessao, serie: string) => ler(s, `/library/metadata/${cod(serie)}/allLeaves`).then(itens);
 async function buscar(s: Sessao, termo: string, biblioteca: string): Promise<Item[]> {
   const d = await ler(s, '/hubs/search', { query: termo, sectionId: biblioteca, limit: 30 });
-  return (d.Hub || []).flatMap(itens).filter(i => i.Type === 'Movie' || i.Type === 'Series')
+  return (d.Hub || []).flatMap(itensHub).filter(i => i.Type === 'Movie' || i.Type === 'Series')
     .filter((i, n, l) => l.findIndex(x => x.Id === i.Id) === n);
 }
 function imagem(s: Sessao, caminho?: string, largura?: number, altura?: number): string {
@@ -138,7 +141,7 @@ const capacidades = Object.freeze({ favoritos: false, trocarSenha: false, foto: 
   capitulos: true, emAlta: false, emBreve: false });
 
 // SRT externo é convertido aqui; o Player continua recebendo apenas URLs prontas.
-export function srtParaVtt(texto: string): string {
+function srtParaVtt(texto: string): string {
   const s = texto.replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n').trim();
   if (s.startsWith('WEBVTT')) return s + '\n';
   let tempos = 0;

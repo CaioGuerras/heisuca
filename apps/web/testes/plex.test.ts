@@ -175,7 +175,9 @@ test('Plex entrada guarda só token PMS e foto da conta; 401 plex.tv não deslog
     assert.equal(sessao.token,'token-pms-ficticio'); assert.equal(sessao.servidorId,'servidor-ficticio');
     assert.equal(sessao.usuarioId,'90'); assert.equal(sessao.fotoTag,s.fotoTag); assert.equal(sessaoAtual()?.tipo,'plex');
     assert.equal(servidoresSalvos()[0].tipo,'plex');
-    assert.ok(!JSON.stringify(sessaoAtual()).includes('token-conta-ficticio'));
+    const salvo = ['heisuca.sessao','heisuca.sessoes','heisuca.servidores'].map(k => localStorage.getItem(k)).join('');
+    assert.ok(!salvo.includes('token-conta-ficticio'));
+    assert.ok(salvo.includes('token-pms-ficticio'));
     assert.throws(() => entradaPlex.entrar(recursos[0], {uri:'http://inseguro.example.invalid'}, conta), /não permitida/);
   });
   let expirou = 0; quandoExpirar(() => { expirou++; });
@@ -285,5 +287,61 @@ test('Plex fim manda scrobble independentemente de falha na timeline; abandono n
     chamadas.length = 0;
     await api.relatar(s,p,'fim',{posicaoTicks:50000,pausado:true,motivo:'abandono'}); await api.parar(s,p);
     assert.deepEqual(chamadas.map(c => c.url.pathname),['/:/timeline']);
+  });
+});
+
+test('Plex lê hubs em Directory além de Metadata e usa título alternativo do capítulo', async () => {
+  await comFetch(c => c.url.pathname === '/hubs/search' ? json({MediaContainer:{Hub:[{Directory:[{ratingKey:'201',title:'Série Exemplo',childCount:2}]}]}})
+    : json({MediaContainer:{Metadata:[{...filme,Chapter:[{title:'Opening',startTimeOffset:3000}]}]}}), async () => {
+    const achados = await api.buscar(s,'Série','2');
+    assert.deepEqual(achados.map(i => [i.Id,i.Type]),[['201','Series']]);
+    assert.deepEqual((await api.item(s,'101')).Chapters,[{Name:'Opening',StartPositionTicks:30_000_000}]);
+  });
+});
+
+test('Plex marca assistido via scrobble/unscrobble e relê UserData', async () => {
+  await comFetch(c => c.url.pathname.startsWith('/library/metadata/') ? json({MediaContainer:{Metadata:[filme]}}) : json({}), async chamadas => {
+    assert.equal((await api.marcarAssistido(s,'101',true))?.Played,true);
+    await api.marcarAssistido(s,'101',false);
+    assert.deepEqual(chamadas.map(c => c.url.pathname),['/:/scrobble','/library/metadata/101','/:/unscrobble','/library/metadata/101']);
+    assert.ok(chamadas.every(c => c.init?.method === 'GET'));
+    assert.equal(chamadas[0].url.searchParams.get('identifier'),'com.plexapp.plugins.library');
+    assert.equal(chamadas[0].url.searchParams.get('key'),'101');
+  });
+});
+
+test('Plex próximo/anterior consultam a série em allLeaves numa chamada e destaque reúne vídeo', async () => {
+  const segundo = {...episodio,ratingKey:'204',viewCount:1};
+  await comFetch(c => {
+    if (c.url.pathname.endsWith('/allLeaves')) return json({MediaContainer:{Metadata:[episodio,segundo]}});
+    if (c.url.pathname === '/library/sections') return json(secoes);
+    if (c.url.pathname === '/library/sections/1/recentlyAdded') return json({MediaContainer:{Metadata:[filme]}});
+    if (c.url.pathname.endsWith('/recentlyAdded')) return json({MediaContainer:{Metadata:[episodio]}});
+    return json({MediaContainer:{Metadata:[serie]}});
+  }, async chamadas => {
+    const ep = {Id:'203',Name:'Exemplo',Type:'Episode',SeriesId:'201'};
+    assert.equal((await api.seguinte(s,ep))?.Id,'204'); assert.equal(chamadas.length,1);
+    assert.equal((await api.anterior(s,{...ep,Id:'204'}))?.Id,'203'); assert.equal(chamadas.length,2);
+    assert.equal((await api.proximoDaSerie(s,'201'))?.Id,'203'); assert.equal(chamadas.length,3);
+    assert.deepEqual((await api.destaque(s)).map(i => i.Id),['201','101']);
+    assert.equal((await api.proximos(s)).length,0); // sem hubs nesta resposta
+  });
+});
+
+test('Plex PIN mantém intervalo de 2 s, tolera falha transitória e aborta fetch em curso', async t => {
+  t.mock.timers.enable({apis:['setTimeout']});
+  try {
+    let chamadas = 0;
+    await comFetch(() => { if (++chamadas === 1) throw new TypeError('rede'); return json({authToken:'token-conta-ficticio'}); }, async () => {
+      const p = entradaPlex.esperarPin({id:77,code:'FICTICIO'},new AbortController().signal);
+      // Aguarda a rejeição atravessar as camadas async até armar o timer, sem tempo real.
+      await new Promise<void>(ok => setImmediate(ok));
+      t.mock.timers.tick(1999); assert.equal(chamadas,1);
+      t.mock.timers.tick(1); assert.equal(await p,'token-conta-ficticio'); assert.equal(chamadas,2);
+    });
+  } finally { t.mock.timers.reset(); }
+  await comFetch(c => new Promise((_ok,erro) => c.init?.signal?.addEventListener('abort',() => erro(new DOMException('cancelado','AbortError')))), async chamadas => {
+    const controle = new AbortController(), p = entradaPlex.esperarPin({id:77,code:'FICTICIO'},controle.signal);
+    controle.abort(); await assert.rejects(p,{name:'AbortError'}); assert.equal(chamadas.length,1);
   });
 });

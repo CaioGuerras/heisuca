@@ -126,7 +126,13 @@
         ]
       },
       {
-        "Directory": [],
+        "Directory": [
+          {
+            "ratingKey": "201",
+            "title": "Série Exemplo",
+            "childCount": 2
+          }
+        ],
         "Metadata": [
           {
             "ratingKey": "203",

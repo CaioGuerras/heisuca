@@ -21,6 +21,7 @@ import './comp/instalar';
 import { Transicao } from './telas/Transicao';
 import { sobDemanda } from './sobDemanda';
 import './estilo/listas.css';
+import './estilo/transicoes.css';
 
 // título, player e busca vêm sob demanda (o pacote inicial fica com o que a home precisa)
 const Titulo = sobDemanda(() => import('./telas/Titulo'), 'Titulo');
@@ -85,7 +86,7 @@ function Casca({ s, trocar, atualizar, entrar, sair }: { s: Sessao; trocar: (s: 
     : <Inicio s={s} pedir={pedirEmBreve} />;
   return (
     <div class={`casca tela-${r.tela}${comIlha ? ' com-ilha' : ''}`}>
-      {tela}
+      {r.tela === 'ver' ? tela : <div class="troca-tela" key={`${r.tela}:${'id' in r ? r.id || '' : ''}`}>{tela}</div>}
       {comIlha && <Ilha s={s} r={r} aoUsuario={setMenu} />}
       <MenuUsuario s={s} ancora={menu} fechar={() => setMenu(null)} sair={sair} />
       <TrocarServidor s={s} aberta={servidores} fechar={() => setServidores(false)} aoTrocar={trocar} aoEntrar={entrar} />

@@ -7,7 +7,7 @@
 .titulo-arte { position: absolute; z-index: 0; top: 0; left: 0; right: 0; height: var(--arte-h); overflow: hidden; border-radius: 0; }
 .titulo-arte > .img { position: absolute; inset: 0 0 3px; background-color: transparent !important; }
 .titulo-arte img { object-position: center 22%; }
-.titulo-arte::after { content: ''; position: absolute; inset: 0;
+.titulo-arte:not(.esqueleto)::after { content: ''; position: absolute; inset: 0;
   background: linear-gradient(to bottom,
     var(--hs-pagina-0) 0%,
     var(--hs-pagina-0) 24%,
@@ -23,7 +23,8 @@
   padding: calc(var(--arte-h) * .6) var(--hs-margem) 0; }
 .titulo-logo { max-width: min(68vw, 420px); max-height: 84px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 12px rgb(0 0 0 / .28));
   animation: titulo-entra .6s var(--hs-curva-padrao) both; }
-.titulo-nome { margin: 0; font-family: var(--hs-tema-fonte-titulo); font-size: 34px; font-weight: 600; line-height: 1.1; letter-spacing: -.01em; }
+.titulo-nome { margin: 0; max-width: 900px; font-family: var(--hs-tema-fonte-titulo); font-size: clamp(28px, 4.8vw, 58px);
+  font-weight: 600; line-height: 1.08; letter-spacing: -.035em; }
 .titulo-meta { margin: 0; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; row-gap: 4px; font-size: 11.5px; font-weight: 600; }
 .titulo-meta > span + span::before { content: '|'; margin: 0 7px; opacity: .45; font-weight: 400; }
 .titulo-meta > .selo-idade::before { content: none; }
@@ -64,6 +65,13 @@
 /* temporada + episódios */
 .titulo-eps { margin-top: 22px; }
 .titulo-eps-cabeca { display: flex; align-items: center; justify-content: space-between; padding: 0 var(--hs-margem); margin-bottom: 10px; }
+.titulo-temporadas { display: flex; gap: 8px; overflow-x: auto; padding: 6px var(--hs-margem) 12px;
+  scroll-padding-inline: var(--hs-margem); scroll-snap-type: x proximity; overscroll-behavior-x: contain; scrollbar-width: thin; }
+.titulo-temporada { flex: none; min-height: 38px; padding: 8px 16px; border-radius: var(--hs-raio-total);
+  color: var(--hs-texto); background: var(--hs-linha); font-size: 13px; font-weight: 600; scroll-snap-align: start; }
+.titulo-temporada[aria-pressed="true"] { background: var(--hs-texto); color: var(--hs-pagina); }
+.titulo-temporada:focus-visible, .titulo-ep:focus-visible, .titulo-linha:focus-visible {
+  outline: 2px solid var(--hs-texto); outline-offset: 3px; }
 .titulo-temp { display: inline-flex; align-items: center; gap: 2px; font-size: var(--hs-titulo-secao); font-weight: 700; letter-spacing: -.01em; color: var(--hs-texto); padding: 4px 0; }
 .titulo-temp:disabled { cursor: default; }
 .titulo-trilho { display: flex; gap: var(--hs-vao); overflow-x: auto; padding: 5px var(--hs-margem) 6px; scrollbar-width: none;
@@ -94,6 +102,9 @@
 .titulo-linha.atual { background: var(--hs-linha); }
 .titulo-linha-arte { position: relative; flex: none; width: 128px; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; }
 .titulo-linha-arte > .img { position: absolute; inset: 0; }
+.titulo-linha-arte .cartao-barra, .titulo-ep-arte .cartao-barra { height: 3px; background: rgb(0 0 0 / .65);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / .3); }
+@media (max-width: 600px) { .titulo-linha-arte { width: 100px; } }
 .titulo-linha-texto { min-width: 0; display: flex; flex-direction: column; gap: 2px; font-size: 12px; color: var(--hs-texto-2); line-height: 1.35; }
 .titulo-linha-texto strong { font-size: 14px; color: var(--hs-texto); font-weight: 600; }
 .titulo-linha-texto small { font-size: 11.5px; }

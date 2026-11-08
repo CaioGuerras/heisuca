@@ -4,12 +4,16 @@
 @media (min-width: 1024px) { .fileira { margin-top: 30px; } .fileira-tudo { font-size: 15px; } }
 .fileira-corpo { position: relative; }
 .fileira-trilho { display: flex; align-items: flex-start; gap: var(--hs-vao); overflow-x: auto; overflow-y: hidden;
-  padding: 8px var(--hs-margem) 8px; margin-top: -6px; scroll-padding-inline: var(--hs-margem); scroll-snap-type: x proximity;
+  padding: 24px var(--hs-margem) 28px; margin-top: -22px; margin-bottom: -20px;
+  scroll-padding-inline: var(--hs-margem); scroll-snap-type: x proximity;
   scrollbar-width: none; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
 .fileira-trilho::-webkit-scrollbar { display: none; }
 .fileira-trilho > * { scroll-snap-align: start; }
 .fileira-seta { display: none; }
 @media (hover: hover) and (pointer: fine) {
+  /* Respiro real dentro do scrollport: a ampliação e o anel cabem inclusive nas pontas. */
+  .fileira-trilho > :first-child { transform-origin: left center; }
+  .fileira-trilho > :last-child { transform-origin: right center; }
   .fileira-seta { display: grid; place-items: center; position: absolute; top: 0; bottom: 30px; z-index: 2; width: max(36px, calc(var(--hs-margem) + 8px));
     color: var(--hs-texto); opacity: 0; transition: opacity .2s; background: linear-gradient(90deg, var(--hs-pagina), var(--hs-pagina-0)); }
   .fileira-seta.dir { right: 0; background: linear-gradient(270deg, var(--hs-pagina), var(--hs-pagina-0)); }

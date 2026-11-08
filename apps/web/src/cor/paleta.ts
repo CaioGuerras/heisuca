@@ -88,6 +88,7 @@ export function paletaDe(base: RGB | null): Paleta {
 export function aplicarPaleta(p: Paleta, alvo: HTMLElement = document.documentElement) {
   const v = (k: string, x: string) => alvo.style.setProperty(k, x);
   v('--hs-pagina', css(p.pagina)); v('--hs-superficie', css(p.superficie));
+  v('--hs-pagina-rgb', p.pagina.join(', ')); v('--hs-superficie-rgb', p.superficie.join(', '));
   v('--hs-texto', css(p.texto)); v('--hs-texto-2', css(p.texto2));
   v('--hs-linha', css(p.texto, 0.12)); v('--hs-pagina-0', css(p.pagina, 0));
   v('--hs-vidro', p.escuro ? css(misturar(p.pagina, [255, 255, 255], 0.1), 0.62) : css([255, 255, 255], 0.74));

@@ -24,7 +24,7 @@
 /* do acervo: pôster à esquerda, texto à direita */
 .busca-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
 .busca-item { width: 100%; display: flex; gap: 14px; padding: 8px 6px; border-radius: 14px; text-align: left; align-items: flex-start; color: var(--hs-texto); }
-button.busca-item:hover, button.busca-item:focus-visible { background: var(--hs-linha); outline: none; }
+button.busca-item:hover, button.busca-item:focus-visible { background: var(--hs-linha); }
 .busca-capa { width: 88px; aspect-ratio: 2 / 3; border-radius: 10px; flex: none; }
 .busca-texto { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; padding-top: 2px; }
 .busca-nome { font-size: 16px; font-weight: 600; line-height: 1.3; }
@@ -65,4 +65,18 @@ button.busca-item:hover, button.busca-item:focus-visible { background: var(--hs-
   .busca-item { gap: 20px; padding: 10px; }
   /* no computador os pedidos ficam em duas colunas, para não virar uma lista longa e vazia à direita */
   .busca-pedir .busca-lista { display: grid; grid-template-columns: 1fr 1fr; column-gap: 32px; }
+}
+
+.busca-inicial { padding-top: clamp(36px, 9vh, 90px); gap: 12px; }
+.busca-inicial p { color: var(--hs-texto); font-family: var(--hs-tema-fonte-titulo); font-size: 20px; letter-spacing: -.02em; }
+.busca-inicial small { font-size: 13px; }
+.busca-nome, .busca-origem { overflow-wrap: anywhere; }
+.busca-origem .icone { flex-shrink: 0; }
+button.busca-item { transition: background-color .2s; }
+button.busca-item:focus-visible { outline: 2px solid var(--hs-texto); outline-offset: 1px; }
+@media (max-width: 399px) {
+  .busca-pedir-cabeca { align-items: flex-start; flex-direction: column; gap: 0; }
+  .pedir-item { gap: 8px; }
+  .pedir-botao { padding: 0 12px; }
+  .pedir-selo { padding: 7px 9px; }
 }

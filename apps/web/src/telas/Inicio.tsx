@@ -8,6 +8,7 @@ import { fundo, hashDe, logo, type EmBreve, type Item, type Sessao } from '../ap
 import { usePaleta } from '../cor/paleta';
 import { anos, CartaoEmBreve, CartaoPaisagem, CartaoPoster, CartaoTop10, EsqueletoCartoes, nota } from '../comp/Cartoes';
 import { Fileira } from '../comp/Fileira';
+import { Icone } from '../comp/Icone';
 import { Imagem } from '../comp/Imagem';
 import { Topo } from '../comp/Navegacao';
 import { carregarSecundario, hashDoDestaque, prepararInicio, type DadosInicio } from '../dados/inicio';
@@ -21,29 +22,43 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
   const [n, setN] = useState(0);
   const [vistos, setVistos] = useState<Set<number>>(new Set([0]));
   const [encaixou, setEncaixou] = useState(false);
-  const parado = useRef(false), toque = useRef<number | null>(null);
+  const [pausado, setPausado] = useState(false);
+  const troca = useRef(0);
+  const parado = useRef({ ponteiro: false, foco: false }), toque = useRef<number | null>(null);
   const casa = useRef<HTMLSpanElement>(null), marca = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
+    let vivo = true;
+    setD(null); setN(0); setVistos(new Set([0]));
     prepararInicio(s).then(critico => {
+      if (!vivo) return;
       setD(critico);
       carregarSecundario(s).then(sec => {
-        setD(prev => prev ? { ...prev, ...sec } : null);
+        if (vivo) setD(prev => prev ? { ...prev, ...sec } : null);
       });
-    }).catch(() => setD(null));
+    }).catch(() => { if (vivo) setD(null); });
+    return () => { vivo = false; troca.current++; };
   }, [s.token]);
   const lista = d?.destaque || [];
   const atual = lista[n];
   usePaleta(hashDoDestaque(s, atual));
 
-  const ir = (k: number) => { if (!lista.length) return; const x = (k + lista.length) % lista.length; setN(x); setVistos(v => new Set(v).add(x)); };
+  const ir = async (k: number, automatica = false) => {
+    if (!lista.length) return;
+    const x = (k + lista.length) % lista.length, i = lista[x], pedido = ++troca.current;
+    // A arte anterior permanece inteira até a próxima arte e logo estarem prontas.
+    await Promise.all([fundo(s, i, Math.min(1920, Math.round(innerWidth * devicePixelRatio))), logo(s, i, 600)]
+      .filter(Boolean).map(async src => { const img = new Image(); img.src = src; await img.decode().catch(() => undefined); }));
+    if (pedido !== troca.current || (automatica && (parado.current.ponteiro || parado.current.foco || pausado || document.hidden || matchMedia('(prefers-reduced-motion: reduce)').matches))) return;
+    setVistos(v => new Set(v).add(x)); setN(x);
+  };
   // troca automática; para com o dedo/mouse em cima e enquanto a logo está encaixada no topo (a cor da página não muda
   // enquanto a pessoa lê as fileiras)
   useEffect(() => {
     if (lista.length < 2) return;
-    const t = setInterval(() => { if (!parado.current && !encaixou && !document.hidden) ir(n + 1); }, TROCA);
-    return () => clearInterval(t);
-  }, [lista.length, n, encaixou]);
+    const t = setInterval(() => { if (!parado.current.ponteiro && !parado.current.foco && !pausado && !encaixou && !document.hidden && !matchMedia('(prefers-reduced-motion: reduce)').matches) void ir(n + 1, true); }, TROCA);
+    return () => { clearInterval(t); troca.current++; };
+  }, [lista.length, n, encaixou, pausado]);
 
   // a logo sobe com a página até o meio do topo e fica ali, encolhendo para caber entre a marca e a busca
   useLayoutEffect(() => {
@@ -75,15 +90,17 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
   const generos = atual?.Genres?.slice(0, 5).join(', ');
   const emBreve = d ? [...d.emBreve.tv, ...d.emBreve.movie] : [];
   return (
-    <div class="inicio">
+    <main class="inicio">
       <Topo fundo={encaixou} />
       <section class="destaque" aria-roledescription="carrossel" aria-label="Destaques"
-        onPointerEnter={e => { if (e.pointerType === 'mouse') parado.current = true; }}
-        onPointerLeave={e => { if (e.pointerType === 'mouse') parado.current = false; }}
-        onPointerDown={e => { toque.current = e.clientX; if (e.pointerType !== 'mouse') parado.current = true; }}
-        onPointerCancel={() => { toque.current = null; parado.current = false; }}
+        onFocusCapture={() => { parado.current.foco = true; }}
+        onBlurCapture={e => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) parado.current.foco = false; }}
+        onPointerEnter={e => { if (e.pointerType === 'mouse') parado.current.ponteiro = true; }}
+        onPointerLeave={e => { if (e.pointerType === 'mouse') parado.current.ponteiro = false; }}
+        onPointerDown={e => { toque.current = e.clientX; if (e.pointerType !== 'mouse') parado.current.ponteiro = true; }}
+        onPointerCancel={() => { toque.current = null; parado.current.ponteiro = false; }}
         onPointerUp={e => {
-          if (e.pointerType !== 'mouse') parado.current = false;
+          if (e.pointerType !== 'mouse') parado.current.ponteiro = false;
           if (toque.current === null) return;
           const dx = e.clientX - toque.current; toque.current = null;
           if (Math.abs(dx) > 50) ir(n + (dx < 0 ? 1 : -1));
@@ -112,8 +129,14 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
           </button>
         )}
         {lista.length > 1 && (
-          <div class="destaque-pontos" role="tablist" aria-label="Escolher destaque">
-            {lista.map((i, k) => <button key={i.Id} role="tab" aria-selected={k === n} aria-label={`${k + 1}: ${i.Name}`} class={k === n ? 'atual' : ''} onClick={() => ir(k)} />)}
+          <div class="destaque-controles">
+          <div class="destaque-pontos" role="group" aria-label="Escolher destaque">
+            {lista.map((i, k) => <button key={i.Id} aria-pressed={k === n} aria-label={`${k + 1}: ${i.Name}`} class={k === n ? 'atual' : ''} onClick={() => ir(k)} />)}
+          </div>
+          <button class="destaque-pausa" onClick={() => setPausado(p => !p)} aria-pressed={pausado}
+            aria-label={pausado ? 'Retomar destaques automáticos' : 'Pausar destaques automáticos'}>
+            <Icone nome={pausado ? 'play_arrow' : 'pause'} tamanho={16} />
+          </button>
           </div>
         )}
       </section>
@@ -140,6 +163,6 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
       {emBreve.length > 0 && (
         <Fileira titulo="Em breve">{emBreve.map((e, k) => <CartaoEmBreve key={k} e={e} aoAbrir={x => x.jf ? irTitulo(x.jf) : pedir(x)} />)}</Fileira>
       )}
-    </div>
+    </main>
   );
 }

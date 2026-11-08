@@ -5,6 +5,24 @@
 
 @font-face { font-family: Sora; src: url('../marca/fontes/Sora.woff2') format('woff2'); font-weight: 100 800; font-display: swap; }
 
+/* Paletas aprovadas em 31/10 (PALETAS_HEISUCA). Os tokens gerados da marca ficam preservados. */
+[data-tema="shikkoku"] {
+  --hs-tema-cor-fundo: #17151c; --hs-tema-cor-superficie: #292531;
+  --hs-tema-cor-primaria: #c7bbd4; --hs-tema-cor-acento: #c7bbd4;
+  --hs-tema-cor-texto: #e2dde7; --hs-tema-cor-texto-2: #aaa2b3;
+  --hs-tema-cor-botao-fundo: #c7bbd4; --hs-tema-cor-botao-texto: #17151c;
+  --hs-tema-cor-foco: #c7bbd4; --hs-tema-cor-selo: #8155e3;
+  --hs-pagina-rgb: 23, 21, 28; --hs-superficie-rgb: 41, 37, 49;
+}
+[data-tema="hisui"] {
+  --hs-tema-cor-fundo: #daf1de; --hs-tema-cor-superficie: #e8f5ea;
+  --hs-tema-cor-primaria: #235347; --hs-tema-cor-acento: #235347;
+  --hs-tema-cor-texto: #051f20; --hs-tema-cor-texto-2: #163832;
+  --hs-tema-cor-botao-fundo: #235347; --hs-tema-cor-botao-texto: #ffffff;
+  --hs-tema-cor-foco: #235347;
+  --hs-pagina-rgb: 218, 241, 222; --hs-superficie-rgb: 232, 245, 234;
+}
+
 :root {
   /* cores da página: começam no tema; a paleta do pôster sobrescreve */
   --hs-pagina: var(--hs-tema-cor-fundo);

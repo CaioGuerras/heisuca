@@ -68,6 +68,15 @@ test('anel do episódio atual por dentro da arte (não passa da margem da págin
   assert.match(anel, /^inset 0 0 0 2px var\(--hs-texto\), inset 0 0 0 4px var\(--hs-pagina\)$/);
   assert.equal(decl(titulo, '.titulo-ep.atual .titulo-ep-arte::after', 'inset', null), '0');
   assert.equal(decl(titulo, '.titulo-ep.atual .titulo-ep-arte::after', 'pointer-events', null), 'none');
+});
+
+test('anel do episódio atual por fora no computador (≥ 1024 px), com folga no trilho', () => {
+  const D = '(min-width: 1024px)';
+  assert.equal(decl(titulo, '.titulo-ep.atual .titulo-ep-arte', 'box-shadow', D), '0 0 0 2px var(--hs-pagina), 0 0 0 4px var(--hs-texto)');
+  assert.equal(decl(titulo, '.titulo-ep.atual .titulo-ep-arte::after', 'content', D), 'none');
+  // anel 4 px + hover 2 px = 6 px; o trilho tem de ter mais que isso em cima (overflow-x: auto corta o eixo y)
+  assert.ok(parseInt(decl(titulo, '.titulo-trilho', 'padding-top', D) || '0', 10) > 6);
+  assert.match(decl(titulo, '.titulo-ep.atual:focus-visible .titulo-ep-arte', 'box-shadow', D) || '', /^inset 0 0 0 2px var\(--hs-realce\), 0 0 0 2px/);
   assert.equal(decl(titulo, '.titulo-ep-arte', 'position', null), 'relative');
 });
 

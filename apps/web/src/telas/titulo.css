@@ -85,6 +85,14 @@
 /* Anel do episódio atual por dentro da arte (por fora passava 4 px da margem da página no celular e era cortado pelo trilho). */
 .titulo-ep.atual .titulo-ep-arte::after { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
   box-shadow: inset 0 0 0 2px var(--hs-texto), inset 0 0 0 4px var(--hs-pagina); }
+/* No computador (margem 48 px) o anel vai por fora, com folga na cor da página; o trilho ganha 3 px em cima para o anel
+   (4 px) + o hover (2 px) não serem cortados. O foco do teclado soma o contorno de dentro ao anel de fora. */
+@media (min-width: 1024px) {
+  .titulo-trilho { padding-top: 8px; }
+  .titulo-ep.atual .titulo-ep-arte { box-shadow: 0 0 0 2px var(--hs-pagina), 0 0 0 4px var(--hs-texto); }
+  .titulo-ep.atual .titulo-ep-arte::after { content: none; }
+  .titulo-ep.atual:focus-visible .titulo-ep-arte { box-shadow: inset 0 0 0 2px var(--hs-realce), 0 0 0 2px var(--hs-pagina), 0 0 0 4px var(--hs-texto); }
+}
 .titulo-ep:active .titulo-ep-arte { transform: scale(.97); }
 @media (hover: hover) and (pointer: fine) { .titulo-ep:hover .titulo-ep-arte { transform: translateY(-2px); } }
 .titulo-ep-nome { font-size: 13px; font-weight: 500; padding: 0 2px; }

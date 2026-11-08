@@ -72,13 +72,13 @@ Regras para contribuir (inclusive para agentes de IA): [`AGENTS.md`](AGENTS.md).
 - **[Findroid](https://github.com/jarnedemeulemeester/findroid)** e **[Moonfin](https://github.com/Moonfin-Client)**:
   referência de ideias para o cliente Jellyfin.
 - Bibliotecas do site: Preact, hls.js, JASSUB, blurhash, Material Symbols, Inter e Sora (licenças na tela Sobre).
-- **Rosiel Victor** ([all.dev.br](https://all.dev.br)), pelo apoio, pela generosidade e pela parceria técnica.
-- **Locadora**, pela preservação incansável da cultura e do cinema.
+- 🤝 **Rosiel Victor** ([all.dev.br](https://all.dev.br)), pelo apoio, pela generosidade e pela parceria técnica.
+- **Locadora** ([locadora.cc](https://locadora.cc)), pela preservação incansável da cultura e do cinema.
 
-Feito em parceria com IA: Claude, Codex e Gemini.
+🤖 Feito em parceria com IA: Claude, Codex e Gemini.
 
 ## Licença
 
 [GPL-3.0](LICENSE). O Heisuca é software livre: qualquer pessoa pode ver, estudar e melhorar o código.
 
-<p align="center"><sub>Para a família, que sempre se reuniu diante da tela.</sub></p>
+<p align="center"><sub>Feito com amor, para Isis e Heitor</sub></p>

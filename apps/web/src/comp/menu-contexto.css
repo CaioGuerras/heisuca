@@ -6,4 +6,7 @@
 .mc-opcao { width: 100%; min-height: 46px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding: 0 12px; border-radius: 10px; font-size: 15px; text-align: left; }
 .mc-opcao:hover, .mc-opcao:focus-visible { background: var(--hs-linha); outline: none; }
+[data-tema="hisui"] .mc {
+  box-shadow: 0 16px 40px -14px rgb(20 40 32 / .2), inset 0 0 0 1px var(--hs-linha);
+}
 @keyframes mc-entra { from { opacity: 0; transform: scale(.92); } }

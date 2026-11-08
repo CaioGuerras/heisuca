@@ -55,6 +55,17 @@
   outline: 2px solid var(--hs-texto); outline-offset: 4px; border-radius: var(--hs-raio-cartao); }
 .cartao:focus-visible .cartao-arte { box-shadow: 0 12px 24px rgb(0 0 0 / .3); }
 .cartao-nome, .cartao-sub { display: block; width: 100%; min-width: 0; max-width: 100%; }
+
+/* No claro, a elevação acompanha a arte sem anel branco nem halo preto no pastel. */
+[data-tema="hisui"] .cartao-arte:not(.esqueleto) { box-shadow: 0 3px 12px -4px rgb(20 40 32 / .16); }
+@media (hover: hover) and (pointer: fine) {
+  [data-tema="hisui"] button.cartao:hover .cartao-arte {
+    box-shadow: 0 12px 28px -10px rgb(20 40 32 / .22), 0 2px 6px -2px rgb(20 40 32 / .08);
+  }
+}
+[data-tema="hisui"] .cartao:focus-visible .cartao-arte {
+  box-shadow: 0 12px 28px -10px rgb(20 40 32 / .22), 0 2px 6px -2px rgb(20 40 32 / .08);
+}
 @media (prefers-reduced-motion: reduce) {
   button.cartao:hover, button.cartao:focus-visible, .cartao:active .cartao-arte { transform: none; }
 }

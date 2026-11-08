@@ -51,7 +51,11 @@
   --hs-sombra: 0 8px 28px rgb(0 0 0 / .18);
   color-scheme: dark;
 }
-[data-tema="hisui"] { color-scheme: light; --hs-sombra: 0 8px 28px rgb(20 30 25 / .12); --hs-erro: #b3261e; }
+[data-tema="hisui"] { color-scheme: light; --hs-sombra: 0 10px 32px -12px rgb(20 40 32 / .18); --hs-erro: #b3261e; }
+[data-tema="hisui"] .esqueleto { background: rgba(var(--hs-superficie-rgb), .6); box-shadow: inset 0 0 0 1px var(--hs-linha); }
+[data-tema="hisui"] .esqueleto::after {
+  background: linear-gradient(90deg, transparent 15%, rgba(var(--hs-superficie-rgb), .9) 50%, transparent 85%); opacity: .7;
+}
 @media (min-width: 600px) {
   :root { --hs-margem: 28px; --hs-vao: 12px; --hs-cartao-paisagem: 240px; --hs-cartao-poster: 120px; --hs-titulo-secao: 19px; --hs-raio-cartao: 11px; }
 }

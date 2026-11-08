@@ -12,6 +12,8 @@ import { Icone } from '../comp/Icone';
 import { aoMudarInstalar, instalar, jaInstalado, podeInstalar } from '../comp/instalar';
 import { Logo } from '../comp/Logo';
 import { AJUDA_COMPLETA } from '../comp/MenuUsuario';
+import { alternarFeito, lerFeitos, passosDaConta, progresso, type IdPasso } from '../dados/passos.ts';
+import { erroDaSenha, sucessoDaSenha, TIPOS_FOTO, validarFoto, validarSenha, type CampoSenha, type Senhas } from '../dados/conta.ts';
 import { irPagina, irTitulo } from '../rota';
 import pixQrSvg from '../marca/pix_qrcode.svg';
 import { Pagina } from './Pagina';
@@ -21,12 +23,21 @@ const ler = (k: string) => { try { return localStorage.getItem(k); } catch { ret
 const gravar = (k: string, v: string | null) => { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch { /* modo privado */ } };
 
 // ---------------------------------------------------------------- Minha conta (§10)
+// Desenho do app completo (ref/app_completo/…minha_conta): foto grande no centro, nome, Trocar foto (pílula clara) e
+// Remover foto (lixeira); abaixo, Trocar senha. Regras e mensagens em dados/conta.ts. Plex: foto e senha são do plex.tv.
 export function Conta({ s, aoMudar }: { s: Sessao; aoMudar: (s: Sessao) => void }) {
   const [ocupado, setOcupado] = useState<'' | 'foto' | 'senha'>('');
-  const [senhas, setSenhas] = useState({ atual: '', nova: '', confirma: '' });
-  const [erro, setErro] = useState<{ campo: 'atual' | 'nova' | 'confirma'; texto: string } | null>(null);
+  const [senhas, setSenhas] = useState<Senhas>({ atual: '', nova: '', confirma: '' });
+  const [erro, setErro] = useState<{ campo?: CampoSenha; texto: string } | null>(null);
+  const [ok, setOk] = useState('');
+  const [semSenha, setSemSenha] = useState(false);   // 2º clique confirma deixar a conta sem senha
+  const [temSenha, setTemSenha] = useState<boolean | undefined>(undefined);
   const arquivo = useRef<HTMLInputElement>(null);
   const foto = fotoUsuario(s, 360);
+  const podeFoto = pode(s, 'foto'), podeSenha = pode(s, 'trocarSenha');
+
+  // o servidor diz se a conta tem senha (sem senha: some o campo "Senha atual" e o título vira "Criar senha")
+  useEffect(() => { if (podeSenha) euMesmo(s).then(u => setTemSenha(u.HasPassword), () => null); }, [s.servidor, s.usuarioId]);
 
   // a foto nova muda o tag no servidor: relê o usuário e guarda o tag na sessão (o avatar da ilha e do menu acompanham)
   const reler = () => euMesmo(s).then(u => aoMudar({ ...s, fotoTag: u.PrimaryImageTag || undefined }));
@@ -34,8 +45,8 @@ export function Conta({ s, aoMudar }: { s: Sessao; aoMudar: (s: Sessao) => void 
     const f = (e.target as HTMLInputElement).files?.[0];
     (e.target as HTMLInputElement).value = '';
     if (!f) return;
-    if (!f.type.startsWith('image/')) { avisar('Escolha uma imagem (JPG, PNG ou WebP).'); return; }
-    if (f.size > 10 * 1024 * 1024) { avisar('Imagem grande demais (máximo 10 MB).'); return; }
+    const problema = validarFoto(f);
+    if (problema) { avisar(problema); return; }
     setOcupado('foto');
     trocarFoto(s, f).then(reler).then(() => avisar('Foto trocada.'), () => avisar('Não deu para trocar a foto. Tente de novo.')).finally(() => setOcupado(''));
   };
@@ -45,36 +56,30 @@ export function Conta({ s, aoMudar }: { s: Sessao; aoMudar: (s: Sessao) => void 
   };
   const salvar = (e: Event) => {
     e.preventDefault();
-    setErro(null);
-    if (!senhas.nova) { setErro({ campo: 'nova', texto: 'Digite a nova senha.' }); return; }
-    if (senhas.nova !== senhas.confirma) { setErro({ campo: 'confirma', texto: 'As duas senhas novas não são iguais.' }); return; }
+    setErro(null); setOk('');
+    const v = validarSenha(temSenha === false ? { ...senhas, atual: '' } : senhas, temSenha);
+    if (!v.ok) { setErro(v); setSemSenha(false); return; }
+    if (v.semSenha && !semSenha) { setSemSenha(true); return; }
     setOcupado('senha');
-    trocarSenha(s, senhas.atual, senhas.nova)
-      .then(() => { setSenhas({ atual: '', nova: '', confirma: '' }); avisar('Senha trocada. Os outros aparelhos vão pedir para entrar de novo.'); })
-      .catch((x: Error) => {
-        if (/: 40[03]$/.test(x.message)) setErro({ campo: 'atual', texto: 'Senha atual incorreta.' });
-        else avisar('Não deu para trocar a senha. Tente de novo.');
-      })
-      .finally(() => setOcupado(''));
+    trocarSenha(s, temSenha === false ? '' : senhas.atual, senhas.nova)
+      .then(() => { setSenhas({ atual: '', nova: '', confirma: '' }); setOk(sucessoDaSenha(v.semSenha)); setTemSenha(!v.semSenha); })
+      .catch((x: unknown) => setErro(erroDaSenha(x)))
+      .finally(() => { setOcupado(''); setSemSenha(false); });
   };
-  const campo = (k: 'atual' | 'nova' | 'confirma', rotulo: string, auto: string) => (
+  const campo = (k: CampoSenha, rotulo: string, auto: string) => (
     <CampoSenha rotulo={rotulo} valor={senhas[k]} auto={auto} erro={erro?.campo === k ? erro.texto : ''}
-      mudar={v => { setSenhas(x => ({ ...x, [k]: v })); if (erro?.campo === k) setErro(null); }} />
+      mudar={v => { setSenhas(x => ({ ...x, [k]: v })); setSemSenha(false); setOk(''); if (erro?.campo === k) setErro(null); }} />
   );
 
   return (
     <Pagina titulo="Minha conta" classe="conta">
-      <section class="cartao-pagina conta-cartao-perfil">
-        <div class="conta-foto-envoltura">
-          {foto ? <img class="conta-foto" src={foto} alt="Sua foto" width={112} height={112} />
-            : <span class="conta-foto conta-sem-foto" aria-hidden="true"><Icone nome="person" cheio tamanho={56} /></span>}
-        </div>
-        <div class="conta-info">
-          <h2 class="conta-nome">{s.nome}</h2>
-          <span class="conta-selo-usuario">Perfil do Heisuca</span>
-        </div>
-        {pode(s, 'foto') && <div class="conta-acoes">
-          <button class="pilula pilula-tema" disabled={!!ocupado} onClick={() => arquivo.current?.click()}>
+      <section class="conta-perfil">
+        {foto ? <img class="conta-foto" src={foto} alt="Sua foto" width={144} height={144} />
+          : <span class="conta-foto conta-sem-foto" aria-hidden="true"><Icone nome="person" cheio tamanho={72} /></span>}
+        <h2 class="conta-nome">{s.nome}</h2>
+        {s.nomeServidor && <p class="texto-2 conta-servidor"><Icone nome="dns" tamanho={16} classe="em-linha" />{s.nomeServidor}</p>}
+        {podeFoto && <div class="conta-acoes">
+          <button class="pilula pilula-clara conta-trocar" disabled={!!ocupado} onClick={() => arquivo.current?.click()}>
             <Icone nome="photo_camera" cheio tamanho={20} />{ocupado === 'foto' ? 'Enviando…' : 'Trocar foto'}
           </button>
           {s.fotoTag && (
@@ -82,29 +87,29 @@ export function Conta({ s, aoMudar }: { s: Sessao; aoMudar: (s: Sessao) => void 
               <Icone nome="delete" cheio tamanho={20} />Remover foto
             </button>
           )}
-          <input ref={arquivo} type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden onChange={escolher} />
+          <input ref={arquivo} type="file" accept={TIPOS_FOTO.join(',')} hidden onChange={escolher} />
         </div>}
       </section>
 
-      {pode(s, 'trocarSenha') && <form class="cartao-pagina conta-cartao-senha" onSubmit={salvar} noValidate>
-        <div class="conta-secao-cabeca">
-          <span class="conta-secao-icone"><Icone nome="lock" tamanho={22} /></span>
-          <div>
-            <h2>Segurança e senha</h2>
-            <p class="texto-2">A senha vale para todos os aparelhos. Depois da troca, os outros aparelhos pedem para entrar de novo.</p>
-          </div>
-        </div>
+      {podeSenha ? <form class="conta-senha" onSubmit={salvar} noValidate>
+        <h2>{temSenha === false ? 'Criar senha' : 'Trocar senha'}</h2>
+        <p class="texto-2 conta-explica">A senha vale para todos os aparelhos. Depois da troca, os outros aparelhos pedem para entrar de novo.</p>
         {/* o navegador associa a senha ao usuário certo */}
         <input type="text" autocomplete="username" value={s.nome} hidden readOnly />
         <div class="conta-campos">
-          {campo('atual', 'Senha atual (vazia se você não tem)', 'current-password')}
+          {temSenha !== false && campo('atual', 'Senha atual (vazia se você não tem)', 'current-password')}
           {campo('nova', 'Nova senha', 'new-password')}
           {campo('confirma', 'Confirmar nova senha', 'new-password')}
         </div>
-        <button type="submit" class="pilula pilula-tema conta-salvar" disabled={!!ocupado}>
-          {ocupado === 'senha' ? 'Salvando…' : 'Salvar nova senha'}
+        {semSenha && <p class="conta-alerta" role="alert"><Icone nome="info" cheio tamanho={20} />
+          A nova senha está vazia: a conta vai ficar sem senha, e qualquer pessoa com o seu usuário entra. Toque de novo para confirmar.</p>}
+        {erro && !erro.campo && <p class="conta-alerta" role="alert"><Icone nome="info" cheio tamanho={20} />{erro.texto}</p>}
+        {ok && <p class="conta-ok" role="status"><Icone nome="check_circle" cheio tamanho={20} />{ok}</p>}
+        <button type="submit" class="pilula pilula-clara conta-salvar" disabled={!!ocupado}>
+          {ocupado === 'senha' ? 'Salvando…' : semSenha ? 'Salvar sem senha' : temSenha === false ? 'Salvar senha' : 'Salvar nova senha'}
         </button>
-      </form>}
+      </form>
+        : s.tipo === 'plex' && <p class="texto-2 conta-plex"><Icone nome="info" tamanho={18} classe="em-linha" />Nesta conta do Plex, a foto e a senha são trocadas no site do Plex.</p>}
     </Pagina>
   );
 }
@@ -133,7 +138,7 @@ const NAVEGADORES = [
     'Abra o site no Safari.', <>Toque em Compartilhar <Icone nome="ios_share" tamanho={18} classe="em-linha" /> (o quadrado com a seta para cima).</>,
     <>Role e toque em <strong>Adicionar à Tela de Início</strong>.</>, <>Toque em <strong>Adicionar</strong>. O ícone do Heisuca fica na tela de início.</>] },
   { id: 'windows', icone: 'desktop_windows', nome: 'Windows', sub: 'Edge', passos: [
-    'Abra o site no Edge.', <>Clique no ícone de instalar <Icone nome="install_desktop" tamanho={18} classe="em-linha" />, na barra de endereço (ou no menu ··· → <strong>Aplicativos</strong> → <strong>Instalar este site como aplicativo</strong>).</>,
+    'Abra o site no Edge.', <>Clique no ícone de instalar <Icone nome="install_desktop" tamanho={18} classe="em-linha" />, na barra de endereço (ou no menu ··· → <strong>Aplicativos</strong> → <strong>Instalar este site como um aplicativo</strong>).</>,
     <>Clique em <strong>Instalar</strong>. O Heisuca abre em janela própria e fica no menu Iniciar.</>] },
 ];
 const deste = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) ? 'iphone'
@@ -159,62 +164,71 @@ function PassosInstalar() {
 }
 
 // ---------------------------------------------------------------- Como usar (§11)
+// Conteúdo só do que o Heisuca faz em qualquer servidor (AJUDA_FATOS + ajuda.html de referência, sem nada do CGSERVER).
+// Regras (quais passos valem, o que já foi marcado, progresso) em dados/passos.ts.
 const FEITOS = 'heisuca.ajuda.feitos';
-type Passo = { id: string; titulo: string; texto: ComponentChildren; acao?: { rotulo: string; ir: () => void }; extra?: ComponentChildren };
+type Passo = { icone: string; titulo: string; texto: ComponentChildren; acao?: { rotulo: string; ir: () => void }; extra?: ComponentChildren };
 
 export function ComoUsar({ s }: { s: Sessao }) {
-  const [seerr, setSeerr] = useState(false);
-  const [feitos, setFeitos] = useState<string[]>(() => { try { return JSON.parse(ler(FEITOS) || '[]'); } catch { return []; } });
-  useEffect(() => { temSeerr(s).then(setSeerr); }, [s.servidor]);
+  const [seerr, setSeerr] = useState<boolean | null>(null);
+  const [feitos, setFeitos] = useState<string[]>(() => lerFeitos(ler(FEITOS)));
+  useEffect(() => { temSeerr(s).then(setSeerr, () => setSeerr(false)); }, [s.servidor]);
 
-  const passos: Passo[] = [
-    { id: 'entrar', titulo: 'Entrar no site', texto: 'Você entra com o endereço do servidor, o seu usuário e a senha. A sessão fica salva neste aparelho: da próxima vez, o Heisuca já abre direto.' },
-    { id: 'senha', titulo: 'Criar ou trocar a senha', texto: 'Se a sua conta ainda não tem senha, crie uma. Ela vale para todos os aparelhos.', acao: { rotulo: 'Abrir Minha conta', ir: () => irPagina('conta') } },
-    { id: 'foto', titulo: 'Pôr uma foto no perfil', texto: 'A foto aparece na barra de baixo e no menu, e ajuda a reconhecer a sua conta.', acao: { rotulo: 'Abrir Minha conta', ir: () => irPagina('conta') } },
-    { id: 'instalar', titulo: 'Instalar no aparelho', texto: 'O site vira um app: ícone na tela de início e tela inteira, sem a barra do navegador.',
+  const conta = { rotulo: 'Abrir Minha conta', ir: () => irPagina('conta') };
+  const PASSOS: Record<IdPasso, Passo> = {
+    entrar: { icone: 'account_circle', titulo: 'Entrar no site', texto: <>Você entra com o endereço do servidor, o seu usuário e a senha, ou com o código
+      do <strong>Quick Connect</strong>, no ícone do canto da tela de entrada. A sessão fica salva neste aparelho: da próxima vez, o Heisuca já abre direto.</> },
+    senha: { icone: 'mobile_lock_portrait', titulo: 'Criar ou trocar a senha', texto: 'Se a sua conta ainda não tem senha, crie uma. Ela vale para todos os aparelhos.', acao: conta },
+    foto: { icone: 'photo_camera', titulo: 'Pôr uma foto no perfil', texto: 'A foto aparece na barra de baixo e no menu, e ajuda a reconhecer a sua conta.', acao: conta },
+    instalar: { icone: 'install_desktop', titulo: 'Instalar no aparelho', texto: 'O site vira um app: ícone na tela de início e tela inteira, sem a barra do navegador.',
       extra: <PassosInstalar />, acao: { rotulo: 'Ver os apps do Heisuca', ir: () => irPagina('apps') } },
-    ...(seerr ? [{ id: 'pedir', titulo: 'Pedir filmes e séries', texto: <>Não achou o que queria? Busque pelo nome. O que o servidor ainda não tem aparece em <strong>Disponível para pedir</strong>: toque em <strong>+ Pedir</strong> e avisamos quando chegar.</>,
-      acao: { rotulo: 'Abrir a busca', ir: () => irPagina('busca') } }] : []),
-  ];
-  const marcados = passos.filter(p => feitos.includes(p.id)).length;
-  // com todos marcados, o menu move o Como usar para o fim (PLANO §9)
-  useEffect(() => { gravar(AJUDA_COMPLETA, marcados === passos.length ? '1' : null); }, [marcados, passos.length]);
-  const alternar = (id: string) => setFeitos(f => {
-    const n = f.includes(id) ? f.filter(x => x !== id) : [...f, id];
-    gravar(FEITOS, JSON.stringify(n));
-    return n;
-  });
+    pedir: { icone: 'playlist_add_check', titulo: 'Pedir filmes e séries', texto: <>Não achou o que queria? Busque pelo nome. O que o servidor ainda não tem aparece em
+      <strong> Disponível para pedir</strong>: toque em <strong>Pedir</strong>. Os seus pedidos ficam em <strong>Meus pedidos</strong>, na própria busca.</>,
+      acao: { rotulo: 'Abrir a busca', ir: () => irPagina('busca') } },
+  };
+  const ids = passosDaConta({ senha: pode(s, 'trocarSenha'), foto: pode(s, 'foto'), seerr: !!seerr });
+  const p = progresso(ids, feitos);
+  // com todos marcados, o Como usar sai do menu e passa para o Sobre (PLANO §9); só decide depois de saber se há Seerr
+  useEffect(() => { if (seerr !== null) gravar(AJUDA_COMPLETA, p.completo ? '1' : null); }, [p.completo, seerr]);
+  const alternar = (id: string) => setFeitos(f => { const n = alternarFeito(f, id); gravar(FEITOS, JSON.stringify(n)); return n; });
 
   return (
     <Pagina titulo="Como usar" classe="ajuda">
-      <p class="ajuda-intro texto-2">Alguns passos para aproveitar o Heisuca. Marque o que já fez: fica guardado neste aparelho.</p>
-      <div class="ajuda-progresso" role="progressbar" aria-valuemin={0} aria-valuemax={passos.length} aria-valuenow={marcados}
-        aria-label={`${marcados} de ${passos.length} passos feitos`}>
-        <span style={{ width: `${(marcados / passos.length) * 100}%` }} /></div>
-      <p class="ajuda-conta texto-2">{marcados === passos.length ? 'Tudo feito.' : `${marcados} de ${passos.length} feitos`}</p>
+      <section class={`ajuda-hero${p.completo ? ' completo' : ''}`}>
+        <div class="ajuda-hero-texto">
+          <p class="ajuda-hero-conta"><strong>{p.feitos}</strong> de {p.total}</p>
+          <h2>{p.completo ? 'Tudo pronto.' : 'Primeiros passos'}</h2>
+          <p class="texto-2">{p.completo ? 'Este guia saiu do menu e agora fica no Sobre. Desmarque um passo para ele voltar.'
+            : 'Marque o que já fez: fica guardado neste aparelho.'}</p>
+        </div>
+        <div class="ajuda-progresso" role="progressbar" aria-valuemin={0} aria-valuemax={p.total} aria-valuenow={p.feitos}
+          aria-label={`${p.feitos} de ${p.total} passos feitos`}><span style={{ transform: `scaleX(${p.pct / 100})` }} /></div>
+      </section>
       <ol class="ajuda-passos">
-        {passos.map((p, n) => {
-          const feito = feitos.includes(p.id);
+        {ids.map((id, n) => {
+          const x = PASSOS[id], feito = feitos.includes(id);
           return (
-            <li key={p.id} class={`cartao-pagina ajuda-passo${feito ? ' feito' : ''}`}>
+            <li key={id} class={`cartao-pagina ajuda-passo${feito ? ' feito' : ''}${p.proximo === id ? ' proximo' : ''}`}>
               <div class="ajuda-cabeca">
-                <span class="ajuda-numero" aria-hidden="true">{feito ? <Icone nome="check" tamanho={18} /> : n + 1}</span>
-                <h2>{p.titulo}</h2>
+                <span class="ajuda-icone" aria-hidden="true"><Icone nome={feito ? 'check' : x.icone} tamanho={24} /></span>
+                <div class="ajuda-titulo"><small>Passo {n + 1}</small><h2>{x.titulo}</h2></div>
                 <label class="ajuda-feito">
-                  <input type="checkbox" checked={feito} onChange={() => alternar(p.id)} />
+                  <input type="checkbox" checked={feito} onChange={() => alternar(id)} />
                   <span class="ajuda-caixa" aria-hidden="true"><Icone nome="check" tamanho={16} /></span>Feito
                 </label>
               </div>
-              <p class="ajuda-texto">{p.texto}</p>
-              {p.extra}
-              {p.acao && <button class="ajuda-acao" onClick={p.acao.ir}>{p.acao.rotulo}<Icone nome="chevron_right" tamanho={20} /></button>}
+              <div class="ajuda-corpo">
+                <p class="ajuda-texto">{x.texto}</p>
+                {x.extra}
+                {x.acao && <button class="ajuda-acao" onClick={x.acao.ir}>{x.acao.rotulo}<Icone nome="chevron_right" tamanho={20} /></button>}
+              </div>
             </li>
           );
         })}
       </ol>
 
       <section class="cartao-pagina ajuda-avisos">
-        <Icone nome="notifications" tamanho={24} />
+        <span class="ajuda-icone" aria-hidden="true"><Icone nome="notifications" tamanho={24} /></span>
         <div><h2>Avisos no aparelho</h2><p class="texto-2">Avisar quando um pedido chegar ou sair um episódio novo.</p></div>
         <span class="selo-em-breve">Em breve</span>
       </section>
@@ -233,40 +247,41 @@ export function ComoUsar({ s }: { s: Sessao }) {
 }
 
 // ---------------------------------------------------------------- Baixar os apps (§12)
+// Plataformas do README do Heisuca; só o site instalado existe hoje. Nada de apps de terceiros (eram dicas do CGSERVER).
 const EM_BREVE = [
-  { icone: 'android', nome: 'Android', sub: 'Celulares e tablets' },
-  { icone: 'tv', nome: 'Android TV', sub: 'TVs e TV boxes com Google TV' },
-  { icone: 'connected_tv', nome: 'TVs Samsung e LG', sub: 'Tizen e webOS' },
-  { icone: 'mobile', nome: 'iPhone e iPad', sub: 'iOS e iPadOS' },
+  { id: 'android', icone: 'android', nome: 'Android', sub: 'Celulares e tablets' },
+  { id: 'tv', icone: 'tv', nome: 'Android TV', sub: 'TVs e TV boxes com Google TV' },
+  { id: 'tvs', icone: 'connected_tv', nome: 'TVs Samsung e LG', sub: 'Tizen e webOS' },
+  { id: 'iphone', icone: 'mobile', nome: 'iPhone e iPad', sub: 'iOS e iPadOS' },
 ];
 export function Apps() {
   const aqui = deste();
   return (
     <Pagina titulo="Baixar os apps" classe="apps">
-      <p class="texto-2 apps-intro">O Heisuca é feito para acompanhar você em qualquer tela. Instale agora no seu navegador ou acompanhe o lançamento dos apps nativos.</p>
-      <section class="cartao-pagina apps-site apps-card-destaque">
+      <section class="apps-hero">
+        <h2>O Heisuca em cada tela</h2>
+        <p class="texto-2">Hoje, o Heisuca se instala pelo navegador e vira um app no aparelho. Os apps próprios estão a caminho.</p>
+      </section>
+      <section class="cartao-pagina apps-destaque">
         <div class="apps-cabeca">
           <span class="apps-icone apps-icone-ativo"><Icone nome="install_desktop" tamanho={26} /></span>
           <div>
-            <h2>Instalar o Heisuca neste aparelho</h2>
-            <small class="texto-2">Acesso direto da tela de início, em tela cheia e sem barras do navegador</small>
+            <h2>Instalar o site como app</h2>
+            <small class="texto-2">Ícone na tela de início e tela inteira, sem a barra do navegador</small>
           </div>
           <span class="selo-disponivel">Disponível agora</span>
         </div>
         <PassosInstalar />
       </section>
-      <h2 class="titulo-secao apps-titulo">Apps em desenvolvimento</h2>
+      <h2 class="titulo-secao apps-titulo">Em breve</h2>
       <ul class="apps-grade">
         {EM_BREVE.map(a => {
-          const ehAparelhoAtual = a.nome.toLowerCase().includes(aqui);
+          const atual = a.id === aqui;
           return (
-            <li key={a.nome} class={`cartao-pagina apps-app${ehAparelhoAtual ? ' apps-app-atual' : ''}`}>
+            <li key={a.id} class={`cartao-pagina apps-app${atual ? ' apps-app-atual' : ''}`}>
               <span class="apps-icone"><Icone nome={a.icone} tamanho={26} /></span>
-              <div class="apps-app-info">
-                <div class="apps-nome-linha">
-                  <h3>{a.nome}</h3>
-                  {ehAparelhoAtual && <span class="apps-badge-atual">Seu aparelho</span>}
-                </div>
+              <div>
+                <h3>{a.nome}{atual && <span class="apps-badge-atual">Seu aparelho</span>}</h3>
                 <small class="texto-2">{a.sub}</small>
               </div>
               <span class="selo-em-breve">Em breve</span>
@@ -279,7 +294,9 @@ export function Apps() {
 }
 
 // ---------------------------------------------------------------- Sobre (§9)
-const CODIGO = 'https://github.com/caioguerras/heisuca';
+// Nome, versão, "Nada entre você e o filme.", GPL-3.0 com o link do código, créditos (bibliotecas, Rosiel Victor e a Locadora
+// só pelo nome, sem endereço) e a dedicatória sem nomes da família (NOVA_FASE/BASE_MARCA).
+const CODIGO = 'https://github.com/CaioGuerras/heisuca';
 const BIBLIOTECAS = [
   ['Preact', 'MIT', 'a base do site'], ['hls.js', 'Apache-2.0', 'vídeo em partes (HLS)'], ['JASSUB', 'MIT', 'legendas ASS'],
   ['blurhash', 'MIT', 'as cores tiradas do pôster'], ['Material Symbols', 'Apache-2.0', 'os ícones'],
@@ -290,70 +307,49 @@ export function Sobre() {
   return (
     <Pagina titulo="Sobre" classe="sobre">
       <section class="sobre-marca">
+        <h2 class="visualmente-oculto">Heisuca. Nada entre você e o filme.</h2>
         <Logo classe="sobre-logo" comSlogan />
-        <p class="texto-2 sobre-versao">Versão {VERSAO}</p>
+        <p class="sobre-versao">Versão {VERSAO}</p>
       </section>
-
-      <section class="cartao-pagina sobre-bloco">
-        <h2>Agradecimentos</h2>
-        <div class="sobre-dedicatorias">
-          <div class="sobre-card-tributo">
-            <div class="sobre-tributo-cabeca">
-              <span class="sobre-tributo-icone"><Icone nome="favorite" cheio tamanho={20} /></span>
-              <div class="sobre-tributo-info">
-                <h3>Rosiel Victor</h3>
-                <p class="texto-2">Por sempre apoiar a fazer essas coisas rsrs.</p>
-              </div>
-            </div>
-            <a class="pilula pilula-clara sobre-tributo-botao" href="https://all.dev.br" target="_blank" rel="noopener noreferrer">
-              <span>all.dev.br</span>
-              <Icone nome="open_in_new" tamanho={16} />
-            </a>
-          </div>
-
-          <div class="sobre-card-tributo">
-            <div class="sobre-tributo-cabeca">
-              <span class="sobre-tributo-icone"><Icone nome="movie" cheio tamanho={20} /></span>
-              <div class="sobre-tributo-info">
-                <h3>Comunidade Locadora</h3>
-                <p class="texto-2">Por até rir às vezes mas sempre me encorajar a evoluir, mesmo que cheio de HnR no site.</p>
-              </div>
-            </div>
-            <a class="pilula pilula-clara sobre-tributo-botao" href="https://locadora.cc" target="_blank" rel="noopener noreferrer">
-              <span>locadora.cc</span>
-              <Icone nome="open_in_new" tamanho={16} />
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <details class="cartao-pagina sobre-retratil">
-        <summary class="sobre-retratil-sumario">
-          <span>
-            <strong>Código aberto e créditos</strong>
-            <small class="texto-2">Licença GPL-3.0, repositório e bibliotecas utilizadas</small>
-          </span>
-          <Icone nome="expand_more" tamanho={22} />
-        </summary>
-        <div class="sobre-retratil-corpo">
-          <div class="sobre-subbloco">
-            <h3>Código aberto</h3>
-            <p class="texto-2">O Heisuca é software livre, sob a licença GPL-3.0: qualquer pessoa pode ver, estudar e melhorar o código.</p>
-            <a class="ajuda-acao" href={CODIGO} target="_blank" rel="noopener noreferrer"><Icone nome="code" tamanho={20} />Ver o código no GitHub<Icone nome="open_in_new" tamanho={18} /></a>
-          </div>
-          <div class="sobre-subbloco">
-            <h3>Bibliotecas e licenças</h3>
-            <ul class="sobre-creditos">
-              {BIBLIOTECAS.map(([nome, lic, uso]) => <li key={nome}><strong>{nome}</strong><span class="texto-2">{uso}</span><small>{lic}</small></li>)}
-            </ul>
-          </div>
-        </div>
-      </details>
 
       {/* com os passos todos marcados, o Como usar sai do menu e fica aqui (revisão de 19/10: "vai pra dentro das configurações") */}
-      {completa && <button class="cartao-pagina sobre-ajuda" onClick={() => irPagina('ajuda')}><Icone nome="help" tamanho={24} />
-        <span><strong>Como usar</strong><small class="texto-2">Os passos e as dúvidas</small></span><Icone nome="chevron_right" tamanho={22} /></button>}
-      <p class="sobre-dedicatoria">Para a família, que sempre se reuniu diante da tela.</p>
+      {completa && <button class="cartao-pagina sobre-linha" onClick={() => irPagina('ajuda')}>
+        <span class="sobre-icone" aria-hidden="true"><Icone nome="help" tamanho={22} /></span>
+        <span class="sobre-linha-texto"><strong>Como usar</strong><small class="texto-2">Os passos e as dúvidas</small></span>
+        <Icone nome="chevron_right" tamanho={22} classe="sobre-seta" /></button>}
+
+      <section class="cartao-pagina sobre-codigo">
+        <div class="sobre-cabeca">
+          <span class="sobre-icone" aria-hidden="true"><Icone nome="code" tamanho={22} /></span>
+          <div><h2>Código aberto</h2><small class="texto-2">Licença GPL-3.0</small></div>
+        </div>
+        <p class="texto-2">O Heisuca é software livre: qualquer pessoa pode ver, estudar e melhorar o código.</p>
+        <a class="pilula pilula-clara sobre-botao" href={CODIGO} target="_blank" rel="noopener noreferrer">
+          Ver o código no GitHub<Icone nome="open_in_new" tamanho={18} /></a>
+      </section>
+
+      <h2 class="titulo-secao sobre-titulo">Agradecimentos</h2>
+      <ul class="sobre-agradece">
+        <li class="cartao-pagina">
+          <span class="sobre-icone" aria-hidden="true"><Icone nome="favorite" cheio tamanho={20} /></span>
+          <div><h3>Rosiel Victor</h3><p class="texto-2">Por sempre apoiar a fazer essas coisas rsrs.</p>
+            <a class="sobre-link" href="https://all.dev.br" target="_blank" rel="noopener noreferrer">all.dev.br<Icone nome="open_in_new" tamanho={16} /></a></div>
+        </li>
+        <li class="cartao-pagina">
+          <span class="sobre-icone" aria-hidden="true"><Icone nome="movie" cheio tamanho={20} /></span>
+          <div><h3>Locadora</h3><p class="texto-2">Por até rir às vezes mas sempre me encorajar a evoluir, mesmo que cheio de HnR no site.</p></div>
+        </li>
+      </ul>
+
+      <details class="cartao-pagina sobre-retratil">
+        <summary><span><strong>Bibliotecas e licenças</strong><small class="texto-2">O que o Heisuca usa, com crédito</small></span>
+          <Icone nome="keyboard_arrow_down" tamanho={22} classe="sobre-seta" /></summary>
+        <ul class="sobre-creditos">
+          {BIBLIOTECAS.map(([nome, lic, uso]) => <li key={nome}><strong>{nome}</strong><span class="texto-2">{uso}</span><small>{lic}</small></li>)}
+        </ul>
+      </details>
+
+      <p class="sobre-dedicatoria"><Icone nome="favorite" cheio tamanho={18} />Para a família, que sempre se reuniu diante da tela.</p>
     </Pagina>
   );
 }

@@ -17,7 +17,8 @@ type Metadado = { ratingKey?: string | number; key?: string; type?: string; titl
   Chapter?: { tag?: string; title?: string; startTimeOffset: number }[]; Media?: Media[]; duration?: number; viewOffset?: number;
   viewCount?: number; leafCount?: number; viewedLeafCount?: number; thumb?: string; art?: string; grandparentArt?: string;
   grandparentThumb?: string; Image?: { type: string; url: string }[]; addedAt?: number };
-type Container = { Metadata?: Metadado[]; Directory?: Metadado[]; Hub?: Container[]; totalSize?: number; size?: number };
+type Container = { Metadata?: Metadado[]; Directory?: Metadado[]; Hub?: Container[]; totalSize?: number; size?: number;
+  hubIdentifier?: string; context?: string };
 const ticks = (ms?: number) => ms === undefined ? undefined : ms * 10_000;
 const id = (v: string | number | undefined) => v === undefined ? undefined : String(v);
 const cod = encodeURIComponent;
@@ -83,10 +84,18 @@ async function bibliotecas(s: Sessao): Promise<Item[]> {
     CollectionType: ({ movie: 'movies', show: 'tvshows' } as Record<string, string>)[b.type || ''] || b.type }));
 }
 const bibliotecasDeVideo = (s: Sessao) => bibliotecas(s).then(l => l.filter(b => ['movies', 'tvshows'].includes(b.CollectionType || '')));
-async function continuar(s: Sessao): Promise<Item[]> {
+async function fileira(s: Sessao, retomar: boolean): Promise<Item[]> {
   const d = await ler(s, '/hubs', { identifier: 'home.continue,home.ondeck' });
+  // Decide enquanto a identidade do hub ainda existe. Posição sozinha não identifica a origem.
+  // PMS 1.43.4 real: hubIdentifier home.continue/home.ondeck, context hub.home.continue/hub.home.ondeck (J13_hubs_real.json).
+  const lista = (d.Hub || []).flatMap(h => {
+    const continuar = h.hubIdentifier === 'home.continue' || h.context === 'hub.home.continue';
+    const proximo = !continuar && (h.hubIdentifier === 'home.ondeck' || h.context === 'hub.home.ondeck');
+    return itensHub(h).filter(i => retomar ? continuar || (proximo && !!i.UserData?.PlaybackPositionTicks)
+      : proximo && i.Type === 'Episode' && !i.UserData?.PlaybackPositionTicks);
+  });
   const saida: Item[] = [];
-  for (const i of (d.Hub || []).flatMap(itensHub)) {
+  for (const i of lista) {
     const n = saida.findIndex(x => x.Id === i.Id || (i.Type === 'Episode' && i.SeriesId && x.SeriesId === i.SeriesId));
     if (n < 0) saida.push(i);
     else if (!saida[n].UserData?.PlaybackPositionTicks && i.UserData?.PlaybackPositionTicks) saida[n] = i;
@@ -239,7 +248,7 @@ async function relatar(s: Sessao, p: Plano, fase: 'inicio' | 'progresso' | 'fim'
   return Promise.all(chamadas);
 }
 export const plex: ApiServidor = {
-  bibliotecas, bibliotecasDeVideo, continuar, proximos: s => continuar(s).then(l => l.filter(i => i.Type === 'Episode')),
+  bibliotecas, bibliotecasDeVideo, continuar: s => fileira(s, true), proximos: s => fileira(s, false),
   novidades, destaque, daBiblioteca, daColecao: (s, id) => todos(s, `/library/collections/${cod(id)}/children`),
   favoritos: async () => ({ Items: [], TotalRecordCount: 0 }), porIds, item,
   temporadas: (s, id) => todos(s, `/library/metadata/${cod(id)}/children`),

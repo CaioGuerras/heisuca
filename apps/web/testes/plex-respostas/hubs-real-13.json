@@ -1,0 +1,222 @@
+{
+ "MediaContainer": {
+  "size": 2,
+  "allowSync": true,
+  "identifier": "com.plexapp.plugins.library",
+  "Hub": [
+   {
+    "hubKey": "/library/metadata/17928",
+    "key": "/hubs/home/continueWatching",
+    "title": "Continue Watching",
+    "type": "mixed",
+    "hubIdentifier": "home.continue",
+    "context": "hub.home.continue",
+    "size": 1,
+    "more": false,
+    "style": "hero",
+    "promoted": true,
+    "Metadata": [
+     {
+      "ratingKey": "17928",
+      "key": "/library/metadata/17928",
+      "parentRatingKey": "17927",
+      "grandparentRatingKey": "13539",
+      "guid": "plex://episode/60afd4e113ec30002d401553",
+      "parentGuid": "plex://season/60afd4e013ec30002d40154f",
+      "grandparentGuid": "plex://show/60afd4e013ec30002d40154d",
+      "grandparentSlug": "aoashi",
+      "studio": "Production I.G",
+      "type": "episode",
+      "title": "Primeiro Toque",
+      "grandparentKey": "/library/metadata/13539",
+      "parentKey": "/library/metadata/17927",
+      "librarySectionTitle": "Animes",
+      "librarySectionID": 3,
+      "librarySectionKey": "/library/sections/3",
+      "grandparentTitle": "Aoashi",
+      "parentTitle": "Season 1",
+      "originalTitle": "ファーストタッチ",
+      "contentRating": "TV-14",
+      "index": 1,
+      "parentIndex": 1,
+      "audienceRating": 8.0,
+      "viewOffset": 72698,
+      "lastViewedAt": 1792360728,
+      "year": 2022,
+      "thumb": "/library/metadata/17928/thumb/1791566712",
+      "art": "/library/metadata/13539/art/1791566708",
+      "parentThumb": "/library/metadata/17927/thumb/1791566712",
+      "grandparentThumb": "/library/metadata/13539/thumb/1791566708",
+      "grandparentArt": "/library/metadata/13539/art/1791566708",
+      "duration": 1470250,
+      "originallyAvailableAt": "2022-04-09",
+      "addedAt": 1791566708,
+      "updatedAt": 1791566712,
+      "audienceRatingImage": "themoviedb://image.rating",
+      "chapterSource": "media",
+      "Image": [
+       {
+        "alt": "Primeiro Toque",
+        "type": "coverPoster",
+        "url": "/library/metadata/13539/thumb/1791566708"
+       },
+       {
+        "alt": "Primeiro Toque",
+        "type": "snapshot",
+        "url": "/library/metadata/17928/thumb/1791566712"
+       },
+       {
+        "alt": "Primeiro Toque",
+        "type": "background",
+        "url": "/library/metadata/13539/art/1791566708"
+       },
+       {
+        "alt": "Primeiro Toque",
+        "type": "backgroundSquare",
+        "url": "/library/metadata/13539/squareArt/1791566708"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "hubKey": "/library/metadata/17928,24039",
+    "key": "/hubs/home/onDeck",
+    "title": "On Deck",
+    "type": "episode",
+    "hubIdentifier": "home.ondeck",
+    "context": "hub.home.ondeck",
+    "size": 2,
+    "more": false,
+    "style": "shelf",
+    "promoted": true,
+    "Metadata": [
+     {
+      "ratingKey": "17928",
+      "key": "/library/metadata/17928",
+      "parentRatingKey": "17927",
+      "grandparentRatingKey": "13539",
+      "guid": "plex://episode/60afd4e113ec30002d401553",
+      "parentGuid": "plex://season/60afd4e013ec30002d40154f",
+      "grandparentGuid": "plex://show/60afd4e013ec30002d40154d",
+      "grandparentSlug": "aoashi",
+      "studio": "Production I.G",
+      "type": "episode",
+      "title": "Primeiro Toque",
+      "grandparentKey": "/library/metadata/13539",
+      "parentKey": "/library/metadata/17927",
+      "librarySectionTitle": "Animes",
+      "librarySectionID": 3,
+      "librarySectionKey": "/library/sections/3",
+      "grandparentTitle": "Aoashi",
+      "parentTitle": "Season 1",
+      "originalTitle": "ファーストタッチ",
+      "contentRating": "TV-14",
+      "index": 1,
+      "parentIndex": 1,
+      "audienceRating": 8.0,
+      "viewOffset": 72698,
+      "lastViewedAt": 1792360728,
+      "year": 2022,
+      "thumb": "/library/metadata/17928/thumb/1791566712",
+      "art": "/library/metadata/13539/art/1791566708",
+      "parentThumb": "/library/metadata/17927/thumb/1791566712",
+      "grandparentThumb": "/library/metadata/13539/thumb/1791566708",
+      "grandparentArt": "/library/metadata/13539/art/1791566708",
+      "duration": 1470250,
+      "originallyAvailableAt": "2022-04-09",
+      "addedAt": 1791566708,
+      "updatedAt": 1791566712,
+      "audienceRatingImage": "themoviedb://image.rating",
+      "chapterSource": "media",
+      "Image": [
+       {
+        "alt": "Primeiro Toque",
+        "type": "coverPoster",
+        "url": "/library/metadata/13539/thumb/1791566708"
+       },
+       {
+        "alt": "Primeiro Toque",
+        "type": "snapshot",
+        "url": "/library/metadata/17928/thumb/1791566712"
+       },
+       {
+        "alt": "Primeiro Toque",
+        "type": "background",
+        "url": "/library/metadata/13539/art/1791566708"
+       },
+       {
+        "alt": "Primeiro Toque",
+        "type": "backgroundSquare",
+        "url": "/library/metadata/13539/squareArt/1791566708"
+       }
+      ]
+     },
+     {
+      "ratingKey": "24039",
+      "key": "/library/metadata/24039",
+      "parentRatingKey": "20246",
+      "grandparentRatingKey": "20245",
+      "guid": "plex://episode/6888ec628e5cb0331993398a",
+      "parentGuid": "plex://season/6397dd1fe17cc301869d6586",
+      "grandparentGuid": "plex://show/639106ac93ce26bea48d65f2",
+      "grandparentSlug": "visionquest",
+      "type": "episode",
+      "title": "Reboot",
+      "grandparentKey": "/library/metadata/20245",
+      "parentKey": "/library/metadata/20246",
+      "librarySectionTitle": "Séries",
+      "librarySectionID": 2,
+      "librarySectionKey": "/library/sections/2",
+      "grandparentTitle": "VisionQuest",
+      "parentTitle": "Season 1",
+      "contentRating": "TV-14",
+      "index": 3,
+      "parentIndex": 1,
+      "audienceRating": 7.4,
+      "lastViewedAt": 1792281197,
+      "year": 2026,
+      "thumb": "/library/metadata/24039/thumb/1794110988",
+      "art": "/library/metadata/20245/art/1794020934",
+      "parentThumb": "/library/metadata/20246/thumb/1793853203",
+      "grandparentThumb": "/library/metadata/20245/thumb/1794020934",
+      "grandparentArt": "/library/metadata/20245/art/1794020934",
+      "duration": 3119104,
+      "originallyAvailableAt": "2026-10-20",
+      "addedAt": 1792545120,
+      "updatedAt": 1794110988,
+      "audienceRatingImage": "themoviedb://image.rating",
+      "chapterSource": "media",
+      "Image": [
+       {
+        "alt": "Reboot",
+        "type": "coverPoster",
+        "url": "/library/metadata/20245/thumb/1794020934"
+       },
+       {
+        "alt": "Reboot",
+        "type": "snapshot",
+        "url": "/library/metadata/24039/thumb/1794110988"
+       },
+       {
+        "alt": "Reboot",
+        "type": "background",
+        "url": "/library/metadata/20245/art/1794020934"
+       },
+       {
+        "alt": "Reboot",
+        "type": "clearLogo",
+        "url": "/library/metadata/20245/clearLogo/1794020934"
+       },
+       {
+        "alt": "Reboot",
+        "type": "backgroundSquare",
+        "url": "/library/metadata/20245/squareArt/1794020934"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

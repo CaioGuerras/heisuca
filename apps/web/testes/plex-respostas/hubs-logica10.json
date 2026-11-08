@@ -1,0 +1,48 @@
+{
+  "MediaContainer": {
+    "Hub": [
+      {
+        "hubIdentifier": "home.continue",
+        "Metadata": [
+          { "ratingKey": "filme", "type": "movie", "title": "Filme em curso", "viewOffset": 25000, "duration": 100000 },
+          { "ratingKey": "em-curso", "type": "episode", "grandparentRatingKey": "s1", "title": "Em curso", "viewOffset": 10000 },
+          { "ratingKey": "continuar-sem-posicao", "type": "episode", "grandparentRatingKey": "s2", "title": "Continuar sem posição" },
+          { "ratingKey": "duplicado-sem-posicao", "type": "episode", "grandparentRatingKey": "s1", "title": "Mesma série" }
+        ]
+      },
+      {
+        "context": "hub.home.continue",
+        "Metadata": [
+          { "ratingKey": "contexto-sem-posicao", "type": "movie", "title": "Continuar pelo contexto", "viewOffset": 0 }
+        ],
+        "Directory": [
+          { "ratingKey": "serie-diretorio", "title": "Série do hub Continuar", "childCount": 2 }
+        ]
+      },
+      {
+        "hubIdentifier": "home.ondeck",
+        "Metadata": [
+          { "ratingKey": "seguinte-s1", "type": "episode", "grandparentRatingKey": "s1", "title": "Sobreposição com Continuar" },
+          { "ratingKey": "proximo", "type": "episode", "grandparentRatingKey": "s3", "title": "Próximo", "viewOffset": 0 },
+          { "ratingKey": "proximo-duplicado", "type": "episode", "grandparentRatingKey": "s3", "title": "Mesma série em Próximo" },
+          { "ratingKey": "ondeck-em-curso", "type": "episode", "grandparentRatingKey": "s4", "title": "On Deck já iniciado", "viewOffset": 12000 },
+          { "ratingKey": "filme-ondeck", "type": "movie", "title": "Filme não vira próximo episódio" }
+        ]
+      },
+      {
+        "hubIdentifier": "tv.recentlyadded",
+        "title": "Continue Watching",
+        "Metadata": [
+          { "ratingKey": "recente-sem-posicao", "type": "episode", "title": "Recente" },
+          { "ratingKey": "recente-com-posicao", "type": "episode", "title": "Recente iniciado", "viewOffset": 100 }
+        ]
+      },
+      {
+        "Metadata": [
+          { "ratingKey": "sem-origem", "type": "episode", "title": "Sem identidade" },
+          { "ratingKey": "sem-origem-com-posicao", "type": "episode", "title": "Sem identidade com posição", "viewOffset": 100 }
+        ]
+      }
+    ]
+  }
+}

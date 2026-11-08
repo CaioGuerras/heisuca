@@ -91,14 +91,15 @@ test('Plex pagina coleção, temporadas e episódios até o fim e preserva Total
 });
 
 test('Plex agrupa novidades pela série, busca apenas Movie/Series sem duplicata e usa hubs de continuar', async () => {
+  const hubsOrigem = await carregar('hubs-logica10');
   await comFetch(c => {
     if (c.url.pathname.endsWith('/recentlyAdded')) return json({MediaContainer:{Metadata:[episodio,temporada,serie]}});
     if (c.url.pathname.startsWith('/library/metadata/')) return json({MediaContainer:{Metadata:[serie]}});
-    return json(hubs);
+    return json(c.url.pathname === '/hubs' ? hubsOrigem : hubs);
   }, async chamadas => {
     assert.deepEqual((await api.novidades(s,'2')).map(i => [i.Id,i.Type]), [['201','Series']]);
     assert.deepEqual((await api.buscar(s,'ação & lua','2')).map(i => i.Type), ['Movie','Series']);
-    assert.equal((await api.continuar(s)).length,3);
+    assert.equal((await api.continuar(s)).length,6);
     const busca = chamadas.find(c => c.url.pathname === '/hubs/search')!.url;
     assert.equal(busca.searchParams.get('query'),'ação & lua'); assert.equal(busca.searchParams.get('sectionId'),'2'); assert.equal(busca.searchParams.get('limit'),'30');
     assert.ok(chamadas.some(c => c.url.pathname === '/hubs' && c.url.searchParams.get('identifier') === 'home.continue,home.ondeck'));

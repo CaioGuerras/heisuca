@@ -70,12 +70,16 @@
   .destaque-pontos button::after { width: 6px; height: 6px; }
 }
 
-/* Arte 16:10 e texto sobre a página: a luminosidade da foto não afeta a leitura. */
+/* Arte 16:10 e texto sobre a página: a luminosidade da foto não afeta a leitura.
+   Rodada 9: o texto reservava 170 px para ~122 de conteúdo (casa 56+6, meta 16,5, sinopse 2×16, vãos 6) e a folga
+   ficava entre a arte e a logo (~58 px em v8/cel_inicio). Agora reserva só o pior caso (128 px) e sobe 30 px sobre o
+   pé dissolvido da arte (dos 76% aos 100%), então a logo encosta no fim visível da foto. O destaque perde os mesmos
+   80 px no min-height, e a distância dos pontos até "Continuar" fica igual. */
 @media (max-width: 600px) {
-  .destaque { height: auto; max-height: none; min-height: calc(62.5vw + 230px); justify-content: flex-start; }
+  .destaque { height: auto; max-height: none; min-height: calc(62.5vw + 150px); justify-content: flex-start; }
   .destaque-artes { position: relative; inset: auto; flex: none; width: calc(100% + var(--hs-margem) * 2); aspect-ratio: 16 / 10; }
   .destaque-artes::after { background: linear-gradient(180deg, rgba(var(--hs-pagina-rgb), .16), var(--hs-pagina-0) 24%, var(--hs-pagina-0) 76%, var(--hs-pagina)); }
-  .destaque-texto { min-height: 170px; justify-content: flex-end; margin-top: 8px; }   /* folga sobe para a arte: pontos colados à sinopse */
+  .destaque-texto { min-height: 128px; justify-content: flex-end; margin-top: -30px; }   /* folga sobe para a arte: pontos colados à sinopse */
   .destaque-casa { min-height: 56px; }
   .destaque-logo { max-width: min(64vw, 260px); max-height: 56px; }
 }

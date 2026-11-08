@@ -30,6 +30,7 @@
 .titulo-meta > .selo-idade::before { content: none; }
 .titulo-meta > .selo-idade { margin-left: 9px; }
 .titulo-estrela { color: #f5c518; }
+[data-tema="hisui"] .titulo-estrela { color: #5c3b00; }
 
 /* linha pequena + Reproduzir: grudam no topo ao rolar */
 .titulo-acao { position: sticky; top: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; gap: 8px;

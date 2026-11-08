@@ -21,7 +21,23 @@ Versão de TESTE: **2.0.34+38**. Nenhuma release, AAB ou publicação em produç
 - Suíte sem filtro: **9.205 passaram, 59 pulados, 10 falharam**. As mesmas dez falhas foram reproduzidas na base
   intacta `6ff2ca9`: editor mpv (6), perfil local (1), recuperação do banco (1) e controles de vídeo (2).
   Comparação dos nomes dos casos: **zero falhas novas**. Essa suíte geral não está verde; o portão oficial está.
-- CI/APK de TESTE: resultado será registrado após o envio.
+- Código: `0e60febe3448a52da1ba3861363662df40736b17`.
+- [CI Android verde](https://github.com/CaioGuerras/heisuca/actions/runs/42492515872): portão Flutter, testes nativos,
+  dois APKs, pacote/providers/assinatura e MobSF passaram; AAB pulado.
+- [APK TESTE ARM64](https://github.com/CaioGuerras/heisuca/actions/runs/42492515872/artifacts/13622314286): 51.145.327 bytes;
+  digest ZIP SHA-256 `522b1352ec0e29f28c59a7bd79a3b440427800b02204ee980da5e9398e862322`.
+- [APK TESTE universal](https://github.com/CaioGuerras/heisuca/actions/runs/42492515872/artifacts/13623165471): 88.440.295 bytes;
+  digest ZIP SHA-256 `2b853d5fd574f0fc0385fdc4e456bd1d41be3dca40eec46e02584a35ddc18a2d`.
+  Pacote `app.heisuca.player.teste.home`; artifacts expiram em 22/11/2026.
+- Certificado dos dois APKs: `d415544dae728cd8d402827f1bf17b6af00b2443295b3bad8b463d65d3acd4c1`.
+  Última build deste ramo (40536736659, 27/10): `19160423a510868e98375fa1b85f9ee4da9fb8b9ad7a13208db07bcac026f95c`.
+  **Não atualiza diretamente aquela instalação.** Preservar dados exige build/reassinatura pelo responsável
+  com a chave anterior. Não apagar dados/perfis para contornar; nenhuma chave foi acessada ou alterada nesta tarefa.
+- Segurança OSV/gitleaks verde. Bancada Android `42492515977` falhou no player:
+  tempo esgotado na etapa “reprodução avançando” (`bancada_android_test.dart:353`).
+  Não classificado como aprovação; não houve alteração de player nesta tarefa.
+- Google TV API 36 passou. TV box (`42492515890`) e usuário desastrado (`42492516036`) ainda em execução
+  às 15:22 UTC; resultados pendentes não são aprovação.
 - A análise sem escopo inclui testes internos de `packages/wakelock_plus` sem dependências próprias resolvidas;
   esses erros são alheios ao Sobre. O portão oficial usa `lib integration_test test_driver test` e aceita os avisos existentes.
 - **Não testado em aparelho.** Desfazer: reverter o commit desta tarefa; nenhuma configuração de serviço foi alterada.

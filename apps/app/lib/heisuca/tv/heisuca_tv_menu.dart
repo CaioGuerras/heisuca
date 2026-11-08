@@ -168,8 +168,10 @@ class _HeisucaTvMenuState extends State<HeisucaTvMenu> {
                           fontSize: 20,
                           height: 38,
                           onTap: () {
-                            Navigator.of(context).maybePop();
-                            Navigator.of(context).push(
+                            // Fecha esta rota antes de empilhar o perfil; maybePop é assíncrono.
+                            final navigator = Navigator.of(context);
+                            navigator.pop();
+                            navigator.push(
                               MaterialPageRoute(
                                 builder: (_) => const ProfileSwitchScreen(requireSelection: false),
                               ),

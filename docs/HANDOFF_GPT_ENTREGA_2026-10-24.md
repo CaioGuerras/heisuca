@@ -21,9 +21,36 @@ APKs de TESTE retidos até revisão do Claude, sem distribuição automática ao
   Após: **2 passaram** (foco real em TV, debounce, altura sem sinopse, reticências, reconstruções).
 - Análise estrita dos dois arquivos Dart: **No issues found**.
 - Evidências locais: `/tmp/ultron-tv-a-red.log`, `/tmp/ultron-tv-a-green.log`, `/tmp/ultron-tv-a-analyze.log`.
-- Portão local verde: 161 Python, 2.218 Flutter (3 pulados), 8 Impeller. CI em acompanhamento;
-  resultados finais na cópia de handoff em `~/cgflix/handoffs/`.
+- Commit A: `bf7f634779bc5b9b8c000e93da4b264a7cf2def8`. Portão local verde: 161 Python, 2.218 Flutter (3 pulados), 8 Impeller.
+- Suíte completa A: **9.207 passaram, 59 pulados, 10 falharam**; mesmos dez casos da base `fbb9998`
+  (9.205/59/10). Comparação por nome: **zero falhas novas**. `/tmp/ultron-tv-a-comparison.json`.
+- [Android A verde](https://github.com/CaioGuerras/heisuca/actions/runs/42522036852), incluindo MobSF;
+  [TV A verde](https://github.com/CaioGuerras/heisuca/actions/runs/42522036862),
+  [Segurança A verde](https://github.com/CaioGuerras/heisuca/actions/runs/42522036829).
+  Bancada Android A `42522036746` verde; usuário desastrado A `42522036855` em acompanhamento.
+- APKs retidos para revisão do Claude: [ARM64](https://github.com/CaioGuerras/heisuca/actions/runs/42522036852/artifacts/13634197588)
+  e [universal](https://github.com/CaioGuerras/heisuca/actions/runs/42522036852/artifacts/13634750128).
+  Certificado de ambos: `d415544dae728cd8d402827f1bf17b6af00b2443295b3bad8b463d65d3acd4c1` (igual ao Sobre na base).
+  SHA-256 APK ARM64: `4ddba5361249be3f886d76eca7af7f3cf394facbc3f566fbae89da5704b9149d`;
+  universal: `cc8b534efdef2b50c4c6227562d548719d6f4012721148857b13c18045cc588a`.
+- Prévia local 1080p conferida, com fontes reais e dados sintéticos: `/tmp/ultron-tv-a-preview.png`; não é teste de aparelho.
 - Não testado em aparelho. Desfazer: reverter o commit do pacote A, sem alterar dados/perfis.
+
+### Pacote B — Voltar por aperto completo e retorno do perfil — 2.0.34+40
+
+- A `MainScreen` guarda o KeyDown físico/lógico recebido como rota atual. Só o KeyUp correspondente chama a política
+  de Voltar; soltura órfã e repetições são consumidas. O registro se perde ao cobrir a rota ou perder foco.
+- A TV usa essa sequência em vez da trava de dois quadros; o tratamento fora da TV foi preservado.
+  Início/destaque, saída Google TV e confirmação Fire TV conservam a política anterior.
+- Achado do teste real: `maybePop()` seguido de `push()` deixava o menu do avatar atrás de “Trocar perfil”.
+  O menu agora fecha de forma síncrona, usando o Navigator capturado, antes de empilhar a seleção de perfil.
+- TDD na fonte anterior: **2 passaram, 2 falharam** (KeyUp do menu saía do app; menu permanecia atrás do perfil).
+  Fonte corrigida: **4 novos passaram**, junto de **15 existentes** de TV (inclui foco e confirmação Fire TV).
+  Usada `MainScreen` real, rotas reais e teclado Flutter; HTTP e canal de saída isolados por fixtures.
+- Análise estrita de MainScreen, menu e testes: **No issues found**.
+- Logs: `/tmp/ultron-tv-b-red-final.log`, `/tmp/ultron-tv-b-green.log`, `/tmp/ultron-tv-b-analyze.log`.
+- Portão local verde: 161 Python, 2.222 Flutter (3 pulados), 8 Impeller. CI/suíte completa em acompanhamento.
+  Não testado em aparelho; desfazer reverter o commit B.
 
 ## 08/11/2026 — Sobre único no Android (Ultron)
 

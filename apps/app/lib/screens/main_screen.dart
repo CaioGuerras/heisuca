@@ -387,6 +387,8 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen>
     with RouteAware, WindowListener, WidgetsBindingObserver, MountedSetStateMixin {
   NavigationTabId _currentTab = NavigationTabId.discover;
+  // Na TV, a soltura só pode agir se esta rota recebeu o início do mesmo aperto.
+  KeyDownEvent? _tvBackKeyDown;
   String? _selectedLibraryGlobalKey;
   Future<void>? _desktopExitFuture;
 
@@ -1546,24 +1548,32 @@ class _MainScreenState extends State<MainScreen>
 
   KeyEventResult _handleBackKey(KeyEvent event) {
     if (ModalRoute.of(context)?.isCurrent != true) {
+      _tvBackKeyDown = null;
       return KeyEventResult.ignored;
+    }
+
+    if (PlatformDetector.isTV()) {
+      if (!event.logicalKey.isBackKey) {
+        if (event is KeyDownEvent) _tvBackKeyDown = null;
+        return KeyEventResult.ignored;
+      }
+      if (event is KeyDownEvent) {
+        _tvBackKeyDown = event;
+      } else if (event is KeyUpEvent) {
+        final down = _tvBackKeyDown;
+        _tvBackKeyDown = null;
+        BackKeyCoordinator.markHandled();
+        if (down != null && down.physicalKey == event.physicalKey && down.logicalKey == event.logicalKey) {
+          return _handleTvBack();
+        }
+      }
+      // KeyUp órfão (menu/perfil já fechado) e repetição não podem sair do app.
+      return KeyEventResult.handled;
     }
 
     if (_suppressBackAfterPop && event.logicalKey.isBackKey) {
       if (event is KeyUpEvent) _suppressBackAfterPop = false;
       return KeyEventResult.handled;
-    }
-
-    if (PlatformDetector.isTV()) {
-      if (event.logicalKey.isBackKey) {
-        if (event is KeyUpEvent) {
-          final res = _handleTvBack();
-          BackKeyCoordinator.markHandled();
-          return res;
-        }
-        return KeyEventResult.handled;
-      }
-      return KeyEventResult.ignored;
     }
 
     if (!_isSidebarFocused) {
@@ -1703,6 +1713,7 @@ class _MainScreenState extends State<MainScreen>
 
   @override
   void didPushNext() {
+    _tvBackKeyDown = null;
     _setTvosMenuPassthrough(false);
     // A pushed detail route covers the bottom bar — drop the mini-player to
     // the true (safe-area) bottom while it's hidden.
@@ -1715,6 +1726,7 @@ class _MainScreenState extends State<MainScreen>
 
   @override
   void didPopNext() {
+    _tvBackKeyDown = null;
     // Suppress stray back key events from the pop that just returned us here
     _suppressBackAfterPop = true;
     // Auto-clear after 2 frames in case no back event arrives
@@ -2086,6 +2098,9 @@ class _MainScreenState extends State<MainScreen>
             // chain to home. The host still closes an open sheet on system back.
             canPop: false,
             child: Focus(
+              onFocusChange: (focused) {
+                if (!focused) _tvBackKeyDown = null;
+              },
               onKeyEvent: (node, event) {
                 final rootEscapeResult = _handleDesktopRootEscape(event);
                 if (rootEscapeResult == KeyEventResult.handled) return rootEscapeResult;

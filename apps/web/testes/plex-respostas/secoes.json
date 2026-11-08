@@ -1,0 +1,27 @@
+{
+  "MediaContainer": {
+    "Directory": [
+      {
+        "key": "1",
+        "type": "movie",
+        "title": "Filmes",
+        "thumb": "/library/sections/1/art"
+      },
+      {
+        "key": "2",
+        "type": "show",
+        "title": "Séries"
+      },
+      {
+        "key": "3",
+        "type": "artist",
+        "title": "Música"
+      },
+      {
+        "key": "4",
+        "type": "photo",
+        "title": "Fotos"
+      }
+    ]
+  }
+}

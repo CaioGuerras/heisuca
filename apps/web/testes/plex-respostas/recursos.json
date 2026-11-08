@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Servidor Fictício",
+    "clientIdentifier": "servidor-ficticio",
+    "accessToken": "token-pms-ficticio",
+    "publicAddressMatches": true,
+    "provides": "server,player",
+    "connections": [
+      {
+        "uri": "https://relay.example.invalid",
+        "relay": true,
+        "local": false
+      },
+      {
+        "uri": "https://remoto.example.invalid",
+        "local": false
+      },
+      {
+        "uri": "http://inseguro.example.invalid",
+        "local": true
+      },
+      {
+        "uri": "https://local.example.invalid",
+        "local": true
+      }
+    ]
+  },
+  {
+    "provides": "player",
+    "name": "Reprodutor"
+  }
+]

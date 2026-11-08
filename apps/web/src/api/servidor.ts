@@ -1,9 +1,11 @@
 // Contrato comum. Cada chamada leva sua sessão: chamadas pendentes não seguem a troca de servidor.
 import type { Sessao, TipoServidor, Item, Pessoa, Hashes, EmBreve, Usuario, LegendaRemota, OpcoesReproducao, Plano, FluxoPlano, PosicaoRelato } from './tipos.ts';
 import { jellyfin } from './jellyfin.ts';
+import { plex } from './plex.ts';
 export type * from './tipos.ts';
 export { quandoExpirar } from './expiracao.ts';
 export { entradaJellyfin } from './entrada-jellyfin.ts';
+export { entradaPlex } from './entrada-plex.ts';
 
 // Suporte estático do adaptador; disponibilidade de Quick Connect/Seerr continua na detecção atual.
 export type Capacidades = { favoritos: boolean; trocarSenha: boolean; foto: boolean; legendasRemotas: boolean;
@@ -52,8 +54,8 @@ export interface ApiServidor {
   capacidades(): Readonly<Capacidades>;
 }
 
-// Uma instância por tipo, sem leitura de localStorage. Plex será registrado na etapa 2.
-const adaptadores: Partial<Record<TipoServidor, ApiServidor>> = { jellyfin };
+// Uma instância por tipo, sem leitura de localStorage.
+const adaptadores: Partial<Record<TipoServidor, ApiServidor>> = { jellyfin, plex };
 export function adaptador(tipo: TipoServidor): ApiServidor {
   const api = adaptadores[tipo];
   if (!api) throw new Error(`Adaptador ${tipo} ainda não disponível.`);

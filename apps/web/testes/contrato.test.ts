@@ -31,7 +31,7 @@ test('importar o contrato/API em processo novo não exige document nem lê armaz
   assert.equal(r.status, 0, r.stderr);
   assert.equal(apiDe(s), adaptador('jellyfin'));
   assert.equal(apiDe({ ...s, servidor: 'https://outro.example.invalid' }), apiDe(s));
-  assert.throws(() => adaptador('plex'), /ainda não disponível/);
+  assert.notEqual(adaptador('plex'), adaptador('jellyfin'));
   assert.deepEqual(apiDe(s).capacidades(), { favoritos: true, trocarSenha: true, foto: true,
     legendasRemotas: true, capitulos: true, emAlta: true, emBreve: true });
 });
@@ -43,7 +43,7 @@ function importsDeJellyfin(texto: string): string[] {
     let alvo: ts.Node | undefined;
     if (ts.isImportDeclaration(n) || ts.isExportDeclaration(n)) alvo = n.moduleSpecifier;
     if (ts.isCallExpression(n) && n.expression.kind === ts.SyntaxKind.ImportKeyword) alvo = n.arguments[0];
-    if (alvo && ts.isStringLiteralLike(alvo) && /(?:^|\/)api\/jellyfin(?:\.ts)?$/.test(alvo.text)) encontrados.push(alvo.text);
+    if (alvo && ts.isStringLiteralLike(alvo) && /(?:^|\/)api\/(?:jellyfin|plex(?:-tv)?)(?:\.ts)?$/.test(alvo.text)) encontrados.push(alvo.text);
     ts.forEachChild(n, visitar);
   };
   visitar(fonte);

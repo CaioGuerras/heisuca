@@ -64,3 +64,23 @@ test('foto: só imagem, até 10 MB, não vazia', () => {
   assert.match(validarFoto({ type: 'image/jpeg', size: 10 * 1024 * 1024 + 1 })!, /10 MB/);
   assert.match(validarFoto({ type: 'image/jpeg', size: 0 })!, /vazio/);
 });
+
+import { alternarFeito, lerFeitos, passosDaConta, progresso } from '../src/dados/passos.ts';
+
+test('como usar: passos por capacidade (Plex sem senha/foto; pedir só com Seerr)', () => {
+  assert.deepEqual(passosDaConta({ senha: true, foto: true, seerr: true }), ['entrar', 'senha', 'foto', 'instalar', 'pedir']);
+  assert.deepEqual(passosDaConta({ senha: true, foto: true, seerr: false }), ['entrar', 'senha', 'foto', 'instalar']);
+  assert.deepEqual(passosDaConta({ senha: false, foto: false, seerr: false }), ['entrar', 'instalar']);
+});
+test('como usar: o que está guardado no aparelho é lido sem quebrar', () => {
+  assert.deepEqual(lerFeitos('["entrar","foto","entrar",3,null]'), ['entrar', 'foto']);
+  for (const lixo of [null, '', '{', '{"a":1}', '"texto"', '42']) assert.deepEqual(lerFeitos(lixo), []);
+});
+test('como usar: marcar e desmarcar; progresso ignora id que não vale mais', () => {
+  assert.deepEqual(alternarFeito(['entrar'], 'foto'), ['entrar', 'foto']);
+  assert.deepEqual(alternarFeito(['entrar', 'foto'], 'entrar'), ['foto']);
+  const ids = ['entrar', 'senha', 'foto', 'instalar'];
+  assert.deepEqual(progresso(ids, ['entrar', 'pedir']), { feitos: 1, total: 4, pct: 25, completo: false, proximo: 'senha' });
+  assert.deepEqual(progresso(ids, [...ids, 'pedir']), { feitos: 4, total: 4, pct: 100, completo: true, proximo: null });
+  assert.equal(progresso([], []).completo, false);
+});

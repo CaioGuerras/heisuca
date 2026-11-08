@@ -52,42 +52,52 @@
 .campo-erro { margin: 6px 4px 0; font-size: 13px; color: var(--hs-erro); }
 .conta-salvar { width: 100%; min-height: 52px; margin-top: 4px; font-size: 15.5px; }
 
-/* ---- Como usar (§11) ---- */
-.ajuda-intro { margin: 4px 0 16px; font-size: 15px; }
-.ajuda-progresso { height: 6px; border-radius: 3px; background: var(--hs-linha); overflow: hidden; }
-.ajuda-progresso span { display: block; height: 100%; border-radius: 3px; background: var(--hs-realce); transition: width .4s var(--hs-curva-padrao); }
-.ajuda-conta { margin: 8px 0 18px; font-size: 13.5px; }
+/* ---- Como usar (§11): no nível do Título — título fluido em Sora, cartões com ícone, passos marcáveis com progresso ---- */
+.ajuda-hero { padding: clamp(8px, 3vw, 24px) 0 20px; }
+.ajuda-hero-conta { margin: 0 0 2px; font-size: 14px; color: var(--hs-texto-2); font-variant-numeric: tabular-nums; }
+.ajuda-hero-conta strong { font-family: var(--hs-tema-fonte-titulo); font-size: clamp(30px, 8vw, 44px); font-weight: 700; color: var(--hs-realce); letter-spacing: -.02em; margin-right: 2px; }
+.ajuda-hero h2 { margin: 0; font-family: var(--hs-tema-fonte-titulo); font-size: clamp(24px, 6vw, 36px); font-weight: 700; letter-spacing: -.02em; line-height: 1.1; }
+.ajuda-hero p.texto-2 { margin: 8px 0 0; font-size: clamp(14.5px, 1.6vw, 16px); line-height: 1.5; }
+.ajuda-progresso { height: 8px; margin-top: 18px; border-radius: 4px; background: var(--hs-linha); overflow: hidden; }
+.ajuda-progresso span { display: block; height: 100%; background: var(--hs-realce); border-radius: inherit; transform-origin: left;
+  transition: transform .5s var(--hs-curva-padrao); }
 .ajuda-passos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
-.ajuda-cabeca { display: flex; align-items: center; gap: 12px; }
-.ajuda-cabeca h2 { flex: 1; min-width: 0; }
-.ajuda-numero { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; flex: none; font-weight: 700; font-size: 14px;
-  box-shadow: inset 0 0 0 1.5px var(--hs-linha); color: var(--hs-texto-2); transition: background-color .25s, color .25s; }
-.ajuda-passo.feito .ajuda-numero { background: var(--hs-tema-cor-botao-fundo); color: var(--hs-tema-cor-botao-texto); box-shadow: none; }
-.ajuda-passo.feito h2 { color: var(--hs-texto-2); }
-.ajuda-texto { margin: 10px 0 0 42px; font-size: 14.5px; line-height: 1.5; color: var(--hs-texto-2); }
-.ajuda-passo > .ajuda-acao, .ajuda-passo > .instalar { margin-left: 42px; }
-/* a caixinha "Feito" */
-.ajuda-feito { flex: none; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 12px 0 8px; border-radius: var(--hs-raio-total);
-  font-size: 14px; font-weight: 600; color: var(--hs-texto-2); cursor: pointer; user-select: none; position: relative; }
+.ajuda-passo { padding: 16px 16px 18px; transition: box-shadow .25s, background-color .25s; }
+.ajuda-passo.proximo { box-shadow: inset 0 0 0 1.5px var(--hs-realce); }
+.ajuda-cabeca { display: flex; align-items: center; gap: 14px; }
+.ajuda-icone { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; flex: none; background: var(--hs-linha); color: var(--hs-realce);
+  transition: background-color .25s, color .25s; }
+.ajuda-passo.feito .ajuda-icone { background: var(--hs-tema-cor-botao-fundo); color: var(--hs-tema-cor-botao-texto); }
+.ajuda-titulo { flex: 1; min-width: 0; }
+.ajuda-titulo small { display: block; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--hs-texto-2); }
+.ajuda-titulo h2 { margin: 1px 0 0; font-size: clamp(16px, 4.2vw, 18.5px); font-weight: 650; line-height: 1.25; }
+.ajuda-corpo { margin-left: 60px; }
+.ajuda-passo.feito .ajuda-corpo { opacity: .78; }
+.ajuda-texto { margin: 10px 0 0; font-size: 14.5px; line-height: 1.55; color: var(--hs-texto-2); }
+.ajuda-texto strong { color: var(--hs-texto); font-weight: 600; }
+@media (max-width: 420px) { .ajuda-corpo { margin-left: 0; } }
+/* a caixinha "Feito" (alvo de toque de 44 px) */
+.ajuda-feito { flex: none; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px 0 10px; border-radius: var(--hs-raio-total);
+  font-size: 14px; font-weight: 600; color: var(--hs-texto-2); cursor: pointer; user-select: none; position: relative; box-shadow: inset 0 0 0 1px var(--hs-linha); }
 .ajuda-feito:hover { background: var(--hs-linha); }
 .ajuda-feito input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 .ajuda-caixa { width: 22px; height: 22px; border-radius: 7px; display: grid; place-items: center; box-shadow: inset 0 0 0 1.5px var(--hs-texto-2);
   color: transparent; transition: background-color .2s, box-shadow .2s; }
 .ajuda-feito input:checked + .ajuda-caixa { background: var(--hs-tema-cor-botao-fundo); box-shadow: none; color: var(--hs-tema-cor-botao-texto); }
 .ajuda-feito input:checked ~ * { color: var(--hs-texto); }
-.ajuda-feito:has(input:focus-visible) { outline: 2px solid var(--hs-realce); outline-offset: 2px; }
-.ajuda-avisos { display: flex; align-items: center; gap: 14px; margin-top: 22px; color: var(--hs-texto-2); }
+.ajuda-feito input:focus-visible + .ajuda-caixa { outline: 2px solid var(--hs-realce); outline-offset: 3px; }
+.ajuda-avisos { display: flex; align-items: center; gap: 14px; margin-top: 22px; }
+.ajuda-avisos .ajuda-icone { color: var(--hs-texto-2); }
 .ajuda-avisos > div { flex: 1; min-width: 0; }
-.ajuda-avisos h2 { color: var(--hs-texto); }
 .ajuda-avisos p { margin: 2px 0 0; font-size: 14px; }
 .ajuda .ajuda-duvidas-titulo { margin: 30px 0 10px; }
 .ajuda-duvidas { border-radius: 18px; background: var(--hs-superficie); box-shadow: inset 0 0 0 1px var(--hs-linha); overflow: hidden; }
 .duvida + .duvida { border-top: 1px solid var(--hs-linha); }
-.duvida summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px; cursor: pointer; font-weight: 600; font-size: 15px; }
+.duvida summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px; min-height: 52px; cursor: pointer; font-weight: 600; font-size: 15px; }
 .duvida summary::-webkit-details-marker { display: none; }
-.duvida summary .icone { color: var(--hs-texto-2); transition: transform .2s; }
+.duvida summary .icone { color: var(--hs-texto-2); transition: transform .2s; flex: none; }
 .duvida[open] summary .icone { transform: rotate(180deg); }
-.duvida p { margin: -4px 16px 16px; font-size: 14.5px; line-height: 1.5; color: var(--hs-texto-2); }
+.duvida p { margin: -4px 16px 16px; font-size: 14.5px; line-height: 1.55; color: var(--hs-texto-2); }
 
 /* ---- instalar o site como app (Como usar e Baixar os apps) ---- */
 .instalar { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
@@ -106,25 +116,27 @@
 .instalar-nav li + li { margin-top: 4px; }
 .instalar-nav li strong { color: var(--hs-texto); font-weight: 600; }
 
-/* ---- Baixar os apps (§12) ---- */
-.apps-intro { margin: 4px 0 18px; font-size: 15px; line-height: 1.5; }
-.apps-card-destaque { box-shadow: inset 0 0 0 1px var(--hs-linha); }
+/* ---- Baixar os apps (§12): cartões por plataforma com ícone; o site instalado em destaque ---- */
+.apps-hero { padding: clamp(8px, 3vw, 24px) 0 20px; }
+.apps-hero h2 { margin: 0; font-family: var(--hs-tema-fonte-titulo); font-size: clamp(24px, 6vw, 36px); font-weight: 700; letter-spacing: -.02em; line-height: 1.1; }
+.apps-hero p { margin: 8px 0 0; font-size: clamp(14.5px, 1.6vw, 16px); line-height: 1.5; }
+.apps-destaque { padding: 18px; box-shadow: inset 0 0 0 1.5px var(--hs-realce); }
 .apps-cabeca, .apps-app { display: flex; align-items: center; gap: 14px; }
+.apps-cabeca { flex-wrap: wrap; }
 .apps-cabeca > div, .apps-app > div { flex: 1; min-width: 0; }
-.apps-cabeca small, .apps-app small { font-size: 13px; }
-.apps-icone { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; flex: none; background: var(--hs-linha); color: var(--hs-texto); }
+.apps-cabeca > div { min-width: 180px; }
+.apps-cabeca h2 { font-size: clamp(16.5px, 4.4vw, 19px); }
+.apps-cabeca small, .apps-app small { display: block; margin-top: 2px; font-size: 13px; line-height: 1.4; }
+.apps-icone { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; flex: none; background: var(--hs-linha); color: var(--hs-texto-2); }
 .apps-icone-ativo { background: var(--hs-tema-cor-botao-fundo); color: var(--hs-tema-cor-botao-texto); }
-.apps .apps-titulo { margin: 28px 0 12px; }
+.apps .apps-titulo { margin: 30px 0 12px; }
 .apps-grade { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-.apps-app { transition: transform .2s var(--hs-curva-padrao), box-shadow .2s; }
-.apps-app:hover { transform: translateY(-1px); }
-.apps-app-atual { box-shadow: inset 0 0 0 1.5px var(--hs-tema-cor-primaria); }
-.apps-app-atual .apps-icone { color: var(--hs-tema-cor-primaria); }
-.apps-nome-linha { display: flex; align-items: center; gap: 8px; }
-.apps-app h3 { margin: 0; font-size: 15.5px; font-weight: 600; }
+@media (min-width: 600px) { .apps-grade { grid-template-columns: 1fr 1fr; } .apps-app { flex-wrap: wrap; } }
+.apps-app h3 { margin: 0; font-size: 15.5px; font-weight: 600; display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; }
+.apps-app-atual { box-shadow: inset 0 0 0 1.5px var(--hs-realce); }
+.apps-app-atual .apps-icone { color: var(--hs-realce); }
 .apps-badge-atual { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
   padding: 2px 7px; border-radius: var(--hs-raio-total); color: var(--hs-tema-cor-botao-texto); background: var(--hs-tema-cor-botao-fundo); }
-.apps-app .apps-icone { color: var(--hs-texto-2); }
 
 /* ---- Sobre (§9) ---- */
 .sobre-marca { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 24px 0 28px; }

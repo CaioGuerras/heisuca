@@ -12,6 +12,7 @@ import { Icone } from '../comp/Icone';
 import { aoMudarInstalar, instalar, jaInstalado, podeInstalar } from '../comp/instalar';
 import { Logo } from '../comp/Logo';
 import { AJUDA_COMPLETA } from '../comp/MenuUsuario';
+import { alternarFeito, lerFeitos, passosDaConta, progresso, type IdPasso } from '../dados/passos.ts';
 import { erroDaSenha, sucessoDaSenha, TIPOS_FOTO, validarFoto, validarSenha, type CampoSenha, type Senhas } from '../dados/conta.ts';
 import { irPagina, irTitulo } from '../rota';
 import pixQrSvg from '../marca/pix_qrcode.svg';
@@ -137,7 +138,7 @@ const NAVEGADORES = [
     'Abra o site no Safari.', <>Toque em Compartilhar <Icone nome="ios_share" tamanho={18} classe="em-linha" /> (o quadrado com a seta para cima).</>,
     <>Role e toque em <strong>Adicionar à Tela de Início</strong>.</>, <>Toque em <strong>Adicionar</strong>. O ícone do Heisuca fica na tela de início.</>] },
   { id: 'windows', icone: 'desktop_windows', nome: 'Windows', sub: 'Edge', passos: [
-    'Abra o site no Edge.', <>Clique no ícone de instalar <Icone nome="install_desktop" tamanho={18} classe="em-linha" />, na barra de endereço (ou no menu ··· → <strong>Aplicativos</strong> → <strong>Instalar este site como aplicativo</strong>).</>,
+    'Abra o site no Edge.', <>Clique no ícone de instalar <Icone nome="install_desktop" tamanho={18} classe="em-linha" />, na barra de endereço (ou no menu ··· → <strong>Aplicativos</strong> → <strong>Instalar este site como um aplicativo</strong>).</>,
     <>Clique em <strong>Instalar</strong>. O Heisuca abre em janela própria e fica no menu Iniciar.</>] },
 ];
 const deste = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) ? 'iphone'
@@ -163,62 +164,71 @@ function PassosInstalar() {
 }
 
 // ---------------------------------------------------------------- Como usar (§11)
+// Conteúdo só do que o Heisuca faz em qualquer servidor (AJUDA_FATOS + ajuda.html de referência, sem nada do CGSERVER).
+// Regras (quais passos valem, o que já foi marcado, progresso) em dados/passos.ts.
 const FEITOS = 'heisuca.ajuda.feitos';
-type Passo = { id: string; titulo: string; texto: ComponentChildren; acao?: { rotulo: string; ir: () => void }; extra?: ComponentChildren };
+type Passo = { icone: string; titulo: string; texto: ComponentChildren; acao?: { rotulo: string; ir: () => void }; extra?: ComponentChildren };
 
 export function ComoUsar({ s }: { s: Sessao }) {
-  const [seerr, setSeerr] = useState(false);
-  const [feitos, setFeitos] = useState<string[]>(() => { try { return JSON.parse(ler(FEITOS) || '[]'); } catch { return []; } });
-  useEffect(() => { temSeerr(s).then(setSeerr); }, [s.servidor]);
+  const [seerr, setSeerr] = useState<boolean | null>(null);
+  const [feitos, setFeitos] = useState<string[]>(() => lerFeitos(ler(FEITOS)));
+  useEffect(() => { temSeerr(s).then(setSeerr, () => setSeerr(false)); }, [s.servidor]);
 
-  const passos: Passo[] = [
-    { id: 'entrar', titulo: 'Entrar no site', texto: 'Você entra com o endereço do servidor, o seu usuário e a senha. A sessão fica salva neste aparelho: da próxima vez, o Heisuca já abre direto.' },
-    { id: 'senha', titulo: 'Criar ou trocar a senha', texto: 'Se a sua conta ainda não tem senha, crie uma. Ela vale para todos os aparelhos.', acao: { rotulo: 'Abrir Minha conta', ir: () => irPagina('conta') } },
-    { id: 'foto', titulo: 'Pôr uma foto no perfil', texto: 'A foto aparece na barra de baixo e no menu, e ajuda a reconhecer a sua conta.', acao: { rotulo: 'Abrir Minha conta', ir: () => irPagina('conta') } },
-    { id: 'instalar', titulo: 'Instalar no aparelho', texto: 'O site vira um app: ícone na tela de início e tela inteira, sem a barra do navegador.',
+  const conta = { rotulo: 'Abrir Minha conta', ir: () => irPagina('conta') };
+  const PASSOS: Record<IdPasso, Passo> = {
+    entrar: { icone: 'account_circle', titulo: 'Entrar no site', texto: <>Você entra com o endereço do servidor, o seu usuário e a senha, ou com o código
+      do <strong>Quick Connect</strong>, no ícone do canto da tela de entrada. A sessão fica salva neste aparelho: da próxima vez, o Heisuca já abre direto.</> },
+    senha: { icone: 'mobile_lock_portrait', titulo: 'Criar ou trocar a senha', texto: 'Se a sua conta ainda não tem senha, crie uma. Ela vale para todos os aparelhos.', acao: conta },
+    foto: { icone: 'photo_camera', titulo: 'Pôr uma foto no perfil', texto: 'A foto aparece na barra de baixo e no menu, e ajuda a reconhecer a sua conta.', acao: conta },
+    instalar: { icone: 'install_desktop', titulo: 'Instalar no aparelho', texto: 'O site vira um app: ícone na tela de início e tela inteira, sem a barra do navegador.',
       extra: <PassosInstalar />, acao: { rotulo: 'Ver os apps do Heisuca', ir: () => irPagina('apps') } },
-    ...(seerr ? [{ id: 'pedir', titulo: 'Pedir filmes e séries', texto: <>Não achou o que queria? Busque pelo nome. O que o servidor ainda não tem aparece em <strong>Disponível para pedir</strong>: toque em <strong>+ Pedir</strong> e avisamos quando chegar.</>,
-      acao: { rotulo: 'Abrir a busca', ir: () => irPagina('busca') } }] : []),
-  ];
-  const marcados = passos.filter(p => feitos.includes(p.id)).length;
-  // com todos marcados, o menu move o Como usar para o fim (PLANO §9)
-  useEffect(() => { gravar(AJUDA_COMPLETA, marcados === passos.length ? '1' : null); }, [marcados, passos.length]);
-  const alternar = (id: string) => setFeitos(f => {
-    const n = f.includes(id) ? f.filter(x => x !== id) : [...f, id];
-    gravar(FEITOS, JSON.stringify(n));
-    return n;
-  });
+    pedir: { icone: 'playlist_add_check', titulo: 'Pedir filmes e séries', texto: <>Não achou o que queria? Busque pelo nome. O que o servidor ainda não tem aparece em
+      <strong> Disponível para pedir</strong>: toque em <strong>Pedir</strong>. Os seus pedidos ficam em <strong>Meus pedidos</strong>, na própria busca.</>,
+      acao: { rotulo: 'Abrir a busca', ir: () => irPagina('busca') } },
+  };
+  const ids = passosDaConta({ senha: pode(s, 'trocarSenha'), foto: pode(s, 'foto'), seerr: !!seerr });
+  const p = progresso(ids, feitos);
+  // com todos marcados, o Como usar sai do menu e passa para o Sobre (PLANO §9); só decide depois de saber se há Seerr
+  useEffect(() => { if (seerr !== null) gravar(AJUDA_COMPLETA, p.completo ? '1' : null); }, [p.completo, seerr]);
+  const alternar = (id: string) => setFeitos(f => { const n = alternarFeito(f, id); gravar(FEITOS, JSON.stringify(n)); return n; });
 
   return (
     <Pagina titulo="Como usar" classe="ajuda">
-      <p class="ajuda-intro texto-2">Alguns passos para aproveitar o Heisuca. Marque o que já fez: fica guardado neste aparelho.</p>
-      <div class="ajuda-progresso" role="progressbar" aria-valuemin={0} aria-valuemax={passos.length} aria-valuenow={marcados}
-        aria-label={`${marcados} de ${passos.length} passos feitos`}>
-        <span style={{ width: `${(marcados / passos.length) * 100}%` }} /></div>
-      <p class="ajuda-conta texto-2">{marcados === passos.length ? 'Tudo feito.' : `${marcados} de ${passos.length} feitos`}</p>
+      <section class={`ajuda-hero${p.completo ? ' completo' : ''}`}>
+        <div class="ajuda-hero-texto">
+          <p class="ajuda-hero-conta"><strong>{p.feitos}</strong> de {p.total}</p>
+          <h2>{p.completo ? 'Tudo pronto.' : 'Primeiros passos'}</h2>
+          <p class="texto-2">{p.completo ? 'Este guia saiu do menu e agora fica no Sobre. Desmarque um passo para ele voltar.'
+            : 'Marque o que já fez: fica guardado neste aparelho.'}</p>
+        </div>
+        <div class="ajuda-progresso" role="progressbar" aria-valuemin={0} aria-valuemax={p.total} aria-valuenow={p.feitos}
+          aria-label={`${p.feitos} de ${p.total} passos feitos`}><span style={{ transform: `scaleX(${p.pct / 100})` }} /></div>
+      </section>
       <ol class="ajuda-passos">
-        {passos.map((p, n) => {
-          const feito = feitos.includes(p.id);
+        {ids.map((id, n) => {
+          const x = PASSOS[id], feito = feitos.includes(id);
           return (
-            <li key={p.id} class={`cartao-pagina ajuda-passo${feito ? ' feito' : ''}`}>
+            <li key={id} class={`cartao-pagina ajuda-passo${feito ? ' feito' : ''}${p.proximo === id ? ' proximo' : ''}`}>
               <div class="ajuda-cabeca">
-                <span class="ajuda-numero" aria-hidden="true">{feito ? <Icone nome="check" tamanho={18} /> : n + 1}</span>
-                <h2>{p.titulo}</h2>
+                <span class="ajuda-icone" aria-hidden="true"><Icone nome={feito ? 'check' : x.icone} tamanho={24} /></span>
+                <div class="ajuda-titulo"><small>Passo {n + 1}</small><h2>{x.titulo}</h2></div>
                 <label class="ajuda-feito">
-                  <input type="checkbox" checked={feito} onChange={() => alternar(p.id)} />
+                  <input type="checkbox" checked={feito} onChange={() => alternar(id)} />
                   <span class="ajuda-caixa" aria-hidden="true"><Icone nome="check" tamanho={16} /></span>Feito
                 </label>
               </div>
-              <p class="ajuda-texto">{p.texto}</p>
-              {p.extra}
-              {p.acao && <button class="ajuda-acao" onClick={p.acao.ir}>{p.acao.rotulo}<Icone nome="chevron_right" tamanho={20} /></button>}
+              <div class="ajuda-corpo">
+                <p class="ajuda-texto">{x.texto}</p>
+                {x.extra}
+                {x.acao && <button class="ajuda-acao" onClick={x.acao.ir}>{x.acao.rotulo}<Icone nome="chevron_right" tamanho={20} /></button>}
+              </div>
             </li>
           );
         })}
       </ol>
 
       <section class="cartao-pagina ajuda-avisos">
-        <Icone nome="notifications" tamanho={24} />
+        <span class="ajuda-icone" aria-hidden="true"><Icone nome="notifications" tamanho={24} /></span>
         <div><h2>Avisos no aparelho</h2><p class="texto-2">Avisar quando um pedido chegar ou sair um episódio novo.</p></div>
         <span class="selo-em-breve">Em breve</span>
       </section>
@@ -237,40 +247,41 @@ export function ComoUsar({ s }: { s: Sessao }) {
 }
 
 // ---------------------------------------------------------------- Baixar os apps (§12)
+// Plataformas do README do Heisuca; só o site instalado existe hoje. Nada de apps de terceiros (eram dicas do CGSERVER).
 const EM_BREVE = [
-  { icone: 'android', nome: 'Android', sub: 'Celulares e tablets' },
-  { icone: 'tv', nome: 'Android TV', sub: 'TVs e TV boxes com Google TV' },
-  { icone: 'connected_tv', nome: 'TVs Samsung e LG', sub: 'Tizen e webOS' },
-  { icone: 'mobile', nome: 'iPhone e iPad', sub: 'iOS e iPadOS' },
+  { id: 'android', icone: 'android', nome: 'Android', sub: 'Celulares e tablets' },
+  { id: 'tv', icone: 'tv', nome: 'Android TV', sub: 'TVs e TV boxes com Google TV' },
+  { id: 'tvs', icone: 'connected_tv', nome: 'TVs Samsung e LG', sub: 'Tizen e webOS' },
+  { id: 'iphone', icone: 'mobile', nome: 'iPhone e iPad', sub: 'iOS e iPadOS' },
 ];
 export function Apps() {
   const aqui = deste();
   return (
     <Pagina titulo="Baixar os apps" classe="apps">
-      <p class="texto-2 apps-intro">O Heisuca é feito para acompanhar você em qualquer tela. Instale agora no seu navegador ou acompanhe o lançamento dos apps nativos.</p>
-      <section class="cartao-pagina apps-site apps-card-destaque">
+      <section class="apps-hero">
+        <h2>O Heisuca em cada tela</h2>
+        <p class="texto-2">Hoje, o Heisuca se instala pelo navegador e vira um app no aparelho. Os apps próprios estão a caminho.</p>
+      </section>
+      <section class="cartao-pagina apps-destaque">
         <div class="apps-cabeca">
           <span class="apps-icone apps-icone-ativo"><Icone nome="install_desktop" tamanho={26} /></span>
           <div>
-            <h2>Instalar o Heisuca neste aparelho</h2>
-            <small class="texto-2">Acesso direto da tela de início, em tela cheia e sem barras do navegador</small>
+            <h2>Instalar o site como app</h2>
+            <small class="texto-2">Ícone na tela de início e tela inteira, sem a barra do navegador</small>
           </div>
           <span class="selo-disponivel">Disponível agora</span>
         </div>
         <PassosInstalar />
       </section>
-      <h2 class="titulo-secao apps-titulo">Apps em desenvolvimento</h2>
+      <h2 class="titulo-secao apps-titulo">Em breve</h2>
       <ul class="apps-grade">
         {EM_BREVE.map(a => {
-          const ehAparelhoAtual = a.nome.toLowerCase().includes(aqui);
+          const atual = a.id === aqui;
           return (
-            <li key={a.nome} class={`cartao-pagina apps-app${ehAparelhoAtual ? ' apps-app-atual' : ''}`}>
+            <li key={a.id} class={`cartao-pagina apps-app${atual ? ' apps-app-atual' : ''}`}>
               <span class="apps-icone"><Icone nome={a.icone} tamanho={26} /></span>
-              <div class="apps-app-info">
-                <div class="apps-nome-linha">
-                  <h3>{a.nome}</h3>
-                  {ehAparelhoAtual && <span class="apps-badge-atual">Seu aparelho</span>}
-                </div>
+              <div>
+                <h3>{a.nome}{atual && <span class="apps-badge-atual">Seu aparelho</span>}</h3>
                 <small class="texto-2">{a.sub}</small>
               </div>
               <span class="selo-em-breve">Em breve</span>

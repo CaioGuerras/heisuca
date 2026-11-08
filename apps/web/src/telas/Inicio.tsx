@@ -25,6 +25,9 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
   const [encaixou, setEncaixou] = useState(false);
   const [pausado, setPausado] = useState(false);
   const troca = useRef(0);
+  // troca em andamento (esperando a arte decodificar): o automático não atropela um clique, e mudar pausa/encaixe só
+  // cancela troca automática
+  const pendente = useRef<{ pedido: number; auto: boolean } | null>(null);
   const parado = useRef({ ponteiro: false, foco: false }), toque = useRef<number | null>(null);
   const casa = useRef<HTMLSpanElement>(null), marca = useRef<HTMLSpanElement>(null);
 
@@ -49,9 +52,11 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
     const x = (k + lista.length) % lista.length, i = lista[x];
     if (x === n) return;
     const pedido = ++troca.current;
+    pendente.current = { pedido, auto: automatica };
     // A arte anterior permanece inteira até a próxima arte e logo estarem prontas.
     await Promise.all([fundo(s, i, Math.min(1920, Math.round(innerWidth * devicePixelRatio))), logo(s, i, 600)]
       .filter(Boolean).map(async src => { const img = new Image(); img.src = src; await img.decode().catch(() => undefined); }));
+    if (pendente.current?.pedido === pedido) pendente.current = null;
     if (pedido !== troca.current || (automatica && (parado.current.ponteiro || parado.current.foco || pausado || document.hidden || matchMedia('(prefers-reduced-motion: reduce)').matches))) return;
     setAnterior(n); setN(x);
   };
@@ -59,8 +64,8 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
   // enquanto a pessoa lê as fileiras)
   useEffect(() => {
     if (lista.length < 2) return;
-    const t = setInterval(() => { if (!parado.current.ponteiro && !parado.current.foco && !pausado && !encaixou && !document.hidden && !matchMedia('(prefers-reduced-motion: reduce)').matches) void ir(n + 1, true); }, TROCA);
-    return () => { clearInterval(t); troca.current++; };
+    const t = setInterval(() => { if (!parado.current.ponteiro && !parado.current.foco && !pausado && !encaixou && !document.hidden && !matchMedia('(prefers-reduced-motion: reduce)').matches && !pendente.current) void ir(n + 1, true); }, TROCA);
+    return () => { clearInterval(t); if (pendente.current?.auto) troca.current++; };
   }, [lista.length, n, encaixou, pausado]);
 
   // a logo sobe com a página até o meio do topo e fica ali, encolhendo para caber entre a marca e a busca

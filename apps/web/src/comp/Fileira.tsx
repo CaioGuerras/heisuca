@@ -15,7 +15,7 @@ export function Fileira({ titulo, verTudo, children, classe = '' }:
     f(); t.addEventListener('scroll', f, { passive: true });
     const ro = new ResizeObserver(f); ro.observe(t);
     return () => { t.removeEventListener('scroll', f); ro.disconnect(); };
-  }, [children]);
+  }, [Array.isArray(children) ? children.length : children ? 1 : 0]);
   const rolar = (dir: number) => { const t = trilho.current; if (t) t.scrollBy({ left: dir * t.clientWidth * 0.85, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); };
   return (
     <section class={`fileira ${classe}`}>

@@ -1,7 +1,7 @@
 // Título: série, filme e coleção (PLANO §5; ref/vidhub/…foto42, …foto43, …foto44).
 //  Arte até o topo que se dissolve na cor do pôster · ← (sem ⋯) · logo · ★ nota | data | estúdio | gêneros | [idade]
 //  · linha pequena "3 temps. · 1h2min · 1080p H264 SDR" · Reproduzir largo que GRUDA NO TOPO ao rolar · ♡ ⚑ · sinopse
-//  「Série·Temp. 1·EP 1」 · Temporada ⌄ (folha contida) + Ver tudo › · episódios 16:9 com páginas 1-10 / 11-12
+//  「Série·Temp. 1·EP 1」 · Temporada ⌄ (folha contida) + páginas 1-10 / 11-12 + Ver tudo › · episódios 16:9
 //  · Elenco em quadrado arredondado · Gêneros em pílulas · Info mídia (Vídeo e Áudio, sem caminho de arquivo).
 // Só dado real: linha sem valor não aparece (PLANO §1.7).
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
@@ -355,9 +355,7 @@ function Episodios({ s, eps, atual }: { s: Sessao; eps: Item[] | null; atual: It
   };
   return (
     <>
-      <div class="titulo-trilho" ref={trilho}>
-        {(paginas[pag] || []).map(e => <CartaoEp key={e.Id} s={s} e={e} atual={e.Id === atual?.Id} />)}
-      </div>
+      {/* páginas antes da fileira: junto do seletor de temporada (no computador, na mesma linha; titulo.css) */}
       {paginas.length > 1 && (
         <div class="titulo-paginas" role="tablist" aria-label="Páginas de episódios">
           {paginas.map((p, k) => (
@@ -365,6 +363,9 @@ function Episodios({ s, eps, atual }: { s: Sessao; eps: Item[] | null; atual: It
           ))}
         </div>
       )}
+      <div class="titulo-trilho" ref={trilho}>
+        {(paginas[pag] || []).map(e => <CartaoEp key={e.Id} s={s} e={e} atual={e.Id === atual?.Id} />)}
+      </div>
     </>
   );
 }

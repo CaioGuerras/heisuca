@@ -20,7 +20,7 @@ export const nota = (i: Item) => i.CommunityRating ? i.CommunityRating.toFixed(1
 export function anos(i: Item): string {
   const ini = i.ProductionYear, fim = i.EndDate ? new Date(i.EndDate).getFullYear() : undefined;
   if (!ini) return '';
-  return i.Type === 'Series' && fim && fim !== ini ? `${ini} - ${fim}` : String(ini);
+  return i.Type === 'Series' && fim && fim !== ini ? `${ini}–${fim}` : String(ini);
 }
 export const episodio = (i: Item) => i.Type === 'Episode'
   ? `T${i.ParentIndexNumber ?? '?'}:E${i.IndexNumber ?? '?'}${i.Name ? ` · ${i.Name}` : ''}` : '';

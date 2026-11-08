@@ -156,6 +156,14 @@
 /* coleção: grade de pôsteres */
 .titulo-grade { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px var(--hs-vao); padding: 0 var(--hs-margem); }
 .titulo-grade .cartao-poster { width: auto; }
+/* Grade da coleção (sobra do Branco): só a arte se ergue; o cartão não cresce sobre o vizinho nem desalinha a linha. */
+.titulo-grade button.cartao, .titulo-grade button.cartao:hover, .titulo-grade button.cartao:focus-visible { transform: none; }
+.titulo-grade button.cartao:focus-visible { outline: none; }
+@media (hover: hover) and (pointer: fine) {
+  .titulo-grade button.cartao:hover .cartao-arte, .titulo-grade button.cartao:focus-visible .cartao-arte { transform: translateY(-4px); }
+}
+main .titulo-grade button.cartao:focus-visible .cartao-arte { box-shadow: 0 0 0 2px var(--hs-pagina), 0 0 0 4px var(--hs-texto); }
+@media (prefers-reduced-motion: reduce) { .titulo-grade .cartao-arte { transform: none !important; } }
 
 .titulo-erro { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; padding: 0 var(--hs-margem); }
 

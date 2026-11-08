@@ -31,11 +31,12 @@ type Base = { s: Sessao; i: Item; aoAbrir: (i: Item) => void; prioridade?: boole
 export function CartaoPoster({ s, i, aoAbrir, prioridade }: Base) {
   const d = useDados(s, i), acoes = useAcoes(s, i), n = nota(i);
   return (
-    <button class="cartao cartao-poster" onClick={() => aoAbrir(i)} {...acoes} aria-label={`${nomeDe(i)}${anos(i) ? `, ${anos(i)}` : ''}`}>
+    <button class="cartao cartao-poster" onClick={() => aoAbrir(i)} {...acoes}
+      aria-label={`${nomeDe(i)}${anos(i) ? `, ${anos(i)}` : ''}${n ? `, nota ${n}` : ''}${d.Played ? ', visto' : ''}`}>
       <span class="cartao-arte">
         <Imagem src={capa(s, i, 360)} hash={hashDe(s, i, 'Primary')} prioridade={prioridade} />
-        {n && <span class="cartao-nota">{n}</span>}
-        {d.Played && <span class="cartao-visto"><Icone nome="check" tamanho={14} /></span>}
+        {n && <span class="cartao-nota" aria-hidden="true">{n}</span>}
+        {d.Played && <span class="cartao-visto" aria-hidden="true"><Icone nome="check" tamanho={14} /></span>}
       </span>
       <span class="cartao-nome uma-linha">{nomeDe(i)}</span>
       {anos(i) && <span class="cartao-sub uma-linha">{anos(i)}</span>}

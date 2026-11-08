@@ -8,6 +8,7 @@ import { fundoDesfocado, usePaleta } from '../cor/paleta';
 import { CartaoPoster, EsqueletoCartoes } from '../comp/Cartoes';
 import { Fileira } from '../comp/Fileira';
 import { Topo } from '../comp/Navegacao';
+import { Icone } from '../comp/Icone';
 import { dadosDe, useMudancas } from '../estado/usuario';
 import { irTitulo } from '../rota';
 import './favoritos.css';
@@ -46,9 +47,11 @@ export function Favoritos({ s }: { s: Sessao }) {
     <main class="favoritos">
       {desfocado && <div class="favoritos-fundo" aria-hidden="true" style={{ backgroundImage: `url(${desfocado})` }} />}
       <Topo fundo={rolou} />
-      <h1 class="visualmente-oculto">Favoritos</h1>
+      <h1 class="favoritos-titulo">Favoritos</h1>
       {!secoes && <Fileira titulo="Favoritos"><EsqueletoCartoes n={4} /></Fileira>}
-      {secoes && !visiveis.length && <p class="favoritos-vazio">Toque em ♡ num título para guardá-lo aqui.</p>}
+      {secoes && !visiveis.length && <div class="favoritos-vazio">
+        <Icone nome="favorite" tamanho={36} /><p>Toque em ♡ num título para guardá-lo aqui.</p>
+      </div>}
       {visiveis.map(({ biblioteca: b, itens }) => abertas.has(b.Id) ? (
         <section key={b.Id} class="fileira favoritos-grade">
           <header class="fileira-cabeca">

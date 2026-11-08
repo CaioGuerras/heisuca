@@ -1,18 +1,29 @@
-/* Favoritos (ref/vidhub/…favoritos, celular de 412 px: 1 px do print = 0,34 px). O fundo é o BlurHash do 1º favorito,
-   ampliado (desfoque sem custo), coberto pela cor da página para o texto ficar sempre legível (a paleta mede o AA). */
-.favoritos { position: relative; min-height: 100svh; padding-top: calc(var(--hs-topo-respiro) + 34px); }
-.favoritos-fundo { position: fixed; inset: -40px; z-index: -1; background-size: cover; background-position: center;
-  filter: blur(28px) saturate(1.1); transform: translateZ(0); }
-.favoritos-fundo::after { content: ''; position: absolute; inset: 0; background: color-mix(in srgb, var(--hs-pagina) 76%, transparent); }
-[data-tema="shikkoku"] .favoritos-fundo { filter: blur(28px) saturate(1.1) brightness(.75); }
-[data-tema="hisui"] .favoritos-fundo { filter: blur(28px) saturate(1.2) brightness(1.6) contrast(.7); }
-[data-tema="hisui"] .favoritos-fundo::after { background: color-mix(in srgb, var(--hs-pagina) 80%, transparent); }
-/* a paleta mede o AA contra a cor lisa da página; aqui o fundo tem o pôster por baixo, então o texto secundário vai
-   mais perto do principal (conta feita para o pior caso: pôster todo preto no Verde, todo branco no Roxo) */
-.favoritos .cartao-sub, .favoritos .fileira-tudo, .favoritos-vazio { color: color-mix(in srgb, var(--hs-texto-2) 55%, var(--hs-texto)); }
+/* Favoritos: o BlurHash do primeiro título é uma camada da tela, contida pelo próprio main.
+   A imagem já é desfocada; opacidade baixa e texto principal preservam contraste nos dois temas. */
+.favoritos { position: relative; isolation: isolate; min-height: 100vh;
+  padding-top: calc(var(--hs-topo-respiro) + 60px); padding-bottom: 28px; background: var(--hs-pagina); }
+.favoritos-fundo { position: absolute; pointer-events: none; top: 0; left: 0; right: 0; height: 80vh; z-index: -1;
+  background-size: cover; background-position: center top; opacity: .08;
+  -webkit-mask-image: linear-gradient(#000, transparent); mask-image: linear-gradient(#000, transparent); }
+.favoritos-titulo { margin: 16px var(--hs-margem) 24px; font-family: var(--hs-tema-fonte-titulo);
+  font-size: clamp(26px, 3.6vw, 44px); font-weight: 600; line-height: 1.08; letter-spacing: -.035em; }
+.favoritos .cartao-sub, .favoritos .fileira-tudo { color: var(--hs-texto); }
 .favoritos .fileira:first-of-type { margin-top: 6px; }
-.favoritos-vazio { margin: 34svh auto 0; padding: 0 var(--hs-margem); max-width: 320px; text-align: center; color: var(--hs-texto-2); font-size: 15px; }
-.favoritos-grade-corpo { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--hs-cartao-poster), 1fr)); gap: 14px var(--hs-vao);
-  padding: 2px var(--hs-margem) 6px; }
-.favoritos-grade-corpo .cartao-poster { width: auto; }
-@media (min-width: 1024px) { .favoritos { padding-top: calc(var(--hs-topo-respiro) + 50px); } .favoritos-grade-corpo { gap: 22px var(--hs-vao); } }
+.favoritos .fileira-cabeca { min-height: 44px; margin-bottom: 8px; }
+.favoritos .fileira-tudo { min-height: 44px; }
+.favoritos .fileira-tudo:focus-visible { outline: 2px solid var(--hs-texto); outline-offset: 2px; }
+.favoritos-vazio { display: flex; flex-direction: column; align-items: center; gap: 20px;
+  margin: clamp(48px, 16vh, 160px) auto 0; padding: 0 var(--hs-margem); max-width: 320px;
+  text-align: center; color: var(--hs-texto); font-size: 15px; line-height: 1.6; }
+.favoritos-vazio > .icone { box-sizing: content-box; padding: 22px; border-radius: 50%; background: var(--hs-linha); }
+.favoritos-vazio p { margin: 0; }
+.favoritos-grade-corpo { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px var(--hs-vao);
+  padding: 14px var(--hs-margem) 6px; }
+.favoritos-grade-corpo .cartao-poster { width: auto; min-width: 0; }
+@media (min-width: 600px) {
+  .favoritos-grade-corpo { grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); }
+}
+@media (min-width: 1024px) {
+  .favoritos { padding-top: calc(var(--hs-topo-respiro) + 76px); }
+  .favoritos-grade-corpo { grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 28px var(--hs-vao); }
+}

@@ -50,9 +50,10 @@
   color: var(--hs-texto); background: rgb(255 255 255 / .58); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .55), 0 6px 22px rgb(0 0 0 / .08);
   -webkit-backdrop-filter: blur(18px) saturate(1.4); backdrop-filter: blur(18px) saturate(1.4);
   transition: transform var(--hs-tempo-toque) var(--hs-curva-padrao), background-color .2s; }
-[data-tema="shikkoku"] .titulo-play { background: rgb(255 255 255 / .15); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .12), 0 6px 22px rgb(0 0 0 / .2); }
+/* .15 parecia botão desativado sobre a página escura (rodada 7, roxo/desk_serie); .22 ainda é vidro e lê como ação principal */
+[data-tema="shikkoku"] .titulo-play { background: rgb(255 255 255 / .22); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .18), 0 6px 22px rgb(0 0 0 / .2); }
 .titulo-play:active { transform: scale(.98); }
-@media (hover: hover) and (pointer: fine) { .titulo-play:hover { background: rgb(255 255 255 / .72); } [data-tema="shikkoku"] .titulo-play:hover { background: rgb(255 255 255 / .22); } }
+@media (hover: hover) and (pointer: fine) { .titulo-play:hover { background: rgb(255 255 255 / .72); } [data-tema="shikkoku"] .titulo-play:hover { background: rgb(255 255 255 / .26); } }
 
 .titulo-botoes { position: relative; z-index: 1; display: flex; justify-content: center; gap: 34px; margin-top: 4px; }
 .titulo-botao { width: 48px; height: 44px; display: grid; place-items: center; color: var(--hs-texto); border-radius: 12px; }

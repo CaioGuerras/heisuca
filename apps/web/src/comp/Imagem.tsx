@@ -1,19 +1,28 @@
-// Imagem com a cor média do BlurHash por baixo enquanto carrega, e entrada suave (sem "pulo" de layout: a caixa tem
-// proporção fixa no CSS de quem usa).
-import { useState } from 'preact/hooks';
-import { corMedia } from '../cor/paleta';
+// BlurHash real enquanto carrega; cada URL tem estado próprio, inclusive depois de uma falha.
+import { useEffect, useMemo, useState } from 'preact/hooks';
+import { corMedia, fundoDesfocado } from '../cor/paleta';
 
-export function Imagem({ src, alt = '', hash, classe = '', prioridade = false }:
-  { src?: string; alt?: string; hash?: string; classe?: string; prioridade?: boolean }) {
+type Props = { src?: string; alt?: string; hash?: string; classe?: string; prioridade?: boolean };
+export function Imagem(props: Props) {
+  return <Conteudo key={props.src || ''} {...props} />;
+}
+function Conteudo({ src, alt = '', hash, classe = '', prioridade = false }: Props) {
   const [ok, setOk] = useState(false);
   const [falhou, setFalhou] = useState(false);
-  const fundo = corMedia(hash);
+  const [desfocado, setDesfocado] = useState('');
+  const fundo = useMemo(() => corMedia(hash), [hash]);
+  // A cor média entra primeiro; o desenho do hash vem após a montagem, fora do render.
+  useEffect(() => { setDesfocado(fundoDesfocado(hash)); }, [hash]);
   return (
-    <span class={`img ${classe}`} style={fundo ? { backgroundColor: fundo } : undefined}>
+    <span class={`img ${classe}`} style={{ backgroundColor: fundo, backgroundImage: desfocado ? `url(${desfocado})` : undefined }}>
       {src && !falhou && (
         <img src={src} alt={alt} decoding="async" loading={prioridade ? 'eager' : 'lazy'}
           {...{ fetchpriority: prioridade ? 'high' : 'auto' }}
-          class={ok ? 'ok' : ''} onLoad={() => setOk(true)} onError={() => setFalhou(true)} />
+          class={ok ? 'ok' : ''} onLoad={async e => {
+            const img = e.currentTarget;
+            await img.decode().catch(() => undefined);
+            setOk(true);
+          }} onError={() => setFalhou(true)} />
       )}
     </span>
   );

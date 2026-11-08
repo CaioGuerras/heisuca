@@ -1,6 +1,9 @@
 /* Biblioteca (PLANO §6; ref/vidhub/…foto50): topo ← | nome | ☰, grade 2:3 em 3 colunas no celular. */
-.biblioteca { min-height: 100vh; }
-.biblioteca-topo { position: sticky; top: 0; z-index: 20; display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 10px;
+.biblioteca { position: relative; isolation: isolate; min-height: 100vh; }
+.biblioteca-fundo { position: absolute; z-index: -1; pointer-events: none; top: 0; left: 0; right: 0; height: 70vh;
+  background-size: cover; background-position: center; opacity: .08;
+  -webkit-mask-image: linear-gradient(#000, transparent); mask-image: linear-gradient(#000, transparent); }
+.biblioteca-topo { position: sticky; top: 0; z-index: 20; display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; align-items: center; gap: 10px;
   padding: var(--hs-topo-respiro) var(--hs-margem) 14px; background: linear-gradient(var(--hs-pagina) 72%, var(--hs-pagina-0)); }
 .biblioteca-topo h1 { margin: 0; text-align: center; font-size: 17px; font-weight: 700; letter-spacing: -.005em; }
 .biblioteca-topo .redondo { color: var(--hs-texto); }
@@ -16,7 +19,7 @@
 .biblioteca-servidor .opcao-texto small { font-size: 13.5px; }
 .biblioteca-trocar { font-size: 13px; font-weight: 600; color: var(--hs-texto-2); padding: 4px 10px; border-radius: var(--hs-raio-total); box-shadow: inset 0 0 0 1px var(--hs-linha); }
 @media (min-width: 600px) {
-  .biblioteca-topo { grid-template-columns: 44px 1fr 44px; }
+  .biblioteca-topo { grid-template-columns: 44px minmax(0, 1fr) 44px; }
   .biblioteca-topo h1 { font-size: 19px; }
   .biblioteca-grade { grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 22px var(--hs-vao); }
 }

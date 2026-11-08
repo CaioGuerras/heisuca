@@ -4,7 +4,7 @@
 //  celular, mais no computador) que carrega aos poucos ao rolar. Botão direito no cartão: visto · favoritar.
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { bibliotecasDeVideo, daBiblioteca, hashDe, type Item, type Sessao } from '../api/servidor.ts';
-import { usePaleta } from '../cor/paleta';
+import { fundoDesfocado, usePaleta } from '../cor/paleta';
 import { CartaoPoster, EsqueletoCartoes } from '../comp/Cartoes';
 import { Folha } from '../comp/Folha';
 import { Icone } from '../comp/Icone';
@@ -77,12 +77,15 @@ function Grade({ s, bid }: { s: Sessao; bid: string }) {
   const [total, setTotal] = useState<number | null>(null);
   const [fim, setFim] = useState(false);
   const [erro, setErro] = useState(false);
+  const [ocupado, setOcupado] = useState(false);
   const carregando = useRef(false), sentinela = useRef<HTMLDivElement>(null), qtd = useRef(0);
-  usePaleta(hashDe(s, itens[0], 'Primary'));
+  const hash = hashDe(s, itens[0], 'Primary');
+  usePaleta(hash);
+  const desfocado = fundoDesfocado(hash);
 
   const mais = () => {
     if (!bid || carregando.current || fim) return;
-    carregando.current = true;
+    carregando.current = true; setOcupado(true);
     daBiblioteca(s, bid, qtd.current, PAGINA).then(d => {
       qtd.current += d.Items.length;
       setItens(l => [...l, ...d.Items]);
@@ -90,7 +93,7 @@ function Grade({ s, bid }: { s: Sessao; bid: string }) {
       // acabou quando chegou ao total ou o servidor mandou uma página vazia/curta
       if (!d.Items.length || d.Items.length < PAGINA || qtd.current >= d.TotalRecordCount) setFim(true);
       setErro(false);
-    }).catch(() => setErro(true)).finally(() => { carregando.current = false; });
+    }).catch(() => setErro(true)).finally(() => { carregando.current = false; setOcupado(false); });
   };
   useEffect(() => { mais(); }, [bid]);
   // carrega aos poucos: a próxima página quando a sentinela chega perto da tela
@@ -103,7 +106,8 @@ function Grade({ s, bid }: { s: Sessao; bid: string }) {
 
   return (
     <>
-      <div class="biblioteca-grade" aria-busy={!fim}>
+      {desfocado && <div class="biblioteca-fundo" aria-hidden="true" style={{ backgroundImage: `url(${desfocado})` }} />}
+      <div class="biblioteca-grade" aria-busy={ocupado}>
         {itens.map((i, k) => <CartaoPoster key={i.Id} s={s} i={i} prioridade={k < 9} aoAbrir={x => irTitulo(x.Id)} />)}
         {!fim && !erro && <EsqueletoCartoes n={total === null ? 12 : 6} />}
       </div>

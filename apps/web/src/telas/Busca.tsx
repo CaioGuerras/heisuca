@@ -102,6 +102,9 @@ export function Busca({ s }: { s: Sessao }) {
       </header>
 
       <div class="busca-corpo" aria-live="polite" aria-busy={carregando ? 'true' : 'false'}>
+        {!ativo && !texto.trim() && <div class="busca-vazio busca-inicial"><Icone nome="search" tamanho={40} />
+          <p>Qual história você quer ver?</p><small>Busque por um filme ou uma série.</small>
+        </div>}
         {!ativo && texto.trim().length === 1 && <p class="busca-dica texto-2">Digite mais uma letra.</p>}
         {!ativo && seerr && <MeusPedidos classe="busca-pedidos-solto" />}
         {nada && <div class="busca-vazio"><Icone nome="search_off" tamanho={40} /><p>Nada encontrado para “{termo}”.</p></div>}

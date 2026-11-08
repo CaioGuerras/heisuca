@@ -4,11 +4,10 @@
 //  Ao rolar, a logo sobe com a página e encaixa no topo, entre a marca e a busca (…home_rolada).
 //  Fileiras: Continuar · Próximo · Em alta no Brasil · Mídia · uma por biblioteca · Em breve (no fim).
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
-import { bibliotecasDeVideo, continuar, proximos, fundo, hashDe, logo, type EmBreve, type Item, type Sessao } from '../api/servidor.ts';
+import { fundo, hashDe, logo, type EmBreve, type Item, type Sessao } from '../api/servidor.ts';
 import { usePaleta } from '../cor/paleta';
 import { anos, CartaoBiblioteca, CartaoEmBreve, CartaoPaisagem, CartaoPoster, CartaoTop10, EsqueletoCartoes, nota } from '../comp/Cartoes';
 import { Fileira } from '../comp/Fileira';
-import { filtrarProximos } from '../comp/fileiras-inicio';
 import { Classificacao } from '../comp/Classificacao';
 import { Icone } from '../comp/Icone';
 import { Imagem } from '../comp/Imagem';
@@ -21,7 +20,6 @@ const TROCA = 8000;
 
 export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void }) {
   const [d, setD] = useState<DadosInicio | null>(null);
-  const [fileiras, setFileiras] = useState<{ continuar: Item[]; proximos: Item[]; bibliotecas: Item[] } | null>(null);
   const [n, setN] = useState(0);
   const [anterior, setAnterior] = useState<number | null>(null);
   const [encaixou, setEncaixou] = useState(false);
@@ -35,13 +33,7 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
 
   useEffect(() => {
     let vivo = true;
-    setD(null); setFileiras(null); setN(0); setAnterior(null);
-    // O pré-carregamento antigo une Continuar/Próximo. Ler as listas atuais separadas mantém a origem
-    // sem alterar dados/inicio nem a transição, que estão fora desta frente.
-    Promise.all([continuar(s).catch(() => [] as Item[]), proximos(s).catch(() => [] as Item[]),
-      bibliotecasDeVideo(s).catch(() => [] as Item[])]).then(([cont, prox, bibliotecas]) => {
-      if (vivo) setFileiras({ continuar: cont, proximos: filtrarProximos(cont, prox), bibliotecas });
-    });
+    setD(null); setN(0); setAnterior(null);
     prepararInicio(s).then(critico => {
       if (!vivo) return;
       setD(critico);
@@ -158,18 +150,18 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
         )}
       </section>
 
-      {(!d || !fileiras) && <Fileira titulo="Continuar"><EsqueletoCartoes tipo="paisagem" n={3} /></Fileira>}
-      {d && fileiras && fileiras.continuar.length > 0 && (
+      {!d && <Fileira titulo="Continuar"><EsqueletoCartoes tipo="paisagem" n={3} /></Fileira>}
+      {d && d.retomar.length > 0 && (
         <Fileira titulo="Continuar">
-          {fileiras.continuar.map((i, k) => {
+          {d.retomar.map((i, k) => {
             const pos = i.UserData?.PlaybackPositionTicks;
             return <CartaoPaisagem key={i.Id} s={s} i={i} tempo={!!pos} prioridade={k < 2} aoAbrir={x => irVer(x.Id, pos || undefined)} />;
           })}
         </Fileira>
       )}
-      {d && fileiras && fileiras.proximos.length > 0 && (
+      {d && d.proximos.length > 0 && (
         <Fileira titulo="Próximo">
-          {fileiras.proximos.map(i => <CartaoPaisagem key={i.Id} s={s} i={i} aoAbrir={x => irVer(x.Id, x.UserData?.PlaybackPositionTicks || undefined)} />)}
+          {d.proximos.map(i => <CartaoPaisagem key={i.Id} s={s} i={i} aoAbrir={x => irVer(x.Id, x.UserData?.PlaybackPositionTicks || undefined)} />)}
         </Fileira>
       )}
       {d && d.emAlta.itens.length > 0 && (
@@ -177,9 +169,9 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
           {d.emAlta.itens.slice(0, 10).map((i, k) => <CartaoTop10 key={i.Id} s={s} i={i} n={k + 1} aoAbrir={x => irTitulo(x.Id)} />)}
         </Fileira>
       )}
-      {d && fileiras && fileiras.bibliotecas.length > 0 && (
+      {d && d.bibliotecas.length > 0 && (
         <Fileira titulo="Mídia">
-          {fileiras.bibliotecas.map(b => <CartaoBiblioteca key={b.Id} s={s} b={b} sobreposto aoAbrir={x => irAba(`b/${x.Id}`)} />)}
+          {d.bibliotecas.map(b => <CartaoBiblioteca key={b.Id} s={s} b={b} sobreposto aoAbrir={x => irAba(`b/${x.Id}`)} />)}
         </Fileira>
       )}
       {d && d.porBiblioteca.map(({ biblioteca: b, itens }) => (

@@ -13,6 +13,8 @@ import { irAba, irTitulo, lembrarBiblioteca, ultimaBiblioteca, voltar } from '..
 import './biblioteca.css';
 
 const PAGINA = 60;
+// "1 título" / "1.284 títulos": a contagem real do servidor, no formato do Brasil
+export const contagem = (n: number) => `${n.toLocaleString('pt-BR')} ${n === 1 ? 'título' : 'títulos'}`;
 const iconeDe = (b: Item) => b.CollectionType === 'movies' ? 'movie' : b.CollectionType === 'tvshows' ? 'tv'
   : b.CollectionType === 'boxsets' ? 'collections_bookmark' : 'video_library';
 
@@ -20,6 +22,7 @@ export function Biblioteca({ s, id }: { s: Sessao; id?: string }) {
   const [libs, setLibs] = useState<Item[] | null>(null);
   const [bid, setBid] = useState(id || '');
   const [menu, setMenu] = useState(false);
+  const [total, setTotal] = useState<number | null>(null);
 
   useEffect(() => {
     bibliotecasDeVideo(s).then(l => {
@@ -31,19 +34,23 @@ export function Biblioteca({ s, id }: { s: Sessao; id?: string }) {
     }).catch(() => setLibs([]));
   }, [s.token]);
   useEffect(() => { if (id) setBid(id); }, [id]);
-  useEffect(() => { if (bid) lembrarBiblioteca(bid); }, [bid]);
+  useEffect(() => { if (bid) lembrarBiblioteca(bid); setTotal(null); }, [bid]);
 
   const atual = libs?.find(b => b.Id === bid);
   return (
     <main class="biblioteca">
       <header class="biblioteca-topo">
         <button class="redondo" onClick={voltar} aria-label="Voltar"><Icone nome="arrow_back" tamanho={24} /></button>
-        <h1 class="uma-linha" title={atual?.Name}>{atual?.Name || 'Biblioteca'}</h1>
+        <div class="biblioteca-cabeca">
+          <h1 class="uma-linha" title={atual?.Name}>{atual?.Name || 'Biblioteca'}</h1>
+          {/* quantos títulos tem a biblioteca (TotalRecordCount); some enquanto a 1ª página não chega */}
+          <p class="biblioteca-total" aria-hidden={!total}>{total ? contagem(total) : '\u00a0'}</p>
+        </div>
         <button class="redondo" onClick={() => setMenu(true)} aria-label="Trocar de biblioteca" aria-haspopup="dialog" aria-expanded={menu} disabled={!libs?.length}>
           <Icone nome="menu" tamanho={24} />
         </button>
       </header>
-      {bid ? <Grade key={bid} s={s} bid={bid} /> : libs && !libs.length ? <p class="biblioteca-vazio texto-2">Nenhuma biblioteca neste servidor.</p> : <Grade s={s} bid="" />}
+      {bid ? <Grade key={bid} s={s} bid={bid} aoTotal={setTotal} /> : libs && !libs.length ? <p class="biblioteca-vazio texto-2">Nenhuma biblioteca neste servidor.</p> : <Grade s={s} bid="" />}
       <Folha aberta={menu} fechar={() => setMenu(false)} titulo="Bibliotecas" variante="lateral" classe="biblioteca-menu">
         <ul class="lista-opcoes">
           {(libs || []).map(b => (
@@ -72,7 +79,7 @@ export function Biblioteca({ s, id }: { s: Sessao; id?: string }) {
   );
 }
 
-function Grade({ s, bid }: { s: Sessao; bid: string }) {
+function Grade({ s, bid, aoTotal }: { s: Sessao; bid: string; aoTotal?: (n: number) => void }) {
   const [itens, setItens] = useState<Item[]>([]);
   const [total, setTotal] = useState<number | null>(null);
   const [fim, setFim] = useState(false);
@@ -89,7 +96,7 @@ function Grade({ s, bid }: { s: Sessao; bid: string }) {
     daBiblioteca(s, bid, qtd.current, PAGINA).then(d => {
       qtd.current += d.Items.length;
       setItens(l => [...l, ...d.Items]);
-      setTotal(d.TotalRecordCount);
+      setTotal(d.TotalRecordCount); aoTotal?.(d.TotalRecordCount);
       // acabou quando chegou ao total ou o servidor mandou uma página vazia/curta
       if (!d.Items.length || d.Items.length < PAGINA || qtd.current >= d.TotalRecordCount) setFim(true);
       setErro(false);

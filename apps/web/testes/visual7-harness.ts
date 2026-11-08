@@ -4,7 +4,8 @@ import { runInNewContext } from 'node:vm';
 import ts from 'typescript';
 
 // Executa componentes reais com portas em memória, sem DOM, rede ou threads de navegador.
-export function bancada(arquivo: string, expor: string, portas: Record<string, any> = {}, globais = {}) {
+export function bancada(arquivo: string, expor: string, portas: Record<string, any> = {}, globais = {},
+  prepararFonte = (fonte: string) => fonte) {
   const nativo = createRequire(import.meta.url), valores: any[] = [], dependencias: any[][] = [];
   const limpezas: (() => void)[] = [], pendentes: (() => void)[] = [];
   let indice = 0;
@@ -29,7 +30,7 @@ export function bancada(arquivo: string, expor: string, portas: Record<string, a
     useLayoutEffect() {},
   };
   const m = { exports: {} as Record<string, any> };
-  const js = ts.transpileModule(readFileSync(new URL(arquivo, import.meta.url), 'utf8') + `\nexport { ${expor} };`, {
+  const js = ts.transpileModule(prepararFonte(readFileSync(new URL(arquivo, import.meta.url), 'utf8')) + `\nexport { ${expor} };`, {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022,
       jsx: ts.JsxEmit.ReactJSX, jsxImportSource: 'preact' },
   }).outputText;

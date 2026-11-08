@@ -213,6 +213,8 @@ function PainelPlex({ terminou, topo, aviso }: { terminou: (s: Sessao) => Promis
     setErro(null); setP({ fase: 'gerando' });
     try {
       const a = await autorizarPlex(c.signal, (pin, url) => setP({ fase: 'pin', codigo: pin.code, url }), () => setP({ fase: 'buscando' }));
+      // conectarPlex grava a sessão: a restrição da build precisa ser conferida antes disso.
+      if (!liberado(a.conta.nome)) throw new ErroEntradaPlex('recusou', 'Esta versão de teste ainda não está aberta.');
       const passo = passoSeguinte(a.servidores);
       if (passo.tipo === 'conectar') await conectar(passo.recurso, a, c.signal);
       else setP({ fase: 'escolher', a: { ...a, servidores: passo.lista } });

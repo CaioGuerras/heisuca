@@ -6,7 +6,7 @@
 //  Ilha: flutuante, centralizada, de vidro: Início · Biblioteca · Favoritos · [foto] Usuário.
 import type { ComponentChildren } from 'preact';
 import { useRef } from 'preact/hooks';
-import { fotoUsuario, type Sessao } from '../api/servidor.ts';
+import { fotoUsuario, pode, type Sessao } from '../api/servidor.ts';
 import { irAba, ultimaBiblioteca, type Rota } from '../rota';
 import { Icone } from './Icone';
 import { Logo } from './Logo';
@@ -42,7 +42,7 @@ export function Ilha({ s, r, aoUsuario }: { s: Sessao; r: Rota; aoUsuario: (el: 
     <nav class="ilha" aria-label="Navegação">
       {item(r.tela === 'inicio', 'home', 'Início', () => irAba(''))}
       {item(r.tela === 'biblioteca', 'video_library', 'Biblioteca', () => irAba(lib ? `b/${lib}` : 'b'))}
-      {item(r.tela === 'fav', 'favorite', 'Favoritos', () => irAba('fav'))}
+      {pode(s, 'favoritos') && item(r.tela === 'fav', 'favorite', 'Favoritos', () => irAba('fav'))}
       <button ref={eu} class="ilha-item ilha-eu" onClick={() => eu.current && aoUsuario(eu.current)} aria-haspopup="dialog" aria-label={`Usuário ${s.nome}`}>
         <Avatar s={s} tamanho={22} /><span class="uma-linha">{nome}</span>
       </button>

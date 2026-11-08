@@ -1,7 +1,7 @@
 // A casca do app: abertura → (entrada) → transição → telas (PLANO §3.1). A logo voa entre as três primeiras.
 import type { JSX } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
-import { quandoExpirar, type EmBreve, type Sessao } from './api/servidor.ts';
+import { pode, quandoExpirar, type EmBreve, type Sessao } from './api/servidor.ts';
 import { esquecerSessao, guardarSessao, sessaoAtual, type Servidor } from './api/contas.ts';
 import { sairDoSeerr } from './api/seerr';
 import { Aviso } from './comp/Aviso';
@@ -74,7 +74,7 @@ function Casca({ s, trocar, atualizar, entrar, sair }: { s: Sessao; trocar: (s: 
   const tela = r.tela === 'ver' ? <Player key={r.id} s={s} id={r.id} inicio={r.inicio} />
     : r.tela === 'titulo' ? <Titulo key={r.id} s={s} id={r.id} />
     : r.tela === 'biblioteca' ? <Biblioteca s={s} id={r.id} />
-    : r.tela === 'fav' ? <Favoritos s={s} />
+    : r.tela === 'fav' && pode(s, 'favoritos') ? <Favoritos s={s} />
     : r.tela === 'busca' ? <Busca s={s} />
     : r.tela === 'conta' ? <Paginas abrir={P => <P.Conta s={s} aoMudar={atualizar} />} />
     : r.tela === 'ajuda' ? <Paginas abrir={P => <P.ComoUsar s={s} />} />

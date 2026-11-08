@@ -1,7 +1,7 @@
 // Botão direito no cartão (no celular, tocar e segurar): Marcar como visto/não visto e Favoritar/Desfavoritar
 // (Caio 18/10 22:24; PLANO §4). Um menu só na página, aberto onde o ponteiro estava.
 import { useEffect, useRef, useState } from 'preact/hooks';
-import type { Item, Sessao } from '../api/servidor.ts';
+import { pode, type Item, type Sessao } from '../api/servidor.ts';
 import { alternarFavorito, alternarVisto, dadosDe } from '../estado/usuario';
 import { avisar } from './Aviso';
 import { Icone } from './Icone';
@@ -13,12 +13,13 @@ let abrir: ((a: Aberto) => void) | null = null;
 
 function opcoesDe(s: Sessao, i: Item): Opcao[] {
   const d = dadosDe(s, i), nome = i.Type === 'Episode' ? `${i.SeriesName} ${i.Name}` : i.Name;
-  return [
+  const opcoes: Opcao[] = [
     { rotulo: d.Played ? 'Marcar como não visto' : 'Marcar como visto', icone: 'flag', cheio: !d.Played,
       acao: () => alternarVisto(s, i).then(v => avisar(v ? `${nome}: visto.` : `${nome}: não visto.`)).catch(() => avisar('Não deu certo. Tente de novo.')) },
     { rotulo: d.IsFavorite ? 'Tirar dos favoritos' : 'Favoritar', icone: 'favorite', cheio: !d.IsFavorite,
       acao: () => alternarFavorito(s, i).then(v => avisar(v ? 'Guardado nos Favoritos.' : 'Tirado dos Favoritos.')).catch(() => avisar('Não deu certo. Tente de novo.')) },
   ];
+  return pode(s, 'favoritos') ? opcoes : opcoes.slice(0, 1);
 }
 
 // espalha nos cartões: onContextMenu (mouse) + segurar 500 ms (dedo)

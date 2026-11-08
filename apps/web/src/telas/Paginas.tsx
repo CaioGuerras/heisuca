@@ -5,7 +5,7 @@ import { VERSAO } from '../api/contas.ts';
 // Nada do CGSERVER aqui (sem CGFLIX, sem endereço, sem regras da casa, sem Stremio): o site serve a qualquer servidor.
 import type { ComponentChildren } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { euMesmo, fotoUsuario, removerFoto, trocarFoto, trocarSenha, type Sessao } from '../api/servidor.ts';
+import { euMesmo, fotoUsuario, pode, removerFoto, trocarFoto, trocarSenha, type Sessao } from '../api/servidor.ts';
 import { detalhe, meusPedidos, poster, SELO, temSeerr, type Pedido } from '../api/seerr';
 import { avisar } from '../comp/Aviso';
 import { Icone } from '../comp/Icone';
@@ -73,7 +73,7 @@ export function Conta({ s, aoMudar }: { s: Sessao; aoMudar: (s: Sessao) => void 
           <h2 class="conta-nome">{s.nome}</h2>
           <span class="conta-selo-usuario">Perfil do Heisuca</span>
         </div>
-        <div class="conta-acoes">
+        {pode(s, 'foto') && <div class="conta-acoes">
           <button class="pilula pilula-tema" disabled={!!ocupado} onClick={() => arquivo.current?.click()}>
             <Icone nome="photo_camera" cheio tamanho={20} />{ocupado === 'foto' ? 'Enviando…' : 'Trocar foto'}
           </button>
@@ -83,10 +83,10 @@ export function Conta({ s, aoMudar }: { s: Sessao; aoMudar: (s: Sessao) => void 
             </button>
           )}
           <input ref={arquivo} type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden onChange={escolher} />
-        </div>
+        </div>}
       </section>
 
-      <form class="cartao-pagina conta-cartao-senha" onSubmit={salvar} noValidate>
+      {pode(s, 'trocarSenha') && <form class="cartao-pagina conta-cartao-senha" onSubmit={salvar} noValidate>
         <div class="conta-secao-cabeca">
           <span class="conta-secao-icone"><Icone nome="lock" tamanho={22} /></span>
           <div>
@@ -104,7 +104,7 @@ export function Conta({ s, aoMudar }: { s: Sessao; aoMudar: (s: Sessao) => void 
         <button type="submit" class="pilula pilula-tema conta-salvar" disabled={!!ocupado}>
           {ocupado === 'senha' ? 'Salvando…' : 'Salvar nova senha'}
         </button>
-      </form>
+      </form>}
     </Pagina>
   );
 }

@@ -7,7 +7,7 @@
 // Tema: abre ali mesmo, dentro do balão, só com os nomes (sem amostra de cor; §2.1); a tela muda na hora.
 import type { JSX } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
-import type { Sessao } from '../api/servidor.ts';
+import { pode, type Sessao } from '../api/servidor.ts';
 import { servidoresSalvos } from '../api/contas.ts';
 import { abrirServidores } from '../estado/casca';
 import { escolhaAtual, escolherTema, type Escolha } from '../tema';
@@ -68,7 +68,7 @@ export function MenuUsuario({ s, ancora, fechar, sair }: { s: Sessao; ancora: HT
     <Folha aberta={!!ancora} fechar={fechar} ancora={ancora} variante="balao" semCabeca titulo="Menu do usuário" classe="mu">
       <button class="mu-conta" onClick={() => ir('conta')}>
         <Avatar s={s} tamanho={52} />
-        <span class="opcao-texto"><strong class="uma-linha">{s.nome}</strong><small>Minha conta: foto e senha</small></span>
+        <span class="opcao-texto"><strong class="uma-linha">{s.nome}</strong><small>{pode(s, 'foto') && pode(s, 'trocarSenha') ? 'Minha conta: foto e senha' : 'Minha conta'}</small></span>
         <Icone nome="chevron_right" tamanho={22} classe="mu-seta" />
       </button>
       <ul class="lista-opcoes">

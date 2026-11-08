@@ -1,7 +1,7 @@
 // Tudo o que a home mostra, carregado com prioridade: a 2ª animação (transição) espera a fase crítica
 // (Destaque, Continuar e Em alta com imagens decodificadas), e a home já nasce montada por baixo dela (PLANO §3.1 e §3.3).
 // As fileiras inferiores (novidades por biblioteca e em breve) carregam em paralelo e enriquecem a página suavemente.
-import { bibliotecasDeVideo, continuar, emAlta, emBreve, fundo, hashDe, logo, novidades, destaque as paraDestaque, proximos, temArte,
+import { bibliotecasDeVideo, continuar, emAlta, emBreve, fundo, hashDe, logo, novidades, destaque as paraDestaque, pode, proximos, temArte,
   type EmBreve, type Item, type Sessao } from '../api/servidor.ts';
 
 export type DadosCriticos = {
@@ -38,7 +38,8 @@ export function prepararInicio(s: Sessao, renovar = false): Promise<DadosInicio>
       paraDestaque(s).catch(() => []),
       continuar(s).catch(() => []),
       proximos(s).catch(() => []),
-      emAlta(s).catch(() => ({ titulo: '', itens: [] as Item[] })),
+      // seções que o servidor não tem (Plex: em alta e em breve) nem são pedidas; vazias, o Início não as mostra
+      (pode(s, 'emAlta') ? emAlta(s) : Promise.reject()).catch(() => ({ titulo: '', itens: [] as Item[] })),
     ]);
 
     const destaque = [...alta.itens.filter(i => temArte(s, i)), ...recentes]
@@ -66,8 +67,8 @@ export function prepararInicio(s: Sessao, renovar = false): Promise<DadosInicio>
       Promise.all(libs.filter(b => b.CollectionType !== 'boxsets').map(b =>
         novidades(s, b.Id).then(itens => ({ biblioteca: b, itens })).catch(() => ({ biblioteca: b, itens: [] as Item[] }))
       )).then(res => res.filter(x => x.itens.length)),
-      emBreve(s, 'tv').catch(() => []),
-      emBreve(s, 'movie').catch(() => []),
+      pode(s, 'emBreve') ? emBreve(s, 'tv').catch(() => []) : [],
+      pode(s, 'emBreve') ? emBreve(s, 'movie').catch(() => []) : [],
     ]);
     return { porBiblioteca, emBreve: { tv, movie } };
   })();

@@ -5,7 +5,7 @@
 //  · Elenco em quadrado arredondado · Gêneros em pílulas · Info mídia (Vídeo e Áudio, sem caminho de arquivo).
 // Só dado real: linha sem valor não aparece (PLANO §1.7).
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
-import { daColecao, episodios, fotoPessoa, fundo, hashDe, item, logo, paisagem, proximoDaSerie, temporadas,
+import { daColecao, episodios, fotoPessoa, fundo, hashDe, item, logo, paisagem, pode, proximoDaSerie, temporadas,
   type Fluxo, type Item, type Pessoa, type Sessao } from '../api/servidor.ts';
 import { usePaleta } from '../cor/paleta';
 import { CartaoPoster, EsqueletoCartoes, nota, relogio } from '../comp/Cartoes';
@@ -286,10 +286,10 @@ function Botoes({ s, it }: { s: Sessao; it: Item }) {
   const erro = () => avisar('Não deu certo. Tente de novo.');
   return (
     <div class="titulo-botoes">
-      <button class="titulo-botao" aria-pressed={!!d.IsFavorite} aria-label={d.IsFavorite ? 'Tirar dos favoritos' : 'Favoritar'} title={d.IsFavorite ? 'Tirar dos favoritos' : 'Favoritar'}
+      {pode(s, 'favoritos') && <button class="titulo-botao" aria-pressed={!!d.IsFavorite} aria-label={d.IsFavorite ? 'Tirar dos favoritos' : 'Favoritar'} title={d.IsFavorite ? 'Tirar dos favoritos' : 'Favoritar'}
         onClick={() => alternarFavorito(s, it).then(v => avisar(v ? 'Guardado nos Favoritos.' : 'Tirado dos Favoritos.')).catch(erro)}>
         <Icone nome="favorite" cheio={!!d.IsFavorite} tamanho={28} />
-      </button>
+      </button>}
       <button class="titulo-botao" aria-pressed={!!d.Played} aria-label={d.Played ? 'Marcar como não visto' : 'Marcar como visto'} title={d.Played ? 'Marcar como não visto' : 'Marcar como visto'}
         onClick={() => alternarVisto(s, it).then(v => avisar(v ? 'Marcado como visto.' : 'Marcado como não visto.')).catch(erro)}>
         <Icone nome="flag" cheio={!!d.Played} tamanho={28} />

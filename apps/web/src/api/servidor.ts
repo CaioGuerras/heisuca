@@ -63,6 +63,8 @@ export function adaptador(tipo: TipoServidor): ApiServidor {
   return api;
 }
 export const apiDe = (s: Sessao): ApiServidor => adaptador(s.tipo);
+// As telas escondem o que o servidor da sessão não faz (favoritos, senha, foto, em alta, em breve). Jellyfin: tudo true.
+export const pode = (s: Sessao, c: keyof Capacidades): boolean => apiDe(s).capacidades()[c];
 
 // Fachada mantém chamadas explícitas das telas, sem expor transporte/URLs específicos de Jellyfin.
 export const bibliotecas: ApiServidor['bibliotecas'] = (s, ...args) => apiDe(s).bibliotecas(s, ...args);

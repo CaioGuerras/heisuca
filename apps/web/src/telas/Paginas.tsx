@@ -358,6 +358,8 @@ export function Sobre() {
         </ul>
       </details>
 
+      <p class="sobre-selo texto-2">Feito em parceria com IA: Claude, Codex e Gemini.</p>
+
       <p class="sobre-dedicatoria"><Icone nome="favorite" cheio tamanho={18} />Para a família, que sempre se reuniu diante da tela.</p>
     </Pagina>
   );

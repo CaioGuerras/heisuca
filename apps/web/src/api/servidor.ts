@@ -6,6 +6,7 @@ export type * from './tipos.ts';
 export { quandoExpirar } from './expiracao.ts';
 export { entradaJellyfin } from './entrada-jellyfin.ts';
 export { entradaPlex } from './entrada-plex.ts';
+export { autorizarPlex, cancelada, conectarPlex, ErroEntradaPlex, passoSeguinte, type Autorizacao, type RecursoPlex } from './fluxo-plex.ts';
 
 // Suporte estático do adaptador; disponibilidade de Quick Connect/Seerr continua na detecção atual.
 export type Capacidades = { favoritos: boolean; trocarSenha: boolean; foto: boolean; legendasRemotas: boolean;

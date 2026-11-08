@@ -1,9 +1,12 @@
 // Tela única de entrada (Caio 19/10; PLANO §3.2; base ref/streamyfin com os cortes do Caio):
 // logo · "Digite o endereço do servidor" (✓ nome do servidor quando responde) · Usuário · Senha · Iniciar sessão.
 // Quick Connect no ícone do canto superior direito. Sem "Guardar esta conta", sem URL repetida, sem cabeçalhos avançados.
+// Caio 07/11: seletor "Jellyfin | Plex" no topo do formulário; Jellyfin é o padrão e segue idêntico. Plex entra por PIN
+// (app.plex.tv numa nova aba); a lógica fica em api/fluxo-plex.ts (testada), aqui só os passos na tela.
+import type { ComponentChildren } from 'preact';
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
-import type { Sessao } from '../api/servidor.ts';
-import { entradaJellyfin } from '../api/servidor.ts';
+import type { Autorizacao, RecursoPlex, Sessao, TipoServidor } from '../api/servidor.ts';
+import { autorizarPlex, cancelada, conectarPlex, entradaJellyfin, ErroEntradaPlex, passoSeguinte } from '../api/servidor.ts';
 import type { PedidoQC } from '../api/entrada-jellyfin.ts';
 import { ultimoServidor, type Servidor } from '../api/contas.ts';
 const { descobrir, entrarComSenha, ErroEntrada, esperarQuickConnect, iniciarQuickConnect, quickConnectLigado } = entradaJellyfin;
@@ -23,7 +26,10 @@ const liberado = (nome: string) => !SO.length || SO.includes(nome.trim().toLower
 export function Entrada({ de, servidorInicial, pronto, voltar }: {
   de?: DOMRect | null; servidorInicial?: Servidor | null; pronto: (s: Sessao, logo: DOMRect, clique: number) => void; voltar?: () => void;
 }) {
-  const inicial = servidorInicial === undefined ? ultimoServidor() : servidorInicial;
+  const lembrado = servidorInicial === undefined ? ultimoServidor() : servidorInicial;
+  // servidor lembrado Plex abre na aba Plex; o campo de endereço é só do Jellyfin
+  const [tipo, setTipo] = useState<TipoServidor>(lembrado?.tipo === 'plex' ? 'plex' : 'jellyfin');
+  const inicial = lembrado?.tipo === 'plex' ? null : lembrado;
   const [endereco, setEndereco] = useState(inicial?.url.replace(/^https:\/\//, '') || '');
   const [srv, setSrv] = useState<Servidor | null>(inicial);
   const [qcLigado, setQcLigado] = useState(false);
@@ -70,7 +76,7 @@ export function Entrada({ de, servidorInicial, pronto, voltar }: {
 
   // o formulário e o Quick Connect esmaecem primeiro; só a logo fica, e é dela que a 2ª animação parte
   // clique = quando a pessoa pediu para entrar: os 3–5 s da 2ª animação contam daqui (PLANO §3.1), não de quando ela monta
-  const terminou = async (s: Sessao, clique = performance.now()) => {
+  const terminou = async (s: Sessao, clique = performance.now()): Promise<boolean> => {
     if (!liberado(s.nome)) { setErro({ campo: 'geral', msg: 'Esta versão de teste ainda não está aberta.' }); return false; }
     prepararInicio(s);   // a home começa a carregar já, enquanto o formulário esmaece
     const r = raiz.current!;
@@ -119,18 +125,28 @@ export function Entrada({ de, servidorInicial, pronto, voltar }: {
   };
 
   const erroDe = (c: string) => erro?.campo === c ? <p class="entrada-erro" role="alert">{erro.msg}</p> : null;
+  const seletor = (
+    <div class="entrada-tipo" role="tablist" aria-label="Tipo de servidor">
+      {(['jellyfin', 'plex'] as const).map(t => (
+        <button key={t} type="button" role="tab" aria-selected={tipo === t} class={tipo === t ? 'ativo' : ''}
+          onClick={() => { if (t !== tipo) { setTipo(t); setErro(null); } }}>{t === 'plex' ? 'Plex' : 'Jellyfin'}</button>
+      ))}
+    </div>
+  );
   return (
     <main class="entrada" ref={raiz}>
       <header class="entrada-topo">
         {voltar ? <button type="button" class="redondo entrada-voltar" onClick={voltar} aria-label="Voltar"><Icone nome="arrow_back" tamanho={22} /></button> : <span />}
-        <button type="button" class="redondo entrada-qc" disabled={!srv || !qcLigado} onClick={abrirQc}
+        <button type="button" class={`redondo entrada-qc${tipo === 'plex' ? ' oculto' : ''}`} disabled={!srv || !qcLigado} onClick={abrirQc}
           aria-label="Entrar com Quick Connect" title={srv && qcLigado ? 'Entrar com Quick Connect' : 'Digite o endereço do servidor'}>
           <Icone nome="mobile_lock_portrait" tamanho={22} />
         </button>
       </header>
       <div class="entrada-centro">
         <div class="entrada-logo" ref={logo}><Logo modo="marca" /></div>
+        {tipo === 'plex' ? <PainelPlex terminou={terminou} topo={seletor} aviso={erroDe('geral')} /> :
         <form class="entrada-form" onSubmit={enviar} novalidate>
+          {seletor}
           <label class="campo">
             <span class="visualmente-oculto">Endereço do servidor</span>
             <input type="url" inputMode="url" autocomplete="url" autocapitalize="off" spellcheck={false} enterKeyHint="next"
@@ -156,7 +172,7 @@ export function Entrada({ de, servidorInicial, pronto, voltar }: {
           {erroDe('senha')}
           {erroDe('geral')}
           <button class="pilula pilula-tema entrada-botao" disabled={indo}>{indo ? 'Entrando…' : 'Iniciar sessão'}</button>
-        </form>
+        </form>}
       </div>
       <Folha aberta={!!qc} fechar={() => setQc(null)} titulo="Quick Connect">
         <div class="qc">
@@ -166,5 +182,80 @@ export function Entrada({ de, servidorInicial, pronto, voltar }: {
         </div>
       </Folha>
     </main>
+  );
+}
+
+// ---- Plex: PIN → autorizar no app.plex.tv (nova aba) → servidores → conexão HTTPS → mesma saída do Jellyfin ----
+type PassoPlex = { fase: 'parado' } | { fase: 'gerando' } | { fase: 'pin'; codigo: string; url: string } | { fase: 'buscando' }
+  | { fase: 'escolher'; a: Autorizacao } | { fase: 'conectando'; nome: string };
+
+function PainelPlex({ terminou, topo, aviso }: { terminou: (s: Sessao) => Promise<boolean>; topo: ComponentChildren; aviso: ComponentChildren }) {
+  const [p, setP] = useState<PassoPlex>({ fase: 'parado' });
+  const [erro, setErro] = useState<{ msg: string; outro?: boolean } | null>(null);
+  const ctl = useRef<AbortController | null>(null);
+  // sair da tela ou trocar para Jellyfin desmonta o painel: a espera do PIN para na hora
+  useEffect(() => () => ctl.current?.abort(), []);
+
+  const falhou = (x: unknown, volta: PassoPlex) => {
+    if (cancelada(x)) return;
+    setP(volta);
+    setErro(x instanceof ErroEntradaPlex ? { msg: x.message, outro: x.motivo === 'vencido' } : { msg: 'Não deu para entrar com o Plex agora. Tente de novo.' });
+  };
+  const conectar = async (r: RecursoPlex, a: Autorizacao, sinal: AbortSignal) => {
+    const volta: PassoPlex = a.servidores.length > 1 ? { fase: 'escolher', a } : { fase: 'parado' };
+    setErro(null); setP({ fase: 'conectando', nome: r.name });
+    try { if (!await terminou(await conectarPlex(r, a.conta, sinal))) setP(volta); }
+    catch (x) { falhou(x, volta); }
+  };
+  const comecar = async () => {
+    ctl.current?.abort();
+    const c = ctl.current = new AbortController();
+    setErro(null); setP({ fase: 'gerando' });
+    try {
+      const a = await autorizarPlex(c.signal, (pin, url) => setP({ fase: 'pin', codigo: pin.code, url }), () => setP({ fase: 'buscando' }));
+      const passo = passoSeguinte(a.servidores);
+      if (passo.tipo === 'conectar') await conectar(passo.recurso, a, c.signal);
+      else setP({ fase: 'escolher', a: { ...a, servidores: passo.lista } });
+    } catch (x) { falhou(x, { fase: 'parado' }); }
+  };
+  const cancelar = () => { ctl.current?.abort(); setErro(null); setP({ fase: 'parado' }); };
+  const esperando = (texto: string) => <p class="qc-espera"><Icone nome="progress_activity" tamanho={18} classe="girando" />{texto}</p>;
+  const botaoCancelar = <button type="button" class="pilula entrada-cancelar" onClick={cancelar}>Cancelar</button>;
+
+  return (
+    <div class="entrada-form entrada-plex">
+      {topo}
+      <div class="qc" aria-live="polite">
+        {p.fase === 'parado' && <>
+          <p>Entre com a sua conta Plex. O site abre o Plex numa nova aba para você autorizar.</p>
+          <button type="button" class="pilula pilula-tema entrada-botao" onClick={comecar}>
+            {erro?.outro ? 'Gerar outro' : erro ? 'Tentar de novo' : 'Entrar com Plex'}</button>
+        </>}
+        {p.fase === 'gerando' && esperando('Gerando o código…')}
+        {p.fase === 'pin' && <>
+          <p>Autorize este código na sua conta Plex:</p>
+          <p class="qc-codigo plex-codigo">{p.codigo}</p>
+          <a class="pilula pilula-tema entrada-botao" href={p.url} target="_blank" rel="noopener noreferrer">
+            <Icone nome="open_in_new" tamanho={20} />Abrir o Plex para autorizar</a>
+          {esperando('Esperando a autorização…')}
+          {botaoCancelar}
+        </>}
+        {p.fase === 'buscando' && esperando('Buscando os seus servidores…')}
+        {p.fase === 'escolher' && <>
+          <p>Escolha o servidor:</p>
+          <ul class="lista-opcoes plex-servidores">
+            {p.a.servidores.map(r => (
+              <li key={r.clientIdentifier}><button type="button" class="opcao-linha" onClick={() => ctl.current && conectar(r, p.a, ctl.current.signal)}>
+                <Icone nome="dns" tamanho={22} /><span class="opcao-texto"><strong class="uma-linha">{r.name}</strong></span>
+              </button></li>
+            ))}
+          </ul>
+          {botaoCancelar}
+        </>}
+        {p.fase === 'conectando' && esperando(`Conectando a ${p.nome}…`)}
+      </div>
+      {erro && <p class="entrada-erro" role="alert">{erro.msg}</p>}
+      {aviso}
+    </div>
   );
 }

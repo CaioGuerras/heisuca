@@ -23,6 +23,7 @@ export async function respostaPlex(url: string, metodo = 'GET', sinal?: AbortSig
 const tv = async <T,>(caminho: string, token?: string, query?: QueryPlex, metodo?: string, sinal?: AbortSignal): Promise<T> =>
   (await respostaPlex(urlPlex('https://plex.tv', '/api/v2' + caminho, token, query), metodo, sinal)).json();
 
+export class PinVencido extends Error { constructor() { super('O código Plex venceu. Peça outro.'); } }
 export type PinPlex = { id: number; code: string };
 export type ContaPlex = { id: string; nome: string; foto?: string };
 export type ConexaoPlex = { uri: string; local?: boolean; relay?: boolean };
@@ -48,7 +49,7 @@ export async function esperarPin(pin: PinPlex, sinal: AbortSignal): Promise<stri
     let d: { authToken?: string } = {};
     try { d = await tv(`/pins/${pin.id}`, undefined, { code: pin.code }, 'GET', sinal); }
     catch (e) {
-      if (e instanceof ErroPlex && (e.status === 404 || e.status === 410)) throw new Error('O código Plex venceu. Peça outro.');
+      if (e instanceof ErroPlex && (e.status === 404 || e.status === 410)) throw new PinVencido();
       cancelado(sinal);
       // Como no Android, falha transitória não invalida um PIN ainda pendente.
       if (e instanceof ErroPlex && e.status < 500 && e.status !== 429) throw e;

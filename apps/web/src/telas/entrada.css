@@ -32,3 +32,17 @@
 .qc-espera { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
 .girando { animation: girar 1s linear infinite; }
 @keyframes girar { to { transform: rotate(360deg); } }
+/* seletor "Jellyfin | Plex" (Caio 07/11): duas metades lado a lado no topo do formulário, Jellyfin padrão */
+.entrada-tipo { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin-bottom: 6px; border-radius: 14px;
+  background: var(--hs-superficie); border: 1px solid var(--hs-linha); }
+.entrada-tipo button { height: 40px; border: 0; border-radius: 10px; background: transparent; color: var(--hs-texto-2); font: inherit;
+  font-size: 15px; font-weight: 600; cursor: pointer; transition: background-color .2s, color .2s; }
+.entrada-tipo button.ativo { background: var(--hs-tema-cor-botao-fundo); color: var(--hs-tema-cor-botao-texto); }
+.entrada-tipo button:focus-visible { outline: 2px solid var(--hs-realce); outline-offset: 2px; }
+.entrada .entrada-qc.oculto { visibility: hidden; }
+/* Plex: o código do PIN forte é longo (≈25 caracteres): menor e quebrando, para caber em 400 px */
+.entrada-plex .qc { padding: 6px 0 0; }
+.entrada-plex .plex-codigo { font-size: 22px !important; letter-spacing: .08em; word-break: break-all; }
+.entrada-plex a.entrada-botao { display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; margin: 4px 0 14px; }
+.entrada-cancelar { margin-top: 12px; height: 44px; padding: 0 22px; }
+.plex-servidores { text-align: left; margin: 0 0 4px; }

@@ -69,3 +69,8 @@
 @media (prefers-reduced-motion: reduce) {
   button.cartao:hover, button.cartao:focus-visible, .cartao:active .cartao-arte { transform: none; }
 }
+
+/* Mídia na Home: nome sobre a capa, com a cor sólida da página para manter AA. */
+.cartao-biblioteca-legenda { position: absolute; left: 0; right: 0; bottom: 0; padding: 8px 10px;
+  background: var(--hs-pagina); color: var(--hs-texto); font-size: 12px; font-weight: 600; }
+@media (min-width: 600px) { .cartao-biblioteca-legenda { font-size: 14px; } }

@@ -5,8 +5,10 @@
 // Servidor (rodada 2 do Caio, 19/10 noite): saiu da pílula do topo e fica aqui, discreto, junto de Sair: "Trocar servidor"
 // (ou "Adicionar servidor" quando só há um) abre o Trocar servidor da casca.
 // Tema: abre ali mesmo, dentro do balão, só com os nomes (sem amostra de cor; §2.1); a tela muda na hora.
+// Teclado: o foco fica preso no balão (Folha); setas/Home/End andam entre os itens; Esc fecha e o foco volta à foto.
 import type { JSX } from 'preact';
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useLayoutEffect, useState } from 'preact/hooks';
+import { gruposMenu, proximoFoco, type ItemMenu } from '../dados/menu.ts';
 import { pode, type Sessao } from '../api/servidor.ts';
 import { servidoresSalvos } from '../api/contas.ts';
 import { abrirServidores } from '../estado/casca';
@@ -31,10 +33,17 @@ export function MenuUsuario({ s, ancora, fechar, sair }: { s: Sessao; ancora: HT
     <li key={rotulo}><button class={`opcao-linha mu-item ${classe}`} onClick={acao}><Icone nome={icone} tamanho={24} classe="mu-icone" />
       <span class="opcao-texto"><strong>{rotulo}</strong></span></button></li>
   );
-  // grupos separados por linha fina (como no app completo); grupo vazio não deixa linha sobrando
-  const grupos: JSX.Element[][] = [
-    completa ? [] : [linha('help', 'Como usar', () => ir('ajuda'))],
-    [
+  // a Folha guarda o elemento focado ao abrir e devolve o foco a ele ao fechar: a foto recebe o foco antes (o Safari não
+  // foca botão no clique), assim Esc ou ✕ devolvem o foco ao avatar. Layout effect: roda antes do efeito da Folha.
+  useLayoutEffect(() => { ancora?.focus({ preventScroll: true }); }, [ancora]);
+  const teclas = (e: KeyboardEvent) => {
+    const itens = Array.from((e.currentTarget as HTMLElement).querySelectorAll<HTMLElement>('.mu-conta, .mu-item, .mu-tema'));
+    const i = proximoFoco(itens.indexOf(document.activeElement as HTMLElement), itens.length, e.key);
+    if (i >= 0) { e.preventDefault(); itens[i].focus(); }
+  };
+  const itens: Record<ItemMenu, JSX.Element> = {
+    ajuda: linha('help', 'Como usar', () => ir('ajuda')),
+    tema: (
       <li key="tema">
         <button class="opcao-linha mu-item" aria-expanded={temas} onClick={() => setTemas(t => !t)}>
           <Icone nome="palette" tamanho={24} classe="mu-icone" /><span class="opcao-texto"><strong>Tema</strong></span>
@@ -48,24 +57,27 @@ export function MenuUsuario({ s, ancora, fechar, sair }: { s: Sessao; ancora: HT
             ))}
           </div>
         )}
-      </li>,
-      linha('download', 'Baixar os apps', () => ir('apps')),
-      linha('info', 'Sobre', () => ir('sobre')),
-    ],
-    [linha('volunteer_activism', 'Apoiar o Heisuca', () => ir('apoiar'), 'mu-apoiar')],
-    [
+      </li>
+    ),
+    apps: linha('download', 'Baixar os apps', () => ir('apps')),
+    sobre: linha('info', 'Sobre', () => ir('sobre')),
+    apoiar: linha('volunteer_activism', 'Apoiar o Heisuca', () => ir('apoiar'), 'mu-apoiar'),
+    servidor: (
       <li key="servidor">
         <button class="opcao-linha mu-item mu-servidor" onClick={() => { fechar(); setTimeout(abrirServidores, 220); }}>
           <Icone nome="dns" tamanho={22} classe="mu-icone" />
           <span class="opcao-texto"><strong>{servidoresSalvos().length > 1 ? 'Trocar servidor' : 'Adicionar servidor'}</strong>
             {s.nomeServidor && <small class="uma-linha">{s.nomeServidor}</small>}</span>
         </button>
-      </li>,
-      linha('logout', 'Sair', () => { fechar(); sair(); }),
-    ],
-  ].filter(g => g.length);
+      </li>
+    ),
+    sair: linha('logout', 'Sair', () => { fechar(); sair(); }),
+  };
+  // grupos separados por linha fina (como no app completo); grupo vazio não deixa linha sobrando
+  const grupos = gruposMenu(completa).map(g => g.map(k => itens[k]));
   return (
     <Folha aberta={!!ancora} fechar={fechar} ancora={ancora} variante="balao" semCabeca titulo="Menu do usuário" classe="mu">
+      <div onKeyDown={teclas}>
       <button class="mu-conta" onClick={() => ir('conta')}>
         <Avatar s={s} tamanho={52} />
         <span class="opcao-texto"><strong class="uma-linha">{s.nome}</strong><small>{pode(s, 'foto') && pode(s, 'trocarSenha') ? 'Minha conta: foto e senha' : 'Minha conta'}</small></span>
@@ -74,6 +86,7 @@ export function MenuUsuario({ s, ancora, fechar, sair }: { s: Sessao; ancora: HT
       <ul class="lista-opcoes">
         {grupos.map((g, n) => [n > 0 && <li key={`hr${n}`} role="separator"><hr /></li>, ...g])}
       </ul>
+      </div>
     </Folha>
   );
 }

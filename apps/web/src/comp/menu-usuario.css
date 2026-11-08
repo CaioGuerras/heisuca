@@ -24,3 +24,11 @@
 .mu-servidor .mu-icone { color: var(--hs-texto-2); }
 .mu-servidor .opcao-texto strong { font-size: 14px; color: var(--hs-texto-2); }
 .mu-servidor .opcao-texto small { font-size: 12px; }
+/* abre crescendo da foto (a Folha põe o transform-origin no ponto do avatar), em ~200 ms; reduzir movimento = sem animação
+   (nem ao fechar: some na hora, em vez de esperar o fim da animação) */
+.folha-balao .folha.mu { animation-duration: .2s; animation-timing-function: var(--hs-curva-padrao); }
+.folha-balao.saindo .folha.mu { animation-duration: .16s; }
+@media (prefers-reduced-motion: reduce) {
+  .folha-balao .folha.mu { animation: none !important; }
+  .folha-balao.saindo .folha.mu { visibility: hidden; }
+}

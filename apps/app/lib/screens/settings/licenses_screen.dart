@@ -23,7 +23,7 @@ class LicensesScreen extends StatelessWidget {
   static Future<List<MergedLicenseEntry>> _loadLicenses() async {
     LicenseRegistry.addLicense(() async* {
       yield LicenseEntryWithLineBreaks([
-        'Heisuca (GPL-3.0; base Plezy)',
+        'Heisuca (GPL-3.0); base: Plezy (GPL-3.0)',
       ], await rootBundle.loadString('assets/licenses/heisuca_gpl.txt'));
     });
     final licenseMap = <String, List<LicenseEntry>>{};

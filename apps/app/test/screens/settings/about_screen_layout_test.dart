@@ -1,81 +1,171 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:heisuca/cgflix/apoio/cgflix_apoio_screen.dart';
 import 'package:heisuca/cgflix/cgflix_about.dart';
+import 'package:heisuca/cgflix/cgflix_dicas.dart';
 import 'package:heisuca/cgflix/cgflix_theme.dart';
 import 'package:heisuca/heisuca/heisuca_logo.dart';
+import 'package:heisuca/heisuca/heisuca_news.dart';
 import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/providers/multi_server_provider.dart';
 import 'package:heisuca/screens/settings/about_screen.dart';
+import 'package:heisuca/screens/settings/licenses_screen.dart';
 import 'package:heisuca/widgets/app_icon.dart';
-import 'package:heisuca/widgets/settings_section.dart';
 
-void main() {
-  setUpAll(() async {
-    await LocaleSettings.setLocale(AppLocale.pt);
-  });
+import '../../test_helpers/multi_server_fixtures.dart';
 
-  testWidgets('F4: Tela Sobre com nova ordem, sem corações, sem appDescription e apoio com café e seta', (tester) async {
-    tester.view.physicalSize = const Size(800, 2000);
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+const _selo = '🤖 Feito em parceria com IA: Claude, Codex e Gemini.';
+const _codigo = 'O Heisuca é software livre: qualquer pessoa pode ver, estudar e melhorar o código.';
+const _canalUrl = MethodChannel('plugins.flutter.io/url_launcher');
 
-    await tester.pumpWidget(
-      TranslationProvider(
+Future<void> _sobre(
+  WidgetTester tester,
+  CgflixThemeVariant tema, {
+  Size tamanho = const Size(400, 2400),
+  double escala = 1,
+}) async {
+  tester.view.physicalSize = tamanho;
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
+  final fontes = testMultiServer(clients: [_FonteNoticias()]);
+  fontes.manager.setNavigationSource(Object(), 'news');
+  await tester.pumpWidget(
+    ChangeNotifierProvider<MultiServerProvider>.value(
+      value: fontes.provider,
+      child: TranslationProvider(
         child: MaterialApp(
-          theme: cgflixAppTheme(),
-          home: const Scaffold(body: AboutScreen()),
+          theme: cgflixAppTheme(tema),
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(escala)),
+            child: child!,
+          ),
+          home: const AboutScreen(),
         ),
       ),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(() async {
+    await LocaleSettings.setLocale(AppLocale.pt);
+    PackageInfo.setMockInitialValues(
+      appName: 'Heisuca',
+      packageName: 'app.heisuca.player.teste.home',
+      version: '2.0.34',
+      buildNumber: '38',
+      buildSignature: '',
     );
-    await tester.pumpAndSettle();
-
-    // 1. Ordem dos elementos:
-    // Logo/Slogan/Versão -> TributeCards -> Apoio -> SettingsGroup -> Dedicatória no fim
-    final logoFinder = find.byType(HeisucaLogo);
-    final tributeFinder = find.byType(HeisucaTributeCards);
-    final apoioFinder = find.byType(CgflixApoioAboutLine);
-    final groupFinder = find.byType(SettingsGroup);
-    final dedicationFinder = find.byType(CgflixDedication);
-
-    expect(logoFinder, findsOneWidget);
-    expect(tributeFinder, findsOneWidget);
-    expect(apoioFinder, findsOneWidget);
-    expect(groupFinder, findsOneWidget);
-    expect(dedicationFinder, findsOneWidget);
-
-    final logoTop = tester.getTopLeft(logoFinder).dy;
-    final tributeTop = tester.getTopLeft(tributeFinder).dy;
-    final apoioTop = tester.getTopLeft(apoioFinder).dy;
-    final groupTop = tester.getTopLeft(groupFinder).dy;
-    final dedicationTop = tester.getTopLeft(dedicationFinder).dy;
-
-    expect(logoTop, lessThan(tributeTop), reason: 'Logo deve vir antes dos cartões de homenagem');
-    expect(tributeTop, lessThan(apoioTop), reason: 'Cartões de homenagem devem vir antes do apoio');
-    expect(apoioTop, lessThan(groupTop), reason: 'Linha de apoio deve vir antes do grupo de dicas/licenças');
-    expect(groupTop, lessThan(dedicationTop), reason: 'Dedicatória deve ficar no fim da tela');
-
-    // 2. Ausência dos corações e da frase descritiva antiga
-    expect(find.text('Os filmes e séries da família, em qualquer tela'), findsNothing,
-        reason: 'Frase appDescription deve ser removida');
-    expect(find.descendant(of: dedicationFinder, matching: find.byIcon(Symbols.favorite_rounded)), findsNothing,
-        reason: 'Dedicatória não deve ter corações');
-
-    // 3. Apoio discreto com café, texto "Apoiar o Heisuca", seta no fim e área de toque >= 48 dp
-    expect(find.descendant(of: apoioFinder, matching: find.text('Apoiar o Heisuca')), findsOneWidget);
-    expect(
-      find.descendant(of: apoioFinder, matching: find.byWidgetPredicate((w) => w is AppIcon && w.icon == Symbols.coffee_rounded)),
-      findsOneWidget,
-      reason: 'Apoio discreto deve usar o ícone de café',
-    );
-    expect(
-      find.descendant(of: apoioFinder, matching: find.byWidgetPredicate((w) => w is AppIcon && (w.icon == Symbols.chevron_right_rounded || w.icon == Symbols.chevron_right))),
-      findsOneWidget,
-      reason: 'Apoio discreto deve ter seta chevron_right no fim',
-    );
-
-    final apoioSize = tester.getSize(apoioFinder);
-    expect(apoioSize.height, greaterThanOrEqualTo(48.0), reason: 'Área de toque vertical deve ser >= 48 dp');
   });
+  setUp(() => SharedPreferences.setMockInitialValues({}));
+
+  for (final tema in [CgflixThemeVariant.isis, CgflixThemeVariant.heitor]) {
+    testWidgets('Sobre $tema: ordem única, textos aprovados, selo e dedicatória', (tester) async {
+      await _sobre(tester, tema);
+      final ordem = [
+        find.byType(HeisucaLogo),
+        find.text('Nada entre você e o filme.'),
+        find.text('Versão 2.0.34'),
+        find.byType(CgflixDicasAboutTile),
+        find.byType(HeisucaNewsEntry),
+        find.byType(HeisucaOpenSourceCard),
+        find.text('Agradecimentos'),
+        find.byType(HeisucaTributeCards),
+        find.text(t.about.openSourceLicenses),
+        find.byType(CgflixApoioAboutLine),
+        find.byType(HeisucaAiSeal),
+        find.byType(CgflixDedication),
+      ];
+      double anterior = -1;
+      for (final alvo in ordem) {
+        expect(alvo, findsOneWidget);
+        final topo = tester.getTopLeft(alvo).dy;
+        expect(topo, greaterThan(anterior), reason: '$alvo está fora da ordem');
+        anterior = topo;
+      }
+      expect(find.text('Licença GPL-3.0'), findsOneWidget);
+      expect(find.text(_codigo), findsOneWidget);
+      expect(find.text('Por sempre apoiar a fazer essas coisas rsrs.'), findsOneWidget);
+      expect(
+        find.text('Por até rir às vezes mas sempre me encorajar a evoluir, mesmo que cheio de HnR no site.'),
+        findsOneWidget,
+      );
+      expect(find.text('all.dev.br'), findsOneWidget);
+      expect(find.text('locadora.cc'), findsOneWidget);
+      expect(find.byWidgetPredicate((w) => w is AppIcon && w.icon == Symbols.handshake), findsOneWidget);
+      expect(find.text(_selo), findsOneWidget);
+      expect(find.text('Feito com amor, para Isis e Heitor'), findsOneWidget);
+      expect(find.text('Para a família, que sempre se reuniu diante da tela.'), findsNothing);
+      expect(
+        tester.widget<Text>(find.text(cgflixDedicationText)).style?.color,
+        cgflixAppTheme(tema).extension<CgflixPalette>()!.textMuted,
+      );
+      expect(tester.getSize(find.byType(CgflixApoioAboutLine)).height, greaterThanOrEqualTo(48));
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('Sobre $tema: celular estreito e fonte ampliada sem overflow', (tester) async {
+      await _sobre(tester, tema, tamanho: const Size(320, 640), escala: 1.6);
+      await tester.scrollUntilVisible(find.byType(CgflixDedication), 300, maxScrolls: 30);
+      expect(find.byType(CgflixDedication), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('Sobre: botões abrem GitHub, all.dev.br e locadora.cc nos destinos aprovados', (tester) async {
+    final abertos = <String>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(_canalUrl, (call) async {
+      if (call.method == 'launch') abertos.add((call.arguments as Map)['url'] as String);
+      return true;
+    });
+    addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(_canalUrl, null));
+    await _sobre(tester, CgflixThemeVariant.isis);
+    for (final texto in ['Ver o código no GitHub', 'all.dev.br', 'locadora.cc']) {
+      final botao = find.widgetWithText(TextButton, texto);
+      expect(botao, findsOneWidget);
+      expect(tester.getSize(botao).height, greaterThanOrEqualTo(48));
+      await tester.tap(botao);
+      await tester.pumpAndSettle();
+    }
+    expect(abertos, ['https://github.com/CaioGuerras/heisuca', 'https://all.dev.br/', 'https://locadora.cc/']);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Sobre: licenças identificam o Plezy GPL-3.0 como base do app', (tester) async {
+    await _sobre(tester, CgflixThemeVariant.isis);
+    await tester.tap(find.text(t.about.openSourceLicenses));
+    await tester.pumpAndSettle();
+    await tester.runAsync(() async {
+      await Future<void>.delayed(const Duration(milliseconds: 150));
+    });
+    await tester.pumpAndSettle();
+    expect(find.byType(LicensesScreen), findsOneWidget);
+    final aviso = find.text('Heisuca (GPL-3.0); base: Plezy (GPL-3.0)');
+    await tester.scrollUntilVisible(aviso, 500, maxScrolls: 80);
+    expect(aviso, findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+}
+
+class _FonteNoticias implements MediaServerClient {
+  @override
+  void close() {}
+  @override
+  MediaBackend get backend => MediaBackend.jellyfin;
+  @override
+  String get serverName => 'Servidor de teste';
+  @override
+  ServerId get serverId => ServerId('news');
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

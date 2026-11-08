@@ -16,10 +16,15 @@ import '../../i18n/strings.g.dart';
 import '../../theme/mono_tokens.dart';
 import 'licenses_screen.dart';
 
-class AboutScreen extends StatelessWidget {
+class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
 
-  static final Future<PackageInfo> _packageInfoFuture = PackageInfo.fromPlatform();
+  @override
+  State<AboutScreen> createState() => _AboutScreenState();
+}
+
+class _AboutScreenState extends State<AboutScreen> {
+  final Future<PackageInfo> _packageInfoFuture = PackageInfo.fromPlatform();
 
   @override
   Widget build(BuildContext context) {
@@ -60,9 +65,6 @@ class AboutScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 24),
-                        const HeisucaTributeCards(),
-                        const SizedBox(height: 16),
-                        const CgflixApoioAboutLine(),
                       ],
                     ),
                   ),
@@ -74,6 +76,16 @@ class AboutScreen extends StatelessWidget {
                     children: [
                       const CgflixDicasAboutTile(),
                       if (heisucaNewsAvailable(context)) const HeisucaNewsEntry(),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  const Center(child: HeisucaOpenSourceCard()),
+                  const SettingsSectionHeader('Agradecimentos'),
+                  const Center(child: HeisucaTributeCards()),
+                  const SizedBox(height: 24),
+                  SettingsGroup(
+                    margin: EdgeInsets.zero,
+                    children: [
                       FocusableListTile(
                         leading: const AppIcon(Symbols.description_rounded, fill: 1),
                         title: Text(t.about.openSourceLicenses),
@@ -86,11 +98,13 @@ class AboutScreen extends StatelessWidget {
                     ],
                   ),
 
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 16),
+                  const CgflixApoioAboutLine(),
+                  const SizedBox(height: 16),
+                  const Center(child: HeisucaAiSeal()),
+                  const SizedBox(height: 16),
 
-                  const Center(
-                    child: CgflixDedication(),
-                  ),
+                  const Center(child: CgflixDedication()),
 
                   const SizedBox(height: 24),
                 ]),

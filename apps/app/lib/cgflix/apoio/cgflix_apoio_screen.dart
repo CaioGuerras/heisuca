@@ -93,29 +93,29 @@ class CgflixApoioAboutLine extends StatelessWidget {
     return Center(
       child: TextButton(
         key: const ValueKey('cgflix-about-apoio'),
-        style: TextButton.styleFrom(
-          minimumSize: const Size(48, 48),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          foregroundColor: muted,
-        ).copyWith(
-          side: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.focused)) {
-              return BorderSide(color: context.cgflix.focusRing, width: 2);
-            }
-            return BorderSide.none;
-          }),
-        ),
+        style:
+            TextButton.styleFrom(
+              minimumSize: const Size(48, 48),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              foregroundColor: muted,
+            ).copyWith(
+              side: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.focused)) {
+                  return BorderSide(color: context.cgflix.focusRing, width: 2);
+                }
+                return BorderSide.none;
+              }),
+            ),
         onPressed: () => cgflixAbrirApoio(context),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             AppIcon(Symbols.coffee_rounded, fill: 1, size: 18, color: muted),
             const SizedBox(width: 8),
-            Text(
-              'Apoiar o Heisuca',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: muted,
-                fontWeight: FontWeight.w500,
+            Flexible(
+              child: Text(
+                'Apoiar o Heisuca',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: muted, fontWeight: FontWeight.w500),
               ),
             ),
             const SizedBox(width: 4),

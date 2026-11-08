@@ -1,5 +1,32 @@
 # Heisuca — entrega da rodada de 24/10/2026
 
+## 08/11/2026 — Sobre único no Android (Ultron)
+
+Base: `master` em `6ff2ca9`; entrega no ramo Android combinado `codex/heisuca-home-site`.
+Versão de TESTE: **2.0.34+38**. Nenhuma release, AAB ou publicação em produção.
+
+- Ordem: marca/slogan/versão → Dicas → Novidades (quando disponível) → Código aberto →
+  Agradecimentos → Licenças de código aberto → Apoio → selo → dedicatória.
+- Cartão de software livre GPL-3.0 e botão para `https://github.com/CaioGuerras/heisuca`.
+- Textos de Rosiel Victor e Locadora conforme `docs/SOBRE_UNICO.md`; Rosiel usa `Symbols.handshake`.
+- Correção posterior do Caio nesta conversa prevalece: preservados `locadora.cc` e
+  `Feito com amor, para Isis e Heitor`; selo `🤖 Feito em parceria com IA: Claude, Codex e Gemini.`.
+- Código aberto e agradecimentos compartilham o mesmo cartão e tokens Shikkoku/Hisui.
+  Links têm área de toque de 48 dp e contorno de foco do tema; Apoio permite quebra com fonte ampliada.
+- A consulta da versão passa a acompanhar o estado da tela, evitando compartilhar Future entre aberturas.
+- Licenças identifica explicitamente o Plezy (GPL-3.0) como base do app; licença/copyright preservados.
+- Seis testes do Sobre (ordem, temas, fonte ampliada, destinos e licenças) e dois testes de foco por pixels passaram.
+- Análise estrita dos cinco arquivos Dart alterados: **No issues found**.
+- Portão oficial verde: 161 testes Python, 2.216 Flutter (3 pulados) e 8 de pixels com Impeller.
+- Suíte sem filtro: **9.205 passaram, 59 pulados, 10 falharam**. As mesmas dez falhas foram reproduzidas na base
+  intacta `6ff2ca9`: editor mpv (6), perfil local (1), recuperação do banco (1) e controles de vídeo (2).
+  Comparação dos nomes dos casos: **zero falhas novas**. Essa suíte geral não está verde; o portão oficial está.
+- CI/APK de TESTE: resultado será registrado após o envio.
+- A análise sem escopo inclui testes internos de `packages/wakelock_plus` sem dependências próprias resolvidas;
+  esses erros são alheios ao Sobre. O portão oficial usa `lib integration_test test_driver test` e aceita os avisos existentes.
+- **Não testado em aparelho.** Desfazer: reverter o commit desta tarefa; nenhuma configuração de serviço foi alterada.
+
+
 Branch: `codex/heisuca-rodada-2410`, criada de `381295b5e1e7951fa02cbb58a0c29c04772b93d0`
 da `codex/heisuca-home-site`. A branch original foi preservada. Sem merge, release ou alteração de servidor.
 

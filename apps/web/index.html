@@ -26,13 +26,13 @@
           CSS.supports('gap', '1px') && typeof window.IntersectionObserver === 'function' && typeof window.fetch === 'function';
         if (ok) return;
         window.heisucaSemSuporte = true;
-        var tv = /SmartTV|SMART-TV|Tizen|Web0S|webOS|NetCast|HbbTV|BRAVIA|AFT[A-Z]|Android TV|GoogleTV|CrKey|VIDAA|Roku/i.test(navigator.userAgent);
+        // §3.4: a mensagem não depende do nome do aparelho (mesma tela de Abertura.tsx, sem regex de userAgent)
         document.addEventListener('DOMContentLoaded', function () {
           var a = document.getElementById('app');
           a.className = 'sem-suporte';
-          a.innerHTML = '<h1>HEISUCA</h1><p>' + (tv
-            ? 'Na TV, o Heisuca é pelo app próprio (em breve).'
-            : 'Este navegador é antigo demais para o Heisuca. Atualize o navegador ou use um mais novo, como o Chrome, o Edge, o Firefox ou o Safari.') + '</p>';
+          a.innerHTML = '<h1>HEISUCA</h1><p style="font-size:22px;color:#f4f1fa;margin-bottom:10px">O Heisuca na TV é pelo app.</p>' +
+            '<p>Este navegador não tem o que o site precisa. No celular ou no computador, use um navegador atualizado.</p>' +
+            '<p style="margin-top:16px">Apps para Android TV, TVs Samsung e LG, Android, iPhone e iPad: em breve.</p>';
         });
       })();
     </script>

@@ -86,11 +86,21 @@
 .titulo-ep:active .titulo-ep-arte { transform: scale(.97); }
 @media (hover: hover) and (pointer: fine) { .titulo-ep:hover .titulo-ep-arte { transform: translateY(-2px); } }
 .titulo-ep-nome { font-size: 13px; font-weight: 500; padding: 0 2px; }
-.titulo-paginas { display: flex; gap: 8px; padding: 10px var(--hs-margem) 0; flex-wrap: wrap; }
+.titulo-paginas { display: flex; gap: 8px; padding: 0 var(--hs-margem) 6px; flex-wrap: wrap; }
 .titulo-paginas button { min-width: 52px; height: 32px; padding: 0 14px; border-radius: var(--hs-raio-total); font-size: 12.5px; font-weight: 600;
   color: var(--hs-texto-2); box-shadow: inset 0 0 0 1px var(--hs-linha); font-variant-numeric: tabular-nums; }
 .titulo-paginas button.atual { color: var(--hs-texto); background: var(--hs-linha); box-shadow: inset 0 0 0 1px var(--hs-linha); }
 .titulo-vazio { padding: 0 var(--hs-margem); font-size: 14px; margin: 4px 0 0; }
+/* ≥ 720 px (mesmo corte do balão da temporada): Temporada ⌄ · 1-10 11-12 ········ Ver tudo › numa linha só, acima da fileira.
+   O cabeçalho vira "contents" para os 3 itens entrarem na grade; a fileira (ou o esqueleto/aviso) ocupa a 2ª linha inteira. */
+@media (min-width: 720px) {
+  .titulo-eps { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; column-gap: 18px; row-gap: 10px; }
+  .titulo-eps-cabeca { display: contents; }
+  .titulo-eps-cabeca > .titulo-temp { grid-column: 1; grid-row: 1; margin-left: var(--hs-margem); }
+  .titulo-eps > .titulo-paginas { grid-column: 2; grid-row: 1; padding: 0; }
+  .titulo-eps-cabeca > .fileira-tudo { grid-column: 3; grid-row: 1; margin-right: calc(var(--hs-margem) - 4px); }
+  .titulo-eps > .titulo-trilho, .titulo-eps > .titulo-vazio { grid-column: 1 / -1; grid-row: 2; min-width: 0; }
+}
 
 /* seletor de temporada e lista do "Ver tudo": folha contida (comp/Folha) */
 .titulo-folha .opcao-linha[aria-current] strong { font-weight: 700; }

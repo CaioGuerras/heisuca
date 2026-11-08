@@ -66,6 +66,12 @@
 [data-tema="hisui"] .cartao:focus-visible .cartao-arte {
   box-shadow: 0 12px 28px -10px rgb(20 40 32 / .22), 0 2px 6px -2px rgb(20 40 32 / .08);
 }
+/* Cartões largos (~300 px): 1.05 crescia 15 px num vão de 16 px e encostava no vizinho (1º da fileira cresce só para a direita).
+   1.03 = 9 px no computador (vão 16) e 7 px a 600 px (vão 12): o efeito fica, com respiro. */
+@media (hover: hover) and (pointer: fine) {
+  button.cartao-paisagem:hover, button.cartao-biblioteca:hover, button.cartao-top10:hover { transform: translateY(-3px) scale(1.03); }
+}
+.cartao-paisagem:focus-visible, .cartao-biblioteca:focus-visible, .cartao-top10:focus-visible { transform: translateY(-3px) scale(1.03); }
 @media (prefers-reduced-motion: reduce) {
   button.cartao:hover, button.cartao:focus-visible, .cartao:active .cartao-arte { transform: none; }
 }

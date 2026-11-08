@@ -44,6 +44,13 @@
 .destaque-pontos { display: flex; align-items: center; gap: 0; }
 .destaque-pausa { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; color: var(--hs-texto); }
 .destaque-pausa:hover { background: var(--hs-linha); }
+/* O "pause" do Material (contorno) vira "00" a 16 px: duas barras cheias desenhadas aqui, nas medidas do símbolo (sem mexer no TSX). */
+.destaque-pausa:not([aria-pressed="true"]) .icone { position: relative; }
+.destaque-pausa:not([aria-pressed="true"]) .icone svg { visibility: hidden; }
+.destaque-pausa:not([aria-pressed="true"]) .icone::before, .destaque-pausa:not([aria-pressed="true"]) .icone::after {
+  content: ''; position: absolute; top: 3.5px; bottom: 3.5px; width: 3.5px; border-radius: 1px; background: currentColor; }
+.destaque-pausa:not([aria-pressed="true"]) .icone::before { left: 3.5px; }
+.destaque-pausa:not([aria-pressed="true"]) .icone::after { right: 3.5px; }
 .destaque-pontos button { width: 24px; height: 32px; display: grid; place-items: center; border-radius: 8px; }
 .destaque-pontos button::after { content: ''; width: 5px; height: 5px; border-radius: 4px;
   background: var(--hs-texto); opacity: .6; transition: transform .3s var(--hs-curva-padrao), opacity .3s; }

@@ -32,7 +32,8 @@
 .busca-vazio small { max-width: 32ch; font-size: 13px; }
 
 /* do acervo: pôster à esquerda, texto à direita */
-.busca-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+/* margem -6 px = o padding lateral do item: a capa alinha com o campo e o realce do hover sai para a margem */
+.busca-lista { list-style: none; margin: 0 -6px; padding: 0; display: flex; flex-direction: column; gap: 4px; }
 .busca-item { width: 100%; display: flex; gap: 14px; padding: 12px 6px; border-radius: 14px; text-align: left; align-items: flex-start; color: var(--hs-texto); }
 button.busca-item:hover, button.busca-item:focus-visible { background: var(--hs-linha); }
 .busca-capa { width: 88px; aspect-ratio: 2 / 3; border-radius: 10px; flex: none; }

@@ -8,7 +8,8 @@
    erros) só crescem para baixo, e a logo nunca "pula" (Caio 19/10) */
 .entrada-centro { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 36px;
   padding: max(8px, calc(50dvh - 64px - 262px)) 24px calc(32px + env(safe-area-inset-bottom, 0px)); }
-.entrada-logo { width: min(232px, 60vw); }
+/* no celular segue 232 px; no computador cresce até 296 px para não ficar perdida no quadro largo */
+.entrada-logo { width: min(clamp(232px, 12vw + 96px, 296px), 60vw); }
 .entrada-form { width: min(400px, 100%); display: grid; gap: 10px; opacity: 0; transform: translateY(10px);
   transition: opacity .42s var(--hs-curva-padrao), transform .42s var(--hs-curva-padrao); }
 .entrada.pronta .entrada-form { opacity: 1; transform: none; }
@@ -23,7 +24,10 @@
 .entrada-servidor.vazia:not(.com-erro) { opacity: 0; }
 .entrada-servidor .icone { color: var(--hs-realce); }
 .entrada-servidor.com-erro { color: var(--hs-erro); }
-.entrada-erro { margin: -2px 8px 4px; font-size: 13px; line-height: 18px; color: var(--hs-erro); }
+.entrada-erro { margin: -2px 8px 4px; font-size: 13px; line-height: 18px; color: var(--hs-erro); overflow: hidden;
+  animation: entrada-erro-entra .22s var(--hs-curva-padrao); }
+/* o erro abre espaço devagar (o botão desliza em vez de pular); o -10px de cima anula o vão da grade no começo */
+@keyframes entrada-erro-entra { from { opacity: 0; max-height: 0; margin-top: -10px; margin-bottom: 0; } to { opacity: 1; max-height: 54px; } }
 .entrada-botao { width: 100%; height: 52px; margin-top: 10px; font-size: 16px; font-weight: 600; letter-spacing: .01em; }
 .entrada-botao:disabled { opacity: .7; }
 .qc { text-align: center; padding: 4px 8px 16px; }

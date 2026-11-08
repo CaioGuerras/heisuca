@@ -19,6 +19,7 @@ function veu(largura: number, altura: number, x: number, y: number): number {
     const p = regra.selector.includes('data-tema') ? 1 : 0;
     if (p >= prioridade) regra.walkDecls('background', d => { fundo = d.value; prioridade = p; });
   });
+  if (fundo === 'none') return 0;
   let livre = 1;
   for (const camada of postcss.list.comma(fundo)) {
     const [direcao, ...cores] = postcss.list.comma(camada.slice('linear-gradient('.length, -1));
@@ -44,8 +45,14 @@ function veu(largura: number, altura: number, x: number, y: number): number {
   return 1 - livre;
 }
 
-test('A1: Hisui dissolve topo e direita na cor da página, inclusive a 360/412 px', () => {
-  for (const w of [360, 412, 768, 1440]) for (const h of [560, 720, 900]) {
+// Rodada 9 (decisão do Jarvis): abaixo de 600 px o destaque do Hisui é um cartão sem véu; ali o A1 vira "véu zero".
+test('A1: Hisui < 600 px não tem véu (cartão); a arte aparece inteira', () => {
+  for (const w of [360, 412]) for (const h of [225, 257]) for (const [x, y] of [[0, 0], [.5, .5], [1, .3], [.7, .08], [.5, 1]])
+    assert.equal(veu(w, h, w * x, h * y), 0, `véu no cartão: ${w}×${h} em ${x},${y}`);
+});
+
+test('A1: Hisui dissolve topo e direita na cor da página a partir de 768 px', () => {
+  for (const w of [768, 1440]) for (const h of [560, 720, 900]) {
     assert.equal(veu(w, h, w * .7, 0), 1, `topo: ${w}×${h}`);
     assert.ok(veu(w, h, w * .7, h * .08) >= .79, `topo curto: ${w}×${h}`);
     assert.ok(veu(w, h, w * .7, h * .12) >= .59, `faixa exposta: ${w}×${h}`);

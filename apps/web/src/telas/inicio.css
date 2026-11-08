@@ -92,6 +92,19 @@
     linear-gradient(180deg, var(--hs-pagina) 0%, rgba(var(--hs-pagina-rgb), .8) 8%, var(--hs-pagina-0) 24%, var(--hs-pagina-0) 76%, var(--hs-pagina) 100%);
 }
 
+/* Hisui no celular (decisão do Jarvis, rodada 9): a arte escura dissolvida no claro virava um cinza borrado
+   (v8/verde/cel_inicio). Abaixo de 600 px o destaque vira um CARTÃO: arte inteira, cantos do tema, sombra suave,
+   margem lateral = --hs-margem, sem véu e começando abaixo do topo (a busca termina em respiro + 36 px; 12 px de folga).
+   A logo fica 12 px abaixo do cartão. min-height = topo + arte (largura útil × 10/16) + 12 + 128 + 38 + 6 + 8.
+   Fica antes do bloco ≥ 1024 px: o teste hisui.test.ts lê o último véu do Hisui (o do desktop). */
+@media (max-width: 600px) {
+  [data-tema="hisui"] .destaque { padding-top: calc(var(--hs-topo-respiro) + 48px);
+    min-height: calc((100vw - var(--hs-margem) * 2) * .625 + var(--hs-topo-respiro) + 240px); }
+  [data-tema="hisui"] .destaque-artes { width: 100%; border-radius: var(--hs-raio-cartao); box-shadow: var(--hs-sombra); }
+  [data-tema="hisui"] .destaque-artes::after { background: none; }
+  [data-tema="hisui"] .destaque-texto { margin-top: 12px; }
+}
+
 /* Hisui desktop: o centro/direita fica livre; o véu cobre a esquerda e só os 290 px do texto.
    Stops em px acompanham a altura real da casa/logo, sem espalhar pastel por toda a fotografia.
    Mantém o eixo central usado pelo encaixe da marca no topo. */

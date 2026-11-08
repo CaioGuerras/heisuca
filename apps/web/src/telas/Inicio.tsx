@@ -94,7 +94,6 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
     return () => { cancelAnimationFrame(quadro); removeEventListener('scroll', pedirQuadro); removeEventListener('resize', pedirQuadro); ro.disconnect(); };
   }, [atual?.Id]);
 
-  const lg = atual ? logo(s, atual, 600) : '';
   const generos = atual?.Genres?.slice(0, 5).join(', ');
   const emBreve = d ? [...d.emBreve.tv, ...d.emBreve.movie] : [];
   return (
@@ -125,7 +124,7 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
           <button class="destaque-texto" key={atual.Id} onClick={() => irTitulo(atual.Id)} aria-label={`Abrir ${atual.Name}`}>
             <span class="destaque-casa" ref={casa}>
               <span class="destaque-marca" ref={marca}>
-                {lg ? <img class="destaque-logo" src={lg} alt={atual.Name} /> : <span class="destaque-nome">{atual.Name}</span>}
+                <MarcaDestaque key={atual.Id} s={s} i={atual} />
               </span>
             </span>
             <span class="destaque-meta">
@@ -184,4 +183,12 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
       )}
     </main>
   );
+}
+
+// Uma logo anunciada pelo servidor pode falhar; o título continua legível em Sora (§2.3).
+function MarcaDestaque({ s, i }: { s: Sessao; i: Item }) {
+  const [falhou, setFalhou] = useState(false);
+  const lg = logo(s, i, 600);
+  return lg && !falhou ? <img class="destaque-logo" src={lg} alt={i.Name} onError={() => setFalhou(true)} />
+    : <span class="destaque-nome">{i.Name}</span>;
 }

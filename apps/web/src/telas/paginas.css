@@ -1,6 +1,9 @@
 /* Páginas do menu do usuário (PLANO §9–§12). Moldura em pagina.css; aqui só o conteúdo. */
+/* o conteúdo chega com um fade curto e 8 px de subida (transform não conta como salto de layout) */
+.pagina-corpo { animation: pagina-entra .28s var(--hs-curva-padrao); }
+@keyframes pagina-entra { from { opacity: 0; transform: translateY(8px); } }
 .cartao-pagina { background: var(--hs-superficie); border-radius: 18px; padding: 16px; box-shadow: inset 0 0 0 1px var(--hs-linha); }
-.cartao-pagina h2 { margin: 0; font-size: 16.5px; font-weight: 650; }
+.cartao-pagina h2 { margin: 0; font-size: 16.5px; font-weight: 650; letter-spacing: -.01em; }
 .pagina { --pagina-largura: 640px; }
 .selo-em-breve, .selo-disponivel { flex: none; display: inline-block; padding: 5px 11px; border-radius: var(--hs-raio-total); font-size: 12.5px;
   font-weight: 600; letter-spacing: .02em; color: var(--hs-texto-2); box-shadow: inset 0 0 0 1px var(--hs-linha); margin: 0; }
@@ -18,7 +21,7 @@
 .icone.em-linha { vertical-align: -3px; margin: 0 1px; }
 
 /* ---- Minha conta (ref/app_completo/…minha_conta): foto grande no centro, ações em pílula, senha abaixo de uma linha fina ---- */
-.conta-perfil { display: flex; flex-direction: column; align-items: center; text-align: center; padding: clamp(12px, 4vw, 32px) 0 26px; gap: 10px;
+.conta-perfil { display: flex; flex-direction: column; align-items: center; text-align: center; padding: clamp(12px, 4vw, 32px) 0 24px; gap: 8px;
   border-bottom: 1px solid var(--hs-linha); }
 .conta-foto { width: clamp(120px, 34vw, 160px); height: clamp(120px, 34vw, 160px); border-radius: 50%; object-fit: cover; background: var(--hs-linha);
   box-shadow: 0 0 0 3px var(--hs-pagina), 0 0 0 5px var(--hs-realce), 0 14px 36px rgb(0 0 0 / .28); }
@@ -34,7 +37,7 @@
 .conta-remover:hover { background: var(--hs-linha); }
 .conta .pilula:disabled { opacity: .55; cursor: default; }
 
-.conta-senha { display: flex; flex-direction: column; gap: 14px; padding: 24px 0 8px; }
+.conta-senha { display: flex; flex-direction: column; gap: 16px; padding: 24px 0 8px; }
 .conta-senha h2 { margin: 0; font-size: clamp(17px, 4.4vw, 20px); font-weight: 700; }
 .conta-explica { margin: -6px 0 4px; font-size: 14.5px; line-height: 1.5; }
 .conta-alerta, .conta-ok { display: flex; align-items: flex-start; gap: 10px; margin: 0; padding: 12px 14px; border-radius: 14px; font-size: 14.5px; line-height: 1.45; }
@@ -68,18 +71,18 @@
 .ajuda-passos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
 .ajuda-passo { padding: 16px 16px 18px; transition: box-shadow .25s, background-color .25s; }
 .ajuda-passo.proximo { box-shadow: inset 0 0 0 1.5px var(--hs-realce); }
-.ajuda-cabeca { display: flex; align-items: center; gap: 14px; }
-.ajuda-icone { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; flex: none; background: var(--hs-linha); color: var(--hs-realce);
+.ajuda-cabeca { display: flex; align-items: center; gap: 16px; }
+.ajuda-icone { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; flex: none; background: var(--hs-linha); color: var(--hs-realce);
   transition: background-color .25s, color .25s; }
 .ajuda-passo.feito .ajuda-icone { background: var(--hs-tema-cor-botao-fundo); color: var(--hs-tema-cor-botao-texto); }
 .ajuda-titulo { flex: 1; min-width: 0; }
 .ajuda-titulo small { display: block; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--hs-texto-2); }
 .ajuda-titulo h2 { margin: 1px 0 0; font-size: clamp(16px, 4.2vw, 18.5px); font-weight: 650; line-height: 1.25; }
-.ajuda-corpo { margin-left: 60px; }
+.ajuda-corpo { margin-left: 64px; }
 .ajuda-passo.feito .ajuda-corpo { opacity: .78; }
 .ajuda-texto { margin: 10px 0 0; font-size: 14.5px; line-height: 1.55; color: var(--hs-texto-2); }
 .ajuda-texto strong { color: var(--hs-texto); font-weight: 600; }
-@media (max-width: 420px) { .ajuda-corpo { margin-left: 0; } }
+@media (max-width: 420px) { .ajuda-corpo { margin-left: 0; } .ajuda-cabeca { gap: 12px; } }
 /* a caixinha "Feito" (alvo de toque de 44 px) */
 .ajuda-feito { flex: none; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px 0 10px; border-radius: var(--hs-raio-total);
   font-size: 14px; font-weight: 600; color: var(--hs-texto-2); cursor: pointer; user-select: none; position: relative; box-shadow: inset 0 0 0 1px var(--hs-linha); }
@@ -90,11 +93,11 @@
 .ajuda-feito input:checked + .ajuda-caixa { background: var(--hs-tema-cor-botao-fundo); box-shadow: none; color: var(--hs-tema-cor-botao-texto); }
 .ajuda-feito input:checked ~ * { color: var(--hs-texto); }
 .ajuda-feito input:focus-visible + .ajuda-caixa { outline: 2px solid var(--hs-realce); outline-offset: 3px; }
-.ajuda-avisos { display: flex; align-items: center; gap: 14px; margin-top: 22px; }
+.ajuda-avisos { display: flex; align-items: center; gap: 16px; margin-top: 24px; }
 .ajuda-avisos .ajuda-icone { color: var(--hs-texto-2); }
 .ajuda-avisos > div { flex: 1; min-width: 0; }
 .ajuda-avisos p { margin: 2px 0 0; font-size: 14px; }
-.ajuda .ajuda-duvidas-titulo { margin: 30px 0 10px; }
+.ajuda .ajuda-duvidas-titulo { margin: 32px 0 12px; }
 .ajuda-duvidas { border-radius: 18px; background: var(--hs-superficie); box-shadow: inset 0 0 0 1px var(--hs-linha); overflow: hidden; }
 .duvida + .duvida { border-top: 1px solid var(--hs-linha); }
 .duvida summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px; min-height: 52px; cursor: pointer; font-weight: 600; font-size: 15px; }
@@ -124,16 +127,16 @@
 .apps-hero { padding: clamp(8px, 3vw, 24px) 0 20px; }
 .apps-hero h2 { margin: 0; font-family: var(--hs-tema-fonte-titulo); font-size: clamp(24px, 6vw, 36px); font-weight: 700; letter-spacing: -.02em; line-height: 1.1; }
 .apps-hero p { margin: 8px 0 0; font-size: clamp(14.5px, 1.6vw, 16px); line-height: 1.5; }
-.apps-destaque { padding: 18px; box-shadow: inset 0 0 0 1.5px var(--hs-realce); }
-.apps-cabeca, .apps-app { display: flex; align-items: center; gap: 14px; }
+.apps-destaque { padding: 16px; box-shadow: inset 0 0 0 1.5px var(--hs-realce); }
+.apps-cabeca, .apps-app { display: flex; align-items: center; gap: 16px; }
 .apps-cabeca { flex-wrap: wrap; }
 .apps-cabeca > div, .apps-app > div { flex: 1; min-width: 0; }
 .apps-cabeca > div { min-width: 180px; }
 .apps-cabeca h2 { font-size: clamp(16.5px, 4.4vw, 19px); }
 .apps-cabeca small, .apps-app small { display: block; margin-top: 2px; font-size: 13px; line-height: 1.4; }
-.apps-icone { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; flex: none; background: var(--hs-linha); color: var(--hs-texto-2); }
+.apps-icone { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; flex: none; background: var(--hs-linha); color: var(--hs-texto-2); }
 .apps-icone-ativo { background: var(--hs-tema-cor-botao-fundo); color: var(--hs-tema-cor-botao-texto); }
-.apps .apps-titulo { margin: 30px 0 12px; }
+.apps .apps-titulo { margin: 32px 0 12px; }
 .apps-grade { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 /* uma coluna em toda largura: em 640 px a grade de 2 espremia os nomes em 3 linhas ao lado do selo */
 .apps-app h3 { margin: 0; font-size: 15.5px; font-weight: 600; display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; }
@@ -147,22 +150,22 @@
 .sobre-logo { width: clamp(240px, 70vw, 360px); }
 .sobre-versao { margin: 18px 0 0; padding: 4px 12px; border-radius: var(--hs-raio-total); font-size: 13px; font-weight: 600;
   color: var(--hs-texto-2); box-shadow: inset 0 0 0 1px var(--hs-linha); font-variant-numeric: tabular-nums; }
-.sobre-icone { width: 42px; height: 42px; border-radius: 13px; display: grid; place-items: center; flex: none; background: var(--hs-linha); color: var(--hs-realce); }
+.sobre-icone { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; flex: none; background: var(--hs-linha); color: var(--hs-realce); }
 .sobre-seta { color: var(--hs-texto-2); flex: none; transition: transform .2s; }
-.sobre-linha { width: 100%; margin-bottom: 12px; display: flex; align-items: center; gap: 14px; text-align: left; color: var(--hs-texto); }
+.sobre-linha { width: 100%; margin-bottom: 12px; display: flex; align-items: center; gap: 16px; text-align: left; color: var(--hs-texto); }
 .sobre-linha:hover { background: var(--hs-linha); }
 .sobre-linha-texto { flex: 1; display: flex; flex-direction: column; gap: 1px; }
 .sobre-linha-texto strong { font-weight: 600; font-size: 15.5px; }
 .sobre-linha-texto small { font-size: 13px; }
-.sobre-codigo { padding: 18px; }
-.sobre-cabeca { display: flex; align-items: center; gap: 14px; }
+.sobre-codigo { padding: 16px; }
+.sobre-cabeca { display: flex; align-items: center; gap: 16px; }
 .sobre-cabeca h2 { font-size: clamp(16.5px, 4.4vw, 19px); }
 .sobre-cabeca small { font-size: 13px; }
 .sobre-codigo > p { margin: 12px 0 14px; font-size: 14.5px; line-height: 1.55; }
 .sobre-botao { min-height: 44px; padding: 0 18px; gap: 8px; font-size: 14.5px; font-weight: 600; text-decoration: none; }
-.sobre .sobre-titulo { margin: 28px 0 12px; }
+.sobre .sobre-titulo { margin: 32px 0 12px; }
 .sobre-agradece { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-.sobre-agradece li { display: flex; align-items: flex-start; gap: 14px; }
+.sobre-agradece li { display: flex; align-items: flex-start; gap: 16px; }
 .sobre-agradece li > div { flex: 1; min-width: 0; }
 .sobre-agradece h3 { margin: 2px 0 0; font-size: 15.5px; font-weight: 650; }
 .sobre-agradece p { margin: 3px 0 0; font-size: 14px; line-height: 1.5; }
@@ -186,7 +189,7 @@
 
 /* ---- Meus pedidos ---- */
 .pedidos-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
-.pedidos-item { width: 100%; display: flex; align-items: center; gap: 14px; padding: 8px 6px; border-radius: 14px; text-align: left; color: var(--hs-texto); }
+.pedidos-item { width: 100%; display: flex; align-items: center; gap: 16px; padding: 8px 6px; border-radius: 14px; text-align: left; color: var(--hs-texto); }
 button.pedidos-item:hover, button.pedidos-item:focus-visible { background: var(--hs-linha); outline: none; }
 .pedidos-capa { width: 52px; aspect-ratio: 2 / 3; border-radius: 8px; object-fit: cover; flex: none; background: var(--hs-linha); }
 .pedidos-item .busca-texto { gap: 2px; }

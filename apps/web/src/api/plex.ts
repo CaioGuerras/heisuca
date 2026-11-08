@@ -82,7 +82,7 @@ async function bibliotecas(s: Sessao): Promise<Item[]> {
   const d = await ler(s, '/library/sections');
   // Capa da biblioteca = mosaico de capas do PMS (o thumb da seção é o ícone genérico /:/resources/…).
   return (d.Directory || []).map(b => ({ ...mapear(b), Id: b.key || '',
-    ImageTags: b.key ? { Primary: `/library/sections/${cod(b.key)}/composite/${(b as { updatedAt?: number }).updatedAt || 0}` } : {},
+    ImageTags: (b.key ? { Primary: `/library/sections/${cod(b.key)}/composite/${(b as { updatedAt?: number }).updatedAt || 0}` } : {}) as Record<string, string>,
     CollectionType: ({ movie: 'movies', show: 'tvshows' } as Record<string, string>)[b.type || ''] || b.type }));
 }
 const bibliotecasDeVideo = (s: Sessao) => bibliotecas(s).then(l => l.filter(b => ['movies', 'tvshows'].includes(b.CollectionType || '')));

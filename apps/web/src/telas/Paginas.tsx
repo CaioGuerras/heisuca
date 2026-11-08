@@ -33,14 +33,20 @@ export function Conta({ s, aoMudar }: { s: Sessao; aoMudar: (s: Sessao) => void 
   const [semSenha, setSemSenha] = useState(false);   // 2º clique confirma deixar a conta sem senha
   const [temSenha, setTemSenha] = useState<boolean | undefined>(undefined);
   const arquivo = useRef<HTMLInputElement>(null);
+  const viva = useRef(true);
+  useEffect(() => () => { viva.current = false; }, []);
   const foto = fotoUsuario(s, 360);
   const podeFoto = pode(s, 'foto'), podeSenha = pode(s, 'trocarSenha');
 
   // o servidor diz se a conta tem senha (sem senha: some o campo "Senha atual" e o título vira "Criar senha")
-  useEffect(() => { if (podeSenha) euMesmo(s).then(u => setTemSenha(u.HasPassword), () => null); }, [s.servidor, s.usuarioId]);
+  useEffect(() => { if (podeSenha) euMesmo(s).then(u => { if (viva.current) setTemSenha(u.HasPassword); }, () => null); }, [s.servidor, s.usuarioId]);
 
   // a foto nova muda o tag no servidor: relê o usuário e guarda o tag na sessão (o avatar da ilha e do menu acompanham)
-  const reler = () => euMesmo(s).then(u => aoMudar({ ...s, fotoTag: u.PrimaryImageTag || undefined }));
+  const reler = async () => {
+    if (!viva.current) return;
+    const u = await euMesmo(s);
+    if (viva.current) aoMudar({ ...s, fotoTag: u.PrimaryImageTag || undefined });
+  };
   const escolher = (e: Event) => {
     const f = (e.target as HTMLInputElement).files?.[0];
     (e.target as HTMLInputElement).value = '';
@@ -48,11 +54,14 @@ export function Conta({ s, aoMudar }: { s: Sessao; aoMudar: (s: Sessao) => void 
     const problema = validarFoto(f);
     if (problema) { avisar(problema); return; }
     setOcupado('foto');
-    trocarFoto(s, f).then(reler).then(() => avisar('Foto trocada.'), () => avisar('Não deu para trocar a foto. Tente de novo.')).finally(() => setOcupado(''));
+    trocarFoto(s, f).then(reler).then(() => { if (viva.current) avisar('Foto trocada.'); },
+      () => { if (viva.current) avisar('Não deu para trocar a foto. Tente de novo.'); }).finally(() => { if (viva.current) setOcupado(''); });
   };
   const remover = () => {
     setOcupado('foto');
-    removerFoto(s).then(() => aoMudar({ ...s, fotoTag: undefined })).then(() => avisar('Foto removida.'), () => avisar('Não deu para remover a foto. Tente de novo.')).finally(() => setOcupado(''));
+    removerFoto(s).then(() => { if (viva.current) aoMudar({ ...s, fotoTag: undefined }); })
+      .then(() => { if (viva.current) avisar('Foto removida.'); }, () => { if (viva.current) avisar('Não deu para remover a foto. Tente de novo.'); })
+      .finally(() => { if (viva.current) setOcupado(''); });
   };
   const salvar = (e: Event) => {
     e.preventDefault();
@@ -62,9 +71,9 @@ export function Conta({ s, aoMudar }: { s: Sessao; aoMudar: (s: Sessao) => void 
     if (v.semSenha && !semSenha) { setSemSenha(true); return; }
     setOcupado('senha');
     trocarSenha(s, temSenha === false ? '' : senhas.atual, senhas.nova)
-      .then(() => { setSenhas({ atual: '', nova: '', confirma: '' }); setOk(sucessoDaSenha(v.semSenha)); setTemSenha(!v.semSenha); })
-      .catch((x: unknown) => setErro(erroDaSenha(x)))
-      .finally(() => { setOcupado(''); setSemSenha(false); });
+      .then(() => { if (viva.current) { setSenhas({ atual: '', nova: '', confirma: '' }); setOk(sucessoDaSenha(v.semSenha)); setTemSenha(!v.semSenha); } })
+      .catch((x: unknown) => { if (viva.current) setErro(erroDaSenha(x)); })
+      .finally(() => { if (viva.current) { setOcupado(''); setSemSenha(false); } });
   };
   const campo = (k: CampoSenha, rotulo: string, auto: string) => (
     <CampoSenha rotulo={rotulo} valor={senhas[k]} auto={auto} erro={erro?.campo === k ? erro.texto : ''}

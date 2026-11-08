@@ -1,6 +1,6 @@
 // A casca do app: abertura → (entrada) → transição → telas (PLANO §3.1). A logo voa entre as três primeiras.
 import type { JSX } from 'preact';
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { pode, quandoExpirar, type EmBreve, type Sessao } from './api/servidor.ts';
 import { esquecerSessao, guardarSessao, sessaoAtual, type Servidor } from './api/contas.ts';
 import { sairDoSeerr } from './api/seerr';
@@ -34,9 +34,19 @@ const abriu = () => { try { return sessionStorage.getItem(ABRIU) === '1'; } catc
 
 export function App() {
   const [s, setS] = useState<Sessao | null>(sessaoAtual);
+  const sessaoViva = useRef(s);
+  sessaoViva.current = s;
   // sessão salva + abertura já vista nesta aba: direto às telas; senão abertura (e a transição, se há sessão)
   const [fase, setFase] = useState<Fase>(() => !abriu() ? { nome: 'abertura' } : s ? { nome: 'casca' } : { nome: 'entrada' });
-  useEffect(() => { quandoExpirar(() => { esquecerSessao(); setS(null); setFase({ nome: 'entrada' }); }); return () => quandoExpirar(null); }, []);
+  useEffect(() => {
+    quandoExpirar(origem => {
+      const atual = sessaoViva.current;
+      if (!atual || origem.tipo !== atual.tipo || origem.servidor !== atual.servidor ||
+        origem.usuarioId !== atual.usuarioId || origem.token !== atual.token) return;
+      esquecerSessao(); setS(null); setFase({ nome: 'entrada' });
+    });
+    return () => quandoExpirar(null);
+  }, []);
 
   if (fase.nome === 'abertura') return <Abertura fim={de => {
     try { sessionStorage.setItem(ABRIU, '1'); } catch { /* nada */ }

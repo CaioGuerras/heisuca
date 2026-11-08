@@ -18,7 +18,7 @@ export async function pedir(s: Sessao, metodo: string, caminho: string, corpo?: 
     headers: { Authorization: cabecalho(s.token), ...(corpo === undefined ? {} : { 'Content-Type': tipo }) },
     body: corpo === undefined ? undefined : typeof corpo === 'string' ? corpo : JSON.stringify(corpo),
   });
-  if (r.status === 401) { notificarExpiracao(); throw new Error('sessão vencida'); }
+  if (r.status === 401) { notificarExpiracao(s); throw new Error('sessão vencida'); }
   if (!r.ok) throw new Error(`${caminho.split('?')[0]}: ${r.status}`);
   return r;
 }
@@ -253,7 +253,7 @@ export async function buscar(s: Sessao, termo: string, bibliotecaId: string, ini
   const r = await fetch(s.servidor + caminho + `&StartIndex=${inicio}&EnableTotalRecordCount=true`, {
     headers: { Authorization: cabecalho(s.token) }, signal: sinal,
   });
-  if (r.status === 401) { notificarExpiracao(); throw new Error('sessão vencida'); }
+  if (r.status === 401) { notificarExpiracao(s); throw new Error('sessão vencida'); }
   if (!r.ok) throw new Error(`Busca: ${r.status}`);
   const d = await r.json() as PaginaBusca;
   return { Items: d.Items || [], TotalRecordCount: d.TotalRecordCount ?? (d.Items || []).length };

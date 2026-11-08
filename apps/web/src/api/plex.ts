@@ -32,8 +32,10 @@ function fluxo(f: Stream): Fluxo {
     BitRate: f.bitrate === undefined ? undefined : f.bitrate * 1000 };
 }
 function mapear(m: Metadado): Item {
+  const temporada = m.type === 'season';
   const i: Item = { Id: id(m.ratingKey ?? m.key) || '', Type: tipo[m.type || ''] || '', Name: m.title || '',
-    SeriesName: m.grandparentTitle, SeasonName: m.parentTitle, SeriesId: id(m.grandparentRatingKey), SeasonId: id(m.parentRatingKey),
+    SeriesName: temporada ? m.parentTitle : m.grandparentTitle, SeasonName: m.parentTitle,
+    SeriesId: id(temporada ? m.parentRatingKey : m.grandparentRatingKey), SeasonId: id(m.parentRatingKey),
     ParentId: id(m.parentRatingKey), IndexNumber: m.index, ParentIndexNumber: m.parentIndex, ProductionYear: m.year,
     PremiereDate: m.originallyAvailableAt, OfficialRating: m.contentRating, CommunityRating: m.audienceRating ?? m.rating,
     Overview: m.summary, Taglines: m.tagline ? [m.tagline] : undefined, Genres: m.Genre?.map(g => g.tag),
@@ -53,7 +55,7 @@ function mapear(m: Metadado): Item {
 }
 async function pedir(s: Sessao, caminho: string, query?: QueryPlex, metodo?: string, keepalive = false) {
   try { return await respostaPlex(urlPlex(s.servidor, caminho, s.token, query), metodo, undefined, keepalive); }
-  catch (e) { if (e instanceof ErroPlex && e.status === 401) notificarExpiracao(); throw e; }
+  catch (e) { if (e instanceof ErroPlex && e.status === 401) notificarExpiracao(s); throw e; }
 }
 async function ler(s: Sessao, caminho: string, query?: QueryPlex): Promise<Container> {
   const d = await (await pedir(s, caminho, query)).json() as { MediaContainer?: Container };
@@ -132,7 +134,7 @@ async function buscar(s: Sessao, termo: string, biblioteca: string, inicio?: num
   try {
     const r = await respostaPlex(urlPlex(s.servidor, '/hubs/search', s.token, { query: termo, sectionId: biblioteca, limit: limite }), 'GET', sinal);
     d = (await r.json()).MediaContainer || {};
-  } catch (e) { if (e instanceof ErroPlex && e.status === 401) notificarExpiracao(); throw e; }
+  } catch (e) { if (e instanceof ErroPlex && e.status === 401) notificarExpiracao(s); throw e; }
   const lista = (d.Hub || []).flatMap(itensHub).filter(i => i.Type === 'Movie' || i.Type === 'Series')
     .filter((i, n, l) => l.findIndex(x => x.Id === i.Id) === n);
   return inicio === undefined ? lista : { Items: lista, TotalRecordCount: lista.length };

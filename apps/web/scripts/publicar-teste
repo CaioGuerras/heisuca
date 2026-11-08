@@ -68,7 +68,8 @@ def main():
     subprocess.run(["find", "dist", "-type", "f", "(", "-name", "*.js", "-o", "-name", "*.css", "-o", "-name", "*.html",
                     "-o", "-name", "*.svg", "-o", "-name", "*.json", "-o", "-name", "*.wasm", ")", "-exec", "gzip", "-9", "-k", "-f", "{}", "+"], cwd=WEB, check=True)
     vps(f"mkdir -p {DEST}")
-    subprocess.run(["rsync", "-a", "--delete", "-e", "ssh -p 22022 -o BatchMode=yes", f"{WEB}/dist/", f"root@143.95.215.156:{DEST}/"], check=True)
+    # /locadora/ guarda os CSS dos temas da Locadora (temaslcd.docaio.com.br/css aponta para lá): o --delete não pode levar.
+    subprocess.run(["rsync", "-a", "--delete", "--exclude=/locadora/", "-e", "ssh -p 22022 -o BatchMode=yes", f"{WEB}/dist/", f"root@143.95.215.156:{DEST}/"], check=True)
     vps(f"chmod -R a+rX /var/www/heisuca")
     if "--nginx" in sys.argv:  # obsoleto: o subdomínio heisuca tem nginx próprio
         return 0 if trocar_nginx(True) else 1

@@ -50,7 +50,7 @@ export function Favoritos({ s }: { s: Sessao }) {
       <h1 class="favoritos-titulo">Favoritos</h1>
       {!secoes && <Fileira titulo="Favoritos"><EsqueletoCartoes n={4} /></Fileira>}
       {secoes && !visiveis.length && <div class="favoritos-vazio">
-        <Icone nome="favorite" tamanho={36} /><p>Toque em ♡ num título para guardá-lo aqui.</p>
+        <Icone nome="favorite" tamanho={36} /><p>Toque em ♡ num título para <span style={{ whiteSpace: 'nowrap' }}>guardá-lo</span> aqui.</p>
       </div>}
       {visiveis.map(({ biblioteca: b, itens }) => abertas.has(b.Id) ? (
         <section key={b.Id} class="fileira favoritos-grade">

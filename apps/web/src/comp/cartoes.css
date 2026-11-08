@@ -51,7 +51,8 @@
   -webkit-text-stroke: 2px var(--hs-realce); paint-order: stroke; }
 
 /* Teclado/controle recebe o mesmo destaque do ponteiro; o contorno usa cor AA da página. */
-.cartao:focus-visible { z-index: 3; transform: translateY(-3px) scale(1.05);
+/* A escala do foco fica só com ponteiro fino (bloco do hover acima): no toque, o foco restaurado deixava o cartão ampliado preso. */
+.cartao:focus-visible { z-index: 3;
   outline: 2px solid var(--hs-texto); outline-offset: 4px; border-radius: var(--hs-raio-cartao); }
 .cartao:focus-visible .cartao-arte { box-shadow: 0 12px 24px rgb(0 0 0 / .3); }
 .cartao-nome, .cartao-sub { display: block; width: 100%; min-width: 0; max-width: 100%; }
@@ -69,9 +70,9 @@
 /* Cartões largos (~300 px): 1.05 crescia 15 px num vão de 16 px e encostava no vizinho (1º da fileira cresce só para a direita).
    1.03 = 9 px no computador (vão 16) e 7 px a 600 px (vão 12): o efeito fica, com respiro. */
 @media (hover: hover) and (pointer: fine) {
-  button.cartao-paisagem:hover, button.cartao-biblioteca:hover, button.cartao-top10:hover { transform: translateY(-3px) scale(1.03); }
+  button.cartao-paisagem:hover, button.cartao-biblioteca:hover, button.cartao-top10:hover,
+  button.cartao-paisagem:focus-visible, button.cartao-biblioteca:focus-visible, button.cartao-top10:focus-visible { transform: translateY(-3px) scale(1.03); }
 }
-.cartao-paisagem:focus-visible, .cartao-biblioteca:focus-visible, .cartao-top10:focus-visible { transform: translateY(-3px) scale(1.03); }
 @media (prefers-reduced-motion: reduce) {
   button.cartao:hover, button.cartao:focus-visible, .cartao:active .cartao-arte { transform: none; }
 }

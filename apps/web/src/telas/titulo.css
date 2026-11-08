@@ -82,7 +82,9 @@
 .titulo-ep-arte { position: relative; display: block; aspect-ratio: 16 / 9; border-radius: var(--hs-raio-cartao); overflow: hidden;
   transition: transform var(--hs-tempo-cartao) var(--hs-curva-padrao); }
 .titulo-ep-arte > .img { position: absolute; inset: 0; }
-.titulo-ep.atual .titulo-ep-arte { box-shadow: 0 0 0 2px var(--hs-pagina), 0 0 0 4px var(--hs-texto); }
+/* Anel do episódio atual por dentro da arte (por fora passava 4 px da margem da página no celular e era cortado pelo trilho). */
+.titulo-ep.atual .titulo-ep-arte::after { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  box-shadow: inset 0 0 0 2px var(--hs-texto), inset 0 0 0 4px var(--hs-pagina); }
 .titulo-ep:active .titulo-ep-arte { transform: scale(.97); }
 @media (hover: hover) and (pointer: fine) { .titulo-ep:hover .titulo-ep-arte { transform: translateY(-2px); } }
 .titulo-ep-nome { font-size: 13px; font-weight: 500; padding: 0 2px; }
@@ -156,6 +158,14 @@
 /* coleção: grade de pôsteres */
 .titulo-grade { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px var(--hs-vao); padding: 0 var(--hs-margem); }
 .titulo-grade .cartao-poster { width: auto; }
+/* Grade da coleção (sobra do Branco): só a arte se ergue; o cartão não cresce sobre o vizinho nem desalinha a linha. */
+.titulo-grade button.cartao, .titulo-grade button.cartao:hover, .titulo-grade button.cartao:focus-visible { transform: none; }
+.titulo-grade button.cartao:focus-visible { outline: none; }
+@media (hover: hover) and (pointer: fine) {
+  .titulo-grade button.cartao:hover .cartao-arte, .titulo-grade button.cartao:focus-visible .cartao-arte { transform: translateY(-4px); }
+}
+main .titulo-grade button.cartao:focus-visible .cartao-arte { box-shadow: 0 0 0 2px var(--hs-pagina), 0 0 0 4px var(--hs-texto); }
+@media (prefers-reduced-motion: reduce) { .titulo-grade .cartao-arte { transform: none !important; } }
 
 .titulo-erro { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; padding: 0 var(--hs-margem); }
 

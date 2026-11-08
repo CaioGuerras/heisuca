@@ -24,7 +24,8 @@ const px = (v: string | undefined) => parseFloat(v || 'NaN');
 test('cartão largo ampliado deixa ≥ 4 px até o vizinho em todo corte (1º da fileira cresce só para a direita)', () => {
   const HOVER = '(hover: hover) and (pointer: fine)';
   const escala = decl(cartoes, 'button.cartao-paisagem:hover', 'transform', HOVER) || '';
-  assert.equal(escala, decl(cartoes, '.cartao-paisagem:focus-visible', 'transform', null));
+  // Visão 11: a escala do foco foi para o bloco do ponteiro fino (no toque ficava presa)
+  assert.equal(escala, decl(cartoes, 'button.cartao-paisagem:focus-visible', 'transform', HOVER));
   const s = parseFloat(/scale\(([\d.]+)\)/.exec(escala)?.[1] || 'NaN');
   assert.ok(s > 1.02, 'o efeito continua');
   for (const sel of ['button.cartao-biblioteca:hover', 'button.cartao-top10:hover'])

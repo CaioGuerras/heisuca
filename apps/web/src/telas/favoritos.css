@@ -46,3 +46,9 @@ main.favoritos button.cartao:focus-visible .cartao-arte { box-shadow: 0 0 0 2px 
   .favoritos { padding-top: calc(var(--hs-topo-respiro) + 76px); }
   .favoritos-grade-corpo { grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 28px var(--hs-vao); }
 }
+/* Estado vazio no computador: em 1440 × 900 o bloco de 320 px sumia na tela. Ícone, texto e botão maiores, no terço de cima. */
+@media (min-width: 1024px) {
+  .favoritos-vazio { max-width: 460px; gap: 28px; margin-top: clamp(72px, 18vh, 200px); font-size: 19px; line-height: 1.55; }
+  .favoritos-vazio > .icone { width: 60px !important; height: 60px !important; padding: 34px; }
+  .favoritos-vazio .pilula { min-height: 52px; padding: 0 26px; gap: 10px; font-size: 16px; }
+}

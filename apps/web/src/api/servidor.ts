@@ -11,6 +11,7 @@ export { autorizarPlex, cancelada, conectarPlex, ErroEntradaPlex, passoSeguinte,
 // Suporte estático do adaptador; disponibilidade de Quick Connect/Seerr continua na detecção atual.
 export type Capacidades = { favoritos: boolean; trocarSenha: boolean; foto: boolean; legendasRemotas: boolean;
   capitulos: boolean; emAlta: boolean; emBreve: boolean };
+export type PaginaBusca = { Items: Item[]; TotalRecordCount: number };
 export interface ApiServidor {
   bibliotecas(s: Sessao): Promise<Item[]>;
   bibliotecasDeVideo(s: Sessao): Promise<Item[]>;
@@ -22,6 +23,7 @@ export interface ApiServidor {
   daColecao(s: Sessao, colecaoId: string): Promise<Item[]>;
   favoritos(s: Sessao, bibliotecaId: string, limite?: number): Promise<{ Items: Item[]; TotalRecordCount: number }>;
   buscar(s: Sessao, termo: string, bibliotecaId: string): Promise<Item[]>;
+  buscar(s: Sessao, termo: string, bibliotecaId: string, inicio: number, limite?: number, sinal?: AbortSignal): Promise<PaginaBusca>;
   porIds(s: Sessao, ids: string[]): Promise<Item[]>;
   item(s: Sessao, id: string): Promise<Item>;
   temporadas(s: Sessao, serieId: string): Promise<Item[]>;
@@ -76,7 +78,11 @@ export const destaque: ApiServidor['destaque'] = (s, ...args) => apiDe(s).destaq
 export const daBiblioteca: ApiServidor['daBiblioteca'] = (s, ...args) => apiDe(s).daBiblioteca(s, ...args);
 export const daColecao: ApiServidor['daColecao'] = (s, ...args) => apiDe(s).daColecao(s, ...args);
 export const favoritos: ApiServidor['favoritos'] = (s, ...args) => apiDe(s).favoritos(s, ...args);
-export const buscar: ApiServidor['buscar'] = (s, ...args) => apiDe(s).buscar(s, ...args);
+export function buscar(s: Sessao, termo: string, bibliotecaId: string): Promise<Item[]>;
+export function buscar(s: Sessao, termo: string, bibliotecaId: string, inicio: number, limite?: number, sinal?: AbortSignal): Promise<PaginaBusca>;
+export function buscar(s: Sessao, termo: string, bibliotecaId: string, inicio?: number, limite?: number, sinal?: AbortSignal) {
+  return inicio === undefined ? apiDe(s).buscar(s, termo, bibliotecaId) : apiDe(s).buscar(s, termo, bibliotecaId, inicio, limite, sinal);
+}
 export const porIds: ApiServidor['porIds'] = (s, ...args) => apiDe(s).porIds(s, ...args);
 export const item: ApiServidor['item'] = (s, ...args) => apiDe(s).item(s, ...args);
 export const temporadas: ApiServidor['temporadas'] = (s, ...args) => apiDe(s).temporadas(s, ...args);

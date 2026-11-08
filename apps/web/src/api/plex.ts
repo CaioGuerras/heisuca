@@ -1,5 +1,5 @@
 // Adaptador PMS. Referência medida: services/plex_client.dart e plex_mappers.dart (master).
-import type { ApiServidor } from './servidor.ts';
+import type { ApiServidor, PaginaBusca } from './servidor.ts';
 import type { Sessao, Item, Pessoa, Fluxo, OpcoesReproducao, Plano, FluxoPlano, PosicaoRelato } from './tipos.ts';
 import { urlPlex, respostaPlex, ErroPlex, type QueryPlex } from './plex-tv.ts';
 import { notificarExpiracao } from './expiracao.ts';
@@ -123,10 +123,19 @@ async function daBiblioteca(s: Sessao, biblioteca: string, inicio = 0, limite = 
   return { Items: itens(d), TotalRecordCount: d.totalSize ?? d.size ?? 0 };
 }
 const folhas = (s: Sessao, serie: string) => ler(s, `/library/metadata/${cod(serie)}/allLeaves`).then(itens);
-async function buscar(s: Sessao, termo: string, biblioteca: string): Promise<Item[]> {
-  const d = await ler(s, '/hubs/search', { query: termo, sectionId: biblioteca, limit: 30 });
-  return (d.Hub || []).flatMap(itensHub).filter(i => i.Type === 'Movie' || i.Type === 'Series')
+function buscar(s: Sessao, termo: string, biblioteca: string): Promise<Item[]>;
+function buscar(s: Sessao, termo: string, biblioteca: string, inicio: number, limite?: number, sinal?: AbortSignal): Promise<PaginaBusca>;
+async function buscar(s: Sessao, termo: string, biblioteca: string, inicio?: number, limite = 30, sinal?: AbortSignal) {
+  // Os hubs medidos não oferecem um cursor global confiável: total = recebidos, sem próxima página.
+  if (inicio !== undefined && inicio > 0) return { Items: [], TotalRecordCount: 0 };
+  let d: Container;
+  try {
+    const r = await respostaPlex(urlPlex(s.servidor, '/hubs/search', s.token, { query: termo, sectionId: biblioteca, limit: limite }), 'GET', sinal);
+    d = (await r.json()).MediaContainer || {};
+  } catch (e) { if (e instanceof ErroPlex && e.status === 401) notificarExpiracao(); throw e; }
+  const lista = (d.Hub || []).flatMap(itensHub).filter(i => i.Type === 'Movie' || i.Type === 'Series')
     .filter((i, n, l) => l.findIndex(x => x.Id === i.Id) === n);
+  return inicio === undefined ? lista : { Items: lista, TotalRecordCount: lista.length };
 }
 function imagem(s: Sessao, caminho?: string, largura?: number, altura?: number): string {
   return caminho ? urlPlex(s.servidor, '/photo/:/transcode', s.token, { width: largura, height: altura, minSize: 1,

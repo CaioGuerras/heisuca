@@ -18,9 +18,14 @@
 .busca-limpar:hover { background: var(--hs-linha); }
 .busca-topo, .busca-corpo { max-width: 960px; margin: 0 auto; }
 .busca-corpo { padding: 6px var(--hs-margem) 0; }
-.busca-dica { margin: 18px 4px; }
+.busca-dica { margin: 18px 4px; color: var(--hs-texto); }
+.busca-fim { min-height: 44px; display: flex; align-items: center; justify-content: center; color: var(--hs-texto); }
+.busca-estado { margin: 0 4px; color: var(--hs-texto); font-size: 14px; overflow-wrap: anywhere; }
+.busca-estado p { margin: 12px 0; }
+.busca-estado .pilula { min-height: 44px; max-width: 100%; margin-bottom: 12px; }
+.busca-estado .pilula:focus-visible { outline: 2px solid var(--hs-texto); outline-offset: 2px; }
 .busca-vazio { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 56px 16px;
-  color: var(--hs-texto-2); text-align: center; overflow-wrap: anywhere; }
+  color: var(--hs-texto); text-align: center; overflow-wrap: anywhere; }
 .busca-vazio > .icone { box-sizing: content-box; padding: 18px; border-radius: 50%; background: var(--hs-linha); }
 .busca-vazio p { margin: 0; font-family: var(--hs-tema-fonte-titulo); font-size: clamp(18px, 2.6vw, 24px);
   line-height: 1.3; color: var(--hs-texto); letter-spacing: -.025em; }
@@ -83,4 +88,7 @@ button.busca-item:focus-visible { outline: 2px solid var(--hs-texto); outline-of
   .pedir-item { gap: 8px; }
   .pedir-botao { padding: 0 12px; }
   .pedir-selo { padding: 7px 9px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .busca-campo, button.busca-item { transition: none; }
 }

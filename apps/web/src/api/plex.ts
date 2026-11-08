@@ -80,7 +80,9 @@ async function todos(s: Sessao, caminho: string): Promise<Item[]> {
 }
 async function bibliotecas(s: Sessao): Promise<Item[]> {
   const d = await ler(s, '/library/sections');
+  // Capa da biblioteca = mosaico de capas do PMS (o thumb da seção é o ícone genérico /:/resources/…).
   return (d.Directory || []).map(b => ({ ...mapear(b), Id: b.key || '',
+    ImageTags: b.key ? { Primary: `/library/sections/${cod(b.key)}/composite/${(b as { updatedAt?: number }).updatedAt || 0}` } : {},
     CollectionType: ({ movie: 'movies', show: 'tvshows' } as Record<string, string>)[b.type || ''] || b.type }));
 }
 const bibliotecasDeVideo = (s: Sessao) => bibliotecas(s).then(l => l.filter(b => ['movies', 'tvshows'].includes(b.CollectionType || '')));
@@ -148,14 +150,17 @@ async function buscar(s: Sessao, termo: string, biblioteca: string, inicio?: num
     .filter((i, n, l) => l.findIndex(x => x.Id === i.Id) === n);
   return inicio === undefined ? lista : { Items: lista, TotalRecordCount: lista.length };
 }
-function imagem(s: Sessao, caminho?: string, largura?: number, altura?: number): string {
-  return caminho ? urlPlex(s.servidor, '/photo/:/transcode', s.token, { width: largura, height: altura, minSize: 1,
+// Vários PMS (Tucho, Guedes, Gabi, Locadora+: medido em 08/11) respondem 400 ao transcode com só uma dimensão:
+// sempre mandar as duas. Capa 2:3 e fundo 16:9 cobrem a caixa (minSize 1); logo cabe dentro dela (sem minSize).
+function imagem(s: Sessao, caminho: string | undefined, largura: number, altura: number, cobrir = true): string {
+  return caminho ? urlPlex(s.servidor, '/photo/:/transcode', s.token, { width: Math.round(largura), height: Math.round(altura),
+    ...(cobrir ? { minSize: 1 } : {}),
     // master plex_client.dart:4620-4627: evita reconversão repetida no PMS.
     upscale: 0, url: caminho }) : '';
 }
-const capa = (s: Sessao, i: Item, altura = 360) => imagem(s, i.Type === 'Episode' ? i.SeriesPrimaryImageTag || i.ImageTags?.Primary : i.ImageTags?.Primary, undefined, altura);
-const fundo = (s: Sessao, i: Item, largura = 1920) => imagem(s, i.BackdropImageTags?.[0] || i.ParentBackdropImageTags?.[0], largura);
-const logo = (s: Sessao, i: Item, largura = 600) => imagem(s, i.ImageTags?.Logo || i.ParentLogoImageTag, largura);
+const capa = (s: Sessao, i: Item, altura = 360) => imagem(s, i.Type === 'Episode' ? i.SeriesPrimaryImageTag || i.ImageTags?.Primary : i.ImageTags?.Primary, altura * 2 / 3, altura);
+const fundo = (s: Sessao, i: Item, largura = 1920) => imagem(s, i.BackdropImageTags?.[0] || i.ParentBackdropImageTags?.[0], largura, largura * 9 / 16);
+const logo = (s: Sessao, i: Item, largura = 600) => imagem(s, i.ImageTags?.Logo || i.ParentLogoImageTag, largura, largura / 2, false);
 const naoSuportado = async (): Promise<never> => { throw new Error('naoSuportado'); };
 const capacidades = Object.freeze({ favoritos: false, trocarSenha: false, foto: false, legendasRemotas: false,
   capitulos: true, emAlta: false, emBreve: false });
@@ -257,9 +262,9 @@ export const plex: ApiServidor = {
   seguinte: (s, ep) => folhas(s, ep.SeriesId || '').then(l => { const n = l.findIndex(i => i.Id === ep.Id); return n < 0 ? null : l[n + 1] || null; }),
   anterior: (s, ep) => folhas(s, ep.SeriesId || '').then(l => { const n = l.findIndex(i => i.Id === ep.Id); return n > 0 ? l[n - 1] : null; }),
   emAlta: async () => ({ titulo: '', itens: [] }), emBreve: async () => [], buscar,
-  capaBiblioteca: (s, i) => imagem(s, i.ImageTags?.Primary, 480), capa, fundo, logo,
-  paisagem: (s, i, largura = 480) => imagem(s, i.ImageTags?.Primary || i.BackdropImageTags?.[0] || i.ParentBackdropImageTags?.[0], largura),
-  fotoPessoa: (s: Sessao, p: Pessoa, largura = 160) => imagem(s, p.PrimaryImageTag, largura), fotoUsuario: s => s.fotoTag || '',
+  capaBiblioteca: (s, i) => imagem(s, i.ImageTags?.Primary, 480, 270), capa, fundo, logo,
+  paisagem: (s, i, largura = 480) => imagem(s, i.ImageTags?.Primary || i.BackdropImageTags?.[0] || i.ParentBackdropImageTags?.[0], largura, largura * 9 / 16),
+  fotoPessoa: (s: Sessao, p: Pessoa, largura = 160) => imagem(s, p.PrimaryImageTag, largura, largura), fotoUsuario: s => s.fotoTag || '',
   hashDe: () => undefined, temArte: (_s, i) => !!((i.BackdropImageTags?.length || i.ParentBackdropImageTags?.length) && (i.ImageTags?.Logo || i.ParentLogoImageTag)),
   marcarAssistido: async (s, chave, sim) => {
     await pedir(s, sim ? '/:/scrobble' : '/:/unscrobble', { key: chave, identifier: 'com.plexapp.plugins.library' });

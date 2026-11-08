@@ -35,6 +35,9 @@
 /* espaço para o conteúdo não ficar atrás da ilha */
 .com-ilha { padding-bottom: calc(var(--hs-ilha-respiro) + var(--hs-ilha-altura) + 24px); }
 @media (min-width: 1024px) { .ilha { width: 360px; } .ilha-item { font-size: 11.5px; } }
+/* Sem Favoritos (Plex): 3 itens, ilha 3/4 da largura, sem vão à direita (print do Caio, 08/11). */
+.ilha-3 { grid-template-columns: repeat(3, 1fr); width: min(calc(100vw - 2 * var(--hs-margem) - 24px), 218px); }
+@media (min-width: 1024px) { .ilha-3 { width: 270px; } }
 /* no Início, antes de rolar, a marca fica sobre a arte do destaque (que pode ser escura mesmo no Verde): palavra clara com
    sombra leve; ao rolar, o topo ganha o véu da página e a palavra volta à cor do texto */
 .tela-inicio .topo:not(.com-fundo) .topo-marca .palavra path { fill: #fff; }

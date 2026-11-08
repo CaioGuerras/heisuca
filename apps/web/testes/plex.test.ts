@@ -376,3 +376,12 @@ test('Plex normaliza codecs em metadados e no plano para ASS/SSA em maiúsculas'
     await api.parar(s,p);
   });
 });
+
+test('Plex: toda imagem pede largura E altura (PMS antigos dão 400 com uma só)', () => {
+  const s = { tipo: 'plex', servidor: 'https://a.plex.direct:32400', token: 't', usuario: '1', nome: 'x' } as never;
+  const i = { Id: '1', Type: 'Movie', ImageTags: { Primary: '/library/metadata/1/thumb/2', Logo: '/l' }, BackdropImageTags: ['/library/metadata/1/art/2'] } as never;
+  for (const u of [api.capa(s, i, 360), api.fundo(s, i, 1280), api.logo(s, i, 600), api.paisagem(s, i, 480), api.capaBiblioteca(s, i)]) {
+    const q = new URL(u).searchParams; assert.ok(Number(q.get('width')) > 0 && Number(q.get('height')) > 0, u);
+  }
+  assert.equal(new URL(api.capa(s, i, 360)).searchParams.get('width'), '240');
+});

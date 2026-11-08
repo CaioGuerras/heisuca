@@ -39,7 +39,7 @@ export function Ilha({ s, r, aoUsuario }: { s: Sessao; r: Rota; aoUsuario: (el: 
   );
   const nome = s.nome.split(/[\s._-]/)[0] || s.nome;
   return (
-    <nav class="ilha" aria-label="Navegação">
+    <nav class={`ilha${pode(s, 'favoritos') ? '' : ' ilha-3'}`} aria-label="Navegação">
       {item(r.tela === 'inicio', 'home', 'Início', () => irAba(''))}
       {item(r.tela === 'biblioteca', 'video_library', 'Biblioteca', () => irAba(lib ? `b/${lib}` : 'b'))}
       {pode(s, 'favoritos') && item(r.tela === 'fav', 'favorite', 'Favoritos', () => irAba('fav'))}

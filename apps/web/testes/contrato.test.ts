@@ -4,6 +4,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import ts from 'typescript';
 import { apiDe, adaptador, quandoExpirar } from '../src/api/servidor.ts';
+import { pararConversao } from '../src/api/jellyfin.ts';
 import { sessaoAtual, trocarPara, servidoresSalvos, esquecerSessao } from '../src/api/contas.ts';
 import { alternarFavorito, alternarVisto, dadosDe } from '../src/estado/usuario.ts';
 import type { Sessao, Item } from '../src/api/tipos.ts';
@@ -238,7 +239,7 @@ test('faixas relê PlaybackInfo sem trocar o plano/sessão, com legenda nova pro
   } finally { globalThis.fetch = anterior; }
 });
 
-test('relatos neutros preservam corpo Jellyfin e keepalive no fim/parar', async () => {
+test('relatos neutros preservam corpo Jellyfin e keepalive no fim/parar; direto não encerra conversão', async () => {
   armazenamento({ 'heisuca.aparelho': 'aparelho-ficticio' });
   const anterior = globalThis.fetch;
   const chamadas: { url: string; init?: RequestInit }[] = [];
@@ -256,7 +257,9 @@ test('relatos neutros preservam corpo Jellyfin e keepalive no fim/parar', async 
     assert.deepEqual(JSON.parse(String(chamadas[2].init?.body)), { ItemId: i.Id, MediaSourceId: antiga.f.Id,
       PlaySessionId: 'sessao-opaca', PositionTicks: 321, IsPaused: true, PlayMethod: 'DirectPlay', AudioStreamIndex: 1,
       SubtitleStreamIndex: -1, CanSeek: true });
-    await api.parar(s, p);
+    await api.parar(s, p); // plano direto: não há conversão no servidor para encerrar (J9-09)
+    assert.equal(chamadas.length, 3);
+    await pararConversao(s, p.sessaoReproducao);
     assert.equal(chamadas[3].init?.method, 'DELETE'); assert.equal(chamadas[3].init?.keepalive, true);
     assert.equal(chamadas[3].url, `${s.servidor}/Videos/ActiveEncodings?deviceId=aparelho-ficticio&playSessionId=sessao-opaca`);
   } finally { globalThis.fetch = anterior; }

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import './player.css';
 import type Hls from 'hls.js/light';
 import {
-  anterior, baixarLegenda, buscarLegendas, euMesmo, preparar, faixas, item, paisagem, parar, relatar, seguinte,
+  anterior, baixarLegenda, buscarLegendas, euMesmo, preparar, faixas, item, paisagem, parar, pode, relatar, seguinte,
   type FluxoPlano, type Plano, type Item, type LegendaRemota, type PosicaoRelato, type Sessao,
 } from '../api/servidor.ts';
 import { hlsNativo, marcarMkvFalhou, perfilDoAparelho } from '../api/perfil';
@@ -76,7 +76,8 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
   function encerrar() {
     const r = relato(), x = est.current;
     if (r && iniciou.current) reportar('fim', { ...r, motivo: 'abandono' });
-    if (x?.hls) parar(s, x.plano);
+    // Sempre: o adaptador decide (Jellyfin encerra o HLS; Plex libera os blobs de legenda, mesmo sem ter tocado — J9-09).
+    if (x) parar(s, x.plano).catch(() => undefined);
     iniciou.current = false;
     hls.current?.destroy(); hls.current = null;
   }
@@ -98,7 +99,9 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
       // o navegador não troca a faixa de áudio sozinho: se a escolhida não é a do arquivo, o servidor remonta (HLS)
       const audios = plano.fluxos.filter(x => x.Type === 'Audio').length;
       if (plano.tipo === 'direto' && !c.semDireto && audios > 1 && audio !== undefined && audio !== audioDoArquivo(plano)) {
+        const descartado = plano;
         plano = conferirPlano(await preparar(s, { Id: id }, opcoes({ ...c, audio, legenda, semDireto: true })));
+        parar(s, descartado).catch(() => undefined);
         c = { ...c, semDireto: true };
       }
       audio = c.audio ?? plano.audioPadrao ?? audio;
@@ -156,7 +159,7 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
       }
     }).catch(() => undefined);
     // "Buscar legendas…" só para quem pode gerenciar legendas no servidor (PLANO §13)
-    euMesmo(s).then(u => setPodeBuscar(!!u.Policy?.EnableSubtitleManagement)).catch(() => undefined);
+    if (pode(s, 'legendasRemotas')) euMesmo(s).then(u => setPodeBuscar(!!u.Policy?.EnableSubtitleManagement)).catch(() => undefined);
     carregar({ ticks: inicio });
     const sair = () => encerrar();
     addEventListener('pagehide', sair);

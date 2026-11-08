@@ -304,7 +304,8 @@ function relatar(s: Sessao, p: Plano, fase: 'inicio' | 'progresso' | 'fim', r: P
     PositionTicks: r.posicaoTicks, IsPaused: r.pausado, PlayMethod: p.metodo === 'direto' ? 'DirectPlay' : p.metodo === 'remux' ? 'DirectStream' : 'Transcode',
     AudioStreamIndex: r.audio, SubtitleStreamIndex: r.legenda, CanSeek: true });
 }
-const parar = (s: Sessao, p: Plano) => pararConversao(s, p.sessaoReproducao);
+// Direto não abre conversão no servidor: nada a encerrar.
+const parar = (s: Sessao, p: Plano) => p.tipo === 'hls' ? pararConversao(s, p.sessaoReproducao) : Promise.resolve();
 
 const capacidadesJellyfin = Object.freeze({ favoritos: true, trocarSenha: true, foto: true, legendasRemotas: true, capitulos: true, emAlta: true, emBreve: true });
 export const jellyfin: ApiServidor = {

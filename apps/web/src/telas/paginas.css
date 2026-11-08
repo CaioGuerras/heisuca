@@ -13,31 +13,35 @@
 .pagina-vazia p { margin: 0; }
 .icone.em-linha { vertical-align: -3px; margin: 0 1px; }
 
-/* ---- Minha conta (ref/app_completo/…minha_conta) ---- */
-.conta-cartao-perfil { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 28px 20px 22px; gap: 14px; }
-.conta-foto-envoltura { position: relative; display: grid; place-items: center; }
-.conta-foto { width: 112px; height: 112px; border-radius: 50%; object-fit: cover; background: var(--hs-linha);
-  box-shadow: 0 0 0 3px var(--hs-superficie), 0 0 0 5px var(--hs-tema-cor-primaria), 0 8px 24px rgba(0, 0, 0, 0.25); }
-.conta-sem-foto { display: grid; place-items: center; color: var(--hs-texto-2); background: var(--hs-linha); }
-.conta-info { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.conta-nome { margin: 0; font-family: var(--hs-fonte-titulo); font-size: 22px; font-weight: 650; letter-spacing: -0.01em; color: var(--hs-texto); }
-.conta-selo-usuario { display: inline-block; padding: 3px 10px; border-radius: var(--hs-raio-total); font-size: 12px; font-weight: 600;
-  color: var(--hs-texto-2); background: var(--hs-linha); }
-.conta-acoes { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 4px; }
-.conta-acoes .pilula { min-height: 44px; padding: 0 18px; font-size: 14.5px; }
-.conta-remover { color: var(--hs-texto-2); background: transparent; }
-.conta-remover:hover { color: var(--hs-texto); background: var(--hs-linha); }
+/* ---- Minha conta (ref/app_completo/…minha_conta): foto grande no centro, ações em pílula, senha abaixo de uma linha fina ---- */
+.conta-perfil { display: flex; flex-direction: column; align-items: center; text-align: center; padding: clamp(12px, 4vw, 32px) 0 26px; gap: 10px;
+  border-bottom: 1px solid var(--hs-linha); }
+.conta-foto { width: clamp(120px, 34vw, 160px); height: clamp(120px, 34vw, 160px); border-radius: 50%; object-fit: cover; background: var(--hs-linha);
+  box-shadow: 0 0 0 3px var(--hs-pagina), 0 0 0 5px var(--hs-realce), 0 14px 36px rgb(0 0 0 / .28); }
+.conta-sem-foto { display: grid; place-items: center; color: var(--hs-texto-2); }
+.conta-nome { margin: 8px 0 0; font-family: var(--hs-tema-fonte-titulo); font-size: clamp(22px, 5.4vw, 30px); font-weight: 650;
+  letter-spacing: -.015em; line-height: 1.15; overflow-wrap: anywhere; }
+.conta-servidor { margin: 0; font-size: 13.5px; display: flex; align-items: center; gap: 4px; }
+.conta-acoes { display: flex; gap: 6px 10px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
+.conta-acoes .pilula { min-height: 46px; padding: 0 20px; font-size: 15px; gap: 10px; }
+.pagina .pilula-clara { box-shadow: inset 0 0 0 1px rgb(0 0 0 / .06); }
+[data-tema="hisui"] .pagina .pilula-clara { background: #fff; box-shadow: inset 0 0 0 1px var(--hs-linha), 0 1px 2px rgb(0 0 0 / .06); }
+.conta-remover { color: var(--hs-texto); background: transparent; }
+.conta-remover:hover { background: var(--hs-linha); }
 .conta .pilula:disabled { opacity: .55; cursor: default; }
 
-.conta-cartao-senha { margin-top: 14px; padding: 22px 20px; display: flex; flex-direction: column; gap: 18px; }
-.conta-secao-cabeca { display: flex; align-items: flex-start; gap: 12px; text-align: left; }
-.conta-secao-icone { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; flex: none;
-  background: var(--hs-linha); color: var(--hs-realce); }
-.conta-secao-cabeca h2 { margin: 0 0 3px; font-size: 17px; font-weight: 650; }
-.conta-secao-cabeca p { margin: 0; font-size: 13.5px; line-height: 1.5; color: var(--hs-texto-2); }
+.conta-senha { display: flex; flex-direction: column; gap: 14px; padding: 24px 0 8px; }
+.conta-senha h2 { margin: 0; font-size: clamp(17px, 4.4vw, 20px); font-weight: 700; }
+.conta-explica { margin: -6px 0 4px; font-size: 14.5px; line-height: 1.5; }
+.conta-alerta, .conta-ok { display: flex; align-items: flex-start; gap: 10px; margin: 0; padding: 12px 14px; border-radius: 14px; font-size: 14.5px; line-height: 1.45; }
+.conta-alerta { color: var(--hs-texto); background: var(--hs-linha); box-shadow: inset 3px 0 0 var(--hs-erro); }
+.conta-alerta .icone { color: var(--hs-erro); flex: none; }
+.conta-ok { color: var(--hs-texto); background: var(--hs-linha); box-shadow: inset 3px 0 0 var(--hs-realce); }
+.conta-ok .icone { color: var(--hs-realce); flex: none; }
+.conta-plex { display: flex; align-items: flex-start; gap: 8px; margin: 22px 0 0; font-size: 14.5px; line-height: 1.5; }
 .conta-campos { display: flex; flex-direction: column; gap: 10px; }
 .campo-senha-bloco { margin: 0; }
-.campo-senha { display: flex; align-items: center; height: 52px; padding: 0 6px 0 16px; border-radius: 14px; background: var(--hs-pagina);
+.campo-senha { display: flex; align-items: center; height: 56px; padding: 0 6px 0 18px; border-radius: 16px; background: var(--hs-superficie);
   box-shadow: inset 0 0 0 1px var(--hs-linha); transition: box-shadow .2s var(--hs-curva-padrao); }
 .campo-senha:focus-within { box-shadow: inset 0 0 0 1.5px var(--hs-realce); }
 .campo-senha.com-erro { box-shadow: inset 0 0 0 1.5px var(--hs-erro); }
@@ -46,7 +50,7 @@
 .campo-olho { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; color: var(--hs-texto-2); flex: none; }
 .campo-olho:hover, .campo-olho[aria-pressed="true"] { color: var(--hs-texto); }
 .campo-erro { margin: 6px 4px 0; font-size: 13px; color: var(--hs-erro); }
-.conta-salvar { width: 100%; min-height: 48px; }
+.conta-salvar { width: 100%; min-height: 52px; margin-top: 4px; font-size: 15.5px; }
 
 /* ---- Como usar (§11) ---- */
 .ajuda-intro { margin: 4px 0 16px; font-size: 15px; }

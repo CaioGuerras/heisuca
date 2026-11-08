@@ -12,6 +12,7 @@ import { Icone } from '../comp/Icone';
 import { aoMudarInstalar, instalar, jaInstalado, podeInstalar } from '../comp/instalar';
 import { Logo } from '../comp/Logo';
 import { AJUDA_COMPLETA } from '../comp/MenuUsuario';
+import { erroDaSenha, sucessoDaSenha, TIPOS_FOTO, validarFoto, validarSenha, type CampoSenha, type Senhas } from '../dados/conta.ts';
 import { irPagina, irTitulo } from '../rota';
 import pixQrSvg from '../marca/pix_qrcode.svg';
 import { Pagina } from './Pagina';
@@ -21,12 +22,21 @@ const ler = (k: string) => { try { return localStorage.getItem(k); } catch { ret
 const gravar = (k: string, v: string | null) => { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch { /* modo privado */ } };
 
 // ---------------------------------------------------------------- Minha conta (§10)
+// Desenho do app completo (ref/app_completo/…minha_conta): foto grande no centro, nome, Trocar foto (pílula clara) e
+// Remover foto (lixeira); abaixo, Trocar senha. Regras e mensagens em dados/conta.ts. Plex: foto e senha são do plex.tv.
 export function Conta({ s, aoMudar }: { s: Sessao; aoMudar: (s: Sessao) => void }) {
   const [ocupado, setOcupado] = useState<'' | 'foto' | 'senha'>('');
-  const [senhas, setSenhas] = useState({ atual: '', nova: '', confirma: '' });
-  const [erro, setErro] = useState<{ campo: 'atual' | 'nova' | 'confirma'; texto: string } | null>(null);
+  const [senhas, setSenhas] = useState<Senhas>({ atual: '', nova: '', confirma: '' });
+  const [erro, setErro] = useState<{ campo?: CampoSenha; texto: string } | null>(null);
+  const [ok, setOk] = useState('');
+  const [semSenha, setSemSenha] = useState(false);   // 2º clique confirma deixar a conta sem senha
+  const [temSenha, setTemSenha] = useState<boolean | undefined>(undefined);
   const arquivo = useRef<HTMLInputElement>(null);
   const foto = fotoUsuario(s, 360);
+  const podeFoto = pode(s, 'foto'), podeSenha = pode(s, 'trocarSenha');
+
+  // o servidor diz se a conta tem senha (sem senha: some o campo "Senha atual" e o título vira "Criar senha")
+  useEffect(() => { if (podeSenha) euMesmo(s).then(u => setTemSenha(u.HasPassword), () => null); }, [s.servidor, s.usuarioId]);
 
   // a foto nova muda o tag no servidor: relê o usuário e guarda o tag na sessão (o avatar da ilha e do menu acompanham)
   const reler = () => euMesmo(s).then(u => aoMudar({ ...s, fotoTag: u.PrimaryImageTag || undefined }));
@@ -34,8 +44,8 @@ export function Conta({ s, aoMudar }: { s: Sessao; aoMudar: (s: Sessao) => void 
     const f = (e.target as HTMLInputElement).files?.[0];
     (e.target as HTMLInputElement).value = '';
     if (!f) return;
-    if (!f.type.startsWith('image/')) { avisar('Escolha uma imagem (JPG, PNG ou WebP).'); return; }
-    if (f.size > 10 * 1024 * 1024) { avisar('Imagem grande demais (máximo 10 MB).'); return; }
+    const problema = validarFoto(f);
+    if (problema) { avisar(problema); return; }
     setOcupado('foto');
     trocarFoto(s, f).then(reler).then(() => avisar('Foto trocada.'), () => avisar('Não deu para trocar a foto. Tente de novo.')).finally(() => setOcupado(''));
   };
@@ -45,36 +55,30 @@ export function Conta({ s, aoMudar }: { s: Sessao; aoMudar: (s: Sessao) => void 
   };
   const salvar = (e: Event) => {
     e.preventDefault();
-    setErro(null);
-    if (!senhas.nova) { setErro({ campo: 'nova', texto: 'Digite a nova senha.' }); return; }
-    if (senhas.nova !== senhas.confirma) { setErro({ campo: 'confirma', texto: 'As duas senhas novas não são iguais.' }); return; }
+    setErro(null); setOk('');
+    const v = validarSenha(temSenha === false ? { ...senhas, atual: '' } : senhas, temSenha);
+    if (!v.ok) { setErro(v); setSemSenha(false); return; }
+    if (v.semSenha && !semSenha) { setSemSenha(true); return; }
     setOcupado('senha');
-    trocarSenha(s, senhas.atual, senhas.nova)
-      .then(() => { setSenhas({ atual: '', nova: '', confirma: '' }); avisar('Senha trocada. Os outros aparelhos vão pedir para entrar de novo.'); })
-      .catch((x: Error) => {
-        if (/: 40[03]$/.test(x.message)) setErro({ campo: 'atual', texto: 'Senha atual incorreta.' });
-        else avisar('Não deu para trocar a senha. Tente de novo.');
-      })
-      .finally(() => setOcupado(''));
+    trocarSenha(s, temSenha === false ? '' : senhas.atual, senhas.nova)
+      .then(() => { setSenhas({ atual: '', nova: '', confirma: '' }); setOk(sucessoDaSenha(v.semSenha)); setTemSenha(!v.semSenha); })
+      .catch((x: unknown) => setErro(erroDaSenha(x)))
+      .finally(() => { setOcupado(''); setSemSenha(false); });
   };
-  const campo = (k: 'atual' | 'nova' | 'confirma', rotulo: string, auto: string) => (
+  const campo = (k: CampoSenha, rotulo: string, auto: string) => (
     <CampoSenha rotulo={rotulo} valor={senhas[k]} auto={auto} erro={erro?.campo === k ? erro.texto : ''}
-      mudar={v => { setSenhas(x => ({ ...x, [k]: v })); if (erro?.campo === k) setErro(null); }} />
+      mudar={v => { setSenhas(x => ({ ...x, [k]: v })); setSemSenha(false); setOk(''); if (erro?.campo === k) setErro(null); }} />
   );
 
   return (
     <Pagina titulo="Minha conta" classe="conta">
-      <section class="cartao-pagina conta-cartao-perfil">
-        <div class="conta-foto-envoltura">
-          {foto ? <img class="conta-foto" src={foto} alt="Sua foto" width={112} height={112} />
-            : <span class="conta-foto conta-sem-foto" aria-hidden="true"><Icone nome="person" cheio tamanho={56} /></span>}
-        </div>
-        <div class="conta-info">
-          <h2 class="conta-nome">{s.nome}</h2>
-          <span class="conta-selo-usuario">Perfil do Heisuca</span>
-        </div>
-        {pode(s, 'foto') && <div class="conta-acoes">
-          <button class="pilula pilula-tema" disabled={!!ocupado} onClick={() => arquivo.current?.click()}>
+      <section class="conta-perfil">
+        {foto ? <img class="conta-foto" src={foto} alt="Sua foto" width={144} height={144} />
+          : <span class="conta-foto conta-sem-foto" aria-hidden="true"><Icone nome="person" cheio tamanho={72} /></span>}
+        <h2 class="conta-nome">{s.nome}</h2>
+        {s.nomeServidor && <p class="texto-2 conta-servidor"><Icone nome="dns" tamanho={16} classe="em-linha" />{s.nomeServidor}</p>}
+        {podeFoto && <div class="conta-acoes">
+          <button class="pilula pilula-clara conta-trocar" disabled={!!ocupado} onClick={() => arquivo.current?.click()}>
             <Icone nome="photo_camera" cheio tamanho={20} />{ocupado === 'foto' ? 'Enviando…' : 'Trocar foto'}
           </button>
           {s.fotoTag && (
@@ -82,29 +86,29 @@ export function Conta({ s, aoMudar }: { s: Sessao; aoMudar: (s: Sessao) => void 
               <Icone nome="delete" cheio tamanho={20} />Remover foto
             </button>
           )}
-          <input ref={arquivo} type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden onChange={escolher} />
+          <input ref={arquivo} type="file" accept={TIPOS_FOTO.join(',')} hidden onChange={escolher} />
         </div>}
       </section>
 
-      {pode(s, 'trocarSenha') && <form class="cartao-pagina conta-cartao-senha" onSubmit={salvar} noValidate>
-        <div class="conta-secao-cabeca">
-          <span class="conta-secao-icone"><Icone nome="lock" tamanho={22} /></span>
-          <div>
-            <h2>Segurança e senha</h2>
-            <p class="texto-2">A senha vale para todos os aparelhos. Depois da troca, os outros aparelhos pedem para entrar de novo.</p>
-          </div>
-        </div>
+      {podeSenha ? <form class="conta-senha" onSubmit={salvar} noValidate>
+        <h2>{temSenha === false ? 'Criar senha' : 'Trocar senha'}</h2>
+        <p class="texto-2 conta-explica">A senha vale para todos os aparelhos. Depois da troca, os outros aparelhos pedem para entrar de novo.</p>
         {/* o navegador associa a senha ao usuário certo */}
         <input type="text" autocomplete="username" value={s.nome} hidden readOnly />
         <div class="conta-campos">
-          {campo('atual', 'Senha atual (vazia se você não tem)', 'current-password')}
+          {temSenha !== false && campo('atual', 'Senha atual (vazia se você não tem)', 'current-password')}
           {campo('nova', 'Nova senha', 'new-password')}
           {campo('confirma', 'Confirmar nova senha', 'new-password')}
         </div>
-        <button type="submit" class="pilula pilula-tema conta-salvar" disabled={!!ocupado}>
-          {ocupado === 'senha' ? 'Salvando…' : 'Salvar nova senha'}
+        {semSenha && <p class="conta-alerta" role="alert"><Icone nome="info" cheio tamanho={20} />
+          A nova senha está vazia: a conta vai ficar sem senha, e qualquer pessoa com o seu usuário entra. Toque de novo para confirmar.</p>}
+        {erro && !erro.campo && <p class="conta-alerta" role="alert"><Icone nome="info" cheio tamanho={20} />{erro.texto}</p>}
+        {ok && <p class="conta-ok" role="status"><Icone nome="check_circle" cheio tamanho={20} />{ok}</p>}
+        <button type="submit" class="pilula pilula-clara conta-salvar" disabled={!!ocupado}>
+          {ocupado === 'senha' ? 'Salvando…' : semSenha ? 'Salvar sem senha' : temSenha === false ? 'Salvar senha' : 'Salvar nova senha'}
         </button>
-      </form>}
+      </form>
+        : s.tipo === 'plex' && <p class="texto-2 conta-plex"><Icone nome="info" tamanho={18} classe="em-linha" />Nesta conta do Plex, a foto e a senha são trocadas no site do Plex.</p>}
     </Pagina>
   );
 }

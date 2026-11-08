@@ -50,7 +50,7 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
   const ir = async (k: number, automatica = false) => {
     if (!lista.length) return;
     const x = (k + lista.length) % lista.length, i = lista[x];
-    if (x === n) return;
+    if (x === n) { troca.current++; pendente.current = null; return; }
     const pedido = ++troca.current;
     pendente.current = { pedido, auto: automatica };
     // A arte anterior permanece inteira até a próxima arte e logo estarem prontas.

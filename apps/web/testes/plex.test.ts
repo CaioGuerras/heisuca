@@ -345,3 +345,33 @@ test('Plex PIN mantém intervalo de 2 s, tolera falha transitória e aborta fetc
     controle.abort(); await assert.rejects(p,{name:'AbortError'}); assert.equal(chamadas.length,1);
   });
 });
+
+test('Plex continua preparando vídeo quando SRT externa falha e desliga a legenda indisponível', async () => {
+  for (const falha of ['http', 'rede', 'srt-invalida']) {
+    await comFetch(c => {
+      if (c.url.pathname !== '/library/streams/12') return json({MediaContainer:{Metadata:[filme]}});
+      if (falha === 'rede') throw new TypeError('download indisponível');
+      return falha === 'http' ? json({},404) : new Response('conteúdo inválido');
+    }, async () => {
+      const p = await api.preparar(s,{Id:'101'},opcoes);
+      assert.equal(p.tipo,'direto'); assert.equal(new URL(p.url).pathname,'/library/parts/501/arquivo.mp4');
+      assert.ok(!p.fluxos.some(f => f.Index === 12)); assert.equal(p.legendaPadrao,-1);
+      assert.equal(p.fluxos.find(f => f.Index === 13)?.entrega,'externa');
+      await api.parar(s,p);
+    });
+  }
+});
+
+test('Plex normaliza codecs em metadados e no plano para ASS/SSA em maiúsculas', async () => {
+  const m = {...filme,Media:[{...filme.Media[0],Part:[{...filme.Media[0].Part[0],Stream:[
+    {id:10,streamType:1,codec:'H264'}, {id:11,streamType:2,codec:'AAC',default:true},
+    {id:13,streamType:3,codec:'ASS',key:'/library/streams/13'},
+    {id:16,streamType:3,codec:'SSA',key:'/library/streams/16'}]}]}]};
+  await comFetch(() => json({MediaContainer:{Metadata:[m]}}), async () => {
+    assert.deepEqual((await api.item(s,'101')).MediaStreams?.map(f => f.Codec),['h264','aac','ass','ssa']);
+    const p = await api.preparar(s,{Id:'101'},opcoes);
+    assert.deepEqual(p.fluxos.map(f => f.Codec),['h264','aac','ass','ssa']);
+    assert.ok(p.fluxos.filter(f => f.Type === 'Subtitle').every(f => f.entrega === 'externa' && f.url));
+    await api.parar(s,p);
+  });
+});

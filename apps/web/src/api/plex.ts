@@ -26,7 +26,7 @@ const streams = (m: Metadado) => m.Media?.[0]?.Part?.[0]?.Stream || [];
 const tipo: Record<string, string> = { movie: 'Movie', show: 'Series', season: 'Season', episode: 'Episode', collection: 'BoxSet' };
 function fluxo(f: Stream): Fluxo {
   return { Index: f.id, Type: ({ 1: 'Video', 2: 'Audio', 3: 'Subtitle' } as Record<number, string>)[f.streamType] || '',
-    Codec: f.codec, Language: f.languageTag?.toLowerCase() === 'pt-br' ? 'pt-br' : f.languageCode,
+    Codec: f.codec?.toLowerCase(), Language: f.languageTag?.toLowerCase() === 'pt-br' ? 'pt-br' : f.languageCode,
     DisplayTitle: f.displayTitle, Title: f.title, IsDefault: f.default, IsForced: f.forced, IsExternal: !!f.key,
     Channels: f.channels, Width: f.width, Height: f.height, BitDepth: f.bitDepth, AverageFrameRate: f.frameRate,
     BitRate: f.bitrate === undefined ? undefined : f.bitrate * 1000 };
@@ -171,9 +171,11 @@ async function lerFluxos(s: Sessao, m: Metadado, sessao: string): Promise<FluxoP
       }
       let url = urlPlex(s.servidor, f.key, s.token);
       if (codec === 'srt') {
-        const texto = await (await pedir(s, f.key)).text();
-        url = URL.createObjectURL(new Blob([srtParaVtt(texto)], { type: 'text/vtt' }));
-        criadas.push(url);
+        try {
+          const texto = await (await pedir(s, f.key)).text();
+          url = URL.createObjectURL(new Blob([srtParaVtt(texto)], { type: 'text/vtt' }));
+          criadas.push(url);
+        } catch { continue; } // Uma legenda indisponível não impede tocar o vídeo.
       }
       lista.push({ ...base, entrega: 'externa', url });
     }
@@ -207,10 +209,12 @@ async function preparar(s: Sessao, i: Pick<Item, 'Id'>, o: OpcoesReproducao): Pr
   const media = m.Media![0], part = media.Part![0];
   const sessao = typeof globalThis.crypto?.randomUUID === 'function' ? globalThis.crypto.randomUUID()
     : 'plex-' + Date.now().toString(36) + Math.random().toString(36).slice(2);
+  const fluxos = await lerFluxos(s, m, sessao), legenda = padrao(streams(m), 3);
   return { itemId: i.Id, fonteId: String(part.id), container: part.container || media.container,
     duracaoTicks: ticks(part.duration ?? media.duration ?? m.duration), url: urlPlex(s.servidor, part.key!, s.token),
     tipo: 'direto', metodo: 'direto', inicioAplicado: 0, sessaoReproducao: sessao,
-    fluxos: await lerFluxos(s, m, sessao), fontesAss: [], audioPadrao: padrao(streams(m), 2), legendaPadrao: padrao(streams(m), 3) ?? -1 };
+    fluxos, fontesAss: [], audioPadrao: padrao(streams(m), 2),
+    legendaPadrao: fluxos.some(f => f.Type === 'Subtitle' && f.Index === legenda) ? legenda : -1 };
 }
 async function relatar(s: Sessao, p: Plano, fase: 'inicio' | 'progresso' | 'fim', r: PosicaoRelato) {
   if (fase === 'fim') liberar(p);

@@ -122,6 +122,17 @@
       linear-gradient(90deg, var(--hs-pagina) 0%, var(--hs-pagina) 18%, rgba(var(--hs-pagina-rgb), .96) 24%, var(--hs-pagina-0) 48%, var(--hs-pagina-0) 90%, rgba(var(--hs-pagina-rgb), .8) 98%, var(--hs-pagina) 100%),
       linear-gradient(180deg, var(--hs-pagina) 0%, rgba(var(--hs-pagina-rgb), .8) 8%, var(--hs-pagina-0) 24%, var(--hs-pagina-0) calc(100% - 390px), rgba(var(--hs-pagina-rgb), .98) calc(100% - 290px), var(--hs-pagina) calc(100% - 250px));
   }
+  /* Halo cinza (auditoria da Visão 10, item 5; v11/verde/desk_inicio): nas faixas semitransparentes do véu acima
+     (esquerda 18–48 %, topo 0–24 %, direita 90–100 %, pé sob a logo) o preto da arte se misturava ao pastel e virava cinza-sujo.
+     Mesma forma do véu, mas em "lighten" (o recurso do Shikkoku, aqui só nas bordas): o escuro da foto sobe para a cor
+     da página ANTES do véu e o claro da foto (> página) fica intacto. Resíduo escuro: (1 − v)² em vez de (1 − v)
+     (v = cobertura do véu): metade no meio da faixa, um terço aos 2/3. Centro da arte (v = 0) inalterado. */
+  [data-tema="hisui"] .destaque-artes::before {
+    content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none; mix-blend-mode: lighten;
+    background:
+      linear-gradient(90deg, var(--hs-pagina) 0%, var(--hs-pagina) 18%, rgba(var(--hs-pagina-rgb), .96) 24%, var(--hs-pagina-0) 48%, var(--hs-pagina-0) 90%, rgba(var(--hs-pagina-rgb), .8) 98%, var(--hs-pagina) 100%),
+      linear-gradient(180deg, var(--hs-pagina) 0%, rgba(var(--hs-pagina-rgb), .8) 8%, var(--hs-pagina-0) 24%, var(--hs-pagina-0) calc(100% - 390px), rgba(var(--hs-pagina-rgb), .98) calc(100% - 290px), var(--hs-pagina) calc(100% - 250px));
+  }
 }
 /* Hisui em qualquer largura: o topo do destaque já é a cor da página (A1), então a palavra usa a cor do texto, sem sombra.
    Antes isso só valia ≥ 1024 px e, no celular, a palavra ficava branca sobre o pastel (rodada 7, verde/cel_inicio). */

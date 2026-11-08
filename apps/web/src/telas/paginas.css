@@ -79,7 +79,12 @@
 .ajuda-titulo small { display: block; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--hs-texto-2); }
 .ajuda-titulo h2 { margin: 1px 0 0; font-size: clamp(16px, 4.2vw, 18.5px); font-weight: 650; line-height: 1.25; }
 .ajuda-corpo { margin-left: 64px; }
-.ajuda-passo.feito .ajuda-corpo { opacity: .78; }
+/* passo Feito: texto um tom abaixo, por COR (J9-10: opacity .78 dava 4,29:1 no Shikkoku, abaixo de AA). Sobre a
+   superfície do cartão: Shikkoku #978fa0 em #292531 = 4,81:1; Hisui #36544e em #e8f5ea = 7,37:1. Outros temas: texto-2. */
+[data-tema="shikkoku"] .ajuda-passo.feito { --ajuda-feito-texto: #978fa0; }
+[data-tema="hisui"] .ajuda-passo.feito { --ajuda-feito-texto: #36544e; }
+.ajuda-passo.feito .ajuda-texto { color: var(--ajuda-feito-texto, var(--hs-texto-2)); }
+.ajuda-passo.feito .ajuda-texto strong { color: var(--hs-texto-2); }
 .ajuda-texto { margin: 10px 0 0; font-size: 14.5px; line-height: 1.55; color: var(--hs-texto-2); }
 .ajuda-texto strong { color: var(--hs-texto); font-weight: 600; }
 @media (max-width: 420px) { .ajuda-corpo { margin-left: 0; } .ajuda-cabeca { gap: 12px; } }

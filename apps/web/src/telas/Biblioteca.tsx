@@ -25,13 +25,18 @@ export function Biblioteca({ s, id }: { s: Sessao; id?: string }) {
   const [total, setTotal] = useState<number | null>(null);
 
   useEffect(() => {
+    // J9-08: resposta que chega depois de sair da tela (ou de trocar de sessão) é descartada antes de qualquer setter
+    // e antes do history.replaceState (senão a URL da tela nova vira a biblioteca antiga)
+    let vivo = true;
     bibliotecasDeVideo(s).then(l => {
+      if (!vivo) return;
       setLibs(l);
       if (id) return;
       // #/b sem id: a última aberta (se ainda existe) ou a primeira
       const alvo = l.find(b => b.Id === ultimaBiblioteca()) || l[0];
       if (alvo) { setBid(alvo.Id); history.replaceState(history.state, '', `#/b/${alvo.Id}`); }
-    }).catch(() => setLibs([]));
+    }).catch(() => { if (vivo) setLibs([]); });
+    return () => { vivo = false; };
   }, [s.token]);
   useEffect(() => { if (id) setBid(id); }, [id]);
   useEffect(() => { if (bid) lembrarBiblioteca(bid); setTotal(null); }, [bid]);

@@ -14,6 +14,7 @@ import { Imagem } from '../comp/Imagem';
 import { FolhaPedido, type Alvo } from '../comp/Pedido';
 import { irPagina, irTitulo, voltar } from '../rota';
 import { criarBusca, buscaInicial, type EstadoBusca } from './busca-progressiva.ts';
+import { lerBuscas, registrarBusca, removerBusca, limparBuscas } from '../dados/buscas-recentes.ts';
 import './busca.css';
 
 const ESPERA = 300, MINIMO = 2;
@@ -31,6 +32,7 @@ type Estado<T> = { termo: string; itens: T[] | null; erro?: boolean };
 export function Busca({ s }: { s: Sessao }) {
   usePaleta(null);
   const [texto, setTexto] = useState('');
+  const [recentes, setRecentes] = useState(lerBuscas);
   const termo = texto.trim();
   const [acervo, setAcervo] = useState<EstadoBusca & { termo: string }>({ termo: '', ...buscaInicial });
   const [pedir, setPedir] = useState<Estado<Resultado>>({ termo: '', itens: null });
@@ -103,7 +105,14 @@ export function Busca({ s }: { s: Sessao }) {
       </header>
 
       <div class="busca-corpo" aria-live="polite" aria-busy={carregando ? 'true' : 'false'}>
-        {!ativo && !texto.trim() && <div class="busca-vazio busca-inicial"><Icone nome="search" tamanho={40} />
+        {!termo && recentes.length > 0 && <section class="busca-recentes" aria-label="Buscas recentes">
+          <header><h2 class="titulo-secao">Buscas recentes</h2><button class="pilula" onClick={() => { limparBuscas(); setRecentes([]); }}>Limpar</button></header>
+          <ul>{recentes.map(t => <li key={t}>
+            <button class="busca-recente" onClick={() => { alterar(t); campo.current?.focus(); }}><Icone nome="schedule" tamanho={20} /><span>{t}</span></button>
+            <button class="redondo" aria-label={`Remover busca ${t}`} onClick={() => { removerBusca(t); setRecentes(lerBuscas()); }}><Icone nome="close" tamanho={20} /></button>
+          </li>)}</ul>
+        </section>}
+        {!ativo && !texto.trim() && !recentes.length && <div class="busca-vazio busca-inicial"><Icone nome="search" tamanho={40} />
           <p>Qual história você quer ver?</p><small>Busque por um filme ou uma série.</small>
         </div>}
         {!ativo && texto.trim().length === 1 && <p class="busca-dica texto-2">Digite mais uma letra.</p>}
@@ -123,7 +132,7 @@ export function Busca({ s }: { s: Sessao }) {
           <ul class="busca-lista">
             {doAcervo.map(i => (
               <li key={i.Id}>
-                <button class="busca-item" onClick={() => irTitulo(i.Id, i)}>
+                <button class="busca-item" onClick={() => { registrarBusca(termo); irTitulo(i.Id, i); }}>
                   <Imagem classe="busca-capa" src={capa(s, i, 330)} hash={hashDe(s, i, 'Primary')} alt="" />
                   <span class="busca-texto">
                     <strong class="busca-nome">{i.Name}</strong>

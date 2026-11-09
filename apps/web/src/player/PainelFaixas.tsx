@@ -5,9 +5,11 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { Fluxo, LegendaRemota } from '../api/servidor.ts';
 import { Icone } from '../comp/Icone';
+import { VELOCIDADES } from './controles.ts';
 import { rotuloFaixa } from './faixas';
 
 type Props = {
+  velocidade: number; escolherVelocidade: (n: number) => void;
   audios: Fluxo[]; legendas: Fluxo[]; audio?: number; legenda: number;
   escolherAudio: (i: number) => void; escolherLegenda: (i: number) => void; fechar: () => void;
   podeBuscar: boolean; buscar: (lingua: 'pob' | 'por') => Promise<LegendaRemota[]>; baixar: (r: LegendaRemota) => Promise<void>;
@@ -108,6 +110,11 @@ export function PainelFaixas(p: Props) {
         ) : (
           <div class="painel-corpo">
             <section class="painel-coluna">
+              <h3>Velocidade</h3>
+              <div class="painel-velocidades" role="group" aria-label="Velocidade">
+                {VELOCIDADES.map(n => <button key={n} class="painel-velocidade" aria-pressed={p.velocidade === n}
+                  onClick={() => p.escolherVelocidade(n)}>{String(n).replace('.', ',')}×</button>)}
+              </div>
               <h3>Áudio</h3>
               {p.audios.map(a => { const r = rotuloFaixa(a); return (
                 <Opcao key={a.Index} ativa={a.Index === p.audio} nome={r.nome} detalhe={r.detalhe} onClick={() => p.escolherAudio(a.Index)} />); })}

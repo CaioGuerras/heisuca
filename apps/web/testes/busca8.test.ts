@@ -201,6 +201,7 @@ function tela(responder: (inicio: number, termo: string, sinal: AbortSignal) => 
     '../api/seerr': { temSeerr: async () => comSeerr, buscar: async () => { throw new Error('offline'); } },
     '../cor/paleta': { usePaleta() {} }, '../comp/Cartoes': { nota: () => '' },
     './busca-progressiva.ts': { criarBusca, buscaInicial },
+    '../dados/buscas-recentes.ts': { lerBuscas: () => [], registrarBusca() {}, removerBusca() {}, limparBuscas() {} },
   }, { setTimeout: (f: () => void) => { const id = ++proximo; timers.set(id, f); return id; },
     clearTimeout: (id: number) => timers.delete(id), IntersectionObserver: Observador });
   const render = () => {

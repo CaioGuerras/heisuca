@@ -50,3 +50,7 @@ main .biblioteca-grade button.cartao:focus-visible .cartao-arte {
   .biblioteca-topo { max-width: 1680px; margin: 0 auto; }
   .biblioteca-grade { grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 28px var(--hs-vao); max-width: 1680px; margin: 0 auto; }
 }
+
+.biblioteca-filtros { display: flex; flex-wrap: wrap; gap: 10px; padding: 0 var(--hs-margem) 20px; }
+.biblioteca-filtros .pilula { display: inline-flex; align-items: center; gap: 6px; }
+.biblioteca-filtros [aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--hs-tema-cor-primaria); }

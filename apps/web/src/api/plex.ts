@@ -1,4 +1,5 @@
 // Adaptador PMS. Referência medida: services/plex_client.dart e plex_mappers.dart (master).
+import { ordemValida, type OrdemBiblioteca } from '../dados/ordem-biblioteca.ts';
 import type { ApiServidor, PaginaBusca } from './servidor.ts';
 import type { Sessao, Item, Pessoa, Fluxo, OpcoesReproducao, Plano, FluxoPlano, PosicaoRelato } from './tipos.ts';
 import { urlPlex, respostaPlex, ErroPlex, type QueryPlex } from './plex-tv.ts';
@@ -131,8 +132,8 @@ async function destaque(s: Sessao, limite = 9): Promise<Item[]> {
   return todas.sort((a, b) => (adicionado.get(b) || 0) - (adicionado.get(a) || 0))
     .filter((i, n, l) => l.findIndex(x => x.Id === i.Id) === n).slice(0, limite);
 }
-async function daBiblioteca(s: Sessao, biblioteca: string, inicio = 0, limite = 60) {
-  const d = await ler(s, `/library/sections/${cod(biblioteca)}/all`, { 'X-Plex-Container-Start': inicio, 'X-Plex-Container-Size': limite });
+async function daBiblioteca(s: Sessao, biblioteca: string, inicio = 0, limite = 60, escolha?: OrdemBiblioteca) {
+  const d = await ler(s, `/library/sections/${cod(biblioteca)}/all`, { sort: ordemValida(escolha?.ordem).plex, unwatched: escolha?.naoVistos ? 1 : undefined, 'X-Plex-Container-Start': inicio, 'X-Plex-Container-Size': limite });
   return { Items: itens(d), TotalRecordCount: d.totalSize ?? d.size ?? 0 };
 }
 const folhas = (s: Sessao, serie: string) => ler(s, `/library/metadata/${cod(serie)}/allLeaves`).then(itens);
@@ -163,7 +164,7 @@ const fundo = (s: Sessao, i: Item, largura = 1920) => imagem(s, i.BackdropImageT
 const logo = (s: Sessao, i: Item, largura = 600) => imagem(s, i.ImageTags?.Logo || i.ParentLogoImageTag, largura, largura / 2, false);
 const naoSuportado = async (): Promise<never> => { throw new Error('naoSuportado'); };
 const capacidades = Object.freeze({ favoritos: false, trocarSenha: false, foto: false, legendasRemotas: false,
-  capitulos: true, emAlta: false, emBreve: false });
+  capitulos: true, emAlta: false, emBreve: false, similares: true, trailersLocais: false, previas: false });
 
 // SRT externo é convertido aqui; o Player continua recebendo apenas URLs prontas.
 function srtParaVtt(texto: string): string {
@@ -252,7 +253,14 @@ async function relatar(s: Sessao, p: Plano, fase: 'inicio' | 'progresso' | 'fim'
     { key: p.itemId, identifier: 'com.plexapp.plugins.library' }, 'GET', true).catch(() => undefined));
   return Promise.all(chamadas);
 }
+const semSimilares = new WeakSet<Sessao>();
+async function similares(s: Sessao, chave: string): Promise<Item[]> {
+  if (semSimilares.has(s)) return [];
+  try { return itens(await ler(s, `/library/metadata/${cod(chave)}/similar`)).slice(0, 12); }
+  catch { semSimilares.add(s); return []; }
+}
 export const plex: ApiServidor = {
+  similares, trailers: async () => [], previaImagem: () => null,
   bibliotecas, bibliotecasDeVideo, continuar: s => fileira(s, true), proximos: s => fileira(s, false),
   novidades, destaque, daBiblioteca, daColecao: (s, id) => todos(s, `/library/collections/${cod(id)}/children`),
   favoritos: async () => ({ Items: [], TotalRecordCount: 0 }), porIds, item,
@@ -272,7 +280,7 @@ export const plex: ApiServidor = {
   },
   euMesmo: async s => ({ Id: s.usuarioId, Name: s.nome, PrimaryImageTag: s.fotoTag, Policy: { EnableSubtitleManagement: false } }),
   favoritar: naoSuportado, trocarSenha: naoSuportado, trocarFoto: naoSuportado, removerFoto: naoSuportado,
-  buscarLegendas: naoSuportado, baixarLegenda: naoSuportado, capacidades: () => capacidades,
+  buscarLegendas: naoSuportado, baixarLegenda: naoSuportado, capacidades: s => s && semSimilares.has(s) ? { ...capacidades, similares: false } : capacidades,
   preparar, faixas: async (s, p) => lerFluxos(s, await detalhe(s, p.itemId), p.sessaoReproducao), relatar,
   // Direto não possui transcode a encerrar. Só libera blobs locais; nenhuma timeline stopped duplicada.
   parar: async (_s, p) => { liberar(p); },

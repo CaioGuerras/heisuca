@@ -11,7 +11,10 @@ export type Sessao = {
 export type Hashes = Partial<Record<'Primary' | 'Backdrop' | 'Thumb' | 'Logo' | 'Banner', Record<string, string>>>;
 export type Pessoa = { Id: string; Name: string; Role?: string; Type?: string; PrimaryImageTag?: string };
 export type Capitulo = { Name?: string; StartPositionTicks: number };
+export type Trickplay = { Width: number; Height: number; TileWidth: number; TileHeight: number; Interval: number; ThumbnailCount: number };
 export type Item = {
+  Trickplay?: Record<string, Record<string, Trickplay>>;
+  LocalTrailerCount?: number; RemoteTrailers?: { Url?: string; Name?: string }[];
   Id: string; Name: string; Type: string; SeriesName?: string; SeriesId?: string; SeasonId?: string; SeasonName?: string;
   ProductionYear?: number; PremiereDate?: string; EndDate?: string; Status?: string; Overview?: string;
   ImageTags?: Record<string, string>; BackdropImageTags?: string[]; ImageBlurHashes?: Hashes;

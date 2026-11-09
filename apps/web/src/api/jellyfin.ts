@@ -1,3 +1,5 @@
+import { ordemValida, type OrdemBiblioteca } from '../dados/ordem-biblioteca.ts';
+import { previaJellyfin } from './trickplay.ts';
 import type { ApiServidor, PaginaBusca } from './servidor.ts';
 // Cliente Jellyfin mínimo, escrito do zero (só fetch). Cada função é um endpoint da API REST oficial (10.9+).
 // Regra do PLANO §1.7: só aparece dado que o servidor tem; nada de valor inventado na falta.
@@ -100,10 +102,10 @@ export const paraDestaque = (s: Sessao, limite = 9) =>
   obter<{ Items: Item[] }>(s, `/Items?userId=${s.usuarioId}&recursive=true&includeItemTypes=Movie,Series&sortBy=DateCreated&sortOrder=Descending` +
     `&imageTypes=Logo&limit=${limite * 3}&${CAMPOS}`).then(d => d.Items.filter(i => i.BackdropImageTags?.length && i.ImageTags?.Logo).slice(0, limite));
 
-// biblioteca inteira em ordem alfabética (sem ordenar nem filtrar: PLANO §6)
-export const daBiblioteca = (s: Sessao, bibliotecaId: string, inicio = 0, limite = 60) =>
+// Biblioteca: ordenação e filtro no servidor, inclusive nas páginas seguintes.
+export const daBiblioteca = (s: Sessao, bibliotecaId: string, inicio = 0, limite = 60, escolha?: OrdemBiblioteca) =>
   obter<{ Items: Item[]; TotalRecordCount: number }>(s, `/Items?userId=${s.usuarioId}&parentId=${bibliotecaId}&recursive=true` +
-    `&includeItemTypes=Movie,Series,BoxSet&sortBy=SortName&sortOrder=Ascending&startIndex=${inicio}&limit=${limite}&${CAMPOS}`);
+    `&includeItemTypes=Movie,Series,BoxSet&sortBy=${ordemValida(escolha?.ordem).jellyfin}&sortOrder=${ordemValida(escolha?.ordem).valor === 'nome' ? 'Ascending' : 'Descending'}${escolha?.naoVistos ? '&filters=IsUnplayed' : ''}&startIndex=${inicio}&limit=${limite}&${CAMPOS}`);
 
 // títulos de uma coleção (BoxSet), na ordem de lançamento (tela Título da coleção)
 export const daColecao = (s: Sessao, colecaoId: string) =>
@@ -124,7 +126,7 @@ export const porIds = (s: Sessao, ids: string[]) => ids.length
   : Promise.resolve([] as Item[]);
 
 // ---- título ----
-const CAMPOS_TITULO = `fields=Overview,Genres,Taglines,Studios,People,Chapters,MediaStreams,ChildCount,PrimaryImageAspectRatio,` +
+const CAMPOS_TITULO = `fields=Trickplay,RemoteTrailers,LocalTrailerCount,Overview,Genres,Taglines,Studios,People,Chapters,MediaStreams,ChildCount,PrimaryImageAspectRatio,` +
   `ProductionYear,PremiereDate,EndDate,Status,OfficialRating,CommunityRating&${IMG}`;
 export const item = (s: Sessao, id: string) => obter<Item>(s, `/Items/${id}?userId=${s.usuarioId}&${CAMPOS_TITULO}`);
 
@@ -307,8 +309,12 @@ function relatar(s: Sessao, p: Plano, fase: 'inicio' | 'progresso' | 'fim', r: P
 // Direto não abre conversão no servidor: nada a encerrar.
 const parar = (s: Sessao, p: Plano) => p.tipo === 'hls' ? pararConversao(s, p.sessaoReproducao) : Promise.resolve();
 
-const capacidadesJellyfin = Object.freeze({ favoritos: true, trocarSenha: true, foto: true, legendasRemotas: true, capitulos: true, emAlta: true, emBreve: true });
+export const similares = (s: Sessao, id: string) => obter<{ Items: Item[] }>(s,
+  `/Items/${encodeURIComponent(id)}/Similar?userId=${encodeURIComponent(s.usuarioId)}&limit=12&fields=PrimaryImageAspectRatio`).then(d => d.Items);
+export const trailers = (s: Sessao, id: string) => obter<Item[]>(s, `/Items/${encodeURIComponent(id)}/LocalTrailers?userId=${encodeURIComponent(s.usuarioId)}`);
+const capacidadesJellyfin = Object.freeze({ favoritos: true, trocarSenha: true, foto: true, legendasRemotas: true, capitulos: true, emAlta: true, emBreve: true, similares: true, trailersLocais: true, previas: true });
 export const jellyfin: ApiServidor = {
+  similares, trailers, previaImagem: previaJellyfin,
   bibliotecas,
   bibliotecasDeVideo,
   continuar,

@@ -67,7 +67,7 @@ test('Plex usa apenas Accept e identidade/token na query; bibliotecas filtram v�
 test('Plex capacidades e seleção de adaptador; conta é local e ações não suportadas rejeitam', async () => {
   await comFetch(() => { throw new Error('conta não pode ir à rede'); }, async () => {
     assert.equal(adaptador('plex'), api); assert.notEqual(apiDe({ ...s, tipo:'jellyfin' }), api);
-    assert.deepEqual(api.capacidades(), { favoritos:false,trocarSenha:false,foto:false,legendasRemotas:false,capitulos:true,emAlta:false,emBreve:false });
+    assert.deepEqual(api.capacidades(), { favoritos:false,trocarSenha:false,foto:false,legendasRemotas:false,capitulos:true,emAlta:false,emBreve:false,similares:true,trailersLocais:false,previas:false });
     assert.deepEqual(await api.euMesmo(s), { Id:s.usuarioId,Name:s.nome,PrimaryImageTag:s.fotoTag,Policy:{EnableSubtitleManagement:false} });
     assert.deepEqual(await api.favoritos(s,'1'), { Items:[],TotalRecordCount:0 });
     assert.deepEqual(await api.emAlta(s), { titulo:'',itens:[] }); assert.deepEqual(await api.emBreve(s,'tv'), []);

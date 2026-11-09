@@ -12,6 +12,9 @@ import { Icone } from '../comp/Icone';
 import { Carregando } from '../player/Carregando';
 import { puloEm, textoDoPulo } from '../player/capitulos';
 import { PainelFaixas } from '../player/PainelFaixas';
+import { MaisComoEste } from '../comp/MaisComoEste';
+import { PreviaBarra } from '../player/PreviaBarra';
+import { acaoDaTecla, ajustarVolume, alternarPip, sairDoPip, aplicarVelocidade, campoDeTexto } from '../player/controles.ts';
 import { voltar } from '../rota';
 
 // fim do episódio: passa sozinho para o próximo depois desta contagem (Caio 19/10 noite, dúvida 19)
@@ -58,6 +61,11 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
   const [cheia, setCheia] = useState(false);
   const [conta, setConta] = useState<number | null>(null);
   const [volume, setVolume] = useState({ nivel: 1, mudo: false });
+  const [velocidade, setVelocidade] = useState(1);
+  const velocidadeAtual = useRef(1);
+  const ultimaLegenda = useRef<number | null>(null);
+  const [pip, setPip] = useState(false);
+  const fimBotao = useRef<HTMLButtonElement>(null);
   const esconder = useRef<number>(0);
   const playBtn = useRef<HTMLButtonElement>(null);
   const toque = useRef({ tipo: 'mouse', visivel: true });
@@ -105,6 +113,7 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
         c = { ...c, semDireto: true };
       }
       audio = c.audio ?? plano.audioPadrao ?? audio;
+      if (legenda !== -1) ultimaLegenda.current = legenda;
       const x: Estado = { plano, audio, legenda, url: plano.url, hls: plano.tipo === 'hls' };
       encerrar();
       est.current = x; setE(x);
@@ -115,7 +124,8 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
   async function ligar(x: Estado, seg: number) {
     const v = video.current!;
     v.removeAttribute('src');
-    const comecar = () => { if (seg > 0) v.currentTime = seg; v.play().catch(() => setTocando(false)); };
+    aplicarVelocidade(v, velocidadeAtual.current);
+    const comecar = () => { aplicarVelocidade(v, velocidadeAtual.current); if (seg > 0) v.currentTime = seg; v.play().catch(() => setTocando(false)); };
     if (x.hls) {
       const { default: H } = await import('hls.js/light');
       if (H.isSupported()) {
@@ -151,6 +161,8 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
 
   // abre: dados do item (título no topo, próximo episódio) e a primeira carga
   useEffect(() => {
+    velocidadeAtual.current = 1; setVelocidade(1); aplicarVelocidade(video.current, 1);
+    ultimaLegenda.current = null;
     item(s, id).then(i => {
       setIt(i);
       if (i.Type === 'Episode' && i.SeriesId) {
@@ -161,9 +173,10 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
     // "Buscar legendas…" só para quem pode gerenciar legendas no servidor (PLANO §13)
     if (pode(s, 'legendasRemotas')) euMesmo(s).then(u => setPodeBuscar(!!u.Policy?.EnableSubtitleManagement)).catch(() => undefined);
     carregar({ ticks: inicio });
-    const sair = () => encerrar();
+    const sair = () => { void sairDoPip(document, video.current).catch(() => undefined); encerrar(); };
     addEventListener('pagehide', sair);
-    return () => { removeEventListener('pagehide', sair); encerrar(); };
+    const v = video.current;
+    return () => { removeEventListener('pagehide', sair); clearTimeout(esconder.current); void sairDoPip(document, v).catch(() => undefined); encerrar(); };
   }, [id]);
 
   // progresso a cada 10 s enquanto toca
@@ -176,6 +189,9 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
   useEffect(() => {
     const v = video.current!;
     const ev: Record<string, () => void> = {
+      ratechange: () => aplicarVelocidade(v, velocidadeAtual.current),
+      enterpictureinpicture: () => setPip(true),
+      leavepictureinpicture: () => setPip(false),
       playing: () => {
         setEspera(false); setTocando(true); setFim(false);
         const r = relato(); if (!r) return;
@@ -188,7 +204,7 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
       durationchange: () => setDur(v.duration),
       volumechange: () => setVolume({ nivel: v.volume, mudo: v.muted }),
       seeked: () => { const r = relato(); if (r && iniciou.current) reportar('progresso', r); },
-      ended: () => { const r = relato(); if (r) reportar('fim', { ...r, motivo: 'concluido' }); iniciou.current = false; setFim(true); setVisivel(true); },
+      ended: () => { const r = relato(); if (r) reportar('fim', { ...r, motivo: 'concluido' }); iniciou.current = false; setTocando(false); setEspera(false); setFim(true); setVisivel(true); },
       error: () => {
         // tocar direto falhou (codec que o navegador disse aceitar e não aceita): tenta pelo servidor
         const x = est.current;
@@ -281,6 +297,9 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
   }, [conta]);
   // volume (só no computador; no celular o volume é o do aparelho e a barra some pelo CSS)
   const mudarVolume = (n: number) => { const v = video.current!; v.volume = n; v.muted = n === 0; };
+  const imagemNoCanto = () => { void alternarPip(document, video.current).catch(() => avisar('Não deu para abrir a imagem no canto.')); };
+  const mudarVelocidade = (n: number) => { velocidadeAtual.current = n; setVelocidade(n); aplicarVelocidade(video.current, n); };
+  useEffect(() => { if (fim && it?.Type === 'Movie') fimBotao.current?.focus(); }, [fim, it]);
   const tela = () => {
     const el = document.documentElement as HTMLElement & { webkitRequestFullscreen?: () => void };
     const v = video.current as HTMLVideoElement & { webkitEnterFullscreen?: () => void };
@@ -289,14 +308,16 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
     else v.webkitEnterFullscreen?.();
   };
 
-  // teclado (computador) e controle remoto: espaço/K tocar e pausar, ←/→ 10 s, F tela cheia, M mudo, Esc sai da tela
+  // Teclado: espaço/K tocar e pausar, ←/→ e J/L 10 s, ↑/↓ volume, C legenda, P imagem no canto, F tela cheia, M mudo.
+  // Esc sai da tela
   // cheia ou volta. Com o painel aberto, só o Esc/Voltar (fecha o painel); o resto é do painel.
   useEffect(() => {
     const f = (ev: KeyboardEvent) => {
       if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
-      const k = ev.keyCode, alvo = ev.target as HTMLInputElement;
+      const k = ev.keyCode, alvo = ev.target as HTMLElement;
+      if (campoDeTexto(alvo)) return;
       const pare = () => { ev.preventDefault(); ev.stopImmediatePropagation(); };
-      if (VOLTAR.has(k) && !(k === 8 && alvo.tagName === 'INPUT' && alvo.type !== 'range')) {
+      if (VOLTAR.has(k)) {
         pare();
         if (menu) setMenu(false);
         else if (document.fullscreenElement) document.exitFullscreen();
@@ -304,7 +325,19 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
         return;
       }
       if (menu) return;
-      if (PLAY.has(k)) video.current?.play();
+      const acao = acaoDaTecla(k, alvo);
+      if (acao === 'volumeMais' || acao === 'volumeMenos') {
+        const v = video.current!;
+        mudarVolume(ajustarVolume(v.muted ? 0 : v.volume, acao === 'volumeMais' ? 1 : -1));
+      }
+      else if (acao === 'legenda') {
+        const atual = est.current;
+        if (atual) escolherLegenda(atual.legenda !== -1 ? -1 : (ultimaLegenda.current ?? legendas[0]?.Index ?? -1));
+      }
+      else if (acao === 'recuar') pular(-10);
+      else if (acao === 'avancar') pular(10);
+      else if (acao === 'pip') imagemNoCanto();
+      else if (PLAY.has(k)) video.current?.play();
       else if (PAUSA.has(k)) video.current?.pause();
       else if (k === 13) { if (visivel) { mexeu(); return; } alternar(); }   // Enter num botão segue o normal; escondido, OK pausa
       else if (PLAY_PAUSA.has(k) || k === 75) alternar();
@@ -318,7 +351,7 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
     };
     addEventListener('keydown', f, true);
     return () => removeEventListener('keydown', f, true);
-  }, [visivel, menu]);
+  }, [visivel, menu, e]);
 
   const plano = e?.plano;
   const audios = plano?.fluxos.filter(x => x.Type === 'Audio') || [];
@@ -330,6 +363,7 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
   function escolherLegenda(i: number) {
     setMenu(false);
     if (!e || i === e.legenda) return;
+    if (i !== -1) ultimaLegenda.current = i;
     const nova = legendas.find(x => x.Index === i);
     const atualGravada = legendas.find(x => x.Index === e.legenda)?.entrega === 'gravada';
     // texto por fora troca na hora; legenda gravada no vídeo (ou sair dela) pede nova carga
@@ -354,6 +388,7 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
       avisar('Essa legenda já estava na lista');
       return;
     }
+    ultimaLegenda.current = nova.Index;
     avisar('Legenda baixada e ligada');
     const atualGravada = atual.plano.fluxos.find(f => f.Index === atual.legenda)?.entrega === 'gravada';
     if (!atualGravada && nova.entrega === 'externa' && nova.url && !eAss(nova)) {
@@ -404,7 +439,7 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
         <h1 class="uma-linha">{nome}{ep && <span> {ep}</span>}</h1>
       </header>
 
-      {!carregando && !erro && (
+      {!fim && !carregando && !erro && (
         <div class="player-centro">
           {serie && <button class="player-icone" disabled={!ant} onClick={() => ant && trocar(ant)} aria-label="Episódio anterior"><Icone nome="skip_previous" cheio tamanho={30} /></button>}
           <button class="player-icone" onClick={() => pular(-10)} aria-label="Voltar 10 segundos"><Icone nome="replay_10" tamanho={34} /></button>
@@ -433,12 +468,18 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
         </div>
       )}
 
+      {fim && it?.Type === 'Movie' && <section class="player-final" aria-label="Filme concluído">
+        <h2>{it.Name}</h2>
+        <div class="player-final-acoes">
+          <button ref={fimBotao} class="player-pilula" onClick={() => location.replace(`#/t/${id}`)}>Voltar ao título</button>
+          <button class="player-pilula" onClick={() => { setFim(false); void carregar({ ticks: 0, audio: e?.audio, legenda: e?.legenda }); }}>Assistir de novo</button>
+        </div>
+        <MaisComoEste s={s} id={id} limite={6} />
+      </section>}
+
       <footer class="player-base">
         <span class="player-tempo">{relogio(pos)}</span>
-        <input class="player-barra" type="range" min={0} max={dur || 0} step={1} value={pos} aria-label="Posição"
-          aria-valuetext={`${relogio(pos)} de ${relogio(dur)}`}
-          style={{ '--feito': `${dur ? pos / dur * 100 : 0}%` } as Record<string, string>}
-          onInput={ev => { const v = video.current!; v.currentTime = Number(ev.currentTarget.value); }} />
+        <PreviaBarra s={s} it={it} pos={pos} dur={dur} buscar={seg => { video.current!.currentTime = seg; }} />
         <span class="player-tempo">{relogio(dur)}</span>
         <button class={menu ? 'player-icone ativo' : 'player-icone'} disabled={!e} onClick={() => setMenu(!menu)}
           aria-expanded={menu} aria-label="Áudio e legendas" title="Áudio e legendas">
@@ -454,13 +495,15 @@ export function Player({ s, id, inicio }: { s: Sessao; id: string; inicio?: numb
             style={{ '--feito': `${(volume.mudo ? 0 : volume.nivel) * 100}%` } as Record<string, string>}
             onInput={ev => mudarVolume(Number(ev.currentTarget.value))} />
         </div>
+        {document.pictureInPictureEnabled && <button class={pip ? 'player-icone ativo' : 'player-icone'} onClick={imagemNoCanto}
+          aria-pressed={pip} aria-label="Imagem no canto" title="Imagem no canto (P)"><Icone nome="picture_in_picture_alt" tamanho={24} /></button>}
         <button class="player-icone" onClick={tela} aria-label={cheia ? 'Sair da tela cheia' : 'Tela cheia'} title={cheia ? 'Sair da tela cheia (F)' : 'Tela cheia (F)'}>
           <Icone nome={cheia ? 'fullscreen_exit' : 'fullscreen'} tamanho={26} />
         </button>
       </footer>
 
       {menu && e && (
-        <PainelFaixas audios={audios} legendas={legendas} audio={e.audio} legenda={e.legenda}
+        <PainelFaixas velocidade={velocidade} escolherVelocidade={mudarVelocidade} audios={audios} legendas={legendas} audio={e.audio} legenda={e.legenda}
           escolherAudio={escolherAudio} escolherLegenda={escolherLegenda} fechar={() => setMenu(false)}
           podeBuscar={podeBuscar} buscar={l => buscarLegendas(s, id, l)} baixar={baixarRemota} />
       )}

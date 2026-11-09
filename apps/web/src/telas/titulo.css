@@ -230,3 +230,7 @@ main .titulo-grade button.cartao:focus-visible .cartao-arte { box-shadow: 0 0 0 
 .titulo-carregando .titulo-botao { pointer-events: none; }
 /* a página pronta continua a prévia: a logo não entra de novo */
 .titulo-continua .titulo-logo { animation: none; }
+
+.titulo-botoes { flex-wrap: wrap; }
+.titulo-botao.titulo-botao-texto { width: auto; padding: 0 14px; gap: 8px; font-size: 14px; text-decoration: none; }
+.titulo > .mais-como-este { margin-top: 32px; }

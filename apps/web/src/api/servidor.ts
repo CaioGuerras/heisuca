@@ -8,9 +8,11 @@ export { entradaJellyfin } from './entrada-jellyfin.ts';
 export { entradaPlex } from './entrada-plex.ts';
 export { autorizarPlex, cancelada, conectarPlex, ErroEntradaPlex, passoSeguinte, type Autorizacao, type RecursoPlex } from './fluxo-plex.ts';
 
-// Suporte estático do adaptador; disponibilidade de Quick Connect/Seerr continua na detecção atual.
+import type { OrdemBiblioteca } from '../dados/ordem-biblioteca.ts';
+import type { PreviaImagem } from './trickplay.ts';
+// Suporte do adaptador; Plex pode desativar similares por sessão após resposta de recurso indisponível.
 export type Capacidades = { favoritos: boolean; trocarSenha: boolean; foto: boolean; legendasRemotas: boolean;
-  capitulos: boolean; emAlta: boolean; emBreve: boolean };
+  capitulos: boolean; emAlta: boolean; emBreve: boolean; similares: boolean; trailersLocais: boolean; previas: boolean };
 export type PaginaBusca = { Items: Item[]; TotalRecordCount: number };
 export interface ApiServidor {
   bibliotecas(s: Sessao): Promise<Item[]>;
@@ -19,13 +21,16 @@ export interface ApiServidor {
   proximos(s: Sessao): Promise<Item[]>;
   novidades(s: Sessao, bibliotecaId: string, limite?: number): Promise<Item[]>;
   destaque(s: Sessao, limite?: number): Promise<Item[]>;
-  daBiblioteca(s: Sessao, bibliotecaId: string, inicio?: number, limite?: number): Promise<{ Items: Item[]; TotalRecordCount: number }>;
+  daBiblioteca(s: Sessao, bibliotecaId: string, inicio?: number, limite?: number, ordem?: OrdemBiblioteca): Promise<{ Items: Item[]; TotalRecordCount: number }>;
   daColecao(s: Sessao, colecaoId: string): Promise<Item[]>;
   favoritos(s: Sessao, bibliotecaId: string, limite?: number): Promise<{ Items: Item[]; TotalRecordCount: number }>;
   buscar(s: Sessao, termo: string, bibliotecaId: string): Promise<Item[]>;
   buscar(s: Sessao, termo: string, bibliotecaId: string, inicio: number, limite?: number, sinal?: AbortSignal): Promise<PaginaBusca>;
   porIds(s: Sessao, ids: string[]): Promise<Item[]>;
   item(s: Sessao, id: string): Promise<Item>;
+  similares(s: Sessao, id: string): Promise<Item[]>;
+  trailers(s: Sessao, id: string): Promise<Item[]>;
+  previaImagem(s: Sessao, i: Item, seg: number): PreviaImagem | null;
   temporadas(s: Sessao, serieId: string): Promise<Item[]>;
   episodios(s: Sessao, serieId: string, temporadaId: string): Promise<Item[]>;
   proximoDaSerie(s: Sessao, serieId: string): Promise<Item | null>;
@@ -54,7 +59,7 @@ export interface ApiServidor {
   faixas(s: Sessao, plano: Plano, opcoes: OpcoesReproducao): Promise<FluxoPlano[]>;
   relatar(s: Sessao, plano: Plano, fase: 'inicio' | 'progresso' | 'fim', posicao: PosicaoRelato): Promise<unknown>;
   parar(s: Sessao, plano: Plano): Promise<unknown>;
-  capacidades(): Readonly<Capacidades>;
+  capacidades(s?: Sessao): Readonly<Capacidades>;
 }
 
 // Uma instância por tipo, sem leitura de localStorage.
@@ -66,7 +71,7 @@ export function adaptador(tipo: TipoServidor): ApiServidor {
 }
 export const apiDe = (s: Sessao): ApiServidor => adaptador(s.tipo);
 // As telas escondem o que o servidor da sessão não faz (favoritos, senha, foto, em alta, em breve). Jellyfin: tudo true.
-export const pode = (s: Sessao, c: keyof Capacidades): boolean => apiDe(s).capacidades()[c];
+export const pode = (s: Sessao, c: keyof Capacidades): boolean => apiDe(s).capacidades(s)[c];
 
 // Fachada mantém chamadas explícitas das telas, sem expor transporte/URLs específicos de Jellyfin.
 export const bibliotecas: ApiServidor['bibliotecas'] = (s, ...args) => apiDe(s).bibliotecas(s, ...args);
@@ -113,3 +118,7 @@ export const preparar: ApiServidor['preparar'] = (s, ...args) => apiDe(s).prepar
 export const faixas: ApiServidor['faixas'] = (s, ...args) => apiDe(s).faixas(s, ...args);
 export const relatar: ApiServidor['relatar'] = (s, ...args) => apiDe(s).relatar(s, ...args);
 export const parar: ApiServidor['parar'] = (s, ...args) => apiDe(s).parar(s, ...args);
+
+export const similares: ApiServidor['similares'] = (s, ...args) => apiDe(s).similares(s, ...args);
+export const trailers: ApiServidor['trailers'] = (s, ...args) => apiDe(s).trailers(s, ...args);
+export const previaImagem: ApiServidor['previaImagem'] = (s, ...args) => apiDe(s).previaImagem(s, ...args);

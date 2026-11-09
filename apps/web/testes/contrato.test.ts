@@ -34,7 +34,7 @@ test('importar o contrato/API em processo novo não exige document nem lê armaz
   assert.equal(apiDe({ ...s, servidor: 'https://outro.example.invalid' }), apiDe(s));
   assert.notEqual(adaptador('plex'), adaptador('jellyfin'));
   assert.deepEqual(apiDe(s).capacidades(), { favoritos: true, trocarSenha: true, foto: true,
-    legendasRemotas: true, capitulos: true, emAlta: true, emBreve: true });
+    legendasRemotas: true, capitulos: true, emAlta: true, emBreve: true, similares: true, trailersLocais: true, previas: true });
 });
 
 function importsDeJellyfin(texto: string): string[] {
@@ -101,7 +101,7 @@ test('catálogo/busca/imagens mantêm as URLs capturadas antes da refatoração'
   globalThis.fetch = async u => { url = String(u); return new Response(JSON.stringify({ Items: [] })); };
   try {
     const api = apiDe(s);
-    await api.item(s, i.Id); assert.equal(url, antiga.urls.item);
+    await api.item(s, i.Id); assert.equal(url, antiga.urls.item.replace('fields=', 'fields=Trickplay,RemoteTrailers,LocalTrailerCount,'));
     await api.episodios(s, 'serie-opaca', 'temporada-opaca'); assert.equal(url, antiga.urls.episodios);
     await api.buscar(s, 'ação & lua', 'biblioteca-opaca'); assert.equal(url, antiga.urls.buscar);
     assert.equal(api.capa(s, i), antiga.urls.capa); assert.equal(api.fundo(s, i), antiga.urls.fundo);

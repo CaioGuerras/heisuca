@@ -5,7 +5,7 @@
 //  · Elenco em quadrado arredondado · Gêneros em pílulas · Info mídia (Vídeo e Áudio, sem caminho de arquivo).
 // Só dado real: linha sem valor não aparece (PLANO §1.7).
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
-import { daColecao, episodios, fotoPessoa, fundo, hashDe, item, logo, paisagem, pode, proximoDaSerie, temporadas,
+import { daColecao, episodios, fotoPessoa, fundo, hashDe, item, logo, paisagem, pode, proximoDaSerie, temporadas, trailers,
   type Fluxo, type Item, type Pessoa, type Sessao } from '../api/servidor.ts';
 import { selosDeMidia } from '../dados/selos';
 import { progressoAssistido } from '../dados/progresso';
@@ -13,6 +13,8 @@ import { totalEpisodios } from '../dados/acabamento';
 import { previa } from '../dados/previa';
 import { usePaleta } from '../cor/paleta';
 import { CartaoPoster, EsqueletoCartoes, nota, relogio } from '../comp/Cartoes';
+import { MaisComoEste } from '../comp/MaisComoEste';
+import { compartilharTitulo, trailerRemoto } from '../dados/compartilhar.ts';
 import { Fileira } from '../comp/Fileira';
 import { Classificacao } from '../comp/Classificacao';
 import { Folha } from '../comp/Folha';
@@ -252,6 +254,7 @@ function Pagina({ s, it, continua = false }: { s: Sessao; it: Item; continua?: b
         </section>
       )}
       <InfoMidia video={video} audios={audios} />
+      <MaisComoEste s={s} id={it.Id} />
       </>}
 
       {serie && (
@@ -351,8 +354,30 @@ function Acao({ pequena, rotulo, alvo, inicio, esperando = false, semPlay = fals
 function Botoes({ s, it }: { s: Sessao; it: Item }) {
   const d = useDados(s, it);
   const erro = () => avisar('Não deu certo. Tente de novo.');
+  const [abrindoTrailer, setAbrindoTrailer] = useState(false);
+  const remoto = trailerRemoto(it.RemoteTrailers?.[0]?.Url);
+  const local = pode(s, 'trailersLocais') && (it.LocalTrailerCount || 0) > 0;
+  async function abrirTrailer() {
+    setAbrindoTrailer(true);
+    try {
+      const lista = await trailers(s, it.Id);
+      if (lista[0]) irVer(lista[0].Id);
+      else avisar('O trailer não está disponível.');
+    } catch { avisar('Não deu para abrir o trailer.'); }
+    finally { setAbrindoTrailer(false); }
+  }
+  async function compartilhar() {
+    try {
+      const url = new URL(location.href); url.hash = `#/t/${it.Id}`;
+      if (await compartilharTitulo(navigator, it.Name, url.href) === 'copiado') avisar('Link copiado');
+    } catch { avisar('Não deu para copiar o link.'); }
+  }
   return (
     <div class="titulo-botoes">
+      {local ? <button class="titulo-botao titulo-botao-texto" disabled={abrindoTrailer} onClick={abrirTrailer}>
+        <Icone nome="videocam" tamanho={24} />Trailer</button>
+        : remoto && <a class="titulo-botao titulo-botao-texto" href={remoto} target="_blank" rel="noopener"><Icone nome="videocam" tamanho={24} />Trailer</a>}
+      <button class="titulo-botao titulo-botao-texto" onClick={compartilhar}><Icone nome="ios_share" tamanho={24} />Compartilhar</button>
       {pode(s, 'favoritos') && <button class="titulo-botao" aria-pressed={!!d.IsFavorite} aria-label={d.IsFavorite ? 'Tirar dos favoritos' : 'Favoritar'} title={d.IsFavorite ? 'Tirar dos favoritos' : 'Favoritar'}
         onClick={() => alternarFavorito(s, it).then(v => avisar(v ? 'Guardado nos Favoritos.' : 'Tirado dos Favoritos.')).catch(erro)}>
         <Icone nome="favorite" cheio={!!d.IsFavorite} tamanho={28} />

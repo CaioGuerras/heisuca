@@ -1,6 +1,6 @@
 // Biblioteca (PLANO §6; ref/vidhub/…foto50, …foto51).
 //  Topo: ← | nome da biblioteca no centro | ícone à direita que abre o menu lateral direito com as bibliotecas.
-//  Sem abas (Séries/Episódios/Gêneros/Pastas) e sem ordenar/filtrar: ordem alfabética. Grade de pôsteres 2:3 (3 colunas no
+//  Ordenação e filtro por biblioteca. Grade de pôsteres 2:3 (3 colunas no
 //  celular, mais no computador) que carrega aos poucos ao rolar. Botão direito no cartão: visto · favoritar.
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { bibliotecasDeVideo, daBiblioteca, hashDe, type Item, type Sessao } from '../api/servidor.ts';
@@ -10,6 +10,7 @@ import { Folha } from '../comp/Folha';
 import { Icone } from '../comp/Icone';
 import { abrirServidores } from '../estado/casca';
 import { irAba, irTitulo, lembrarBiblioteca, ultimaBiblioteca, voltar } from '../rota';
+import { ORDENS, lerOrdem, guardarOrdem, type OrdemBiblioteca } from '../dados/ordem-biblioteca.ts';
 import './biblioteca.css';
 
 const PAGINA = 60;
@@ -55,7 +56,7 @@ export function Biblioteca({ s, id }: { s: Sessao; id?: string }) {
           <Icone nome="menu" tamanho={24} />
         </button>
       </header>
-      {bid ? <Grade key={bid} s={s} bid={bid} aoTotal={setTotal} /> : libs && !libs.length ? <p class="biblioteca-vazio texto-2">Nenhuma biblioteca neste servidor.</p> : <Grade s={s} bid="" />}
+      {bid ? <Acervo key={`${s.servidor}:${s.usuarioId}:${bid}`} s={s} bid={bid} aoTotal={setTotal} /> : libs && !libs.length ? <p class="biblioteca-vazio texto-2">Nenhuma biblioteca neste servidor.</p> : <Grade s={s} bid="" />}
       <Folha aberta={menu} fechar={() => setMenu(false)} titulo="Bibliotecas" variante="lateral" classe="biblioteca-menu">
         <ul class="lista-opcoes">
           {(libs || []).map(b => (
@@ -84,7 +85,31 @@ export function Biblioteca({ s, id }: { s: Sessao; id?: string }) {
   );
 }
 
-function Grade({ s, bid, aoTotal }: { s: Sessao; bid: string; aoTotal?: (n: number) => void }) {
+function Acervo({ s, bid, aoTotal }: { s: Sessao; bid: string; aoTotal: (n: number) => void }) {
+  const chave = `${s.tipo}:${s.servidor}:${s.usuarioId}:${bid}`;
+  const [escolha, setEscolha] = useState(() => lerOrdem(chave));
+  const [menuOrdem, setMenuOrdem] = useState(false);
+  const escolher = (nova: OrdemBiblioteca) => { guardarOrdem(chave, nova); setEscolha(nova); };
+  return <>
+    <div class="biblioteca-filtros">
+      <button class="pilula pilula-vidro" onClick={() => setMenuOrdem(true)} aria-haspopup="dialog" aria-expanded={menuOrdem}>
+        {ORDENS.find(o => o.valor === escolha.ordem)?.nome}<Icone nome="keyboard_arrow_down" tamanho={20} />
+      </button>
+      <button class="pilula pilula-vidro" aria-pressed={escolha.naoVistos} onClick={() => escolher({ ...escolha, naoVistos: !escolha.naoVistos })}>
+        {escolha.naoVistos && <Icone nome="check" tamanho={20} />}Só não vistos
+      </button>
+    </div>
+    <Folha aberta={menuOrdem} fechar={() => setMenuOrdem(false)} titulo="Ordenar por">
+      <ul class="lista-opcoes">{ORDENS.map(o => <li key={o.valor}><button class="opcao-linha" aria-pressed={escolha.ordem === o.valor}
+        onClick={() => { escolher({ ...escolha, ordem: o.valor }); setMenuOrdem(false); }}>
+        <span class="opcao-texto">{o.nome}</span>{escolha.ordem === o.valor && <Icone nome="check" tamanho={22} />}
+      </button></li>)}</ul>
+    </Folha>
+    <Grade key={`${escolha.ordem}:${escolha.naoVistos}`} s={s} bid={bid} escolha={escolha} aoTotal={aoTotal} />
+  </>;
+}
+
+function Grade({ s, bid, aoTotal, escolha }: { s: Sessao; bid: string; aoTotal?: (n: number) => void; escolha?: OrdemBiblioteca }) {
   const [itens, setItens] = useState<Item[]>([]);
   const [total, setTotal] = useState<number | null>(null);
   const [fim, setFim] = useState(false);
@@ -95,17 +120,21 @@ function Grade({ s, bid, aoTotal }: { s: Sessao; bid: string; aoTotal?: (n: numb
   usePaleta(hash);
   const desfocado = fundoDesfocado(hash);
 
+  const vivo = useRef(true);
+  useEffect(() => { vivo.current = true; return () => { vivo.current = false; }; }, []);
+  useEffect(() => { aoTotal?.(0); }, []);
   const mais = () => {
     if (!bid || carregando.current || fim) return;
     carregando.current = true; setOcupado(true);
-    daBiblioteca(s, bid, qtd.current, PAGINA).then(d => {
+    daBiblioteca(s, bid, qtd.current, PAGINA, escolha).then(d => {
+      if (!vivo.current) return;
       qtd.current += d.Items.length;
       setItens(l => [...l, ...d.Items]);
       setTotal(d.TotalRecordCount); aoTotal?.(d.TotalRecordCount);
       // acabou quando chegou ao total ou o servidor mandou uma página vazia/curta
       if (!d.Items.length || d.Items.length < PAGINA || qtd.current >= d.TotalRecordCount) setFim(true);
       setErro(false);
-    }).catch(() => setErro(true)).finally(() => { carregando.current = false; setOcupado(false); });
+    }).catch(() => { if (vivo.current) setErro(true); }).finally(() => { if (vivo.current) { carregando.current = false; setOcupado(false); } });
   };
   useEffect(() => { mais(); }, [bid]);
   // carrega aos poucos: a próxima página quando a sentinela chega perto da tela

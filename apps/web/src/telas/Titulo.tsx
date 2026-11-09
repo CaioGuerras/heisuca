@@ -10,6 +10,7 @@ import { daColecao, episodios, fotoPessoa, fundo, hashDe, item, logo, paisagem, 
 import { selosDeMidia } from '../dados/selos';
 import { progressoAssistido } from '../dados/progresso';
 import { totalEpisodios } from '../dados/acabamento';
+import { previa } from '../dados/previa';
 import { usePaleta } from '../cor/paleta';
 import { CartaoPoster, EsqueletoCartoes, nota, relogio } from '../comp/Cartoes';
 import { Fileira } from '../comp/Fileira';
@@ -85,7 +86,12 @@ export function Titulo({ s, id }: { s: Sessao; id: string }) {
     }).catch(() => vivo && setErro(true));
     return () => { vivo = false; };
   }, [id, s.token]);
-  usePaleta(hashDe(s, it, 'Backdrop') || hashDe(s, it, 'Primary'));
+  // prévia do cartão clicado (H1): pinta a tela enquanto o item completo chega; lembra se foi mostrada
+  const p = it ? null : previa(id);
+  const viuPrevia = useRef(false);
+  if (p) viuPrevia.current = true;
+  const cor = it || p;
+  usePaleta(hashDe(s, cor, 'Backdrop') || hashDe(s, cor, 'Primary'));
 
   if (erro) return (
     <main class="titulo titulo-erro">
@@ -94,15 +100,42 @@ export function Titulo({ s, id }: { s: Sessao; id: string }) {
       <button class="pilula pilula-vidro" onClick={() => location.reload()}>Tentar de novo</button>
     </main>
   );
-  if (!it) return <main class="titulo"><BotaoVoltar /><div class="titulo-arte esqueleto" aria-hidden="true" /></main>;
-  return <Pagina key={it.Id} s={s} it={it} />;
+  if (!it) return <Esqueleto s={s} p={p} />;
+  return <Pagina key={it.Id} s={s} it={it} continua={viuPrevia.current} />;
+}
+
+// Esqueleto com a geometria da página pronta: arte, nome, linha pequena, Reproduzir e os dois botões.
+// Com prévia, a cabeça já é a de verdade (mesma arte, mesmo hash, mesma logo).
+// lugar da linha de selos (Dublado, 4K…) enquanto a mídia não chega: quase todo título tem ao menos um
+const SelosEsqueleto = () => (
+  <ul class="titulo-selos" aria-hidden="true"><li class="esqueleto titulo-selo-esqueleto">{'\u00a0'}</li><li class="esqueleto titulo-selo-esqueleto">{'\u00a0'}</li></ul>
+);
+
+function Esqueleto({ s, p }: { s: Sessao; p: Item | null }) {
+  return (
+    <main class="titulo titulo-carregando" aria-busy="true">
+      <BotaoVoltar />
+      {p ? <Cabeca s={s} it={p} /> : (
+        <header class="titulo-cabeca" aria-hidden="true">
+          <div class="titulo-arte esqueleto" />
+          <div class="titulo-marca"><span class="esqueleto titulo-nome-esqueleto" /><span class="esqueleto titulo-meta-esqueleto" /></div>
+        </header>
+      )}
+      {!(p && ehColecao(p)) && <SelosEsqueleto />}
+      <div class="titulo-acao" aria-hidden="true">
+        <span class="esqueleto titulo-pequena-esqueleto" />
+        {!(p && ehColecao(p)) && <span class="titulo-play titulo-play-esqueleto" />}
+      </div>
+      <div class="titulo-botoes" aria-hidden="true"><span class="titulo-botao" /><span class="titulo-botao" /></div>
+    </main>
+  );
 }
 
 const BotaoVoltar = () => (
   <button class="redondo titulo-voltar" onClick={voltar} aria-label="Voltar"><Icone nome="arrow_back" tamanho={24} /></button>
 );
 
-function Pagina({ s, it }: { s: Sessao; it: Item }) {
+function Pagina({ s, it, continua = false }: { s: Sessao; it: Item; continua?: boolean }) {
   const serie = ehSerie(it), colecao = ehColecao(it);
   const [temps, setTemps] = useState<Item[]>([]);
   const [atual, setAtual] = useState<Item | null>(null);        // o episódio da vez (próximo a ver ou o que está em andamento)
@@ -110,6 +143,7 @@ function Pagina({ s, it }: { s: Sessao; it: Item }) {
   const [eps, setEps] = useState<Item[] | null>(null);
   const [filhos, setFilhos] = useState<Item[] | null>(null);    // títulos da coleção
   const [lista, setLista] = useState(false);
+  const [buscando, setBuscando] = useState(serie);             // série: até chegar o episódio da vez (ou saber que não há)
   const cacheEps = useRef(new Map<string, Item[]>());
 
   // série: temporadas + episódio da vez
@@ -120,6 +154,7 @@ function Pagina({ s, it }: { s: Sessao; it: Item }) {
       if (p) setAtual(p);
       const alvo = (p && t.find(x => x.Id === p.SeasonId)) || t.find(x => (x.IndexNumber ?? 0) > 0) || t[0];
       if (alvo) setTempSel(alvo.Id);
+      if (p || !alvo) setBuscando(false);
     });
   }, [it.Id]);
   useEffect(() => {
@@ -133,7 +168,8 @@ function Pagina({ s, it }: { s: Sessao; it: Item }) {
       if (!vivo) return;
       setEps(l);
       setAtual(a => a || l[0] || null);      // sem "próximo" no servidor: o 1º episódio dá a sinopse e a mídia
-    }).catch(() => vivo && setEps([]));
+      setBuscando(false);
+    }).catch(() => { if (vivo) { setEps([]); setBuscando(false); } });
     return () => { vivo = false; };
   }, [tempSel]);
   useEffect(() => { if (colecao) daColecao(s, it.Id).then(setFilhos).catch(() => setFilhos([])); }, [it.Id]);
@@ -174,14 +210,17 @@ function Pagina({ s, it }: { s: Sessao; it: Item }) {
     : it.Overview ? { marca: it.Name, texto: it.Overview } : null;
 
   return (
-    <main class="titulo">
+    <main class={`titulo${continua ? ' titulo-continua' : ''}`}>
       <BotaoVoltar />
       <Cabeca s={s} it={it} />
       {selos.length > 0 && <ul class="titulo-selos" aria-label="Disponível neste título">
         {selos.map(selo => <li key={selo}>{selo}</li>)}
       </ul>}
-      <Acao pequena={pequena} rotulo={rotulo} alvo={alvo} inicio={inicio} />
+      {!selos.length && buscando && <SelosEsqueleto />}
+      <Acao pequena={pequena} rotulo={rotulo} alvo={alvo} inicio={inicio} esperando={buscando || (colecao && filhos === null)} semPlay={colecao} />
       <Botoes s={s} it={it} />
+      {/* série: o resto entra quando o episódio da vez chega, de uma vez, abaixo dos botões (nada já visível é empurrado) */}
+      {!buscando && <>
       {sinopse && <Sinopse marca={sinopse.marca} texto={sinopse.texto} />}
 
       {serie && (
@@ -199,7 +238,7 @@ function Pagina({ s, it }: { s: Sessao; it: Item }) {
           <h2 class="titulo-secao">Títulos</h2>
           <div class="titulo-grade">
             {!filhos && <EsqueletoCartoes n={6} />}
-            {filhos?.map(f => <CartaoPoster key={f.Id} s={s} i={f} aoAbrir={x => irTitulo(x.Id)} />)}
+            {filhos?.map(f => <CartaoPoster key={f.Id} s={s} i={f} aoAbrir={x => irTitulo(x.Id, x)} />)}
           </div>
           {filhos && !filhos.length && <p class="texto-2 titulo-vazio">Nenhum título desta coleção no servidor.</p>}
         </section>
@@ -213,6 +252,7 @@ function Pagina({ s, it }: { s: Sessao; it: Item }) {
         </section>
       )}
       <InfoMidia video={video} audios={audios} />
+      </>}
 
       {serie && (
         <Folha aberta={lista} fechar={() => setLista(false)} titulo={temp?.Name || 'Episódios'} classe="titulo-folha titulo-folha-eps">
@@ -285,7 +325,8 @@ function Cabeca({ s, it }: { s: Sessao; it: Item }) {
 }
 
 // a linha pequena + o Reproduzir; grudam no topo quando a página rola (ref/vidhub/…foto43)
-function Acao({ pequena, rotulo, alvo, inicio }: { pequena: string[]; rotulo: string; alvo: Item | null; inicio?: number }) {
+// esperando: os dados da série/coleção ainda não chegaram; guarda o lugar da linha e do botão (sem salto quando chegam)
+function Acao({ pequena, rotulo, alvo, inicio, esperando = false, semPlay = false }: { pequena: string[]; rotulo: string; alvo: Item | null; inicio?: number; esperando?: boolean; semPlay?: boolean }) {
   const caixa = useRef<HTMLDivElement>(null);
   const [grudado, setGrudado] = useState(false);
   useEffect(() => {
@@ -295,12 +336,14 @@ function Acao({ pequena, rotulo, alvo, inicio }: { pequena: string[]; rotulo: st
   }, []);
   return (
     <div ref={caixa} class={`titulo-acao${grudado ? ' grudado' : ''}`}>
-      {pequena.length > 0 && <p class="titulo-pequena">{pequena.map((p, k) => <span key={k}>{p}</span>)}</p>}
+      {pequena.length > 0 ? <p class="titulo-pequena">{pequena.map((p, k) => <span key={k}>{p}</span>)}</p>
+        : esperando && <span class="esqueleto titulo-pequena-esqueleto" aria-hidden="true" />}
       {alvo && (
         <button class="titulo-play" onClick={() => irVer(alvo.Id, inicio)}>
           <Icone nome="play_arrow" cheio tamanho={26} /><span class="uma-linha">{rotulo}</span>
         </button>
       )}
+      {!alvo && esperando && !semPlay && <span class="titulo-play titulo-play-esqueleto" aria-hidden="true" />}
     </div>
   );
 }

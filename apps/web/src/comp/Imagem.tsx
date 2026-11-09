@@ -6,8 +6,10 @@ type Props = { src?: string; alt?: string; hash?: string; classe?: string; prior
 export function Imagem(props: Props) {
   return <Conteudo key={props.src || ''} {...props} />;
 }
+// URLs já decodificadas nesta visita: remontar (prévia → página pronta, voltar) mostra na hora, sem refazer o fade
+const prontas = new Set<string>();
 function Conteudo({ src, alt = '', hash, classe = '', prioridade = false, aoErro }: Props) {
-  const [ok, setOk] = useState(false);
+  const [ok, setOk] = useState(() => !!src && prontas.has(src));
   const [falhou, setFalhou] = useState(false);
   const [desfocado, setDesfocado] = useState('');
   const fundo = useMemo(() => corMedia(hash), [hash]);
@@ -21,6 +23,8 @@ function Conteudo({ src, alt = '', hash, classe = '', prioridade = false, aoErro
           class={ok ? 'ok' : ''} onLoad={async e => {
             const img = e.currentTarget;
             await img.decode().catch(() => undefined);
+            if (prontas.size > 600) prontas.clear();
+            if (src) prontas.add(src);
             setOk(true);
           }} onError={() => { setFalhou(true); aoErro?.(); }} />
       )}

@@ -11,7 +11,8 @@ import { Ilha } from './comp/Navegacao';
 import { FolhaPedido, type Alvo } from './comp/Pedido';
 import { TrocarServidor } from './comp/TrocarServidor';
 import { registrarServidores } from './estado/casca';
-import { useRota } from './rota';
+import { chaveDe, useRota } from './rota';
+import { congelarSaida } from './anim/saida';
 import { Abertura } from './telas/Abertura';
 import { Biblioteca } from './telas/Biblioteca';
 import { Entrada } from './telas/Entrada';
@@ -69,7 +70,7 @@ export function App() {
 
 function Casca({ s, trocar, atualizar, entrar, sair }: { s: Sessao; trocar: (s: Sessao) => void; atualizar: (s: Sessao) => void;
   entrar: (srv: Servidor | null) => void; sair: () => void }) {
-  const r = useRota();
+  const r = useRota((nova, velha) => { if (nova.tela !== 'ver' && velha.tela !== 'ver' && chaveDe(nova) !== chaveDe(velha)) congelarSaida(); });
   const [menu, setMenu] = useState<HTMLElement | null>(null);
   const [servidores, setServidores] = useState(false);
   const [pedido, setPedido] = useState<Alvo | null>(null);
@@ -96,7 +97,7 @@ function Casca({ s, trocar, atualizar, entrar, sair }: { s: Sessao; trocar: (s: 
     : <Inicio s={s} pedir={pedirEmBreve} />;
   return (
     <div class={`casca tela-${r.tela}${comIlha ? ' com-ilha' : ''}`}>
-      {r.tela === 'ver' ? tela : <div class="troca-tela" key={`${r.tela}:${'id' in r ? r.id || '' : ''}`}>{tela}</div>}
+      {r.tela === 'ver' ? tela : <div class="troca-tela" key={chaveDe(r)}>{tela}</div>}
       {comIlha && <Ilha s={s} r={r} aoUsuario={setMenu} />}
       <MenuUsuario s={s} ancora={menu} fechar={() => setMenu(null)} sair={sair} />
       <TrocarServidor s={s} aberta={servidores} fechar={() => setServidores(false)} aoTrocar={trocar} aoEntrar={entrar} />

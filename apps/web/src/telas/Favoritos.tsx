@@ -59,7 +59,7 @@ export function Favoritos({ s }: { s: Sessao }) {
   usePaleta(hashCor ?? null);
   const desfocado = fundoDesfocado(hashDe(s, primeiro, 'Primary') || hashCor);
   const linha = resumo(visiveis.map(x => ({ total: x.secao.total, carregados: x.secao.itens.length, visiveis: x.itens.length })));
-  const abrir = (i: Item) => irTitulo(i.Type === 'Episode' && i.SeriesId ? i.SeriesId : i.Id);
+  const abrir = (i: Item) => irTitulo(i.Type === 'Episode' && i.SeriesId ? i.SeriesId : i.Id, i);
   const completar = async (secao: Secao) => {
     const id = secao.biblioteca.Id, rodada = ciclo.current;
     if (carregando.current.has(id)) return;

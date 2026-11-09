@@ -1,5 +1,7 @@
 // Rotas por # (o servidor web só entrega o index.html; nada a configurar no nginx).
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
+import type { Item } from './api/tipos';
+import { guardarPrevia } from './dados/previa';
 
 export type Rota =
   | { tela: 'inicio' } | { tela: 'biblioteca'; id?: string } | { tela: 'fav' } | { tela: 'busca' }
@@ -21,10 +23,22 @@ export function ler(): Rota {
   return { tela: 'inicio' };
 }
 
-export function useRota(): Rota {
+// identidade da tela: a mesma chave = mesma tela montada (app.tsx usa como key da troca-tela)
+export const chaveDe = (r: Rota) => `${r.tela}:${'id' in r ? r.id || '' : ''}`;
+
+// antes(r) roda com a tela antiga ainda no DOM e a rolagem antiga (a saída da troca de tela copia dali)
+export function useRota(antes?: (nova: Rota, velha: Rota) => void): Rota {
   const [r, setR] = useState(ler);
+  const atual = useRef(r);
+  const gancho = useRef(antes);
+  gancho.current = antes;
   useEffect(() => {
-    const f = () => { setR(ler()); if (!history.state?.semRolar) scrollTo(0, 0); };
+    const f = () => {
+      const nova = ler();
+      try { gancho.current?.(nova, atual.current); } catch { /* animação nunca impede a navegação */ }
+      atual.current = nova;
+      setR(nova); if (!history.state?.semRolar) scrollTo(0, 0);
+    };
     addEventListener('hashchange', f);
     return () => removeEventListener('hashchange', f);
   }, []);
@@ -34,7 +48,8 @@ export function useRota(): Rota {
 // quantas telas o próprio app empilhou: Voltar só usa history.back() dentro do app (link direto volta ao Início)
 let pilha = 0;
 const ir = (h: string) => { pilha++; location.hash = h; };
-export const irTitulo = (id: string) => ir(`#/t/${id}`);
+// de = o item do cartão clicado (vira a prévia do título quando é o próprio título)
+export const irTitulo = (id: string, de?: Item) => { if (de && de.Id === id) guardarPrevia(de); ir(`#/t/${id}`); };
 export const irVer = (id: string, ticks?: number) => ir(`#/ver/${id}${ticks ? `?t=${ticks}` : ''}`);
 export const irPagina = (p: typeof SIMPLES[number]) => ir(`#/${p}`);
 // destinos da ilha trocam a tela sem empilhar (Voltar do navegador volta ao Início)

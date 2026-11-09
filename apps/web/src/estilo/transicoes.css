@@ -1,10 +1,20 @@
-/* A página monta e busca dados imediatamente; só sua apresentação é animada.
-   Sem fill forwards: o transform termina e libera os descendentes fixed/sticky. */
-.troca-tela > main { animation: hs-tela-entra 200ms cubic-bezier(.2, .7, .2, 1); }
-@keyframes hs-tela-entra {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+/* Troca de tela (ESTUDO_MOVIMENTO_2026-11 §2): a tela que sai é uma cópia congelada (anim/saida.ts) que some em
+   180 ms; a nova monta e busca dados na hora, e só a apresentação entra, 320 ms, começando 60 ms depois.
+   A animação fica na .troca-tela (uma por rota), não no main: o esqueleto do título vira a página pronta sem
+   reiniciar a entrada. Sem fill forwards: o transform termina e libera os descendentes fixed/sticky. "backwards" só cobre o atraso. */
+.troca-tela {
+  animation: hs-tela-entra-mov var(--m-tela) var(--c-entra) var(--m-sobrepor) backwards,
+    hs-tela-entra-opac var(--m-tela) var(--c-padrao) var(--m-sobrepor) backwards;
 }
+@keyframes hs-tela-entra-mov { from { transform: translateY(12px); } to { transform: none; } }
+@keyframes hs-tela-entra-opac { from { opacity: 0; } to { opacity: 1; } }
+
+/* a cópia da tela que sai: por cima do conteúdo novo, por baixo do topo e da ilha (z 30) */
+.saida-tela { position: fixed; inset: 0; z-index: 25; overflow: hidden; pointer-events: none; transform-origin: 50% 40%; }
+.saida-tela > .saida-tela-corpo { position: absolute; left: 0; right: 0; }
+.saida-tela *, .saida-tela *::before, .saida-tela *::after { animation: none !important; transition: none !important; }
+
+/* reduzir movimento: crossfade de 180 ms, sem deslocamento nem escala */
 @media (prefers-reduced-motion: reduce) {
-  .troca-tela > main { animation: none !important; }
+  .troca-tela { animation: hs-tela-entra-opac var(--m-curto) var(--c-padrao) backwards !important; }
 }

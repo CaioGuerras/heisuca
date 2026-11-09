@@ -123,7 +123,7 @@ export function Busca({ s }: { s: Sessao }) {
           <ul class="busca-lista">
             {doAcervo.map(i => (
               <li key={i.Id}>
-                <button class="busca-item" onClick={() => irTitulo(i.Id)}>
+                <button class="busca-item" onClick={() => irTitulo(i.Id, i)}>
                   <Imagem classe="busca-capa" src={capa(s, i, 330)} hash={hashDe(s, i, 'Primary')} alt="" />
                   <span class="busca-texto">
                     <strong class="busca-nome">{i.Name}</strong>

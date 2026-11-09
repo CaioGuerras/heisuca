@@ -120,7 +120,7 @@ function Grade({ s, bid, aoTotal }: { s: Sessao; bid: string; aoTotal?: (n: numb
     <>
       {desfocado && <div class="biblioteca-fundo" aria-hidden="true" style={{ backgroundImage: `url(${desfocado})` }} />}
       <div class="biblioteca-grade" role="region" aria-label="Títulos da biblioteca" aria-busy={ocupado}>
-        {itens.map((i, k) => <CartaoPoster key={i.Id} s={s} i={i} prioridade={k < 9} aoAbrir={x => irTitulo(x.Id)} />)}
+        {itens.map((i, k) => <CartaoPoster key={i.Id} s={s} i={i} prioridade={k < 9} aoAbrir={x => irTitulo(x.Id, x)} />)}
         {!fim && !erro && <EsqueletoCartoes n={total === null ? 12 : 6} />}
       </div>
       <p class="visualmente-oculto" role="status">{ocupado ? 'Carregando títulos…' : total !== null && !erro ? `${itens.length} de ${total} títulos` : ''}</p>

@@ -121,7 +121,7 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
           {!lista.length && <span class="destaque-arte atual esqueleto" />}
         </div>
         {atual && (
-          <button class="destaque-texto" key={atual.Id} onClick={() => irTitulo(atual.Id)} aria-label={`Abrir ${atual.Name}`}>
+          <button class="destaque-texto" key={atual.Id} onClick={() => irTitulo(atual.Id, atual)} aria-label={`Abrir ${atual.Name}`}>
             <span class="destaque-casa" ref={casa}>
               <span class="destaque-marca" ref={marca}>
                 <MarcaDestaque key={atual.Id} s={s} i={atual} />
@@ -165,7 +165,7 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
       )}
       {d && d.emAlta.itens.length > 0 && (
         <Fileira titulo={d.emAlta.titulo || 'Em alta'} classe="fileira-top10">
-          {d.emAlta.itens.slice(0, 10).map((i, k) => <CartaoTop10 key={i.Id} s={s} i={i} n={k + 1} aoAbrir={x => irTitulo(x.Id)} />)}
+          {d.emAlta.itens.slice(0, 10).map((i, k) => <CartaoTop10 key={i.Id} s={s} i={i} n={k + 1} aoAbrir={x => irTitulo(x.Id, x)} />)}
         </Fileira>
       )}
       {d && d.bibliotecas.length > 0 && (
@@ -175,7 +175,7 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
       )}
       {d && d.porBiblioteca.map(({ biblioteca: b, itens }) => (
         <Fileira key={b.Id} titulo={b.Name} verTudo={() => irAba(`b/${b.Id}`)}>
-          {itens.map(i => <CartaoPoster key={i.Id} s={s} i={i} aoAbrir={(x: Item) => irTitulo(x.Type === 'Episode' && x.SeriesId ? x.SeriesId : x.Id)} />)}
+          {itens.map(i => <CartaoPoster key={i.Id} s={s} i={i} aoAbrir={(x: Item) => irTitulo(x.Type === 'Episode' && x.SeriesId ? x.SeriesId : x.Id, x)} />)}
         </Fileira>
       ))}
       {emBreve.length > 0 && (

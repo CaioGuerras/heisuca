@@ -220,3 +220,13 @@ main .titulo-grade button.cartao:focus-visible .cartao-arte { box-shadow: 0 0 0 
 @media (min-width: 600px) { .titulo-selos li { font-size: 11px; padding: 4px 10px; } }
 .titulo-nome { overflow-wrap: anywhere; }
 .titulo-ep:focus-visible .titulo-ep-arte { box-shadow: inset 0 0 0 2px var(--hs-realce); }
+
+/* esqueleto com a geometria da página pronta (H1): a prévia do cartão já pinta arte, cor e nome */
+.titulo-nome-esqueleto { display: block; width: min(62vw, 380px); height: clamp(30px, 5.2vw, 62px); border-radius: 12px; }
+.titulo-meta-esqueleto { display: block; width: min(48vw, 260px); height: 14px; border-radius: 7px; }
+.titulo-pequena-esqueleto { display: block; width: min(40vw, 200px); height: 13px; border-radius: 7px; }
+.titulo-play-esqueleto { pointer-events: none; }
+.titulo-selos li.titulo-selo-esqueleto { width: 64px; border-color: transparent; }
+.titulo-carregando .titulo-botao { pointer-events: none; }
+/* a página pronta continua a prévia: a logo não entra de novo */
+.titulo-continua .titulo-logo { animation: none; }

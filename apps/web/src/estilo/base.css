@@ -47,6 +47,23 @@
   --hs-topo-respiro: calc(10px + env(safe-area-inset-top, 0px));
   --hs-raio-cartao: 9px;
   --hs-tempo-cor: 600ms;
+  /* movimento (ESTUDO_MOVIMENTO_2026-11): saída ≈ 60 % da entrada; a entrada começa 60–90 ms depois da saída */
+  --m-toque: 120ms;
+  --m-curto: 180ms;
+  --m-medio: 260ms;
+  --m-tela: 320ms;
+  --m-grande: 420ms;
+  --m-escada: 30ms;   /* por item, no máximo 5 itens */
+  --m-sobrepor: 60ms; /* atraso da entrada em relação à saída */
+  --c-entra: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --c-sai: cubic-bezier(0.3, 0, 0.8, 0.15);
+  --c-padrao: cubic-bezier(0.2, 0, 0, 1);
+  /* os tempos gerados da marca passam a apontar para os tokens acima */
+  --hs-tempo-toque: var(--m-toque);
+  --hs-tempo-cartao: var(--m-curto);
+  --hs-tempo-tela: var(--m-tela);
+  --hs-curva-padrao: var(--c-padrao);
+  --hs-curva-saida: var(--c-sai);
   --hs-curva-mola: cubic-bezier(0.16, 1, 0.3, 1);
   --hs-sombra: 0 8px 28px rgb(0 0 0 / .18);
   color-scheme: dark;

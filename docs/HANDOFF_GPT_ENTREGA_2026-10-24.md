@@ -1,5 +1,31 @@
 # Heisuca — entrega da rodada de 24/10/2026
 
+## 08/11/2026 — Pacote D, atualizador fora da Play (Ultron) — em implementação
+
+Base `5da72fd`, contém C entregue e spec `2dba3aa`, lida integralmente. Ramo único `codex/heisuca-home-site`.
+Sem servidor, feed real, domínio inventado, promoção, release/AAB ou distribuição de APK. Revisão Claude pendente.
+Versão reservada para o pacote D: **TESTE 2.0.34+42**; applicationIds preservados.
+
+### Unidade D1 — feed e verificação
+
+- `UpdateFeedClient`: HTTPS, host/origem de feed explícito, hosts de APK autorizados, redirects manuais limitados,
+  JSON em fluxo até 64 KiB, validação de campos/tipos/canal/ABI/tamanho/hashes; erros sem endereço/código secreto.
+- Defines: `HEISUCA_UPDATE_FEED_URL`, `HEISUCA_UPDATE_APK_HOSTS` (hosts separados por vírgula),
+  `HEISUCA_DISTRIBUTION` (`direct` padrão / `play`). Sem feed válido ou na Play, zero consultas.
+- `UpdateChecker`: só build maior; data persistida antes da consulta, chamadas simultâneas agrupadas,
+  pausa durante reprodução e descarta respostas se a reprodução/canal mudar. Erros automáticos silenciosos.
+- TDD: **19 falharam / 2 passaram** no esqueleto; implementação **21 passaram**. Análise estrita de três arquivos sem achados.
+  Logs `/tmp/ultron-d1-red.log`, `/tmp/ultron-d1-green.log`, `/tmp/ultron-d1-analyze.log`.
+- Dúvidas registradas conforme spec: “uma verificação/dia” foi interpretada como janela de 24 h inclusive no botão manual;
+  beta requer ler estável + beta na mesma verificação. Código de teste seleciona somente teste, sem misturar canais públicos.
+  Não foi inventada exceção à cota diária. Tamanho máximo escolhido: 64 KiB; código aceita 20–256 caracteres URL-safe.
+- As unidades internas serão commits separados; a validação do pacote D completo e o push são feitos antes da entrega.
+
+### Pendências da implementação D
+
+Download/cache/cancelamento; instalador Kotlin e variantes; UI/direcional; CI Play/direta e bancada com feed TLS local;
+portão/suíte comparada com base, evidências de APK/assinatura e revisão independente. Nada aqui declara o D entregue.
+
 ## 08/11/2026 — TV, pacotes A/B/C (Ultron)
 
 Ordem: `handoffs/ORDEM_ULTRON_TV_2026-11-08.md` no CGFLIX. Base exata `fbb9998`.

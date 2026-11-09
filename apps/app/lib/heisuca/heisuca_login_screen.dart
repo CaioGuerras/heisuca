@@ -238,8 +238,8 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
 
     final palette = context.cgflix;
 
-    showModalBottomSheet<void>(
-      sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: context,
+    heisucaFolhaCelular<void>(
+      sheetAnimationStyle: HeisucaMotion.folhaCelular(context), context: context,
       isScrollControlled: true,
       backgroundColor: palette.surface,
       barrierColor: Theme.of(context).colorScheme.scrim.withValues(alpha: .75),
@@ -259,8 +259,8 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
     final titleColor = palette.text;
     final subtitleColor = palette.textOn(palette.surface, preferred: palette.textMuted);
 
-    showModalBottomSheet<void>(
-      sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: context,
+    heisucaFolhaCelular<void>(
+      sheetAnimationStyle: HeisucaMotion.folhaCelular(context), context: context,
       isScrollControlled: true,
       backgroundColor: sheetBg,
       barrierColor: Colors.black.withValues(alpha: 0.65),

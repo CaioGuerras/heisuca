@@ -3,6 +3,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../focus/focusable_wrapper.dart';
+import '../utils/platform_detector.dart';
+import 'heisuca_motion.dart';
 
 /// Design System Flagship do Heisuca (炳素華)
 /// Filosofia: "Nada entre você e o filme."
@@ -411,11 +413,13 @@ class _HeisucaSpringPressableState extends State<HeisucaSpringPressable> {
         },
         onSecondaryTap: widget.onSecondaryTap,
         child: AnimatedScale(
-          scale: targetScale,
+          scale: !PlatformDetector.isTV() && HeisucaMotion.reduced(context) ? 1 : targetScale,
           duration: _pressed
-              ? const Duration(milliseconds: 110)
-              : const Duration(milliseconds: 280),
-          curve: _pressed ? Curves.easeOutCubic : const ElasticOutCurve(0.85),
+              ? (PlatformDetector.isTV() ? const Duration(milliseconds: 110) : HeisucaMotion.toque)
+              : (PlatformDetector.isTV() ? const Duration(milliseconds: 280) : HeisucaMotion.medio),
+          curve: PlatformDetector.isTV()
+              ? (_pressed ? Curves.easeOutCubic : const ElasticOutCurve(0.85))
+              : HeisucaMotion.entra,
           child: widget.child,
         ),
       ),
@@ -444,11 +448,13 @@ class HeisucaMagneticMorphPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveWidth = width * (1.0 + velocityStretch.clamp(0.0, 0.35));
+    final effectiveWidth = width * (1.0 + (!PlatformDetector.isTV() && HeisucaMotion.reduced(context) ? 0 : velocityStretch.clamp(0.0, 0.35)));
     final r = borderRadius ?? BorderRadius.circular(height / 2);
 
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 50),
+      duration: PlatformDetector.isTV() ? const Duration(milliseconds: 50)
+          : HeisucaMotion.reduced(context) ? HeisucaMotion.curto : HeisucaMotion.toque,
+      curve: PlatformDetector.isTV() ? Curves.linear : HeisucaMotion.padrao,
       width: effectiveWidth,
       height: height,
       decoration: BoxDecoration(

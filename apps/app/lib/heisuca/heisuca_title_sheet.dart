@@ -248,7 +248,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
   bool _hidden(MediaItem ep) => _hideSpoilers && !ep.isWatched && !ep.hasActiveProgress;
 
   Future<void> _chooseSeason() async {
-    final season = await showModalBottomSheet<MediaItem>(sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: context, showDragHandle: true, isScrollControlled: true,
+    final season = await heisucaFolhaCelular<MediaItem>(sheetAnimationStyle: HeisucaMotion.folhaCelular(context), context: context, showDragHandle: true, isScrollControlled: true,
       builder: (ctx) => SafeArea(child: ConstrainedBox(
         constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(ctx).height * .7),
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -264,7 +264,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
   Future<void> _download() async {
     MediaItem? target = _item;
     if (_item.kind == MediaKind.show) {
-      target = await showModalBottomSheet<MediaItem>(sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: context, showDragHandle: true, isScrollControlled: true,
+      target = await heisucaFolhaCelular<MediaItem>(sheetAnimationStyle: HeisucaMotion.folhaCelular(context), context: context, showDragHandle: true, isScrollControlled: true,
         builder: (ctx) => SafeArea(child: ConstrainedBox(
           constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(ctx).height * .75),
           child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -420,8 +420,8 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
           SliverToBoxAdapter(child: SizedBox(height: height, child: Stack(fit: StackFit.expand, children: [
             if (art != null && client != null) HeisucaArtworkMask(
               child: HeisucaParallax(controller: _scroll, child: widget.heroTag == null
-                ? OptimizedMediaImage(client: client, imagePath: art, imageType: ImageType.art, fit: BoxFit.cover)
-                : Hero(tag: widget.heroTag!, child: OptimizedMediaImage(client: client, imagePath: art, imageType: ImageType.art, fit: BoxFit.cover)))),
+                ? OptimizedMediaImage(fadeInDuration: HeisucaMotion.imagemFor(context), fadeInCurve: HeisucaMotion.padrao, client: client, imagePath: art, imageType: ImageType.art, fit: BoxFit.cover)
+                : Hero(tag: widget.heroTag!, child: OptimizedMediaImage(fadeInDuration: HeisucaMotion.imagemFor(context), fadeInCurve: HeisucaMotion.padrao, client: client, imagePath: art, imageType: ImageType.art, fit: BoxFit.cover)))),
             Positioned(bottom: 8, left: 24, right: 24, child: Column(mainAxisSize: MainAxisSize.min, children: [
               SizedBox(key: _logoAnchor, height: 104, width: size.width - 48),
               if (meta != null) Padding(padding: const EdgeInsets.only(top: 14), child: Text(meta, textAlign: TextAlign.center,
@@ -483,8 +483,20 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
           expandedLogoHeight: 104, expandedTitleSize: 32, titleFontFamily: HeisucaTheme.fonteTitulo,
           belowHeaderAction: _docked ? _playButton(c) : null,
           onSearch: () => cgflixOpenSearch(context),
-          onHome: () => _scroll.animateTo(0, duration: HeisucaMotion.durationFor(context), curve: HeisucaMotion.curve),
-          onTitleTap: () => _scroll.animateTo(0, duration: HeisucaMotion.durationFor(context), curve: HeisucaMotion.curve),
+          onHome: () {
+            if (HeisucaMotion.reduced(context)) {
+              _scroll.jumpTo(0);
+            } else {
+              _scroll.animateTo(0, duration: HeisucaMotion.tela, curve: HeisucaMotion.entra);
+            }
+          },
+          onTitleTap: () {
+            if (HeisucaMotion.reduced(context)) {
+              _scroll.jumpTo(0);
+            } else {
+              _scroll.animateTo(0, duration: HeisucaMotion.tela, curve: HeisucaMotion.entra);
+            }
+          },
           onBack: () => Navigator.pop(context),
           onDockedChanged: (value) { if (mounted && value != _docked) setState(() => _docked = value); },
         )),
@@ -545,7 +557,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
     child: Column(children: [
     ClipRRect(borderRadius: BorderRadius.circular(16), child: SizedBox(width: 76, height: 76, child: ColoredBox(color: c.line,
       child: role.thumbPath != null && client != null
-        ? OptimizedMediaImage(client: client, imagePath: role.thumbPath!, imageType: ImageType.thumb, fit: BoxFit.cover)
+        ? OptimizedMediaImage(fadeInDuration: HeisucaMotion.imagemFor(context), fadeInCurve: HeisucaMotion.padrao, client: client, imagePath: role.thumbPath!, imageType: ImageType.thumb, fit: BoxFit.cover)
         : Align(alignment: Alignment.bottomCenter, child: Icon(Icons.person_rounded, size: 60, color: c.text2.withValues(alpha: .45)))))),
     const SizedBox(height: 6),
     Text(role.tag, textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis,
@@ -570,7 +582,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
           child: ClipRRect(borderRadius: BorderRadius.circular(HeisucaTitleMetrics.cardRadius), child: AspectRatio(aspectRatio: 16 / 9,
             child: Stack(fit: StackFit.expand, children: [
               ColoredBox(color: c.line),
-              if (!hidden && ep.thumbPath != null && client != null) OptimizedMediaImage(client: client,
+              if (!hidden && ep.thumbPath != null && client != null) OptimizedMediaImage(fadeInDuration: HeisucaMotion.imagemFor(context), fadeInCurve: HeisucaMotion.padrao, client: client,
                 imagePath: ep.thumbPath!, imageType: ImageType.thumb, fit: BoxFit.cover)
               else Center(child: Icon(Icons.play_circle_outline_rounded, size: 34, color: c.text2)),
               if (ep.isWatched) const Positioned(top: 6, right: 6, child: CircleAvatar(radius: 10, backgroundColor: Colors.black54,
@@ -587,7 +599,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
       ])));
   }
 
-  Future<void> _allEpisodes() => showModalBottomSheet<void>(sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: context, isScrollControlled: true, showDragHandle: true,
+  Future<void> _allEpisodes() => heisucaFolhaCelular<void>(sheetAnimationStyle: HeisucaMotion.folhaCelular(context), context: context, isScrollControlled: true, showDragHandle: true,
     builder: (ctx) => SafeArea(child: SizedBox(height: MediaQuery.sizeOf(ctx).height * .8, child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         HeisucaSheetHeader(_season != null ? heisucaSeasonLabel(_season!) : 'Episódios',
@@ -605,7 +617,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
                 child: Padding(padding: const EdgeInsets.all(8), child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   ClipRRect(borderRadius: BorderRadius.circular(10), child: SizedBox(width: 128, height: 72, child: Stack(fit: StackFit.expand, children: [
                     ColoredBox(color: scheme.onSurface.withValues(alpha: .08)),
-                    if (!hidden && ep.thumbPath != null && client != null) OptimizedMediaImage(client: client,
+                    if (!hidden && ep.thumbPath != null && client != null) OptimizedMediaImage(fadeInDuration: HeisucaMotion.imagemFor(context), fadeInCurve: HeisucaMotion.padrao, client: client,
                       imagePath: ep.thumbPath!, imageType: ImageType.thumb, fit: BoxFit.cover),
                     if (ep.isWatched) const Positioned(top: 4, right: 4, child: Icon(Icons.check_circle_rounded, size: 18, color: Colors.white)),
                   ]))),
@@ -671,7 +683,7 @@ class _HeisucaTitleSheetState extends State<HeisucaTitleSheet> {
               ClipRRect(borderRadius: BorderRadius.circular(HeisucaTitleMetrics.cardRadius), child: AspectRatio(aspectRatio: 16 / 9,
                 child: Stack(fit: StackFit.expand, children: [
                   ColoredBox(color: c.line),
-                  if (thumb != null && client != null) OptimizedMediaImage(client: client, imagePath: thumb, imageType: ImageType.thumb, fit: BoxFit.cover),
+                  if (thumb != null && client != null) OptimizedMediaImage(fadeInDuration: HeisucaMotion.imagemFor(context), fadeInCurve: HeisucaMotion.padrao, client: client, imagePath: thumb, imageType: ImageType.thumb, fit: BoxFit.cover),
                   const Center(child: Icon(Icons.play_circle_fill_rounded, size: 36, color: Colors.white70)),
                 ]))),
               const SizedBox(height: 6),

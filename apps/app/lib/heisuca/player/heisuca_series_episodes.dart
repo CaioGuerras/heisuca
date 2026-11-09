@@ -17,7 +17,7 @@ String heisucaPlayerEpisodeLine(MediaItem item) => [
 ].join(' · ');
 
 Future<MediaItem?> showHeisucaSeriesEpisodes(BuildContext context, MediaItem current) {
-  return showModalBottomSheet<MediaItem>(sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: context, isScrollControlled: true,
+  return heisucaFolhaCelular<MediaItem>(sheetAnimationStyle: HeisucaMotion.folhaCelular(context), context: context, isScrollControlled: true,
     backgroundColor: const Color(0xff141018), showDragHandle: true,
     builder: (_) => HeisucaSeriesEpisodes(current: current));
 }
@@ -119,7 +119,7 @@ class _HeisucaSeriesEpisodesState extends State<HeisucaSeriesEpisodes> with Tick
               onTap: current ? null : () => Navigator.pop(context, item),
               leading: SizedBox(width: 104, height: 64, child: ClipRRect(borderRadius: BorderRadius.circular(8),
                 child: hidden ? const ColoredBox(color: Colors.black26, child: Icon(Icons.play_arrow_rounded, color: Colors.white54))
-                  : OptimizedMediaImage(client: _client, imagePath: item.thumbPath, imageType: ImageType.thumb, fit: BoxFit.cover))),
+                  : OptimizedMediaImage(fadeInDuration: HeisucaMotion.imagemFor(context), fadeInCurve: HeisucaMotion.padrao, client: _client, imagePath: item.thumbPath, imageType: ImageType.thumb, fit: BoxFit.cover))),
               title: Text(hidden ? 'Episódio ${item.index ?? ""}' : '${item.index ?? ""}. ${item.title ?? "Episódio"}', maxLines: 2,
                 overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white)),
               subtitle: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [

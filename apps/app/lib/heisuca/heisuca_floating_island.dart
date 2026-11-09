@@ -75,11 +75,7 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
       _springController.value = target;
       return;
     }
-    const springDesc = SpringDescription(
-      mass: 1.0,
-      stiffness: 180.0,
-      damping: 20.0,
-    );
+    final springDesc = HeisucaMotion.leve;
     final springSimulation = SpringSimulation(
       springDesc,
       _currentPosition,
@@ -261,9 +257,9 @@ class _IslandButtonState extends State<_IslandButton> {
         label: widget.label,
         excludeSemantics: true,
         child: AnimatedScale(
-          scale: _scale,
-          duration: const Duration(milliseconds: 140),
-          curve: const ElasticOutCurve(0.9),
+          scale: HeisucaMotion.reduced(context) ? 1 : _scale,
+          duration: HeisucaMotion.toque,
+          curve: HeisucaMotion.entra,
           child: Center(
             child: widget.avatar ?? Icon(
               widget.icon,

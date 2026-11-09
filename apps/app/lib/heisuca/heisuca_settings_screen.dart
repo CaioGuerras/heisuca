@@ -118,7 +118,8 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
     await DevicePerformance.getInstance();
     if (!mounted) return;
     await showDialog<void>(context: context,
-      animationStyle: AnimationStyle(duration: HeisucaMotion.durationFor(context), curve: HeisucaMotion.curve),
+      animationStyle: AnimationStyle(duration: HeisucaMotion.reduced(context) ? HeisucaMotion.curto : HeisucaMotion.medio,
+          reverseDuration: HeisucaMotion.curto, curve: HeisucaMotion.padrao, reverseCurve: HeisucaMotion.padrao),
       builder: (_) => HeisucaDeviceStatusDialog(
       profile: p, effectsPreference: effectsLabel,
       exoPlayer: settingsNow?.read(settings.SettingsService.useExoPlayer) == true,

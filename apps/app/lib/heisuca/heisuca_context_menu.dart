@@ -2,13 +2,14 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
-
 import '../cgflix/cgflix_palette.dart';
 import '../media/media_item.dart';
 import '../media/media_kind.dart';
 import 'heisuca_design_system.dart';
+import 'heisuca_motion.dart';
 import 'heisuca_state_store.dart';
 import 'heisuca_theme.dart';
+
 
 /// Menu de Toque Longo 500ms Flagship Heisuca (Esboço 04B).
 /// Segurar 500ms dispara Haptic Feedback (mediumImpact), eleva o card e
@@ -49,15 +50,17 @@ class HeisucaContextMenu extends StatelessWidget {
       barrierDismissible: true,
       barrierLabel: 'Fechar menu',
       barrierColor: Colors.black.withValues(alpha: 0.65),
-      transitionDuration: const Duration(milliseconds: 220),
+      transitionDuration: HeisucaMotion.curto,
       transitionBuilder: (ctx, anim1, anim2, child) {
+        final fade = anim1.drive(CurveTween(curve: HeisucaMotion.padrao));
+        if (HeisucaMotion.reduced(ctx)) return FadeTransition(opacity: fade, child: child);
         return BackdropFilter(
           filter: ui.ImageFilter.blur(sigmaX: 8.0 * anim1.value, sigmaY: 8.0 * anim1.value),
           child: FadeTransition(
-            opacity: anim1,
+            opacity: fade,
             child: ScaleTransition(
               scale: Tween<double>(begin: 0.94, end: 1.0).animate(
-                CurvedAnimation(parent: anim1, curve: Curves.easeOutBack),
+                CurvedAnimation(parent: anim1, curve: HeisucaMotion.entra),
               ),
               child: child,
             ),

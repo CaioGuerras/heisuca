@@ -1,12 +1,14 @@
 import 'dart:async';
-
 import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../cgflix/cgflix_palette.dart';
-import 'heisuca_logo.dart';
 import '../services/device_performance.dart';
+import '../utils/platform_detector.dart';
+import 'heisuca_logo.dart';
+import 'heisuca_motion.dart';
 import 'heisuca_theme.dart';
+
 
 /// Tela de Abertura Única Heisuca (炳素華)
 /// Filosofia: "Nada entre você e o filme."
@@ -50,26 +52,26 @@ class _HeisucaOpeningSplashState extends State<HeisucaOpeningSplash> with Single
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: widget.duration);
+    _controller = AnimationController(vsync: this, duration: widget.duration, animationBehavior: PlatformDetector.isTV() ? AnimationBehavior.normal : AnimationBehavior.preserve);
 
     _haloFade = CurvedAnimation(
       parent: _controller,
-      curve: const Interval(0.0, 0.40, curve: Curves.easeOut),
+      curve: Interval(0.0, 0.40, curve: PlatformDetector.isTV() ? Curves.easeOut : HeisucaMotion.padrao),
     );
 
     _sealScale = CurvedAnimation(
       parent: _controller,
-      curve: const Interval(0.15, 0.65, curve: Curves.easeOutBack),
+      curve: Interval(0.15, 0.65, curve: PlatformDetector.isTV() ? Curves.easeOutBack : HeisucaMotion.entra),
     );
 
     _textFade = CurvedAnimation(
       parent: _controller,
-      curve: const Interval(0.45, 0.80, curve: Curves.easeOutCubic),
+      curve: Interval(0.45, 0.80, curve: PlatformDetector.isTV() ? Curves.easeOutCubic : HeisucaMotion.padrao),
     );
 
     _sloganFade = CurvedAnimation(
       parent: _controller,
-      curve: const Interval(0.65, 0.95, curve: Curves.easeOut),
+      curve: Interval(0.65, 0.95, curve: PlatformDetector.isTV() ? Curves.easeOut : HeisucaMotion.padrao),
     );
   }
 
@@ -80,7 +82,13 @@ class _HeisucaOpeningSplashState extends State<HeisucaOpeningSplash> with Single
     if (_started) return;
     _started = true;
     if (DevicePerformance.isReduced || MediaQuery.disableAnimationsOf(context)) {
-      _controller.duration = Duration.zero;
+      if (PlatformDetector.isTV()) {
+        _controller.duration = Duration.zero;
+      } else {
+        _controller.duration = HeisucaMotion.curto;
+        _haloFade = _textFade = _sloganFade = _controller.drive(CurveTween(curve: HeisucaMotion.padrao));
+        _sealScale = const AlwaysStoppedAnimation(1);
+      }
       _controller.forward().then((_) {
         if (!mounted) return;
         widget.onAnimationFinished();

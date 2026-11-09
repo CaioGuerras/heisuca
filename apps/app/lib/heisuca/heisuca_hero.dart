@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'heisuca_theme.dart';
 import 'heisuca_design_system.dart';
+import 'heisuca_motion.dart';
+import 'heisuca_theme.dart';
 
 /// Hero Card Cinematográfico do Heisuca
 /// Filosofia: "Nada entre você e o filme."
@@ -79,14 +80,17 @@ class HeisucaHero extends StatelessWidget {
               children: [
                 // ClearLogo com animação de subida suave
                 AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 450),
+                  duration: HeisucaMotion.reduced(context) ? HeisucaMotion.curto : HeisucaMotion.grande,
+                  reverseDuration: HeisucaMotion.curto,
+                  switchInCurve: HeisucaMotion.padrao,
+                  switchOutCurve: HeisucaMotion.padrao,
                   transitionBuilder: (child, animation) {
                     final slideAnimation = Tween<Offset>(
-                      begin: const Offset(0, 0.08),
+                      begin: HeisucaMotion.reduced(context) ? Offset.zero : const Offset(0, 0.08),
                       end: Offset.zero,
                     ).animate(CurvedAnimation(
                       parent: animation,
-                      curve: const Cubic(0.2, 0, 0, 1),
+                      curve: HeisucaMotion.entra,
                     ));
                     return FadeTransition(
                       opacity: animation,

@@ -10,7 +10,7 @@ class HeisucaSeerrSheet extends StatelessWidget {
   final int? year;
 
   static Future<void> show(BuildContext context, {required String title, int? year}) =>
-    showModalBottomSheet<void>(sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: context, isScrollControlled: true, useSafeArea: true,
+    heisucaFolhaCelular<void>(sheetAnimationStyle: HeisucaMotion.folhaCelular(context), context: context, isScrollControlled: true, useSafeArea: true,
       builder: (_) => HeisucaSeerrSheet(title: title, year: year));
 
   @override

@@ -212,7 +212,8 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
     return Scaffold(
       backgroundColor: pageColor,
       body: AnimatedContainer(
-        duration: const Duration(milliseconds: 650),
+        duration: HeisucaMotion.reduced(context) ? HeisucaMotion.curto : HeisucaMotion.grande,
+        curve: HeisucaMotion.padrao,
         color: pageColor,
         child: Stack(
         children: [
@@ -238,7 +239,13 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
             item: _activeHeroItem,
             client: _activeHeroItem == null ? null : cgflixClientFor(context, _activeHeroItem!),
             onSearch: () => cgflixOpenSearch(context),
-            onHome: () => _scrollController.animateTo(0, duration: const Duration(milliseconds: 350), curve: Curves.easeOutCubic),
+            onHome: () {
+              if (HeisucaMotion.reduced(context)) {
+                _scrollController.jumpTo(0);
+              } else {
+                _scrollController.animateTo(0, duration: HeisucaMotion.tela, curve: HeisucaMotion.entra);
+              }
+            },
             onDockedChanged: (docked) { if (mounted && docked != _heroDocked) setState(() => _heroDocked = docked); },
           )),
         ],
@@ -447,12 +454,15 @@ class _HeisucaHeroState extends State<_HeisucaHero> {
             HeisucaArtworkMask(
               key: const ValueKey('heisuca-hero-mask'),
               child: HeisucaParallax(controller: widget.scrollController, child: AnimatedSwitcher(
-                duration: HeisucaMotion.durationFor(context),
-                child: OptimizedMediaImage(
+                duration: HeisucaMotion.reduced(context) ? HeisucaMotion.curto : HeisucaMotion.medio,
+                reverseDuration: HeisucaMotion.curto,
+                switchInCurve: HeisucaMotion.padrao,
+                switchOutCurve: HeisucaMotion.padrao,
+                child: OptimizedMediaImage(fadeInDuration: HeisucaMotion.imagemFor(context), fadeInCurve: HeisucaMotion.padrao,
                   key: ValueKey('hero_art_${item.globalKey}'), client: client,
                   imagePath: item.artPath ?? (artCandidates.isEmpty ? null : artCandidates.first),
                   width: screenWidth, height: widget.height, imageType: ImageType.art,
-                  alignment: const Alignment(0, -0.64), fadeInDuration: HeisucaMotion.durationFor(context),
+                  alignment: const Alignment(0, -0.64),
                 ),
               )),
             ),
@@ -623,9 +633,10 @@ class _HeroInformationBlock extends StatelessWidget {
                 behavior: HitTestBehavior.opaque,
                 onTap: () => onDotSelected(index),
                 child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
+                  duration: HeisucaMotion.reduced(context) ? HeisucaMotion.curto : HeisucaMotion.medio,
+                  curve: HeisucaMotion.padrao,
                   margin: const EdgeInsets.symmetric(horizontal: 3.5),
-                  width: isSelected ? 18.0 : 6.0,
+                  width: isSelected && !HeisucaMotion.reduced(context) ? 18.0 : 6.0,
                   height: 4.5,
                   decoration: BoxDecoration(
                     color: isSelected ? palette.accent : (isLight ? Colors.black26 : Colors.white24),
@@ -1022,7 +1033,7 @@ class _UpcomingRow extends StatelessWidget {
       if (matched != null) { unawaited(HeisucaTitleSheet.show(context, matched)); return; }
     } catch (_) { /* Oferece o fluxo real de pedidos se o item não puder ser aberto. */ }
     if (!context.mounted) return;
-    await showModalBottomSheet<void>(sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: context, isScrollControlled: true, useSafeArea: true,
+    await heisucaFolhaCelular<void>(sheetAnimationStyle: HeisucaMotion.folhaCelular(context), context: context, isScrollControlled: true, useSafeArea: true,
       builder: (_) => SizedBox(height: MediaQuery.sizeOf(context).height * 0.72,
         child: SingleChildScrollView(padding: const EdgeInsets.all(20), child: Column(
           crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -1048,7 +1059,7 @@ class _UpcomingRow extends StatelessWidget {
             return SizedBox(width: 80, child: InkWell(onTap: () => _open(context, item), child: Column(
               crossAxisAlignment: CrossAxisAlignment.start, children: [
                 ClipRRect(borderRadius: BorderRadius.circular(9), child: Stack(children: [
-                  OptimizedMediaImage(client: repository.upcomingImageClient, imagePath: item.imagePath, width: 80, height: 120),
+                  OptimizedMediaImage(fadeInDuration: HeisucaMotion.imagemFor(context), fadeInCurve: HeisucaMotion.padrao, client: repository.upcomingImageClient, imagePath: item.imagePath, width: 80, height: 120),
                   Positioned(top: 4, left: 4, right: 4, child: DecoratedBox(
                     decoration: BoxDecoration(color: context.cgflix.accent, borderRadius: BorderRadius.circular(8)),
                     child: Padding(padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),

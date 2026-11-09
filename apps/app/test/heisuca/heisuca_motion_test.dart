@@ -59,7 +59,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
   double alpha(WidgetTester tester, Key key) => tester.widgetList<FadeTransition>(
-    find.ancestor(of: find.byKey(key), matching: find.byType(FadeTransition)))
+    find.ancestor(of: find.byKey(key, skipOffstage: false), matching: find.byType(FadeTransition, skipOffstage: false)))
       .fold<double>(1, (value, fade) => value * fade.opacity.value);
   testWidgets('abas têm saída, passagem e entrada visíveis sem eixo horizontal', (tester) async {
     tester.view.physicalSize = const Size(412, 914); tester.view.devicePixelRatio = 1;
@@ -75,11 +75,12 @@ void main() {
     expect(alpha(tester, first), allOf(greaterThan(0), lessThan(1)));
     expect(alpha(tester, second), 0);
     await tester.pump(const Duration(milliseconds: 30));
-    expect(alpha(tester, first), 0); expect(alpha(tester, second), closeTo(0, .001));
+    expect(alpha(tester, first), allOf(greaterThan(0), lessThan(1)));
+    expect(alpha(tester, second), closeTo(0, .001));
     await tester.pump(const Duration(milliseconds: 90));
     expect(alpha(tester, second), allOf(greaterThan(0), lessThan(1)));
     expect(tester.getCenter(find.byKey(second)).dx, closeTo(206, .01));
-    expect(tester.getRect(find.byKey(second)).width, lessThan(412));
+    expect(tester.getRect(find.byKey(second)).width, 412);
     await tester.pumpAndSettle(); expect(alpha(tester, second), 1);
   });
   testWidgets('toques rápidos não fazem uma aba ainda invisível piscar inteira', (tester) async {
@@ -101,7 +102,7 @@ void main() {
     await tester.pumpAndSettle(); expect(alpha(tester, first), 1);
   });
   for (final system in [false, true]) {
-    testWidgets('abas entram imediatamente com movimento reduzido (sistema: $system)', (tester) async {
+    testWidgets('abas usam fade curto com movimento reduzido (sistema: $system)', (tester) async {
       DevicePerformance.debugReset(autoReduced: !system);
       var index = 0; late StateSetter update;
       const target = ValueKey('quadro-final');
@@ -111,6 +112,10 @@ void main() {
           return HeisucaTabStack(index: index, children: const [SizedBox.expand(), SizedBox.expand(key: target)]);
         }))));
       update(() => index = 1); await tester.pump();
+      expect(alpha(tester, target), 0);
+      await tester.pump(const Duration(milliseconds: 90));
+      expect(alpha(tester, target), allOf(greaterThan(0), lessThan(1)));
+      await tester.pump(const Duration(milliseconds: 90));
       expect(alpha(tester, target), 1);
     });
   }

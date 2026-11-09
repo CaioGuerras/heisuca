@@ -1,11 +1,12 @@
 // Abertura do modo infantil (pesquisa_apps/marca/animacoes/kids.html, ≈ 3 s; ANIMACOES.md §2).
 // Ichigo = morangos, melancias e corações; Sorairo = nuvens, estrelas e aviõezinhos. Mesmo esqueleto.
-// Com "reduzir movimento" do sistema, só opacidade (1,6 s), como pede a §4 do documento.
+// Com movimento reduzido, apenas fade curto.
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../cgflix/cgflix_palette.dart';
 import '../../services/device_performance.dart';
+import '../heisuca_motion.dart';
 import 'heisuca_kids_photo.dart';
 
 /// (x %, y %, tamanho em vmin, giro em graus, atraso em ms, figura Ichigo, figura Sorairo) — copiado do kids.html.
@@ -30,14 +31,14 @@ class HeisucaKidsOpening extends StatefulWidget {
 
   /// Total da animação (o fluxo usa como tempo mínimo da cobertura enquanto troca a sessão).
   static Duration durationFor(BuildContext context) =>
-      (DevicePerformance.isReduced || MediaQuery.disableAnimationsOf(context)) ? const Duration(milliseconds: 600) : const Duration(milliseconds: _hold + _exit);
+      (DevicePerformance.isReduced || MediaQuery.disableAnimationsOf(context)) ? HeisucaMotion.curto : const Duration(milliseconds: _hold + _exit);
 
   @override
   State<HeisucaKidsOpening> createState() => _HeisucaKidsOpeningState();
 }
 
 class _HeisucaKidsOpeningState extends State<HeisucaKidsOpening> with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(vsync: this);
+  late final AnimationController _c = AnimationController(vsync: this, animationBehavior: AnimationBehavior.preserve);
   bool _reduced = false;
 
   @override
@@ -53,7 +54,7 @@ class _HeisucaKidsOpeningState extends State<HeisucaKidsOpening> with SingleTick
   void dispose() { _c.dispose(); super.dispose(); }
 
   /// Progresso 0–1 de uma janela [start, end] em ms da linha do tempo.
-  double _w(double ms, int start, int end, [Curve curve = Curves.easeOutCubic]) =>
+  double _w(double ms, int start, int end, [Curve curve = HeisucaMotion.entra]) =>
       curve.transform(((ms - start) / (end - start)).clamp(0.0, 1.0));
 
   @override
@@ -66,10 +67,10 @@ class _HeisucaKidsOpeningState extends State<HeisucaKidsOpening> with SingleTick
       return AnimatedBuilder(animation: _c, builder: (context, _) {
         final ms = _c.value * (_c.duration!.inMilliseconds);
         if (_reduced) {
-          final o = ms < 120 ? ms / 120 : ms > 480 && widget.onFinished != null ? (600 - ms) / 120 : 1.0;
+          final o = HeisucaMotion.padrao.transform(_c.value);
           return Opacity(opacity: o.clamp(0, 1), child: _center(palette, vmin, name, 1, 1, 1));
         }
-        final exit = widget.onFinished == null ? 0.0 : _w(ms, _hold, _hold + _exit, Curves.easeInCubic);
+        final exit = widget.onFinished == null ? 0.0 : _w(ms, _hold, _hold + _exit, HeisucaMotion.sai);
         return Stack(children: [
           for (final f in _figures) () {
             final (x, y, size, rot, delay, a, b) = f;
@@ -80,19 +81,20 @@ class _HeisucaKidsOpeningState extends State<HeisucaKidsOpening> with SingleTick
             final py = y / 100 * box.maxHeight - (1 - fall) * 30 * vmin + float + dy * exit * 40 * vmin;
             final t = size * vmin;
             return Positioned(left: px - t / 2, top: py - t / 2, width: t, height: t, child: Opacity(
-              opacity: (fall * (1 - exit)).clamp(0.0, 1.0),
+              opacity: (_w(ms, delay, delay + 640, HeisucaMotion.padrao) *
+                  (1 - (widget.onFinished == null ? 0 : _w(ms, _hold, _hold + _exit, HeisucaMotion.padrao)))).clamp(0.0, 1.0),
               child: Transform.rotate(angle: (rot + (1 - fall) * -40) * math.pi / 180,
                 child: SvgPicture.asset('assets/heisuca/kids/${ichigo ? a : b}.svg'))));
           }(),
-          _center(palette, vmin, name, _w(ms, 520, 1000, _bounce), _w(ms, 760, 1260), _w(ms, 1100, 1500), exit: exit),
+          _center(palette, vmin, name, _w(ms, 520, 1000, _bounce), _w(ms, 760, 1260, HeisucaMotion.padrao), _w(ms, 1100, 1500, HeisucaMotion.padrao), exit: exit, fade: widget.onFinished == null ? 0 : _w(ms, _hold, _hold + _exit, HeisucaMotion.padrao)),
         ]);
       });
     }));
   }
 
-  Widget _center(CgflixPalette p, double vmin, String name, double selo, double hi, double sub, {double exit = 0}) {
+  Widget _center(CgflixPalette p, double vmin, String name, double selo, double hi, double sub, {double exit = 0, double fade = 0}) {
     final text = p.onGlass;
-    return Center(child: Opacity(opacity: 1 - exit, child: Transform.scale(scale: 1 - exit * .12, child: Column(
+    return Center(child: Opacity(opacity: 1 - fade, child: Transform.scale(scale: 1 - exit * .12, child: Column(
       mainAxisSize: MainAxisSize.min, children: [
         Transform.scale(scale: selo, child: SizedBox.square(dimension: 22 * vmin,
           child: HeisucaKidsPhoto(uri: widget.photo, size: 22 * vmin,

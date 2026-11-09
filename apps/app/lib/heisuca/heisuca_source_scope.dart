@@ -154,7 +154,7 @@ Future<void> heisucaAddSource(BuildContext context) async {
   }
   var chosen = news.length == 1 ? news.single : null;
   if (chosen == null && navigator.mounted && context.mounted) {
-    chosen = await showModalBottomSheet<String>(sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: navigator.context, showDragHandle: true,
+    chosen = await heisucaFolhaCelular<String>(sheetAnimationStyle: HeisucaMotion.folhaCelular(context), context: navigator.context, showDragHandle: true,
       builder: (sheet) => HeisucaSourceSheet(title: 'Qual fonte você quer ver?', children: [
         for (final id in news) HeisucaSourceRow(title: name(id),
           subtitle: heisucaBackendLabel(servers.getClientForServer(ServerId(id))?.backend.name ?? 'Fonte'),
@@ -171,7 +171,7 @@ Future<void> heisucaChooseSource(BuildContext context) async {
   final source = context.getInheritedWidgetOfExactType<_SourceSelection>();
   final servers = context.read<MultiServerProvider?>();
   if (source == null || servers == null) return;
-  await showModalBottomSheet<void>(sheetAnimationStyle: HeisucaMotion.sheetStyle(context),
+  await heisucaFolhaCelular<void>(sheetAnimationStyle: HeisucaMotion.folhaCelular(context),
     context: context, showDragHandle: true, isScrollControlled: true, useSafeArea: true,
     builder: (sheet) => ConstrainedBox(constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(sheet).height * .85),
       child: ListenableBuilder(listenable: servers, builder: (_, _) => HeisucaSourceSheet(

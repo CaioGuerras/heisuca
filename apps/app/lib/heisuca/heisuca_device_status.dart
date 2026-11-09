@@ -32,10 +32,14 @@ class _HeisucaDeviceStatusDialogState extends State<HeisucaDeviceStatusDialog> {
   HeisucaFrameMeasurement get _measurement => widget.frameMeasurement ?? HeisucaFrameMeasurement.instance;
 
   Widget _detailsTransition(BuildContext context, Widget child) {
-    if (HeisucaMotion.reduced(context)) return child;
+    if (HeisucaMotion.reduced(context)) {
+      return AnimatedSwitcher(duration: HeisucaMotion.curto,
+        switchInCurve: HeisucaMotion.padrao, switchOutCurve: HeisucaMotion.padrao,
+        child: KeyedSubtree(key: ValueKey(_details), child: child));
+    }
     return AnimatedSize(
-      duration: HeisucaMotion.duration,
-      curve: HeisucaMotion.curve,
+      duration: HeisucaMotion.medio,
+      curve: HeisucaMotion.entra,
       alignment: Alignment.topCenter,
       child: child,
     );

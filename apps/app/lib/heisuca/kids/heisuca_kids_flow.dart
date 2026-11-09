@@ -7,7 +7,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import '../../cgflix/cgflix_theme.dart';
-import 'heisuca_kids_photo.dart';
 import '../../connection/connection.dart';
 import '../../focus/focusable_text_field.dart';
 import '../../profiles/active_profile_provider.dart';
@@ -19,10 +18,12 @@ import '../../providers/multi_server_provider.dart';
 import '../../screens/profile/pin_entry_dialog.dart';
 import '../../screens/settings/connection_persistence.dart';
 import '../../services/jellyfin_client.dart';
+import '../heisuca_motion.dart';
+import '../heisuca_security.dart';
 import 'heisuca_kids.dart';
 import 'heisuca_kids_identity.dart';
-import '../heisuca_security.dart';
 import 'heisuca_kids_opening.dart';
+import 'heisuca_kids_photo.dart';
 
 /// Modo infantil ativo agora? (o menu, a fonte e os pedidos se escondem por isto).
 bool heisucaKidsActive(BuildContext context, {bool listen = true}) {
@@ -165,8 +166,13 @@ class _HeisucaKidsSetupScreenState extends State<HeisucaKidsSetupScreen> {
 
   void _go(int step) {
     setState(() => _step = step);
-    _pages.animateToPage(step, duration: const Duration(milliseconds: 320), curve: Curves.easeOutCubic);
+    if (HeisucaMotion.reduced(context)) return;
+    _pages.animateToPage(step, duration: HeisucaMotion.tela, curve: HeisucaMotion.entra);
   }
+
+  Widget _stepPages(List<Widget> children) => HeisucaMotion.reduced(context)
+      ? HeisucaTabStack(index: _step, children: children)
+      : PageView(controller: _pages, physics: const NeverScrollableScrollPhysics(), children: children);
 
   Future<void> _finish() async {
     if (_finishing) return;
@@ -213,7 +219,7 @@ class _HeisucaKidsSetupScreenState extends State<HeisucaKidsSetupScreen> {
       appBar: AppBar(backgroundColor: Colors.transparent, foregroundColor: palette.onGlass, elevation: 0,
         title: Text('Modo infantil · ${_step + 1} de 3', style: TextStyle(color: palette.onGlass, fontSize: 15))),
       body: SafeArea(child: Column(children: [
-        Expanded(child: PageView(controller: _pages, physics: const NeverScrollableScrollPhysics(), children: [
+        Expanded(child: _stepPages([
           page(title: 'O Heisuca vira um app para crianças',
             body: 'O servidor passa a mostrar só desenhos e filmes de família, até a classificação que você escolher. '
                 'Pedidos, downloads, configurações e troca de perfil ficam escondidos.\n\n'

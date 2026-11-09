@@ -63,6 +63,7 @@ class OptimizedMediaImage extends StatelessWidget {
   final Widget Function(BuildContext, String)? placeholder;
   final Widget Function(BuildContext, String, dynamic)? errorWidget;
   final Duration fadeInDuration;
+  final Curve? fadeInCurve;
   final Alignment alignment;
   final IconData? fallbackIcon;
   final ImageType imageType;
@@ -92,6 +93,7 @@ class OptimizedMediaImage extends StatelessWidget {
     this.placeholder,
     this.errorWidget,
     this.fadeInDuration = const Duration(milliseconds: 300),
+    this.fadeInCurve,
     this.alignment = Alignment.center,
     this.fallbackIcon,
     this.imageType = ImageType.poster,
@@ -113,6 +115,7 @@ class OptimizedMediaImage extends StatelessWidget {
     Widget Function(BuildContext, String)? placeholder,
     Widget Function(BuildContext, String, dynamic)? errorWidget,
     Duration fadeInDuration,
+    Curve? fadeInCurve,
     Alignment alignment,
     IconData? fallbackIcon,
     ImageType imageType,
@@ -336,7 +339,7 @@ class OptimizedMediaImage extends StatelessWidget {
     );
 
     // Reduced tier: swap in directly, no fade machinery at all.
-    if (DevicePerformance.isReduced) {
+    if (DevicePerformance.isReduced && fadeInCurve == null) {
       return _withArtworkDim(
         artworkDim,
         (tint) => Image(
@@ -367,6 +370,7 @@ class OptimizedMediaImage extends StatelessWidget {
       filterQuality: _filterQuality(context),
       alignment: alignment,
       duration: fadeInDuration,
+      curve: fadeInCurve,
       placeholderBuilder: (context) => _buildPlaceholder(context, imageUrl),
       errorBuilder: _networkErrorBuilder(imageUrl),
       artworkDim: artworkDim,
@@ -561,6 +565,7 @@ class _FadeInNetworkImage extends StatefulWidget {
     required this.filterQuality,
     required this.alignment,
     required this.duration,
+    this.curve,
     required this.placeholderBuilder,
     required this.errorBuilder,
     required this.artworkDim,
@@ -573,6 +578,7 @@ class _FadeInNetworkImage extends StatefulWidget {
   final FilterQuality filterQuality;
   final Alignment alignment;
   final Duration duration;
+  final Curve? curve;
   final WidgetBuilder placeholderBuilder;
   final ImageErrorWidgetBuilder errorBuilder;
   final Animation<double>? artworkDim;
@@ -584,13 +590,15 @@ class _FadeInNetworkImage extends StatefulWidget {
 class _FadeInNetworkImageState extends State<_FadeInNetworkImage> with SingleTickerProviderStateMixin {
   // Starts fully visible so synchronously-available (memory-cached) images
   // paint immediately; dropped to 0 only once we know the load is async.
-  late final AnimationController _opacity = AnimationController(vsync: this, duration: widget.duration, value: 1);
+  late final AnimationController _opacity = AnimationController(vsync: this, duration: widget.duration, value: 1,
+      animationBehavior: widget.curve == null ? AnimationBehavior.normal : AnimationBehavior.preserve);
   bool _sawFirstFrame = false;
   bool _placeholderVisible = false;
 
   @override
   void didUpdateWidget(covariant _FadeInNetworkImage oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (widget.curve != null) _opacity.duration = widget.duration;
     if (widget.image != oldWidget.image) {
       // New stream: rearm so an async swap fades again (a memory-cached swap
       // stays at full opacity via the wasSynchronouslyLoaded path).
@@ -628,7 +636,7 @@ class _FadeInNetworkImageState extends State<_FadeInNetworkImage> with SingleTic
         alignment: widget.alignment,
         color: tint,
         colorBlendMode: tint == null ? null : BlendMode.srcATop,
-        opacity: _opacity,
+        opacity: widget.curve == null ? _opacity : _opacity.drive(CurveTween(curve: widget.curve!)),
         errorBuilder: widget.errorBuilder,
         frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
           if (wasSynchronouslyLoaded) return child;

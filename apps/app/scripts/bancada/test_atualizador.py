@@ -4,8 +4,10 @@ import tempfile
 from pathlib import Path
 import unittest
 import subprocess
+import xml.etree.ElementTree as ET
 from unittest.mock import patch
 from atualizador import montar_feed, confirmar_build, achar_rotulo, configuracoes_abertas, instalador_aberto, esperar_dispositivo
+from atualizador import hierarquia, aguardar
 
 
 class AtualizadorBancadaTest(unittest.TestCase):
@@ -54,6 +56,20 @@ class AtualizadorBancadaTest(unittest.TestCase):
              patch('atualizador.time.monotonic', side_effect=[0, 0, 200]), patch('atualizador.time.sleep'):
             with self.assertRaises(AssertionError):
                 esperar_dispositivo()
+
+    def test_hierarquia_recupera_dump_em_arquivo_quando_pipes_nao_entregam_xml(self):
+        xml = '<?xml version="1.0"?><hierarchy><node text="Baixar"/></hierarchy>'
+        with patch('atualizador.adb', side_effect=['sem XML', 'sem XML', 'gravado', xml]) as comandos:
+            self.assertEqual(hierarquia(), xml)
+            self.assertEqual(comandos.call_args.args[:2], ('exec-out', 'cat'))
+
+    def test_espera_tolera_leitura_inicial_sem_hierarquia_mas_nao_aprova_timeout(self):
+        with patch('atualizador.time.sleep'):
+            tentativa = unittest.mock.Mock(side_effect=[ET.ParseError('sem XML'), True])
+            self.assertTrue(aguardar(tentativa))
+        with patch('atualizador.time.monotonic', side_effect=[0, 0, 200]), patch('atualizador.time.sleep'):
+            with self.assertRaises(AssertionError):
+                aguardar(lambda: False)
 
 
 if __name__ == "__main__":

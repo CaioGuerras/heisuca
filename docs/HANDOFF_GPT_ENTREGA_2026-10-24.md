@@ -112,6 +112,12 @@ O portão local passou; resultados remotos ou ainda em execução não são apro
   Oferta disponível fica em memória; uma reinicialização do processo dentro da janela diária não refaz a consulta.
   A revisão deve avaliar persistência da oferta ou exceção manual à janela, sem inventar alteração na regra diária nesta entrega.
 
+- Segunda bancada `42552007314` instalou a base, mas falhou lendo a hierarquia da primeira tela; ainda não comprova
+  o percurso do atualizador. Correção restrita ao roteiro: alternativa de XML em arquivo já usada pela bancada TV,
+  espera tolerante a leituras transitórias e diagnóstico de janela/atividade/erros Flutter em ambiente sintético.
+  TDD: dois casos falharam antes; **174 testes Python passaram** depois. Logs `/tmp/ultron-d-hierarquia-red.log`,
+  `/tmp/ultron-d-python-hierarquia-final.log`. App/APKs inalterados. Nova execução necessária; nenhuma aprovação de bancada.
+
 ## 08/11/2026 — TV, pacotes A/B/C (Ultron)
 
 Ordem: `handoffs/ORDEM_ULTRON_TV_2026-11-08.md` no CGFLIX. Base exata `fbb9998`.

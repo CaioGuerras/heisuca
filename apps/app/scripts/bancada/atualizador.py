@@ -72,17 +72,30 @@ def adb(*args):
 
 def hierarquia():
     for destino in ('/dev/tty', '/dev/stdout'):
-        resposta = adb('exec-out', 'uiautomator', 'dump', destino)
-        inicio, fim = resposta.find('<?xml'), resposta.rfind('</hierarchy>')
-        if inicio >= 0 and fim > inicio:
-            return resposta[inicio:fim + len('</hierarchy>')]
-    raise AssertionError('Não foi possível ler a hierarquia da TV.')
+        try:
+            resposta = adb('exec-out', 'uiautomator', 'dump', destino)
+            inicio, fim = resposta.find('<?xml'), resposta.rfind('</hierarchy>')
+            if inicio >= 0 and fim > inicio:
+                return resposta[inicio:fim + len('</hierarchy>')]
+        except (RuntimeError, subprocess.SubprocessError):
+            pass
+    # A bancada TV existente também precisa do arquivo em alguns emuladores.
+    destino = '/sdcard/heisuca_atualizador_dump.xml'
+    adb('shell', 'uiautomator', 'dump', destino)
+    resposta = adb('exec-out', 'cat', destino)
+    inicio, fim = resposta.find('<?xml'), resposta.rfind('</hierarchy>')
+    if inicio >= 0 and fim > inicio:
+        return resposta[inicio:fim + len('</hierarchy>')]
+    raise ET.ParseError('Não foi possível ler a hierarquia da TV.')
 
 
 def aguardar(condicao, segundos=60):
     limite = time.monotonic() + segundos
     while time.monotonic() < limite:
-        resultado = condicao()
+        try:
+            resultado = condicao()
+        except (ET.ParseError, RuntimeError, subprocess.SubprocessError):
+            resultado = False
         if resultado:
             return resultado
         time.sleep(.5)
@@ -102,7 +115,7 @@ def centro(dados):
 def acionar(rotulos):
     """Chega ao alvo com D-pad e só confirma quando o foco estiver no rótulo certo."""
     for tentativa in range(24):
-        xml = hierarquia()
+        xml = aguardar(hierarquia)
         alvo = next((no for r in rotulos if (no := achar_rotulo(xml, r)) is not None), None)
         nos = [n.attrib for n in ET.fromstring(xml).iter('node')]
         foco = next((n for n in nos if n.get('focused') == 'true' and centro(n) != (0, 0)), None)
@@ -177,7 +190,7 @@ def executar(args):
         esperar_dispositivo()
         adb('install', '-r', str(pasta / 'base.apk'))
         adb('shell', 'appops', 'set', PACOTE, 'REQUEST_INSTALL_PACKAGES', 'deny')
-        adb('shell', 'am', 'start', '-n', PACOTE + '/app.heisuca.MainActivity')
+        adb('shell', 'am', 'start', '-W', '-n', PACOTE + '/app.heisuca.MainActivity')
         aguardar(lambda: achar_rotulo(hierarquia(), 'Baixar'), 90)
         confirmar_build(adb('shell', 'dumpsys', 'package', PACOTE), args.build)
         registrar('Versão nova anunciada pelo feed HTTPS local')
@@ -216,6 +229,14 @@ def executar(args):
         (evidencias / 'relatorio.json').write_text(json.dumps({'estado': 'verde', 'etapas': etapas,
             'build_anterior': args.build, 'build_instalado': args.build + 1, 'reabertura_exigida': False}, ensure_ascii=False, indent=2))
     except Exception as erro:
+        # Ambiente sintético sem conta/acervo: preservar a causa, inclusive app que não abriu.
+        for nome, comando in [('janelas.txt', ['shell', 'dumpsys', 'window']),
+                              ('atividade.txt', ['shell', 'dumpsys', 'activity', 'activities']),
+                              ('flutter.txt', ['logcat', '-d', '-s', 'flutter:E', 'AndroidRuntime:E'])]:
+            try:
+                (evidencias / nome).write_text(adb(*comando)[-100000:])
+            except (RuntimeError, subprocess.SubprocessError):
+                pass
         (evidencias / 'relatorio.json').write_text(json.dumps({'estado': 'vermelho', 'etapas': etapas,
             'falha': type(erro).__name__ + ': ' + str(erro)}, ensure_ascii=False, indent=2))
         raise

@@ -26,6 +26,16 @@ Versão reservada para o pacote D: **TESTE 2.0.34+42**; applicationIds preservad
 Download/cache/cancelamento; instalador Kotlin e variantes; UI/direcional; CI Play/direta e bancada com feed TLS local;
 portão/suíte comparada com base, evidências de APK/assinatura e revisão independente. Nada aqui declara o D entregue.
 
+### Unidade D2 — download privado e cancelamento
+
+- Download em fluxo para `cache/updates`, arquivo único por tentativa, progresso, cancelamento inclusive aguardando cabeçalhos,
+  confirmação de tamanho e SHA-256 antes de renomear `.part` para `.apk`. Folga mínima de espaço: 64 MiB além do APK.
+- Falha/cancelamento remove somente os arquivos transitórios da própria tentativa, conforme autorização explícita da spec.
+  Não usa o cliente autenticado de mídia; redirecionamentos passam pela mesma lista de hosts/HTTPS de D1.
+- TDD: esqueleto **3 passaram / 5 falharam**; teste adicional de falha no encerramento do fluxo falhou antes da correção.
+  Final: **30 passaram** (21 de D1 + 9 de D2), análise estrita de dois arquivos sem achados.
+  Logs `/tmp/ultron-d2-red.log`, `/tmp/ultron-d2-cleanup-red.log`, `/tmp/ultron-d2-green-final.log`.
+
 ## 08/11/2026 — TV, pacotes A/B/C (Ultron)
 
 Ordem: `handoffs/ORDEM_ULTRON_TV_2026-11-08.md` no CGFLIX. Base exata `fbb9998`.

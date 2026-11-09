@@ -71,6 +71,14 @@ class AtualizadorBancadaTest(unittest.TestCase):
             with self.assertRaises(AssertionError):
                 aguardar(lambda: False)
 
+    def test_dpad_reconhece_foco_no_pai_semantico_do_botao_sem_aprovar_outro_alvo(self):
+        import atualizador
+        xml = '<hierarchy><node focused="true"><node clickable="true" content-desc="Baixar" focused="false"/></node><node clickable="true" content-desc="Voltar"/></hierarchy>'
+        self.assertTrue(atualizador.rotulo_focado(xml, ['Baixar']))
+        self.assertFalse(atualizador.rotulo_focado(xml, ['Voltar']))
+        raiz = '<hierarchy><node focused="true"><node clickable="true" content-desc="Baixar"/><node clickable="true" content-desc="Voltar"/></node></hierarchy>'
+        self.assertFalse(atualizador.rotulo_focado(raiz, ['Baixar']))
+
 
 if __name__ == "__main__":
     unittest.main()

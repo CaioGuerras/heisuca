@@ -112,6 +112,20 @@ def centro(dados):
     return ((numeros[0] + numeros[2]) // 2, (numeros[1] + numeros[3]) // 2) if len(numeros) == 4 else (0, 0)
 
 
+def rotulo_focado(xml, rotulos):
+    """Flutter expõe o foco no pai semântico; só aceitar seu único botão acionável."""
+    for no in ET.fromstring(xml).iter('node'):
+        if no.attrib.get('focused') != 'true':
+            continue
+        botoes = [n for n in no.iter('node') if n.attrib.get('clickable') == 'true']
+        if len(botoes) == 1 and any(
+            botoes[0].attrib.get(campo, '').strip().casefold() == rotulo.casefold()
+            for campo in ('text', 'content-desc') for rotulo in rotulos
+        ):
+            return True
+    return False
+
+
 def acionar(rotulos):
     """Chega ao alvo com D-pad e só confirma quando o foco estiver no rótulo certo."""
     for tentativa in range(24):
@@ -119,7 +133,7 @@ def acionar(rotulos):
         alvo = next((no for r in rotulos if (no := achar_rotulo(xml, r)) is not None), None)
         nos = [n.attrib for n in ET.fromstring(xml).iter('node')]
         foco = next((n for n in nos if n.get('focused') == 'true' and centro(n) != (0, 0)), None)
-        if alvo and alvo.get('focused') == 'true':
+        if rotulo_focado(xml, rotulos):
             tecla(23)
             return
         if alvo and foco:

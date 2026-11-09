@@ -95,7 +95,7 @@ class MusicPlaybackServiceImpl extends MusicPlaybackService with WidgetsBindingO
        _coordinator = PlaybackCoordinator.instance,
        _queue = MusicQueueController(random: queueRandom),
        _volumePersistenceWriter = volumePersistenceWriter ?? _writePersistedVolume {
-    _coordinator.registerMusicSession(stopAndDispose: _stopForVideoClaim);
+    _coordinator.registerMusicSession(stopAndDispose: _stopForVideoClaim, emUso: () => currentTrack != null);
     // tvOS has no background-audio session in v1, so it pauses on
     // backgrounding. A car keeps observing the lifecycle only as the fallback
     // authority for vehicles that cannot report UX restrictions; where the

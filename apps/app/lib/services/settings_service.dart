@@ -566,6 +566,11 @@ class _PreferenceGroupListenable extends ChangeNotifier {
 }
 
 class SettingsService extends BaseSharedPreferencesService {
+  // Estado local do atualizador; o código secreto fica no cofre Android, nunca nas preferências exportáveis.
+  static const updateBeta = BoolPref('heisuca_update_beta');
+  static const updateLastCheck = IntPref('heisuca_update_last_check');
+  static const updateChannel = StringPref('heisuca_update_channel', defaultValue: 'estavel');
+  static const updateAbi = StringPref('heisuca_update_abi');
   static const String defaultIntroPattern = r'(?:^|\b)(?:intro(?:duction)?|opening)(?:\b|$)|^op(?:\s?\d+)?$';
   static const String defaultCreditsPattern = r'(?:^|\b)(?:outro|closing|credits?|ending)(?:\b|$)|^ed(?:\s?\d+)?$';
 

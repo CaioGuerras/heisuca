@@ -1,6 +1,6 @@
 # Heisuca — entrega da rodada de 24/10/2026
 
-## 08/11/2026 — Pacote D, atualizador fora da Play (Ultron) — em implementação
+## 08/11/2026 — Pacote D, atualizador fora da Play (Ultron) — validação final em andamento
 
 Base `5da72fd`, contém C entregue e spec `2dba3aa`, lida integralmente. Ramo único `codex/heisuca-home-site`.
 Sem servidor, feed real, domínio inventado, promoção, release/AAB ou distribuição de APK. Revisão Claude pendente.
@@ -23,8 +23,8 @@ Versão do pacote D: **TESTE 2.0.34+2042**; applicationIds preservados.
 
 ### Pendências da implementação D
 
-UI/direcional; CI Play/direta e bancada com feed TLS local;
-portão/suíte comparada com base, evidências de APK/assinatura e revisão independente. Nada aqui declara o D entregue.
+Suíte integral comparada com C, CI Play/direta e bancada TLS local, evidências de APK/assinatura e revisão independente.
+O portão local passou; resultados remotos ou ainda em execução não são aprovação. Nenhum APK foi distribuído.
 
 ### Unidade D2 — download privado e cancelamento
 
@@ -57,6 +57,32 @@ portão/suíte comparada com base, evidências de APK/assinatura e revisão inde
 - Logs `/tmp/ultron-d3-native-red.log`, `/tmp/ultron-d3-containment-red.log`, `/tmp/ultron-d3-native-final.log`,
   `/tmp/ultron-d3-installer-red.log`, `/tmp/ultron-d3-installer-green.log`, `/tmp/ultron-d3-variants-{red,green}.log`,
   `/tmp/ultron-d3-gradle-config.log`. Manifestos/binários finais e bancadas ainda aguardam CI.
+
+### Unidade D4 — interface e bancada isolada
+
+- Abertura do app verifica uma vez, com limite persistido de 24 h; consulta é bloqueada por sessão de vídeo ou música
+  carregada/pausada. A integração com o coordenador só consulta estado: não pausa/abre/fecha player nem altera buffer.
+- Menu Android/TV mostra Atualizações só com build maior; Ajustes da distribuição direta expõe beta, código e Verificar agora.
+  Tela mostra versão instalada/nova, notas, progresso/cancelamento e Instalar explícito; explica permissão e reabertura manual.
+- Código do teste fica no cofre Android existente (Keystore/AES-GCM), com conferência de gravação e redação de logs.
+  SettingsService guarda apenas beta, canal, última data e ABI; nada de token nas preferências exportáveis.
+- TV usa azul, Sora/Inter e corpo de 22 dp sem redução do canvas de pôsteres. Cabeçalho fixo evita corte ao focar as ações.
+  Prévia com fontes reais: `/tmp/ultron-d-update-preview.png` e `/tmp/ultron-d-update-settings-preview.png` (não é aparelho).
+- TDD: cinco testes UI e um de música falharam antes; novo caso 1080p reproduziu corte do título antes da correção.
+  Final de UI/guarda: **7 passaram**, mais seis existentes do coordenador passaram na validação anterior.
+- Bancada nova usa apenas VM do CI, HTTPS em loopback, CA sintética restrita à entrada debug de teste, sem login/acervo.
+  Compila base 2042 e atualização sintética 2043 com a mesma chave debug; mede cancelamento, permissão negada e versão
+  realmente instalada via Android. Não exige reabertura. Não cria feed/nginx/domínio de produção nem publica APK.
+- Nove testes Python do roteiro/variantes passaram, com execução vermelha anterior; janela de fundo não conta como confirmação.
+  A rodada REAL no emulador ainda depende do CI; os testes do roteiro não a substituem.
+- Análise estrita: **23 Dart sem achados**. `main.dart`: dois warnings antigos de métodos não usados, reproduzidos na base intacta;
+  zero achados novos. `/tmp/ultron-d-strict-clean.log`, `/tmp/ultron-d-analyze-final.log`, `/tmp/ultron-d-main-base-analyze.log`.
+- Portão final: **170 Python, 2.273 Flutter (3 pulados), 8 Impeller**, verde. `/tmp/ultron-d-gate.log`.
+  Execução `ultron-d-gate-before-title-fix.log` é anterior e falhou no teste novo do título; não é evidência final.
+- Suite integral D iniciada em `/tmp/ultron-d-full.log`, base de comparação C `5da72fd`: **9.222 passaram, 59 pulados, 10 falharam**.
+  O parecer final só declara zero falhas novas após a comparação por nome. Revisão independente Claude/Gemini ainda pendente.
+- Fontes de API: [PackageManager](https://developer.android.com/reference/android/content/pm/PackageManager),
+  [Intent](https://developer.android.com/reference/android/content/Intent#ACTION_INSTALL_PACKAGE).
 
 ## 08/11/2026 — TV, pacotes A/B/C (Ultron)
 

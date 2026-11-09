@@ -7,6 +7,7 @@ import '../../screens/profile/profile_switch_screen.dart';
 import '../../profiles/profile_avatar.dart';
 import '../heisuca_theme.dart';
 import 'heisuca_tv_canvas.dart';
+import '../../services/updates/update_controller.dart';
 
 /// Menu oficial do Heisuca na TV (cartão sobreposto à tela).
 /// Acionado pelo avatar no topo esquerdo.
@@ -70,6 +71,8 @@ class _HeisucaTvMenuState extends State<HeisucaTvMenu> {
 
   @override
   Widget build(BuildContext context) {
+    final atualizacao = context.watch<UpdateController?>();
+    final itens = [..._items, if (atualizacao?.oferta != null) 'Atualizações'];
     final profiles = context.watch<ActiveProfileProvider?>();
     final activeProfile = profiles?.active;
     final profileName = activeProfile?.displayName ?? 'Família';
@@ -194,12 +197,13 @@ class _HeisucaTvMenuState extends State<HeisucaTvMenu> {
               Expanded(
                 child: ListView.separated(
                   padding: EdgeInsets.zero,
-                  itemCount: _items.length,
+                  itemCount: itens.length,
                   separatorBuilder: (context, index) => const SizedBox(height: 10),
                   itemBuilder: (context, index) {
-                    final item = _items[index];
+                    final item = itens[index];
                     final isSelected = item == _selected;
                     return _TvMenuItemPill(
+                      key: ValueKey('tv-menu-$item'),
                       text: item,
                       fontSize: 26,
                       height: 58,
@@ -237,6 +241,7 @@ class _HeisucaTvMenuState extends State<HeisucaTvMenu> {
 
 class _TvMenuItemPill extends StatefulWidget {
   const _TvMenuItemPill({
+    super.key,
     required this.text,
     required this.onTap,
     this.fontSize = 24,

@@ -13,6 +13,7 @@ import '../heisuca/heisuca_profile_screen.dart';
 import '../cgflix/you/cgflix_favorites_screen.dart';
 import '../profiles/profile_avatar.dart';
 import 'dart:async';
+import 'updates/update_screen.dart';
 import '../media/ids.dart';
 import '../media/media_server_client.dart';
 import '../navigation/main_screen_scope.dart';
@@ -1200,6 +1201,9 @@ class _MainScreenState extends State<MainScreen>
         break;
       case 'Ajustes':
         _selectTab(NavigationTabId.settings);
+        break;
+      case 'Atualizações':
+        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const UpdateScreen()));
         break;
     }
   }

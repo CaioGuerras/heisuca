@@ -9,17 +9,20 @@ import '../../screens/settings/about_screen.dart';
 import '../../services/settings_service.dart';
 import '../heisuca_theme.dart';
 import 'heisuca_tv_canvas.dart';
+import '../../services/updates/update_controller.dart';
+import '../../screens/updates/update_settings_screen.dart';
 
 /// Ajustes oficiais do Heisuca na TV — Enxuto.
-/// Apenas 8 itens focáveis por D-pad:
+/// Itens focáveis por D-pad; Atualizações aparece apenas na distribuição direta do Android.
 /// 1. Perfil
 /// 2. Áudio padrão
 /// 3. Legenda padrão
 /// 4. Tamanho da legenda
 /// 5. "Ainda está aí?" (ligado/desligado)
 /// 6. Desempenho na tela
-/// 7. Sobre
-/// 8. Sair
+/// 7. Atualizações (direta)
+/// 8. Sobre
+/// 9. Sair
 class HeisucaTvSettingsScreen extends StatefulWidget {
   const HeisucaTvSettingsScreen({super.key});
 
@@ -96,6 +99,7 @@ class _HeisucaTvSettingsScreenState extends State<HeisucaTvSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final atualizacoes = context.watch<UpdateController?>();
     final profiles = context.watch<ActiveProfileProvider?>();
     final activeProfile = profiles?.active;
     final profileName = activeProfile?.displayName ?? 'Família';
@@ -183,6 +187,11 @@ class _HeisucaTvSettingsScreenState extends State<HeisucaTvSettingsScreen> {
                     onTap: _togglePerformanceOverlay,
                   ),
                   const SizedBox(height: 16),
+                  if (atualizacoes?.permiteAjustes == true) ...[
+                    _TvSettingsRow(title: 'Atualizações', value: 'Versões do app e canais de atualização', actionLabel: 'Ver',
+                      onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const UpdateSettingsScreen()))),
+                    const SizedBox(height: 16),
+                  ],
                   _TvSettingsRow(
                     title: 'Sobre',
                     value: 'Heisuca 2.0 (炳素華) · Créditos Wholphin',

@@ -1,0 +1,98 @@
+name: Heisuca Atualizador TV
+
+on:
+  push:
+    branches: ["codex/heisuca-home-site", "claude/heisuca-**"]
+    paths-ignore: ["docs/**", "AGENTS.md", "apps/app/CLAUDE.md"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: heisuca-atualizador-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  atualizar:
+    name: Atualizar por D-pad em Android TV (TLS local)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: apps/app
+    env:
+      ORG_GRADLE_PROJECT_heisucaPreview: "true"
+      ORG_GRADLE_PROJECT_targetAbi: x86_64
+      GRADLE_OPTS: -Dorg.gradle.caching=false -Dorg.gradle.jvmargs=-Xmx3g
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Preparar a VM descartável
+        working-directory: /
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost "$AGENT_TOOLSDIRECTORY"
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.1"
+          channel: stable
+          cache: true
+      - name: Dependências e testes do roteiro
+        run: |
+          flutter pub get --no-example
+          python3 -m unittest discover -s scripts/bancada -p 'test_atualizador*.py'
+      - name: Criar TLS sintético apenas para a bancada
+        run: |
+          mkdir -p .bancada/atualizador
+          openssl req -x509 -nodes -newkey rsa:2048 -days 1 -subj /CN=feed.local -addext 'basicConstraints=critical,CA:TRUE' -addext 'subjectAltName=IP:10.0.2.2,IP:127.0.0.1,DNS:localhost' -keyout .bancada/atualizador/localhost.key -out .bancada/atualizador/localhost.crt
+          python3 - <<'PY'
+          import base64, json
+          from pathlib import Path
+          pasta = Path('.bancada/atualizador')
+          dados = {'HEISUCA_UPDATE_FEED_URL': 'https://10.0.2.2:8443/',
+                   'HEISUCA_UPDATE_TEST_CA': base64.b64encode((pasta/'localhost.crt').read_bytes()).decode()}
+          (pasta/'defines.json').write_text(json.dumps(dados))
+          PY
+      - name: Compilar versão inicial e atualização sintética
+        run: |
+          numero_build=$(sed -n 's/^version: *[^+]*+\([0-9]\+\).*/\1/p' pubspec.yaml)
+          test -n "$numero_build"
+          flutter build apk --debug --flavor direct --target test_driver/atualizador_app.dart --target-platform android-x64 --build-number "$numero_build" --dart-define-from-file=.bancada/atualizador/defines.json
+          cp build/app/outputs/flutter-apk/app-direct-debug.apk .bancada/atualizador/base.apk
+          flutter build apk --debug --flavor direct --target test_driver/atualizador_app.dart --target-platform android-x64 --build-number "$((numero_build + 1))" --dart-define-from-file=.bancada/atualizador/defines.json
+          cp build/app/outputs/flutter-apk/app-direct-debug.apk .bancada/atualizador/upgrade.apk
+          assinatura_apk=$("$ANDROID_HOME/build-tools/36.1.0/apksigner" verify --print-certs .bancada/atualizador/upgrade.apk | sed -n 's/.*certificate SHA-256 digest: //p' | head -n 1)
+          test -n "$assinatura_apk"
+          echo "HEISUCA_BANCADA_BUILD=$numero_build" >> "$GITHUB_ENV"
+          echo "HEISUCA_BANCADA_CERT=$assinatura_apk" >> "$GITHUB_ENV"
+      - name: Emulador TV e percurso real do atualizador
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
+        with:
+          api-level: 36
+          target: android-tv
+          arch: x86_64
+          profile: tv_1080p
+          cores: 2
+          ram-size: 1536M
+          heap-size: 512M
+          disk-size: 8G
+          disable-animations: true
+          emulator-options: -no-window -gpu software -noaudio -no-snapshot -no-boot-anim -camera-back none
+          working-directory: apps/app
+          script: python3 scripts/bancada/atualizador.py --pasta .bancada/atualizador --build "$HEISUCA_BANCADA_BUILD" --assinatura "$HEISUCA_BANCADA_CERT"
+      - name: Guardar somente relatório e capturas sintéticos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: heisuca-atualizador-tv-evidencias
+          path: apps/app/.bancada/atualizador/evidencias/
+          if-no-files-found: warn
+          retention-days: 3

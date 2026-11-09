@@ -17,6 +17,8 @@ import '../providers/multi_server_provider.dart';
 import '../screens/profile/profile_switch_screen.dart';
 import '../screens/profile/profile_teardown.dart';
 import '../screens/settings/about_screen.dart';
+import '../screens/updates/update_screen.dart';
+import '../services/updates/update_controller.dart';
 import '../utils/dialogs.dart';
 import '../widgets/app_icon.dart';
 import 'apoio/apoio.dart';
@@ -28,7 +30,7 @@ import 'conta/cgflix_minha_conta_screen.dart';
 import 'you/cgflix_favorites_screen.dart';
 
 /// Itens do menu, na ordem em que aparecem (os testes conferem esta lista).
-enum CgflixUserMenuItem { favorites, downloads, myRequests, libraries, settings, about, switchUser, signOut, support }
+enum CgflixUserMenuItem { favorites, downloads, myRequests, libraries, updates, settings, about, switchUser, signOut, support }
 
 /// Itens que dependem do servidor (somem sem conexão).
 const _onlineOnly = {CgflixUserMenuItem.favorites, CgflixUserMenuItem.libraries, CgflixUserMenuItem.myRequests};
@@ -47,10 +49,11 @@ bool _isOnline(BuildContext context) {
 }
 
 /// Itens visíveis agora, na ordem (o que os testes e o roteiro do emulador conferem).
-List<CgflixUserMenuItem> cgflixUserMenuItems({required bool online, required bool hasFavorites}) => [
+List<CgflixUserMenuItem> cgflixUserMenuItems({required bool online, required bool hasFavorites, bool hasUpdate = false}) => [
   for (final item in CgflixUserMenuItem.values)
     if ((online || !_onlineOnly.contains(item)) &&
         (item != CgflixUserMenuItem.favorites || hasFavorites) &&
+        (item != CgflixUserMenuItem.updates || hasUpdate) &&
         (item != CgflixUserMenuItem.support || cgflixApoioAtual.disponivel))
       item,
 ];
@@ -101,6 +104,8 @@ Future<void> showCgflixUserMenu(BuildContext context) async {
       await cgflixOpenDownloads(context);
     case CgflixUserMenuItem.settings:
       await cgflixOpenSettings(context);
+    case CgflixUserMenuItem.updates:
+      await Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const UpdateScreen()));
     case CgflixUserMenuItem.switchUser:
       await Navigator.of(
         context,
@@ -145,7 +150,8 @@ class CgflixUserMenuSheet extends StatelessWidget {
     final online = _isOnline(context);
     final conta = online ? CgflixConta.of(context) : null;
     final hasFavorites = online && CgflixFavoritesSource.of(context) != null;
-    final items = cgflixUserMenuItems(online: online, hasFavorites: hasFavorites);
+    final atualizacoes = context.watch<UpdateController?>();
+    final items = cgflixUserMenuItems(online: online, hasFavorites: hasFavorites, hasUpdate: atualizacoes?.oferta != null);
 
     final header = Row(
       children: [
@@ -225,6 +231,7 @@ class CgflixUserMenuSheet extends StatelessWidget {
       CgflixUserMenuItem.myRequests => (Symbols.playlist_add_check_rounded, 'Meus pedidos'),
       CgflixUserMenuItem.downloads => (Symbols.download_rounded, 'Baixados'),
       CgflixUserMenuItem.settings => (Symbols.settings_rounded, 'Configurações'),
+      CgflixUserMenuItem.updates => (Symbols.system_update_rounded, 'Atualizações'),
       CgflixUserMenuItem.switchUser => (Symbols.switch_account_rounded, 'Trocar usuário'),
       CgflixUserMenuItem.about => (Symbols.info_rounded, 'Sobre e dicas'),
       CgflixUserMenuItem.signOut => (Symbols.logout_rounded, 'Sair'),

@@ -57,6 +57,8 @@ import '../../profiles/active_profile_provider.dart';
 import '../../profiles/profile.dart';
 import '../../watch_together/services/watch_together_relay_endpoint.dart';
 import 'about_screen.dart';
+import '../../services/updates/update_controller.dart';
+import '../updates/update_settings_screen.dart';
 import 'add_connection_screen.dart';
 import 'account_preferences_screen.dart';
 import 'appearance_settings_screen.dart';
@@ -287,6 +289,12 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
       SettingsGroup(
         title: 'Ajuda',
         children: [
+          if (context.watch<UpdateController?>()?.permiteAjustes == true) SettingNavigationTile(
+            icon: Symbols.system_update_rounded,
+            title: 'Atualizações',
+            subtitle: 'Versões do app e canais de atualização',
+            destinationBuilder: (_) => const UpdateSettingsScreen(),
+          ),
           SettingNavigationTile(
             key: const ValueKey('cgflix-config-dicas'),
             icon: Symbols.lightbulb_rounded,

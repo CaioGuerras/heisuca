@@ -43,6 +43,7 @@ import 'services/macos_window_service.dart';
 import 'services/native_window_service.dart';
 import 'services/fullscreen_state_manager.dart';
 import 'services/settings_service.dart';
+import 'services/updates/update_controller.dart';
 import 'services/agent_control_service.dart';
 import 'widgets/agent_control_scope.dart';
 import 'widgets/settings_builder.dart';
@@ -1361,6 +1362,11 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
         // can manage stored Jellyfin/Plex connections without re-creating
         // the registry per-call site.
         Provider<SettingsService>.value(value: widget.settings),
+        ChangeNotifierProvider<UpdateController>(lazy: false, create: (_) {
+          final controlador = UpdateController.doApp(widget.settings);
+          WidgetsBinding.instance.addPostFrameCallback((_) => unawaited(controlador.aoAbrir()));
+          return controlador;
+        }),
         ChangeNotifierProvider<HeisucaKids>.value(value: HeisucaKids.instance), // Heisuca: modo infantil
         Provider<StorageService>.value(value: widget.storage),
         Provider<AppDatabase>.value(value: _appDatabase),

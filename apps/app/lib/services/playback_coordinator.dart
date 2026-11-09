@@ -17,12 +17,15 @@ class PlaybackCoordinator {
   static final PlaybackCoordinator instance = PlaybackCoordinator._();
 
   Future<void> Function()? _stopMusicSession;
+  bool Function()? _musicaEmUso;
 
   Future<void> Function()? _shutdownVideoSession;
   Future<bool> Function()? _exitVideoSession;
   final Set<Future<void>> _videoRetirements = {};
 
   bool get hasVideoSession => _shutdownVideoSession != null || _videoRetirements.isNotEmpty;
+  // Consulta local, sem interferir no player; música pausada/carregada também protege a sessão.
+  bool get temReproducao => hasVideoSession || (_musicaEmUso?.call() ?? false);
 
   /// Explicit user/agent stop, unlike shutdown, also leaves the player route.
   /// False means the owner requires a confirmation or cannot leave its route.
@@ -78,15 +81,19 @@ class PlaybackCoordinator {
   /// stop playback, send final progress, and dispose the audio `Player`
   /// before completing. Replaces any previous registration (there is one
   /// music service per profile session).
-  void registerMusicSession({required Future<void> Function() stopAndDispose}) {
+  void registerMusicSession({required Future<void> Function() stopAndDispose, bool Function()? emUso}) {
     _stopMusicSession = stopAndDispose;
+    _musicaEmUso = emUso;
   }
 
   /// Remove [stopAndDispose] if it is the current registration. Passing the
   /// same callback used to register keeps a stale unregister (from an
   /// already-replaced session) from tearing down the new one.
   void unregisterMusicSession(Future<void> Function() stopAndDispose) {
-    if (_stopMusicSession == stopAndDispose) _stopMusicSession = null;
+    if (_stopMusicSession == stopAndDispose) {
+      _stopMusicSession = null;
+      _musicaEmUso = null;
+    }
   }
 
   /// Video playback is about to construct its native core: stop and dispose

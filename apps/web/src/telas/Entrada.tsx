@@ -76,8 +76,8 @@ export function Entrada({ de, servidorInicial, pronto, voltar }: {
 
   // o formulário e o Quick Connect esmaecem primeiro; só a logo fica, e é dela que a 2ª animação parte
   // clique = quando a pessoa pediu para entrar: os 3–5 s da 2ª animação contam daqui (PLANO §3.1), não de quando ela monta
-  const terminou = async (s: Sessao, clique = performance.now()): Promise<boolean> => {
-    if (!liberado(s.nome)) { setErro({ campo: 'geral', msg: 'Esta versão de teste ainda não está aberta.' }); return false; }
+  const terminou = async (s: Sessao, clique = performance.now(), conferido = false): Promise<boolean> => {
+    if (!conferido && !liberado(s.nome)) { setErro({ campo: 'geral', msg: 'Esta versão de teste ainda não está aberta.' }); return false; }
     prepararInicio(s);   // a home começa a carregar já, enquanto o formulário esmaece
     const r = raiz.current!;
     r.classList.add('saindo');
@@ -189,7 +189,7 @@ export function Entrada({ de, servidorInicial, pronto, voltar }: {
 type PassoPlex = { fase: 'parado' } | { fase: 'gerando' } | { fase: 'pin'; codigo: string; url: string } | { fase: 'buscando' }
   | { fase: 'escolher'; a: Autorizacao } | { fase: 'conectando'; nome: string };
 
-function PainelPlex({ terminou, topo, aviso }: { terminou: (s: Sessao) => Promise<boolean>; topo: ComponentChildren; aviso: ComponentChildren }) {
+function PainelPlex({ terminou, topo, aviso }: { terminou: (s: Sessao, clique?: number, conferido?: boolean) => Promise<boolean>; topo: ComponentChildren; aviso: ComponentChildren }) {
   const [p, setP] = useState<PassoPlex>({ fase: 'parado' });
   const [erro, setErro] = useState<{ msg: string; outro?: boolean } | null>(null);
   const ctl = useRef<AbortController | null>(null);
@@ -204,7 +204,7 @@ function PainelPlex({ terminou, topo, aviso }: { terminou: (s: Sessao) => Promis
   const conectar = async (r: RecursoPlex, a: Autorizacao, sinal: AbortSignal) => {
     const volta: PassoPlex = a.servidores.length > 1 ? { fase: 'escolher', a } : { fase: 'parado' };
     setErro(null); setP({ fase: 'conectando', nome: r.name });
-    try { if (!await terminou(await conectarPlex(r, a.conta, sinal))) setP(volta); }
+    try { if (!await terminou(await conectarPlex(r, a.conta, sinal), undefined, true)) setP(volta); }
     catch (x) { falhou(x, volta); }
   };
   const comecar = async () => {
@@ -214,7 +214,8 @@ function PainelPlex({ terminou, topo, aviso }: { terminou: (s: Sessao) => Promis
     try {
       const a = await autorizarPlex(c.signal, (pin, url) => setP({ fase: 'pin', codigo: pin.code, url }), () => setP({ fase: 'buscando' }));
       // conectarPlex grava a sessão: a restrição da build precisa ser conferida antes disso.
-      if (!liberado(a.conta.nome)) throw new ErroEntradaPlex('recusou', 'Esta versão de teste ainda não está aberta.');
+      // Plex: o nome exibido (title) pode diferir do login; libera se qualquer um dos dois estiver na lista
+      if (!liberado(a.conta.nome) && !liberado(a.conta.login || '')) throw new ErroEntradaPlex('recusou', 'Esta versão de teste ainda não está aberta.');
       const passo = passoSeguinte(a.servidores);
       if (passo.tipo === 'conectar') await conectar(passo.recurso, a, c.signal);
       else setP({ fase: 'escolher', a: { ...a, servidores: passo.lista } });

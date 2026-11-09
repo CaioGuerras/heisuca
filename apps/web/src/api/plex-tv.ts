@@ -25,7 +25,7 @@ const tv = async <T,>(caminho: string, token?: string, query?: QueryPlex, metodo
 
 export class PinVencido extends Error { constructor() { super('O código Plex venceu. Peça outro.'); } }
 export type PinPlex = { id: number; code: string };
-export type ContaPlex = { id: string; nome: string; foto?: string };
+export type ContaPlex = { id: string; nome: string; login?: string; foto?: string };
 export type ConexaoPlex = { uri: string; local?: boolean; relay?: boolean };
 export type RecursoPlex = { name: string; clientIdentifier: string; accessToken: string;
   publicAddressMatches?: boolean; connections: ConexaoPlex[] };
@@ -61,7 +61,7 @@ export async function esperarPin(pin: PinPlex, sinal: AbortSignal): Promise<stri
 }
 export async function conta(tokenConta: string): Promise<ContaPlex> {
   const d = await tv<{ id: number | string; title?: string; username?: string; thumb?: string }>('/user', tokenConta);
-  return { id: String(d.id), nome: d.title || d.username || '', foto: d.thumb };
+  return { id: String(d.id), nome: d.title || d.username || '', login: d.username, foto: d.thumb };
 }
 const prioridade = (c: ConexaoPlex) => c.relay ? 2 : c.local ? 0 : 1;
 export function conexoesPermitidas(r: RecursoPlex): ConexaoPlex[] {

@@ -1,0 +1,92 @@
+/* Lume: tokens. Três temas (Sala, Matinê, Projetor), uma família de movimento (a mesma do Heisuca, 08/11).
+   Cor em OKLCH: o acento é a luz de uma lanterna de cinema; o fundo é madeira escura, não preto puro. */
+:root {
+  --fonte-titulo: 'Fraunces Variable', 'Iowan Old Style', Georgia, serif;
+  --fonte-texto: 'Inter Variable', Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* movimento */
+  --t-toque: 120ms; --t-troca: 180ms; --t-cartao: 260ms; --t-tela: 320ms; --t-longe: 420ms; --t-escada: 30ms;
+  --c-entra: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --c-sai: cubic-bezier(0.3, 0, 0.8, 0.15);
+  --c-padrao: cubic-bezier(0.2, 0, 0, 1);
+
+  /* forma */
+  --r-p: 8px; --r-m: 14px; --r-g: 22px; --r-total: 999px;
+  --margem: clamp(16px, 4.2vw, 64px);
+  --barra: 64px;
+  --cartao-l: clamp(128px, 15vw, 196px);
+  --paisagem-l: clamp(240px, 26vw, 380px);
+}
+
+/* Sala: escuro quente (padrão) */
+:root, [data-tema='sala'] {
+  color-scheme: dark;
+  --fundo: oklch(0.155 0.008 60);
+  --fundo-2: oklch(0.195 0.01 60);
+  --superficie: oklch(0.225 0.012 60);
+  --superficie-2: oklch(0.27 0.013 60);
+  --texto: oklch(0.96 0.012 80);
+  --texto-2: oklch(0.78 0.015 75);
+  --texto-3: oklch(0.6 0.015 70);
+  --linha: oklch(1 0 0 / 0.09);
+  --acento: oklch(0.82 0.135 78);
+  --acento-texto: oklch(0.2 0.03 60);
+  --acento-suave: oklch(0.82 0.135 78 / 0.16);
+  --vidro: oklch(0.17 0.01 60 / 0.66);
+  --sombra: 0 18px 50px oklch(0 0 0 / 0.45);
+  --veu: oklch(0.155 0.008 60);
+}
+
+/* Matinê: papel de cartaz, tinta de sépia, acento tijolo */
+[data-tema='matine'] {
+  color-scheme: light;
+  --fundo: oklch(0.972 0.008 85);
+  --fundo-2: oklch(0.945 0.012 82);
+  --superficie: oklch(0.995 0.004 85);
+  --superficie-2: oklch(0.925 0.014 80);
+  --texto: oklch(0.22 0.02 55);
+  --texto-2: oklch(0.42 0.02 55);
+  --texto-3: oklch(0.56 0.018 60);
+  --linha: oklch(0.3 0.02 55 / 0.12);
+  --acento: oklch(0.58 0.15 42);
+  --acento-texto: oklch(0.99 0.005 85);
+  --acento-suave: oklch(0.58 0.15 42 / 0.12);
+  --vidro: oklch(0.985 0.006 85 / 0.72);
+  --sombra: 0 16px 40px oklch(0.3 0.03 55 / 0.16);
+  --veu: oklch(0.972 0.008 85);
+}
+
+/* Projetor: preto de tela OLED, para assistir no escuro */
+[data-tema='projetor'] {
+  color-scheme: dark;
+  --fundo: #000;
+  --fundo-2: oklch(0.11 0 0);
+  --superficie: oklch(0.15 0 0);
+  --superficie-2: oklch(0.2 0 0);
+  --texto: oklch(0.93 0 0);
+  --texto-2: oklch(0.72 0 0);
+  --texto-3: oklch(0.55 0 0);
+  --linha: oklch(1 0 0 / 0.08);
+  --acento: oklch(0.86 0.1 85);
+  --acento-texto: #000;
+  --acento-suave: oklch(0.86 0.1 85 / 0.14);
+  --vidro: oklch(0 0 0 / 0.7);
+  --sombra: none;
+  --veu: #000;
+}
+
+/* o player do Heisuca é reaproveitado: estas são as variáveis que ele lê */
+:root {
+  --hs-curva-padrao: var(--c-padrao);
+  --hs-tempo-tela: var(--t-tela);
+  --hs-tempo-toque: var(--t-toque);
+  --hs-raio-total: var(--r-total);
+  --hs-fonte-texto: var(--fonte-texto);
+  --hs-tema-cor-primaria: var(--acento);
+  --hs-tema-cor-acento: var(--acento);
+  --hs-ilha-respiro: 16px; --hs-ilha-altura: 0px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --t-cartao: 180ms; --t-tela: 180ms; --t-longe: 180ms; --t-escada: 0ms; }
+}

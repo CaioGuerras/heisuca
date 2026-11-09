@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="pt-BR" data-tema="sala">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark light" />
+  <meta name="theme-color" content="#14110e" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Lume</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2314110e'/%3E%3Cpath d='M32 12c6 9 10 15 10 22a10 10 0 0 1-20 0c0-7 4-13 10-22z' fill='%23f2b544'/%3E%3C/svg%3E" />
+  <script>
+    // tema antes do primeiro quadro (sem piscar): escolha guardada, senão o do aparelho
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('lume.tema'); } catch (e) {}
+      if (t !== 'sala' && t !== 'matine' && t !== 'projetor')
+        t = window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'matine' : 'sala';
+      document.documentElement.setAttribute('data-tema', t);
+    })();
+  </script>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+</html>

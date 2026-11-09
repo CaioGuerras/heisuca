@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "es2023", "module": "esnext", "lib": ["ES2023", "DOM", "DOM.Iterable"], "types": ["vite/client"],
+    "allowArbitraryExtensions": true, "skipLibCheck": true, "moduleResolution": "bundler", "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true, "moduleDetection": "force", "noEmit": true, "jsx": "react-jsx", "jsxImportSource": "preact",
+    "noUnusedLocals": true, "noUnusedParameters": true, "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "@w/*": ["../web/src/*"],
+      "preact": ["./node_modules/preact"], "preact/*": ["./node_modules/preact/*"],
+      "hls.js": ["./node_modules/hls.js"], "hls.js/*": ["./node_modules/hls.js/*"],
+      "blurhash": ["./node_modules/blurhash"], "jassub": ["./node_modules/jassub"], "jassub/*": ["./node_modules/jassub/*"],
+      "@material-symbols/svg-300/*": ["./node_modules/@material-symbols/svg-300/*"]
+    }
+  },
+  "include": ["src", "../web/src/hls-light.d.ts"]
+}

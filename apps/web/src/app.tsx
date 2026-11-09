@@ -13,6 +13,7 @@ import { TrocarServidor } from './comp/TrocarServidor';
 import { registrarServidores } from './estado/casca';
 import { chaveDe, useRota } from './rota';
 import { congelarSaida } from './anim/saida';
+import { lembrarToques, trocarComArte } from './anim/continuidade';
 import { Abertura } from './telas/Abertura';
 import { Biblioteca } from './telas/Biblioteca';
 import { Entrada } from './telas/Entrada';
@@ -70,7 +71,12 @@ export function App() {
 
 function Casca({ s, trocar, atualizar, entrar, sair }: { s: Sessao; trocar: (s: Sessao) => void; atualizar: (s: Sessao) => void;
   entrar: (srv: Servidor | null) => void; sair: () => void }) {
-  const r = useRota((nova, velha) => { if (nova.tela !== 'ver' && velha.tela !== 'ver' && chaveDe(nova) !== chaveDe(velha)) congelarSaida(); });
+  useEffect(() => lembrarToques(), []);
+  const r = useRota((nova, velha, aplicar) => {
+    if (nova.tela === 'ver' || velha.tela === 'ver' || chaveDe(nova) === chaveDe(velha)) return false;
+    if (nova.tela === 'titulo' && trocarComArte(aplicar)) return true; // H2: a arte tocada vira o fundo
+    congelarSaida(); return false;
+  });
   const [menu, setMenu] = useState<HTMLElement | null>(null);
   const [servidores, setServidores] = useState(false);
   const [pedido, setPedido] = useState<Alvo | null>(null);

@@ -26,8 +26,9 @@ export function ler(): Rota {
 // identidade da tela: a mesma chave = mesma tela montada (app.tsx usa como key da troca-tela)
 export const chaveDe = (r: Rota) => `${r.tela}:${'id' in r ? r.id || '' : ''}`;
 
-// antes(r) roda com a tela antiga ainda no DOM e a rolagem antiga (a saída da troca de tela copia dali)
-export function useRota(antes?: (nova: Rota, velha: Rota) => void): Rota {
+// antes(r) roda com a tela antiga ainda no DOM e a rolagem antiga (a saída da troca de tela copia dali). Se devolver
+// true, ele mesmo chama aplicar (a View Transition troca a rota dentro dela); senão a rota troca na hora.
+export function useRota(antes?: (nova: Rota, velha: Rota, aplicar: () => void) => boolean | void): Rota {
   const [r, setR] = useState(ler);
   const atual = useRef(r);
   const gancho = useRef(antes);
@@ -35,9 +36,15 @@ export function useRota(antes?: (nova: Rota, velha: Rota) => void): Rota {
   useEffect(() => {
     const f = () => {
       const nova = ler();
-      try { gancho.current?.(nova, atual.current); } catch { /* animação nunca impede a navegação */ }
-      atual.current = nova;
-      setR(nova); if (!history.state?.semRolar) scrollTo(0, 0);
+      let feito = false;
+      const aplicar = () => {
+        if (feito) return;
+        feito = true; atual.current = nova;
+        setR(nova); if (!history.state?.semRolar) scrollTo(0, 0);
+      };
+      let adiado = false;
+      try { adiado = gancho.current?.(nova, atual.current, aplicar) === true; } catch { /* animação nunca impede a navegação */ }
+      if (!adiado) aplicar();
     };
     addEventListener('hashchange', f);
     return () => removeEventListener('hashchange', f);

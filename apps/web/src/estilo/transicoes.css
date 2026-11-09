@@ -18,3 +18,16 @@
 @media (prefers-reduced-motion: reduce) {
   .troca-tela { animation: hs-tela-entra-opac var(--m-curto) var(--c-padrao) backwards !important; }
 }
+
+/* H2 (anim/continuidade.ts): a arte do cartão tocado vira o fundo do título. O nome só existe durante a transição
+   (html.hs-vt entra depois da foto da tela velha). A arte cobre a caixa (cover), sem esticar o pôster 2:3 no 16:9.
+   A tela velha some como na saída do H3; a nova é a tela ao vivo, que já entra pela animação da .troca-tela.
+   Navegador sem View Transitions ignora estas regras (e o JS nem começa a transição). */
+html.hs-vt .titulo-arte { view-transition-name: hs-arte; }
+::view-transition-group(hs-arte) { animation-duration: var(--m-grande); animation-timing-function: var(--c-padrao); }
+::view-transition-old(hs-arte), ::view-transition-new(hs-arte) {
+  height: 100%; object-fit: cover; animation-duration: var(--m-tela); animation-timing-function: var(--c-padrao);
+}
+::view-transition-old(root) { animation: hs-vt-sai var(--m-curto) var(--c-padrao) both; transform-origin: 50% 40%; }
+::view-transition-new(root) { animation: none; }
+@keyframes hs-vt-sai { to { opacity: 0; transform: scale(0.98); } }

@@ -199,11 +199,11 @@
 .player-previa span { display: block; padding: 6px; font-size: 12px; font-variant-numeric: tabular-nums; }
 .player-previa-imagem { background-repeat: no-repeat; }
 .painel-velocidades { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 12px 12px; }
-.painel-velocidade { min-width: 54px; min-height: 40px; padding: 6px 10px; border-radius: 10px; background: rgb(255 255 255 / .08); }
+.painel-velocidade { min-width: 48px; min-height: 40px; padding: 6px 8px; border-radius: 10px; background: rgb(255 255 255 / .08); }
 .painel-velocidade[aria-pressed="true"] { box-shadow: inset 0 0 0 2px #fff; }
 .player-final { position: absolute; inset: 70px 0 100px; z-index: 4; overflow-y: auto; padding: 20px var(--pl-margem); background: #000; }
 .player-final h2 { margin: 0 0 20px; font-size: clamp(20px, 4vw, 32px); }
 .player-final-acoes { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
-.player-final .mais-como-este { --hs-cartao-poster: 130px; color: #fff; }
+.player-final .mais-como-este { --hs-cartao-poster: 130px; --hs-margem: 0px; color: #fff; }
 .player-final .cartao-nome { color: #fff; }
 @media (max-width: 600px) { .player-base { gap: 4px; } .player-base > .player-icone { width: 36px; } }

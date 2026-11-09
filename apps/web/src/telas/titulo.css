@@ -232,5 +232,11 @@ main .titulo-grade button.cartao:focus-visible .cartao-arte { box-shadow: 0 0 0 
 .titulo-continua .titulo-logo { animation: none; }
 
 .titulo-botoes { flex-wrap: wrap; }
-.titulo-botao.titulo-botao-texto { width: auto; padding: 0 14px; gap: 8px; font-size: 14px; text-decoration: none; }
+.titulo-botao.titulo-botao-texto { display: inline-flex; align-items: center; width: auto; padding: 0 14px; gap: 8px; font-size: 14px; text-decoration: none; }
 .titulo > .mais-como-este { margin-top: 32px; }
+/* celular: ícone sobre o texto, os 4 botões cabem numa linha só */
+@media (max-width: 599px) {
+  .titulo-botoes { gap: 6px; justify-content: space-around; flex-wrap: nowrap; }
+  .titulo-botao.titulo-botao-texto { flex-direction: column; justify-content: center; height: 56px; padding: 0 8px; gap: 4px; font-size: 12px; }
+  .titulo-botao { height: 56px; }
+}

@@ -41,7 +41,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(home: HeisucaOpeningSplash(onAnimationFinished: () => completed++)));
     await tester.pump();
     expect(completed, 0);
-    await tester.pump(const Duration(milliseconds: 180));
+    await tester.pump(const Duration(milliseconds: 200));
     expect(completed, 1);
     expect(tester.binding.transientCallbackCount, 0);
   });

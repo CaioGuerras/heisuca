@@ -190,12 +190,10 @@ class _HeisucaTabStackState extends State<HeisucaTabStack> with TickerProviderSt
       for (var i = 0; i < widget.children.length; i++) Offstage(
         key: ValueKey(_key(i)), offstage: i != widget.index && _motions[_key(i)]!.opacity.value == 0,
         child: IgnorePointer(ignoring: i != widget.index,
-          child: ExcludeSemantics(excluding: i != widget.index,
-            child: TickerMode(enabled: i == widget.index,
-              child: FadeTransition(
-                opacity: HeisucaMotion.reduced(context) ? _motions[_key(i)]!.opacity
-                    : _motions[_key(i)]!.opacity.drive(CurveTween(curve: HeisucaMotion.padrao)),
-                child: widget.children[i])))),
+          child: ExcludeFocus(excluding: i != widget.index,
+            child: ExcludeSemantics(excluding: i != widget.index,
+              child: TickerMode(enabled: i == widget.index,
+                child: FadeTransition(opacity: _motions[_key(i)]!.opacity, child: widget.children[i]))))),
       ),
     ]),
   );

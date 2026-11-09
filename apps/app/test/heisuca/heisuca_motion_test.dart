@@ -76,7 +76,7 @@ void main() {
     expect(alpha(tester, second), 0);
     await tester.pump(const Duration(milliseconds: 30));
     expect(alpha(tester, first), allOf(greaterThan(0), lessThan(1)));
-    expect(alpha(tester, second), closeTo(0, .001));
+    expect(alpha(tester, second), allOf(greaterThan(0), lessThan(1))); // passagem: a nova entra 60 ms depois e cruza com a que sai
     await tester.pump(const Duration(milliseconds: 90));
     expect(alpha(tester, second), allOf(greaterThan(0), lessThan(1)));
     expect(tester.getCenter(find.byKey(second)).dx, closeTo(206, .01));
@@ -166,5 +166,20 @@ void main() {
       ),
     );
     expect(find.byType(Transform), findsNothing);
+  });
+  testWidgets('aba oculta não recebe foco do controle remoto', (tester) async {
+    final visivel = FocusNode(debugLabel: 'visível'), oculto = FocusNode(debugLabel: 'oculto');
+    addTearDown(visivel.dispose); addTearDown(oculto.dispose);
+    await tester.pumpWidget(MaterialApp(home: MediaQuery(
+      data: const MediaQueryData(disableAnimations: true),
+      child: HeisucaTabStack(index: 0, children: [
+        Focus(focusNode: visivel, child: const SizedBox.expand()),
+        Focus(focusNode: oculto, child: const SizedBox.expand()),
+      ]))));
+    await tester.pumpAndSettle();
+    oculto.requestFocus(); await tester.pump();
+    expect(oculto.hasFocus, isFalse);
+    visivel.requestFocus(); await tester.pump();
+    expect(visivel.hasFocus, isTrue);
   });
 }

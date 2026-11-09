@@ -14,6 +14,7 @@ import { Imagem } from '../comp/Imagem';
 import { Topo } from '../comp/Navegacao';
 import { carregarSecundario, hashDoDestaque, prepararInicio, type DadosInicio } from '../dados/inicio';
 import { irAba, irTitulo, irVer } from '../rota';
+import { lembranca, lembrar } from '../anim/rolagem.ts';
 import './inicio.css';
 
 const TROCA = 8000;
@@ -30,13 +31,17 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
   const pendente = useRef<{ pedido: number; auto: boolean } | null>(null);
   const parado = useRef({ ponteiro: false, foco: false }), toque = useRef<number | null>(null);
   const casa = useRef<HTMLSpanElement>(null), marca = useRef<HTMLSpanElement>(null);
+  // H5: de volta do título, reabre no mesmo destaque e sem a entrada animada (a arte já chega pela transição)
+  const [deVolta] = useState(() => !!lembranca()?.destaque);
 
   useEffect(() => {
     let vivo = true;
     setD(null); setN(0); setAnterior(null);
     prepararInicio(s).then(critico => {
       if (!vivo) return;
+      const k = critico.destaque?.findIndex(i => i.Id === lembranca()?.destaque) ?? -1;
       setD(critico);
+      if (k > 0) setN(k);
       carregarSecundario(s).then(sec => {
         if (vivo) setD(prev => prev ? { ...prev, ...sec } : null);
       });
@@ -46,6 +51,7 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
   const lista = d?.destaque || [];
   const atual = lista[n];
   usePaleta(hashDoDestaque(s, atual));
+  useEffect(() => { if (atual) lembrar({ destaque: atual.Id }); }, [atual?.Id]);
 
   const ir = async (k: number, automatica = false) => {
     if (!lista.length) return;
@@ -99,7 +105,7 @@ export function Inicio({ s, pedir }: { s: Sessao; pedir: (e: EmBreve) => void })
   return (
     <main class="inicio">
       <Topo fundo={encaixou} />
-      <section class="destaque" aria-roledescription="carrossel" aria-label="Destaques"
+      <section class={`destaque${deVolta && anterior === null ? ' de-volta' : ''}`} aria-roledescription="carrossel" aria-label="Destaques"
         onFocusCapture={() => { parado.current.foco = true; }}
         onBlurCapture={e => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) parado.current.foco = false; }}
         onPointerEnter={e => { if (e.pointerType === 'mouse') parado.current.ponteiro = true; }}

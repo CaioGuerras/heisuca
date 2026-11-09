@@ -13,7 +13,8 @@ import { TrocarServidor } from './comp/TrocarServidor';
 import { registrarServidores } from './estado/casca';
 import { chaveDe, useRota } from './rota';
 import { congelarSaida } from './anim/saida';
-import { lembrarToques, trocarComArte } from './anim/continuidade';
+import { lembrarToques, trocarComArte, trocarDeVolta } from './anim/continuidade';
+import { ehRetorno } from './anim/rolagem.ts';
 import { Abertura } from './telas/Abertura';
 import { Biblioteca } from './telas/Biblioteca';
 import { Entrada } from './telas/Entrada';
@@ -75,6 +76,7 @@ function Casca({ s, trocar, atualizar, entrar, sair }: { s: Sessao; trocar: (s: 
   const r = useRota((nova, velha, aplicar) => {
     if (nova.tela === 'ver' || velha.tela === 'ver' || chaveDe(nova) === chaveDe(velha)) return false;
     if (nova.tela === 'titulo' && trocarComArte(aplicar)) return true; // H2: a arte tocada vira o fundo
+    if (velha.tela === 'titulo' && ehRetorno() && trocarDeVolta(aplicar)) return true; // H5: e volta ao cartão
     congelarSaida(); return false;
   });
   const [menu, setMenu] = useState<HTMLElement | null>(null);

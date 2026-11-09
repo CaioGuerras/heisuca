@@ -30,4 +30,8 @@ html.hs-vt .titulo-arte { view-transition-name: hs-arte; }
 }
 ::view-transition-old(root) { animation: hs-vt-sai var(--m-curto) var(--c-padrao) both; transform-origin: 50% 40%; }
 ::view-transition-new(root) { animation: none; }
+/* H5: de volta ao destaque, o texto aparece por cima da arte que chega (camada própria) */
+::view-transition-group(hs-destaque-texto) { animation: none; }
+::view-transition-new(hs-destaque-texto) { animation: hs-vt-entra var(--m-tela) var(--c-padrao) var(--m-sobrepor) both; }
+@keyframes hs-vt-entra { from { opacity: 0; } }
 @keyframes hs-vt-sai { to { opacity: 0; transform: scale(0.98); } }

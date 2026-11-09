@@ -10,6 +10,7 @@ test('Revisão9: escolher novamente o destaque atual cancela uma troca ainda dec
     '../api/servidor.ts': { fundo: (_s: unknown, i: any) => i.Id, logo: () => '', hashDe: () => '' },
     '../cor/paleta': { usePaleta() {} },
     '../comp/Cartoes': { anos: () => '', nota: () => '' },
+    '../anim/rolagem.ts': { lembranca: () => undefined, lembrar() {} },
     '../dados/inicio': { prepararInicio: async () => dados, carregarSecundario: async () => ({}), hashDoDestaque: () => '' },
   }, {
     Image: class { decode() { return new Promise<void>(r => { decodificar = r; }); } },

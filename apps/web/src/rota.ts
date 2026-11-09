@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { Item } from './api/tipos';
 import { guardarPrevia } from './dados/previa';
+import { entrarNaEntrada, iniciarRolagem, pararRestauro, restaurarRolagem, sairDaEntrada } from './anim/rolagem.ts';
 
 export type Rota =
   | { tela: 'inicio' } | { tela: 'biblioteca'; id?: string } | { tela: 'fav' } | { tela: 'busca' }
@@ -34,13 +35,18 @@ export function useRota(antes?: (nova: Rota, velha: Rota, aplicar: () => void) =
   const gancho = useRef(antes);
   gancho.current = antes;
   useEffect(() => {
+    iniciarRolagem();
     const f = () => {
       const nova = ler();
+      sairDaEntrada(scrollY); // H5: a tela velha ainda está rolada onde a pessoa deixou
       let feito = false;
       const aplicar = () => {
         if (feito) return;
         feito = true; atual.current = nova;
-        setR(nova); if (!history.state?.semRolar) scrollTo(0, 0);
+        const volta = entrarNaEntrada();
+        setR(nova);
+        if (history.state?.semRolar) return;
+        if (volta?.y) void restaurarRolagem(volta.y); else { pararRestauro(); scrollTo(0, 0); }
       };
       let adiado = false;
       try { adiado = gancho.current?.(nova, atual.current, aplicar) === true; } catch { /* animação nunca impede a navegação */ }

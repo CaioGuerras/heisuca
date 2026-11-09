@@ -5,7 +5,7 @@
 /* Duas camadas: a anterior fica inteira sob a nova até a dissolvência terminar. */
 .destaque-artes { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
 .destaque-arte { position: absolute !important; inset: 0; opacity: 1; }
-.destaque-arte.atual { z-index: 1; animation: destaque-revela .6s var(--hs-curva-padrao); }
+.destaque-arte.atual { z-index: 1; animation: destaque-revela var(--m-grande) var(--c-padrao), destaque-aproxima 900ms var(--c-entra); }
 .destaque-arte img { object-position: center 18%; transition: none; }
 /* Dissolve nos quatro lados, com a base sólida por trás do texto em ambos os temas. */
 .destaque-artes::after { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none;
@@ -16,11 +16,20 @@
    mancha preta no alto à esquerda e uma faixa escura sob o topo, sobre a página marrom/roxa (rodada 7, desk_inicio). */
 [data-tema="shikkoku"] .destaque-artes::before { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none;
   background-color: var(--hs-pagina); mix-blend-mode: lighten; transition: background-color var(--hs-tempo-cor) var(--hs-curva-padrao); }
+/* H4: a arte nova dissolve sobre a anterior e assenta (1,04 → 1); o texto entra em escada, logo depois */
 @keyframes destaque-revela { from { opacity: 0; } to { opacity: 1; } }
+@keyframes destaque-aproxima { from { transform: scale(1.04); } }
 
 /* sem z-index aqui: a logo precisa subir por cima do véu do topo (z 30) quando encaixa */
 .destaque-texto { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center;
-  width: 100%; max-width: 640px; color: var(--hs-texto); cursor: pointer; animation: destaque-entra .7s var(--hs-curva-padrao) backwards; }
+  width: 100%; max-width: 640px; color: var(--hs-texto); cursor: pointer; }
+.destaque-casa, .destaque-meta, .destaque-sinopse { animation: destaque-entra var(--m-tela) var(--c-padrao) backwards; }
+.destaque-casa { animation-delay: var(--m-sobrepor); }
+.destaque-meta { animation-delay: calc(var(--m-sobrepor) + var(--m-escada)); }
+.destaque-sinopse { animation-delay: calc(var(--m-sobrepor) + var(--m-escada) * 2); }
+/* H5: de volta do título, o destaque já está no lugar (a arte chega pela transição): nada entra de novo */
+.destaque.de-volta .destaque-arte.atual, .destaque.de-volta .destaque-casa, .destaque.de-volta .destaque-meta,
+.destaque.de-volta .destaque-sinopse { animation: none; }
 .destaque-casa { display: flex; justify-content: center; align-items: flex-end; min-height: 46px; margin-bottom: 6px; }
 .destaque-marca { position: relative; z-index: 31; display: block; transform-origin: 50% 50%; will-change: transform; }
 .destaque-logo { max-width: min(54vw, 210px); max-height: 56px; width: auto; height: auto; object-fit: contain;
@@ -150,5 +159,5 @@
 [data-tema="hisui"] .tela-inicio .topo:not(.com-fundo) .topo-marca .palavra path { fill: var(--hs-texto); }
 [data-tema="hisui"] .tela-inicio .topo:not(.com-fundo) .topo-marca svg { filter: none; }
 @media (prefers-reduced-motion: reduce) {
-  .destaque-arte.atual, .destaque-texto { animation: none !important; }
+  .destaque-arte.atual, .destaque-casa, .destaque-meta, .destaque-sinopse { animation: none !important; }
 }

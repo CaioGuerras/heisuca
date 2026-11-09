@@ -83,6 +83,9 @@ O portão local passou; resultados remotos ou ainda em execução não são apro
   O parecer final só declara zero falhas novas após a comparação por nome. Revisão independente Claude/Gemini ainda pendente.
 - Fontes de API: [PackageManager](https://developer.android.com/reference/android/content/pm/PackageManager),
   [Intent](https://developer.android.com/reference/android/content/Intent#ACTION_INSTALL_PACKAGE).
+- Ajuste de CI após D4: caminho do split ARM64 corrigido para `app-arm64-v8a-direct-release.apk`, conforme gerador
+  do FlutterPlugin.kt 3.47.1 (ABI antes do flavor). Diagnóstico com arquivo sintético reproduziu caminho ausente e passou com o nome certo;
+  não substitui compilação real. `/tmp/ultron-d-ci-apk-path-check.log`. Código do app e versão mantidos; CI reiniciado.
 
 ## 08/11/2026 — TV, pacotes A/B/C (Ultron)
 

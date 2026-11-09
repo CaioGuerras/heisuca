@@ -1,9 +1,0 @@
-/* 2ª animação (Transicao.tsx). A camada cobre a casca (que monta a home por baixo) até o selo se abrir sobre ela. */
-.transicao { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; background: var(--hs-tema-cor-fundo); }
-.transicao-logo { position: relative; width: min(540px, 80vw, 92vh); will-change: transform; }
-/* o campo do selo: nasce com o tamanho exato do selo e se abre até cobrir a tela (clip-path) */
-.transicao-campo { position: absolute; inset: 0; visibility: hidden; will-change: clip-path; }
-/* o traço de luz e o recorte da palavra (a abertura ao contrário) */
-.transicao .logo-marca .luz { display: inline; opacity: 0; }
-.transicao .palavra, .transicao .selo-kanji, .transicao .carimbo { transform-box: fill-box; transform-origin: 50% 50%; }
-.transicao .luz { transform-box: fill-box; transform-origin: 0 50%; }

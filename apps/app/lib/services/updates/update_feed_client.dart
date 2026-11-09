@@ -8,7 +8,9 @@ class ConfiguracaoAtualizacao {
   factory ConfiguracaoAtualizacao.doBuild() => ConfiguracaoAtualizacao(
     feed: const String.fromEnvironment('HEISUCA_UPDATE_FEED_URL'),
     hostsApk: const String.fromEnvironment('HEISUCA_UPDATE_APK_HOSTS'),
-    distribuicao: const String.fromEnvironment('HEISUCA_DISTRIBUTION', defaultValue: 'direct'),
+    distribuicao: const String.fromEnvironment('FLUTTER_APP_FLAVOR') == 'play'
+        ? 'play'
+        : const String.fromEnvironment('HEISUCA_DISTRIBUTION', defaultValue: 'direct'),
   );
   final String feed, hostsApk, distribuicao;
   Uri? get origem {

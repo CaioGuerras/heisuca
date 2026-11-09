@@ -49,6 +49,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.roundToInt
 
 class MainActivity : FlutterActivity() {
+  private var atualizadorApk: app.heisuca.updates.ApkInstaller? = null
   private val heisucaSecurity by lazy { HeisucaSecurityChannel(this) }
 
   companion object {
@@ -673,6 +674,8 @@ class MainActivity : FlutterActivity() {
   }
 
   override fun onDestroy() {
+    atualizadorApk?.fechar()
+    atualizadorApk = null
     heisucaSecurity.dispose()
     externalPlayerChannel.dispose()
     systemBarsInsetsHost?.setOnApplyWindowInsetsListener(null)
@@ -912,6 +915,11 @@ class MainActivity : FlutterActivity() {
 
   override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
     super.configureFlutterEngine(flutterEngine)
+    if (BuildConfig.HEISUCA_ATUALIZADOR) {
+      atualizadorApk = app.heisuca.updates.ApkInstaller(this).also {
+        it.registrar(flutterEngine.dartExecutor.binaryMessenger)
+      }
+    }
     flutterEngine.plugins.add(MpvPlayerPlugin())
     flutterEngine.plugins.add(ExoPlayerPlugin())
     flutterEngine.plugins.add(MpvAudioPlayerPlugin())

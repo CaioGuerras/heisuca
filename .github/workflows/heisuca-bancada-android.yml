@@ -71,7 +71,9 @@ jobs:
           ORG_GRADLE_PROJECT_targetAbi: x86_64
           ORG_GRADLE_PROJECT_heisucaPreview: "true"
           GRADLE_OPTS: -Dorg.gradle.caching=false -Dorg.gradle.jvmargs=-Xmx3g
-        run: flutter build apk --debug --target integration_test/bancada_android_test.dart --target-platform android-x64
+        run: |
+          flutter build apk --debug --flavor direct --target integration_test/bancada_android_test.dart --target-platform android-x64
+          cp build/app/outputs/flutter-apk/app-direct-debug.apk build/app/outputs/flutter-apk/app-debug.apk
       - name: Liberar espaço da compilação antes do emulador
         run: |
           # O percurso instala o APK pronto (executar.py: adb install e flutter drive --use-application-binary).

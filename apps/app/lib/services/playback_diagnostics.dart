@@ -57,6 +57,7 @@ class PlaybackDiagnosticStore {
   };
   static const _booleans = {'buffering', 'playing', 'hasRendered', 'statsAvailable', 'watchdogDisarmed'};
   static const _labels = {
+    'abi',
     'event',
     'session',
     'engine',

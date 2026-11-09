@@ -4,7 +4,7 @@
 
 Base `5da72fd`, contém C entregue e spec `2dba3aa`, lida integralmente. Ramo único `codex/heisuca-home-site`.
 Sem servidor, feed real, domínio inventado, promoção, release/AAB ou distribuição de APK. Revisão Claude pendente.
-Versão reservada para o pacote D: **TESTE 2.0.34+42**; applicationIds preservados.
+Versão do pacote D: **TESTE 2.0.34+2042**; applicationIds preservados.
 
 ### Unidade D1 — feed e verificação
 
@@ -23,7 +23,7 @@ Versão reservada para o pacote D: **TESTE 2.0.34+42**; applicationIds preservad
 
 ### Pendências da implementação D
 
-Download/cache/cancelamento; instalador Kotlin e variantes; UI/direcional; CI Play/direta e bancada com feed TLS local;
+UI/direcional; CI Play/direta e bancada com feed TLS local;
 portão/suíte comparada com base, evidências de APK/assinatura e revisão independente. Nada aqui declara o D entregue.
 
 ### Unidade D2 — download privado e cancelamento
@@ -35,6 +35,28 @@ portão/suíte comparada com base, evidências de APK/assinatura e revisão inde
 - TDD: esqueleto **3 passaram / 5 falharam**; teste adicional de falha no encerramento do fluxo falhou antes da correção.
   Final: **30 passaram** (21 de D1 + 9 de D2), análise estrita de dois arquivos sem achados.
   Logs `/tmp/ultron-d2-red.log`, `/tmp/ultron-d2-cleanup-red.log`, `/tmp/ultron-d2-green-final.log`.
+
+### Unidade D3 — instalador, ABI e variantes
+
+- Variantes Android `direct` (padrão) e `play`; só direta declara `REQUEST_INSTALL_PACKAGES` e registra o canal nativo.
+  A Play desativa o atualizador também pelo `FLUTTER_APP_FLAVOR`; `heisucaLoja` não aceita tarefa direct.
+  Nenhum applicationId/sufixo foi alterado. Workflows preservam os nomes de arquivo consumidos pelas bancadas.
+- `ApkInstaller` escolhe por `Build.SUPPORTED_ABIS`, usa universal apenas como reserva, reconfirma tamanho/SHA,
+  pacote, build maior/exato e certificado do arquivo contra feed **e app instalado**. Rejeitados são removidos do próprio cache.
+  Só arquivos de `cache/updates` podem ganhar URI do FileProvider existente; symlinks para fora são recusados.
+- Sem permissão abre Ajustes do sistema; sem tela disponível devolve orientação manual. Instalação usa
+  `ACTION_INSTALL_PACKAGE` + URI com grant de leitura; usuário confirma. Hash/leitura de APK rodam fora da UI.
+- ABI fica em evento `updateAbi` no arquivo local C, sem URL/código. Preferência local de ABI será ligada na unidade UI.
+- TDD JVM: esqueleto **5 falharam / 2 passaram**; política final **7 passaram**. Regressão adicional de elo fora do diretório
+  também falhou antes da correção. Adaptador Kotlin compilado contra Android 36/Flutter; configuração Gradle real passou.
+- TDD Dart: **2 falharam / 1 passou** no esqueleto; final **3 novos + 7 existentes do registro C passaram**.
+  Análise estrita de quatro arquivos Dart sem achados. Python: quatro casos falharam antes, quatro passaram após.
+- Normalização necessária: na base, Flutter split ARM64 soma 2000 ao build e CI iguala o universal. Assim C +41 gera
+  `versionCode=2041`. D usa pubspec +2042 e `force-version-code-ignoring-abi=true`, sem acréscimo manual no universal.
+  Todos os APKs terão build igual ao feed, acima dos anteriores. O validador passa a exigir essa igualdade e a permissão por variante.
+- Logs `/tmp/ultron-d3-native-red.log`, `/tmp/ultron-d3-containment-red.log`, `/tmp/ultron-d3-native-final.log`,
+  `/tmp/ultron-d3-installer-red.log`, `/tmp/ultron-d3-installer-green.log`, `/tmp/ultron-d3-variants-{red,green}.log`,
+  `/tmp/ultron-d3-gradle-config.log`. Manifestos/binários finais e bancadas ainda aguardam CI.
 
 ## 08/11/2026 — TV, pacotes A/B/C (Ultron)
 

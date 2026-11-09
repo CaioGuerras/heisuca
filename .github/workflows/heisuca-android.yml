@@ -111,7 +111,7 @@ jobs:
       - name: Testar limites nativos do buffer mpv
         run: |
           cd android
-          ./gradlew :app:testDebugUnitTest --tests app.heisuca.mpv.HeisucaBufferBudgetTest --tests app.heisuca.HeisucaPipParamsTest --tests app.heisuca.HeisucaDownloadNotificationTest --tests app.heisuca.mpv.MpvPlayerBackgroundAudioTest --tests app.heisuca.ExternalFileContainmentTest --tests app.heisuca.shared.MediaCodecQueryTest -PtargetAbi=arm64-v8a -PheisucaPreview=true
+          ./gradlew :app:testDirectDebugUnitTest --tests app.heisuca.mpv.HeisucaBufferBudgetTest --tests app.heisuca.HeisucaPipParamsTest --tests app.heisuca.HeisucaDownloadNotificationTest --tests app.heisuca.mpv.MpvPlayerBackgroundAudioTest --tests app.heisuca.ExternalFileContainmentTest --tests app.heisuca.shared.MediaCodecQueryTest --tests app.heisuca.updates.* -PtargetAbi=arm64-v8a -PheisucaPreview=true
 
       - name: Compilar APK Release (arm64-v8a)
         run: |
@@ -119,7 +119,8 @@ jobs:
           if [[ "$GITHUB_REF_NAME" == codex/heisuca-* || "$GITHUB_REF_NAME" == claude/heisuca-* ]]; then
             preview_args+=(-PheisucaPreview=true)
           fi
-          flutter build apk --release --target-platform android-arm64 --split-per-abi -PtargetAbi=arm64-v8a "${preview_args[@]}" --dart-define=GIT_COMMIT=${{ github.sha }}
+          flutter build apk --release --flavor direct --target-platform android-arm64 --split-per-abi -PtargetAbi=arm64-v8a "${preview_args[@]}" --dart-define=GIT_COMMIT=${{ github.sha }}
+          cp build/app/outputs/flutter-apk/app-direct-arm64-v8a-release.apk build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
 
       - name: Conferir pacote, providers e assinatura do APK
         run: python3 scripts/heisuca-validar-apk.py build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
@@ -156,7 +157,7 @@ jobs:
 
       # Universal arm + arm64 para Fire TV Stick e TV box de 32 bits (sideload pelo Downloader; .aab não serve).
       # Sem -PtargetAbi: o preparo do FFmpeg cobre todas as ABIs; -PheisucaAbis tira do pacote as libs de x86/x86_64.
-      # versionCode igual ao do split arm64 (2000 + build) para um poder substituir o outro sem "downgrade".
+      # Mesmo versionCode do pubspec em todas as ABIs, sem acréscimo do Flutter; o feed usa esse número.
       - name: Compilar APK Release universal (armeabi-v7a + arm64-v8a)
         run: |
           preview_args=()
@@ -165,8 +166,8 @@ jobs:
           fi
           build_number=$(sed -n 's/^version: *[^+]*+\([0-9]\+\).*/\1/p' pubspec.yaml)
           [ -n "$build_number" ] || { echo "::error::build number não encontrado no pubspec.yaml"; exit 1; }
-          rm -f build/app/outputs/flutter-apk/app-release.apk
-          flutter build apk --release --target-platform android-arm,android-arm64 --build-number "$((2000 + build_number))" -PheisucaAbis=armeabi-v7a,arm64-v8a "${preview_args[@]}" --dart-define=GIT_COMMIT=${{ github.sha }}
+          flutter build apk --release --flavor direct --target-platform android-arm,android-arm64 --build-number "$build_number" -PheisucaAbis=armeabi-v7a,arm64-v8a "${preview_args[@]}" --dart-define=GIT_COMMIT=${{ github.sha }}
+          cp build/app/outputs/flutter-apk/app-direct-release.apk build/app/outputs/flutter-apk/app-release.apk
 
       - name: Conferir ABIs, pacote e assinatura do APK universal
         run: |
@@ -267,7 +268,7 @@ jobs:
           } > android/key.properties
 
       - name: Compilar AAB Release (Play)
-        run: flutter build appbundle --release -PheisucaLoja=true --dart-define=GIT_COMMIT=${{ github.sha }}
+        run: flutter build appbundle --release --flavor play -PheisucaLoja=true --dart-define=GIT_COMMIT=${{ github.sha }}
 
       - name: Conferir assinatura e pacote do AAB
         run: python3 scripts/heisuca-validar-aab.py build/app/outputs/bundle/release/app-release.aab

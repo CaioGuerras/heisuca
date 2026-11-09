@@ -47,7 +47,12 @@ jobs:
           ORG_GRADLE_PROJECT_heisucaPreview: "true"
           GRADLE_OPTS: -Dorg.gradle.caching=false -Dorg.gradle.jvmargs=-Xmx3g
         # Só x86_64: o Flutter 3.47 não compila para x86 de 32 bits e o sqlite3 não tem ia32.
-        run: flutter build apk --debug --target-platform android-x64
+        run: |
+          flutter build apk --debug --flavor direct --target-platform android-x64
+          cp build/app/outputs/flutter-apk/app-direct-debug.apk build/app/outputs/flutter-apk/app-debug.apk
+          python3 scripts/heisuca-validar-apk.py build/app/outputs/flutter-apk/app-direct-debug.apk --permission-only --distribution direct
+          flutter build apk --debug --flavor play --target-platform android-x64
+          python3 scripts/heisuca-validar-apk.py build/app/outputs/flutter-apk/app-play-debug.apk --permission-only --distribution play
       - name: Publicar APK de depuração para os executores de TV
         uses: actions/upload-artifact@v4
         with:

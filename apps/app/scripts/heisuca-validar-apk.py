@@ -8,6 +8,8 @@ import subprocess
 import sys
 import xml.etree.ElementTree as ET
 import zipfile
+import argparse
+from heisuca_update_policy import validar_permissao, validar_build
 
 
 def validate_source():
@@ -27,12 +29,29 @@ def validate_source():
 
 
 validate_source()
-if sys.argv[1] == "--source-only":
+parser = argparse.ArgumentParser()
+parser.add_argument('apk', nargs='?')
+parser.add_argument('--source-only', action='store_true')
+parser.add_argument('--permission-only', action='store_true', help='Só manifesto/permissão e versionCode; não aprova assinatura')
+parser.add_argument('--distribution', choices=['direct', 'play'], default='direct')
+parser.add_argument('--expected-build', type=int)
+args = parser.parse_args()
+if args.source_only:
     raise SystemExit(0)
+if not args.apk:
+    parser.error('APK obrigatório')
 
-apk = Path(sys.argv[1]).resolve()
+apk = Path(args.apk).resolve()
 sdk = Path(os.environ.get('ANDROID_HOME') or os.environ['ANDROID_SDK_ROOT'])
 tools = sdk / 'build-tools' / '36.1.0'
+badging = subprocess.check_output([str(tools / 'aapt'), 'dump', 'badging', str(apk)], text=True)
+validar_permissao(badging, args.distribution)
+pubspec = (Path(__file__).resolve().parents[1] / 'pubspec.yaml').read_text()
+esperado = args.expected_build or int(re.search(r'^version:\s*[^+]+\+(\d+)', pubspec, re.M).group(1))
+validar_build(badging, esperado)
+print(f'Variante {args.distribution}: permissão conferida e versionCode={esperado}.')
+if args.permission_only:
+    raise SystemExit(0)
 # Impressão digital (SHA-256) do certificado de assinatura do Heisuca (chave de envio/teste).
 EXPECTED_CERT_SHA256 = 'd415544dae728cd8d402827f1bf17b6af00b2443295b3bad8b463d65d3acd4c1'
 certs = subprocess.run([str(tools / 'apksigner'), 'verify', '--print-certs', str(apk)],
@@ -41,7 +60,6 @@ print(certs)
 digests = re.findall(r'certificate SHA-256 digest: ([0-9a-fA-F]{64})', certs)
 assert digests and all(d.lower() == EXPECTED_CERT_SHA256 for d in digests), \
     'APK não está assinado com a chave do Heisuca (certificado inesperado)'
-badging = subprocess.check_output([str(tools / 'aapt'), 'dump', 'badging', str(apk)], text=True)
 manifest = subprocess.check_output([str(tools / 'aapt'), 'dump', 'xmltree', str(apk), 'AndroidManifest.xml'], text=True)
 preview = os.environ.get('GITHUB_REF_NAME', '').startswith(('codex/heisuca-', 'claude/heisuca-'))
 package = 'app.heisuca.player.teste.home' if preview else 'app.heisuca.player.teste'

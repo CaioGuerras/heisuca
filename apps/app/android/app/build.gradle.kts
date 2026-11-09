@@ -261,6 +261,9 @@ val heisucaPreview = providers.gradleProperty("heisucaPreview").orNull == "true"
 // Build da Play (AAB): pacote do app publicado e só com a chave do Heisuca (key.properties), nunca a de debug.
 val heisucaLoja = providers.gradleProperty("heisucaLoja").orNull == "true"
 if (heisucaLoja && heisucaPreview) throw GradleException("heisucaLoja e heisucaPreview não podem ir juntos")
+if (heisucaLoja && gradle.startParameter.taskNames.any { it.contains("direct", ignoreCase = true) }) {
+  throw GradleException("A build da loja exige --flavor play, sem atualizador")
+}
 // APK universal sem split (ex.: -PheisucaAbis=armeabi-v7a,arm64-v8a para Fire TV Stick/TV box de 32 bits): o
 // --target-platform do Flutter não filtra as libs nativas dos plugins, que viriam também para x86_64.
 val heisucaAbis = providers.gradleProperty("heisucaAbis").orNull
@@ -270,6 +273,17 @@ if (!heisucaAbisConhecidas.containsAll(heisucaAbis)) throw GradleException("heis
 
 android {
   buildFeatures { buildConfig = true }
+  flavorDimensions += "distribuicao"
+  productFlavors {
+    create("direct") {
+      dimension = "distribuicao"
+      buildConfigField("boolean", "HEISUCA_ATUALIZADOR", (!heisucaLoja).toString())
+    }
+    create("play") {
+      dimension = "distribuicao"
+      buildConfigField("boolean", "HEISUCA_ATUALIZADOR", "false")
+    }
+  }
   namespace = "app.heisuca"
   compileSdk = flutter.compileSdkVersion
   buildToolsVersion = "36.1.0"

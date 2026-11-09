@@ -27,7 +27,7 @@ class HeisucaBase {
     static const fonteKanji = 'Shippori Mincho'; /** OFL; selo ≥ 48 px e textos japoneses */
     static const fonteKanjiPequeno = 'Noto Sans JP'; /** OFL; selo ≤ 32 px (peso 900) */
     static const fonteKids = 'Fredoka'; /** OFL; títulos do modo kids */
-    static const fonteLogotipo = 'Sora'; /** OFL-1.1; só o logotipo HEISUCA (Caio, 09/11) */
+    static const fonteLogotipo = 'Sora'; /** OFL-1.1; só o logotipo HEISUCA (09/11) */
     static const fonteTexto = 'Inter'; /** OFL-1.1 */
     static const fonteTitulo = 'Inter'; /** OFL-1.1; títulos (09/11: Sora saiu dos títulos) */
     static const marcaKanjiDoSelo = Color(0xFFFFF8F0); /** 炳素華 sobre a cor do selo de cada tema */

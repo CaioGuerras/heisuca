@@ -51,8 +51,23 @@ def instalador_aberto(janelas):
     return re.search(r'(?im)^.*(?:mCurrentFocus|mFocusedApp)=.*packageinstaller', janelas) is not None
 
 
+def esperar_dispositivo(segundos=120):
+    def pronto():
+        try:
+            return (adb('get-state').strip() == 'device' and
+                    adb('shell', 'getprop', 'sys.boot_completed').strip() == '1' and
+                    adb('shell', 'pm', 'path', 'android').strip().startswith('package:'))
+        except (subprocess.SubprocessError, RuntimeError):
+            return False
+    return bool(aguardar(pronto, segundos))
+
+
 def adb(*args):
-    return subprocess.run(['adb', *args], check=True, capture_output=True, timeout=30).stdout.decode('utf8', 'replace')
+    resultado = subprocess.run(['adb', *args], capture_output=True, timeout=120 if args[0] == 'install' else 30)
+    if resultado.returncode:
+        detalhe = (resultado.stderr or resultado.stdout).decode('utf8', 'replace').strip()[:400]
+        raise RuntimeError('ADB falhou: ' + detalhe)
+    return resultado.stdout.decode('utf8', 'replace')
 
 
 def hierarquia():
@@ -159,6 +174,7 @@ def executar(args):
         (evidencias / (str(len(etapas)) + '.png')).write_bytes(captura.stdout)
 
     try:
+        esperar_dispositivo()
         adb('install', '-r', str(pasta / 'base.apk'))
         adb('shell', 'appops', 'set', PACOTE, 'REQUEST_INSTALL_PACKAGES', 'deny')
         adb('shell', 'am', 'start', '-n', PACOTE + '/app.heisuca.MainActivity')

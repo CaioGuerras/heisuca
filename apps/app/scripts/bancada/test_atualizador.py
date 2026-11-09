@@ -3,7 +3,9 @@ import hashlib
 import tempfile
 from pathlib import Path
 import unittest
-from atualizador import montar_feed, confirmar_build, achar_rotulo, configuracoes_abertas, instalador_aberto
+import subprocess
+from unittest.mock import patch
+from atualizador import montar_feed, confirmar_build, achar_rotulo, configuracoes_abertas, instalador_aberto, esperar_dispositivo
 
 
 class AtualizadorBancadaTest(unittest.TestCase):
@@ -39,6 +41,19 @@ class AtualizadorBancadaTest(unittest.TestCase):
         self.assertFalse(instalador_aberto(fundo))
         self.assertTrue(configuracoes_abertas('mCurrentFocus=Window{123 com.android.tv.settings/.MainSettings}'))
         self.assertTrue(instalador_aberto('mCurrentFocus=Window{123 com.google.android.packageinstaller/.InstallActivity}'))
+
+    def test_espera_adb_online_boot_e_package_manager_antes_de_instalar(self):
+        with patch('atualizador.adb') as comandos, patch('atualizador.time.sleep'):
+            comandos.side_effect = [subprocess.CalledProcessError(1, ['adb']), 'device', '1', '',
+                                    'device', '1', 'package:/system/framework/framework-res.apk']
+            self.assertTrue(esperar_dispositivo())
+            self.assertEqual(comandos.call_count, 7)
+
+    def test_dispositivo_que_nao_inicia_falha_sem_aprovar_o_percurso(self):
+        with patch('atualizador.adb', side_effect=subprocess.CalledProcessError(1, ['adb'])), \
+             patch('atualizador.time.monotonic', side_effect=[0, 0, 200]), patch('atualizador.time.sleep'):
+            with self.assertRaises(AssertionError):
+                esperar_dispositivo()
 
 
 if __name__ == "__main__":

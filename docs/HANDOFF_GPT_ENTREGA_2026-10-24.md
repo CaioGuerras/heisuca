@@ -4,6 +4,7 @@
 
 Base `5da72fd`, contém C entregue e spec `2dba3aa`, lida integralmente. Ramo único `codex/heisuca-home-site`.
 Sem servidor, feed real, domínio inventado, promoção, release/AAB ou distribuição de APK. Revisão Claude pendente.
+APKs retidos; somente Caio e Rosiel podem recebê-los depois da revisão independente.
 Versão do pacote D: **TESTE 2.0.34+2042**; applicationIds preservados.
 
 ### Unidade D1 — feed e verificação
@@ -79,13 +80,37 @@ O portão local passou; resultados remotos ou ainda em execução não são apro
   zero achados novos. `/tmp/ultron-d-strict-clean.log`, `/tmp/ultron-d-analyze-final.log`, `/tmp/ultron-d-main-base-analyze.log`.
 - Portão final: **170 Python, 2.273 Flutter (3 pulados), 8 Impeller**, verde. `/tmp/ultron-d-gate.log`.
   Execução `ultron-d-gate-before-title-fix.log` é anterior e falhou no teste novo do título; não é evidência final.
-- Suite integral D iniciada em `/tmp/ultron-d-full.log`, base de comparação C `5da72fd`: **9.222 passaram, 59 pulados, 10 falharam**.
-  O parecer final só declara zero falhas novas após a comparação por nome. Revisão independente Claude/Gemini ainda pendente.
+- Suíte integral D: **9.262 passaram, 59 pulados, 10 falharam**. Base C `5da72fd`: **9.222/59/10**.
+  Comparação exata dos nomes: **zero falhas novas**, nenhuma falha da base omitida. `/tmp/ultron-d-full.log` e
+  `/tmp/ultron-d-comparison.json`. São os mesmos casos de perfil local (1), editor mpv TV (6), recuperação de banco (1)
+  e controles de vídeo (2). A suíte geral mantém essas falhas; o portão oficial está verde.
+  Revisão independente Claude/Gemini ainda pendente.
 - Fontes de API: [PackageManager](https://developer.android.com/reference/android/content/pm/PackageManager),
   [Intent](https://developer.android.com/reference/android/content/Intent#ACTION_INSTALL_PACKAGE).
 - Ajuste de CI após D4: caminho do split ARM64 corrigido para `app-arm64-v8a-direct-release.apk`, conforme gerador
   do FlutterPlugin.kt 3.47.1 (ABI antes do flavor). Diagnóstico com arquivo sintético reproduziu caminho ausente e passou com o nome certo;
   não substitui compilação real. `/tmp/ultron-d-ci-apk-path-check.log`. Código do app e versão mantidos; CI reiniciado.
+- Commits de unidade: D1 `79a50e5`, D2 `177484a`, D3 `56eb488`, D4 `11d5bc0`; correção de CI `f4df4b2`.
+  `git diff 11d5bc0 f4df4b2 -- apps/app` vazio: testes da árvore do app continuam válidos após a correção do caminho.
+- Runs finais ainda em acompanhamento: Android `42549161215`, Segurança `42549161217`, Atualizador TV `42549161220`.
+  TV normal `42548399876` usa a mesma árvore do app e já confirmou permissões direta/Play; percorre Google TV e TV box.
+  Repetição TV `42549161214`, Bancada Android `42549161213`, Desastrado `42549161210`; pendentes não são aprovação.
+- Android `42549161215` **verde**, inclusive MobSF, testes nativos e validação de ambos os APKs. AAB pulado.
+  Segurança `42549161217` verde. TV `42548399876` verde (Google TV e TV box 1,5 GB); mesma árvore de app de `f4df4b2`.
+- APKs de TESTE retidos para revisão: [ARM64](https://github.com/CaioGuerras/heisuca/actions/runs/42549161215/artifacts/13645241729)
+  e [universal](https://github.com/CaioGuerras/heisuca/actions/runs/42549161215/artifacts/13645636464); expiram em 23/11.
+  Ambos `versionCode=2042`, pacote `app.heisuca.player.teste.home`, nome Heisuca Teste, certificado
+  `d415544dae728cd8d402827f1bf17b6af00b2443295b3bad8b463d65d3acd4c1` (igual à base C).
+  SHA-256 APK ARM64 `31d819e2c23652d1ca26e4dd0fbaed1471cbf2b5785b914b101b9a603b9c8458` (99.183.773 bytes);
+  universal `479cb8e54481220ce7079c1d773acf20b2f5a6e3592dedf13578c2b856ebf30b` (179.913.751 bytes).
+- Bancada Atualizador TV `42549161220`: **falhou antes de abrir o app**, em `adb install`; logs de transporte ADB offline,
+  sem detalhe do comando capturado no primeiro relatório. Não é aprovação, nem causa raiz atribuída ao app ou à infraestrutura.
+  Os dois APKs sintéticos compilaram. Automação foi ajustada para esperar transporte/boot/PackageManager, preservar o erro ADB
+  e encerrar daemons de compilação da própria VM antes do emulador. TDD dos dois casos novos: falharam antes, passaram depois;
+  total Python agora **172 passaram** (`/tmp/ultron-d-adb-red.log`, `/tmp/ultron-d-python-final.log`). Nova bancada pendente.
+- As últimas alterações são somente automação/relatório; nenhum Dart, Kotlin, recurso do app ou pubspec mudou depois dos testes/APKs.
+  Oferta disponível fica em memória; uma reinicialização do processo dentro da janela diária não refaz a consulta.
+  A revisão deve avaliar persistência da oferta ou exceção manual à janela, sem inventar alteração na regra diária nesta entrega.
 
 ## 08/11/2026 — TV, pacotes A/B/C (Ultron)
 

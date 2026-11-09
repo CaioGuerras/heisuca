@@ -73,6 +73,12 @@ jobs:
           test -n "$assinatura_apk"
           echo "HEISUCA_BANCADA_BUILD=$numero_build" >> "$GITHUB_ENV"
           echo "HEISUCA_BANCADA_CERT=$assinatura_apk" >> "$GITHUB_ENV"
+      - name: Liberar os processos da compilação antes de iniciar o emulador
+        run: |
+          (cd android && ./gradlew --stop) || true
+          pkill -f '[K]otlinCompileDaemon' || true
+          sleep 2
+          free -m
       - name: Emulador TV e percurso real do atualizador
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
         with:

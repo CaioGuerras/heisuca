@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 enum HeisucaServiceType {
   jellyfin(
     nome: 'Jellyfin / Emby',
-    descricao: 'Servidor completo com suporte a múltiplos usuários, pedidos e syncplay.',
+    descricao: 'Servidor completo, com vários usuários e pedidos.',
     icone: Icons.dns_rounded,
     badge: 'Recomendado',
   ),

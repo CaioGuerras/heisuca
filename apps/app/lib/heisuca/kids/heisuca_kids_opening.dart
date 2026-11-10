@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../cgflix/cgflix_palette.dart';
+import '../../utils/platform_detector.dart';
 import '../../services/device_performance.dart';
 import 'heisuca_kids_photo.dart';
 
@@ -71,10 +72,9 @@ class _HeisucaKidsOpeningState extends State<HeisucaKidsOpening> with SingleTick
 
   @override
   Widget build(BuildContext context) {
-    final palette = CgflixPalette.forVariant(
-      widget.variant,
-      dark: MediaQuery.platformBrightnessOf(context) == Brightness.dark,
-    );
+    final palette = PlatformDetector.isTV()
+        ? context.cgflix
+        : CgflixPalette.forVariant(widget.variant, dark: MediaQuery.platformBrightnessOf(context) == Brightness.dark);
     final ichigo = widget.variant == CgflixThemeVariant.ichigo;
     final name = widget.name.trim().isEmpty ? '' : ', ${widget.name.trim().characters.take(24)}';
     return Material(

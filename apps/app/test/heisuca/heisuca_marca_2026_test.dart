@@ -1,3 +1,4 @@
+import 'package:heisuca/heisuca/kids/heisuca_kids_opening.dart';
 import 'package:heisuca/cgflix/cgflix_app_icon.dart';
 import 'dart:io';
 import 'package:heisuca/theme/mono_theme.dart';
@@ -66,6 +67,9 @@ void main() {
     'roxo': 'oled',
     'dark': 'oled',
     'projetor': 'sumi',
+    'claro': 'light',
+    'Matinê': 'light',
+    'Automático': 'system',
   }.entries) {
     test('migra e persiste o nome antigo ${entrada.key}', () async {
       resetSharedPreferencesForTest(initialAsync: {'theme_mode': entrada.key});
@@ -110,6 +114,25 @@ void main() {
     expect(cgflixWantsHeitorIcon(settings.ThemeMode.system), isTrue);
     tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
     expect(cgflixWantsHeitorIcon(settings.ThemeMode.system), isFalse);
+  });
+  testWidgets('TV: abertura infantil mantém Shikkoku ou Sumi, mesmo com sistema claro', (tester) async {
+    TvDetectionService.debugSetTvOverride(true);
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.light;
+    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+    for (final adult in [CgflixThemeVariant.isis, CgflixThemeVariant.sumi]) {
+      final theme = cgflixAppTheme(adult);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: theme,
+          home: const HeisucaKidsOpening(variant: CgflixThemeVariant.ichigo, name: 'Perfil'),
+        ),
+      );
+      final material = tester.widget<Material>(
+        find.descendant(of: find.byType(HeisucaKidsOpening), matching: find.byType(Material)).first,
+      );
+      expect(material.color, theme.extension<CgflixPalette>()!.background);
+      await tester.pumpWidget(const SizedBox());
+    }
   });
   test('tema aplicado usa tokens e botão neutro', () {
     final tema = cgflixAppTheme();

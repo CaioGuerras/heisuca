@@ -133,7 +133,7 @@ class _StartupFailureViewState extends State<StartupFailureView> {
               const SizedBox(height: 16),
               Text(
                 '${t.startup.phaseLabel}: ${failure.phaseId} · ${failure.errorType}',
-                style: theme.textTheme.bodySmall?.copyWith(fontFamily: 'monospace'),
+                style: theme.textTheme.bodySmall?.copyWith(fontFamily: 'Inter'),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
@@ -232,7 +232,7 @@ class _StartupFailureViewState extends State<StartupFailureView> {
             child: SingleChildScrollView(
               child: SelectableText(
                 failure.describe(),
-                style: theme.textTheme.bodySmall?.copyWith(fontFamily: 'monospace', fontSize: 12),
+                style: theme.textTheme.bodySmall?.copyWith(fontFamily: 'Inter', fontSize: 12),
               ),
             ),
           ),

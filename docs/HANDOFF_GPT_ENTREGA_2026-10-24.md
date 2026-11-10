@@ -3,8 +3,9 @@
 ## Ordem de 09/11/2026 — Marca única dos apps (Ultron) — validação em andamento em 10/11
 
 Base `2e61808de689b2f060381730aabd15373c17d0a7`, depois da remoção do Assistir juntos.
+Primeira integração `d90bc32044057b654d678d7af24831cb2fd5595d`; complementação nesta árvore.
 Ramo de publicação único `codex/heisuca-home-site`; worktree próprio, checkout compartilhado preservado.
-**TESTE 2.0.34+2044**. Sem PR, merge, release, AAB, produção, mudança de applicationIds ou telemetria.
+**TESTE 2.0.34+2045**. Sem PR, merge, release, AAB, produção, mudança de applicationIds ou telemetria.
 
 - Pasta `docs/marca_2026-11-09/` trazida integralmente de `origin/visao/marca-2026-11-09`, após ler LEIA.
 - Base e sete temas gerados copiados sem alterar valores nem formatação; teste confere igualdade exata com a fonte.
@@ -12,14 +13,14 @@ Ramo de publicação único `codex/heisuca-home-site`; worktree próprio, checko
 - `cgflix_palette` é adaptador dos tokens; esquemas, mono, configurações, foco, HeisucaTheme e componentes consomem
   a mesma fonte. Identificadores históricos isis/heitor/tv são compatibilidade, sem paletas independentes.
 - Celular: Automático, Shikkoku, Hisui e Sumi. TV: Shikkoku e Sumi. Nomes antigos e preferência incompatível com TV
-  migram e persistem; a inicialização repete a persistência após terminar a detecção da TV.
+  migram e persistem apenas quando havia escolha anterior; a inicialização repete a persistência após terminar a detecção da TV.
 - Automático acompanha a luminosidade também no ícone. Android recebeu alias Sumi e abertura nativa correspondente.
 - Página e halo da interface neutros, botão Assistir neutro, player nos neutros de Sumi. Foco TV usa escala 1,06
   e anel de 3 px pelo token. Arte, véus pretos, sombras, cores de legenda e avatares funcionais preservados.
-- Inter nos títulos/texto, Sora restrita ao logotipo, japonês/Fredoka preservados. Ícones, banner, notificação e SVGs novos.
+- Inter nos títulos/texto, inclusive código, registros e painéis técnicos, Sora restrita ao logotipo, japonês/Fredoka preservados. Ícones, banner, notificação e SVGs novos.
 - Kids troca somente acentos: Hisui de dia/sistema claro e Shikkoku de noite/sistema escuro, mantendo Fredoka/animações.
   Os arquivos gerados diurnos incluem fundos próprios; pela ordem explícita do dono, o adaptador usa fundo/texto/botão
-  adultos e só acento/acento suave dos tokens kids. Os arquivos gerados continuam idênticos à fonte.
+  adultos e só acento/acento suave dos tokens kids. A abertura infantil na TV conserva o tema adulto ativo. Os arquivos gerados continuam idênticos à fonte.
 - Changelog: **“Visual novo: três temas (Shikkoku, Hisui e Sumi) e ícone novo.”**
 - `heisuca-checar.sh`, workflows, servidor e dependências sem alterações. Remoção do Assistir juntos preservada.
 
@@ -27,21 +28,35 @@ Ramo de publicação único `codex/heisuca-home-site`; worktree próprio, checko
 
 - Novos testes escritos antes da adaptação: base falhou em oito verificações de migração/opções/tema aplicado.
   Teste adicional do ícone automático também falhou antes da correção; evidências vermelhas preservadas.
-- 19 verificações novas: migração/persistência, opções da TV/celular, contraste dos três temas, igualdade dos gerados,
-  bases adultas dos quatro acentos diurnos/noturnos, Sumi, botão/tipografia e ícone automático.
-- Portão: **175 Python, 2.284 Flutter / 3 pulados preexistentes, 8 Impeller**, verde.
-  Depois, apenas chaves de blocos foram acrescentadas para eliminar lints de formatação; suíte ampla usa essa árvore.
+- 23 verificações novas: migração/persistência, opções da TV/celular, contraste dos três temas, igualdade dos gerados,
+  bases adultas dos quatro acentos diurnos/noturnos, abertura kids na TV, Sumi, botão/tipografia e ícone automático.
+  Nomes com acentos (Matinê, Automático) e claro também migram.
+- Portão da árvore final: **178 Python, 2.288 Flutter / 3 pulados e 8 Impeller**, verde.
+  Log `/tmp/ultron-marca-gate-entrega.log`. Nenhum limite ou skip alterado no portão.
 - Análise geral do app: **40 avisos/info preexistentes**, contra 41 na base; nenhum diagnóstico novo.
   Tokens imutáveis são excluídos do lint como os demais gerados; compilação/testes continuam conferindo-os e a cópia exata.
 - Testes antigos mantêm os mesmos limites de contraste/foco, agora exigindo Inter/tokens novos. Navegação em Ajustes
   percorre a linha Tema adicional da TV e rola até itens abaixo das quatro opções no celular.
 - Duas imagens de referência da Home atualizadas para a marca nova, após inspeção visual; testes continuam comparando pixels.
-- Suíte completa comparada à base: **em execução**. Logs `/tmp/ultron-marca-*.log`.
+- Primeira suíte ampla local da marca: 8.966 passaram / 71 pulados / 30 falhas, contra 10 falhas da base.
+  As 20 novas encontradas foram tratadas: nomes atuais nos testes, alias Sumi na lista exata de componentes exportados,
+  contorno interativo com Texto2 (>=3:1; Borda fica nas divisórias), quatro entradas para os stops da abertura e
+  nenhuma criação de theme_mode em exportação sem escolha anterior. Testes de exportação não foram alterados.
+- Regressões localizadas: 135 testes passaram. Refino de telas + marca: 71 passaram. Nenhum limite de foco/contraste reduzido.
+- Os 12 pulados adicionais do modo padrão são novas capturas opcionais da variante Sumi, pelas flags já existentes.
+  Executados explicitamente com `CGFLIX_CAPTURAS`: **12 passaram, nenhum pulado**. Os 59 pulados anteriores permanecem.
+- Suíte completa final comparada à base: **em execução** (`/tmp/ultron-marca-full-final.log`). Logs `/tmp/ultron-marca-*.log`.
+- Roteiro TV agora procura Sobre pelo rótulo focado e exige a página real (slogan + Dicas do Heisuca): três novos testes
+  Python falharam antes e passaram depois. Impede falso verde quando só um ajuste mudou de valor; demais checks intactos.
 - Grep Shinju/8155E3: só migração comentada; grep watch_together/watchTogether no app vazio.
 
 ### Actions, artefatos, revisão e desfazer
 
-Build Android, bancadas e segurança: aguardando o commit de código. APKs só para revisão; sem distribuição.
+Actions da complementação aguardando commit de código. APKs só para revisão; sem distribuição.
+Rodada anterior d90: Segurança e Atualizador TV passaram. Bancada Android `42779682745` parou com
+`BANCADA_OCUPADA` antes do vídeo; proteção preservada. TV `42779682758` teve jobs verdes, mas o relatório real é
+**ATENÇÃO** por foco na Busca (o artefato da base `42732218527` já trazia esse achado).
+A conferência das imagens também revelou o falso verde do Sobre corrigido pelo novo roteiro. Não é aprovação plena da TV.
 Ainda não testado em aparelho físico nem revisado independentemente por Claude/Gemini.
 Originais aposentados preservados em `~/Arquivos_Obsoletos/2026-11-09_heisuca_marca/`.
 Desfazer: reverter o commit desta marca, preservando os commits anteriores de remoção e do atualizador.

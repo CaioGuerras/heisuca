@@ -47,7 +47,7 @@ void main() {
     expect(y(tester, 'Ajuda'), lessThan(y(tester, 'Avançado')));
     // Itens comuns em cima, com o valor atual no resumo.
     expect(find.text('Tema'), findsOneWidget);
-    expect(find.text('Isis'), findsOneWidget);
+    expect(find.text('Shikkoku'), findsOneWidget);
     expect(find.text('Idioma do app'), findsOneWidget);
     expect(find.text('Português (Brasil)'), findsOneWidget);
     expect(find.text('Áudio e legenda'), findsOneWidget);

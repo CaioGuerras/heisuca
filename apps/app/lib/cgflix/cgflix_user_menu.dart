@@ -30,7 +30,18 @@ import 'conta/cgflix_minha_conta_screen.dart';
 import 'you/cgflix_favorites_screen.dart';
 
 /// Itens do menu, na ordem em que aparecem (os testes conferem esta lista).
-enum CgflixUserMenuItem { favorites, downloads, myRequests, libraries, updates, settings, about, switchUser, signOut, support }
+enum CgflixUserMenuItem {
+  favorites,
+  downloads,
+  myRequests,
+  libraries,
+  updates,
+  settings,
+  about,
+  switchUser,
+  signOut,
+  support,
+}
 
 /// Itens que dependem do servidor (somem sem conexão).
 const _onlineOnly = {CgflixUserMenuItem.favorites, CgflixUserMenuItem.libraries, CgflixUserMenuItem.myRequests};
@@ -49,7 +60,11 @@ bool _isOnline(BuildContext context) {
 }
 
 /// Itens visíveis agora, na ordem (o que os testes e o roteiro do emulador conferem).
-List<CgflixUserMenuItem> cgflixUserMenuItems({required bool online, required bool hasFavorites, bool hasUpdate = false}) => [
+List<CgflixUserMenuItem> cgflixUserMenuItems({
+  required bool online,
+  required bool hasFavorites,
+  bool hasUpdate = false,
+}) => [
   for (final item in CgflixUserMenuItem.values)
     if ((online || !_onlineOnly.contains(item)) &&
         (item != CgflixUserMenuItem.favorites || hasFavorites) &&
@@ -151,14 +166,18 @@ class CgflixUserMenuSheet extends StatelessWidget {
     final conta = online ? CgflixConta.of(context) : null;
     final hasFavorites = online && CgflixFavoritesSource.of(context) != null;
     final atualizacoes = context.watch<UpdateController?>();
-    final items = cgflixUserMenuItems(online: online, hasFavorites: hasFavorites, hasUpdate: atualizacoes?.oferta != null);
+    final items = cgflixUserMenuItems(
+      online: online,
+      hasFavorites: hasFavorites,
+      hasUpdate: atualizacoes?.oferta != null,
+    );
 
     final header = Row(
       children: [
         if (active != null)
           ProfileAvatar(profile: active, size: 52, avatarUrl: profiles!.avatarUrlFor(active.id))
         else
-          AppIcon(Symbols.account_circle_rounded, fill: 1, size: 52, color: context.cgflix.accentSoft),
+          AppIcon(Symbols.account_circle_rounded, fill: 1, size: 52, color: context.cgflix.accent),
         const SizedBox(width: 16),
         Expanded(
           child: Column(
@@ -280,7 +299,7 @@ class _MenuTile extends StatelessWidget {
     return ListTile(
       minTileHeight: 52,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      leading: AppIcon(icon, fill: 1, color: iconColor ?? context.cgflix.accentSoft),
+      leading: AppIcon(icon, fill: 1, color: iconColor ?? context.cgflix.accent),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
       onTap: onTap,
     );

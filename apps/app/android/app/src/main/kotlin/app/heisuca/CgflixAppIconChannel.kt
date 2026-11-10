@@ -11,13 +11,9 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodChannel
 
 /**
- * CGFLIX (1.5.0): o ícone do app acompanha o tema, como no Telegram e no CGFLIX Lite. Heitor = ícone
- * verde; Isis e Automático = roxo. São dois `activity-alias` no manifesto (`IconeIsis`, ligado por
- * padrão, e `IconeHeitor`); fica ligado só um.
- *
- * O Flutter só avisa o tema desejado; a troca acontece quando o app sai da tela (nenhuma atividade
- * visível), porque alguns aparelhos fecham o app ao trocar o ícone e o launcher leva alguns segundos
- * para mostrar o novo.
+ * O ícone acompanha Shikkoku, Hisui ou Sumi; só um alias fica ativo.
+ * IconeIsis e IconeHeitor conservam os identificadores históricos das instalações.
+ * A troca acontece quando a última tela sai do primeiro plano para preservar o launcher.
  */
 internal object CgflixAppIconChannel {
   private const val TAG = "CgflixAppIcon"

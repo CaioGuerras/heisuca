@@ -58,7 +58,7 @@ class QuickConnectCodePanel extends StatelessWidget {
               child: Text(
                 code,
                 style: theme.textTheme.displayLarge?.copyWith(
-                  fontFamily: 'monospace',
+                  fontFamily: 'Inter',
                   fontWeight: .bold,
                   letterSpacing: 12,
                 ),

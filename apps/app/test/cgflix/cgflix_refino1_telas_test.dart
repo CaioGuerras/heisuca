@@ -232,7 +232,7 @@ void main() {
         of: find.byKey(const ValueKey('cgflix-menu-settings')),
         matching: find.byType(Icon),
       );
-      expect(tester.widget<Icon>(outro).color, CgflixPalette.forVariant(variante).accentSoft);
+      expect(tester.widget<Icon>(outro).color, CgflixPalette.forVariant(variante).accent);
     });
 
     testWidgets('$nome: menu do usuário sem conexão esconde o que depende do servidor', (tester) async {

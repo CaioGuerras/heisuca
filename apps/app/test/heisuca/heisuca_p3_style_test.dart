@@ -29,7 +29,7 @@ void main() {
       buildSignature: '',
     );
   });
-  testWidgets('P3 editor avançado usa a fonte monoespaçada do app', (tester) async {
+  testWidgets('P3 editor avançado usa Inter como o restante da interface', (tester) async {
     await settings.SettingsService.getInstance();
     await tester.pumpWidget(
       TranslationProvider(
@@ -37,7 +37,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(tester.widget<EditableText>(find.byType(EditableText)).style.fontFamily, cgflixMonoFamily);
+    expect(tester.widget<EditableText>(find.byType(EditableText)).style.fontFamily, 'Inter');
   });
   for (final (name, widget) in [
     (

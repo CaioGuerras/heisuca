@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import '../services/settings_service.dart' as settings;
 import '../services/device_performance.dart';
 import '../theme/mono_theme.dart';
+import '../heisuca/theme/heisuca_base.dart';
 import '../theme/mono_tokens.dart';
 import '../utils/platform_detector.dart';
 import 'cgflix_app_icon.dart';
@@ -15,11 +16,11 @@ import 'cgflix_palette.dart';
 
 export 'cgflix_palette.dart';
 
-const cgflixFontFamily = 'Inter';
+const cgflixFontFamily = HeisucaBase.fonteTexto;
 
-/// Família monoespaçada do sistema (não há mono empacotada) com reservas.
-const cgflixMonoFamily = 'monospace';
-const cgflixMonoFallback = ['RobotoMono', 'Courier'];
+/// Compatibilidade dos campos técnicos: a tipografia também segue Inter.
+const cgflixMonoFamily = cgflixFontFamily;
+const cgflixMonoFallback = [cgflixFontFamily];
 
 TextTheme _heisucaTypography(TextTheme source) {
   final text = source.apply(fontFamily: cgflixFontFamily);

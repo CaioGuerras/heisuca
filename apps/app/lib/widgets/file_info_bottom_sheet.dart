@@ -664,7 +664,7 @@ class _FocusableFieldState extends State<_FocusableField> {
             Text(
               field.value,
               style: field.monospace
-                  ? theme.textTheme.bodySmall?.copyWith(fontFamily: 'monospace')
+                  ? theme.textTheme.bodySmall?.copyWith(fontFamily: 'Inter')
                   : theme.textTheme.bodyMedium,
             ),
           ],

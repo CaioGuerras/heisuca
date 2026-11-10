@@ -170,7 +170,7 @@ class CgflixDicaSheet extends StatelessWidget {
           children: [
             Row(
               children: [
-                AppIcon(dica.icone, fill: 1, size: 28, color: context.cgflix.accentSoft),
+                AppIcon(dica.icone, fill: 1, size: 28, color: context.cgflix.accent),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Semantics(

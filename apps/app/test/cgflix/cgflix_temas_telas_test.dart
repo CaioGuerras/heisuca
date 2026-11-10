@@ -54,10 +54,7 @@ Future<void> _montar(WidgetTester tester, CgflixThemeVariant variante, Widget ho
 CgflixPalette _paleta(CgflixThemeVariant v) => CgflixPalette.forVariant(v);
 
 Color? _fundoDoBotao(WidgetTester tester, String rotulo) {
-  final containerFinder = find.ancestor(
-    of: find.text(rotulo),
-    matching: find.byType(Container),
-  );
+  final containerFinder = find.ancestor(of: find.text(rotulo), matching: find.byType(Container));
   if (containerFinder.evaluate().isNotEmpty) {
     final container = tester.widget<Container>(containerFinder.first);
     final decoration = container.decoration;
@@ -147,7 +144,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       expect(find.text('Tema'), findsOneWidget);
-      expect(find.text('Isis'), findsOneWidget); // padrão, só o nome (refino 2)
+      expect(find.text('Shikkoku'), findsOneWidget); // padrão, só o nome (refino 2)
       expect(find.textContaining('escuro'), findsNothing);
       final fundo =
           tester.widget<Scaffold>(find.byType(Scaffold).first).backgroundColor ??

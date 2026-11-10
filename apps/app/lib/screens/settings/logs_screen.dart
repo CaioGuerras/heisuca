@@ -111,7 +111,6 @@ class _LogsScreenState extends State<LogsScreen> with MountedSetStateMixin {
   final FocusNode _selectionFocusNode = FocusNode(skipTraversal: true, debugLabel: 'logs-selection');
   final _RecordSelectionDelegate _recordSelection = _RecordSelectionDelegate();
 
-
   @override
   void initState() {
     super.initState();
@@ -283,7 +282,7 @@ class _LogsScreenState extends State<LogsScreen> with MountedSetStateMixin {
   }
 
   TextStyle? _logTextStyle(ThemeData theme) =>
-      theme.textTheme.bodySmall?.copyWith(fontFamily: 'monospace', fontSize: 12, height: 1.5);
+      theme.textTheme.bodySmall?.copyWith(fontFamily: 'Inter', fontSize: 12, height: 1.5);
 
   List<TextSpan> _buildDeviceInfoSpans() {
     return [
@@ -356,7 +355,7 @@ class _LogsScreenState extends State<LogsScreen> with MountedSetStateMixin {
             SelectableText(
               failure.describe(),
               style: theme.textTheme.bodySmall?.copyWith(
-                fontFamily: 'monospace',
+                fontFamily: 'Inter',
                 fontSize: 12,
                 color: theme.colorScheme.onErrorContainer,
               ),

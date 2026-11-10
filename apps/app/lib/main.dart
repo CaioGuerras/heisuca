@@ -205,7 +205,10 @@ Future<StartupThemeResolution> _resolveStartupTheme() async {
   await HeisucaSecurity.instance.load();
   await HeisucaKids.instance.load(); // Heisuca: perfil infantil força o tema dele desde a abertura
   final mode = settings.read(SettingsService.themeMode);
-  await settings.write(SettingsService.themeMode, mode);
+  final storedMode = settings.readNullableString(SettingsService.themeMode.key);
+  if (storedMode != null && storedMode != mode.name) {
+    await settings.write(SettingsService.themeMode, mode);
+  }
   return (themeMode: cgflixMaterialThemeMode(mode), darkTheme: cgflixDarkTheme(mode)); // CGFLIX
 }
 
@@ -424,7 +427,7 @@ Future<void> showRepairOutcomeDialog(
                 const SizedBox(height: 16),
                 Text(t.startup.backupTitle, style: Theme.of(dialogContext).textTheme.titleSmall),
                 const SizedBox(height: 4),
-                SelectableText(backupPath, style: const TextStyle(fontFamily: 'monospace', fontSize: 12)),
+                SelectableText(backupPath, style: const TextStyle(fontFamily: 'Inter', fontSize: 12)),
                 if (outcome.backupHoldsCredentials) ...[
                   const SizedBox(height: 4),
                   Text(t.startup.backupWarning, style: TextStyle(color: Theme.of(dialogContext).colorScheme.error)),

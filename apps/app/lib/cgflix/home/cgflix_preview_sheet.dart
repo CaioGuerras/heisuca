@@ -212,7 +212,7 @@ class _CgflixPreviewState extends State<_CgflixPreview> {
                     ),
                   if (genres.isNotEmpty) ...[
                     const SizedBox(height: 4),
-                    Text(genres, style: theme.textTheme.bodySmall?.copyWith(color: context.cgflix.accentSoft)),
+                    Text(genres, style: theme.textTheme.bodySmall?.copyWith(color: context.cgflix.accent)),
                   ],
                   if (overview.isNotEmpty) ...[
                     const SizedBox(height: 10),

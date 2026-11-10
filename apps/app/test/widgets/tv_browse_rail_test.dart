@@ -726,7 +726,7 @@ void main() {
       find.descendant(of: find.byType(CompositedTransformFollower), matching: find.byType(CustomPaint)),
       findsOneWidget,
     );
-    expect(focusScale.scale, closeTo(1.03, 0.0001));
+    expect(focusScale.scale, closeTo(1.06, 0.0001));
     expect(cardSize.width, closeTo(metrics.cardWidth, 0.001));
     expect(cardSize.height, closeTo(metrics.posterHeight, 0.001));
   });

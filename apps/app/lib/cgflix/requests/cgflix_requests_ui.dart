@@ -70,7 +70,14 @@ const cgflixRequestsUnavailableMessage = 'Pedidos indisponíveis agora';
 // Busca: "Disponível para pedir"
 
 class CgflixRequestSection extends StatefulWidget {
-  const CgflixRequestSection({super.key, required this.query, this.enabled = true, this.loadItems, this.title = 'Disponível para pedir', this.includeItem});
+  const CgflixRequestSection({
+    super.key,
+    required this.query,
+    this.enabled = true,
+    this.loadItems,
+    this.title = 'Disponível para pedir',
+    this.includeItem,
+  });
   final String query;
   final bool enabled;
   final Future<List<CgflixRequestable>> Function(CgflixRequestsBackend backend)? loadItems;
@@ -104,7 +111,9 @@ class _CgflixRequestSectionState extends State<CgflixRequestSection> {
   void _load() {
     final request = ++_request;
     final query = widget.query.trim();
-    final backend = widget.enabled && (widget.loadItems != null || query.length >= 2) ? CgflixRequests.of(context) : null;
+    final backend = widget.enabled && (widget.loadItems != null || query.length >= 2)
+        ? CgflixRequests.of(context)
+        : null;
     if (backend == null) {
       setState(() {
         _state = _SectionState.ready;
@@ -326,7 +335,7 @@ class CgflixStatusBadge extends StatelessWidget {
   final Color? color;
 
   @override
-  Widget build(BuildContext context) => _build(context.cgflix, color ?? context.cgflix.accentSoft);
+  Widget build(BuildContext context) => _build(context.cgflix, color ?? context.cgflix.accent);
 
   Widget _build(CgflixPalette palette, Color color) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -342,7 +351,11 @@ class CgflixStatusBadge extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           label,
-          style: TextStyle(color: palette.textOn(palette.surface, preferred: color), fontWeight: FontWeight.w600, fontSize: 12),
+          style: TextStyle(
+            color: palette.textOn(palette.surface, preferred: color),
+            fontWeight: FontWeight.w600,
+            fontSize: 12,
+          ),
         ),
       ],
     ),
@@ -664,8 +677,8 @@ class _MyRequestTileState extends State<_MyRequestTile> {
       CgflixMyRequestStatus.available => (context.cgflix.success, Symbols.check_circle_rounded),
       CgflixMyRequestStatus.partiallyAvailable => (context.cgflix.success, Symbols.check_rounded),
       CgflixMyRequestStatus.declined || CgflixMyRequestStatus.failed => (context.cgflix.danger, Symbols.block_rounded),
-      CgflixMyRequestStatus.downloading => (context.cgflix.accentSoft, Symbols.download_rounded),
-      _ => (context.cgflix.accentSoft, Symbols.schedule_rounded),
+      CgflixMyRequestStatus.downloading => (context.cgflix.accent, Symbols.download_rounded),
+      _ => (context.cgflix.accent, Symbols.schedule_rounded),
     };
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),

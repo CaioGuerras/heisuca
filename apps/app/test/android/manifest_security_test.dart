@@ -8,7 +8,7 @@ const _xmlDir = 'android/app/src/main/res/xml';
 const _gradlePath = 'android/app/build.gradle.kts';
 
 const _componentTags = <String>{'activity', 'activity-alias', 'service', 'receiver', 'provider'};
-const _expectedExported = <String>{'.MainActivity', '.IconeIsis', '.IconeHeitor'};
+const _expectedExported = <String>{'.MainActivity', '.IconeIsis', '.IconeHeitor', '.IconeSumi'};
 const _allDomains = <String>{
   'root',
   'file',
@@ -36,7 +36,7 @@ void main() {
 
   Iterable<XmlElement> components() => application.childElements.where((e) => _componentTags.contains(e.name.local));
 
-  test('só MainActivity e os dois ícones são exportados; providers e receivers não', () {
+  test('só MainActivity e os três ícones são exportados; providers e receivers não', () {
     final exported = components().where((c) => _attr(c, 'exported') == 'true').map((c) => _attr(c, 'name')).toSet();
     expect(exported, _expectedExported);
 

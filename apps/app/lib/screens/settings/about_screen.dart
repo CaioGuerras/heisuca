@@ -50,7 +50,7 @@ class _AboutScreenState extends State<AboutScreen> {
                         Text(
                           'Nada entre você e o filme.',
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: palette.accentSoft,
+                            color: palette.textMuted,
                             fontWeight: FontWeight.w600,
                             letterSpacing: 0.3,
                           ),

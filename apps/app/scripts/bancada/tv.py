@@ -490,6 +490,25 @@ def tocar_avatar_tv():
     time.sleep(1.5)
 
 
+def pagina_sobre_tv(nos):
+    """Exige marcas da página; o rótulo Sobre dentro dos Ajustes não basta."""
+    textos = ' '.join(str(n.get(campo) or '').lower() for n in nos for campo in ('text', 'desc'))
+    return 'nada entre você e o filme.' in textos and 'dicas do heisuca' in textos
+
+
+def abrir_sobre_tv(max_passos=12):
+    """Procura o foco de Sobre por D-Pad, independentemente das opções anteriores."""
+    for passo in range(max_passos + 1):
+        foco = inspecionar_foco(dump_tv())
+        rotulo = (foco.get('texto') or '').splitlines()
+        if foco['visivel'] and rotulo and rotulo[0].strip().lower() == 'sobre':
+            dpad_center(espera=2.0)
+            return pagina_sobre_tv(dump_tv())
+        if passo < max_passos:
+            dpad_down(espera=0.5)
+    return False
+
+
 def resumo_foco_tv(nos):
     """Diagnóstico curto para o log da bancada: tela reconhecida e elemento focado."""
     foco = inspecionar_foco(nos)
@@ -1479,14 +1498,17 @@ def percorrer_tv(base, perfil='googletv-36', out_dir=None, registrar=None, conta
     # TELA 7: Sobre
     # ==========================================
     rec('7. Sobre')
-    # Ajustes da TV: foco inicial em Perfil; Sobre é a 6ª linha (Perfil, Áudio, Legenda, Tamanho, Ainda está aí?, Sobre).
-    for _ in range(5):
-        dpad_down(espera=0.5)
-    dpad_center(espera=2.0)
-
+    abriu_sobre = abrir_sobre_tv()
     nos = dump_tv()
+    reconheceu_sobre = pagina_sobre_tv(nos)
     erro = checar_saude(nos, 'Sobre')
     achados_sobre = [erro] if erro else []
+    if not abriu_sobre or not reconheceu_sobre:
+        achados_sobre.append({
+            'gravidade': VERMELHO,
+            'codigo': 'sobre-nao-abriu',
+            'detalhe': 'D-Pad não abriu a página Sobre; mudança de pixels nos Ajustes não é aprovação',
+        })
 
     cap_sobre = out / '10_sobre.png'
     raw_sobre = capturar_png(cap_sobre)
@@ -1526,7 +1548,7 @@ def percorrer_tv(base, perfil='googletv-36', out_dir=None, registrar=None, conta
     telas.append({
         'nome': 'sobre',
         'titulo': 'Sobre',
-        'estado': classificar_tela(achados_sobre, cap_mudou=mudou_sobre, elementos_presentes=mudou_sobre),
+        'estado': classificar_tela(achados_sobre, cap_mudou=mudou_sobre, elementos_presentes=reconheceu_sobre),
         'foco': foco_sobre,
         'back_retorna': back_retorna_sobre,
         'captura': '10_sobre.png',

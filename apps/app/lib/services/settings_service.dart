@@ -265,10 +265,19 @@ class _AutomotiveUiScalePref extends Pref<double> {
 /// Normaliza nomes antigos e restringe as opções na TV; mantém a chave histórica.
 ThemeMode migrateHeisucaTheme(String? stored, {required bool tv}) {
   // Shinju foi aposentado: a preferência clara migra para Hisui.
-  final name = stored?.toLowerCase().replaceAll('-', '_');
+  final name = stored?.toLowerCase().replaceAll('-', '_').replaceAll('á', 'a').replaceAll('ê', 'e');
   final mode = switch (name) {
     'system' || 'automatico' => ThemeMode.system,
-    'light' || 'hisui' || 'heitor' || 'verde' || 'shinju' || 'matine' => ThemeMode.light,
+    'light' ||
+    'hisui' ||
+    'heitor' ||
+    'verde' ||
+    'shinju' ||
+    'matine' ||
+    'claro' ||
+    'branco' ||
+    'hisui_claro' ||
+    'verde_claro' => ThemeMode.light,
     'sumi' || 'projetor' => ThemeMode.sumi,
     _ => ThemeMode.oled,
   };
@@ -1055,7 +1064,7 @@ class SettingsService extends BaseSharedPreferencesService {
 
     final storedTheme = readNullableString(themeMode.key);
     final migratedTheme = migrateHeisucaTheme(storedTheme, tv: PlatformDetector.isTV());
-    if (storedTheme != migratedTheme.name) {
+    if (storedTheme != null && storedTheme != migratedTheme.name) {
       await prefs.setString(themeMode.key, migratedTheme.name);
     }
 

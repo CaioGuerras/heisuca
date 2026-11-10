@@ -5,15 +5,21 @@ import 'package:heisuca/screens/settings/mpv_config_line_editor.dart';
 import 'package:heisuca/screens/settings/mpv_config_screen.dart';
 
 void main() {
-  test('P3 estilo do editor mpv usa família monoespaçada com reservas', () {
+  test('P3 estilo do editor mpv usa Inter com reserva da mesma família', () {
     expect(mpvEditorStyle.fontFamily, cgflixMonoFamily);
-    expect(mpvEditorStyle.fontFamily, isNot('Inter'));
-    expect(mpvEditorStyle.fontFamilyFallback, containsAll(['RobotoMono', 'Courier']));
+    expect(mpvEditorStyle.fontFamily, 'Inter');
+    expect(mpvEditorStyle.fontFamilyFallback, ['Inter']);
   });
 
-  testWidgets('P3 editor por linhas do mpv renderiza em monoespaçada', (tester) async {
-    await tester.pumpWidget(MaterialApp(theme: cgflixAppTheme(), home: Scaffold(
-      body: MpvConfigLineEditor(text: 'hwdec=auto', onChanged: (_) {}, style: mpvEditorStyle))));
+  testWidgets('P3 editor por linhas do mpv renderiza em Inter', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: cgflixAppTheme(),
+        home: Scaffold(
+          body: MpvConfigLineEditor(text: 'hwdec=auto', onChanged: (_) {}, style: mpvEditorStyle),
+        ),
+      ),
+    );
     await tester.pump();
     final fields = tester.widgetList<EditableText>(find.byType(EditableText));
     expect(fields, isNotEmpty);

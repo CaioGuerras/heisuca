@@ -8,7 +8,17 @@ const _xmlDir = 'android/app/src/main/res/xml';
 const _gradlePath = 'android/app/build.gradle.kts';
 
 const _componentTags = <String>{'activity', 'activity-alias', 'service', 'receiver', 'provider'};
-const _expectedExported = <String>{'.MainActivity', '.IconeIsis', '.IconeHeitor', '.IconeSumi'};
+const _mediaEndpoints = <String, String>{
+  '.sessao.HeisucaSessaoService': 'androidx.media3.session.MediaSessionService',
+  'androidx.media3.session.MediaButtonReceiver': 'android.intent.action.MEDIA_BUTTON',
+};
+final _expectedExported = <String>{
+  '.MainActivity',
+  '.IconeIsis',
+  '.IconeHeitor',
+  '.IconeSumi',
+  ..._mediaEndpoints.keys,
+};
 const _allDomains = <String>{
   'root',
   'file',
@@ -36,12 +46,27 @@ void main() {
 
   Iterable<XmlElement> components() => application.childElements.where((e) => _componentTags.contains(e.name.local));
 
-  test('só MainActivity e os três ícones são exportados; providers e receivers não', () {
+  test('exportados limitados às entradas do app e aos dois endpoints padrão de mídia', () {
     final exported = components().where((c) => _attr(c, 'exported') == 'true').map((c) => _attr(c, 'name')).toSet();
     expect(exported, _expectedExported);
 
     for (final c in components().where((c) => const {'provider', 'receiver', 'service'}.contains(c.name.local))) {
-      expect(_attr(c, 'exported'), 'false', reason: '${c.name.local} ${_attr(c, 'name')} deve declarar exported=false');
+      final acao = _mediaEndpoints[_attr(c, 'name')];
+      if (acao == null) {
+        expect(
+          _attr(c, 'exported'),
+          'false',
+          reason: '${c.name.local} ${_attr(c, 'name')} deve declarar exported=false',
+        );
+      } else {
+        expect(_attr(c, 'exported'), 'true');
+        final filtros = c.findElements('intent-filter').toList();
+        expect(filtros, hasLength(1));
+        expect(filtros.single.findElements('action').map((a) => _attr(a, 'name')), [acao]);
+        expect(filtros.single.findElements('data'), isEmpty);
+        expect(filtros.single.findElements('category'), isEmpty);
+        if (c.name.local == 'service') expect(_attr(c, 'foregroundServiceType'), 'mediaPlayback');
+      }
     }
   });
 

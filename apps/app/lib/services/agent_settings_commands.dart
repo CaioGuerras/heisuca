@@ -289,7 +289,6 @@ class AgentSettingsCommands {
         key == 'resume_music_on_launch') {
       return 'processRestart';
     }
-    if (key == 'custom_relay_url') return 'nextConnection';
     if (key == 'download_location') return 'nextDownload';
     if (_nextPlayback.contains(key)) return 'nextPlayback';
     return 'immediate';
@@ -399,16 +398,13 @@ class AgentSettingsCommands {
             pref == SettingsService.subtitleBackgroundColor)
           'format': '#RRGGBB',
         if (pref == SettingsService.subtitleSearchLanguage) 'format': 'ISO 639 language code or null',
-        if (pref == SettingsService.customRelayUrl)
-          'format': 'HTTP(S) base URL without user info, query or fragment; null uses the default relay',
         if (pref.jsonType == 'string' || pref.jsonType == 'string|null') 'maxUtf8Bytes': maxResourceBytes,
         if (pref is StringListPref) ...{'items': 'unique nonempty identifiers', 'uniqueItems': true},
       },
       'applicability': {'supported': reason == null, 'reason': ?reason},
       'application': _application(pref.key),
       if (pref == SettingsService.directPlayCoveredQuality) 'note': 'Only Plex uses this startup quality decision.',
-      if (pref == SettingsService.customRelayUrl || pref == SettingsService.mpvConfigText)
-        'valueRequiresExplicitGet': true,
+      if (pref == SettingsService.mpvConfigText) 'valueRequiresExplicitGet': true,
     };
   }
 
@@ -565,8 +561,7 @@ class AgentSettingsCommands {
       }
     }
     context.checkCurrent();
-    final needsProfileSession =
-        (key == 'music_volume' && musicOwner == null);
+    final needsProfileSession = (key == 'music_volume' && musicOwner == null);
     final application = needsProfileSession ? 'nextProfileSession' : _application(key);
     final runtime = <String, dynamic>{
       'state': application == 'immediate' ? 'ownerManaged' : 'deferred',

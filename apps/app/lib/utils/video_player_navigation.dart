@@ -14,8 +14,6 @@ import '../models/transcode_quality_preset.dart';
 import '../providers/download_provider.dart';
 import '../providers/multi_server_provider.dart';
 import '../providers/watch_state_store.dart';
-import '../watch_together/providers/watch_together_provider.dart';
-import '../watch_together/services/watch_together_controller.dart';
 import '../screens/video_player_screen.dart';
 import '../services/external_player_service.dart';
 import '../services/local_playback_history.dart';
@@ -42,7 +40,7 @@ const String kVideoPlayerRouteName = '/video_player';
 /// Commit through [push], not Navigator.push: a covered player still owns the
 /// native channel and must leave before another playback can take ownership.
 class VideoPlayerRoute extends MaterialPageRoute<bool> {
-  VideoPlayerRoute({required WidgetBuilder builder, this.watchTogetherLease})
+  VideoPlayerRoute({required WidgetBuilder builder})
     : super(
         settings: const RouteSettings(name: kVideoPlayerRouteName),
         builder: (context) => cgflixAlwaysDark(builder(context)),
@@ -52,27 +50,23 @@ class VideoPlayerRoute extends MaterialPageRoute<bool> {
   // Trocar o vídeo dentro do player é uma transferência de dono nativo, não
   // uma nova tela. O dono anterior precisa ser desmontado antes do seguinte.
   bool _replacesExistingVideo = false;
-  @override Duration get transitionDuration => _replacesExistingVideo ? Duration.zero : super.transitionDuration;
   @override
-  Widget buildTransitions(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation, Widget child) => cgflixAlwaysDark(Builder(
-    builder: (darkContext) => super.buildTransitions(darkContext, animation, secondaryAnimation, child)));
+  Duration get transitionDuration => _replacesExistingVideo ? Duration.zero : super.transitionDuration;
+  @override
+  Widget buildTransitions(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) => cgflixAlwaysDark(
+    Builder(builder: (darkContext) => super.buildTransitions(darkContext, animation, secondaryAnimation, child)),
+  );
 
   // Reserve at route commit, not screen initState: another launch can arrive
   // before the first frame. Navigator identity also isolates profile sessions.
   static final _activeRoutes = Expando<VideoPlayerRoute>();
   bool get isReplacingWithVideo => _isReplacingWithVideo;
   bool _isReplacingWithVideo = false;
-  final WatchPlaybackLease? watchTogetherLease;
-
-  /// Consult the committed successor, not just the first replacement: several
-  /// launches can commit before the outgoing screen is disposed.
-  WatchPlaybackLease? get replacementWatchTogetherLease {
-    final owner = navigator;
-    if (!_isReplacingWithVideo || owner == null) return null;
-    final successor = _activeRoutes[owner];
-    return successor != this && successor?.isActive == true ? successor?.watchTogetherLease : null;
-  }
 
   Future<bool?> push(NavigatorState navigator, {bool replaceCurrent = false}) {
     final previous = _activeRoutes[navigator];
@@ -304,20 +298,13 @@ Future<bool?> navigateToVideoPlayer(
   bool usePushReplacement = false,
   bool isOffline = false,
   bool resolveWatchState = true,
-  WatchPlaybackLease? watchTogetherLease,
   bool Function()? isLaunchCurrent,
   Duration? initialPosition,
   bool strictMediaSelection = false,
   bool explicitStartPolicy = false,
   PlaybackLaunchObserver? launchObserver,
 }) async {
-  if (!isOffline && watchTogetherLease == null) {
-    final watchTogether = context.read<WatchTogetherProvider?>();
-    watchTogetherLease = watchTogether?.capturePlaybackLease(selection: watchTogether.isHost);
-  }
-  final playbackLease = watchTogetherLease;
-  bool launchCurrent() =>
-      (isLaunchCurrent?.call() ?? true) && (launchObserver?.isCurrent ?? true) && (playbackLease?.isCurrent ?? true);
+  bool launchCurrent() => (isLaunchCurrent?.call() ?? true) && (launchObserver?.isCurrent ?? true);
   if (!launchCurrent()) return null;
   if (resolveWatchState) {
     metadata = context.readFreshWatchState(metadata);
@@ -335,16 +322,9 @@ Future<bool?> navigateToVideoPlayer(
       ? manager.getClient(serverId)
       : null;
 
-  // Plain Play on a downloaded item must target the version actually on
-  // disk, online too, so the player can open the local copy instead of
-  // streaming it (issue #2466). Only one version can be downloaded per item,
-  // and saved version preferences describe online intent — they may point at
-  // a version that was never downloaded (issue #1440). Explicit caller
-  // selections still win. A Watch Together launch keeps the room's version:
-  // a local session does not sync with the room.
   int? downloadedMediaIndex;
   String? downloadedMediaSourceId;
-  if ((isOffline || playbackLease == null) && selectedMediaIndex == null && selectedMediaSourceId == null) {
+  if (selectedMediaIndex == null && selectedMediaSourceId == null) {
     final downloaded = await downloadProvider.getCompletedDownload(metadata.globalKey);
     if (downloaded != null) {
       downloadedMediaIndex = downloaded.mediaIndex;
@@ -403,8 +383,7 @@ Future<bool?> navigateToVideoPlayer(
         final settingsService = SettingsService.instanceOrNull ?? await SettingsService.getInstance();
         if (!launchCurrent()) return null;
         if (settingsService.read(SettingsService.useExternalPlayer)) {
-          if (launchObserver != null &&
-              (initialPosition != null || strictMediaSelection || explicitStartPolicy || playbackLease != null)) {
+          if (launchObserver != null && (initialPosition != null || strictMediaSelection || explicitStartPolicy)) {
             launchObserver.mark('blocked', blocker: 'externalPlayerOptionsUnsupported');
             return null;
           }
@@ -474,7 +453,6 @@ Future<bool?> navigateToVideoPlayer(
     }
 
     final route = VideoPlayerRoute(
-      watchTogetherLease: playbackLease,
       builder: (_) => VideoPlayerScreen(
         metadata: metadata,
         preferredAudioTrack: preferredAudioTrack,
@@ -485,7 +463,6 @@ Future<bool?> navigateToVideoPlayer(
         preferredVersionSignature: savedVersion?.signature,
         selectedQualityPreset: selectedQualityPreset,
         isOffline: isOffline,
-        watchTogetherLease: playbackLease,
         initialPosition: initialPosition,
         strictMediaSelection: strictMediaSelection,
         isLaunchCurrent: isLaunchCurrent,
@@ -621,43 +598,5 @@ Future<bool> promptAndPlayVersion(BuildContext context, MediaItem item) async {
     selectedMediaSourceId: selectedVersion?.id,
     selectedQualityPreset: selectedQuality,
   );
-  return true;
-}
-
-/// Resolves the current Watch Together media and opens the video player.
-///
-/// Returns whether navigation was initiated. The fetch can outlive the
-/// dispatch that requested it (slow server, host switching again, dispatcher
-/// timeout); navigating then would stack a stale player route on top of the
-/// live one, so the key is re-validated against the session's current
-/// playback snapshot before the push.
-Future<bool> navigateToWatchTogetherPlayback(
-  BuildContext context, {
-  required String ratingKey,
-  required ServerId serverId,
-  VoidCallback? onBeforeNavigate,
-}) async {
-  final watchTogether = context.read<WatchTogetherProvider>();
-  final lease = watchTogether.capturePlaybackLease();
-  if (lease == null) return false;
-  final multiServer = context.read<MultiServerProvider>();
-  final client = multiServer.getClientForServer(serverId);
-
-  if (client == null) throw StateError('Watch Together server is unavailable');
-
-  final metadata = await client.fetchItem(ratingKey);
-  if (metadata == null) throw StateError('Current Watch Together media is unavailable');
-
-  if (!context.mounted) return false;
-
-  if (!watchTogether.isPlaybackLeaseCurrent(lease) ||
-      watchTogether.currentMediaRatingKey != ratingKey ||
-      watchTogether.currentMediaServerId != serverId) {
-    appLogger.d('WatchTogether: Skipping stale navigation to $ratingKey');
-    return false;
-  }
-
-  onBeforeNavigate?.call();
-  unawaited(navigateToVideoPlayer(context, metadata: metadata, watchTogetherLease: lease));
   return true;
 }

@@ -43,7 +43,6 @@ import '../../../widgets/bottom_sheet_page_scaffold.dart';
 import '../../../widgets/file_info_bottom_sheet.dart';
 import '../../../widgets/focusable_list_tile.dart';
 import '../../../widgets/overlay_sheet.dart';
-import '../../../watch_together/providers/watch_together_provider.dart';
 import '../models/track_controls_state.dart';
 import '../widgets/sync_offset_control.dart';
 import '../widgets/sleep_timer_content.dart';
@@ -817,7 +816,7 @@ class _VideoSettingsSheetState extends State<VideoSettingsSheet> {
             stream: widget.player.streams.rate,
             initialData: widget.player.state.rate,
             builder: (context, snapshot) {
-              final currentRate = _displayedRate(snapshot.data ?? 1.0);
+              final currentRate = snapshot.data ?? 1.0;
               return _SettingsMenuItem(
                 icon: Symbols.speed_rounded,
                 title: t.videoSettings.playbackSpeed,
@@ -984,16 +983,18 @@ class _VideoSettingsSheetState extends State<VideoSettingsSheet> {
         ),
 
         if (_state.delivery case final delivery?)
-          Padding(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('Esta reprodução', style: TextStyle(fontFamily: 'Sora', fontSize: 16)),
-              const SizedBox(height: 8), Text(delivery.summary),
-              if (delivery.method == 'Transcode') ...[
-                const SizedBox(height: 8), Text(delivery.explanation),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Esta reprodução', style: TextStyle(fontFamily: 'Sora', fontSize: 16)),
+                const SizedBox(height: 8),
+                Text(delivery.summary),
+                if (delivery.method == 'Transcode') ...[const SizedBox(height: 8), Text(delivery.explanation)],
               ],
-            ])),
-        // File Info for the playing item (#2229), the same breakdown as the
-        // library's File Info entry. Read-only, so Watch Together guests get it.
+            ),
+          ),
         if (_fileInfoClient() case final client?)
           _SettingsMenuItem(
             icon: Symbols.description_rounded, // CGFLIX
@@ -1113,24 +1114,12 @@ class _VideoSettingsSheetState extends State<VideoSettingsSheet> {
     );
   }
 
-  /// The rate the user chose, as opposed to what the player is momentarily
-  /// running at: a Watch Together drift nudge is not a speed setting.
-  double _displayedRate(double playerRate) {
-    try {
-      final session = context.read<WatchTogetherProvider>();
-      if (session.syncOwnsRate) return session.roomRate ?? playerRate;
-    } catch (_) {
-      // No session provider above this sheet.
-    }
-    return playerRate;
-  }
-
   Widget _buildSpeedView() {
     return StreamBuilder<double>(
       stream: widget.player.streams.rate,
       initialData: widget.player.state.rate,
       builder: (context, snapshot) {
-        final currentRate = _displayedRate(snapshot.data ?? 1.0);
+        final currentRate = snapshot.data ?? 1.0;
         const speeds = <double>[
           0.5,
           0.75,

@@ -8,7 +8,6 @@ import 'package:heisuca/providers/playback_state_provider.dart';
 import 'package:heisuca/services/pip_service.dart';
 import 'package:heisuca/services/settings_service.dart';
 import 'package:heisuca/services/video_volume_controller.dart';
-import 'package:heisuca/watch_together/providers/watch_together_provider.dart';
 import 'package:heisuca/widgets/video_controls/player_chrome_controller.dart';
 import 'package:heisuca/widgets/video_controls/video_controls.dart';
 import 'package:heisuca/widgets/video_controls/mobile_video_controls.dart';
@@ -16,7 +15,7 @@ import 'package:heisuca/widgets/video_controls/widgets/player_toast_indicator.da
 
 import '../test_helpers/media_items.dart';
 import '../test_helpers/prefs.dart';
-import '../test_helpers/watch_together_fakes.dart';
+import '../test_helpers/player_fakes.dart';
 
 void main() {
   testWidgets('PiP retira o HUD antes de a janela encolher e restaura ao sair', (tester) async {
@@ -40,33 +39,34 @@ void main() {
     final player = FakeSyncPlayer(hasRenderedFrame: true, playing: true);
     final volume = VideoVolumeController(player: player, settings: settings, initialVolume: 100);
     final playback = PlaybackStateProvider();
-    final watch = WatchTogetherProvider();
+
     final chrome = PlayerChromeController();
     final toast = PlayerToastController();
     addTearDown(player.dispose);
     addTearDown(volume.dispose);
     addTearDown(playback.dispose);
-    addTearDown(watch.dispose);
+
     addTearDown(chrome.dispose);
     addTearDown(toast.dispose);
-    await tester.pumpWidget(MultiProvider(
-      providers: [
-        ChangeNotifierProvider<PlaybackStateProvider>.value(value: playback),
-        ChangeNotifierProvider<WatchTogetherProvider>.value(value: watch),
-      ],
-      child: MaterialApp(
-        theme: cgflixAppTheme(CgflixThemeVariant.isis).copyWith(platform: TargetPlatform.android),
-        home: Scaffold(body: PlexVideoControls(
-          player: player,
-          volumeController: volume,
-          metadata: testMediaItem(id: 'pip-transition'),
-          toastController: toast,
-          canNavigateMediaItems: false,
-          chromeController: chrome,
-          isLive: true,
-        )),
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [ChangeNotifierProvider<PlaybackStateProvider>.value(value: playback)],
+        child: MaterialApp(
+          theme: cgflixAppTheme(CgflixThemeVariant.isis).copyWith(platform: TargetPlatform.android),
+          home: Scaffold(
+            body: PlexVideoControls(
+              player: player,
+              volumeController: volume,
+              metadata: testMediaItem(id: 'pip-transition'),
+              toastController: toast,
+              canNavigateMediaItems: false,
+              chromeController: chrome,
+              isLive: true,
+            ),
+          ),
+        ),
       ),
-    ));
+    );
     await tester.pump();
     expect(find.byType(MobileVideoControls), findsOneWidget);
     expect(tester.takeException(), isNull);
@@ -131,33 +131,34 @@ void main() {
     final player = FakeSyncPlayer(hasRenderedFrame: true, playing: true);
     final volume = VideoVolumeController(player: player, settings: settings, initialVolume: 100);
     final playback = PlaybackStateProvider();
-    final watch = WatchTogetherProvider();
+
     final chrome = PlayerChromeController();
     final toast = PlayerToastController();
     addTearDown(player.dispose);
     addTearDown(volume.dispose);
     addTearDown(playback.dispose);
-    addTearDown(watch.dispose);
+
     addTearDown(chrome.dispose);
     addTearDown(toast.dispose);
-    await tester.pumpWidget(MultiProvider(
-      providers: [
-        ChangeNotifierProvider<PlaybackStateProvider>.value(value: playback),
-        ChangeNotifierProvider<WatchTogetherProvider>.value(value: watch),
-      ],
-      child: MaterialApp(
-        theme: cgflixAppTheme(CgflixThemeVariant.isis).copyWith(platform: TargetPlatform.android),
-        home: Scaffold(body: PlexVideoControls(
-          player: player,
-          volumeController: volume,
-          metadata: testMediaItem(id: 'pip-transition'),
-          toastController: toast,
-          canNavigateMediaItems: false,
-          chromeController: chrome,
-          isLive: true,
-        )),
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [ChangeNotifierProvider<PlaybackStateProvider>.value(value: playback)],
+        child: MaterialApp(
+          theme: cgflixAppTheme(CgflixThemeVariant.isis).copyWith(platform: TargetPlatform.android),
+          home: Scaffold(
+            body: PlexVideoControls(
+              player: player,
+              volumeController: volume,
+              metadata: testMediaItem(id: 'pip-transition'),
+              toastController: toast,
+              canNavigateMediaItems: false,
+              chromeController: chrome,
+              isLive: true,
+            ),
+          ),
+        ),
       ),
-    ));
+    );
     await tester.pump();
     expect(find.byType(MobileVideoControls), findsOneWidget);
     expect(tester.takeException(), isNull);
@@ -165,8 +166,11 @@ void main() {
     final errors = <FlutterErrorDetails>[];
     final original = FlutterError.onError;
     FlutterError.onError = (details) {
-      if (details.exceptionAsString().startsWith('A RenderFlex overflowed')) errors.add(details);
-      else original?.call(details);
+      if (details.exceptionAsString().startsWith('A RenderFlex overflowed')) {
+        errors.add(details);
+      } else {
+        original?.call(details);
+      }
     };
     addTearDown(() => FlutterError.onError = original);
     // Antes (até 30/10) esta janela estourava o HUD em 196 px; a regra de

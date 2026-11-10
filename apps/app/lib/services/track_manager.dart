@@ -65,12 +65,6 @@ class TrackManager {
   /// Shows a transient message to the user (e.g., snackbar).
   final void Function(String message, {Duration? duration})? showMessage;
 
-  /// Whether something other than this screen owns the playback rate (a
-  /// Watch Together room). While true, selection passes leave the rate alone:
-  /// the room seeded it from the same saved preference at attach, and a late
-  /// local re-apply would move the player underneath the room's agreed rate.
-  final bool Function()? playbackRateOwnedExternally;
-
   // ── Mutable configuration (updated on episode navigation) ──────────
 
   MediaItem metadata;
@@ -137,7 +131,6 @@ class TrackManager {
     this.primarySubtitleIsServerRendered = false,
     this.persistAutomaticSubtitleSelection = true,
     this.showMessage,
-    this.playbackRateOwnedExternally,
   });
 
   /// Invalidates every pending automatic selection before the player is
@@ -339,9 +332,7 @@ class TrackManager {
         preferredAudioTrack: preferredAudioTrack,
         preferredSubtitleTrack: preferredSubtitleTrack,
         preferredSecondarySubtitleTrack: preferredSecondarySubtitleTrack,
-        defaultPlaybackSpeed: (playbackRateOwnedExternally?.call() ?? false)
-            ? null
-            : ScopedPlayerPrefs.resolve(ScopedPlayerPrefs.playbackSpeed, metadata),
+        defaultPlaybackSpeed: ScopedPlayerPrefs.resolve(ScopedPlayerPrefs.playbackSpeed, metadata),
         onAudioTrackChanged: onAudioTrackChanged,
         onSubtitleTrackChanged: persistAutomaticSubtitleSelection ? onSubtitleTrackChanged : null,
         isActive: selectionIsActive,

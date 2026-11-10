@@ -91,7 +91,6 @@ import '../../models/shader_preset.dart';
 import '../../providers/playback_state_provider.dart';
 import '../../providers/shader_provider.dart';
 import '../../services/shader_service.dart';
-import '../../watch_together/providers/watch_together_provider.dart';
 import '../../utils/error_message_utils.dart';
 
 part 'parts/key_events.dart';
@@ -395,7 +394,7 @@ class PlayerNavigationCoordinator {
 /// playback. With the chrome up the button is an ordinary focusable control
 /// and `skipButtonDismissed` would not hide it anyway, so Back stays the
 /// chrome's own key there; without [canControl] the button is inert, and
-/// eating a guest's exit press for a control they cannot operate is worse than
+/// eating the viewer's exit press for a control they cannot operate is worse than
 /// leaving the prompt up.
 ///
 /// Both Back flavours count. A local layer takes the dismiss key ahead of the
@@ -584,9 +583,6 @@ class PlexVideoControls extends StatefulWidget {
   /// playback state around the native player seek.
   final Future<void> Function(Duration position)? onSeekRequested;
 
-  /// Called for app-level playback-rate requests (speed sheet, keyboard
-  /// shortcuts, long-press 2x) so the owning screen can apply the rate and
-  /// declare it to a Watch Together room. Falls back to [Player.setRate].
   final Future<void> Function(double rate)? onRateRequested;
 
   /// Called for app-level transport requests so the owning screen can track
@@ -594,10 +590,8 @@ class PlexVideoControls extends StatefulWidget {
   /// announce the accepted command.
   final Future<void> Function(TransportCommand command)? onPlayPauseRequested;
 
-  /// Called when a seek operation completes (for Watch Together sync)
   final Function(Duration position)? onSeekCompleted;
 
-  /// Called when back button is pressed (for Watch Together session leave confirmation)
   final VoidCallback? onBack;
 
   /// Called when the video has effectively reached the end (e.g. credits extend
@@ -605,11 +599,10 @@ class PlexVideoControls extends StatefulWidget {
   /// completion flow so the auto-play-next setting is honored.
   final void Function({required bool skipAutoPlayCountdown})? onReachedEnd;
 
-  /// Whether the user can control playback (false in host-only mode for non-host).
+  /// Se os controles de reprodução estão habilitados neste momento.
   final bool canControl;
 
-  /// Whether the user may choose another queue item or episode. Watch
-  /// Together guests never own this capability, even in anyone-control mode.
+  /// Se a troca de item ou episódio está habilitada neste momento.
   final bool canNavigateMediaItems;
 
   /// Notifier for whether first video frame has rendered (shows loading state when false).
@@ -1391,7 +1384,9 @@ class _PlexVideoControlsState extends State<PlexVideoControls>
                                                       showQueueTab: canShowQueue,
                                                       onQueueItemSelected: canShowQueue ? _onQueueItemSelected : null,
                                                       // CGFLIX: todas as temporadas, mesmo sem fila ativa.
-                                                      onSeriesEpisodeSelected: widget.canNavigateMediaItems ? _onQueueItemSelected : null,
+                                                      onSeriesEpisodeSelected: widget.canNavigateMediaItems
+                                                          ? _onQueueItemSelected
+                                                          : null,
                                                       chromeController: widget.chromeController,
                                                       onStripVisibilityChanged: (visible) {
                                                         if (visible) {

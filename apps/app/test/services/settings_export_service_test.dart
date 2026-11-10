@@ -142,10 +142,10 @@ void main() {
       await prefs.setString('custom_download_path', canaries[2]);
       await prefs.setString('custom_download_path_type', 'saf');
       await prefs.setBool('crash_reporting', true);
-      await prefs.setString('custom_relay_url', 'https://${canaries[2]}.invalid');
+      await prefs.setString('retired_local_endpoint', 'https://${canaries[2]}.invalid');
       await prefs.setString('update_last_check_time', canaries[3]);
-      await prefs.setString('watch_together_recent_rooms', canaries[1]);
-      await prefs.setString('user_alice_watch_together_recent_rooms', canaries[1]);
+      await prefs.setString('retired_local_history', canaries[1]);
+      await prefs.setString('user_alice_retired_local_history', canaries[1]);
       await prefs.setString('future_runtime_key', 'unknown');
 
       final out = SettingsExportService.buildExportMap(prefs, currentUserUuid: 'alice');
@@ -158,10 +158,10 @@ void main() {
       expect(exported.keys, isNot(contains('custom_download_path')));
       expect(exported.keys, isNot(contains('custom_download_path_type')));
       expect(exported.keys, isNot(contains('crash_reporting')));
-      expect(exported.keys, isNot(contains('custom_relay_url')));
+      expect(exported.keys, isNot(contains('retired_local_endpoint')));
       expect(exported.keys, isNot(contains('update_last_check_time')));
-      expect(exported.keys, isNot(contains('watch_together_recent_rooms')));
-      expect(exported.keys, isNot(contains('user_alice_watch_together_recent_rooms')));
+      expect(exported.keys, isNot(contains('retired_local_history')));
+      expect(exported.keys, isNot(contains('user_alice_retired_local_history')));
       expect(exported.keys, isNot(contains('future_runtime_key')));
       for (final canary in canaries) {
         expect(encoded, isNot(contains(canary)));
@@ -583,8 +583,8 @@ void main() {
             'custom_download_path': {'type': 'string', 'value': '/source/device/downloads'},
             'custom_download_path_type': {'type': 'string', 'value': 'saf'},
             'crash_reporting': {'type': 'bool', 'value': true},
-            'custom_relay_url': {'type': 'string', 'value': 'https://relay.example.test'},
-            'watch_together_recent_rooms': {'type': 'string', 'value': '[]'},
+            'retired_local_endpoint': {'type': 'string', 'value': 'https://relay.example.test'},
+            'retired_local_history': {'type': 'string', 'value': '[]'},
             'unknown_future_key': {'type': 'bool', 'value': true},
           },
         },
@@ -604,8 +604,8 @@ void main() {
       expect(prefs.getString('custom_download_path'), '/target/device/downloads');
       expect(prefs.getString('custom_download_path_type'), 'file');
       expect(prefs.getBool('crash_reporting'), isFalse);
-      expect(prefs.getString('custom_relay_url'), isNull);
-      expect(prefs.getString('user_alice_watch_together_recent_rooms'), isNull);
+      expect(prefs.getString('retired_local_endpoint'), isNull);
+      expect(prefs.getString('user_alice_retired_local_history'), isNull);
       expect(prefs.getBool('unknown_future_key'), isNull);
     });
 

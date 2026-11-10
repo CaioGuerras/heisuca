@@ -76,7 +76,6 @@ class TranslationsSv extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _Translations$collections$sv collections = _Translations$collections$sv._(_root);
 	@override late final _Translations$playlists$sv playlists = _Translations$playlists$sv._(_root);
 	@override late final _Translations$music$sv music = _Translations$music$sv._(_root);
-	@override late final _Translations$watchTogether$sv watchTogether = _Translations$watchTogether$sv._(_root);
 	@override late final _Translations$downloads$sv downloads = _Translations$downloads$sv._(_root);
 	@override late final _Translations$shaders$sv shaders = _Translations$shaders$sv._(_root);
 	@override late final _Translations$companionRemote$sv companionRemote = _Translations$companionRemote$sv._(_root);
@@ -344,10 +343,6 @@ class _Translations$settings$sv extends Translations$settings$en {
 	@override String get keyboardShortcutsDescription => 'Anpassa tangentbordsgenvägar';
 	@override String get videoPlayerNavigation => 'Navigering i videospelaren';
 	@override String get videoPlayerNavigationDescription => 'Använd piltangenter för att navigera videospelarens kontroller';
-	@override String get watchTogetherRelay => 'Reläserver för Titta tillsammans';
-	@override String get watchTogetherRelayDescription => 'Ange en egen reläserver. Alla måste använda samma server.';
-	@override String get watchTogetherRelayHint => 'https://mitt-rela.exempel.se';
-	@override String get watchTogetherRelayInvalid => 'Ange en giltig HTTP- eller HTTPS-bas-URL för reläservern.';
 	@override String get debugLogging => 'Felsökningsloggning';
 	@override String get debugLoggingDescription => 'Aktivera detaljerad loggning för felsökning';
 	@override String get viewLogs => 'Visa loggar';
@@ -1675,90 +1670,6 @@ class _Translations$music$sv extends Translations$music$en {
 	@override late final _Translations$music$discography$sv discography = _Translations$music$discography$sv._(_root);
 }
 
-// Path: watchTogether
-class _Translations$watchTogether$sv extends Translations$watchTogether$en {
-	_Translations$watchTogether$sv._(TranslationsSv root) : this._root = root, super.internal(root);
-
-	final TranslationsSv _root; // ignore: unused_field
-
-	// Translations
-	@override String get title => 'Titta tillsammans';
-	@override String get description => 'Titta på innehåll synkroniserat med vänner och familj';
-	@override String get createSession => 'Skapa session';
-	@override String get creating => 'Skapar...';
-	@override String get joinSession => 'Gå med i session';
-	@override String get joining => 'Ansluter...';
-	@override String get controlMode => 'Kontrolläge';
-	@override String get controlModeQuestion => 'Vem kan styra uppspelningen?';
-	@override String get hostOnly => 'Endast värden';
-	@override String get anyone => 'Alla';
-	@override String get hostingSession => 'Värd för sessionen';
-	@override String get inSession => 'I en session';
-	@override String get sessionCode => 'Sessionskod';
-	@override String get openSessionControls => 'Öppna sessionskontroller för Titta tillsammans';
-	@override String get copySessionCode => 'Kopiera sessionskoden';
-	@override String get hostControlsPlayback => 'Värden styr uppspelningen';
-	@override String get anyoneCanControl => 'Alla kan styra uppspelningen';
-	@override String get hostControls => 'Värd styr';
-	@override String get anyoneControls => 'Alla styr';
-	@override String get participants => 'Deltagare';
-	@override String get host => 'Värd';
-	@override String get hostBadge => 'VÄRD';
-	@override String get youAreHost => 'Du är värden';
-	@override String get makeHost => 'Gör till värd';
-	@override String get makeHostQuestion => 'Överför värdskapet?';
-	@override String makeHostConfirm({required Object name}) => '${name} kommer att styra uppspelningen och driva sessionen för alla.';
-	@override String get transfer => 'Överför';
-	@override String hostChangedTo({required Object name}) => '${name} är nu värden';
-	@override String get youAreNowHost => 'Du är nu värden';
-	@override String hostTransferFailed({required Object name}) => 'Kunde inte göra ${name} till värd';
-	@override String get watchingWithOthers => 'Tittar med andra';
-	@override String get endSession => 'Avsluta session';
-	@override String get leaveSession => 'Lämna session';
-	@override String get endSessionQuestion => 'Avsluta sessionen?';
-	@override String get leaveSessionQuestion => 'Lämna sessionen?';
-	@override String get endSessionConfirm => 'Detta avslutar sessionen för alla deltagare.';
-	@override String get leaveSessionConfirm => 'Du kommer att tas bort från sessionen.';
-	@override String get endSessionConfirmOverlay => 'Detta avslutar tittarsessionen för alla deltagare.';
-	@override String get leaveSessionConfirmOverlay => 'Du kommer att kopplas bort från tittarsessionen.';
-	@override String get end => 'Avsluta';
-	@override String get leave => 'Lämna';
-	@override String get syncing => 'Synkroniserar...';
-	@override String get joinWatchSession => 'Gå med i tittarsession';
-	@override String get enterCodeHint => 'Ange en kod med 5 tecken';
-	@override String get pasteFromClipboard => 'Klistra in från urklipp';
-	@override String get pleaseEnterCode => 'Ange en sessionskod';
-	@override String get codeMustBe5Chars => 'Sessionskoden måste bestå av 5 tecken';
-	@override String get joinInstructions => 'Ange värdens sessionskod för att gå med.';
-	@override String get failedToCreate => 'Det gick inte att skapa sessionen';
-	@override String get failedToJoin => 'Det gick inte att gå med i sessionen';
-	@override String get sessionCodeCopied => 'Sessionskoden har kopierats till urklipp';
-	@override String get relayUnreachable => 'Reläservern kan inte nås. Din internetleverantör kan blockera Titta tillsammans.';
-	@override String get reconnectingToHost => 'Återansluter till värden...';
-	@override String get currentPlayback => 'Aktuell uppspelning';
-	@override String get joinCurrentPlayback => 'Gå med i aktuell uppspelning';
-	@override String get joinCurrentPlaybackDescription => 'Hoppa tillbaka till det värden tittar på just nu';
-	@override String get failedToOpenCurrentPlayback => 'Kunde inte öppna aktuell uppspelning';
-	@override String participantJoined({required Object name}) => '${name} gick med';
-	@override String participantLeft({required Object name}) => '${name} lämnade';
-	@override String participantPaused({required Object name}) => '${name} pausade';
-	@override String participantResumed({required Object name}) => '${name} återupptog';
-	@override String participantSeeked({required Object name}) => '${name} ändrade uppspelningspositionen';
-	@override String participantChangedSpeed({required Object name, required Object speed}) => '${name} ändrade hastigheten till ${speed}';
-	@override String participantBuffering({required Object name}) => '${name} buffrar';
-	@override String participantNeedsUpdate({required Object name}) => '${name} använder en äldre appversion — synkronisering är inte tillgänglig';
-	@override String resumingWithout({required Object name}) => 'Återupptar utan ${name}';
-	@override String get waitingForParticipants => 'Väntar på att de andra ska ladda klart...';
-	@override String waitingForName({required Object name}) => 'Väntar på ${name}...';
-	@override String get recentRooms => 'Senaste rummen';
-	@override String get renameRoom => 'Byt namn på rummet';
-	@override String get removeRoom => 'Ta bort';
-	@override String get guestSwitchUnavailable => 'Kunde inte byta — server inte tillgänglig för synkronisering';
-	@override String get guestSwitchFailed => 'Kunde inte byta — innehåll hittades inte på denna server';
-	@override String get defaultDisplayName => 'Användare';
-	@override late final _Translations$watchTogether$errors$sv errors = _Translations$watchTogether$errors$sv._(_root);
-}
-
 // Path: downloads
 class _Translations$downloads$sv extends Translations$downloads$en {
 	_Translations$downloads$sv._(TranslationsSv root) : this._root = root, super.internal(root);
@@ -2792,20 +2703,6 @@ class _Translations$music$discography$sv extends Translations$music$discography$
 	@override String get compilations => 'Samlingar';
 }
 
-// Path: watchTogether.errors
-class _Translations$watchTogether$errors$sv extends Translations$watchTogether$errors$en {
-	_Translations$watchTogether$errors$sv._(TranslationsSv root) : this._root = root, super.internal(root);
-
-	final TranslationsSv _root; // ignore: unused_field
-
-	// Translations
-	@override String get timedOut => 'Reläservern svarade inte i tid';
-	@override String get connectionLost => 'Anslutningen stängdes innan sessionen var klar';
-	@override String get invalidRelayResponse => 'Reläservern skickade ett oväntat svar';
-	@override String get sessionEnded => 'Värden avslutade sessionen';
-	@override String get sessionUnavailable => 'Det går inte att återuppta sessionen. Gå med i eller skapa ett rum för att fortsätta.';
-}
-
 // Path: downloads.backgroundWarning
 class _Translations$downloads$backgroundWarning$sv extends Translations$downloads$backgroundWarning$en {
 	_Translations$downloads$backgroundWarning$sv._(TranslationsSv root) : this._root = root, super.internal(root);
@@ -3251,10 +3148,6 @@ extension on TranslationsSv {
 			'settings.keyboardShortcutsDescription' => 'Anpassa tangentbordsgenvägar',
 			'settings.videoPlayerNavigation' => 'Navigering i videospelaren',
 			'settings.videoPlayerNavigationDescription' => 'Använd piltangenter för att navigera videospelarens kontroller',
-			'settings.watchTogetherRelay' => 'Reläserver för Titta tillsammans',
-			'settings.watchTogetherRelayDescription' => 'Ange en egen reläserver. Alla måste använda samma server.',
-			'settings.watchTogetherRelayHint' => 'https://mitt-rela.exempel.se',
-			'settings.watchTogetherRelayInvalid' => 'Ange en giltig HTTP- eller HTTPS-bas-URL för reläservern.',
 			'settings.debugLogging' => 'Felsökningsloggning',
 			'settings.debugLoggingDescription' => 'Aktivera detaljerad loggning för felsökning',
 			'settings.viewLogs' => 'Visa loggar',
@@ -3542,12 +3435,12 @@ extension on TranslationsSv {
 			'fileInfo.spatialAudio' => 'Rumsligt ljud',
 			'fileInfo.textBased' => 'Textbaserad',
 			'fileInfo.subtitleFormat' => 'Sidecar-format',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.provider' => 'Leverantör',
 			'fileInfo.matchScore' => 'Matchningspoäng',
 			'fileInfo.externalDelivery' => 'Kan levereras separat',
 			'fileInfo.sidecarPath' => 'Sidecar-sökväg',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.sourceStream' => 'Kopierad från',
 			'fileInfo.temporary' => 'Tillfällig',
 			'fileInfo.timeBase' => 'Tidsbas',
@@ -4056,12 +3949,12 @@ extension on TranslationsSv {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Det gick inte att analysera biblioteket: ${error}',
 			'libraries.noLibrariesFound' => 'Inga bibliotek hittades',
 			'libraries.allLibrariesHidden' => 'Alla bibliotek är dolda',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.hiddenLibrariesCount' => ({required Object count}) => 'Dolda bibliotek (${count})',
 			'libraries.thisLibraryIsEmpty' => 'Detta bibliotek är tomt',
 			'libraries.noItemsMatchFilters' => 'Inga objekt matchar de aktiva filtren',
 			'libraries.resetFilters' => 'Återställ filter',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.all' => 'Alla',
 			'libraries.clearAll' => 'Rensa alla',
 			'libraries.scanLibraryConfirm' => ({required Object title}) => 'Är du säker på att du vill skanna "${title}"?',
@@ -4490,88 +4383,7 @@ extension on TranslationsSv {
 			'music.discography.singlesAndEps' => 'Singlar och EP',
 			'music.discography.live' => 'Live',
 			'music.discography.compilations' => 'Samlingar',
-			'watchTogether.title' => 'Titta tillsammans',
-			'watchTogether.description' => 'Titta på innehåll synkroniserat med vänner och familj',
-			'watchTogether.createSession' => 'Skapa session',
-			'watchTogether.creating' => 'Skapar...',
-			'watchTogether.joinSession' => 'Gå med i session',
-			'watchTogether.joining' => 'Ansluter...',
-			'watchTogether.controlMode' => 'Kontrolläge',
-			'watchTogether.controlModeQuestion' => 'Vem kan styra uppspelningen?',
-			'watchTogether.hostOnly' => 'Endast värden',
-			'watchTogether.anyone' => 'Alla',
-			'watchTogether.hostingSession' => 'Värd för sessionen',
-			'watchTogether.inSession' => 'I en session',
-			'watchTogether.sessionCode' => 'Sessionskod',
-			'watchTogether.openSessionControls' => 'Öppna sessionskontroller för Titta tillsammans',
-			'watchTogether.copySessionCode' => 'Kopiera sessionskoden',
-			'watchTogether.hostControlsPlayback' => 'Värden styr uppspelningen',
-			'watchTogether.anyoneCanControl' => 'Alla kan styra uppspelningen',
-			'watchTogether.hostControls' => 'Värd styr',
-			'watchTogether.anyoneControls' => 'Alla styr',
-			'watchTogether.participants' => 'Deltagare',
-			'watchTogether.host' => 'Värd',
-			'watchTogether.hostBadge' => 'VÄRD',
-			'watchTogether.youAreHost' => 'Du är värden',
-			'watchTogether.makeHost' => 'Gör till värd',
-			'watchTogether.makeHostQuestion' => 'Överför värdskapet?',
-			'watchTogether.makeHostConfirm' => ({required Object name}) => '${name} kommer att styra uppspelningen och driva sessionen för alla.',
-			'watchTogether.transfer' => 'Överför',
-			'watchTogether.hostChangedTo' => ({required Object name}) => '${name} är nu värden',
-			'watchTogether.youAreNowHost' => 'Du är nu värden',
-			'watchTogether.hostTransferFailed' => ({required Object name}) => 'Kunde inte göra ${name} till värd',
-			'watchTogether.watchingWithOthers' => 'Tittar med andra',
-			'watchTogether.endSession' => 'Avsluta session',
-			'watchTogether.leaveSession' => 'Lämna session',
-			'watchTogether.endSessionQuestion' => 'Avsluta sessionen?',
-			'watchTogether.leaveSessionQuestion' => 'Lämna sessionen?',
-			'watchTogether.endSessionConfirm' => 'Detta avslutar sessionen för alla deltagare.',
-			'watchTogether.leaveSessionConfirm' => 'Du kommer att tas bort från sessionen.',
-			'watchTogether.endSessionConfirmOverlay' => 'Detta avslutar tittarsessionen för alla deltagare.',
-			'watchTogether.leaveSessionConfirmOverlay' => 'Du kommer att kopplas bort från tittarsessionen.',
-			'watchTogether.end' => 'Avsluta',
-			'watchTogether.leave' => 'Lämna',
-			'watchTogether.syncing' => 'Synkroniserar...',
-			'watchTogether.joinWatchSession' => 'Gå med i tittarsession',
-			'watchTogether.enterCodeHint' => 'Ange en kod med 5 tecken',
-			'watchTogether.pasteFromClipboard' => 'Klistra in från urklipp',
-			'watchTogether.pleaseEnterCode' => 'Ange en sessionskod',
-			'watchTogether.codeMustBe5Chars' => 'Sessionskoden måste bestå av 5 tecken',
-			'watchTogether.joinInstructions' => 'Ange värdens sessionskod för att gå med.',
-			'watchTogether.failedToCreate' => 'Det gick inte att skapa sessionen',
-			'watchTogether.failedToJoin' => 'Det gick inte att gå med i sessionen',
-			'watchTogether.sessionCodeCopied' => 'Sessionskoden har kopierats till urklipp',
-			'watchTogether.relayUnreachable' => 'Reläservern kan inte nås. Din internetleverantör kan blockera Titta tillsammans.',
-			'watchTogether.reconnectingToHost' => 'Återansluter till värden...',
-			'watchTogether.currentPlayback' => 'Aktuell uppspelning',
-			'watchTogether.joinCurrentPlayback' => 'Gå med i aktuell uppspelning',
-			'watchTogether.joinCurrentPlaybackDescription' => 'Hoppa tillbaka till det värden tittar på just nu',
-			'watchTogether.failedToOpenCurrentPlayback' => 'Kunde inte öppna aktuell uppspelning',
-			'watchTogether.participantJoined' => ({required Object name}) => '${name} gick med',
-			'watchTogether.participantLeft' => ({required Object name}) => '${name} lämnade',
-			'watchTogether.participantPaused' => ({required Object name}) => '${name} pausade',
-			'watchTogether.participantResumed' => ({required Object name}) => '${name} återupptog',
-			'watchTogether.participantSeeked' => ({required Object name}) => '${name} ändrade uppspelningspositionen',
-			'watchTogether.participantChangedSpeed' => ({required Object name, required Object speed}) => '${name} ändrade hastigheten till ${speed}',
-			'watchTogether.participantBuffering' => ({required Object name}) => '${name} buffrar',
-			'watchTogether.participantNeedsUpdate' => ({required Object name}) => '${name} använder en äldre appversion — synkronisering är inte tillgänglig',
-			'watchTogether.resumingWithout' => ({required Object name}) => 'Återupptar utan ${name}',
-			'watchTogether.waitingForParticipants' => 'Väntar på att de andra ska ladda klart...',
-			'watchTogether.waitingForName' => ({required Object name}) => 'Väntar på ${name}...',
-			'watchTogether.recentRooms' => 'Senaste rummen',
-			'watchTogether.renameRoom' => 'Byt namn på rummet',
-			'watchTogether.removeRoom' => 'Ta bort',
-			'watchTogether.guestSwitchUnavailable' => 'Kunde inte byta — server inte tillgänglig för synkronisering',
-			'watchTogether.guestSwitchFailed' => 'Kunde inte byta — innehåll hittades inte på denna server',
-			'watchTogether.defaultDisplayName' => 'Användare',
-			'watchTogether.errors.timedOut' => 'Reläservern svarade inte i tid',
-			'watchTogether.errors.connectionLost' => 'Anslutningen stängdes innan sessionen var klar',
-			'watchTogether.errors.invalidRelayResponse' => 'Reläservern skickade ett oväntat svar',
-			'watchTogether.errors.sessionEnded' => 'Värden avslutade sessionen',
-			'watchTogether.errors.sessionUnavailable' => 'Det går inte att återuppta sessionen. Gå med i eller skapa ett rum för att fortsätta.',
 			'downloads.title' => 'Nedladdningar',
-			_ => null,
-		} ?? switch (path) {
 			'downloads.manage' => 'Hantera',
 			'downloads.tvShows' => 'TV-serier',
 			'downloads.movies' => 'Filmer',
@@ -4655,6 +4467,8 @@ extension on TranslationsSv {
 			'downloads.backgroundWarning.sheetIntro' => 'Android hindrar Heisuca från att ladda ned tillförlitligt i bakgrunden.',
 			'downloads.backgroundWarning.sheetIntroDegraded' => 'Din enhet begränsar när Heisuca kan ladda ned i bakgrunden.',
 			'downloads.backgroundWarning.reasonBackgroundRestricted' => 'Heisucas bakgrundsanvändning är begränsad. Ställ in batteri- eller bakgrundsanvändningen på "Obegränsad".',
+			_ => null,
+		} ?? switch (path) {
 			'downloads.backgroundWarning.reasonStandbyRestricted' => 'Android har satt Heisuca i ett begränsat vänteläge. Ställ in batterianvändningen på "Obegränsad".',
 			'downloads.backgroundWarning.reasonDownloadChannelBlocked' => 'Aviseringar om nedladdningar är avstängda, så förlopp och kontroller kanske inte är tillgängliga.',
 			'downloads.backgroundWarning.reasonNotificationsDisabled' => 'Aviseringar är avstängda. På Android 13 eller senare krävs de för långa bakgrundsnedladdningar.',
@@ -5084,8 +4898,6 @@ extension on TranslationsSv {
 			'addServer.quickConnectPollRejected' => 'Servern avvisade avsökningen för Quick Connect',
 			'addServer.serverTimedOut' => 'Servern svarade inte i tid',
 			'addServer.responseNotJson' => 'Serversvaret var inte ett giltigt JSON-svar',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.responseMissingIdentity' => ({required Object product}) => 'Svaret saknar ett ID eller servernamn – är det här en ${product}-server?',
 			'addServer.probeFailed' => ({required Object error}) => 'Kunde inte nå servern: ${error}',
 			'addServer.enterAtLeastOneUrl' => ({required Object product}) => 'Ange minst en server-URL för ${product}',

@@ -30,7 +30,6 @@ import 'package:heisuca/services/playback_coordinator.dart';
 import 'package:heisuca/services/playback_initialization_types.dart';
 import 'package:heisuca/services/settings_service.dart';
 import 'package:heisuca/utils/video_player_navigation.dart';
-import 'package:heisuca/watch_together/providers/watch_together_provider.dart';
 import 'package:heisuca/widgets/video_controls/video_controls.dart';
 import 'package:provider/provider.dart';
 
@@ -147,7 +146,6 @@ void main() {
               ChangeNotifierProvider<MultiServerProvider>.value(value: multi.provider),
               ChangeNotifierProvider<OfflineWatchSyncService>.value(value: offlineWatch),
               ChangeNotifierProvider<AccountPreferencesController>.value(value: accountPreferences),
-              ChangeNotifierProvider(create: (_) => WatchTogetherProvider()),
               ChangeNotifierProvider(create: (_) => ShaderProvider()),
               ChangeNotifierProvider<MusicPlaybackService>(create: (_) => StubMusicPlaybackService()),
               Provider<AppDatabase>.value(value: db),

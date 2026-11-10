@@ -94,7 +94,6 @@ extension _VideoPlayerPlaybackPromptMethods on VideoPlayerScreenState {
       // A contagem acontece uma vez por EOF aceito (latch acima), antes do
       // atalho de PiP/autoplay. Temporizador de fim de vídeo já teve prioridade.
       if (_currentMetadata.isEpisode &&
-          _activeWatchTogetherSession() == null &&
           SettingsService.instance.read(SettingsService.autoPlayNextEpisode) &&
           !serverStopped &&
           _episodeAttention.finish(limit: SettingsService.instance.read(SettingsService.stillWatchingEpisodes))) {
@@ -212,18 +211,6 @@ extension _VideoPlayerPlaybackPromptMethods on VideoPlayerScreenState {
         );
   }
 
-  /// Re-present the Play Next prompt after an EOF-driven advance failed on a
-  /// transient server blip (#1867).
-  ///
-  /// The failed reload rolled back to the finished episode's last frame, so
-  /// without a prompt the screen parks black until the device sleeps — while
-  /// a retry seconds later typically succeeds (skipping manually did exactly
-  /// that). [playNextRetryPresentation] owns the decision: only EOF-driven
-  /// advances that failed with [PlaybackFailureReason.serverUnavailable]
-  /// qualify, the auto-play countdown re-fires [_playNext] up to
-  /// [maxPlayNextTransientRetries] times, and after that (with auto-play
-  /// off, or in a Watch Together session) the prompt waits for a manual
-  /// retry.
   void _presentPlayNextRetryPrompt({required bool wasAtCompletion}) async {
     if (!mounted || !_canNavigateMediaItems()) return;
     if (_episode.isLoadingNext || _episode.showPlayNextDialog || _showStillWatchingPrompt) return;
@@ -238,7 +225,6 @@ extension _VideoPlayerPlaybackPromptMethods on VideoPlayerScreenState {
       failureReason: _episode.lastReloadFailureReason,
       hasNext: _episode.next != null,
       autoPlayEnabled: settings.read(SettingsService.autoPlayNextEpisode),
-      inWatchTogetherSession: _activeWatchTogetherSession() != null,
       autoRetriesUsed: _episode.playNextTransientRetryCount,
     );
     if (presentation == PlayNextRetryPresentation.none) return;

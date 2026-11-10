@@ -17,7 +17,6 @@ import 'package:heisuca/providers/playback_state_provider.dart';
 import 'package:heisuca/services/settings_service.dart';
 import 'package:heisuca/services/video_volume_controller.dart';
 import 'package:heisuca/utils/platform_detector.dart';
-import 'package:heisuca/watch_together/providers/watch_together_provider.dart';
 import 'package:heisuca/widgets/video_controls/desktop_video_controls.dart';
 import 'package:heisuca/widgets/video_controls/mobile_video_controls.dart';
 import 'package:heisuca/widgets/video_controls/player_chrome_controller.dart';
@@ -47,7 +46,7 @@ void main() {
     late PlayerToastController toast;
     late VideoVolumeController volume;
     late PlaybackStateProvider playbackState;
-    late WatchTogetherProvider watchTogether;
+
     late AppDatabase database;
     late ValueNotifier<bool> hasFirstFrame;
     late FocusNode screenFocusNode;
@@ -72,7 +71,7 @@ void main() {
       toast = PlayerToastController();
       volume = VideoVolumeController(player: player, settings: settings, initialVolume: 100);
       playbackState = PlaybackStateProvider();
-      watchTogether = WatchTogetherProvider();
+
       hasFirstFrame = ValueNotifier<bool>(true);
       screenFocusNode = FocusNode(debugLabel: 'VideoPlayerScreen');
     });
@@ -84,7 +83,7 @@ void main() {
       screenFocusNode.dispose();
       volume.dispose();
       playbackState.dispose();
-      watchTogether.dispose();
+
       chrome.dispose();
       toast.dispose();
       await player.close();
@@ -96,7 +95,6 @@ void main() {
         providers: [
           Provider<AppDatabase>.value(value: database),
           ChangeNotifierProvider<PlaybackStateProvider>.value(value: playbackState),
-          ChangeNotifierProvider<WatchTogetherProvider>.value(value: watchTogether),
         ],
         child: MaterialApp(
           theme: ThemeData(

@@ -6,7 +6,7 @@ import 'package:heisuca/screens/video_player/spurious_eof_recovery.dart';
 import 'package:heisuca/screens/video_player/wakelock_controller.dart';
 
 import '../../test_helpers/media_items.dart';
-import '../../test_helpers/watch_together_fakes.dart';
+import '../../test_helpers/player_fakes.dart';
 
 /// A player that answers mpv's `file-size` and `file-format` the way the
 /// native core does: strings, or null when the transport has no size for the

@@ -410,11 +410,7 @@ class PlayerNative extends PlayerBase {
         startLivePlaylistFromBeginning: startLivePlaylistFromBeginning,
       );
     } catch (_) {
-      // Nothing loaded: no `start-file` will release the track-list gate, and
-      // the file still playing keeps its frame, tracks, timeline and playhead.
-      // Consumers that bound in this window — a Watch Together rebind reads
-      // `hasRenderedFrame` for readiness — must see that file, not the
-      // replacement that never arrived.
+      // A abertura falhou: conservar o quadro, as faixas e a posição do arquivo anterior.
       if (!_nativeCoreUnavailable) {
         configureTimeline(duration: previousTimelineDuration);
         restorePlaybackProgress(previousState, position: previousPosition);

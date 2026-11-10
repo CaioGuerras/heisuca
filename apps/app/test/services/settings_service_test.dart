@@ -403,40 +403,6 @@ void main() {
     });
   });
 
-  group('SettingsService Watch Together relay', () {
-    test('typed writes canonicalize valid bases and reject invalid replacement', () async {
-      final settings = await SettingsService.getInstance();
-
-      await settings.write(SettingsService.customRelayUrl, '  HTTPS://Relay.Example.Test/path///  ');
-      expect(settings.read(SettingsService.customRelayUrl), 'https://relay.example.test/path');
-
-      await expectLater(
-        settings.write(SettingsService.customRelayUrl, 'ws://relay.example.test'),
-        throwsFormatException,
-      );
-      expect(settings.read(SettingsService.customRelayUrl), 'https://relay.example.test/path');
-
-      await settings.write(SettingsService.customRelayUrl, '   ');
-      expect(settings.read(SettingsService.customRelayUrl), isNull);
-    });
-
-    test('startup canonicalizes valid history and removes invalid history', () async {
-      resetSharedPreferencesForTest(
-        initialAsync: {SettingsService.customRelayUrl.key: '  http://Relay.Example.Test:8080/prefix// '},
-      );
-      SettingsService.resetForTesting();
-      var settings = await SettingsService.getInstance();
-      expect(settings.read(SettingsService.customRelayUrl), 'http://relay.example.test:8080/prefix');
-
-      resetSharedPreferencesForTest(
-        initialAsync: {SettingsService.customRelayUrl.key: 'https://relay.example.test/path?wrong=route'},
-      );
-      SettingsService.resetForTesting();
-      settings = await SettingsService.getInstance();
-      expect(settings.read(SettingsService.customRelayUrl), isNull);
-    });
-  });
-
   group('SettingsService listenables', () {
     test('refreshListenables updates active prefs outside the resettable surface', () async {
       final settings = await SettingsService.getInstance();
@@ -452,7 +418,6 @@ void main() {
 
       expect(scrobble.value, isFalse);
     });
-
   });
   group('BaseSharedPreferencesService initialization generations', () {
     test('a reset-raced initialization resolves to the replacement backend', () async {

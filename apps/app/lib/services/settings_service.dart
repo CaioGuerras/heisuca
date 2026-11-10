@@ -37,7 +37,6 @@ import '../models/transcode_quality_preset.dart';
 import '../navigation/navigation_tabs.dart';
 import '../utils/platform_detector.dart';
 import '../profiles/profile.dart';
-import '../watch_together/services/watch_together_relay_endpoint.dart';
 
 enum ThemeMode { system, light, dark, oled }
 
@@ -452,15 +451,6 @@ class _AudioPassthroughPref extends Pref<bool> {
   Future<void> writeTo(BaseSharedPreferencesService svc, bool value) => svc.writeBool(key, value);
 }
 
-String? _normalizeRelayBaseUrl(String? value) {
-  if (value == null || value.trim().isEmpty) return null;
-  final endpoint = WatchTogetherRelayEndpoint.tryParseCustom(value);
-  if (endpoint == null) {
-    throw FormatException('Invalid Watch Together relay base URL');
-  }
-  return endpoint.canonicalBaseUrl;
-}
-
 String _legacyMpvEntriesToText(List<dynamic> entries) {
   final lines = <String>[];
   for (final item in entries) {
@@ -738,7 +728,11 @@ class SettingsService extends BaseSharedPreferencesService {
   /// Restore the last music session parked-paused on launch (#2148).
   static const resumeMusicOnLaunch = BoolPref('resume_music_on_launch', defaultValue: true);
   // Zero desliga só a pergunta por episódios, sem alterar o temporizador.
-  static final stillWatchingEpisodes = IntPref('heisuca_still_watching_episodes', defaultValue: 3, transform: (v) => v.clamp(0, 20));
+  static final stillWatchingEpisodes = IntPref(
+    'heisuca_still_watching_episodes',
+    defaultValue: 3,
+    transform: (v) => v.clamp(0, 20),
+  );
   static const autoPlayNextEpisode = BoolPref('auto_play_next_episode', defaultValue: true);
 
   /// Shuffled video queues start every episode at 0:00 instead of resuming
@@ -859,14 +853,6 @@ class SettingsService extends BaseSharedPreferencesService {
   // Escolha explícita: sair mantém PiP enquanto esta opção estiver desligada.
   static const continueListening = BoolPref('heisuca_continue_listening', defaultValue: false);
   static const customDownloadPath = NullableStringPref('custom_download_path');
-  static final customRelayUrl = NullableStringPref('custom_relay_url', transform: _normalizeRelayBaseUrl);
-
-  static NullableStringPref recentRoomsForProfile(String profileId) {
-    if (profileId.trim().isEmpty) {
-      throw ArgumentError.value(profileId, 'profileId', 'Must not be empty');
-    }
-    return NullableStringPref(profileScopedPrefsKey(profileId, 'watch_together_recent_rooms'));
-  }
 
   static NullableStringPref recentMetadataTagsForProfile(String profileId) {
     if (profileId.trim().isEmpty) {
@@ -1070,20 +1056,9 @@ class SettingsService extends BaseSharedPreferencesService {
       await prefs.setString(themeMode.key, ThemeMode.oled.name);
     }
 
-    const legacyRecentRoomsKey = 'watch_together_recent_rooms';
-    await prefs.remove(legacyRecentRoomsKey);
     // One-way move to the mpv default: the pre-`android_use_exoplayer` pick is
     // dropped rather than carried over, and nothing reads the old key.
     await prefs.remove(_legacyUseExoPlayerKey);
-
-    final storedRelay = readNullableString(customRelayUrl.key);
-    if (storedRelay == null) return;
-    final endpoint = WatchTogetherRelayEndpoint.tryParseCustom(storedRelay);
-    if (endpoint == null) {
-      await prefs.remove(customRelayUrl.key);
-    } else if (endpoint.canonicalBaseUrl != storedRelay) {
-      await prefs.setString(customRelayUrl.key, endpoint.canonicalBaseUrl);
-    }
   }
 
   /// Raises [UnreadableSensitivePreferenceException] if any stored credential
@@ -1510,7 +1485,6 @@ class SettingsService extends BaseSharedPreferencesService {
     customShaderPresets,
     selectedExternalPlayer,
     customExternalPlayers,
-    customRelayUrl,
     rememberedBrightnessLevel,
     refusedVideoCodecs,
   ];
@@ -1531,7 +1505,6 @@ class SettingsService extends BaseSharedPreferencesService {
           pref != globalShaderPreset)
         pref,
     mpvConfigText,
-    customRelayUrl,
     rememberedBrightnessLevel,
   ]);
 
@@ -1642,4 +1615,3 @@ class SettingsService extends BaseSharedPreferencesService {
     await PlexImageCacheManager.instance.emptyCache();
   }
 }
-

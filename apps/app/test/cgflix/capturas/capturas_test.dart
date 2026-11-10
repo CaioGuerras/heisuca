@@ -27,7 +27,6 @@ import 'package:heisuca/screens/settings/playback_settings_screen.dart';
 import 'package:heisuca/services/settings_service.dart';
 import 'package:heisuca/services/video_volume_controller.dart';
 import 'package:heisuca/utils/platform_detector.dart';
-import 'package:heisuca/watch_together/providers/watch_together_provider.dart';
 import 'package:heisuca/widgets/app_menu.dart';
 import 'package:heisuca/widgets/overlay_sheet.dart';
 import 'package:heisuca/cgflix/you/cgflix_favorites_screen.dart';
@@ -277,7 +276,7 @@ void main() {
     late PlayerToastController toast;
     late VideoVolumeController volume;
     late PlaybackStateProvider playbackState;
-    late WatchTogetherProvider watchTogether;
+
     late AppDatabase database;
     final player = _Player();
     final primeiroQuadro = ValueNotifier<bool>(true);
@@ -290,7 +289,6 @@ void main() {
       toast = PlayerToastController();
       volume = VideoVolumeController(player: player, settings: SettingsService.instance, initialVolume: 100);
       playbackState = PlaybackStateProvider();
-      watchTogether = WatchTogetherProvider();
     });
 
     tearDown(() async {
@@ -298,7 +296,7 @@ void main() {
       PlatformDetector.debugSetIsDesktopOSOverride(null);
       volume.dispose();
       playbackState.dispose();
-      watchTogether.dispose();
+
       chrome.dispose();
       toast.dispose();
       await database.close();
@@ -325,7 +323,6 @@ void main() {
       providers: [
         Provider<AppDatabase>.value(value: database),
         ChangeNotifierProvider<PlaybackStateProvider>.value(value: playbackState),
-        ChangeNotifierProvider<WatchTogetherProvider>.value(value: watchTogether),
       ],
     );
 

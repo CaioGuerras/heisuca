@@ -5,16 +5,12 @@ import 'package:heisuca/utils/certificate_trust.dart';
 import 'package:xml/xml.dart';
 
 const _configPath = 'android/app/src/main/res/xml/network_security_config.xml';
-const _expectedDomains = <String>{
-  'plex.tv',
-  'image.tmdb.org',
-};
+const _expectedDomains = <String>{'plex.tv', 'image.tmdb.org'};
 const _fixedEndpointSourcePaths = <String>[
   'lib/services/plex_auth_service.dart',
   'lib/services/plex_discover_client.dart',
   'lib/services/plex_client/parts/live_tv.dart',
   'lib/services/catalog/seerr_catalog_source.dart',
-  'lib/watch_together/services/watch_together_relay_endpoint.dart',
   'lib/main.dart',
 ];
 
@@ -37,8 +33,10 @@ void main() {
   test('só HTTPS: base-config recusa texto claro e o manifest não o reabilita', () {
     final baseConfig = config.rootElement.findElements('base-config').single;
     expect(baseConfig.getAttribute('cleartextTrafficPermitted'), 'false');
-    expect(File('android/app/src/main/AndroidManifest.xml').readAsStringSync(),
-        isNot(contains('usesCleartextTraffic')));
+    expect(
+      File('android/app/src/main/AndroidManifest.xml').readAsStringSync(),
+      isNot(contains('usesCleartextTraffic')),
+    );
   });
 
   test('texto claro permitido só para 127.0.0.1 e localhost (proxy local)', () {
@@ -46,8 +44,7 @@ void main() {
         .findElements('domain-config')
         .where((c) => c.getAttribute('cleartextTrafficPermitted') == 'true')
         .single;
-    expect(cleartext.findElements('domain').map((d) => d.innerText.trim()).toSet(),
-        {'127.0.0.1', 'localhost'});
+    expect(cleartext.findElements('domain').map((d) => d.innerText.trim()).toSet(), {'127.0.0.1', 'localhost'});
     expect(cleartext.findElements('trust-anchors'), isEmpty);
   });
 

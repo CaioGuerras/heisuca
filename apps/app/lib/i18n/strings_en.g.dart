@@ -77,7 +77,6 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$collections$en collections = Translations$collections$en.internal(_root);
 	late final Translations$playlists$en playlists = Translations$playlists$en.internal(_root);
 	late final Translations$music$en music = Translations$music$en.internal(_root);
-	late final Translations$watchTogether$en watchTogether = Translations$watchTogether$en.internal(_root);
 	late final Translations$downloads$en downloads = Translations$downloads$en.internal(_root);
 	late final Translations$shaders$en shaders = Translations$shaders$en.internal(_root);
 	late final Translations$companionRemote$en companionRemote = Translations$companionRemote$en.internal(_root);
@@ -743,18 +742,6 @@ class Translations$settings$en {
 
 	/// en: 'Use arrow keys to navigate video player controls'
 	String get videoPlayerNavigationDescription => 'Use arrow keys to navigate video player controls';
-
-	/// en: 'Watch Together Relay'
-	String get watchTogetherRelay => 'Watch Together Relay';
-
-	/// en: 'Set a custom relay. Everyone must use the same server.'
-	String get watchTogetherRelayDescription => 'Set a custom relay. Everyone must use the same server.';
-
-	/// en: 'https://my-relay.example.com'
-	String get watchTogetherRelayHint => 'https://my-relay.example.com';
-
-	/// en: 'Enter a valid HTTP or HTTPS relay base URL.'
-	String get watchTogetherRelayInvalid => 'Enter a valid HTTP or HTTPS relay base URL.';
 
 	/// en: 'Debug Logging'
 	String get debugLogging => 'Debug Logging';
@@ -4141,239 +4128,6 @@ class Translations$music$en {
 	late final Translations$music$discography$en discography = Translations$music$discography$en.internal(_root);
 }
 
-// Path: watchTogether
-class Translations$watchTogether$en {
-	Translations$watchTogether$en.internal(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
-
-	/// en: 'Watch Together'
-	String get title => 'Watch Together';
-
-	/// en: 'Watch content in sync with friends and family'
-	String get description => 'Watch content in sync with friends and family';
-
-	/// en: 'Create Session'
-	String get createSession => 'Create Session';
-
-	/// en: 'Creating...'
-	String get creating => 'Creating...';
-
-	/// en: 'Join Session'
-	String get joinSession => 'Join Session';
-
-	/// en: 'Joining...'
-	String get joining => 'Joining...';
-
-	/// en: 'Control Mode'
-	String get controlMode => 'Control Mode';
-
-	/// en: 'Who can control playback?'
-	String get controlModeQuestion => 'Who can control playback?';
-
-	/// en: 'Host Only'
-	String get hostOnly => 'Host Only';
-
-	/// en: 'Anyone'
-	String get anyone => 'Anyone';
-
-	/// en: 'Hosting Session'
-	String get hostingSession => 'Hosting Session';
-
-	/// en: 'In Session'
-	String get inSession => 'In Session';
-
-	/// en: 'Session Code'
-	String get sessionCode => 'Session Code';
-
-	/// en: 'Open Watch Together session controls'
-	String get openSessionControls => 'Open Watch Together session controls';
-
-	/// en: 'Copy session code'
-	String get copySessionCode => 'Copy session code';
-
-	/// en: 'Host controls playback'
-	String get hostControlsPlayback => 'Host controls playback';
-
-	/// en: 'Anyone can control playback'
-	String get anyoneCanControl => 'Anyone can control playback';
-
-	/// en: 'Host controls'
-	String get hostControls => 'Host controls';
-
-	/// en: 'Anyone controls'
-	String get anyoneControls => 'Anyone controls';
-
-	/// en: 'Participants'
-	String get participants => 'Participants';
-
-	/// en: 'Host'
-	String get host => 'Host';
-
-	/// en: 'HOST'
-	String get hostBadge => 'HOST';
-
-	/// en: 'You are the host'
-	String get youAreHost => 'You are the host';
-
-	/// en: 'Make host'
-	String get makeHost => 'Make host';
-
-	/// en: 'Transfer host?'
-	String get makeHostQuestion => 'Transfer host?';
-
-	/// en: '${name} will control playback and drive the session for everyone.'
-	String makeHostConfirm({required Object name}) => '${name} will control playback and drive the session for everyone.';
-
-	/// en: 'Transfer'
-	String get transfer => 'Transfer';
-
-	/// en: '${name} is now the host'
-	String hostChangedTo({required Object name}) => '${name} is now the host';
-
-	/// en: 'You are now the host'
-	String get youAreNowHost => 'You are now the host';
-
-	/// en: 'Couldn't make ${name} the host'
-	String hostTransferFailed({required Object name}) => 'Couldn\'t make ${name} the host';
-
-	/// en: 'Watching with others'
-	String get watchingWithOthers => 'Watching with others';
-
-	/// en: 'End Session'
-	String get endSession => 'End Session';
-
-	/// en: 'Leave Session'
-	String get leaveSession => 'Leave Session';
-
-	/// en: 'End Session?'
-	String get endSessionQuestion => 'End Session?';
-
-	/// en: 'Leave Session?'
-	String get leaveSessionQuestion => 'Leave Session?';
-
-	/// en: 'This will end the session for all participants.'
-	String get endSessionConfirm => 'This will end the session for all participants.';
-
-	/// en: 'You will be removed from the session.'
-	String get leaveSessionConfirm => 'You will be removed from the session.';
-
-	/// en: 'This will end the watch session for all participants.'
-	String get endSessionConfirmOverlay => 'This will end the watch session for all participants.';
-
-	/// en: 'You will be disconnected from the watch session.'
-	String get leaveSessionConfirmOverlay => 'You will be disconnected from the watch session.';
-
-	/// en: 'End'
-	String get end => 'End';
-
-	/// en: 'Leave'
-	String get leave => 'Leave';
-
-	/// en: 'Syncing...'
-	String get syncing => 'Syncing...';
-
-	/// en: 'Join Watch Session'
-	String get joinWatchSession => 'Join Watch Session';
-
-	/// en: 'Enter 5-character code'
-	String get enterCodeHint => 'Enter 5-character code';
-
-	/// en: 'Paste from clipboard'
-	String get pasteFromClipboard => 'Paste from clipboard';
-
-	/// en: 'Please enter a session code'
-	String get pleaseEnterCode => 'Please enter a session code';
-
-	/// en: 'Session code must be 5 characters'
-	String get codeMustBe5Chars => 'Session code must be 5 characters';
-
-	/// en: 'Enter the host's session code to join.'
-	String get joinInstructions => 'Enter the host\'s session code to join.';
-
-	/// en: 'Failed to create session'
-	String get failedToCreate => 'Failed to create session';
-
-	/// en: 'Failed to join session'
-	String get failedToJoin => 'Failed to join session';
-
-	/// en: 'Session code copied to clipboard'
-	String get sessionCodeCopied => 'Session code copied to clipboard';
-
-	/// en: 'Relay server unreachable. ISP blocking may prevent Watch Together.'
-	String get relayUnreachable => 'Relay server unreachable. ISP blocking may prevent Watch Together.';
-
-	/// en: 'Reconnecting to host...'
-	String get reconnectingToHost => 'Reconnecting to host...';
-
-	/// en: 'Current Playback'
-	String get currentPlayback => 'Current Playback';
-
-	/// en: 'Join Current Playback'
-	String get joinCurrentPlayback => 'Join Current Playback';
-
-	/// en: 'Jump back into what the host is currently watching'
-	String get joinCurrentPlaybackDescription => 'Jump back into what the host is currently watching';
-
-	/// en: 'Failed to open current playback'
-	String get failedToOpenCurrentPlayback => 'Failed to open current playback';
-
-	/// en: '${name} joined'
-	String participantJoined({required Object name}) => '${name} joined';
-
-	/// en: '${name} left'
-	String participantLeft({required Object name}) => '${name} left';
-
-	/// en: '${name} paused'
-	String participantPaused({required Object name}) => '${name} paused';
-
-	/// en: '${name} resumed'
-	String participantResumed({required Object name}) => '${name} resumed';
-
-	/// en: '${name} changed the playback position'
-	String participantSeeked({required Object name}) => '${name} changed the playback position';
-
-	/// en: '${name} set the speed to ${speed}'
-	String participantChangedSpeed({required Object name, required Object speed}) => '${name} set the speed to ${speed}';
-
-	/// en: '${name} is buffering'
-	String participantBuffering({required Object name}) => '${name} is buffering';
-
-	/// en: '${name} is on an older app version — sync unavailable'
-	String participantNeedsUpdate({required Object name}) => '${name} is on an older app version — sync unavailable';
-
-	/// en: 'Resuming without ${name}'
-	String resumingWithout({required Object name}) => 'Resuming without ${name}';
-
-	/// en: 'Waiting for others to load...'
-	String get waitingForParticipants => 'Waiting for others to load...';
-
-	/// en: 'Waiting for ${name}...'
-	String waitingForName({required Object name}) => 'Waiting for ${name}...';
-
-	/// en: 'Recent Rooms'
-	String get recentRooms => 'Recent Rooms';
-
-	/// en: 'Rename Room'
-	String get renameRoom => 'Rename Room';
-
-	/// en: 'Remove'
-	String get removeRoom => 'Remove';
-
-	/// en: 'Couldn't switch — server unavailable for sync'
-	String get guestSwitchUnavailable => 'Couldn\'t switch — server unavailable for sync';
-
-	/// en: 'Couldn't switch — content not found on this server'
-	String get guestSwitchFailed => 'Couldn\'t switch — content not found on this server';
-
-	/// en: 'User'
-	String get defaultDisplayName => 'User';
-
-	late final Translations$watchTogether$errors$en errors = Translations$watchTogether$errors$en.internal(_root);
-}
-
 // Path: downloads
 class Translations$downloads$en {
 	Translations$downloads$en.internal(this._root);
@@ -6856,30 +6610,6 @@ class Translations$music$discography$en {
 	String get compilations => 'Compilations';
 }
 
-// Path: watchTogether.errors
-class Translations$watchTogether$errors$en {
-	Translations$watchTogether$errors$en.internal(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
-
-	/// en: 'The relay did not respond in time'
-	String get timedOut => 'The relay did not respond in time';
-
-	/// en: 'The connection closed before the session was ready'
-	String get connectionLost => 'The connection closed before the session was ready';
-
-	/// en: 'The relay sent an unexpected response'
-	String get invalidRelayResponse => 'The relay sent an unexpected response';
-
-	/// en: 'The host ended the session'
-	String get sessionEnded => 'The host ended the session';
-
-	/// en: 'Unable to resume this session. Join or create a room to continue.'
-	String get sessionUnavailable => 'Unable to resume this session. Join or create a room to continue.';
-}
-
 // Path: downloads.backgroundWarning
 class Translations$downloads$backgroundWarning$en {
 	Translations$downloads$backgroundWarning$en.internal(this._root);
@@ -7574,10 +7304,6 @@ extension on Translations {
 			'settings.keyboardShortcutsDescription' => 'Customize keyboard shortcuts',
 			'settings.videoPlayerNavigation' => 'Video Player Navigation',
 			'settings.videoPlayerNavigationDescription' => 'Use arrow keys to navigate video player controls',
-			'settings.watchTogetherRelay' => 'Watch Together Relay',
-			'settings.watchTogetherRelayDescription' => 'Set a custom relay. Everyone must use the same server.',
-			'settings.watchTogetherRelayHint' => 'https://my-relay.example.com',
-			'settings.watchTogetherRelayInvalid' => 'Enter a valid HTTP or HTTPS relay base URL.',
 			'settings.debugLogging' => 'Debug Logging',
 			'settings.debugLoggingDescription' => 'Enable detailed logging for troubleshooting',
 			'settings.viewLogs' => 'View Logs',
@@ -7865,12 +7591,12 @@ extension on Translations {
 			'fileInfo.baseLayerCompatibility' => 'Base Layer Compatibility',
 			'fileInfo.avcBitstream' => 'AVC Bitstream',
 			'fileInfo.nalLengthSize' => 'NAL Length Size',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.scalingMatrix' => 'Custom Scaling Matrix',
 			'fileInfo.streamIdentifier' => 'Stream Identifier',
 			'fileInfo.streamIndex' => 'Stream Index',
 			'fileInfo.streamId' => 'Stream ID',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.language' => 'Language',
 			'fileInfo.languageCode' => 'Language Code',
 			'fileInfo.streamTitle' => 'Track Title',
@@ -8379,12 +8105,12 @@ extension on Translations {
 			'errors.reasonRefused' => 'the server refused the request',
 			'errors.reasonNotFound' => 'the item is no longer on the server',
 			'errors.reasonServerError' => 'the server reported an error',
-			_ => null,
-		} ?? switch (path) {
 			'errors.reasonCancelled' => 'the request was cancelled',
 			'errors.reasonUnexpected' => 'an unexpected error occurred',
 			'libraries.title' => 'Libraries',
 			'libraries.fallbackTitle' => 'Library',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.scanLibraryFiles' => 'Scan Library Files',
 			'libraries.scanLibrary' => 'Scan Library',
 			'libraries.analyze' => 'Analyze',
@@ -8859,87 +8585,6 @@ extension on Translations {
 			'music.discography.singlesAndEps' => 'Singles & EPs',
 			'music.discography.live' => 'Live',
 			'music.discography.compilations' => 'Compilations',
-			'watchTogether.title' => 'Watch Together',
-			'watchTogether.description' => 'Watch content in sync with friends and family',
-			'watchTogether.createSession' => 'Create Session',
-			'watchTogether.creating' => 'Creating...',
-			'watchTogether.joinSession' => 'Join Session',
-			'watchTogether.joining' => 'Joining...',
-			'watchTogether.controlMode' => 'Control Mode',
-			'watchTogether.controlModeQuestion' => 'Who can control playback?',
-			'watchTogether.hostOnly' => 'Host Only',
-			'watchTogether.anyone' => 'Anyone',
-			'watchTogether.hostingSession' => 'Hosting Session',
-			'watchTogether.inSession' => 'In Session',
-			'watchTogether.sessionCode' => 'Session Code',
-			'watchTogether.openSessionControls' => 'Open Watch Together session controls',
-			'watchTogether.copySessionCode' => 'Copy session code',
-			'watchTogether.hostControlsPlayback' => 'Host controls playback',
-			'watchTogether.anyoneCanControl' => 'Anyone can control playback',
-			'watchTogether.hostControls' => 'Host controls',
-			'watchTogether.anyoneControls' => 'Anyone controls',
-			'watchTogether.participants' => 'Participants',
-			'watchTogether.host' => 'Host',
-			'watchTogether.hostBadge' => 'HOST',
-			'watchTogether.youAreHost' => 'You are the host',
-			'watchTogether.makeHost' => 'Make host',
-			'watchTogether.makeHostQuestion' => 'Transfer host?',
-			'watchTogether.makeHostConfirm' => ({required Object name}) => '${name} will control playback and drive the session for everyone.',
-			'watchTogether.transfer' => 'Transfer',
-			'watchTogether.hostChangedTo' => ({required Object name}) => '${name} is now the host',
-			'watchTogether.youAreNowHost' => 'You are now the host',
-			'watchTogether.hostTransferFailed' => ({required Object name}) => 'Couldn\'t make ${name} the host',
-			'watchTogether.watchingWithOthers' => 'Watching with others',
-			'watchTogether.endSession' => 'End Session',
-			'watchTogether.leaveSession' => 'Leave Session',
-			'watchTogether.endSessionQuestion' => 'End Session?',
-			_ => null,
-		} ?? switch (path) {
-			'watchTogether.leaveSessionQuestion' => 'Leave Session?',
-			'watchTogether.endSessionConfirm' => 'This will end the session for all participants.',
-			'watchTogether.leaveSessionConfirm' => 'You will be removed from the session.',
-			'watchTogether.endSessionConfirmOverlay' => 'This will end the watch session for all participants.',
-			'watchTogether.leaveSessionConfirmOverlay' => 'You will be disconnected from the watch session.',
-			'watchTogether.end' => 'End',
-			'watchTogether.leave' => 'Leave',
-			'watchTogether.syncing' => 'Syncing...',
-			'watchTogether.joinWatchSession' => 'Join Watch Session',
-			'watchTogether.enterCodeHint' => 'Enter 5-character code',
-			'watchTogether.pasteFromClipboard' => 'Paste from clipboard',
-			'watchTogether.pleaseEnterCode' => 'Please enter a session code',
-			'watchTogether.codeMustBe5Chars' => 'Session code must be 5 characters',
-			'watchTogether.joinInstructions' => 'Enter the host\'s session code to join.',
-			'watchTogether.failedToCreate' => 'Failed to create session',
-			'watchTogether.failedToJoin' => 'Failed to join session',
-			'watchTogether.sessionCodeCopied' => 'Session code copied to clipboard',
-			'watchTogether.relayUnreachable' => 'Relay server unreachable. ISP blocking may prevent Watch Together.',
-			'watchTogether.reconnectingToHost' => 'Reconnecting to host...',
-			'watchTogether.currentPlayback' => 'Current Playback',
-			'watchTogether.joinCurrentPlayback' => 'Join Current Playback',
-			'watchTogether.joinCurrentPlaybackDescription' => 'Jump back into what the host is currently watching',
-			'watchTogether.failedToOpenCurrentPlayback' => 'Failed to open current playback',
-			'watchTogether.participantJoined' => ({required Object name}) => '${name} joined',
-			'watchTogether.participantLeft' => ({required Object name}) => '${name} left',
-			'watchTogether.participantPaused' => ({required Object name}) => '${name} paused',
-			'watchTogether.participantResumed' => ({required Object name}) => '${name} resumed',
-			'watchTogether.participantSeeked' => ({required Object name}) => '${name} changed the playback position',
-			'watchTogether.participantChangedSpeed' => ({required Object name, required Object speed}) => '${name} set the speed to ${speed}',
-			'watchTogether.participantBuffering' => ({required Object name}) => '${name} is buffering',
-			'watchTogether.participantNeedsUpdate' => ({required Object name}) => '${name} is on an older app version — sync unavailable',
-			'watchTogether.resumingWithout' => ({required Object name}) => 'Resuming without ${name}',
-			'watchTogether.waitingForParticipants' => 'Waiting for others to load...',
-			'watchTogether.waitingForName' => ({required Object name}) => 'Waiting for ${name}...',
-			'watchTogether.recentRooms' => 'Recent Rooms',
-			'watchTogether.renameRoom' => 'Rename Room',
-			'watchTogether.removeRoom' => 'Remove',
-			'watchTogether.guestSwitchUnavailable' => 'Couldn\'t switch — server unavailable for sync',
-			'watchTogether.guestSwitchFailed' => 'Couldn\'t switch — content not found on this server',
-			'watchTogether.defaultDisplayName' => 'User',
-			'watchTogether.errors.timedOut' => 'The relay did not respond in time',
-			'watchTogether.errors.connectionLost' => 'The connection closed before the session was ready',
-			'watchTogether.errors.invalidRelayResponse' => 'The relay sent an unexpected response',
-			'watchTogether.errors.sessionEnded' => 'The host ended the session',
-			'watchTogether.errors.sessionUnavailable' => 'Unable to resume this session. Join or create a room to continue.',
 			'downloads.title' => 'Downloads',
 			'downloads.manage' => 'Manage',
 			'downloads.tvShows' => 'TV Shows',
@@ -8978,6 +8623,8 @@ extension on Translations {
 			'downloads.resumeAll' => 'Resume all',
 			'downloads.deleteAll' => 'Delete all',
 			'downloads.selectVersion' => 'Select Version',
+			_ => null,
+		} ?? switch (path) {
 			'downloads.allEpisodes' => 'All episodes',
 			'downloads.unwatchedOnly' => 'Unwatched only',
 			'downloads.nextNUnwatched' => ({required Object count}) => 'Next ${count} unwatched',
@@ -9407,8 +9054,6 @@ extension on Translations {
 			'services.deviceCode.openToActivate' => ({required Object service}) => 'Open ${service} to activate',
 			'services.deviceCode.copyCode' => 'Copy activation code',
 			'services.deviceCode.waitingForAuthorization' => 'Waiting for authorization…',
-			_ => null,
-		} ?? switch (path) {
 			'services.deviceCode.codeCopied' => 'Code copied',
 			'services.oauthProxy.title' => ({required Object service}) => 'Sign in to ${service}',
 			'services.oauthProxy.body' => 'Scan this QR code or open the URL on any device.',

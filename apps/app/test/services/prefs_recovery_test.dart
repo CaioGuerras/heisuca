@@ -400,7 +400,7 @@ void main() {
     });
 
     test('does not claim ordinary preferences', () {
-      for (final key in ['theme', 'library_density', 'custom_relay_url', 'session_count']) {
+      for (final key in ['theme', 'library_density', 'retired_local_endpoint', 'session_count']) {
         expect(isSensitivePrefKey(key), isFalse, reason: key);
       }
     });

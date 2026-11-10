@@ -16,7 +16,6 @@ GENERATED_PATHS = (
     "lib/i18n/strings.g.dart",
     "lib/models/model.freezed.dart",
     "lib/models/model.g.dart",
-    "lib/watch_together/services/relay_protocol.g.dart",
     "server/relay_protocol_gen.go",
 )
 
@@ -59,8 +58,6 @@ class CodegenCheckTest(unittest.TestCase):
             """#!/usr/bin/env bash
 write_lf() { tr -d '\\r' < source.txt > "$1"; }
 if [[ "$1" == *check_codegen.py ]]; then exec "$REAL_PYTHON" "$@"; fi
-mkdir -p lib/watch_together/services server
-write_lf lib/watch_together/services/relay_protocol.g.dart
 cp source.txt server/relay_protocol_gen.go
 """,
         )

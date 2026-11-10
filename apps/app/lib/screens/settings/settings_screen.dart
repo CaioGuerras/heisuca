@@ -1,4 +1,3 @@
-import '../../cgflix/cgflix_login_checks.dart';
 import 'dart:async';
 import 'dart:io';
 
@@ -17,7 +16,6 @@ import '../../cgflix/cgflix_dicas.dart';
 import '../../cgflix/conta/cgflix_conta.dart';
 import '../../cgflix/cgflix_theme_picker.dart';
 import '../../focus/focus_memory_tracker.dart';
-import '../../focus/focusable_text_field.dart';
 import '../../focus/input_mode_tracker.dart';
 import '../../i18n/strings.g.dart';
 import '../../heisuca/heisuca_source_scope.dart';
@@ -55,7 +53,6 @@ import '../../widgets/settings_section.dart';
 import '../../widgets/system_bottom_inset.dart';
 import '../../profiles/active_profile_provider.dart';
 import '../../profiles/profile.dart';
-import '../../watch_together/services/watch_together_relay_endpoint.dart';
 import 'about_screen.dart';
 import '../../services/updates/update_controller.dart';
 import '../updates/update_settings_screen.dart';
@@ -117,7 +114,6 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
   static const _kClearImageCache = 'clear_image_cache';
   static const _kResetSettings = 'reset_settings';
   static const _kAbout = 'about';
-  static const _kWatchTogetherRelay = 'watch_together_relay';
   static const _kExportSettings = 'export_settings';
   static const _kImportSettings = 'import_settings';
 
@@ -289,12 +285,13 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
       SettingsGroup(
         title: 'Ajuda',
         children: [
-          if (context.watch<UpdateController?>()?.permiteAjustes == true) SettingNavigationTile(
-            icon: Symbols.system_update_rounded,
-            title: 'Atualizações',
-            subtitle: 'Versões do app e canais de atualização',
-            destinationBuilder: (_) => const UpdateSettingsScreen(),
-          ),
+          if (context.watch<UpdateController?>()?.permiteAjustes == true)
+            SettingNavigationTile(
+              icon: Symbols.system_update_rounded,
+              title: 'Atualizações',
+              subtitle: 'Versões do app e canais de atualização',
+              destinationBuilder: (_) => const UpdateSettingsScreen(),
+            ),
           SettingNavigationTile(
             key: const ValueKey('cgflix-config-dicas'),
             icon: Symbols.lightbulb_rounded,
@@ -361,7 +358,7 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
   /// CGFLIX: a subtela Avançado, por assunto.
   List<Widget> _cgflixAdvancedChildren(BuildContext context, {required bool hasLibraries}) => [
     _buildConnectionsSection(context, hasLibraries: hasLibraries),
-    CgflixAdvancedFeatures(extra: _cgflixControlsTiles(context)),
+    ..._cgflixControlsTiles(context),
     const CgflixAdvancedPlayback(),
     const CgflixAdvancedSubtitles(),
     const CgflixAdvancedGeneral(),
@@ -630,13 +627,6 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
     return SettingsGroup(
       title: 'Diagnóstico', // CGFLIX: registros, memória de imagens, restaurar
       children: [
-        SettingNavigationTile(
-          focusNode: _focusTracker.get(_kWatchTogetherRelay),
-          icon: Symbols.dns_rounded,
-          title: t.settings.watchTogetherRelay,
-          subtitle: t.settings.watchTogetherRelayDescription,
-          onTap: () => _showRelayUrlDialog(),
-        ),
         SettingSwitchTile(
           focusNode: _focusTracker.get(_kDebugLogging),
           pref: settings.SettingsService.enableDebugLogging,
@@ -817,13 +807,6 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
     }
   }
 
-  Future<void> _showRelayUrlDialog() async {
-    await showScopedDialog<void>(
-      context: context,
-      builder: (_) => _RelayUrlDialog(settingsService: _settingsService),
-    );
-  }
-
   Future<void> _showClearImageCacheDialog() async {
     final confirmed = await showConfirmDialog(
       context,
@@ -925,97 +908,6 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
           if (mounted) showErrorSnackBar(context, t.settings.importSettingsInvalidFile);
         }
       },
-    );
-  }
-
-}
-
-class _RelayUrlDialog extends StatefulWidget {
-  final settings.SettingsService settingsService;
-
-  const _RelayUrlDialog({required this.settingsService});
-
-  @override
-  State<_RelayUrlDialog> createState() => _RelayUrlDialogState();
-}
-
-class _RelayUrlDialogState extends State<_RelayUrlDialog> {
-  late final TextEditingController _controller;
-  final _saveFocusNode = FocusNode(debugLabel: 'WatchTogetherRelaySave');
-  bool _relayUrlInvalid = false;
-  bool _relayHttpsRequired = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(
-      text: widget.settingsService.read(settings.SettingsService.customRelayUrl) ?? '',
-    );
-  }
-
-  @override
-  void dispose() {
-    _saveFocusNode.dispose();
-    _controller.dispose();
-    super.dispose();
-  }
-
-  Future<void> _reset() async {
-    _controller.clear();
-    await widget.settingsService.write(settings.SettingsService.customRelayUrl, null);
-    if (mounted) Navigator.pop(context);
-  }
-
-  Future<void> _save() async {
-    final value = _controller.text;
-    if (value.trim().isEmpty) {
-      await widget.settingsService.write(settings.SettingsService.customRelayUrl, null);
-      if (mounted) Navigator.pop(context);
-      return;
-    }
-
-    if (cgflixIsCleartextRefused(value)) {
-      setState(() => _relayHttpsRequired = true);
-      return;
-    }
-    final endpoint = WatchTogetherRelayEndpoint.tryParseCustom(value);
-    if (endpoint == null) {
-      setState(() => _relayUrlInvalid = true);
-      return;
-    }
-    await widget.settingsService.write(settings.SettingsService.customRelayUrl, endpoint.canonicalBaseUrl);
-    if (mounted) Navigator.pop(context);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(t.settings.watchTogetherRelay),
-      content: FocusableTextField(
-        controller: _controller,
-        decoration: InputDecoration(
-          labelText: t.common.url,
-          hintText: t.settings.watchTogetherRelayHint,
-          errorText: _relayHttpsRequired ? cgflixHttpsRequiredMessage : (_relayUrlInvalid ? t.settings.watchTogetherRelayInvalid : null),
-        ),
-        autofocus: true,
-        textInputAction: TextInputAction.done,
-        onChanged: (_) {
-          if (_relayUrlInvalid || _relayHttpsRequired) {
-            setState(() {
-              _relayUrlInvalid = false;
-              _relayHttpsRequired = false;
-            });
-          }
-        },
-        onEditingComplete: () => _saveFocusNode.requestFocus(),
-        onNavigateDown: _saveFocusNode.requestFocus,
-      ),
-      actions: [
-        DialogActionButton(onPressed: _reset, label: t.settings.resetToDefault),
-        DialogActionButton(onPressed: () => Navigator.pop(context), label: t.common.cancel),
-        DialogActionButton(focusNode: _saveFocusNode, onPressed: _save, label: t.common.save),
-      ],
     );
   }
 }

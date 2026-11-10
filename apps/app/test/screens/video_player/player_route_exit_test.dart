@@ -15,7 +15,7 @@ import '../../test_helpers/mock_player_channels.dart';
 import '../../test_helpers/prefs.dart';
 import '../../test_helpers/pump.dart';
 import '../../test_helpers/predictive_back.dart';
-import '../../test_helpers/watch_together_fakes.dart';
+import '../../test_helpers/player_fakes.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -142,31 +142,34 @@ void main() {
   });
   for (final edge in [0, 1]) {
     testWidgets('player: gesto $edge cancela sem pausar e confirma com aposentadoria pendente', (tester) async {
-      tester.view.physicalSize = const Size(412, 914); tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(412, 914);
+      tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       final player = _TouchExitPlayer();
       final screen = await _pushHeldPlayer(tester, player);
       await tester.pump(const Duration(milliseconds: 600));
       screen.key.currentState!.chromeController.setContentStripVisible(true);
       await tester.pump();
-      await tester.binding.handlePopRoute(); await tester.pump();
+      await tester.binding.handlePopRoute();
+      await tester.pump();
       expect(screen.key.currentState!.chromeController.contentStripVisible, isFalse);
       expect(player.pauseCalls, 0, reason: 'o primeiro voltar fecha só o painel');
       await sendPredictiveBack(tester, 'startBackGesture', edge: edge);
       await sendPredictiveBack(tester, 'updateBackGestureProgress', edge: edge, progress: .35);
       await sendPredictiveBack(tester, 'cancelBackGesture', edge: edge);
       await tester.pump(const Duration(milliseconds: 600));
-      expect(screen.key.currentState, isNotNull); expect(player.pauseCalls, 0);
+      expect(screen.key.currentState, isNotNull);
+      expect(player.pauseCalls, 0);
       await sendPredictiveBack(tester, 'startBackGesture', edge: edge);
       await sendPredictiveBack(tester, 'updateBackGestureProgress', edge: edge, progress: .65);
       await sendPredictiveBack(tester, 'commitBackGesture', edge: edge);
       await tester.pump(const Duration(milliseconds: 600));
-      expect(screen.key.currentState, isNull); expect(player.pauseCalls, 1);
+      expect(screen.key.currentState, isNull);
+      expect(player.pauseCalls, 1);
       expect(find.text('Browse'), findsOneWidget);
       expect(player.pauseGate.isCompleted, isFalse);
     }, variant: TargetPlatformVariant.only(TargetPlatform.android));
   }
-
 }
 
 class _TouchExitPlayer extends FakeSyncPlayer {

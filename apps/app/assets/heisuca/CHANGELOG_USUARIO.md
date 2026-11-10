@@ -10,6 +10,7 @@
 - Capas, legendas e downloads agora só vêm do seu servidor e nunca levam seus dados de acesso para outros endereços.
 
 ### Mais simples
+- O Assistir juntos saiu do app.
 - Saíram o controle remoto pelo computador e as ligações com serviços externos de listas e histórico, que quase ninguém usava.
 
 ## 2.0.33 — O que mudou

@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:heisuca/utils/formatters.dart';
 import 'package:heisuca/utils/platform_detector.dart';
 
 import '../../../cgflix/cgflix_units.dart';
 import '../../../media/media_item.dart';
 import '../../../i18n/strings.g.dart';
-import '../../../watch_together/widgets/watch_together_overlay.dart';
-import '../../../watch_together/providers/watch_together_provider.dart';
 import '../../app_bar_back_button.dart';
 import '../../system_clock.dart';
 
@@ -62,22 +59,11 @@ class VideoControlsHeader extends StatelessWidget {
         AppBarBackButton(style: BackButtonStyle.video, onPressed: onBack ?? () => Navigator.of(context).pop(true)),
         const SizedBox(width: 16),
         Expanded(
-          child: title ?? (style == VideoHeaderStyle.singleLine
-              ? _buildSingleLineTitle(itemTitle)
-              : _buildMultiLineTitle(itemTitle)),
-        ),
-        Selector<WatchTogetherProvider, bool>(
-          selector: (_, p) => p.isInSession,
-          builder: (context, inSession, child) {
-            if (!inSession) return const SizedBox.shrink();
-            return Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: WatchTogetherSessionIndicator(
-                onCancelAutoHide: onCancelAutoHide,
-                onStartAutoHide: onStartAutoHide,
-              ),
-            );
-          },
+          child:
+              title ??
+              (style == VideoHeaderStyle.singleLine
+                  ? _buildSingleLineTitle(itemTitle)
+                  : _buildMultiLineTitle(itemTitle)),
         ),
         if (showClock)
           const Padding(
@@ -129,21 +115,14 @@ class VideoControlsHeader extends StatelessWidget {
       children: [
         Text(
           metadata.grandparentTitle ?? itemTitle,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: isTv ? 32 : 16,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.white, fontSize: isTv ? 32 : 16, fontWeight: FontWeight.bold),
           maxLines: 1,
           overflow: .ellipsis,
         ),
         if (secondLineParts.isNotEmpty)
           Text(
             toBulletedString(secondLineParts),
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: isTv ? 24 : 14,
-            ),
+            style: TextStyle(color: Colors.white70, fontSize: isTv ? 24 : 14),
             maxLines: 1,
             overflow: .ellipsis,
           ),

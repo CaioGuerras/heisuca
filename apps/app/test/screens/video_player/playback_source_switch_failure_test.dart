@@ -39,7 +39,7 @@ import '../../test_helpers/playback_report_fakes.dart';
 import '../../test_helpers/prefs.dart';
 import '../../test_helpers/saf_fakes.dart';
 import '../../test_helpers/stub_music_playback_service.dart';
-import '../../test_helpers/watch_together_fakes.dart';
+import '../../test_helpers/player_fakes.dart';
 
 /// An in-place quality switch commits its replacement session on the
 /// `loadfile` reply, before mpv has tried the URL, so the transcode that then

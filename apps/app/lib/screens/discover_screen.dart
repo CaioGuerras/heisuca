@@ -63,7 +63,6 @@ import 'libraries/content_state_builder.dart';
 import 'libraries/state_messages.dart';
 import 'main_screen.dart';
 import '../navigation/settings_shortcut.dart';
-import '../watch_together/watch_together.dart';
 
 class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({super.key});
@@ -802,72 +801,26 @@ class _DiscoverScreenState extends State<DiscoverScreen>
             ),
             const SizedBox(width: 12),
           ],
-          Consumer<WatchTogetherProvider>(
-            builder: (context, watchTogether, _) {
-              void openWatchTogether() =>
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const WatchTogetherScreen()));
-              return FocusableActionBar(
-                key: _actionBarKey,
-                onNavigateLeft: _navigateToSidebar,
-                onNavigateDown: _focusContentFromAppBar,
-                actions: [
-                  // CGFLIX: Recarregar (agora é puxar para atualizar) e Assistir juntos
-                  // saem do cabeçalho; o segundo fica em Configurações > Avançado.
-                  if (cgflixShowHomeHeaderExtras) ...[
-                    FocusableAction(
-                      icon: Symbols.refresh_rounded,
-                      iconColor: foregroundColor,
-                      onPressed: manualRefresh,
-                    ),
-                    // Watch Together
-                    FocusableAction(
-                      onPressed: openWatchTogether,
-                      child: Stack(
-                        children: [
-                          IconButton(
-                            icon: AppIcon(
-                              Symbols.group_rounded,
-                              fill: watchTogether.isInSession ? 1 : 0,
-                              color: watchTogether.isInSession ? colorScheme.primary : foregroundColor,
-                            ),
-                            onPressed: openWatchTogether,
-                            tooltip: t.watchTogether.title,
-                          ),
-                          if (watchTogether.isInSession && watchTogether.participantCount > 1)
-                            Positioned(
-                              top: 6,
-                              right: 6,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                                decoration: BoxDecoration(
-                                  color: colorScheme.primary,
-                                  borderRadius: const BorderRadius.all(Radius.circular(8)),
-                                ),
-                                child: Text(
-                                  '${watchTogether.participantCount}',
-                                  style: TextStyle(color: colorScheme.onPrimary, fontSize: 10, fontWeight: .bold),
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ],
-                  // Server Tasks — Plex-only (`/activities` API has no
-                  // Jellyfin equivalent), hide the button entirely on
-                  // Jellyfin-only profiles so the chrome doesn't show
-                  // a permanently empty popover.
-                  if (PlatformDetector.isDesktop(context) &&
-                      context.select<MultiServerProvider, bool>((p) => p.hasOnlinePlexServers))
-                    FocusableAction(
-                      onPressed: () => _serverActivitiesButtonKey.currentState?.togglePanel(),
-                      child: ServerActivitiesButton(key: _serverActivitiesButtonKey),
-                    ),
-                  // User menu — profiles + sign out
-                  _buildUserMenuAction(context),
-                ],
-              );
-            },
+          FocusableActionBar(
+            key: _actionBarKey,
+            onNavigateLeft: _navigateToSidebar,
+            onNavigateDown: _focusContentFromAppBar,
+            actions: [
+              if (cgflixShowHomeHeaderExtras)
+                FocusableAction(icon: Symbols.refresh_rounded, iconColor: foregroundColor, onPressed: manualRefresh),
+              // Server Tasks — Plex-only (`/activities` API has no
+              // Jellyfin equivalent), hide the button entirely on
+              // Jellyfin-only profiles so the chrome doesn't show
+              // a permanently empty popover.
+              if (PlatformDetector.isDesktop(context) &&
+                  context.select<MultiServerProvider, bool>((p) => p.hasOnlinePlexServers))
+                FocusableAction(
+                  onPressed: () => _serverActivitiesButtonKey.currentState?.togglePanel(),
+                  child: ServerActivitiesButton(key: _serverActivitiesButtonKey),
+                ),
+              // User menu — profiles + sign out
+              _buildUserMenuAction(context),
+            ],
           ),
         ],
       ),

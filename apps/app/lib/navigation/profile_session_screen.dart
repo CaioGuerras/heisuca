@@ -34,7 +34,6 @@ import '../services/offline_watch_sync_service.dart';
 import '../services/storage_service.dart';
 import '../services/system_shelf_service.dart';
 import '../utils/app_logger.dart';
-import '../watch_together/providers/watch_together_provider.dart';
 import '../widgets/music/mini_player.dart';
 import '../widgets/agent_control_scope.dart';
 import 'profile_navigation_scope.dart';
@@ -245,7 +244,6 @@ class _ProfileSessionScreenState extends State<ProfileSessionScreen> {
                       : MusicSessionStore(database: context.read<AppDatabase>(), profileId: activeId),
                 ),
               ),
-              ChangeNotifierProvider(create: (context) => WatchTogetherProvider()),
             ],
             child: CoveredRouteFocusBoundary(
               child: _ProfileSessionNavigator(
@@ -375,9 +373,10 @@ class _ProfileSessionNavigatorState extends State<_ProfileSessionNavigator> {
       settings: settings,
       builder: (context) =>
           widget.profileShellBuilder?.call(context) ??
-          MainScreen(isOfflineMode: widget.isOfflineMode,
-            initialPromptHandled: widget.initialPromptHandled || HeisucaSourceScope.skipInitialPromptOf(context)),
+          MainScreen(
+            isOfflineMode: widget.isOfflineMode,
+            initialPromptHandled: widget.initialPromptHandled || HeisucaSourceScope.skipInitialPromptOf(context),
+          ),
     );
   }
 }
-

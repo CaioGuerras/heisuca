@@ -29,11 +29,12 @@ void main() {
       MaterialApp(
         theme: cgflixAppTheme(),
         home: const Scaffold(
-          body: SingleChildScrollView(child: Column(children: [CgflixAdvancedFeatures(), CgflixAdvancedPlayback()])),
+          body: SingleChildScrollView(child: Column(children: [CgflixAdvancedPlayback()])),
         ),
       ),
     );
     expect(find.text('Mostrar dedicatória'), findsNothing);
+    expect(find.text('Assistir juntos'), findsNothing);
     expect(find.text(cgflixDedicationText), findsNothing);
   });
 }

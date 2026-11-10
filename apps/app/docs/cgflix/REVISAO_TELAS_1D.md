@@ -215,7 +215,6 @@ vazia (`""`) no `pt.i18n.json` aparece em INGLÊS** para o usuário. Há 47 chav
 |---|---|---|---|
 | Texto em inglês **com "Plezy"** por fallback: `services.simklReconnect.title/subtitle` estão vazios, então aparece "Reconnect Simkl… approve Plezy — Plezy never sees your password". | pt.i18n.json:2248-2251 | Usuário que conectar o Simkl | Traduzir trocando o nome por CGFLIX. |
 | "Enviar logs" / "Enviar detalhes" mandam o log para `https://ice.plezy.app/logs` (servidor do autor do Plezy). Fere a regra 3 (telemetria). | log_upload_service.dart:6; startup_failure_view.dart:250; logs_screen | Todo usuário | Esconder o envio no CGFLIX ou trocar o endpoint. |
-| "Assistir juntos" usa o relay padrão `https://ice.plezy.app`. | watch_together_relay_endpoint.dart:8 | Quem usar Assistir juntos | Documentar, ou relay próprio/opção escondida. |
 | "Relatório de falhas" iria para `bugs.plezy.app` (desligado no build). | main.dart:109-110; settings_screen.dart:561 | Opção visível em Avançado | Esconder. |
 | Cabeçalho do log "Plezy v1.1.0+300" e "Plezy startup failure" nos detalhes copiados. | main.dart:1070; startup_diagnostics.dart:217 | Quem copia ou manda o log | Trocar para CGFLIX. |
 | Esquema de deep link `plezy://play` e `plezy://live`: com o Plezy instalado, o Android pergunta "abrir com CGFLIX ou Plezy?". | android/app/src/main/AndroidManifest.xml:73, 80 | Raro (links externos) | Trocar para `cgflix://` ou remover. |

@@ -173,7 +173,6 @@ void main() {
       PlaybackFailureReason? failureReason = PlaybackFailureReason.serverUnavailable,
       bool hasNext = true,
       bool autoPlayEnabled = true,
-      bool inWatchTogetherSession = false,
       int autoRetriesUsed = 0,
     }) {
       return playNextRetryPresentation(
@@ -181,7 +180,6 @@ void main() {
         failureReason: failureReason,
         hasNext: hasNext,
         autoPlayEnabled: autoPlayEnabled,
-        inWatchTogetherSession: inWatchTogetherSession,
         autoRetriesUsed: autoRetriesUsed,
       );
     }
@@ -217,8 +215,5 @@ void main() {
       expect(resolve(autoPlayEnabled: false), PlayNextRetryPresentation.manual);
     });
 
-    test('Watch Together sessions never auto-retry but keep the manual prompt', () {
-      expect(resolve(inWatchTogetherSession: true), PlayNextRetryPresentation.manual);
-    });
   });
 }

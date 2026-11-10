@@ -1,7 +1,6 @@
 // Configurações › Avançado (refino 2b, versão 1.6.1): uma subtela no fim da tela principal, com
 // tudo o que é técnico agrupado por assunto (cabeçalhos). Nada foi removido do app: o que saiu da
 // frente das Configurações veio para cá.
-//   - Recursos extras: Assistir juntos (saiu da Início na Etapa 1E; o Controle remoto foi removido);
 //   - Ao assistir (técnico): Reprodução avançada (reprodutor, decodificação, HDR, áudio, buffer),
 //     opções do mpv, detectar abertura pelos capítulos, nomes dos capítulos, espera antes de pular;
 //   - Legendas (técnico): estilo ASS (anime) e resolução da legenda;
@@ -17,37 +16,12 @@ import '../screens/settings/general_settings_screen.dart';
 import '../screens/settings/mpv_config_screen.dart';
 import '../screens/settings/playback_settings_screen.dart';
 import '../services/settings_service.dart';
-import '../watch_together/watch_together.dart';
 import '../widgets/setting_tile.dart';
 import '../widgets/settings_section.dart';
 import 'cgflix_config_itens.dart';
 
 /// Rótulo do item da tela principal e título da subtela (iguais, como pede o padrão do Android).
 const cgflixAdvancedSummary = 'Contas e servidores, controle remoto e opções técnicas';
-
-/// Recursos extras: Assistir juntos.
-class CgflixAdvancedFeatures extends StatelessWidget {
-  const CgflixAdvancedFeatures({super.key, this.extra = const []});
-
-  /// Linhas a mais no fim do grupo (atalhos de teclado e controle pelo celular, quando houver).
-  final List<Widget> extra;
-
-  @override
-  Widget build(BuildContext context) {
-    return SettingsGroup(
-      title: 'Recursos extras',
-      children: [
-        SettingNavigationTile(
-          icon: Symbols.group_rounded,
-          title: 'Assistir juntos',
-          subtitle: 'Assista ao mesmo filme ou série ao mesmo tempo que outra pessoa, cada um no seu aparelho.',
-          destinationBuilder: (_) => const WatchTogetherScreen(),
-        ),
-        ...extra,
-      ],
-    );
-  }
-}
 
 /// Ao assistir (técnico): Reprodução avançada, mpv e a parte técnica de Pular abertura.
 class CgflixAdvancedPlayback extends StatelessWidget {

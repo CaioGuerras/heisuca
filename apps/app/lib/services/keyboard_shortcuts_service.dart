@@ -278,9 +278,6 @@ class KeyboardShortcutsService extends ChangeNotifier {
     ValueChanged<double>? onSpeedPersist,
     Future<void> Function(Duration position)? onSeekRequested,
 
-    /// Applies a speed chosen by the speed shortcuts. Supplied by the player
-    /// surface when the rate must also be declared elsewhere (Watch Together);
-    /// falls back to [Player.setRate].
     Future<void> Function(double rate)? onRateRequested,
 
     /// Takes over relative seeking entirely when supplied, so the caller can

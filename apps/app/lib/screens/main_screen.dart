@@ -87,7 +87,6 @@ import 'profile/profile_switch_screen.dart';
 import 'video_player_screen.dart';
 import 'profile/profile_teardown.dart';
 import '../services/system_shelf_service.dart';
-import '../watch_together/watch_together.dart';
 
 /// Provides access to the main screen's focus control.
 // MainScreenFocusScope and SideNavigationBleedBuilder live in
@@ -574,9 +573,7 @@ class _MainScreenState extends State<MainScreen>
       });
     }
 
-    // Set up Watch Together callbacks immediately (must be synchronous to catch early messages)
     if (!_isOffline) {
-      _setupWatchTogetherCallback();
       _setupSystemShelfDeepLink();
     }
 
@@ -829,35 +826,6 @@ class _MainScreenState extends State<MainScreen>
     _updateTvosMenuPassthrough();
   }
 
-  void _setupWatchTogetherCallback() {
-    try {
-      final watchTogether = context.read<WatchTogetherProvider>();
-      watchTogether.onMediaSwitched = (ratingKey, serverId, mediaTitle) {
-        appLogger.d('WatchTogether: Media switch received - navigating to $mediaTitle');
-        return _navigateToWatchTogetherMedia(ratingKey, serverId);
-      };
-      watchTogether.onHostExitedPlayer = () {
-        appLogger.d('WatchTogether: Host exited player - exiting player for guest');
-        // Watch Together playback lives in the profile navigator; root-level
-        // dialogs/profile picker must not be affected.
-        if (!mounted) return;
-        final navigator = Navigator.of(context);
-        bool isVideoPlayerOnTop = false;
-        navigator.popUntil((route) {
-          if (route.isCurrent) {
-            isVideoPlayerOnTop = route.settings.name == kVideoPlayerRouteName;
-          }
-          return true;
-        });
-        if (isVideoPlayerOnTop && navigator.canPop()) {
-          navigator.pop();
-        }
-      };
-    } catch (e) {
-      appLogger.w('Could not set up Watch Together callback', error: e);
-    }
-  }
-
   /// Set up launcher shelf deep link handling for Android TV and tvOS taps.
   void _setupSystemShelfDeepLink() {
     if (!Platform.isAndroid && !PlatformDetector.isAppleTV()) return;
@@ -920,20 +888,6 @@ class _MainScreenState extends State<MainScreen>
       unawaited(navigateToVideoPlayer(context, metadata: metadata));
     } catch (e) {
       appLogger.e('System shelf: failed to navigate to media', error: e);
-    }
-  }
-
-  /// Navigate to media when host switches content in Watch Together session.
-  /// Returns whether navigation was initiated; failures are re-dispatched on
-  /// the host's next state heartbeat.
-  Future<bool> _navigateToWatchTogetherMedia(String ratingKey, ServerId serverId) async {
-    if (!mounted) return false; // Check before any context usage
-
-    try {
-      return await navigateToWatchTogetherPlayback(context, ratingKey: ratingKey, serverId: serverId);
-    } catch (e) {
-      appLogger.e('WatchTogether: Failed to navigate to media', error: e);
-      return false;
     }
   }
 
@@ -1114,15 +1068,19 @@ class _MainScreenState extends State<MainScreen>
           // CGFLIX: fade-through conserva estado e desativa tickers das abas ocultas.
           child: cgflixUseYouTab(context)
               ? HeisucaTabStack(index: _currentIndex, children: _screens)
-              : IndexedStack(index: _currentIndex, clipBehavior: Clip.none, children: [
-                  // Aba oculta fora do foco: senão o D-Pad da TV entra nela (o UP do destaque caía no campo
-                  // da Busca, que fica no alto, em vez do avatar; bancada da TV, 30/10).
-                  for (var i = 0; i < _screens.length; i++)
-                    ExcludeFocus(
-                      excluding: i != _currentIndex,
-                      child: TickerMode(enabled: i == _currentIndex, child: _screens[i]),
-                    ),
-                ]),
+              : IndexedStack(
+                  index: _currentIndex,
+                  clipBehavior: Clip.none,
+                  children: [
+                    // Aba oculta fora do foco: senão o D-Pad da TV entra nela (o UP do destaque caía no campo
+                    // da Busca, que fica no alto, em vez do avatar; bancada da TV, 30/10).
+                    for (var i = 0; i < _screens.length; i++)
+                      ExcludeFocus(
+                        excluding: i != _currentIndex,
+                        child: TickerMode(enabled: i == _currentIndex, child: _screens[i]),
+                      ),
+                  ],
+                ),
         ),
       ],
     );
@@ -1144,31 +1102,31 @@ class _MainScreenState extends State<MainScreen>
                 onSelectDestination: _handleTvDestination,
               )
             : cgflixUseYouTab(context) // CGFLIX: no celular a Início é Heisuca Flagship (Esboço 03B)
-                ? HeisucaHomeScreen(key: _screenKeys[tab], onOpenLibrary: _selectLibrary)
-                : DiscoverScreen(key: _screenKeys[tab]),
+            ? HeisucaHomeScreen(key: _screenKeys[tab], onOpenLibrary: _selectLibrary)
+            : DiscoverScreen(key: _screenKeys[tab]),
       NavigationTabId.explore => ExploreScreen(key: _screenKeys[tab]),
-      NavigationTabId.libraries => cgflixUseYouTab(context) && !_isOffline
-          ? HeisucaLibraryScreen(key: _screenKeys[tab], initialLibraryKey: _selectedLibraryGlobalKey,
-              onLibrarySelected: _handleLibrariesScreenSelected)
-          : LibrariesScreen(
-        key: _screenKeys[tab],
-        onLibraryOrderChanged: _onLibraryOrderChanged,
-        onLibrarySelected: _handleLibrariesScreenSelected,
-      ),
+      NavigationTabId.libraries =>
+        cgflixUseYouTab(context) && !_isOffline
+            ? HeisucaLibraryScreen(
+                key: _screenKeys[tab],
+                initialLibraryKey: _selectedLibraryGlobalKey,
+                onLibrarySelected: _handleLibrariesScreenSelected,
+              )
+            : LibrariesScreen(
+                key: _screenKeys[tab],
+                onLibraryOrderChanged: _onLibraryOrderChanged,
+                onLibrarySelected: _handleLibrariesScreenSelected,
+              ),
       NavigationTabId.liveTv => LiveTvScreen(key: _screenKeys[tab]),
       NavigationTabId.search => SearchScreen(key: _screenKeys[tab]),
       NavigationTabId.downloads => DownloadsScreen(key: _screenKeys[tab]),
-      NavigationTabId.settings => PlatformDetector.isTV()
-          ? const HeisucaTvSettingsScreen()
-          : SettingsScreen(key: _screenKeys[tab]),
+      NavigationTabId.settings =>
+        PlatformDetector.isTV() ? const HeisucaTvSettingsScreen() : SettingsScreen(key: _screenKeys[tab]),
     };
   }
 
   void _openTvMenu() {
-    HeisucaTvMenu.show(
-      context,
-      onSelectDestination: _handleTvDestination,
-    );
+    HeisucaTvMenu.show(context, onSelectDestination: _handleTvDestination);
   }
 
   void _handleTvDestination(String destination) {
@@ -1186,10 +1144,9 @@ class _MainScreenState extends State<MainScreen>
           'Séries' => CgflixChipKind.shows,
           _ => CgflixChipKind.animes,
         };
-        final lib = cgflixLibraryChips(context.read<LibrariesProvider>().libraries)
-            .where((chip) => chip.kind == kind)
-            .firstOrNull
-            ?.library;
+        final lib = cgflixLibraryChips(
+          context.read<LibrariesProvider>().libraries,
+        ).where((chip) => chip.kind == kind).firstOrNull?.library;
         if (lib != null) {
           _selectLibrary(lib.globalKey);
         } else {
@@ -2090,8 +2047,8 @@ class _MainScreenState extends State<MainScreen>
           final reservedContentOffset = PlatformDetector.isTV()
               ? 0.0
               : alwaysExpanded
-                  ? SideNavigationRailState.expandedWidth
-                  : SideNavigationRailState.collapsedWidthForContext(context);
+              ? SideNavigationRailState.expandedWidth
+              : SideNavigationRailState.collapsedWidthForContext(context);
 
           return OverlaySheetHost(
             onOpenChanged: _handleOverlaySheetOpenChanged,
@@ -2193,31 +2150,31 @@ class _MainScreenState extends State<MainScreen>
                               child: FocusScope(
                                 node: _sidebarFocusScope,
                                 child: SideNavigationRail(
-                                key: _sideNavKey,
-                                selectedTab: _currentTab,
-                                selectedLibraryKey: _selectedLibraryGlobalKey,
-                                isOfflineMode: _isOffline,
-                                isSidebarFocused: _isSidebarFocused,
-                                alwaysExpanded: alwaysExpanded,
-                                isReconnecting: _isReconnecting,
-                                onDestinationSelected: (tab) {
-                                  final restorePreviousFocus = tab == _currentTab;
-                                  _selectTab(tab);
-                                  _focusContent(restorePreviousFocus: restorePreviousFocus);
-                                },
-                                onLibrarySelected: (key) {
-                                  _selectLibrary(key);
-                                  _focusContent(restorePreviousFocus: false);
-                                },
-                                onNavigateToContent: _focusContent,
-                                onFloatingPanelChanged: (floating) {
-                                  if (_isSidebarFloatingPanel == floating) return;
-                                  setState(() => _isSidebarFloatingPanel = floating);
-                                },
-                                onReconnect: _triggerReconnect,
+                                  key: _sideNavKey,
+                                  selectedTab: _currentTab,
+                                  selectedLibraryKey: _selectedLibraryGlobalKey,
+                                  isOfflineMode: _isOffline,
+                                  isSidebarFocused: _isSidebarFocused,
+                                  alwaysExpanded: alwaysExpanded,
+                                  isReconnecting: _isReconnecting,
+                                  onDestinationSelected: (tab) {
+                                    final restorePreviousFocus = tab == _currentTab;
+                                    _selectTab(tab);
+                                    _focusContent(restorePreviousFocus: restorePreviousFocus);
+                                  },
+                                  onLibrarySelected: (key) {
+                                    _selectLibrary(key);
+                                    _focusContent(restorePreviousFocus: false);
+                                  },
+                                  onNavigateToContent: _focusContent,
+                                  onFloatingPanelChanged: (floating) {
+                                    if (_isSidebarFloatingPanel == floating) return;
+                                    setState(() => _isSidebarFloatingPanel = floating);
+                                  },
+                                  onReconnect: _triggerReconnect,
+                                ),
                               ),
                             ),
-                          ),
                         ],
                       ),
                     ),
@@ -2387,7 +2344,9 @@ class _MainScreenState extends State<MainScreen>
             currentIndex: tabIndex,
             userLabel: activeProfile?.displayName.split(RegExp(r'[\s._-]')).first ?? 'Você',
             kids: heisucaKidsActive(context),
-            userAvatar: activeProfile == null ? null : ProfileAvatar(profile: activeProfile, size: 23, avatarUrl: profiles?.avatarUrlFor(activeProfile.id)),
+            userAvatar: activeProfile == null
+                ? null
+                : ProfileAvatar(profile: activeProfile, size: 23, avatarUrl: profiles?.avatarUrlFor(activeProfile.id)),
             onLibrariesLongPress: () {
               Feedback.forLongPress(context);
               _showLibraryQuickPicker(context);
@@ -2401,15 +2360,13 @@ class _MainScreenState extends State<MainScreen>
                 if (source != null) {
                   cgflixOpenFavorites(context, source);
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Favoritos indisponíveis para esta conexão.')));
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('Favoritos indisponíveis para esta conexão.')));
                 }
               }
               if (i == 3) {
-                Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => const HeisucaProfileScreen(),
-                  ),
-                );
+                Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const HeisucaProfileScreen()));
               }
             },
           ),

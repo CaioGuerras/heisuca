@@ -1,14 +1,21 @@
 part of '../../video_player_screen.dart';
 
-bool shouldPauseVideoForBackground({required bool isHandheld, required bool isTv, required bool isAutomotive, bool continueListening = false}) =>
-    isTv || isAutomotive || (isHandheld && !continueListening);
+bool shouldPauseVideoForBackground({
+  required bool isHandheld,
+  required bool isTv,
+  required bool isAutomotive,
+  bool continueListening = false,
+}) => isTv || isAutomotive || (isHandheld && !continueListening);
 
 extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
   Future<void> _applyOutsideAppSettings() async {
     final settings = SettingsService.instance;
     _autoPipEnabled = settings.read(SettingsService.autoPip);
-    _continueListeningEnabled = Platform.isAndroid && PlatformDetector.isMobile(context) &&
-        !PlatformDetector.isAutomotive() && settings.read(SettingsService.continueListening);
+    _continueListeningEnabled =
+        Platform.isAndroid &&
+        PlatformDetector.isMobile(context) &&
+        !PlatformDetector.isAutomotive() &&
+        settings.read(SettingsService.continueListening);
     final current = player;
     if (current == null || !_isPlayerInitialized) return;
     await current.setContinueListening(_continueListeningEnabled);
@@ -64,10 +71,6 @@ extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
       return;
     }
 
-    // Suppress Watch Together heartbeats while backgrounded so App Nap
-    // doesn't cause stale position broadcasts that make guests loop.
-    _watchTogetherProvider?.setBackgrounded(true);
-
     final currentPlayer = player;
     if (currentPlayer == null || !_isPlayerInitialized) {
       _recordLifecycleState('hidden', action: 'skipped_no_player');
@@ -114,18 +117,7 @@ extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
       _wasPlayingBeforeInactive = _wasPlayingBeforeInactive || wasActive;
       if (wasActive) {
         try {
-          // On a car this is the driving transition itself, on every head unit whose vehicle cannot
-          // report its restrictions. It is forced on this peer alone, so it must not travel to the
-          // rest of a Watch Together room; elsewhere backgrounding keeps its existing meaning.
-          if (isAutomotive) {
-            if (await _pauseWithoutDisturbingTheRoom(currentPlayer)) {
-              // The sync layer owns this pause and its resume. Drop the latch so the screen does not
-              // also restore playback on the way back and ask the room to play along with it.
-              _wasPlayingBeforeInactive = false;
-            }
-          } else {
-            await _pauseWithPlaybackIntent(currentPlayer);
-          }
+          await _pauseWithPlaybackIntent(currentPlayer);
           appLogger.d(
             'Video paused due to app being hidden '
             '(${isAutomotive
@@ -144,7 +136,6 @@ extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
 
     if (keepAudio) {
       // O áudio continua tocando: mantém os heartbeats que pertencem à reprodução.
-      _watchTogetherProvider?.setBackgrounded(false);
     } else {
       _suspendLiveTimelineForBackground();
     }
@@ -180,7 +171,6 @@ extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
   Future<void> _handleAppResumed() async {
     if (_shuttingDown) return;
     _recordLifecycleState('resumed', action: 'begin');
-    _watchTogetherProvider?.setBackgrounded(false);
 
     if (_consumeLiveExitOnResume()) {
       _recordLifecycleState('resumed', action: 'exit_stopped_live_session');

@@ -12,9 +12,7 @@ AppLocale cgflixResolveDefaultLocale(Iterable<Locale> deviceLocales) {
   return resolved == AppLocale.en ? AppLocale.pt : resolved;
 }
 
-/// Cabeçalho da Início: Recarregar e Assistir juntos ficam
-/// escondidos (Recarregar virou "puxar para atualizar"; os outros dois estão
-/// em Configurações > Avançado). Mude para `true` para voltar ao original.
+/// Recarregar fica disponível pelo gesto de puxar para atualizar.
 const bool cgflixShowHomeHeaderExtras = false;
 
 /// As opções do mpv saem da tela de Reprodução e ficam só em Configurações > Avançado.
@@ -33,10 +31,6 @@ const int cgflixSearchResultLimit = 40;
 /// Busca unificada (Etapa 1C): um cartão por título/pessoa, sem nome de servidor.
 /// Mude para `false` para voltar à lista do upstream (uma linha por servidor).
 const bool cgflixUnifiedSearch = true;
-
-/// Assistir juntos: relay próprio na VPS (24/10, mesmo código do relay do Heisuca, `apps/app/server`).
-/// Só passam comandos (play, pausa, posição), o vídeo não.
-const String cgflixWatchTogetherRelay = 'https://heisuca.docaio.com.br/junto';
 
 /// Doação: o Liberapay do autor do Heisuca nunca aparece (nem com ENABLE_DONATIONS). O apoio do
 /// CGFLIX é a tela "Apoie o CGFLIX" (lib/cgflix/apoio/).

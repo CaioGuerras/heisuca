@@ -5,14 +5,7 @@ extension _VideoPlayerPlaybackStartMethods on VideoPlayerScreenState {
     final currentPlayer = player;
     if (!mounted || _shuttingDown || currentPlayer == null) return;
     final attempt = _beginPlaybackAttempt(currentPlayer);
-    final watchTogether = _activeWatchTogetherSession();
-    final watchTogetherLease = widget.watchTogetherLease;
-    _watchTogetherLease = watchTogetherLease;
-    if (watchTogether != null && watchTogetherLease != null && watchTogetherLease.isCurrent) {
-      _watchTogetherProvider = watchTogether;
-      watchTogether.onPlayerMediaSwitched = _watchTogetherMediaSwitchHandler;
-    }
-    bool isCurrentStart() => attempt.isCurrent && (watchTogetherLease == null || watchTogetherLease.isCurrent);
+    bool isCurrentStart() => attempt.isCurrent;
     _firstFrame.resetRenderedForAttempt();
     _hasFatalPlaybackError = false;
     _dismissPlaybackFailure();
@@ -160,11 +153,6 @@ extension _VideoPlayerPlaybackStartMethods on VideoPlayerScreenState {
     // Capture providers before async gaps
     final offlineWatchService = context.read<OfflineWatchSyncService>();
     var primaryMediaOpened = false;
-    // Created by afterMediaOpened when the sync layer owns a gated start;
-    // released by the startup gate, or by the finally below if the open
-    // aborted, threw, or was superseded before the gate ran.
-    Completer<void>? wtStartupHold;
-
     try {
       PlaybackContext playbackContext;
 
@@ -273,9 +261,11 @@ extension _VideoPlayerPlaybackStartMethods on VideoPlayerScreenState {
             break;
           }
         }
-        final altRes = altVersion == null ? null :
-              (altVersion.videoResolution?.trim().isNotEmpty ?? false) ? altVersion.videoResolution!.trim() :
-            (altVersion.height != null ? '${altVersion.height}p' : '${altIndex! + 1}');
+        final altRes = altVersion == null
+            ? null
+            : (altVersion.videoResolution?.trim().isNotEmpty ?? false)
+            ? altVersion.videoResolution!.trim()
+            : (altVersion.height != null ? '${altVersion.height}p' : '${altIndex! + 1}');
 
         if (!mounted || !attempt.isCurrent) return;
 
@@ -318,11 +308,7 @@ extension _VideoPlayerPlaybackStartMethods on VideoPlayerScreenState {
         isLocalMedia: _isOfflinePlayback,
         isCurrent: isCurrentStart,
         outcome: attempt.outcome,
-        // When a Watch Together session is active the sync layer owns the
-        // start: open paused everywhere and let the host coordinate one
-        // simultaneous group start.
-        watchTogetherOwnsStart: () => watchTogetherLease != null && _watchTogetherOwnsPlaybackStart(),
-        resolveShouldAutoStart: (wtOwnsStart) => !wtOwnsStart,
+        resolveShouldAutoStart: () => true,
         resumePosition: () => resumePosition,
         mediaClient: () => mediaClientForTracks,
         getProfileSettings: () => context.read<AccountPreferencesController>().activePreferences,
@@ -347,21 +333,8 @@ extension _VideoPlayerPlaybackStartMethods on VideoPlayerScreenState {
           );
           return mounted && player == currentPlayer;
         },
-        afterMediaOpened: (shouldAutoPlay, holdPlaybackStart, wtOwnsStart) async {
+        afterMediaOpened: (shouldAutoPlay) async {
           _armPlaybackRenderWatchdog(currentPlayer, attempt.generation);
-          // Attach player to Watch Together session for sync (if in session).
-          // With a frame-rate startup gate pending, sync readiness waits for
-          // its release so the group start can't fire mid display switch.
-          if (isCurrentStart() && !_isOfflinePlayback && watchTogetherLease != null) {
-            _commitWatchTogetherSelection(
-              watchTogether,
-              watchTogetherLease,
-              _currentMetadata,
-              resumePosition ?? Duration.zero,
-            );
-            if (wtOwnsStart && holdPlaybackStart) wtStartupHold = Completer<void>();
-            _attachToWatchTogetherSession(lease: watchTogetherLease, startupHold: wtStartupHold?.future);
-          }
           if (shouldAutoPlay && PlatformDetector.isAutomotive()) {
             await _playWithPlaybackIntent(currentPlayer);
             if (!attempt.isCurrent) return false;
@@ -415,7 +388,6 @@ extension _VideoPlayerPlaybackStartMethods on VideoPlayerScreenState {
           }
           return attempt.isCurrent;
         },
-        wtStartupHold: () => wtStartupHold,
         onMediaAvailabilityChanged: (available) => primaryMediaOpened = available,
       );
     } on PlaybackException catch (e, st) {
@@ -437,14 +409,6 @@ extension _VideoPlayerPlaybackStartMethods on VideoPlayerScreenState {
                 ), // CGFLIX
           primaryMediaOpened: primaryMediaOpened,
         );
-      }
-    } finally {
-      // Backstop: whether the gate never ran its resume path, the open
-      // aborted, or the flow threw, never leave Watch Together readiness
-      // held forever.
-      final startupHold = wtStartupHold;
-      if (startupHold != null && !startupHold.isCompleted) {
-        startupHold.complete();
       }
     }
   }

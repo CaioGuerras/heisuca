@@ -36,7 +36,7 @@ import '../../test_helpers/multi_server_fixtures.dart';
 import '../../test_helpers/prefs.dart';
 import '../../test_helpers/playback_report_fakes.dart';
 import '../../test_helpers/stub_music_playback_service.dart';
-import '../../test_helpers/watch_together_fakes.dart';
+import '../../test_helpers/player_fakes.dart';
 
 /// The launch receipt an automation caller polls (`playback.status`) and
 /// stops through (`playback.stop`) must keep describing the session across

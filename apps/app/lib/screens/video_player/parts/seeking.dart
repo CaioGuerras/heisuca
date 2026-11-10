@@ -6,7 +6,6 @@ extension _VideoPlayerSeekingMethods on VideoPlayerScreenState {
     if (!mounted || _shuttingDown || currentPlayer == null) return;
     final target = clampSeekPosition(currentPlayer, position);
     // Declare intentional seeks before the delegate can unbind/reload at EOF.
-    _activeWatchTogetherSession()?.onLocalSeek(target);
     await _performSeekPlayback(target);
   }
 
@@ -71,5 +70,27 @@ extension _VideoPlayerSeekingMethods on VideoPlayerScreenState {
       return;
     }
     _relativeSkip.seekBy(delta);
+  }
+
+  bool _canControlPlayback() => !_shuttingDown;
+
+  bool _canNavigateMediaItems() => !_shuttingDown;
+
+  /// Serializa a velocidade escolhida pelo usuário sem atravessar uma troca de mídia.
+  Future<void> _setPlaybackRate(double rate) {
+    final currentPlayer = player;
+    if (!mounted || currentPlayer == null) return Future<void>.value();
+    final generation = _transitionGate.generation;
+    final operation = ++_userRateOperation;
+    final previous = _userRateMutation;
+    final mutation = () async {
+      await previous.catchError((Object error) {
+        appLogger.w('Falha na mudança anterior de velocidade', error: error);
+      });
+      if (!_isCurrentPlaybackGeneration(generation, currentPlayer) || operation != _userRateOperation) return;
+      await currentPlayer.setRate(rate);
+    }();
+    _userRateMutation = mutation;
+    return mutation;
   }
 }

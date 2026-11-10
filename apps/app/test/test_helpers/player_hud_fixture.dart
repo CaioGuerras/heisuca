@@ -1,5 +1,5 @@
 import 'package:heisuca/mpv/mpv.dart';
-import 'watch_together_fakes.dart';
+import 'player_fakes.dart';
 
 /// Player falso com as faixas de um anime real do acervo (áudio JA/PT, legenda ASS em português).
 class HeisucaHudPlayer extends FakeSyncPlayer {
@@ -14,5 +14,6 @@ class HeisucaHudPlayer extends FakeSyncPlayer {
   @override
   PlayerState get state => super.state.copyWith(
     tracks: const Tracks(audio: [ja, pt], subtitle: [sub]),
-    track: const TrackSelection(audio: ja, subtitle: sub));
+    track: const TrackSelection(audio: ja, subtitle: sub),
+  );
 }

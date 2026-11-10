@@ -40,12 +40,12 @@ quer assistir. O avançado existe, mas fica escondido.
 | Grupo | Itens |
 |---|---|
 | Contas e servidores | Adicionar conexão (Plex, Jellyfin ou Emby) · Perfis (com um perfil só) · Organizar bibliotecas · Serviços (Trakt) |
-| Recursos extras | Assistir juntos · Controle remoto (outro aparelho com o CGFLIX, mesma rede e conta; não reconhece TV comum) · atalhos de teclado e controle pelo celular (quando o aparelho suporta) |
+| Recursos extras | Controle remoto (outro aparelho com o CGFLIX, mesma rede e conta; não reconhece TV comum) · atalhos de teclado e controle pelo celular (quando o aparelho suporta) |
 | Ao assistir (técnico) | **Reprodução avançada** (subtela: Comportamento — inclui "Modo aleatório começa do início" —, Reprodutor, Vídeo e tela, Áudio, Qualidade técnica, Lembrar ajustes) · Opções do mpv · Espera antes de pular · Sempre detectar abertura pelos capítulos · Nome do capítulo de abertura · Nome do capítulo de créditos |
 | Legendas (técnico) | Estilo das legendas ASS (anime) · Resolução da legenda |
 | Este aparelho | Geral (subtela: forçar modo TV, perfil ao abrir, som de abertura, seção inicial na TV, tela cheia no computador) |
 | Atualizações | (só quando o build tem o verificador) |
-| Diagnóstico | Servidor do Assistir juntos · Registros de diagnóstico · Esconder o painel de desempenho · Ver registros · Limpar memória de imagens · Restaurar configurações |
+| Diagnóstico | Servidor do Registros de diagnóstico · Esconder o painel de desempenho · Ver registros · Limpar memória de imagens · Restaurar configurações |
 | Cópia de segurança | Exportar e importar configurações (fora da TV) |
 
 Na **Início**, o botão Recarregar virou **puxar para atualizar** (além da atualização automática que já existe).

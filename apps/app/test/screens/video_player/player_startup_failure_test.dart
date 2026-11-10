@@ -25,7 +25,6 @@ import 'package:heisuca/services/offline_watch_sync_service.dart';
 import 'package:heisuca/services/playback_coordinator.dart';
 import 'package:heisuca/services/playback_initialization_types.dart';
 import 'package:heisuca/services/settings_service.dart';
-import 'package:heisuca/watch_together/providers/watch_together_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../test_helpers/hdr_startup.dart';
@@ -131,7 +130,6 @@ void main() {
               ChangeNotifierProvider<MultiServerProvider>.value(value: multi.provider),
               ChangeNotifierProvider<OfflineWatchSyncService>.value(value: offlineWatch),
               ChangeNotifierProvider<AccountPreferencesController>.value(value: accountPreferences),
-              ChangeNotifierProvider(create: (_) => WatchTogetherProvider()),
               Provider<AppDatabase>.value(value: db),
             ],
             child: MaterialApp(

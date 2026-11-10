@@ -123,9 +123,6 @@ Total de chaves alteradas: **998**.
 | `settings.keyboardShortcuts` | Atalhos de Teclado | Atalhos de teclado |
 | `settings.keyboardShortcutsDescription` | Personalizar atalhos de teclado | Mudar os atalhos de teclado |
 | `settings.videoPlayerNavigationDescription` | Usar as teclas de seta para navegar pelos controles do reprodutor | Usar as setas para andar pelos controles do reprodutor |
-| `settings.watchTogetherRelay` | Servidor de retransmissão do Assistir Juntos | Servidor do Assistir juntos |
-| `settings.watchTogetherRelayDescription` | Definir um servidor de retransmissão personalizado. Todos devem usar o mesmo servidor. | Usar outro servidor para o Assistir juntos. Todos precisam usar o mesmo. |
-| `settings.watchTogetherRelayInvalid` | Insira uma URL base de retransmissão HTTP ou HTTPS válida. | Digite um endereço válido, começando com http:// ou https://. |
 | `settings.crashReporting` | Relatório de Erros | Relatório de erros |
 | `settings.crashReportingDescription` | Enviar relatórios de erros para ajudar a melhorar o app | Enviar relatórios de erro para ajudar a melhorar o app |
 | `settings.debugLogging` | Log de Depuração | Registros de diagnóstico |
@@ -834,55 +831,9 @@ Total de chaves alteradas: **998**.
 | `music.instantMixEmpty` | O mix instantâneo não retornou nenhuma faixa | O mix instantâneo veio sem nenhuma faixa |
 | `music.noAudioUrl` | Nenhuma URL de áudio está disponível para ${track} | Não foi encontrado o endereço do áudio de ${track} |
 
-## watchTogether (45)
 
 | Chave | Antes | Depois |
 |---|---|---|
-| `watchTogether.title` | Assistir Juntos | Assistir juntos |
-| `watchTogether.description` | Assista a conteúdos sincronizados com amigos e familiares | Assista ao mesmo tempo com amigos e família, cada um na sua tela |
-| `watchTogether.controlModeQuestion` | Quem pode controlar a reprodução? | Quem pode pausar e avançar? |
-| `watchTogether.hostOnly` | Apenas o anfitrião | Só o anfitrião |
-| `watchTogether.hostingSession` | Hospedando uma sessão | Você criou uma sessão |
-| `watchTogether.openSessionControls` | Abrir os controles da sessão Assistir Juntos | Abrir os controles do Assistir juntos |
-| `watchTogether.hostControlsPlayback` | O anfitrião controla a reprodução | Só o anfitrião pode pausar e avançar |
-| `watchTogether.anyoneCanControl` | Qualquer pessoa pode controlar a reprodução | Qualquer pessoa pode pausar e avançar |
-| `watchTogether.hostControls` | Controle do anfitrião | Anfitrião controla |
-| `watchTogether.anyoneControls` | Controle por qualquer pessoa | Todos controlam |
-| `watchTogether.makeHostQuestion` | Transferir anfitrião? | Passar o controle de anfitrião? |
-| `watchTogether.makeHostConfirm` | ${name} controlará a reprodução e conduzirá a sessão para todos. | ${name} vai controlar o vídeo e conduzir a sessão para todos. |
-| `watchTogether.transfer` | Transferir | Passar |
-| `watchTogether.hostTransferFailed` | Não foi possível tornar ${name} o anfitrião | Não deu para passar o controle para ${name} |
-| `watchTogether.endSessionConfirm` | Isso encerrará a sessão para todos os participantes. | Isso vai encerrar a sessão para todo mundo. |
-| `watchTogether.leaveSessionConfirm` | Você será removido da sessão. | Você vai sair da sessão. |
-| `watchTogether.endSessionConfirmOverlay` | Isso encerrará a sessão do Assistir Juntos para todos os participantes. | Isso vai encerrar o Assistir juntos para todo mundo. |
-| `watchTogether.leaveSessionConfirmOverlay` | Você será desconectado da sessão do Assistir Juntos. | Você vai sair do Assistir juntos. |
-| `watchTogether.enterCodeHint` | Insira o código de 5 caracteres | Digite o código de 5 letras e números |
-| `watchTogether.pasteFromClipboard` | Colar da área de transferência | Colar |
-| `watchTogether.pleaseEnterCode` | Insira um código de sessão | Digite o código da sessão |
-| `watchTogether.codeMustBe5Chars` | O código da sessão deve ter 5 caracteres | O código da sessão tem 5 letras e números |
-| `watchTogether.joinInstructions` | Insira o código de sessão do anfitrião para entrar. | Digite o código que o anfitrião passou para entrar. |
-| `watchTogether.failedToCreate` | Falha ao criar sessão | Não deu para criar a sessão. Confira a internet e tente de novo. |
-| `watchTogether.failedToJoin` | Falha ao entrar na sessão | Não deu para entrar na sessão. Confira o código e tente de novo. |
-| `watchTogether.sessionCodeCopied` | Código da sessão copiado para a área de transferência | Código da sessão copiado |
-| `watchTogether.relayUnreachable` | Servidor de retransmissão inacessível. O bloqueio pelo provedor de internet pode impedir o uso do Assistir Juntos. | Não deu para falar com o servidor do Assistir juntos. Sua operadora de internet pode estar bloqueando. |
-| `watchTogether.currentPlayback` | Reprodução atual | O que está passando |
-| `watchTogether.joinCurrentPlayback` | Entrar na reprodução atual | Ir para o que está passando |
-| `watchTogether.joinCurrentPlaybackDescription` | Voltar ao conteúdo que o anfitrião está assistindo agora | Voltar para o que o anfitrião está assistindo agora |
-| `watchTogether.failedToOpenCurrentPlayback` | Falha ao abrir a reprodução atual | Não deu para abrir o que está passando. Tente de novo. |
-| `watchTogether.participantResumed` | ${name} retomou | ${name} continuou |
-| `watchTogether.participantSeeked` | ${name} mudou a posição da reprodução | ${name} avançou ou voltou o vídeo |
-| `watchTogether.participantChangedSpeed` | ${name} definiu a velocidade para ${speed} | ${name} mudou a velocidade para ${speed} |
-| `watchTogether.participantBuffering` | ${name} está aguardando o carregamento | ${name} está carregando o vídeo |
-| `watchTogether.participantNeedsUpdate` | ${name} está usando uma versão mais antiga do app — sincronização indisponível | ${name} está com uma versão antiga do app — precisa atualizar para assistirem juntos |
-| `watchTogether.resumingWithout` | Retomando sem ${name} | Continuando sem ${name} |
-| `watchTogether.waitingForParticipants` | Aguardando o carregamento dos outros participantes... | Esperando os outros carregarem o vídeo... |
-| `watchTogether.waitingForName` | Aguardando ${name}... | Esperando ${name}... |
-| `watchTogether.guestSwitchUnavailable` | Não foi possível trocar — servidor indisponível para sincronização | Não deu para trocar — o servidor não está disponível |
-| `watchTogether.guestSwitchFailed` | Não foi possível trocar — conteúdo não encontrado neste servidor | Não deu para trocar — este título não está no seu servidor |
-| `watchTogether.errors.timedOut` | O servidor de retransmissão não respondeu a tempo | O servidor do Assistir juntos demorou demais para responder. Tente de novo. |
-| `watchTogether.errors.connectionLost` | A conexão foi encerrada antes de a sessão ficar pronta | A conexão caiu antes de a sessão ficar pronta. Tente de novo. |
-| `watchTogether.errors.invalidRelayResponse` | O servidor de retransmissão enviou uma resposta inesperada | O servidor do Assistir juntos respondeu algo inesperado. Tente de novo. |
-| `watchTogether.errors.sessionUnavailable` | Não foi possível retomar esta sessão. Entre em uma sala ou crie uma para continuar. | Não deu para voltar a esta sessão. Entre em uma sala ou crie uma nova. |
 
 ## downloads (87)
 

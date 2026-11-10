@@ -76,7 +76,6 @@ class TranslationsJa extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _Translations$collections$ja collections = _Translations$collections$ja._(_root);
 	@override late final _Translations$playlists$ja playlists = _Translations$playlists$ja._(_root);
 	@override late final _Translations$music$ja music = _Translations$music$ja._(_root);
-	@override late final _Translations$watchTogether$ja watchTogether = _Translations$watchTogether$ja._(_root);
 	@override late final _Translations$downloads$ja downloads = _Translations$downloads$ja._(_root);
 	@override late final _Translations$shaders$ja shaders = _Translations$shaders$ja._(_root);
 	@override late final _Translations$companionRemote$ja companionRemote = _Translations$companionRemote$ja._(_root);
@@ -344,10 +343,6 @@ class _Translations$settings$ja extends Translations$settings$en {
 	@override String get keyboardShortcutsDescription => 'キーボードショートカットをカスタマイズ';
 	@override String get videoPlayerNavigation => '動画プレーヤーナビゲーション';
 	@override String get videoPlayerNavigationDescription => '矢印キーで動画プレーヤーコントロールを操作';
-	@override String get watchTogetherRelay => '一緒に視聴リレーサーバー';
-	@override String get watchTogetherRelayDescription => 'カスタムリレーを設定します。全員が同じサーバーを使う必要があります。';
-	@override String get watchTogetherRelayHint => 'https://my-relay.example.com';
-	@override String get watchTogetherRelayInvalid => '有効なHTTPまたはHTTPSのリレーサーバーURLを入力してください。';
 	@override String get debugLogging => 'デバッグログ';
 	@override String get debugLoggingDescription => 'トラブルシューティング用の詳細なログを有効化';
 	@override String get viewLogs => 'ログを表示';
@@ -1666,90 +1661,6 @@ class _Translations$music$ja extends Translations$music$en {
 	@override late final _Translations$music$discography$ja discography = _Translations$music$discography$ja._(_root);
 }
 
-// Path: watchTogether
-class _Translations$watchTogether$ja extends Translations$watchTogether$en {
-	_Translations$watchTogether$ja._(TranslationsJa root) : this._root = root, super.internal(root);
-
-	final TranslationsJa _root; // ignore: unused_field
-
-	// Translations
-	@override String get title => '一緒に見る';
-	@override String get description => '友達や家族と同期してコンテンツを視聴';
-	@override String get createSession => 'セッションを作成';
-	@override String get creating => '作成中…';
-	@override String get joinSession => 'セッションに参加';
-	@override String get joining => '参加中…';
-	@override String get controlMode => 'コントロールモード';
-	@override String get controlModeQuestion => '誰が再生を制御できますか？';
-	@override String get hostOnly => 'ホストのみ';
-	@override String get anyone => '全員';
-	@override String get hostingSession => 'セッションをホスト中';
-	@override String get inSession => 'セッション中';
-	@override String get sessionCode => 'セッションコード';
-	@override String get openSessionControls => '「一緒に見る」セッションのコントロールを開く';
-	@override String get copySessionCode => 'セッションコードをコピー';
-	@override String get hostControlsPlayback => 'ホストが再生を制御';
-	@override String get anyoneCanControl => '全員が再生を制御可能';
-	@override String get hostControls => 'ホストが制御';
-	@override String get anyoneControls => '全員が制御';
-	@override String get participants => '参加者';
-	@override String get host => 'ホスト';
-	@override String get hostBadge => 'ホスト';
-	@override String get youAreHost => 'あなたはホストです';
-	@override String get makeHost => 'ホストにする';
-	@override String get makeHostQuestion => 'ホストを移譲しますか？';
-	@override String makeHostConfirm({required Object name}) => '${name}が再生を制御し、全員のセッションを主導します。';
-	@override String get transfer => '移譲';
-	@override String hostChangedTo({required Object name}) => '${name}がホストになりました';
-	@override String get youAreNowHost => 'あなたがホストになりました';
-	@override String hostTransferFailed({required Object name}) => '${name}をホストにできませんでした';
-	@override String get watchingWithOthers => '他の人と視聴中';
-	@override String get endSession => 'セッションを終了';
-	@override String get leaveSession => 'セッションを退出';
-	@override String get endSessionQuestion => 'セッションを終了しますか？';
-	@override String get leaveSessionQuestion => 'セッションを退出しますか？';
-	@override String get endSessionConfirm => 'すべての参加者のセッションが終了します。';
-	@override String get leaveSessionConfirm => 'セッションから退出されます。';
-	@override String get endSessionConfirmOverlay => 'すべての参加者の視聴セッションが終了します。';
-	@override String get leaveSessionConfirmOverlay => '視聴セッションから切断されます。';
-	@override String get end => '終了';
-	@override String get leave => '退出';
-	@override String get syncing => '同期中…';
-	@override String get joinWatchSession => '視聴セッションに参加';
-	@override String get enterCodeHint => '5文字のコードを入力';
-	@override String get pasteFromClipboard => 'クリップボードから貼り付け';
-	@override String get pleaseEnterCode => 'セッションコードを入力してください';
-	@override String get codeMustBe5Chars => 'セッションコードは5文字である必要があります';
-	@override String get joinInstructions => '参加するにはホストのセッションコードを入力してください。';
-	@override String get failedToCreate => 'セッションの作成に失敗しました';
-	@override String get failedToJoin => 'セッションへの参加に失敗しました';
-	@override String get sessionCodeCopied => 'セッションコードをクリップボードにコピーしました';
-	@override String get relayUnreachable => 'リレーサーバーに接続できません。ISPによるブロックのため「一緒に見る」を利用できない可能性があります。';
-	@override String get reconnectingToHost => 'ホストに再接続中…';
-	@override String get currentPlayback => '現在の再生';
-	@override String get joinCurrentPlayback => '現在の再生に参加';
-	@override String get joinCurrentPlaybackDescription => 'ホストが現在視聴中のコンテンツに戻る';
-	@override String get failedToOpenCurrentPlayback => '現在の再生を開けませんでした';
-	@override String participantJoined({required Object name}) => '${name}が参加しました';
-	@override String participantLeft({required Object name}) => '${name}が退出しました';
-	@override String participantPaused({required Object name}) => '${name}が一時停止しました';
-	@override String participantResumed({required Object name}) => '${name}が再開しました';
-	@override String participantSeeked({required Object name}) => '${name}が再生位置を変更しました';
-	@override String participantChangedSpeed({required Object name, required Object speed}) => '${name}が速度を${speed}に設定しました';
-	@override String participantBuffering({required Object name}) => '${name}がバッファリング中';
-	@override String participantNeedsUpdate({required Object name}) => '${name}は古いバージョンのアプリを使用しているため、同期できません';
-	@override String resumingWithout({required Object name}) => '${name}抜きで再開';
-	@override String get waitingForParticipants => '他の参加者の読み込みを待っています…';
-	@override String waitingForName({required Object name}) => '${name}を待っています…';
-	@override String get recentRooms => '最近のルーム';
-	@override String get renameRoom => 'ルーム名を変更';
-	@override String get removeRoom => '削除';
-	@override String get guestSwitchUnavailable => '切り替えられません — 同期に必要なサーバーを利用できません';
-	@override String get guestSwitchFailed => '切り替えられません — このサーバーにコンテンツが見つかりません';
-	@override String get defaultDisplayName => 'ユーザー';
-	@override late final _Translations$watchTogether$errors$ja errors = _Translations$watchTogether$errors$ja._(_root);
-}
-
 // Path: downloads
 class _Translations$downloads$ja extends Translations$downloads$en {
 	_Translations$downloads$ja._(TranslationsJa root) : this._root = root, super.internal(root);
@@ -2781,20 +2692,6 @@ class _Translations$music$discography$ja extends Translations$music$discography$
 	@override String get compilations => 'コンピレーション';
 }
 
-// Path: watchTogether.errors
-class _Translations$watchTogether$errors$ja extends Translations$watchTogether$errors$en {
-	_Translations$watchTogether$errors$ja._(TranslationsJa root) : this._root = root, super.internal(root);
-
-	final TranslationsJa _root; // ignore: unused_field
-
-	// Translations
-	@override String get timedOut => 'リレーサーバーが時間内に応答しませんでした';
-	@override String get connectionLost => 'セッションの準備が整う前に接続が閉じられました';
-	@override String get invalidRelayResponse => 'リレーサーバーから予期しない応答が返されました';
-	@override String get sessionEnded => 'ホストがセッションを終了しました';
-	@override String get sessionUnavailable => 'このセッションを再開できません。ルームに参加するか作成して続行してください。';
-}
-
 // Path: downloads.backgroundWarning
 class _Translations$downloads$backgroundWarning$ja extends Translations$downloads$backgroundWarning$en {
 	_Translations$downloads$backgroundWarning$ja._(TranslationsJa root) : this._root = root, super.internal(root);
@@ -3240,10 +3137,6 @@ extension on TranslationsJa {
 			'settings.keyboardShortcutsDescription' => 'キーボードショートカットをカスタマイズ',
 			'settings.videoPlayerNavigation' => '動画プレーヤーナビゲーション',
 			'settings.videoPlayerNavigationDescription' => '矢印キーで動画プレーヤーコントロールを操作',
-			'settings.watchTogetherRelay' => '一緒に視聴リレーサーバー',
-			'settings.watchTogetherRelayDescription' => 'カスタムリレーを設定します。全員が同じサーバーを使う必要があります。',
-			'settings.watchTogetherRelayHint' => 'https://my-relay.example.com',
-			'settings.watchTogetherRelayInvalid' => '有効なHTTPまたはHTTPSのリレーサーバーURLを入力してください。',
 			'settings.debugLogging' => 'デバッグログ',
 			'settings.debugLoggingDescription' => 'トラブルシューティング用の詳細なログを有効化',
 			'settings.viewLogs' => 'ログを表示',
@@ -3531,12 +3424,12 @@ extension on TranslationsJa {
 			'fileInfo.spatialAudio' => '空間オーディオ',
 			'fileInfo.textBased' => 'テキストベース',
 			'fileInfo.subtitleFormat' => 'サイドカーフォーマット',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.provider' => 'プロバイダー',
 			'fileInfo.matchScore' => '一致スコア',
 			'fileInfo.externalDelivery' => '個別に配信可能',
 			'fileInfo.sidecarPath' => 'サイドカーパス',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.sourceStream' => 'コピー元',
 			'fileInfo.temporary' => '一時的',
 			'fileInfo.timeBase' => 'タイムベース',
@@ -4045,12 +3938,12 @@ extension on TranslationsJa {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'ライブラリの解析に失敗しました: ${error}',
 			'libraries.noLibrariesFound' => 'ライブラリが見つかりません',
 			'libraries.allLibrariesHidden' => 'すべてのライブラリが非表示です',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.hiddenLibrariesCount' => ({required Object count}) => '非表示のライブラリ (${count})',
 			'libraries.thisLibraryIsEmpty' => 'このライブラリは空です',
 			'libraries.noItemsMatchFilters' => '有効なフィルターに一致する項目はありません',
 			'libraries.resetFilters' => 'フィルターをリセット',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.all' => 'すべて',
 			'libraries.clearAll' => 'すべてクリア',
 			'libraries.scanLibraryConfirm' => ({required Object title}) => '"${title}"をスキャンしてもよろしいですか？',
@@ -4479,88 +4372,7 @@ extension on TranslationsJa {
 			'music.discography.singlesAndEps' => 'シングル・EP',
 			'music.discography.live' => 'ライブ',
 			'music.discography.compilations' => 'コンピレーション',
-			'watchTogether.title' => '一緒に見る',
-			'watchTogether.description' => '友達や家族と同期してコンテンツを視聴',
-			'watchTogether.createSession' => 'セッションを作成',
-			'watchTogether.creating' => '作成中…',
-			'watchTogether.joinSession' => 'セッションに参加',
-			'watchTogether.joining' => '参加中…',
-			'watchTogether.controlMode' => 'コントロールモード',
-			'watchTogether.controlModeQuestion' => '誰が再生を制御できますか？',
-			'watchTogether.hostOnly' => 'ホストのみ',
-			'watchTogether.anyone' => '全員',
-			'watchTogether.hostingSession' => 'セッションをホスト中',
-			'watchTogether.inSession' => 'セッション中',
-			'watchTogether.sessionCode' => 'セッションコード',
-			'watchTogether.openSessionControls' => '「一緒に見る」セッションのコントロールを開く',
-			'watchTogether.copySessionCode' => 'セッションコードをコピー',
-			'watchTogether.hostControlsPlayback' => 'ホストが再生を制御',
-			'watchTogether.anyoneCanControl' => '全員が再生を制御可能',
-			'watchTogether.hostControls' => 'ホストが制御',
-			'watchTogether.anyoneControls' => '全員が制御',
-			'watchTogether.participants' => '参加者',
-			'watchTogether.host' => 'ホスト',
-			'watchTogether.hostBadge' => 'ホスト',
-			'watchTogether.youAreHost' => 'あなたはホストです',
-			'watchTogether.makeHost' => 'ホストにする',
-			'watchTogether.makeHostQuestion' => 'ホストを移譲しますか？',
-			'watchTogether.makeHostConfirm' => ({required Object name}) => '${name}が再生を制御し、全員のセッションを主導します。',
-			'watchTogether.transfer' => '移譲',
-			'watchTogether.hostChangedTo' => ({required Object name}) => '${name}がホストになりました',
-			'watchTogether.youAreNowHost' => 'あなたがホストになりました',
-			'watchTogether.hostTransferFailed' => ({required Object name}) => '${name}をホストにできませんでした',
-			'watchTogether.watchingWithOthers' => '他の人と視聴中',
-			'watchTogether.endSession' => 'セッションを終了',
-			'watchTogether.leaveSession' => 'セッションを退出',
-			'watchTogether.endSessionQuestion' => 'セッションを終了しますか？',
-			'watchTogether.leaveSessionQuestion' => 'セッションを退出しますか？',
-			'watchTogether.endSessionConfirm' => 'すべての参加者のセッションが終了します。',
-			'watchTogether.leaveSessionConfirm' => 'セッションから退出されます。',
-			'watchTogether.endSessionConfirmOverlay' => 'すべての参加者の視聴セッションが終了します。',
-			'watchTogether.leaveSessionConfirmOverlay' => '視聴セッションから切断されます。',
-			'watchTogether.end' => '終了',
-			'watchTogether.leave' => '退出',
-			'watchTogether.syncing' => '同期中…',
-			'watchTogether.joinWatchSession' => '視聴セッションに参加',
-			'watchTogether.enterCodeHint' => '5文字のコードを入力',
-			'watchTogether.pasteFromClipboard' => 'クリップボードから貼り付け',
-			'watchTogether.pleaseEnterCode' => 'セッションコードを入力してください',
-			'watchTogether.codeMustBe5Chars' => 'セッションコードは5文字である必要があります',
-			'watchTogether.joinInstructions' => '参加するにはホストのセッションコードを入力してください。',
-			'watchTogether.failedToCreate' => 'セッションの作成に失敗しました',
-			'watchTogether.failedToJoin' => 'セッションへの参加に失敗しました',
-			'watchTogether.sessionCodeCopied' => 'セッションコードをクリップボードにコピーしました',
-			'watchTogether.relayUnreachable' => 'リレーサーバーに接続できません。ISPによるブロックのため「一緒に見る」を利用できない可能性があります。',
-			'watchTogether.reconnectingToHost' => 'ホストに再接続中…',
-			'watchTogether.currentPlayback' => '現在の再生',
-			'watchTogether.joinCurrentPlayback' => '現在の再生に参加',
-			'watchTogether.joinCurrentPlaybackDescription' => 'ホストが現在視聴中のコンテンツに戻る',
-			'watchTogether.failedToOpenCurrentPlayback' => '現在の再生を開けませんでした',
-			'watchTogether.participantJoined' => ({required Object name}) => '${name}が参加しました',
-			'watchTogether.participantLeft' => ({required Object name}) => '${name}が退出しました',
-			'watchTogether.participantPaused' => ({required Object name}) => '${name}が一時停止しました',
-			'watchTogether.participantResumed' => ({required Object name}) => '${name}が再開しました',
-			'watchTogether.participantSeeked' => ({required Object name}) => '${name}が再生位置を変更しました',
-			'watchTogether.participantChangedSpeed' => ({required Object name, required Object speed}) => '${name}が速度を${speed}に設定しました',
-			'watchTogether.participantBuffering' => ({required Object name}) => '${name}がバッファリング中',
-			'watchTogether.participantNeedsUpdate' => ({required Object name}) => '${name}は古いバージョンのアプリを使用しているため、同期できません',
-			'watchTogether.resumingWithout' => ({required Object name}) => '${name}抜きで再開',
-			'watchTogether.waitingForParticipants' => '他の参加者の読み込みを待っています…',
-			'watchTogether.waitingForName' => ({required Object name}) => '${name}を待っています…',
-			'watchTogether.recentRooms' => '最近のルーム',
-			'watchTogether.renameRoom' => 'ルーム名を変更',
-			'watchTogether.removeRoom' => '削除',
-			'watchTogether.guestSwitchUnavailable' => '切り替えられません — 同期に必要なサーバーを利用できません',
-			'watchTogether.guestSwitchFailed' => '切り替えられません — このサーバーにコンテンツが見つかりません',
-			'watchTogether.defaultDisplayName' => 'ユーザー',
-			'watchTogether.errors.timedOut' => 'リレーサーバーが時間内に応答しませんでした',
-			'watchTogether.errors.connectionLost' => 'セッションの準備が整う前に接続が閉じられました',
-			'watchTogether.errors.invalidRelayResponse' => 'リレーサーバーから予期しない応答が返されました',
-			'watchTogether.errors.sessionEnded' => 'ホストがセッションを終了しました',
-			'watchTogether.errors.sessionUnavailable' => 'このセッションを再開できません。ルームに参加するか作成して続行してください。',
 			'downloads.title' => 'ダウンロード',
-			_ => null,
-		} ?? switch (path) {
 			'downloads.manage' => '管理',
 			'downloads.tvShows' => 'テレビ番組',
 			'downloads.movies' => '映画',
@@ -4644,6 +4456,8 @@ extension on TranslationsJa {
 			'downloads.backgroundWarning.sheetIntro' => 'Androidにより、Heisucaはバックグラウンドで安定してダウンロードできません。',
 			'downloads.backgroundWarning.sheetIntroDegraded' => '端末により、Heisucaがバックグラウンドでダウンロードできるタイミングが制限されています。',
 			'downloads.backgroundWarning.reasonBackgroundRestricted' => 'Heisucaのバックグラウンド使用が制限されています。バッテリー使用量またはバックグラウンド使用を「制限なし」に設定してください。',
+			_ => null,
+		} ?? switch (path) {
 			'downloads.backgroundWarning.reasonStandbyRestricted' => 'Androidにより、Heisucaが制限付きのスタンバイ状態に設定されています。バッテリー使用量を「制限なし」に設定してください。',
 			'downloads.backgroundWarning.reasonDownloadChannelBlocked' => 'ダウンロード通知がオフのため、進行状況や操作ボタンを利用できない場合があります。',
 			'downloads.backgroundWarning.reasonNotificationsDisabled' => '通知がオフです。Android 13以降では、長時間のバックグラウンドダウンロードに通知が必要です。',
@@ -5073,8 +4887,6 @@ extension on TranslationsJa {
 			'addServer.quickConnectPollRejected' => 'Quick Connectのポーリングがサーバーに拒否されました',
 			'addServer.serverTimedOut' => 'サーバーが時間内に応答しませんでした',
 			'addServer.responseNotJson' => 'サーバーのレスポンスが有効なJSONではありません',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.responseMissingIdentity' => ({required Object product}) => 'レスポンスにIDまたはサーバー名がありません。これは${product}サーバーですか？',
 			'addServer.probeFailed' => ({required Object error}) => 'サーバーに接続できませんでした: ${error}',
 			'addServer.enterAtLeastOneUrl' => ({required Object product}) => '${product}サーバーのURLを1つ以上入力してください',

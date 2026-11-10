@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:heisuca/screens/main_screen.dart';
 import 'package:heisuca/cgflix/cgflix_theme.dart';
-import 'package:heisuca/watch_together/watch_together.dart';
 import 'package:heisuca/screens/profile/profile_switch_screen.dart';
 import 'package:heisuca/heisuca/tv/heisuca_tv_home_screen.dart';
 import 'package:heisuca/heisuca/tv/heisuca_tv_menu.dart';
@@ -89,7 +88,6 @@ void main() {
           providers: [
             ChangeNotifierProvider(create: (_) => CatalogSourcesProvider()),
             ChangeNotifierProvider(create: (_) => PlaybackStateProvider()),
-            ChangeNotifierProvider(create: (_) => WatchTogetherProvider()),
             Provider<ActiveProfileBinder>.value(value: _Binder()),
             Provider<PlexHomeService>.value(value: _PlexHome()),
             ChangeNotifierProvider<OfflineWatchSyncService>.value(value: _Sync()),

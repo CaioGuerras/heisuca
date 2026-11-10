@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:heisuca/cgflix/cgflix_theme.dart';
@@ -11,7 +10,6 @@ import 'package:heisuca/widgets/overlay_sheet.dart';
 import 'package:heisuca/widgets/video_controls/mobile_video_controls.dart';
 import 'package:heisuca/widgets/video_controls/widgets/timeline_slider.dart';
 import 'package:heisuca/widgets/video_controls/models/track_controls_state.dart';
-import 'package:heisuca/watch_together/providers/watch_together_provider.dart';
 import '../test_helpers/player_hud_fixture.dart';
 import '../test_helpers/media_items.dart';
 import '../test_helpers/prefs.dart';
@@ -30,15 +28,18 @@ void main() {
     SettingsService.resetForTesting();
     await SettingsService.getInstance();
     // O idioma é biblioteca adiada: carrega fora do relógio falso do teste.
-    await tester.runAsync(() async { await LocaleSettings.setLocale(AppLocale.pt); await initializeDateFormatting('pt'); });
+    await tester.runAsync(() async {
+      await LocaleSettings.setLocale(AppLocale.pt);
+      await initializeDateFormatting('pt');
+    });
     // Edge 60 Pro em paisagem: 2712×1220 px ≈ 986×444 dp.
     tester.view.physicalSize = const Size(986 * 2, 444 * 2);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
     final player = HeisucaHudPlayer();
-    final watch = WatchTogetherProvider();
+
     addTearDown(player.dispose);
-    addTearDown(watch.dispose);
+
     final calls = <String>[];
     final rates = <double>[];
     final state = TrackControlsState(
@@ -50,25 +51,37 @@ void main() {
       onToggleScreenLock: () => calls.add('travar'),
       onRateRequested: (r) async => rates.add(r),
     );
-    await tester.pumpWidget(ChangeNotifierProvider.value(value: watch, child: MaterialApp(
-      debugShowCheckedModeBanner: false,
-      builder: (context, child) => MediaQuery(
-        data: MediaQuery.of(context).copyWith(
-          systemGestureInsets: gestures,
-          viewPadding: viewPadding,
-          padding: viewPadding,
+    await tester.pumpWidget(
+      MaterialApp(
+        debugShowCheckedModeBanner: false,
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(
+            context,
+          ).copyWith(systemGestureInsets: gestures, viewPadding: viewPadding, padding: viewPadding),
+          child: child!,
         ),
-        child: child!,
+        theme: cgflixAppTheme(CgflixThemeVariant.isis).copyWith(platform: TargetPlatform.android),
+        home: Scaffold(
+          backgroundColor: const Color(0xff2a3550),
+          body: OverlaySheetHost(
+            child: MobileVideoControls(
+              player: player,
+              heisucaTrackState: state,
+              metadata: testMediaItem(id: 'ep', title: 'Shaula / Herói'),
+              chapters: const [],
+              chaptersLoaded: true,
+              seekTimeSmall: 10,
+              trackChapterControls: const Text('RÉGUA ANTIGA'),
+              onSeek: (_) {},
+              onSeekEnd: (_) {},
+              onSeekRequested: (_) async {},
+              onPlayPause: () {},
+              onNext: () => calls.add('próximo'),
+            ),
+          ),
+        ),
       ),
-      theme: cgflixAppTheme(CgflixThemeVariant.isis).copyWith(platform: TargetPlatform.android),
-      home: Scaffold(backgroundColor: const Color(0xff2a3550), body: OverlaySheetHost(child: MobileVideoControls(
-        player: player, heisucaTrackState: state,
-        metadata: testMediaItem(id: 'ep', title: 'Shaula / Herói'),
-        chapters: const [], chaptersLoaded: true, seekTimeSmall: 10,
-        trackChapterControls: const Text('RÉGUA ANTIGA'),
-        onSeek: (_) {}, onSeekEnd: (_) {}, onSeekRequested: (_) async {}, onPlayPause: () {},
-        onNext: () => calls.add('próximo'),
-      ))))));
+    );
     await tester.pump();
     return (calls: calls, rates: rates);
   }
@@ -122,19 +135,23 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
-  testWidgets('F7: botões redondos do topo têm centro do ícone igual ao centro do botão (tolerância 1 px)', (tester) async {
-    await tester.pumpWidget(MaterialApp(
-      theme: cgflixAppTheme(CgflixThemeVariant.isis),
-      home: Scaffold(
-        body: Center(
-          child: HeisucaPlayerPill(
-            icon: Symbols.picture_in_picture_alt_rounded,
-            semanticLabel: 'Janelinha',
-            onTap: () {},
+  testWidgets('F7: botões redondos do topo têm centro do ícone igual ao centro do botão (tolerância 1 px)', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: cgflixAppTheme(CgflixThemeVariant.isis),
+        home: Scaffold(
+          body: Center(
+            child: HeisucaPlayerPill(
+              icon: Symbols.picture_in_picture_alt_rounded,
+              semanticLabel: 'Janelinha',
+              onTap: () {},
+            ),
           ),
         ),
       ),
-    ));
+    );
     final buttonRect = tester.getRect(find.byType(HeisucaPlayerPill));
     final iconRect = tester.getRect(find.byIcon(Symbols.picture_in_picture_alt_rounded));
     expect((buttonRect.center.dx - iconRect.center.dx).abs(), lessThanOrEqualTo(1.0));

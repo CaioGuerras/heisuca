@@ -110,15 +110,13 @@ extension _VideoPlayerEpisodeNavigationMethods on VideoPlayerScreenState {
 
   /// Replace this screen when an in-place reload cannot serve the new item.
   /// The route commit owns player-to-player teardown semantics.
-  Future<void> _replaceScreenWithPlayer(MediaItem metadata, {WatchPlaybackLease? watchTogetherLease}) async {
-    watchTogetherLease ??= _activeWatchTogetherSession()?.capturePlaybackLease(selection: true);
+  Future<void> _replaceScreenWithPlayer(MediaItem metadata) async {
     try {
       await navigateToVideoPlayer(
         context,
         metadata: metadata,
         usePushReplacement: true,
         isOffline: _offlineLibraryMode,
-        watchTogetherLease: watchTogetherLease,
       );
     } finally {
       // No route commit (external player or failure): keep this screen usable.
@@ -136,11 +134,9 @@ extension _VideoPlayerEpisodeNavigationMethods on VideoPlayerScreenState {
   /// [MediaReloadOutcome.rejected]: no in-place reload ran.
   Future<MediaReloadOutcome> _navigateToEpisode(MediaItem episodeMetadata) async {
     _episode.lastReloadFailureReason = null;
-    final watchTogether = _activeWatchTogetherSession();
-    final watchTogetherLease = watchTogether?.capturePlaybackLease(selection: true);
     final currentPlayer = player;
     if (currentPlayer == null) {
-      if (mounted) unawaited(_replaceScreenWithPlayer(episodeMetadata, watchTogetherLease: watchTogetherLease));
+      if (mounted) unawaited(_replaceScreenWithPlayer(episodeMetadata));
       return MediaReloadOutcome.rejected;
     }
 
@@ -165,7 +161,7 @@ extension _VideoPlayerEpisodeNavigationMethods on VideoPlayerScreenState {
       // preferences, both audio and subtitles start at the server-selected
       // priority (#1717).
       final settingsService = await SettingsService.getInstance();
-      if (!mounted || currentPlayer != player || (watchTogetherLease != null && !watchTogetherLease.isCurrent)) {
+      if (!mounted || currentPlayer != player) {
         return MediaReloadOutcome.superseded;
       }
       final followServerSelections = settingsService.read(SettingsService.followServerTrackSelections);
@@ -204,7 +200,6 @@ extension _VideoPlayerEpisodeNavigationMethods on VideoPlayerScreenState {
         preservedAudioTrack: _sessionAudioPreference,
         preservedSubtitleTrack: primarySubtitlePreference,
         preservedSecondarySubtitleTrack: secondarySubtitlePreference,
-        watchTogetherLease: watchTogetherLease,
         reason: 'episode navigation',
       );
     } catch (e, stackTrace) {

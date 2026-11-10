@@ -21,8 +21,6 @@ import '../../../services/pip_service.dart';
 import '../../../services/settings_service.dart';
 import '../../../utils/platform_detector.dart';
 import '../../../utils/provider_extensions.dart';
-import '../../../watch_together/providers/watch_together_provider.dart';
-import '../../../watch_together/widgets/watch_together_overlay.dart';
 import '../../../widgets/app_icon.dart';
 import '../../../widgets/optimized_media_image.dart';
 import '../../../widgets/settings_builder.dart';
@@ -123,62 +121,6 @@ class VideoPlayerBufferingOverlay extends StatelessWidget {
           },
         );
       },
-    );
-  }
-}
-
-class VideoPlayerWatchTogetherOverlays extends StatelessWidget {
-  const VideoPlayerWatchTogetherOverlays({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return RepaintBoundary(
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Selector<WatchTogetherProvider, bool>(
-            selector: (_, provider) => provider.isWaitingForHostReconnect,
-            builder: (context, isWaiting, child) {
-              if (!isWaiting) return const SizedBox.shrink();
-              return Positioned(
-                bottom: 120,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: const BoxDecoration(
-                      color: Colors.black54,
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                    ),
-                    child: Row(
-                      mainAxisSize: .min,
-                      children: [
-                        if (PlatformDetector.isTV())
-                          const AppIcon(Symbols.sync_rounded, size: 14, color: Colors.white)
-                        else
-                          const SizedBox(
-                            width: 14,
-                            height: 14,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                          ),
-                        const SizedBox(width: 8),
-                        Text(
-                          t.watchTogether.reconnectingToHost,
-                          style: const TextStyle(color: Colors.white, fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-          const ParticipantNotificationOverlay(),
-          const WaitingForParticipantsIndicator(),
-          const SyncingIndicator(),
-        ],
-      ),
     );
   }
 }
@@ -331,7 +273,11 @@ class _PlayNextEpisodeHeader extends StatelessWidget {
                     children: [
                       Text(
                         t.videoControls.nextEpisode,
-                        style: TextStyle(color: palette.textOn(palette.surface, preferred: palette.textMuted), fontSize: 12, fontWeight: .w500),
+                        style: TextStyle(
+                          color: palette.textOn(palette.surface, preferred: palette.textMuted),
+                          fontSize: 12,
+                          fontWeight: .w500,
+                        ),
                       ),
                       if (isShuffleActive) ...[
                         const SizedBox(width: 4),
@@ -345,14 +291,24 @@ class _PlayNextEpisodeHeader extends StatelessWidget {
               if (episode.parentIndex != null && episode.index != null)
                 Text(
                   '$cgflixSeasonLetter${episode.parentIndex} E${episode.index} · ${episode.title}', // CGFLIX: T em português
-                  style: TextStyle(fontFamily: HeisucaTheme.fonteTitulo, color: palette.text, fontSize: 14, fontWeight: .w600),
+                  style: TextStyle(
+                    fontFamily: HeisucaTheme.fonteTitulo,
+                    color: palette.text,
+                    fontSize: 14,
+                    fontWeight: .w600,
+                  ),
                   maxLines: 2,
                   overflow: .ellipsis,
                 )
               else
                 Text(
                   episode.title!,
-                  style: TextStyle(fontFamily: HeisucaTheme.fonteTitulo, color: palette.text, fontSize: 14, fontWeight: .w600),
+                  style: TextStyle(
+                    fontFamily: HeisucaTheme.fonteTitulo,
+                    color: palette.text,
+                    fontSize: 14,
+                    fontWeight: .w600,
+                  ),
                   maxLines: 2,
                   overflow: .ellipsis,
                 ),
@@ -411,8 +367,8 @@ class VideoPlayerStillWatchingOverlay extends StatelessWidget {
             isTv
                 ? 'Pausamos para você não perder onde parou.'
                 : (pausedForEpisodes
-                    ? 'Reprodução pausada. Continuar com o próximo episódio?'
-                    : t.videoControls.pausingIn(seconds: '$seconds')),
+                      ? 'Reprodução pausada. Continuar com o próximo episódio?'
+                      : t.videoControls.pausingIn(seconds: '$seconds')),
             style: TextStyle(
               color: isTv ? const Color(0xFFE2DDE7) : palette.text,
               fontSize: isTv ? 16 : 14,
@@ -522,11 +478,13 @@ class _VideoPlayerPromptActions extends StatelessWidget {
             foregroundColor: palette.onAction,
             padding: const EdgeInsets.symmetric(vertical: 12),
           ),
-          child: Row(mainAxisAlignment: .center, children: [
-            for (var i = 0; i < confirmChildren.length; i++)
-              if (i == confirmChildren.length - 1) Flexible(child: confirmChildren[i])
-              else confirmChildren[i],
-          ]),
+          child: Row(
+            mainAxisAlignment: .center,
+            children: [
+              for (var i = 0; i < confirmChildren.length; i++)
+                if (i == confirmChildren.length - 1) Flexible(child: confirmChildren[i]) else confirmChildren[i],
+            ],
+          ),
         ),
       ),
     );
@@ -599,10 +557,7 @@ class _VideoPlayerPromptCard extends StatelessWidget {
     final width = math.min(availableWidth, preferredWidth);
     final backdrop = this.backdrop;
     final content = Padding(padding: const EdgeInsets.all(16), child: child);
-    final decoration = BoxDecoration(
-      color: palette.surface,
-      borderRadius: const BorderRadius.all(Radius.circular(12)),
-    );
+    final decoration = BoxDecoration(color: palette.surface, borderRadius: const BorderRadius.all(Radius.circular(12)));
     if (backdrop == null) {
       return Container(width: width, decoration: decoration, child: content);
     }

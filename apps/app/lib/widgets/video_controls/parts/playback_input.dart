@@ -9,23 +9,11 @@ extension _PlexVideoControlsPlaybackInputMethods on _PlexVideoControlsState {
     if (_suppressRateToastUntil != null && DateTime.now().isBefore(_suppressRateToastUntil!)) {
       return;
     }
-    // A Watch Together drift nudge moves the rate a few percent for a few
-    // seconds; that is the sync layer's business, not a speed change to
-    // announce. Keep the last reported rate so the nudge's exit is silent too.
-    if (_syncOwnsRate()) return;
     final prev = _lastReportedRate;
     if (prev != null && (prev - newRate).abs() < 0.005) return;
     _lastReportedRate = newRate;
     final icon = newRate >= 1.0 ? Symbols.fast_forward_rounded : Symbols.slow_motion_video_rounded;
     widget.toastController.show(icon, formatPlaybackRate(newRate));
-  }
-
-  bool _syncOwnsRate() {
-    try {
-      return context.read<WatchTogetherProvider>().syncOwnsRate;
-    } catch (_) {
-      return false; // No session provider above this surface.
-    }
   }
 
   void _seekToPreviousChapter() => unawaited(_seekToChapter(forward: false));
@@ -759,19 +747,6 @@ extension _PlexVideoControlsPlaybackInputMethods on _PlexVideoControlsState {
     };
   }
 
-  /// Handle a completed skip-zone double tap.
-  ///
-  /// The travelled distance is resolved here, synchronously, rather than read
-  /// back from the seek: the badge must go up with the tap, not after a slow
-  /// backend or a live transcode reopen has answered.
-  ///
-  /// Measured from the clamped origin, the same rule as [_hiddenSeek]: the
-  /// duration is authoritative, so a position reported past it is already at
-  /// the end and a forward tap there travels nothing rather than clamping
-  /// backwards under a forward chevron. A tap that travels nothing dispatches
-  /// nothing — a seek to the position the playhead already occupies is not
-  /// worth a round trip, and on the screen's seek path it would also announce
-  /// a seek to a Watch Together room and re-poke the end-of-item trigger.
   void _handleDoubleTapSkip({required bool isForward}) {
     if (!widget.canControl) return;
 
@@ -887,9 +862,6 @@ extension _PlexVideoControlsPlaybackInputMethods on _PlexVideoControlsState {
     _toggleControls();
   }
 
-  /// Apply a user-requested playback rate through the owning screen when it
-  /// supplies a handler (Watch Together declares it to the room), else
-  /// directly on the player.
   Future<void> _requestRate(double rate) => (widget.onRateRequested ?? widget.player.setRate)(rate);
 
   /// Handle long-press start - activate 2x speed

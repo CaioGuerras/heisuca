@@ -426,7 +426,7 @@ class _ConfiguracoesFalsas extends StatelessWidget {
           onTap: () => cgflixOpenSettingsSubpage(
             context,
             title: 'Avançado',
-            builder: (_) => const [CgflixAdvancedFeatures(), CgflixAdvancedPlayback(), CgflixAdvancedSubtitles()],
+            builder: (_) => const [CgflixAdvancedPlayback(), CgflixAdvancedSubtitles()],
           ),
         ),
         const CgflixApoioSettingsTile(),

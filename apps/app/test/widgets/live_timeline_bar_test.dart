@@ -9,7 +9,7 @@ import 'package:heisuca/models/livetv_capture_buffer.dart';
 import 'package:heisuca/utils/formatters.dart';
 import 'package:heisuca/widgets/video_controls/widgets/live_timeline_bar.dart';
 
-import '../test_helpers/watch_together_fakes.dart';
+import '../test_helpers/player_fakes.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

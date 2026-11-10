@@ -29,22 +29,10 @@ void main() {
   });
 
   test('in-place reload preserves the current playback intent', () {
-    expect(
-      shouldAutoStartReloadedMedia(wasPlayingBeforeReload: false, watchTogetherOwnsStart: false, startPaused: false),
-      isFalse,
-    );
-    expect(
-      shouldAutoStartReloadedMedia(wasPlayingBeforeReload: true, watchTogetherOwnsStart: false, startPaused: false),
-      isTrue,
-    );
-    expect(
-      shouldAutoStartReloadedMedia(wasPlayingBeforeReload: true, watchTogetherOwnsStart: true, startPaused: false),
-      isFalse,
-    );
-    expect(
-      shouldAutoStartReloadedMedia(wasPlayingBeforeReload: true, watchTogetherOwnsStart: false, startPaused: true),
-      isFalse,
-    );
+    expect(shouldAutoStartReloadedMedia(wasPlayingBeforeReload: false, startPaused: false), isFalse);
+    expect(shouldAutoStartReloadedMedia(wasPlayingBeforeReload: true, startPaused: false), isTrue);
+
+    expect(shouldAutoStartReloadedMedia(wasPlayingBeforeReload: true, startPaused: true), isFalse);
   });
 
   test('item-change subtitle preference carries committed semantics without item identity', () {

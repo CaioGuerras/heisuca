@@ -10,6 +10,6 @@ internal fun hasMediaPlaybackService(context: Context): Boolean = runCatching {
     .getRunningServices(Int.MAX_VALUE)
   services.any {
     it.service.packageName == context.packageName && it.foreground &&
-      it.service.className == "com.edde746.os_media_controls.MediaPlaybackService"
+      it.service.className == "app.heisuca.sessao.HeisucaSessaoService"
   }
 }.getOrDefault(false)

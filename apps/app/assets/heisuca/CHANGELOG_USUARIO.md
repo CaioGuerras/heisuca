@@ -1,6 +1,7 @@
 ## 2.0.34 — O que mudou
 
 ### Novo
+- Controles do sistema refeitos: tela de bloqueio, fone e janela flutuante com botões.
 - Visual novo: três temas (Shikkoku, Hisui e Sumi) e ícone novo.
 - Cores novas em todos os temas, com destaque mais visível ao navegar pelo controle da TV ou pelo teclado.
 - Botões e áreas de toque maiores e mais fáceis de acertar, também com letras grandes.

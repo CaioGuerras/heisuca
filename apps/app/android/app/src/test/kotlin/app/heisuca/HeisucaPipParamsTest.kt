@@ -10,6 +10,21 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
 class HeisucaPipParamsTest {
+  @Test fun controlesSeguemReproducaoEProximoDisponivel() {
+    assertEquals(listOf("pause", "skipBackward", "skipForward", "nextTrack"),
+      pipControles(tocando = true, ativo = true, podePular = true, proximo = true).map { it.acao })
+    assertEquals(listOf("play", "skipBackward", "skipForward"),
+      pipControles(tocando = false, ativo = true, podePular = true, proximo = false).map { it.acao })
+    assertEquals("Pausar", pipControles(true, true, false, false).single().rotulo)
+    assertEquals("Tocar", pipControles(false, true, false, false).single().rotulo)
+    assertTrue(pipControles(false, false, true, true).isEmpty())
+  }
+  @Test fun automaticoExigeVideoTocandoNaTelaDoPlayer() {
+    assertTrue(pipAutomatico(pronto = true, tocando = true, video = true))
+    assertFalse(pipAutomatico(pronto = false, tocando = true, video = true))
+    assertFalse(pipAutomatico(pronto = true, tocando = false, video = true))
+    assertFalse(pipAutomatico(pronto = true, tocando = true, video = false))
+  }
   @Test fun origemSegueImagemSemBarrasPretas() {
     assertEquals(Rect(0, 218, 1000, 781), pipImageRect(Rect(0, 0, 1000, 1000), 16, 9))
     assertEquals(Rect(250, 100, 750, 1100), pipImageRect(Rect(0, 100, 1000, 1100), 1, 2))

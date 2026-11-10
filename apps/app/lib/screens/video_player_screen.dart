@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:heisuca/widgets/app_icon.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter/services.dart';
-import 'package:os_media_controls/os_media_controls.dart';
+import 'package:heisuca/services/sessao_media.dart';
 import 'package:provider/provider.dart';
 
 import '../mpv/mpv.dart';
@@ -968,6 +968,9 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
     hasPreviousLiveChannel: () => _hasPreviousChannel,
     shouldSkipForPip: () => _shouldSkipForPip,
     isPlayerInitialized: () => _isPlayerInitialized,
+    hasFatalPlaybackError: () => _hasFatalPlaybackError,
+    hasNextItem: () => _hasNextItem,
+    hasPreviousItem: () => _hasPreviousItem,
     metadata: () => _currentMetadata,
     client: () => _isOfflinePlayback ? null : _getMediaServerClient(context),
     isPlaylistActive: () => context.read<PlaybackStateProvider>().isPlaylistActive,

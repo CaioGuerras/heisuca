@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 import 'support/video_restore.dart';
+import 'sessao_media_hud_test.dart';
 import 'support/video_capture_geometry.dart';
 import 'support/bancada_clock.dart';
 import 'support/pip_overflow_policy.dart';
@@ -488,4 +489,5 @@ void main() {
     ErrorWidget.builder = errorWidgetBuilder;
     FlutterError.onError = flutterErrorHandler;
   }, timeout: const Timeout(Duration(minutes: 10)));
+  registrarProvasSessaoHud(binding);
 }

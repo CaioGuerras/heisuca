@@ -108,6 +108,7 @@ extension _VideoPlayerErrorMethods on VideoPlayerScreenState {
   /// user stop.
   void _latchFatalPlaybackError(PlaybackFailureAction action, {String? cause}) {
     _hasFatalPlaybackError = true;
+    _mediaControls.pushPlaybackState();
     _progressTracker?.stopTracking();
     _abortCurrentOpen('player error: ${action.name}');
     final currentPlayer = player;

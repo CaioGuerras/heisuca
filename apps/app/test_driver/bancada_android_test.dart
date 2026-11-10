@@ -11,6 +11,7 @@ Future<void> main() async {
       await File('${output.path}/resultado-teste.json').writeAsString(
         jsonEncode({
           'testeEncerrado': data?['testeEncerrado'] == true,
+          'sessaoHud': data?['sessaoHud'],
           'passos': data?['passos'],
           'avisos': data?['avisos'],
           'restaurosNativos': data?['restaurosNativos'],

@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:os_media_controls/os_media_controls.dart';
+import 'package:heisuca/services/sessao_media.dart';
 import 'package:heisuca/screens/video_player_screen.dart';
 import 'package:heisuca/services/driver_distraction.dart';
 import 'package:heisuca/services/media_control_router.dart';

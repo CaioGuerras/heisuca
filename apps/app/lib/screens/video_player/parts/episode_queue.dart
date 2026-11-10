@@ -148,6 +148,7 @@ extension _VideoPlayerEpisodeQueueMethods on VideoPlayerScreenState {
       _episode.previous = adjacentEpisodes.previous;
       _episode.nextStatus = adjacentEpisodes.nextStatus;
     });
+    unawaited(_mediaControls.syncAvailability());
     _primeNextEpisodePlaybackMetadata(adjacentEpisodes.next);
   }
 

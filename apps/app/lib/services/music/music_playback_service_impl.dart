@@ -4,7 +4,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart' show ValueListenable, visibleForTesting;
 import 'package:flutter/widgets.dart';
-import 'package:os_media_controls/os_media_controls.dart';
+import 'package:heisuca/services/sessao_media.dart';
 
 import '../../database/app_database.dart';
 import '../../i18n/strings.g.dart';
@@ -757,6 +757,24 @@ class MusicPlaybackServiceImpl extends MusicPlaybackService with WidgetsBindingO
       ..add(player.streams.playheadJump.listen(_playheadJumpController.add))
       ..add(player.streams.playing.listen(_onPlayingChanged))
       ..add(player.streams.trackTransition.listen(_onTrackTransition))
+      ..add(
+        player.streams.buffering.listen((buffering) {
+          final controles = _mediaControls;
+          if (controles == null) return;
+          unawaited(
+            controles.updateDetailedPlaybackState(
+              state: buffering
+                  ? PlaybackState.buffering
+                  : player.state.isActive
+                  ? PlaybackState.playing
+                  : PlaybackState.paused,
+              position: player.currentPosition,
+              speed: 1,
+              force: true,
+            ),
+          );
+        }),
+      )
       ..add(player.streams.completed.listen(_onCompleted))
       ..add(player.streams.error.listen(_onPlayerError));
     if (_launchObserver != null) {
@@ -798,7 +816,17 @@ class MusicPlaybackServiceImpl extends MusicPlaybackService with WidgetsBindingO
     }
     final player = _player;
     if (player != null) {
-      _mediaControls?.updatePlaybackState(isPlaying: player.state.isActive, position: position, speed: 1.0);
+      if (player.state.buffering || player.state.completed) {
+        unawaited(
+          _mediaControls?.updateDetailedPlaybackState(
+            state: player.state.completed ? PlaybackState.ended : PlaybackState.buffering,
+            position: position,
+            speed: 1,
+          ),
+        );
+      } else {
+        _mediaControls?.updatePlaybackState(isPlaying: player.state.isActive, position: position, speed: 1.0);
+      }
     }
     if (_status == MusicPlaybackStatus.playing) _maybePersistPositionTick(position);
   }
@@ -820,7 +848,16 @@ class MusicPlaybackServiceImpl extends MusicPlaybackService with WidgetsBindingO
       // playing flips belong to a track whose presence is not bound yet.
     }
     final player = _player;
-    if (player != null) {
+    if (player != null && (player.state.buffering || player.state.completed)) {
+      unawaited(
+        _mediaControls?.updateDetailedPlaybackState(
+          state: player.state.completed ? PlaybackState.ended : PlaybackState.buffering,
+          position: player.currentPosition,
+          speed: 1,
+          force: true,
+        ),
+      );
+    } else if (player != null) {
       _mediaControls?.updatePlaybackState(
         isPlaying: shouldBePlaying && player.state.isActive,
         position: player.currentPosition,
@@ -964,7 +1001,12 @@ class MusicPlaybackServiceImpl extends MusicPlaybackService with WidgetsBindingO
     _persistSessionProgress(positionOverride: Duration.zero);
     final player = _player;
     if (player != null) {
-      _mediaControls?.updatePlaybackState(isPlaying: false, position: player.currentPosition, speed: 1.0, force: true);
+      _mediaControls?.updateDetailedPlaybackState(
+        state: PlaybackState.ended,
+        position: player.currentPosition,
+        speed: 1.0,
+        force: true,
+      );
     }
   }
 
@@ -1051,8 +1093,6 @@ class MusicPlaybackServiceImpl extends MusicPlaybackService with WidgetsBindingO
       );
       _syncControlsAvailability();
     }
-
-
   }
 
   /// Stop tracking and fire the final `stopped` report for the current
@@ -1912,6 +1952,16 @@ class MusicPlaybackServiceImpl extends MusicPlaybackService with WidgetsBindingO
     if (_status == status && !forceNotify) return;
     final wasPlaying = _status == MusicPlaybackStatus.playing;
     _status = status;
+    if (status == MusicPlaybackStatus.loading || status == MusicPlaybackStatus.error) {
+      unawaited(
+        _mediaControls?.updateDetailedPlaybackState(
+          state: status == MusicPlaybackStatus.error ? PlaybackState.error : PlaybackState.buffering,
+          position: _player?.currentPosition ?? Duration.zero,
+          speed: 1,
+          force: true,
+        ),
+      );
+    }
     // Pause is the moment the playhead stops moving — flush it so a quit
     // while paused restores exactly here.
     if (wasPlaying && status == MusicPlaybackStatus.paused) _persistSessionProgress();

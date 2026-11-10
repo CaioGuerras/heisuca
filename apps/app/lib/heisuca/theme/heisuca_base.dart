@@ -31,6 +31,16 @@ class HeisucaBase {
     static const fonteTexto = 'Inter'; /** OFL-1.1 */
     static const fonteTitulo = 'Inter'; /** OFL-1.1; títulos (09/11: Sora saiu dos títulos) */
     static const marcaKanjiDoSelo = Color(0xFFFFF8F0); /** 炳素華 sobre a cor do selo de cada tema */
+    static const movimentoCartao = Duration(milliseconds: 260);
+    static const movimentoCurvaEntra = Cubic(0.05, 0.7, 0.1, 1);
+    static const movimentoCurvaPadrao = Cubic(0.2, 0, 0, 1);
+    static const movimentoCurvaSai = Cubic(0.3, 0, 0.8, 0.15);
+    static const movimentoEscada = Duration(milliseconds: 30); /** atraso entre itens de uma lista */
+    static const movimentoLonge = Duration(milliseconds: 420); /** arte do cartão vira o fundo do título */
+    static const movimentoTela = Duration(milliseconds: 320);
+    static const movimentoTema = Duration(milliseconds: 520); /** troca de tema em círculo */
+    static const movimentoToque = Duration(milliseconds: 120);
+    static const movimentoTroca = Duration(milliseconds: 180); /** também é o esmaecido de 'reduzir movimento' */
     static const pesoFino = 250;
     static const pesoForte = 600;
     static const pesoMedio = 500;

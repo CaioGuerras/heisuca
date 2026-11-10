@@ -77,12 +77,16 @@ class JellyfinEndpointProbeResult {
   final String? effectiveBaseUrl;
   final String? failureType;
 
+  /// Motivo técnico da falha (sem o endereço: o registro passa por `_sanitizeEndpointFields`).
+  final String? failureReason;
+
   const JellyfinEndpointProbeResult({
     required this.success,
     required this.latencyMs,
     this.serverInfo,
     this.effectiveBaseUrl,
     this.failureType,
+    this.failureReason,
   });
 }
 
@@ -225,13 +229,21 @@ class JellyfinEndpointDiscovery {
 
     EndpointRaceSelection<JellyfinEndpointCandidate, JellyfinEndpointProbeResult>? firstSelection;
     EndpointRaceSelection<JellyfinEndpointCandidate, JellyfinEndpointProbeResult>? bestSelection;
+    // A corrida de 2 s escolhe entre vários endereços (rede local × remota). Com um endereço só não há o que
+    // escolher: 2 s para DNS + TCP + TLS derrubava o login em rede lenta (bancada: "connect timed out" em 2,5 s).
+    final probeTimeout =
+        candidates.length == 1 ? MediaServerTimeouts.jellyfinProbe : MediaServerTimeouts.connectionRace;
 
     await for (final selection in raceEndpointCandidates<JellyfinEndpointCandidate, JellyfinEndpointProbeResult>(
       label: '${dialect.productName} server URL',
       candidates: candidates,
       preferredUrl: preferred,
       urlOf: (candidate) => candidate.url,
-      failureLogFields: (candidate, result) => {'failureType': result.failureType, 'latencyMs': result.latencyMs},
+      failureLogFields: (candidate, result) => {
+        'failureType': result.failureType,
+        if (result.failureReason != null) 'failureReason': result.failureReason,
+        'latencyMs': result.latencyMs,
+      },
       probe: (candidate, timeout) {
         final identityProbe = _probeWithLatency(
           candidate.url,
@@ -240,10 +252,13 @@ class JellyfinEndpointDiscovery {
         phaseOneIdentityProbes.add(identityProbe);
         return identityProbe;
       },
-      measure: (candidate) async =>
-          recordIdentity(candidate, await _probeWithAverageLatency(candidate.url, attempts: 2)),
+      measure: (candidate) async => recordIdentity(
+        candidate,
+        await _probeWithAverageLatency(candidate.url, attempts: 2, timeout: probeTimeout),
+      ),
       isSuccess: (result) => result.success,
       selectBestCandidate: (results) => _selectLowestLatencyCandidate(results),
+      raceTimeout: probeTimeout,
     )) {
       if (selection.phase == EndpointRacePhase.first) {
         firstSelection = selection;
@@ -376,21 +391,27 @@ class JellyfinEndpointDiscovery {
         success: false,
         latencyMs: stopwatch.elapsedMilliseconds,
         failureType: e.runtimeType.toString(),
+        failureReason: e is MediaServerUrlException ? e.message : null,
       );
     }
   }
 
-  Future<JellyfinEndpointProbeResult> _probeWithAverageLatency(String baseUrl, {required int attempts}) async {
+  Future<JellyfinEndpointProbeResult> _probeWithAverageLatency(
+    String baseUrl, {
+    required int attempts,
+    Duration timeout = MediaServerTimeouts.connectionRace,
+  }) async {
     final results = <JellyfinEndpointProbeResult>[];
     JellyfinServerInfo? info;
     String? effectiveBaseUrl;
     for (var i = 0; i < attempts; i++) {
-      final result = await _probeWithLatency(baseUrl, timeout: MediaServerTimeouts.connectionRace);
+      final result = await _probeWithLatency(baseUrl, timeout: timeout);
       if (!result.success) {
         return JellyfinEndpointProbeResult(
           success: false,
           latencyMs: result.latencyMs,
           failureType: result.failureType,
+          failureReason: result.failureReason,
           serverInfo: info,
           effectiveBaseUrl: effectiveBaseUrl,
         );

@@ -1,13 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/account_preferences.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/media/media_server_user_profile.dart';
-import 'package:plezy/media/media_source_info.dart';
-import 'package:plezy/mpv/mpv.dart';
-import 'package:plezy/services/subtitle_preference.dart';
-import 'package:plezy/services/track_selection_service.dart';
+import 'package:heisuca/media/account_preferences.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_server_user_profile.dart';
+import 'package:heisuca/media/media_source_info.dart';
+import 'package:heisuca/mpv/mpv.dart';
+import 'package:heisuca/services/subtitle_preference.dart';
+import 'package:heisuca/services/track_selection_service.dart';
 import '../test_helpers/media_items.dart';
 
 // Covers the pure language, track-matching, and audio/subtitle priority helpers,

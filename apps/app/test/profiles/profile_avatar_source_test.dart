@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/connection/connection.dart';
-import 'package:plezy/models/plex/plex_home_user.dart';
-import 'package:plezy/profiles/profile.dart';
-import 'package:plezy/profiles/profile_avatar_source.dart';
-import 'package:plezy/profiles/profile_connection.dart';
+import 'package:heisuca/connection/connection.dart';
+import 'package:heisuca/models/plex/plex_home_user.dart';
+import 'package:heisuca/profiles/profile.dart';
+import 'package:heisuca/profiles/profile_avatar_source.dart';
+import 'package:heisuca/profiles/profile_connection.dart';
 
 JellyfinConnection _jellyfin(
   String id, {

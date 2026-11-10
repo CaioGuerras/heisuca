@@ -3,9 +3,9 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/mpv/mpv.dart';
-import 'package:plezy/mpv/player/platform/player_android.dart';
-import 'package:plezy/services/settings_service.dart';
+import 'package:heisuca/mpv/mpv.dart';
+import 'package:heisuca/mpv/player/platform/player_android.dart';
+import 'package:heisuca/services/settings_service.dart';
 
 import '../test_helpers/mock_player_channels.dart';
 import '../test_helpers/prefs.dart';
@@ -20,8 +20,8 @@ import '../test_helpers/prefs.dart';
 Future<void> _withPlayer(Future<void> Function(PlayerAndroid player, _PlayerHarness harness) body) async {
   final harness = _PlayerHarness();
   await withMockPlayerChannels(
-    methodChannelName: 'com.plezy/exo_player',
-    eventChannelName: 'com.plezy/exo_player/events',
+    methodChannelName: 'app.heisuca/exo_player',
+    eventChannelName: 'app.heisuca/exo_player/events',
     methodHandler: harness.handle,
     testBody: () async {
       final player = PlayerAndroid();
@@ -57,7 +57,7 @@ class _PlayerHarness {
   Future<void> sendTrackList(List<Map<String, Object?>> tracks) async {
     final done = Completer<void>();
     await TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.handlePlatformMessage(
-      'com.plezy/exo_player/events',
+      'app.heisuca/exo_player/events',
       const StandardMethodCodec().encodeSuccessEnvelope([observations['track-list'], jsonEncode(tracks)]),
       (_) => done.complete(),
     );

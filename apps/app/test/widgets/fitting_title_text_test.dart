@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/widgets/fitting_title_text.dart';
+import 'package:heisuca/widgets/fitting_title_text.dart';
 
 const _style = TextStyle(fontSize: 40, letterSpacing: 0, wordSpacing: 0);
 

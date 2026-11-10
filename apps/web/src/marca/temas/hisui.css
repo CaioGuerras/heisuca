@@ -3,15 +3,15 @@
  */
 
 [data-tema="hisui"] {
-  --hs-tema-cor-fundo: #f7f3ec;
-  --hs-tema-cor-superficie: #fffdf8;
-  --hs-tema-cor-primaria: #047857;
-  --hs-tema-cor-acento: #065f46;
-  --hs-tema-cor-texto: #1c2421;
-  --hs-tema-cor-texto-2: #55625d;
-  --hs-tema-cor-botao-fundo: #047857;
-  --hs-tema-cor-botao-texto: #ffffff;
-  --hs-tema-cor-foco: #047857;
+  --hs-tema-cor-fundo: #daf1de;
+  --hs-tema-cor-superficie: #ffffff;
+  --hs-tema-cor-primaria: #235347;
+  --hs-tema-cor-acento: #163832;
+  --hs-tema-cor-texto: #051f20;
+  --hs-tema-cor-texto-2: #163832;
+  --hs-tema-cor-botao-fundo: #235347;
+  --hs-tema-cor-botao-texto: #daf1de;
+  --hs-tema-cor-foco: #235347;
   --hs-tema-cor-selo: #05805c; /** fundo do selo 炳素華; kanji = #fff8f0 */
   --hs-tema-fonte-titulo: Sora, Inter, sans-serif;
 }

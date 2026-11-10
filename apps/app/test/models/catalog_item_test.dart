@@ -1,11 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/media/media_rating.dart';
-import 'package:plezy/models/catalog/catalog_item.dart';
-import 'package:plezy/models/catalog/catalog_metadata.dart';
-import 'package:plezy/utils/external_ids.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_rating.dart';
+import 'package:heisuca/models/catalog/catalog_item.dart';
+import 'package:heisuca/models/catalog/catalog_metadata.dart';
+import 'package:heisuca/utils/external_ids.dart';
 
 void main() {
   group('CatalogItemIds', () {
@@ -116,7 +116,7 @@ void main() {
       // Explore's dashboard hubs render through this conversion, so a rating
       // dropped here means the TV spotlight silently falls back to one score.
       const rated = CatalogItem(
-        source: CatalogSourceId.simkl,
+        source: CatalogSourceId.seerr,
         kind: MediaKind.movie,
         title: 'Rated',
         ids: CatalogItemIds(tmdb: 603),
@@ -167,14 +167,14 @@ void main() {
       // detail body supplies only a drop rate. Replacing the object wholesale
       // silently dropped the row's counters.
       const row = CatalogItem(
-        source: CatalogSourceId.simkl,
+        source: CatalogSourceId.seerr,
         kind: MediaKind.show,
         title: 'House of the Dragon',
         ids: CatalogItemIds(simkl: 1197910),
         audience: CatalogAudience(viewers: 7603, viewersPeriod: CatalogAudiencePeriod.week, planning: 8422),
       );
       const detail = CatalogItem(
-        source: CatalogSourceId.simkl,
+        source: CatalogSourceId.seerr,
         kind: MediaKind.show,
         title: 'House of the Dragon',
         ids: CatalogItemIds(simkl: 1197910),

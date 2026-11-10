@@ -76,7 +76,6 @@ class TranslationsKo extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _Translations$collections$ko collections = _Translations$collections$ko._(_root);
 	@override late final _Translations$playlists$ko playlists = _Translations$playlists$ko._(_root);
 	@override late final _Translations$music$ko music = _Translations$music$ko._(_root);
-	@override late final _Translations$watchTogether$ko watchTogether = _Translations$watchTogether$ko._(_root);
 	@override late final _Translations$downloads$ko downloads = _Translations$downloads$ko._(_root);
 	@override late final _Translations$shaders$ko shaders = _Translations$shaders$ko._(_root);
 	@override late final _Translations$companionRemote$ko companionRemote = _Translations$companionRemote$ko._(_root);
@@ -124,7 +123,7 @@ class _Translations$auth$ko extends Translations$auth$en {
 	@override String get quickConnectWaiting => '승인 대기 중…';
 	@override String get quickConnectCancel => '취소';
 	@override String get quickConnectExpired => 'Quick Connect가 만료되었습니다. 다시 시도하세요.';
-	@override String get localDataRecoveryRequired => 'Plezy에서 로컬 로그인 정보와 대기 중인 재생 데이터를 안전하게 복구하지 못했습니다. 다시 로그인해 주세요.';
+	@override String get localDataRecoveryRequired => 'Heisuca에서 로컬 로그인 정보와 대기 중인 재생 데이터를 안전하게 복구하지 못했습니다. 다시 로그인해 주세요.';
 	@override String get pinCheckRejected => 'Plex PIN 확인이 거부되었습니다';
 }
 
@@ -226,7 +225,7 @@ class _Translations$settings$ko extends Translations$settings$en {
 
 	// Translations
 	@override String get title => '설정';
-	@override String get supportDeveloper => 'Plezy 후원하기';
+	@override String get supportDeveloper => 'Heisuca 후원하기';
 	@override String get supportDeveloperDescription => 'Liberapay로 후원하여 개발 지원';
 	@override String get language => '언어';
 	@override String get theme => '테마';
@@ -344,12 +343,6 @@ class _Translations$settings$ko extends Translations$settings$en {
 	@override String get keyboardShortcutsDescription => '키보드 단축키를 사용자 지정합니다';
 	@override String get videoPlayerNavigation => '비디오 플레이어 탐색';
 	@override String get videoPlayerNavigationDescription => '방향 키로 비디오 플레이어 컨트롤을 탐색합니다';
-	@override String get watchTogetherRelay => '함께 보기 릴레이';
-	@override String get watchTogetherRelayDescription => '사용자 지정 릴레이를 설정합니다. 모두 같은 서버를 사용해야 합니다.';
-	@override String get watchTogetherRelayHint => 'https://my-relay.example.com';
-	@override String get watchTogetherRelayInvalid => '올바른 HTTP 또는 HTTPS 릴레이 기본 URL을 입력하세요.';
-	@override String get crashReporting => '충돌 보고';
-	@override String get crashReportingDescription => '앱 개선을 위해 충돌 보고서 전송';
 	@override String get debugLogging => '디버그 로깅';
 	@override String get debugLoggingDescription => '문제 해결을 위해 상세 로깅 활성화';
 	@override String get viewLogs => '로그 보기';
@@ -368,7 +361,7 @@ class _Translations$settings$ko extends Translations$settings$en {
 	@override String get importSettingsDescription => '파일에서 기본 설정 복원';
 	@override String get importSettingsConfirm => '현재 설정을 대체합니다. 계속하시겠습니까?';
 	@override String get importSettingsSuccess => '설정 가져오기 완료';
-	@override String get importSettingsInvalidFile => '유효한 Plezy 설정 내보내기 파일이 아닙니다';
+	@override String get importSettingsInvalidFile => '유효한 Heisuca 설정 내보내기 파일이 아닙니다';
 	@override String get importSettingsNoUser => '설정을 가져오기 전에 로그인하세요';
 	@override String get shortcutsReset => '단축키가 기본값으로 재설정되었습니다';
 	@override String get about => '정보';
@@ -430,8 +423,6 @@ class _Translations$settings$ko extends Translations$settings$en {
 	@override String get maxVolume => '최대 볼륨';
 	@override String get maxVolumeDescription => '음량이 작은 콘텐츠를 위해 100% 이상의 볼륨을 허용합니다';
 	@override String maxVolumePercent({required Object percent}) => '${percent}%';
-	@override String get discordRichPresence => 'Discord Rich Presence';
-	@override String get discordRichPresenceDescription => 'Discord에서 시청 중인 콘텐츠 표시';
 	@override String get services => '서비스';
 	@override String get servicesDescription => 'Trakt, MyAnimeList, Seerr 등 연결';
 	@override String get manageLibrariesDescription => '라이브러리 순서를 변경하거나 숨깁니다';
@@ -489,7 +480,7 @@ class _Translations$settings$ko extends Translations$settings$en {
 	@override String get forceTvMode => 'TV 모드 강제 사용';
 	@override String get forceTvModeDescription => 'TV 레이아웃을 강제합니다. 자동 감지되지 않는 기기용입니다. 재시작이 필요합니다.';
 	@override String get startInFullscreen => '전체 화면으로 시작';
-	@override String get startInFullscreenDescription => '실행 시 Plezy를 전체 화면 모드로 엽니다';
+	@override String get startInFullscreenDescription => '실행 시 Heisuca를 전체 화면 모드로 엽니다';
 	@override String get exitFullscreenOnPlayerClose => '플레이어를 닫을 때 전체 화면 종료';
 	@override String get exitFullscreenOnPlayerCloseDescription => '비디오 플레이어를 닫을 때 자동으로 전체 화면을 종료합니다';
 	@override String get autoHidePerformanceOverlay => '성능 오버레이 자동 숨기기';
@@ -538,7 +529,7 @@ class _Translations$settings$ko extends Translations$settings$en {
 	@override String get playerScopeGlobal => '모든 곳';
 	@override String get playerScopeLibrary => '라이브러리별';
 	@override String get playerScopeTitle => '시리즈 또는 영화별';
-	@override String get exportDialogTitle => 'Plezy 설정 내보내기';
+	@override String get exportDialogTitle => 'Heisuca 설정 내보내기';
 }
 
 // Path: search
@@ -591,8 +582,6 @@ class _Translations$fileInfo$ko extends Translations$fileInfo$en {
 	@override String versionCounter({required Object index, required Object count}) => '버전 ${index} / ${count}';
 	@override String fileCounter({required Object index, required Object count}) => '파일 ${index} / ${count}';
 	@override String get noStreams => '서버에서 이 파일에 대한 스트림 정보를 보고하지 않았습니다.';
-	@override String get copyPath => '경로 복사';
-	@override String get pathCopied => '파일 경로가 복사되었습니다';
 	@override String get codec => '코덱';
 	@override String get codecTag => '코덱 태그';
 	@override String get resolution => '해상도';
@@ -652,7 +641,6 @@ class _Translations$fileInfo$ko extends Translations$fileInfo$en {
 	@override String get temporary => '임시';
 	@override String get timeBase => '시간 기준';
 	@override String get overallBitrate => '전체 비트레이트';
-	@override String get path => '경로';
 	@override String get fileName => '파일 이름';
 	@override String get size => '크기';
 	@override String get totalSize => '총 크기';
@@ -733,8 +721,8 @@ class _Translations$mediaMenu$ko extends Translations$mediaMenu$en {
 	@override String deleteSharedFileHeading({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ko'))(n,
 		other: '같은 파일에 저장된 다른 에피소드 ${n}개도 함께 삭제됩니다:',
 	);
-	@override String get deleteScopeUnverifiedProbeFailed => 'Plezy가 어떤 파일이 삭제될지 확인하지 못해 위 항목보다 더 많은 파일이 삭제될 수 있습니다. 취소하고 다시 시도하거나 그래도 삭제하세요.';
-	@override String get deleteScopeUnverifiedNoFileInfo => '서버가 이 항목의 파일 정보를 제공하지 않아 Plezy가 어떤 파일이 삭제될지 확인할 수 없습니다. 위 항목보다 더 많은 파일이 삭제될 수 있습니다.';
+	@override String get deleteScopeUnverifiedProbeFailed => 'Heisuca가 어떤 파일이 삭제될지 확인하지 못해 위 항목보다 더 많은 파일이 삭제될 수 있습니다. 취소하고 다시 시도하거나 그래도 삭제하세요.';
+	@override String get deleteScopeUnverifiedNoFileInfo => '서버가 이 항목의 파일 정보를 제공하지 않아 Heisuca가 어떤 파일이 삭제될지 확인할 수 없습니다. 위 항목보다 더 많은 파일이 삭제될 수 있습니다.';
 	@override String get mediaDeletedSuccessfully => '미디어 항목이 성공적으로 삭제되었습니다';
 	@override String get mediaFailedToDelete => '미디어 항목 삭제 실패';
 	@override String get rate => '평가';
@@ -1066,7 +1054,7 @@ class _Translations$profiles$ko extends Translations$profiles$en {
 	final TranslationsKo _root; // ignore: unused_field
 
 	// Translations
-	@override String get addPlezyProfile => 'Plezy 프로필 추가';
+	@override String get addHeisucaProfile => 'Heisuca 프로필 추가';
 	@override String get switchingProfile => '프로필 전환 중…';
 	@override String get deleteThisProfileTitle => '이 프로필을 삭제하시겠습니까?';
 	@override String deleteThisProfileMessage({required Object displayName}) => '${displayName}을(를) 제거합니다. 연결에는 영향이 없습니다.';
@@ -1148,7 +1136,7 @@ class _Translations$connections$ko extends Translations$connections$en {
 	@override String accessDeniedMany({required Object count}) => '${count}개 서버에서 이 계정의 접근을 거부했습니다';
 	@override String get signInAgain => '다시 로그인';
 	@override String editMediaBrowserTitle({required Object product}) => '${product} 연결 편집';
-	@override String editMediaBrowserIntro({required Object serverName}) => '${serverName}의 URL을 추가하거나 제거하세요. Plezy는 연결 가능한 URL 중 지연 시간이 가장 낮은 URL을 사용합니다.';
+	@override String editMediaBrowserIntro({required Object serverName}) => '${serverName}의 URL을 추가하거나 제거하세요. Heisuca는 연결 가능한 URL 중 지연 시간이 가장 낮은 URL을 사용합니다.';
 }
 
 // Path: accountPreferences
@@ -1162,7 +1150,7 @@ class _Translations$accountPreferences$ko extends Translations$accountPreference
 	@override String hubSubtitleSingle({required Object account}) => '${account}에 저장된 오디오, 자막 및 라이브러리 옵션';
 	@override String hubSubtitleMultiple({required Object count}) => '${count}개 계정에 저장된 오디오, 자막 및 라이브러리 옵션';
 	@override String get pickAccount => '각 계정은 고유한 기본 설정을 저장합니다. 편집할 계정을 선택하세요.';
-	@override String get storedOnAccount => '이 옵션은 계정 자체에 저장되므로 해당 계정으로 로그인한 모든 앱에서 사용됩니다 — 다른 기기의 Plezy를 포함합니다.';
+	@override String get storedOnAccount => '이 옵션은 계정 자체에 저장되므로 해당 계정으로 로그인한 모든 앱에서 사용됩니다 — 다른 기기의 Heisuca를 포함합니다.';
 	@override String get noAccounts => '구성할 계정이 없습니다';
 	@override String get noAccountsHint => 'Plex에 로그인하거나 Jellyfin 또는 Emby 서버에 연결하면 해당 계정에 저장된 기본 설정이 여기에 표시됩니다.';
 	@override String get unavailable => '이 계정에 연결할 수 없습니다';
@@ -1322,7 +1310,6 @@ class _Translations$about$ko extends Translations$about$en {
 	@override String get title => '소개';
 	@override String get openSourceLicenses => '오픈소스 라이선스';
 	@override String versionLabel({required Object version}) => '버전 ${version}';
-	@override String get appDescription => 'Flutter로 만든 아름다운 Plex, Jellyfin 및 Emby 클라이언트';
 	@override String get viewLicensesDescription => '타사 라이브러리 라이선스 보기';
 }
 
@@ -1371,9 +1358,9 @@ class _Translations$startup$ko extends Translations$startup$en {
 	final TranslationsKo _root; // ignore: unused_field
 
 	// Translations
-	@override String get failedTitle => 'Plezy를 시작하지 못했습니다';
+	@override String get failedTitle => 'Heisuca를 시작하지 못했습니다';
 	@override String get failedBody => '시작 중 문제가 발생했습니다. 아래 세부 정보에서 실패 원인을 확인할 수 있습니다.';
-	@override String get failedBodyRepairable => 'Plezy의 저장된 설정 파일이 손상되어 Plezy를 시작하려면 먼저 파일을 다시 만들어야 합니다. 재시도해도 해결되지 않습니다 — 저장소 복구를 선택하세요.';
+	@override String get failedBodyRepairable => 'Heisuca의 저장된 설정 파일이 손상되어 Heisuca를 시작하려면 먼저 파일을 다시 만들어야 합니다. 재시도해도 해결되지 않습니다 — 저장소 복구를 선택하세요.';
 	@override String get phaseLabel => '단계';
 	@override String get showDetails => '세부 정보 표시';
 	@override String get hideDetails => '세부 정보 숨기기';
@@ -1382,16 +1369,16 @@ class _Translations$startup$ko extends Translations$startup$en {
 	@override String get uploadDetails => '세부 정보 업로드';
 	@override String get repairStorage => '저장소 복구';
 	@override String get repairTitle => '저장된 데이터를 복구할까요?';
-	@override String get repairBodyCommon => 'Plezy의 설정 파일이 손상되어 읽을 수 없습니다. 복구하면 모든 설정이 기본값으로 재설정됩니다.';
+	@override String get repairBodyCommon => 'Heisuca의 설정 파일이 손상되어 읽을 수 없습니다. 복구하면 모든 설정이 기본값으로 재설정됩니다.';
 	@override String get repairBodyOneCredential => '저장된 로그인 정보 하나가 손상되어 읽을 수 없습니다. 복구하면 해당 로그인 정보만 제거되며 다른 설정은 그대로 유지됩니다.';
 	@override String get repairBodySignInsKept => '서버와 프로필은 로그인 상태가 유지됩니다.';
 	@override String get repairBodySignInsLost => '저장된 로그인 정보를 보호하는 키를 이 파일에서 복구할 수 없어 모든 서버와 프로필에 다시 로그인해야 합니다. 미디어 서버의 데이터에는 영향이 없습니다.';
-	@override String get repairBodySessionsUncertain => '트래커(MAL, AniList, Simkl, Trakt)와 Seerr는 별도로 저장되며 유지 여부가 확실하지 않습니다. Plezy가 유지된 항목을 정확히 알려줄 것입니다.';
+	@override String get repairBodySessionsUncertain => '트래커(MAL, AniList, Simkl, Trakt)와 Seerr는 별도로 저장되며 유지 여부가 확실하지 않습니다. Heisuca가 유지된 항목을 정확히 알려줄 것입니다.';
 	@override String get repairConfirm => '복구';
 	@override String get repairSucceeded => '저장소가 복구되었습니다';
 	@override String get repairNeedsRestart => '저장소가 복구되었습니다 — 재시작 필요';
-	@override String get restartRequiredBody => '데이터가 복구되었지만 Plezy는 이를 사용하려면 새로 시작해야 합니다. Plezy를 종료한 후 다시 열어주세요.';
-	@override String get quitPlezy => 'Plezy 종료';
+	@override String get restartRequiredBody => '데이터가 복구되었지만 Heisuca는 이를 사용하려면 새로 시작해야 합니다. Heisuca를 종료한 후 다시 열어주세요.';
+	@override String get quitHeisuca => 'Heisuca 종료';
 	@override String get repairFailed => '복구 실패';
 	@override String get repairKeptSignIns => '서버와 프로필이 계속 로그인 상태입니다.';
 	@override String get repairLostSignIns => '저장된 로그인 정보를 보호하는 키를 복구할 수 없었습니다. 모든 서버와 프로필에 다시 로그인해야 합니다.';
@@ -1400,7 +1387,7 @@ class _Translations$startup$ko extends Translations$startup$en {
 	@override String get backupWarning => '로그인 자격 증명이 포함되어 있습니다. 업로드하거나 공유하지 마세요.';
 	@override String get deleteBackup => '복사본 삭제';
 	@override String get backupDeleted => '복사본이 삭제되었습니다.';
-	@override String get previousFailureTitle => '지난번에 Plezy를 시작하지 못했습니다';
+	@override String get previousFailureTitle => '지난번에 Heisuca를 시작하지 못했습니다';
 }
 
 // Path: licenses
@@ -1672,90 +1659,6 @@ class _Translations$music$ko extends Translations$music$en {
 	@override String get instantMixEmpty => '인스턴트 믹스에 트랙이 없습니다';
 	@override String noAudioUrl({required Object track}) => '${track}에 사용할 수 있는 오디오 URL이 없습니다';
 	@override late final _Translations$music$discography$ko discography = _Translations$music$discography$ko._(_root);
-}
-
-// Path: watchTogether
-class _Translations$watchTogether$ko extends Translations$watchTogether$en {
-	_Translations$watchTogether$ko._(TranslationsKo root) : this._root = root, super.internal(root);
-
-	final TranslationsKo _root; // ignore: unused_field
-
-	// Translations
-	@override String get title => '함께 보기';
-	@override String get description => '친구 및 가족과 콘텐츠를 동시에 시청하세요';
-	@override String get createSession => '세션 생성';
-	@override String get creating => '생성 중...';
-	@override String get joinSession => '세션 참여';
-	@override String get joining => '참가 중...';
-	@override String get controlMode => '제어 모드';
-	@override String get controlModeQuestion => '누가 재생을 제어할 수 있나요?';
-	@override String get hostOnly => '호스트만';
-	@override String get anyone => '누구나';
-	@override String get hostingSession => '세션 호스팅 중';
-	@override String get inSession => '세션 중';
-	@override String get sessionCode => '세션 코드';
-	@override String get openSessionControls => '함께 보기 세션 제어 열기';
-	@override String get copySessionCode => '세션 코드 복사';
-	@override String get hostControlsPlayback => '호스트 재생 제어';
-	@override String get anyoneCanControl => '누구나 재생 제어 가능';
-	@override String get hostControls => '호스트 제어';
-	@override String get anyoneControls => '누구나 제어';
-	@override String get participants => '참가자';
-	@override String get host => '호스트';
-	@override String get hostBadge => '호스트';
-	@override String get youAreHost => '호스트입니다';
-	@override String get makeHost => '호스트로 지정';
-	@override String get makeHostQuestion => '호스트를 이전하시겠습니까?';
-	@override String makeHostConfirm({required Object name}) => '${name}님이 재생을 제어하고 모든 참가자의 세션을 이끕니다.';
-	@override String get transfer => '이전';
-	@override String hostChangedTo({required Object name}) => '${name}님이 호스트가 되었습니다';
-	@override String get youAreNowHost => '이제 호스트입니다';
-	@override String hostTransferFailed({required Object name}) => '${name}님을 호스트로 지정할 수 없습니다';
-	@override String get watchingWithOthers => '다른 사람과 함께 시청 중';
-	@override String get endSession => '세션 종료';
-	@override String get leaveSession => '세션 나가기';
-	@override String get endSessionQuestion => '세션을 종료하시겠습니까?';
-	@override String get leaveSessionQuestion => '세션에서 나가시겠습니까?';
-	@override String get endSessionConfirm => '모든 참가자의 세션이 종료됩니다.';
-	@override String get leaveSessionConfirm => '세션에서 나가게 됩니다.';
-	@override String get endSessionConfirmOverlay => '모든 참가자의 함께 보기 세션이 종료됩니다.';
-	@override String get leaveSessionConfirmOverlay => '함께 보기 세션의 연결이 끊어집니다.';
-	@override String get end => '종료';
-	@override String get leave => '나가기';
-	@override String get syncing => '동기화 중...';
-	@override String get joinWatchSession => '시청 세션에 참여';
-	@override String get enterCodeHint => '5자리 코드 입력';
-	@override String get pasteFromClipboard => '클립보드에서 붙여넣기';
-	@override String get pleaseEnterCode => '세션 코드를 입력하세요';
-	@override String get codeMustBe5Chars => '세션 코드는 반드시 5자리여야 합니다';
-	@override String get joinInstructions => '참여하려면 호스트의 세션 코드를 입력하세요.';
-	@override String get failedToCreate => '세션 생성 실패';
-	@override String get failedToJoin => '세션 참여 실패';
-	@override String get sessionCodeCopied => '세션 코드가 클립보드에 복사되었습니다';
-	@override String get relayUnreachable => '릴레이 서버에 연결할 수 없습니다. ISP 차단으로 함께 보기를 사용하지 못할 수 있습니다.';
-	@override String get reconnectingToHost => '호스트에 재연결 중...';
-	@override String get currentPlayback => '현재 재생';
-	@override String get joinCurrentPlayback => '현재 재생 참여';
-	@override String get joinCurrentPlaybackDescription => '호스트가 현재 시청 중인 콘텐츠로 이동합니다';
-	@override String get failedToOpenCurrentPlayback => '현재 재생을 열 수 없습니다';
-	@override String participantJoined({required Object name}) => '${name}님이 참여했습니다';
-	@override String participantLeft({required Object name}) => '${name}님이 나갔습니다';
-	@override String participantPaused({required Object name}) => '${name}님이 일시정지했습니다';
-	@override String participantResumed({required Object name}) => '${name}님이 재생했습니다';
-	@override String participantSeeked({required Object name}) => '${name}님이 재생 위치를 변경했습니다';
-	@override String participantChangedSpeed({required Object name, required Object speed}) => '${name}님이 속도를 ${speed}(으)로 설정했습니다';
-	@override String participantBuffering({required Object name}) => '${name}님이 버퍼링 중입니다';
-	@override String participantNeedsUpdate({required Object name}) => '${name}님이 이전 버전의 앱을 사용 중입니다 — 동기화를 사용할 수 없습니다';
-	@override String resumingWithout({required Object name}) => '${name}님 없이 재생을 재개합니다';
-	@override String get waitingForParticipants => '다른 참가자의 로딩을 기다리는 중...';
-	@override String waitingForName({required Object name}) => '${name}님을 기다리는 중...';
-	@override String get recentRooms => '최근 참여한 방';
-	@override String get renameRoom => '방 이름 변경';
-	@override String get removeRoom => '제거';
-	@override String get guestSwitchUnavailable => '전환할 수 없음 — 동기화 서버를 사용할 수 없습니다';
-	@override String get guestSwitchFailed => '전환할 수 없음 — 이 서버에서 콘텐츠를 찾을 수 없습니다';
-	@override String get defaultDisplayName => '사용자';
-	@override late final _Translations$watchTogether$errors$ko errors = _Translations$watchTogether$errors$ko._(_root);
 }
 
 // Path: downloads
@@ -2146,11 +2049,11 @@ class _Translations$trakt$ko extends Translations$trakt$en {
 	@override String get connected => '연결됨';
 	@override String connectedAs({required Object username}) => '@${username}(으)로 연결됨';
 	@override String get disconnectConfirm => 'Trakt 계정 연결을 끊으시겠습니까?';
-	@override String get disconnectConfirmBody => 'Plezy가 Trakt로 이벤트 전송을 중지합니다. 언제든 다시 연결할 수 있습니다.';
+	@override String get disconnectConfirmBody => 'Heisuca가 Trakt로 이벤트 전송을 중지합니다. 언제든 다시 연결할 수 있습니다.';
 	@override String get scrobble => '실시간 스크로블';
 	@override String get scrobbleDescription => '재생 중 재생, 일시정지, 정지 이벤트를 Trakt로 전송합니다.';
 	@override String get watchedSync => '시청 상태 동기화';
-	@override String get watchedSyncDescription => 'Plezy에서 시청 완료로 표시한 항목이 Trakt에도 시청 완료로 표시됩니다.';
+	@override String get watchedSyncDescription => 'Heisuca에서 시청 완료로 표시한 항목이 Trakt에도 시청 완료로 표시됩니다.';
 }
 
 // Path: seerr
@@ -2169,10 +2072,10 @@ class _Translations$seerr$ko extends Translations$seerr$en {
 	@override String get signInWithEmby => 'Emby로 로그인';
 	@override String get signInWithLocal => '로컬 계정 사용';
 	@override String get email => '이메일';
-	@override String get noSignInMethods => '이 Seerr 인스턴스에는 Plezy가 지원하는 로그인 방법이 없습니다.';
+	@override String get noSignInMethods => '이 Seerr 인스턴스에는 Heisuca가 지원하는 로그인 방법이 없습니다.';
 	@override String get instance => '인스턴스';
 	@override String get disconnectConfirm => 'Seerr 연결을 해제하시겠습니까?';
-	@override String get disconnectConfirmBody => 'Plezy가 이 Seerr 인스턴스를 삭제합니다. 언제든 다시 연결할 수 있습니다.';
+	@override String get disconnectConfirmBody => 'Heisuca가 이 Seerr 인스턴스를 삭제합니다. 언제든 다시 연결할 수 있습니다.';
 	@override String get request => '요청';
 	@override String get request4k => '4K로 요청';
 	@override String get seasons => '시즌';
@@ -2197,7 +2100,7 @@ class _Translations$seerr$ko extends Translations$seerr$en {
 	@override String get statusBlocklisted => '차단 목록에 있음';
 	@override String couldNotReach({required Object url, required Object error}) => '${url}에 연결할 수 없습니다: ${error}';
 	@override String noInstanceAtUrl({required Object url, required Object status}) => '${url}에 Seerr 인스턴스가 없습니다(HTTP ${status})';
-	@override String get behindAuthProxy => 'Seerr 대신 인증이 필요한 리버스 프록시(SSO 또는 HTTP 인증)가 응답했습니다. Plezy는 이를 통해 로그인할 수 없습니다. 이 앱에서 Seerr의 /api/v1 경로가 프록시를 우회하도록 하거나, Seerr에 직접 연결되는 주소를 사용하세요.';
+	@override String get behindAuthProxy => 'Seerr 대신 인증이 필요한 리버스 프록시(SSO 또는 HTTP 인증)가 응답했습니다. Heisuca는 이를 통해 로그인할 수 없습니다. 이 앱에서 Seerr의 /api/v1 경로가 프록시를 우회하도록 하거나, Seerr에 직접 연결되는 주소를 사용하세요.';
 	@override String get invalidUrl => 'https://seerr.example.com과 같은 서버 주소를 입력하세요';
 	@override String get quickConnectUnsupported => '이 Seerr 인스턴스는 Quick Connect를 지원하지 않습니다. Seerr 3.4 이상이 필요합니다.';
 	@override String get notInitialized => '이 Seerr 인스턴스는 최초 실행 설정을 완료하지 않았습니다';
@@ -2227,7 +2130,7 @@ class _Translations$services$ko extends Translations$services$en {
 	@override String get scrobble => '진행률 자동 추적';
 	@override String get scrobbleDescription => '에피소드나 영화를 시청하면 목록을 업데이트합니다.';
 	@override String disconnectConfirm({required Object service}) => '${service} 연결을 해제하시겠습니까?';
-	@override String disconnectConfirmBody({required Object service}) => 'Plezy가 ${service} 업데이트를 중지합니다. 언제든 다시 연결할 수 있습니다.';
+	@override String disconnectConfirmBody({required Object service}) => 'Heisuca가 ${service} 업데이트를 중지합니다. 언제든 다시 연결할 수 있습니다.';
 	@override String connectFailed({required Object service}) => '${service}에 연결할 수 없습니다. 다시 시도하세요.';
 	@override late final _Translations$services$names$ko names = _Translations$services$names$ko._(_root);
 	@override late final _Translations$services$deviceCode$ko deviceCode = _Translations$services$deviceCode$ko._(_root);
@@ -2789,20 +2692,6 @@ class _Translations$music$discography$ko extends Translations$music$discography$
 	@override String get compilations => '컴필레이션';
 }
 
-// Path: watchTogether.errors
-class _Translations$watchTogether$errors$ko extends Translations$watchTogether$errors$en {
-	_Translations$watchTogether$errors$ko._(TranslationsKo root) : this._root = root, super.internal(root);
-
-	final TranslationsKo _root; // ignore: unused_field
-
-	// Translations
-	@override String get timedOut => '릴레이 서버가 제시간에 응답하지 않았습니다';
-	@override String get connectionLost => '세션이 준비되기 전에 연결이 종료되었습니다';
-	@override String get invalidRelayResponse => '릴레이 서버가 예기치 않은 응답을 보냈습니다';
-	@override String get sessionEnded => '호스트가 세션을 종료했습니다';
-	@override String get sessionUnavailable => '이 세션을 재개할 수 없습니다. 방에 참여하거나 만들어 계속하세요.';
-}
-
 // Path: downloads.backgroundWarning
 class _Translations$downloads$backgroundWarning$ko extends Translations$downloads$backgroundWarning$en {
 	_Translations$downloads$backgroundWarning$ko._(TranslationsKo root) : this._root = root, super.internal(root);
@@ -2815,14 +2704,14 @@ class _Translations$downloads$backgroundWarning$ko extends Translations$download
 	@override String get bannerAction => '세부정보';
 	@override String get sheetTitle => '백그라운드 다운로드가 차단됨';
 	@override String get sheetTitleDegraded => '백그라운드 다운로드가 제한될 수 있음';
-	@override String get sheetIntro => 'Android가 Plezy의 안정적인 백그라운드 다운로드를 차단하고 있습니다.';
-	@override String get sheetIntroDegraded => '기기에서 Plezy가 백그라운드로 다운로드할 수 있는 시점을 제한하고 있습니다.';
-	@override String get reasonBackgroundRestricted => 'Plezy의 백그라운드 사용이 제한되어 있습니다. 배터리 또는 백그라운드 사용을 "제한 없음"으로 설정하세요.';
-	@override String get reasonStandbyRestricted => 'Android가 Plezy를 제한된 대기 상태로 전환했습니다. 배터리 사용량을 "제한 없음"으로 설정하세요.';
+	@override String get sheetIntro => 'Android가 Heisuca의 안정적인 백그라운드 다운로드를 차단하고 있습니다.';
+	@override String get sheetIntroDegraded => '기기에서 Heisuca가 백그라운드로 다운로드할 수 있는 시점을 제한하고 있습니다.';
+	@override String get reasonBackgroundRestricted => 'Heisuca의 백그라운드 사용이 제한되어 있습니다. 배터리 또는 백그라운드 사용을 "제한 없음"으로 설정하세요.';
+	@override String get reasonStandbyRestricted => 'Android가 Heisuca를 제한된 대기 상태로 전환했습니다. 배터리 사용량을 "제한 없음"으로 설정하세요.';
 	@override String get reasonDownloadChannelBlocked => '다운로드 알림이 꺼져 있어 진행 상황과 제어 기능을 사용하지 못할 수 있습니다.';
 	@override String get reasonNotificationsDisabled => '알림이 꺼져 있습니다. Android 13 이상에서는 장시간 백그라운드 다운로드에 알림이 필요합니다.';
 	@override String get reasonDataSaver => '데이터 절약 모드가 켜져 있어 모바일 데이터로 백그라운드 다운로드를 할 수 없습니다. Wi-Fi에서는 계속 다운로드할 수 있습니다.';
-	@override String get reasonOemUnknown => 'Plezy가 백그라운드에 있을 때 다운로드가 반복해서 중지되었습니다. Plezy의 배터리 또는 백그라운드 사용 설정을 확인하세요.';
+	@override String get reasonOemUnknown => 'Heisuca가 백그라운드에 있을 때 다운로드가 반복해서 중지되었습니다. Heisuca의 배터리 또는 백그라운드 사용 설정을 확인하세요.';
 	@override String get openSettings => '설정 열기';
 	@override String get stillNotWorking => '기기별 도움말';
 	@override String get stillNotWorkingDescription => '기기에 맞는 단계를 확인하세요. 문제가 계속되면 설정 › 로그 보기에서 로그를 보내 주세요.';
@@ -2876,19 +2765,19 @@ class _Translations$companionRemote$pairing$ko extends Translations$companionRem
 	final TranslationsKo _root; // ignore: unused_field
 
 	// Translations
-	@override String get discoveryDescription => '같은 Plex 계정의 Plezy 기기가 여기에 표시됩니다';
+	@override String get discoveryDescription => '같은 Plex 계정의 Heisuca 기기가 여기에 표시됩니다';
 	@override String get hostAddressHint => '192.168.1.100:48632';
 	@override String get connecting => '연결 중...';
 	@override String get searchingForDevices => '기기 검색 중...';
 	@override String get noDevicesFound => '네트워크에서 기기를 찾을 수 없습니다';
-	@override String get noDevicesHint => '데스크톱에서 Plezy를 열고 같은 Wi-Fi를 사용하세요';
+	@override String get noDevicesHint => '데스크톱에서 Heisuca를 열고 같은 Wi-Fi를 사용하세요';
 	@override String get availableDevices => '사용 가능한 기기';
 	@override String get manualConnection => '수동 연결';
 	@override String get cryptoInitFailed => '보안 연결을 시작할 수 없습니다. 먼저 Plex에 로그인하세요.';
 	@override String get validationHostRequired => '호스트 주소를 입력하세요';
 	@override String get validationHostFormat => '형식은 IP:포트여야 합니다 (예: 192.168.1.100:48632)';
 	@override String get connectionTimedOut => '연결 시간이 초과되었습니다. 두 기기에서 같은 네트워크를 사용하세요.';
-	@override String get sessionNotFound => '기기를 찾을 수 없습니다. 호스트에서 Plezy가 실행 중인지 확인하세요.';
+	@override String get sessionNotFound => '기기를 찾을 수 없습니다. 호스트에서 Heisuca가 실행 중인지 확인하세요.';
 	@override String get authFailed => '인증에 실패했습니다. 두 기기 모두 같은 Plex 계정이 필요합니다.';
 	@override String failedToConnect({required Object error}) => '연결 실패: ${error}';
 }
@@ -2967,7 +2856,7 @@ class _Translations$services$deviceCode$ko extends Translations$services$deviceC
 	final TranslationsKo _root; // ignore: unused_field
 
 	// Translations
-	@override String title({required Object service}) => '${service}에서 Plezy 활성화';
+	@override String title({required Object service}) => '${service}에서 Heisuca 활성화';
 	@override String get instructions => 'QR 코드를 스캔하거나 아래 주소로 이동하여 이 코드를 입력하세요:';
 	@override String openToActivate({required Object service}) => '활성화하려면 ${service} 열기';
 	@override String get copyCode => '활성화 코드 복사';
@@ -3043,7 +2932,7 @@ extension on TranslationsKo {
 			'auth.quickConnectWaiting' => '승인 대기 중…',
 			'auth.quickConnectCancel' => '취소',
 			'auth.quickConnectExpired' => 'Quick Connect가 만료되었습니다. 다시 시도하세요.',
-			'auth.localDataRecoveryRequired' => 'Plezy에서 로컬 로그인 정보와 대기 중인 재생 데이터를 안전하게 복구하지 못했습니다. 다시 로그인해 주세요.',
+			'auth.localDataRecoveryRequired' => 'Heisuca에서 로컬 로그인 정보와 대기 중인 재생 데이터를 안전하게 복구하지 못했습니다. 다시 로그인해 주세요.',
 			'auth.pinCheckRejected' => 'Plex PIN 확인이 거부되었습니다',
 			'common.cancel' => '취소',
 			'common.save' => '저장',
@@ -3130,7 +3019,7 @@ extension on TranslationsKo {
 			'update.latestVersion' => '최신 버전을 사용 중입니다',
 			'update.checkFailed' => '업데이트 확인 실패',
 			'settings.title' => '설정',
-			'settings.supportDeveloper' => 'Plezy 후원하기',
+			'settings.supportDeveloper' => 'Heisuca 후원하기',
 			'settings.supportDeveloperDescription' => 'Liberapay로 후원하여 개발 지원',
 			'settings.language' => '언어',
 			'settings.theme' => '테마',
@@ -3248,12 +3137,6 @@ extension on TranslationsKo {
 			'settings.keyboardShortcutsDescription' => '키보드 단축키를 사용자 지정합니다',
 			'settings.videoPlayerNavigation' => '비디오 플레이어 탐색',
 			'settings.videoPlayerNavigationDescription' => '방향 키로 비디오 플레이어 컨트롤을 탐색합니다',
-			'settings.watchTogetherRelay' => '함께 보기 릴레이',
-			'settings.watchTogetherRelayDescription' => '사용자 지정 릴레이를 설정합니다. 모두 같은 서버를 사용해야 합니다.',
-			'settings.watchTogetherRelayHint' => 'https://my-relay.example.com',
-			'settings.watchTogetherRelayInvalid' => '올바른 HTTP 또는 HTTPS 릴레이 기본 URL을 입력하세요.',
-			'settings.crashReporting' => '충돌 보고',
-			'settings.crashReportingDescription' => '앱 개선을 위해 충돌 보고서 전송',
 			'settings.debugLogging' => '디버그 로깅',
 			'settings.debugLoggingDescription' => '문제 해결을 위해 상세 로깅 활성화',
 			'settings.viewLogs' => '로그 보기',
@@ -3272,7 +3155,7 @@ extension on TranslationsKo {
 			'settings.importSettingsDescription' => '파일에서 기본 설정 복원',
 			'settings.importSettingsConfirm' => '현재 설정을 대체합니다. 계속하시겠습니까?',
 			'settings.importSettingsSuccess' => '설정 가져오기 완료',
-			'settings.importSettingsInvalidFile' => '유효한 Plezy 설정 내보내기 파일이 아닙니다',
+			'settings.importSettingsInvalidFile' => '유효한 Heisuca 설정 내보내기 파일이 아닙니다',
 			'settings.importSettingsNoUser' => '설정을 가져오기 전에 로그인하세요',
 			'settings.shortcutsReset' => '단축키가 기본값으로 재설정되었습니다',
 			'settings.about' => '정보',
@@ -3334,8 +3217,6 @@ extension on TranslationsKo {
 			'settings.maxVolume' => '최대 볼륨',
 			'settings.maxVolumeDescription' => '음량이 작은 콘텐츠를 위해 100% 이상의 볼륨을 허용합니다',
 			'settings.maxVolumePercent' => ({required Object percent}) => '${percent}%',
-			'settings.discordRichPresence' => 'Discord Rich Presence',
-			'settings.discordRichPresenceDescription' => 'Discord에서 시청 중인 콘텐츠 표시',
 			'settings.services' => '서비스',
 			'settings.servicesDescription' => 'Trakt, MyAnimeList, Seerr 등 연결',
 			'settings.manageLibrariesDescription' => '라이브러리 순서를 변경하거나 숨깁니다',
@@ -3393,7 +3274,7 @@ extension on TranslationsKo {
 			'settings.forceTvMode' => 'TV 모드 강제 사용',
 			'settings.forceTvModeDescription' => 'TV 레이아웃을 강제합니다. 자동 감지되지 않는 기기용입니다. 재시작이 필요합니다.',
 			'settings.startInFullscreen' => '전체 화면으로 시작',
-			'settings.startInFullscreenDescription' => '실행 시 Plezy를 전체 화면 모드로 엽니다',
+			'settings.startInFullscreenDescription' => '실행 시 Heisuca를 전체 화면 모드로 엽니다',
 			'settings.exitFullscreenOnPlayerClose' => '플레이어를 닫을 때 전체 화면 종료',
 			'settings.exitFullscreenOnPlayerCloseDescription' => '비디오 플레이어를 닫을 때 자동으로 전체 화면을 종료합니다',
 			'settings.autoHidePerformanceOverlay' => '성능 오버레이 자동 숨기기',
@@ -3442,7 +3323,7 @@ extension on TranslationsKo {
 			'settings.playerScopeGlobal' => '모든 곳',
 			'settings.playerScopeLibrary' => '라이브러리별',
 			'settings.playerScopeTitle' => '시리즈 또는 영화별',
-			'settings.exportDialogTitle' => 'Plezy 설정 내보내기',
+			'settings.exportDialogTitle' => 'Heisuca 설정 내보내기',
 			'search.hint' => '영화, 시리즈, 음악 등을 검색하세요...',
 			'search.tryDifferentTerm' => '다른 검색어를 시도해 보세요',
 			'search.searchYourMedia' => '미디어 검색',
@@ -3492,8 +3373,6 @@ extension on TranslationsKo {
 			'fileInfo.versionCounter' => ({required Object index, required Object count}) => '버전 ${index} / ${count}',
 			'fileInfo.fileCounter' => ({required Object index, required Object count}) => '파일 ${index} / ${count}',
 			'fileInfo.noStreams' => '서버에서 이 파일에 대한 스트림 정보를 보고하지 않았습니다.',
-			'fileInfo.copyPath' => '경로 복사',
-			'fileInfo.pathCopied' => '파일 경로가 복사되었습니다',
 			'fileInfo.codec' => '코덱',
 			'fileInfo.codecTag' => '코덱 태그',
 			'fileInfo.resolution' => '해상도',
@@ -3539,8 +3418,6 @@ extension on TranslationsKo {
 			'fileInfo.streamId' => '스트림 ID',
 			'fileInfo.language' => '언어',
 			'fileInfo.languageCode' => '언어 코드',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.streamTitle' => '트랙 제목',
 			'fileInfo.channels' => '채널',
 			'fileInfo.sampleRate' => '샘플 레이트',
@@ -3551,11 +3428,12 @@ extension on TranslationsKo {
 			'fileInfo.matchScore' => '일치 점수',
 			'fileInfo.externalDelivery' => '별도 제공 가능',
 			'fileInfo.sidecarPath' => '사이드카 경로',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.sourceStream' => '복사 출처',
 			'fileInfo.temporary' => '임시',
 			'fileInfo.timeBase' => '시간 기준',
 			'fileInfo.overallBitrate' => '전체 비트레이트',
-			'fileInfo.path' => '경로',
 			'fileInfo.fileName' => '파일 이름',
 			'fileInfo.size' => '크기',
 			'fileInfo.totalSize' => '총 크기',
@@ -3621,8 +3499,8 @@ extension on TranslationsKo {
 			'mediaMenu.deleteEpisodeCountWarning' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ko'))(n, other: '포함된 에피소드 ${n}개와 해당 파일이 모두 삭제됩니다.', ), 
 			'mediaMenu.deleteMultiPartWarning' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ko'))(n, other: '이 항목은 파일 ${n}개에 걸쳐 저장되어 있으며, 모든 파일이 삭제됩니다.', ), 
 			'mediaMenu.deleteSharedFileHeading' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ko'))(n, other: '같은 파일에 저장된 다른 에피소드 ${n}개도 함께 삭제됩니다:', ), 
-			'mediaMenu.deleteScopeUnverifiedProbeFailed' => 'Plezy가 어떤 파일이 삭제될지 확인하지 못해 위 항목보다 더 많은 파일이 삭제될 수 있습니다. 취소하고 다시 시도하거나 그래도 삭제하세요.',
-			'mediaMenu.deleteScopeUnverifiedNoFileInfo' => '서버가 이 항목의 파일 정보를 제공하지 않아 Plezy가 어떤 파일이 삭제될지 확인할 수 없습니다. 위 항목보다 더 많은 파일이 삭제될 수 있습니다.',
+			'mediaMenu.deleteScopeUnverifiedProbeFailed' => 'Heisuca가 어떤 파일이 삭제될지 확인하지 못해 위 항목보다 더 많은 파일이 삭제될 수 있습니다. 취소하고 다시 시도하거나 그래도 삭제하세요.',
+			'mediaMenu.deleteScopeUnverifiedNoFileInfo' => '서버가 이 항목의 파일 정보를 제공하지 않아 Heisuca가 어떤 파일이 삭제될지 확인할 수 없습니다. 위 항목보다 더 많은 파일이 삭제될 수 있습니다.',
 			'mediaMenu.mediaDeletedSuccessfully' => '미디어 항목이 성공적으로 삭제되었습니다',
 			'mediaMenu.mediaFailedToDelete' => '미디어 항목 삭제 실패',
 			'mediaMenu.rate' => '평가',
@@ -3869,7 +3747,7 @@ extension on TranslationsKo {
 			'mpvConfig.removeLine' => '줄 제거',
 			'mpvConfig.embeddedVoHint' => 'Linux에서는 vo, gpu-context, gpu-api가 무시됩니다. 내장 동영상은 항상 비디오 평면에서 vo=libmpv로 렌더링되며, gpu-next(ArtCNN 같은 컴퓨트 셰이더에 필요)는 내장 방식으로 실행할 수 없습니다.',
 			'dialog.confirmAction' => '작업 확인',
-			'profiles.addPlezyProfile' => 'Plezy 프로필 추가',
+			'profiles.addHeisucaProfile' => 'Heisuca 프로필 추가',
 			'profiles.switchingProfile' => '프로필 전환 중…',
 			'profiles.deleteThisProfileTitle' => '이 프로필을 삭제하시겠습니까?',
 			'profiles.deleteThisProfileMessage' => ({required Object displayName}) => '${displayName}을(를) 제거합니다. 연결에는 영향이 없습니다.',
@@ -3942,12 +3820,12 @@ extension on TranslationsKo {
 			'connections.accessDeniedMany' => ({required Object count}) => '${count}개 서버에서 이 계정의 접근을 거부했습니다',
 			'connections.signInAgain' => '다시 로그인',
 			'connections.editMediaBrowserTitle' => ({required Object product}) => '${product} 연결 편집',
-			'connections.editMediaBrowserIntro' => ({required Object serverName}) => '${serverName}의 URL을 추가하거나 제거하세요. Plezy는 연결 가능한 URL 중 지연 시간이 가장 낮은 URL을 사용합니다.',
+			'connections.editMediaBrowserIntro' => ({required Object serverName}) => '${serverName}의 URL을 추가하거나 제거하세요. Heisuca는 연결 가능한 URL 중 지연 시간이 가장 낮은 URL을 사용합니다.',
 			'accountPreferences.sectionTitle' => '계정 기본 설정',
 			'accountPreferences.hubSubtitleSingle' => ({required Object account}) => '${account}에 저장된 오디오, 자막 및 라이브러리 옵션',
 			'accountPreferences.hubSubtitleMultiple' => ({required Object count}) => '${count}개 계정에 저장된 오디오, 자막 및 라이브러리 옵션',
 			'accountPreferences.pickAccount' => '각 계정은 고유한 기본 설정을 저장합니다. 편집할 계정을 선택하세요.',
-			'accountPreferences.storedOnAccount' => '이 옵션은 계정 자체에 저장되므로 해당 계정으로 로그인한 모든 앱에서 사용됩니다 — 다른 기기의 Plezy를 포함합니다.',
+			'accountPreferences.storedOnAccount' => '이 옵션은 계정 자체에 저장되므로 해당 계정으로 로그인한 모든 앱에서 사용됩니다 — 다른 기기의 Heisuca를 포함합니다.',
 			'accountPreferences.noAccounts' => '구성할 계정이 없습니다',
 			'accountPreferences.noAccountsHint' => 'Plex에 로그인하거나 Jellyfin 또는 Emby 서버에 연결하면 해당 계정에 저장된 기본 설정이 여기에 표시됩니다.',
 			'accountPreferences.unavailable' => '이 계정에 연결할 수 없습니다',
@@ -4053,8 +3931,6 @@ extension on TranslationsKo {
 			'libraries.refreshMetadata' => '메타데이터 새로 고침',
 			'libraries.emptyTrash' => '휴지통 비우기',
 			'libraries.emptyingTrash' => ({required Object title}) => '「${title}」의 휴지통을 비우고 있습니다...',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.trashEmptied' => ({required Object title}) => '「${title}」의 휴지통을 비웠습니다',
 			'libraries.failedToEmptyTrash' => ({required Object error}) => '휴지통 비우기 실패: ${error}',
 			'libraries.analyzing' => ({required Object title}) => '"${title}" 분석 중...',
@@ -4066,6 +3942,8 @@ extension on TranslationsKo {
 			'libraries.thisLibraryIsEmpty' => '이 미디어 라이브러리는 비어 있습니다',
 			'libraries.noItemsMatchFilters' => '활성화된 필터와 일치하는 항목이 없습니다',
 			'libraries.resetFilters' => '필터 초기화',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.all' => '전체',
 			'libraries.clearAll' => '모두 삭제',
 			'libraries.scanLibraryConfirm' => ({required Object title}) => '「${title}」을(를) 스캔하시겠습니까?',
@@ -4134,7 +4012,6 @@ extension on TranslationsKo {
 			'about.title' => '소개',
 			'about.openSourceLicenses' => '오픈소스 라이선스',
 			'about.versionLabel' => ({required Object version}) => '버전 ${version}',
-			'about.appDescription' => 'Flutter로 만든 아름다운 Plex, Jellyfin 및 Emby 클라이언트',
 			'about.viewLicensesDescription' => '타사 라이브러리 라이선스 보기',
 			'serverSelection.noServersFoundForAccount' => ({required Object username, required Object email}) => '${username} (${email})의 서버를 찾을 수 없습니다.',
 			'serverSelection.failedToLoadServers' => ({required Object error}) => '서버를 로드할 수 없습니다: ${error}',
@@ -4147,9 +4024,9 @@ extension on TranslationsKo {
 			'logs.clearLogs' => '로그 지우기',
 			'logs.copyLogs' => '로그 복사',
 			'logs.uploadLogs' => '로그 업로드',
-			'startup.failedTitle' => 'Plezy를 시작하지 못했습니다',
+			'startup.failedTitle' => 'Heisuca를 시작하지 못했습니다',
 			'startup.failedBody' => '시작 중 문제가 발생했습니다. 아래 세부 정보에서 실패 원인을 확인할 수 있습니다.',
-			'startup.failedBodyRepairable' => 'Plezy의 저장된 설정 파일이 손상되어 Plezy를 시작하려면 먼저 파일을 다시 만들어야 합니다. 재시도해도 해결되지 않습니다 — 저장소 복구를 선택하세요.',
+			'startup.failedBodyRepairable' => 'Heisuca의 저장된 설정 파일이 손상되어 Heisuca를 시작하려면 먼저 파일을 다시 만들어야 합니다. 재시도해도 해결되지 않습니다 — 저장소 복구를 선택하세요.',
 			'startup.phaseLabel' => '단계',
 			'startup.showDetails' => '세부 정보 표시',
 			'startup.hideDetails' => '세부 정보 숨기기',
@@ -4158,16 +4035,16 @@ extension on TranslationsKo {
 			'startup.uploadDetails' => '세부 정보 업로드',
 			'startup.repairStorage' => '저장소 복구',
 			'startup.repairTitle' => '저장된 데이터를 복구할까요?',
-			'startup.repairBodyCommon' => 'Plezy의 설정 파일이 손상되어 읽을 수 없습니다. 복구하면 모든 설정이 기본값으로 재설정됩니다.',
+			'startup.repairBodyCommon' => 'Heisuca의 설정 파일이 손상되어 읽을 수 없습니다. 복구하면 모든 설정이 기본값으로 재설정됩니다.',
 			'startup.repairBodyOneCredential' => '저장된 로그인 정보 하나가 손상되어 읽을 수 없습니다. 복구하면 해당 로그인 정보만 제거되며 다른 설정은 그대로 유지됩니다.',
 			'startup.repairBodySignInsKept' => '서버와 프로필은 로그인 상태가 유지됩니다.',
 			'startup.repairBodySignInsLost' => '저장된 로그인 정보를 보호하는 키를 이 파일에서 복구할 수 없어 모든 서버와 프로필에 다시 로그인해야 합니다. 미디어 서버의 데이터에는 영향이 없습니다.',
-			'startup.repairBodySessionsUncertain' => '트래커(MAL, AniList, Simkl, Trakt)와 Seerr는 별도로 저장되며 유지 여부가 확실하지 않습니다. Plezy가 유지된 항목을 정확히 알려줄 것입니다.',
+			'startup.repairBodySessionsUncertain' => '트래커(MAL, AniList, Simkl, Trakt)와 Seerr는 별도로 저장되며 유지 여부가 확실하지 않습니다. Heisuca가 유지된 항목을 정확히 알려줄 것입니다.',
 			'startup.repairConfirm' => '복구',
 			'startup.repairSucceeded' => '저장소가 복구되었습니다',
 			'startup.repairNeedsRestart' => '저장소가 복구되었습니다 — 재시작 필요',
-			'startup.restartRequiredBody' => '데이터가 복구되었지만 Plezy는 이를 사용하려면 새로 시작해야 합니다. Plezy를 종료한 후 다시 열어주세요.',
-			'startup.quitPlezy' => 'Plezy 종료',
+			'startup.restartRequiredBody' => '데이터가 복구되었지만 Heisuca는 이를 사용하려면 새로 시작해야 합니다. Heisuca를 종료한 후 다시 열어주세요.',
+			'startup.quitHeisuca' => 'Heisuca 종료',
 			'startup.repairFailed' => '복구 실패',
 			'startup.repairKeptSignIns' => '서버와 프로필이 계속 로그인 상태입니다.',
 			'startup.repairLostSignIns' => '저장된 로그인 정보를 보호하는 키를 복구할 수 없었습니다. 모든 서버와 프로필에 다시 로그인해야 합니다.',
@@ -4176,7 +4053,7 @@ extension on TranslationsKo {
 			'startup.backupWarning' => '로그인 자격 증명이 포함되어 있습니다. 업로드하거나 공유하지 마세요.',
 			'startup.deleteBackup' => '복사본 삭제',
 			'startup.backupDeleted' => '복사본이 삭제되었습니다.',
-			'startup.previousFailureTitle' => '지난번에 Plezy를 시작하지 못했습니다',
+			'startup.previousFailureTitle' => '지난번에 Heisuca를 시작하지 못했습니다',
 			'licenses.relatedPackages' => '관련 소프트웨어 패키지',
 			'licenses.license' => '라이선스',
 			'licenses.licenseNumber' => ({required Object number}) => '라이선스 ${number}',
@@ -4495,87 +4372,6 @@ extension on TranslationsKo {
 			'music.discography.singlesAndEps' => '싱글 및 EP',
 			'music.discography.live' => '라이브',
 			'music.discography.compilations' => '컴필레이션',
-			'watchTogether.title' => '함께 보기',
-			'watchTogether.description' => '친구 및 가족과 콘텐츠를 동시에 시청하세요',
-			'watchTogether.createSession' => '세션 생성',
-			'watchTogether.creating' => '생성 중...',
-			'watchTogether.joinSession' => '세션 참여',
-			'watchTogether.joining' => '참가 중...',
-			'watchTogether.controlMode' => '제어 모드',
-			'watchTogether.controlModeQuestion' => '누가 재생을 제어할 수 있나요?',
-			'watchTogether.hostOnly' => '호스트만',
-			'watchTogether.anyone' => '누구나',
-			'watchTogether.hostingSession' => '세션 호스팅 중',
-			'watchTogether.inSession' => '세션 중',
-			'watchTogether.sessionCode' => '세션 코드',
-			'watchTogether.openSessionControls' => '함께 보기 세션 제어 열기',
-			'watchTogether.copySessionCode' => '세션 코드 복사',
-			'watchTogether.hostControlsPlayback' => '호스트 재생 제어',
-			'watchTogether.anyoneCanControl' => '누구나 재생 제어 가능',
-			'watchTogether.hostControls' => '호스트 제어',
-			'watchTogether.anyoneControls' => '누구나 제어',
-			'watchTogether.participants' => '참가자',
-			'watchTogether.host' => '호스트',
-			'watchTogether.hostBadge' => '호스트',
-			'watchTogether.youAreHost' => '호스트입니다',
-			'watchTogether.makeHost' => '호스트로 지정',
-			'watchTogether.makeHostQuestion' => '호스트를 이전하시겠습니까?',
-			'watchTogether.makeHostConfirm' => ({required Object name}) => '${name}님이 재생을 제어하고 모든 참가자의 세션을 이끕니다.',
-			'watchTogether.transfer' => '이전',
-			'watchTogether.hostChangedTo' => ({required Object name}) => '${name}님이 호스트가 되었습니다',
-			'watchTogether.youAreNowHost' => '이제 호스트입니다',
-			'watchTogether.hostTransferFailed' => ({required Object name}) => '${name}님을 호스트로 지정할 수 없습니다',
-			'watchTogether.watchingWithOthers' => '다른 사람과 함께 시청 중',
-			'watchTogether.endSession' => '세션 종료',
-			'watchTogether.leaveSession' => '세션 나가기',
-			'watchTogether.endSessionQuestion' => '세션을 종료하시겠습니까?',
-			'watchTogether.leaveSessionQuestion' => '세션에서 나가시겠습니까?',
-			'watchTogether.endSessionConfirm' => '모든 참가자의 세션이 종료됩니다.',
-			'watchTogether.leaveSessionConfirm' => '세션에서 나가게 됩니다.',
-			'watchTogether.endSessionConfirmOverlay' => '모든 참가자의 함께 보기 세션이 종료됩니다.',
-			'watchTogether.leaveSessionConfirmOverlay' => '함께 보기 세션의 연결이 끊어집니다.',
-			'watchTogether.end' => '종료',
-			'watchTogether.leave' => '나가기',
-			'watchTogether.syncing' => '동기화 중...',
-			'watchTogether.joinWatchSession' => '시청 세션에 참여',
-			'watchTogether.enterCodeHint' => '5자리 코드 입력',
-			'watchTogether.pasteFromClipboard' => '클립보드에서 붙여넣기',
-			'watchTogether.pleaseEnterCode' => '세션 코드를 입력하세요',
-			'watchTogether.codeMustBe5Chars' => '세션 코드는 반드시 5자리여야 합니다',
-			'watchTogether.joinInstructions' => '참여하려면 호스트의 세션 코드를 입력하세요.',
-			'watchTogether.failedToCreate' => '세션 생성 실패',
-			'watchTogether.failedToJoin' => '세션 참여 실패',
-			'watchTogether.sessionCodeCopied' => '세션 코드가 클립보드에 복사되었습니다',
-			'watchTogether.relayUnreachable' => '릴레이 서버에 연결할 수 없습니다. ISP 차단으로 함께 보기를 사용하지 못할 수 있습니다.',
-			'watchTogether.reconnectingToHost' => '호스트에 재연결 중...',
-			'watchTogether.currentPlayback' => '현재 재생',
-			'watchTogether.joinCurrentPlayback' => '현재 재생 참여',
-			'watchTogether.joinCurrentPlaybackDescription' => '호스트가 현재 시청 중인 콘텐츠로 이동합니다',
-			'watchTogether.failedToOpenCurrentPlayback' => '현재 재생을 열 수 없습니다',
-			'watchTogether.participantJoined' => ({required Object name}) => '${name}님이 참여했습니다',
-			'watchTogether.participantLeft' => ({required Object name}) => '${name}님이 나갔습니다',
-			'watchTogether.participantPaused' => ({required Object name}) => '${name}님이 일시정지했습니다',
-			'watchTogether.participantResumed' => ({required Object name}) => '${name}님이 재생했습니다',
-			'watchTogether.participantSeeked' => ({required Object name}) => '${name}님이 재생 위치를 변경했습니다',
-			'watchTogether.participantChangedSpeed' => ({required Object name, required Object speed}) => '${name}님이 속도를 ${speed}(으)로 설정했습니다',
-			'watchTogether.participantBuffering' => ({required Object name}) => '${name}님이 버퍼링 중입니다',
-			'watchTogether.participantNeedsUpdate' => ({required Object name}) => '${name}님이 이전 버전의 앱을 사용 중입니다 — 동기화를 사용할 수 없습니다',
-			'watchTogether.resumingWithout' => ({required Object name}) => '${name}님 없이 재생을 재개합니다',
-			'watchTogether.waitingForParticipants' => '다른 참가자의 로딩을 기다리는 중...',
-			'watchTogether.waitingForName' => ({required Object name}) => '${name}님을 기다리는 중...',
-			'watchTogether.recentRooms' => '최근 참여한 방',
-			'watchTogether.renameRoom' => '방 이름 변경',
-			'watchTogether.removeRoom' => '제거',
-			'watchTogether.guestSwitchUnavailable' => '전환할 수 없음 — 동기화 서버를 사용할 수 없습니다',
-			_ => null,
-		} ?? switch (path) {
-			'watchTogether.guestSwitchFailed' => '전환할 수 없음 — 이 서버에서 콘텐츠를 찾을 수 없습니다',
-			'watchTogether.defaultDisplayName' => '사용자',
-			'watchTogether.errors.timedOut' => '릴레이 서버가 제시간에 응답하지 않았습니다',
-			'watchTogether.errors.connectionLost' => '세션이 준비되기 전에 연결이 종료되었습니다',
-			'watchTogether.errors.invalidRelayResponse' => '릴레이 서버가 예기치 않은 응답을 보냈습니다',
-			'watchTogether.errors.sessionEnded' => '호스트가 세션을 종료했습니다',
-			'watchTogether.errors.sessionUnavailable' => '이 세션을 재개할 수 없습니다. 방에 참여하거나 만들어 계속하세요.',
 			'downloads.title' => '다운로드',
 			'downloads.manage' => '관리',
 			'downloads.tvShows' => 'TV 프로그램',
@@ -4657,14 +4453,16 @@ extension on TranslationsKo {
 			'downloads.backgroundWarning.bannerAction' => '세부정보',
 			'downloads.backgroundWarning.sheetTitle' => '백그라운드 다운로드가 차단됨',
 			'downloads.backgroundWarning.sheetTitleDegraded' => '백그라운드 다운로드가 제한될 수 있음',
-			'downloads.backgroundWarning.sheetIntro' => 'Android가 Plezy의 안정적인 백그라운드 다운로드를 차단하고 있습니다.',
-			'downloads.backgroundWarning.sheetIntroDegraded' => '기기에서 Plezy가 백그라운드로 다운로드할 수 있는 시점을 제한하고 있습니다.',
-			'downloads.backgroundWarning.reasonBackgroundRestricted' => 'Plezy의 백그라운드 사용이 제한되어 있습니다. 배터리 또는 백그라운드 사용을 "제한 없음"으로 설정하세요.',
-			'downloads.backgroundWarning.reasonStandbyRestricted' => 'Android가 Plezy를 제한된 대기 상태로 전환했습니다. 배터리 사용량을 "제한 없음"으로 설정하세요.',
+			'downloads.backgroundWarning.sheetIntro' => 'Android가 Heisuca의 안정적인 백그라운드 다운로드를 차단하고 있습니다.',
+			'downloads.backgroundWarning.sheetIntroDegraded' => '기기에서 Heisuca가 백그라운드로 다운로드할 수 있는 시점을 제한하고 있습니다.',
+			'downloads.backgroundWarning.reasonBackgroundRestricted' => 'Heisuca의 백그라운드 사용이 제한되어 있습니다. 배터리 또는 백그라운드 사용을 "제한 없음"으로 설정하세요.',
+			_ => null,
+		} ?? switch (path) {
+			'downloads.backgroundWarning.reasonStandbyRestricted' => 'Android가 Heisuca를 제한된 대기 상태로 전환했습니다. 배터리 사용량을 "제한 없음"으로 설정하세요.',
 			'downloads.backgroundWarning.reasonDownloadChannelBlocked' => '다운로드 알림이 꺼져 있어 진행 상황과 제어 기능을 사용하지 못할 수 있습니다.',
 			'downloads.backgroundWarning.reasonNotificationsDisabled' => '알림이 꺼져 있습니다. Android 13 이상에서는 장시간 백그라운드 다운로드에 알림이 필요합니다.',
 			'downloads.backgroundWarning.reasonDataSaver' => '데이터 절약 모드가 켜져 있어 모바일 데이터로 백그라운드 다운로드를 할 수 없습니다. Wi-Fi에서는 계속 다운로드할 수 있습니다.',
-			'downloads.backgroundWarning.reasonOemUnknown' => 'Plezy가 백그라운드에 있을 때 다운로드가 반복해서 중지되었습니다. Plezy의 배터리 또는 백그라운드 사용 설정을 확인하세요.',
+			'downloads.backgroundWarning.reasonOemUnknown' => 'Heisuca가 백그라운드에 있을 때 다운로드가 반복해서 중지되었습니다. Heisuca의 배터리 또는 백그라운드 사용 설정을 확인하세요.',
 			'downloads.backgroundWarning.openSettings' => '설정 열기',
 			'downloads.backgroundWarning.stillNotWorking' => '기기별 도움말',
 			'downloads.backgroundWarning.stillNotWorkingDescription' => '기기에 맞는 단계를 확인하세요. 문제가 계속되면 설정 › 로그 보기에서 로그를 보내 주세요.',
@@ -4727,19 +4525,19 @@ extension on TranslationsKo {
 			'companionRemote.session.stopServer' => '서버 중지',
 			'companionRemote.session.minimize' => '최소화',
 			'companionRemote.session.manualAddressHint' => '수동 연결 주소:',
-			'companionRemote.pairing.discoveryDescription' => '같은 Plex 계정의 Plezy 기기가 여기에 표시됩니다',
+			'companionRemote.pairing.discoveryDescription' => '같은 Plex 계정의 Heisuca 기기가 여기에 표시됩니다',
 			'companionRemote.pairing.hostAddressHint' => '192.168.1.100:48632',
 			'companionRemote.pairing.connecting' => '연결 중...',
 			'companionRemote.pairing.searchingForDevices' => '기기 검색 중...',
 			'companionRemote.pairing.noDevicesFound' => '네트워크에서 기기를 찾을 수 없습니다',
-			'companionRemote.pairing.noDevicesHint' => '데스크톱에서 Plezy를 열고 같은 Wi-Fi를 사용하세요',
+			'companionRemote.pairing.noDevicesHint' => '데스크톱에서 Heisuca를 열고 같은 Wi-Fi를 사용하세요',
 			'companionRemote.pairing.availableDevices' => '사용 가능한 기기',
 			'companionRemote.pairing.manualConnection' => '수동 연결',
 			'companionRemote.pairing.cryptoInitFailed' => '보안 연결을 시작할 수 없습니다. 먼저 Plex에 로그인하세요.',
 			'companionRemote.pairing.validationHostRequired' => '호스트 주소를 입력하세요',
 			'companionRemote.pairing.validationHostFormat' => '형식은 IP:포트여야 합니다 (예: 192.168.1.100:48632)',
 			'companionRemote.pairing.connectionTimedOut' => '연결 시간이 초과되었습니다. 두 기기에서 같은 네트워크를 사용하세요.',
-			'companionRemote.pairing.sessionNotFound' => '기기를 찾을 수 없습니다. 호스트에서 Plezy가 실행 중인지 확인하세요.',
+			'companionRemote.pairing.sessionNotFound' => '기기를 찾을 수 없습니다. 호스트에서 Heisuca가 실행 중인지 확인하세요.',
 			'companionRemote.pairing.authFailed' => '인증에 실패했습니다. 두 기기 모두 같은 Plex 계정이 필요합니다.',
 			'companionRemote.pairing.failedToConnect' => ({required Object error}) => '연결 실패: ${error}',
 			'companionRemote.remote.disconnectConfirm' => '원격 세션 연결을 해제하시겠습니까?',
@@ -4959,11 +4757,11 @@ extension on TranslationsKo {
 			'trakt.connected' => '연결됨',
 			'trakt.connectedAs' => ({required Object username}) => '@${username}(으)로 연결됨',
 			'trakt.disconnectConfirm' => 'Trakt 계정 연결을 끊으시겠습니까?',
-			'trakt.disconnectConfirmBody' => 'Plezy가 Trakt로 이벤트 전송을 중지합니다. 언제든 다시 연결할 수 있습니다.',
+			'trakt.disconnectConfirmBody' => 'Heisuca가 Trakt로 이벤트 전송을 중지합니다. 언제든 다시 연결할 수 있습니다.',
 			'trakt.scrobble' => '실시간 스크로블',
 			'trakt.scrobbleDescription' => '재생 중 재생, 일시정지, 정지 이벤트를 Trakt로 전송합니다.',
 			'trakt.watchedSync' => '시청 상태 동기화',
-			'trakt.watchedSyncDescription' => 'Plezy에서 시청 완료로 표시한 항목이 Trakt에도 시청 완료로 표시됩니다.',
+			'trakt.watchedSyncDescription' => 'Heisuca에서 시청 완료로 표시한 항목이 Trakt에도 시청 완료로 표시됩니다.',
 			'seerr.title' => 'Seerr',
 			'seerr.connectTitle' => 'Seerr에 연결',
 			'seerr.serverUrl' => '서버 URL',
@@ -4973,10 +4771,10 @@ extension on TranslationsKo {
 			'seerr.signInWithEmby' => 'Emby로 로그인',
 			'seerr.signInWithLocal' => '로컬 계정 사용',
 			'seerr.email' => '이메일',
-			'seerr.noSignInMethods' => '이 Seerr 인스턴스에는 Plezy가 지원하는 로그인 방법이 없습니다.',
+			'seerr.noSignInMethods' => '이 Seerr 인스턴스에는 Heisuca가 지원하는 로그인 방법이 없습니다.',
 			'seerr.instance' => '인스턴스',
 			'seerr.disconnectConfirm' => 'Seerr 연결을 해제하시겠습니까?',
-			'seerr.disconnectConfirmBody' => 'Plezy가 이 Seerr 인스턴스를 삭제합니다. 언제든 다시 연결할 수 있습니다.',
+			'seerr.disconnectConfirmBody' => 'Heisuca가 이 Seerr 인스턴스를 삭제합니다. 언제든 다시 연결할 수 있습니다.',
 			'seerr.request' => '요청',
 			'seerr.request4k' => '4K로 요청',
 			'seerr.seasons' => '시즌',
@@ -5001,7 +4799,7 @@ extension on TranslationsKo {
 			'seerr.statusBlocklisted' => '차단 목록에 있음',
 			'seerr.couldNotReach' => ({required Object url, required Object error}) => '${url}에 연결할 수 없습니다: ${error}',
 			'seerr.noInstanceAtUrl' => ({required Object url, required Object status}) => '${url}에 Seerr 인스턴스가 없습니다(HTTP ${status})',
-			'seerr.behindAuthProxy' => 'Seerr 대신 인증이 필요한 리버스 프록시(SSO 또는 HTTP 인증)가 응답했습니다. Plezy는 이를 통해 로그인할 수 없습니다. 이 앱에서 Seerr의 /api/v1 경로가 프록시를 우회하도록 하거나, Seerr에 직접 연결되는 주소를 사용하세요.',
+			'seerr.behindAuthProxy' => 'Seerr 대신 인증이 필요한 리버스 프록시(SSO 또는 HTTP 인증)가 응답했습니다. Heisuca는 이를 통해 로그인할 수 없습니다. 이 앱에서 Seerr의 /api/v1 경로가 프록시를 우회하도록 하거나, Seerr에 직접 연결되는 주소를 사용하세요.',
 			'seerr.invalidUrl' => 'https://seerr.example.com과 같은 서버 주소를 입력하세요',
 			'seerr.quickConnectUnsupported' => '이 Seerr 인스턴스는 Quick Connect를 지원하지 않습니다. Seerr 3.4 이상이 필요합니다.',
 			'seerr.notInitialized' => '이 Seerr 인스턴스는 최초 실행 설정을 완료하지 않았습니다',
@@ -5022,14 +4820,14 @@ extension on TranslationsKo {
 			'services.scrobble' => '진행률 자동 추적',
 			'services.scrobbleDescription' => '에피소드나 영화를 시청하면 목록을 업데이트합니다.',
 			'services.disconnectConfirm' => ({required Object service}) => '${service} 연결을 해제하시겠습니까?',
-			'services.disconnectConfirmBody' => ({required Object service}) => 'Plezy가 ${service} 업데이트를 중지합니다. 언제든 다시 연결할 수 있습니다.',
+			'services.disconnectConfirmBody' => ({required Object service}) => 'Heisuca가 ${service} 업데이트를 중지합니다. 언제든 다시 연결할 수 있습니다.',
 			'services.connectFailed' => ({required Object service}) => '${service}에 연결할 수 없습니다. 다시 시도하세요.',
 			'services.names.mal' => 'MyAnimeList',
 			'services.names.anilist' => 'AniList',
 			'services.names.simkl' => 'Simkl',
 			'services.names.seerr' => 'Seerr',
 			'services.names.mdblist' => 'MDBList',
-			'services.deviceCode.title' => ({required Object service}) => '${service}에서 Plezy 활성화',
+			'services.deviceCode.title' => ({required Object service}) => '${service}에서 Heisuca 활성화',
 			'services.deviceCode.instructions' => 'QR 코드를 스캔하거나 아래 주소로 이동하여 이 코드를 입력하세요:',
 			'services.deviceCode.openToActivate' => ({required Object service}) => '활성화하려면 ${service} 열기',
 			'services.deviceCode.copyCode' => '활성화 코드 복사',
@@ -5081,8 +4879,6 @@ extension on TranslationsKo {
 			'addServer.borrowFromAnotherProfile' => '다른 프로필에서 빌리기',
 			'addServer.borrowFromAnotherProfileSubtitle' => '다른 프로필의 연결을 재사용합니다. PIN으로 보호된 프로필에는 PIN이 필요합니다.',
 			'addServer.invalidCredentials' => '사용자 이름 또는 비밀번호가 올바르지 않습니다',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.authResponseNotJson' => '인증 응답이 유효한 JSON이 아닙니다',
 			'addServer.authResponseIncomplete' => '서버의 로그인 응답이 불완전합니다',
 			'addServer.quickConnectRejected' => '서버에서 Quick Connect를 거부했습니다',

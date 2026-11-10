@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/media_browser_dialect.dart';
-import 'package:plezy/services/media_browser_paths.dart';
+import 'package:heisuca/media/media_browser_dialect.dart';
+import 'package:heisuca/services/media_browser_paths.dart';
 
 /// Route table for the endpoints where the two MediaBrowser dialects diverge.
 ///

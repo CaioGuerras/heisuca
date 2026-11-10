@@ -2,10 +2,10 @@ import 'dart:ui' show KeyEventDeviceType;
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' show FocusNode;
-import 'package:plezy/focus/dpad_navigator.dart';
+import 'package:heisuca/focus/dpad_navigator.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/focus/focus_navigation_intent.dart';
-import 'package:plezy/utils/platform_detector.dart';
+import 'package:heisuca/focus/focus_navigation_intent.dart';
+import 'package:heisuca/utils/platform_detector.dart';
 
 /// Executable spec for the one predicate that decides both whether the app
 /// switches to keyboard mode and whether a key may hand focus to the player

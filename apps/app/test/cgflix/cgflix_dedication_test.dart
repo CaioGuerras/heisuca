@@ -2,11 +2,11 @@
 // "Mostrar dedicatória" do Avançado.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/cgflix/cgflix_about.dart';
-import 'package:plezy/cgflix/cgflix_advanced.dart';
-import 'package:plezy/cgflix/cgflix_theme.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/widgets/app_icon.dart';
+import 'package:heisuca/cgflix/cgflix_about.dart';
+import 'package:heisuca/cgflix/cgflix_advanced.dart';
+import 'package:heisuca/cgflix/cgflix_theme.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/widgets/app_icon.dart';
 
 import '../test_helpers/prefs.dart';
 
@@ -18,10 +18,10 @@ void main() {
     await SettingsService.getInstance();
   });
 
-  testWidgets('Sobre mostra a dedicatória com o coração roxo e o verde', (tester) async {
-    await tester.pumpWidget(const MaterialApp(home: Scaffold(body: CgflixDedication())));
+  testWidgets('Sobre mostra a dedicatória com texto dedicado', (tester) async {
+    await tester.pumpWidget(MaterialApp(theme: cgflixAppTheme(), home: const Scaffold(body: CgflixDedication())));
     expect(find.text(cgflixDedicationText), findsOneWidget);
-    expect(find.descendant(of: find.byType(CgflixDedicationHearts), matching: find.byType(AppIcon)), findsNWidgets(2));
+    expect(find.byType(AppIcon), findsNothing);
   });
 
   testWidgets('Avançado não tem mais "Mostrar dedicatória"', (tester) async {
@@ -29,11 +29,12 @@ void main() {
       MaterialApp(
         theme: cgflixAppTheme(),
         home: const Scaffold(
-          body: SingleChildScrollView(child: Column(children: [CgflixAdvancedFeatures(), CgflixAdvancedPlayback()])),
+          body: SingleChildScrollView(child: Column(children: [CgflixAdvancedPlayback()])),
         ),
       ),
     );
     expect(find.text('Mostrar dedicatória'), findsNothing);
+    expect(find.text('Assistir juntos'), findsNothing);
     expect(find.text(cgflixDedicationText), findsNothing);
   });
 }

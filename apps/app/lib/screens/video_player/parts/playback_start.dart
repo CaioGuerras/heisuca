@@ -5,17 +5,11 @@ extension _VideoPlayerPlaybackStartMethods on VideoPlayerScreenState {
     final currentPlayer = player;
     if (!mounted || _shuttingDown || currentPlayer == null) return;
     final attempt = _beginPlaybackAttempt(currentPlayer);
-    final watchTogether = _activeWatchTogetherSession();
-    final watchTogetherLease = widget.watchTogetherLease;
-    _watchTogetherLease = watchTogetherLease;
-    if (watchTogether != null && watchTogetherLease != null && watchTogetherLease.isCurrent) {
-      _watchTogetherProvider = watchTogether;
-      watchTogether.onPlayerMediaSwitched = _watchTogetherMediaSwitchHandler;
-    }
-    bool isCurrentStart() => attempt.isCurrent && (watchTogetherLease == null || watchTogetherLease.isCurrent);
+    bool isCurrentStart() => attempt.isCurrent;
     _firstFrame.resetRenderedForAttempt();
     _hasFatalPlaybackError = false;
     _dismissPlaybackFailure();
+    _renderWatchdogDisarmed = false;
     // 503s observed from here on belong to this attempt's open.
     _http503Watchdog.disarm();
 
@@ -148,21 +142,17 @@ extension _VideoPlayerPlaybackStartMethods on VideoPlayerScreenState {
     // re-run exactly this open, resolve included.
     _currentOpenRequest = _PlaybackOpenRequest(
       metadata: _currentMetadata,
-      mediaIndex: _effectiveSelectedMediaIndex,
+      mediaIndex: _requestedMediaIndex,
       mediaSourceId: _requestedMediaSourceId,
       qualityPreset: _selectedQualityPreset,
       audioStreamId: _selectedAudioStreamId,
       resumePosition: widget.initialPosition,
+      preferredVersionSignature: widget.preferredVersionSignature,
     );
 
     // Capture providers before async gaps
     final offlineWatchService = context.read<OfflineWatchSyncService>();
     var primaryMediaOpened = false;
-    // Created by afterMediaOpened when the sync layer owns a gated start;
-    // released by the startup gate, or by the finally below if the open
-    // aborted, threw, or was superseded before the gate ran.
-    Completer<void>? wtStartupHold;
-
     try {
       PlaybackContext playbackContext;
 
@@ -174,7 +164,7 @@ extension _VideoPlayerPlaybackStartMethods on VideoPlayerScreenState {
         playbackContext = await playbackResolver.resolve(
           PlaybackInitializationOptions(
             metadata: _currentMetadata,
-            selectedMediaIndex: _effectiveSelectedMediaIndex,
+            selectedMediaIndex: _requestedMediaIndex,
             selectedMediaSourceId: _requestedMediaSourceId,
             qualityPreset: _selectedQualityPreset,
             selectedAudioStreamId: _selectedAudioStreamId,
@@ -208,7 +198,7 @@ extension _VideoPlayerPlaybackStartMethods on VideoPlayerScreenState {
       final result = playbackContext.result;
       if (!attempt.isCurrent) return;
       if (widget.strictMediaSelection &&
-          (result.selectedMediaIndex != widget.selectedMediaIndex ||
+          ((widget.selectedMediaIndex != null && result.selectedMediaIndex != widget.selectedMediaIndex) ||
               (widget.selectedMediaSourceId != null &&
                   (result.selectedMediaSourceId ?? result.selectedVersion?.id) != widget.selectedMediaSourceId))) {
         widget.launchObserver?.mark('failed', failure: 'staleMediaSelection');
@@ -256,6 +246,55 @@ extension _VideoPlayerPlaybackStartMethods on VideoPlayerScreenState {
       Duration? resumePosition;
       MediaServerClient? mediaClientForTracks;
 
+      _playbackDiagnostics?.setVersion(result.selectedVersion);
+      if (!_renderWatchdogDisarmed && result.selectedVersion != null && !isVersionPlayable(result.selectedVersion!)) {
+        unawaited(_playbackDiagnostics?.watchdog(decision: 'unsupportedFormat'));
+        final selectedVersion = result.selectedVersion!;
+        final formatReason = formatVersionReason(selectedVersion);
+        MediaVersion? altVersion;
+        int? altIndex;
+        for (var i = 0; i < result.availableVersions.length; i++) {
+          final v = result.availableVersions[i];
+          if (v.id != selectedVersion.id && isVersionPlayable(v)) {
+            altVersion = v;
+            altIndex = i;
+            break;
+          }
+        }
+        final altRes = altVersion == null
+            ? null
+            : (altVersion.videoResolution?.trim().isNotEmpty ?? false)
+            ? altVersion.videoResolution!.trim()
+            : (altVersion.height != null ? '${altVersion.height}p' : '${altIndex! + 1}');
+
+        if (!mounted || !attempt.isCurrent) return;
+
+        final action = await showUnplayableMediaDialog(
+          context,
+          formatReason: formatReason,
+          cause: UnplayableMediaCause.unsupportedFormat,
+          alternativeResolution: altRes,
+        );
+
+        if (!attempt.isCurrent || !mounted) return;
+
+        if (action == UnplayableMediaAction.back) {
+          unawaited(_handleBackButton());
+          return;
+        } else if (action == UnplayableMediaAction.playVersion && altIndex != null) {
+          _requestedMediaSourceId = altVersion?.id;
+          unawaited(
+            _reloadMediaInPlace(
+              metadata: _currentMetadata,
+              selectedMediaIndex: altIndex,
+              selectedMediaSourceId: altVersion?.id,
+              reason: 'unplayable version alternative',
+            ),
+          );
+          return;
+        }
+      }
+
       // A null result (staleness guard or hook aborted the flow) needs no
       // handling here: the finally below is the only post-open work.
       await _openResolvedMedia(
@@ -269,11 +308,7 @@ extension _VideoPlayerPlaybackStartMethods on VideoPlayerScreenState {
         isLocalMedia: _isOfflinePlayback,
         isCurrent: isCurrentStart,
         outcome: attempt.outcome,
-        // When a Watch Together session is active the sync layer owns the
-        // start: open paused everywhere and let the host coordinate one
-        // simultaneous group start.
-        watchTogetherOwnsStart: () => watchTogetherLease != null && _watchTogetherOwnsPlaybackStart(),
-        resolveShouldAutoStart: (wtOwnsStart) => !wtOwnsStart,
+        resolveShouldAutoStart: () => true,
         resumePosition: () => resumePosition,
         mediaClient: () => mediaClientForTracks,
         getProfileSettings: () => context.read<AccountPreferencesController>().activePreferences,
@@ -298,20 +333,8 @@ extension _VideoPlayerPlaybackStartMethods on VideoPlayerScreenState {
           );
           return mounted && player == currentPlayer;
         },
-        afterMediaOpened: (shouldAutoPlay, holdPlaybackStart, wtOwnsStart) async {
-          // Attach player to Watch Together session for sync (if in session).
-          // With a frame-rate startup gate pending, sync readiness waits for
-          // its release so the group start can't fire mid display switch.
-          if (isCurrentStart() && !_isOfflinePlayback && watchTogetherLease != null) {
-            _commitWatchTogetherSelection(
-              watchTogether,
-              watchTogetherLease,
-              _currentMetadata,
-              resumePosition ?? Duration.zero,
-            );
-            if (wtOwnsStart && holdPlaybackStart) wtStartupHold = Completer<void>();
-            _attachToWatchTogetherSession(lease: watchTogetherLease, startupHold: wtStartupHold?.future);
-          }
+        afterMediaOpened: (shouldAutoPlay) async {
+          _armPlaybackRenderWatchdog(currentPlayer, attempt.generation);
           if (shouldAutoPlay && PlatformDetector.isAutomotive()) {
             await _playWithPlaybackIntent(currentPlayer);
             if (!attempt.isCurrent) return false;
@@ -365,7 +388,6 @@ extension _VideoPlayerPlaybackStartMethods on VideoPlayerScreenState {
           }
           return attempt.isCurrent;
         },
-        wtStartupHold: () => wtStartupHold,
         onMediaAvailabilityChanged: (available) => primaryMediaOpened = available,
       );
     } on PlaybackException catch (e, st) {
@@ -387,14 +409,6 @@ extension _VideoPlayerPlaybackStartMethods on VideoPlayerScreenState {
                 ), // CGFLIX
           primaryMediaOpened: primaryMediaOpened,
         );
-      }
-    } finally {
-      // Backstop: whether the gate never ran its resume path, the open
-      // aborted, or the flow threw, never leave Watch Together readiness
-      // held forever.
-      final startupHold = wtStartupHold;
-      if (startupHold != null && !startupHold.isCompleted) {
-        startupHold.complete();
       }
     }
   }

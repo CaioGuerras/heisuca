@@ -46,6 +46,7 @@ extension _PlexVideoControlsMarkerMethods on _PlexVideoControlsState {
       _setControlsState(() {
         _currentMarker = null;
         _skipButtonDismissed = false;
+        _skipMarkerRefused = false;
       });
     }
     _releaseSkipMarkerFocusToSurface();
@@ -78,6 +79,7 @@ extension _PlexVideoControlsMarkerMethods on _PlexVideoControlsState {
     _setControlsState(() {
       _currentMarker = foundMarker;
       _skipButtonDismissed = false;
+      _skipMarkerRefused = false;
     });
 
     _startAutoSkipTimer(foundMarker);
@@ -90,13 +92,15 @@ extension _PlexVideoControlsMarkerMethods on _PlexVideoControlsState {
 
     // Auto-focus skip button on TV when marker appears (only in keyboard/TV mode)
     if (PlatformDetector.isTV() && InputModeTracker.isKeyboardMode(context, listen: false)) {
+      final route = ModalRoute.of(context);
+      final overlay = OverlaySheetController.maybeOf(context);
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         // An open sheet (tracks, settings, subtitle search) or a route above
         // the player owns the remote; the button stays reachable, but a marker
         // appearing must not pull focus out from under them.
-        if (OverlaySheetController.maybeOf(context)?.isOpen ?? false) return;
-        if (ModalRoute.of(context)?.isCurrent == false) return;
+        if (overlay?.isOpen ?? false) return;
+        if (route?.isCurrent == false) return;
         _skipMarkerFocusNode.requestFocus();
       });
     }
@@ -229,7 +233,7 @@ extension _PlexVideoControlsMarkerMethods on _PlexVideoControlsState {
     hasMarker: _currentMarker != null,
     hasPlayNextPrompt: widget.playNextFocusNode != null,
     skipButtonDismissed: _skipButtonDismissed,
-    controlsVisible: _showControls,
+    controlsVisible: PlatformDetector.isTV() && _skipMarkerRefused ? false : _showControls,
   );
 
   void _activateSkipMarker() {
@@ -256,8 +260,13 @@ extension _PlexVideoControlsMarkerMethods on _PlexVideoControlsState {
     _cancelSkipButtonDismissTimer();
     _setControlsState(() {
       _skipButtonDismissed = true;
+      _skipMarkerRefused = true;
     });
-    if (!_showControls) _releaseSkipMarkerFocusToSurface();
+    if (!_showControls) {
+      _releaseSkipMarkerFocusToSurface();
+    } else if (PlatformDetector.isTV()) {
+      _desktopControlsKey.currentState?.requestPlayPauseFocus();
+    }
   }
 
   Widget _buildSkipMarkerButton() {

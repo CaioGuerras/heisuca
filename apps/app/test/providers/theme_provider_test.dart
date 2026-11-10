@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart' as material;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/providers/theme_provider.dart';
-import 'package:plezy/screens/settings/settings_utils.dart';
-import 'package:plezy/services/base_shared_preferences_service.dart';
-import 'package:plezy/services/settings_service.dart' as settings;
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/providers/theme_provider.dart';
+import 'package:heisuca/screens/settings/settings_utils.dart';
+import 'package:heisuca/services/base_shared_preferences_service.dart';
+import 'package:heisuca/services/settings_service.dart' as settings;
 
 import '../test_helpers/prefs.dart';
 
@@ -88,18 +88,18 @@ void main() {
       p.dispose();
     });
 
-    test('darkTheme variants differ between dark and oled', () async {
+    test('darkTheme variants resolve to Shikkoku after F3', () async {
       final p = ThemeProvider();
       await Future.delayed(Duration.zero);
 
       await p.setThemeMode(settings.ThemeMode.dark);
+      expect(p.themeMode, settings.ThemeMode.oled);
       final dark = p.darkTheme;
       await p.setThemeMode(settings.ThemeMode.oled);
       final oled = p.darkTheme;
 
-      // OLED must be a true black canvas; regular dark uses a non-black surface.
-      expect(oled.scaffoldBackgroundColor, const material.Color(0xFF000000)); // CGFLIX: Isis em preto puro
-      expect(dark.scaffoldBackgroundColor, isNot(const material.Color(0xFF000000)));
+      expect(oled.scaffoldBackgroundColor, const material.Color(0xFF17151C));
+      expect(dark.scaffoldBackgroundColor, const material.Color(0xFF17151C));
 
       p.dispose();
     });
@@ -113,8 +113,9 @@ void main() {
       expect(p.themeModeIcon, Symbols.light_mode_rounded);
 
       await p.setThemeMode(settings.ThemeMode.dark);
-      expect(themeModeLabel(p.themeMode), t.settings.darkTheme);
-      expect(p.themeModeIcon, Symbols.dark_mode_rounded);
+      expect(p.themeMode, settings.ThemeMode.oled);
+      expect(themeModeLabel(p.themeMode), t.settings.oledTheme);
+      expect(p.themeModeIcon, Symbols.contrast_rounded);
 
       await p.setThemeMode(settings.ThemeMode.oled);
       expect(themeModeLabel(p.themeMode), t.settings.oledTheme);
@@ -168,7 +169,7 @@ void main() {
 
       final second = ThemeProvider();
       await Future.delayed(Duration.zero);
-      expect(second.themeMode, settings.ThemeMode.dark);
+      expect(second.themeMode, settings.ThemeMode.oled);
       second.dispose();
     });
 

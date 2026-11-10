@@ -1,3 +1,4 @@
+import '../heisuca/services/heisuca_playback_delivery.dart';
 import '../exceptions/media_server_exceptions.dart';
 import '../i18n/strings.g.dart';
 import '../media/media_item.dart';
@@ -15,7 +16,9 @@ class PlaybackInitializationOptions {
   final MediaItem metadata;
 
   /// Picks among multiple `MediaSources[]` versions when an item has them.
-  final int selectedMediaIndex;
+  /// Nulo = sem escolha: o backend decide (no Jellyfin, o ranqueador de
+  /// versões). 0 é uma escolha como outra qualquer, nunca sentinela.
+  final int? selectedMediaIndex;
 
   /// Stable backend source id for the selected media version. Jellyfin merged
   /// versions can reorder between item fetches, so this wins over index there.
@@ -27,6 +30,13 @@ class PlaybackInitializationOptions {
   /// list. Never set alongside an explicit user selection — the priority is
   /// sourceId > signature > index > backend fallback.
   final String? preferredVersionSignature;
+
+  /// Assinatura da versão que tocava no item anterior (próximo episódio), sem
+  /// ser escolha do usuário. Só vale se o aparelho decodificar essa versão por
+  /// hardware; senão quem decide é o ranqueador (ex.: ep. 1 só em HEVC 10-bit,
+  /// ep. 2 com H.264 numa TV box sem Main10 → H.264). Escolha explícita salva
+  /// vai em [preferredVersionSignature], que sempre vence.
+  final String? inheritedVersionSignature;
 
   /// Transcode preset. `original` means direct-play; anything else asks the
   /// server to transcode when supported.
@@ -66,6 +76,7 @@ class PlaybackInitializationOptions {
     required this.selectedMediaIndex,
     this.selectedMediaSourceId,
     this.preferredVersionSignature,
+    this.inheritedVersionSignature,
     this.qualityPreset = TranscodeQualityPreset.original,
     this.audioQualityPreset,
     this.selectedAudioStreamId,
@@ -118,6 +129,7 @@ enum TranscodeFallbackReason {
 
 /// Result of playback initialization
 class PlaybackInitializationResult {
+  final HeisucaPlaybackDelivery? delivery;
   final List<MediaVersion> availableVersions;
   final String? videoUrl;
   final MediaSourceInfo? mediaInfo;
@@ -169,6 +181,7 @@ class PlaybackInitializationResult {
 
   PlaybackInitializationResult({
     required this.availableVersions,
+    this.delivery,
     this.videoUrl,
     this.mediaInfo,
     this.subtitleSidecars = const [],

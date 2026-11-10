@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/screens/livetv/live_tv_refresh_mixin.dart';
+import 'package:heisuca/screens/livetv/live_tv_refresh_mixin.dart';
 
 void main() {
   test('desktop inactive state leaves Live TV refresh timers running', () {

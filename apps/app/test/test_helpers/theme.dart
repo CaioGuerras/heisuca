@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:plezy/theme/mono_tokens.dart';
+import 'package:heisuca/theme/mono_tokens.dart';
 
 /// Default [MonoTokens] for widget tests: production-shaped metrics with
 /// 1ms animations, so a single `pump` settles the tree.

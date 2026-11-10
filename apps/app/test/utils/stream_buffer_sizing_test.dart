@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/utils/stream_buffer_sizing.dart';
+import 'package:heisuca/utils/stream_buffer_sizing.dart';
 
 void main() {
   group('nextPowerOfTwo', () {

@@ -1,0 +1,26 @@
+00:00 +0: loading /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_tap_measurement_test.dart
+00:00 +0: P3 medição: recorte superior
+00:00 +0 -1: P3 medição: recorte superior [E]
+  Expected: <true>
+    Actual: <false>
+
+  package:matcher                                         expect
+  package:flutter_test/src/widget_tester.dart 473:18      expect
+  test/heisuca/heisuca_p3_tap_measurement_test.dart 20:7  main.<fn>
+
+00:00 +0 -1: P3 medição: recorte inferior
+00:00 +0 -2: P3 medição: recorte inferior [E]
+  Expected: <true>
+    Actual: <false>
+
+  package:matcher                                         expect
+  package:flutter_test/src/widget_tester.dart 473:18      expect
+  test/heisuca/heisuca_p3_tap_measurement_test.dart 20:7  main.<fn>
+
+00:00 +0 -2: P3 medição: controle pequeno inteiro
+00:00 +1 -2: P3 medição: controle adequado inteiro
+00:00 +2 -2: Some tests failed.
+
+Failing tests:
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_tap_measurement_test.dart: P3 medição: recorte inferior
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_tap_measurement_test.dart: P3 medição: recorte superior

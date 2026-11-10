@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/widgets/nested_tab_scrollbar.dart';
+import 'package:heisuca/widgets/nested_tab_scrollbar.dart';
 
 const _rowHeight = 50.0;
 

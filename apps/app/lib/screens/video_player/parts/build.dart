@@ -239,35 +239,11 @@ extension _VideoPlayerBuildMethods on VideoPlayerScreenState {
                     final newSize = Size(constraints.maxWidth, constraints.maxHeight);
                     _scheduleVideoLayoutUpdate(newSize);
 
-                    var authority = (canControlPlayback: true, canNavigateMediaItems: true);
-                    try {
-                      authority = context
-                          .select<WatchTogetherProvider, ({bool canControlPlayback, bool canNavigateMediaItems})>(
-                            (wt) => (
-                              canControlPlayback: !wt.isInSession || wt.canControl(),
-                              canNavigateMediaItems: !wt.isInSession || wt.isHost,
-                            ),
-                          );
-                    } catch (_) {
-                      // Watch Together is optional outside the main app shell.
-                    }
-                    if (_lastMediaControlAuthority != authority) {
-                      _lastMediaControlAuthority = authority;
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (mounted) unawaited(_mediaControls.syncAvailability());
-                      });
-                    }
-
-                    // The screen answers next/previous once for every entry
-                    // point; the buttons add only the in-flight and room
-                    // authority gates so a control cannot look live while it
-                    // does nothing. Live TV is never room-bound, and its zap
-                    // debounces itself through the transition gate.
-                    final canNavigateItems = widget.isLive || authority.canNavigateMediaItems;
-                    final onNext = _hasNextItem && !_episode.isLoadingNext && canNavigateItems
+                    // A própria troca de item mantém a trava de operações em andamento.
+                    final onNext = _hasNextItem && !_episode.isLoadingNext
                         ? _navigateToNextItem
                         : null;
-                    final onPrevious = _hasPreviousItem && canNavigateItems ? _navigateToPreviousItem : null;
+                    final onPrevious = _hasPreviousItem ? _navigateToPreviousItem : null;
 
                     final sourceAudioTracks = _currentMediaInfo?.audioTracks ?? const <MediaAudioTrack>[];
                     final sourceSubtitleSidecars = _sourceSubtitleSidecarsForControls();
@@ -277,6 +253,7 @@ extension _VideoPlayerBuildMethods on VideoPlayerScreenState {
                       player: player!,
                       hasFirstFrame: _firstFrame.uiReady,
                       controls: (context) => PlexVideoControls(
+                        delivery: _playbackSession?.context.result.delivery,
                         player: player!,
                         volumeController: _volumeController!,
                         metadata: _currentMetadata,
@@ -315,8 +292,8 @@ extension _VideoPlayerBuildMethods on VideoPlayerScreenState {
                         onBack: _handleBackButton,
                         onReachedEnd: ({skipAutoPlayCountdown = false}) =>
                             _onVideoCompleted(true, skipAutoPlayCountdown: skipAutoPlayCountdown),
-                        canControl: authority.canControlPlayback,
-                        canNavigateMediaItems: authority.canNavigateMediaItems,
+                        canControl: !_shuttingDown,
+                        canNavigateMediaItems: !_shuttingDown,
                         hasFirstFrame: _firstFrame.uiReady,
                         playNextFocusNode: _episode.showPlayNextDialog ? _playNextConfirmFocusNode : null,
                         playbackPromptOpen: _showStillWatchingPrompt,
@@ -356,6 +333,7 @@ extension _VideoPlayerBuildMethods on VideoPlayerScreenState {
               ),
               // "Still watching?" overlay (hidden in PiP mode)
               VideoPlayerStillWatchingOverlay(
+                pausedForEpisodes: _episodeAttentionPrompt,
                 visible: _showStillWatchingPrompt,
                 countdown: _stillWatchingCountdown,
                 pauseFocusNode: _stillWatchingPauseFocusNode,
@@ -371,8 +349,6 @@ extension _VideoPlayerBuildMethods on VideoPlayerScreenState {
                 hasFirstFrame: _firstFrame.uiReady,
                 isExiting: _isExiting,
               ),
-              // Watch Together overlays (isolated from video surface repaints)
-              const VideoPlayerWatchTogetherOverlays(),
               // Black overlay during exit (no spinner - just covers transparency)
               VideoPlayerExitOverlay(isExiting: _isExiting),
             ],

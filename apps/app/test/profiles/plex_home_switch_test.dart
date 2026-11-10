@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/profiles/plex_home_switch.dart';
-import 'package:plezy/services/plex_auth_service.dart';
-import 'package:plezy/utils/media_server_http_client.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/profiles/plex_home_switch.dart';
+import 'package:heisuca/services/plex_auth_service.dart';
+import 'package:heisuca/utils/media_server_http_client.dart';
 
 /// Regression for #1488: Plex started returning profile language lists as CSV
 /// strings ("en,sv") instead of arrays; the parse crash on the 201 /switch

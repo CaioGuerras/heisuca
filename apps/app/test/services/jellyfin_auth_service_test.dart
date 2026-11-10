@@ -5,14 +5,14 @@ import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:plezy/connection/connection.dart';
-import 'package:plezy/exceptions/media_server_exceptions.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_browser_dialect.dart';
-import 'package:plezy/services/jellyfin_auth_service.dart';
-import 'package:plezy/services/jellyfin_endpoint_discovery.dart';
-import 'package:plezy/utils/log_redaction_manager.dart';
-import 'package:plezy/utils/media_server_timeouts.dart';
+import 'package:heisuca/connection/connection.dart';
+import 'package:heisuca/exceptions/media_server_exceptions.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_browser_dialect.dart';
+import 'package:heisuca/services/jellyfin_auth_service.dart';
+import 'package:heisuca/services/jellyfin_endpoint_discovery.dart';
+import 'package:heisuca/utils/log_redaction_manager.dart';
+import 'package:heisuca/utils/media_server_timeouts.dart';
 
 /// Helpers for stubbing http responses keyed by request path.
 typedef _Handler = FutureOr<http.Response> Function(http.BaseRequest req);

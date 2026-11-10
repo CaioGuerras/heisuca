@@ -1,9 +1,32 @@
 part of '../../video_player_screen.dart';
 
-bool shouldPauseVideoForBackground({required bool isHandheld, required bool isTv, required bool isAutomotive}) =>
-    isHandheld || isTv || isAutomotive;
+bool shouldPauseVideoForBackground({
+  required bool isHandheld,
+  required bool isTv,
+  required bool isAutomotive,
+  bool continueListening = false,
+}) => isTv || isAutomotive || (isHandheld && !continueListening);
 
 extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
+  Future<void> _applyOutsideAppSettings() async {
+    final settings = SettingsService.instance;
+    _autoPipEnabled = settings.read(SettingsService.autoPip);
+    _continueListeningEnabled =
+        Platform.isAndroid &&
+        PlatformDetector.isMobile(context) &&
+        !PlatformDetector.isAutomotive() &&
+        settings.read(SettingsService.continueListening);
+    final current = player;
+    if (current == null || !_isPlayerInitialized) return;
+    await current.setContinueListening(_continueListeningEnabled);
+    if (_backgroundAudioActive && !_continueListeningEnabled) {
+      await _pauseWithPlaybackIntent(current);
+      await current.setBackgroundAudio(false);
+      _backgroundAudioActive = false;
+    }
+    await _updateAutoPipState(isPlaying: current.state.playing);
+  }
+
   void _enqueueLifecycleTransition(String label, Future<void> Function() transition) {
     _lifecycleTransition = _lifecycleTransition
         .catchError((Object error, StackTrace stackTrace) {
@@ -22,25 +45,6 @@ extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
   void _recordLifecycleState(String state, {String? action}) {
     final isTv = PlatformDetector.isTV();
     final pipActive = PipService().isPipActive.value;
-    final breadcrumbData = <String, dynamic>{
-      'state': state,
-      'isTv': isTv,
-      'autoPipEnabled': _autoPipEnabled,
-      'pipActive': pipActive,
-      'pipTransitionInFlight': _androidAutoPipTransitionInFlight,
-      'hiddenForBackground': _hiddenForBackground,
-      'playerSuspendedForTvBackground': _tvSuspend.suspended,
-      'mediaControlsSuspendedForTvBackground': _mediaControls.suspendedForTvBackground,
-      'backend': _playerBackendLabel,
-    };
-    if (action != null) {
-      breadcrumbData['action'] = action;
-    }
-
-    Sentry.addBreadcrumb(
-      Breadcrumb(message: 'Player lifecycle $state', category: 'player.lifecycle', data: breadcrumbData),
-    );
-
     appLogger.d(
       'Player lifecycle: state=$state'
       '${action != null ? ' action=$action' : ''}'
@@ -67,10 +71,6 @@ extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
       return;
     }
 
-    // Suppress Watch Together heartbeats while backgrounded so App Nap
-    // doesn't cause stale position broadcasts that make guests loop.
-    _watchTogetherProvider?.setBackgrounded(true);
-
     final currentPlayer = player;
     if (currentPlayer == null || !_isPlayerInitialized) {
       _recordLifecycleState('hidden', action: 'skipped_no_player');
@@ -96,11 +96,15 @@ extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
       return;
     }
 
+    // A preferência sozinha não autoriza som sem FGS. O Android pode recusar o início.
+    final keepAudio = _continueListeningEnabled && await PipService.isMediaPlaybackServiceActive();
+    if (!mounted || _shuttingDown || currentPlayer != player) return;
     final isAutomotive = PlatformDetector.isAutomotive();
     final shouldPauseForBackground = shouldPauseVideoForBackground(
       isHandheld: PlatformDetector.isMobile(context),
       isTv: isTv,
       isAutomotive: isAutomotive,
+      continueListening: keepAudio,
     );
 
     // Pause first so Android MPV does not keep decoding against a transient
@@ -113,18 +117,7 @@ extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
       _wasPlayingBeforeInactive = _wasPlayingBeforeInactive || wasActive;
       if (wasActive) {
         try {
-          // On a car this is the driving transition itself, on every head unit whose vehicle cannot
-          // report its restrictions. It is forced on this peer alone, so it must not travel to the
-          // rest of a Watch Together room; elsewhere backgrounding keeps its existing meaning.
-          if (isAutomotive) {
-            if (await _pauseWithoutDisturbingTheRoom(currentPlayer)) {
-              // The sync layer owns this pause and its resume. Drop the latch so the screen does not
-              // also restore playback on the way back and ask the room to play along with it.
-              _wasPlayingBeforeInactive = false;
-            }
-          } else {
-            await _pauseWithPlaybackIntent(currentPlayer);
-          }
+          await _pauseWithPlaybackIntent(currentPlayer);
           appLogger.d(
             'Video paused due to app being hidden '
             '(${isAutomotive
@@ -141,7 +134,11 @@ extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
 
     if (!mounted || _shuttingDown || currentPlayer != player) return;
 
-    _suspendLiveTimelineForBackground();
+    if (keepAudio) {
+      // O áudio continua tocando: mantém os heartbeats que pertencem à reprodução.
+    } else {
+      _suspendLiveTimelineForBackground();
+    }
 
     if (isTv) {
       await _mediaControls.suspendForTvBackground('hidden');
@@ -153,6 +150,19 @@ extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
       return;
     }
 
+    if (keepAudio) {
+      try {
+        await currentPlayer.setBackgroundAudio(true);
+        _backgroundAudioActive = true;
+        // Uma perda de superfície anterior pode ter pausado antes do callback Dart.
+        // O núcleo continua respeitando perda de foco de áudio e pausa do usuário.
+        if (_playbackIntentShouldPlay) await currentPlayer.play();
+      } catch (error, stack) {
+        _wasPlayingBeforeInactive = _wasPlayingBeforeInactive || _playbackIntentShouldPlay;
+        await _pauseWithPlaybackIntent(currentPlayer);
+        appLogger.w('Não foi possível manter só o som', error: error, stackTrace: stack);
+      }
+    }
     _hiddenForBackground = true;
     await currentPlayer.setVisible(false, restoreOnWindowVisible: Platform.isMacOS);
     _recordLifecycleState('hidden', action: 'render_hidden');
@@ -161,7 +171,6 @@ extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
   Future<void> _handleAppResumed() async {
     if (_shuttingDown) return;
     _recordLifecycleState('resumed', action: 'begin');
-    _watchTogetherProvider?.setBackgrounded(false);
 
     if (_consumeLiveExitOnResume()) {
       _recordLifecycleState('resumed', action: 'exit_stopped_live_session');
@@ -179,6 +188,10 @@ extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
     // video-output refresh before any auto-resume logic runs.
     if (_hiddenForBackground && currentPlayer != null && _isPlayerInitialized) {
       await currentPlayer.setVisible(true);
+      if (_backgroundAudioActive) {
+        await currentPlayer.setBackgroundAudio(false);
+        _backgroundAudioActive = false;
+      }
       if (!Platform.isMacOS) {
         await currentPlayer.updateFrame();
       }
@@ -213,6 +226,10 @@ extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
 
     // Restore media controls and wakelock when app is resumed.
     if (_isPlayerInitialized && mounted && !_shuttingDown) {
+      if (Platform.isAndroid && PlatformDetector.isMobile(context) && !PlatformDetector.isAutomotive()) {
+        await _mediaControlsManager?.setBackgroundMode(true);
+      }
+      if (!mounted || _shuttingDown || currentPlayer != player) return;
       _mediaControls.resumeAfterTvBackground('app_resumed');
       await _mediaControls.restoreAfterResume();
     }
@@ -245,7 +262,7 @@ extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
 
   /// Grace expired while still backgrounded: release the native AV pipeline
   /// (MediaCodec decoders + AudioTrack, tunneled passthrough included) so a
-  /// parked Plezy can't starve other apps on shared-hardware TV SoCs, and end
+  /// parked Heisuca can't starve other apps on shared-hardware TV SoCs, and end
   /// the backend playback session. Fire OS standby never freezes the process,
   /// so paused heartbeats would pin the session in the server dashboard for
   /// as long as the device sits dark (#1911) — and they buy nothing here: the

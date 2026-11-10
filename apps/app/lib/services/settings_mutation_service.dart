@@ -6,24 +6,13 @@ import 'package:provider/provider.dart';
 
 import '../i18n/app_locale_utils.dart';
 import '../i18n/strings.g.dart';
-import '../profiles/active_profile_provider.dart';
-import '../providers/companion_remote_provider.dart';
 import '../providers/discover_provider.dart';
 import '../providers/download_provider.dart';
 import '../providers/multi_server_provider.dart';
 import '../utils/platform_detector.dart';
 import 'device_performance.dart';
-import 'discord_rpc_service.dart';
-import 'companion_remote/companion_remote_host_controller.dart';
 import 'music/music_playback_service.dart';
 import 'settings_service.dart';
-import 'trackers/anilist/anilist_tracker.dart';
-import 'trackers/mal/mal_tracker.dart';
-import 'trackers/mdblist/mdblist_tracker.dart';
-import 'trackers/simkl/simkl_tracker.dart';
-import 'trackers/tracker.dart';
-import 'trackers/tracker_constants.dart';
-import 'trackers/trakt/trakt_tracker.dart';
 
 /// Runtime effect of one stored pref. [checkCurrent] must be called after
 /// every await so a profile switch mid-effect aborts the rest.
@@ -39,8 +28,8 @@ class _SettingsEffect {
 
 /// A stored setting was saved but its runtime effect declined to apply.
 ///
-/// This is an expected outcome, not a programming error: the companion host
-/// refuses when crypto is not ready and logs the reason itself. Effects report
+/// This is an expected outcome, not a programming error: the effect
+/// declines and logs the reason itself. Effects report
 /// it instead of throwing past their caller, because a bulk reset or import
 /// replays the whole table and must not abandon the remaining effects — and
 /// because the settings tiles await their write from an `onChanged` nobody
@@ -78,23 +67,12 @@ class SettingsMutationService {
       (_, settings, _) async => DevicePerformance.setOverrideSync(settings.read(SettingsService.visualEffects)),
       rebuildsRoot: true,
     ),
-    _SettingsEffect(
-      SettingsService.enableDiscordRPC,
-      (_, settings, _) => DiscordRPCService.instance.setEnabled(settings.read(SettingsService.enableDiscordRPC)),
-    ),
     _SettingsEffect(SettingsService.musicVolume, (context, settings, _) async {
       await context.read<MusicPlaybackService?>()?.setVolume(
         settings.read(SettingsService.musicVolume),
         persist: false,
       );
     }),
-    _SettingsEffect(
-      SettingsService.enableTraktWatchedSync,
-      (_, settings, _) =>
-          TraktTracker.instance.setWatchedSyncEnabled(settings.read(SettingsService.enableTraktWatchedSync)),
-    ),
-    for (final service in TrackerService.values) _scrobbleEffect(service),
-    _SettingsEffect(SettingsService.enableCompanionRemoteServer, _applyCompanionRemoteServer),
     // Home hubs are fetched in the chosen layout, so a switch only shows once
     // they are fetched again. The load runs in the background: the setting is
     // already saved, and the home screen shows its own loading state.
@@ -111,22 +89,8 @@ class SettingsMutationService {
     }),
   ];
 
-  /// [Pref] compares by identity and [SettingsService.scrobblePref] mints a
-  /// fresh instance per call, so lookups go through the stable key.
+  /// [Pref] compares by identity, so lookups go through the stable key.
   static final Map<String, _SettingsEffect> _effectsByKey = {for (final effect in _effects) effect.pref.key: effect};
-
-  static _SettingsEffect _scrobbleEffect(TrackerService service) {
-    final pref = SettingsService.scrobblePref(service);
-    return _SettingsEffect(pref, (_, settings, _) => _trackerFor(service).setEnabled(settings.read(pref)));
-  }
-
-  static Tracker _trackerFor(TrackerService service) => switch (service) {
-    TrackerService.mal => MalTracker.instance,
-    TrackerService.anilist => AnilistTracker.instance,
-    TrackerService.simkl => SimklTracker.instance,
-    TrackerService.trakt => TraktTracker.instance,
-    TrackerService.mdblist => MdblistTracker.instance,
-  };
 
   static Future<void> _applyAppLocale(
     BuildContext context,
@@ -138,25 +102,6 @@ class SettingsMutationService {
     checkCurrent?.call();
     if (context.mounted) {
       context.read<MultiServerProvider?>()?.serverManager.updatePlexLanguage(locale.plexLanguageCode);
-    }
-  }
-
-  static Future<void> _applyCompanionRemoteServer(
-    BuildContext context,
-    SettingsService settings,
-    void Function()? checkCurrent,
-  ) async {
-    final owner = context.read<CompanionRemoteProvider?>();
-    if (owner == null) return;
-    final enabled = settings.read(SettingsService.enableCompanionRemoteServer);
-    if (enabled && context.read<ActiveProfileProvider?>()?.active == null) return;
-    final applied = await applyCompanionRemoteServerSetting(context, enabled, checkCurrent: checkCurrent);
-    checkCurrent?.call();
-    if (!applied) {
-      throw SettingsEffectFailure(
-        SettingsService.enableCompanionRemoteServer,
-        enabled ? t.settings.companionRemoteServerStartFailed : t.settings.companionRemoteServerStopFailed,
-      );
     }
   }
 

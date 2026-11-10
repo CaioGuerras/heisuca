@@ -4,7 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/widgets/rasterized_gradient.dart';
+import 'package:heisuca/widgets/rasterized_gradient.dart';
 
 /// The strip texture must composite identically to Skia's gradient shader.
 /// Translucent non-black ramps are the regression case: rgba8888 strips are

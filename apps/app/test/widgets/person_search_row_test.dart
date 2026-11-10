@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_item.dart' show CardShape;
-import 'package:plezy/media/media_person.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/theme/mono_theme.dart';
-import 'package:plezy/widgets/media_card_list_layout.dart';
-import 'package:plezy/widgets/person_search_row.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_item.dart' show CardShape;
+import 'package:heisuca/media/media_person.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/theme/mono_theme.dart';
+import 'package:heisuca/widgets/media_card_list_layout.dart';
+import 'package:heisuca/widgets/person_search_row.dart';
 
 import '../test_helpers/prefs.dart';
 

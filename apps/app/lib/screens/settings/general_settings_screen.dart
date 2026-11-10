@@ -56,6 +56,13 @@ class GeneralSettingsScreen extends StatelessWidget {
                 title: t.settings.forceTvMode,
                 subtitle: t.settings.forceTvModeDescription,
               ),
+            if (PlatformDetector.isTV())
+              SettingSwitchTile(
+                pref: SettingsService.tvUseNativeKeyboard,
+                icon: Symbols.keyboard_rounded,
+                title: t.settings.tvUseNativeKeyboard,
+                subtitle: t.settings.tvUseNativeKeyboardDescription,
+              ),
             if (Platform.isAndroid) const CgflixIntroSoundTile(), // CGFLIX: som de abertura (veio do Avançado)
           ],
         ),

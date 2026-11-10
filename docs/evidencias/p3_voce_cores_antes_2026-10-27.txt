@@ -1,0 +1,137 @@
+00:00 +0: loading /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart
+00:00 +0: (setUpAll)
+00:00 +0: P3 editor avançado também usa a fonte Inter do app
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: 'Inter'
+  Actual: 'monospace'
+   Which: is different.
+          Expected: Inter
+            Actual: monospace
+                    ^
+           Differ at offset 0
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart:32:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart line 32
+The test description was:
+  P3 editor avançado também usa a fonte Inter do app
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +0 -1: P3 editor avançado também usa a fonte Inter do app [E]
+  Test failed. See exception logs above.
+  The test description was: P3 editor avançado também usa a fonte Inter do app
+
+00:00 +0 -1: P3 título de seção ficha renderiza Sora
+00:00 +1 -1: P3 título de seção configurações renderiza Sora
+00:01 +2 -1: P3 Shikkoku: ícones de Você acompanham o destaque do tema
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: Color:<Color(alpha: 1.0000, red: 0.7804, green: 0.7333, blue: 0.8314, colorSpace:
+ColorSpace.sRGB)>
+  Actual: Color:<Color(alpha: 1.0000, red: 0.2196, green: 0.7412, blue: 0.9725, colorSpace:
+ColorSpace.sRGB)>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart:54:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart line 54
+The test description was:
+  P3 Shikkoku: ícones de Você acompanham o destaque do tema
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +2 -2: P3 Shikkoku: ícones de Você acompanham o destaque do tema [E]
+  Test failed. See exception logs above.
+  The test description was: P3 Shikkoku: ícones de Você acompanham o destaque do tema
+
+00:01 +2 -2: P3 Shikkoku: login usa o canvas do tema
+00:01 +3 -2: P3 Shikkoku: Você usa o canvas do tema
+00:01 +4 -2: P3 Shikkoku: dica do campo de login tem AA no preenchimento real
+00:01 +5 -2: P3 Shikkoku: títulos Sora e texto Inter no contrato do tema
+00:01 +6 -2: P3 Hisui claro: ícones de Você acompanham o destaque do tema
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: Color:<Color(alpha: 1.0000, red: 0.1373, green: 0.3255, blue: 0.2784, colorSpace:
+ColorSpace.sRGB)>
+  Actual: Color:<Color(alpha: 1.0000, red: 0.0078, green: 0.5176, blue: 0.7804, colorSpace:
+ColorSpace.sRGB)>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart:54:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart line 54
+The test description was:
+  P3 Hisui claro: ícones de Você acompanham o destaque do tema
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +6 -3: P3 Hisui claro: ícones de Você acompanham o destaque do tema [E]
+  Test failed. See exception logs above.
+  The test description was: P3 Hisui claro: ícones de Você acompanham o destaque do tema
+
+00:01 +6 -3: P3 Hisui claro: login usa o canvas do tema
+00:01 +7 -3: P3 Hisui claro: Você usa o canvas do tema
+00:02 +8 -3: P3 Hisui claro: dica do campo de login tem AA no preenchimento real
+00:02 +9 -3: P3 Hisui claro: títulos Sora e texto Inter no contrato do tema
+00:02 +10 -3: P3 Hisui escuro: ícones de Você acompanham o destaque do tema
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: Color:<Color(alpha: 1.0000, red: 0.5569, green: 0.7137, blue: 0.6078, colorSpace:
+ColorSpace.sRGB)>
+  Actual: Color:<Color(alpha: 1.0000, red: 0.2196, green: 0.7412, blue: 0.9725, colorSpace:
+ColorSpace.sRGB)>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart:54:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart line 54
+The test description was:
+  P3 Hisui escuro: ícones de Você acompanham o destaque do tema
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:02 +10 -4: P3 Hisui escuro: ícones de Você acompanham o destaque do tema [E]
+  Test failed. See exception logs above.
+  The test description was: P3 Hisui escuro: ícones de Você acompanham o destaque do tema
+
+00:02 +10 -4: P3 Hisui escuro: login usa o canvas do tema
+00:02 +11 -4: P3 Hisui escuro: Você usa o canvas do tema
+00:02 +12 -4: P3 Hisui escuro: dica do campo de login tem AA no preenchimento real
+00:02 +13 -4: P3 Hisui escuro: títulos Sora e texto Inter no contrato do tema
+00:02 +14 -4: P3 logo completo é SVG, sem palavra digitada
+00:02 +15 -4: P3 Sobre usa marca SVG, sem palavra digitada
+00:02 +16 -4: (tearDownAll)
+00:02 +16 -4: Some tests failed.
+
+Failing tests:
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart: P3 Hisui claro: ícones de Você acompanham o destaque do tema
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart: P3 Hisui escuro: ícones de Você acompanham o destaque do tema
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart: P3 Shikkoku: ícones de Você acompanham o destaque do tema
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_style_test.dart: P3 editor avançado também usa a fonte Inter do app

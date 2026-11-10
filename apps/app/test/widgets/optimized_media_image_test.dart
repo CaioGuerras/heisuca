@@ -6,8 +6,8 @@ import 'package:cached_network_image_ce/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:plezy/utils/media_image_helper.dart';
-import 'package:plezy/widgets/optimized_media_image.dart';
+import 'package:heisuca/utils/media_image_helper.dart';
+import 'package:heisuca/widgets/optimized_media_image.dart';
 
 void main() {
   testWidgets('network widget matches the shared server artwork provider', (tester) async {
@@ -48,7 +48,7 @@ void main() {
     expect(widgetCached.cacheKey, sharedCached.cacheKey);
     expect(widgetCached.cacheKey, isNotNull);
     expect(widgetCached.headers, sharedCached.headers);
-    expect(widgetCached.headers, const {'User-Agent': 'Plezy'});
+    expect(widgetCached.headers, const {'User-Agent': 'Heisuca'});
     expect(widgetCached.maxWidth, sharedCached.maxWidth);
     expect(widgetCached.maxWidth, isNull);
     expect(widgetCached.maxHeight, sharedCached.maxHeight);

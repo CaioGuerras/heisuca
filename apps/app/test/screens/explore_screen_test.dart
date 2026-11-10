@@ -4,22 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/models/catalog/catalog_item.dart';
-import 'package:plezy/models/catalog/catalog_metadata.dart';
-import 'package:plezy/providers/catalog_sources_provider.dart';
-import 'package:plezy/providers/explore_provider.dart';
-import 'package:plezy/screens/explore_screen.dart';
-import 'package:plezy/services/catalog/catalog_source.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/theme/mono_theme.dart';
-import 'package:plezy/utils/platform_detector.dart';
-import 'package:plezy/widgets/catalog_source_logo.dart';
-import 'package:plezy/widgets/search_input_field.dart';
-import 'package:plezy/widgets/fitting_title_text.dart';
-import 'package:plezy/widgets/optimized_media_image.dart' show ClearLogoImage;
-import 'package:plezy/widgets/tv_spotlight_background.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/models/catalog/catalog_item.dart';
+import 'package:heisuca/models/catalog/catalog_metadata.dart';
+import 'package:heisuca/providers/catalog_sources_provider.dart';
+import 'package:heisuca/providers/explore_provider.dart';
+import 'package:heisuca/screens/explore_screen.dart';
+import 'package:heisuca/services/catalog/catalog_source.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/theme/mono_theme.dart';
+import 'package:heisuca/utils/platform_detector.dart';
+import 'package:heisuca/widgets/catalog_source_logo.dart';
+import 'package:heisuca/widgets/search_input_field.dart';
+import 'package:heisuca/widgets/fitting_title_text.dart';
+import 'package:heisuca/widgets/optimized_media_image.dart' show ClearLogoImage;
+import 'package:heisuca/widgets/tv_spotlight_background.dart';
 import 'package:provider/provider.dart';
 
 import '../test_helpers/prefs.dart';
@@ -180,8 +180,6 @@ Future<_FakeCatalogSourcesProvider> _pumpExplore(
   );
   final mal = _FakeCatalogSource(CatalogSourceId.mal, 'MyAnimeList', malItemId);
   final anilist = _FakeCatalogSource(CatalogSourceId.anilist, 'AniList', 3);
-  final simkl = _FakeCatalogSource(CatalogSourceId.simkl, 'Simkl', 4);
-  final mdblist = _FakeCatalogSource(CatalogSourceId.mdblist, 'MDBList', 5);
   final plex = _FakeCatalogSource(
     CatalogSourceId.plex,
     'Plex',
@@ -190,15 +188,13 @@ Future<_FakeCatalogSourcesProvider> _pumpExplore(
     providerHubStyle: plexHubStyle,
   );
   final seerr = _FakeCatalogSource(CatalogSourceId.seerr, 'Seerr', 7);
-  final sources = _FakeCatalogSourcesProvider([trakt, mal, anilist, simkl, mdblist, plex, seerr]);
+  final sources = _FakeCatalogSourcesProvider([trakt, mal, anilist, plex, seerr]);
   final explore = ExploreProvider(sources);
   addTearDown(explore.dispose);
   addTearDown(sources.dispose);
   addTearDown(trakt.dispose);
   addTearDown(mal.dispose);
   addTearDown(anilist.dispose);
-  addTearDown(simkl.dispose);
-  addTearDown(mdblist.dispose);
   addTearDown(plex.dispose);
   addTearDown(seerr.dispose);
 
@@ -302,16 +298,16 @@ void main() {
     await tester.sendKeyEvent(LogicalKeyboardKey.select);
     await tester.pumpAndSettle();
 
-    for (final name in ['Trakt', 'MyAnimeList', 'AniList', 'Simkl', 'MDBList', 'Plex', 'Seerr']) {
+    for (final name in ['Trakt', 'MyAnimeList', 'AniList', 'Plex', 'Seerr']) {
       expect(find.text(name), findsAtLeast(1));
     }
-    expect(find.byType(CatalogSourceLogo), findsAtLeast(7));
+    expect(find.byType(CatalogSourceLogo), findsAtLeast(5));
 
-    await tester.tap(find.text('MDBList'));
+    await tester.tap(find.text('Seerr'));
     await tester.pumpAndSettle();
-    expect(sources.activeSource?.id, CatalogSourceId.mdblist);
-    expect(find.text('MDBList'), findsOneWidget);
-    expect(find.text('MDBList Movie'), findsAtLeast(1));
+    expect(sources.activeSource?.id, CatalogSourceId.seerr);
+    expect(find.text('Seerr'), findsOneWidget);
+    expect(find.text('Seerr Movie'), findsAtLeast(1));
   });
 
   testWidgets('a null-style Plex provider hub keeps the existing Explore shelf', (tester) async {

@@ -1,0 +1,65 @@
+00:00 +0: loading /workspace/heisuca/apps/app/test/cgflix/heisuca_palette_p_test.dart
+00:00 +0: P2 Hisui escuro permanece escolhido depois da abertura
+00:00 +0 -1: P2 Hisui escuro permanece escolhido depois da abertura [E]
+  Expected: ThemeMode:<ThemeMode.dark>
+    Actual: ThemeMode:<ThemeMode.oled>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/cgflix/heisuca_palette_p_test.dart 16:5        main.<fn>
+  
+00:00 +0 -1: P2 abertura Android usa os mesmos fundos
+00:00 +0 -2: P2 abertura Android usa os mesmos fundos [E]
+  Expected: contains '#17151C'
+    Actual: '<?XML VERSION="1.0" ENCODING="UTF-8"?>\n'
+              '<RESOURCES>\n'
+              '    <!-- HEISUCA: PALETA OFICIAL SHIKKOKU (#1A1424) E VARIANTES ADAPTATIVAS -->\n'
+              '    <COLOR NAME="IC_LAUNCHER_BACKGROUND">#1A1424</COLOR>\n'
+              '    <COLOR NAME="IC_LAUNCHER_BACKGROUND_HISUI">#1A2327</COLOR>\n'
+              '    <COLOR NAME="IC_LAUNCHER_BACKGROUND_ICHIGO">#FFFFFF</COLOR>\n'
+              '    <COLOR NAME="IC_LAUNCHER_BACKGROUND_SHINJU">#FFFFFF</COLOR>\n'
+              '    <COLOR NAME="IC_LAUNCHER_BACKGROUND_SORAIRO">#FFFFFF</COLOR>\n'
+              '    <COLOR NAME="IC_LAUNCHER_BACKGROUND_HEITOR">#F4FCEE</COLOR>\n'
+              '    <COLOR NAME="SPLASH_BACKGROUND">#0E0B14</COLOR>\n'
+              '    <COLOR NAME="SPLASH_DARK">#0E0B14</COLOR>\n'
+              '    <COLOR NAME="SPLASH_OLED">#000000</COLOR>\n'
+              '    <COLOR NAME="SPLASH_LIGHT">#F7F3EC</COLOR>\n'
+              '</RESOURCES>\n'
+              ''
+     Which: does not contain '#17151C'
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/cgflix/heisuca_palette_p_test.dart 21:7        main.<fn>
+  
+00:00 +0 -2: P2 tokens e Material concordam: dark=true, oled=true
+00:00 +0 -3: P2 tokens e Material concordam: dark=true, oled=true [E]
+  Expected: Color:<Color(alpha: 1.0000, red: 0.0902, green: 0.0824, blue: 0.1098, colorSpace: ColorSpace.sRGB)>
+    Actual: Color:<Color(alpha: 1.0000, red: 0.0000, green: 0.0000, blue: 0.0000, colorSpace: ColorSpace.sRGB)>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/cgflix/heisuca_palette_p_test.dart 33:7        main.<fn>
+  
+00:00 +0 -3: P2 tokens e Material concordam: dark=false, oled=false
+00:00 +0 -4: P2 tokens e Material concordam: dark=false, oled=false [E]
+  Expected: Color:<Color(alpha: 1.0000, red: 0.8549, green: 0.9451, blue: 0.8706, colorSpace: ColorSpace.sRGB)>
+    Actual: Color:<Color(alpha: 1.0000, red: 0.9569, green: 0.9882, blue: 0.9333, colorSpace: ColorSpace.sRGB)>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/cgflix/heisuca_palette_p_test.dart 33:7        main.<fn>
+  
+00:00 +0 -4: P2 tokens e Material concordam: dark=true, oled=false
+00:00 +0 -5: P2 tokens e Material concordam: dark=true, oled=false [E]
+  Null check operator used on a null value
+  test/cgflix/heisuca_palette_p_test.dart 31:49  main.<fn>
+  
+00:00 +0 -5: Some tests failed.
+
+Failing tests:
+  /workspace/heisuca/apps/app/test/cgflix/heisuca_palette_p_test.dart: P2 Hisui escuro permanece escolhido depois da abertura
+  /workspace/heisuca/apps/app/test/cgflix/heisuca_palette_p_test.dart: P2 abertura Android usa os mesmos fundos
+  /workspace/heisuca/apps/app/test/cgflix/heisuca_palette_p_test.dart: P2 tokens e Material concordam: dark=false, oled=false
+  /workspace/heisuca/apps/app/test/cgflix/heisuca_palette_p_test.dart: P2 tokens e Material concordam: dark=true, oled=false
+  /workspace/heisuca/apps/app/test/cgflix/heisuca_palette_p_test.dart: P2 tokens e Material concordam: dark=true, oled=true

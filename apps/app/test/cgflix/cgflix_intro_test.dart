@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/cgflix/cgflix_intro.dart';
+import 'package:heisuca/cgflix/cgflix_intro.dart';
 
 void main() {
   test('pula a animação em aberturas seguidas (< 30 s)', () {

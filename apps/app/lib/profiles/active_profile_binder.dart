@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../heisuca/kids/heisuca_kids.dart';
 import '../media/ids.dart';
 
 import 'package:flutter/foundation.dart';
@@ -318,9 +319,23 @@ class ActiveProfileBinder {
       // One snapshot of the join rows + connections per pass — every
       // downstream helper reads from these instead of re-querying (each
       // registry read pays per-row CredentialVault reveals).
-      final joinRows = await profileConnections.listForProfile(profile.id);
+      final allJoinRows = await profileConnections.listForProfile(profile.id);
       final connectionsById = {for (final c in await connections.list()) c.id: c};
       if (!_isCurrentBind(profile.id, generation)) return false;
+      // Heisuca: a conexão do usuário infantil do servidor ("<nome>-kids") só vale no perfil infantil.
+      // Num perfil adulto ela dividiria o mesmo servidor com a conexão da pessoa e um dos dois tokens
+      // venceria (o adulto passava a ver só o acervo infantil). Ignora e desvincula (auto-reparo).
+      final joinRows = <ProfileConnection>[];
+      final isKidsProfile = HeisucaKids.instance.isKids(profile.id);
+      for (final pc in allJoinRows) {
+        final conn = connectionsById[pc.connectionId];
+        if (!isKidsProfile && conn is JellyfinConnection && heisucaIsKidsConnection(conn)) {
+          appLogger.w('ActiveProfileBinder: conexão infantil removida do perfil ${profile.displayName}');
+          unawaited(profileConnections.remove(profile.id, pc.connectionId));
+          continue;
+        }
+        joinRows.add(pc);
+      }
 
       // PIN prompts may only surface from a user-initiated bind or the
       // session's initial bind (cold-start resume). Passive rebinds — an

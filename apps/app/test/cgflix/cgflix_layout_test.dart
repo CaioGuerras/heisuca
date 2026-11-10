@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/cgflix/cgflix_layout.dart';
+import 'package:heisuca/cgflix/cgflix_layout.dart';
 
 void main() {
   // motorola edge 70: 1080×2400 px a ~2,6 → ~412×914 dp em pé.

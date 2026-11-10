@@ -1,6 +1,6 @@
 /// The URL doesn't point at a reachable, initialized Seerr instance.
 ///
-/// [message] is English for stable logs and Sentry grouping. [display] is the
+/// [message] is English for stable logs. [display] is the
 /// localized user-facing text when this failure is rendered in the UI.
 class SeerrUrlException implements Exception {
   final String message;
@@ -21,7 +21,7 @@ class SeerrUrlException implements Exception {
 /// [SeerrClient] treats this during re-auth as "the server rejected the
 /// stored credentials" and unlinks the session.
 ///
-/// [message] is English for stable logs and Sentry grouping. [display] is the
+/// [message] is English for stable logs. [display] is the
 /// localized user-facing text when this failure is rendered in the UI.
 class SeerrAuthException implements Exception {
   final String message;
@@ -38,7 +38,7 @@ class SeerrAuthException implements Exception {
 /// not a [SeerrAuthException]: this does not prove the stored credentials
 /// were rejected and must not unlink the session.
 ///
-/// [message] is English for stable logs and Sentry grouping. [display] is the
+/// [message] is English for stable logs. [display] is the
 /// localized user-facing text when this failure is rendered in the UI.
 class SeerrReauthUnavailableException implements Exception {
   final String message;
@@ -57,7 +57,7 @@ class SeerrReauthUnavailableException implements Exception {
 /// stored session may be perfectly valid behind the wall, so [SeerrClient]
 /// must not unlink it.
 ///
-/// [message] is English for stable logs and Sentry grouping. [display] is the
+/// [message] is English for stable logs. [display] is the
 /// localized user-facing text when this failure is rendered in the UI.
 class SeerrProxyException implements Exception {
   final String message;
@@ -87,7 +87,7 @@ class SeerrApiException implements Exception {
 /// localize it instead of echoing the server's English body, and from
 /// [SeerrAuthException] because the session is fine and must stay linked.
 ///
-/// [message] is English for stable logs and Sentry grouping. [display] is the
+/// [message] is English for stable logs. [display] is the
 /// localized user-facing text when this failure is rendered in the UI.
 class SeerrPermissionException implements Exception {
   final String message;

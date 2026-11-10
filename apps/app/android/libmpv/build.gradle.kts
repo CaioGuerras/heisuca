@@ -60,8 +60,8 @@ fun stagedArchiveName(abi: String) = "libmpv-android-$abi.tar.gz"
 // libmpv-android-<key>-<abi>.tar.gz per ABI) to test changes before a lock
 // bump. Checksums are skipped for local archives; the lock stays
 // authoritative otherwise.
-val localMpvDir: String? = (project.findProperty("plezy.localMpvDir") as String?)
-  ?: System.getenv("PLEZY_LOCAL_MPV_DIR")
+val localMpvDir: String? = (project.findProperty("heisuca.localMpvDir") as String?)
+  ?: System.getenv("HEISUCA_LOCAL_MPV_DIR")
 
 fun localArchive(abi: String): File {
   val dir = File(localMpvDir!!)
@@ -70,7 +70,7 @@ fun localArchive(abi: String): File {
   val pattern = Regex("libmpv-android-.+-${Regex.escape(abi)}\\.tar\\.gz")
   val matches = dir.listFiles()?.filter { it.isFile && pattern.matches(it.name) }.orEmpty()
   return matches.singleOrNull() ?: throw GradleException(
-    "PLEZY_LOCAL_MPV_DIR=$localMpvDir must contain exactly one libmpv-android-*-$abi.tar.gz, found ${matches.size}"
+    "HEISUCA_LOCAL_MPV_DIR=$localMpvDir must contain exactly one libmpv-android-*-$abi.tar.gz, found ${matches.size}"
   )
 }
 
@@ -97,7 +97,9 @@ val downloadLibmpv = tasks.register("downloadLibmpv") {
           val checksum = mpvAssets.getValue(abi).getValue("checksum")
           try {
             providers.exec {
-              commandLine("curl", "-sfL", "$mpvAssetBase/$asset", "-o", staged.absolutePath)
+              // Mesmo endurecimento do FFmpeg: sem retry, um soluço do GitHub derrubava o job inteiro.
+              commandLine("curl", "-sSfL", "--retry", "5", "--retry-all-errors", "--retry-delay", "10",
+                "--connect-timeout", "30", "--max-time", "600", "$mpvAssetBase/$asset", "-o", staged.absolutePath)
             }.result.get().assertNormalExitValue()
           } catch (error: Exception) {
             throw GradleException("Failed to download $asset (mpv-build $mpvKey)", error)
@@ -182,7 +184,7 @@ val extractLibmpvNative = tasks.register("extractLibmpvNative") {
 }
 
 android {
-  namespace = "com.edde746.plezy.libmpv"
+  namespace = "app.heisuca.libmpv"
   compileSdk = 36
   // Matches the app's latest stable NDK so every project-owned native library
   // is built with the same 16 KB page-size-capable libc++ toolchain. That copy

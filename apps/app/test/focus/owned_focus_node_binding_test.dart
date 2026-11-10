@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/focus/owned_focus_node_binding.dart';
+import 'package:heisuca/focus/owned_focus_node_binding.dart';
 
 void main() {
   test('switching external nodes detaches the previous listener without disposing it', () {

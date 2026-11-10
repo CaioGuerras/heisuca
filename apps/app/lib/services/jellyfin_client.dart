@@ -1,3 +1,4 @@
+import '../heisuca/services/heisuca_playback_delivery.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -47,6 +48,7 @@ import '../models/transcode_quality_preset.dart';
 import '../media/media_source_info.dart';
 import '../media/media_sort.dart';
 import '../media/media_version.dart';
+import 'media_source_ranker.dart';
 import '../utils/app_logger.dart';
 import '../utils/device_identity.dart';
 import '../utils/failover_http_client.dart';
@@ -74,6 +76,8 @@ import 'jellyfin_mappers.dart';
 import 'jellyfin_media_info_mapper.dart';
 import 'jellyfin_playback_bundle.dart';
 import 'jellyfin_playback_urls.dart';
+import 'jellyfin_playback_warmup_service.dart';
+import '../utils/platform_detector.dart';
 import 'jellyfin_trickplay_service.dart';
 import 'media_browser_paths.dart';
 import 'playback_initialization_types.dart';
@@ -132,9 +136,11 @@ mixin _JellyfinClientInternals on MediaServerCacheMixin {
   Future<List<String>> _fetchFilterFacet(String endpoint, String? libraryId);
   Future<JellyfinPlaybackBundle?> fetchPlaybackBundle(
     String itemId, {
-    int sourceIndex = 0,
+    int? sourceIndex,
     String? sourceId,
     String? preferredSignature,
+    String? inheritedSignature,
+    bool rawIndexNeedsHardware = false,
   });
   String buildDirectStreamUrl(
     String itemId, {
@@ -169,7 +175,13 @@ mixin _JellyfinClientInternals on MediaServerCacheMixin {
     bool audioProfile,
     bool burnSubtitles,
   });
-  String _withApiKey(String urlOrPath);
+  String? _withApiKeyOrNull(String urlOrPath);
+
+  /// Como [_withApiKeyOrNull], mas URL descartada pela política aborta a
+  /// reprodução com erro tratado.
+  String _withApiKey(String urlOrPath) =>
+      _withApiKeyOrNull(urlOrPath) ??
+      (throw const PlaybackException('Server returned a URL that the app refuses to open'));
 
   /// Positional core of the tolerant `/Items` array fetch. The browse part's
   /// implementation widens it with optional retry/abort/diagnostics knobs that
@@ -621,6 +633,18 @@ class JellyfinClient
   @override
   void setOfflineMode(bool offline) {
     _offlineMode = offline;
+  }
+
+  /// Encerra a sessão atual no servidor via `POST /Sessions/Logout`.
+  /// Prazo curto: sem rede, sair da conta não pode esperar o timeout de leitura do cliente (até 120 s).
+  Future<void> logout({Duration prazo = const Duration(seconds: 5)}) async {
+    JellyfinPlaybackWarmupService.instance.clear();
+    try {
+      await _http.post('/Sessions/Logout').timeout(prazo);
+      appLogger.i('Sessão Jellyfin encerrada no servidor via /Sessions/Logout');
+    } catch (e, st) {
+      appLogger.w('Falha ao encerrar sessão Jellyfin no servidor', error: e, stackTrace: st);
+    }
   }
 
   /// Expose the Jellyfin cache through the [MediaServerClient] interface so

@@ -4,7 +4,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/utils/logo_tone.dart';
+import 'package:heisuca/utils/logo_tone.dart';
 
 /// Contract tests for the channel-logo tone pipeline behind issue #2197.
 ///

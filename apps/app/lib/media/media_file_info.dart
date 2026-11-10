@@ -545,6 +545,15 @@ class MediaStreamDetails {
 
   String? get bitrateFormatted => bitrateKbps == null ? null : ByteFormatter.formatBitrate(bitrateKbps!);
 
+  /// Trailing path segment — the filename the user recognises.
+  String? get fileName {
+    final path = filePath;
+    if (path == null || path.isEmpty) return null;
+    final separator = path.contains('\\') ? '\\' : '/';
+    final segments = path.split(separator).where((segment) => segment.isNotEmpty);
+    return segments.isEmpty ? path : segments.last;
+  }
+
   String? get resolutionFormatted => (width != null && height != null) ? '${width}x$height' : null;
 
   String? get codedResolutionFormatted =>

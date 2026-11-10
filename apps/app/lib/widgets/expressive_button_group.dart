@@ -35,7 +35,7 @@ class ExpressiveButtonGroup<T> extends StatefulWidget {
     required this.selected,
     required this.onChanged,
     this.expandSegments = true,
-    this.minHeight = 40,
+    this.minHeight = 48,
     this.enabled = true,
   });
 
@@ -132,7 +132,8 @@ class _ExpressiveButtonGroupState<T> extends State<ExpressiveButtonGroup<T>> {
   @override
   Widget build(BuildContext context) {
     final t = tokens(context);
-    return Row(
+    return IntrinsicHeight(child: Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: widget.expandSegments ? MainAxisSize.max : MainAxisSize.min,
       children: [
         for (var i = 0; i < widget.segments.length; i++) ...[
@@ -140,7 +141,7 @@ class _ExpressiveButtonGroupState<T> extends State<ExpressiveButtonGroup<T>> {
           if (widget.expandSegments) Expanded(child: _buildSegment(context, i)) else _buildSegment(context, i),
         ],
       ],
-    );
+    ));
   }
 
   Widget _buildSegment(BuildContext context, int i) {
@@ -175,7 +176,7 @@ class _ExpressiveButtonGroupState<T> extends State<ExpressiveButtonGroup<T>> {
           );
 
     final content = icon != null && label != null
-        ? Row(mainAxisSize: MainAxisSize.min, children: [icon, const SizedBox(width: 8), label])
+        ? Row(mainAxisSize: MainAxisSize.min, children: [icon, const SizedBox(width: 8), Flexible(child: label)])
         : (label ?? icon);
 
     Widget child = AnimatedContainer(
@@ -188,10 +189,8 @@ class _ExpressiveButtonGroupState<T> extends State<ExpressiveButtonGroup<T>> {
         color: _fillFor(selected, focused, _hoveredIndex == i, theme.colorScheme, t),
         borderRadius: _radiiFor(i, selected, pressed, t),
       ),
-      // Labels never wrap: a group where one segment breaks onto two lines
-      // while its neighbors stay on one reads broken. Overlong labels scale
-      // down to fit instead.
-      child: content == null ? null : FittedBox(fit: BoxFit.scaleDown, child: content),
+      // A linha adota a altura do maior rótulo, sem reduzir a fonte escolhida.
+      child: content,
     );
 
     if (!enabled) {

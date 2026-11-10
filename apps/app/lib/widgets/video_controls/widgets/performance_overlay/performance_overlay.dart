@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../../i18n/strings.g.dart';
+import '../../../../heisuca/heisuca_theme.dart';
+import '../../../../utils/platform_detector.dart';
 import '../../../../mpv/mpv.dart';
 import '../../../../widgets/app_icon.dart';
 import 'performance_stats.dart';
@@ -67,6 +69,7 @@ class _PlayerPerformanceOverlayState extends State<PlayerPerformanceOverlay> {
 
   @override
   Widget build(BuildContext context) {
+    if (PlatformDetector.isTV()) return _buildTvOverlay();
     final isMpv = _stats.playerType == 'mpv';
 
     final sections = <Widget>[
@@ -166,6 +169,33 @@ class _PlayerPerformanceOverlayState extends State<PlayerPerformanceOverlay> {
         );
       },
     );
+  }
+
+  Widget _buildTvOverlay() {
+    final decoder = _stats.hwdecCurrent == 'no' ? 'software' :
+        _stats.hwdecCurrent ?? _stats.videoDecoderName ?? 'não informado';
+    final lines = [
+      'Motor: ${_stats.playerType} · ${_stats.videoCodec ?? 'não informado'}',
+      'Resolução: ${_stats.resolution} · ${_stats.videoFpsFormatted}',
+      'Decodificação: $decoder',
+      'Quadros perdidos: ${_stats.frameDropCount ?? 'não informado'}',
+      'Buffer: ${_stats.cacheDurationFormatted} · ${_stats.cacheUsedFormatted}',
+      'Chegada: ${_stats.cacheSpeedFormatted}',
+    ];
+    return MediaQuery.withNoTextScaling(child: Container(
+      constraints: const BoxConstraints(maxWidth: 680),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(color: const Color(0xF21E263B), borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFF303D59))),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+        const Text('Desempenho', style: TextStyle(fontFamily: HeisucaTheme.fonteTitulo,
+          fontSize: 24, fontWeight: FontWeight.w600, color: Color(0xFFEEF2F8))),
+        const SizedBox(height: 8),
+        for (final line in lines) Text(line, maxLines: 1, overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontFamily: HeisucaTheme.fonteTexto, fontSize: 22,
+            height: 1.25, color: Color(0xFFDCE3EF))),
+      ]),
+    ));
   }
 
   Widget _buildSection(IconData icon, String title, List<_Metric> metrics) {

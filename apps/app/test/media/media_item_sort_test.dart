@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_item_sort.dart';
-import 'package:plezy/media/media_kind.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_item_sort.dart';
+import 'package:heisuca/media/media_kind.dart';
 import '../test_helpers/media_items.dart';
 
 /// Local [MediaItem] ordering used by the downloads screen (#927). The

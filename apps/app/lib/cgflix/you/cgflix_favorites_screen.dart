@@ -5,6 +5,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 
 import '../../media/media_item.dart';
+import '../../heisuca/heisuca_media_category.dart';
 import '../../media/media_server_client.dart';
 import '../../providers/multi_server_provider.dart';
 import '../../screens/libraries/state_messages.dart';
@@ -27,19 +28,29 @@ class CgflixFavoritesSource {
     } on ProviderNotFoundException {
       return null;
     }
-    final client = servers?.serverManager.visibleOnlineClients.values.whereType<JellyfinClient>().firstOrNull;
+    final client = servers?.serverManager.navigationOnlineClients.values.whereType<JellyfinClient>().firstOrNull;
     if (client == null) return null;
     return CgflixFavoritesSource(
       client: client,
-      load: () async => client.cgflixMapItems(
-        await client.cgflixFetchRawItems({
-          'Filters': 'IsFavorite',
-          'IncludeItemTypes': 'Movie,Series',
-          'SortBy': 'SortName',
-          'SortOrder': 'Ascending',
-          'Limit': '300',
-        }),
-      ),
+      load: () async {
+        final libraries = await client.fetchLibraries();
+        final groups = await Future.wait(libraries.map((library) async {
+          final items = <MediaItem>[];
+          while (true) {
+            final raw = await client.cgflixFetchRawItems({
+              'ParentId': library.id, 'Filters': 'IsFavorite',
+              'IncludeItemTypes': 'Movie,Series', 'SortBy': 'SortName',
+              'SortOrder': 'Ascending', 'Limit': '300', 'StartIndex': '${items.length}',
+            });
+            items.addAll(client.cgflixMapItems(raw).map((item) => item.copyWith(libraryTitle: library.title)));
+            if (raw.length < 300) break;
+          }
+          return items;
+        }));
+        final unique = <String, MediaItem>{};
+        for (final item in groups.expand((group) => group)) { unique[item.id] = item; }
+        return unique.values.toList()..sort((a, b) => a.displayTitle.toLowerCase().compareTo(b.displayTitle.toLowerCase()));
+      },
     );
   }
 
@@ -63,6 +74,7 @@ class CgflixFavoritesScreen extends StatefulWidget {
 
 class _CgflixFavoritesScreenState extends State<CgflixFavoritesScreen> {
   late Future<List<MediaItem>> _future = _load();
+  HeisucaMediaCategory _category = HeisucaMediaCategory.all;
 
   Future<List<MediaItem>> _load() async {
     try {
@@ -122,7 +134,14 @@ class _CgflixFavoritesScreenState extends State<CgflixFavoritesScreen> {
               ),
             );
           }
-          return RefreshIndicator(
+          final visible = items.where((item) => _category == HeisucaMediaCategory.all || heisucaMediaCategory(item) == _category).toList();
+          return Column(children: [
+            SizedBox(height: 52, child: ListView(scrollDirection: Axis.horizontal, padding: const EdgeInsets.symmetric(horizontal: 16),
+              children: [for (final category in HeisucaMediaCategory.values) Padding(padding: const EdgeInsets.only(right: 8),
+                child: ChoiceChip(label: Text(category.label), selected: category == _category,
+                  onSelected: (_) => setState(() => _category = category)))])),
+            if (visible.isEmpty) const Expanded(child: Center(child: Text('Nenhum favorito nesta categoria.')))
+            else Expanded(child: RefreshIndicator(
             onRefresh: _refresh,
             child: GridView.builder(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
@@ -132,22 +151,24 @@ class _CgflixFavoritesScreenState extends State<CgflixFavoritesScreen> {
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 12,
               ),
-              itemCount: items.length,
+              itemCount: visible.length,
               itemBuilder: (context, i) => LayoutBuilder(
                 builder: (context, box) => CgflixPosterCard(
-                  item: items[i],
+                  item: visible[i],
                   client: widget.source.client,
                   width: box.maxWidth,
-                  onTap: () => cgflixOpenDetails(context, items[i]).then((_) {
+                  onTap: () => cgflixOpenDetails(context, visible[i]).then((_) {
                     // Saiu da Minha lista na página do título? Atualiza a grade.
                     if (mounted) _refresh();
                   }),
                 ),
               ),
             ),
-          );
+          )),
+          ]);
         },
       ),
     );
   }
 }
+

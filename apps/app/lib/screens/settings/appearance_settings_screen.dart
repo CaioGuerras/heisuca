@@ -212,7 +212,7 @@ class AppearanceSettingsScreen extends StatelessWidget {
                 children: [
                   const AppIcon(Symbols.grid_view_rounded, fill: 1),
                   const SizedBox(width: 16),
-                  Text(t.settings.libraryDensity, style: settingsOptionTitleStyle(context)),
+                  Expanded(child: Text(t.settings.libraryDensity, style: settingsOptionTitleStyle(context))),
                 ],
               ),
               const SizedBox(height: 12),

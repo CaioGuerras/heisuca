@@ -2,7 +2,7 @@
 // ATIVO (ligado/selecionado) e em contorno quando inativo; 24 dp nas listas e 28 dp nos controles
 // do player no celular, sempre com 48 dp de toque.
 //
-// Os controles do player são do Plezy: aqui só trocamos o desenho dos que não diziam o que fazem
+// Os controles do player são do Heisuca: aqui só trocamos o desenho dos que não diziam o que fazem
 // (gancho de 1 linha em `video_control_button.dart`). TV e computador mantêm o tamanho do upstream
 // (o foco do controle remoto da TV depende dele).
 import 'package:flutter/widgets.dart';
@@ -10,7 +10,7 @@ import 'package:material_symbols_icons/symbols.dart';
 
 import '../utils/platform_detector.dart';
 
-/// Ícone do player do Plezy → ícone mais claro para o público.
+/// Ícone do player do Heisuca → ícone mais claro para o público.
 IconData cgflixPlayerIcon(IconData icon) {
   // `IconData` não é constante em switch; compara pelo código.
   if (icon == Symbols.tune_rounded) return Symbols.settings_rounded; // Ajustes do vídeo: engrenagem

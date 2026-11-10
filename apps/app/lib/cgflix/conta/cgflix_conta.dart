@@ -38,7 +38,7 @@ abstract interface class CgflixConta {
     } on ProviderNotFoundException {
       return null;
     }
-    final client = servers?.serverManager.visibleOnlineClients.values.whereType<JellyfinClient>().firstOrNull;
+    final client = servers?.serverManager.navigationOnlineClients.values.whereType<JellyfinClient>().firstOrNull;
     return client == null ? null : CgflixJellyfinConta(client);
   }
 

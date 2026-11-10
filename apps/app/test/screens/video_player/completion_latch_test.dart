@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/providers/playback_state_provider.dart';
-import 'package:plezy/screens/video_player/completion_latch.dart';
-import 'package:plezy/services/playback_initialization_types.dart';
+import 'package:heisuca/providers/playback_state_provider.dart';
+import 'package:heisuca/screens/video_player/completion_latch.dart';
+import 'package:heisuca/services/playback_initialization_types.dart';
 
 void main() {
   CompletionLatch latch() => CompletionLatch(rearmWindowMs: 2000);
@@ -173,7 +173,6 @@ void main() {
       PlaybackFailureReason? failureReason = PlaybackFailureReason.serverUnavailable,
       bool hasNext = true,
       bool autoPlayEnabled = true,
-      bool inWatchTogetherSession = false,
       int autoRetriesUsed = 0,
     }) {
       return playNextRetryPresentation(
@@ -181,7 +180,6 @@ void main() {
         failureReason: failureReason,
         hasNext: hasNext,
         autoPlayEnabled: autoPlayEnabled,
-        inWatchTogetherSession: inWatchTogetherSession,
         autoRetriesUsed: autoRetriesUsed,
       );
     }
@@ -217,8 +215,5 @@ void main() {
       expect(resolve(autoPlayEnabled: false), PlayNextRetryPresentation.manual);
     });
 
-    test('Watch Together sessions never auto-retry but keep the manual prompt', () {
-      expect(resolve(inWatchTogetherSession: true), PlayNextRetryPresentation.manual);
-    });
   });
 }

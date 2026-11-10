@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/models/plex/plex_activity.dart';
+import 'package:heisuca/models/plex/plex_activity.dart';
 
 void main() {
   test('PlexActivity tolerates stringified and scalar fields', () {

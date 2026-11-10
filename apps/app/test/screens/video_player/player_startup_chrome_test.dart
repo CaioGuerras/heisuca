@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/providers/playback_state_provider.dart';
-import 'package:plezy/screens/video_player_screen.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/utils/platform_detector.dart';
-import 'package:plezy/widgets/video_controls/player_chrome_controller.dart';
+import 'package:heisuca/providers/playback_state_provider.dart';
+import 'package:heisuca/screens/video_player_screen.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/utils/platform_detector.dart';
+import 'package:heisuca/widgets/video_controls/player_chrome_controller.dart';
 import 'package:provider/provider.dart';
 
 import '../../test_helpers/media_items.dart';
@@ -70,8 +70,8 @@ Future<PlayerChromeController> _openPlayerChrome(WidgetTester tester, {VoidCallb
   late PlayerChromeController chrome;
 
   await withMockPlayerChannels(
-    methodChannelName: 'com.plezy/mpv_player',
-    eventChannelName: 'com.plezy/mpv_player/events',
+    methodChannelName: 'app.heisuca/mpv_player',
+    eventChannelName: 'app.heisuca/mpv_player/events',
     testBody: () async {
       await tester.pumpWidget(
         ChangeNotifierProvider(

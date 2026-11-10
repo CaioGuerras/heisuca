@@ -76,7 +76,6 @@ class TranslationsJa extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _Translations$collections$ja collections = _Translations$collections$ja._(_root);
 	@override late final _Translations$playlists$ja playlists = _Translations$playlists$ja._(_root);
 	@override late final _Translations$music$ja music = _Translations$music$ja._(_root);
-	@override late final _Translations$watchTogether$ja watchTogether = _Translations$watchTogether$ja._(_root);
 	@override late final _Translations$downloads$ja downloads = _Translations$downloads$ja._(_root);
 	@override late final _Translations$shaders$ja shaders = _Translations$shaders$ja._(_root);
 	@override late final _Translations$companionRemote$ja companionRemote = _Translations$companionRemote$ja._(_root);
@@ -226,7 +225,7 @@ class _Translations$settings$ja extends Translations$settings$en {
 
 	// Translations
 	@override String get title => '設定';
-	@override String get supportDeveloper => 'Plezyを支援';
+	@override String get supportDeveloper => 'Heisucaを支援';
 	@override String get supportDeveloperDescription => 'Liberapayで寄付して開発を支援';
 	@override String get language => '言語';
 	@override String get theme => 'テーマ';
@@ -344,12 +343,6 @@ class _Translations$settings$ja extends Translations$settings$en {
 	@override String get keyboardShortcutsDescription => 'キーボードショートカットをカスタマイズ';
 	@override String get videoPlayerNavigation => '動画プレーヤーナビゲーション';
 	@override String get videoPlayerNavigationDescription => '矢印キーで動画プレーヤーコントロールを操作';
-	@override String get watchTogetherRelay => '一緒に視聴リレーサーバー';
-	@override String get watchTogetherRelayDescription => 'カスタムリレーを設定します。全員が同じサーバーを使う必要があります。';
-	@override String get watchTogetherRelayHint => 'https://my-relay.example.com';
-	@override String get watchTogetherRelayInvalid => '有効なHTTPまたはHTTPSのリレーサーバーURLを入力してください。';
-	@override String get crashReporting => 'クラッシュレポート';
-	@override String get crashReportingDescription => 'アプリの改善に役立つクラッシュレポートを送信';
 	@override String get debugLogging => 'デバッグログ';
 	@override String get debugLoggingDescription => 'トラブルシューティング用の詳細なログを有効化';
 	@override String get viewLogs => 'ログを表示';
@@ -368,7 +361,7 @@ class _Translations$settings$ja extends Translations$settings$en {
 	@override String get importSettingsDescription => 'ファイルから設定を復元';
 	@override String get importSettingsConfirm => '現在の設定を置き換えます。続行しますか？';
 	@override String get importSettingsSuccess => '設定をインポートしました';
-	@override String get importSettingsInvalidFile => 'このファイルは有効なPlezyの設定エクスポートではありません';
+	@override String get importSettingsInvalidFile => 'このファイルは有効なHeisucaの設定エクスポートではありません';
 	@override String get importSettingsNoUser => '設定をインポートする前にサインインしてください';
 	@override String get shortcutsReset => 'ショートカットをデフォルトにリセットしました';
 	@override String get about => 'アプリについて';
@@ -430,8 +423,6 @@ class _Translations$settings$ja extends Translations$settings$en {
 	@override String get maxVolume => '最大音量';
 	@override String get maxVolumeDescription => '静かなメディアに対して100%以上の音量ブーストを許可';
 	@override String maxVolumePercent({required Object percent}) => '${percent}%';
-	@override String get discordRichPresence => 'Discord Rich Presence';
-	@override String get discordRichPresenceDescription => 'Discordで視聴中の内容を表示';
 	@override String get services => 'サービス';
 	@override String get servicesDescription => 'Trakt、MyAnimeList、Seerrなどを接続';
 	@override String get manageLibrariesDescription => 'ライブラリを並べ替えたり非表示にしたりできます';
@@ -489,7 +480,7 @@ class _Translations$settings$ja extends Translations$settings$en {
 	@override String get forceTvMode => 'TVモードを強制';
 	@override String get forceTvModeDescription => 'TVレイアウトを強制します。自動検出しないデバイス向けです。再起動が必要です。';
 	@override String get startInFullscreen => '全画面表示で起動';
-	@override String get startInFullscreenDescription => '起動時にPlezyを全画面モードで開きます';
+	@override String get startInFullscreenDescription => '起動時にHeisucaを全画面モードで開きます';
 	@override String get exitFullscreenOnPlayerClose => 'プレイヤーを閉じたときに全画面を終了';
 	@override String get exitFullscreenOnPlayerCloseDescription => 'ビデオプレイヤーを閉じたときに自動的に全画面モードを終了します';
 	@override String get autoHidePerformanceOverlay => 'パフォーマンスオーバーレイを自動非表示';
@@ -538,7 +529,7 @@ class _Translations$settings$ja extends Translations$settings$en {
 	@override String get playerScopeGlobal => 'すべて';
 	@override String get playerScopeLibrary => 'ライブラリごと';
 	@override String get playerScopeTitle => '作品ごと';
-	@override String get exportDialogTitle => 'Plezyの設定をエクスポート';
+	@override String get exportDialogTitle => 'Heisucaの設定をエクスポート';
 }
 
 // Path: search
@@ -591,8 +582,6 @@ class _Translations$fileInfo$ja extends Translations$fileInfo$en {
 	@override String versionCounter({required Object index, required Object count}) => 'バージョン ${index} / ${count}';
 	@override String fileCounter({required Object index, required Object count}) => 'ファイル ${index} / ${count}';
 	@override String get noStreams => 'サーバーはこのファイルにストリームがないと報告しました。';
-	@override String get copyPath => 'パスをコピー';
-	@override String get pathCopied => 'ファイルパスをコピーしました';
 	@override String get codec => 'コーデック';
 	@override String get codecTag => 'コーデックタグ';
 	@override String get resolution => '解像度';
@@ -652,7 +641,6 @@ class _Translations$fileInfo$ja extends Translations$fileInfo$en {
 	@override String get temporary => '一時的';
 	@override String get timeBase => 'タイムベース';
 	@override String get overallBitrate => '全体ビットレート';
-	@override String get path => 'パス';
 	@override String get fileName => 'ファイル名';
 	@override String get size => 'サイズ';
 	@override String get totalSize => '合計サイズ';
@@ -733,8 +721,8 @@ class _Translations$mediaMenu$ja extends Translations$mediaMenu$en {
 	@override String deleteSharedFileHeading({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n,
 		other: '同じファイルに保存されている他の${n}エピソードも削除されます：',
 	);
-	@override String get deleteScopeUnverifiedProbeFailed => 'Plezyは削除対象のファイルを確認できなかったため、上記のアイテム以上に削除される可能性があります。キャンセルして再試行するか、それでも削除してください。';
-	@override String get deleteScopeUnverifiedNoFileInfo => 'サーバーがこのアイテムのファイル情報を提供しなかったため、Plezyは削除対象のファイルを確認できません。上記のアイテム以上に削除される可能性があります。';
+	@override String get deleteScopeUnverifiedProbeFailed => 'Heisucaは削除対象のファイルを確認できなかったため、上記のアイテム以上に削除される可能性があります。キャンセルして再試行するか、それでも削除してください。';
+	@override String get deleteScopeUnverifiedNoFileInfo => 'サーバーがこのアイテムのファイル情報を提供しなかったため、Heisucaは削除対象のファイルを確認できません。上記のアイテム以上に削除される可能性があります。';
 	@override String get mediaDeletedSuccessfully => 'メディアアイテムを正常に削除しました';
 	@override String get mediaFailedToDelete => 'メディアアイテムの削除に失敗しました';
 	@override String get rate => '評価';
@@ -1066,7 +1054,7 @@ class _Translations$profiles$ja extends Translations$profiles$en {
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
-	@override String get addPlezyProfile => 'Plezyプロフィールを追加';
+	@override String get addHeisucaProfile => 'Heisucaプロフィールを追加';
 	@override String get switchingProfile => 'プロフィールを切り替え中…';
 	@override String get deleteThisProfileTitle => 'このプロフィールを削除しますか？';
 	@override String deleteThisProfileMessage({required Object displayName}) => '${displayName}を削除します。接続には影響しません。';
@@ -1148,7 +1136,7 @@ class _Translations$connections$ja extends Translations$connections$en {
 	@override String accessDeniedMany({required Object count}) => '${count} 台のサーバーがこのアカウントへのアクセスを拒否しました';
 	@override String get signInAgain => '再度サインイン';
 	@override String editMediaBrowserTitle({required Object product}) => '${product}接続を編集';
-	@override String editMediaBrowserIntro({required Object serverName}) => '${serverName}のURLを追加または削除します。Plezyは到達可能なURLのうち、レイテンシーが最も低いものを使用します。';
+	@override String editMediaBrowserIntro({required Object serverName}) => '${serverName}のURLを追加または削除します。Heisucaは到達可能なURLのうち、レイテンシーが最も低いものを使用します。';
 }
 
 // Path: accountPreferences
@@ -1162,7 +1150,7 @@ class _Translations$accountPreferences$ja extends Translations$accountPreference
 	@override String hubSubtitleSingle({required Object account}) => '音声・字幕・ライブラリのオプションは${account}に保存されています';
 	@override String hubSubtitleMultiple({required Object count}) => '音声・字幕・ライブラリのオプションは${count}個のアカウントに保存されています';
 	@override String get pickAccount => '各アカウントに独自の設定が保存されています。編集するアカウントを選択してください。';
-	@override String get storedOnAccount => 'これらのオプションはアカウント自体に保存されるため、サインインしているすべてのアプリ（他のデバイスのPlezyを含む）で使用されます。';
+	@override String get storedOnAccount => 'これらのオプションはアカウント自体に保存されるため、サインインしているすべてのアプリ（他のデバイスのHeisucaを含む）で使用されます。';
 	@override String get noAccounts => '設定できるアカウントがありません';
 	@override String get noAccountsHint => 'Plexにサインインするか、JellyfinまたはEmbyサーバーに接続すると、そのアカウントに保存された設定がここに表示されます。';
 	@override String get unavailable => 'このアカウントにアクセスできません';
@@ -1322,7 +1310,6 @@ class _Translations$about$ja extends Translations$about$en {
 	@override String get title => 'アプリについて';
 	@override String get openSourceLicenses => 'オープンソースライセンス';
 	@override String versionLabel({required Object version}) => 'バージョン ${version}';
-	@override String get appDescription => 'Flutter製の美しいPlex・Jellyfin・Embyクライアント';
 	@override String get viewLicensesDescription => 'サードパーティライブラリのライセンスを表示';
 }
 
@@ -1371,9 +1358,9 @@ class _Translations$startup$ja extends Translations$startup$en {
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
-	@override String get failedTitle => 'Plezyを起動できませんでした';
+	@override String get failedTitle => 'Heisucaを起動できませんでした';
 	@override String get failedBody => '起動中に問題が発生しました。以下の詳細に失敗の原因が示されています。';
-	@override String get failedBodyRepairable => 'Plezyの保存済み設定ファイルが破損しているため、Plezyを起動する前に再構築する必要があります。再試行しても解決しません —「ストレージを修復」を選択してください。';
+	@override String get failedBodyRepairable => 'Heisucaの保存済み設定ファイルが破損しているため、Heisucaを起動する前に再構築する必要があります。再試行しても解決しません —「ストレージを修復」を選択してください。';
 	@override String get phaseLabel => 'ステップ';
 	@override String get showDetails => '詳細を表示';
 	@override String get hideDetails => '詳細を非表示';
@@ -1382,16 +1369,16 @@ class _Translations$startup$ja extends Translations$startup$en {
 	@override String get uploadDetails => '詳細をアップロード';
 	@override String get repairStorage => 'ストレージを修復';
 	@override String get repairTitle => '保存データを修復しますか？';
-	@override String get repairBodyCommon => 'Plezyの設定ファイルが破損しており読み取れません。修復するとすべての設定がデフォルトにリセットされます。';
+	@override String get repairBodyCommon => 'Heisucaの設定ファイルが破損しており読み取れません。修復するとすべての設定がデフォルトにリセットされます。';
 	@override String get repairBodyOneCredential => '保存済みのサインインの1つが破損しており読み取れません。修復するとその1つだけが削除され、他の設定には影響しません。';
 	@override String get repairBodySignInsKept => 'サーバーとプロフィールはサインインしたままになります。';
 	@override String get repairBodySignInsLost => '保存済みのサインインを保護するキーをこのファイルから復元できないため、すべてのサーバーとプロフィールに再度サインインする必要があります。メディアサーバー上のデータには影響ありません。';
-	@override String get repairBodySessionsUncertain => 'トラッカー（MAL、AniList、Simkl、Trakt）とSeerrは別途保存されており、保持されるかどうかは不明です。Plezyは保持した内容を正確にお知らせします。';
+	@override String get repairBodySessionsUncertain => 'トラッカー（MAL、AniList、Simkl、Trakt）とSeerrは別途保存されており、保持されるかどうかは不明です。Heisucaは保持した内容を正確にお知らせします。';
 	@override String get repairConfirm => '修復';
 	@override String get repairSucceeded => 'ストレージを修復しました';
 	@override String get repairNeedsRestart => 'ストレージを修復しました — 再起動が必要です';
-	@override String get restartRequiredBody => 'データは修復されましたが、Plezyはそれを使用する前に再起動する必要があります。Plezyを閉じて再度開いてください。';
-	@override String get quitPlezy => 'Plezyを終了';
+	@override String get restartRequiredBody => 'データは修復されましたが、Heisucaはそれを使用する前に再起動する必要があります。Heisucaを閉じて再度開いてください。';
+	@override String get quitHeisuca => 'Heisucaを終了';
 	@override String get repairFailed => '修復に失敗しました';
 	@override String get repairKeptSignIns => 'サーバーとプロフィールはサインインしたままです。';
 	@override String get repairLostSignIns => '保存済みのサインインを保護するキーを復元できませんでした。すべてのサーバーとプロフィールに再度サインインする必要があります。';
@@ -1400,7 +1387,7 @@ class _Translations$startup$ja extends Translations$startup$en {
 	@override String get backupWarning => 'このコピーにはサインイン資格情報が含まれています。アップロードや共有はしないでください。';
 	@override String get deleteBackup => 'コピーを削除';
 	@override String get backupDeleted => 'コピーを削除しました。';
-	@override String get previousFailureTitle => '前回、Plezyは起動に失敗しました';
+	@override String get previousFailureTitle => '前回、Heisucaは起動に失敗しました';
 }
 
 // Path: licenses
@@ -1672,90 +1659,6 @@ class _Translations$music$ja extends Translations$music$en {
 	@override String get instantMixEmpty => 'インスタントミックスにトラックがありませんでした';
 	@override String noAudioUrl({required Object track}) => '${track}で利用可能な音声URLがありません';
 	@override late final _Translations$music$discography$ja discography = _Translations$music$discography$ja._(_root);
-}
-
-// Path: watchTogether
-class _Translations$watchTogether$ja extends Translations$watchTogether$en {
-	_Translations$watchTogether$ja._(TranslationsJa root) : this._root = root, super.internal(root);
-
-	final TranslationsJa _root; // ignore: unused_field
-
-	// Translations
-	@override String get title => '一緒に見る';
-	@override String get description => '友達や家族と同期してコンテンツを視聴';
-	@override String get createSession => 'セッションを作成';
-	@override String get creating => '作成中…';
-	@override String get joinSession => 'セッションに参加';
-	@override String get joining => '参加中…';
-	@override String get controlMode => 'コントロールモード';
-	@override String get controlModeQuestion => '誰が再生を制御できますか？';
-	@override String get hostOnly => 'ホストのみ';
-	@override String get anyone => '全員';
-	@override String get hostingSession => 'セッションをホスト中';
-	@override String get inSession => 'セッション中';
-	@override String get sessionCode => 'セッションコード';
-	@override String get openSessionControls => '「一緒に見る」セッションのコントロールを開く';
-	@override String get copySessionCode => 'セッションコードをコピー';
-	@override String get hostControlsPlayback => 'ホストが再生を制御';
-	@override String get anyoneCanControl => '全員が再生を制御可能';
-	@override String get hostControls => 'ホストが制御';
-	@override String get anyoneControls => '全員が制御';
-	@override String get participants => '参加者';
-	@override String get host => 'ホスト';
-	@override String get hostBadge => 'ホスト';
-	@override String get youAreHost => 'あなたはホストです';
-	@override String get makeHost => 'ホストにする';
-	@override String get makeHostQuestion => 'ホストを移譲しますか？';
-	@override String makeHostConfirm({required Object name}) => '${name}が再生を制御し、全員のセッションを主導します。';
-	@override String get transfer => '移譲';
-	@override String hostChangedTo({required Object name}) => '${name}がホストになりました';
-	@override String get youAreNowHost => 'あなたがホストになりました';
-	@override String hostTransferFailed({required Object name}) => '${name}をホストにできませんでした';
-	@override String get watchingWithOthers => '他の人と視聴中';
-	@override String get endSession => 'セッションを終了';
-	@override String get leaveSession => 'セッションを退出';
-	@override String get endSessionQuestion => 'セッションを終了しますか？';
-	@override String get leaveSessionQuestion => 'セッションを退出しますか？';
-	@override String get endSessionConfirm => 'すべての参加者のセッションが終了します。';
-	@override String get leaveSessionConfirm => 'セッションから退出されます。';
-	@override String get endSessionConfirmOverlay => 'すべての参加者の視聴セッションが終了します。';
-	@override String get leaveSessionConfirmOverlay => '視聴セッションから切断されます。';
-	@override String get end => '終了';
-	@override String get leave => '退出';
-	@override String get syncing => '同期中…';
-	@override String get joinWatchSession => '視聴セッションに参加';
-	@override String get enterCodeHint => '5文字のコードを入力';
-	@override String get pasteFromClipboard => 'クリップボードから貼り付け';
-	@override String get pleaseEnterCode => 'セッションコードを入力してください';
-	@override String get codeMustBe5Chars => 'セッションコードは5文字である必要があります';
-	@override String get joinInstructions => '参加するにはホストのセッションコードを入力してください。';
-	@override String get failedToCreate => 'セッションの作成に失敗しました';
-	@override String get failedToJoin => 'セッションへの参加に失敗しました';
-	@override String get sessionCodeCopied => 'セッションコードをクリップボードにコピーしました';
-	@override String get relayUnreachable => 'リレーサーバーに接続できません。ISPによるブロックのため「一緒に見る」を利用できない可能性があります。';
-	@override String get reconnectingToHost => 'ホストに再接続中…';
-	@override String get currentPlayback => '現在の再生';
-	@override String get joinCurrentPlayback => '現在の再生に参加';
-	@override String get joinCurrentPlaybackDescription => 'ホストが現在視聴中のコンテンツに戻る';
-	@override String get failedToOpenCurrentPlayback => '現在の再生を開けませんでした';
-	@override String participantJoined({required Object name}) => '${name}が参加しました';
-	@override String participantLeft({required Object name}) => '${name}が退出しました';
-	@override String participantPaused({required Object name}) => '${name}が一時停止しました';
-	@override String participantResumed({required Object name}) => '${name}が再開しました';
-	@override String participantSeeked({required Object name}) => '${name}が再生位置を変更しました';
-	@override String participantChangedSpeed({required Object name, required Object speed}) => '${name}が速度を${speed}に設定しました';
-	@override String participantBuffering({required Object name}) => '${name}がバッファリング中';
-	@override String participantNeedsUpdate({required Object name}) => '${name}は古いバージョンのアプリを使用しているため、同期できません';
-	@override String resumingWithout({required Object name}) => '${name}抜きで再開';
-	@override String get waitingForParticipants => '他の参加者の読み込みを待っています…';
-	@override String waitingForName({required Object name}) => '${name}を待っています…';
-	@override String get recentRooms => '最近のルーム';
-	@override String get renameRoom => 'ルーム名を変更';
-	@override String get removeRoom => '削除';
-	@override String get guestSwitchUnavailable => '切り替えられません — 同期に必要なサーバーを利用できません';
-	@override String get guestSwitchFailed => '切り替えられません — このサーバーにコンテンツが見つかりません';
-	@override String get defaultDisplayName => 'ユーザー';
-	@override late final _Translations$watchTogether$errors$ja errors = _Translations$watchTogether$errors$ja._(_root);
 }
 
 // Path: downloads
@@ -2146,11 +2049,11 @@ class _Translations$trakt$ja extends Translations$trakt$en {
 	@override String get connected => '接続済み';
 	@override String connectedAs({required Object username}) => '@${username}として接続済み';
 	@override String get disconnectConfirm => 'Traktアカウントとの接続を解除しますか？';
-	@override String get disconnectConfirmBody => 'PlezyはTraktへのイベント送信を停止します。いつでも再接続できます。';
+	@override String get disconnectConfirmBody => 'HeisucaはTraktへのイベント送信を停止します。いつでも再接続できます。';
 	@override String get scrobble => 'リアルタイムのスクロブル';
 	@override String get scrobbleDescription => '再生中に再生・一時停止・停止の各イベントをTraktに送信します。';
 	@override String get watchedSync => '視聴済みステータスを同期';
-	@override String get watchedSyncDescription => 'Plezyで項目を視聴済みにすると、Traktでも視聴済みになります。';
+	@override String get watchedSyncDescription => 'Heisucaで項目を視聴済みにすると、Traktでも視聴済みになります。';
 }
 
 // Path: seerr
@@ -2169,10 +2072,10 @@ class _Translations$seerr$ja extends Translations$seerr$en {
 	@override String get signInWithEmby => 'Embyでサインイン';
 	@override String get signInWithLocal => 'ローカルアカウントを使う';
 	@override String get email => 'メールアドレス';
-	@override String get noSignInMethods => 'この Seerr インスタンスには Plezy が対応しているサインイン方法がありません。';
+	@override String get noSignInMethods => 'この Seerr インスタンスには Heisuca が対応しているサインイン方法がありません。';
 	@override String get instance => 'インスタンス';
 	@override String get disconnectConfirm => 'Seerr の接続を解除しますか？';
-	@override String get disconnectConfirmBody => 'Plezy はこの Seerr インスタンスの情報を削除します。いつでも再接続できます。';
+	@override String get disconnectConfirmBody => 'Heisuca はこの Seerr インスタンスの情報を削除します。いつでも再接続できます。';
 	@override String get request => 'リクエスト';
 	@override String get request4k => '4K でリクエスト';
 	@override String get seasons => 'シーズン';
@@ -2197,7 +2100,7 @@ class _Translations$seerr$ja extends Translations$seerr$en {
 	@override String get statusBlocklisted => 'ブロックリスト登録済み';
 	@override String couldNotReach({required Object url, required Object error}) => '${url}に接続できませんでした: ${error}';
 	@override String noInstanceAtUrl({required Object url, required Object status}) => '${url}にSeerrインスタンスがありません（HTTP ${status}）';
-	@override String get behindAuthProxy => 'Seerrではなく、認証が必要なリバースプロキシ（SSOまたはHTTP認証）が応答しました。Plezyはこれを通じてサインインできません。このアプリではSeerrの/api/v1パスをプロキシから除外するか、Seerrに直接到達するアドレスを使用してください。';
+	@override String get behindAuthProxy => 'Seerrではなく、認証が必要なリバースプロキシ（SSOまたはHTTP認証）が応答しました。Heisucaはこれを通じてサインインできません。このアプリではSeerrの/api/v1パスをプロキシから除外するか、Seerrに直接到達するアドレスを使用してください。';
 	@override String get invalidUrl => 'https://seerr.example.comのようなサーバーアドレスを入力してください';
 	@override String get quickConnectUnsupported => 'このSeerrインスタンスはQuick Connectに対応していません。Seerr 3.4以降が必要です。';
 	@override String get notInitialized => 'このSeerrインスタンスでは初回セットアップが完了していません';
@@ -2227,7 +2130,7 @@ class _Translations$services$ja extends Translations$services$en {
 	@override String get scrobble => '進捗を自動で記録';
 	@override String get scrobbleDescription => 'エピソードや映画を見終えたときにリストを更新します。';
 	@override String disconnectConfirm({required Object service}) => '${service} の接続を解除しますか？';
-	@override String disconnectConfirmBody({required Object service}) => 'Plezyは${service}の更新を停止します。いつでも再接続できます。';
+	@override String disconnectConfirmBody({required Object service}) => 'Heisucaは${service}の更新を停止します。いつでも再接続できます。';
 	@override String connectFailed({required Object service}) => '${service} に接続できませんでした。もう一度お試しください。';
 	@override late final _Translations$services$names$ja names = _Translations$services$names$ja._(_root);
 	@override late final _Translations$services$deviceCode$ja deviceCode = _Translations$services$deviceCode$ja._(_root);
@@ -2789,20 +2692,6 @@ class _Translations$music$discography$ja extends Translations$music$discography$
 	@override String get compilations => 'コンピレーション';
 }
 
-// Path: watchTogether.errors
-class _Translations$watchTogether$errors$ja extends Translations$watchTogether$errors$en {
-	_Translations$watchTogether$errors$ja._(TranslationsJa root) : this._root = root, super.internal(root);
-
-	final TranslationsJa _root; // ignore: unused_field
-
-	// Translations
-	@override String get timedOut => 'リレーサーバーが時間内に応答しませんでした';
-	@override String get connectionLost => 'セッションの準備が整う前に接続が閉じられました';
-	@override String get invalidRelayResponse => 'リレーサーバーから予期しない応答が返されました';
-	@override String get sessionEnded => 'ホストがセッションを終了しました';
-	@override String get sessionUnavailable => 'このセッションを再開できません。ルームに参加するか作成して続行してください。';
-}
-
 // Path: downloads.backgroundWarning
 class _Translations$downloads$backgroundWarning$ja extends Translations$downloads$backgroundWarning$en {
 	_Translations$downloads$backgroundWarning$ja._(TranslationsJa root) : this._root = root, super.internal(root);
@@ -2815,14 +2704,14 @@ class _Translations$downloads$backgroundWarning$ja extends Translations$download
 	@override String get bannerAction => '詳細';
 	@override String get sheetTitle => 'バックグラウンドダウンロードはブロックされています';
 	@override String get sheetTitleDegraded => 'バックグラウンドダウンロードが制限される場合があります';
-	@override String get sheetIntro => 'Androidにより、Plezyはバックグラウンドで安定してダウンロードできません。';
-	@override String get sheetIntroDegraded => '端末により、Plezyがバックグラウンドでダウンロードできるタイミングが制限されています。';
-	@override String get reasonBackgroundRestricted => 'Plezyのバックグラウンド使用が制限されています。バッテリー使用量またはバックグラウンド使用を「制限なし」に設定してください。';
-	@override String get reasonStandbyRestricted => 'Androidにより、Plezyが制限付きのスタンバイ状態に設定されています。バッテリー使用量を「制限なし」に設定してください。';
+	@override String get sheetIntro => 'Androidにより、Heisucaはバックグラウンドで安定してダウンロードできません。';
+	@override String get sheetIntroDegraded => '端末により、Heisucaがバックグラウンドでダウンロードできるタイミングが制限されています。';
+	@override String get reasonBackgroundRestricted => 'Heisucaのバックグラウンド使用が制限されています。バッテリー使用量またはバックグラウンド使用を「制限なし」に設定してください。';
+	@override String get reasonStandbyRestricted => 'Androidにより、Heisucaが制限付きのスタンバイ状態に設定されています。バッテリー使用量を「制限なし」に設定してください。';
 	@override String get reasonDownloadChannelBlocked => 'ダウンロード通知がオフのため、進行状況や操作ボタンを利用できない場合があります。';
 	@override String get reasonNotificationsDisabled => '通知がオフです。Android 13以降では、長時間のバックグラウンドダウンロードに通知が必要です。';
 	@override String get reasonDataSaver => 'データセーバーがオンのため、モバイルデータ通信ではバックグラウンドダウンロードがブロックされます。Wi-Fiでは引き続きダウンロードできるはずです。';
-	@override String get reasonOemUnknown => 'Plezyがバックグラウンドで動作中に、ダウンロードが繰り返し停止しました。Plezyのバッテリー使用量またはバックグラウンド使用の設定を確認してください。';
+	@override String get reasonOemUnknown => 'Heisucaがバックグラウンドで動作中に、ダウンロードが繰り返し停止しました。Heisucaのバッテリー使用量またはバックグラウンド使用の設定を確認してください。';
 	@override String get openSettings => '設定を開く';
 	@override String get stillNotWorking => '端末別のヘルプ';
 	@override String get stillNotWorkingDescription => 'お使いの端末向けの手順を確認してください。問題が続く場合は、設定 › ログを表示 からログを送信してください。';
@@ -2876,19 +2765,19 @@ class _Translations$companionRemote$pairing$ja extends Translations$companionRem
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
-	@override String get discoveryDescription => '同じPlexアカウントを使用しているPlezyデバイスがここに表示されます';
+	@override String get discoveryDescription => '同じPlexアカウントを使用しているHeisucaデバイスがここに表示されます';
 	@override String get hostAddressHint => '192.168.1.100:48632';
 	@override String get connecting => '接続中…';
 	@override String get searchingForDevices => 'デバイスを検索中…';
 	@override String get noDevicesFound => 'ネットワーク上にデバイスが見つかりません';
-	@override String get noDevicesHint => 'デスクトップでPlezyを開き、同じWi-Fiネットワークに接続してください';
+	@override String get noDevicesHint => 'デスクトップでHeisucaを開き、同じWi-Fiネットワークに接続してください';
 	@override String get availableDevices => '利用可能なデバイス';
 	@override String get manualConnection => '手動接続';
 	@override String get cryptoInitFailed => '安全な接続を開始できませんでした。先にPlexにサインインしてください。';
 	@override String get validationHostRequired => 'ホストアドレスを入力してください';
 	@override String get validationHostFormat => '形式はIP:ポートである必要があります（例: 192.168.1.100:48632）';
 	@override String get connectionTimedOut => '接続がタイムアウトしました。両方のデバイスで同じネットワークを使用してください。';
-	@override String get sessionNotFound => 'デバイスが見つかりません。ホストでPlezyが実行中か確認してください。';
+	@override String get sessionNotFound => 'デバイスが見つかりません。ホストでHeisucaが実行中か確認してください。';
 	@override String get authFailed => '認証に失敗しました。両方のデバイスで同じPlexアカウントが必要です。';
 	@override String failedToConnect({required Object error}) => '接続に失敗しました: ${error}';
 }
@@ -2967,7 +2856,7 @@ class _Translations$services$deviceCode$ja extends Translations$services$deviceC
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
-	@override String title({required Object service}) => '${service} で Plezy を有効化';
+	@override String title({required Object service}) => '${service} で Heisuca を有効化';
 	@override String get instructions => 'QRコードをスキャンするか、以下のアドレスにアクセスしてこのコードを入力してください:';
 	@override String openToActivate({required Object service}) => '${service} を開いて有効化';
 	@override String get copyCode => 'アクティベーションコードをコピー';
@@ -3130,7 +3019,7 @@ extension on TranslationsJa {
 			'update.latestVersion' => '最新バージョンです',
 			'update.checkFailed' => 'アップデートの確認に失敗しました',
 			'settings.title' => '設定',
-			'settings.supportDeveloper' => 'Plezyを支援',
+			'settings.supportDeveloper' => 'Heisucaを支援',
 			'settings.supportDeveloperDescription' => 'Liberapayで寄付して開発を支援',
 			'settings.language' => '言語',
 			'settings.theme' => 'テーマ',
@@ -3248,12 +3137,6 @@ extension on TranslationsJa {
 			'settings.keyboardShortcutsDescription' => 'キーボードショートカットをカスタマイズ',
 			'settings.videoPlayerNavigation' => '動画プレーヤーナビゲーション',
 			'settings.videoPlayerNavigationDescription' => '矢印キーで動画プレーヤーコントロールを操作',
-			'settings.watchTogetherRelay' => '一緒に視聴リレーサーバー',
-			'settings.watchTogetherRelayDescription' => 'カスタムリレーを設定します。全員が同じサーバーを使う必要があります。',
-			'settings.watchTogetherRelayHint' => 'https://my-relay.example.com',
-			'settings.watchTogetherRelayInvalid' => '有効なHTTPまたはHTTPSのリレーサーバーURLを入力してください。',
-			'settings.crashReporting' => 'クラッシュレポート',
-			'settings.crashReportingDescription' => 'アプリの改善に役立つクラッシュレポートを送信',
 			'settings.debugLogging' => 'デバッグログ',
 			'settings.debugLoggingDescription' => 'トラブルシューティング用の詳細なログを有効化',
 			'settings.viewLogs' => 'ログを表示',
@@ -3272,7 +3155,7 @@ extension on TranslationsJa {
 			'settings.importSettingsDescription' => 'ファイルから設定を復元',
 			'settings.importSettingsConfirm' => '現在の設定を置き換えます。続行しますか？',
 			'settings.importSettingsSuccess' => '設定をインポートしました',
-			'settings.importSettingsInvalidFile' => 'このファイルは有効なPlezyの設定エクスポートではありません',
+			'settings.importSettingsInvalidFile' => 'このファイルは有効なHeisucaの設定エクスポートではありません',
 			'settings.importSettingsNoUser' => '設定をインポートする前にサインインしてください',
 			'settings.shortcutsReset' => 'ショートカットをデフォルトにリセットしました',
 			'settings.about' => 'アプリについて',
@@ -3334,8 +3217,6 @@ extension on TranslationsJa {
 			'settings.maxVolume' => '最大音量',
 			'settings.maxVolumeDescription' => '静かなメディアに対して100%以上の音量ブーストを許可',
 			'settings.maxVolumePercent' => ({required Object percent}) => '${percent}%',
-			'settings.discordRichPresence' => 'Discord Rich Presence',
-			'settings.discordRichPresenceDescription' => 'Discordで視聴中の内容を表示',
 			'settings.services' => 'サービス',
 			'settings.servicesDescription' => 'Trakt、MyAnimeList、Seerrなどを接続',
 			'settings.manageLibrariesDescription' => 'ライブラリを並べ替えたり非表示にしたりできます',
@@ -3393,7 +3274,7 @@ extension on TranslationsJa {
 			'settings.forceTvMode' => 'TVモードを強制',
 			'settings.forceTvModeDescription' => 'TVレイアウトを強制します。自動検出しないデバイス向けです。再起動が必要です。',
 			'settings.startInFullscreen' => '全画面表示で起動',
-			'settings.startInFullscreenDescription' => '起動時にPlezyを全画面モードで開きます',
+			'settings.startInFullscreenDescription' => '起動時にHeisucaを全画面モードで開きます',
 			'settings.exitFullscreenOnPlayerClose' => 'プレイヤーを閉じたときに全画面を終了',
 			'settings.exitFullscreenOnPlayerCloseDescription' => 'ビデオプレイヤーを閉じたときに自動的に全画面モードを終了します',
 			'settings.autoHidePerformanceOverlay' => 'パフォーマンスオーバーレイを自動非表示',
@@ -3442,7 +3323,7 @@ extension on TranslationsJa {
 			'settings.playerScopeGlobal' => 'すべて',
 			'settings.playerScopeLibrary' => 'ライブラリごと',
 			'settings.playerScopeTitle' => '作品ごと',
-			'settings.exportDialogTitle' => 'Plezyの設定をエクスポート',
+			'settings.exportDialogTitle' => 'Heisucaの設定をエクスポート',
 			'search.hint' => '映画、番組、音楽を検索…',
 			'search.tryDifferentTerm' => '別の検索語をお試しください',
 			'search.searchYourMedia' => 'メディアを検索',
@@ -3492,8 +3373,6 @@ extension on TranslationsJa {
 			'fileInfo.versionCounter' => ({required Object index, required Object count}) => 'バージョン ${index} / ${count}',
 			'fileInfo.fileCounter' => ({required Object index, required Object count}) => 'ファイル ${index} / ${count}',
 			'fileInfo.noStreams' => 'サーバーはこのファイルにストリームがないと報告しました。',
-			'fileInfo.copyPath' => 'パスをコピー',
-			'fileInfo.pathCopied' => 'ファイルパスをコピーしました',
 			'fileInfo.codec' => 'コーデック',
 			'fileInfo.codecTag' => 'コーデックタグ',
 			'fileInfo.resolution' => '解像度',
@@ -3539,8 +3418,6 @@ extension on TranslationsJa {
 			'fileInfo.streamId' => 'ストリーム ID',
 			'fileInfo.language' => '言語',
 			'fileInfo.languageCode' => '言語コード',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.streamTitle' => 'トラックタイトル',
 			'fileInfo.channels' => 'チャンネル',
 			'fileInfo.sampleRate' => 'サンプルレート',
@@ -3551,11 +3428,12 @@ extension on TranslationsJa {
 			'fileInfo.matchScore' => '一致スコア',
 			'fileInfo.externalDelivery' => '個別に配信可能',
 			'fileInfo.sidecarPath' => 'サイドカーパス',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.sourceStream' => 'コピー元',
 			'fileInfo.temporary' => '一時的',
 			'fileInfo.timeBase' => 'タイムベース',
 			'fileInfo.overallBitrate' => '全体ビットレート',
-			'fileInfo.path' => 'パス',
 			'fileInfo.fileName' => 'ファイル名',
 			'fileInfo.size' => 'サイズ',
 			'fileInfo.totalSize' => '合計サイズ',
@@ -3621,8 +3499,8 @@ extension on TranslationsJa {
 			'mediaMenu.deleteEpisodeCountWarning' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n, other: '中の全${n}エピソードとそのファイルが削除されます。', ), 
 			'mediaMenu.deleteMultiPartWarning' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n, other: 'このアイテムは${n}個のファイルにまたがって保存されており、すべて削除されます。', ), 
 			'mediaMenu.deleteSharedFileHeading' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n, other: '同じファイルに保存されている他の${n}エピソードも削除されます：', ), 
-			'mediaMenu.deleteScopeUnverifiedProbeFailed' => 'Plezyは削除対象のファイルを確認できなかったため、上記のアイテム以上に削除される可能性があります。キャンセルして再試行するか、それでも削除してください。',
-			'mediaMenu.deleteScopeUnverifiedNoFileInfo' => 'サーバーがこのアイテムのファイル情報を提供しなかったため、Plezyは削除対象のファイルを確認できません。上記のアイテム以上に削除される可能性があります。',
+			'mediaMenu.deleteScopeUnverifiedProbeFailed' => 'Heisucaは削除対象のファイルを確認できなかったため、上記のアイテム以上に削除される可能性があります。キャンセルして再試行するか、それでも削除してください。',
+			'mediaMenu.deleteScopeUnverifiedNoFileInfo' => 'サーバーがこのアイテムのファイル情報を提供しなかったため、Heisucaは削除対象のファイルを確認できません。上記のアイテム以上に削除される可能性があります。',
 			'mediaMenu.mediaDeletedSuccessfully' => 'メディアアイテムを正常に削除しました',
 			'mediaMenu.mediaFailedToDelete' => 'メディアアイテムの削除に失敗しました',
 			'mediaMenu.rate' => '評価',
@@ -3869,7 +3747,7 @@ extension on TranslationsJa {
 			'mpvConfig.removeLine' => '行を削除',
 			'mpvConfig.embeddedVoHint' => 'Linux では vo、gpu-context、gpu-api は無視されます。埋め込み動画は常にビデオプレーン上で vo=libmpv を通してレンダリングされ、gpu-next（ArtCNN のようなコンピュートシェーダーに必要）は埋め込みでは実行できません。',
 			'dialog.confirmAction' => '操作の確認',
-			'profiles.addPlezyProfile' => 'Plezyプロフィールを追加',
+			'profiles.addHeisucaProfile' => 'Heisucaプロフィールを追加',
 			'profiles.switchingProfile' => 'プロフィールを切り替え中…',
 			'profiles.deleteThisProfileTitle' => 'このプロフィールを削除しますか？',
 			'profiles.deleteThisProfileMessage' => ({required Object displayName}) => '${displayName}を削除します。接続には影響しません。',
@@ -3942,12 +3820,12 @@ extension on TranslationsJa {
 			'connections.accessDeniedMany' => ({required Object count}) => '${count} 台のサーバーがこのアカウントへのアクセスを拒否しました',
 			'connections.signInAgain' => '再度サインイン',
 			'connections.editMediaBrowserTitle' => ({required Object product}) => '${product}接続を編集',
-			'connections.editMediaBrowserIntro' => ({required Object serverName}) => '${serverName}のURLを追加または削除します。Plezyは到達可能なURLのうち、レイテンシーが最も低いものを使用します。',
+			'connections.editMediaBrowserIntro' => ({required Object serverName}) => '${serverName}のURLを追加または削除します。Heisucaは到達可能なURLのうち、レイテンシーが最も低いものを使用します。',
 			'accountPreferences.sectionTitle' => 'アカウント設定',
 			'accountPreferences.hubSubtitleSingle' => ({required Object account}) => '音声・字幕・ライブラリのオプションは${account}に保存されています',
 			'accountPreferences.hubSubtitleMultiple' => ({required Object count}) => '音声・字幕・ライブラリのオプションは${count}個のアカウントに保存されています',
 			'accountPreferences.pickAccount' => '各アカウントに独自の設定が保存されています。編集するアカウントを選択してください。',
-			'accountPreferences.storedOnAccount' => 'これらのオプションはアカウント自体に保存されるため、サインインしているすべてのアプリ（他のデバイスのPlezyを含む）で使用されます。',
+			'accountPreferences.storedOnAccount' => 'これらのオプションはアカウント自体に保存されるため、サインインしているすべてのアプリ（他のデバイスのHeisucaを含む）で使用されます。',
 			'accountPreferences.noAccounts' => '設定できるアカウントがありません',
 			'accountPreferences.noAccountsHint' => 'Plexにサインインするか、JellyfinまたはEmbyサーバーに接続すると、そのアカウントに保存された設定がここに表示されます。',
 			'accountPreferences.unavailable' => 'このアカウントにアクセスできません',
@@ -4053,8 +3931,6 @@ extension on TranslationsJa {
 			'libraries.refreshMetadata' => 'メタデータを更新',
 			'libraries.emptyTrash' => 'ゴミ箱を空にする',
 			'libraries.emptyingTrash' => ({required Object title}) => '「${title}」のゴミ箱を空にしています…',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.trashEmptied' => ({required Object title}) => '「${title}」のゴミ箱を空にしました',
 			'libraries.failedToEmptyTrash' => ({required Object error}) => 'ゴミ箱を空にできませんでした: ${error}',
 			'libraries.analyzing' => ({required Object title}) => '「${title}」を解析中…',
@@ -4066,6 +3942,8 @@ extension on TranslationsJa {
 			'libraries.thisLibraryIsEmpty' => 'このライブラリは空です',
 			'libraries.noItemsMatchFilters' => '有効なフィルターに一致する項目はありません',
 			'libraries.resetFilters' => 'フィルターをリセット',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.all' => 'すべて',
 			'libraries.clearAll' => 'すべてクリア',
 			'libraries.scanLibraryConfirm' => ({required Object title}) => '"${title}"をスキャンしてもよろしいですか？',
@@ -4134,7 +4012,6 @@ extension on TranslationsJa {
 			'about.title' => 'アプリについて',
 			'about.openSourceLicenses' => 'オープンソースライセンス',
 			'about.versionLabel' => ({required Object version}) => 'バージョン ${version}',
-			'about.appDescription' => 'Flutter製の美しいPlex・Jellyfin・Embyクライアント',
 			'about.viewLicensesDescription' => 'サードパーティライブラリのライセンスを表示',
 			'serverSelection.noServersFoundForAccount' => ({required Object username, required Object email}) => '${username} (${email})のサーバーが見つかりません',
 			'serverSelection.failedToLoadServers' => ({required Object error}) => 'サーバーの読み込みに失敗しました: ${error}',
@@ -4147,9 +4024,9 @@ extension on TranslationsJa {
 			'logs.clearLogs' => 'ログをクリア',
 			'logs.copyLogs' => 'ログをコピー',
 			'logs.uploadLogs' => 'ログをアップロード',
-			'startup.failedTitle' => 'Plezyを起動できませんでした',
+			'startup.failedTitle' => 'Heisucaを起動できませんでした',
 			'startup.failedBody' => '起動中に問題が発生しました。以下の詳細に失敗の原因が示されています。',
-			'startup.failedBodyRepairable' => 'Plezyの保存済み設定ファイルが破損しているため、Plezyを起動する前に再構築する必要があります。再試行しても解決しません —「ストレージを修復」を選択してください。',
+			'startup.failedBodyRepairable' => 'Heisucaの保存済み設定ファイルが破損しているため、Heisucaを起動する前に再構築する必要があります。再試行しても解決しません —「ストレージを修復」を選択してください。',
 			'startup.phaseLabel' => 'ステップ',
 			'startup.showDetails' => '詳細を表示',
 			'startup.hideDetails' => '詳細を非表示',
@@ -4158,16 +4035,16 @@ extension on TranslationsJa {
 			'startup.uploadDetails' => '詳細をアップロード',
 			'startup.repairStorage' => 'ストレージを修復',
 			'startup.repairTitle' => '保存データを修復しますか？',
-			'startup.repairBodyCommon' => 'Plezyの設定ファイルが破損しており読み取れません。修復するとすべての設定がデフォルトにリセットされます。',
+			'startup.repairBodyCommon' => 'Heisucaの設定ファイルが破損しており読み取れません。修復するとすべての設定がデフォルトにリセットされます。',
 			'startup.repairBodyOneCredential' => '保存済みのサインインの1つが破損しており読み取れません。修復するとその1つだけが削除され、他の設定には影響しません。',
 			'startup.repairBodySignInsKept' => 'サーバーとプロフィールはサインインしたままになります。',
 			'startup.repairBodySignInsLost' => '保存済みのサインインを保護するキーをこのファイルから復元できないため、すべてのサーバーとプロフィールに再度サインインする必要があります。メディアサーバー上のデータには影響ありません。',
-			'startup.repairBodySessionsUncertain' => 'トラッカー（MAL、AniList、Simkl、Trakt）とSeerrは別途保存されており、保持されるかどうかは不明です。Plezyは保持した内容を正確にお知らせします。',
+			'startup.repairBodySessionsUncertain' => 'トラッカー（MAL、AniList、Simkl、Trakt）とSeerrは別途保存されており、保持されるかどうかは不明です。Heisucaは保持した内容を正確にお知らせします。',
 			'startup.repairConfirm' => '修復',
 			'startup.repairSucceeded' => 'ストレージを修復しました',
 			'startup.repairNeedsRestart' => 'ストレージを修復しました — 再起動が必要です',
-			'startup.restartRequiredBody' => 'データは修復されましたが、Plezyはそれを使用する前に再起動する必要があります。Plezyを閉じて再度開いてください。',
-			'startup.quitPlezy' => 'Plezyを終了',
+			'startup.restartRequiredBody' => 'データは修復されましたが、Heisucaはそれを使用する前に再起動する必要があります。Heisucaを閉じて再度開いてください。',
+			'startup.quitHeisuca' => 'Heisucaを終了',
 			'startup.repairFailed' => '修復に失敗しました',
 			'startup.repairKeptSignIns' => 'サーバーとプロフィールはサインインしたままです。',
 			'startup.repairLostSignIns' => '保存済みのサインインを保護するキーを復元できませんでした。すべてのサーバーとプロフィールに再度サインインする必要があります。',
@@ -4176,7 +4053,7 @@ extension on TranslationsJa {
 			'startup.backupWarning' => 'このコピーにはサインイン資格情報が含まれています。アップロードや共有はしないでください。',
 			'startup.deleteBackup' => 'コピーを削除',
 			'startup.backupDeleted' => 'コピーを削除しました。',
-			'startup.previousFailureTitle' => '前回、Plezyは起動に失敗しました',
+			'startup.previousFailureTitle' => '前回、Heisucaは起動に失敗しました',
 			'licenses.relatedPackages' => '関連パッケージ',
 			'licenses.license' => 'ライセンス',
 			'licenses.licenseNumber' => ({required Object number}) => 'ライセンス ${number}',
@@ -4495,87 +4372,6 @@ extension on TranslationsJa {
 			'music.discography.singlesAndEps' => 'シングル・EP',
 			'music.discography.live' => 'ライブ',
 			'music.discography.compilations' => 'コンピレーション',
-			'watchTogether.title' => '一緒に見る',
-			'watchTogether.description' => '友達や家族と同期してコンテンツを視聴',
-			'watchTogether.createSession' => 'セッションを作成',
-			'watchTogether.creating' => '作成中…',
-			'watchTogether.joinSession' => 'セッションに参加',
-			'watchTogether.joining' => '参加中…',
-			'watchTogether.controlMode' => 'コントロールモード',
-			'watchTogether.controlModeQuestion' => '誰が再生を制御できますか？',
-			'watchTogether.hostOnly' => 'ホストのみ',
-			'watchTogether.anyone' => '全員',
-			'watchTogether.hostingSession' => 'セッションをホスト中',
-			'watchTogether.inSession' => 'セッション中',
-			'watchTogether.sessionCode' => 'セッションコード',
-			'watchTogether.openSessionControls' => '「一緒に見る」セッションのコントロールを開く',
-			'watchTogether.copySessionCode' => 'セッションコードをコピー',
-			'watchTogether.hostControlsPlayback' => 'ホストが再生を制御',
-			'watchTogether.anyoneCanControl' => '全員が再生を制御可能',
-			'watchTogether.hostControls' => 'ホストが制御',
-			'watchTogether.anyoneControls' => '全員が制御',
-			'watchTogether.participants' => '参加者',
-			'watchTogether.host' => 'ホスト',
-			'watchTogether.hostBadge' => 'ホスト',
-			'watchTogether.youAreHost' => 'あなたはホストです',
-			'watchTogether.makeHost' => 'ホストにする',
-			'watchTogether.makeHostQuestion' => 'ホストを移譲しますか？',
-			'watchTogether.makeHostConfirm' => ({required Object name}) => '${name}が再生を制御し、全員のセッションを主導します。',
-			'watchTogether.transfer' => '移譲',
-			'watchTogether.hostChangedTo' => ({required Object name}) => '${name}がホストになりました',
-			'watchTogether.youAreNowHost' => 'あなたがホストになりました',
-			'watchTogether.hostTransferFailed' => ({required Object name}) => '${name}をホストにできませんでした',
-			'watchTogether.watchingWithOthers' => '他の人と視聴中',
-			'watchTogether.endSession' => 'セッションを終了',
-			'watchTogether.leaveSession' => 'セッションを退出',
-			'watchTogether.endSessionQuestion' => 'セッションを終了しますか？',
-			'watchTogether.leaveSessionQuestion' => 'セッションを退出しますか？',
-			'watchTogether.endSessionConfirm' => 'すべての参加者のセッションが終了します。',
-			'watchTogether.leaveSessionConfirm' => 'セッションから退出されます。',
-			'watchTogether.endSessionConfirmOverlay' => 'すべての参加者の視聴セッションが終了します。',
-			'watchTogether.leaveSessionConfirmOverlay' => '視聴セッションから切断されます。',
-			'watchTogether.end' => '終了',
-			'watchTogether.leave' => '退出',
-			'watchTogether.syncing' => '同期中…',
-			'watchTogether.joinWatchSession' => '視聴セッションに参加',
-			'watchTogether.enterCodeHint' => '5文字のコードを入力',
-			'watchTogether.pasteFromClipboard' => 'クリップボードから貼り付け',
-			'watchTogether.pleaseEnterCode' => 'セッションコードを入力してください',
-			'watchTogether.codeMustBe5Chars' => 'セッションコードは5文字である必要があります',
-			'watchTogether.joinInstructions' => '参加するにはホストのセッションコードを入力してください。',
-			'watchTogether.failedToCreate' => 'セッションの作成に失敗しました',
-			'watchTogether.failedToJoin' => 'セッションへの参加に失敗しました',
-			'watchTogether.sessionCodeCopied' => 'セッションコードをクリップボードにコピーしました',
-			'watchTogether.relayUnreachable' => 'リレーサーバーに接続できません。ISPによるブロックのため「一緒に見る」を利用できない可能性があります。',
-			'watchTogether.reconnectingToHost' => 'ホストに再接続中…',
-			'watchTogether.currentPlayback' => '現在の再生',
-			'watchTogether.joinCurrentPlayback' => '現在の再生に参加',
-			'watchTogether.joinCurrentPlaybackDescription' => 'ホストが現在視聴中のコンテンツに戻る',
-			'watchTogether.failedToOpenCurrentPlayback' => '現在の再生を開けませんでした',
-			'watchTogether.participantJoined' => ({required Object name}) => '${name}が参加しました',
-			'watchTogether.participantLeft' => ({required Object name}) => '${name}が退出しました',
-			'watchTogether.participantPaused' => ({required Object name}) => '${name}が一時停止しました',
-			'watchTogether.participantResumed' => ({required Object name}) => '${name}が再開しました',
-			'watchTogether.participantSeeked' => ({required Object name}) => '${name}が再生位置を変更しました',
-			'watchTogether.participantChangedSpeed' => ({required Object name, required Object speed}) => '${name}が速度を${speed}に設定しました',
-			'watchTogether.participantBuffering' => ({required Object name}) => '${name}がバッファリング中',
-			'watchTogether.participantNeedsUpdate' => ({required Object name}) => '${name}は古いバージョンのアプリを使用しているため、同期できません',
-			'watchTogether.resumingWithout' => ({required Object name}) => '${name}抜きで再開',
-			'watchTogether.waitingForParticipants' => '他の参加者の読み込みを待っています…',
-			'watchTogether.waitingForName' => ({required Object name}) => '${name}を待っています…',
-			'watchTogether.recentRooms' => '最近のルーム',
-			'watchTogether.renameRoom' => 'ルーム名を変更',
-			'watchTogether.removeRoom' => '削除',
-			'watchTogether.guestSwitchUnavailable' => '切り替えられません — 同期に必要なサーバーを利用できません',
-			_ => null,
-		} ?? switch (path) {
-			'watchTogether.guestSwitchFailed' => '切り替えられません — このサーバーにコンテンツが見つかりません',
-			'watchTogether.defaultDisplayName' => 'ユーザー',
-			'watchTogether.errors.timedOut' => 'リレーサーバーが時間内に応答しませんでした',
-			'watchTogether.errors.connectionLost' => 'セッションの準備が整う前に接続が閉じられました',
-			'watchTogether.errors.invalidRelayResponse' => 'リレーサーバーから予期しない応答が返されました',
-			'watchTogether.errors.sessionEnded' => 'ホストがセッションを終了しました',
-			'watchTogether.errors.sessionUnavailable' => 'このセッションを再開できません。ルームに参加するか作成して続行してください。',
 			'downloads.title' => 'ダウンロード',
 			'downloads.manage' => '管理',
 			'downloads.tvShows' => 'テレビ番組',
@@ -4657,14 +4453,16 @@ extension on TranslationsJa {
 			'downloads.backgroundWarning.bannerAction' => '詳細',
 			'downloads.backgroundWarning.sheetTitle' => 'バックグラウンドダウンロードはブロックされています',
 			'downloads.backgroundWarning.sheetTitleDegraded' => 'バックグラウンドダウンロードが制限される場合があります',
-			'downloads.backgroundWarning.sheetIntro' => 'Androidにより、Plezyはバックグラウンドで安定してダウンロードできません。',
-			'downloads.backgroundWarning.sheetIntroDegraded' => '端末により、Plezyがバックグラウンドでダウンロードできるタイミングが制限されています。',
-			'downloads.backgroundWarning.reasonBackgroundRestricted' => 'Plezyのバックグラウンド使用が制限されています。バッテリー使用量またはバックグラウンド使用を「制限なし」に設定してください。',
-			'downloads.backgroundWarning.reasonStandbyRestricted' => 'Androidにより、Plezyが制限付きのスタンバイ状態に設定されています。バッテリー使用量を「制限なし」に設定してください。',
+			'downloads.backgroundWarning.sheetIntro' => 'Androidにより、Heisucaはバックグラウンドで安定してダウンロードできません。',
+			'downloads.backgroundWarning.sheetIntroDegraded' => '端末により、Heisucaがバックグラウンドでダウンロードできるタイミングが制限されています。',
+			'downloads.backgroundWarning.reasonBackgroundRestricted' => 'Heisucaのバックグラウンド使用が制限されています。バッテリー使用量またはバックグラウンド使用を「制限なし」に設定してください。',
+			_ => null,
+		} ?? switch (path) {
+			'downloads.backgroundWarning.reasonStandbyRestricted' => 'Androidにより、Heisucaが制限付きのスタンバイ状態に設定されています。バッテリー使用量を「制限なし」に設定してください。',
 			'downloads.backgroundWarning.reasonDownloadChannelBlocked' => 'ダウンロード通知がオフのため、進行状況や操作ボタンを利用できない場合があります。',
 			'downloads.backgroundWarning.reasonNotificationsDisabled' => '通知がオフです。Android 13以降では、長時間のバックグラウンドダウンロードに通知が必要です。',
 			'downloads.backgroundWarning.reasonDataSaver' => 'データセーバーがオンのため、モバイルデータ通信ではバックグラウンドダウンロードがブロックされます。Wi-Fiでは引き続きダウンロードできるはずです。',
-			'downloads.backgroundWarning.reasonOemUnknown' => 'Plezyがバックグラウンドで動作中に、ダウンロードが繰り返し停止しました。Plezyのバッテリー使用量またはバックグラウンド使用の設定を確認してください。',
+			'downloads.backgroundWarning.reasonOemUnknown' => 'Heisucaがバックグラウンドで動作中に、ダウンロードが繰り返し停止しました。Heisucaのバッテリー使用量またはバックグラウンド使用の設定を確認してください。',
 			'downloads.backgroundWarning.openSettings' => '設定を開く',
 			'downloads.backgroundWarning.stillNotWorking' => '端末別のヘルプ',
 			'downloads.backgroundWarning.stillNotWorkingDescription' => 'お使いの端末向けの手順を確認してください。問題が続く場合は、設定 › ログを表示 からログを送信してください。',
@@ -4727,19 +4525,19 @@ extension on TranslationsJa {
 			'companionRemote.session.stopServer' => 'サーバーを停止',
 			'companionRemote.session.minimize' => '最小化',
 			'companionRemote.session.manualAddressHint' => '手動接続アドレス:',
-			'companionRemote.pairing.discoveryDescription' => '同じPlexアカウントを使用しているPlezyデバイスがここに表示されます',
+			'companionRemote.pairing.discoveryDescription' => '同じPlexアカウントを使用しているHeisucaデバイスがここに表示されます',
 			'companionRemote.pairing.hostAddressHint' => '192.168.1.100:48632',
 			'companionRemote.pairing.connecting' => '接続中…',
 			'companionRemote.pairing.searchingForDevices' => 'デバイスを検索中…',
 			'companionRemote.pairing.noDevicesFound' => 'ネットワーク上にデバイスが見つかりません',
-			'companionRemote.pairing.noDevicesHint' => 'デスクトップでPlezyを開き、同じWi-Fiネットワークに接続してください',
+			'companionRemote.pairing.noDevicesHint' => 'デスクトップでHeisucaを開き、同じWi-Fiネットワークに接続してください',
 			'companionRemote.pairing.availableDevices' => '利用可能なデバイス',
 			'companionRemote.pairing.manualConnection' => '手動接続',
 			'companionRemote.pairing.cryptoInitFailed' => '安全な接続を開始できませんでした。先にPlexにサインインしてください。',
 			'companionRemote.pairing.validationHostRequired' => 'ホストアドレスを入力してください',
 			'companionRemote.pairing.validationHostFormat' => '形式はIP:ポートである必要があります（例: 192.168.1.100:48632）',
 			'companionRemote.pairing.connectionTimedOut' => '接続がタイムアウトしました。両方のデバイスで同じネットワークを使用してください。',
-			'companionRemote.pairing.sessionNotFound' => 'デバイスが見つかりません。ホストでPlezyが実行中か確認してください。',
+			'companionRemote.pairing.sessionNotFound' => 'デバイスが見つかりません。ホストでHeisucaが実行中か確認してください。',
 			'companionRemote.pairing.authFailed' => '認証に失敗しました。両方のデバイスで同じPlexアカウントが必要です。',
 			'companionRemote.pairing.failedToConnect' => ({required Object error}) => '接続に失敗しました: ${error}',
 			'companionRemote.remote.disconnectConfirm' => 'リモートセッションを切断しますか？',
@@ -4959,11 +4757,11 @@ extension on TranslationsJa {
 			'trakt.connected' => '接続済み',
 			'trakt.connectedAs' => ({required Object username}) => '@${username}として接続済み',
 			'trakt.disconnectConfirm' => 'Traktアカウントとの接続を解除しますか？',
-			'trakt.disconnectConfirmBody' => 'PlezyはTraktへのイベント送信を停止します。いつでも再接続できます。',
+			'trakt.disconnectConfirmBody' => 'HeisucaはTraktへのイベント送信を停止します。いつでも再接続できます。',
 			'trakt.scrobble' => 'リアルタイムのスクロブル',
 			'trakt.scrobbleDescription' => '再生中に再生・一時停止・停止の各イベントをTraktに送信します。',
 			'trakt.watchedSync' => '視聴済みステータスを同期',
-			'trakt.watchedSyncDescription' => 'Plezyで項目を視聴済みにすると、Traktでも視聴済みになります。',
+			'trakt.watchedSyncDescription' => 'Heisucaで項目を視聴済みにすると、Traktでも視聴済みになります。',
 			'seerr.title' => 'Seerr',
 			'seerr.connectTitle' => 'Seerrに接続',
 			'seerr.serverUrl' => 'サーバー URL',
@@ -4973,10 +4771,10 @@ extension on TranslationsJa {
 			'seerr.signInWithEmby' => 'Embyでサインイン',
 			'seerr.signInWithLocal' => 'ローカルアカウントを使う',
 			'seerr.email' => 'メールアドレス',
-			'seerr.noSignInMethods' => 'この Seerr インスタンスには Plezy が対応しているサインイン方法がありません。',
+			'seerr.noSignInMethods' => 'この Seerr インスタンスには Heisuca が対応しているサインイン方法がありません。',
 			'seerr.instance' => 'インスタンス',
 			'seerr.disconnectConfirm' => 'Seerr の接続を解除しますか？',
-			'seerr.disconnectConfirmBody' => 'Plezy はこの Seerr インスタンスの情報を削除します。いつでも再接続できます。',
+			'seerr.disconnectConfirmBody' => 'Heisuca はこの Seerr インスタンスの情報を削除します。いつでも再接続できます。',
 			'seerr.request' => 'リクエスト',
 			'seerr.request4k' => '4K でリクエスト',
 			'seerr.seasons' => 'シーズン',
@@ -5001,7 +4799,7 @@ extension on TranslationsJa {
 			'seerr.statusBlocklisted' => 'ブロックリスト登録済み',
 			'seerr.couldNotReach' => ({required Object url, required Object error}) => '${url}に接続できませんでした: ${error}',
 			'seerr.noInstanceAtUrl' => ({required Object url, required Object status}) => '${url}にSeerrインスタンスがありません（HTTP ${status}）',
-			'seerr.behindAuthProxy' => 'Seerrではなく、認証が必要なリバースプロキシ（SSOまたはHTTP認証）が応答しました。Plezyはこれを通じてサインインできません。このアプリではSeerrの/api/v1パスをプロキシから除外するか、Seerrに直接到達するアドレスを使用してください。',
+			'seerr.behindAuthProxy' => 'Seerrではなく、認証が必要なリバースプロキシ（SSOまたはHTTP認証）が応答しました。Heisucaはこれを通じてサインインできません。このアプリではSeerrの/api/v1パスをプロキシから除外するか、Seerrに直接到達するアドレスを使用してください。',
 			'seerr.invalidUrl' => 'https://seerr.example.comのようなサーバーアドレスを入力してください',
 			'seerr.quickConnectUnsupported' => 'このSeerrインスタンスはQuick Connectに対応していません。Seerr 3.4以降が必要です。',
 			'seerr.notInitialized' => 'このSeerrインスタンスでは初回セットアップが完了していません',
@@ -5022,14 +4820,14 @@ extension on TranslationsJa {
 			'services.scrobble' => '進捗を自動で記録',
 			'services.scrobbleDescription' => 'エピソードや映画を見終えたときにリストを更新します。',
 			'services.disconnectConfirm' => ({required Object service}) => '${service} の接続を解除しますか？',
-			'services.disconnectConfirmBody' => ({required Object service}) => 'Plezyは${service}の更新を停止します。いつでも再接続できます。',
+			'services.disconnectConfirmBody' => ({required Object service}) => 'Heisucaは${service}の更新を停止します。いつでも再接続できます。',
 			'services.connectFailed' => ({required Object service}) => '${service} に接続できませんでした。もう一度お試しください。',
 			'services.names.mal' => 'MyAnimeList',
 			'services.names.anilist' => 'AniList',
 			'services.names.simkl' => 'Simkl',
 			'services.names.seerr' => 'Seerr',
 			'services.names.mdblist' => 'MDBList',
-			'services.deviceCode.title' => ({required Object service}) => '${service} で Plezy を有効化',
+			'services.deviceCode.title' => ({required Object service}) => '${service} で Heisuca を有効化',
 			'services.deviceCode.instructions' => 'QRコードをスキャンするか、以下のアドレスにアクセスしてこのコードを入力してください:',
 			'services.deviceCode.openToActivate' => ({required Object service}) => '${service} を開いて有効化',
 			'services.deviceCode.copyCode' => 'アクティベーションコードをコピー',
@@ -5081,8 +4879,6 @@ extension on TranslationsJa {
 			'addServer.borrowFromAnotherProfile' => '別のプロフィールの接続を利用',
 			'addServer.borrowFromAnotherProfileSubtitle' => '別のプロフィールの接続を再利用します。PINで保護されたプロフィールにはPINが必要です。',
 			'addServer.invalidCredentials' => 'ユーザー名またはパスワードが正しくありません',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.authResponseNotJson' => '認証レスポンスが有効なJSONではありません',
 			'addServer.authResponseIncomplete' => 'サーバーからのサインイン応答が不完全です',
 			'addServer.quickConnectRejected' => 'Quick Connectがサーバーに拒否されました',

@@ -1,14 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/media/media_source_info.dart';
-import 'package:plezy/media/account_preferences.dart';
-import 'package:plezy/models/jellyfin/jellyfin_account_preferences.dart';
-import 'package:plezy/mpv/mpv.dart';
-import 'package:plezy/services/jellyfin_media_info_mapper.dart';
-import 'package:plezy/services/playback_initialization_types.dart';
-import 'package:plezy/services/playback_subtitle_resolver.dart';
-import 'package:plezy/services/subtitle_preference.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_source_info.dart';
+import 'package:heisuca/media/account_preferences.dart';
+import 'package:heisuca/models/jellyfin/jellyfin_account_preferences.dart';
+import 'package:heisuca/mpv/mpv.dart';
+import 'package:heisuca/services/jellyfin_media_info_mapper.dart';
+import 'package:heisuca/services/playback_initialization_types.dart';
+import 'package:heisuca/services/playback_subtitle_resolver.dart';
+import 'package:heisuca/services/subtitle_preference.dart';
 
 import '../test_helpers/media_items.dart';
 

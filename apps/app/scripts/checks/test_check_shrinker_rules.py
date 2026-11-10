@@ -40,7 +40,7 @@ MATROSKA_KEEP = (
 
 # The shape AssMatroskaExtractor.kt uses: import + Type::class.java receivers.
 KOTLIN_REFLECTION_SOURCE = """
-package com.edde746.plezy.libass
+package app.heisuca.libass
 
 import androidx.media3.extractor.mkv.MatroskaExtractor
 
@@ -54,7 +54,7 @@ internal val subtitleSampleField = MatroskaExtractor::class.java.getDeclaredFiel
 
 # The Java receiver spelling of the same lookup.
 JAVA_REFLECTION_SOURCE = """
-package com.edde746.plezy.exoplayer;
+package app.heisuca.exoplayer;
 
 import androidx.media3.extractor.mkv.MatroskaExtractor;
 
@@ -199,23 +199,23 @@ class ShrinkerRulesCheckerTest(unittest.TestCase):
         self.assertIn("cannot trace", errors[0])
 
     def test_kotlin_field_reflection_without_a_member_name_pin_is_reported(self) -> None:
-        self._write_source("android/libass/src/main/java/com/edde746/plezy/libass/AssProbe.kt", KOTLIN_REFLECTION_SOURCE)
+        self._write_source("android/libass/src/main/java/app/heisuca/libass/AssProbe.kt", KOTLIN_REFLECTION_SOURCE)
         self._write_rules(FULL_RULES)
 
         self.assertEqual(
-            ["android/libass/src/main/java/com/edde746/plezy/libass/AssProbe.kt resolves "
+            ["android/libass/src/main/java/app/heisuca/libass/AssProbe.kt resolves "
              "androidx.media3.extractor.mkv.MatroskaExtractor.extractorOutput with "
              "getDeclaredField/getDeclaredMethod but no -keep rule pins that member name",
-             "android/libass/src/main/java/com/edde746/plezy/libass/AssProbe.kt resolves "
+             "android/libass/src/main/java/app/heisuca/libass/AssProbe.kt resolves "
              "androidx.media3.extractor.mkv.MatroskaExtractor.subtitleSample with "
              "getDeclaredField/getDeclaredMethod but no -keep rule pins that member name"],
             CHECKER.validate(self.root),
         )
 
     def test_keepclassmembernames_satisfies_reflective_field_lookups(self) -> None:
-        self._write_source("android/libass/src/main/java/com/edde746/plezy/libass/AssProbe.kt", KOTLIN_REFLECTION_SOURCE)
+        self._write_source("android/libass/src/main/java/app/heisuca/libass/AssProbe.kt", KOTLIN_REFLECTION_SOURCE)
         self._write_source(
-            "android/app/src/main/java/com/edde746/plezy/exoplayer/MatroskaFields.java", JAVA_REFLECTION_SOURCE
+            "android/app/src/main/java/app/heisuca/exoplayer/MatroskaFields.java", JAVA_REFLECTION_SOURCE
         )
         self._write_rules(FULL_RULES + MATROSKA_KEEP)
 
@@ -223,22 +223,22 @@ class ShrinkerRulesCheckerTest(unittest.TestCase):
 
     def test_class_forname_is_not_satisfied_by_a_member_name_pin(self) -> None:
         self._write_source(
-            "android/app/src/main/kotlin/com/edde746/plezy/boot/PluginLoader.kt",
-            'package com.edde746.plezy.boot\n\n'
+            "android/app/src/main/kotlin/app/heisuca/boot/PluginLoader.kt",
+            'package app.heisuca.boot\n\n'
             'internal fun loadPlugin(): Class<*> = Class.forName("com.example.ReflectedPlugin")\n',
         )
         self._write_rules(FULL_RULES + "-keepclassmembernames class com.example.ReflectedPlugin { *; }\n")
 
         self.assertEqual(
-            ["android/app/src/main/kotlin/com/edde746/plezy/boot/PluginLoader.kt resolves "
+            ["android/app/src/main/kotlin/app/heisuca/boot/PluginLoader.kt resolves "
              "com.example.ReflectedPlugin with Class.forName but no -keep covers it"],
             CHECKER.validate(self.root),
         )
 
     def test_class_keep_satisfies_class_forname(self) -> None:
         self._write_source(
-            "android/app/src/main/kotlin/com/edde746/plezy/boot/PluginLoader.kt",
-            'package com.edde746.plezy.boot\n\n'
+            "android/app/src/main/kotlin/app/heisuca/boot/PluginLoader.kt",
+            'package app.heisuca.boot\n\n'
             'internal fun loadPlugin(): Class<*> = Class.forName("com.example.ReflectedPlugin")\n',
         )
         self._write_rules(FULL_RULES + "-keep class com.example.ReflectedPlugin { *; }\n")
@@ -248,16 +248,16 @@ class ShrinkerRulesCheckerTest(unittest.TestCase):
     def test_reflection_in_test_sources_needs_no_keep(self) -> None:
         # Unit and instrumentation sources never run under R8, so their reflection
         # helpers must not demand keep rules.
-        self._write_source("android/app/src/test/kotlin/com/edde746/plezy/Probe.kt", KOTLIN_REFLECTION_SOURCE)
-        self._write_source("android/app/src/androidTest/kotlin/com/edde746/plezy/Probe.kt", KOTLIN_REFLECTION_SOURCE)
+        self._write_source("android/app/src/test/kotlin/app/heisuca/Probe.kt", KOTLIN_REFLECTION_SOURCE)
+        self._write_source("android/app/src/androidTest/kotlin/app/heisuca/Probe.kt", KOTLIN_REFLECTION_SOURCE)
         self._write_rules(FULL_RULES)
 
         self.assertEqual([], CHECKER.validate(self.root))
 
     def test_unresolvable_reflective_receiver_fails_loudly(self) -> None:
         self._write_source(
-            "android/app/src/main/kotlin/com/edde746/plezy/Probe.kt",
-            'package com.edde746.plezy\n\n'
+            "android/app/src/main/kotlin/app/heisuca/Probe.kt",
+            'package app.heisuca\n\n'
             'internal fun grab(target: Any) = target.javaClass.getDeclaredField("pendingResult")\n',
         )
         self._write_rules(FULL_RULES)
@@ -271,8 +271,8 @@ class ShrinkerRulesCheckerTest(unittest.TestCase):
         # A concatenated or constant name is invisible to the literal-matching
         # patterns; staying silent would green-light a release R8 may break.
         self._write_source(
-            "android/app/src/main/kotlin/com/edde746/plezy/boot/PluginLoader.kt",
-            'package com.edde746.plezy.boot\n\n'
+            "android/app/src/main/kotlin/app/heisuca/boot/PluginLoader.kt",
+            'package app.heisuca.boot\n\n'
             'internal fun loadPlugin(name: String): Class<*> = Class.forName("com.example." + name)\n',
         )
         self._write_rules(FULL_RULES + "-keep class com.example.** { *; }\n")
@@ -284,8 +284,8 @@ class ShrinkerRulesCheckerTest(unittest.TestCase):
 
     def test_non_literal_member_lookup_fails_loudly(self) -> None:
         self._write_source(
-            "android/app/src/main/kotlin/com/edde746/plezy/Probe.kt",
-            'package com.edde746.plezy\n\n'
+            "android/app/src/main/kotlin/app/heisuca/Probe.kt",
+            'package app.heisuca\n\n'
             'private const val FIELD_NAME = "pendingResult"\n\n'
             'internal fun grab(target: Any) = target.javaClass.getDeclaredField(FIELD_NAME)\n',
         )
@@ -331,7 +331,7 @@ class ShrinkerRulesCheckerTest(unittest.TestCase):
     # cpp tree, kept alive by that module's consumer rules rather than the app's.
     LIBMPV_STYLE_SOURCE = (
         "static void cache(JNIEnv *env) {\n"
-        '    mpv_MpvPlayer = env->FindClass("com/edde746/plezy/libmpv/MpvPlayer");\n'
+        '    mpv_MpvPlayer = env->FindClass("app/heisuca/libmpv/MpvPlayer");\n'
         "    mpv_MpvPlayer = reinterpret_cast<jclass>(env->NewGlobalRef(mpv_MpvPlayer));\n"
         '    onEvent = env->GetStaticMethodID(mpv_MpvPlayer, "onEvent", "(I)V");\n'
         "}\n"
@@ -351,7 +351,7 @@ class ShrinkerRulesCheckerTest(unittest.TestCase):
         self._write_source("android/libmpv/src/main/cpp/jni_utils.cpp", self.LIBMPV_STYLE_SOURCE)
         self._write_source(
             "android/libmpv/consumer-rules.pro",
-            "-keep class com.edde746.plezy.libmpv.MpvPlayer {\n"
+            "-keep class app.heisuca.libmpv.MpvPlayer {\n"
             "    public static void onEvent(int);\n"
             "}\n",
         )

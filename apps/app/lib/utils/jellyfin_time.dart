@@ -11,7 +11,8 @@ const int _ticksPerMs = 10_000;
 
 /// Jellyfin ticks → milliseconds. Returns `null` for non-numeric input.
 int? jellyfinTicksToMs(Object? ticks) {
-  if (ticks is num) return ticks ~/ _ticksPerMs;
+  // NaN/infinito (JSON 1e999) lançariam em `~/`; contam como ausente.
+  if (ticks is num && ticks.isFinite) return ticks ~/ _ticksPerMs;
   return null;
 }
 

@@ -5,24 +5,24 @@ import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:plezy/exceptions/media_server_exceptions.dart';
-import 'package:plezy/connection/connection.dart';
-import 'package:plezy/media/artist_discography.dart';
-import 'package:plezy/media/library_query.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/media/media_playlist.dart';
-import 'package:plezy/media/media_server_client.dart';
-import 'package:plezy/models/transcode_quality_preset.dart';
-import 'package:plezy/mpv/mpv.dart';
-import 'package:plezy/services/jellyfin_client.dart';
-import 'package:plezy/services/playback_initialization_types.dart';
-import 'package:plezy/services/subtitle_preference.dart';
-import 'package:plezy/utils/device_identity.dart';
-import 'package:plezy/utils/media_server_http_client.dart';
-import 'package:plezy/services/video_decode_capabilities.dart';
-import 'package:plezy/services/settings_service.dart';
+import 'package:heisuca/exceptions/media_server_exceptions.dart';
+import 'package:heisuca/connection/connection.dart';
+import 'package:heisuca/media/artist_discography.dart';
+import 'package:heisuca/media/library_query.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_playlist.dart';
+import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/models/transcode_quality_preset.dart';
+import 'package:heisuca/mpv/mpv.dart';
+import 'package:heisuca/services/jellyfin_client.dart';
+import 'package:heisuca/services/playback_initialization_types.dart';
+import 'package:heisuca/services/subtitle_preference.dart';
+import 'package:heisuca/utils/device_identity.dart';
+import 'package:heisuca/utils/media_server_http_client.dart';
+import 'package:heisuca/services/video_decode_capabilities.dart';
+import 'package:heisuca/services/settings_service.dart';
 
 import '../test_helpers/backend_client_fixtures.dart';
 import '../test_helpers/http_fixtures.dart';
@@ -1006,7 +1006,8 @@ void main() {
             'MediaSources': [
               {
                 'Id': 'src-1',
-                'TranscodingUrl': '/Videos/item-1/master.m3u8?MediaSourceId=src-1&PlaySessionId=play-session-1',
+                'TranscodingUrl':
+                    '/Videos/item-1/master.m3u8?MediaSourceId=src-1&PlaySessionId=play-session-1&TranscodeReasons=ContainerBitrateExceedsLimit',
                 'MediaStreams': [
                   {'Index': 0, 'Type': 'Audio', 'Codec': 'aac', 'Language': 'eng', 'DisplayTitle': 'English - AAC'},
                   {
@@ -1044,6 +1045,8 @@ void main() {
       );
 
       expect(result.isTranscoding, isTrue);
+      expect(result.delivery?.method, 'Transcode');
+      expect(result.delivery?.reasons, ['O arquivo ultrapassa o limite de qualidade da transmissão.']);
       expect(result.playMethod, 'Transcode');
       expect(result.playSessionId, 'play-session-1');
       expect(playbackInfoUris, hasLength(1));
@@ -2083,6 +2086,8 @@ void main() {
             'Id': 'src-1',
             'Container': 'mkv',
             'MediaStreams': [
+              // Vídeo com prova: sem ela o índice 1 cru não passa no portão de HW.
+              {'Index': 0, 'Type': 'Video', 'Codec': 'h264', 'Width': 1920, 'Height': 1080},
               {'Index': 1, 'Type': 'Audio', 'Codec': 'aac', 'Language': 'eng'},
               {'Index': 4, 'Type': 'Audio', 'Codec': 'flac', 'Language': 'jpn'},
             ],
@@ -2092,6 +2097,7 @@ void main() {
             'Container': 'mp4',
             'DefaultAudioStreamIndex': 8,
             'MediaStreams': [
+              {'Index': 0, 'Type': 'Video', 'Codec': 'h264', 'Width': 1920, 'Height': 1080},
               {'Index': 8, 'Type': 'Audio', 'Codec': 'aac', 'Language': 'eng'},
             ],
           },
@@ -3013,6 +3019,7 @@ void main() {
       final byStream = {
         for (final sidecar in result.subtitleSidecars) sidecar.sourceStreamId: Uri.parse(sidecar.track.uri!),
       };
+      // P5: URL de outro host (https) segue, mas SEM o token do servidor.
       expect(byStream[3].toString(), 'https://subs.example.org/files/3.srt?sig=1');
       expect(byStream[4]!.queryParameters['ApiKey'], 'tok-abc');
     });
@@ -3329,7 +3336,10 @@ void main() {
       expect(uri.host, 'other.example');
       expect(uri.queryParameters['api_key'], 'existing');
       expect(uri.queryParameters['maxWidth'], '100');
-      expect(uri.queryParameters['maxHeight'], '300');
+      // P5: URL de outra origem volta como veio (nada nosso é anexado).
+      expect(url, 'https://other.example/Items/x/Images/Primary?api_key=existing&maxWidth=100');
+      expect(uri.queryParameters.containsKey('maxHeight'), isFalse);
+      expect(url.contains('tok-abc'), isFalse);
     });
 
     test('thumbnailUrl returns empty string for null/empty path', () {

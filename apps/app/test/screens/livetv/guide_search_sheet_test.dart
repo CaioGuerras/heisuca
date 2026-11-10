@@ -4,21 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:plezy/focus/input_mode_tracker.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/media/live_tv_support.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_server_client.dart';
-import 'package:plezy/media/server_capabilities.dart';
-import 'package:plezy/models/livetv_channel.dart';
-import 'package:plezy/models/livetv_program.dart';
-import 'package:plezy/providers/multi_server_provider.dart';
-import 'package:plezy/screens/livetv/guide_search_sheet.dart';
-import 'package:plezy/services/companion_remote/companion_remote_receiver.dart';
-import 'package:plezy/services/multi_server_manager.dart';
-import 'package:plezy/theme/mono_theme.dart';
-import 'package:plezy/widgets/overlay_sheet.dart';
+import 'package:heisuca/focus/input_mode_tracker.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/media/live_tv_support.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/media/server_capabilities.dart';
+import 'package:heisuca/models/livetv_channel.dart';
+import 'package:heisuca/models/livetv_program.dart';
+import 'package:heisuca/providers/multi_server_provider.dart';
+import 'package:heisuca/screens/livetv/guide_search_sheet.dart';
+import 'package:heisuca/services/multi_server_manager.dart';
+import 'package:heisuca/theme/mono_theme.dart';
+import 'package:heisuca/widgets/overlay_sheet.dart';
 import 'package:provider/provider.dart';
 
 import '../../test_helpers/multi_server_fixtures.dart';
@@ -27,7 +26,6 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() => initializeDateFormatting('en'));
   setUp(() => LocaleSettings.setLocaleSync(AppLocale.en));
-  tearDown(() => CompanionRemoteReceiver.instance.onSearchAction = null);
 
   testWidgets('empty query lists every channel and typing filters by title, call sign, and number', (tester) async {
     final harness = _SheetHarness();
@@ -121,36 +119,6 @@ void main() {
     expect(harness.selectedPrograms.single.channel.key, 'channel-beta');
     expect(harness.selectedPrograms.single.program.ratingKey, 'program-game');
     expect(find.byType(GuideSearchSheet), findsNothing);
-  });
-
-  testWidgets('companion remote queries land in the open sheet and the previous handler is restored', (tester) async {
-    final receivedByGlobalHandler = <String?>[];
-    void globalHandler(String? query) => receivedByGlobalHandler.add(query);
-    CompanionRemoteReceiver.instance.onSearchAction = globalHandler;
-
-    final harness = _SheetHarness();
-    addTearDown(harness.dispose);
-    await harness.open(tester);
-    harness.schedule.complete(const []);
-    await tester.pumpAndSettle();
-
-    // The sheet took the search action over.
-    final takeover = CompanionRemoteReceiver.instance.onSearchAction;
-    expect(takeover, isNotNull);
-    expect(takeover, isNot(equals(globalHandler)));
-
-    takeover!('beta');
-    await tester.pumpAndSettle();
-    expect(receivedByGlobalHandler, isEmpty);
-    expect(tester.widget<TextField>(find.byType(TextField)).controller?.text, 'beta');
-    expect(find.text('KALP'), findsNothing);
-    expect(find.text('KBET'), findsOneWidget);
-
-    // Closing the sheet restores the global handler.
-    await tester.tapAt(const Offset(10, 10));
-    await tester.pumpAndSettle();
-    expect(find.byType(GuideSearchSheet), findsNothing);
-    expect(CompanionRemoteReceiver.instance.onSearchAction, equals(globalHandler));
   });
 
   testWidgets('arrow-down from the field lands D-pad focus on the first result', (tester) async {

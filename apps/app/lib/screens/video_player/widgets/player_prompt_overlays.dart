@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/foundation.dart' show ValueListenable, listEquals;
@@ -6,6 +7,8 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 
 import '../../../cgflix/cgflix_units.dart';
+import '../../../cgflix/cgflix_palette.dart';
+import '../../../heisuca/heisuca_theme.dart';
 import '../../../focus/focusable_button.dart';
 import '../../../i18n/strings.g.dart';
 import '../../../media/ids.dart';
@@ -18,8 +21,6 @@ import '../../../services/pip_service.dart';
 import '../../../services/settings_service.dart';
 import '../../../utils/platform_detector.dart';
 import '../../../utils/provider_extensions.dart';
-import '../../../watch_together/providers/watch_together_provider.dart';
-import '../../../watch_together/widgets/watch_together_overlay.dart';
 import '../../../widgets/app_icon.dart';
 import '../../../widgets/optimized_media_image.dart';
 import '../../../widgets/settings_builder.dart';
@@ -124,62 +125,6 @@ class VideoPlayerBufferingOverlay extends StatelessWidget {
   }
 }
 
-class VideoPlayerWatchTogetherOverlays extends StatelessWidget {
-  const VideoPlayerWatchTogetherOverlays({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return RepaintBoundary(
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Selector<WatchTogetherProvider, bool>(
-            selector: (_, provider) => provider.isWaitingForHostReconnect,
-            builder: (context, isWaiting, child) {
-              if (!isWaiting) return const SizedBox.shrink();
-              return Positioned(
-                bottom: 120,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: const BoxDecoration(
-                      color: Colors.black54,
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                    ),
-                    child: Row(
-                      mainAxisSize: .min,
-                      children: [
-                        if (PlatformDetector.isTV())
-                          const AppIcon(Symbols.sync_rounded, size: 14, color: Colors.white)
-                        else
-                          const SizedBox(
-                            width: 14,
-                            height: 14,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                          ),
-                        const SizedBox(width: 8),
-                        Text(
-                          t.watchTogether.reconnectingToHost,
-                          style: const TextStyle(color: Colors.white, fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-          const ParticipantNotificationOverlay(),
-          const WaitingForParticipantsIndicator(),
-          const SyncingIndicator(),
-        ],
-      ),
-    );
-  }
-}
-
 class VideoPlayerExitOverlay extends StatelessWidget {
   final ValueListenable<bool> isExiting;
 
@@ -227,6 +172,7 @@ class VideoPlayerPlayNextOverlay extends StatelessWidget {
     // visible=false for the whole episode, and the lookup hashes the artwork
     // path per call.
     final backdrop = visible ? _buildThumbnailBackdrop(context, episode) : null;
+    final isTv = PlatformDetector.isTV();
     return _VideoPlayerPromptShell(
       visible: visible,
       chromeController: chromeController,
@@ -238,7 +184,7 @@ class VideoPlayerPlayNextOverlay extends StatelessWidget {
         _PlayNextEpisodeHeader(episode: episode),
         const SizedBox(height: 12),
         _VideoPlayerPromptActions(
-          cancelLabel: t.common.cancel,
+          cancelLabel: isTv ? 'Cancelar' : t.common.cancel,
           cancelFocusNode: cancelFocusNode,
           onCancel: onCancel,
           confirmFocusNode: confirmFocusNode,
@@ -247,6 +193,9 @@ class VideoPlayerPlayNextOverlay extends StatelessWidget {
             ValueListenableBuilder<int>(
               valueListenable: autoPlayCountdown,
               builder: (context, countdown, child) {
+                if (isTv) {
+                  return const Text('Assistir agora');
+                }
                 if (countdown <= 0) return Text(t.videoControls.playNext);
                 return Row(
                   mainAxisSize: .min,
@@ -310,6 +259,7 @@ class _PlayNextEpisodeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.cgflix;
     return Row(
       children: [
         Expanded(
@@ -323,7 +273,11 @@ class _PlayNextEpisodeHeader extends StatelessWidget {
                     children: [
                       Text(
                         t.videoControls.nextEpisode,
-                        style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 12, fontWeight: .w500),
+                        style: TextStyle(
+                          color: palette.textOn(palette.surface, preferred: palette.textMuted),
+                          fontSize: 12,
+                          fontWeight: .w500,
+                        ),
                       ),
                       if (isShuffleActive) ...[
                         const SizedBox(width: 4),
@@ -337,14 +291,24 @@ class _PlayNextEpisodeHeader extends StatelessWidget {
               if (episode.parentIndex != null && episode.index != null)
                 Text(
                   '$cgflixSeasonLetter${episode.parentIndex} E${episode.index} · ${episode.title}', // CGFLIX: T em português
-                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: .w600),
+                  style: TextStyle(
+                    fontFamily: HeisucaTheme.fonteTitulo,
+                    color: palette.text,
+                    fontSize: 14,
+                    fontWeight: .w600,
+                  ),
                   maxLines: 2,
                   overflow: .ellipsis,
                 )
               else
                 Text(
                   episode.title!,
-                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: .w600),
+                  style: TextStyle(
+                    fontFamily: HeisucaTheme.fonteTitulo,
+                    color: palette.text,
+                    fontSize: 14,
+                    fontWeight: .w600,
+                  ),
                   maxLines: 2,
                   overflow: .ellipsis,
                 ),
@@ -358,6 +322,7 @@ class _PlayNextEpisodeHeader extends StatelessWidget {
 
 class VideoPlayerStillWatchingOverlay extends StatelessWidget {
   final bool visible;
+  final bool pausedForEpisodes;
   final ValueListenable<int> countdown;
   final FocusNode pauseFocusNode;
   final FocusNode continueFocusNode;
@@ -368,6 +333,7 @@ class VideoPlayerStillWatchingOverlay extends StatelessWidget {
   const VideoPlayerStillWatchingOverlay({
     super.key,
     required this.visible,
+    this.pausedForEpisodes = false,
     required this.countdown,
     required this.pauseFocusNode,
     required this.continueFocusNode,
@@ -378,37 +344,53 @@ class VideoPlayerStillWatchingOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.cgflix;
+    final isTv = PlatformDetector.isTV();
     return _VideoPlayerPromptShell(
       visible: visible,
       chromeController: chromeController,
       focusNodes: [pauseFocusNode, continueFocusNode],
       children: [
         Text(
-          t.videoControls.stillWatching,
-          style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 12, fontWeight: .w500),
+          isTv ? 'Ainda está aí?' : t.videoControls.stillWatching,
+          style: TextStyle(
+            fontFamily: HeisucaTheme.fonteTitulo,
+            color: palette.text,
+            fontSize: isTv ? 24 : 12,
+            fontWeight: isTv ? FontWeight.w700 : FontWeight.w500,
+          ),
         ),
         const SizedBox(height: 4),
         ValueListenableBuilder<int>(
           valueListenable: countdown,
           builder: (context, seconds, child) => Text(
-            t.videoControls.pausingIn(seconds: '$seconds'),
-            style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: .w600),
+            isTv
+                ? 'Pausamos para você não perder onde parou.'
+                : (pausedForEpisodes
+                      ? 'Reprodução pausada. Continuar com o próximo episódio?'
+                      : t.videoControls.pausingIn(seconds: '$seconds')),
+            style: TextStyle(
+              color: isTv ? const Color(0xFFE2DDE7) : palette.text,
+              fontSize: isTv ? 16 : 14,
+              fontWeight: isTv ? FontWeight.w400 : FontWeight.w600,
+            ),
           ),
         ),
         const SizedBox(height: 12),
         _VideoPlayerPromptActions(
-          cancelLabel: t.videoControls.pauseButton,
+          cancelLabel: isTv ? 'Parar' : t.videoControls.pauseButton,
           cancelFocusNode: pauseFocusNode,
           onCancel: onPause,
           confirmFocusNode: continueFocusNode,
           onConfirm: onContinue,
           confirmChildren: [
-            ValueListenableBuilder<int>(
-              valueListenable: countdown,
-              builder: (context, seconds, child) => Text('$seconds'),
-            ),
-            const SizedBox(width: 4),
-            Text(t.videoControls.continueWatching),
+            if (!pausedForEpisodes && !isTv)
+              ValueListenableBuilder<int>(
+                valueListenable: countdown,
+                builder: (context, seconds, child) => Text('$seconds'),
+              ),
+            if (!pausedForEpisodes && !isTv) const SizedBox(width: 4),
+            Text(isTv ? 'Continuar assistindo' : t.videoControls.continueWatching),
           ],
         ),
       ],
@@ -476,49 +458,62 @@ class _VideoPlayerPromptActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.cgflix;
+    final isTv = PlatformDetector.isTV();
+
+    final confirmWidget = Expanded(
+      child: FocusableButton(
+        focusNode: confirmFocusNode,
+        onPressed: onConfirm,
+        autoScroll: false,
+        onNavigateLeft: isTv ? () {} : () => cancelFocusNode.requestFocus(),
+        onNavigateRight: isTv ? () => cancelFocusNode.requestFocus() : () {},
+        onNavigateUp: () {},
+        onNavigateDown: () {},
+        useBackgroundFocus: true,
+        child: FilledButton(
+          onPressed: onConfirm,
+          style: FilledButton.styleFrom(
+            backgroundColor: palette.action,
+            foregroundColor: palette.onAction,
+            padding: const EdgeInsets.symmetric(vertical: 12),
+          ),
+          child: Row(
+            mainAxisAlignment: .center,
+            children: [
+              for (var i = 0; i < confirmChildren.length; i++)
+                if (i == confirmChildren.length - 1) Flexible(child: confirmChildren[i]) else confirmChildren[i],
+            ],
+          ),
+        ),
+      ),
+    );
+
+    final cancelWidget = Expanded(
+      child: FocusableButton(
+        focusNode: cancelFocusNode,
+        onPressed: onCancel,
+        autoScroll: false,
+        onNavigateLeft: isTv ? () => confirmFocusNode.requestFocus() : () {},
+        onNavigateRight: isTv ? () {} : () => confirmFocusNode.requestFocus(),
+        onNavigateUp: () {},
+        onNavigateDown: () {},
+        child: OutlinedButton(
+          onPressed: onCancel,
+          style: OutlinedButton.styleFrom(
+            foregroundColor: palette.text,
+            side: BorderSide(color: palette.divider),
+            padding: const EdgeInsets.symmetric(vertical: 12),
+          ),
+          child: Text(cancelLabel),
+        ),
+      ),
+    );
+
     return Row(
-      children: [
-        Expanded(
-          child: FocusableButton(
-            focusNode: cancelFocusNode,
-            onPressed: onCancel,
-            autoScroll: false,
-            onNavigateRight: () => confirmFocusNode.requestFocus(),
-            onNavigateUp: () {},
-            onNavigateDown: () {},
-            child: OutlinedButton(
-              onPressed: onCancel,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.white,
-                side: BorderSide(color: Colors.white.withValues(alpha: 0.5)),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-              child: Text(cancelLabel),
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: FocusableButton(
-            focusNode: confirmFocusNode,
-            onPressed: onConfirm,
-            autoScroll: false,
-            onNavigateLeft: () => cancelFocusNode.requestFocus(),
-            onNavigateUp: () {},
-            onNavigateDown: () {},
-            useBackgroundFocus: true,
-            child: FilledButton(
-              onPressed: onConfirm,
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-              child: Row(mainAxisAlignment: .center, children: confirmChildren),
-            ),
-          ),
-        ),
-      ],
+      children: isTv
+          ? [confirmWidget, const SizedBox(width: 8), cancelWidget]
+          : [cancelWidget, const SizedBox(width: 8), confirmWidget],
     );
   }
 }
@@ -556,17 +551,18 @@ class _VideoPlayerPromptCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.cgflix;
+    final availableWidth = math.max(0.0, MediaQuery.sizeOf(context).width - 48);
+    final preferredWidth = math.max(320.0, 320 * MediaQuery.textScalerOf(context).scale(14) / 14);
+    final width = math.min(availableWidth, preferredWidth);
     final backdrop = this.backdrop;
     final content = Padding(padding: const EdgeInsets.all(16), child: child);
-    final decoration = BoxDecoration(
-      color: Colors.black.withValues(alpha: 0.9),
-      borderRadius: const BorderRadius.all(Radius.circular(12)),
-    );
+    final decoration = BoxDecoration(color: palette.surface, borderRadius: const BorderRadius.all(Radius.circular(12)));
     if (backdrop == null) {
-      return Container(width: 320, decoration: decoration, child: content);
+      return Container(width: width, decoration: decoration, child: content);
     }
     return Container(
-      width: 320,
+      width: width,
       clipBehavior: Clip.antiAlias,
       decoration: decoration,
       child: Stack(
@@ -580,9 +576,9 @@ class _VideoPlayerPromptCard extends StatelessWidget {
                   end: Alignment.bottomCenter,
                   stops: const [0.0, 0.35, 0.78],
                   colors: [
-                    Colors.black.withValues(alpha: 0.05),
-                    Colors.black.withValues(alpha: 0.25),
-                    Colors.black.withValues(alpha: 0.92),
+                    palette.surface.withValues(alpha: 0.05),
+                    palette.surface.withValues(alpha: 0.25),
+                    palette.surface.withValues(alpha: 0.98),
                   ],
                 ),
               ),

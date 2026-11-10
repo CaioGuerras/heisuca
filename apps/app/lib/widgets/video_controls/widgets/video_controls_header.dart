@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:plezy/utils/formatters.dart';
+import 'package:heisuca/utils/formatters.dart';
+import 'package:heisuca/utils/platform_detector.dart';
 
 import '../../../cgflix/cgflix_units.dart';
 import '../../../media/media_item.dart';
 import '../../../i18n/strings.g.dart';
-import '../../../watch_together/widgets/watch_together_overlay.dart';
-import '../../../watch_together/providers/watch_together_provider.dart';
 import '../../app_bar_back_button.dart';
 import '../../system_clock.dart';
 
@@ -25,6 +23,7 @@ enum VideoHeaderStyle {
 /// Supports both single-line (macOS) and multi-line (other platforms) layouts.
 class VideoControlsHeader extends StatelessWidget {
   final MediaItem metadata;
+  final Widget? title; // CGFLIX: título/logo da marca sem duplicar os indicadores.
   final VideoHeaderStyle style;
 
   /// Optional trailing widget (e.g., track/chapter controls)
@@ -43,6 +42,7 @@ class VideoControlsHeader extends StatelessWidget {
   const VideoControlsHeader({
     super.key,
     required this.metadata,
+    this.title,
     this.style = VideoHeaderStyle.multiLine,
     this.trailing,
     this.onBack,
@@ -59,22 +59,11 @@ class VideoControlsHeader extends StatelessWidget {
         AppBarBackButton(style: BackButtonStyle.video, onPressed: onBack ?? () => Navigator.of(context).pop(true)),
         const SizedBox(width: 16),
         Expanded(
-          child: style == VideoHeaderStyle.singleLine
-              ? _buildSingleLineTitle(itemTitle)
-              : _buildMultiLineTitle(itemTitle),
-        ),
-        Selector<WatchTogetherProvider, bool>(
-          selector: (_, p) => p.isInSession,
-          builder: (context, inSession, child) {
-            if (!inSession) return const SizedBox.shrink();
-            return Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: WatchTogetherSessionIndicator(
-                onCancelAutoHide: onCancelAutoHide,
-                onStartAutoHide: onStartAutoHide,
-              ),
-            );
-          },
+          child:
+              title ??
+              (style == VideoHeaderStyle.singleLine
+                  ? _buildSingleLineTitle(itemTitle)
+                  : _buildMultiLineTitle(itemTitle)),
         ),
         if (showClock)
           const Padding(
@@ -120,19 +109,20 @@ class VideoControlsHeader extends StatelessWidget {
       secondLineParts.add(formatDurationTextual(metadata.durationMs!));
     }
 
+    final isTv = PlatformDetector.isTV();
     return Column(
       crossAxisAlignment: .start,
       children: [
         Text(
           metadata.grandparentTitle ?? itemTitle,
-          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: .bold),
+          style: TextStyle(color: Colors.white, fontSize: isTv ? 32 : 16, fontWeight: FontWeight.bold),
           maxLines: 1,
           overflow: .ellipsis,
         ),
         if (secondLineParts.isNotEmpty)
           Text(
             toBulletedString(secondLineParts),
-            style: const TextStyle(color: Colors.white70, fontSize: 14),
+            style: TextStyle(color: Colors.white70, fontSize: isTv ? 24 : 14),
             maxLines: 1,
             overflow: .ellipsis,
           ),

@@ -1,12 +1,12 @@
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:plezy/connection/connection.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/media/media_browser_dialect.dart';
-import 'package:plezy/models/plex/plex_config.dart';
-import 'package:plezy/services/jellyfin_client.dart';
-import 'package:plezy/services/plex_client.dart';
-import 'package:plezy/utils/active_client_scope.dart';
+import 'package:heisuca/connection/connection.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/media/media_browser_dialect.dart';
+import 'package:heisuca/models/plex/plex_config.dart';
+import 'package:heisuca/services/jellyfin_client.dart';
+import 'package:heisuca/services/plex_client.dart';
+import 'package:heisuca/utils/active_client_scope.dart';
 
 /// A MediaBrowser-family connection fixture. Defaults to the Jellyfin dialect;
 /// pass `dialect: MediaBrowserDialect.emby` (or use [testEmbyConnection]) to

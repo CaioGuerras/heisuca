@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/models/plex/plex_home.dart';
+import 'package:heisuca/models/plex/plex_home.dart';
 
 void main() {
   test('PlexHome tolerates scalar drift from the account API', () {

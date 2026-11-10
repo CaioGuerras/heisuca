@@ -1,20 +1,24 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../cgflix/cgflix_palette.dart';
 import '../cgflix/cgflix_theme.dart';
+import '../utils/platform_detector.dart';
 import 'gapped_track_shape.dart';
 import 'mono_tokens.dart';
 
-final Map<({bool dark, bool oled, TargetPlatform platform}), ThemeData> _monoThemeCache = {};
+final Map<({bool dark, bool oled, TargetPlatform platform, CgflixThemeVariant? kids, bool tv}), ThemeData> _monoThemeCache = {};
 
-ThemeData monoTheme({required bool dark, bool oled = false}) {
+ThemeData monoTheme({required bool dark, bool oled = false, CgflixThemeVariant? kids}) {
   // ThemeData derives several defaults from defaultTargetPlatform.
-  final key = (dark: dark || oled, oled: oled, platform: defaultTargetPlatform);
+  // A TV tem paleta própria (azul); a detecção pode chegar depois do primeiro tema.
+  final key = (dark: dark || oled, oled: oled, platform: defaultTargetPlatform, kids: kids, tv: PlatformDetector.isTV());
   final cached = _monoThemeCache[key];
   if (cached != null) return cached;
 
   final theme = cgflixBrandTheme(
     _buildMonoTheme(dark: key.dark, oled: key.oled, platform: key.platform),
     oled: key.oled,
+    kids: kids,
   ); // CGFLIX
   _monoThemeCache[key] = theme;
   return theme;

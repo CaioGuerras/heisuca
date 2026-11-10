@@ -4,16 +4,16 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/connection/connection_registry.dart';
-import 'package:plezy/database/app_database.dart';
-import 'package:plezy/profiles/active_profile_provider.dart';
-import 'package:plezy/profiles/plex_home_service.dart';
-import 'package:plezy/profiles/profile.dart';
-import 'package:plezy/profiles/profile_connection_registry.dart';
-import 'package:plezy/profiles/profile_registry.dart';
-import 'package:plezy/screens/main_screen.dart';
-import 'package:plezy/services/storage_service.dart';
-import 'package:plezy/widgets/side_navigation_rail.dart';
+import 'package:heisuca/connection/connection_registry.dart';
+import 'package:heisuca/database/app_database.dart';
+import 'package:heisuca/profiles/active_profile_provider.dart';
+import 'package:heisuca/profiles/plex_home_service.dart';
+import 'package:heisuca/profiles/profile.dart';
+import 'package:heisuca/profiles/profile_connection_registry.dart';
+import 'package:heisuca/profiles/profile_registry.dart';
+import 'package:heisuca/screens/main_screen.dart';
+import 'package:heisuca/services/storage_service.dart';
+import 'package:heisuca/widgets/side_navigation_rail.dart';
 
 import '../test_helpers/prefs.dart';
 
@@ -152,14 +152,13 @@ void main() {
     );
   });
 
-  test('resume prompt is suppressed during playback (#2034) and companion sessions (#2087)', () {
+  test('resume prompt is suppressed during playback (#2034)', () {
     bool should({
       bool resumedFromBackground = true,
       bool isOffline = false,
       bool alreadyShowingProfileSelection = false,
       bool isMobilePlatform = true,
       bool hasActiveVideoPlayback = false,
-      bool hasActiveCompanionRemoteSession = false,
     }) {
       return shouldShowProfileSelectionOnResume(
         resumedFromBackground: resumedFromBackground,
@@ -167,7 +166,6 @@ void main() {
         alreadyShowingProfileSelection: alreadyShowingProfileSelection,
         isMobilePlatform: isMobilePlatform,
         hasActiveVideoPlayback: hasActiveVideoPlayback,
-        hasActiveCompanionRemoteSession: hasActiveCompanionRemoteSession,
       );
     }
 
@@ -175,9 +173,6 @@ void main() {
     // Waking the device mid-stream resumes the stream; the picker would
     // fight the player's focus self-heal for the remote.
     expect(should(hasActiveVideoPlayback: true), isFalse);
-    // A phone driving another device backgrounds constantly; the picker +
-    // PIN would bury the live remote session.
-    expect(should(hasActiveCompanionRemoteSession: true), isFalse);
     expect(should(resumedFromBackground: false), isFalse);
     expect(should(isOffline: true), isFalse);
     expect(should(alreadyShowingProfileSelection: true), isFalse);

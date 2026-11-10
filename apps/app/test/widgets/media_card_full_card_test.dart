@@ -4,24 +4,25 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/focus/focus_glow_overlay.dart';
-import 'package:plezy/focus/focus_theme.dart';
-import 'package:plezy/focus/input_mode_tracker.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_item.dart';
+import 'package:heisuca/focus/card_focus_scope.dart';
+import 'package:heisuca/focus/focus_glow_overlay.dart';
+import 'package:heisuca/focus/focus_theme.dart';
+import 'package:heisuca/focus/input_mode_tracker.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_item.dart';
 
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/models/catalog/catalog_item.dart';
-import 'package:plezy/models/catalog/catalog_metadata.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/theme/mono_theme.dart';
-import 'package:plezy/utils/layout_constants.dart';
-import 'package:plezy/utils/platform_detector.dart';
-import 'package:plezy/widgets/focusable_media_card.dart';
-import 'package:plezy/widgets/media_card.dart';
-import 'package:plezy/widgets/media_grid_delegate.dart';
-import 'package:plezy/widgets/optimized_media_image.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/models/catalog/catalog_item.dart';
+import 'package:heisuca/models/catalog/catalog_metadata.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/theme/mono_theme.dart';
+import 'package:heisuca/utils/layout_constants.dart';
+import 'package:heisuca/utils/platform_detector.dart';
+import 'package:heisuca/widgets/focusable_media_card.dart';
+import 'package:heisuca/widgets/media_card.dart';
+import 'package:heisuca/widgets/media_grid_delegate.dart';
+import 'package:heisuca/widgets/optimized_media_image.dart';
 
 import '../test_helpers/prefs.dart';
 import '../test_helpers/media_items.dart';
@@ -206,7 +207,7 @@ void main() {
 
   testWidgets('windowed viewers render only when their period is present', (tester) async {
     final withoutPeriod = CatalogItem(
-      source: CatalogSourceId.simkl,
+      source: CatalogSourceId.seerr,
       kind: MediaKind.show,
       title: 'No Viewer Window',
       ids: const CatalogItemIds(simkl: 1),
@@ -217,7 +218,7 @@ void main() {
     expect(find.textContaining('37'), findsNothing);
 
     final withPeriod = CatalogItem(
-      source: CatalogSourceId.simkl,
+      source: CatalogSourceId.seerr,
       kind: MediaKind.show,
       title: 'Viewer Window',
       ids: const CatalogItemIds(simkl: 1),
@@ -317,7 +318,7 @@ void main() {
 
   testWidgets('recommendation badge prefers a user count and falls back to viewer percentage', (tester) async {
     final withCount = CatalogItem(
-      source: CatalogSourceId.simkl,
+      source: CatalogSourceId.seerr,
       kind: MediaKind.movie,
       title: 'Counted Recommendation',
       ids: const CatalogItemIds(simkl: 1),
@@ -330,7 +331,7 @@ void main() {
     expect(find.text(t.explore.detail.recommendedByPercent(percent: '42%')), findsNothing);
 
     final withPercent = CatalogItem(
-      source: CatalogSourceId.simkl,
+      source: CatalogSourceId.seerr,
       kind: MediaKind.movie,
       title: 'Percentage Recommendation',
       ids: const CatalogItemIds(simkl: 2),
@@ -420,7 +421,7 @@ void main() {
     // The crisp focus border stays in-card as a foreground decoration; the glow
     // is no longer in the background decoration.
     final borderContainer = tester.widget<AnimatedContainer>(
-      find.descendant(of: find.byType(FocusGlowOverlay), matching: find.byType(AnimatedContainer)).first,
+      find.descendant(of: find.byType(CardFocusBorder), matching: find.byType(AnimatedContainer)).first,
     );
     expect(borderContainer.decoration, isNull);
     final border = (borderContainer.foregroundDecoration as BoxDecoration).border as Border;

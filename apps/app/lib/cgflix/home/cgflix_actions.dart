@@ -55,6 +55,9 @@ void cgflixRememberHeroTag(MediaItem item, String tag) => _pendingHeroTags[item.
 /// Tag do Hero da página do título (null quando ela não foi aberta por um cartão do CGFLIX).
 String? cgflixDetailHeroTag(MediaItem item) => _pendingHeroTags[item.globalKey];
 
+/// Limpa a origem ao fechar a ficha Heisuca.
+void cgflixForgetHeroTag(MediaItem item) => _pendingHeroTags.remove(item.globalKey);
+
 /// Abre a página do título (com a animação do pôster quando houver [heroTag]).
 Future<void> cgflixOpenDetails(BuildContext context, MediaItem item, {String? heroTag}) async {
   if (heroTag != null) {

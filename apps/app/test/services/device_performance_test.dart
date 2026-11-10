@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/services/device_performance.dart';
+import 'package:heisuca/services/device_performance.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

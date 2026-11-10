@@ -2,11 +2,11 @@ import 'dart:async' show Completer;
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/models/audio_channel_limit.dart';
-import 'package:plezy/mpv/models.dart';
-import 'package:plezy/mpv/player/player_native.dart';
-import 'package:plezy/mpv/player/player_base.dart';
-import 'package:plezy/services/settings_service.dart';
+import 'package:heisuca/models/audio_channel_limit.dart';
+import 'package:heisuca/mpv/models.dart';
+import 'package:heisuca/mpv/player/player_native.dart';
+import 'package:heisuca/mpv/player/player_base.dart';
+import 'package:heisuca/services/settings_service.dart';
 
 import '../test_helpers/mock_player_channels.dart';
 import '../test_helpers/prefs.dart';
@@ -60,7 +60,7 @@ final class _GuardedInvokingPlayerNative extends PlayerNative {
 Future<void> _sendPlatformEvent(Object? event) async {
   final done = Completer<void>();
   await TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.handlePlatformMessage(
-    'com.plezy/mpv_player/events',
+    'app.heisuca/mpv_player/events',
     const StandardMethodCodec().encodeSuccessEnvelope(event),
     (_) => done.complete(),
   );
@@ -82,8 +82,8 @@ void main() {
     final calls = <MethodCall>[];
 
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) {
         calls.add(call);
         if (call.method == 'initialize') return initialize.future;
@@ -116,8 +116,8 @@ void main() {
     for (final hardwareDecoding in [true, false]) {
       final calls = <MethodCall>[];
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         methodHandler: (call) async {
           calls.add(call);
           if (call.method == 'initialize') return true;
@@ -138,8 +138,8 @@ void main() {
 
     final audioCalls = <MethodCall>[];
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_audio_player',
-      eventChannelName: 'com.plezy/mpv_audio_player/events',
+      methodChannelName: 'app.heisuca/mpv_audio_player',
+      eventChannelName: 'app.heisuca/mpv_audio_player/events',
       methodHandler: (call) async {
         audioCalls.add(call);
         if (call.method == 'initialize') return true;
@@ -168,8 +168,8 @@ void main() {
     var nativeDisposeCount = 0;
 
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) async {
         calls.add(call);
         if (call.method == 'initialize') return true;
@@ -254,8 +254,8 @@ void main() {
     final calls = <MethodCall>[];
 
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) {
         calls.add(call);
         if (call.method == 'initialize') return Future.value(true);
@@ -294,8 +294,8 @@ void main() {
     final calls = <MethodCall>[];
 
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) {
         calls.add(call);
         if (call.method == 'initialize') return Future.value(true);
@@ -346,8 +346,8 @@ void main() {
     final calls = <MethodCall>[];
 
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) {
         calls.add(call);
         if (call.method == 'initialize') return Future.value(true);
@@ -392,8 +392,8 @@ void main() {
     final initialize = Completer<bool>();
     final calls = <MethodCall>[];
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) {
         calls.add(call);
         if (call.method == 'initialize') return initialize.future;
@@ -422,8 +422,8 @@ void main() {
     final releaseSpeed = Completer<void>();
     final calls = <MethodCall>[];
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) async {
         calls.add(call);
         if (call.method == 'initialize') return true;
@@ -488,8 +488,8 @@ void main() {
     final errors = <String>[];
 
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) async {
         calls.add(call);
         if (call.method == 'initialize') {
@@ -543,8 +543,8 @@ void main() {
     var changes = 0;
 
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       testBody: () async {
         final player = PlayerNative();
         final subscription = player.streams.hdrOutputChanged.listen((_) => changes++);
@@ -582,8 +582,8 @@ void main() {
     Object? reply;
 
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) async {
         calls.add(call);
         if (call.method == 'initialize') return true;
@@ -617,8 +617,8 @@ void main() {
   test('MPV accepts nested node observations and null unsupported values', () async {
     final observations = <String, int>{};
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
         if (call.method == 'observeProperty') {
@@ -729,8 +729,8 @@ void main() {
 
   test('Android command failure reaches seek recovery', () async {
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
         if (call.method == 'command') {
@@ -752,8 +752,8 @@ void main() {
 
   test('Android setLogLevel failure is exposed to Dart', () async {
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
         if (call.method == 'setLogLevel') {
@@ -777,8 +777,8 @@ void main() {
 
   test('Android mpv end-file error preserves native diagnostic message', () async {
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       testBody: () async {
         final player = PlayerNative();
         final error = player.streams.error.first;
@@ -804,8 +804,8 @@ void main() {
 
   test('Android mpv legacy end-file error keeps playback error fallback', () async {
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       testBody: () async {
         final player = PlayerNative();
         final error = player.streams.error.first;
@@ -825,8 +825,8 @@ void main() {
 
   test('mpv end-file error with a code but no diagnostic message names the mpv error', () async {
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       testBody: () async {
         final player = PlayerNative();
         final error = player.streams.error.first;
@@ -849,8 +849,8 @@ void main() {
     final firstSpeedStarted = Completer<void>();
     final speedValues = <String>[];
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
         if (call.method == 'setProperty') {
@@ -887,8 +887,8 @@ void main() {
     final speedValues = <String>[];
     var nativeRate = 1.0;
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
         if (call.method == 'setProperty') {
@@ -921,8 +921,8 @@ void main() {
     final writes = <(String, String)>[];
     var rejectNextStereo = false;
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
         if (call.method == 'setProperty') {
@@ -978,8 +978,8 @@ void main() {
     final speedValues = <String>[];
     var normalizationAttempts = 0;
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
         if (call.method == 'setProperty') {
@@ -1021,8 +1021,8 @@ void main() {
 
   test('failed passthrough write does not publish speculative active state', () async {
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
         if (call.method == 'setProperty' && (call.arguments as Map)['name'] == 'audio-spdif') {
@@ -1045,8 +1045,8 @@ void main() {
   test('normalization takes precedence over active passthrough and hands it back when turned off', () async {
     final audioWrites = <(String, String)>[];
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
         if (call.method == 'setProperty') {
@@ -1087,8 +1087,8 @@ void main() {
   test('a 5.1 channel limit keeps passthrough, stereo takes it over, and original hands it back', () async {
     final audioWrites = <(String, String)>[];
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
         if (call.method == 'setProperty') {
@@ -1137,8 +1137,8 @@ void main() {
   test('passthrough requested while normalization is on stays decoded', () async {
     final audioWrites = <(String, String)>[];
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
         if (call.method == 'setProperty') {
@@ -1167,8 +1167,8 @@ void main() {
     var rejectPassthrough = false;
     final propertyWrites = <(String, String)>[];
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
         if (call.method == 'setProperty') {
@@ -1203,8 +1203,8 @@ void main() {
 
   test('exclusive-audio hint failure does not reject accepted passthrough', () async {
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
         if (call.method == 'setProperty' && (call.arguments as Map)['name'] == 'audio-exclusive') {
@@ -1228,8 +1228,8 @@ void main() {
     var rejectSpeed = false;
     final propertyWrites = <(String, String)>[];
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
         if (call.method == 'setProperty') {
@@ -1266,8 +1266,8 @@ void main() {
   });
 
   for (final channel in [
-    (label: 'video', method: 'com.plezy/mpv_player', events: 'com.plezy/mpv_player/events', audio: false),
-    (label: 'audio', method: 'com.plezy/mpv_audio_player', events: 'com.plezy/mpv_audio_player/events', audio: true),
+    (label: 'video', method: 'app.heisuca/mpv_player', events: 'app.heisuca/mpv_player/events', audio: false),
+    (label: 'audio', method: 'app.heisuca/mpv_audio_player', events: 'app.heisuca/mpv_audio_player/events', audio: true),
   ]) {
     group('${channel.label} property bridge', () {
       test('propagates SET_PROPERTY_FAILED', () async {
@@ -1378,8 +1378,8 @@ void main() {
   group('playhead jump announcements', () {
     test('a seek publishes its requested target alongside the optimistic position', () async {
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         methodHandler: (call) async => call.method == 'initialize' ? true : null,
         testBody: () async {
           final player = PlayerNative();
@@ -1401,8 +1401,8 @@ void main() {
 
     test('a seek the backend rejects announces the position it rolled back to', () async {
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
           if (call.method == 'command') {
@@ -1439,8 +1439,8 @@ void main() {
       // leave the rejected target pinned (#1819).
       late PlayerNative player;
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
           if (call.method == 'command') {
@@ -1487,8 +1487,8 @@ void main() {
       final releaseFirst = Completer<void>();
       var commands = 0;
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
           if (call.method == 'command' && commands++ == 0) {
@@ -1542,8 +1542,8 @@ void main() {
       late Duration position;
       late Duration rawPosition;
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
           if (call.method == 'command') {
@@ -1628,8 +1628,8 @@ void main() {
       // all rebuild the stream at a position instead of seeking, so the reload
       // is the second way the playhead moves discontinuously (#1819).
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         methodHandler: (call) async => call.method == 'initialize' ? true : null,
         testBody: () async {
           final player = PlayerNative();
@@ -1655,8 +1655,8 @@ void main() {
       // a destination up front and the real one is read back after, because
       // `PlayerState.position` is what the next skip rebases from (#1819).
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
           if (call.method == 'getProperty' && (call.arguments as Map)['name'] == 'time-pos') {
@@ -1697,8 +1697,8 @@ void main() {
       final firstReached = Completer<void>();
       final releaseFirst = Completer<void>();
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
           if (call.method == 'getProperty' && (call.arguments as Map)['name'] == 'time-pos') {
@@ -1751,8 +1751,8 @@ void main() {
       final firstReached = Completer<void>();
       final releaseFirst = Completer<void>();
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
           if (call.method == 'getProperty' && (call.arguments as Map)['name'] == 'time-pos') {
@@ -1806,8 +1806,8 @@ void main() {
       final subSeekReached = Completer<void>();
       final releaseSubSeek = Completer<void>();
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
           if (call.method == 'getProperty' && (call.arguments as Map)['name'] == 'time-pos') {
@@ -1859,8 +1859,8 @@ void main() {
       var commandIndex = 0;
       var readBackIndex = 0;
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
           if (call.method == 'getProperty' && (call.arguments as Map)['name'] == 'time-pos') {
@@ -1919,8 +1919,8 @@ void main() {
       final seekReached = Completer<void>();
       final releaseSeek = Completer<void>();
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
           if (call.method == 'command') {
@@ -1970,8 +1970,8 @@ void main() {
       final seekReached = Completer<void>();
       final releaseSeek = Completer<void>();
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
           // Accepted command, unreadable position.
@@ -2019,8 +2019,8 @@ void main() {
       final subSeekReached = Completer<void>();
       final releaseSubSeek = Completer<void>();
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
           if (call.method == 'getProperty' && (call.arguments as Map)['name'] == 'time-pos') {
@@ -2075,8 +2075,8 @@ void main() {
       Future<Duration> settleWithTick(Duration tick, {required bool playing, double speed = 1.0}) async {
         late Duration result;
         await withMockPlayerChannels(
-          methodChannelName: 'com.plezy/mpv_player',
-          eventChannelName: 'com.plezy/mpv_player/events',
+          methodChannelName: 'app.heisuca/mpv_player',
+          eventChannelName: 'app.heisuca/mpv_player/events',
           methodHandler: (call) async {
             if (call.method == 'initialize') return true;
             if (call.method == 'command') await Future<void>.delayed(inFlight);
@@ -2151,8 +2151,8 @@ void main() {
       late Duration position;
       late List<Duration?> announced;
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
           if (call.method == 'getProperty') {
@@ -2227,8 +2227,8 @@ void main() {
       final seekReached = Completer<void>();
       final releaseSeek = Completer<void>();
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         methodHandler: (call) async => call.method == 'initialize' ? true : null,
         testBody: () async {
           final player = _ArbitrationPlayerNative();
@@ -2283,8 +2283,8 @@ void main() {
       final secondReached = Completer<void>();
       final releaseSecond = Completer<void>();
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         methodHandler: (call) async => call.method == 'initialize' ? true : null,
         testBody: () async {
           final player = _ArbitrationPlayerNative();
@@ -2350,8 +2350,8 @@ void main() {
       final releaseSecond = Completer<void>();
       Future<void>? active;
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         methodHandler: (call) async => call.method == 'initialize' ? true : null,
         testBody: () async {
           final player = _ArbitrationPlayerNative();
@@ -2400,8 +2400,8 @@ void main() {
       final seekReached = Completer<void>();
       final releaseSeek = Completer<void>();
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         methodHandler: (call) async => call.method == 'initialize' ? true : null,
         testBody: () async {
           final player = _ArbitrationPlayerNative();
@@ -2439,8 +2439,8 @@ void main() {
       // rides the event flow, and the two are collected separately. So the new
       // track can report its first position before the advance is detected.
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_audio_player',
-        eventChannelName: 'com.plezy/mpv_audio_player/events',
+        methodChannelName: 'app.heisuca/mpv_audio_player',
+        eventChannelName: 'app.heisuca/mpv_audio_player/events',
         methodHandler: (call) async => call.method == 'initialize' ? true : null,
         testBody: () async {
           final player = _AdvancingAudioPlayerNative();
@@ -2473,8 +2473,8 @@ void main() {
       // A later advance that loses its own `playlist-pos` edge must fall back
       // to what has been reported since, not to that abandoned snapshot.
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_audio_player',
-        eventChannelName: 'com.plezy/mpv_audio_player/events',
+        methodChannelName: 'app.heisuca/mpv_audio_player',
+        eventChannelName: 'app.heisuca/mpv_audio_player/events',
         methodHandler: (call) async => call.method == 'initialize' ? true : null,
         testBody: () async {
           final player = _AdvancingAudioPlayerNative();
@@ -2510,8 +2510,8 @@ void main() {
       final seekReached = Completer<void>();
       final releaseSeek = Completer<void>();
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_audio_player',
-        eventChannelName: 'com.plezy/mpv_audio_player/events',
+        methodChannelName: 'app.heisuca/mpv_audio_player',
+        eventChannelName: 'app.heisuca/mpv_audio_player/events',
         methodHandler: (call) async => call.method == 'initialize' ? true : null,
         testBody: () async {
           final player = _AdvancingAudioPlayerNative();
@@ -2595,8 +2595,8 @@ void main() {
       final releaseNewer = Completer<void>();
       Future<void>? newer;
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         methodHandler: (call) async => call.method == 'initialize' ? true : null,
         testBody: () async {
           final player = _ArbitrationPlayerNative();
@@ -2643,8 +2643,8 @@ void main() {
       final seekReached = Completer<void>();
       final releaseSeek = Completer<void>();
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         methodHandler: (call) async => call.method == 'initialize' ? true : null,
         testBody: () async {
           final player = _ArbitrationPlayerNative();
@@ -2685,8 +2685,8 @@ void main() {
       final seekReached = Completer<void>();
       final releaseSeek = Completer<void>();
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         methodHandler: (call) async => call.method == 'initialize' ? true : null,
         testBody: () async {
           final player = _ArbitrationPlayerNative();
@@ -2733,8 +2733,8 @@ void main() {
       final seekReached = Completer<void>();
       final releaseSeek = Completer<void>();
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
           if (call.method == 'getProperty') return null; // accepted, unreadable
@@ -2802,8 +2802,8 @@ void main() {
       final commandReached = Completer<void>();
       final releaseCommand = Completer<void>();
       await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
+        methodChannelName: 'app.heisuca/mpv_player',
+        eventChannelName: 'app.heisuca/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
           if (call.method == 'command') {

@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
-import 'package:flutter/foundation.dart';
 import '../../utils/app_logger.dart';
 
 /// Callback para ler bytes remotos de um stream (WebDAV ou SMB) sob demanda.

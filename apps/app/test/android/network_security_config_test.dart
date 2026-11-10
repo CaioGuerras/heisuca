@@ -1,37 +1,16 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/utils/certificate_trust.dart';
+import 'package:heisuca/utils/certificate_trust.dart';
 import 'package:xml/xml.dart';
 
 const _configPath = 'android/app/src/main/res/xml/network_security_config.xml';
-const _expectedDomains = <String>{
-  'plex.tv',
-  'plezy.app',
-  'trakt.tv',
-  'myanimelist.net',
-  'anilist.co',
-  'simkl.com',
-  'simkl.in',
-  'jsdelivr.net',
-  'api.github.com',
-  'image.tmdb.org',
-};
+const _expectedDomains = <String>{'plex.tv', 'image.tmdb.org'};
 const _fixedEndpointSourcePaths = <String>[
   'lib/services/plex_auth_service.dart',
   'lib/services/plex_discover_client.dart',
   'lib/services/plex_client/parts/live_tv.dart',
-  'lib/services/trackers/trakt/trakt_constants.dart',
-  'lib/services/trackers/mal/mal_constants.dart',
-  'lib/services/trackers/anilist/anilist_constants.dart',
-  'lib/services/trackers/simkl/simkl_constants.dart',
-  'lib/services/trackers/oauth_proxy_client.dart',
-  'lib/services/trackers/anime_lists_mapping_store.dart',
-  'lib/services/trackers/fribb_mapping_store.dart',
   'lib/services/catalog/seerr_catalog_source.dart',
-  'lib/services/discord_rpc_service.dart',
-  'lib/services/update_service.dart',
-  'lib/watch_together/services/watch_together_relay_endpoint.dart',
   'lib/main.dart',
 ];
 
@@ -51,8 +30,29 @@ void main() {
     expect(certificateSources, contains('user'));
   });
 
+  test('só HTTPS: base-config recusa texto claro e o manifest não o reabilita', () {
+    final baseConfig = config.rootElement.findElements('base-config').single;
+    expect(baseConfig.getAttribute('cleartextTrafficPermitted'), 'false');
+    expect(
+      File('android/app/src/main/AndroidManifest.xml').readAsStringSync(),
+      isNot(contains('usesCleartextTraffic')),
+    );
+  });
+
+  test('texto claro permitido só para 127.0.0.1 e localhost (proxy local)', () {
+    final cleartext = config.rootElement
+        .findElements('domain-config')
+        .where((c) => c.getAttribute('cleartextTrafficPermitted') == 'true')
+        .single;
+    expect(cleartext.findElements('domain').map((d) => d.innerText.trim()).toSet(), {'127.0.0.1', 'localhost'});
+    expect(cleartext.findElements('trust-anchors'), isEmpty);
+  });
+
   test('fixed endpoint domains trust only system certificate authorities', () {
-    final domainConfigs = config.rootElement.findElements('domain-config').toList();
+    final domainConfigs = config.rootElement
+        .findElements('domain-config')
+        .where((c) => c.getAttribute('cleartextTrafficPermitted') != 'true')
+        .toList();
 
     expect(domainConfigs, hasLength(1));
     for (final domainConfig in domainConfigs) {

@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:plezy/widgets/app_icon.dart';
+import 'package:heisuca/widgets/app_icon.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
@@ -40,7 +40,6 @@ import 'async_form_state_mixin.dart';
 import 'connection_persistence.dart';
 import 'quick_connect_flow_mixin.dart';
 
-@visibleForTesting
 Future<String> resolveJellyfinClientVersion({Future<PackageInfo> Function()? packageInfoLoader}) async {
   const fallbackVersion = '1.0';
   try {

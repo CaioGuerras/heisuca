@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../focus/focusable_wrapper.dart';
 
 /// Design System Flagship do Heisuca (炳素華)
 /// Filosofia: "Nada entre você e o filme."
@@ -21,9 +22,9 @@ class OklchColor {
     double toLinear(double v) =>
         v <= 0.04045 ? v / 12.92 : math.pow((v + 0.055) / 1.055, 2.4).toDouble();
 
-    final rLin = toLinear(color.red / 255.0);
-    final gLin = toLinear(color.green / 255.0);
-    final bLin = toLinear(color.blue / 255.0);
+    final rLin = toLinear(color.r);
+    final gLin = toLinear(color.g);
+    final bLin = toLinear(color.b);
 
     // Linear sRGB -> CIE XYZ (D65)
     final x = 0.4122214708 * rLin + 0.3575799056 * gLin + 0.1804239236 * bLin;
@@ -106,7 +107,7 @@ class CubicScrimGradient {
       begin: begin,
       end: end,
       stops: stops,
-      colors: opacities.map((alpha) => baseColor.withOpacity(alpha)).toList(),
+      colors: opacities.map((alpha) => baseColor.withValues(alpha: alpha)).toList(),
     );
   }
 }
@@ -140,8 +141,8 @@ class DynamicAmbientHalo extends StatelessWidget {
                   center: const Alignment(0.0, -0.4),
                   radius: 1.15,
                   colors: [
-                    ambientColor.withOpacity(0.35),
-                    ambientColor.withOpacity(0.12),
+                    ambientColor.withValues(alpha: 0.35),
+                    ambientColor.withValues(alpha: 0.12),
                     Colors.transparent,
                   ],
                   stops: const [0.0, 0.55, 1.0],
@@ -248,10 +249,10 @@ class HeisucaNobleBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 6.0),
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+        color: Colors.white.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(4.0),
         border: Border.all(
-          color: Colors.white.withOpacity(0.18),
+          color: Colors.white.withValues(alpha: 0.18),
           width: 0.5,
         ),
       ),
@@ -343,10 +344,8 @@ class HeisucaSpringPressable extends StatefulWidget {
 class _HeisucaSpringPressableState extends State<HeisucaSpringPressable> {
   bool _pressed = false;
   bool _inPreTension = false;
-  DateTime? _downTime;
 
   void _onPointerDown(PointerDownEvent event) {
-    _downTime = DateTime.now();
     _setPressed(true);
     if (widget.enableHaptics) {
       HapticFeedback.lightImpact();
@@ -391,7 +390,13 @@ class _HeisucaSpringPressableState extends State<HeisucaSpringPressable> {
         ? (widget.pressedScale * 0.965)
         : (_pressed ? widget.pressedScale : 1.0);
 
-    return Listener(
+    return FocusableWrapper(
+      onSelect: widget.onTap,
+      onLongPress: widget.onLongPress,
+      enableLongPress: widget.onLongPress != null,
+      canRequestFocus: widget.onTap != null || widget.onLongPress != null,
+      disableScale: true,
+      child: Listener(
       onPointerDown: _onPointerDown,
       onPointerUp: _onPointerUp,
       onPointerCancel: _onPointerCancel,
@@ -413,6 +418,7 @@ class _HeisucaSpringPressableState extends State<HeisucaSpringPressable> {
           curve: _pressed ? Curves.easeOutCubic : const ElasticOutCurve(0.85),
           child: widget.child,
         ),
+      ),
       ),
     );
   }
@@ -450,7 +456,7 @@ class HeisucaMagneticMorphPill extends StatelessWidget {
         borderRadius: r,
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.35),
+            color: color.withValues(alpha: 0.35),
             blurRadius: 16.0,
             spreadRadius: 1.0,
           ),

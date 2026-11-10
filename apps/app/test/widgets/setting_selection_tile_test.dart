@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/models/transcode_quality_preset.dart';
-import 'package:plezy/screens/settings/settings_utils.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/utils/quality_preset_labels.dart';
-import 'package:plezy/widgets/setting_tile.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/models/transcode_quality_preset.dart';
+import 'package:heisuca/screens/settings/settings_utils.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/utils/quality_preset_labels.dart';
+import 'package:heisuca/widgets/setting_tile.dart';
 
 import '../test_helpers/prefs.dart';
 

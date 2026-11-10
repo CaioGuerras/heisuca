@@ -1,6 +1,6 @@
 import 'package:flutter/gestures.dart' show kDoubleTapTimeout, kDoubleTapTouchSlop;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/widgets/video_controls/helpers/two_finger_tap_tracker.dart';
+import 'package:heisuca/widgets/video_controls/helpers/two_finger_tap_tracker.dart';
 
 /// A two-finger tap toggles playback with the chrome left down (#1505), and it
 /// fires the moment the chord resolves — pausing late is pausing on the wrong

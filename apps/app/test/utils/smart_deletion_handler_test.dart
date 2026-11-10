@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/database/app_database.dart';
-import 'package:plezy/providers/download_provider.dart';
-import 'package:plezy/services/download_manager_service.dart';
-import 'package:plezy/services/download_storage_service.dart';
-import 'package:plezy/services/plex_api_cache.dart';
-import 'package:plezy/utils/smart_deletion_handler.dart';
+import 'package:heisuca/database/app_database.dart';
+import 'package:heisuca/providers/download_provider.dart';
+import 'package:heisuca/services/download_manager_service.dart';
+import 'package:heisuca/services/download_storage_service.dart';
+import 'package:heisuca/services/plex_api_cache.dart';
+import 'package:heisuca/utils/smart_deletion_handler.dart';
 import 'package:provider/provider.dart';
 
 void main() {

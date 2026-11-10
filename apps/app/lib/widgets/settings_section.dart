@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../heisuca/heisuca_theme.dart';
 import '../cgflix/cgflix_configuracoes.dart';
 import '../theme/mono_tokens.dart';
 import '../utils/platform_detector.dart';
@@ -28,7 +29,7 @@ class SettingsSectionHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
       child: Text(
         title,
-        style: Theme.of(context).textTheme.labelLarge?.copyWith(color: tokens(context).textMuted, fontWeight: .w600),
+        style: Theme.of(context).textTheme.labelLarge?.copyWith(fontFamily: HeisucaTheme.fonteTitulo, color: tokens(context).textMuted, fontWeight: .w600),
       ),
     );
   }

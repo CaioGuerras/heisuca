@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/mpv/models.dart';
-import 'package:plezy/screens/video_player/open_failure_log.dart';
+import 'package:heisuca/mpv/models.dart';
+import 'package:heisuca/screens/video_player/open_failure_log.dart';
 
 // mpv's error_on_track deselects a stream whose chain failed to initialize
 // and, with the other stream alive, keeps the file going: no end-file

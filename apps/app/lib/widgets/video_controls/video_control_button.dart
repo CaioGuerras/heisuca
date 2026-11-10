@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:plezy/widgets/app_icon.dart';
+import 'package:heisuca/widgets/app_icon.dart';
 
 import '../../cgflix/cgflix_feedback.dart'; // CGFLIX: destaque lilás no player
 import '../../cgflix/cgflix_icones.dart'; // CGFLIX: ícones e tamanho no celular

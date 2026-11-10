@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/services/tvos_system_navigation_service.dart';
-import 'package:plezy/utils/platform_detector.dart';
+import 'package:heisuca/services/tvos_system_navigation_service.dart';
+import 'package:heisuca/utils/platform_detector.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

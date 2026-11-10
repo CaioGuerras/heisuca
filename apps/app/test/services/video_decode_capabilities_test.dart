@@ -1,15 +1,15 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/services/video_decode_capabilities.dart';
-import 'package:plezy/utils/device_channel.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/services/video_decode_capabilities.dart';
+import 'package:heisuca/utils/device_channel.dart';
 
 import '../test_helpers/prefs.dart';
 
 void main() {
   final binding = TestWidgetsFlutterBinding.ensureInitialized();
 
-  /// Answers `com.plezy/device` with [reply] and records each call. A null
+  /// Answers `app.heisuca/device` with [reply] and records each call. A null
   /// [reply] leaves the method unimplemented, which is what desktop and a
   /// stale native build look like.
   List<String> stubProbe(Object? reply) {
@@ -136,5 +136,34 @@ void main() {
       await refuse(const []);
       expect(acceptsAv1(), isTrue);
     });
+  });
+
+  test('nova sonda não herda profiles_4k da anterior (adendo 3, item 5)', () {
+    VideoDecodeCapabilities.debugReset(
+      codecProfiles4k: {
+        'av1': ['main10'],
+      },
+    );
+    final caps = VideoDecodeCapabilities.current;
+    caps.debugApplyProbe(<String, dynamic>{
+      'hevc': true,
+      'av1': true,
+      'codecs': {
+        'hevc': {
+          'hardware': true,
+          'profiles': ['main'],
+          'max_resolution': '4k60',
+          'profiles_4k': ['main'],
+        },
+        'av1': {
+          'hardware': true,
+          'profiles': ['main', 'main10'],
+          'max_resolution': '4k60',
+        },
+      },
+    });
+    // A sonda nova não prova AV1 Main10 em 4K: o ['main10'] antigo não vale.
+    expect(caps.checkHardwareDecode(codec: 'av1', profile: 'main', bitDepth: 10, width: 3840, height: 2160), isFalse);
+    expect(caps.checkHardwareDecode(codec: 'av1', profile: 'main', bitDepth: 10, width: 1920, height: 1080), isTrue);
   });
 }

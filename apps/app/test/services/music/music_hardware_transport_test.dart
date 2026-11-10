@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/services/music/music_hardware_transport.dart';
+import 'package:heisuca/services/music/music_hardware_transport.dart';
 
 /// Foreground hardware media keys (#1948): while a music session is live,
 /// transport keys pressed anywhere in the app must control music and be

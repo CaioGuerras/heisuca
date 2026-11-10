@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:logger/logger.dart';
-import 'package:plezy/utils/app_logger.dart';
-import 'package:plezy/utils/log_redaction_manager.dart';
+import 'package:heisuca/utils/app_logger.dart';
+import 'package:heisuca/utils/log_redaction_manager.dart';
 
 void main() {
   late MemoryAwareLogPrinter printer;
@@ -24,7 +24,7 @@ void main() {
     const passwordSecret = 'password.value-_/+~==';
     final stackTrace = StackTrace.fromString(
       '#0 connect (Authorization: Bearer $stackSecret)\n'
-      '#1 retry (package:plezy/connect.dart:12:4)',
+      '#1 retry (package:heisuca/connect.dart:12:4)',
     );
 
     final renderedLines = printer.log(

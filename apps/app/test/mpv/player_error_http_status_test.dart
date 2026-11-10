@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/mpv/models.dart';
+import 'package:heisuca/mpv/models.dart';
 
 void main() {
   group('PlayerError.httpStatusFromLog', () {

@@ -24,11 +24,12 @@ class FocusUtils {
     // A post-frame callback may not run until this node is attached again.
     // Do not let an already-detached capture become a future focus request.
     if (focusNode.parent == null || !focusNode.canRequestFocus) return;
+    final route = state.mounted ? ModalRoute.of(state.context) : null;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!state.mounted) return;
       final destination = focusNode.context;
       if (destination == null || !destination.mounted || focusNode.parent == null || !focusNode.canRequestFocus) return;
-      if (!(ModalRoute.of(state.context)?.isCurrent ?? true)) return;
+      if (!(route?.isCurrent ?? true)) return;
       focusNode.requestFocus();
     });
   }

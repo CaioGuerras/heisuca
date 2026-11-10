@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/models/livetv_channel.dart';
-import 'package:plezy/models/livetv_program.dart';
-import 'package:plezy/utils/live_tv_matching.dart';
+import 'package:heisuca/models/livetv_channel.dart';
+import 'package:heisuca/models/livetv_program.dart';
+import 'package:heisuca/utils/live_tv_matching.dart';
 
 void main() {
   test('matches channel by id and server', () {

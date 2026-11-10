@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/main.dart';
-import 'package:plezy/navigation/navigation_tabs.dart';
-import 'package:plezy/screens/main_screen.dart';
-import 'package:plezy/utils/media_server_timeouts.dart';
+import 'package:heisuca/main.dart';
+import 'package:heisuca/navigation/navigation_tabs.dart';
+import 'package:heisuca/screens/main_screen.dart';
+import 'package:heisuca/utils/media_server_timeouts.dart';
 
 List<NavigationTabId> _ids(List<NavigationTab> tabs) => tabs.map((tab) => tab.id).toList();
 

@@ -19,7 +19,9 @@ class ThemeProvider extends ChangeNotifier with DisposableChangeNotifierMixin, W
     // them before runApp) so the first frame paints the persisted theme; the
     // async path below lands a microtask too late for the first build.
     final loaded = settings.SettingsService.instanceOrNull;
-    if (loaded != null) _themeMode = loaded.read(settings.SettingsService.themeMode);
+    if (loaded != null) {
+      _themeMode = loaded.read(settings.SettingsService.themeMode);
+    }
     _settingsBinding = SettingsBindingOwner(
       prefs: const [settings.SettingsService.themeMode],
       onRefresh: (service) => _syncThemeMode(service.read(settings.SettingsService.themeMode)),
@@ -58,7 +60,7 @@ class ThemeProvider extends ChangeNotifier with DisposableChangeNotifierMixin, W
   /// provider will settle on, instead of guessing from platform brightness
   /// and flashing when the two disagree (#1833).
   static ThemeData darkThemeFor(settings.ThemeMode mode) =>
-      monoTheme(dark: true, oled: mode == settings.ThemeMode.oled);
+      monoTheme(dark: true, oled: true);
 
   /// Material equivalent of the app's own [settings.ThemeMode].
   static ThemeMode materialThemeModeFor(settings.ThemeMode mode) => switch (mode) {
@@ -86,14 +88,13 @@ class ThemeProvider extends ChangeNotifier with DisposableChangeNotifierMixin, W
     }
   }
 
-  static const _themeChannel = MethodChannel('com.plezy/theme');
+  static const _themeChannel = MethodChannel('app.heisuca/theme');
 
-  @visibleForTesting
   Future<void> setThemeMode(settings.ThemeMode mode) async {
-    if (_themeMode == mode) return;
     final service = _settingsBinding.settings ?? await settings.SettingsService.getInstance();
     await service.write(settings.SettingsService.themeMode, mode);
-    if (_settingsBinding.settings == null) _syncThemeMode(mode);
+    final effectiveMode = service.read(settings.SettingsService.themeMode);
+    if (_settingsBinding.settings == null) _syncThemeMode(effectiveMode);
   }
 
   Future<void> reload() async {

@@ -1,0 +1,139 @@
+{
+  "pretoComInterface": {
+    "imagem": "não",
+    "metodo": "adb exec-out screencap -p; RGB24 por ffmpeg; vídeo pela geometria real, sem barras/HUD",
+    "maiorCanalRGB": 0,
+    "areaMedida": {
+      "pixels": 42320,
+      "retangulos": [
+        {
+          "x": 0,
+          "y": 32,
+          "largura": 320,
+          "altura": 48
+        },
+        {
+          "x": 0,
+          "y": 110,
+          "largura": 320,
+          "altura": 58
+        },
+        {
+          "x": 0,
+          "y": 80,
+          "largura": 140,
+          "altura": 30
+        },
+        {
+          "x": 180,
+          "y": 80,
+          "largura": 140,
+          "altura": 30
+        }
+      ]
+    },
+    "retanguloVideo": {
+      "x": 0.0,
+      "y": 0.0,
+      "largura": 320.0,
+      "altura": 180.0
+    },
+    "geometriaVideo": {
+      "janela": {
+        "largura": 320,
+        "altura": 180
+      },
+      "superficie": {
+        "x": 0,
+        "y": 0,
+        "largura": 320,
+        "altura": 180
+      },
+      "video": {
+        "largura": 1920,
+        "altura": 1080,
+        "modo": "conter",
+        "zoom": 1
+      },
+      "barrasSistema": {
+        "topo": 0,
+        "base": 12,
+        "esquerda": 0,
+        "direita": 0
+      },
+      "hudOculto": false,
+      "exclusoesHud": [
+        {
+          "x": 0,
+          "y": 0,
+          "largura": 320,
+          "altura": 32
+        },
+        {
+          "x": 140,
+          "y": 80,
+          "largura": 40,
+          "altura": 30
+        }
+      ]
+    },
+    "pixelsNaoEscuros": 0,
+    "fracaoNaoEscura": 0.0,
+    "lumaMinima": 16,
+    "fracaoMinima": 0.02,
+    "criterio": "luma > 16 em pelo menos 2% da área útil do vídeo, excluindo barras do sistema, HUD e letterbox"
+  },
+  "quadroReal40482536078": {
+    "imagem": "sim",
+    "metodo": "adb exec-out screencap -p; RGB24 por ffmpeg; vídeo pela geometria real, sem barras/HUD",
+    "maiorCanalRGB": 209,
+    "areaMedida": {
+      "pixels": 506880,
+      "retangulos": [
+        {
+          "x": 120,
+          "y": 0,
+          "largura": 960,
+          "altura": 528
+        }
+      ]
+    },
+    "retanguloVideo": {
+      "x": 120.0,
+      "y": 0.0,
+      "largura": 960.0,
+      "altura": 540.0
+    },
+    "geometriaVideo": {
+      "janela": {
+        "largura": 1200,
+        "altura": 540
+      },
+      "superficie": {
+        "x": 0,
+        "y": 0,
+        "largura": 1200,
+        "altura": 540
+      },
+      "video": {
+        "largura": 1920,
+        "altura": 1080,
+        "modo": "conter",
+        "zoom": 1
+      },
+      "barrasSistema": {
+        "topo": 0,
+        "base": 12,
+        "esquerda": 0,
+        "direita": 0
+      },
+      "hudOculto": true,
+      "exclusoesHud": []
+    },
+    "pixelsNaoEscuros": 505758,
+    "fracaoNaoEscura": 0.9977864583333333,
+    "lumaMinima": 16,
+    "fracaoMinima": 0.02,
+    "criterio": "luma > 16 em pelo menos 2% da área útil do vídeo, excluindo barras do sistema, HUD e letterbox"
+  }
+}

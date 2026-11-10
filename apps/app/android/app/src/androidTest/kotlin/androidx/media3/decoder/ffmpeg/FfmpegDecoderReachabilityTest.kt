@@ -8,7 +8,7 @@ import androidx.media3.exoplayer.audio.AudioRendererEventListener
 import androidx.media3.exoplayer.video.VideoRendererEventListener
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.edde746.plezy.exoplayer.PlezyRenderersFactory
+import app.heisuca.exoplayer.HeisucaRenderersFactory
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,7 +42,7 @@ class FfmpegDecoderReachabilityTest {
     // DefaultRenderersFactory swallows ClassNotFoundException as "built without the
     // extension", so a shrunk renderer leaves no trace but missing codecs.
     val context = InstrumentationRegistry.getInstrumentation().targetContext
-    val factory = PlezyRenderersFactory(context)
+    val factory = HeisucaRenderersFactory(context)
       .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
     val handler = Handler(Looper.getMainLooper())
 

@@ -1,7 +1,7 @@
-name: plezy
+name: heisuca
 description: "Heisuca. Nada entre você e o filme. Cliente cinematográfico multiplataforma para Jellyfin, Plex, WebDAV e SMB."
 publish_to: "none"
-version: 2.0.1+2
+version: 2.0.34+2043
 
 environment:
   # Dart floor stays 3.12: freezed 3.x emits `final` constructor parameters,
@@ -55,11 +55,8 @@ dependencies:
   saf_util:
     # Vendored 3.1.0: fixes upstream's duplicate MethodChannel result.
     path: packages/saf_util
-  saf_stream: ^3.1.0
   material_symbols_icons: ^4.2951.0
   web_socket_channel: ^3.0.1
-  # 1.2.1: Windows IPC no longer blocks the UI isolate while Discord stalls (#2518).
-  dart_discord_presence: ^1.2.1
   flutter_svg: ^2.2.3
   # Fork 54a34a0 fixes upstream #649's missing desktop temp parent; 7ee4588
   # survives a host with no documents directory (Linux without xdg-user-dirs);
@@ -71,23 +68,18 @@ dependencies:
   # partials through the provider. Keep the same-filesystem move/resume cleanup;
   # no per-host TLS bypass.
   background_downloader:
-    git:
-      url: https://github.com/edde746/background_downloader
-      ref: 5d45882265ead82e570cd067599e193070e3b4a2
-  sentry_flutter: ^9.30.0
-  auto_updater:
-    git:
-      url: https://github.com/edde746/auto_updater
-      path: packages/auto_updater
-      ref: 9e150f7
+    path: packages/background_downloader
   win_http: ^0.2.2
   collection: ^1.18.0
   freezed_annotation: ^3.1.0
   xml: ^7.0.1
   string_similarity: ^2.2.0
   unorm_dart: ^0.3.2
+  animations: ^2.0.11
 
 dev_dependencies:
+  integration_test:
+    sdk: flutter
   archive: ^4.0.9
   flutter_test:
     sdk: flutter
@@ -123,43 +115,27 @@ dependency_overrides:
       url: https://github.com/fluttercommunity/plus_plugins
       ref: bf04cdf66598dc3fca274b8b1db2b92b0bf6b73e
       path: packages/connectivity_plus/connectivity_plus
-  auto_updater_platform_interface:
-    git:
-      url: https://github.com/edde746/auto_updater
-      ref: 9e150f7
-      path: packages/auto_updater_platform_interface
-  auto_updater_macos:
-    git:
-      url: https://github.com/edde746/auto_updater
-      ref: 9e150f7
-      path: packages/auto_updater_macos
-  auto_updater_windows:
-    git:
-      url: https://github.com/edde746/auto_updater
-      ref: 9e150f7
-      path: packages/auto_updater_windows
   # Vendored 2.4.1: atomic replacement prevents upstream #1732 corruption.
   shared_preferences_windows:
     path: packages/shared_preferences_windows
   shared_preferences_linux:
     path: packages/shared_preferences_linux
 flutter:
+  default-flavor: direct
   uses-material-design: true
   assets:
+    - assets/licenses/
     - assets/heisuca/
+    - assets/heisuca/kids/
     - assets/cgflix_emblema.svg
     - assets/cgflix_emblema_heitor.svg
-    - assets/plezy.png
-    - assets/plezy_adaptive_foreground.svg
     - assets/plex_chevron.svg
     - assets/jellyfin_icon.svg
     - assets/emby_icon.svg
     - assets/trakt_circlemark.svg
     - assets/mal_mark.svg
     - assets/anilist_mark.svg
-    - assets/simkl_mark.svg
     - assets/seerr_mark.svg
-    - assets/mdblist_mark.svg
     - assets/go-noto-current-regular.ttf
     - assets/go-noto-kurrent-hangul.ttf
     - assets/shaders/nvscaler/
@@ -170,6 +146,10 @@ flutter:
   # Registered as UI font families so the Linux build, whose fontconfig may
   # lack CJK fonts, can fall back to the bundled subtitle fonts (mono_theme).
   fonts:
+    # Heisuca: Sora variável, SIL OFL 1.1 em assets/fonts/Sora-LICENSE.txt.
+    - family: Sora
+      fonts:
+        - asset: assets/fonts/Sora-VF.ttf
     - family: Go Noto Current
       fonts:
         - asset: assets/go-noto-current-regular.ttf
@@ -188,3 +168,8 @@ flutter:
           weight: 700
         - asset: assets/fonts/Inter-ExtraBold.ttf
           weight: 800
+    # Heisuca: Fredoka só nos títulos do modo infantil (OFL, assets/fonts/Fredoka-LICENSE.txt)
+    - family: Fredoka
+      fonts:
+        - asset: assets/fonts/Fredoka-VF.ttf
+

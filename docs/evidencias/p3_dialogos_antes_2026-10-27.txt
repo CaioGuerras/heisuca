@@ -1,0 +1,497 @@
+00:00 +0: loading /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_dialogs_test.dart
+00:00 +0: (setUpAll)
+00:00 +0: P3 diálogo confirmar-oled-moto-retrato-f100 (variant: TargetPlatform.android)
+00:00 +1: P3 diálogo nome-oled-moto-retrato-f100 (variant: TargetPlatform.android)
+00:01 +2: P3 diálogo erro-oled-moto-retrato-f100 (variant: TargetPlatform.android)
+00:01 +3: P3 diálogo opcao-oled-moto-retrato-f100 (variant: TargetPlatform.android)
+00:01 +4: P3 diálogo carregando-oled-moto-retrato-f100 (variant: TargetPlatform.android)
+00:01 +5: P3 diálogo confirmar-oled-moto-retrato-f200 (variant: TargetPlatform.android)
+00:01 +6: P3 diálogo nome-oled-moto-retrato-f200 (variant: TargetPlatform.android)
+00:01 +7: P3 diálogo erro-oled-moto-retrato-f200 (variant: TargetPlatform.android)
+00:02 +8: P3 diálogo opcao-oled-moto-retrato-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            '══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞══════════════════════\n'
+              'The following assertion was thrown during layout:\n'
+              'A RenderFlex overflowed by 57 pixels on the bottom.\n'
+              '\n'
+              'The relevant error-causing widget was:\n'
+              '  Column\n'
+              '  Column:file:///workspace/heisuca/apps/app/lib/utils/dialogs.dart:344:22\n'
+              '\n'
+              'The overflowing RenderFlex has an orientation of Axis.vertical.\n'
+              'The edge of the RenderFlex that is overflowing has been marked in\n'
+              'the rendering with a yellow and black striped pattern. This is\n'
+              'usually caused by the contents being too big for the RenderFlex.\n'
+              'Consider applying a flex factor (e.g. using an Expanded widget)\n'
+              'to force the children of the RenderFlex to fit within the\n'
+              'available space instead of being sized to their natural size.\n'
+              'This is considered an error condition because it indicates that\n'
+              'there is content that cannot be seen. If the content is\n'
+              'legitimately bigger than the available space, consider clipping\n'
+              'it with a ClipRect widget before putting it in the flex, or using\n'
+              'a scrollable container rather than a Flex, like a ListView.\n'
+              'The specific RenderFlex in question is: RenderFlex#49a52 relayoutBoundary=up10
+OVERFLOWING:\n'
+              '  needs compositing\n'
+              '  parentData: <none> (can use size)\n'
+              '  constraints: BoxConstraints(w=315.4, 0.0<=h<=378.3)\n'
+              '  size: Size(315.4, 378.3)\n'
+              '  direction: vertical\n'
+              '  mainAxisAlignment: start\n'
+              '  mainAxisSize: min\n'
+              '  crossAxisAlignment: stretch\n'
+              '  verticalDirection: down\n'
+              '  spacing: 0.0\n'
+              '◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤\n'
+              '═════════════════════════════════════════════════════════════════\n'
+              ''
+          ]
+opcao-oled-moto-retrato-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_dialogs_test.dart:111:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_dialogs_test.dart line 111
+The test description was:
+  P3 diálogo opcao-oled-moto-retrato-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:02 +8 -1: P3 diálogo opcao-oled-moto-retrato-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 diálogo opcao-oled-moto-retrato-f200 (variant: TargetPlatform.android)
+
+00:02 +8 -1: P3 diálogo carregando-oled-moto-retrato-f200 (variant: TargetPlatform.android)
+00:02 +9 -1: P3 diálogo confirmar-oled-moto-paisagem-f100 (variant: TargetPlatform.android)
+00:02 +10 -1: P3 diálogo nome-oled-moto-paisagem-f100 (variant: TargetPlatform.android)
+00:02 +11 -1: P3 diálogo erro-oled-moto-paisagem-f100 (variant: TargetPlatform.android)
+00:02 +12 -1: P3 diálogo opcao-oled-moto-paisagem-f100 (variant: TargetPlatform.android)
+00:03 +13 -1: P3 diálogo carregando-oled-moto-paisagem-f100 (variant: TargetPlatform.android)
+00:03 +14 -1: P3 diálogo confirmar-oled-moto-paisagem-f200 (variant: TargetPlatform.android)
+00:03 +15 -1: P3 diálogo nome-oled-moto-paisagem-f200 (variant: TargetPlatform.android)
+00:03 +16 -1: P3 diálogo erro-oled-moto-paisagem-f200 (variant: TargetPlatform.android)
+00:03 +17 -1: P3 diálogo opcao-oled-moto-paisagem-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            '══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞══════════════════════\n'
+              'The following assertion was thrown during layout:\n'
+              'A RenderFlex overflowed by 64 pixels on the bottom.\n'
+              '\n'
+              'The relevant error-causing widget was:\n'
+              '  Column\n'
+              '  Column:file:///workspace/heisuca/apps/app/lib/utils/dialogs.dart:344:22\n'
+              '\n'
+              'The overflowing RenderFlex has an orientation of Axis.vertical.\n'
+              'The edge of the RenderFlex that is overflowing has been marked in\n'
+              'the rendering with a yellow and black striped pattern. This is\n'
+              'usually caused by the contents being too big for the RenderFlex.\n'
+              'Consider applying a flex factor (e.g. using an Expanded widget)\n'
+              'to force the children of the RenderFlex to fit within the\n'
+              'available space instead of being sized to their natural size.\n'
+              'This is considered an error condition because it indicates that\n'
+              'there is content that cannot be seen. If the content is\n'
+              'legitimately bigger than the available space, consider clipping\n'
+              'it with a ClipRect widget before putting it in the flex, or using\n'
+              'a scrollable container rather than a Flex, like a ListView.\n'
+              'The specific RenderFlex in question is: RenderFlex#6c785 relayoutBoundary=up10
+OVERFLOWING:\n'
+              '  needs compositing\n'
+              '  parentData: <none> (can use size)\n'
+              '  constraints: BoxConstraints(w=818.3, 0.0<=h<=111.4)\n'
+              '  size: Size(818.3, 111.4)\n'
+              '  direction: vertical\n'
+              '  mainAxisAlignment: start\n'
+              '  mainAxisSize: min\n'
+              '  crossAxisAlignment: stretch\n'
+              '  verticalDirection: down\n'
+              '  spacing: 0.0\n'
+              '◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤\n'
+              '═════════════════════════════════════════════════════════════════\n'
+              ''
+          ]
+opcao-oled-moto-paisagem-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_dialogs_test.dart:111:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_dialogs_test.dart line 111
+The test description was:
+  P3 diálogo opcao-oled-moto-paisagem-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:03 +17 -2: P3 diálogo opcao-oled-moto-paisagem-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 diálogo opcao-oled-moto-paisagem-f200 (variant: TargetPlatform.android)
+
+00:03 +17 -2: P3 diálogo carregando-oled-moto-paisagem-f200 (variant: TargetPlatform.android)
+00:03 +18 -2: P3 diálogo confirmar-oled-tab-retrato-f100 (variant: TargetPlatform.android)
+00:04 +19 -2: P3 diálogo nome-oled-tab-retrato-f100 (variant: TargetPlatform.android)
+00:04 +20 -2: P3 diálogo erro-oled-tab-retrato-f100 (variant: TargetPlatform.android)
+00:04 +21 -2: P3 diálogo opcao-oled-tab-retrato-f100 (variant: TargetPlatform.android)
+00:04 +22 -2: P3 diálogo carregando-oled-tab-retrato-f100 (variant: TargetPlatform.android)
+00:04 +23 -2: P3 diálogo confirmar-oled-tab-retrato-f200 (variant: TargetPlatform.android)
+00:04 +24 -2: P3 diálogo nome-oled-tab-retrato-f200 (variant: TargetPlatform.android)
+00:04 +25 -2: P3 diálogo erro-oled-tab-retrato-f200 (variant: TargetPlatform.android)
+00:05 +26 -2: P3 diálogo opcao-oled-tab-retrato-f200 (variant: TargetPlatform.android)
+00:05 +27 -2: P3 diálogo carregando-oled-tab-retrato-f200 (variant: TargetPlatform.android)
+00:05 +28 -2: P3 diálogo confirmar-oled-tab-paisagem-f100 (variant: TargetPlatform.android)
+00:05 +29 -2: P3 diálogo nome-oled-tab-paisagem-f100 (variant: TargetPlatform.android)
+00:05 +30 -2: P3 diálogo erro-oled-tab-paisagem-f100 (variant: TargetPlatform.android)
+00:05 +31 -2: P3 diálogo opcao-oled-tab-paisagem-f100 (variant: TargetPlatform.android)
+00:05 +32 -2: P3 diálogo carregando-oled-tab-paisagem-f100 (variant: TargetPlatform.android)
+00:05 +33 -2: P3 diálogo confirmar-oled-tab-paisagem-f200 (variant: TargetPlatform.android)
+00:06 +34 -2: P3 diálogo nome-oled-tab-paisagem-f200 (variant: TargetPlatform.android)
+00:06 +35 -2: P3 diálogo erro-oled-tab-paisagem-f200 (variant: TargetPlatform.android)
+00:06 +36 -2: P3 diálogo opcao-oled-tab-paisagem-f200 (variant: TargetPlatform.android)
+00:06 +37 -2: P3 diálogo carregando-oled-tab-paisagem-f200 (variant: TargetPlatform.android)
+00:06 +38 -2: P3 diálogo confirmar-light-moto-retrato-f100 (variant: TargetPlatform.android)
+00:06 +39 -2: P3 diálogo nome-light-moto-retrato-f100 (variant: TargetPlatform.android)
+00:06 +40 -2: P3 diálogo erro-light-moto-retrato-f100 (variant: TargetPlatform.android)
+00:07 +41 -2: P3 diálogo opcao-light-moto-retrato-f100 (variant: TargetPlatform.android)
+00:07 +42 -2: P3 diálogo carregando-light-moto-retrato-f100 (variant: TargetPlatform.android)
+00:07 +43 -2: P3 diálogo confirmar-light-moto-retrato-f200 (variant: TargetPlatform.android)
+00:07 +44 -2: P3 diálogo nome-light-moto-retrato-f200 (variant: TargetPlatform.android)
+00:07 +45 -2: P3 diálogo erro-light-moto-retrato-f200 (variant: TargetPlatform.android)
+00:07 +46 -2: P3 diálogo opcao-light-moto-retrato-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            '══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞══════════════════════\n'
+              'The following assertion was thrown during layout:\n'
+              'A RenderFlex overflowed by 57 pixels on the bottom.\n'
+              '\n'
+              'The relevant error-causing widget was:\n'
+              '  Column\n'
+              '  Column:file:///workspace/heisuca/apps/app/lib/utils/dialogs.dart:344:22\n'
+              '\n'
+              'The overflowing RenderFlex has an orientation of Axis.vertical.\n'
+              'The edge of the RenderFlex that is overflowing has been marked in\n'
+              'the rendering with a yellow and black striped pattern. This is\n'
+              'usually caused by the contents being too big for the RenderFlex.\n'
+              'Consider applying a flex factor (e.g. using an Expanded widget)\n'
+              'to force the children of the RenderFlex to fit within the\n'
+              'available space instead of being sized to their natural size.\n'
+              'This is considered an error condition because it indicates that\n'
+              'there is content that cannot be seen. If the content is\n'
+              'legitimately bigger than the available space, consider clipping\n'
+              'it with a ClipRect widget before putting it in the flex, or using\n'
+              'a scrollable container rather than a Flex, like a ListView.\n'
+              'The specific RenderFlex in question is: RenderFlex#ecd67 relayoutBoundary=up10
+OVERFLOWING:\n'
+              '  needs compositing\n'
+              '  parentData: <none> (can use size)\n'
+              '  constraints: BoxConstraints(w=315.4, 0.0<=h<=378.3)\n'
+              '  size: Size(315.4, 378.3)\n'
+              '  direction: vertical\n'
+              '  mainAxisAlignment: start\n'
+              '  mainAxisSize: min\n'
+              '  crossAxisAlignment: stretch\n'
+              '  verticalDirection: down\n'
+              '  spacing: 0.0\n'
+              '◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤\n'
+              '═════════════════════════════════════════════════════════════════\n'
+              ''
+          ]
+opcao-light-moto-retrato-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_dialogs_test.dart:111:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_dialogs_test.dart line 111
+The test description was:
+  P3 diálogo opcao-light-moto-retrato-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:08 +46 -3: P3 diálogo opcao-light-moto-retrato-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 diálogo opcao-light-moto-retrato-f200 (variant: TargetPlatform.android)
+
+00:08 +46 -3: P3 diálogo carregando-light-moto-retrato-f200 (variant: TargetPlatform.android)
+00:08 +47 -3: P3 diálogo confirmar-light-moto-paisagem-f100 (variant: TargetPlatform.android)
+00:08 +48 -3: P3 diálogo nome-light-moto-paisagem-f100 (variant: TargetPlatform.android)
+00:08 +49 -3: P3 diálogo erro-light-moto-paisagem-f100 (variant: TargetPlatform.android)
+00:08 +50 -3: P3 diálogo opcao-light-moto-paisagem-f100 (variant: TargetPlatform.android)
+00:08 +51 -3: P3 diálogo carregando-light-moto-paisagem-f100 (variant: TargetPlatform.android)
+00:08 +52 -3: P3 diálogo confirmar-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+00:09 +53 -3: P3 diálogo nome-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+00:09 +54 -3: P3 diálogo erro-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+00:09 +55 -3: P3 diálogo opcao-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            '══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞══════════════════════\n'
+              'The following assertion was thrown during layout:\n'
+              'A RenderFlex overflowed by 64 pixels on the bottom.\n'
+              '\n'
+              'The relevant error-causing widget was:\n'
+              '  Column\n'
+              '  Column:file:///workspace/heisuca/apps/app/lib/utils/dialogs.dart:344:22\n'
+              '\n'
+              'The overflowing RenderFlex has an orientation of Axis.vertical.\n'
+              'The edge of the RenderFlex that is overflowing has been marked in\n'
+              'the rendering with a yellow and black striped pattern. This is\n'
+              'usually caused by the contents being too big for the RenderFlex.\n'
+              'Consider applying a flex factor (e.g. using an Expanded widget)\n'
+              'to force the children of the RenderFlex to fit within the\n'
+              'available space instead of being sized to their natural size.\n'
+              'This is considered an error condition because it indicates that\n'
+              'there is content that cannot be seen. If the content is\n'
+              'legitimately bigger than the available space, consider clipping\n'
+              'it with a ClipRect widget before putting it in the flex, or using\n'
+              'a scrollable container rather than a Flex, like a ListView.\n'
+              'The specific RenderFlex in question is: RenderFlex#53330 relayoutBoundary=up10
+OVERFLOWING:\n'
+              '  needs compositing\n'
+              '  parentData: <none> (can use size)\n'
+              '  constraints: BoxConstraints(w=818.3, 0.0<=h<=111.4)\n'
+              '  size: Size(818.3, 111.4)\n'
+              '  direction: vertical\n'
+              '  mainAxisAlignment: start\n'
+              '  mainAxisSize: min\n'
+              '  crossAxisAlignment: stretch\n'
+              '  verticalDirection: down\n'
+              '  spacing: 0.0\n'
+              '◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤\n'
+              '═════════════════════════════════════════════════════════════════\n'
+              ''
+          ]
+opcao-light-moto-paisagem-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_dialogs_test.dart:111:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_dialogs_test.dart line 111
+The test description was:
+  P3 diálogo opcao-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:09 +55 -4: P3 diálogo opcao-light-moto-paisagem-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 diálogo opcao-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+
+00:09 +55 -4: P3 diálogo carregando-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+00:09 +56 -4: P3 diálogo confirmar-light-tab-retrato-f100 (variant: TargetPlatform.android)
+00:09 +57 -4: P3 diálogo nome-light-tab-retrato-f100 (variant: TargetPlatform.android)
+00:09 +58 -4: P3 diálogo erro-light-tab-retrato-f100 (variant: TargetPlatform.android)
+00:09 +59 -4: P3 diálogo opcao-light-tab-retrato-f100 (variant: TargetPlatform.android)
+00:10 +60 -4: P3 diálogo carregando-light-tab-retrato-f100 (variant: TargetPlatform.android)
+00:10 +61 -4: P3 diálogo confirmar-light-tab-retrato-f200 (variant: TargetPlatform.android)
+00:10 +62 -4: P3 diálogo nome-light-tab-retrato-f200 (variant: TargetPlatform.android)
+00:10 +63 -4: P3 diálogo erro-light-tab-retrato-f200 (variant: TargetPlatform.android)
+00:10 +64 -4: P3 diálogo opcao-light-tab-retrato-f200 (variant: TargetPlatform.android)
+00:10 +65 -4: P3 diálogo carregando-light-tab-retrato-f200 (variant: TargetPlatform.android)
+00:10 +66 -4: P3 diálogo confirmar-light-tab-paisagem-f100 (variant: TargetPlatform.android)
+00:10 +67 -4: P3 diálogo nome-light-tab-paisagem-f100 (variant: TargetPlatform.android)
+00:11 +68 -4: P3 diálogo erro-light-tab-paisagem-f100 (variant: TargetPlatform.android)
+00:11 +69 -4: P3 diálogo opcao-light-tab-paisagem-f100 (variant: TargetPlatform.android)
+00:11 +70 -4: P3 diálogo carregando-light-tab-paisagem-f100 (variant: TargetPlatform.android)
+00:11 +71 -4: P3 diálogo confirmar-light-tab-paisagem-f200 (variant: TargetPlatform.android)
+00:11 +72 -4: P3 diálogo nome-light-tab-paisagem-f200 (variant: TargetPlatform.android)
+00:11 +73 -4: P3 diálogo erro-light-tab-paisagem-f200 (variant: TargetPlatform.android)
+00:11 +74 -4: P3 diálogo opcao-light-tab-paisagem-f200 (variant: TargetPlatform.android)
+00:12 +75 -4: P3 diálogo carregando-light-tab-paisagem-f200 (variant: TargetPlatform.android)
+00:12 +76 -4: P3 diálogo confirmar-dark-moto-retrato-f100 (variant: TargetPlatform.android)
+00:12 +77 -4: P3 diálogo nome-dark-moto-retrato-f100 (variant: TargetPlatform.android)
+00:12 +78 -4: P3 diálogo erro-dark-moto-retrato-f100 (variant: TargetPlatform.android)
+00:12 +79 -4: P3 diálogo opcao-dark-moto-retrato-f100 (variant: TargetPlatform.android)
+00:12 +80 -4: P3 diálogo carregando-dark-moto-retrato-f100 (variant: TargetPlatform.android)
+00:12 +81 -4: P3 diálogo confirmar-dark-moto-retrato-f200 (variant: TargetPlatform.android)
+00:13 +82 -4: P3 diálogo nome-dark-moto-retrato-f200 (variant: TargetPlatform.android)
+00:13 +83 -4: P3 diálogo erro-dark-moto-retrato-f200 (variant: TargetPlatform.android)
+00:13 +84 -4: P3 diálogo opcao-dark-moto-retrato-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            '══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞══════════════════════\n'
+              'The following assertion was thrown during layout:\n'
+              'A RenderFlex overflowed by 57 pixels on the bottom.\n'
+              '\n'
+              'The relevant error-causing widget was:\n'
+              '  Column\n'
+              '  Column:file:///workspace/heisuca/apps/app/lib/utils/dialogs.dart:344:22\n'
+              '\n'
+              'The overflowing RenderFlex has an orientation of Axis.vertical.\n'
+              'The edge of the RenderFlex that is overflowing has been marked in\n'
+              'the rendering with a yellow and black striped pattern. This is\n'
+              'usually caused by the contents being too big for the RenderFlex.\n'
+              'Consider applying a flex factor (e.g. using an Expanded widget)\n'
+              'to force the children of the RenderFlex to fit within the\n'
+              'available space instead of being sized to their natural size.\n'
+              'This is considered an error condition because it indicates that\n'
+              'there is content that cannot be seen. If the content is\n'
+              'legitimately bigger than the available space, consider clipping\n'
+              'it with a ClipRect widget before putting it in the flex, or using\n'
+              'a scrollable container rather than a Flex, like a ListView.\n'
+              'The specific RenderFlex in question is: RenderFlex#b7c5a relayoutBoundary=up10
+OVERFLOWING:\n'
+              '  needs compositing\n'
+              '  parentData: <none> (can use size)\n'
+              '  constraints: BoxConstraints(w=315.4, 0.0<=h<=378.3)\n'
+              '  size: Size(315.4, 378.3)\n'
+              '  direction: vertical\n'
+              '  mainAxisAlignment: start\n'
+              '  mainAxisSize: min\n'
+              '  crossAxisAlignment: stretch\n'
+              '  verticalDirection: down\n'
+              '  spacing: 0.0\n'
+              '◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤\n'
+              '═════════════════════════════════════════════════════════════════\n'
+              ''
+          ]
+opcao-dark-moto-retrato-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_dialogs_test.dart:111:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_dialogs_test.dart line 111
+The test description was:
+  P3 diálogo opcao-dark-moto-retrato-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:13 +84 -5: P3 diálogo opcao-dark-moto-retrato-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 diálogo opcao-dark-moto-retrato-f200 (variant: TargetPlatform.android)
+
+00:13 +84 -5: P3 diálogo carregando-dark-moto-retrato-f200 (variant: TargetPlatform.android)
+00:13 +85 -5: P3 diálogo confirmar-dark-moto-paisagem-f100 (variant: TargetPlatform.android)
+00:13 +86 -5: P3 diálogo nome-dark-moto-paisagem-f100 (variant: TargetPlatform.android)
+00:13 +87 -5: P3 diálogo erro-dark-moto-paisagem-f100 (variant: TargetPlatform.android)
+00:14 +88 -5: P3 diálogo opcao-dark-moto-paisagem-f100 (variant: TargetPlatform.android)
+00:14 +89 -5: P3 diálogo carregando-dark-moto-paisagem-f100 (variant: TargetPlatform.android)
+00:14 +90 -5: P3 diálogo confirmar-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+00:14 +91 -5: P3 diálogo nome-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+00:14 +92 -5: P3 diálogo erro-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+00:14 +93 -5: P3 diálogo opcao-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            '══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞══════════════════════\n'
+              'The following assertion was thrown during layout:\n'
+              'A RenderFlex overflowed by 64 pixels on the bottom.\n'
+              '\n'
+              'The relevant error-causing widget was:\n'
+              '  Column\n'
+              '  Column:file:///workspace/heisuca/apps/app/lib/utils/dialogs.dart:344:22\n'
+              '\n'
+              'The overflowing RenderFlex has an orientation of Axis.vertical.\n'
+              'The edge of the RenderFlex that is overflowing has been marked in\n'
+              'the rendering with a yellow and black striped pattern. This is\n'
+              'usually caused by the contents being too big for the RenderFlex.\n'
+              'Consider applying a flex factor (e.g. using an Expanded widget)\n'
+              'to force the children of the RenderFlex to fit within the\n'
+              'available space instead of being sized to their natural size.\n'
+              'This is considered an error condition because it indicates that\n'
+              'there is content that cannot be seen. If the content is\n'
+              'legitimately bigger than the available space, consider clipping\n'
+              'it with a ClipRect widget before putting it in the flex, or using\n'
+              'a scrollable container rather than a Flex, like a ListView.\n'
+              'The specific RenderFlex in question is: RenderFlex#af41a relayoutBoundary=up10
+OVERFLOWING:\n'
+              '  needs compositing\n'
+              '  parentData: <none> (can use size)\n'
+              '  constraints: BoxConstraints(w=818.3, 0.0<=h<=111.4)\n'
+              '  size: Size(818.3, 111.4)\n'
+              '  direction: vertical\n'
+              '  mainAxisAlignment: start\n'
+              '  mainAxisSize: min\n'
+              '  crossAxisAlignment: stretch\n'
+              '  verticalDirection: down\n'
+              '  spacing: 0.0\n'
+              '◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤\n'
+              '═════════════════════════════════════════════════════════════════\n'
+              ''
+          ]
+opcao-dark-moto-paisagem-f200
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_dialogs_test.dart:111:15)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_dialogs_test.dart line 111
+The test description was:
+  P3 diálogo opcao-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:14 +93 -6: P3 diálogo opcao-dark-moto-paisagem-f200 (variant: TargetPlatform.android) [E]
+  Test failed. See exception logs above.
+  The test description was: P3 diálogo opcao-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+
+00:14 +93 -6: P3 diálogo carregando-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+00:15 +94 -6: P3 diálogo confirmar-dark-tab-retrato-f100 (variant: TargetPlatform.android)
+00:15 +95 -6: P3 diálogo nome-dark-tab-retrato-f100 (variant: TargetPlatform.android)
+00:15 +96 -6: P3 diálogo erro-dark-tab-retrato-f100 (variant: TargetPlatform.android)
+00:15 +97 -6: P3 diálogo opcao-dark-tab-retrato-f100 (variant: TargetPlatform.android)
+00:15 +98 -6: P3 diálogo carregando-dark-tab-retrato-f100 (variant: TargetPlatform.android)
+00:15 +99 -6: P3 diálogo confirmar-dark-tab-retrato-f200 (variant: TargetPlatform.android)
+00:15 +100 -6: P3 diálogo nome-dark-tab-retrato-f200 (variant: TargetPlatform.android)
+00:15 +101 -6: P3 diálogo erro-dark-tab-retrato-f200 (variant: TargetPlatform.android)
+00:16 +102 -6: P3 diálogo opcao-dark-tab-retrato-f200 (variant: TargetPlatform.android)
+00:16 +103 -6: P3 diálogo carregando-dark-tab-retrato-f200 (variant: TargetPlatform.android)
+00:16 +104 -6: P3 diálogo confirmar-dark-tab-paisagem-f100 (variant: TargetPlatform.android)
+00:16 +105 -6: P3 diálogo nome-dark-tab-paisagem-f100 (variant: TargetPlatform.android)
+00:16 +106 -6: P3 diálogo erro-dark-tab-paisagem-f100 (variant: TargetPlatform.android)
+00:16 +107 -6: P3 diálogo opcao-dark-tab-paisagem-f100 (variant: TargetPlatform.android)
+00:16 +108 -6: P3 diálogo carregando-dark-tab-paisagem-f100 (variant: TargetPlatform.android)
+00:16 +109 -6: P3 diálogo confirmar-dark-tab-paisagem-f200 (variant: TargetPlatform.android)
+00:17 +110 -6: P3 diálogo nome-dark-tab-paisagem-f200 (variant: TargetPlatform.android)
+00:17 +111 -6: P3 diálogo erro-dark-tab-paisagem-f200 (variant: TargetPlatform.android)
+00:17 +112 -6: P3 diálogo opcao-dark-tab-paisagem-f200 (variant: TargetPlatform.android)
+00:17 +113 -6: P3 diálogo carregando-dark-tab-paisagem-f200 (variant: TargetPlatform.android)
+00:17 +114 -6: (tearDownAll)
+00:17 +114 -6: Some tests failed.
+
+Failing tests:
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_dialogs_test.dart: P3 diálogo opcao-dark-moto-paisagem-f200 (variant: TargetPlatform.android)
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_dialogs_test.dart: P3 diálogo opcao-dark-moto-retrato-f200 (variant: TargetPlatform.android)
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_dialogs_test.dart: P3 diálogo opcao-light-moto-paisagem-f200 (variant: TargetPlatform.android)
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_dialogs_test.dart: P3 diálogo opcao-light-moto-retrato-f200 (variant: TargetPlatform.android)
+  ... and 2 more

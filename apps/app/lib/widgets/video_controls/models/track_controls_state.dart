@@ -1,3 +1,4 @@
+import 'package:heisuca/heisuca/services/heisuca_playback_delivery.dart';
 import 'package:flutter/material.dart';
 
 import '../../../media/media_item.dart';
@@ -18,6 +19,7 @@ class TrackControlsState {
   final int selectedMediaIndex;
   final TranscodeQualityPreset selectedQualityPreset;
   final bool serverSupportsTranscoding;
+  final HeisucaPlaybackDelivery? delivery;
   final bool isTranscoding;
   final List<MediaAudioTrack> sourceAudioTracks;
   final int? selectedAudioStreamId;
@@ -53,9 +55,6 @@ class TrackControlsState {
   final Function(SubtitleTrack)? onSubtitleTrackChanged;
   final Function(SubtitleTrack)? onSecondarySubtitleTrackChanged;
 
-  /// Applies a playback rate chosen in the settings sheet. Supplied by the
-  /// player surface so a Watch Together room hears about it; the sheet falls
-  /// back to [Player.setRate] when absent.
   final Future<void> Function(double rate)? onRateRequested;
   final VoidCallback? onCancelAutoHide;
   final VoidCallback? onStartAutoHide;
@@ -90,6 +89,7 @@ class TrackControlsState {
     this.selectedQualityPreset = TranscodeQualityPreset.original,
     this.serverSupportsTranscoding = false,
     this.isTranscoding = false,
+    this.delivery,
     this.sourceAudioTracks = const [],
     this.selectedAudioStreamId,
     this.sourceSubtitleTracks = const [],

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/providers/theme_provider.dart';
-import 'package:plezy/screens/settings/appearance_settings_screen.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/theme/mono_theme.dart';
-import 'package:plezy/cgflix/cgflix_config_itens.dart';
-import 'package:plezy/cgflix/cgflix_navigation.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/providers/theme_provider.dart';
+import 'package:heisuca/screens/settings/appearance_settings_screen.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/theme/mono_theme.dart';
+import 'package:heisuca/cgflix/cgflix_config_itens.dart';
+import 'package:heisuca/cgflix/cgflix_navigation.dart';
 import 'package:provider/provider.dart';
 
 import '../../test_helpers/prefs.dart';

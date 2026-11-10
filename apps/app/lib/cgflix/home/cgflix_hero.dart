@@ -4,7 +4,6 @@
 // - ClearLogo com elevação suave, Badges Técnicos Nobres, Números Tabulares (tnum)
 // - Botões com Física de Mola Tátil (120Hz) e Indicadores de Carrossel em Pílula Viva
 import 'dart:async';
-import 'dart:ui' show FontFeature;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,7 +16,6 @@ import '../../widgets/app_icon.dart';
 import '../../widgets/optimized_media_image.dart';
 import '../cgflix_detail.dart';
 import '../cgflix_layout.dart';
-import '../cgflix_navigation.dart';
 import '../cgflix_palette.dart';
 import '../cgflix_style.dart';
 import 'cgflix_actions.dart';

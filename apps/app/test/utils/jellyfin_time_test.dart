@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/utils/jellyfin_time.dart';
+import 'package:heisuca/utils/jellyfin_time.dart';
 
 void main() {
   group('Jellyfin time conversions', () {

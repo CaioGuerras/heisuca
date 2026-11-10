@@ -15,7 +15,6 @@ import '../providers/multi_server_provider.dart';
 import '../utils/global_key_utils.dart';
 import '../utils/live_tv_player_navigation.dart';
 import '../utils/video_player_navigation.dart';
-import '../watch_together/providers/watch_together_provider.dart';
 import 'agent_control_protocol.dart';
 import 'driver_distraction.dart';
 import 'music/music_playback_service.dart';
@@ -188,14 +187,6 @@ class AgentPlaybackCommands {
       if (!current()) throw const AgentControlException('sessionChanged', 'The server authentication session changed.');
     }
 
-    final watchTogether = context.context.read<WatchTogetherProvider?>();
-    if (watchTogether?.isInSession == true &&
-        (!watchTogether!.isHost || offline || _targetKind(arguments) == 'channel')) {
-      // Host VOD selection uses the normal navigation lease. Guests and
-      // non-synchronized target kinds must stay on the group's own flow.
-      observer.mark('blocked', blocker: 'watchTogetherActive');
-      return;
-    }
     if (!automotivePlaybackAllowedNow()) {
       observer.mark('blocked', blocker: 'automotiveRestricted');
       return;
@@ -293,10 +284,6 @@ class AgentPlaybackCommands {
     _ensureIdle(context, ignorePending: true);
     if (!context.context.mounted) return;
     if (metadata.kind == MediaKind.track) {
-      if (watchTogether?.isInSession == true) {
-        observer.mark('blocked', blocker: 'watchTogetherActive');
-        return;
-      }
       if (initialPosition == null) {
         final fresh = context.context.readFreshWatchState(metadata);
         final local = offline
@@ -305,7 +292,7 @@ class AgentPlaybackCommands {
         checkIdentity();
         initialPosition = Duration(milliseconds: local ?? fresh.viewOffsetMs ?? 0);
       }
-      final guarded = PlaybackLaunchObserver(isCurrent: () => current() && watchTogether?.isInSession != true);
+      final guarded = PlaybackLaunchObserver(isCurrent: current);
       // The outer operation reads the native owner through the same pull seam;
       // its cancellation also fences the source/native-open awaits.
       observer.attach(guarded.snapshot, ownsPlayback: () => guarded.ownsPlayback);
@@ -325,10 +312,6 @@ class AgentPlaybackCommands {
       return;
     }
     checkIdentity();
-    if (watchTogether?.isInSession == true && !watchTogether!.isHost) {
-      observer.mark('blocked', blocker: 'watchTogetherActive');
-      return;
-    }
     // Never await the route-lifetime result here. Existing UI callers still do.
     unawaited(
       navigateToVideoPlayer(
@@ -358,7 +341,7 @@ class AgentPlaybackCommands {
         _observer?.snapshot()['blocker'] == 'externalHandoffPending') {
       throw const AgentControlException(
         'unsupportedTarget',
-        'An external application cannot be stopped or observed by Plezy.',
+        'An external application cannot be stopped or observed by Heisuca.',
       );
     }
     if (scoped) return _stopScoped(context);

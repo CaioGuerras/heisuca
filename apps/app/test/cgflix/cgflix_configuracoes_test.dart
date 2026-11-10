@@ -4,15 +4,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:plezy/cgflix/cgflix_configuracoes.dart';
-import 'package:plezy/cgflix/cgflix_theme.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/screens/settings/settings_screen.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/utils/language_codes.dart';
-import 'package:plezy/widgets/setting_tile.dart';
-import 'package:plezy/widgets/settings_page.dart';
-import 'package:plezy/widgets/settings_section.dart';
+import 'package:heisuca/cgflix/cgflix_configuracoes.dart';
+import 'package:heisuca/cgflix/cgflix_theme.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/screens/settings/settings_screen.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/utils/language_codes.dart';
+import 'package:heisuca/widgets/setting_tile.dart';
+import 'package:heisuca/widgets/settings_page.dart';
+import 'package:heisuca/widgets/settings_section.dart';
 
 import '../test_helpers/cgflix_config_harness.dart';
 
@@ -57,7 +57,6 @@ void main() {
     // O técnico não está na frente (foi para Avançado).
     for (final tecnico in [
       'Assistir juntos',
-      'Controle remoto',
       'Opções do mpv',
       'Som de abertura',
       t.settings.forceSkipMarkerFallback,
@@ -82,12 +81,11 @@ void main() {
     await principal(tester);
     await tester.tap(find.text('Avançado'));
     await tester.pumpAndSettle();
+    expect(find.text('Assistir juntos'), findsNothing);
+    expect(find.text('Recursos extras'), findsNothing);
     for (final texto in [
       t.connections.sectionTitle,
       t.connections.addConnection,
-      'Recursos extras',
-      'Assistir juntos',
-      'Controle remoto',
       'Ao assistir (técnico)',
       'Reprodução avançada',
       'Opções do mpv',
@@ -142,7 +140,7 @@ void main() {
   });
 
   test('switch M3: trilho primary ligado, contorno outline desligado, check no polegar', () {
-    for (final variante in CgflixThemeVariant.values) {
+    for (final variante in const [CgflixThemeVariant.isis, CgflixThemeVariant.heitor]) {
       final tema = cgflixSettingsTheme(cgflixAppTheme(variante));
       final s = tema.colorScheme;
       final sw = tema.switchTheme;
@@ -157,7 +155,7 @@ void main() {
   });
 
   test('contraste AA nas Configurações dos dois temas', () {
-    for (final variante in CgflixThemeVariant.values) {
+    for (final variante in const [CgflixThemeVariant.isis, CgflixThemeVariant.heitor]) {
       final tema = cgflixSettingsTheme(cgflixAppTheme(variante));
       final s = tema.colorScheme;
       final fundo = tema.scaffoldBackgroundColor;

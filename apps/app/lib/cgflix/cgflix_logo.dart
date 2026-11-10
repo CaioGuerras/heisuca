@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'cgflix_palette.dart';
+import '../heisuca/heisuca_brand_colors.dart';
 
 /// Emblema do app. O SVG é o de `cgflix-brand/` (ou `cgflix-brand/heitor/` no tema Heitor)
 /// sem o filtro de brilho (o flutter_svg não renderiza filtros).
@@ -14,5 +15,5 @@ class CgflixEmblem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      SvgPicture.asset(context.cgflix.emblemAsset, width: size, height: size, semanticsLabel: 'Heisuca');
+      SvgPicture.asset(context.cgflix.emblemAsset, width: size, height: size, colorMapper: HeisucaBrandColors(context.cgflix), semanticsLabel: 'Heisuca');
 }

@@ -117,7 +117,13 @@ extension _PlexVideoControlsNavigationMethods on _PlexVideoControlsState {
           // forceRefresh: playback start left a fresh /library/metadata row in
           // the cache (and each network poll would re-stamp it), so a
           // cache-eligible read here would never observe the new stream.
-          final data = await client.getVideoPlaybackData(ratingKey, forceRefresh: true);
+          // Índice da versão em reprodução: sem ele o ranqueador poderia
+          // escolher outra versão e a legenda nova nunca apareceria.
+          final data = await client.getVideoPlaybackData(
+            ratingKey,
+            mediaIndex: widget.selectedMediaIndex,
+            forceRefresh: true,
+          );
           if (!targetIsCurrent()) return SubtitleDownloadApplyOutcome.superseded;
           if (data.mediaInfo == null) continue;
 

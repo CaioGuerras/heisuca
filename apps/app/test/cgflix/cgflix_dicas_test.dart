@@ -1,10 +1,10 @@
 // Refino 2: dicas do CGFLIX. A do player aparece uma vez, some com um toque ou sozinha, não volta,
-// e o Sobre › Dicas do CGFLIX faz ela aparecer de novo. As folhas abrem pelo "?".
+// e o Sobre › Dicas do Heisuca faz ela aparecer de novo. As folhas abrem pelo "?".
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/cgflix/cgflix_dicas.dart';
-import 'package:plezy/cgflix/cgflix_theme.dart';
-import 'package:plezy/services/settings_service.dart';
+import 'package:heisuca/cgflix/cgflix_dicas.dart';
+import 'package:heisuca/cgflix/cgflix_theme.dart';
+import 'package:heisuca/services/settings_service.dart';
 
 import '../test_helpers/prefs.dart';
 
@@ -43,6 +43,27 @@ void main() {
     }
   });
 
+  test('F8: dica de filtros de imagem existe, sem jargão e com orientações claras', () {
+    final dica = CgflixDica.values.firstWhere(
+      (d) => d.name == 'filtrosImagem',
+      orElse: () => throw StateError('CgflixDica.filtrosImagem não encontrada'),
+    );
+    expect(dica.titulo, 'Filtros de imagem');
+    expect(dica.resumo, contains('imagem'));
+    expect(dica.texto, contains('aparelho'));
+    expect(dica.texto, contains('servidor'));
+    expect(dica.texto, contains('Anime4K'));
+    expect(dica.texto, contains('ArtCNN'));
+    expect(dica.texto, contains('NVScaler'));
+    expect(dica.texto, contains('bateria'));
+    expect(dica.texto, contains('Desligado'));
+    expect(dica.texto, contains('Ajustes'));
+    // Sem jargão proibido
+    for (final jargao in ['shader', 'upscale', 'glsl']) {
+      expect(dica.texto.toLowerCase(), isNot(contains(jargao)));
+    }
+  });
+
   testWidgets('dica do player: aparece na primeira vez e some com um toque', (tester) async {
     await tester.pumpWidget(_app(_player()));
     expect(find.byKey(const ValueKey('cgflix-dica-player')), findsOneWidget);
@@ -76,14 +97,14 @@ void main() {
     expect(find.byKey(const ValueKey('cgflix-dica-player')), findsNothing);
   });
 
-  testWidgets('Sobre › Dicas do CGFLIX: lista todas e reabre a dica do player', (tester) async {
+  testWidgets('Sobre › Dicas do Heisuca: lista todas e reabre a dica do player', (tester) async {
     await SettingsService.instance.write(cgflixDicaPlayerVistaPref, true);
     tester.view.physicalSize = const Size(412, 2400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(_app(const Scaffold(body: CgflixDicasAboutTile())));
-    await tester.tap(find.text('Dicas do CGFLIX'));
+    await tester.tap(find.text('Dicas do Heisuca'));
     await tester.pumpAndSettle();
     for (final dica in CgflixDica.values) {
       expect(find.text(dica.titulo), findsOneWidget, reason: dica.name);

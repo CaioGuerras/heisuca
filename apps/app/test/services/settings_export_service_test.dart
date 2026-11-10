@@ -5,13 +5,12 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:plezy/models/audio_channel_limit.dart';
-import 'package:plezy/models/shader_preset.dart';
-import 'package:plezy/services/base_shared_preferences_service.dart';
-import 'package:plezy/services/file_picker_service.dart';
-import 'package:plezy/services/settings_export_service.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/services/trackers/tracker_constants.dart';
+import 'package:heisuca/models/audio_channel_limit.dart';
+import 'package:heisuca/models/shader_preset.dart';
+import 'package:heisuca/services/base_shared_preferences_service.dart';
+import 'package:heisuca/services/file_picker_service.dart';
+import 'package:heisuca/services/settings_export_service.dart';
+import 'package:heisuca/services/settings_service.dart';
 
 import '../test_helpers/prefs.dart';
 
@@ -137,32 +136,32 @@ void main() {
     test('fails closed for unknown, credential, account, path, history, and runtime keys', () async {
       const canaries = ['SEERR-BEARER-CANARY', 'ACCOUNT-ID-CANARY', 'DEVICE-PATH-CANARY', 'RUNTIME-TIME-CANARY'];
       final prefs = await BaseSharedPreferencesService.sharedCache();
-      await prefs.setBool('enable_trakt_scrobble', true);
+      await prefs.setBool('enable_hdr', true);
       await prefs.setString('user_alice_seerr_session', '{"cookie":"${canaries[0]}","account":"${canaries[1]}"}');
       await prefs.setString('current_user_uuid', canaries[1]);
       await prefs.setString('custom_download_path', canaries[2]);
       await prefs.setString('custom_download_path_type', 'saf');
       await prefs.setBool('crash_reporting', true);
-      await prefs.setString('custom_relay_url', 'https://${canaries[2]}.invalid');
+      await prefs.setString('retired_local_endpoint', 'https://${canaries[2]}.invalid');
       await prefs.setString('update_last_check_time', canaries[3]);
-      await prefs.setString('watch_together_recent_rooms', canaries[1]);
-      await prefs.setString('user_alice_watch_together_recent_rooms', canaries[1]);
+      await prefs.setString('retired_local_history', canaries[1]);
+      await prefs.setString('user_alice_retired_local_history', canaries[1]);
       await prefs.setString('future_runtime_key', 'unknown');
 
       final out = SettingsExportService.buildExportMap(prefs, currentUserUuid: 'alice');
       final encoded = jsonEncode(out);
       final exported = out['prefs'] as Map<String, dynamic>;
 
-      expect(exported.keys, contains('enable_trakt_scrobble'));
+      expect(exported.keys, contains('enable_hdr'));
       expect(exported.keys, isNot(contains('seerr_session')));
       expect(exported.keys, isNot(contains('current_user_uuid')));
       expect(exported.keys, isNot(contains('custom_download_path')));
       expect(exported.keys, isNot(contains('custom_download_path_type')));
       expect(exported.keys, isNot(contains('crash_reporting')));
-      expect(exported.keys, isNot(contains('custom_relay_url')));
+      expect(exported.keys, isNot(contains('retired_local_endpoint')));
       expect(exported.keys, isNot(contains('update_last_check_time')));
-      expect(exported.keys, isNot(contains('watch_together_recent_rooms')));
-      expect(exported.keys, isNot(contains('user_alice_watch_together_recent_rooms')));
+      expect(exported.keys, isNot(contains('retired_local_history')));
+      expect(exported.keys, isNot(contains('user_alice_retired_local_history')));
       expect(exported.keys, isNot(contains('future_runtime_key')));
       for (final canary in canaries) {
         expect(encoded, isNot(contains(canary)));
@@ -195,25 +194,6 @@ void main() {
       expect(exported, contains('enable_hdr'));
       expect(exported.keys.where((key) => key.startsWith('tvos_db_recovery_')), isEmpty);
       expect(encoded, isNot(contains(canary)));
-    });
-    test('exports cold-start string lists while rejecting lists with non-string elements', () async {
-      resetSharedPreferencesForTest(
-        initialAsync: {
-          'tracker_library_filter_mode_trakt': 'blacklist',
-          'tracker_library_filter_ids_trakt': <Object?>['srv-1:lib-a', 'srv-1:lib-b'],
-          'tracker_library_filter_ids_simkl': <Object?>['ok', 7],
-        },
-      );
-      final prefs = await BaseSharedPreferencesService.sharedCache();
-
-      final exported =
-          SettingsExportService.buildExportMap(prefs, currentUserUuid: 'alice')['prefs'] as Map<String, dynamic>;
-
-      expect(exported['tracker_library_filter_ids_trakt'], {
-        'type': 'stringList',
-        'value': ['srv-1:lib-a', 'srv-1:lib-b'],
-      });
-      expect(exported, isNot(contains('tracker_library_filter_ids_simkl')));
     });
   });
 
@@ -552,103 +532,6 @@ void main() {
       expect(prefs.getBool('enable_hdr'), isNull);
     });
 
-    test('round-trips both filter modes and IDs for every tracker service', () async {
-      final prefs = await BaseSharedPreferencesService.sharedCache();
-
-      for (final mode in TrackerLibraryFilterMode.values) {
-        await prefs.clear();
-        for (final service in TrackerService.values) {
-          await prefs.setString(SettingsService.trackerFilterModePref(service).key, mode.name);
-          await prefs.setStringList(SettingsService.trackerFilterIdsPref(service).key, [
-            '${service.name}:library-a',
-            '${service.name}:library-b',
-          ]);
-        }
-
-        final export = SettingsExportService.buildExportMap(prefs, currentUserUuid: 'source-user');
-        final exported = export['prefs'] as Map<String, dynamic>;
-        for (final service in TrackerService.values) {
-          final modeKey = SettingsService.trackerFilterModePref(service).key;
-          final idsKey = SettingsService.trackerFilterIdsPref(service).key;
-          expect(exported[modeKey], {'type': 'string', 'value': mode.name});
-          expect(exported[idsKey], {
-            'type': 'stringList',
-            'value': ['${service.name}:library-a', '${service.name}:library-b'],
-          });
-        }
-
-        await prefs.clear();
-        final result = await SettingsExportService.applyImportMap(export, prefs, currentUserUuid: 'target-user');
-
-        expect(result.keysImported, TrackerService.values.length * 2);
-        expect(result.keysSkipped, 0);
-        for (final service in TrackerService.values) {
-          expect(prefs.getString(SettingsService.trackerFilterModePref(service).key), mode.name);
-          expect(prefs.getStringList(SettingsService.trackerFilterIdsPref(service).key), [
-            '${service.name}:library-a',
-            '${service.name}:library-b',
-          ]);
-        }
-      }
-    });
-
-    test('preserves an empty whitelist so import cannot broaden tracker access', () async {
-      final prefs = await BaseSharedPreferencesService.sharedCache();
-      for (final service in TrackerService.values) {
-        await prefs.setString(
-          SettingsService.trackerFilterModePref(service).key,
-          TrackerLibraryFilterMode.whitelist.name,
-        );
-        await prefs.setStringList(SettingsService.trackerFilterIdsPref(service).key, const []);
-      }
-
-      final export = SettingsExportService.buildExportMap(prefs, currentUserUuid: 'source-user');
-      await prefs.clear();
-      final result = await SettingsExportService.applyImportMap(export, prefs, currentUserUuid: 'target-user');
-      final settings = await SettingsService.getInstance();
-
-      expect(result.keysImported, TrackerService.values.length * 2);
-      expect(result.keysSkipped, 0);
-      for (final service in TrackerService.values) {
-        expect(settings.read(SettingsService.trackerFilterModePref(service)), TrackerLibraryFilterMode.whitelist);
-        expect(settings.read(SettingsService.trackerFilterIdsPref(service)), isEmpty);
-        expect(settings.isLibraryAllowedForTracker(service, '${service.name}:unlisted'), isFalse);
-        expect(settings.isLibraryAllowedForTracker(service, null), isFalse);
-      }
-    });
-
-    test('rejects tracker preference keys with unknown service suffixes', () async {
-      const modeKey = 'tracker_library_filter_mode_future';
-      const idsKey = 'tracker_library_filter_ids_future';
-      final prefs = await BaseSharedPreferencesService.sharedCache();
-      await prefs.setString(modeKey, 'local-mode');
-      await prefs.setStringList(idsKey, const ['local-id']);
-
-      final exported = SettingsExportService.buildExportMap(prefs, currentUserUuid: 'alice')['prefs'] as Map;
-      expect(exported, isNot(contains(modeKey)));
-      expect(exported, isNot(contains(idsKey)));
-
-      final result = await SettingsExportService.applyImportMap(
-        {
-          'formatVersion': SettingsExportService.formatVersion,
-          'prefs': {
-            modeKey: {'type': 'string', 'value': TrackerLibraryFilterMode.whitelist.name},
-            idsKey: {
-              'type': 'stringList',
-              'value': ['crafted-id'],
-            },
-          },
-        },
-        prefs,
-        currentUserUuid: 'alice',
-      );
-
-      expect(result.keysImported, 0);
-      expect(result.keysSkipped, 2);
-      expect(prefs.getString(modeKey), 'local-mode');
-      expect(prefs.getStringList(idsKey), ['local-id']);
-    });
-
     test('normalizes format-v1 hidden and order string lists into JSON string storage', () async {
       final prefs = await BaseSharedPreferencesService.sharedCache();
 
@@ -700,8 +583,8 @@ void main() {
             'custom_download_path': {'type': 'string', 'value': '/source/device/downloads'},
             'custom_download_path_type': {'type': 'string', 'value': 'saf'},
             'crash_reporting': {'type': 'bool', 'value': true},
-            'custom_relay_url': {'type': 'string', 'value': 'https://relay.example.test'},
-            'watch_together_recent_rooms': {'type': 'string', 'value': '[]'},
+            'retired_local_endpoint': {'type': 'string', 'value': 'https://relay.example.test'},
+            'retired_local_history': {'type': 'string', 'value': '[]'},
             'unknown_future_key': {'type': 'bool', 'value': true},
           },
         },
@@ -721,8 +604,8 @@ void main() {
       expect(prefs.getString('custom_download_path'), '/target/device/downloads');
       expect(prefs.getString('custom_download_path_type'), 'file');
       expect(prefs.getBool('crash_reporting'), isFalse);
-      expect(prefs.getString('custom_relay_url'), isNull);
-      expect(prefs.getString('user_alice_watch_together_recent_rooms'), isNull);
+      expect(prefs.getString('retired_local_endpoint'), isNull);
+      expect(prefs.getString('user_alice_retired_local_history'), isNull);
       expect(prefs.getBool('unknown_future_key'), isNull);
     });
 

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/playback_timeline.dart';
+import 'package:heisuca/media/playback_timeline.dart';
 
 void main() {
   test('seek detection uses one shared strict threshold', () {

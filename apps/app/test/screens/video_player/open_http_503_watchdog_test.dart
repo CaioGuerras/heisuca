@@ -1,6 +1,6 @@
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/screens/video_player/open_http_503_watchdog.dart';
+import 'package:heisuca/screens/video_player/open_http_503_watchdog.dart';
 
 // An open the server answers with 503 never fails on its own: ffmpeg's
 // reconnect loop retries 503 forever (#1520) and mpv just reports buffering,

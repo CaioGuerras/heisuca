@@ -3,16 +3,16 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
-import 'package:plezy/exceptions/media_server_exceptions.dart';
-import 'package:plezy/media/library_query.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/media/media_server_client.dart';
-import 'package:plezy/media/media_source_info.dart';
-import 'package:plezy/services/bif_thumbnail_service.dart';
-import 'package:plezy/services/jellyfin_client.dart';
-import 'package:plezy/utils/media_server_http_client.dart';
+import 'package:heisuca/exceptions/media_server_exceptions.dart';
+import 'package:heisuca/media/library_query.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/media/media_source_info.dart';
+import 'package:heisuca/services/bif_thumbnail_service.dart';
+import 'package:heisuca/services/jellyfin_client.dart';
+import 'package:heisuca/utils/media_server_http_client.dart';
 
 import '../test_helpers/backend_client_fixtures.dart';
 import '../test_helpers/bif_fixtures.dart';

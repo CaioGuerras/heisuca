@@ -19,8 +19,8 @@ val verifySha256 = extra["verifySha256"] as (File, String, String) -> Unit
 val promoteDirectory = extra["promoteDirectory"] as (File, File) -> Unit
 
 // The in-project :libmpv module owns the mpv-build pin (repo-root
-// mpv-build.lock.json assets + checksums, plus the plezy.localMpvDir/
-// PLEZY_LOCAL_MPV_DIR escape hatch) and extracts the per-ABI tarballs'
+// mpv-build.lock.json assets + checksums, plus the heisuca.localMpvDir/
+// HEISUCA_LOCAL_MPV_DIR escape hatch) and extracts the per-ABI tarballs'
 // prebuilt native libraries. This file reads FFmpeg .so files from both native
 // output trees for the Media3 adapter link step, and packages the libc++ runtime
 // at PROJECT scope below.
@@ -33,6 +33,11 @@ val media3Version = "1.11.0"
 val mpvFfmpegVersion = "8.0.1"
 val mpvFfmpegSourceSha256 = "05ee0b03119b45c0bdb4df654b96802e909e0a752f72e4fe3794f487229e5a41"
 val mpvFfmpegSourceUrl = "https://ffmpeg.org/releases/ffmpeg-$mpvFfmpegVersion.tar.xz"
+// Origens do tarball, na ordem de tentativa. Qualquer uma só vale se o sha256 acima conferir.
+// Espelho primeiro (CaioGuerras/heisuca-deps): ffmpeg.org caiu nos runners em 01, 03 e 06/11.
+val mpvFfmpegMirrorUrl =
+  "https://github.com/CaioGuerras/heisuca-deps/releases/download/deps-2026-11/ffmpeg-$mpvFfmpegVersion.tar.xz"
+val mpvFfmpegSourceUrls = listOf(mpvFfmpegMirrorUrl, mpvFfmpegSourceUrl)
 val mpvFfmpegDevelopmentDir = layout.buildDirectory.dir("libmpv-ffmpeg-development").get().asFile
 
 // Build the Media3 JNI adapter against the same shared FFmpeg libraries that
@@ -70,14 +75,36 @@ val prepareMpvFfmpegDevelopment = tasks.register("prepareMpvFfmpegDevelopment") 
       val includeDir = File(staging, "include")
       val nativeDir = File(staging, "native")
       staging.mkdirs()
-      try {
-        providers.exec {
-          commandLine("curl", "-sfL", mpvFfmpegSourceUrl, "-o", sourceArchive.absolutePath)
-        }.result.get().assertNormalExitValue()
-      } catch (error: Exception) {
-        throw GradleException("Failed to download FFmpeg $mpvFfmpegVersion headers", error)
+      // ffmpeg.org cai ou demora nos runners (01, 03 e 06/11: 5 builds do vigia do mpv falharam aqui).
+      // O curl --retry só cobre erro de transporte; um arquivo truncado ou servido por engano passava
+      // direto e só o sha256 reclamava. Por isso cada tentativa baixa E confere o sha256, e uma falha
+      // numa origem não impede as seguintes.
+      var downloaded = false
+      var lastDownloadError: Exception? = null
+      for (url in mpvFfmpegSourceUrls) {
+        for (attempt in 1..3) {
+          try {
+            providers.exec {
+              commandLine(
+                "curl", "-sSfL", "--retry", "3", "--retry-all-errors", "--retry-delay", "10",
+                "--connect-timeout", "30", "--max-time", "300", url, "-o", sourceArchive.absolutePath
+              )
+            }.result.get().assertNormalExitValue()
+            verifySha256(sourceArchive, mpvFfmpegSourceSha256, "FFmpeg $mpvFfmpegVersion source")
+            downloaded = true
+            break
+          } catch (error: Exception) {
+            lastDownloadError = error
+            sourceArchive.delete()
+            logger.warn("FFmpeg $mpvFfmpegVersion: tentativa $attempt/3 em $url falhou: ${error.message}")
+            if (attempt < 3) Thread.sleep(15_000)
+          }
+        }
+        if (downloaded) break
       }
-      verifySha256(sourceArchive, mpvFfmpegSourceSha256, "FFmpeg $mpvFfmpegVersion source")
+      if (!downloaded) {
+        throw GradleException("Failed to download FFmpeg $mpvFfmpegVersion headers", lastDownloadError)
+      }
 
       val extractedSource = File(staging, "source").apply { mkdirs() }
       try {
@@ -104,7 +131,7 @@ val prepareMpvFfmpegDevelopment = tasks.register("prepareMpvFfmpegDevelopment") 
       }
       File(includeDir, "libavutil/avconfig.h").writeText(
         """
-        |/* Generated for Plezy's little-endian Android ABIs. */
+        |/* Generated for Heisuca's little-endian Android ABIs. */
         |#ifndef AVUTIL_AVCONFIG_H
         |#define AVUTIL_AVCONFIG_H
         |#define AV_HAVE_BIGENDIAN 0
@@ -193,7 +220,8 @@ val downloadLibdovi = tasks.register("downloadLibdovi") {
         val sourceUrl = "$doviBaseUrl/$archiveName"
         try {
           providers.exec {
-            commandLine("curl", "-sfL", sourceUrl, "-o", archive.absolutePath)
+            commandLine("curl", "-sfL", "--retry", "5", "--retry-all-errors", "--retry-delay", "10",
+              "--connect-timeout", "30", sourceUrl, "-o", archive.absolutePath)
           }.result.get().assertNormalExitValue()
         } catch (error: Exception) {
           throw GradleException("Failed to download $archiveName v$doviVersion", error)
@@ -229,8 +257,34 @@ val downloadLibdovi = tasks.register("downloadLibdovi") {
   }
 }
 
+val heisucaPreview = providers.gradleProperty("heisucaPreview").orNull == "true"
+// Build da Play (AAB): pacote do app publicado e só com a chave do Heisuca (key.properties), nunca a de debug.
+val heisucaLoja = providers.gradleProperty("heisucaLoja").orNull == "true"
+if (heisucaLoja && heisucaPreview) throw GradleException("heisucaLoja e heisucaPreview não podem ir juntos")
+if (heisucaLoja && gradle.startParameter.taskNames.any { it.contains("direct", ignoreCase = true) }) {
+  throw GradleException("A build da loja exige --flavor play, sem atualizador")
+}
+// APK universal sem split (ex.: -PheisucaAbis=armeabi-v7a,arm64-v8a para Fire TV Stick/TV box de 32 bits): o
+// --target-platform do Flutter não filtra as libs nativas dos plugins, que viriam também para x86_64.
+val heisucaAbis = providers.gradleProperty("heisucaAbis").orNull
+  ?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
+val heisucaAbisConhecidas = listOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
+if (!heisucaAbisConhecidas.containsAll(heisucaAbis)) throw GradleException("heisucaAbis desconhecida: $heisucaAbis")
+
 android {
-  namespace = "com.edde746.plezy"
+  buildFeatures { buildConfig = true }
+  flavorDimensions += "distribuicao"
+  productFlavors {
+    create("direct") {
+      dimension = "distribuicao"
+      buildConfigField("boolean", "HEISUCA_ATUALIZADOR", (!heisucaLoja).toString())
+    }
+    create("play") {
+      dimension = "distribuicao"
+      buildConfigField("boolean", "HEISUCA_ATUALIZADOR", "false")
+    }
+  }
+  namespace = "app.heisuca"
   compileSdk = flutter.compileSdkVersion
   buildToolsVersion = "36.1.0"
   ndkVersion = "29.0.14206865"
@@ -246,7 +300,12 @@ android {
   }
 
   defaultConfig {
-    applicationId = "app.heisuca.player.teste" // Heisuca Player Teste
+    applicationId = when {
+      heisucaLoja -> "app.heisuca.player"
+      heisucaPreview -> "app.heisuca.player.teste.home"
+      else -> "app.heisuca.player.teste"
+    }
+    manifestPlaceholders["heisucaAppLabel"] = if (heisucaPreview) "Heisuca Teste" else "Heisuca"
     minSdk = 25 // Fire OS 6.x (API 25); :libmpv shares the same floor
     targetSdk = flutter.targetSdkVersion
     versionCode = flutter.versionCode
@@ -301,7 +360,9 @@ android {
         signingConfig = signingConfigs.getByName("release")
       }
       // If key.properties doesn't exist, it will use debug signing for CI builds
-      else {
+      else if (heisucaLoja) {
+        throw GradleException("heisucaLoja exige android/key.properties (chave do Heisuca)")
+      } else {
         signingConfig = signingConfigs.getByName("debug") // CGFLIX: APK instalável sem keystore
       }
       ndk {
@@ -352,7 +413,13 @@ android {
       // sourceSets rule below makes the runtime :libmpv extracts from the
       // mpv-build tarballs win for std::from_chars<float>, while older
       // native consumers remain ABI-compatible.
-      pickFirsts.add("lib/*/libc++_shared.so")
+      if (heisucaAbis.isEmpty()) {
+        pickFirsts.add("lib/*/libc++_shared.so")
+      } else {
+        // pickFirst vence exclude no AGP: limitar às ABIs pedidas para o libc++ das outras sair também.
+        heisucaAbis.forEach { abi -> pickFirsts.add("lib/$abi/libc++_shared.so") }
+        excludes += (heisucaAbisConhecidas - heisucaAbis.toSet()).map { abi -> "lib/$abi/**" }
+      }
     }
   }
 
@@ -456,6 +523,24 @@ dependencies {
   // packaging rules.
   implementation(project(":libass"))
 
+  // Correções de segurança (P5, osv-scanner 28/10/2026). As versões vulneráveis vêm
+  // por transitividade e nenhuma dependência direta nossa tem versão nova que as corrija,
+  // então o piso é fixado aqui. Conferir/remover quando media3 e cronet subirem sozinhos.
+  constraints {
+    // CVE-2024-7254 (negação de serviço no protobuf): puxado por cronet-embedded/cronet-shared.
+    implementation("com.google.protobuf:protobuf-javalite:3.25.5") {
+      because("CVE-2024-7254: corrigido a partir da 3.25.5 (cronet-shared traz a 3.22.3)")
+    }
+    // CVE-2026-102554 (guava): puxado por media3-common 1.11.0. Variante -android obrigatória.
+    implementation("com.google.guava:guava:33.7.2-android") {
+      because("CVE-2026-102554: corrigido na 33.7.2-android (media3-common traz a 33.3.1-android)")
+    }
+    // CVE-2022-2390 (play-services-basement): puxado por cronet-api via media3-datasource-cronet.
+    implementation("com.google.android.gms:play-services-basement:18.0.2") {
+      because("CVE-2022-2390: corrigido na 18.0.2 (cronet-api traz a 18.0.0)")
+    }
+  }
+
   testImplementation("junit:junit:4.13.2")
   // Real android.util.* implementations for tests exercising media3 classes
   // (MatroskaExtractor uses SparseArray, which is a no-op stub on plain JVM)
@@ -464,3 +549,4 @@ dependencies {
   androidTestImplementation("androidx.test:runner:1.7.0")
   androidTestImplementation("androidx.test.ext:junit:1.3.0")
 }
+

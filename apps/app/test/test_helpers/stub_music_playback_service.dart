@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
-import 'package:plezy/media/lyrics.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/services/music/music_playback_service.dart';
-import 'package:plezy/services/playback_launch_observer.dart';
+import 'package:heisuca/media/lyrics.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/services/music/music_playback_service.dart';
+import 'package:heisuca/services/playback_launch_observer.dart';
 
 /// No-op base for test doubles, which override only the members under test.
 /// Production always binds `MusicPlaybackServiceImpl`.

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/focus/focusable_slider.dart';
+import 'package:heisuca/focus/focusable_slider.dart';
 
 void main() {
   testWidgets('each D-pad arrow reports a complete persisted change', (tester) async {

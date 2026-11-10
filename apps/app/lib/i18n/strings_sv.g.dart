@@ -76,7 +76,6 @@ class TranslationsSv extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _Translations$collections$sv collections = _Translations$collections$sv._(_root);
 	@override late final _Translations$playlists$sv playlists = _Translations$playlists$sv._(_root);
 	@override late final _Translations$music$sv music = _Translations$music$sv._(_root);
-	@override late final _Translations$watchTogether$sv watchTogether = _Translations$watchTogether$sv._(_root);
 	@override late final _Translations$downloads$sv downloads = _Translations$downloads$sv._(_root);
 	@override late final _Translations$shaders$sv shaders = _Translations$shaders$sv._(_root);
 	@override late final _Translations$companionRemote$sv companionRemote = _Translations$companionRemote$sv._(_root);
@@ -124,7 +123,7 @@ class _Translations$auth$sv extends Translations$auth$en {
 	@override String get quickConnectWaiting => 'Väntar på godkännande…';
 	@override String get quickConnectCancel => 'Avbryt';
 	@override String get quickConnectExpired => 'Quick Connect har gått ut. Försök igen.';
-	@override String get localDataRecoveryRequired => 'Plezy kunde inte återställa lokala inloggningsuppgifter och väntande uppspelningsdata på ett säkert sätt. Logga in igen.';
+	@override String get localDataRecoveryRequired => 'Heisuca kunde inte återställa lokala inloggningsuppgifter och väntande uppspelningsdata på ett säkert sätt. Logga in igen.';
 	@override String get pinCheckRejected => 'Plex PIN-kontrollen avvisades';
 }
 
@@ -226,7 +225,7 @@ class _Translations$settings$sv extends Translations$settings$en {
 
 	// Translations
 	@override String get title => 'Inställningar';
-	@override String get supportDeveloper => 'Stöd Plezy';
+	@override String get supportDeveloper => 'Stöd Heisuca';
 	@override String get supportDeveloperDescription => 'Donera via Liberapay för att finansiera utvecklingen';
 	@override String get language => 'Språk';
 	@override String get theme => 'Tema';
@@ -344,12 +343,6 @@ class _Translations$settings$sv extends Translations$settings$en {
 	@override String get keyboardShortcutsDescription => 'Anpassa tangentbordsgenvägar';
 	@override String get videoPlayerNavigation => 'Navigering i videospelaren';
 	@override String get videoPlayerNavigationDescription => 'Använd piltangenter för att navigera videospelarens kontroller';
-	@override String get watchTogetherRelay => 'Reläserver för Titta tillsammans';
-	@override String get watchTogetherRelayDescription => 'Ange en egen reläserver. Alla måste använda samma server.';
-	@override String get watchTogetherRelayHint => 'https://mitt-rela.exempel.se';
-	@override String get watchTogetherRelayInvalid => 'Ange en giltig HTTP- eller HTTPS-bas-URL för reläservern.';
-	@override String get crashReporting => 'Kraschrapportering';
-	@override String get crashReportingDescription => 'Skicka kraschrapporter för att förbättra appen';
 	@override String get debugLogging => 'Felsökningsloggning';
 	@override String get debugLoggingDescription => 'Aktivera detaljerad loggning för felsökning';
 	@override String get viewLogs => 'Visa loggar';
@@ -368,7 +361,7 @@ class _Translations$settings$sv extends Translations$settings$en {
 	@override String get importSettingsDescription => 'Återställ inställningar från en fil';
 	@override String get importSettingsConfirm => 'Detta ersätter dina nuvarande inställningar. Fortsätta?';
 	@override String get importSettingsSuccess => 'Inställningar importerade';
-	@override String get importSettingsInvalidFile => 'Filen är inte en giltig export av Plezy-inställningar';
+	@override String get importSettingsInvalidFile => 'Filen är inte en giltig export av Heisuca-inställningar';
 	@override String get importSettingsNoUser => 'Logga in innan du importerar inställningar';
 	@override String get shortcutsReset => 'Genvägarna har återställts till standard';
 	@override String get about => 'Om';
@@ -430,8 +423,6 @@ class _Translations$settings$sv extends Translations$settings$en {
 	@override String get maxVolume => 'Maxvolym';
 	@override String get maxVolumeDescription => 'Tillåt att volymen höjs över 100 % för innehåll med låg ljudnivå';
 	@override String maxVolumePercent({required Object percent}) => '${percent} %';
-	@override String get discordRichPresence => 'Discord Rich Presence';
-	@override String get discordRichPresenceDescription => 'Visa vad du tittar på i Discord';
 	@override String get services => 'Tjänster';
 	@override String get servicesDescription => 'Anslut Trakt, MyAnimeList, Seerr med mera';
 	@override String get manageLibrariesDescription => 'Ordna om och dölj bibliotek';
@@ -489,7 +480,7 @@ class _Translations$settings$sv extends Translations$settings$en {
 	@override String get forceTvMode => 'Tvinga TV-läge';
 	@override String get forceTvModeDescription => 'Tvinga TV-layout. För enheter som inte upptäcks automatiskt. Kräver omstart.';
 	@override String get startInFullscreen => 'Starta i helskärm';
-	@override String get startInFullscreenDescription => 'Öppna Plezy i helskärm vid start';
+	@override String get startInFullscreenDescription => 'Öppna Heisuca i helskärm vid start';
 	@override String get exitFullscreenOnPlayerClose => 'Avsluta helskärm vid stängning av spelare';
 	@override String get exitFullscreenOnPlayerCloseDescription => 'Avslutar automatiskt helskärmsläge när videospelaren stängs';
 	@override String get autoHidePerformanceOverlay => 'Dölj prestandainformation automatiskt';
@@ -538,7 +529,7 @@ class _Translations$settings$sv extends Translations$settings$en {
 	@override String get playerScopeGlobal => 'Överallt';
 	@override String get playerScopeLibrary => 'Per bibliotek';
 	@override String get playerScopeTitle => 'Per serie eller film';
-	@override String get exportDialogTitle => 'Exportera Plezy-inställningar';
+	@override String get exportDialogTitle => 'Exportera Heisuca-inställningar';
 }
 
 // Path: search
@@ -591,8 +582,6 @@ class _Translations$fileInfo$sv extends Translations$fileInfo$en {
 	@override String versionCounter({required Object index, required Object count}) => 'Version ${index} av ${count}';
 	@override String fileCounter({required Object index, required Object count}) => 'Fil ${index} av ${count}';
 	@override String get noStreams => 'Servern rapporterade inga strömmar för den här filen.';
-	@override String get copyPath => 'Kopiera sökväg';
-	@override String get pathCopied => 'Filsökväg kopierad';
 	@override String get codec => 'Kodek';
 	@override String get codecTag => 'Codec-tagg';
 	@override String get resolution => 'Upplösning';
@@ -652,7 +641,6 @@ class _Translations$fileInfo$sv extends Translations$fileInfo$en {
 	@override String get temporary => 'Tillfällig';
 	@override String get timeBase => 'Tidsbas';
 	@override String get overallBitrate => 'Total bithastighet';
-	@override String get path => 'Sökväg';
 	@override String get fileName => 'Filnamn';
 	@override String get size => 'Storlek';
 	@override String get totalSize => 'Total storlek';
@@ -736,8 +724,8 @@ class _Translations$mediaMenu$sv extends Translations$mediaMenu$en {
 		one: '${n} annat avsnitt lagras i samma fil och kommer också att tas bort:',
 		other: '${n} andra avsnitt lagras i samma fil och kommer också att tas bort:',
 	);
-	@override String get deleteScopeUnverifiedProbeFailed => 'Plezy kunde inte kontrollera vilka filer detta tar bort, så det kan ta bort mer än objektet ovan. Avbryt och försök igen, eller ta bort ändå.';
-	@override String get deleteScopeUnverifiedNoFileInfo => 'Din server tillhandahöll inte filinformation för detta objekt, så Plezy kan inte kontrollera vilka filer detta tar bort. Det kan ta bort mer än objektet ovan.';
+	@override String get deleteScopeUnverifiedProbeFailed => 'Heisuca kunde inte kontrollera vilka filer detta tar bort, så det kan ta bort mer än objektet ovan. Avbryt och försök igen, eller ta bort ändå.';
+	@override String get deleteScopeUnverifiedNoFileInfo => 'Din server tillhandahöll inte filinformation för detta objekt, så Heisuca kan inte kontrollera vilka filer detta tar bort. Det kan ta bort mer än objektet ovan.';
 	@override String get mediaDeletedSuccessfully => 'Medieobjektet har tagits bort';
 	@override String get mediaFailedToDelete => 'Det gick inte att ta bort medieobjektet';
 	@override String get rate => 'Betygsätt';
@@ -1070,7 +1058,7 @@ class _Translations$profiles$sv extends Translations$profiles$en {
 	final TranslationsSv _root; // ignore: unused_field
 
 	// Translations
-	@override String get addPlezyProfile => 'Lägg till Plezy-profil';
+	@override String get addHeisucaProfile => 'Lägg till Heisuca-profil';
 	@override String get switchingProfile => 'Byter profil…';
 	@override String get deleteThisProfileTitle => 'Ta bort denna profil?';
 	@override String deleteThisProfileMessage({required Object displayName}) => 'Ta bort ${displayName}. Anslutningar påverkas inte.';
@@ -1152,7 +1140,7 @@ class _Translations$connections$sv extends Translations$connections$en {
 	@override String accessDeniedMany({required Object count}) => '${count} servrar nekade åtkomst för det här kontot';
 	@override String get signInAgain => 'Logga in igen';
 	@override String editMediaBrowserTitle({required Object product}) => 'Redigera ${product}-anslutning';
-	@override String editMediaBrowserIntro({required Object serverName}) => 'Lägg till eller ta bort URL:er för ${serverName}. Plezy använder den nåbara URL:en med lägst latens.';
+	@override String editMediaBrowserIntro({required Object serverName}) => 'Lägg till eller ta bort URL:er för ${serverName}. Heisuca använder den nåbara URL:en med lägst latens.';
 }
 
 // Path: accountPreferences
@@ -1166,7 +1154,7 @@ class _Translations$accountPreferences$sv extends Translations$accountPreference
 	@override String hubSubtitleSingle({required Object account}) => 'Ljud-, undertext- och biblioteksalternativ sparade på ${account}';
 	@override String hubSubtitleMultiple({required Object count}) => 'Ljud-, undertext- och biblioteksalternativ sparade på ${count} konton';
 	@override String get pickAccount => 'Varje konto lagrar sina egna inställningar. Välj det du vill redigera.';
-	@override String get storedOnAccount => 'Dessa alternativ sparas på själva kontot, så alla appar som är inloggade på det använder dem — inklusive Plezy på dina andra enheter.';
+	@override String get storedOnAccount => 'Dessa alternativ sparas på själva kontot, så alla appar som är inloggade på det använder dem — inklusive Heisuca på dina andra enheter.';
 	@override String get noAccounts => 'Inga konton att konfigurera';
 	@override String get noAccountsHint => 'Logga in på Plex, eller anslut en Jellyfin- eller Emby-server, så visas de inställningar som lagras på det kontot här.';
 	@override String get unavailable => 'Det går inte att nå detta konto';
@@ -1327,7 +1315,6 @@ class _Translations$about$sv extends Translations$about$en {
 	@override String get title => 'Om';
 	@override String get openSourceLicenses => 'Licenser för öppen källkod';
 	@override String versionLabel({required Object version}) => 'Version ${version}';
-	@override String get appDescription => 'En vacker Plex-, Jellyfin- och Emby-klient för Flutter';
 	@override String get viewLicensesDescription => 'Visa licenser för tredjepartsbibliotek';
 }
 
@@ -1376,9 +1363,9 @@ class _Translations$startup$sv extends Translations$startup$en {
 	final TranslationsSv _root; // ignore: unused_field
 
 	// Translations
-	@override String get failedTitle => 'Plezy kunde inte starta';
+	@override String get failedTitle => 'Heisuca kunde inte starta';
 	@override String get failedBody => 'Något gick fel under starten. Detaljerna nedan visar vad som misslyckades.';
-	@override String get failedBodyRepairable => 'Plezys sparade inställningsfil är skadad och måste byggas om innan Plezy kan starta. Att försöka igen hjälper inte — välj Reparera lagring.';
+	@override String get failedBodyRepairable => 'Heisucas sparade inställningsfil är skadad och måste byggas om innan Heisuca kan starta. Att försöka igen hjälper inte — välj Reparera lagring.';
 	@override String get phaseLabel => 'Steg';
 	@override String get showDetails => 'Visa detaljer';
 	@override String get hideDetails => 'Dölj detaljer';
@@ -1387,16 +1374,16 @@ class _Translations$startup$sv extends Translations$startup$en {
 	@override String get uploadDetails => 'Ladda upp detaljer';
 	@override String get repairStorage => 'Reparera lagring';
 	@override String get repairTitle => 'Reparera lagrade data?';
-	@override String get repairBodyCommon => 'Plezys inställningsfil är skadad och kan inte läsas. Reparationen återställer alla inställningar till standard.';
+	@override String get repairBodyCommon => 'Heisucas inställningsfil är skadad och kan inte läsas. Reparationen återställer alla inställningar till standard.';
 	@override String get repairBodyOneCredential => 'En sparad inloggning är skadad och kan inte läsas. Reparationen tar bort endast den; dina andra inställningar lämnas orörda.';
 	@override String get repairBodySignInsKept => 'Dina servrar och profiler bör förbli inloggade.';
 	@override String get repairBodySignInsLost => 'Nyckeln som skyddar dina sparade inloggningar kan inte återställas från den här filen, så du måste logga in på varje server och profil igen. Inget på din medieserver påverkas.';
-	@override String get repairBodySessionsUncertain => 'Trackers (MAL, AniList, Simkl, Trakt) och Seerr lagras separat och kan överleva eller inte. Plezy berättar exakt vad som behållits.';
+	@override String get repairBodySessionsUncertain => 'Trackers (MAL, AniList, Simkl, Trakt) och Seerr lagras separat och kan överleva eller inte. Heisuca berättar exakt vad som behållits.';
 	@override String get repairConfirm => 'Reparera';
 	@override String get repairSucceeded => 'Lagringen reparerad';
 	@override String get repairNeedsRestart => 'Lagringen reparerad — omstart krävs';
-	@override String get restartRequiredBody => 'Dina data reparerades, men Plezy måste starta om innan de kan användas. Stäng Plezy och öppna det igen.';
-	@override String get quitPlezy => 'Avsluta Plezy';
+	@override String get restartRequiredBody => 'Dina data reparerades, men Heisuca måste starta om innan de kan användas. Stäng Heisuca och öppna det igen.';
+	@override String get quitHeisuca => 'Avsluta Heisuca';
 	@override String get repairFailed => 'Reparationen misslyckades';
 	@override String get repairKeptSignIns => 'Dina servrar och profiler är fortfarande inloggade.';
 	@override String get repairLostSignIns => 'Nyckeln som skyddar dina sparade inloggningar kunde inte återställas. Du måste logga in på varje server och profil igen.';
@@ -1405,7 +1392,7 @@ class _Translations$startup$sv extends Translations$startup$en {
 	@override String get backupWarning => 'Den innehåller dina inloggningsuppgifter. Ladda inte upp eller dela den.';
 	@override String get deleteBackup => 'Ta bort kopia';
 	@override String get backupDeleted => 'Kopian borttagen.';
-	@override String get previousFailureTitle => 'Plezy kunde inte starta förra gången';
+	@override String get previousFailureTitle => 'Heisuca kunde inte starta förra gången';
 }
 
 // Path: licenses
@@ -1681,90 +1668,6 @@ class _Translations$music$sv extends Translations$music$en {
 	@override String get instantMixEmpty => 'Snabbmixen innehöll inga låtar';
 	@override String noAudioUrl({required Object track}) => 'Ingen ljud-URL är tillgänglig för ${track}';
 	@override late final _Translations$music$discography$sv discography = _Translations$music$discography$sv._(_root);
-}
-
-// Path: watchTogether
-class _Translations$watchTogether$sv extends Translations$watchTogether$en {
-	_Translations$watchTogether$sv._(TranslationsSv root) : this._root = root, super.internal(root);
-
-	final TranslationsSv _root; // ignore: unused_field
-
-	// Translations
-	@override String get title => 'Titta tillsammans';
-	@override String get description => 'Titta på innehåll synkroniserat med vänner och familj';
-	@override String get createSession => 'Skapa session';
-	@override String get creating => 'Skapar...';
-	@override String get joinSession => 'Gå med i session';
-	@override String get joining => 'Ansluter...';
-	@override String get controlMode => 'Kontrolläge';
-	@override String get controlModeQuestion => 'Vem kan styra uppspelningen?';
-	@override String get hostOnly => 'Endast värden';
-	@override String get anyone => 'Alla';
-	@override String get hostingSession => 'Värd för sessionen';
-	@override String get inSession => 'I en session';
-	@override String get sessionCode => 'Sessionskod';
-	@override String get openSessionControls => 'Öppna sessionskontroller för Titta tillsammans';
-	@override String get copySessionCode => 'Kopiera sessionskoden';
-	@override String get hostControlsPlayback => 'Värden styr uppspelningen';
-	@override String get anyoneCanControl => 'Alla kan styra uppspelningen';
-	@override String get hostControls => 'Värd styr';
-	@override String get anyoneControls => 'Alla styr';
-	@override String get participants => 'Deltagare';
-	@override String get host => 'Värd';
-	@override String get hostBadge => 'VÄRD';
-	@override String get youAreHost => 'Du är värden';
-	@override String get makeHost => 'Gör till värd';
-	@override String get makeHostQuestion => 'Överför värdskapet?';
-	@override String makeHostConfirm({required Object name}) => '${name} kommer att styra uppspelningen och driva sessionen för alla.';
-	@override String get transfer => 'Överför';
-	@override String hostChangedTo({required Object name}) => '${name} är nu värden';
-	@override String get youAreNowHost => 'Du är nu värden';
-	@override String hostTransferFailed({required Object name}) => 'Kunde inte göra ${name} till värd';
-	@override String get watchingWithOthers => 'Tittar med andra';
-	@override String get endSession => 'Avsluta session';
-	@override String get leaveSession => 'Lämna session';
-	@override String get endSessionQuestion => 'Avsluta sessionen?';
-	@override String get leaveSessionQuestion => 'Lämna sessionen?';
-	@override String get endSessionConfirm => 'Detta avslutar sessionen för alla deltagare.';
-	@override String get leaveSessionConfirm => 'Du kommer att tas bort från sessionen.';
-	@override String get endSessionConfirmOverlay => 'Detta avslutar tittarsessionen för alla deltagare.';
-	@override String get leaveSessionConfirmOverlay => 'Du kommer att kopplas bort från tittarsessionen.';
-	@override String get end => 'Avsluta';
-	@override String get leave => 'Lämna';
-	@override String get syncing => 'Synkroniserar...';
-	@override String get joinWatchSession => 'Gå med i tittarsession';
-	@override String get enterCodeHint => 'Ange en kod med 5 tecken';
-	@override String get pasteFromClipboard => 'Klistra in från urklipp';
-	@override String get pleaseEnterCode => 'Ange en sessionskod';
-	@override String get codeMustBe5Chars => 'Sessionskoden måste bestå av 5 tecken';
-	@override String get joinInstructions => 'Ange värdens sessionskod för att gå med.';
-	@override String get failedToCreate => 'Det gick inte att skapa sessionen';
-	@override String get failedToJoin => 'Det gick inte att gå med i sessionen';
-	@override String get sessionCodeCopied => 'Sessionskoden har kopierats till urklipp';
-	@override String get relayUnreachable => 'Reläservern kan inte nås. Din internetleverantör kan blockera Titta tillsammans.';
-	@override String get reconnectingToHost => 'Återansluter till värden...';
-	@override String get currentPlayback => 'Aktuell uppspelning';
-	@override String get joinCurrentPlayback => 'Gå med i aktuell uppspelning';
-	@override String get joinCurrentPlaybackDescription => 'Hoppa tillbaka till det värden tittar på just nu';
-	@override String get failedToOpenCurrentPlayback => 'Kunde inte öppna aktuell uppspelning';
-	@override String participantJoined({required Object name}) => '${name} gick med';
-	@override String participantLeft({required Object name}) => '${name} lämnade';
-	@override String participantPaused({required Object name}) => '${name} pausade';
-	@override String participantResumed({required Object name}) => '${name} återupptog';
-	@override String participantSeeked({required Object name}) => '${name} ändrade uppspelningspositionen';
-	@override String participantChangedSpeed({required Object name, required Object speed}) => '${name} ändrade hastigheten till ${speed}';
-	@override String participantBuffering({required Object name}) => '${name} buffrar';
-	@override String participantNeedsUpdate({required Object name}) => '${name} använder en äldre appversion — synkronisering är inte tillgänglig';
-	@override String resumingWithout({required Object name}) => 'Återupptar utan ${name}';
-	@override String get waitingForParticipants => 'Väntar på att de andra ska ladda klart...';
-	@override String waitingForName({required Object name}) => 'Väntar på ${name}...';
-	@override String get recentRooms => 'Senaste rummen';
-	@override String get renameRoom => 'Byt namn på rummet';
-	@override String get removeRoom => 'Ta bort';
-	@override String get guestSwitchUnavailable => 'Kunde inte byta — server inte tillgänglig för synkronisering';
-	@override String get guestSwitchFailed => 'Kunde inte byta — innehåll hittades inte på denna server';
-	@override String get defaultDisplayName => 'Användare';
-	@override late final _Translations$watchTogether$errors$sv errors = _Translations$watchTogether$errors$sv._(_root);
 }
 
 // Path: downloads
@@ -2155,11 +2058,11 @@ class _Translations$trakt$sv extends Translations$trakt$en {
 	@override String get connected => 'Ansluten';
 	@override String connectedAs({required Object username}) => 'Ansluten som @${username}';
 	@override String get disconnectConfirm => 'Koppla från Trakt-konto?';
-	@override String get disconnectConfirmBody => 'Plezy slutar skicka händelser till Trakt. Du kan återansluta när som helst.';
+	@override String get disconnectConfirmBody => 'Heisuca slutar skicka händelser till Trakt. Du kan återansluta när som helst.';
 	@override String get scrobble => 'Realtidsspårning';
 	@override String get scrobbleDescription => 'Skicka händelser för uppspelning, paus och stopp till Trakt under uppspelningen.';
 	@override String get watchedSync => 'Synkronisera seddstatus';
-	@override String get watchedSyncDescription => 'När du markerar objekt som sedda i Plezy markeras de även som sedda på Trakt.';
+	@override String get watchedSyncDescription => 'När du markerar objekt som sedda i Heisuca markeras de även som sedda på Trakt.';
 }
 
 // Path: seerr
@@ -2178,10 +2081,10 @@ class _Translations$seerr$sv extends Translations$seerr$en {
 	@override String get signInWithEmby => 'Logga in med Emby';
 	@override String get signInWithLocal => 'Använd ett lokalt konto';
 	@override String get email => 'E-post';
-	@override String get noSignInMethods => 'Den här Seerr-instansen erbjuder ingen inloggningsmetod som Plezy stöder.';
+	@override String get noSignInMethods => 'Den här Seerr-instansen erbjuder ingen inloggningsmetod som Heisuca stöder.';
 	@override String get instance => 'Instans';
 	@override String get disconnectConfirm => 'Koppla från Seerr?';
-	@override String get disconnectConfirmBody => 'Plezy glömmer den här Seerr-instansen. Återanslut när som helst.';
+	@override String get disconnectConfirmBody => 'Heisuca glömmer den här Seerr-instansen. Återanslut när som helst.';
 	@override String get request => 'Begär';
 	@override String get request4k => 'Begär i 4K';
 	@override String get seasons => 'Säsonger';
@@ -2206,7 +2109,7 @@ class _Translations$seerr$sv extends Translations$seerr$en {
 	@override String get statusBlocklisted => 'På blockeringslistan';
 	@override String couldNotReach({required Object url, required Object error}) => 'Kunde inte nå ${url}: ${error}';
 	@override String noInstanceAtUrl({required Object url, required Object status}) => 'Det finns ingen Seerr-instans på ${url} (HTTP ${status})';
-	@override String get behindAuthProxy => 'En autentiserande reverse proxy (SSO eller HTTP-autentisering) svarade i stället för Seerr. Plezy kan inte logga in genom den: låt Seerrs sökväg /api/v1 kringgå proxyn för den här appen, eller använd en adress som når Seerr direkt.';
+	@override String get behindAuthProxy => 'En autentiserande reverse proxy (SSO eller HTTP-autentisering) svarade i stället för Seerr. Heisuca kan inte logga in genom den: låt Seerrs sökväg /api/v1 kringgå proxyn för den här appen, eller använd en adress som når Seerr direkt.';
 	@override String get invalidUrl => 'Ange en serveradress, t.ex. https://seerr.example.com';
 	@override String get quickConnectUnsupported => 'Den här Seerr-instansen stöder inte Quick Connect. Den kräver Seerr 3.4 eller nyare.';
 	@override String get notInitialized => 'Den här Seerr-instansen har inte slutfört den inledande konfigurationen';
@@ -2236,7 +2139,7 @@ class _Translations$services$sv extends Translations$services$en {
 	@override String get scrobble => 'Spåra uppspelningen automatiskt';
 	@override String get scrobbleDescription => 'Uppdatera din lista när du har sett klart ett avsnitt eller en film.';
 	@override String disconnectConfirm({required Object service}) => 'Koppla från ${service}?';
-	@override String disconnectConfirmBody({required Object service}) => 'Plezy slutar uppdatera ${service}. Återanslut när som helst.';
+	@override String disconnectConfirmBody({required Object service}) => 'Heisuca slutar uppdatera ${service}. Återanslut när som helst.';
 	@override String connectFailed({required Object service}) => 'Kunde inte ansluta till ${service}. Försök igen.';
 	@override late final _Translations$services$names$sv names = _Translations$services$names$sv._(_root);
 	@override late final _Translations$services$deviceCode$sv deviceCode = _Translations$services$deviceCode$sv._(_root);
@@ -2800,20 +2703,6 @@ class _Translations$music$discography$sv extends Translations$music$discography$
 	@override String get compilations => 'Samlingar';
 }
 
-// Path: watchTogether.errors
-class _Translations$watchTogether$errors$sv extends Translations$watchTogether$errors$en {
-	_Translations$watchTogether$errors$sv._(TranslationsSv root) : this._root = root, super.internal(root);
-
-	final TranslationsSv _root; // ignore: unused_field
-
-	// Translations
-	@override String get timedOut => 'Reläservern svarade inte i tid';
-	@override String get connectionLost => 'Anslutningen stängdes innan sessionen var klar';
-	@override String get invalidRelayResponse => 'Reläservern skickade ett oväntat svar';
-	@override String get sessionEnded => 'Värden avslutade sessionen';
-	@override String get sessionUnavailable => 'Det går inte att återuppta sessionen. Gå med i eller skapa ett rum för att fortsätta.';
-}
-
 // Path: downloads.backgroundWarning
 class _Translations$downloads$backgroundWarning$sv extends Translations$downloads$backgroundWarning$en {
 	_Translations$downloads$backgroundWarning$sv._(TranslationsSv root) : this._root = root, super.internal(root);
@@ -2826,14 +2715,14 @@ class _Translations$downloads$backgroundWarning$sv extends Translations$download
 	@override String get bannerAction => 'Detaljer';
 	@override String get sheetTitle => 'Bakgrundsnedladdningar är blockerade';
 	@override String get sheetTitleDegraded => 'Bakgrundsnedladdningar kan begränsas';
-	@override String get sheetIntro => 'Android hindrar Plezy från att ladda ned tillförlitligt i bakgrunden.';
-	@override String get sheetIntroDegraded => 'Din enhet begränsar när Plezy kan ladda ned i bakgrunden.';
-	@override String get reasonBackgroundRestricted => 'Plezys bakgrundsanvändning är begränsad. Ställ in batteri- eller bakgrundsanvändningen på "Obegränsad".';
-	@override String get reasonStandbyRestricted => 'Android har satt Plezy i ett begränsat vänteläge. Ställ in batterianvändningen på "Obegränsad".';
+	@override String get sheetIntro => 'Android hindrar Heisuca från att ladda ned tillförlitligt i bakgrunden.';
+	@override String get sheetIntroDegraded => 'Din enhet begränsar när Heisuca kan ladda ned i bakgrunden.';
+	@override String get reasonBackgroundRestricted => 'Heisucas bakgrundsanvändning är begränsad. Ställ in batteri- eller bakgrundsanvändningen på "Obegränsad".';
+	@override String get reasonStandbyRestricted => 'Android har satt Heisuca i ett begränsat vänteläge. Ställ in batterianvändningen på "Obegränsad".';
 	@override String get reasonDownloadChannelBlocked => 'Aviseringar om nedladdningar är avstängda, så förlopp och kontroller kanske inte är tillgängliga.';
 	@override String get reasonNotificationsDisabled => 'Aviseringar är avstängda. På Android 13 eller senare krävs de för långa bakgrundsnedladdningar.';
 	@override String get reasonDataSaver => 'Databesparing är aktiverad, vilket blockerar bakgrundsnedladdningar via mobildata. Nedladdningar bör fortfarande fungera via Wi-Fi.';
-	@override String get reasonOemUnknown => 'Nedladdningar stoppades upprepade gånger när Plezy kördes i bakgrunden. Kontrollera Plezys inställningar för batteri- eller bakgrundsanvändning.';
+	@override String get reasonOemUnknown => 'Nedladdningar stoppades upprepade gånger när Heisuca kördes i bakgrunden. Kontrollera Heisucas inställningar för batteri- eller bakgrundsanvändning.';
 	@override String get openSettings => 'Öppna inställningar';
 	@override String get stillNotWorking => 'Enhetsspecifik hjälp';
 	@override String get stillNotWorkingDescription => 'Se anvisningar för din enhet eller skicka en logg från Inställningar › Visa loggar om problemet kvarstår.';
@@ -2887,19 +2776,19 @@ class _Translations$companionRemote$pairing$sv extends Translations$companionRem
 	final TranslationsSv _root; // ignore: unused_field
 
 	// Translations
-	@override String get discoveryDescription => 'Plezy-enheter med samma Plex-konto visas här';
+	@override String get discoveryDescription => 'Heisuca-enheter med samma Plex-konto visas här';
 	@override String get hostAddressHint => '192.168.1.100:48632';
 	@override String get connecting => 'Ansluter...';
 	@override String get searchingForDevices => 'Söker efter enheter...';
 	@override String get noDevicesFound => 'Inga enheter hittades i ditt nätverk';
-	@override String get noDevicesHint => 'Öppna Plezy på datorn och använd samma wifi';
+	@override String get noDevicesHint => 'Öppna Heisuca på datorn och använd samma wifi';
 	@override String get availableDevices => 'Tillgängliga enheter';
 	@override String get manualConnection => 'Manuell anslutning';
 	@override String get cryptoInitFailed => 'Kunde inte starta säker anslutning. Logga in på Plex först.';
 	@override String get validationHostRequired => 'Ange värdadress';
 	@override String get validationHostFormat => 'Formatet måste vara IP:port (t.ex. 192.168.1.100:48632)';
 	@override String get connectionTimedOut => 'Anslutningen tog för lång tid. Använd samma nätverk på båda enheterna.';
-	@override String get sessionNotFound => 'Enheten hittades inte. Kontrollera att Plezy körs på värden.';
+	@override String get sessionNotFound => 'Enheten hittades inte. Kontrollera att Heisuca körs på värden.';
 	@override String get authFailed => 'Autentiseringen misslyckades. Båda enheterna måste använda samma Plex-konto.';
 	@override String failedToConnect({required Object error}) => 'Kunde inte ansluta: ${error}';
 }
@@ -2978,7 +2867,7 @@ class _Translations$services$deviceCode$sv extends Translations$services$deviceC
 	final TranslationsSv _root; // ignore: unused_field
 
 	// Translations
-	@override String title({required Object service}) => 'Aktivera Plezy på ${service}';
+	@override String title({required Object service}) => 'Aktivera Heisuca på ${service}';
 	@override String get instructions => 'Skanna QR-koden eller gå till adressen nedan och ange den här koden:';
 	@override String openToActivate({required Object service}) => 'Öppna ${service} för att aktivera';
 	@override String get copyCode => 'Kopiera aktiveringskod';
@@ -3054,7 +2943,7 @@ extension on TranslationsSv {
 			'auth.quickConnectWaiting' => 'Väntar på godkännande…',
 			'auth.quickConnectCancel' => 'Avbryt',
 			'auth.quickConnectExpired' => 'Quick Connect har gått ut. Försök igen.',
-			'auth.localDataRecoveryRequired' => 'Plezy kunde inte återställa lokala inloggningsuppgifter och väntande uppspelningsdata på ett säkert sätt. Logga in igen.',
+			'auth.localDataRecoveryRequired' => 'Heisuca kunde inte återställa lokala inloggningsuppgifter och väntande uppspelningsdata på ett säkert sätt. Logga in igen.',
 			'auth.pinCheckRejected' => 'Plex PIN-kontrollen avvisades',
 			'common.cancel' => 'Avbryt',
 			'common.save' => 'Spara',
@@ -3141,7 +3030,7 @@ extension on TranslationsSv {
 			'update.latestVersion' => 'Du har den senaste versionen',
 			'update.checkFailed' => 'Det gick inte att söka efter uppdateringar',
 			'settings.title' => 'Inställningar',
-			'settings.supportDeveloper' => 'Stöd Plezy',
+			'settings.supportDeveloper' => 'Stöd Heisuca',
 			'settings.supportDeveloperDescription' => 'Donera via Liberapay för att finansiera utvecklingen',
 			'settings.language' => 'Språk',
 			'settings.theme' => 'Tema',
@@ -3259,12 +3148,6 @@ extension on TranslationsSv {
 			'settings.keyboardShortcutsDescription' => 'Anpassa tangentbordsgenvägar',
 			'settings.videoPlayerNavigation' => 'Navigering i videospelaren',
 			'settings.videoPlayerNavigationDescription' => 'Använd piltangenter för att navigera videospelarens kontroller',
-			'settings.watchTogetherRelay' => 'Reläserver för Titta tillsammans',
-			'settings.watchTogetherRelayDescription' => 'Ange en egen reläserver. Alla måste använda samma server.',
-			'settings.watchTogetherRelayHint' => 'https://mitt-rela.exempel.se',
-			'settings.watchTogetherRelayInvalid' => 'Ange en giltig HTTP- eller HTTPS-bas-URL för reläservern.',
-			'settings.crashReporting' => 'Kraschrapportering',
-			'settings.crashReportingDescription' => 'Skicka kraschrapporter för att förbättra appen',
 			'settings.debugLogging' => 'Felsökningsloggning',
 			'settings.debugLoggingDescription' => 'Aktivera detaljerad loggning för felsökning',
 			'settings.viewLogs' => 'Visa loggar',
@@ -3283,7 +3166,7 @@ extension on TranslationsSv {
 			'settings.importSettingsDescription' => 'Återställ inställningar från en fil',
 			'settings.importSettingsConfirm' => 'Detta ersätter dina nuvarande inställningar. Fortsätta?',
 			'settings.importSettingsSuccess' => 'Inställningar importerade',
-			'settings.importSettingsInvalidFile' => 'Filen är inte en giltig export av Plezy-inställningar',
+			'settings.importSettingsInvalidFile' => 'Filen är inte en giltig export av Heisuca-inställningar',
 			'settings.importSettingsNoUser' => 'Logga in innan du importerar inställningar',
 			'settings.shortcutsReset' => 'Genvägarna har återställts till standard',
 			'settings.about' => 'Om',
@@ -3345,8 +3228,6 @@ extension on TranslationsSv {
 			'settings.maxVolume' => 'Maxvolym',
 			'settings.maxVolumeDescription' => 'Tillåt att volymen höjs över 100 % för innehåll med låg ljudnivå',
 			'settings.maxVolumePercent' => ({required Object percent}) => '${percent} %',
-			'settings.discordRichPresence' => 'Discord Rich Presence',
-			'settings.discordRichPresenceDescription' => 'Visa vad du tittar på i Discord',
 			'settings.services' => 'Tjänster',
 			'settings.servicesDescription' => 'Anslut Trakt, MyAnimeList, Seerr med mera',
 			'settings.manageLibrariesDescription' => 'Ordna om och dölj bibliotek',
@@ -3404,7 +3285,7 @@ extension on TranslationsSv {
 			'settings.forceTvMode' => 'Tvinga TV-läge',
 			'settings.forceTvModeDescription' => 'Tvinga TV-layout. För enheter som inte upptäcks automatiskt. Kräver omstart.',
 			'settings.startInFullscreen' => 'Starta i helskärm',
-			'settings.startInFullscreenDescription' => 'Öppna Plezy i helskärm vid start',
+			'settings.startInFullscreenDescription' => 'Öppna Heisuca i helskärm vid start',
 			'settings.exitFullscreenOnPlayerClose' => 'Avsluta helskärm vid stängning av spelare',
 			'settings.exitFullscreenOnPlayerCloseDescription' => 'Avslutar automatiskt helskärmsläge när videospelaren stängs',
 			'settings.autoHidePerformanceOverlay' => 'Dölj prestandainformation automatiskt',
@@ -3453,7 +3334,7 @@ extension on TranslationsSv {
 			'settings.playerScopeGlobal' => 'Överallt',
 			'settings.playerScopeLibrary' => 'Per bibliotek',
 			'settings.playerScopeTitle' => 'Per serie eller film',
-			'settings.exportDialogTitle' => 'Exportera Plezy-inställningar',
+			'settings.exportDialogTitle' => 'Exportera Heisuca-inställningar',
 			'search.hint' => 'Sök filmer, serier, musik...',
 			'search.tryDifferentTerm' => 'Prova en annan sökterm',
 			'search.searchYourMedia' => 'Sök i dina media',
@@ -3503,8 +3384,6 @@ extension on TranslationsSv {
 			'fileInfo.versionCounter' => ({required Object index, required Object count}) => 'Version ${index} av ${count}',
 			'fileInfo.fileCounter' => ({required Object index, required Object count}) => 'Fil ${index} av ${count}',
 			'fileInfo.noStreams' => 'Servern rapporterade inga strömmar för den här filen.',
-			'fileInfo.copyPath' => 'Kopiera sökväg',
-			'fileInfo.pathCopied' => 'Filsökväg kopierad',
 			'fileInfo.codec' => 'Kodek',
 			'fileInfo.codecTag' => 'Codec-tagg',
 			'fileInfo.resolution' => 'Upplösning',
@@ -3550,8 +3429,6 @@ extension on TranslationsSv {
 			'fileInfo.streamId' => 'Ström-ID',
 			'fileInfo.language' => 'Språk',
 			'fileInfo.languageCode' => 'Språkkod',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.streamTitle' => 'Spårnamn',
 			'fileInfo.channels' => 'Kanaler',
 			'fileInfo.sampleRate' => 'Samplingsfrekvens',
@@ -3562,11 +3439,12 @@ extension on TranslationsSv {
 			'fileInfo.matchScore' => 'Matchningspoäng',
 			'fileInfo.externalDelivery' => 'Kan levereras separat',
 			'fileInfo.sidecarPath' => 'Sidecar-sökväg',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.sourceStream' => 'Kopierad från',
 			'fileInfo.temporary' => 'Tillfällig',
 			'fileInfo.timeBase' => 'Tidsbas',
 			'fileInfo.overallBitrate' => 'Total bithastighet',
-			'fileInfo.path' => 'Sökväg',
 			'fileInfo.fileName' => 'Filnamn',
 			'fileInfo.size' => 'Storlek',
 			'fileInfo.totalSize' => 'Total storlek',
@@ -3632,8 +3510,8 @@ extension on TranslationsSv {
 			'mediaMenu.deleteEpisodeCountWarning' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('sv'))(n, one: 'Detta tar bort ${n} avsnitt i den, och dess fil.', other: 'Detta tar bort alla ${n} avsnitt i den, och deras filer.', ), 
 			'mediaMenu.deleteMultiPartWarning' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('sv'))(n, one: 'Detta objekt lagras som ${n} fil, som kommer att tas bort.', other: 'Detta objekt lagras i ${n} filer, och alla kommer att tas bort.', ), 
 			'mediaMenu.deleteSharedFileHeading' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('sv'))(n, one: '${n} annat avsnitt lagras i samma fil och kommer också att tas bort:', other: '${n} andra avsnitt lagras i samma fil och kommer också att tas bort:', ), 
-			'mediaMenu.deleteScopeUnverifiedProbeFailed' => 'Plezy kunde inte kontrollera vilka filer detta tar bort, så det kan ta bort mer än objektet ovan. Avbryt och försök igen, eller ta bort ändå.',
-			'mediaMenu.deleteScopeUnverifiedNoFileInfo' => 'Din server tillhandahöll inte filinformation för detta objekt, så Plezy kan inte kontrollera vilka filer detta tar bort. Det kan ta bort mer än objektet ovan.',
+			'mediaMenu.deleteScopeUnverifiedProbeFailed' => 'Heisuca kunde inte kontrollera vilka filer detta tar bort, så det kan ta bort mer än objektet ovan. Avbryt och försök igen, eller ta bort ändå.',
+			'mediaMenu.deleteScopeUnverifiedNoFileInfo' => 'Din server tillhandahöll inte filinformation för detta objekt, så Heisuca kan inte kontrollera vilka filer detta tar bort. Det kan ta bort mer än objektet ovan.',
 			'mediaMenu.mediaDeletedSuccessfully' => 'Medieobjektet har tagits bort',
 			'mediaMenu.mediaFailedToDelete' => 'Det gick inte att ta bort medieobjektet',
 			'mediaMenu.rate' => 'Betygsätt',
@@ -3880,7 +3758,7 @@ extension on TranslationsSv {
 			'mpvConfig.removeLine' => 'Ta bort rad',
 			'mpvConfig.embeddedVoHint' => 'vo, gpu-context och gpu-api ignoreras på Linux: inbäddad video renderas alltid via vo=libmpv på videoplanet, och gpu-next (som compute-shaders som ArtCNN behöver) kan inte köras inbäddat.',
 			'dialog.confirmAction' => 'Bekräfta åtgärd',
-			'profiles.addPlezyProfile' => 'Lägg till Plezy-profil',
+			'profiles.addHeisucaProfile' => 'Lägg till Heisuca-profil',
 			'profiles.switchingProfile' => 'Byter profil…',
 			'profiles.deleteThisProfileTitle' => 'Ta bort denna profil?',
 			'profiles.deleteThisProfileMessage' => ({required Object displayName}) => 'Ta bort ${displayName}. Anslutningar påverkas inte.',
@@ -3953,12 +3831,12 @@ extension on TranslationsSv {
 			'connections.accessDeniedMany' => ({required Object count}) => '${count} servrar nekade åtkomst för det här kontot',
 			'connections.signInAgain' => 'Logga in igen',
 			'connections.editMediaBrowserTitle' => ({required Object product}) => 'Redigera ${product}-anslutning',
-			'connections.editMediaBrowserIntro' => ({required Object serverName}) => 'Lägg till eller ta bort URL:er för ${serverName}. Plezy använder den nåbara URL:en med lägst latens.',
+			'connections.editMediaBrowserIntro' => ({required Object serverName}) => 'Lägg till eller ta bort URL:er för ${serverName}. Heisuca använder den nåbara URL:en med lägst latens.',
 			'accountPreferences.sectionTitle' => 'Kontoinställningar',
 			'accountPreferences.hubSubtitleSingle' => ({required Object account}) => 'Ljud-, undertext- och biblioteksalternativ sparade på ${account}',
 			'accountPreferences.hubSubtitleMultiple' => ({required Object count}) => 'Ljud-, undertext- och biblioteksalternativ sparade på ${count} konton',
 			'accountPreferences.pickAccount' => 'Varje konto lagrar sina egna inställningar. Välj det du vill redigera.',
-			'accountPreferences.storedOnAccount' => 'Dessa alternativ sparas på själva kontot, så alla appar som är inloggade på det använder dem — inklusive Plezy på dina andra enheter.',
+			'accountPreferences.storedOnAccount' => 'Dessa alternativ sparas på själva kontot, så alla appar som är inloggade på det använder dem — inklusive Heisuca på dina andra enheter.',
 			'accountPreferences.noAccounts' => 'Inga konton att konfigurera',
 			'accountPreferences.noAccountsHint' => 'Logga in på Plex, eller anslut en Jellyfin- eller Emby-server, så visas de inställningar som lagras på det kontot här.',
 			'accountPreferences.unavailable' => 'Det går inte att nå detta konto',
@@ -4064,8 +3942,6 @@ extension on TranslationsSv {
 			'libraries.refreshMetadata' => 'Uppdatera metadata',
 			'libraries.emptyTrash' => 'Töm papperskorg',
 			'libraries.emptyingTrash' => ({required Object title}) => 'Tömmer papperskorgen för "${title}"...',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.trashEmptied' => ({required Object title}) => 'Papperskorgen har tömts för "${title}"',
 			'libraries.failedToEmptyTrash' => ({required Object error}) => 'Det gick inte att tömma papperskorgen: ${error}',
 			'libraries.analyzing' => ({required Object title}) => 'Analyserar "${title}"...',
@@ -4077,6 +3953,8 @@ extension on TranslationsSv {
 			'libraries.thisLibraryIsEmpty' => 'Detta bibliotek är tomt',
 			'libraries.noItemsMatchFilters' => 'Inga objekt matchar de aktiva filtren',
 			'libraries.resetFilters' => 'Återställ filter',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.all' => 'Alla',
 			'libraries.clearAll' => 'Rensa alla',
 			'libraries.scanLibraryConfirm' => ({required Object title}) => 'Är du säker på att du vill skanna "${title}"?',
@@ -4145,7 +4023,6 @@ extension on TranslationsSv {
 			'about.title' => 'Om',
 			'about.openSourceLicenses' => 'Licenser för öppen källkod',
 			'about.versionLabel' => ({required Object version}) => 'Version ${version}',
-			'about.appDescription' => 'En vacker Plex-, Jellyfin- och Emby-klient för Flutter',
 			'about.viewLicensesDescription' => 'Visa licenser för tredjepartsbibliotek',
 			'serverSelection.noServersFoundForAccount' => ({required Object username, required Object email}) => 'Inga servrar hittades för ${username} (${email})',
 			'serverSelection.failedToLoadServers' => ({required Object error}) => 'Det gick inte att läsa in servrar: ${error}',
@@ -4158,9 +4035,9 @@ extension on TranslationsSv {
 			'logs.clearLogs' => 'Rensa loggar',
 			'logs.copyLogs' => 'Kopiera loggar',
 			'logs.uploadLogs' => 'Ladda upp loggar',
-			'startup.failedTitle' => 'Plezy kunde inte starta',
+			'startup.failedTitle' => 'Heisuca kunde inte starta',
 			'startup.failedBody' => 'Något gick fel under starten. Detaljerna nedan visar vad som misslyckades.',
-			'startup.failedBodyRepairable' => 'Plezys sparade inställningsfil är skadad och måste byggas om innan Plezy kan starta. Att försöka igen hjälper inte — välj Reparera lagring.',
+			'startup.failedBodyRepairable' => 'Heisucas sparade inställningsfil är skadad och måste byggas om innan Heisuca kan starta. Att försöka igen hjälper inte — välj Reparera lagring.',
 			'startup.phaseLabel' => 'Steg',
 			'startup.showDetails' => 'Visa detaljer',
 			'startup.hideDetails' => 'Dölj detaljer',
@@ -4169,16 +4046,16 @@ extension on TranslationsSv {
 			'startup.uploadDetails' => 'Ladda upp detaljer',
 			'startup.repairStorage' => 'Reparera lagring',
 			'startup.repairTitle' => 'Reparera lagrade data?',
-			'startup.repairBodyCommon' => 'Plezys inställningsfil är skadad och kan inte läsas. Reparationen återställer alla inställningar till standard.',
+			'startup.repairBodyCommon' => 'Heisucas inställningsfil är skadad och kan inte läsas. Reparationen återställer alla inställningar till standard.',
 			'startup.repairBodyOneCredential' => 'En sparad inloggning är skadad och kan inte läsas. Reparationen tar bort endast den; dina andra inställningar lämnas orörda.',
 			'startup.repairBodySignInsKept' => 'Dina servrar och profiler bör förbli inloggade.',
 			'startup.repairBodySignInsLost' => 'Nyckeln som skyddar dina sparade inloggningar kan inte återställas från den här filen, så du måste logga in på varje server och profil igen. Inget på din medieserver påverkas.',
-			'startup.repairBodySessionsUncertain' => 'Trackers (MAL, AniList, Simkl, Trakt) och Seerr lagras separat och kan överleva eller inte. Plezy berättar exakt vad som behållits.',
+			'startup.repairBodySessionsUncertain' => 'Trackers (MAL, AniList, Simkl, Trakt) och Seerr lagras separat och kan överleva eller inte. Heisuca berättar exakt vad som behållits.',
 			'startup.repairConfirm' => 'Reparera',
 			'startup.repairSucceeded' => 'Lagringen reparerad',
 			'startup.repairNeedsRestart' => 'Lagringen reparerad — omstart krävs',
-			'startup.restartRequiredBody' => 'Dina data reparerades, men Plezy måste starta om innan de kan användas. Stäng Plezy och öppna det igen.',
-			'startup.quitPlezy' => 'Avsluta Plezy',
+			'startup.restartRequiredBody' => 'Dina data reparerades, men Heisuca måste starta om innan de kan användas. Stäng Heisuca och öppna det igen.',
+			'startup.quitHeisuca' => 'Avsluta Heisuca',
 			'startup.repairFailed' => 'Reparationen misslyckades',
 			'startup.repairKeptSignIns' => 'Dina servrar och profiler är fortfarande inloggade.',
 			'startup.repairLostSignIns' => 'Nyckeln som skyddar dina sparade inloggningar kunde inte återställas. Du måste logga in på varje server och profil igen.',
@@ -4187,7 +4064,7 @@ extension on TranslationsSv {
 			'startup.backupWarning' => 'Den innehåller dina inloggningsuppgifter. Ladda inte upp eller dela den.',
 			'startup.deleteBackup' => 'Ta bort kopia',
 			'startup.backupDeleted' => 'Kopian borttagen.',
-			'startup.previousFailureTitle' => 'Plezy kunde inte starta förra gången',
+			'startup.previousFailureTitle' => 'Heisuca kunde inte starta förra gången',
 			'licenses.relatedPackages' => 'Relaterade paket',
 			'licenses.license' => 'Licens',
 			'licenses.licenseNumber' => ({required Object number}) => 'Licens ${number}',
@@ -4506,87 +4383,6 @@ extension on TranslationsSv {
 			'music.discography.singlesAndEps' => 'Singlar och EP',
 			'music.discography.live' => 'Live',
 			'music.discography.compilations' => 'Samlingar',
-			'watchTogether.title' => 'Titta tillsammans',
-			'watchTogether.description' => 'Titta på innehåll synkroniserat med vänner och familj',
-			'watchTogether.createSession' => 'Skapa session',
-			'watchTogether.creating' => 'Skapar...',
-			'watchTogether.joinSession' => 'Gå med i session',
-			'watchTogether.joining' => 'Ansluter...',
-			'watchTogether.controlMode' => 'Kontrolläge',
-			'watchTogether.controlModeQuestion' => 'Vem kan styra uppspelningen?',
-			'watchTogether.hostOnly' => 'Endast värden',
-			'watchTogether.anyone' => 'Alla',
-			'watchTogether.hostingSession' => 'Värd för sessionen',
-			'watchTogether.inSession' => 'I en session',
-			'watchTogether.sessionCode' => 'Sessionskod',
-			'watchTogether.openSessionControls' => 'Öppna sessionskontroller för Titta tillsammans',
-			'watchTogether.copySessionCode' => 'Kopiera sessionskoden',
-			'watchTogether.hostControlsPlayback' => 'Värden styr uppspelningen',
-			'watchTogether.anyoneCanControl' => 'Alla kan styra uppspelningen',
-			'watchTogether.hostControls' => 'Värd styr',
-			'watchTogether.anyoneControls' => 'Alla styr',
-			'watchTogether.participants' => 'Deltagare',
-			'watchTogether.host' => 'Värd',
-			'watchTogether.hostBadge' => 'VÄRD',
-			'watchTogether.youAreHost' => 'Du är värden',
-			'watchTogether.makeHost' => 'Gör till värd',
-			'watchTogether.makeHostQuestion' => 'Överför värdskapet?',
-			'watchTogether.makeHostConfirm' => ({required Object name}) => '${name} kommer att styra uppspelningen och driva sessionen för alla.',
-			'watchTogether.transfer' => 'Överför',
-			'watchTogether.hostChangedTo' => ({required Object name}) => '${name} är nu värden',
-			'watchTogether.youAreNowHost' => 'Du är nu värden',
-			'watchTogether.hostTransferFailed' => ({required Object name}) => 'Kunde inte göra ${name} till värd',
-			'watchTogether.watchingWithOthers' => 'Tittar med andra',
-			'watchTogether.endSession' => 'Avsluta session',
-			'watchTogether.leaveSession' => 'Lämna session',
-			'watchTogether.endSessionQuestion' => 'Avsluta sessionen?',
-			'watchTogether.leaveSessionQuestion' => 'Lämna sessionen?',
-			'watchTogether.endSessionConfirm' => 'Detta avslutar sessionen för alla deltagare.',
-			'watchTogether.leaveSessionConfirm' => 'Du kommer att tas bort från sessionen.',
-			'watchTogether.endSessionConfirmOverlay' => 'Detta avslutar tittarsessionen för alla deltagare.',
-			'watchTogether.leaveSessionConfirmOverlay' => 'Du kommer att kopplas bort från tittarsessionen.',
-			'watchTogether.end' => 'Avsluta',
-			'watchTogether.leave' => 'Lämna',
-			'watchTogether.syncing' => 'Synkroniserar...',
-			'watchTogether.joinWatchSession' => 'Gå med i tittarsession',
-			'watchTogether.enterCodeHint' => 'Ange en kod med 5 tecken',
-			'watchTogether.pasteFromClipboard' => 'Klistra in från urklipp',
-			'watchTogether.pleaseEnterCode' => 'Ange en sessionskod',
-			'watchTogether.codeMustBe5Chars' => 'Sessionskoden måste bestå av 5 tecken',
-			'watchTogether.joinInstructions' => 'Ange värdens sessionskod för att gå med.',
-			'watchTogether.failedToCreate' => 'Det gick inte att skapa sessionen',
-			'watchTogether.failedToJoin' => 'Det gick inte att gå med i sessionen',
-			'watchTogether.sessionCodeCopied' => 'Sessionskoden har kopierats till urklipp',
-			'watchTogether.relayUnreachable' => 'Reläservern kan inte nås. Din internetleverantör kan blockera Titta tillsammans.',
-			'watchTogether.reconnectingToHost' => 'Återansluter till värden...',
-			'watchTogether.currentPlayback' => 'Aktuell uppspelning',
-			'watchTogether.joinCurrentPlayback' => 'Gå med i aktuell uppspelning',
-			'watchTogether.joinCurrentPlaybackDescription' => 'Hoppa tillbaka till det värden tittar på just nu',
-			'watchTogether.failedToOpenCurrentPlayback' => 'Kunde inte öppna aktuell uppspelning',
-			'watchTogether.participantJoined' => ({required Object name}) => '${name} gick med',
-			'watchTogether.participantLeft' => ({required Object name}) => '${name} lämnade',
-			'watchTogether.participantPaused' => ({required Object name}) => '${name} pausade',
-			'watchTogether.participantResumed' => ({required Object name}) => '${name} återupptog',
-			'watchTogether.participantSeeked' => ({required Object name}) => '${name} ändrade uppspelningspositionen',
-			'watchTogether.participantChangedSpeed' => ({required Object name, required Object speed}) => '${name} ändrade hastigheten till ${speed}',
-			'watchTogether.participantBuffering' => ({required Object name}) => '${name} buffrar',
-			'watchTogether.participantNeedsUpdate' => ({required Object name}) => '${name} använder en äldre appversion — synkronisering är inte tillgänglig',
-			'watchTogether.resumingWithout' => ({required Object name}) => 'Återupptar utan ${name}',
-			'watchTogether.waitingForParticipants' => 'Väntar på att de andra ska ladda klart...',
-			'watchTogether.waitingForName' => ({required Object name}) => 'Väntar på ${name}...',
-			'watchTogether.recentRooms' => 'Senaste rummen',
-			'watchTogether.renameRoom' => 'Byt namn på rummet',
-			'watchTogether.removeRoom' => 'Ta bort',
-			'watchTogether.guestSwitchUnavailable' => 'Kunde inte byta — server inte tillgänglig för synkronisering',
-			_ => null,
-		} ?? switch (path) {
-			'watchTogether.guestSwitchFailed' => 'Kunde inte byta — innehåll hittades inte på denna server',
-			'watchTogether.defaultDisplayName' => 'Användare',
-			'watchTogether.errors.timedOut' => 'Reläservern svarade inte i tid',
-			'watchTogether.errors.connectionLost' => 'Anslutningen stängdes innan sessionen var klar',
-			'watchTogether.errors.invalidRelayResponse' => 'Reläservern skickade ett oväntat svar',
-			'watchTogether.errors.sessionEnded' => 'Värden avslutade sessionen',
-			'watchTogether.errors.sessionUnavailable' => 'Det går inte att återuppta sessionen. Gå med i eller skapa ett rum för att fortsätta.',
 			'downloads.title' => 'Nedladdningar',
 			'downloads.manage' => 'Hantera',
 			'downloads.tvShows' => 'TV-serier',
@@ -4668,14 +4464,16 @@ extension on TranslationsSv {
 			'downloads.backgroundWarning.bannerAction' => 'Detaljer',
 			'downloads.backgroundWarning.sheetTitle' => 'Bakgrundsnedladdningar är blockerade',
 			'downloads.backgroundWarning.sheetTitleDegraded' => 'Bakgrundsnedladdningar kan begränsas',
-			'downloads.backgroundWarning.sheetIntro' => 'Android hindrar Plezy från att ladda ned tillförlitligt i bakgrunden.',
-			'downloads.backgroundWarning.sheetIntroDegraded' => 'Din enhet begränsar när Plezy kan ladda ned i bakgrunden.',
-			'downloads.backgroundWarning.reasonBackgroundRestricted' => 'Plezys bakgrundsanvändning är begränsad. Ställ in batteri- eller bakgrundsanvändningen på "Obegränsad".',
-			'downloads.backgroundWarning.reasonStandbyRestricted' => 'Android har satt Plezy i ett begränsat vänteläge. Ställ in batterianvändningen på "Obegränsad".',
+			'downloads.backgroundWarning.sheetIntro' => 'Android hindrar Heisuca från att ladda ned tillförlitligt i bakgrunden.',
+			'downloads.backgroundWarning.sheetIntroDegraded' => 'Din enhet begränsar när Heisuca kan ladda ned i bakgrunden.',
+			'downloads.backgroundWarning.reasonBackgroundRestricted' => 'Heisucas bakgrundsanvändning är begränsad. Ställ in batteri- eller bakgrundsanvändningen på "Obegränsad".',
+			_ => null,
+		} ?? switch (path) {
+			'downloads.backgroundWarning.reasonStandbyRestricted' => 'Android har satt Heisuca i ett begränsat vänteläge. Ställ in batterianvändningen på "Obegränsad".',
 			'downloads.backgroundWarning.reasonDownloadChannelBlocked' => 'Aviseringar om nedladdningar är avstängda, så förlopp och kontroller kanske inte är tillgängliga.',
 			'downloads.backgroundWarning.reasonNotificationsDisabled' => 'Aviseringar är avstängda. På Android 13 eller senare krävs de för långa bakgrundsnedladdningar.',
 			'downloads.backgroundWarning.reasonDataSaver' => 'Databesparing är aktiverad, vilket blockerar bakgrundsnedladdningar via mobildata. Nedladdningar bör fortfarande fungera via Wi-Fi.',
-			'downloads.backgroundWarning.reasonOemUnknown' => 'Nedladdningar stoppades upprepade gånger när Plezy kördes i bakgrunden. Kontrollera Plezys inställningar för batteri- eller bakgrundsanvändning.',
+			'downloads.backgroundWarning.reasonOemUnknown' => 'Nedladdningar stoppades upprepade gånger när Heisuca kördes i bakgrunden. Kontrollera Heisucas inställningar för batteri- eller bakgrundsanvändning.',
 			'downloads.backgroundWarning.openSettings' => 'Öppna inställningar',
 			'downloads.backgroundWarning.stillNotWorking' => 'Enhetsspecifik hjälp',
 			'downloads.backgroundWarning.stillNotWorkingDescription' => 'Se anvisningar för din enhet eller skicka en logg från Inställningar › Visa loggar om problemet kvarstår.',
@@ -4738,19 +4536,19 @@ extension on TranslationsSv {
 			'companionRemote.session.stopServer' => 'Stoppa server',
 			'companionRemote.session.minimize' => 'Minimera',
 			'companionRemote.session.manualAddressHint' => 'Manuell anslutningsadress:',
-			'companionRemote.pairing.discoveryDescription' => 'Plezy-enheter med samma Plex-konto visas här',
+			'companionRemote.pairing.discoveryDescription' => 'Heisuca-enheter med samma Plex-konto visas här',
 			'companionRemote.pairing.hostAddressHint' => '192.168.1.100:48632',
 			'companionRemote.pairing.connecting' => 'Ansluter...',
 			'companionRemote.pairing.searchingForDevices' => 'Söker efter enheter...',
 			'companionRemote.pairing.noDevicesFound' => 'Inga enheter hittades i ditt nätverk',
-			'companionRemote.pairing.noDevicesHint' => 'Öppna Plezy på datorn och använd samma wifi',
+			'companionRemote.pairing.noDevicesHint' => 'Öppna Heisuca på datorn och använd samma wifi',
 			'companionRemote.pairing.availableDevices' => 'Tillgängliga enheter',
 			'companionRemote.pairing.manualConnection' => 'Manuell anslutning',
 			'companionRemote.pairing.cryptoInitFailed' => 'Kunde inte starta säker anslutning. Logga in på Plex först.',
 			'companionRemote.pairing.validationHostRequired' => 'Ange värdadress',
 			'companionRemote.pairing.validationHostFormat' => 'Formatet måste vara IP:port (t.ex. 192.168.1.100:48632)',
 			'companionRemote.pairing.connectionTimedOut' => 'Anslutningen tog för lång tid. Använd samma nätverk på båda enheterna.',
-			'companionRemote.pairing.sessionNotFound' => 'Enheten hittades inte. Kontrollera att Plezy körs på värden.',
+			'companionRemote.pairing.sessionNotFound' => 'Enheten hittades inte. Kontrollera att Heisuca körs på värden.',
 			'companionRemote.pairing.authFailed' => 'Autentiseringen misslyckades. Båda enheterna måste använda samma Plex-konto.',
 			'companionRemote.pairing.failedToConnect' => ({required Object error}) => 'Kunde inte ansluta: ${error}',
 			'companionRemote.remote.disconnectConfirm' => 'Vill du koppla från fjärrsessionen?',
@@ -4970,11 +4768,11 @@ extension on TranslationsSv {
 			'trakt.connected' => 'Ansluten',
 			'trakt.connectedAs' => ({required Object username}) => 'Ansluten som @${username}',
 			'trakt.disconnectConfirm' => 'Koppla från Trakt-konto?',
-			'trakt.disconnectConfirmBody' => 'Plezy slutar skicka händelser till Trakt. Du kan återansluta när som helst.',
+			'trakt.disconnectConfirmBody' => 'Heisuca slutar skicka händelser till Trakt. Du kan återansluta när som helst.',
 			'trakt.scrobble' => 'Realtidsspårning',
 			'trakt.scrobbleDescription' => 'Skicka händelser för uppspelning, paus och stopp till Trakt under uppspelningen.',
 			'trakt.watchedSync' => 'Synkronisera seddstatus',
-			'trakt.watchedSyncDescription' => 'När du markerar objekt som sedda i Plezy markeras de även som sedda på Trakt.',
+			'trakt.watchedSyncDescription' => 'När du markerar objekt som sedda i Heisuca markeras de även som sedda på Trakt.',
 			'seerr.title' => 'Seerr',
 			'seerr.connectTitle' => 'Anslut Seerr',
 			'seerr.serverUrl' => 'Server-URL',
@@ -4984,10 +4782,10 @@ extension on TranslationsSv {
 			'seerr.signInWithEmby' => 'Logga in med Emby',
 			'seerr.signInWithLocal' => 'Använd ett lokalt konto',
 			'seerr.email' => 'E-post',
-			'seerr.noSignInMethods' => 'Den här Seerr-instansen erbjuder ingen inloggningsmetod som Plezy stöder.',
+			'seerr.noSignInMethods' => 'Den här Seerr-instansen erbjuder ingen inloggningsmetod som Heisuca stöder.',
 			'seerr.instance' => 'Instans',
 			'seerr.disconnectConfirm' => 'Koppla från Seerr?',
-			'seerr.disconnectConfirmBody' => 'Plezy glömmer den här Seerr-instansen. Återanslut när som helst.',
+			'seerr.disconnectConfirmBody' => 'Heisuca glömmer den här Seerr-instansen. Återanslut när som helst.',
 			'seerr.request' => 'Begär',
 			'seerr.request4k' => 'Begär i 4K',
 			'seerr.seasons' => 'Säsonger',
@@ -5012,7 +4810,7 @@ extension on TranslationsSv {
 			'seerr.statusBlocklisted' => 'På blockeringslistan',
 			'seerr.couldNotReach' => ({required Object url, required Object error}) => 'Kunde inte nå ${url}: ${error}',
 			'seerr.noInstanceAtUrl' => ({required Object url, required Object status}) => 'Det finns ingen Seerr-instans på ${url} (HTTP ${status})',
-			'seerr.behindAuthProxy' => 'En autentiserande reverse proxy (SSO eller HTTP-autentisering) svarade i stället för Seerr. Plezy kan inte logga in genom den: låt Seerrs sökväg /api/v1 kringgå proxyn för den här appen, eller använd en adress som når Seerr direkt.',
+			'seerr.behindAuthProxy' => 'En autentiserande reverse proxy (SSO eller HTTP-autentisering) svarade i stället för Seerr. Heisuca kan inte logga in genom den: låt Seerrs sökväg /api/v1 kringgå proxyn för den här appen, eller använd en adress som når Seerr direkt.',
 			'seerr.invalidUrl' => 'Ange en serveradress, t.ex. https://seerr.example.com',
 			'seerr.quickConnectUnsupported' => 'Den här Seerr-instansen stöder inte Quick Connect. Den kräver Seerr 3.4 eller nyare.',
 			'seerr.notInitialized' => 'Den här Seerr-instansen har inte slutfört den inledande konfigurationen',
@@ -5033,14 +4831,14 @@ extension on TranslationsSv {
 			'services.scrobble' => 'Spåra uppspelningen automatiskt',
 			'services.scrobbleDescription' => 'Uppdatera din lista när du har sett klart ett avsnitt eller en film.',
 			'services.disconnectConfirm' => ({required Object service}) => 'Koppla från ${service}?',
-			'services.disconnectConfirmBody' => ({required Object service}) => 'Plezy slutar uppdatera ${service}. Återanslut när som helst.',
+			'services.disconnectConfirmBody' => ({required Object service}) => 'Heisuca slutar uppdatera ${service}. Återanslut när som helst.',
 			'services.connectFailed' => ({required Object service}) => 'Kunde inte ansluta till ${service}. Försök igen.',
 			'services.names.mal' => 'MyAnimeList',
 			'services.names.anilist' => 'AniList',
 			'services.names.simkl' => 'Simkl',
 			'services.names.seerr' => 'Seerr',
 			'services.names.mdblist' => 'MDBList',
-			'services.deviceCode.title' => ({required Object service}) => 'Aktivera Plezy på ${service}',
+			'services.deviceCode.title' => ({required Object service}) => 'Aktivera Heisuca på ${service}',
 			'services.deviceCode.instructions' => 'Skanna QR-koden eller gå till adressen nedan och ange den här koden:',
 			'services.deviceCode.openToActivate' => ({required Object service}) => 'Öppna ${service} för att aktivera',
 			'services.deviceCode.copyCode' => 'Kopiera aktiveringskod',
@@ -5092,8 +4890,6 @@ extension on TranslationsSv {
 			'addServer.borrowFromAnotherProfile' => 'Låna från en annan profil',
 			'addServer.borrowFromAnotherProfileSubtitle' => 'Återanvänd en annan profils anslutning. PIN-skyddade profiler kräver en PIN.',
 			'addServer.invalidCredentials' => 'Ogiltigt användarnamn eller lösenord',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.authResponseNotJson' => 'Autentiseringssvaret var inte ett giltigt JSON-svar',
 			'addServer.authResponseIncomplete' => 'Inloggningssvaret från servern var ofullständigt',
 			'addServer.quickConnectRejected' => 'Quick Connect avvisades av servern',

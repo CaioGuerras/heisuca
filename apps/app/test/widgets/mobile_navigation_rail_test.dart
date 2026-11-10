@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/navigation/navigation_tabs.dart';
-import 'package:plezy/utils/platform_detector.dart';
-import 'package:plezy/widgets/mobile_navigation_rail.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/navigation/navigation_tabs.dart';
+import 'package:heisuca/utils/platform_detector.dart';
+import 'package:heisuca/widgets/mobile_navigation_rail.dart';
 
 void main() {
   setUp(() {

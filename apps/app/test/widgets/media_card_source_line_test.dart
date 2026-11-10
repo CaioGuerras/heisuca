@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/theme/mono_theme.dart';
-import 'package:plezy/widgets/backend_badge.dart';
-import 'package:plezy/widgets/media_card.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/theme/mono_theme.dart';
+import 'package:heisuca/widgets/backend_badge.dart';
+import 'package:heisuca/widgets/media_card.dart';
 
 import '../test_helpers/prefs.dart';
 import '../test_helpers/media_items.dart';

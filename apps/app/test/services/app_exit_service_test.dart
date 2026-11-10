@@ -4,8 +4,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/services/app_exit_service.dart';
-import 'package:plezy/utils/platform_detector.dart';
+import 'package:heisuca/services/app_exit_service.dart';
+import 'package:heisuca/utils/platform_detector.dart';
 
 // The standard test binding rejects required exits before they reach the binary
 // messenger. Restore only that platform leg; lifecycle observer dispatch stays

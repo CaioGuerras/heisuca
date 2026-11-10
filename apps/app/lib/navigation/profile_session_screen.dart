@@ -1,7 +1,8 @@
 import 'dart:async';
+import '../heisuca/heisuca_source_scope.dart';
+import '../utils/platform_detector.dart';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
 import '../connection/connection_registry.dart';
@@ -10,10 +11,8 @@ import '../focus/key_event_utils.dart';
 import '../media/ids.dart';
 import '../media/media_server_client.dart';
 import '../profiles/active_profile_provider.dart';
-import '../profiles/plex_home_service.dart';
 import '../profiles/profile_connection_registry.dart';
 import '../providers/catalog_sources_provider.dart';
-import '../providers/companion_remote_provider.dart';
 import '../providers/discover_provider.dart';
 import '../providers/explore_provider.dart';
 import '../providers/hidden_libraries_provider.dart';
@@ -21,7 +20,6 @@ import '../providers/libraries_provider.dart';
 import '../providers/multi_server_provider.dart';
 import '../providers/playback_state_provider.dart';
 import '../providers/seerr_account_provider.dart';
-import '../providers/trackers_provider.dart';
 import '../providers/watch_state_store.dart';
 import '../database/app_database.dart';
 import '../screens/main_screen.dart';
@@ -36,7 +34,6 @@ import '../services/offline_watch_sync_service.dart';
 import '../services/storage_service.dart';
 import '../services/system_shelf_service.dart';
 import '../utils/app_logger.dart';
-import '../watch_together/providers/watch_together_provider.dart';
 import '../widgets/music/mini_player.dart';
 import '../widgets/agent_control_scope.dart';
 import 'profile_navigation_scope.dart';
@@ -67,8 +64,7 @@ CatalogSourcesProvider _createCatalogSourcesProvider(BuildContext context) {
 /// self-heals would otherwise pull the remote behind the covering route.
 class ProfileSessionScreen extends StatefulWidget {
   const ProfileSessionScreen({super.key, this.isOfflineMode = false, this.initialPromptHandled = false})
-    : profileShellBuilder = null,
-      trackerHttpClientFactory = null;
+    : profileShellBuilder = null;
 
   @visibleForTesting
   const ProfileSessionScreen.forTesting({
@@ -76,13 +72,11 @@ class ProfileSessionScreen extends StatefulWidget {
     this.isOfflineMode = false,
     this.initialPromptHandled = false,
     required this.profileShellBuilder,
-    required http.Client Function() httpClientFactory,
-  }) : trackerHttpClientFactory = httpClientFactory;
+  });
 
   final bool isOfflineMode;
   final bool initialPromptHandled;
   final WidgetBuilder? profileShellBuilder;
-  final http.Client Function()? trackerHttpClientFactory;
 
   @override
   State<ProfileSessionScreen> createState() => _ProfileSessionScreenState();
@@ -140,7 +134,7 @@ class _ProfileSessionScreenState extends State<ProfileSessionScreen> {
       builder: (context, activeId, _) {
         _onSessionProfileChanged(activeId);
         final initialPromptHandled = widget.initialPromptHandled || _hasBuiltSession;
-        return KeyedSubtree(
+        final session = KeyedSubtree(
           key: ValueKey<String?>('profile-session:$activeId'),
           child: MultiProvider(
             providers: [
@@ -153,17 +147,6 @@ class _ProfileSessionScreenState extends State<ProfileSessionScreen> {
                     for (final serverId in multiServer.serverManager.serverIds)
                       serverId: multiServer.serverManager.getClient(ServerId(serverId))?.cacheServerId,
                   });
-                  return provider;
-                },
-              ),
-              ChangeNotifierProvider(
-                create: (context) {
-                  final provider = TrackersProvider(httpClientFactory: widget.trackerHttpClientFactory);
-                  unawaited(
-                    provider.onActiveProfileChanged(activeId).catchError((Object e, StackTrace s) {
-                      appLogger.w('Trackers profile hydrate failed', error: e, stackTrace: s);
-                    }),
-                  );
                   return provider;
                 },
               ),
@@ -185,12 +168,7 @@ class _ProfileSessionScreenState extends State<ProfileSessionScreen> {
                   return provider;
                 },
               ),
-              ChangeNotifierProxyProvider3<
-                TrackersProvider,
-                SeerrAccountProvider,
-                ActiveProfileProvider,
-                CatalogSourcesProvider
-              >(
+              ChangeNotifierProxyProvider2<SeerrAccountProvider, ActiveProfileProvider, CatalogSourcesProvider>(
                 create: (context) {
                   final provider = _createCatalogSourcesProvider(context);
                   unawaited(
@@ -200,9 +178,9 @@ class _ProfileSessionScreenState extends State<ProfileSessionScreen> {
                   );
                   return provider;
                 },
-                update: (context, trackers, seerr, activeProfile, previous) {
+                update: (context, seerr, activeProfile, previous) {
                   final provider = previous ?? _createCatalogSourcesProvider(context);
-                  provider.update(trackers, seerr);
+                  provider.update(seerr);
                   unawaited(provider.onProfileBindingStateChanged(activeProfile.isBinding));
                   return provider;
                 },
@@ -266,22 +244,6 @@ class _ProfileSessionScreenState extends State<ProfileSessionScreen> {
                       : MusicSessionStore(database: context.read<AppDatabase>(), profileId: activeId),
                 ),
               ),
-              ChangeNotifierProvider(create: (context) => WatchTogetherProvider()),
-              ChangeNotifierProvider(
-                create: (context) {
-                  final provider = CompanionRemoteProvider();
-                  // Keep a running host's crypto identity live: a home user
-                  // removed or a borrowed connection revoked mid-session must
-                  // stop controlling the broadcast.
-                  provider.bindProfileServices(
-                    connections: context.read<ConnectionRegistry>(),
-                    activeProfile: context.read<ActiveProfileProvider>(),
-                    profileConnections: context.read<ProfileConnectionRegistry>(),
-                    plexHome: context.read<PlexHomeService>(),
-                  );
-                  return provider;
-                },
-              ),
             ],
             child: CoveredRouteFocusBoundary(
               child: _ProfileSessionNavigator(
@@ -292,6 +254,8 @@ class _ProfileSessionScreenState extends State<ProfileSessionScreen> {
             ),
           ),
         );
+        if (widget.profileShellBuilder != null || !PlatformDetector.isMobile(context)) return session;
+        return HeisucaSourceScope(key: ValueKey('source:$activeId'), profileId: activeId, child: session);
       },
     );
   }
@@ -409,7 +373,10 @@ class _ProfileSessionNavigatorState extends State<_ProfileSessionNavigator> {
       settings: settings,
       builder: (context) =>
           widget.profileShellBuilder?.call(context) ??
-          MainScreen(isOfflineMode: widget.isOfflineMode, initialPromptHandled: widget.initialPromptHandled),
+          MainScreen(
+            isOfflineMode: widget.isOfflineMode,
+            initialPromptHandled: widget.initialPromptHandled || HeisucaSourceScope.skipInitialPromptOf(context),
+          ),
     );
   }
 }

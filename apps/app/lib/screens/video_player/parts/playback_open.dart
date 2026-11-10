@@ -67,10 +67,6 @@ class _MediaOpenResult {
   final bool sidecarFallbackUsed;
 }
 
-/// Start position for a fresh open, in precedence order: an explicit
-/// caller request (version switch, stream recovery, Watch Together), the
-/// shuffle-starts-from-beginning override (#2303), locally tracked offline
-/// progress, then the server-side view offset.
 Duration? resolveOpenResumePosition({
   Duration? requested,
   bool shuffleFromBeginning = false,
@@ -318,7 +314,6 @@ extension _VideoPlayerOpenMethods on VideoPlayerScreenState {
     required _FrameRateStartupPlan plan,
     required bool Function() isCurrent,
     required Future<void> Function(String reason) resumeAfterStartupGate,
-    Future<void>? watchTogetherStartupHold,
   }) async {
     // Fallback refresh-rate path. The player was opened paused;
     // setVideoFrameRate awaits the real display-change event (+ settle +
@@ -348,12 +343,6 @@ extension _VideoPlayerOpenMethods on VideoPlayerScreenState {
       // or no switch was needed and we need to start playback now that the
       // preparation gate has been cleared.
       await resumeAfterStartupGate('post-open frame rate switch');
-
-      unawaited(
-        Sentry.addBreadcrumb(
-          Breadcrumb(message: 'Pre-playback frame rate: ${plan.fps}fps, switched=$didSwitch', category: 'player'),
-        ),
-      );
     } else if (plan.needsFirstFrameSwitch && mounted && player == currentPlayer) {
       try {
         await _negotiateDisplayAtFirstFrame(
@@ -362,7 +351,6 @@ extension _VideoPlayerOpenMethods on VideoPlayerScreenState {
           plan: plan,
           isCurrent: isCurrent,
           resumeAfterRefresh: resumeAfterStartupGate,
-          watchTogetherStartupHold: watchTogetherStartupHold,
         );
       } finally {
         _frameRate.endDisplayNegotiation(plan.displayNegotiation);
@@ -377,7 +365,6 @@ extension _VideoPlayerOpenMethods on VideoPlayerScreenState {
     required _FrameRateStartupPlan plan,
     required bool Function() isCurrent,
     required Future<void> Function(String reason) resumeAfterRefresh,
-    required Future<void>? watchTogetherStartupHold,
   }) async {
     appLogger.d('Display matching: waiting for the first frame before negotiating the display');
     final startupReady = await plan._startupFrameReady;
@@ -402,11 +389,7 @@ extension _VideoPlayerOpenMethods on VideoPlayerScreenState {
       }
     }
 
-    // Everything below drives pause/play transitions the viewer did not ask
-    // for (the measurement window, the hold around the switch); a bound
-    // Watch Together room would broadcast them as intents and service remote
-    // requests against the player mid-measurement.
-    await _withWatchTogetherDetached(startupHold: watchTogetherStartupHold, () async {
+    await (() async {
       try {
         if (PlatformDetector.isAppleTV()) {
           // The decoded stream's criteria already went to AVDisplayManager
@@ -441,7 +424,7 @@ extension _VideoPlayerOpenMethods on VideoPlayerScreenState {
       } catch (e) {
         appLogger.w('Failed to negotiate the display at the first frame', error: e);
       }
-    });
+    })();
     if (!isCurrent()) return;
     await resumeAfterRefresh('first-frame display negotiation');
   }
@@ -628,26 +611,15 @@ extension _VideoPlayerOpenMethods on VideoPlayerScreenState {
     await _playWithPlaybackIntent(currentPlayer);
   }
 
-  /// Resolves the post-gate playback decision without inventing a play
-  /// intent. A Watch Together owner also receives its readiness release.
   Future<void> _finishPlaybackAfterStartupGate({
     required Player currentPlayer,
     required String reason,
     required bool shouldResume,
-    required bool watchTogetherOwnsStart,
-    Completer<void>? wtStartupHold,
   }) async {
     if (shouldResume) {
       return _resumeAfterFrameRateStartupGate(currentPlayer: currentPlayer, reason: reason);
     }
-    appLogger.d(
-      watchTogetherOwnsStart
-          ? 'Frame rate matching: yielding post-gate resume to Watch Together ($reason)'
-          : 'Frame rate matching: preserving paused playback after $reason',
-    );
-    if (watchTogetherOwnsStart && wtStartupHold != null && !wtStartupHold.isCompleted) {
-      wtStartupHold.complete();
-    }
+    appLogger.d('Frame rate matching: preserving paused playback after $reason');
   }
 
   /// Push the user's subtitle style to the native rendering layer. Must run
@@ -710,7 +682,6 @@ extension _VideoPlayerOpenMethods on VideoPlayerScreenState {
       showMessage: (message, {duration}) {
         if (mounted) showAppSnackBar(context, message, duration: duration);
       },
-      playbackRateOwnedExternally: _watchTogetherOwnsPlaybackRate,
     );
   }
 
@@ -906,25 +877,6 @@ extension _VideoPlayerOpenMethods on VideoPlayerScreenState {
     return _MediaOpenResult(didOpen: true, sidecarFallbackUsed: sidecarFallbackUsed);
   }
 
-  /// Shared orchestration for opening a resolved source on the live player:
-  /// pre-open frame-rate negotiation → per-item frame-rate reset → GL
-  /// color-transfer hint → startup-gate arming → external-subtitle planning →
-  /// open → sidecar-fallback session recompute → track-manager build →
-  /// post-open track application → frame-rate startup-gate release.
-  ///
-  /// The initial start flow ([_startPlayback]) and the in-place reload flow
-  /// ([_reloadMediaInPlace]) both run this sequence; caller-specific
-  /// choreography (session commit boundary, Watch Together attach/detach,
-  /// progress-tracker teardown, per-screen service setup) stays in the
-  /// callers and runs through the hooks below at its original position in
-  /// the sequence. Deliberate per-flow differences are explicit parameters —
-  /// nothing here may silently unify them.
-  ///
-  /// Returns false when a staleness guard or hook aborted the flow (the start
-  /// flow returns silently, the reload flow maps it to superseded); open
-  /// failures still throw to the caller. Everything the sequence produces is
-  /// committed to screen state before it returns, so there is nothing else to
-  /// hand back.
   Future<bool> _openResolvedMedia({
     required Player currentPlayer,
     required SettingsService settingsService,
@@ -940,24 +892,13 @@ extension _VideoPlayerOpenMethods on VideoPlayerScreenState {
     // session commits later, in [onOpened], so the getter still describes
     // the previous item at open time.
     required bool isLocalMedia,
-    // Staleness check used at the shared guard points and as
-    // [_openMediaOnPlayer]'s shouldContinue. start: attempt.isCurrent +
-    // Watch Together lease; reload: attempt.isCurrent + room lease.
+    // A tentativa deve continuar atual durante toda a abertura.
     required bool Function() isCurrent,
     // The attempt's armed open outcome: every startup waiter below (frame-rate
     // startup gate, sidecar guard) derives from it, so a failed or aborted
     // open settles them all at once.
     required PlaybackOpenOutcome outcome,
-    // Whether an active Watch Together session owns the (group) start. The
-    // start flow reads it live right after the frame-rate negotiation (its
-    // original position); the reload flow captured it before detaching the
-    // player from the session and replays that value.
-    required bool Function() watchTogetherOwnsStart,
-    // Whether this open should end in playing. start: !wtOwnsStart (an
-    // initial start always intends to play unless the sync layer owns the
-    // group start); reload: shouldAutoStartReloadedMedia (was-playing /
-    // startPaused / Watch Together).
-    required bool Function(bool wtOwnsStart) resolveShouldAutoStart,
+    required bool Function() resolveShouldAutoStart,
     // Where playback starts. reload resolves it before the old stop report;
     // start resolves it in [beforeColorHint] (after audio focus, its original
     // position) and exposes the value here.
@@ -996,20 +937,11 @@ extension _VideoPlayerOpenMethods on VideoPlayerScreenState {
     // drain between the GL color-transfer hint and startup-gate arming.
     // Return false to abort.
     Future<bool> Function()? beforeArm,
-    // Runs right after the open boundary (incl. the sidecar-fallback session
-    // recompute), only when a video URL was opened. start: Watch Together
-    // attach + deferred automotive start; reload: completion-latch/scrub/
-    // loading-flag upkeep and disposing the previous track manager. Return
-    // false to abort.
-    required Future<bool> Function(bool shouldAutoPlay, bool holdPlaybackStart, bool wtOwnsStart) afterMediaOpened,
+    required Future<bool> Function(bool shouldAutoPlay) afterMediaOpened,
     // start-only: mounted gate + per-screen service setup (scrub preview,
     // video filter/PiP, shaders) between the open branch and the track
     // manager build. Return false to abort.
     Future<bool> Function()? beforeTrackSetup,
-    // start-only: reads the Watch Together startup hold its
-    // [afterMediaOpened] may have created, consumed when the startup gate
-    // resolves the post-gate playback decision.
-    Completer<void>? Function()? wtStartupHold,
     // Open-boundary callbacks passed through to [_openMediaOnPlayer]: reload
     // disarms the 503 watchdog in [onOpening] and commits its session in
     // [onOpened]; start tracks primary-media availability for its error
@@ -1018,6 +950,8 @@ extension _VideoPlayerOpenMethods on VideoPlayerScreenState {
     void Function()? onOpened,
     void Function(bool available)? onMediaAvailabilityChanged,
   }) async {
+    final diagnostics = isCurrent() ? _playbackDiagnostics : null;
+    diagnostics?.setVersion(session.selectedVersion);
     final displayCriteria = result.mediaInfo?.displayCriteria;
 
     final frameRatePlan = await _prepareFrameRateForOpen(
@@ -1032,8 +966,7 @@ extension _VideoPlayerOpenMethods on VideoPlayerScreenState {
     );
     if (frameRatePlan == null || (staleGuard != null && !staleGuard())) return false;
 
-    final wtOwnsStart = watchTogetherOwnsStart();
-    final shouldAutoStart = resolveShouldAutoStart(wtOwnsStart);
+    final shouldAutoStart = resolveShouldAutoStart();
     var openSession = session;
     var openSubtitleSelection = subtitleSelection;
 
@@ -1080,7 +1013,10 @@ extension _VideoPlayerOpenMethods on VideoPlayerScreenState {
         play: deferAutomotiveStart ? shouldAutoPlay && !PlatformDetector.isAutomotive() : shouldAutoPlay,
         externalSubtitlesAtOpen: openSubtitleSelection.sidecarsAtOpen,
         shouldContinue: isCurrent,
-        onOpening: onOpening,
+        onOpening: () {
+          onOpening?.call();
+          diagnostics?.opening();
+        },
         onOpened: onOpened,
         onMediaAvailabilityChanged: onMediaAvailabilityChanged,
       );
@@ -1092,7 +1028,7 @@ extension _VideoPlayerOpenMethods on VideoPlayerScreenState {
         openSubtitleSelection = openSession.subtitleSelection;
       }
 
-      if (!await afterMediaOpened(shouldAutoPlay, frameRatePlan.holdPlaybackStart, wtOwnsStart)) return false;
+      if (!await afterMediaOpened(shouldAutoPlay)) return false;
     }
 
     if (beforeTrackSetup != null && !await beforeTrackSetup()) return false;
@@ -1139,14 +1075,8 @@ extension _VideoPlayerOpenMethods on VideoPlayerScreenState {
       // Paused opens use the same no-resume branch as an externally
       // coordinated start: no new play intent is manufactured, and a Watch
       // Together owner also gets its readiness hold released.
-      resumeAfterStartupGate: (reason) => _finishPlaybackAfterStartupGate(
-        currentPlayer: currentPlayer,
-        reason: reason,
-        shouldResume: shouldAutoStart,
-        watchTogetherOwnsStart: wtOwnsStart,
-        wtStartupHold: wtStartupHold?.call(),
-      ),
-      watchTogetherStartupHold: wtStartupHold?.call()?.future,
+      resumeAfterStartupGate: (reason) =>
+          _finishPlaybackAfterStartupGate(currentPlayer: currentPlayer, reason: reason, shouldResume: shouldAutoStart),
     );
 
     return true;

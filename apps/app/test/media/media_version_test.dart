@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/media_version.dart';
+import 'package:heisuca/media/media_version.dart';
 
 void main() {
   MediaVersion version(String resolution, String codec, String container, {String id = ''}) {

@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/mpv/player/platform/player_android.dart';
-import 'package:plezy/services/settings_service.dart';
+import 'package:heisuca/mpv/player/platform/player_android.dart';
+import 'package:heisuca/services/settings_service.dart';
 
 import '../test_helpers/mock_player_channels.dart';
 import '../test_helpers/prefs.dart';
@@ -16,8 +16,8 @@ import '../test_helpers/prefs.dart';
 Future<MethodCall> _captureInitialize({required Future<void> Function(PlayerAndroid player) configure}) async {
   late MethodCall initialize;
   await withMockPlayerChannels(
-    methodChannelName: 'com.plezy/exo_player',
-    eventChannelName: 'com.plezy/exo_player/events',
+    methodChannelName: 'app.heisuca/exo_player',
+    eventChannelName: 'app.heisuca/exo_player/events',
     methodHandler: (call) async {
       if (call.method == 'initialize') initialize = call;
       return call.method == 'initialize' ? true : null;

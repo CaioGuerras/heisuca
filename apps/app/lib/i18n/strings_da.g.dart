@@ -76,7 +76,6 @@ class TranslationsDa extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _Translations$collections$da collections = _Translations$collections$da._(_root);
 	@override late final _Translations$playlists$da playlists = _Translations$playlists$da._(_root);
 	@override late final _Translations$music$da music = _Translations$music$da._(_root);
-	@override late final _Translations$watchTogether$da watchTogether = _Translations$watchTogether$da._(_root);
 	@override late final _Translations$downloads$da downloads = _Translations$downloads$da._(_root);
 	@override late final _Translations$shaders$da shaders = _Translations$shaders$da._(_root);
 	@override late final _Translations$companionRemote$da companionRemote = _Translations$companionRemote$da._(_root);
@@ -124,7 +123,7 @@ class _Translations$auth$da extends Translations$auth$en {
 	@override String get quickConnectWaiting => 'Venter på godkendelse…';
 	@override String get quickConnectCancel => 'Annuller';
 	@override String get quickConnectExpired => 'Quick Connect er udløbet. Prøv igen.';
-	@override String get localDataRecoveryRequired => 'Plezy kunne ikke gendanne lokale loginoplysninger og ventende afspilningsdata på en sikker måde. Log ind igen.';
+	@override String get localDataRecoveryRequired => 'Heisuca kunne ikke gendanne lokale loginoplysninger og ventende afspilningsdata på en sikker måde. Log ind igen.';
 	@override String get pinCheckRejected => 'Plex PIN-kontrollen blev afvist';
 }
 
@@ -226,7 +225,7 @@ class _Translations$settings$da extends Translations$settings$en {
 
 	// Translations
 	@override String get title => 'Indstillinger';
-	@override String get supportDeveloper => 'Støt Plezy';
+	@override String get supportDeveloper => 'Støt Heisuca';
 	@override String get supportDeveloperDescription => 'Doner via Liberapay for at finansiere udviklingen';
 	@override String get language => 'Sprog';
 	@override String get theme => 'Tema';
@@ -344,12 +343,6 @@ class _Translations$settings$da extends Translations$settings$en {
 	@override String get keyboardShortcutsDescription => 'Tilpas tastaturgenveje';
 	@override String get videoPlayerNavigation => 'Videoafspillernavigation';
 	@override String get videoPlayerNavigationDescription => 'Brug piletaster til at navigere videoafspillerkontroller';
-	@override String get watchTogetherRelay => 'Relayserver til Se sammen';
-	@override String get watchTogetherRelayDescription => 'Angiv en brugerdefineret relayserver. Alle skal bruge den samme server.';
-	@override String get watchTogetherRelayHint => 'https://min-relay.eksempel.dk';
-	@override String get watchTogetherRelayInvalid => 'Angiv en gyldig basis-URL til en HTTP- eller HTTPS-relayserver.';
-	@override String get crashReporting => 'Fejlrapportering';
-	@override String get crashReportingDescription => 'Send fejlrapporter for at hjælpe med at forbedre appen';
 	@override String get debugLogging => 'Fejlfindingslogning';
 	@override String get debugLoggingDescription => 'Aktiver detaljeret logning til fejlfinding';
 	@override String get viewLogs => 'Vis logfiler';
@@ -368,7 +361,7 @@ class _Translations$settings$da extends Translations$settings$en {
 	@override String get importSettingsDescription => 'Gendan præferencer fra en fil';
 	@override String get importSettingsConfirm => 'Dette vil erstatte dine nuværende indstillinger. Fortsæt?';
 	@override String get importSettingsSuccess => 'Indstillinger importeret';
-	@override String get importSettingsInvalidFile => 'Denne fil er ikke en gyldig eksport af Plezy-indstillinger';
+	@override String get importSettingsInvalidFile => 'Denne fil er ikke en gyldig eksport af Heisuca-indstillinger';
 	@override String get importSettingsNoUser => 'Log ind før import af indstillinger';
 	@override String get shortcutsReset => 'Genveje nulstillet til standard';
 	@override String get about => 'Om';
@@ -430,8 +423,6 @@ class _Translations$settings$da extends Translations$settings$en {
 	@override String get maxVolume => 'Maksimal lydstyrke';
 	@override String get maxVolumeDescription => 'Tillad lydstyrkeforstærkning over 100 % for stille medier';
 	@override String maxVolumePercent({required Object percent}) => '${percent}%';
-	@override String get discordRichPresence => 'Discord Rich Presence';
-	@override String get discordRichPresenceDescription => 'Vis på Discord, hvad du ser';
 	@override String get services => 'Tjenester';
 	@override String get servicesDescription => 'Forbind Trakt, MyAnimeList, Seerr og mere';
 	@override String get manageLibrariesDescription => 'Omarranger og skjul biblioteker';
@@ -489,7 +480,7 @@ class _Translations$settings$da extends Translations$settings$en {
 	@override String get forceTvMode => 'Gennemtving TV-tilstand';
 	@override String get forceTvModeDescription => 'Tving TV-layout. Til enheder, der ikke registreres automatisk. Kræver genstart.';
 	@override String get startInFullscreen => 'Start i fuldskærm';
-	@override String get startInFullscreenDescription => 'Åbn Plezy i fuldskærmstilstand ved opstart';
+	@override String get startInFullscreenDescription => 'Åbn Heisuca i fuldskærmstilstand ved opstart';
 	@override String get exitFullscreenOnPlayerClose => 'Forlad fuldskærm ved lukning af afspiller';
 	@override String get exitFullscreenOnPlayerCloseDescription => 'Afslut automatisk fuldskærm, når videoafspilleren lukkes';
 	@override String get autoHidePerformanceOverlay => 'Skjul ydelsesoverlay automatisk';
@@ -538,7 +529,7 @@ class _Translations$settings$da extends Translations$settings$en {
 	@override String get playerScopeGlobal => 'Overalt';
 	@override String get playerScopeLibrary => 'Pr. bibliotek';
 	@override String get playerScopeTitle => 'Pr. serie eller film';
-	@override String get exportDialogTitle => 'Eksportér Plezy-indstillinger';
+	@override String get exportDialogTitle => 'Eksportér Heisuca-indstillinger';
 }
 
 // Path: search
@@ -591,8 +582,6 @@ class _Translations$fileInfo$da extends Translations$fileInfo$en {
 	@override String versionCounter({required Object index, required Object count}) => 'Version ${index} af ${count}';
 	@override String fileCounter({required Object index, required Object count}) => 'Fil ${index} af ${count}';
 	@override String get noStreams => 'Serveren rapporterede ingen strømme for denne fil.';
-	@override String get copyPath => 'Kopiér sti';
-	@override String get pathCopied => 'Filstien er kopieret';
 	@override String get codec => 'Codec';
 	@override String get codecTag => 'Codec-tag';
 	@override String get resolution => 'Opløsning';
@@ -652,7 +641,6 @@ class _Translations$fileInfo$da extends Translations$fileInfo$en {
 	@override String get temporary => 'Midlertidig';
 	@override String get timeBase => 'Tidsbase';
 	@override String get overallBitrate => 'Samlet bitrate';
-	@override String get path => 'Sti';
 	@override String get fileName => 'Filnavn';
 	@override String get size => 'Størrelse';
 	@override String get totalSize => 'Samlet størrelse';
@@ -736,8 +724,8 @@ class _Translations$mediaMenu$da extends Translations$mediaMenu$en {
 		one: '${n} anden episode er gemt i samme fil og vil også blive slettet:',
 		other: '${n} andre episoder er gemt i samme fil og vil også blive slettet:',
 	);
-	@override String get deleteScopeUnverifiedProbeFailed => 'Plezy kunne ikke kontrollere, hvilke filer dette vil fjerne, så det kan slette mere end det ovennævnte emne. Annuller og prøv igen, eller slet alligevel.';
-	@override String get deleteScopeUnverifiedNoFileInfo => 'Din server leverede ikke filoplysninger for dette emne, så Plezy kan ikke kontrollere, hvilke filer dette vil fjerne. Det kan slette mere end det ovennævnte emne.';
+	@override String get deleteScopeUnverifiedProbeFailed => 'Heisuca kunne ikke kontrollere, hvilke filer dette vil fjerne, så det kan slette mere end det ovennævnte emne. Annuller og prøv igen, eller slet alligevel.';
+	@override String get deleteScopeUnverifiedNoFileInfo => 'Din server leverede ikke filoplysninger for dette emne, så Heisuca kan ikke kontrollere, hvilke filer dette vil fjerne. Det kan slette mere end det ovennævnte emne.';
 	@override String get mediaDeletedSuccessfully => 'Mediet blev slettet';
 	@override String get mediaFailedToDelete => 'Mediet kunne ikke slettes';
 	@override String get rate => 'Bedøm';
@@ -1070,7 +1058,7 @@ class _Translations$profiles$da extends Translations$profiles$en {
 	final TranslationsDa _root; // ignore: unused_field
 
 	// Translations
-	@override String get addPlezyProfile => 'Tilføj Plezy-profil';
+	@override String get addHeisucaProfile => 'Tilføj Heisuca-profil';
 	@override String get switchingProfile => 'Skifter profil…';
 	@override String get deleteThisProfileTitle => 'Slet denne profil?';
 	@override String deleteThisProfileMessage({required Object displayName}) => 'Fjern ${displayName}. Forbindelser påvirkes ikke.';
@@ -1152,7 +1140,7 @@ class _Translations$connections$da extends Translations$connections$en {
 	@override String accessDeniedMany({required Object count}) => '${count} servere nægtede adgang for denne konto';
 	@override String get signInAgain => 'Log ind igen';
 	@override String editMediaBrowserTitle({required Object product}) => 'Rediger ${product}-forbindelse';
-	@override String editMediaBrowserIntro({required Object serverName}) => 'Tilføj eller fjern URL\'er for ${serverName}. Plezy bruger den tilgængelige URL med laveste latenstid.';
+	@override String editMediaBrowserIntro({required Object serverName}) => 'Tilføj eller fjern URL\'er for ${serverName}. Heisuca bruger den tilgængelige URL med laveste latenstid.';
 }
 
 // Path: accountPreferences
@@ -1166,7 +1154,7 @@ class _Translations$accountPreferences$da extends Translations$accountPreference
 	@override String hubSubtitleSingle({required Object account}) => 'Lyd-, undertekst- og biblioteksindstillinger gemt på ${account}';
 	@override String hubSubtitleMultiple({required Object count}) => 'Lyd-, undertekst- og biblioteksindstillinger gemt på ${count} konti';
 	@override String get pickAccount => 'Hver konto gemmer sine egne præferencer. Vælg den, du vil redigere.';
-	@override String get storedOnAccount => 'Disse indstillinger gemmes på selve kontoen, så alle apps, der er logget ind på den, bruger dem — inklusive Plezy på dine andre enheder.';
+	@override String get storedOnAccount => 'Disse indstillinger gemmes på selve kontoen, så alle apps, der er logget ind på den, bruger dem — inklusive Heisuca på dine andre enheder.';
 	@override String get noAccounts => 'Ingen konti at konfigurere';
 	@override String get noAccountsHint => 'Log ind på Plex, eller forbind en Jellyfin- eller Emby-server, så vises de præferencer, der er gemt på kontoen, her.';
 	@override String get unavailable => 'Kan ikke nå denne konto';
@@ -1327,7 +1315,6 @@ class _Translations$about$da extends Translations$about$en {
 	@override String get title => 'Om';
 	@override String get openSourceLicenses => 'Open source-licenser';
 	@override String versionLabel({required Object version}) => 'Version ${version}';
-	@override String get appDescription => 'En smuk Plex-, Jellyfin- og Emby-klient bygget med Flutter';
 	@override String get viewLicensesDescription => 'Se licenser for tredjepartsbiblioteker';
 }
 
@@ -1376,9 +1363,9 @@ class _Translations$startup$da extends Translations$startup$en {
 	final TranslationsDa _root; // ignore: unused_field
 
 	// Translations
-	@override String get failedTitle => 'Plezy kunne ikke starte';
+	@override String get failedTitle => 'Heisuca kunne ikke starte';
 	@override String get failedBody => 'Der gik noget galt under opstart. Oplysningerne nedenfor viser, hvad der gik galt.';
-	@override String get failedBodyRepairable => 'Plezy\'s gemte indstillingsfil er beskadiget og skal genopbygges, før Plezy kan starte. Det hjælper ikke at prøve igen — vælg Reparer lager.';
+	@override String get failedBodyRepairable => 'Heisuca\'s gemte indstillingsfil er beskadiget og skal genopbygges, før Heisuca kan starte. Det hjælper ikke at prøve igen — vælg Reparer lager.';
 	@override String get phaseLabel => 'Trin';
 	@override String get showDetails => 'Vis detaljer';
 	@override String get hideDetails => 'Skjul detaljer';
@@ -1387,16 +1374,16 @@ class _Translations$startup$da extends Translations$startup$en {
 	@override String get uploadDetails => 'Upload detaljer';
 	@override String get repairStorage => 'Reparer lager';
 	@override String get repairTitle => 'Reparer gemte data?';
-	@override String get repairBodyCommon => 'Plezy\'s indstillingsfil er beskadiget og kan ikke læses. Reparation nulstiller alle indstillinger til deres standardværdier.';
+	@override String get repairBodyCommon => 'Heisuca\'s indstillingsfil er beskadiget og kan ikke læses. Reparation nulstiller alle indstillinger til deres standardværdier.';
 	@override String get repairBodyOneCredential => 'Én gemt loginoplysning er beskadiget og kan ikke læses. Reparation fjerner kun den; dine andre indstillinger forbliver urørt.';
 	@override String get repairBodySignInsKept => 'Dine servere og profiler bør forblive logget ind.';
 	@override String get repairBodySignInsLost => 'Nøglen, der beskytter dine gemte loginoplysninger, kan ikke gendannes fra denne fil, så du skal logge ind på alle servere og profiler igen. Intet på din medieserver er påvirket.';
-	@override String get repairBodySessionsUncertain => 'Trackere (MAL, AniList, Simkl, Trakt) og Seerr gemmes separat, og det er uvist, om de overlever. Plezy fortæller dig præcis, hvad det beholdt.';
+	@override String get repairBodySessionsUncertain => 'Trackere (MAL, AniList, Simkl, Trakt) og Seerr gemmes separat, og det er uvist, om de overlever. Heisuca fortæller dig præcis, hvad det beholdt.';
 	@override String get repairConfirm => 'Reparer';
 	@override String get repairSucceeded => 'Lager repareret';
 	@override String get repairNeedsRestart => 'Lager repareret — genstart påkrævet';
-	@override String get restartRequiredBody => 'Dine data er blevet repareret, men Plezy skal starte på ny, før det kan bruge dem. Luk Plezy, og åbn det igen.';
-	@override String get quitPlezy => 'Afslut Plezy';
+	@override String get restartRequiredBody => 'Dine data er blevet repareret, men Heisuca skal starte på ny, før det kan bruge dem. Luk Heisuca, og åbn det igen.';
+	@override String get quitHeisuca => 'Afslut Heisuca';
 	@override String get repairFailed => 'Reparation mislykkedes';
 	@override String get repairKeptSignIns => 'Dine servere og profiler er stadig logget ind.';
 	@override String get repairLostSignIns => 'Nøglen, der beskytter dine gemte loginoplysninger, kunne ikke gendannes. Du skal logge ind på alle servere og profiler igen.';
@@ -1405,7 +1392,7 @@ class _Translations$startup$da extends Translations$startup$en {
 	@override String get backupWarning => 'Den indeholder dine loginoplysninger. Upload eller del den ikke.';
 	@override String get deleteBackup => 'Slet kopi';
 	@override String get backupDeleted => 'Kopi slettet.';
-	@override String get previousFailureTitle => 'Plezy kunne ikke starte sidste gang';
+	@override String get previousFailureTitle => 'Heisuca kunne ikke starte sidste gang';
 }
 
 // Path: licenses
@@ -1681,90 +1668,6 @@ class _Translations$music$da extends Translations$music$en {
 	@override String get instantMixEmpty => 'Det direkte miks indeholdt ingen numre';
 	@override String noAudioUrl({required Object track}) => 'Ingen lyd-URL er tilgængelig for ${track}';
 	@override late final _Translations$music$discography$da discography = _Translations$music$discography$da._(_root);
-}
-
-// Path: watchTogether
-class _Translations$watchTogether$da extends Translations$watchTogether$en {
-	_Translations$watchTogether$da._(TranslationsDa root) : this._root = root, super.internal(root);
-
-	final TranslationsDa _root; // ignore: unused_field
-
-	// Translations
-	@override String get title => 'Se sammen';
-	@override String get description => 'Se indhold synkroniseret med venner og familie';
-	@override String get createSession => 'Opret session';
-	@override String get creating => 'Opretter...';
-	@override String get joinSession => 'Deltag i session';
-	@override String get joining => 'Deltager...';
-	@override String get controlMode => 'Kontroltilstand';
-	@override String get controlModeQuestion => 'Hvem kan styre afspilning?';
-	@override String get hostOnly => 'Kun vært';
-	@override String get anyone => 'Alle';
-	@override String get hostingSession => 'Er vært for sessionen';
-	@override String get inSession => 'Deltager i en session';
-	@override String get sessionCode => 'Sessionskode';
-	@override String get openSessionControls => 'Åbn sessionsstyring for Se sammen';
-	@override String get copySessionCode => 'Kopiér sessionskode';
-	@override String get hostControlsPlayback => 'Værten styrer afspilningen';
-	@override String get anyoneCanControl => 'Alle kan styre afspilningen';
-	@override String get hostControls => 'Værten styrer';
-	@override String get anyoneControls => 'Alle styrer';
-	@override String get participants => 'Deltagere';
-	@override String get host => 'Vært';
-	@override String get hostBadge => 'VÆRT';
-	@override String get youAreHost => 'Du er vært';
-	@override String get makeHost => 'Gør til vært';
-	@override String get makeHostQuestion => 'Overfør vært?';
-	@override String makeHostConfirm({required Object name}) => '${name} styrer afspilningen og sessionen for alle.';
-	@override String get transfer => 'Overfør';
-	@override String hostChangedTo({required Object name}) => '${name} er nu vært';
-	@override String get youAreNowHost => 'Du er nu værten';
-	@override String hostTransferFailed({required Object name}) => 'Kunne ikke gøre ${name} til vært';
-	@override String get watchingWithOthers => 'Ser med andre';
-	@override String get endSession => 'Afslut session';
-	@override String get leaveSession => 'Forlad session';
-	@override String get endSessionQuestion => 'Afslut session?';
-	@override String get leaveSessionQuestion => 'Forlad session?';
-	@override String get endSessionConfirm => 'Dette afslutter sessionen for alle deltagere.';
-	@override String get leaveSessionConfirm => 'Du vil blive fjernet fra sessionen.';
-	@override String get endSessionConfirmOverlay => 'Dette afslutter fællesafspilningen for alle deltagere.';
-	@override String get leaveSessionConfirmOverlay => 'Din forbindelse til fællesafspilningen afbrydes.';
-	@override String get end => 'Afslut';
-	@override String get leave => 'Forlad';
-	@override String get syncing => 'Synkroniserer...';
-	@override String get joinWatchSession => 'Deltag i fællesafspilning';
-	@override String get enterCodeHint => 'Indtast 5-tegns kode';
-	@override String get pasteFromClipboard => 'Indsæt fra udklipsholder';
-	@override String get pleaseEnterCode => 'Indtast en sessionskode';
-	@override String get codeMustBe5Chars => 'Sessionskode skal være 5 tegn';
-	@override String get joinInstructions => 'Indtast værtens sessionskode for at deltage.';
-	@override String get failedToCreate => 'Kunne ikke oprette session';
-	@override String get failedToJoin => 'Kunne ikke deltage i session';
-	@override String get sessionCodeCopied => 'Sessionskode kopieret til udklipsholder';
-	@override String get relayUnreachable => 'Relayserveren kan ikke nås. Blokering hos internetudbyderen kan forhindre Se sammen.';
-	@override String get reconnectingToHost => 'Genopretter forbindelse til vært...';
-	@override String get currentPlayback => 'Nuværende afspilning';
-	@override String get joinCurrentPlayback => 'Deltag i nuværende afspilning';
-	@override String get joinCurrentPlaybackDescription => 'Hop tilbage til det værten ser nu';
-	@override String get failedToOpenCurrentPlayback => 'Kunne ikke åbne nuværende afspilning';
-	@override String participantJoined({required Object name}) => '${name} deltog';
-	@override String participantLeft({required Object name}) => '${name} forlod';
-	@override String participantPaused({required Object name}) => '${name} satte på pause';
-	@override String participantResumed({required Object name}) => '${name} genoptog';
-	@override String participantSeeked({required Object name}) => '${name} ændrede afspilningspositionen';
-	@override String participantChangedSpeed({required Object name, required Object speed}) => '${name} satte hastigheden til ${speed}';
-	@override String participantBuffering({required Object name}) => '${name} bufferer';
-	@override String participantNeedsUpdate({required Object name}) => '${name} bruger en ældre appversion — synkronisering er ikke tilgængelig';
-	@override String resumingWithout({required Object name}) => 'Fortsætter uden ${name}';
-	@override String get waitingForParticipants => 'Venter på, at de andre bliver klar...';
-	@override String waitingForName({required Object name}) => 'Venter på ${name}...';
-	@override String get recentRooms => 'Seneste rum';
-	@override String get renameRoom => 'Omdøb rum';
-	@override String get removeRoom => 'Fjern';
-	@override String get guestSwitchUnavailable => 'Kunne ikke skifte — server ikke tilgængelig for synkronisering';
-	@override String get guestSwitchFailed => 'Kunne ikke skifte — indhold blev ikke fundet på denne server';
-	@override String get defaultDisplayName => 'Bruger';
-	@override late final _Translations$watchTogether$errors$da errors = _Translations$watchTogether$errors$da._(_root);
 }
 
 // Path: downloads
@@ -2155,11 +2058,11 @@ class _Translations$trakt$da extends Translations$trakt$en {
 	@override String get connected => 'Forbundet';
 	@override String connectedAs({required Object username}) => 'Forbundet som @${username}';
 	@override String get disconnectConfirm => 'Frakobl Trakt-konto?';
-	@override String get disconnectConfirmBody => 'Plezy stopper med at sende hændelser til Trakt. Du kan tilslutte igen når som helst.';
+	@override String get disconnectConfirmBody => 'Heisuca stopper med at sende hændelser til Trakt. Du kan tilslutte igen når som helst.';
 	@override String get scrobble => 'Realtids-scrobbling';
 	@override String get scrobbleDescription => 'Send afspil-, pause- og stop-begivenheder til Trakt under afspilning.';
 	@override String get watchedSync => 'Synkroniser set-status';
-	@override String get watchedSyncDescription => 'Når du markerer elementer som set i Plezy, markeres de også på Trakt.';
+	@override String get watchedSyncDescription => 'Når du markerer elementer som set i Heisuca, markeres de også på Trakt.';
 }
 
 // Path: seerr
@@ -2178,10 +2081,10 @@ class _Translations$seerr$da extends Translations$seerr$en {
 	@override String get signInWithEmby => 'Log ind med Emby';
 	@override String get signInWithLocal => 'Brug en lokal konto';
 	@override String get email => 'E-mail';
-	@override String get noSignInMethods => 'Denne Seerr-instans tilbyder ingen loginmetode, som Plezy understøtter.';
+	@override String get noSignInMethods => 'Denne Seerr-instans tilbyder ingen loginmetode, som Heisuca understøtter.';
 	@override String get instance => 'Instans';
 	@override String get disconnectConfirm => 'Afbryd forbindelsen til Seerr?';
-	@override String get disconnectConfirmBody => 'Plezy glemmer denne Seerr-instans. Du kan altid oprette forbindelse igen.';
+	@override String get disconnectConfirmBody => 'Heisuca glemmer denne Seerr-instans. Du kan altid oprette forbindelse igen.';
 	@override String get request => 'Anmod';
 	@override String get request4k => 'Anmod i 4K';
 	@override String get seasons => 'Sæsoner';
@@ -2206,7 +2109,7 @@ class _Translations$seerr$da extends Translations$seerr$en {
 	@override String get statusBlocklisted => 'På blokeringslisten';
 	@override String couldNotReach({required Object url, required Object error}) => 'Kunne ikke nå ${url}: ${error}';
 	@override String noInstanceAtUrl({required Object url, required Object status}) => 'Ingen Seerr-instans på ${url} (HTTP ${status})';
-	@override String get behindAuthProxy => 'En godkendende reverse proxy (SSO eller HTTP-auth) svarede i stedet for Seerr. Plezy kan ikke logge ind gennem den: Lad Seerrs /api/v1-sti omgå proxyen for denne app, eller brug en adresse, der når Seerr direkte.';
+	@override String get behindAuthProxy => 'En godkendende reverse proxy (SSO eller HTTP-auth) svarede i stedet for Seerr. Heisuca kan ikke logge ind gennem den: Lad Seerrs /api/v1-sti omgå proxyen for denne app, eller brug en adresse, der når Seerr direkte.';
 	@override String get invalidUrl => 'Indtast en serveradresse som https://seerr.example.com';
 	@override String get quickConnectUnsupported => 'Denne Seerr-instans understøtter ikke Quick Connect. Den kræver Seerr 3.4 eller nyere.';
 	@override String get notInitialized => 'Denne Seerr-instans har ikke fuldført førstegangsopsætningen';
@@ -2236,7 +2139,7 @@ class _Translations$services$da extends Translations$services$en {
 	@override String get scrobble => 'Registrer fremgang automatisk';
 	@override String get scrobbleDescription => 'Opdater din liste, når du er færdig med et afsnit eller en film.';
 	@override String disconnectConfirm({required Object service}) => 'Afbryd forbindelsen til ${service}?';
-	@override String disconnectConfirmBody({required Object service}) => 'Plezy stopper med at opdatere ${service}. Du kan altid oprette forbindelse igen.';
+	@override String disconnectConfirmBody({required Object service}) => 'Heisuca stopper med at opdatere ${service}. Du kan altid oprette forbindelse igen.';
 	@override String connectFailed({required Object service}) => 'Kunne ikke forbinde til ${service}. Prøv igen.';
 	@override late final _Translations$services$names$da names = _Translations$services$names$da._(_root);
 	@override late final _Translations$services$deviceCode$da deviceCode = _Translations$services$deviceCode$da._(_root);
@@ -2800,20 +2703,6 @@ class _Translations$music$discography$da extends Translations$music$discography$
 	@override String get compilations => 'Opsamlinger';
 }
 
-// Path: watchTogether.errors
-class _Translations$watchTogether$errors$da extends Translations$watchTogether$errors$en {
-	_Translations$watchTogether$errors$da._(TranslationsDa root) : this._root = root, super.internal(root);
-
-	final TranslationsDa _root; // ignore: unused_field
-
-	// Translations
-	@override String get timedOut => 'Relayserveren svarede ikke i tide';
-	@override String get connectionLost => 'Forbindelsen blev lukket, før sessionen var klar';
-	@override String get invalidRelayResponse => 'Relayserveren sendte et uventet svar';
-	@override String get sessionEnded => 'Værten afsluttede sessionen';
-	@override String get sessionUnavailable => 'Kan ikke genoptage denne session. Deltag i eller opret et rum for at fortsætte.';
-}
-
 // Path: downloads.backgroundWarning
 class _Translations$downloads$backgroundWarning$da extends Translations$downloads$backgroundWarning$en {
 	_Translations$downloads$backgroundWarning$da._(TranslationsDa root) : this._root = root, super.internal(root);
@@ -2826,14 +2715,14 @@ class _Translations$downloads$backgroundWarning$da extends Translations$download
 	@override String get bannerAction => 'Detaljer';
 	@override String get sheetTitle => 'Downloads i baggrunden er blokeret';
 	@override String get sheetTitleDegraded => 'Downloads i baggrunden kan være begrænsede';
-	@override String get sheetIntro => 'Android forhindrer Plezy i at downloade stabilt i baggrunden.';
-	@override String get sheetIntroDegraded => 'Din enhed begrænser, hvornår Plezy kan downloade i baggrunden.';
-	@override String get reasonBackgroundRestricted => 'Plezys baggrundsaktivitet er begrænset. Indstil batteriforbruget eller baggrundsaktiviteten til "Ubegrænset".';
-	@override String get reasonStandbyRestricted => 'Android har sat Plezy i begrænset standbytilstand. Indstil batteriforbruget til "Ubegrænset".';
+	@override String get sheetIntro => 'Android forhindrer Heisuca i at downloade stabilt i baggrunden.';
+	@override String get sheetIntroDegraded => 'Din enhed begrænser, hvornår Heisuca kan downloade i baggrunden.';
+	@override String get reasonBackgroundRestricted => 'Heisucas baggrundsaktivitet er begrænset. Indstil batteriforbruget eller baggrundsaktiviteten til "Ubegrænset".';
+	@override String get reasonStandbyRestricted => 'Android har sat Heisuca i begrænset standbytilstand. Indstil batteriforbruget til "Ubegrænset".';
 	@override String get reasonDownloadChannelBlocked => 'Notifikationer om downloads er slået fra, så status og betjeningsknapper muligvis ikke er tilgængelige.';
 	@override String get reasonNotificationsDisabled => 'Notifikationer er slået fra. På Android 13 eller nyere er de nødvendige ved lange downloads i baggrunden.';
 	@override String get reasonDataSaver => 'Datasparefunktionen er slået til, hvilket blokerer downloads i baggrunden via mobildata. Downloads bør stadig køre på Wi-Fi.';
-	@override String get reasonOemUnknown => 'Downloads stoppede gentagne gange, mens Plezy var i baggrunden. Tjek Plezys indstillinger for batteriforbrug eller baggrundsaktivitet.';
+	@override String get reasonOemUnknown => 'Downloads stoppede gentagne gange, mens Heisuca var i baggrunden. Tjek Heisucas indstillinger for batteriforbrug eller baggrundsaktivitet.';
 	@override String get openSettings => 'Åbn indstillinger';
 	@override String get stillNotWorking => 'Enhedsspecifik hjælp';
 	@override String get stillNotWorkingDescription => 'Se vejledningen til din enhed, eller send en logfil fra Indstillinger › Vis logfiler, hvis problemet fortsætter.';
@@ -2887,19 +2776,19 @@ class _Translations$companionRemote$pairing$da extends Translations$companionRem
 	final TranslationsDa _root; // ignore: unused_field
 
 	// Translations
-	@override String get discoveryDescription => 'Plezy-enheder med samme Plex-konto vises her';
+	@override String get discoveryDescription => 'Heisuca-enheder med samme Plex-konto vises her';
 	@override String get hostAddressHint => '192.168.1.100:48632';
 	@override String get connecting => 'Opretter forbindelse...';
 	@override String get searchingForDevices => 'Søger efter enheder...';
 	@override String get noDevicesFound => 'Ingen enheder fundet på dit netværk';
-	@override String get noDevicesHint => 'Åbn Plezy på din computer, og brug det samme Wi-Fi-netværk';
+	@override String get noDevicesHint => 'Åbn Heisuca på din computer, og brug det samme Wi-Fi-netværk';
 	@override String get availableDevices => 'Tilgængelige enheder';
 	@override String get manualConnection => 'Manuel forbindelse';
 	@override String get cryptoInitFailed => 'Kunne ikke starte sikker forbindelse. Log ind på Plex først.';
 	@override String get validationHostRequired => 'Angiv en værtsadresse';
 	@override String get validationHostFormat => 'Format skal være IP:port (f.eks. 192.168.1.100:48632)';
 	@override String get connectionTimedOut => 'Forbindelsen fik timeout. Brug samme netværk på begge enheder.';
-	@override String get sessionNotFound => 'Enhed ikke fundet. Sørg for, at Plezy kører på værten.';
+	@override String get sessionNotFound => 'Enhed ikke fundet. Sørg for, at Heisuca kører på værten.';
 	@override String get authFailed => 'Godkendelse mislykkedes. Begge enheder skal bruge samme Plex-konto.';
 	@override String failedToConnect({required Object error}) => 'Kunne ikke oprette forbindelse: ${error}';
 }
@@ -2978,7 +2867,7 @@ class _Translations$services$deviceCode$da extends Translations$services$deviceC
 	final TranslationsDa _root; // ignore: unused_field
 
 	// Translations
-	@override String title({required Object service}) => 'Aktiver Plezy på ${service}';
+	@override String title({required Object service}) => 'Aktiver Heisuca på ${service}';
 	@override String get instructions => 'Scan QR-koden, eller gå til adressen nedenfor, og indtast denne kode:';
 	@override String openToActivate({required Object service}) => 'Åbn ${service} for at aktivere';
 	@override String get copyCode => 'Kopiér aktiveringskode';
@@ -3054,7 +2943,7 @@ extension on TranslationsDa {
 			'auth.quickConnectWaiting' => 'Venter på godkendelse…',
 			'auth.quickConnectCancel' => 'Annuller',
 			'auth.quickConnectExpired' => 'Quick Connect er udløbet. Prøv igen.',
-			'auth.localDataRecoveryRequired' => 'Plezy kunne ikke gendanne lokale loginoplysninger og ventende afspilningsdata på en sikker måde. Log ind igen.',
+			'auth.localDataRecoveryRequired' => 'Heisuca kunne ikke gendanne lokale loginoplysninger og ventende afspilningsdata på en sikker måde. Log ind igen.',
 			'auth.pinCheckRejected' => 'Plex PIN-kontrollen blev afvist',
 			'common.cancel' => 'Annuller',
 			'common.save' => 'Gem',
@@ -3141,7 +3030,7 @@ extension on TranslationsDa {
 			'update.latestVersion' => 'Du har den nyeste version',
 			'update.checkFailed' => 'Kunne ikke søge efter opdateringer',
 			'settings.title' => 'Indstillinger',
-			'settings.supportDeveloper' => 'Støt Plezy',
+			'settings.supportDeveloper' => 'Støt Heisuca',
 			'settings.supportDeveloperDescription' => 'Doner via Liberapay for at finansiere udviklingen',
 			'settings.language' => 'Sprog',
 			'settings.theme' => 'Tema',
@@ -3259,12 +3148,6 @@ extension on TranslationsDa {
 			'settings.keyboardShortcutsDescription' => 'Tilpas tastaturgenveje',
 			'settings.videoPlayerNavigation' => 'Videoafspillernavigation',
 			'settings.videoPlayerNavigationDescription' => 'Brug piletaster til at navigere videoafspillerkontroller',
-			'settings.watchTogetherRelay' => 'Relayserver til Se sammen',
-			'settings.watchTogetherRelayDescription' => 'Angiv en brugerdefineret relayserver. Alle skal bruge den samme server.',
-			'settings.watchTogetherRelayHint' => 'https://min-relay.eksempel.dk',
-			'settings.watchTogetherRelayInvalid' => 'Angiv en gyldig basis-URL til en HTTP- eller HTTPS-relayserver.',
-			'settings.crashReporting' => 'Fejlrapportering',
-			'settings.crashReportingDescription' => 'Send fejlrapporter for at hjælpe med at forbedre appen',
 			'settings.debugLogging' => 'Fejlfindingslogning',
 			'settings.debugLoggingDescription' => 'Aktiver detaljeret logning til fejlfinding',
 			'settings.viewLogs' => 'Vis logfiler',
@@ -3283,7 +3166,7 @@ extension on TranslationsDa {
 			'settings.importSettingsDescription' => 'Gendan præferencer fra en fil',
 			'settings.importSettingsConfirm' => 'Dette vil erstatte dine nuværende indstillinger. Fortsæt?',
 			'settings.importSettingsSuccess' => 'Indstillinger importeret',
-			'settings.importSettingsInvalidFile' => 'Denne fil er ikke en gyldig eksport af Plezy-indstillinger',
+			'settings.importSettingsInvalidFile' => 'Denne fil er ikke en gyldig eksport af Heisuca-indstillinger',
 			'settings.importSettingsNoUser' => 'Log ind før import af indstillinger',
 			'settings.shortcutsReset' => 'Genveje nulstillet til standard',
 			'settings.about' => 'Om',
@@ -3345,8 +3228,6 @@ extension on TranslationsDa {
 			'settings.maxVolume' => 'Maksimal lydstyrke',
 			'settings.maxVolumeDescription' => 'Tillad lydstyrkeforstærkning over 100 % for stille medier',
 			'settings.maxVolumePercent' => ({required Object percent}) => '${percent}%',
-			'settings.discordRichPresence' => 'Discord Rich Presence',
-			'settings.discordRichPresenceDescription' => 'Vis på Discord, hvad du ser',
 			'settings.services' => 'Tjenester',
 			'settings.servicesDescription' => 'Forbind Trakt, MyAnimeList, Seerr og mere',
 			'settings.manageLibrariesDescription' => 'Omarranger og skjul biblioteker',
@@ -3404,7 +3285,7 @@ extension on TranslationsDa {
 			'settings.forceTvMode' => 'Gennemtving TV-tilstand',
 			'settings.forceTvModeDescription' => 'Tving TV-layout. Til enheder, der ikke registreres automatisk. Kræver genstart.',
 			'settings.startInFullscreen' => 'Start i fuldskærm',
-			'settings.startInFullscreenDescription' => 'Åbn Plezy i fuldskærmstilstand ved opstart',
+			'settings.startInFullscreenDescription' => 'Åbn Heisuca i fuldskærmstilstand ved opstart',
 			'settings.exitFullscreenOnPlayerClose' => 'Forlad fuldskærm ved lukning af afspiller',
 			'settings.exitFullscreenOnPlayerCloseDescription' => 'Afslut automatisk fuldskærm, når videoafspilleren lukkes',
 			'settings.autoHidePerformanceOverlay' => 'Skjul ydelsesoverlay automatisk',
@@ -3453,7 +3334,7 @@ extension on TranslationsDa {
 			'settings.playerScopeGlobal' => 'Overalt',
 			'settings.playerScopeLibrary' => 'Pr. bibliotek',
 			'settings.playerScopeTitle' => 'Pr. serie eller film',
-			'settings.exportDialogTitle' => 'Eksportér Plezy-indstillinger',
+			'settings.exportDialogTitle' => 'Eksportér Heisuca-indstillinger',
 			'search.hint' => 'Søg film, serier, musik...',
 			'search.tryDifferentTerm' => 'Prøv en anden søgning',
 			'search.searchYourMedia' => 'Søg i dine medier',
@@ -3503,8 +3384,6 @@ extension on TranslationsDa {
 			'fileInfo.versionCounter' => ({required Object index, required Object count}) => 'Version ${index} af ${count}',
 			'fileInfo.fileCounter' => ({required Object index, required Object count}) => 'Fil ${index} af ${count}',
 			'fileInfo.noStreams' => 'Serveren rapporterede ingen strømme for denne fil.',
-			'fileInfo.copyPath' => 'Kopiér sti',
-			'fileInfo.pathCopied' => 'Filstien er kopieret',
 			'fileInfo.codec' => 'Codec',
 			'fileInfo.codecTag' => 'Codec-tag',
 			'fileInfo.resolution' => 'Opløsning',
@@ -3550,8 +3429,6 @@ extension on TranslationsDa {
 			'fileInfo.streamId' => 'Strøm-ID',
 			'fileInfo.language' => 'Sprog',
 			'fileInfo.languageCode' => 'Sprogkode',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.streamTitle' => 'Sportitel',
 			'fileInfo.channels' => 'Kanaler',
 			'fileInfo.sampleRate' => 'Samplingshastighed',
@@ -3562,11 +3439,12 @@ extension on TranslationsDa {
 			'fileInfo.matchScore' => 'Matchscore',
 			'fileInfo.externalDelivery' => 'Kan leveres separat',
 			'fileInfo.sidecarPath' => 'Sidecar-sti',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.sourceStream' => 'Kopieret fra',
 			'fileInfo.temporary' => 'Midlertidig',
 			'fileInfo.timeBase' => 'Tidsbase',
 			'fileInfo.overallBitrate' => 'Samlet bitrate',
-			'fileInfo.path' => 'Sti',
 			'fileInfo.fileName' => 'Filnavn',
 			'fileInfo.size' => 'Størrelse',
 			'fileInfo.totalSize' => 'Samlet størrelse',
@@ -3632,8 +3510,8 @@ extension on TranslationsDa {
 			'mediaMenu.deleteEpisodeCountWarning' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('da'))(n, one: 'Dette sletter alle ${n} episode i den og dens fil.', other: 'Dette sletter alle ${n} episoder i den og deres filer.', ), 
 			'mediaMenu.deleteMultiPartWarning' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('da'))(n, one: 'Dette emne er gemt som ${n} fil, som vil blive slettet.', other: 'Dette emne er gemt på tværs af ${n} filer, og alle vil blive slettet.', ), 
 			'mediaMenu.deleteSharedFileHeading' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('da'))(n, one: '${n} anden episode er gemt i samme fil og vil også blive slettet:', other: '${n} andre episoder er gemt i samme fil og vil også blive slettet:', ), 
-			'mediaMenu.deleteScopeUnverifiedProbeFailed' => 'Plezy kunne ikke kontrollere, hvilke filer dette vil fjerne, så det kan slette mere end det ovennævnte emne. Annuller og prøv igen, eller slet alligevel.',
-			'mediaMenu.deleteScopeUnverifiedNoFileInfo' => 'Din server leverede ikke filoplysninger for dette emne, så Plezy kan ikke kontrollere, hvilke filer dette vil fjerne. Det kan slette mere end det ovennævnte emne.',
+			'mediaMenu.deleteScopeUnverifiedProbeFailed' => 'Heisuca kunne ikke kontrollere, hvilke filer dette vil fjerne, så det kan slette mere end det ovennævnte emne. Annuller og prøv igen, eller slet alligevel.',
+			'mediaMenu.deleteScopeUnverifiedNoFileInfo' => 'Din server leverede ikke filoplysninger for dette emne, så Heisuca kan ikke kontrollere, hvilke filer dette vil fjerne. Det kan slette mere end det ovennævnte emne.',
 			'mediaMenu.mediaDeletedSuccessfully' => 'Mediet blev slettet',
 			'mediaMenu.mediaFailedToDelete' => 'Mediet kunne ikke slettes',
 			'mediaMenu.rate' => 'Bedøm',
@@ -3880,7 +3758,7 @@ extension on TranslationsDa {
 			'mpvConfig.removeLine' => 'Fjern linje',
 			'mpvConfig.embeddedVoHint' => 'vo, gpu-context og gpu-api ignoreres på Linux: indlejret video renderes altid via vo=libmpv på videoplanen, og gpu-next (som compute-shaders som ArtCNN kræver) kan ikke køre indlejret.',
 			'dialog.confirmAction' => 'Bekræft handling',
-			'profiles.addPlezyProfile' => 'Tilføj Plezy-profil',
+			'profiles.addHeisucaProfile' => 'Tilføj Heisuca-profil',
 			'profiles.switchingProfile' => 'Skifter profil…',
 			'profiles.deleteThisProfileTitle' => 'Slet denne profil?',
 			'profiles.deleteThisProfileMessage' => ({required Object displayName}) => 'Fjern ${displayName}. Forbindelser påvirkes ikke.',
@@ -3953,12 +3831,12 @@ extension on TranslationsDa {
 			'connections.accessDeniedMany' => ({required Object count}) => '${count} servere nægtede adgang for denne konto',
 			'connections.signInAgain' => 'Log ind igen',
 			'connections.editMediaBrowserTitle' => ({required Object product}) => 'Rediger ${product}-forbindelse',
-			'connections.editMediaBrowserIntro' => ({required Object serverName}) => 'Tilføj eller fjern URL\'er for ${serverName}. Plezy bruger den tilgængelige URL med laveste latenstid.',
+			'connections.editMediaBrowserIntro' => ({required Object serverName}) => 'Tilføj eller fjern URL\'er for ${serverName}. Heisuca bruger den tilgængelige URL med laveste latenstid.',
 			'accountPreferences.sectionTitle' => 'Kontopræferencer',
 			'accountPreferences.hubSubtitleSingle' => ({required Object account}) => 'Lyd-, undertekst- og biblioteksindstillinger gemt på ${account}',
 			'accountPreferences.hubSubtitleMultiple' => ({required Object count}) => 'Lyd-, undertekst- og biblioteksindstillinger gemt på ${count} konti',
 			'accountPreferences.pickAccount' => 'Hver konto gemmer sine egne præferencer. Vælg den, du vil redigere.',
-			'accountPreferences.storedOnAccount' => 'Disse indstillinger gemmes på selve kontoen, så alle apps, der er logget ind på den, bruger dem — inklusive Plezy på dine andre enheder.',
+			'accountPreferences.storedOnAccount' => 'Disse indstillinger gemmes på selve kontoen, så alle apps, der er logget ind på den, bruger dem — inklusive Heisuca på dine andre enheder.',
 			'accountPreferences.noAccounts' => 'Ingen konti at konfigurere',
 			'accountPreferences.noAccountsHint' => 'Log ind på Plex, eller forbind en Jellyfin- eller Emby-server, så vises de præferencer, der er gemt på kontoen, her.',
 			'accountPreferences.unavailable' => 'Kan ikke nå denne konto',
@@ -4064,8 +3942,6 @@ extension on TranslationsDa {
 			'libraries.refreshMetadata' => 'Opdater metadata',
 			'libraries.emptyTrash' => 'Tøm papirkurv',
 			'libraries.emptyingTrash' => ({required Object title}) => 'Tømmer papirkurv for "${title}"...',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.trashEmptied' => ({required Object title}) => 'Papirkurv tømt for "${title}"',
 			'libraries.failedToEmptyTrash' => ({required Object error}) => 'Kunne ikke tømme papirkurv: ${error}',
 			'libraries.analyzing' => ({required Object title}) => 'Analyserer "${title}"...',
@@ -4077,6 +3953,8 @@ extension on TranslationsDa {
 			'libraries.thisLibraryIsEmpty' => 'Dette bibliotek er tomt',
 			'libraries.noItemsMatchFilters' => 'Ingen elementer matcher de aktive filtre',
 			'libraries.resetFilters' => 'Nulstil filtre',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.all' => 'Alle',
 			'libraries.clearAll' => 'Ryd alle',
 			'libraries.scanLibraryConfirm' => ({required Object title}) => 'Er du sikker på, at du vil scanne "${title}"?',
@@ -4145,7 +4023,6 @@ extension on TranslationsDa {
 			'about.title' => 'Om',
 			'about.openSourceLicenses' => 'Open source-licenser',
 			'about.versionLabel' => ({required Object version}) => 'Version ${version}',
-			'about.appDescription' => 'En smuk Plex-, Jellyfin- og Emby-klient bygget med Flutter',
 			'about.viewLicensesDescription' => 'Se licenser for tredjepartsbiblioteker',
 			'serverSelection.noServersFoundForAccount' => ({required Object username, required Object email}) => 'Ingen servere fundet for ${username} (${email})',
 			'serverSelection.failedToLoadServers' => ({required Object error}) => 'Kunne ikke indlæse servere: ${error}',
@@ -4158,9 +4035,9 @@ extension on TranslationsDa {
 			'logs.clearLogs' => 'Ryd logfiler',
 			'logs.copyLogs' => 'Kopiér logfiler',
 			'logs.uploadLogs' => 'Upload logfiler',
-			'startup.failedTitle' => 'Plezy kunne ikke starte',
+			'startup.failedTitle' => 'Heisuca kunne ikke starte',
 			'startup.failedBody' => 'Der gik noget galt under opstart. Oplysningerne nedenfor viser, hvad der gik galt.',
-			'startup.failedBodyRepairable' => 'Plezy\'s gemte indstillingsfil er beskadiget og skal genopbygges, før Plezy kan starte. Det hjælper ikke at prøve igen — vælg Reparer lager.',
+			'startup.failedBodyRepairable' => 'Heisuca\'s gemte indstillingsfil er beskadiget og skal genopbygges, før Heisuca kan starte. Det hjælper ikke at prøve igen — vælg Reparer lager.',
 			'startup.phaseLabel' => 'Trin',
 			'startup.showDetails' => 'Vis detaljer',
 			'startup.hideDetails' => 'Skjul detaljer',
@@ -4169,16 +4046,16 @@ extension on TranslationsDa {
 			'startup.uploadDetails' => 'Upload detaljer',
 			'startup.repairStorage' => 'Reparer lager',
 			'startup.repairTitle' => 'Reparer gemte data?',
-			'startup.repairBodyCommon' => 'Plezy\'s indstillingsfil er beskadiget og kan ikke læses. Reparation nulstiller alle indstillinger til deres standardværdier.',
+			'startup.repairBodyCommon' => 'Heisuca\'s indstillingsfil er beskadiget og kan ikke læses. Reparation nulstiller alle indstillinger til deres standardværdier.',
 			'startup.repairBodyOneCredential' => 'Én gemt loginoplysning er beskadiget og kan ikke læses. Reparation fjerner kun den; dine andre indstillinger forbliver urørt.',
 			'startup.repairBodySignInsKept' => 'Dine servere og profiler bør forblive logget ind.',
 			'startup.repairBodySignInsLost' => 'Nøglen, der beskytter dine gemte loginoplysninger, kan ikke gendannes fra denne fil, så du skal logge ind på alle servere og profiler igen. Intet på din medieserver er påvirket.',
-			'startup.repairBodySessionsUncertain' => 'Trackere (MAL, AniList, Simkl, Trakt) og Seerr gemmes separat, og det er uvist, om de overlever. Plezy fortæller dig præcis, hvad det beholdt.',
+			'startup.repairBodySessionsUncertain' => 'Trackere (MAL, AniList, Simkl, Trakt) og Seerr gemmes separat, og det er uvist, om de overlever. Heisuca fortæller dig præcis, hvad det beholdt.',
 			'startup.repairConfirm' => 'Reparer',
 			'startup.repairSucceeded' => 'Lager repareret',
 			'startup.repairNeedsRestart' => 'Lager repareret — genstart påkrævet',
-			'startup.restartRequiredBody' => 'Dine data er blevet repareret, men Plezy skal starte på ny, før det kan bruge dem. Luk Plezy, og åbn det igen.',
-			'startup.quitPlezy' => 'Afslut Plezy',
+			'startup.restartRequiredBody' => 'Dine data er blevet repareret, men Heisuca skal starte på ny, før det kan bruge dem. Luk Heisuca, og åbn det igen.',
+			'startup.quitHeisuca' => 'Afslut Heisuca',
 			'startup.repairFailed' => 'Reparation mislykkedes',
 			'startup.repairKeptSignIns' => 'Dine servere og profiler er stadig logget ind.',
 			'startup.repairLostSignIns' => 'Nøglen, der beskytter dine gemte loginoplysninger, kunne ikke gendannes. Du skal logge ind på alle servere og profiler igen.',
@@ -4187,7 +4064,7 @@ extension on TranslationsDa {
 			'startup.backupWarning' => 'Den indeholder dine loginoplysninger. Upload eller del den ikke.',
 			'startup.deleteBackup' => 'Slet kopi',
 			'startup.backupDeleted' => 'Kopi slettet.',
-			'startup.previousFailureTitle' => 'Plezy kunne ikke starte sidste gang',
+			'startup.previousFailureTitle' => 'Heisuca kunne ikke starte sidste gang',
 			'licenses.relatedPackages' => 'Relaterede pakker',
 			'licenses.license' => 'Licens',
 			'licenses.licenseNumber' => ({required Object number}) => 'Licens ${number}',
@@ -4506,87 +4383,6 @@ extension on TranslationsDa {
 			'music.discography.singlesAndEps' => 'Singler og EP\'er',
 			'music.discography.live' => 'Live',
 			'music.discography.compilations' => 'Opsamlinger',
-			'watchTogether.title' => 'Se sammen',
-			'watchTogether.description' => 'Se indhold synkroniseret med venner og familie',
-			'watchTogether.createSession' => 'Opret session',
-			'watchTogether.creating' => 'Opretter...',
-			'watchTogether.joinSession' => 'Deltag i session',
-			'watchTogether.joining' => 'Deltager...',
-			'watchTogether.controlMode' => 'Kontroltilstand',
-			'watchTogether.controlModeQuestion' => 'Hvem kan styre afspilning?',
-			'watchTogether.hostOnly' => 'Kun vært',
-			'watchTogether.anyone' => 'Alle',
-			'watchTogether.hostingSession' => 'Er vært for sessionen',
-			'watchTogether.inSession' => 'Deltager i en session',
-			'watchTogether.sessionCode' => 'Sessionskode',
-			'watchTogether.openSessionControls' => 'Åbn sessionsstyring for Se sammen',
-			'watchTogether.copySessionCode' => 'Kopiér sessionskode',
-			'watchTogether.hostControlsPlayback' => 'Værten styrer afspilningen',
-			'watchTogether.anyoneCanControl' => 'Alle kan styre afspilningen',
-			'watchTogether.hostControls' => 'Værten styrer',
-			'watchTogether.anyoneControls' => 'Alle styrer',
-			'watchTogether.participants' => 'Deltagere',
-			'watchTogether.host' => 'Vært',
-			'watchTogether.hostBadge' => 'VÆRT',
-			'watchTogether.youAreHost' => 'Du er vært',
-			'watchTogether.makeHost' => 'Gør til vært',
-			'watchTogether.makeHostQuestion' => 'Overfør vært?',
-			'watchTogether.makeHostConfirm' => ({required Object name}) => '${name} styrer afspilningen og sessionen for alle.',
-			'watchTogether.transfer' => 'Overfør',
-			'watchTogether.hostChangedTo' => ({required Object name}) => '${name} er nu vært',
-			'watchTogether.youAreNowHost' => 'Du er nu værten',
-			'watchTogether.hostTransferFailed' => ({required Object name}) => 'Kunne ikke gøre ${name} til vært',
-			'watchTogether.watchingWithOthers' => 'Ser med andre',
-			'watchTogether.endSession' => 'Afslut session',
-			'watchTogether.leaveSession' => 'Forlad session',
-			'watchTogether.endSessionQuestion' => 'Afslut session?',
-			'watchTogether.leaveSessionQuestion' => 'Forlad session?',
-			'watchTogether.endSessionConfirm' => 'Dette afslutter sessionen for alle deltagere.',
-			'watchTogether.leaveSessionConfirm' => 'Du vil blive fjernet fra sessionen.',
-			'watchTogether.endSessionConfirmOverlay' => 'Dette afslutter fællesafspilningen for alle deltagere.',
-			'watchTogether.leaveSessionConfirmOverlay' => 'Din forbindelse til fællesafspilningen afbrydes.',
-			'watchTogether.end' => 'Afslut',
-			'watchTogether.leave' => 'Forlad',
-			'watchTogether.syncing' => 'Synkroniserer...',
-			'watchTogether.joinWatchSession' => 'Deltag i fællesafspilning',
-			'watchTogether.enterCodeHint' => 'Indtast 5-tegns kode',
-			'watchTogether.pasteFromClipboard' => 'Indsæt fra udklipsholder',
-			'watchTogether.pleaseEnterCode' => 'Indtast en sessionskode',
-			'watchTogether.codeMustBe5Chars' => 'Sessionskode skal være 5 tegn',
-			'watchTogether.joinInstructions' => 'Indtast værtens sessionskode for at deltage.',
-			'watchTogether.failedToCreate' => 'Kunne ikke oprette session',
-			'watchTogether.failedToJoin' => 'Kunne ikke deltage i session',
-			'watchTogether.sessionCodeCopied' => 'Sessionskode kopieret til udklipsholder',
-			'watchTogether.relayUnreachable' => 'Relayserveren kan ikke nås. Blokering hos internetudbyderen kan forhindre Se sammen.',
-			'watchTogether.reconnectingToHost' => 'Genopretter forbindelse til vært...',
-			'watchTogether.currentPlayback' => 'Nuværende afspilning',
-			'watchTogether.joinCurrentPlayback' => 'Deltag i nuværende afspilning',
-			'watchTogether.joinCurrentPlaybackDescription' => 'Hop tilbage til det værten ser nu',
-			'watchTogether.failedToOpenCurrentPlayback' => 'Kunne ikke åbne nuværende afspilning',
-			'watchTogether.participantJoined' => ({required Object name}) => '${name} deltog',
-			'watchTogether.participantLeft' => ({required Object name}) => '${name} forlod',
-			'watchTogether.participantPaused' => ({required Object name}) => '${name} satte på pause',
-			'watchTogether.participantResumed' => ({required Object name}) => '${name} genoptog',
-			'watchTogether.participantSeeked' => ({required Object name}) => '${name} ændrede afspilningspositionen',
-			'watchTogether.participantChangedSpeed' => ({required Object name, required Object speed}) => '${name} satte hastigheden til ${speed}',
-			'watchTogether.participantBuffering' => ({required Object name}) => '${name} bufferer',
-			'watchTogether.participantNeedsUpdate' => ({required Object name}) => '${name} bruger en ældre appversion — synkronisering er ikke tilgængelig',
-			'watchTogether.resumingWithout' => ({required Object name}) => 'Fortsætter uden ${name}',
-			'watchTogether.waitingForParticipants' => 'Venter på, at de andre bliver klar...',
-			'watchTogether.waitingForName' => ({required Object name}) => 'Venter på ${name}...',
-			'watchTogether.recentRooms' => 'Seneste rum',
-			'watchTogether.renameRoom' => 'Omdøb rum',
-			'watchTogether.removeRoom' => 'Fjern',
-			'watchTogether.guestSwitchUnavailable' => 'Kunne ikke skifte — server ikke tilgængelig for synkronisering',
-			_ => null,
-		} ?? switch (path) {
-			'watchTogether.guestSwitchFailed' => 'Kunne ikke skifte — indhold blev ikke fundet på denne server',
-			'watchTogether.defaultDisplayName' => 'Bruger',
-			'watchTogether.errors.timedOut' => 'Relayserveren svarede ikke i tide',
-			'watchTogether.errors.connectionLost' => 'Forbindelsen blev lukket, før sessionen var klar',
-			'watchTogether.errors.invalidRelayResponse' => 'Relayserveren sendte et uventet svar',
-			'watchTogether.errors.sessionEnded' => 'Værten afsluttede sessionen',
-			'watchTogether.errors.sessionUnavailable' => 'Kan ikke genoptage denne session. Deltag i eller opret et rum for at fortsætte.',
 			'downloads.title' => 'Downloads',
 			'downloads.manage' => 'Administrer',
 			'downloads.tvShows' => 'TV-serier',
@@ -4668,14 +4464,16 @@ extension on TranslationsDa {
 			'downloads.backgroundWarning.bannerAction' => 'Detaljer',
 			'downloads.backgroundWarning.sheetTitle' => 'Downloads i baggrunden er blokeret',
 			'downloads.backgroundWarning.sheetTitleDegraded' => 'Downloads i baggrunden kan være begrænsede',
-			'downloads.backgroundWarning.sheetIntro' => 'Android forhindrer Plezy i at downloade stabilt i baggrunden.',
-			'downloads.backgroundWarning.sheetIntroDegraded' => 'Din enhed begrænser, hvornår Plezy kan downloade i baggrunden.',
-			'downloads.backgroundWarning.reasonBackgroundRestricted' => 'Plezys baggrundsaktivitet er begrænset. Indstil batteriforbruget eller baggrundsaktiviteten til "Ubegrænset".',
-			'downloads.backgroundWarning.reasonStandbyRestricted' => 'Android har sat Plezy i begrænset standbytilstand. Indstil batteriforbruget til "Ubegrænset".',
+			'downloads.backgroundWarning.sheetIntro' => 'Android forhindrer Heisuca i at downloade stabilt i baggrunden.',
+			'downloads.backgroundWarning.sheetIntroDegraded' => 'Din enhed begrænser, hvornår Heisuca kan downloade i baggrunden.',
+			'downloads.backgroundWarning.reasonBackgroundRestricted' => 'Heisucas baggrundsaktivitet er begrænset. Indstil batteriforbruget eller baggrundsaktiviteten til "Ubegrænset".',
+			_ => null,
+		} ?? switch (path) {
+			'downloads.backgroundWarning.reasonStandbyRestricted' => 'Android har sat Heisuca i begrænset standbytilstand. Indstil batteriforbruget til "Ubegrænset".',
 			'downloads.backgroundWarning.reasonDownloadChannelBlocked' => 'Notifikationer om downloads er slået fra, så status og betjeningsknapper muligvis ikke er tilgængelige.',
 			'downloads.backgroundWarning.reasonNotificationsDisabled' => 'Notifikationer er slået fra. På Android 13 eller nyere er de nødvendige ved lange downloads i baggrunden.',
 			'downloads.backgroundWarning.reasonDataSaver' => 'Datasparefunktionen er slået til, hvilket blokerer downloads i baggrunden via mobildata. Downloads bør stadig køre på Wi-Fi.',
-			'downloads.backgroundWarning.reasonOemUnknown' => 'Downloads stoppede gentagne gange, mens Plezy var i baggrunden. Tjek Plezys indstillinger for batteriforbrug eller baggrundsaktivitet.',
+			'downloads.backgroundWarning.reasonOemUnknown' => 'Downloads stoppede gentagne gange, mens Heisuca var i baggrunden. Tjek Heisucas indstillinger for batteriforbrug eller baggrundsaktivitet.',
 			'downloads.backgroundWarning.openSettings' => 'Åbn indstillinger',
 			'downloads.backgroundWarning.stillNotWorking' => 'Enhedsspecifik hjælp',
 			'downloads.backgroundWarning.stillNotWorkingDescription' => 'Se vejledningen til din enhed, eller send en logfil fra Indstillinger › Vis logfiler, hvis problemet fortsætter.',
@@ -4738,19 +4536,19 @@ extension on TranslationsDa {
 			'companionRemote.session.stopServer' => 'Stop serveren',
 			'companionRemote.session.minimize' => 'Minimér',
 			'companionRemote.session.manualAddressHint' => 'Manuel forbindelsesadresse:',
-			'companionRemote.pairing.discoveryDescription' => 'Plezy-enheder med samme Plex-konto vises her',
+			'companionRemote.pairing.discoveryDescription' => 'Heisuca-enheder med samme Plex-konto vises her',
 			'companionRemote.pairing.hostAddressHint' => '192.168.1.100:48632',
 			'companionRemote.pairing.connecting' => 'Opretter forbindelse...',
 			'companionRemote.pairing.searchingForDevices' => 'Søger efter enheder...',
 			'companionRemote.pairing.noDevicesFound' => 'Ingen enheder fundet på dit netværk',
-			'companionRemote.pairing.noDevicesHint' => 'Åbn Plezy på din computer, og brug det samme Wi-Fi-netværk',
+			'companionRemote.pairing.noDevicesHint' => 'Åbn Heisuca på din computer, og brug det samme Wi-Fi-netværk',
 			'companionRemote.pairing.availableDevices' => 'Tilgængelige enheder',
 			'companionRemote.pairing.manualConnection' => 'Manuel forbindelse',
 			'companionRemote.pairing.cryptoInitFailed' => 'Kunne ikke starte sikker forbindelse. Log ind på Plex først.',
 			'companionRemote.pairing.validationHostRequired' => 'Angiv en værtsadresse',
 			'companionRemote.pairing.validationHostFormat' => 'Format skal være IP:port (f.eks. 192.168.1.100:48632)',
 			'companionRemote.pairing.connectionTimedOut' => 'Forbindelsen fik timeout. Brug samme netværk på begge enheder.',
-			'companionRemote.pairing.sessionNotFound' => 'Enhed ikke fundet. Sørg for, at Plezy kører på værten.',
+			'companionRemote.pairing.sessionNotFound' => 'Enhed ikke fundet. Sørg for, at Heisuca kører på værten.',
 			'companionRemote.pairing.authFailed' => 'Godkendelse mislykkedes. Begge enheder skal bruge samme Plex-konto.',
 			'companionRemote.pairing.failedToConnect' => ({required Object error}) => 'Kunne ikke oprette forbindelse: ${error}',
 			'companionRemote.remote.disconnectConfirm' => 'Vil du afbryde forbindelsen til fjernsessionen?',
@@ -4970,11 +4768,11 @@ extension on TranslationsDa {
 			'trakt.connected' => 'Forbundet',
 			'trakt.connectedAs' => ({required Object username}) => 'Forbundet som @${username}',
 			'trakt.disconnectConfirm' => 'Frakobl Trakt-konto?',
-			'trakt.disconnectConfirmBody' => 'Plezy stopper med at sende hændelser til Trakt. Du kan tilslutte igen når som helst.',
+			'trakt.disconnectConfirmBody' => 'Heisuca stopper med at sende hændelser til Trakt. Du kan tilslutte igen når som helst.',
 			'trakt.scrobble' => 'Realtids-scrobbling',
 			'trakt.scrobbleDescription' => 'Send afspil-, pause- og stop-begivenheder til Trakt under afspilning.',
 			'trakt.watchedSync' => 'Synkroniser set-status',
-			'trakt.watchedSyncDescription' => 'Når du markerer elementer som set i Plezy, markeres de også på Trakt.',
+			'trakt.watchedSyncDescription' => 'Når du markerer elementer som set i Heisuca, markeres de også på Trakt.',
 			'seerr.title' => 'Seerr',
 			'seerr.connectTitle' => 'Forbind Seerr',
 			'seerr.serverUrl' => 'Server-URL',
@@ -4984,10 +4782,10 @@ extension on TranslationsDa {
 			'seerr.signInWithEmby' => 'Log ind med Emby',
 			'seerr.signInWithLocal' => 'Brug en lokal konto',
 			'seerr.email' => 'E-mail',
-			'seerr.noSignInMethods' => 'Denne Seerr-instans tilbyder ingen loginmetode, som Plezy understøtter.',
+			'seerr.noSignInMethods' => 'Denne Seerr-instans tilbyder ingen loginmetode, som Heisuca understøtter.',
 			'seerr.instance' => 'Instans',
 			'seerr.disconnectConfirm' => 'Afbryd forbindelsen til Seerr?',
-			'seerr.disconnectConfirmBody' => 'Plezy glemmer denne Seerr-instans. Du kan altid oprette forbindelse igen.',
+			'seerr.disconnectConfirmBody' => 'Heisuca glemmer denne Seerr-instans. Du kan altid oprette forbindelse igen.',
 			'seerr.request' => 'Anmod',
 			'seerr.request4k' => 'Anmod i 4K',
 			'seerr.seasons' => 'Sæsoner',
@@ -5012,7 +4810,7 @@ extension on TranslationsDa {
 			'seerr.statusBlocklisted' => 'På blokeringslisten',
 			'seerr.couldNotReach' => ({required Object url, required Object error}) => 'Kunne ikke nå ${url}: ${error}',
 			'seerr.noInstanceAtUrl' => ({required Object url, required Object status}) => 'Ingen Seerr-instans på ${url} (HTTP ${status})',
-			'seerr.behindAuthProxy' => 'En godkendende reverse proxy (SSO eller HTTP-auth) svarede i stedet for Seerr. Plezy kan ikke logge ind gennem den: Lad Seerrs /api/v1-sti omgå proxyen for denne app, eller brug en adresse, der når Seerr direkte.',
+			'seerr.behindAuthProxy' => 'En godkendende reverse proxy (SSO eller HTTP-auth) svarede i stedet for Seerr. Heisuca kan ikke logge ind gennem den: Lad Seerrs /api/v1-sti omgå proxyen for denne app, eller brug en adresse, der når Seerr direkte.',
 			'seerr.invalidUrl' => 'Indtast en serveradresse som https://seerr.example.com',
 			'seerr.quickConnectUnsupported' => 'Denne Seerr-instans understøtter ikke Quick Connect. Den kræver Seerr 3.4 eller nyere.',
 			'seerr.notInitialized' => 'Denne Seerr-instans har ikke fuldført førstegangsopsætningen',
@@ -5033,14 +4831,14 @@ extension on TranslationsDa {
 			'services.scrobble' => 'Registrer fremgang automatisk',
 			'services.scrobbleDescription' => 'Opdater din liste, når du er færdig med et afsnit eller en film.',
 			'services.disconnectConfirm' => ({required Object service}) => 'Afbryd forbindelsen til ${service}?',
-			'services.disconnectConfirmBody' => ({required Object service}) => 'Plezy stopper med at opdatere ${service}. Du kan altid oprette forbindelse igen.',
+			'services.disconnectConfirmBody' => ({required Object service}) => 'Heisuca stopper med at opdatere ${service}. Du kan altid oprette forbindelse igen.',
 			'services.connectFailed' => ({required Object service}) => 'Kunne ikke forbinde til ${service}. Prøv igen.',
 			'services.names.mal' => 'MyAnimeList',
 			'services.names.anilist' => 'AniList',
 			'services.names.simkl' => 'Simkl',
 			'services.names.seerr' => 'Seerr',
 			'services.names.mdblist' => 'MDBList',
-			'services.deviceCode.title' => ({required Object service}) => 'Aktiver Plezy på ${service}',
+			'services.deviceCode.title' => ({required Object service}) => 'Aktiver Heisuca på ${service}',
 			'services.deviceCode.instructions' => 'Scan QR-koden, eller gå til adressen nedenfor, og indtast denne kode:',
 			'services.deviceCode.openToActivate' => ({required Object service}) => 'Åbn ${service} for at aktivere',
 			'services.deviceCode.copyCode' => 'Kopiér aktiveringskode',
@@ -5092,8 +4890,6 @@ extension on TranslationsDa {
 			'addServer.borrowFromAnotherProfile' => 'Lån fra en anden profil',
 			'addServer.borrowFromAnotherProfileSubtitle' => 'Genbrug en anden profils forbindelse. PIN-beskyttede profiler kræver en PIN.',
 			'addServer.invalidCredentials' => 'Ugyldigt brugernavn eller ugyldig adgangskode',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.authResponseNotJson' => 'Godkendelsessvaret var ikke gyldig JSON',
 			'addServer.authResponseIncomplete' => 'Loginsvaret fra serveren var ufuldstændigt',
 			'addServer.quickConnectRejected' => 'Quick Connect blev afvist af serveren',

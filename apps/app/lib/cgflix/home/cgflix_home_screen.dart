@@ -20,7 +20,6 @@ import '../../mixins/refreshable.dart';
 import '../../mixins/tab_visibility_aware.dart';
 import '../../providers/discover_provider.dart';
 import '../../providers/multi_server_provider.dart';
-import '../../screens/discover_screen.dart';
 import '../../services/jellyfin_client.dart';
 import '../../services/watch_actions.dart';
 import '../../utils/app_logger.dart';
@@ -269,7 +268,7 @@ class _CgflixHomeScreenState extends State<CgflixHomeScreen>
             child: _ItemsRow(
               title: hub.title,
               items: hub.items,
-              storageKey: 'hub_${hub.id ?? hub.title}',
+              storageKey: 'hub_${hub.id}',
             ),
           ),
 
@@ -605,7 +604,7 @@ class _ContinueWatchingRowState extends State<_ContinueWatchingRow> {
         key: const ValueKey('row'),
         title: cgflixRowTitle(CgflixRowKind.continueWatching),
         storageKey: 'continue',
-        height: cgflixWideHeight + CgflixWideCard.titleBlockHeight,
+        height: cgflixWideHeight + CgflixWideCard.titleBlockHeightFor(context),
         itemCount: items.length,
         itemBuilder: (context, index) {
           final item = items[index];

@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/media_backend.dart';
+import 'package:heisuca/media/media_backend.dart';
 
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/utils/media_navigation_helper.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/utils/media_navigation_helper.dart';
 import '../test_helpers/media_items.dart';
 
 void main() {

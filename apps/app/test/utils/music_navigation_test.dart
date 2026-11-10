@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/services/music/music_playback_service.dart';
-import 'package:plezy/services/playback_initialization_types.dart';
-import 'package:plezy/utils/music_navigation.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/services/music/music_playback_service.dart';
+import 'package:heisuca/services/playback_initialization_types.dart';
+import 'package:heisuca/utils/music_navigation.dart';
 import 'package:provider/provider.dart';
 
 import '../test_helpers/media_items.dart';

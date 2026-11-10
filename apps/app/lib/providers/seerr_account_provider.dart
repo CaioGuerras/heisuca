@@ -12,7 +12,7 @@ import '../services/seerr/seerr_auth_service.dart';
 import '../services/seerr/seerr_client.dart';
 import '../services/seerr/seerr_session_store.dart';
 import '../utils/app_logger.dart';
-import '../services/trackers/future_coalescer.dart';
+import '../utils/future_coalescer.dart';
 
 /// Resolve the active profile's Plex token for Seerr sign-in/re-auth:
 /// the profile's per-user token when a bind exists (a Home user's Seerr

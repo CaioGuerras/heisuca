@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/media_version.dart';
-import 'package:plezy/media/media_version_preference.dart';
+import 'package:heisuca/media/media_version.dart';
+import 'package:heisuca/media/media_version_preference.dart';
 
 void main() {
   const versions = [

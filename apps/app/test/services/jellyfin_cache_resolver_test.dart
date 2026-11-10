@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:drift/drift.dart' show ApplyInterceptor, QueryExecutor, QueryInterceptor, Value;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/database/app_database.dart';
-import 'package:plezy/services/jellyfin_cache_resolver.dart';
+import 'package:heisuca/database/app_database.dart';
+import 'package:heisuca/services/jellyfin_cache_resolver.dart';
 
 void main() {
   late AppDatabase db;

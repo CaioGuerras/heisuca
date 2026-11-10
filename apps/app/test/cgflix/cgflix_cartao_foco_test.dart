@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/cgflix/cgflix_theme.dart';
-import 'package:plezy/cgflix/home/cgflix_cards.dart';
+import 'package:heisuca/cgflix/cgflix_theme.dart';
+import 'package:heisuca/cgflix/home/cgflix_cards.dart';
 
 void main() {
   testWidgets('cartão abre com Enter e mostra o contorno de foco', (tester) async {

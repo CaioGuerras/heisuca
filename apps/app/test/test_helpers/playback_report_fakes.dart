@@ -1,4 +1,4 @@
-import 'package:plezy/media/playback_report_metadata.dart';
+import 'package:heisuca/media/playback_report_metadata.dart';
 
 enum PlaybackReportKind { started, progress, stopped }
 

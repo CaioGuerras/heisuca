@@ -1,3 +1,4 @@
+import 'package:heisuca/heisuca/services/heisuca_playback_delivery.dart';
 import 'dart:async' show StreamSubscription, Timer, unawaited;
 import 'dart:io' show Platform;
 
@@ -14,7 +15,7 @@ import 'package:flutter/gestures.dart'
         PointerUpEvent,
         kDoubleTapTimeout;
 import 'package:flutter/material.dart';
-import 'package:plezy/widgets/app_icon.dart';
+import 'package:heisuca/widgets/app_icon.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:rate_limiter/rate_limiter.dart';
 import 'package:flutter/services.dart'
@@ -90,7 +91,6 @@ import '../../models/shader_preset.dart';
 import '../../providers/playback_state_provider.dart';
 import '../../providers/shader_provider.dart';
 import '../../services/shader_service.dart';
-import '../../watch_together/providers/watch_together_provider.dart';
 import '../../utils/error_message_utils.dart';
 
 part 'parts/key_events.dart';
@@ -394,7 +394,7 @@ class PlayerNavigationCoordinator {
 /// playback. With the chrome up the button is an ordinary focusable control
 /// and `skipButtonDismissed` would not hide it anyway, so Back stays the
 /// chrome's own key there; without [canControl] the button is inert, and
-/// eating a guest's exit press for a control they cannot operate is worse than
+/// eating the viewer's exit press for a control they cannot operate is worse than
 /// leaving the prompt up.
 ///
 /// Both Back flavours count. A local layer takes the dismiss key ahead of the
@@ -554,6 +554,7 @@ class PlexVideoControls extends StatefulWidget {
   final int selectedMediaIndex;
   final TranscodeQualityPreset selectedQualityPreset;
   final bool serverSupportsTranscoding;
+  final HeisucaPlaybackDelivery? delivery;
   final bool isTranscoding;
   final bool isOfflinePlayback;
   final List<MediaAudioTrack> sourceAudioTracks;
@@ -582,9 +583,6 @@ class PlexVideoControls extends StatefulWidget {
   /// playback state around the native player seek.
   final Future<void> Function(Duration position)? onSeekRequested;
 
-  /// Called for app-level playback-rate requests (speed sheet, keyboard
-  /// shortcuts, long-press 2x) so the owning screen can apply the rate and
-  /// declare it to a Watch Together room. Falls back to [Player.setRate].
   final Future<void> Function(double rate)? onRateRequested;
 
   /// Called for app-level transport requests so the owning screen can track
@@ -592,10 +590,8 @@ class PlexVideoControls extends StatefulWidget {
   /// announce the accepted command.
   final Future<void> Function(TransportCommand command)? onPlayPauseRequested;
 
-  /// Called when a seek operation completes (for Watch Together sync)
   final Function(Duration position)? onSeekCompleted;
 
-  /// Called when back button is pressed (for Watch Together session leave confirmation)
   final VoidCallback? onBack;
 
   /// Called when the video has effectively reached the end (e.g. credits extend
@@ -603,11 +599,10 @@ class PlexVideoControls extends StatefulWidget {
   /// completion flow so the auto-play-next setting is honored.
   final void Function({required bool skipAutoPlayCountdown})? onReachedEnd;
 
-  /// Whether the user can control playback (false in host-only mode for non-host).
+  /// Se os controles de reprodução estão habilitados neste momento.
   final bool canControl;
 
-  /// Whether the user may choose another queue item or episode. Watch
-  /// Together guests never own this capability, even in anyone-control mode.
+  /// Se a troca de item ou episódio está habilitada neste momento.
   final bool canNavigateMediaItems;
 
   /// Notifier for whether first video frame has rendered (shows loading state when false).
@@ -697,6 +692,7 @@ class PlexVideoControls extends StatefulWidget {
     this.selectedQualityPreset = TranscodeQualityPreset.original,
     this.serverSupportsTranscoding = false,
     this.isTranscoding = false,
+    this.delivery,
     this.isOfflinePlayback = false,
     this.sourceAudioTracks = const [],
     this.selectedAudioStreamId,
@@ -752,6 +748,9 @@ class PlexVideoControls extends StatefulWidget {
 
 class _PlexVideoControlsState extends State<PlexVideoControls>
     with WindowListener, ListenableBindingsMixin, MountedSetStateMixin {
+  /// Janela com lado menor abaixo disto é tamanho de PiP, não de tela.
+  static const double _pipWindowMaxShortestSide = 200;
+
   bool get _showControls => widget.chromeController.controlsVisible;
   bool get _hasRenderedFirstFrame => widget.hasFirstFrame?.value ?? true;
 
@@ -866,10 +865,14 @@ class _PlexVideoControlsState extends State<PlexVideoControls>
   final ValueNotifier<bool> _autoSkipActive = ValueNotifier<bool>(false);
   // Skip button dismiss state
   bool _skipButtonDismissed = false;
+  // Recusa explícita (Voltar no botão). Só ela esconde o botão com o HUD
+  // aberto na TV; o descarte por tempo ou por esconder o HUD não.
+  bool _skipMarkerRefused = false;
   Timer? _skipButtonDismissTimer;
   // Performance overlay
   bool get _showPerformanceOverlay => _settings.read(SettingsService.showPerformanceOverlay);
-  bool get _autoHidePerformanceOverlay => _settings.read(SettingsService.autoHidePerformanceOverlay);
+  bool get _autoHidePerformanceOverlay =>
+      !PlatformDetector.isTV() && _settings.read(SettingsService.autoHidePerformanceOverlay);
   // Long-press 2x speed state
   bool _isLongPressing = false;
   // Subtitle visibility toggle state
@@ -1185,11 +1188,19 @@ class _PlexVideoControlsState extends State<PlexVideoControls>
     // behind a fully transparent widget.
     final performanceOverlayVisible = !_autoHidePerformanceOverlay || _showControls;
 
-    // Hide ALL controls when in PiP mode (except macOS where main window stays visible)
-    return ValueListenableBuilder<bool>(
-      valueListenable: _pipService.isPipActive,
-      builder: (context, isInPip, _) {
-        if (isInPip && !Platform.isMacOS) return const SizedBox.shrink();
+    // O Android anuncia a entrada antes de redimensionar a janela. O HUD já
+    // deve estar ausente nessa transição, além de permanecer ausente no PiP.
+    // Ao fechar a janelinha a ordem se inverte: o aviso de saída chega com a
+    // janela ainda pequena (228×128 na bancada). Por isso o tamanho da janela
+    // também retira o HUD; nenhum celular tem lado menor que 200 dp.
+    return ListenableBuilder(
+      listenable: Listenable.merge([_pipService.isPipActive, _pipService.isPipTransitioning]),
+      builder: (context, _) {
+        final pipSizedWindow = MediaQuery.sizeOf(context).shortestSide < _pipWindowMaxShortestSide;
+        if ((_pipService.isPipActive.value || _pipService.isPipTransitioning.value || pipSizedWindow) &&
+            !Platform.isMacOS) {
+          return const SizedBox.shrink();
+        }
         return Focus(
           focusNode: _focusNode,
           autofocus: true,
@@ -1334,6 +1345,12 @@ class _PlexVideoControlsState extends State<PlexVideoControls>
                                                     final hasStripContent = _chapters.isNotEmpty || canShowQueue;
                                                     return MobileVideoControls(
                                                       player: widget.player,
+                                                      heisucaTrackState: PlatformDetector.isPhone(context)
+                                                          ? _buildTrackControlsState(
+                                                              playbackState: playbackState,
+                                                              onToggleAlwaysOnTop: _toggleAlwaysOnTop,
+                                                            )
+                                                          : null,
                                                       metadata: widget.metadata,
                                                       chapters: _chapters,
                                                       chaptersLoaded: _chaptersLoaded,
@@ -1366,6 +1383,10 @@ class _PlexVideoControlsState extends State<PlexVideoControls>
                                                       serverId: widget.metadata.serverId,
                                                       showQueueTab: canShowQueue,
                                                       onQueueItemSelected: canShowQueue ? _onQueueItemSelected : null,
+                                                      // CGFLIX: todas as temporadas, mesmo sem fila ativa.
+                                                      onSeriesEpisodeSelected: widget.canNavigateMediaItems
+                                                          ? _onQueueItemSelected
+                                                          : null,
                                                       chromeController: widget.chromeController,
                                                       onStripVisibilityChanged: (visible) {
                                                         if (visible) {

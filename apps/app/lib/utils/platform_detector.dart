@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
@@ -73,6 +72,7 @@ class TvDetectionService {
   static final AsyncSingleton<TvDetectionService> _singleton = AsyncSingleton();
   @visibleForTesting
   static set debugDetectionGate(Future<void>? value) => _singleton.debugGate = value;
+  static bool? _debugTvOverride;
   static bool? _debugAppleTVOverride;
   static bool? _debugAutomotiveOverride;
   bool _detected = false;
@@ -179,7 +179,10 @@ class TvDetectionService {
   ///
   /// App code goes through the [PlatformDetector] facade ([PlatformDetector.isTV]
   /// and siblings); these raw accessors exist for the facade and tests.
-  static bool isTVSync() => _debugAppleTVOverride ?? _singleton.instance?.isTV ?? false;
+  /// TV = detectada || forçada nas configurações. O override de teste só soma
+  /// (`true` força TV); nunca desliga a detecção de uma TV real.
+  static bool isTVSync() =>
+      _debugAppleTVOverride == true || _debugTvOverride == true || (_singleton.instance?.isTV ?? false);
 
   /// Synchronous Apple TV check (returns false if not initialized or not tvOS).
   static bool isAppleTVSync() => _debugAppleTVOverride ?? (_tvosBuild || _singleton.instance?._isAppleTV == true);
@@ -192,6 +195,12 @@ class TvDetectionService {
     _debugAppleTVOverride = value;
   }
 
+  /// Força TV em teste sem inicializar o serviço; `null` ou `false` voltam à detecção.
+  @visibleForTesting
+  static void debugSetTvOverride(bool? value) {
+    _debugTvOverride = value;
+  }
+
   @visibleForTesting
   static void debugSetAutomotiveOverride(bool? value) {
     _debugAutomotiveOverride = value;
@@ -200,6 +209,7 @@ class TvDetectionService {
   @visibleForTesting
   static void debugReset() {
     _singleton.debugReset();
+    _debugTvOverride = null;
     _debugAppleTVOverride = null;
     _debugAutomotiveOverride = null;
   }
@@ -213,6 +223,12 @@ class TvDetectionService {
 class PlatformDetector {
   static bool isTV() {
     return TvDetectionService.isTVSync();
+  }
+
+  static bool isFireTV() {
+    if (!isTV()) return false;
+    final reasons = TvDetectionService.tvDetectionReasonsSync();
+    return reasons.contains('fire_tv');
   }
 
   static bool isAppleTV() {
@@ -330,16 +346,11 @@ class PlatformDetector {
   );
 
   /// Detects if the device is likely a tablet based on screen size
-  /// Uses diagonal screen size to determine if device is a tablet
+  /// Uses the shortest logical screen dimension (600 dp breakpoint).
   static bool isTablet(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    final diagonal = sqrt(size.width * size.width + size.height * size.height);
-
-    // Logical pixels are density-independent at ~160 per inch, so the diagonal
-    // converts to inches directly; devicePixelRatio is already factored out.
-    final diagonalInches = diagonal / 160.0;
-
-    return diagonalInches >= 7.0;
+    // dp não é uma medida física em polegadas. A menor dimensão é estável na rotação.
+    return size.shortestSide >= 600;
   }
 
   static bool isPhone(BuildContext context) {

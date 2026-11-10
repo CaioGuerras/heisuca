@@ -154,6 +154,7 @@ extension _PlexVideoControlsTrackMethods on _PlexVideoControlsState {
     );
     final canSwitchSourceSubtitles = versionQuality.canSwitch && versionQuality.sourceSubtitleTracks.isNotEmpty;
     return TrackControlsState(
+      delivery: widget.delivery,
       availableVersions: versionQuality.availableVersions,
       selectedMediaIndex: widget.selectedMediaIndex,
       selectedQualityPreset: widget.selectedQualityPreset,
@@ -250,6 +251,8 @@ extension _PlexVideoControlsTrackMethods on _PlexVideoControlsState {
       onSeekRequested: widget.onSeekRequested,
       onSeekCompleted: widget.onSeekCompleted,
       hideChaptersAndQueue: hideChaptersAndQueue,
+      mobileDock: PlatformDetector.isMobile(context),
     );
   }
 }
+

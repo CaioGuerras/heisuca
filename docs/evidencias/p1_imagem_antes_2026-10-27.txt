@@ -1,0 +1,17 @@
+F
+======================================================================
+FAIL: test_preto_nao_pode_ser_confirmado_como_imagem_restaurada (test_imagem.ImagemNativa.test_preto_nao_pode_ser_confirmado_como_imagem_restaurada)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1396, in patched
+    return func(*newargs, **newkeywargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/heisuca/apps/app/scripts/bancada/test_imagem.py", line 27, in test_preto_nao_pode_ser_confirmado_como_imagem_restaurada
+    with self.assertRaisesRegex(RuntimeError, 'Imagem nativa preta'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: RuntimeError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+FAILED (failures=1)

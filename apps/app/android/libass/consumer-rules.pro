@@ -1,4 +1,4 @@
-# JNI exports bind by name (Java_com_edde746_plezy_libass_*); keep the names stable.
--keepclasseswithmembernames class com.edde746.plezy.libass.* {
+# JNI exports bind by name (Java_app_heisuca_libass_*); keep the names stable.
+-keepclasseswithmembernames class app.heisuca.libass.* {
     native <methods>;
 }

@@ -6,7 +6,7 @@
 
 /// Flutter plugin for the dedicated audio-only mpv core (music playback).
 ///
-/// Registers `com.plezy/mpv_audio_player` + `/events` and delegates all
+/// Registers `app.heisuca/mpv_audio_player` + `/events` and delegates all
 /// generic property/command/observe traffic to the shared [MpvPluginShared]
 /// handlers. There is no render layer, so the visual hooks are no-ops and
 /// `setVisible`/`updateFrame` succeed without doing anything. Shared across
@@ -34,11 +34,11 @@ class MpvAudioPlayerPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, MpvPl
     #endif
 
     let methodChannel = FlutterMethodChannel(
-      name: "com.plezy/mpv_audio_player",
+      name: "app.heisuca/mpv_audio_player",
       binaryMessenger: messenger
     )
     let eventChannel = FlutterEventChannel(
-      name: "com.plezy/mpv_audio_player/events",
+      name: "app.heisuca/mpv_audio_player/events",
       binaryMessenger: messenger
     )
 

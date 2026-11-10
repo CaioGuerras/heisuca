@@ -34,7 +34,7 @@ O servidor **não** vem mais pré-preenchido (segurança): o campo do Jellyfin c
 | `lib/media/media_browser_dialect.dart` | dica neutra do campo de servidor |
 | `lib/services/jellyfin_auth_header.dart`, `plex_client.dart`, `plex_auth_service.dart`, `plex_discover_client.dart`, `models/plex/plex_config.dart` | nome do app no servidor: `CGFLIX`, `CGFLIX Android`, `CGFLIX Android TV`; `X-Plex-Product: CGFLIX` |
 | `lib/screens/video_player/parts/playback_services.dart` | cancela o tracker de progresso antigo antes de recriar (evita sessão duplicada) |
-| `lib/screens/discover_screen.dart`, `lib/cgflix/cgflix_advanced.dart` | Início sem Recarregar/Assistir juntos/Controle remoto; puxar para atualizar; os dois recursos vão para Avançado |
+| `lib/screens/discover_screen.dart`, `lib/cgflix/cgflix_advanced.dart` | Início com gesto de puxar para atualizar; recurso de sessão compartilhada removido |
 | `lib/widgets/settings_section.dart`, `lib/widgets/settings_page.dart`, `lib/cgflix/cgflix_collapsible.dart` | seções recolhíveis (cartões) nas Configurações |
 | `lib/screens/settings/{settings,general_settings,appearance_settings,playback_settings}_screen.dart` | usam as seções recolhíveis; cartão Avançado; mpv só em Avançado |
 | `lib/services/settings_service.dart` | padrões: tema OLED, áudio/legenda do servidor (`followServerTrackSelections`), idioma português |

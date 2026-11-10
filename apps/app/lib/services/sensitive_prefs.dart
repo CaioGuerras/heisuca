@@ -1,6 +1,6 @@
 /// Preference keys whose stored values are credentials.
 ///
-/// `shared_preferences` is the most credential-dense artifact in a Plezy
+/// `shared_preferences` is the most credential-dense artifact in a Heisuca
 /// installation. On the desktop platforms it is a single plaintext JSON file
 /// next to the database, and it holds:
 ///
@@ -39,6 +39,8 @@ const String credentialVaultKeyPref = 'credential_vault_key_v1';
 const String legacyPlexTokenPref = 'plex_token';
 
 /// Unscoped base keys used by `TrackerAccountStore`, one per tracker service.
+/// Inclui as chaves de serviços já removidos (mal, anilist, simkl, mdblist): continuam
+/// aqui para que reset/recuperação ainda limpem credenciais antigas.
 const List<String> trackerSessionBaseKeys = <String>[
   'mal_session',
   'anilist_session',

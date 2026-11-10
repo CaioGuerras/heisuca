@@ -1,12 +1,22 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:os_media_controls/os_media_controls.dart';
-import 'package:plezy/screens/video_player_screen.dart';
-import 'package:plezy/services/driver_distraction.dart';
-import 'package:plezy/services/media_control_router.dart';
-import 'package:plezy/utils/platform_detector.dart';
+import 'package:heisuca/screens/video_player_screen.dart';
+import 'package:heisuca/services/driver_distraction.dart';
+import 'package:heisuca/services/media_control_router.dart';
+import 'package:heisuca/utils/platform_detector.dart';
 
 void main() {
+  test('som ao sair exige escolha explícita e nunca libera TV ou carro', () {
+    expect(shouldPauseVideoForBackground(isHandheld: true, isTv: false,
+        isAutomotive: false, continueListening: true), isFalse);
+    expect(shouldPauseVideoForBackground(isHandheld: true, isTv: false,
+        isAutomotive: false), isTrue);
+    expect(shouldPauseVideoForBackground(isHandheld: false, isTv: true,
+        isAutomotive: false, continueListening: true), isTrue);
+    expect(shouldPauseVideoForBackground(isHandheld: true, isTv: false,
+        isAutomotive: true, continueListening: true), isTrue);
+  });
   setUp(TvDetectionService.debugReset);
   tearDown(TvDetectionService.debugReset);
 

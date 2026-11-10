@@ -87,7 +87,7 @@ class PlexImageCacheManager extends ce_cache.DefaultCacheManager {
     int? maxHeight,
     int? maxWidth,
   }) {
-    // Plezy already requests server-sized artwork URLs. Avoid CE's disk-resize
+    // Heisuca already requests server-sized artwork URLs. Avoid CE's disk-resize
     // path, which decodes downloaded images before writing resized PNG copies.
     return getFileStream(url, key: key, headers: headers, withProgress: withProgress);
   }

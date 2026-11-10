@@ -25,8 +25,7 @@ platform :android do
 
     git_commit = `git -C #{PROJECT_ROOT_ARG} rev-parse --short HEAD`.strip
 
-    sh("cd #{PROJECT_ROOT_ARG} && flutter build appbundle --dart-define=ENABLE_SENTRY=true --dart-define=GIT_COMMIT=#{git_commit} --dart-define=SENTRY_ENVIRONMENT=play-store --dart-define=SENTRY_DIST=play-store --obfuscate --split-debug-info=debug-info/android-aab --extra-gen-snapshot-options=--save-obfuscation-map=debug-info/android-aab/obfuscation.map.json")
-    sh("cd #{PROJECT_ROOT_ARG} && SENTRY_DIST=play-store ./scripts/upload-symbols.sh android-aab")
+    sh("cd #{PROJECT_ROOT_ARG} && flutter build appbundle --dart-define=GIT_COMMIT=#{git_commit} --obfuscate --split-debug-info=debug-info/android-aab --extra-gen-snapshot-options=--save-obfuscation-map=debug-info/android-aab/obfuscation.map.json")
 
     upload_to_play_store(
       track: "production",
@@ -35,8 +34,7 @@ platform :android do
       aab: "../build/app/outputs/bundle/release/app-release.aab"
     )
 
-    sh("cd #{PROJECT_ROOT_ARG} && AMAZON=1 flutter build apk --release --dart-define=ENABLE_SENTRY=true --dart-define=GIT_COMMIT=#{git_commit} --dart-define=SENTRY_ENVIRONMENT=amazon --dart-define=SENTRY_DIST=amazon --obfuscate --split-debug-info=debug-info/android-apk --extra-gen-snapshot-options=--save-obfuscation-map=debug-info/android-apk/obfuscation.map.json")
-    sh("cd #{PROJECT_ROOT_ARG} && SENTRY_DIST=amazon ./scripts/upload-symbols.sh android-apk")
+    sh("cd #{PROJECT_ROOT_ARG} && AMAZON=1 flutter build apk --release --dart-define=GIT_COMMIT=#{git_commit} --obfuscate --split-debug-info=debug-info/android-apk --extra-gen-snapshot-options=--save-obfuscation-map=debug-info/android-apk/obfuscation.map.json")
 
     upload_to_amazon_appstore(
       apk_paths: [

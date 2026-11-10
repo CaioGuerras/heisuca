@@ -4,29 +4,31 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/connection/connection.dart';
-import 'package:plezy/connection/connection_registry.dart';
-import 'package:plezy/database/app_database.dart';
-import 'package:plezy/database/download_operations.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/profiles/active_profile_binder.dart';
-import 'package:plezy/profiles/active_profile_provider.dart';
-import 'package:plezy/profiles/plex_home_service.dart';
-import 'package:plezy/profiles/profile.dart';
-import 'package:plezy/profiles/profile_connection.dart';
-import 'package:plezy/profiles/profile_connection_registry.dart';
-import 'package:plezy/profiles/profile_registry.dart';
-import 'package:plezy/providers/account_preferences_controller.dart';
-import 'package:plezy/providers/companion_remote_provider.dart';
-import 'package:plezy/providers/download_provider.dart';
-import 'package:plezy/providers/multi_server_provider.dart';
-import 'package:plezy/providers/playback_state_provider.dart';
-import 'package:plezy/screens/profile/profile_teardown.dart';
-import 'package:plezy/services/plex_auth_service.dart';
-import 'package:plezy/services/credential_vault.dart';
-import 'package:plezy/services/multi_server_manager.dart';
-import 'package:plezy/services/storage_service.dart';
-import 'package:plezy/services/system_shelf_service.dart';
+import 'package:heisuca/cgflix/requests/cgflix_secure_store.dart';
+import 'package:heisuca/connection/connection.dart';
+import 'package:heisuca/connection/connection_registry.dart';
+import 'package:heisuca/database/app_database.dart';
+import 'package:heisuca/database/download_operations.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/profiles/active_profile_binder.dart';
+import 'package:heisuca/profiles/active_profile_provider.dart';
+import 'package:heisuca/profiles/plex_home_service.dart';
+import 'package:heisuca/profiles/profile.dart';
+import 'package:heisuca/profiles/profile_connection.dart';
+import 'package:heisuca/profiles/profile_connection_registry.dart';
+import 'package:heisuca/profiles/profile_registry.dart';
+import 'package:heisuca/providers/account_preferences_controller.dart';
+import 'package:heisuca/providers/download_provider.dart';
+import 'package:heisuca/providers/multi_server_provider.dart';
+import 'package:heisuca/providers/playback_state_provider.dart';
+import 'package:heisuca/screens/profile/profile_teardown.dart';
+import 'package:heisuca/services/plex_auth_service.dart';
+import 'package:heisuca/services/base_shared_preferences_service.dart';
+import 'package:heisuca/services/credential_vault.dart';
+import 'package:heisuca/services/sensitive_prefs.dart';
+import 'package:heisuca/services/multi_server_manager.dart';
+import 'package:heisuca/services/storage_service.dart';
+import 'package:heisuca/services/system_shelf_service.dart';
 import 'package:provider/provider.dart';
 
 import '../../test_helpers/multi_server_fixtures.dart';
@@ -75,6 +77,9 @@ class _Downloads extends ChangeNotifier implements DownloadProvider {
   }
 
   @override
+  Future<void> detachDownloadsForLogout() async => events.add('detach-downloads');
+
+  @override
   Future<void> releaseDownloadsForProfileServers(String profileId, Set<String> serverIds) async {
     events.add('release-downloads:$profileId:${serverIds.toList()..sort()}');
   }
@@ -83,21 +88,10 @@ class _Downloads extends ChangeNotifier implements DownloadProvider {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-class _Companion extends ChangeNotifier implements CompanionRemoteProvider {
-  _Companion(this.events);
-  final List<String> events;
-
-  @override
-  Future<void> resetForLogout() async {
-    events.add('companion-reset');
-    throw StateError('stop after first logout mutation');
-  }
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
 class _Playback extends ChangeNotifier implements PlaybackStateProvider {
+  @override
+  void clearShuffle() {}
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -256,15 +250,50 @@ void main() {
     expect(await harness.connections.get(account.id), isNotNull);
   });
 
-  testWidgets('full logout clears shelf before companion, identity, or credential teardown', (tester) async {
+  testWidgets('logout total não deixa credencial: Drift, prefs, sessões do Seerr e Keystore', (tester) async {
     final events = <String>[];
     final harness = await _pumpHarness(tester, events: events, channel: channel);
     addTearDown(harness.dispose);
+    final store = CgflixMemorySecureStore();
+    CredentialVault.useSecureStoreForTesting(store);
+    addTearDown(CredentialVault.resetSecureStoreForTesting);
 
-    await expectLater(logoutAllProfiles(harness.context), throwsStateError);
+    const homeUserUuid = 'aaaaaaaaaaaaaaaa';
+    final account = _plexAccount();
+    await _linkAccount(
+      harness,
+      account,
+      virtualProfileId: plexHomeProfileId(accountConnectionId: account.id, homeUserUuid: homeUserUuid),
+      homeUserUuid: homeUserUuid,
+    );
 
-    expect(events.take(2), ['clear:active', 'companion-reset']);
+    // Sobras de credencial nas prefs: slot legado do Plex, sessões do Seerr e de rastreadores
+    // (com e sem escopo de perfil).
+    final prefs = await BaseSharedPreferencesService.sharedCache();
+    await prefs.setString(legacyPlexTokenPref, 'plex-token-legado');
+    for (final base in [...trackerSessionBaseKeys, seerrSessionBaseKey]) {
+      await prefs.setString(base, 'sessao-sem-escopo');
+      await prefs.setString(profileScopedPrefsKey('active', base), 'sessao-do-perfil');
+    }
+    // Sessões do Seerr do CGFLIX (cookie) no armazenamento seguro, uma por conta.
+    await store.write('seerr_session:srv1:user1', 'cookie-1');
+    await store.write('seerr_session:srv2:user2', 'cookie-2');
+
+    await logoutAllProfiles(harness.context, secureStore: store);
+    await tester.pump();
+
+    // Drift: nenhuma conexão nem vínculo (com token cifrado).
+    expect(await harness.connections.list(), isEmpty);
+    expect(await harness.profileConnections.listForConnection(account.id), isEmpty);
+    // Prefs: nenhuma credencial.
+    await prefs.reloadCache();
+    expect(prefs.getString(legacyPlexTokenPref), isNull);
+    final leftovers = prefs.keys.where(isSensitivePrefKey).toList();
+    expect(leftovers, isEmpty, reason: 'credenciais que sobraram nas prefs: $leftovers');
+    // Armazenamento seguro: nenhuma sessão do Seerr.
+    expect(store.values.keys.where((k) => k.startsWith('seerr_session:')), isEmpty);
   });
+
 }
 
 class _Harness {
@@ -349,7 +378,6 @@ Future<_Harness> _pumpHarness(
         Provider<ActiveProfileBinder>.value(value: _Binder(events)),
         ChangeNotifierProvider<MultiServerProvider>.value(value: multiServer),
         ChangeNotifierProvider<DownloadProvider>.value(value: _Downloads(events)),
-        ChangeNotifierProvider<CompanionRemoteProvider>.value(value: _Companion(events)),
         ChangeNotifierProvider<AccountPreferencesController>.value(value: accountPreferences),
         ChangeNotifierProvider<PlaybackStateProvider>.value(value: _Playback()),
       ],

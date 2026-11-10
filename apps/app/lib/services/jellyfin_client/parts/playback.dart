@@ -213,16 +213,16 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
     }
   }
 
+  /// URL do servidor com o token do dialeto SÓ quando é da origem do servidor;
+  /// URL externa permitida segue sem token; `null` se a política descarta
+  /// (`file:`, IP interno, rebaixamento https->http...). Ver resolveServerUrl.
   @override
-  String _withApiKey(String urlOrPath) {
-    final uri = JellyfinImageAbsolutizer.joinUri(baseUrl: connection.baseUrl, urlOrPath: urlOrPath);
-    // A server-supplied absolute URL can point at another host (a remote
-    // subtitle provider, a tuner); the token only ever goes to the server's
-    // own origin.
-    final base = Uri.tryParse(connection.baseUrl);
-    if (base == null || uri.scheme != base.scheme || uri.host != base.host || uri.port != base.port) {
-      return uri.toString();
-    }
+  String? _withApiKeyOrNull(String urlOrPath) {
+    final resolved = JellyfinImageAbsolutizer.resolveServerUrl(baseUrl: connection.baseUrl, urlOrPath: urlOrPath);
+    if (resolved == null) return null;
+    // Outra origem (legenda remota, stream IPTV): vai como veio, SEM token.
+    if (!resolved.sameOrigin) return resolved.uri.toString();
+    final uri = resolved.uri;
     final params = Map<String, String>.from(uri.queryParameters)
       ..[connection.dialect.tokenQueryParam] = connection.accessToken;
     return uri.replace(queryParameters: params).toString();
@@ -244,13 +244,29 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
   @override
   Future<PlaybackInitializationResult> getPlaybackInitialization(PlaybackInitializationOptions options) async {
     final metadata = options.metadata;
-    final JellyfinPlaybackBundle? bundle;
+    JellyfinPlaybackBundle? bundle;
     try {
+      if (PlatformDetector.isTV()) {
+        try {
+          bundle = await JellyfinPlaybackWarmupService.instance.getOrWaitInFlight(
+            serverId: connection.serverMachineId,
+            userId: connection.userId,
+            itemId: metadata.id,
+            sourceIndex: options.selectedMediaIndex,
+            sourceId: options.selectedMediaSourceId,
+            preferredSignature: options.preferredVersionSignature,
+            inheritedSignature: options.inheritedVersionSignature,
+          );
+        } catch (e, st) {
+          appLogger.w('Jellyfin playback warmup lookup failed; falling back to normal fetch', error: e, stackTrace: st);
+        }
+      }
+
       // An immediate connection error is asked again (see
       // [retryTransientMediaServerCall]); the deadline only backstops the
       // HTTP layer's own connect + receive budgets, so it never cuts a slow
       // but working server short.
-      bundle = await retryTransientMediaServerCall(
+      bundle ??= await retryTransientMediaServerCall(
         operation: 'Jellyfin playback item',
         deadline: MediaServerTimeouts.connect + MediaServerTimeouts.receive,
         call: (_, _) => fetchPlaybackBundle(
@@ -258,6 +274,8 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
           sourceIndex: options.selectedMediaIndex,
           sourceId: options.selectedMediaSourceId,
           preferredSignature: options.preferredVersionSignature,
+          inheritedSignature: options.inheritedVersionSignature,
+          rawIndexNeedsHardware: true,
         ),
       );
     } catch (error, stackTrace) {
@@ -442,6 +460,14 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
       isOffline: false,
       isTranscoding: isTranscoding,
       fallbackReason: fallbackReason,
+      delivery: dialect.backend.name == 'jellyfin'
+          ? HeisucaPlaybackDelivery.jellyfin(
+              method: playMethod,
+              transcodingUrl: chosenSource?['TranscodingUrl'] is String
+                  ? chosenSource!['TranscodingUrl'] as String
+                  : null,
+            )
+          : null,
       activeAudioStreamId: requestedAudioStreamId,
       playSessionId: playSessionId,
       playMethod: playMethod,
@@ -585,7 +611,7 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
   /// Restrict sidecar identity to the subtitle rows this open actually fetched
   /// as sidecars.
   ///
-  /// Plezy's device profile declares every *text* subtitle format with
+  /// Heisuca's device profile declares every *text* subtitle format with
   /// `Method: External`, so Jellyfin returns `DeliveryMethod: External` and a
   /// `DeliveryUrl` even for text streams embedded in a direct-played container
   /// whose container cannot carry subtitles in the delivered form.
@@ -658,7 +684,11 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
       if (path == null) continue;
       // Jellyfin's subtitle URL is a path relative to baseUrl; build the
       // absolute URL with the dialect's token query parameter.
-      final url = _withApiKey(path);
+      final url = _withApiKeyOrNull(path);
+      if (url == null) {
+        appLogger.w('Jellyfin subtitle ignored: URL refused by the server URL policy');
+        continue;
+      }
       externalSubtitles.add(
         PlaybackSubtitleSidecar(
           sourceStreamId: track.id,
@@ -694,34 +724,78 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
   /// [sourceId] wins when present because Jellyfin plugins may reorder merged
   /// `MediaSources` between requests. [sourceIndex] is clamped to the valid
   /// range as a fallback to mirror Plex's `parseVideoPlaybackDataFromJson`.
+  /// [sourceIndex] nulo = ninguém escolheu: o ranqueador decide. Qualquer
+  /// número, inclusive 0, é escolha explícita e é respeitado — exceto com
+  /// [rawIndexNeedsHardware] (reprodução): aí o índice sem id nem assinatura
+  /// só vale se o aparelho decodificar a fonte por hardware. Downloads e
+  /// player externo seguem com o índice como está.
   @override
   Future<JellyfinPlaybackBundle?> fetchPlaybackBundle(
     String itemId, {
-    int sourceIndex = 0,
+    int? sourceIndex,
     String? sourceId,
     String? preferredSignature,
+    String? inheritedSignature,
+    bool rawIndexNeedsHardware = false,
   }) async {
+    if (PlatformDetector.isTV()) {
+      try {
+        final cached = JellyfinPlaybackWarmupService.instance.get(
+          serverId: connection.serverMachineId,
+          userId: connection.userId,
+          itemId: itemId,
+          sourceIndex: sourceIndex,
+          sourceId: sourceId,
+          preferredSignature: preferredSignature,
+          inheritedSignature: inheritedSignature,
+        );
+        if (cached != null) return cached;
+      } catch (e, st) {
+        appLogger.w('Jellyfin playback warmup cache lookup failed', error: e, stackTrace: st);
+      }
+    }
     final item = await fetchItemFreshCacheFirst(itemId);
     final raw = item?.raw;
     if (raw is! Map<String, dynamic>) return null;
-    return _playbackBundleFromRaw(
+    final bundle = _playbackBundleFromRaw(
       raw,
       sourceIndex: sourceIndex,
       sourceId: sourceId,
       preferredSignature: preferredSignature,
+      inheritedSignature: inheritedSignature,
+      rawIndexNeedsHardware: rawIndexNeedsHardware,
     );
+    if (bundle != null && PlatformDetector.isTV()) {
+      try {
+        JellyfinPlaybackWarmupService.instance.put(
+          serverId: connection.serverMachineId,
+          userId: connection.userId,
+          itemId: itemId,
+          sourceIndex: sourceIndex,
+          sourceId: sourceId,
+          preferredSignature: preferredSignature,
+          inheritedSignature: inheritedSignature,
+          bundle: bundle,
+        );
+      } catch (e, st) {
+        appLogger.w('Jellyfin playback warmup cache put failed', error: e, stackTrace: st);
+      }
+    }
+    return bundle;
   }
 
   JellyfinPlaybackBundle? _playbackBundleFromRaw(
     Map<String, dynamic> raw, {
-    int sourceIndex = 0,
+    int? sourceIndex,
     String? sourceId,
     String? preferredSignature,
+    String? inheritedSignature,
+    bool rawIndexNeedsHardware = false,
   }) {
     final sources = raw['MediaSources'];
     if (sources is! List || sources.isEmpty) return null;
     final availableVersions = jellyfinSourcesToVersions(sources);
-    var index = sourceIndex;
+    var index = sourceIndex ?? 0;
     final requestedSourceId = sourceId?.trim();
     var resolvedBySourceId = false;
     if (requestedSourceId != null && requestedSourceId.isNotEmpty) {
@@ -734,9 +808,65 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
     // Saved-preference signature: only meaningful when the id didn't pin a
     // source (Resume rows omit MediaSources, so launch passes a signature and
     // a stored index that may not fit this item's source ordering).
-    if (!resolvedBySourceId && preferredSignature != null && preferredSignature.isNotEmpty) {
-      final bySignature = MediaVersion.findMatchingIndex(availableVersions, {preferredSignature});
-      if (bySignature != null) index = bySignature;
+    // [preferredSignature] é escolha explícita salva do usuário: vence mesmo
+    // sem decodificador de hardware (o aviso antes do play oferece outra
+    // versão). [inheritedSignature] é só a versão que tocava no episódio
+    // anterior: vale apenas se este aparelho a decodifica por hardware.
+    // Assinatura que não casa (ou herdada sem hardware) torna o índice junto
+    // dela suspeito — ele é de outro item — e quem decide é o ranqueador.
+    var resolvedBySignature = false;
+    var staleSourceIndex = false;
+    int? matchSignature(String? signature) {
+      if (signature == null || signature.isEmpty) return null;
+      final found = MediaVersion.findMatchingIndex(availableVersions, {signature});
+      if (found != null && found >= 0 && found < sources.length) return found;
+      staleSourceIndex = true;
+      return null;
+    }
+
+    if (!resolvedBySourceId) {
+      final byPreferred = matchSignature(preferredSignature);
+      if (byPreferred != null) {
+        index = byPreferred;
+        resolvedBySignature = true;
+      } else {
+        final byInherited = matchSignature(inheritedSignature);
+        if (byInherited != null) {
+          final cand = sources[byInherited];
+          if (cand is Map<String, dynamic> && isSourceHardwareDecodable(cand)) {
+            index = byInherited;
+            resolvedBySignature = true;
+          } else {
+            staleSourceIndex = true;
+          }
+        }
+      }
+    }
+
+    // Na reprodução, índice cru sem id nem assinatura não é escolha do
+    // usuário (escolha manual sempre leva o sourceId): costuma ser o índice
+    // do episódio anterior ou o 0 de um retry. Só vale se este aparelho
+    // decodifica essa fonte por hardware; senão quem decide é o ranqueador.
+    if (!resolvedBySourceId && !resolvedBySignature) {
+      final rawSource = sourceIndex != null && sourceIndex >= 0 && sourceIndex < sources.length
+          ? sources[sourceIndex]
+          : null;
+      // Sem o portão, o índice fora do intervalo segue limitado a 0 abaixo.
+      if (sourceIndex != null &&
+          !staleSourceIndex &&
+          (!rawIndexNeedsHardware ||
+              (rawSource is Map<String, dynamic> && (sources.length == 1 || isSourceHardwareDecodable(rawSource))))) {
+        index = sourceIndex;
+      } else {
+        final ranked = rankMediaSources(sources);
+        if (ranked.isNotEmpty) {
+          final bestSource = ranked.first;
+          final bestIdx = sources.indexOf(bestSource);
+          if (bestIdx >= 0) {
+            index = bestIdx;
+          }
+        }
+      }
     }
     if (index < 0 || index >= sources.length) index = 0;
     final source = sources[index];
@@ -904,7 +1034,7 @@ mixin _JellyfinPlaybackMethods on _JellyfinClientInternals {
         'UserId': connection.userId,
         ...negotiation,
         'DeviceProfile': <String, Object?>{
-          'Name': 'Plezy',
+          'Name': 'Heisuca',
           'MaxStreamingBitrate': ?maxStreamingBitrate,
           'CodecProfiles': const <Map<String, Object?>>[],
           // fMP4 segments instead of MPEG-TS (#2131): ts cannot carry AV1,

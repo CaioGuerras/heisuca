@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/screens/video_player/player_output_format.dart';
+import 'package:heisuca/screens/video_player/player_output_format.dart';
 
-import '../../test_helpers/watch_together_fakes.dart';
+import '../../test_helpers/player_fakes.dart';
 
 /// A player whose mpv properties are exactly the given map; anything else
 /// is unavailable, as a backend without the property (ExoPlayer) or a chain

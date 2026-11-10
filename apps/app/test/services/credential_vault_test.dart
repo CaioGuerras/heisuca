@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/services/credential_vault.dart';
+import 'package:heisuca/services/credential_vault.dart';
 
 import '../test_helpers/prefs.dart';
 

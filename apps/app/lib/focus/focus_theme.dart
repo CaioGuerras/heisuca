@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../cgflix/cgflix_palette.dart';
 import '../services/device_performance.dart';
 import '../theme/mono_tokens.dart';
 import '../utils/platform_detector.dart';
@@ -19,7 +20,10 @@ class FocusTheme {
   static const double focusGlowSpreadRadius = 1.5;
 
   static Color getFocusBorderColor(BuildContext context) {
-    return Theme.of(context).colorScheme.primary;
+    final theme = Theme.of(context);
+    // Anel do foco = token opaco da paleta (>= 3:1 no fundo e na superfície); sem a extensão
+    // (telas/testes fora do tema CGFLIX) cai na cor primária do esquema.
+    return theme.extension<CgflixPalette>()?.focusRing ?? theme.colorScheme.primary;
   }
 
   static Duration getAnimationDuration(BuildContext context) {

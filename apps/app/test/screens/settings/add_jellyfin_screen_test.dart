@@ -7,28 +7,29 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:plezy/connection/connection.dart';
-import 'package:plezy/connection/connection_registry.dart';
-import 'package:plezy/database/app_database.dart';
-import 'package:plezy/focus/input_mode_tracker.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/media/media_browser_dialect.dart';
-import 'package:plezy/profiles/active_profile_binder.dart';
-import 'package:plezy/profiles/active_profile_provider.dart';
-import 'package:plezy/profiles/plex_home_service.dart';
-import 'package:plezy/profiles/profile.dart';
-import 'package:plezy/profiles/profile_connection.dart';
-import 'package:plezy/profiles/profile_connection_registry.dart';
-import 'package:plezy/profiles/profile_registry.dart';
-import 'package:plezy/providers/multi_server_provider.dart';
-import 'package:plezy/screens/settings/add_jellyfin_screen.dart';
-import 'package:plezy/services/jellyfin_auth_service.dart';
-import 'package:plezy/services/credential_vault.dart';
-import 'package:plezy/services/jellyfin_lan_discovery_service.dart';
-import 'package:plezy/services/multi_server_manager.dart';
-import 'package:plezy/services/storage_service.dart';
-import 'package:plezy/theme/mono_theme.dart';
-import 'package:plezy/utils/platform_detector.dart';
+import 'package:heisuca/cgflix/cgflix_login_checks.dart';
+import 'package:heisuca/connection/connection.dart';
+import 'package:heisuca/connection/connection_registry.dart';
+import 'package:heisuca/database/app_database.dart';
+import 'package:heisuca/focus/input_mode_tracker.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/media/media_browser_dialect.dart';
+import 'package:heisuca/profiles/active_profile_binder.dart';
+import 'package:heisuca/profiles/active_profile_provider.dart';
+import 'package:heisuca/profiles/plex_home_service.dart';
+import 'package:heisuca/profiles/profile.dart';
+import 'package:heisuca/profiles/profile_connection.dart';
+import 'package:heisuca/profiles/profile_connection_registry.dart';
+import 'package:heisuca/profiles/profile_registry.dart';
+import 'package:heisuca/providers/multi_server_provider.dart';
+import 'package:heisuca/screens/settings/add_jellyfin_screen.dart';
+import 'package:heisuca/services/jellyfin_auth_service.dart';
+import 'package:heisuca/services/credential_vault.dart';
+import 'package:heisuca/services/jellyfin_lan_discovery_service.dart';
+import 'package:heisuca/services/multi_server_manager.dart';
+import 'package:heisuca/services/storage_service.dart';
+import 'package:heisuca/theme/mono_theme.dart';
+import 'package:heisuca/utils/platform_detector.dart';
 import 'package:provider/provider.dart';
 
 import '../../test_helpers/multi_server_fixtures.dart';
@@ -74,15 +75,19 @@ JellyfinConnectionAuthService _jellyfinAuthService({bool quickConnectEnabled = f
   );
 }
 
-JellyfinConnectionAuthService _jellyfinAuthServiceForBareHost() {
+/// Servidor que só responde em HTTPS (porta 443 implícita). Desde o b3513e7
+/// (P3, só HTTPS) endereço sem esquema expande só para https e `http://` externo
+/// nem é sondado; [probed] registra cada esquema que chegou ao "servidor".
+JellyfinConnectionAuthService _jellyfinAuthServiceForBareHost({List<String>? probed}) {
   return JellyfinConnectionAuthService(
     clientName: 'Plezy',
     clientVersion: 'test',
     deviceName: 'TestDevice',
     testHttpClientFactory: () => MockClient((request) async {
+      probed?.add(request.url.scheme);
       switch (request.url.path) {
         case '/System/Info/Public':
-          if (request.url.scheme == 'http' && request.url.host == 'jf.example.com' && request.url.port == 8096) {
+          if (request.url.scheme == 'https' && request.url.host == 'jf.example.com' && request.url.port == 443) {
             return http.Response(
               jsonEncode({'Id': 'srv-1', 'ServerName': 'Home', 'Version': '10.9.0'}),
               200,
@@ -572,11 +577,12 @@ void main() {
     expect(FocusManager.instance.primaryFocus?.debugLabel, 'AddJellyfin:Url');
   });
 
-  testWidgets('accepts a bare Jellyfin host and expands it before probing', (tester) async {
+  testWidgets('accepts a bare Jellyfin host and expands it (https only) before probing', (tester) async {
+    final probed = <String>[];
     await tester.pumpWidget(
       _testApp(
         AddJellyfinScreen(
-          authServiceFactory: () => _jellyfinAuthServiceForBareHost(),
+          authServiceFactory: () => _jellyfinAuthServiceForBareHost(probed: probed),
           localDiscoveryFactory: _noLocalServers,
         ),
       ),
@@ -588,8 +594,60 @@ void main() {
     await tester.pumpAndSettle();
 
     final field = tester.widget<TextField>(find.byType(TextField).first);
-    expect(field.controller?.text, 'http://jf.example.com:8096');
+    expect(field.controller?.text, 'https://jf.example.com');
     expect(find.text('Home'), findsOneWidget);
+    // Só HTTPS (b3513e7): o 8096 em http:// da expansão antiga não é mais sondado.
+    expect(probed, isNotEmpty);
+    expect(probed.toSet(), {'https'});
+  });
+
+  testWidgets('an explicit external http:// address is refused with the https message and never probed', (
+    tester,
+  ) async {
+    final probed = <String>[];
+    await tester.pumpWidget(
+      _testApp(
+        AddJellyfinScreen(
+          authServiceFactory: () => _jellyfinAuthServiceForBareHost(probed: probed),
+          localDiscoveryFactory: _noLocalServers,
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await tester.enterText(find.byType(TextField).first, 'http://jf.example.com:8096');
+    await tester.testTextInput.receiveAction(TextInputAction.go);
+    await tester.pumpAndSettle();
+
+    expect(find.text(cgflixHttpsRequiredMessage), findsOneWidget);
+    expect(probed, isEmpty);
+  });
+
+  testWidgets('a discovered LAN server that only announces http:// is refused (no way to connect)', (tester) async {
+    // Documenta a regra atual: a descoberta na LAN anuncia http://192.168.x:8096
+    // e a regra só-HTTPS recusa. Ver relatório: decisão do Caio pendente.
+    final probed = <String>[];
+    await tester.pumpWidget(
+      _testApp(
+        AddJellyfinScreen(
+          authServiceFactory: () => _jellyfinAuthServiceForBareHost(probed: probed),
+          localDiscoveryFactory: () async => [
+            DiscoveredJellyfinServer(
+              address: 'http://192.168.1.20:8096',
+              id: 'srv-1',
+              name: 'Home',
+              dialect: MediaBrowserDialect.jellyfin,
+            ),
+          ],
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Home'));
+    await tester.pumpAndSettle();
+
+    expect(find.text(cgflixHttpsRequiredMessage), findsOneWidget);
+    expect(probed, isEmpty);
   });
 
   testWidgets('the Emby dialect renames the screen and never offers Quick Connect', (tester) async {
@@ -700,7 +758,7 @@ void main() {
                 _jellyfinAuthService(quickConnectEnabled: true, initiateDelay: const Duration(milliseconds: 50)),
             localDiscoveryFactory: () async => [
               DiscoveredJellyfinServer(
-                address: 'http://192.168.1.20:8096',
+                address: 'https://192.168.1.20:8920',
                 id: 'srv-1',
                 name: 'Home',
                 dialect: MediaBrowserDialect.jellyfin,
@@ -756,7 +814,7 @@ void main() {
           authServiceFactory: () => _jellyfinAuthService(),
           localDiscoveryFactory: () async => [
             DiscoveredJellyfinServer(
-              address: 'http://192.168.1.20:8096',
+              address: 'https://192.168.1.20:8920',
               id: 'srv-1',
               name: 'Home',
               dialect: MediaBrowserDialect.jellyfin,
@@ -773,7 +831,7 @@ void main() {
     await tester.pumpAndSettle();
 
     final field = tester.widget<TextField>(find.byType(TextField).first);
-    expect(field.controller?.text, contains('http://192.168.1.20:8096'));
+    expect(field.controller?.text, contains('https://192.168.1.20:8920'));
     expect(find.text('Jellyfin 10.9.0'), findsOneWidget);
   });
 

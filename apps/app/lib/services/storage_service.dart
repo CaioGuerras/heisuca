@@ -8,6 +8,7 @@ import 'package:uuid/uuid.dart';
 import '../profiles/profile.dart';
 import '../utils/log_redaction_manager.dart';
 import 'base_shared_preferences_service.dart';
+import 'sensitive_prefs.dart';
 
 enum LibraryPreference { filters, sort, grouping, tab }
 
@@ -208,7 +209,13 @@ class StorageService extends BaseSharedPreferencesService {
 
   // Clear all credentials
   Future<void> clearCredentials() async {
-    await Future.wait([..._credentialKeys.map((k) => prefs.remove(k)), clearMultiServerData()]);
+    // Sessões de rastreadores e do Seerr sem escopo de perfil (instalações antigas) também são
+    // credencial; as com escopo (`user_*`) saem em clearAllUserScopedPreferences.
+    await Future.wait([
+      ..._credentialKeys.map((k) => prefs.remove(k)),
+      ...profileScopedCredentialBaseKeys.map((k) => prefs.remove(k)),
+      clearMultiServerData(),
+    ]);
     LogRedactionManager.clearTrackedValues();
   }
 

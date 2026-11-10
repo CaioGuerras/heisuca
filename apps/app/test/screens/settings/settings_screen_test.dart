@@ -8,51 +8,45 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
-import 'package:plezy/cgflix/cgflix_defaults.dart';
-import 'package:plezy/cgflix/cgflix_trakt.dart';
-import 'package:plezy/connection/connection_registry.dart';
-import 'package:plezy/database/app_database.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/media/media_library.dart';
-import 'package:plezy/profiles/active_profile_provider.dart';
-import 'package:plezy/profiles/plex_home_service.dart';
-import 'package:plezy/profiles/profile_connection_registry.dart';
-import 'package:plezy/profiles/profile_registry.dart';
-import 'package:plezy/providers/account_preferences_controller.dart';
-import 'package:plezy/providers/hidden_libraries_provider.dart';
-import 'package:plezy/providers/libraries_provider.dart';
-import 'package:plezy/providers/download_provider.dart';
-import 'package:plezy/providers/seerr_account_provider.dart';
-import 'package:plezy/providers/theme_provider.dart';
-import 'package:plezy/providers/trackers_provider.dart';
-import 'package:plezy/screens/settings/settings_screen.dart';
-import 'package:plezy/services/background_work_diagnostics_service.dart';
-import 'package:plezy/services/donation_service.dart';
-import 'package:plezy/services/download_storage_service.dart';
-import 'package:plezy/services/download_manager_service.dart';
-import 'package:plezy/services/file_picker_service.dart';
-import 'package:plezy/services/settings_export_service.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/services/storage_service.dart';
-import 'package:plezy/services/update_service.dart';
-import 'package:plezy/theme/mono_theme.dart';
-import 'package:plezy/utils/platform_detector.dart';
-import 'package:plezy/widgets/app_icon.dart';
-import 'package:plezy/widgets/dialog_action_button.dart';
-import 'package:plezy/widgets/focusable_list_tile.dart';
-import 'package:plezy/widgets/loading_indicator_box.dart';
-import 'package:plezy/widgets/setting_tile.dart';
-import 'package:plezy/cgflix/cgflix_config_itens.dart';
+import 'package:heisuca/cgflix/cgflix_defaults.dart';
+import 'package:heisuca/connection/connection_registry.dart';
+import 'package:heisuca/database/app_database.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_library.dart';
+import 'package:heisuca/profiles/active_profile_provider.dart';
+import 'package:heisuca/profiles/plex_home_service.dart';
+import 'package:heisuca/profiles/profile_connection_registry.dart';
+import 'package:heisuca/profiles/profile_registry.dart';
+import 'package:heisuca/providers/account_preferences_controller.dart';
+import 'package:heisuca/providers/hidden_libraries_provider.dart';
+import 'package:heisuca/providers/libraries_provider.dart';
+import 'package:heisuca/providers/download_provider.dart';
+import 'package:heisuca/providers/seerr_account_provider.dart';
+import 'package:heisuca/providers/theme_provider.dart';
+import 'package:heisuca/screens/settings/settings_screen.dart';
+import 'package:heisuca/services/background_work_diagnostics_service.dart';
+import 'package:heisuca/services/donation_service.dart';
+import 'package:heisuca/services/download_storage_service.dart';
+import 'package:heisuca/services/download_manager_service.dart';
+import 'package:heisuca/services/file_picker_service.dart';
+import 'package:heisuca/services/settings_export_service.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/services/storage_service.dart';
+import 'package:heisuca/theme/mono_theme.dart';
+import 'package:heisuca/utils/platform_detector.dart';
+import 'package:heisuca/widgets/app_icon.dart';
+import 'package:heisuca/widgets/dialog_action_button.dart';
+import 'package:heisuca/widgets/focusable_list_tile.dart';
+import 'package:heisuca/widgets/setting_tile.dart';
+import 'package:heisuca/cgflix/cgflix_config_itens.dart';
 import 'package:provider/provider.dart';
 
 import '../../test_helpers/io_fakes.dart';
 import '../../test_helpers/prefs.dart';
 
 void main() {
-  setUpAll(() => cgflixDebugShowAllServices = true); // CGFLIX: todos os serviços, como no Plezy
-  tearDownAll(() => cgflixDebugShowAllServices = false);
   // CGFLIX: estes testes partem do padrão do Plezy ("Baixar só no Wi-Fi" desligado).
   setUpAll(() => cgflixDownloadOnWifiOnlyDefault = false);
   tearDownAll(() => cgflixDownloadOnWifiOnlyDefault = true);
@@ -125,7 +119,7 @@ void main() {
     await _pumpUi(tester);
 
     expect(find.text('Maestro Movies'), findsNothing, reason: 'system back dismisses the sheet');
-    expect(find.text(t.settings.services), findsOneWidget, reason: 'the settings route remains current');
+    expect(find.text(t.libraries.manageLibraries), findsOneWidget, reason: 'the settings route remains current');
     expect(find.text('Settings launcher'), findsNothing, reason: 'system back must not pop the settings route');
   });
 
@@ -139,19 +133,11 @@ void main() {
         focusLabel: 'settings_donate',
         isVisible: DonationService.isEnabled,
       ),
-      _MigratedRow(title: t.settings.watchTogetherRelay, focusLabel: 'settings_watch_together_relay'),
       _MigratedRow(title: t.settings.clearImageCache, focusLabel: 'settings_clear_image_cache'),
       _MigratedRow(title: t.settings.resetSettings, focusLabel: 'settings_reset_settings'),
-      const _MigratedRow(title: 'Test Sentry', isVisible: kDebugMode),
       const _MigratedRow(title: 'Test ANR', isVisible: kDebugMode),
       _MigratedRow(title: t.settings.exportSettings, focusLabel: 'settings_export_settings'),
       _MigratedRow(title: t.settings.importSettings, focusLabel: 'settings_import_settings'),
-      _MigratedRow(
-        title: t.settings.checkForUpdates,
-        focusLabel: 'settings_check_for_updates',
-        isVisible: UpdateService.isUpdateCheckAvailable && UpdateService.useNativeUpdater,
-        hasSubtitle: false,
-      ),
     ];
 
     final referenceHeight = tester.getSize(_focusableTileFor(t.settings.viewLogs)).height;
@@ -190,25 +176,23 @@ void main() {
         expect(focusable.focusNode, isNull, reason: '${row.title} intentionally uses the tile-owned focus node');
       }
 
-      if (row.hasSubtitle) {
-        // Subtitle rows occupy the same vertical space as an existing standard
-        // SettingNavigationTile in this screen.
-        expect(tester.getSize(focusableFinder).height, referenceHeight);
-      }
+      // Subtitle rows occupy the same vertical space as an existing standard
+      // SettingNavigationTile in this screen.
+      expect(tester.getSize(focusableFinder).height, referenceHeight);
     }
 
     // Exercise both input paths against real callbacks rather than merely
     // checking that callbacks are non-null.
-    final relayMaterialTile = tester.widget<ListTile>(
-      find.descendant(of: _focusableTileFor(t.settings.watchTogetherRelay), matching: find.byType(ListTile)),
+    final resetMaterialTile = tester.widget<ListTile>(
+      find.descendant(of: _focusableTileFor(t.settings.resetSettings), matching: find.byType(ListTile)),
     );
-    relayMaterialTile.focusNode!.requestFocus();
+    resetMaterialTile.focusNode!.requestFocus();
     await tester.pump();
-    expect(relayMaterialTile.focusNode!.hasFocus, isTrue);
+    expect(resetMaterialTile.focusNode!.hasFocus, isTrue);
     await tester.sendKeyEvent(LogicalKeyboardKey.enter);
     await _pumpUi(tester);
     expect(find.byType(AlertDialog), findsOneWidget);
-    expect(find.text(t.settings.watchTogetherRelay), findsWidgets);
+    expect(find.text(t.settings.resetSettings), findsWidgets);
     Navigator.of(tester.element(find.byType(AlertDialog))).pop();
     await _pumpUi(tester);
 
@@ -251,39 +235,12 @@ void main() {
       await _pumpUi(tester);
     }
 
-    if (!UpdateService.isUpdateCheckAvailable) {
-      expect(find.text(t.settings.checkForUpdates), findsNothing);
-      return;
-    }
-
-    if (UpdateService.useNativeUpdater) {
-      expect(_navigationTileFor(t.settings.checkForUpdates), findsOneWidget);
-      return;
-    }
-
-    final updateTileFinder = _focusableTileFor(t.settings.checkForUpdates);
-    final materialUpdateTile = tester.widget<ListTile>(
-      find.descendant(of: updateTileFinder, matching: find.byType(ListTile)),
-    );
-    final updateTile = tester.widget<FocusableListTile>(updateTileFinder);
-
-    expect(_navigationTileFor(t.settings.checkForUpdates), findsNothing);
-    expect(updateTile.dense, isTrue);
-    expect(materialUpdateTile.dense, isFalse);
-    expect(materialUpdateTile.visualDensity, VisualDensity.standard);
-    expect(updateTile.visualDensity, const VisualDensity(vertical: -3));
-    expect(updateTile.trailing, isA<AppIcon>());
-    expect(updateTile.onTap, isNotNull);
-    expect(find.descendant(of: updateTileFinder, matching: find.byType(LoadingIndicatorBox)), findsNothing);
-
-    // The generic updater deliberately remains a FocusableListTile: unlike a
-    // SettingNavigationTile, its trailing slot can be replaced by the progress
-    // indicator and its callback disabled while a request is in flight.
-    expect(materialUpdateTile.focusNode, isNotNull);
+    // O atualizador herdado saiu: não existe mais linha de atualização.
+    expect(find.text(t.settings.checkForUpdates), findsNothing);
   });
 
   testWidgets('background downloads tile renders and opens the injected blocked status', (tester) async {
-    const channel = MethodChannel('com.plezy/device.settings-background-test');
+    const channel = MethodChannel('app.heisuca/device.settings-background-test');
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, (call) async {
       return switch (call.method) {
         'getBackgroundWorkSignals' => {
@@ -333,39 +290,6 @@ void main() {
     });
 
     expect(find.text(t.downloads.backgroundWarning.statusTile), findsNothing);
-  });
-
-  testWidgets('relay dialog rejects invalid bases without persisting them', (tester) async {
-    final harness = await _pumpSettingsScreen(tester);
-    addTearDown(() => harness.dispose(tester));
-
-    await tester.tap(find.text(t.settings.watchTogetherRelay));
-    await _pumpUi(tester);
-    await tester.enterText(find.byType(TextField), 'ws://opaque-user@relay.example.test/path?wrong=route');
-    await tester.tap(find.text(t.common.save));
-    await _pumpUi(tester);
-
-    expect(find.byType(AlertDialog), findsOneWidget);
-    expect(find.text(t.settings.watchTogetherRelayInvalid), findsOneWidget);
-    expect(SettingsService.instance.read(SettingsService.customRelayUrl), isNull);
-  });
-
-  testWidgets('relay dialog saves and reopens the canonical base', (tester) async {
-    final harness = await _pumpSettingsScreen(tester);
-    addTearDown(() => harness.dispose(tester));
-
-    await tester.tap(find.text(t.settings.watchTogetherRelay));
-    await _pumpUi(tester);
-    await tester.enterText(find.byType(TextField), '  HTTP://Relay.Example.Test:8080/prefix///  ');
-    await tester.tap(find.text(t.common.save));
-    await _pumpUi(tester);
-
-    expect(find.byType(AlertDialog), findsNothing);
-    expect(SettingsService.instance.read(SettingsService.customRelayUrl), 'http://relay.example.test:8080/prefix');
-
-    await tester.tap(find.text(t.settings.watchTogetherRelay));
-    await _pumpUi(tester);
-    expect(find.widgetWithText(TextField, 'http://relay.example.test:8080/prefix'), findsOneWidget);
   });
 
   testWidgets('selected download folder becomes the persisted location', (tester) async {
@@ -620,12 +544,11 @@ Finder _focusableTileWithin(Finder navigationTile) =>
     find.descendant(of: navigationTile, matching: find.byType(FocusableListTile));
 
 class _MigratedRow {
-  const _MigratedRow({required this.title, this.focusLabel, this.isVisible = true, this.hasSubtitle = true});
+  const _MigratedRow({required this.title, this.focusLabel, this.isVisible = true});
 
   final String title;
   final String? focusLabel;
   final bool isVisible;
-  final bool hasSubtitle;
 }
 
 class _SettingsHarness {
@@ -636,8 +559,6 @@ class _SettingsHarness {
     required this.libraries,
     required this.hiddenLibraries,
     required this.theme,
-    required this.trackers,
-    required this.trackerHttpClients,
     required this.seerr,
     required this.downloadManager,
     required this.downloadProvider,
@@ -651,8 +572,6 @@ class _SettingsHarness {
   final LibrariesProvider libraries;
   final HiddenLibrariesProvider hiddenLibraries;
   final ThemeProvider theme;
-  final TrackersProvider trackers;
-  final List<FakeHttpClient> trackerHttpClients;
   final SeerrAccountProvider seerr;
   final DownloadManagerService downloadManager;
   final DownloadProvider downloadProvider;
@@ -667,17 +586,11 @@ class _SettingsHarness {
     hiddenLibraries.dispose();
     libraries.dispose();
     theme.dispose();
-    trackers.dispose();
     seerr.dispose();
     activeProfile.dispose();
     accountPreferences.dispose();
     await plexHome.dispose();
     await database.close();
-    expect(trackerHttpClients, hasLength(6));
-    expect(trackerHttpClients.toSet(), hasLength(6));
-    for (final client in trackerHttpClients) {
-      expect(client.closeCount, 1);
-    }
   }
 }
 
@@ -715,14 +628,6 @@ Future<_SettingsHarness> _pumpSettingsScreen(
   final hiddenLibraries = HiddenLibrariesProvider(storageService: _FakeHiddenLibrariesStorage());
   await hiddenLibraries.ensureInitialized();
   final theme = ThemeProvider();
-  final trackerHttpClients = <FakeHttpClient>[];
-  FakeHttpClient trackerHttpClientFactory() {
-    final client = FakeHttpClient(HttpStatus.ok, const <int>[]);
-    trackerHttpClients.add(client);
-    return client;
-  }
-
-  final trackers = TrackersProvider(httpClientFactory: trackerHttpClientFactory);
   final seerr = SeerrAccountProvider();
   // Left unattached: with no registries wired it resolves no accounts, so the
   // Account preferences row stays hidden and these tests keep their existing
@@ -762,8 +667,6 @@ Future<_SettingsHarness> _pumpSettingsScreen(
     libraries: libraries,
     hiddenLibraries: hiddenLibraries,
     theme: theme,
-    trackers: trackers,
-    trackerHttpClients: trackerHttpClients,
     seerr: seerr,
     downloadManager: downloadManager,
     downloadProvider: downloadProvider,
@@ -779,7 +682,6 @@ Future<_SettingsHarness> _pumpSettingsScreen(
           ChangeNotifierProvider<LibrariesProvider>.value(value: libraries),
           ChangeNotifierProvider<HiddenLibrariesProvider>.value(value: hiddenLibraries),
           ChangeNotifierProvider<ThemeProvider>.value(value: theme),
-          ChangeNotifierProvider<TrackersProvider>.value(value: trackers),
           ChangeNotifierProvider<SeerrAccountProvider>.value(value: seerr),
           ChangeNotifierProvider<DownloadProvider>.value(value: downloadProvider),
           ChangeNotifierProvider<AccountPreferencesController>.value(value: accountPreferences),

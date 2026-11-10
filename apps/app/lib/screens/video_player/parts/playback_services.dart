@@ -79,7 +79,7 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
     // This request is proven: a later in-place switch that fails restores it.
     _workingOpenRequest = _currentOpenRequest;
     _http503Watchdog.disarm();
-    unawaited(Sentry.addBreadcrumb(Breadcrumb(message: 'First frame ready', category: 'player')));
+
     final progressTracker = _progressTracker;
     if (progressTracker != null && currentPlayer.state.isActive) {
       unawaited(progressTracker.sendProgress('playing'));
@@ -354,16 +354,6 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
     _playbackSession = null;
     _mediaControls.resetSuspension();
 
-    if (progressTracker != null) {
-      try {
-        await Future.wait<void>([
-          DiscordRPCService.instance.stopPlayback(),
-          TrackerCoordinator.instance.stopPlayback(),
-        ]);
-      } catch (e, st) {
-        appLogger.w('Failed to stop scrobblers during initialization rollback', error: e, stackTrace: st);
-      }
-    }
     if (!mounted || _shuttingDown) return;
     await _wakelockController.setEnabled(false);
 
@@ -377,7 +367,7 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
   /// Wire the per-item playback services that need to (re)bind whenever
   /// the active media item changes: [PlaybackProgressTracker],
   /// [MediaControlsManager.updateMetadata], and the
-  /// Discord/Trakt/Tracker scrobblers. Both [_initializeServices] and
+  /// trackers de reprodução. Both [_initializeServices] and
   /// [_reloadMediaInPlace] call this so the two flows can't drift.
   ///
   /// The caller is responsible for ensuring `player != null` and (if the
@@ -411,18 +401,6 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
     }
 
     _publishMediaControlsMetadata(metadata, mediaClient);
-
-    // Scrobblers — Discord RPC plus the tracker coordinator, which fans out to
-    // every connected service. Both accept the neutral [MediaServerClient]; null
-    // short-circuits cleanly.
-    if (mediaClient != null) {
-      // Discord renders a timeline the live placeholder does not have; the
-      // tracker coordinator takes the live decision itself.
-      if (!widget.isLive) {
-        unawaited(DiscordRPCService.instance.startPlayback(metadata, mediaClient));
-      }
-      unawaited(TrackerCoordinator.instance.startPlayback(metadata, mediaClient, isLive: widget.isLive));
-    }
   }
 
   /// Media controls metadata. Fire-and-forget — the OS plugin downloads the
@@ -506,7 +484,6 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
           for (final sibling in siblings) {
             if (sibling.isWatched) continue;
             await mediaClient.markWatchedFromPlaybackStop(sibling);
-            await TrackerCoordinator.instance.markWatched(sibling, mediaClient);
             appLogger.d('Scrobbled same-file sibling ${sibling.id} of ${metadata.id}');
           }
         },
@@ -562,6 +539,12 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
     // helper wires its metadata update).
     final mediaControlsManager = MediaControlsManager();
     _mediaControlsManager = mediaControlsManager;
+    if (Platform.isAndroid && PlatformDetector.isMobile(context) && !PlatformDetector.isAutomotive()) {
+      // Vídeo usa a mesma MediaSession/MediaStyle da música, sem um segundo player.
+      await mediaControlsManager.setBackgroundMode(true);
+      await currentPlayer.setContinueListening(_continueListeningEnabled);
+      if (!mounted || _shuttingDown || player != currentPlayer || _mediaControlsManager != mediaControlsManager) return;
+    }
 
     final mediaControlRouter = _buildMediaControlRouter();
 
@@ -588,7 +571,7 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
     );
 
     // Wire progress tracker, media-controls metadata, and the
-    // Discord/Trakt/Tracker scrobblers. Shared with [_reloadMediaInPlace]
+    // trackers de reprodução. Shared with [_reloadMediaInPlace]
     // so the two flows can't drift.
     if (perItemServicesWired) {
       _publishMediaControlsMetadata(_currentMetadata, mediaClient);
@@ -619,26 +602,10 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
           position: position,
           speed: currentPlayer.state.rate,
         );
-        // Live reports through [_sendLiveTimeline] alone; Discord and the
-        // trackers were never started for it.
+        // Canais ao vivo informam a linha do tempo apenas por [_sendLiveTimeline].
         if (widget.isLive) return;
-        DiscordRPCService.instance.updatePosition(position);
-        TrackerCoordinator.instance.updatePosition(position);
-        // Keep the trackers' known duration current — mpv only emits on the
-        // duration stream once per load, but this is cheap and avoids an extra
-        // listener.
-        TrackerCoordinator.instance.updateDuration(currentPlayer.state.duration);
       }),
     );
-
-    if (!widget.isLive) {
-      // Listen to playback rate changes for Discord Rich Presence
-      _mediaControlSubscriptions.add(
-        currentPlayer.streams.rate.listen((rate) {
-          DiscordRPCService.instance.updatePlaybackSpeed(rate);
-        }),
-      );
-    }
 
     _mediaControlSubscriptions.add(
       currentPlayer.streams.seekable.listen((_) {
@@ -650,12 +617,13 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
   /// The screen's authorization + command policy for OS media-session events.
   MediaControlRouter _buildMediaControlRouter() {
     return MediaControlRouter(
-      // Authority stays Watch Together's. The automotive gate lives in the
-      // playback-intent wrappers below, so `onPause` can never be denied: a
-      // gated `canControlPlayback` would make the router swallow `PauseEvent`.
       canControlPlayback: _canControlPlayback,
       canNavigateMediaItems: () => _canNavigateMediaItems() && automotivePlaybackAllowedNow(),
       onPlay: () {
+        if (_showStillWatchingPrompt && _episodeAttentionPrompt) {
+          _onStillWatchingContinue();
+          return;
+        }
         final currentPlayer = player;
         if (currentPlayer == null) return;
         unawaited(_mediaControls.seekBackForRewind(currentPlayer));
@@ -676,6 +644,10 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
         _mediaControls.pushPlaybackState();
       },
       onTogglePlayPause: () {
+        if (_showStillWatchingPrompt && _episodeAttentionPrompt) {
+          _onStillWatchingContinue();
+          return;
+        }
         final currentPlayer = player;
         if (currentPlayer == null) return;
         if (currentPlayer.state.isActive) {
@@ -690,6 +662,7 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
         _mediaControls.pushPlaybackState();
       },
       onSeek: (position) {
+        _episodeAttention.interact();
         // A live stream has no absolute position to seek to: the session
         // never advertises SEEK_TO for one, and a stray event must not
         // resolve into a VOD seek against a moving live edge.
@@ -702,8 +675,14 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
       // Next/previous mean what the on-screen buttons mean: a channel zap on
       // live TV, the adjacent item otherwise. Both targets refuse a step
       // that has nowhere to go, so no adjacency gate is repeated here.
-      onNext: () => unawaited(_navigateToNextItem()),
-      onPrevious: () => unawaited(_navigateToPreviousItem()),
+      onNext: () {
+        _episodeAttention.interact();
+        unawaited(_navigateToNextItem());
+      },
+      onPrevious: () {
+        _episodeAttention.interact();
+        unawaited(_navigateToPreviousItem());
+      },
       onStop: () => unawaited(_handleBackButton()),
       // The platform-reported interval is ignored on purpose; see
       // [_configuredSkipStep].
@@ -730,9 +709,7 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
       // defence for `DD-2`: audio must not resume while the vehicle restricts
       // the app. Also catches any async open that raced the lifecycle pause.
       appLogger.w('Playback started while Android Automotive UX restrictions are active; pausing');
-      Sentry.addBreadcrumb(
-        Breadcrumb(message: 'Blocked automotive restricted playback start', category: 'player.driver_distraction'),
-      );
+
       final currentPlayer = player;
       if (currentPlayer != null) {
         unawaited(_pauseWithPlaybackIntent(currentPlayer));
@@ -743,9 +720,7 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
 
     if (isPlaying && _mediaControls.suspendedForTvBackground) {
       appLogger.w('Playback started while Android TV background media controls are suspended; pausing');
-      Sentry.addBreadcrumb(
-        Breadcrumb(message: 'Blocked TV background playback start', category: 'player.media_controls'),
-      );
+
       final currentPlayer = player;
       if (currentPlayer != null) {
         unawaited(_pauseWithPlaybackIntent(currentPlayer));
@@ -758,9 +733,11 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
     // Play Next prompt) a play press still reports playing while nothing
     // advances, and a lock taken there keeps a finished item lit until
     // someone comes back.
-    unawaited(_wakelockController.setEnabled(isPlaying && !(player?.state.completed ?? false)));
+    unawaited(
+      _wakelockController.setEnabled(isPlaying && !_backgroundAudioActive && !(player?.state.completed ?? false)),
+    );
 
-    if (isPlaying) {
+    if (isPlaying && !_backgroundAudioActive) {
       // Force a texture refresh on resume to unstick stale frames
       // (Linux/macOS texture registrars can miss frame-available
       // notifications after extended pause periods)
@@ -772,15 +749,6 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
 
     // Update OS media controls playback state
     _mediaControls.pushPlaybackState();
-
-    // Update Discord Rich Presence + real-time trackers
-    if (isPlaying) {
-      DiscordRPCService.instance.resumePlayback();
-      TrackerCoordinator.instance.resumePlayback();
-    } else {
-      DiscordRPCService.instance.pausePlayback();
-      TrackerCoordinator.instance.pausePlayback();
-    }
 
     // Update auto-PiP readiness
     if (_autoPipEnabled) {

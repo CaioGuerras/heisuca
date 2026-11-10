@@ -8,9 +8,9 @@ import 'fullscreen_state_manager.dart';
 import 'settings_service.dart';
 
 /// Orchestrates Windows display mode matching (refresh rate, HDR) during video playback.
-/// Uses the same platform channel as the mpv player (com.plezy/mpv_player).
+/// Uses the same platform channel as the mpv player (app.heisuca/mpv_player).
 class DisplayModeService {
-  static const _defaultChannel = MethodChannel('com.plezy/mpv_player');
+  static const _defaultChannel = MethodChannel('app.heisuca/mpv_player');
 
   final SettingsService _settings;
   final FullscreenStateManager _fullscreen;

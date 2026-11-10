@@ -31,6 +31,12 @@ class MediaStream {
   final bool dolbyVision;
   final int? dolbyVisionProfile;
 
+  /// Perfil do codec como o servidor informa (ex.: "High 10", "Main 10").
+  /// Junto com [bitDepth], separa o anime H.264 Hi10P SDR, que muito
+  /// decodificador de hardware não abre, do H.264 comum.
+  final String? profile;
+  final int? bitDepth;
+
   // Subtitle
   final bool forced;
 
@@ -55,6 +61,8 @@ class MediaStream {
     this.hdr = false,
     this.dolbyVision = false,
     this.dolbyVisionProfile,
+    this.profile,
+    this.bitDepth,
     this.forced = false,
     this.sidecarPath,
   });

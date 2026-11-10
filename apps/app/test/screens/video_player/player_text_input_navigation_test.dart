@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/focus/dpad_navigator.dart';
-import 'package:plezy/focus/focusable_text_field.dart';
-import 'package:plezy/providers/playback_state_provider.dart';
-import 'package:plezy/screens/video_player_screen.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/widgets/overlay_sheet.dart';
-import 'package:plezy/widgets/video_controls/video_controls.dart';
+import 'package:heisuca/focus/dpad_navigator.dart';
+import 'package:heisuca/focus/focusable_text_field.dart';
+import 'package:heisuca/providers/playback_state_provider.dart';
+import 'package:heisuca/screens/video_player_screen.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/widgets/overlay_sheet.dart';
+import 'package:heisuca/widgets/video_controls/video_controls.dart';
 import 'package:provider/provider.dart';
 
 import '../../test_helpers/media_items.dart';
@@ -260,8 +260,8 @@ void main() {
     addTearDown(sheetButtonFocusNode.dispose);
 
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       // Never completes: the screen stays on its initialization surface, so no
       // real player is needed and the chrome is not presented — the state in
       // which a leaked Back goes straight to exitPlayer.

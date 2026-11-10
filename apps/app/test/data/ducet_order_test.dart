@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/data/ducet_order.dart';
+import 'package:heisuca/data/ducet_order.dart';
 
 void main() {
   test('applies CLDR kana ordering', () {

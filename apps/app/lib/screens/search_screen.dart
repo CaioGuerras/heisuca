@@ -1,3 +1,4 @@
+import '../heisuca/heisuca_search_origin.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -264,7 +265,7 @@ class _SearchScreenState extends State<SearchScreen>
     searchFocusNode.requestFocus();
   }
 
-  /// Apply a complete query submitted from the Plezy companion remote: set the
+  /// Apply a complete query submitted from the Heisuca companion remote: set the
   /// text, dismiss any open on-screen keyboard, land focus on the input without
   /// (re)opening the OSK, and run the search now — the first result takes focus
   /// when it lands (via onSearchCompleted). The user already typed the query on
@@ -332,6 +333,13 @@ class _SearchScreenState extends State<SearchScreen>
 
   void _navigateToSidebar() {
     MainScreenFocusScope.focusSidebarOf(context);
+  }
+
+  /// BACK sem texto: na TV volta ao Início (sem barra lateral, o foco ficava no campo e o
+  /// teclado reabria, prendendo o usuário na Busca; bancada da TV, 30/10).
+  void _backFromSearch() {
+    if (PlatformDetector.isTV() && MainScreenFocusScope.goHomeOf(context)) return;
+    _navigateToSidebar();
   }
 
   /// Chip display order. `folder`/`unknown` are never search kinds, and
@@ -496,7 +504,7 @@ class _SearchScreenState extends State<SearchScreen>
                     : null,
                 onNavigateUp: focusSearchInput,
                 onNavigateDown: _focusFirstResult,
-                onBack: _navigateToSidebar,
+                onBack: _backFromSearch,
               ),
             ],
           ],
@@ -531,11 +539,13 @@ class _SearchScreenState extends State<SearchScreen>
             onNavigateLeft: _navigateToSidebar,
             onNavigateUp: onNavigateUp,
             showServerName: showServerName,
+            sourceLabel: heisucaSearchTitleOrigin(item, visibleServerIds: multiServer.expectedServerIds.toSet()),
             libraryName: libraries.libraryLabelFor(item),
           ),
           PersonSearchHit(:final person) => PersonSearchRow(
             key: Key(person.globalKey),
             person: person,
+            sourceLabel: heisucaSearchPersonOrigin(person, visibleServerIds: multiServer.expectedServerIds.toSet()),
             focusNode: isFirst ? firstResultFocusNode : null,
             showServerName: showServerName,
             onNavigateLeft: _navigateToSidebar,
@@ -572,7 +582,7 @@ class _SearchScreenState extends State<SearchScreen>
                   if (searchController.text.isNotEmpty) {
                     searchController.clear();
                   } else {
-                    _navigateToSidebar();
+                    _backFromSearch();
                   }
                 },
               ),

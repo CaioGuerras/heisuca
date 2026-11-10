@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/mpv/mpv.dart';
-import 'package:plezy/services/mpv_sidecar_open_guard.dart';
-import 'package:plezy/services/playback_open_outcome.dart';
+import 'package:heisuca/mpv/mpv.dart';
+import 'package:heisuca/services/mpv_sidecar_open_guard.dart';
+import 'package:heisuca/services/playback_open_outcome.dart';
 
 /// A stream that never emits and never closes, for the signals a case does
 /// not drive: the open outcome treats any closed player stream as the player

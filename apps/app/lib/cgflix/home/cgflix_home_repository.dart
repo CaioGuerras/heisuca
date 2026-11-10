@@ -8,7 +8,10 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
 import '../../media/media_item.dart';
+import '../../media/media_server_client.dart';
 import '../../media/media_library.dart';
+import '../../media/media_kind.dart';
+import '../../heisuca/heisuca_upcoming.dart';
 import '../../services/jellyfin_client.dart';
 import '../../utils/app_logger.dart';
 import 'cgflix_home_logic.dart';
@@ -23,11 +26,36 @@ class CgflixRowData {
   final bool fromCache;
 }
 
-class CgflixHomeRepository {
+/// Contrato de dados da mesma montagem visual para Jellyfin e Plex.
+abstract interface class HeisucaHomeRepository {
+  MediaServerClient get client;
+  MediaServerClient get upcomingImageClient;
+  void dispose();
+  void forgetMemory();
+  Stream<CgflixRowData> watchHero();
+  Stream<CgflixRowData> watchRow(CgflixRowKind kind);
+  Stream<CgflixRowData> watchTrending();
+  Future<List<MediaLibrary>> videoLibraries();
+  Stream<CgflixRowData> watchLibrary(MediaLibrary library);
+  Future<List<HeisucaUpcoming>> upcoming();
+  Future<MediaItem?> resolveUpcoming(HeisucaUpcoming item);
+}
+
+class CgflixHomeRepository implements HeisucaHomeRepository {
   CgflixHomeRepository(this.client, {Future<Directory> Function()? cacheDir})
     : _cacheDir = cacheDir ?? getApplicationSupportDirectory;
 
+  @override
   final JellyfinClient client;
+  @override
+  JellyfinClient get upcomingImageClient => client;
+
+  @override
+  Future<MediaItem?> resolveUpcoming(HeisucaUpcoming item) async {
+    if (item.jellyfinId == null) return null;
+    final raw = await client.cgflixFetchRawItems({'Ids': item.jellyfinId!, 'Limit': '1'});
+    return client.cgflixMapItems(raw).firstOrNull;
+  }
   final Future<Directory> Function() _cacheDir;
 
   Map<String, dynamic>? _cache;
@@ -38,9 +66,11 @@ class CgflixHomeRepository {
 
   /// "Puxar para atualizar": esquece a memória (o cache em disco continua valendo
   /// para a tela não ficar vazia enquanto a rede responde).
+  @override
   void forgetMemory() {
     _memory.clear();
     _continueMemory.clear();
+    _upcoming = null;
   }
 
   Future<void>? _cacheLoad;
@@ -100,6 +130,7 @@ class CgflixHomeRepository {
   Future<void> _lastFlush = Future<void>.value();
   Future<void> get flushed => _lastFlush;
 
+  @override
   void dispose() {
     _saveTimer?.cancel();
     _lastFlush = _flush();
@@ -123,9 +154,10 @@ class CgflixHomeRepository {
     }
     await _ensureCache();
     final cached = _cached(key);
-    if (cached != null && cached.raw.isNotEmpty) {
+    if (cached != null) {
       yield CgflixRowData(items: client.cgflixMapItems(cached.raw), title: cached.title, fromCache: true);
-      if (maxAge != null && DateTime.now().difference(cached.savedAt) < maxAge) return;
+      // Um cache vazio continua consultando a rede para descobrir títulos novos.
+      if (cached.raw.isNotEmpty && maxAge != null && DateTime.now().difference(cached.savedAt) < maxAge) return;
     }
     try {
       // Teto de espera: sem ele, servidor que aceita a conexão e não responde deixava a linha
@@ -137,14 +169,15 @@ class CgflixHomeRepository {
       yield data;
     } catch (e) {
       appLogger.w('CGFLIX: linha "$key" falhou', error: e);
-      // Nada foi mostrado ainda (sem cache, ou cache salvo vazio): emite vazio para a linha sair
-      // do esqueleto (some). Antes, cache vazio + rede fora = esqueleto para sempre.
-      if (cached == null || cached.raw.isEmpty) yield const CgflixRowData(items: []);
+      // Cache conhecido, inclusive vazio, já saiu do esqueleto. Sem ele a tela
+      // recebe a falha real; uma exceção não é uma consulta vazia bem-sucedida.
+      if (cached == null) rethrow;
     }
   }
 
   /// Linha de consulta direta (Lançamentos, Novidades, gêneros...). Com [filter] (chip ativo),
   /// só da biblioteca escolhida; linha sem sentido para ela devolve vazio (some).
+  @override
   Stream<CgflixRowData> watchRow(CgflixRowKind kind, {String? genre, CgflixHomeFilter? filter}) {
     final query = cgflixRowQuery(kind, genre: genre, filter: filter);
     if (query == null) return Stream.value(const CgflixRowData(items: []));
@@ -152,7 +185,41 @@ class CgflixHomeRepository {
     return _cachedThenNetwork(key, () async => (raw: await client.cgflixFetchRawItems(query), title: null));
   }
 
+  /// Home Heisuca: uma fileira por biblioteca, preservando a ordem do servidor.
+  @override
+  Future<List<MediaLibrary>> videoLibraries() async => (await client.fetchLibraries())
+      .where((library) => !library.hidden && const [MediaKind.movie, MediaKind.show, MediaKind.unknown].contains(library.kind))
+      .toList();
+
+  @override
+  Stream<CgflixRowData> watchLibrary(MediaLibrary library) => _cachedThenNetwork(
+    'library:${library.id}',
+    () async => (raw: await client.cgflixFetchLatestRaw(library.id), title: library.title),
+  );
+
+  Future<List<HeisucaUpcoming>>? _upcoming;
+  @override
+  Future<List<HeisucaUpcoming>> upcoming() => _upcoming ??= _fetchUpcoming();
+
+  Future<List<HeisucaUpcoming>> _fetchUpcoming() async {
+    try {
+      final result = await Future.wait([
+        client.cgflixGetJson('/cgflix/embreve.json'),
+        client.cgflixGetJson('/HomeScreen/Section/UpcomingShows?UserId=${Uri.encodeQueryComponent(client.cgflixUserId)}').catchError((_) => null),
+        client.cgflixGetJson('/HomeScreen/Section/UpcomingMovies?UserId=${Uri.encodeQueryComponent(client.cgflixUserId)}').catchError((_) => null),
+      ]);
+      return [
+        ...heisucaParseUpcoming(result[0], result[1], isMovie: false),
+        ...heisucaParseUpcoming(result[0], result[2], isMovie: true),
+      ];
+    } catch (error) {
+      appLogger.i('Heisuca: calendário Em breve indisponível', error: error);
+      return const [];
+    }
+  }
+
   /// Destaque do topo.
+  @override
   Stream<CgflixRowData> watchHero({CgflixHomeFilter? filter}) => _cachedThenNetwork(
     'hero${filter?.cacheSuffix ?? ''}',
     () async => (raw: await client.cgflixFetchRawItems(cgflixHeroQuery(filter: filter)), title: null),
@@ -162,6 +229,7 @@ class CgflixHomeRepository {
   /// Em alta no Brasil: emalta.json do servidor; se falhar, a coleção "Em alta no Brasil";
   /// se nenhum, linha vazia (some). Vale por 1 h no aparelho. Com [filter], o ranking da
   /// própria categoria (ver [CgflixTrending.idsFor]); com menos de 3 títulos, some.
+  @override
   Stream<CgflixRowData> watchTrending({CgflixHomeFilter? filter}) => _cachedThenNetwork(
     'trending${filter?.cacheSuffix ?? ''}',
     filter == null ? _fetchTrending : () => _fetchTrendingIn(filter),
@@ -270,3 +338,4 @@ class CgflixHomeRepository {
     }
   }
 }
+

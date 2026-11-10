@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/models/livetv_dvr.dart';
-import 'package:plezy/models/media_subscription.dart';
+import 'package:heisuca/models/livetv_dvr.dart';
+import 'package:heisuca/models/media_subscription.dart';
 
 void main() {
   test('Live TV collection models skip malformed entries and keep valid siblings', () {

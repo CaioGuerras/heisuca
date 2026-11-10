@@ -5,12 +5,13 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:plezy/connection/connection.dart';
-import 'package:plezy/database/app_database.dart';
-import 'package:plezy/media/media_server_client.dart';
-import 'package:plezy/services/jellyfin_api_cache.dart';
-import 'package:plezy/services/jellyfin_client.dart';
-import 'package:plezy/services/plex_api_cache.dart';
+import 'package:heisuca/connection/connection.dart';
+import 'package:heisuca/database/app_database.dart';
+import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/services/jellyfin_api_cache.dart';
+import 'package:heisuca/services/jellyfin_client.dart';
+import 'package:heisuca/services/plex_api_cache.dart';
+import 'package:heisuca/services/video_decode_capabilities.dart';
 
 import '../test_helpers/backend_client_fixtures.dart';
 
@@ -213,6 +214,224 @@ void main() {
       final mid = await client.fetchPlaybackBundle('item-2', sourceIndex: 1);
       expect(mid!.selectedSourceId, 'src-B');
       expect(mid.container, 'mp4');
+      client.close();
+    });
+
+    test('sourceIndex 0 explícito vence o ranqueador; nulo deixa o ranqueador escolher', () async {
+      // Aparelho sem HEVC: o ranqueador prefere a H.264 (índice 1).
+      VideoDecodeCapabilities.debugReset(
+        hardwareHevc: false,
+        hardwareAv1: false,
+        displaySupports4k: false,
+        codecHardware: {'h264': true, 'hevc': false, 'av1': false},
+      );
+      addTearDown(VideoDecodeCapabilities.debugReset);
+      final body = jsonEncode({
+        'Id': 'item-g3',
+        'Type': 'Movie',
+        'MediaSources': [
+          {
+            'Id': 'src-hevc',
+            'Container': 'mkv',
+            'MediaStreams': [
+              {'Type': 'Video', 'Codec': 'hevc', 'Profile': 'Main', 'Height': 1080, 'Width': 1920},
+            ],
+          },
+          {
+            'Id': 'src-h264',
+            'Container': 'mkv',
+            'MediaStreams': [
+              {'Type': 'Video', 'Codec': 'h264', 'Profile': 'High', 'Height': 1080, 'Width': 1920},
+            ],
+          },
+        ],
+      });
+      final client = buildClient(body);
+
+      final auto = await client.fetchPlaybackBundle('item-g3');
+      expect(auto!.selectedSourceId, 'src-h264');
+      expect(auto.selectedSourceIndex, 1);
+
+      // Antes o 0 era sentinela de "sem escolha" e o ranqueador o sobrescrevia.
+      final explicit = await client.fetchPlaybackBundle('item-g3', sourceIndex: 0);
+      expect(explicit!.selectedSourceId, 'src-hevc');
+      expect(explicit.selectedSourceIndex, 0);
+      client.close();
+    });
+
+    test('assinatura do usuário vence o aparelho; assinatura de outro item deixa o ranqueador escolher', () async {
+      // Aparelho sem HEVC: sozinho, o ranqueador iria para a H.264.
+      VideoDecodeCapabilities.debugReset(
+        hardwareHevc: false,
+        hardwareAv1: false,
+        displaySupports4k: false,
+        codecHardware: {'h264': true, 'hevc': false, 'av1': false},
+      );
+      addTearDown(VideoDecodeCapabilities.debugReset);
+      final body = jsonEncode({
+        'Id': 'item-manual',
+        'Type': 'Movie',
+        'MediaSources': [
+          {
+            'Id': 'src-hevc',
+            'Container': 'mkv',
+            'MediaStreams': [
+              {'Type': 'Video', 'Codec': 'hevc', 'Profile': 'Main 10', 'BitDepth': 10, 'Height': 2160, 'Width': 3840},
+            ],
+          },
+          {
+            'Id': 'src-h264',
+            'Container': 'mkv',
+            'MediaStreams': [
+              {'Type': 'Video', 'Codec': 'h264', 'Profile': 'High', 'Height': 1080, 'Width': 1920},
+            ],
+          },
+        ],
+      });
+      final client = buildClient(body);
+
+      final auto = await client.fetchPlaybackBundle('item-manual');
+      expect(auto!.selectedSourceId, 'src-h264');
+
+      // O usuário escolheu a HEVC antes: a escolha vence, mesmo sem decodificador.
+      final hevcSignature = auto.availableVersions[0].signature;
+      final manual = await client.fetchPlaybackBundle('item-manual', sourceIndex: 0, preferredSignature: hevcSignature);
+      expect(manual!.selectedSourceId, 'src-hevc');
+
+      // Assinatura salva noutro item (nenhuma versão casa): o índice 0 que veio
+      // junto não vale aqui e o ranqueador escolhe a H.264.
+      final stale = await client.fetchPlaybackBundle('item-manual', sourceIndex: 0, preferredSignature: '480:mpeg2:x');
+      expect(stale!.selectedSourceId, 'src-h264');
+      client.close();
+    });
+
+    test('versão herdada do episódio anterior exige hardware; escolha salva vence (auditoria 74fd693)', () async {
+      // Caso real: ep. 1 só tinha HEVC 10-bit (tocou por falta de opção); o
+      // ep. 2 tem HEVC 10-bit + H.264 e a TV box não tem Main10 por hardware.
+      VideoDecodeCapabilities.debugReset(
+        hardwareHevc: false,
+        hardwareAv1: false,
+        displaySupports4k: false,
+        codecHardware: {'h264': true, 'hevc': false, 'av1': false},
+      );
+      addTearDown(VideoDecodeCapabilities.debugReset);
+      Map<String, dynamic> hevc10() => {
+        'Id': 'src-hevc10',
+        'Container': 'mkv',
+        'MediaStreams': [
+          {'Type': 'Video', 'Codec': 'hevc', 'Profile': 'Main 10', 'BitDepth': 10, 'Height': 1080, 'Width': 1920},
+        ],
+      };
+      final ep1 = buildClient(
+        jsonEncode({
+          'Id': 'ep-1',
+          'Type': 'Episode',
+          'MediaSources': [hevc10()],
+        }),
+      );
+      final playing = await ep1.fetchPlaybackBundle('ep-1');
+      expect(playing!.selectedSourceId, 'src-hevc10');
+      final inherited = playing.availableVersions[playing.selectedSourceIndex].signature;
+      ep1.close();
+
+      final client = buildClient(
+        jsonEncode({
+          'Id': 'ep-2',
+          'Type': 'Episode',
+          'MediaSources': [
+            hevc10(),
+            {
+              'Id': 'src-h264',
+              'Container': 'mkv',
+              'MediaStreams': [
+                {'Type': 'Video', 'Codec': 'h264', 'Profile': 'High', 'Height': 1080, 'Width': 1920},
+              ],
+            },
+          ],
+        }),
+      );
+
+      // Herdada sem hardware: nem ela nem o índice 0 do ep. 1 valem; o
+      // ranqueador vai para a H.264.
+      final next = await client.fetchPlaybackBundle('ep-2', sourceIndex: 0, inheritedSignature: inherited);
+      expect(next!.selectedSourceId, 'src-h264');
+
+      // A mesma versão como escolha explícita salva do usuário vence o aparelho.
+      final saved = await client.fetchPlaybackBundle('ep-2', sourceIndex: 0, preferredSignature: inherited);
+      expect(saved!.selectedSourceId, 'src-hevc10');
+
+      // Aparelho com Main10 por hardware: a herdada continua valendo.
+      VideoDecodeCapabilities.debugReset(
+        hardwareHevc: true,
+        hardwareAv1: false,
+        displaySupports4k: false,
+        codecHardware: {'h264': true, 'hevc': true, 'av1': false},
+        codecProfiles: {
+          'h264': ['high'],
+          'hevc': ['main', 'main10'],
+        },
+      );
+      final withMain10 = await client.fetchPlaybackBundle('ep-2', sourceIndex: 1, inheritedSignature: inherited);
+      expect(withMain10!.selectedSourceId, 'src-hevc10');
+      client.close();
+    });
+
+    test('ep. 1 [1080p, 4K] → ep. 2 [4K, 1080p] sem Main10 e sem escolha salva toca 1080p (adendo 2)', () async {
+      // TV 1080p sem HEVC Main10 por hardware.
+      VideoDecodeCapabilities.debugReset(
+        hardwareHevc: true,
+        hardwareAv1: false,
+        displaySupports4k: false,
+        codecHardware: {'h264': true, 'hevc': true, 'av1': false},
+        codecProfiles: {
+          'h264': ['high'],
+          'hevc': ['main'],
+        },
+      );
+      addTearDown(VideoDecodeCapabilities.debugReset);
+      final client = buildClient(
+        jsonEncode({
+          'Id': 'ep-2',
+          'Type': 'Episode',
+          'MediaSources': [
+            {
+              'Id': 'src-4k',
+              'Container': 'mkv',
+              'MediaStreams': [
+                {'Type': 'Video', 'Codec': 'hevc', 'Profile': 'Main 10', 'BitDepth': 10, 'Height': 2160, 'Width': 3840},
+              ],
+            },
+            {
+              'Id': 'src-1080',
+              'Container': 'mkv',
+              'MediaStreams': [
+                {'Type': 'Video', 'Codec': 'h264', 'Profile': 'High', 'Height': 1080, 'Width': 1920},
+              ],
+            },
+          ],
+        }),
+      );
+
+      // A navegação de episódio não manda índice: o ranqueador escolhe.
+      final semIndice = await client.fetchPlaybackBundle('ep-2', rawIndexNeedsHardware: true);
+      expect(semIndice!.selectedSourceId, 'src-1080');
+
+      // Índice 1 do ep. 1 (a 4K) chegando cru na reprodução não vale sem hardware.
+      final indiceCru = await client.fetchPlaybackBundle('ep-2', sourceIndex: 0, rawIndexNeedsHardware: true);
+      expect(indiceCru!.selectedSourceId, 'src-1080');
+
+      // Fora da reprodução (download, player externo) o índice explícito segue respeitado.
+      final semPortao = await client.fetchPlaybackBundle('ep-2', sourceIndex: 0);
+      expect(semPortao!.selectedSourceId, 'src-4k');
+
+      // Escolha manual (sourceId) sempre vence.
+      final manual = await client.fetchPlaybackBundle(
+        'ep-2',
+        sourceId: 'src-4k',
+        sourceIndex: 1,
+        rawIndexNeedsHardware: true,
+      );
+      expect(manual!.selectedSourceId, 'src-4k');
       client.close();
     });
 

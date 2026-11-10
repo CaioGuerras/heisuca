@@ -1,0 +1,34 @@
+# Allowlists estreitas do gitleaks (falsos positivos triados em 28/10/2026).
+# Nada de allowlist por diretório inteiro: cada bloco amarra regra + caminho/valor exato.
+[extend]
+useDefault = true
+
+# (a) Chave privada de fixtures de teste (TLS autoassinado), só nestes 3 arquivos.
+[[allowlists]]
+description = "private-key em fixtures de teste TLS"
+targetRules = ["private-key"]
+paths = [
+  '''^apps/app/test/fixtures/tls/selfsigned_key\.pem$''',
+  '''^apps/app/test/utils/certificate_trust_test\.dart$''',
+  '''^apps/app/packages/background_downloader/test/mtls_test\.dart$''',
+]
+
+# (b) Nomes de chave de preferência (não são segredos), só estes 2 valores exatos.
+[[allowlists]]
+description = "nomes de preferência que o generic-api-key confunde com chave"
+targetRules = ["generic-api-key"]
+regexTarget = "secret"
+regexes = [
+  '''^heisuca\.kids\.v1$''',
+  '''^plezy_legacy_prefs_migrated_v1$''',
+]
+
+# (c) UserData.Key do Jellyfin (numérico ou GUID) no dados.json do ramo falso-dados.
+# condition = AND: precisa casar o caminho E o formato do valor.
+[[allowlists]]
+description = "UserData.Key do Jellyfin em dados.json de teste"
+condition = "AND"
+targetRules = ["generic-api-key"]
+paths = ['''^apps/web/testes/falso/dados/dados\.json$''']
+regexTarget = "match"
+regexes = ['''Key"\s*:\s*"([0-9]+|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})"''']

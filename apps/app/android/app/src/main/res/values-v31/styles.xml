@@ -34,7 +34,7 @@
     <style name="SplashTheme.Light" parent="@android:style/Theme.Light.NoTitleBar">
         <item name="android:windowBackground">@color/splash_light</item>
         <item name="android:windowSplashScreenBackground">@color/splash_light</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_selo</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_selo_light</item>
         <item name="android:windowSplashScreenAnimationDuration">600</item>
         <item name="android:defaultFocusHighlightEnabled">false</item>
         <item name="android:colorControlHighlight">@android:color/transparent</item>

@@ -44,14 +44,6 @@ extension _VideoPlayerDisplayMatchingMethods on VideoPlayerScreenState {
       await _refreshAndroidMpvDecoderAfterFrameRateSwitch(reason: reason, targetPosition: refreshPosition);
     }
 
-    unawaited(
-      Sentry.addBreadcrumb(
-        Breadcrumb(
-          message: 'Display matching: ${target.fps}fps, ${target.width}x${target.height}, switched=$didSwitch',
-          category: 'player',
-        ),
-      ),
-    );
     appLogger.d(
       'Display matching: ${target.fps}fps, ${target.width}x${target.height} '
       '(duration: ${durationMs}ms, switched=$didSwitch, $reason)',
@@ -190,17 +182,6 @@ extension _VideoPlayerDisplayMatchingMethods on VideoPlayerScreenState {
     }
   }
 
-  /// Hold playback through the user's display switch delay so the display
-  /// finishes re-syncing before playback runs on (as the Android switch
-  /// does), rather than just waiting while the video keeps playing.
-  ///
-  /// The pause and resume are the screen's own, not the viewer's: a bound
-  /// Watch Together room would take them as intents, so the hold runs
-  /// detached like the first-frame display negotiation. The resume answers
-  /// to the playback generation the hold started in: an in-place reload or
-  /// source switch that ran meanwhile owns the play state it left (its own
-  /// resume, or a room startup hold on the replacement), so the resume waits
-  /// for it to settle and stands down if it opened anything.
   Future<void> _holdPlaybackForDisplaySwitch(Player currentPlayer, Duration delay) async {
     if (!currentPlayer.state.playing) {
       await Future<void>.delayed(delay);
@@ -208,19 +189,15 @@ extension _VideoPlayerDisplayMatchingMethods on VideoPlayerScreenState {
     }
     final generation = _transitionGate.generation;
     bool isCurrent() => _isCurrentPlaybackGeneration(generation, currentPlayer);
-    await _withWatchTogetherDetached(() async {
+    await (() async {
       await currentPlayer.pause();
       await Future<void>.delayed(delay);
-      // Wait out the transition itself, not just its generation bump: leaving
-      // this window rebinds the room, and a reload still opening its
-      // replacement owns that rebind (and the startup hold it carries). Once
-      // it has rebound, the stale binding keeps this window from rebinding
-      // again.
+      // Aguarda a troca de fonte pendente antes de tentar retomar esta geração.
       await _transitionGate.waitForIdle(() => mounted && !_shuttingDown && player == currentPlayer);
       // A pause the viewer asked for meanwhile clears the play intent.
       if (!isCurrent() || !_playbackIntentShouldPlay) return;
       await _playWithPlaybackIntent(currentPlayer);
-    });
+    })();
   }
 
   /// Called when fullscreen state changes — apply or restore Windows display

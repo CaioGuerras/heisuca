@@ -233,9 +233,9 @@ abstract final class CgflixSourceRegistry {
 
   static void rememberTitles(Iterable<CgflixTitleGroup> groups) {
     for (final group in groups) {
+      for (final source in group.sources) { _titles.remove(source.globalKey); }
       if (group.sources.length < 2) continue;
       for (final source in group.sources) {
-        _titles.remove(source.globalKey);
         _titles[source.globalKey] = group.sources;
       }
     }
@@ -244,9 +244,9 @@ abstract final class CgflixSourceRegistry {
 
   static void rememberPeople(Iterable<CgflixPersonGroup> groups) {
     for (final group in groups) {
+      for (final person in group.people) { _people.remove(person.globalKey); }
       if (group.people.length < 2) continue;
       for (final person in group.people) {
-        _people.remove(person.globalKey);
         _people[person.globalKey] = group.people;
       }
     }

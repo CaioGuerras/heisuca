@@ -1,5 +1,5 @@
 // Padrões do CGFLIX. Fica neste arquivo isolado para manter a diferença em
-// relação ao upstream (Plezy) mínima: os arquivos originais só chamam daqui.
+// relação ao upstream (Heisuca) mínima: os arquivos originais só chamam daqui.
 import 'dart:ui' show Locale;
 
 import '../i18n/app_locale_utils.dart';
@@ -12,9 +12,7 @@ AppLocale cgflixResolveDefaultLocale(Iterable<Locale> deviceLocales) {
   return resolved == AppLocale.en ? AppLocale.pt : resolved;
 }
 
-/// Cabeçalho da Início: Recarregar, Assistir juntos e Controle remoto ficam
-/// escondidos (Recarregar virou "puxar para atualizar"; os outros dois estão
-/// em Configurações > Avançado). Mude para `true` para voltar ao original.
+/// Recarregar fica disponível pelo gesto de puxar para atualizar.
 const bool cgflixShowHomeHeaderExtras = false;
 
 /// As opções do mpv saem da tela de Reprodução e ficam só em Configurações > Avançado.
@@ -34,12 +32,7 @@ const int cgflixSearchResultLimit = 40;
 /// Mude para `false` para voltar à lista do upstream (uma linha por servidor).
 const bool cgflixUnifiedSearch = true;
 
-/// Logs: o botão "Enviar logs" do upstream manda o diagnóstico para o servidor do Plezy
-/// (ice.plezy.app). Desligado: sem telemetria para terceiros. Copiar os logs continua.
-/// Variável (não const) só para os testes do upstream exercitarem o envio.
-bool cgflixAllowLogUpload = false;
-
-/// Doação: o Liberapay do autor do Plezy nunca aparece (nem com ENABLE_DONATIONS). O apoio do
+/// Doação: o Liberapay do autor do Heisuca nunca aparece (nem com ENABLE_DONATIONS). O apoio do
 /// CGFLIX é a tela "Apoie o CGFLIX" (lib/cgflix/apoio/).
 const bool cgflixHidesUpstreamDonation = true;
 

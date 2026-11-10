@@ -6,29 +6,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:os_media_controls/os_media_controls.dart';
-import 'package:plezy/database/app_database.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/media/live_tv_support.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/media/media_source_info.dart';
-import 'package:plezy/media/media_server_client.dart';
-import 'package:plezy/media/server_capabilities.dart';
-import 'package:plezy/models/livetv_capture_buffer.dart';
-import 'package:plezy/models/livetv_channel.dart';
-import 'package:plezy/models/transcode_quality_preset.dart';
-import 'package:plezy/mpv/mpv.dart';
-import 'package:plezy/providers/multi_server_provider.dart';
-import 'package:plezy/providers/offline_mode_provider.dart';
-import 'package:plezy/providers/playback_state_provider.dart';
-import 'package:plezy/screens/video_player/live_tv_session_args.dart';
-import 'package:plezy/screens/video_player/media_controls_screen_controller.dart';
-import 'package:plezy/screens/video_player/wakelock_controller.dart';
-import 'package:plezy/screens/video_player_screen.dart';
-import 'package:plezy/services/media_controls_manager.dart';
-import 'package:plezy/services/multi_server_manager.dart';
-import 'package:plezy/services/offline_watch_sync_service.dart';
-import 'package:plezy/services/settings_service.dart';
+import 'package:heisuca/database/app_database.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/media/live_tv_support.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_source_info.dart';
+import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/media/server_capabilities.dart';
+import 'package:heisuca/models/livetv_capture_buffer.dart';
+import 'package:heisuca/models/livetv_channel.dart';
+import 'package:heisuca/models/transcode_quality_preset.dart';
+import 'package:heisuca/mpv/mpv.dart';
+import 'package:heisuca/providers/multi_server_provider.dart';
+import 'package:heisuca/providers/offline_mode_provider.dart';
+import 'package:heisuca/providers/playback_state_provider.dart';
+import 'package:heisuca/screens/video_player/live_tv_session_args.dart';
+import 'package:heisuca/screens/video_player/media_controls_screen_controller.dart';
+import 'package:heisuca/screens/video_player/wakelock_controller.dart';
+import 'package:heisuca/screens/video_player_screen.dart';
+import 'package:heisuca/services/media_controls_manager.dart';
+import 'package:heisuca/services/multi_server_manager.dart';
+import 'package:heisuca/services/offline_watch_sync_service.dart';
+import 'package:heisuca/services/settings_service.dart';
 import 'package:provider/provider.dart';
 
 import '../../test_helpers/media_items.dart';
@@ -77,8 +77,8 @@ void main() {
     final shell = _LiveShell();
 
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       // The shell has no live server to tune. Refusing the core keeps the
       // screen's own initialization settling on a short failure instead of a
       // provider error, so the service layer can be driven directly below.
@@ -134,8 +134,8 @@ void main() {
     final shell = _LiveShell(client: _LiveMediaServerClient(liveTv));
 
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) async => call.method == 'initialize' ? false : null,
       testBody: () async {
         final key = GlobalKey<VideoPlayerScreenState>();
@@ -176,8 +176,8 @@ void main() {
     final shell = _LiveShell(client: _LiveMediaServerClient(liveTv));
 
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) async => call.method == 'initialize' ? false : null,
       testBody: () async {
         final key = GlobalKey<VideoPlayerScreenState>();
@@ -214,8 +214,8 @@ void main() {
     final shell = _LiveShell(client: _LiveMediaServerClient(liveTv));
 
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
+      methodChannelName: 'app.heisuca/mpv_player',
+      eventChannelName: 'app.heisuca/mpv_player/events',
       methodHandler: (call) async => call.method == 'initialize' ? false : null,
       testBody: () async {
         final key = GlobalKey<VideoPlayerScreenState>();

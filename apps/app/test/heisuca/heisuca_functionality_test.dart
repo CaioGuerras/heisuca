@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/heisuca/heisuca_add_smb_screen.dart';
-import 'package:plezy/heisuca/services/heisuca_device_service.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/mpv/mpv.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/services/track_selection_service.dart';
+import 'package:heisuca/heisuca/heisuca_add_smb_screen.dart';
+import 'package:heisuca/heisuca/services/heisuca_device_service.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/mpv/mpv.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/services/track_selection_service.dart';
 import '../test_helpers/prefs.dart';
 
 void main() {
@@ -22,7 +22,7 @@ void main() {
   });
 
   test('usa apenas os sinais reportados pelo Android', () async {
-    const channel = MethodChannel('com.plezy/device');
+    const channel = MethodChannel('app.heisuca/device');
     final messenger = TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
     messenger.setMockMethodCallHandler(channel, (call) async {
       expect(call.method, 'getHeisucaDeviceProfile');

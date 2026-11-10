@@ -76,7 +76,6 @@ class TranslationsIt extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _Translations$collections$it collections = _Translations$collections$it._(_root);
 	@override late final _Translations$playlists$it playlists = _Translations$playlists$it._(_root);
 	@override late final _Translations$music$it music = _Translations$music$it._(_root);
-	@override late final _Translations$watchTogether$it watchTogether = _Translations$watchTogether$it._(_root);
 	@override late final _Translations$downloads$it downloads = _Translations$downloads$it._(_root);
 	@override late final _Translations$shaders$it shaders = _Translations$shaders$it._(_root);
 	@override late final _Translations$companionRemote$it companionRemote = _Translations$companionRemote$it._(_root);
@@ -124,7 +123,7 @@ class _Translations$auth$it extends Translations$auth$en {
 	@override String get quickConnectWaiting => 'In attesa di approvazione…';
 	@override String get quickConnectCancel => 'Annulla';
 	@override String get quickConnectExpired => 'Quick Connect scaduto. Riprova.';
-	@override String get localDataRecoveryRequired => 'Plezy non è riuscito a recuperare in sicurezza i dati locali di accesso e delle riproduzioni in sospeso. Accedi di nuovo.';
+	@override String get localDataRecoveryRequired => 'Heisuca non è riuscito a recuperare in sicurezza i dati locali di accesso e delle riproduzioni in sospeso. Accedi di nuovo.';
 	@override String get pinCheckRejected => 'La verifica del PIN Plex è stata rifiutata';
 }
 
@@ -226,7 +225,7 @@ class _Translations$settings$it extends Translations$settings$en {
 
 	// Translations
 	@override String get title => 'Impostazioni';
-	@override String get supportDeveloper => 'Supporta Plezy';
+	@override String get supportDeveloper => 'Supporta Heisuca';
 	@override String get supportDeveloperDescription => 'Dona tramite Liberapay per finanziare lo sviluppo';
 	@override String get language => 'Lingua';
 	@override String get theme => 'Tema';
@@ -344,12 +343,6 @@ class _Translations$settings$it extends Translations$settings$en {
 	@override String get keyboardShortcutsDescription => 'Personalizza le scorciatoie da tastiera';
 	@override String get videoPlayerNavigation => 'Navigazione del lettore video';
 	@override String get videoPlayerNavigationDescription => 'Usa i tasti freccia per navigare nei controlli del lettore video';
-	@override String get watchTogetherRelay => 'Relay di Guarda insieme';
-	@override String get watchTogetherRelayDescription => 'Imposta un relay personalizzato. Tutti devono usare lo stesso server.';
-	@override String get watchTogetherRelayHint => 'https://mio-relay.esempio.it';
-	@override String get watchTogetherRelayInvalid => 'Inserisci un URL di base HTTP o HTTPS valido per il relay.';
-	@override String get crashReporting => 'Segnalazione degli arresti anomali';
-	@override String get crashReportingDescription => 'Invia segnalazioni sugli arresti anomali per contribuire a migliorare l\'app';
 	@override String get debugLogging => 'Registrazione di debug';
 	@override String get debugLoggingDescription => 'Abilita una registrazione dettagliata per la risoluzione dei problemi';
 	@override String get viewLogs => 'Visualizza i log';
@@ -368,7 +361,7 @@ class _Translations$settings$it extends Translations$settings$en {
 	@override String get importSettingsDescription => 'Ripristina le preferenze da un file';
 	@override String get importSettingsConfirm => 'Questa azione sostituirà le impostazioni attuali. Continuare?';
 	@override String get importSettingsSuccess => 'Impostazioni importate';
-	@override String get importSettingsInvalidFile => 'Questo file non è un\'esportazione Plezy valida';
+	@override String get importSettingsInvalidFile => 'Questo file non è un\'esportazione Heisuca valida';
 	@override String get importSettingsNoUser => 'Accedi prima di importare le impostazioni';
 	@override String get shortcutsReset => 'Scorciatoie ripristinate alle impostazioni predefinite';
 	@override String get about => 'Informazioni';
@@ -430,8 +423,6 @@ class _Translations$settings$it extends Translations$settings$en {
 	@override String get maxVolume => 'Volume massimo consentito';
 	@override String get maxVolumeDescription => 'Consenti di aumentare il volume oltre il 100% per i contenuti con audio basso';
 	@override String maxVolumePercent({required Object percent}) => '${percent}%';
-	@override String get discordRichPresence => 'Discord Rich Presence';
-	@override String get discordRichPresenceDescription => 'Mostra su Discord cosa stai guardando';
 	@override String get services => 'Servizi';
 	@override String get servicesDescription => 'Connetti Trakt, MyAnimeList, Seerr e altro';
 	@override String get manageLibrariesDescription => 'Riordina e nascondi le librerie';
@@ -489,7 +480,7 @@ class _Translations$settings$it extends Translations$settings$en {
 	@override String get forceTvMode => 'Forza modalità TV';
 	@override String get forceTvModeDescription => 'Forza il layout TV sui dispositivi che non vengono rilevati automaticamente. Richiede il riavvio.';
 	@override String get startInFullscreen => 'Avvia a schermo intero';
-	@override String get startInFullscreenDescription => 'Apri Plezy a schermo intero all\'avvio';
+	@override String get startInFullscreenDescription => 'Apri Heisuca a schermo intero all\'avvio';
 	@override String get exitFullscreenOnPlayerClose => 'Esci dalla modalità a schermo intero alla chiusura del lettore';
 	@override String get exitFullscreenOnPlayerCloseDescription => 'Esce automaticamente dalla modalità a schermo intero quando chiudi il lettore video';
 	@override String get autoHidePerformanceOverlay => 'Nascondi automaticamente il riquadro delle prestazioni';
@@ -538,7 +529,7 @@ class _Translations$settings$it extends Translations$settings$en {
 	@override String get playerScopeGlobal => 'Ovunque';
 	@override String get playerScopeLibrary => 'Per libreria';
 	@override String get playerScopeTitle => 'Per serie o film';
-	@override String get exportDialogTitle => 'Esporta le impostazioni di Plezy';
+	@override String get exportDialogTitle => 'Esporta le impostazioni di Heisuca';
 }
 
 // Path: search
@@ -591,8 +582,6 @@ class _Translations$fileInfo$it extends Translations$fileInfo$en {
 	@override String versionCounter({required Object index, required Object count}) => 'Versione ${index} di ${count}';
 	@override String fileCounter({required Object index, required Object count}) => 'File ${index} di ${count}';
 	@override String get noStreams => 'Il server non ha segnalato flussi per questo file.';
-	@override String get copyPath => 'Copia percorso';
-	@override String get pathCopied => 'Percorso del file copiato';
 	@override String get codec => 'Codec';
 	@override String get codecTag => 'Tag codec';
 	@override String get resolution => 'Risoluzione';
@@ -652,7 +641,6 @@ class _Translations$fileInfo$it extends Translations$fileInfo$en {
 	@override String get temporary => 'Temporaneo';
 	@override String get timeBase => 'Base temporale';
 	@override String get overallBitrate => 'Bitrate complessivo';
-	@override String get path => 'Percorso';
 	@override String get fileName => 'Nome file';
 	@override String get size => 'Dimensione';
 	@override String get totalSize => 'Dimensione totale';
@@ -736,8 +724,8 @@ class _Translations$mediaMenu$it extends Translations$mediaMenu$en {
 		one: '${n} altro episodio è archiviato nello stesso file e verrà eliminato anche lui:',
 		other: '${n} altri episodi sono archiviati nello stesso file e verranno eliminati anche loro:',
 	);
-	@override String get deleteScopeUnverifiedProbeFailed => 'Plezy non ha potuto verificare quali file rimuoverà, quindi potrebbe eliminare più di quanto indicato sopra. Annulla e riprova, oppure elimina comunque.';
-	@override String get deleteScopeUnverifiedNoFileInfo => 'Il tuo server non ha fornito i dettagli del file per questo elemento, quindi Plezy non può verificare quali file rimuoverà. Potrebbe eliminare più di quanto indicato sopra.';
+	@override String get deleteScopeUnverifiedProbeFailed => 'Heisuca non ha potuto verificare quali file rimuoverà, quindi potrebbe eliminare più di quanto indicato sopra. Annulla e riprova, oppure elimina comunque.';
+	@override String get deleteScopeUnverifiedNoFileInfo => 'Il tuo server non ha fornito i dettagli del file per questo elemento, quindi Heisuca non può verificare quali file rimuoverà. Potrebbe eliminare più di quanto indicato sopra.';
 	@override String get mediaDeletedSuccessfully => 'Elemento multimediale eliminato correttamente';
 	@override String get mediaFailedToDelete => 'Impossibile eliminare l\'elemento multimediale';
 	@override String get rate => 'Valuta';
@@ -1070,7 +1058,7 @@ class _Translations$profiles$it extends Translations$profiles$en {
 	final TranslationsIt _root; // ignore: unused_field
 
 	// Translations
-	@override String get addPlezyProfile => 'Aggiungi profilo Plezy';
+	@override String get addHeisucaProfile => 'Aggiungi profilo Heisuca';
 	@override String get switchingProfile => 'Cambio profilo…';
 	@override String get deleteThisProfileTitle => 'Eliminare questo profilo?';
 	@override String deleteThisProfileMessage({required Object displayName}) => 'Rimuovi ${displayName}. Le connessioni resteranno invariate.';
@@ -1152,7 +1140,7 @@ class _Translations$connections$it extends Translations$connections$en {
 	@override String accessDeniedMany({required Object count}) => '${count} server hanno negato l\'accesso a questo account';
 	@override String get signInAgain => 'Accedi di nuovo';
 	@override String editMediaBrowserTitle({required Object product}) => 'Modifica connessione ${product}';
-	@override String editMediaBrowserIntro({required Object serverName}) => 'Aggiungi o rimuovi gli URL per ${serverName}. Plezy userà l\'URL raggiungibile con la latenza più bassa.';
+	@override String editMediaBrowserIntro({required Object serverName}) => 'Aggiungi o rimuovi gli URL per ${serverName}. Heisuca userà l\'URL raggiungibile con la latenza più bassa.';
 }
 
 // Path: accountPreferences
@@ -1166,7 +1154,7 @@ class _Translations$accountPreferences$it extends Translations$accountPreference
 	@override String hubSubtitleSingle({required Object account}) => 'Opzioni di audio, sottotitoli e libreria salvate su ${account}';
 	@override String hubSubtitleMultiple({required Object count}) => 'Opzioni di audio, sottotitoli e libreria salvate su ${count} account';
 	@override String get pickAccount => 'Ogni account conserva le proprie preferenze. Scegli quale modificare.';
-	@override String get storedOnAccount => 'Queste opzioni vengono salvate sull\'account stesso, quindi ogni app che vi accede le usa — inclusa Plezy sugli altri tuoi dispositivi.';
+	@override String get storedOnAccount => 'Queste opzioni vengono salvate sull\'account stesso, quindi ogni app che vi accede le usa — inclusa Heisuca sugli altri tuoi dispositivi.';
 	@override String get noAccounts => 'Nessun account da configurare';
 	@override String get noAccountsHint => 'Accedi a Plex oppure connetti un server Jellyfin o Emby: le preferenze salvate su quell\'account appariranno qui.';
 	@override String get unavailable => 'Impossibile raggiungere questo account';
@@ -1327,7 +1315,6 @@ class _Translations$about$it extends Translations$about$en {
 	@override String get title => 'Informazioni';
 	@override String get openSourceLicenses => 'Licenze open source';
 	@override String versionLabel({required Object version}) => 'Versione ${version}';
-	@override String get appDescription => 'Un elegante client Plex, Jellyfin ed Emby per Flutter';
 	@override String get viewLicensesDescription => 'Visualizza le licenze delle librerie di terze parti';
 }
 
@@ -1376,9 +1363,9 @@ class _Translations$startup$it extends Translations$startup$en {
 	final TranslationsIt _root; // ignore: unused_field
 
 	// Translations
-	@override String get failedTitle => 'Plezy non ha potuto avviarsi';
+	@override String get failedTitle => 'Heisuca non ha potuto avviarsi';
 	@override String get failedBody => 'Si è verificato un errore durante l\'avvio. I dettagli seguenti indicano cosa non ha funzionato.';
-	@override String get failedBodyRepairable => 'Il file delle impostazioni salvate di Plezy è danneggiato e deve essere ricostruito prima che Plezy possa avviarsi. Riprovare non servirà: scegli Ripara storage.';
+	@override String get failedBodyRepairable => 'Il file delle impostazioni salvate di Heisuca è danneggiato e deve essere ricostruito prima che Heisuca possa avviarsi. Riprovare non servirà: scegli Ripara storage.';
 	@override String get phaseLabel => 'Passaggio';
 	@override String get showDetails => 'Mostra dettagli';
 	@override String get hideDetails => 'Nascondi dettagli';
@@ -1387,16 +1374,16 @@ class _Translations$startup$it extends Translations$startup$en {
 	@override String get uploadDetails => 'Carica dettagli';
 	@override String get repairStorage => 'Ripara storage';
 	@override String get repairTitle => 'Riparare i dati archiviati?';
-	@override String get repairBodyCommon => 'Il file delle impostazioni di Plezy è danneggiato e non può essere letto. La riparazione ripristina ogni impostazione al suo valore predefinito.';
+	@override String get repairBodyCommon => 'Il file delle impostazioni di Heisuca è danneggiato e non può essere letto. La riparazione ripristina ogni impostazione al suo valore predefinito.';
 	@override String get repairBodyOneCredential => 'Un accesso salvato è danneggiato e non può essere letto. La riparazione rimuove solo quello; le altre impostazioni restano intatte.';
 	@override String get repairBodySignInsKept => 'I tuoi server e profili dovrebbero rimanere con accesso effettuato.';
 	@override String get repairBodySignInsLost => 'La chiave che protegge i tuoi accessi salvati non può essere recuperata da questo file, quindi dovrai effettuare di nuovo l\'accesso a ogni server e profilo. Nulla sul tuo server multimediale è interessato.';
-	@override String get repairBodySessionsUncertain => 'I tracker (MAL, AniList, Simkl, Trakt) e Seerr sono archiviati separatamente e potrebbero sopravvivere o meno. Plezy ti dirà esattamente cosa ha conservato.';
+	@override String get repairBodySessionsUncertain => 'I tracker (MAL, AniList, Simkl, Trakt) e Seerr sono archiviati separatamente e potrebbero sopravvivere o meno. Heisuca ti dirà esattamente cosa ha conservato.';
 	@override String get repairConfirm => 'Ripara';
 	@override String get repairSucceeded => 'Storage riparato';
 	@override String get repairNeedsRestart => 'Storage riparato — riavvio richiesto';
-	@override String get restartRequiredBody => 'I tuoi dati sono stati riparati, ma Plezy deve ripartire da zero prima di poterli usare. Chiudi Plezy e riaprilo.';
-	@override String get quitPlezy => 'Esci da Plezy';
+	@override String get restartRequiredBody => 'I tuoi dati sono stati riparati, ma Heisuca deve ripartire da zero prima di poterli usare. Chiudi Heisuca e riaprilo.';
+	@override String get quitHeisuca => 'Esci da Heisuca';
 	@override String get repairFailed => 'Riparazione non riuscita';
 	@override String get repairKeptSignIns => 'I tuoi server e profili hanno ancora l\'accesso effettuato.';
 	@override String get repairLostSignIns => 'La chiave che protegge i tuoi accessi salvati non ha potuto essere recuperata. Dovrai effettuare di nuovo l\'accesso a ogni server e profilo.';
@@ -1405,7 +1392,7 @@ class _Translations$startup$it extends Translations$startup$en {
 	@override String get backupWarning => 'Contiene le tue credenziali di accesso. Non caricarla né condividerla.';
 	@override String get deleteBackup => 'Elimina copia';
 	@override String get backupDeleted => 'Copia eliminata.';
-	@override String get previousFailureTitle => 'Plezy non è riuscito ad avviarsi l\'ultima volta';
+	@override String get previousFailureTitle => 'Heisuca non è riuscito ad avviarsi l\'ultima volta';
 }
 
 // Path: licenses
@@ -1681,90 +1668,6 @@ class _Translations$music$it extends Translations$music$en {
 	@override String get instantMixEmpty => 'Il mix istantaneo non ha prodotto alcun brano';
 	@override String noAudioUrl({required Object track}) => 'Nessun URL audio disponibile per ${track}';
 	@override late final _Translations$music$discography$it discography = _Translations$music$discography$it._(_root);
-}
-
-// Path: watchTogether
-class _Translations$watchTogether$it extends Translations$watchTogether$en {
-	_Translations$watchTogether$it._(TranslationsIt root) : this._root = root, super.internal(root);
-
-	final TranslationsIt _root; // ignore: unused_field
-
-	// Translations
-	@override String get title => 'Guarda insieme';
-	@override String get description => 'Guarda contenuti in sincronia con amici e familiari';
-	@override String get createSession => 'Crea sessione';
-	@override String get creating => 'Creazione...';
-	@override String get joinSession => 'Partecipa a una sessione';
-	@override String get joining => 'Connessione...';
-	@override String get controlMode => 'Modalità di controllo';
-	@override String get controlModeQuestion => 'Chi può controllare la riproduzione?';
-	@override String get hostOnly => 'Solo l\'host';
-	@override String get anyone => 'Tutti';
-	@override String get hostingSession => 'Stai ospitando la sessione';
-	@override String get inSession => 'Sessione in corso';
-	@override String get sessionCode => 'Codice della sessione';
-	@override String get openSessionControls => 'Apri i controlli della sessione di Guarda insieme';
-	@override String get copySessionCode => 'Copia il codice della sessione';
-	@override String get hostControlsPlayback => 'L\'host controlla la riproduzione';
-	@override String get anyoneCanControl => 'Tutti possono controllare la riproduzione';
-	@override String get hostControls => 'L\'host controlla';
-	@override String get anyoneControls => 'Tutti possono controllare';
-	@override String get participants => 'Partecipanti';
-	@override String get host => 'Host';
-	@override String get hostBadge => 'HOST';
-	@override String get youAreHost => 'Sei l\'host';
-	@override String get makeHost => 'Rendi host';
-	@override String get makeHostQuestion => 'Trasferire il ruolo di host?';
-	@override String makeHostConfirm({required Object name}) => '${name} controllerà la riproduzione e guiderà la sessione per tutti.';
-	@override String get transfer => 'Trasferisci';
-	@override String hostChangedTo({required Object name}) => '${name} è ora l\'host';
-	@override String get youAreNowHost => 'Ora sei l\'host';
-	@override String hostTransferFailed({required Object name}) => 'Impossibile rendere ${name} l\'host';
-	@override String get watchingWithOthers => 'In visione con altri partecipanti';
-	@override String get endSession => 'Termina la sessione';
-	@override String get leaveSession => 'Abbandona la sessione';
-	@override String get endSessionQuestion => 'Terminare la sessione?';
-	@override String get leaveSessionQuestion => 'Abbandonare la sessione?';
-	@override String get endSessionConfirm => 'Questo terminerà la sessione per tutti i partecipanti.';
-	@override String get leaveSessionConfirm => 'Sarai rimosso dalla sessione.';
-	@override String get endSessionConfirmOverlay => 'Questo terminerà la sessione di visione per tutti i partecipanti.';
-	@override String get leaveSessionConfirmOverlay => 'Sarai disconnesso dalla sessione di visione.';
-	@override String get end => 'Termina';
-	@override String get leave => 'Abbandona';
-	@override String get syncing => 'Sincronizzazione...';
-	@override String get joinWatchSession => 'Partecipa alla sessione di visione';
-	@override String get enterCodeHint => 'Inserisci codice di 5 caratteri';
-	@override String get pasteFromClipboard => 'Incolla dagli appunti';
-	@override String get pleaseEnterCode => 'Inserisci un codice della sessione';
-	@override String get codeMustBe5Chars => 'Il codice della sessione deve contenere 5 caratteri';
-	@override String get joinInstructions => 'Inserisci il codice della sessione dell\'host per partecipare.';
-	@override String get failedToCreate => 'Impossibile creare la sessione';
-	@override String get failedToJoin => 'Impossibile unirsi alla sessione';
-	@override String get sessionCodeCopied => 'Codice della sessione copiato negli appunti';
-	@override String get relayUnreachable => 'Il server relay non è raggiungibile. Eventuali blocchi dell\'ISP potrebbero impedire l\'uso di Guarda insieme.';
-	@override String get reconnectingToHost => 'Riconnessione all\'host...';
-	@override String get currentPlayback => 'Riproduzione corrente';
-	@override String get joinCurrentPlayback => 'Unisciti alla riproduzione corrente';
-	@override String get joinCurrentPlaybackDescription => 'Torna a ciò che l\'host sta guardando in questo momento';
-	@override String get failedToOpenCurrentPlayback => 'Impossibile aprire la riproduzione corrente';
-	@override String participantJoined({required Object name}) => '${name} si è unito';
-	@override String participantLeft({required Object name}) => '${name} se ne è andato';
-	@override String participantPaused({required Object name}) => '${name} ha messo in pausa';
-	@override String participantResumed({required Object name}) => '${name} ha ripreso';
-	@override String participantSeeked({required Object name}) => '${name} ha cambiato la posizione di riproduzione';
-	@override String participantChangedSpeed({required Object name, required Object speed}) => '${name} ha impostato la velocità a ${speed}';
-	@override String participantBuffering({required Object name}) => '${name} è in buffering';
-	@override String participantNeedsUpdate({required Object name}) => '${name} usa una versione precedente dell\'app — sincronizzazione non disponibile';
-	@override String resumingWithout({required Object name}) => 'Ripresa senza ${name}';
-	@override String get waitingForParticipants => 'In attesa che gli altri carichino...';
-	@override String waitingForName({required Object name}) => 'In attesa di ${name}...';
-	@override String get recentRooms => 'Stanze usate di recente';
-	@override String get renameRoom => 'Rinomina stanza';
-	@override String get removeRoom => 'Rimuovi';
-	@override String get guestSwitchUnavailable => 'Impossibile cambiare — server non disponibile per la sincronizzazione';
-	@override String get guestSwitchFailed => 'Impossibile cambiare — contenuto non trovato su questo server';
-	@override String get defaultDisplayName => 'Utente';
-	@override late final _Translations$watchTogether$errors$it errors = _Translations$watchTogether$errors$it._(_root);
 }
 
 // Path: downloads
@@ -2155,11 +2058,11 @@ class _Translations$trakt$it extends Translations$trakt$en {
 	@override String get connected => 'Connesso';
 	@override String connectedAs({required Object username}) => 'Connesso come @${username}';
 	@override String get disconnectConfirm => 'Disconnettere l\'account Trakt?';
-	@override String get disconnectConfirmBody => 'Plezy smetterà di inviare eventi a Trakt. Puoi riconnetterti quando vuoi.';
+	@override String get disconnectConfirmBody => 'Heisuca smetterà di inviare eventi a Trakt. Puoi riconnetterti quando vuoi.';
 	@override String get scrobble => 'Scrobbling in tempo reale';
 	@override String get scrobbleDescription => 'Invia eventi di riproduzione, pausa e arresto a Trakt durante la riproduzione.';
 	@override String get watchedSync => 'Sincronizza lo stato di visione';
-	@override String get watchedSyncDescription => 'Quando contrassegni un elemento come visto in Plezy, viene contrassegnato come visto anche su Trakt.';
+	@override String get watchedSyncDescription => 'Quando contrassegni un elemento come visto in Heisuca, viene contrassegnato come visto anche su Trakt.';
 }
 
 // Path: seerr
@@ -2178,10 +2081,10 @@ class _Translations$seerr$it extends Translations$seerr$en {
 	@override String get signInWithEmby => 'Accedi con Emby';
 	@override String get signInWithLocal => 'Usa un account locale';
 	@override String get email => 'Email';
-	@override String get noSignInMethods => 'Questa istanza Seerr non offre alcun metodo di accesso supportato da Plezy.';
+	@override String get noSignInMethods => 'Questa istanza Seerr non offre alcun metodo di accesso supportato da Heisuca.';
 	@override String get instance => 'Istanza';
 	@override String get disconnectConfirm => 'Disconnettere Seerr?';
-	@override String get disconnectConfirmBody => 'Plezy rimuoverà questa istanza Seerr. Potrai riconnetterla in qualsiasi momento.';
+	@override String get disconnectConfirmBody => 'Heisuca rimuoverà questa istanza Seerr. Potrai riconnetterla in qualsiasi momento.';
 	@override String get request => 'Richiedi';
 	@override String get request4k => 'Richiedi in 4K';
 	@override String get seasons => 'Stagioni';
@@ -2206,7 +2109,7 @@ class _Translations$seerr$it extends Translations$seerr$en {
 	@override String get statusBlocklisted => 'Nella lista di blocco';
 	@override String couldNotReach({required Object url, required Object error}) => 'Impossibile raggiungere ${url}: ${error}';
 	@override String noInstanceAtUrl({required Object url, required Object status}) => 'Nessuna istanza Seerr all\'indirizzo ${url} (HTTP ${status})';
-	@override String get behindAuthProxy => 'Un reverse proxy con autenticazione (SSO o autenticazione HTTP) ha risposto al posto di Seerr. Plezy non può accedere attraverso di esso: consenti al percorso /api/v1 di Seerr di bypassare il proxy per questa app, oppure usa un indirizzo che raggiunga Seerr direttamente.';
+	@override String get behindAuthProxy => 'Un reverse proxy con autenticazione (SSO o autenticazione HTTP) ha risposto al posto di Seerr. Heisuca non può accedere attraverso di esso: consenti al percorso /api/v1 di Seerr di bypassare il proxy per questa app, oppure usa un indirizzo che raggiunga Seerr direttamente.';
 	@override String get invalidUrl => 'Inserisci un indirizzo del server come https://seerr.example.com';
 	@override String get quickConnectUnsupported => 'Questa istanza Seerr non supporta Quick Connect. È necessaria la versione 3.4 o successiva di Seerr.';
 	@override String get notInitialized => 'Questa istanza Seerr non ha completato la configurazione iniziale';
@@ -2236,7 +2139,7 @@ class _Translations$services$it extends Translations$services$en {
 	@override String get scrobble => 'Registra automaticamente i progressi';
 	@override String get scrobbleDescription => 'Aggiorna la tua lista quando termini un episodio o un film.';
 	@override String disconnectConfirm({required Object service}) => 'Disconnettere ${service}?';
-	@override String disconnectConfirmBody({required Object service}) => 'Plezy smetterà di aggiornare ${service}. Riconnetti quando vuoi.';
+	@override String disconnectConfirmBody({required Object service}) => 'Heisuca smetterà di aggiornare ${service}. Riconnetti quando vuoi.';
 	@override String connectFailed({required Object service}) => 'Impossibile connettersi a ${service}. Riprova.';
 	@override late final _Translations$services$names$it names = _Translations$services$names$it._(_root);
 	@override late final _Translations$services$deviceCode$it deviceCode = _Translations$services$deviceCode$it._(_root);
@@ -2800,20 +2703,6 @@ class _Translations$music$discography$it extends Translations$music$discography$
 	@override String get compilations => 'Compilation';
 }
 
-// Path: watchTogether.errors
-class _Translations$watchTogether$errors$it extends Translations$watchTogether$errors$en {
-	_Translations$watchTogether$errors$it._(TranslationsIt root) : this._root = root, super.internal(root);
-
-	final TranslationsIt _root; // ignore: unused_field
-
-	// Translations
-	@override String get timedOut => 'Il server relay non ha risposto in tempo';
-	@override String get connectionLost => 'La connessione si è chiusa prima che la sessione fosse pronta';
-	@override String get invalidRelayResponse => 'Il server relay ha inviato una risposta imprevista';
-	@override String get sessionEnded => 'L’host ha terminato la sessione';
-	@override String get sessionUnavailable => 'Impossibile riprendere questa sessione. Partecipa a una stanza o creane una per continuare.';
-}
-
 // Path: downloads.backgroundWarning
 class _Translations$downloads$backgroundWarning$it extends Translations$downloads$backgroundWarning$en {
 	_Translations$downloads$backgroundWarning$it._(TranslationsIt root) : this._root = root, super.internal(root);
@@ -2826,14 +2715,14 @@ class _Translations$downloads$backgroundWarning$it extends Translations$download
 	@override String get bannerAction => 'Dettagli';
 	@override String get sheetTitle => 'I download in background sono bloccati';
 	@override String get sheetTitleDegraded => 'I download in background potrebbero essere limitati';
-	@override String get sheetIntro => 'Android impedisce a Plezy di scaricare in modo affidabile in background.';
-	@override String get sheetIntroDegraded => 'Il dispositivo limita i momenti in cui Plezy può scaricare in background.';
-	@override String get reasonBackgroundRestricted => 'L’uso in background di Plezy è limitato. Nelle impostazioni della batteria o dell’uso in background, seleziona «Senza restrizioni».';
-	@override String get reasonStandbyRestricted => 'Android ha messo Plezy in uno stato di standby con restrizioni. Imposta l’uso della batteria su «Senza restrizioni».';
+	@override String get sheetIntro => 'Android impedisce a Heisuca di scaricare in modo affidabile in background.';
+	@override String get sheetIntroDegraded => 'Il dispositivo limita i momenti in cui Heisuca può scaricare in background.';
+	@override String get reasonBackgroundRestricted => 'L’uso in background di Heisuca è limitato. Nelle impostazioni della batteria o dell’uso in background, seleziona «Senza restrizioni».';
+	@override String get reasonStandbyRestricted => 'Android ha messo Heisuca in uno stato di standby con restrizioni. Imposta l’uso della batteria su «Senza restrizioni».';
 	@override String get reasonDownloadChannelBlocked => 'Le notifiche dei download sono disattivate, quindi l’avanzamento e i controlli potrebbero non essere disponibili.';
 	@override String get reasonNotificationsDisabled => 'Le notifiche sono disattivate. Su Android 13 o versioni successive sono necessarie per i download prolungati in background.';
 	@override String get reasonDataSaver => 'Il Risparmio dati è attivo e blocca i download in background tramite dati mobili. I download dovrebbero comunque funzionare su Wi-Fi.';
-	@override String get reasonOemUnknown => 'I download si sono interrotti più volte mentre Plezy era in background. Controlla le impostazioni della batteria o dell’uso in background di Plezy.';
+	@override String get reasonOemUnknown => 'I download si sono interrotti più volte mentre Heisuca era in background. Controlla le impostazioni della batteria o dell’uso in background di Heisuca.';
 	@override String get openSettings => 'Apri le impostazioni';
 	@override String get stillNotWorking => 'Guida specifica per il dispositivo';
 	@override String get stillNotWorkingDescription => 'Consulta la procedura per il tuo dispositivo oppure invia un log da Impostazioni › Visualizza i log se il problema persiste.';
@@ -2887,19 +2776,19 @@ class _Translations$companionRemote$pairing$it extends Translations$companionRem
 	final TranslationsIt _root; // ignore: unused_field
 
 	// Translations
-	@override String get discoveryDescription => 'I dispositivi Plezy con lo stesso account Plex appaiono qui';
+	@override String get discoveryDescription => 'I dispositivi Heisuca con lo stesso account Plex appaiono qui';
 	@override String get hostAddressHint => '192.168.1.100:48632';
 	@override String get connecting => 'Connessione...';
 	@override String get searchingForDevices => 'Ricerca dispositivi...';
 	@override String get noDevicesFound => 'Nessun dispositivo trovato nella tua rete';
-	@override String get noDevicesHint => 'Apri Plezy sul computer e usa la stessa rete Wi-Fi';
+	@override String get noDevicesHint => 'Apri Heisuca sul computer e usa la stessa rete Wi-Fi';
 	@override String get availableDevices => 'Dispositivi disponibili';
 	@override String get manualConnection => 'Connessione manuale';
 	@override String get cryptoInitFailed => 'Impossibile avviare la connessione sicura. Accedi prima a Plex.';
 	@override String get validationHostRequired => 'Inserisci l\'indirizzo host';
 	@override String get validationHostFormat => 'Il formato deve essere IP:porta (es. 192.168.1.100:48632)';
 	@override String get connectionTimedOut => 'Tempo scaduto per la connessione. Usa la stessa rete su entrambi i dispositivi.';
-	@override String get sessionNotFound => 'Dispositivo non trovato. Assicurati che Plezy sia in esecuzione sull\'host.';
+	@override String get sessionNotFound => 'Dispositivo non trovato. Assicurati che Heisuca sia in esecuzione sull\'host.';
 	@override String get authFailed => 'Autenticazione non riuscita. Entrambi i dispositivi devono usare lo stesso account Plex.';
 	@override String failedToConnect({required Object error}) => 'Connessione non riuscita: ${error}';
 }
@@ -2978,7 +2867,7 @@ class _Translations$services$deviceCode$it extends Translations$services$deviceC
 	final TranslationsIt _root; // ignore: unused_field
 
 	// Translations
-	@override String title({required Object service}) => 'Attiva Plezy su ${service}';
+	@override String title({required Object service}) => 'Attiva Heisuca su ${service}';
 	@override String get instructions => 'Scansiona il codice QR oppure visita l\'indirizzo qui sotto e inserisci questo codice:';
 	@override String openToActivate({required Object service}) => 'Apri ${service} per attivare';
 	@override String get copyCode => 'Copia il codice di attivazione';
@@ -3054,7 +2943,7 @@ extension on TranslationsIt {
 			'auth.quickConnectWaiting' => 'In attesa di approvazione…',
 			'auth.quickConnectCancel' => 'Annulla',
 			'auth.quickConnectExpired' => 'Quick Connect scaduto. Riprova.',
-			'auth.localDataRecoveryRequired' => 'Plezy non è riuscito a recuperare in sicurezza i dati locali di accesso e delle riproduzioni in sospeso. Accedi di nuovo.',
+			'auth.localDataRecoveryRequired' => 'Heisuca non è riuscito a recuperare in sicurezza i dati locali di accesso e delle riproduzioni in sospeso. Accedi di nuovo.',
 			'auth.pinCheckRejected' => 'La verifica del PIN Plex è stata rifiutata',
 			'common.cancel' => 'Annulla',
 			'common.save' => 'Salva',
@@ -3141,7 +3030,7 @@ extension on TranslationsIt {
 			'update.latestVersion' => 'La versione installata è l\'ultima disponibile',
 			'update.checkFailed' => 'Impossibile controllare gli aggiornamenti',
 			'settings.title' => 'Impostazioni',
-			'settings.supportDeveloper' => 'Supporta Plezy',
+			'settings.supportDeveloper' => 'Supporta Heisuca',
 			'settings.supportDeveloperDescription' => 'Dona tramite Liberapay per finanziare lo sviluppo',
 			'settings.language' => 'Lingua',
 			'settings.theme' => 'Tema',
@@ -3259,12 +3148,6 @@ extension on TranslationsIt {
 			'settings.keyboardShortcutsDescription' => 'Personalizza le scorciatoie da tastiera',
 			'settings.videoPlayerNavigation' => 'Navigazione del lettore video',
 			'settings.videoPlayerNavigationDescription' => 'Usa i tasti freccia per navigare nei controlli del lettore video',
-			'settings.watchTogetherRelay' => 'Relay di Guarda insieme',
-			'settings.watchTogetherRelayDescription' => 'Imposta un relay personalizzato. Tutti devono usare lo stesso server.',
-			'settings.watchTogetherRelayHint' => 'https://mio-relay.esempio.it',
-			'settings.watchTogetherRelayInvalid' => 'Inserisci un URL di base HTTP o HTTPS valido per il relay.',
-			'settings.crashReporting' => 'Segnalazione degli arresti anomali',
-			'settings.crashReportingDescription' => 'Invia segnalazioni sugli arresti anomali per contribuire a migliorare l\'app',
 			'settings.debugLogging' => 'Registrazione di debug',
 			'settings.debugLoggingDescription' => 'Abilita una registrazione dettagliata per la risoluzione dei problemi',
 			'settings.viewLogs' => 'Visualizza i log',
@@ -3283,7 +3166,7 @@ extension on TranslationsIt {
 			'settings.importSettingsDescription' => 'Ripristina le preferenze da un file',
 			'settings.importSettingsConfirm' => 'Questa azione sostituirà le impostazioni attuali. Continuare?',
 			'settings.importSettingsSuccess' => 'Impostazioni importate',
-			'settings.importSettingsInvalidFile' => 'Questo file non è un\'esportazione Plezy valida',
+			'settings.importSettingsInvalidFile' => 'Questo file non è un\'esportazione Heisuca valida',
 			'settings.importSettingsNoUser' => 'Accedi prima di importare le impostazioni',
 			'settings.shortcutsReset' => 'Scorciatoie ripristinate alle impostazioni predefinite',
 			'settings.about' => 'Informazioni',
@@ -3345,8 +3228,6 @@ extension on TranslationsIt {
 			'settings.maxVolume' => 'Volume massimo consentito',
 			'settings.maxVolumeDescription' => 'Consenti di aumentare il volume oltre il 100% per i contenuti con audio basso',
 			'settings.maxVolumePercent' => ({required Object percent}) => '${percent}%',
-			'settings.discordRichPresence' => 'Discord Rich Presence',
-			'settings.discordRichPresenceDescription' => 'Mostra su Discord cosa stai guardando',
 			'settings.services' => 'Servizi',
 			'settings.servicesDescription' => 'Connetti Trakt, MyAnimeList, Seerr e altro',
 			'settings.manageLibrariesDescription' => 'Riordina e nascondi le librerie',
@@ -3404,7 +3285,7 @@ extension on TranslationsIt {
 			'settings.forceTvMode' => 'Forza modalità TV',
 			'settings.forceTvModeDescription' => 'Forza il layout TV sui dispositivi che non vengono rilevati automaticamente. Richiede il riavvio.',
 			'settings.startInFullscreen' => 'Avvia a schermo intero',
-			'settings.startInFullscreenDescription' => 'Apri Plezy a schermo intero all\'avvio',
+			'settings.startInFullscreenDescription' => 'Apri Heisuca a schermo intero all\'avvio',
 			'settings.exitFullscreenOnPlayerClose' => 'Esci dalla modalità a schermo intero alla chiusura del lettore',
 			'settings.exitFullscreenOnPlayerCloseDescription' => 'Esce automaticamente dalla modalità a schermo intero quando chiudi il lettore video',
 			'settings.autoHidePerformanceOverlay' => 'Nascondi automaticamente il riquadro delle prestazioni',
@@ -3453,7 +3334,7 @@ extension on TranslationsIt {
 			'settings.playerScopeGlobal' => 'Ovunque',
 			'settings.playerScopeLibrary' => 'Per libreria',
 			'settings.playerScopeTitle' => 'Per serie o film',
-			'settings.exportDialogTitle' => 'Esporta le impostazioni di Plezy',
+			'settings.exportDialogTitle' => 'Esporta le impostazioni di Heisuca',
 			'search.hint' => 'Cerca film, serie TV e musica...',
 			'search.tryDifferentTerm' => 'Prova altri termini di ricerca',
 			'search.searchYourMedia' => 'Cerca nei tuoi media',
@@ -3503,8 +3384,6 @@ extension on TranslationsIt {
 			'fileInfo.versionCounter' => ({required Object index, required Object count}) => 'Versione ${index} di ${count}',
 			'fileInfo.fileCounter' => ({required Object index, required Object count}) => 'File ${index} di ${count}',
 			'fileInfo.noStreams' => 'Il server non ha segnalato flussi per questo file.',
-			'fileInfo.copyPath' => 'Copia percorso',
-			'fileInfo.pathCopied' => 'Percorso del file copiato',
 			'fileInfo.codec' => 'Codec',
 			'fileInfo.codecTag' => 'Tag codec',
 			'fileInfo.resolution' => 'Risoluzione',
@@ -3550,8 +3429,6 @@ extension on TranslationsIt {
 			'fileInfo.streamId' => 'ID flusso',
 			'fileInfo.language' => 'Lingua',
 			'fileInfo.languageCode' => 'Codice lingua',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.streamTitle' => 'Titolo traccia',
 			'fileInfo.channels' => 'Canali',
 			'fileInfo.sampleRate' => 'Frequenza di campionamento',
@@ -3562,11 +3439,12 @@ extension on TranslationsIt {
 			'fileInfo.matchScore' => 'Punteggio corrispondenza',
 			'fileInfo.externalDelivery' => 'Può essere servito separatamente',
 			'fileInfo.sidecarPath' => 'Percorso sidecar',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.sourceStream' => 'Copiato da',
 			'fileInfo.temporary' => 'Temporaneo',
 			'fileInfo.timeBase' => 'Base temporale',
 			'fileInfo.overallBitrate' => 'Bitrate complessivo',
-			'fileInfo.path' => 'Percorso',
 			'fileInfo.fileName' => 'Nome file',
 			'fileInfo.size' => 'Dimensione',
 			'fileInfo.totalSize' => 'Dimensione totale',
@@ -3632,8 +3510,8 @@ extension on TranslationsIt {
 			'mediaMenu.deleteEpisodeCountWarning' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('it'))(n, one: 'Questo elimina tutti i ${n} episodio in essa contenuto e il relativo file.', other: 'Questo elimina tutti i ${n} episodi in essa contenuti e i relativi file.', ), 
 			'mediaMenu.deleteMultiPartWarning' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('it'))(n, one: 'Questo elemento è archiviato in ${n} file, che verrà eliminato.', other: 'Questo elemento è archiviato in ${n} file, e tutti verranno eliminati.', ), 
 			'mediaMenu.deleteSharedFileHeading' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('it'))(n, one: '${n} altro episodio è archiviato nello stesso file e verrà eliminato anche lui:', other: '${n} altri episodi sono archiviati nello stesso file e verranno eliminati anche loro:', ), 
-			'mediaMenu.deleteScopeUnverifiedProbeFailed' => 'Plezy non ha potuto verificare quali file rimuoverà, quindi potrebbe eliminare più di quanto indicato sopra. Annulla e riprova, oppure elimina comunque.',
-			'mediaMenu.deleteScopeUnverifiedNoFileInfo' => 'Il tuo server non ha fornito i dettagli del file per questo elemento, quindi Plezy non può verificare quali file rimuoverà. Potrebbe eliminare più di quanto indicato sopra.',
+			'mediaMenu.deleteScopeUnverifiedProbeFailed' => 'Heisuca non ha potuto verificare quali file rimuoverà, quindi potrebbe eliminare più di quanto indicato sopra. Annulla e riprova, oppure elimina comunque.',
+			'mediaMenu.deleteScopeUnverifiedNoFileInfo' => 'Il tuo server non ha fornito i dettagli del file per questo elemento, quindi Heisuca non può verificare quali file rimuoverà. Potrebbe eliminare più di quanto indicato sopra.',
 			'mediaMenu.mediaDeletedSuccessfully' => 'Elemento multimediale eliminato correttamente',
 			'mediaMenu.mediaFailedToDelete' => 'Impossibile eliminare l\'elemento multimediale',
 			'mediaMenu.rate' => 'Valuta',
@@ -3880,7 +3758,7 @@ extension on TranslationsIt {
 			'mpvConfig.removeLine' => 'Rimuovi riga',
 			'mpvConfig.embeddedVoHint' => 'vo, gpu-context e gpu-api vengono ignorati su Linux: il video incorporato viene sempre renderizzato tramite vo=libmpv sul piano video e gpu-next (che gli shader di calcolo come ArtCNN richiedono) non può essere eseguito in modalità incorporata.',
 			'dialog.confirmAction' => 'Conferma azione',
-			'profiles.addPlezyProfile' => 'Aggiungi profilo Plezy',
+			'profiles.addHeisucaProfile' => 'Aggiungi profilo Heisuca',
 			'profiles.switchingProfile' => 'Cambio profilo…',
 			'profiles.deleteThisProfileTitle' => 'Eliminare questo profilo?',
 			'profiles.deleteThisProfileMessage' => ({required Object displayName}) => 'Rimuovi ${displayName}. Le connessioni resteranno invariate.',
@@ -3953,12 +3831,12 @@ extension on TranslationsIt {
 			'connections.accessDeniedMany' => ({required Object count}) => '${count} server hanno negato l\'accesso a questo account',
 			'connections.signInAgain' => 'Accedi di nuovo',
 			'connections.editMediaBrowserTitle' => ({required Object product}) => 'Modifica connessione ${product}',
-			'connections.editMediaBrowserIntro' => ({required Object serverName}) => 'Aggiungi o rimuovi gli URL per ${serverName}. Plezy userà l\'URL raggiungibile con la latenza più bassa.',
+			'connections.editMediaBrowserIntro' => ({required Object serverName}) => 'Aggiungi o rimuovi gli URL per ${serverName}. Heisuca userà l\'URL raggiungibile con la latenza più bassa.',
 			'accountPreferences.sectionTitle' => 'Preferenze dell\'account',
 			'accountPreferences.hubSubtitleSingle' => ({required Object account}) => 'Opzioni di audio, sottotitoli e libreria salvate su ${account}',
 			'accountPreferences.hubSubtitleMultiple' => ({required Object count}) => 'Opzioni di audio, sottotitoli e libreria salvate su ${count} account',
 			'accountPreferences.pickAccount' => 'Ogni account conserva le proprie preferenze. Scegli quale modificare.',
-			'accountPreferences.storedOnAccount' => 'Queste opzioni vengono salvate sull\'account stesso, quindi ogni app che vi accede le usa — inclusa Plezy sugli altri tuoi dispositivi.',
+			'accountPreferences.storedOnAccount' => 'Queste opzioni vengono salvate sull\'account stesso, quindi ogni app che vi accede le usa — inclusa Heisuca sugli altri tuoi dispositivi.',
 			'accountPreferences.noAccounts' => 'Nessun account da configurare',
 			'accountPreferences.noAccountsHint' => 'Accedi a Plex oppure connetti un server Jellyfin o Emby: le preferenze salvate su quell\'account appariranno qui.',
 			'accountPreferences.unavailable' => 'Impossibile raggiungere questo account',
@@ -4064,8 +3942,6 @@ extension on TranslationsIt {
 			'libraries.refreshMetadata' => 'Aggiorna metadati',
 			'libraries.emptyTrash' => 'Svuota cestino',
 			'libraries.emptyingTrash' => ({required Object title}) => 'Svuotamento del cestino di "${title}"...',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.trashEmptied' => ({required Object title}) => 'Cestino di "${title}" svuotato',
 			'libraries.failedToEmptyTrash' => ({required Object error}) => 'Impossibile svuotare il cestino: ${error}',
 			'libraries.analyzing' => ({required Object title}) => 'Analisi di "${title}"...',
@@ -4077,6 +3953,8 @@ extension on TranslationsIt {
 			'libraries.thisLibraryIsEmpty' => 'Questa libreria è vuota',
 			'libraries.noItemsMatchFilters' => 'Nessun elemento corrisponde ai filtri attivi',
 			'libraries.resetFilters' => 'Reimposta filtri',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.all' => 'Tutto',
 			'libraries.clearAll' => 'Azzera tutto',
 			'libraries.scanLibraryConfirm' => ({required Object title}) => 'Vuoi scansionare "${title}"?',
@@ -4145,7 +4023,6 @@ extension on TranslationsIt {
 			'about.title' => 'Informazioni',
 			'about.openSourceLicenses' => 'Licenze open source',
 			'about.versionLabel' => ({required Object version}) => 'Versione ${version}',
-			'about.appDescription' => 'Un elegante client Plex, Jellyfin ed Emby per Flutter',
 			'about.viewLicensesDescription' => 'Visualizza le licenze delle librerie di terze parti',
 			'serverSelection.noServersFoundForAccount' => ({required Object username, required Object email}) => 'Nessun server trovato per ${username} (${email})',
 			'serverSelection.failedToLoadServers' => ({required Object error}) => 'Impossibile caricare i server: ${error}',
@@ -4158,9 +4035,9 @@ extension on TranslationsIt {
 			'logs.clearLogs' => 'Cancella log',
 			'logs.copyLogs' => 'Copia log',
 			'logs.uploadLogs' => 'Carica log',
-			'startup.failedTitle' => 'Plezy non ha potuto avviarsi',
+			'startup.failedTitle' => 'Heisuca non ha potuto avviarsi',
 			'startup.failedBody' => 'Si è verificato un errore durante l\'avvio. I dettagli seguenti indicano cosa non ha funzionato.',
-			'startup.failedBodyRepairable' => 'Il file delle impostazioni salvate di Plezy è danneggiato e deve essere ricostruito prima che Plezy possa avviarsi. Riprovare non servirà: scegli Ripara storage.',
+			'startup.failedBodyRepairable' => 'Il file delle impostazioni salvate di Heisuca è danneggiato e deve essere ricostruito prima che Heisuca possa avviarsi. Riprovare non servirà: scegli Ripara storage.',
 			'startup.phaseLabel' => 'Passaggio',
 			'startup.showDetails' => 'Mostra dettagli',
 			'startup.hideDetails' => 'Nascondi dettagli',
@@ -4169,16 +4046,16 @@ extension on TranslationsIt {
 			'startup.uploadDetails' => 'Carica dettagli',
 			'startup.repairStorage' => 'Ripara storage',
 			'startup.repairTitle' => 'Riparare i dati archiviati?',
-			'startup.repairBodyCommon' => 'Il file delle impostazioni di Plezy è danneggiato e non può essere letto. La riparazione ripristina ogni impostazione al suo valore predefinito.',
+			'startup.repairBodyCommon' => 'Il file delle impostazioni di Heisuca è danneggiato e non può essere letto. La riparazione ripristina ogni impostazione al suo valore predefinito.',
 			'startup.repairBodyOneCredential' => 'Un accesso salvato è danneggiato e non può essere letto. La riparazione rimuove solo quello; le altre impostazioni restano intatte.',
 			'startup.repairBodySignInsKept' => 'I tuoi server e profili dovrebbero rimanere con accesso effettuato.',
 			'startup.repairBodySignInsLost' => 'La chiave che protegge i tuoi accessi salvati non può essere recuperata da questo file, quindi dovrai effettuare di nuovo l\'accesso a ogni server e profilo. Nulla sul tuo server multimediale è interessato.',
-			'startup.repairBodySessionsUncertain' => 'I tracker (MAL, AniList, Simkl, Trakt) e Seerr sono archiviati separatamente e potrebbero sopravvivere o meno. Plezy ti dirà esattamente cosa ha conservato.',
+			'startup.repairBodySessionsUncertain' => 'I tracker (MAL, AniList, Simkl, Trakt) e Seerr sono archiviati separatamente e potrebbero sopravvivere o meno. Heisuca ti dirà esattamente cosa ha conservato.',
 			'startup.repairConfirm' => 'Ripara',
 			'startup.repairSucceeded' => 'Storage riparato',
 			'startup.repairNeedsRestart' => 'Storage riparato — riavvio richiesto',
-			'startup.restartRequiredBody' => 'I tuoi dati sono stati riparati, ma Plezy deve ripartire da zero prima di poterli usare. Chiudi Plezy e riaprilo.',
-			'startup.quitPlezy' => 'Esci da Plezy',
+			'startup.restartRequiredBody' => 'I tuoi dati sono stati riparati, ma Heisuca deve ripartire da zero prima di poterli usare. Chiudi Heisuca e riaprilo.',
+			'startup.quitHeisuca' => 'Esci da Heisuca',
 			'startup.repairFailed' => 'Riparazione non riuscita',
 			'startup.repairKeptSignIns' => 'I tuoi server e profili hanno ancora l\'accesso effettuato.',
 			'startup.repairLostSignIns' => 'La chiave che protegge i tuoi accessi salvati non ha potuto essere recuperata. Dovrai effettuare di nuovo l\'accesso a ogni server e profilo.',
@@ -4187,7 +4064,7 @@ extension on TranslationsIt {
 			'startup.backupWarning' => 'Contiene le tue credenziali di accesso. Non caricarla né condividerla.',
 			'startup.deleteBackup' => 'Elimina copia',
 			'startup.backupDeleted' => 'Copia eliminata.',
-			'startup.previousFailureTitle' => 'Plezy non è riuscito ad avviarsi l\'ultima volta',
+			'startup.previousFailureTitle' => 'Heisuca non è riuscito ad avviarsi l\'ultima volta',
 			'licenses.relatedPackages' => 'Pacchetti correlati',
 			'licenses.license' => 'Licenza',
 			'licenses.licenseNumber' => ({required Object number}) => 'Licenza ${number}',
@@ -4506,87 +4383,6 @@ extension on TranslationsIt {
 			'music.discography.singlesAndEps' => 'Singoli ed EP',
 			'music.discography.live' => 'Dal vivo',
 			'music.discography.compilations' => 'Compilation',
-			'watchTogether.title' => 'Guarda insieme',
-			'watchTogether.description' => 'Guarda contenuti in sincronia con amici e familiari',
-			'watchTogether.createSession' => 'Crea sessione',
-			'watchTogether.creating' => 'Creazione...',
-			'watchTogether.joinSession' => 'Partecipa a una sessione',
-			'watchTogether.joining' => 'Connessione...',
-			'watchTogether.controlMode' => 'Modalità di controllo',
-			'watchTogether.controlModeQuestion' => 'Chi può controllare la riproduzione?',
-			'watchTogether.hostOnly' => 'Solo l\'host',
-			'watchTogether.anyone' => 'Tutti',
-			'watchTogether.hostingSession' => 'Stai ospitando la sessione',
-			'watchTogether.inSession' => 'Sessione in corso',
-			'watchTogether.sessionCode' => 'Codice della sessione',
-			'watchTogether.openSessionControls' => 'Apri i controlli della sessione di Guarda insieme',
-			'watchTogether.copySessionCode' => 'Copia il codice della sessione',
-			'watchTogether.hostControlsPlayback' => 'L\'host controlla la riproduzione',
-			'watchTogether.anyoneCanControl' => 'Tutti possono controllare la riproduzione',
-			'watchTogether.hostControls' => 'L\'host controlla',
-			'watchTogether.anyoneControls' => 'Tutti possono controllare',
-			'watchTogether.participants' => 'Partecipanti',
-			'watchTogether.host' => 'Host',
-			'watchTogether.hostBadge' => 'HOST',
-			'watchTogether.youAreHost' => 'Sei l\'host',
-			'watchTogether.makeHost' => 'Rendi host',
-			'watchTogether.makeHostQuestion' => 'Trasferire il ruolo di host?',
-			'watchTogether.makeHostConfirm' => ({required Object name}) => '${name} controllerà la riproduzione e guiderà la sessione per tutti.',
-			'watchTogether.transfer' => 'Trasferisci',
-			'watchTogether.hostChangedTo' => ({required Object name}) => '${name} è ora l\'host',
-			'watchTogether.youAreNowHost' => 'Ora sei l\'host',
-			'watchTogether.hostTransferFailed' => ({required Object name}) => 'Impossibile rendere ${name} l\'host',
-			'watchTogether.watchingWithOthers' => 'In visione con altri partecipanti',
-			'watchTogether.endSession' => 'Termina la sessione',
-			'watchTogether.leaveSession' => 'Abbandona la sessione',
-			'watchTogether.endSessionQuestion' => 'Terminare la sessione?',
-			'watchTogether.leaveSessionQuestion' => 'Abbandonare la sessione?',
-			'watchTogether.endSessionConfirm' => 'Questo terminerà la sessione per tutti i partecipanti.',
-			'watchTogether.leaveSessionConfirm' => 'Sarai rimosso dalla sessione.',
-			'watchTogether.endSessionConfirmOverlay' => 'Questo terminerà la sessione di visione per tutti i partecipanti.',
-			'watchTogether.leaveSessionConfirmOverlay' => 'Sarai disconnesso dalla sessione di visione.',
-			'watchTogether.end' => 'Termina',
-			'watchTogether.leave' => 'Abbandona',
-			'watchTogether.syncing' => 'Sincronizzazione...',
-			'watchTogether.joinWatchSession' => 'Partecipa alla sessione di visione',
-			'watchTogether.enterCodeHint' => 'Inserisci codice di 5 caratteri',
-			'watchTogether.pasteFromClipboard' => 'Incolla dagli appunti',
-			'watchTogether.pleaseEnterCode' => 'Inserisci un codice della sessione',
-			'watchTogether.codeMustBe5Chars' => 'Il codice della sessione deve contenere 5 caratteri',
-			'watchTogether.joinInstructions' => 'Inserisci il codice della sessione dell\'host per partecipare.',
-			'watchTogether.failedToCreate' => 'Impossibile creare la sessione',
-			'watchTogether.failedToJoin' => 'Impossibile unirsi alla sessione',
-			'watchTogether.sessionCodeCopied' => 'Codice della sessione copiato negli appunti',
-			'watchTogether.relayUnreachable' => 'Il server relay non è raggiungibile. Eventuali blocchi dell\'ISP potrebbero impedire l\'uso di Guarda insieme.',
-			'watchTogether.reconnectingToHost' => 'Riconnessione all\'host...',
-			'watchTogether.currentPlayback' => 'Riproduzione corrente',
-			'watchTogether.joinCurrentPlayback' => 'Unisciti alla riproduzione corrente',
-			'watchTogether.joinCurrentPlaybackDescription' => 'Torna a ciò che l\'host sta guardando in questo momento',
-			'watchTogether.failedToOpenCurrentPlayback' => 'Impossibile aprire la riproduzione corrente',
-			'watchTogether.participantJoined' => ({required Object name}) => '${name} si è unito',
-			'watchTogether.participantLeft' => ({required Object name}) => '${name} se ne è andato',
-			'watchTogether.participantPaused' => ({required Object name}) => '${name} ha messo in pausa',
-			'watchTogether.participantResumed' => ({required Object name}) => '${name} ha ripreso',
-			'watchTogether.participantSeeked' => ({required Object name}) => '${name} ha cambiato la posizione di riproduzione',
-			'watchTogether.participantChangedSpeed' => ({required Object name, required Object speed}) => '${name} ha impostato la velocità a ${speed}',
-			'watchTogether.participantBuffering' => ({required Object name}) => '${name} è in buffering',
-			'watchTogether.participantNeedsUpdate' => ({required Object name}) => '${name} usa una versione precedente dell\'app — sincronizzazione non disponibile',
-			'watchTogether.resumingWithout' => ({required Object name}) => 'Ripresa senza ${name}',
-			'watchTogether.waitingForParticipants' => 'In attesa che gli altri carichino...',
-			'watchTogether.waitingForName' => ({required Object name}) => 'In attesa di ${name}...',
-			'watchTogether.recentRooms' => 'Stanze usate di recente',
-			'watchTogether.renameRoom' => 'Rinomina stanza',
-			'watchTogether.removeRoom' => 'Rimuovi',
-			'watchTogether.guestSwitchUnavailable' => 'Impossibile cambiare — server non disponibile per la sincronizzazione',
-			_ => null,
-		} ?? switch (path) {
-			'watchTogether.guestSwitchFailed' => 'Impossibile cambiare — contenuto non trovato su questo server',
-			'watchTogether.defaultDisplayName' => 'Utente',
-			'watchTogether.errors.timedOut' => 'Il server relay non ha risposto in tempo',
-			'watchTogether.errors.connectionLost' => 'La connessione si è chiusa prima che la sessione fosse pronta',
-			'watchTogether.errors.invalidRelayResponse' => 'Il server relay ha inviato una risposta imprevista',
-			'watchTogether.errors.sessionEnded' => 'L’host ha terminato la sessione',
-			'watchTogether.errors.sessionUnavailable' => 'Impossibile riprendere questa sessione. Partecipa a una stanza o creane una per continuare.',
 			'downloads.title' => 'Download',
 			'downloads.manage' => 'Gestisci',
 			'downloads.tvShows' => 'Serie TV',
@@ -4668,14 +4464,16 @@ extension on TranslationsIt {
 			'downloads.backgroundWarning.bannerAction' => 'Dettagli',
 			'downloads.backgroundWarning.sheetTitle' => 'I download in background sono bloccati',
 			'downloads.backgroundWarning.sheetTitleDegraded' => 'I download in background potrebbero essere limitati',
-			'downloads.backgroundWarning.sheetIntro' => 'Android impedisce a Plezy di scaricare in modo affidabile in background.',
-			'downloads.backgroundWarning.sheetIntroDegraded' => 'Il dispositivo limita i momenti in cui Plezy può scaricare in background.',
-			'downloads.backgroundWarning.reasonBackgroundRestricted' => 'L’uso in background di Plezy è limitato. Nelle impostazioni della batteria o dell’uso in background, seleziona «Senza restrizioni».',
-			'downloads.backgroundWarning.reasonStandbyRestricted' => 'Android ha messo Plezy in uno stato di standby con restrizioni. Imposta l’uso della batteria su «Senza restrizioni».',
+			'downloads.backgroundWarning.sheetIntro' => 'Android impedisce a Heisuca di scaricare in modo affidabile in background.',
+			'downloads.backgroundWarning.sheetIntroDegraded' => 'Il dispositivo limita i momenti in cui Heisuca può scaricare in background.',
+			'downloads.backgroundWarning.reasonBackgroundRestricted' => 'L’uso in background di Heisuca è limitato. Nelle impostazioni della batteria o dell’uso in background, seleziona «Senza restrizioni».',
+			_ => null,
+		} ?? switch (path) {
+			'downloads.backgroundWarning.reasonStandbyRestricted' => 'Android ha messo Heisuca in uno stato di standby con restrizioni. Imposta l’uso della batteria su «Senza restrizioni».',
 			'downloads.backgroundWarning.reasonDownloadChannelBlocked' => 'Le notifiche dei download sono disattivate, quindi l’avanzamento e i controlli potrebbero non essere disponibili.',
 			'downloads.backgroundWarning.reasonNotificationsDisabled' => 'Le notifiche sono disattivate. Su Android 13 o versioni successive sono necessarie per i download prolungati in background.',
 			'downloads.backgroundWarning.reasonDataSaver' => 'Il Risparmio dati è attivo e blocca i download in background tramite dati mobili. I download dovrebbero comunque funzionare su Wi-Fi.',
-			'downloads.backgroundWarning.reasonOemUnknown' => 'I download si sono interrotti più volte mentre Plezy era in background. Controlla le impostazioni della batteria o dell’uso in background di Plezy.',
+			'downloads.backgroundWarning.reasonOemUnknown' => 'I download si sono interrotti più volte mentre Heisuca era in background. Controlla le impostazioni della batteria o dell’uso in background di Heisuca.',
 			'downloads.backgroundWarning.openSettings' => 'Apri le impostazioni',
 			'downloads.backgroundWarning.stillNotWorking' => 'Guida specifica per il dispositivo',
 			'downloads.backgroundWarning.stillNotWorkingDescription' => 'Consulta la procedura per il tuo dispositivo oppure invia un log da Impostazioni › Visualizza i log se il problema persiste.',
@@ -4738,19 +4536,19 @@ extension on TranslationsIt {
 			'companionRemote.session.stopServer' => 'Arresta server',
 			'companionRemote.session.minimize' => 'Riduci',
 			'companionRemote.session.manualAddressHint' => 'Indirizzo di connessione manuale:',
-			'companionRemote.pairing.discoveryDescription' => 'I dispositivi Plezy con lo stesso account Plex appaiono qui',
+			'companionRemote.pairing.discoveryDescription' => 'I dispositivi Heisuca con lo stesso account Plex appaiono qui',
 			'companionRemote.pairing.hostAddressHint' => '192.168.1.100:48632',
 			'companionRemote.pairing.connecting' => 'Connessione...',
 			'companionRemote.pairing.searchingForDevices' => 'Ricerca dispositivi...',
 			'companionRemote.pairing.noDevicesFound' => 'Nessun dispositivo trovato nella tua rete',
-			'companionRemote.pairing.noDevicesHint' => 'Apri Plezy sul computer e usa la stessa rete Wi-Fi',
+			'companionRemote.pairing.noDevicesHint' => 'Apri Heisuca sul computer e usa la stessa rete Wi-Fi',
 			'companionRemote.pairing.availableDevices' => 'Dispositivi disponibili',
 			'companionRemote.pairing.manualConnection' => 'Connessione manuale',
 			'companionRemote.pairing.cryptoInitFailed' => 'Impossibile avviare la connessione sicura. Accedi prima a Plex.',
 			'companionRemote.pairing.validationHostRequired' => 'Inserisci l\'indirizzo host',
 			'companionRemote.pairing.validationHostFormat' => 'Il formato deve essere IP:porta (es. 192.168.1.100:48632)',
 			'companionRemote.pairing.connectionTimedOut' => 'Tempo scaduto per la connessione. Usa la stessa rete su entrambi i dispositivi.',
-			'companionRemote.pairing.sessionNotFound' => 'Dispositivo non trovato. Assicurati che Plezy sia in esecuzione sull\'host.',
+			'companionRemote.pairing.sessionNotFound' => 'Dispositivo non trovato. Assicurati che Heisuca sia in esecuzione sull\'host.',
 			'companionRemote.pairing.authFailed' => 'Autenticazione non riuscita. Entrambi i dispositivi devono usare lo stesso account Plex.',
 			'companionRemote.pairing.failedToConnect' => ({required Object error}) => 'Connessione non riuscita: ${error}',
 			'companionRemote.remote.disconnectConfirm' => 'Vuoi disconnetterti dalla sessione remota?',
@@ -4970,11 +4768,11 @@ extension on TranslationsIt {
 			'trakt.connected' => 'Connesso',
 			'trakt.connectedAs' => ({required Object username}) => 'Connesso come @${username}',
 			'trakt.disconnectConfirm' => 'Disconnettere l\'account Trakt?',
-			'trakt.disconnectConfirmBody' => 'Plezy smetterà di inviare eventi a Trakt. Puoi riconnetterti quando vuoi.',
+			'trakt.disconnectConfirmBody' => 'Heisuca smetterà di inviare eventi a Trakt. Puoi riconnetterti quando vuoi.',
 			'trakt.scrobble' => 'Scrobbling in tempo reale',
 			'trakt.scrobbleDescription' => 'Invia eventi di riproduzione, pausa e arresto a Trakt durante la riproduzione.',
 			'trakt.watchedSync' => 'Sincronizza lo stato di visione',
-			'trakt.watchedSyncDescription' => 'Quando contrassegni un elemento come visto in Plezy, viene contrassegnato come visto anche su Trakt.',
+			'trakt.watchedSyncDescription' => 'Quando contrassegni un elemento come visto in Heisuca, viene contrassegnato come visto anche su Trakt.',
 			'seerr.title' => 'Seerr',
 			'seerr.connectTitle' => 'Connetti Seerr',
 			'seerr.serverUrl' => 'URL del server',
@@ -4984,10 +4782,10 @@ extension on TranslationsIt {
 			'seerr.signInWithEmby' => 'Accedi con Emby',
 			'seerr.signInWithLocal' => 'Usa un account locale',
 			'seerr.email' => 'Email',
-			'seerr.noSignInMethods' => 'Questa istanza Seerr non offre alcun metodo di accesso supportato da Plezy.',
+			'seerr.noSignInMethods' => 'Questa istanza Seerr non offre alcun metodo di accesso supportato da Heisuca.',
 			'seerr.instance' => 'Istanza',
 			'seerr.disconnectConfirm' => 'Disconnettere Seerr?',
-			'seerr.disconnectConfirmBody' => 'Plezy rimuoverà questa istanza Seerr. Potrai riconnetterla in qualsiasi momento.',
+			'seerr.disconnectConfirmBody' => 'Heisuca rimuoverà questa istanza Seerr. Potrai riconnetterla in qualsiasi momento.',
 			'seerr.request' => 'Richiedi',
 			'seerr.request4k' => 'Richiedi in 4K',
 			'seerr.seasons' => 'Stagioni',
@@ -5012,7 +4810,7 @@ extension on TranslationsIt {
 			'seerr.statusBlocklisted' => 'Nella lista di blocco',
 			'seerr.couldNotReach' => ({required Object url, required Object error}) => 'Impossibile raggiungere ${url}: ${error}',
 			'seerr.noInstanceAtUrl' => ({required Object url, required Object status}) => 'Nessuna istanza Seerr all\'indirizzo ${url} (HTTP ${status})',
-			'seerr.behindAuthProxy' => 'Un reverse proxy con autenticazione (SSO o autenticazione HTTP) ha risposto al posto di Seerr. Plezy non può accedere attraverso di esso: consenti al percorso /api/v1 di Seerr di bypassare il proxy per questa app, oppure usa un indirizzo che raggiunga Seerr direttamente.',
+			'seerr.behindAuthProxy' => 'Un reverse proxy con autenticazione (SSO o autenticazione HTTP) ha risposto al posto di Seerr. Heisuca non può accedere attraverso di esso: consenti al percorso /api/v1 di Seerr di bypassare il proxy per questa app, oppure usa un indirizzo che raggiunga Seerr direttamente.',
 			'seerr.invalidUrl' => 'Inserisci un indirizzo del server come https://seerr.example.com',
 			'seerr.quickConnectUnsupported' => 'Questa istanza Seerr non supporta Quick Connect. È necessaria la versione 3.4 o successiva di Seerr.',
 			'seerr.notInitialized' => 'Questa istanza Seerr non ha completato la configurazione iniziale',
@@ -5033,14 +4831,14 @@ extension on TranslationsIt {
 			'services.scrobble' => 'Registra automaticamente i progressi',
 			'services.scrobbleDescription' => 'Aggiorna la tua lista quando termini un episodio o un film.',
 			'services.disconnectConfirm' => ({required Object service}) => 'Disconnettere ${service}?',
-			'services.disconnectConfirmBody' => ({required Object service}) => 'Plezy smetterà di aggiornare ${service}. Riconnetti quando vuoi.',
+			'services.disconnectConfirmBody' => ({required Object service}) => 'Heisuca smetterà di aggiornare ${service}. Riconnetti quando vuoi.',
 			'services.connectFailed' => ({required Object service}) => 'Impossibile connettersi a ${service}. Riprova.',
 			'services.names.mal' => 'MyAnimeList',
 			'services.names.anilist' => 'AniList',
 			'services.names.simkl' => 'Simkl',
 			'services.names.seerr' => 'Seerr',
 			'services.names.mdblist' => 'MDBList',
-			'services.deviceCode.title' => ({required Object service}) => 'Attiva Plezy su ${service}',
+			'services.deviceCode.title' => ({required Object service}) => 'Attiva Heisuca su ${service}',
 			'services.deviceCode.instructions' => 'Scansiona il codice QR oppure visita l\'indirizzo qui sotto e inserisci questo codice:',
 			'services.deviceCode.openToActivate' => ({required Object service}) => 'Apri ${service} per attivare',
 			'services.deviceCode.copyCode' => 'Copia il codice di attivazione',
@@ -5092,8 +4890,6 @@ extension on TranslationsIt {
 			'addServer.borrowFromAnotherProfile' => 'Prendi in prestito da un altro profilo',
 			'addServer.borrowFromAnotherProfileSubtitle' => 'Riutilizza la connessione di un altro profilo. I profili protetti da PIN richiedono un PIN.',
 			'addServer.invalidCredentials' => 'Nome utente o password non validi',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.authResponseNotJson' => 'La risposta di autenticazione non era un JSON valido',
 			'addServer.authResponseIncomplete' => 'La risposta di accesso del server era incompleta',
 			'addServer.quickConnectRejected' => 'Quick Connect è stato rifiutato dal server',

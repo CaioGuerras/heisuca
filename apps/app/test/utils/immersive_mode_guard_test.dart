@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/utils/immersive_mode_guard.dart';
+import 'package:heisuca/utils/immersive_mode_guard.dart';
 
 /// The engine posts `SystemChrome.systemUIChange` when Android re-shows the
 /// system bars (a fold/unfold keeps the activity resumed, so nothing else

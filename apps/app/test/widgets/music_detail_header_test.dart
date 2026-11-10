@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/widgets/music/music_detail_header.dart';
+import 'package:heisuca/widgets/music/music_detail_header.dart';
 
 void main() {
   Widget host({required double width, required MusicDetailHeader header}) {

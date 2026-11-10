@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:plezy/widgets/focusable_filter_chip.dart';
-import 'package:plezy/widgets/options_chips_bar.dart';
+import 'package:heisuca/widgets/focusable_filter_chip.dart';
+import 'package:heisuca/widgets/options_chips_bar.dart';
 
 import '../test_helpers/theme.dart';
 

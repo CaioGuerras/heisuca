@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/library_query.dart';
+import 'package:heisuca/media/library_query.dart';
 
 void main() {
   test('fallbackPageTotal adds a has-more sentinel only for full pages', () {

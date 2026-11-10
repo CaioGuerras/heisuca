@@ -6,6 +6,7 @@ import '../../focus/dpad_navigator.dart';
 import '../../focus/focus_theme.dart';
 import '../../focus/key_event_utils.dart';
 import '../../focus/focusable_button.dart';
+import '../../focus/focusable_text_field.dart';
 import '../../i18n/strings.g.dart';
 import '../../mixins/controller_disposer_mixin.dart';
 import '../../profiles/plex_home_switch.dart';
@@ -581,7 +582,7 @@ class _TvPinInputState extends State<_TvPinInput> with ControllerDisposerMixin {
             width: 222,
             height: 56,
             child: IgnorePointer(
-              child: TextField(
+              child: FocusableTextField(
                 controller: _mobileController,
                 focusNode: _mobileFocusNode,
                 keyboardType: TextInputType.number,
@@ -592,10 +593,11 @@ class _TvPinInputState extends State<_TvPinInput> with ControllerDisposerMixin {
                 autocorrect: false,
                 enableSuggestions: false,
                 enableInteractiveSelection: false,
-                showCursor: false,
-                cursorColor: Colors.transparent,
                 style: const TextStyle(color: Colors.transparent, fontSize: 1, height: 1),
-                decoration: const InputDecoration(counterText: '', border: InputBorder.none, contentPadding: .zero),
+                decoration: const InputDecoration(counterText: '', filled: false, isCollapsed: true,
+                  border: InputBorder.none, enabledBorder: InputBorder.none, focusedBorder: InputBorder.none,
+                  errorBorder: InputBorder.none, focusedErrorBorder: InputBorder.none, disabledBorder: InputBorder.none,
+                  contentPadding: EdgeInsets.zero),
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(4)],
                 onChanged: _onMobilePinChanged,
                 onSubmitted: (_) => _trySubmit(),

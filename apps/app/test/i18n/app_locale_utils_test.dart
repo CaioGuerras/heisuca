@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/i18n/app_locale_utils.dart';
-import 'package:plezy/i18n/strings.g.dart';
+import 'package:heisuca/i18n/app_locale_utils.dart';
+import 'package:heisuca/i18n/strings.g.dart';
 
 void main() {
   group('resolvePreferredAppLocale', () {

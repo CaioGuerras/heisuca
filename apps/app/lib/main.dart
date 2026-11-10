@@ -1,4 +1,7 @@
+import 'heisuca/heisuca_security.dart';
 import 'dart:async';
+import 'heisuca/kids/heisuca_kids.dart';
+import 'heisuca/kids/heisuca_kids_theme.dart';
 import 'dart:io' show Directory, Platform, ProcessInfo;
 import 'dart:ui' show AppExitResponse;
 import 'package:flutter/foundation.dart';
@@ -11,11 +14,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:provider/provider.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'connection/connection.dart';
 import 'connection/connection_bootstrap.dart';
 import 'connection/connection_registry.dart';
 import 'heisuca/heisuca_opening_splash.dart';
+import 'heisuca/heisuca_home_preloader.dart';
 import 'heisuca/heisuca_login_screen.dart';
 import 'navigation/profile_navigation_scope.dart';
 import 'navigation/profile_session_screen.dart';
@@ -40,18 +43,16 @@ import 'services/macos_window_service.dart';
 import 'services/native_window_service.dart';
 import 'services/fullscreen_state_manager.dart';
 import 'services/settings_service.dart';
+import 'services/updates/update_controller.dart';
 import 'services/agent_control_service.dart';
 import 'widgets/agent_control_scope.dart';
 import 'widgets/settings_builder.dart';
 import 'utils/platform_detector.dart';
 import 'utils/pointer_scroll_axis.dart';
 import 'services/apple_tv_remote_touch_service.dart';
-import 'services/discord_rpc_service.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
 import 'services/image_cache_service.dart';
 import 'services/gamepad_service.dart';
-import 'services/trackers/tracker_coordinator.dart';
 import 'services/playback_coordinator.dart';
 import 'providers/account_preferences_controller.dart';
 import 'services/account_preferences_repository.dart';
@@ -96,23 +97,17 @@ import 'focus/input_mode_tracker.dart';
 import 'focus/key_event_utils.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'utils/navigation_transitions.dart';
-import 'utils/log_redaction_manager.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'utils/android_exit_diagnostics.dart';
 import 'utils/storage_failure.dart';
 import 'services/base_shared_preferences_service.dart';
 import 'services/prefs_recovery.dart';
-import 'services/sensitive_prefs.dart';
 import 'services/startup_diagnostics.dart';
 import 'utils/dialogs.dart';
 import 'widgets/dialog_action_button.dart';
 import 'widgets/startup_failure_view.dart';
 
-const bool _enableSentry = bool.fromEnvironment('ENABLE_SENTRY', defaultValue: false);
-const String _sentryDsn = 'https://6a1a6ef8c72140099b2798973c1bfb2f@bugs.plezy.app/1';
 const String gitCommit = String.fromEnvironment('GIT_COMMIT');
-const String _sentryEnvironment = String.fromEnvironment('SENTRY_ENVIRONMENT');
-const String _sentryDist = String.fromEnvironment('SENTRY_DIST');
 
 // Workaround for Flutter bug #177992: iPadOS 26.1+ misinterprets fake touch events
 // at (0,0) as barrier taps, causing modals to dismiss immediately.
@@ -143,7 +138,7 @@ void _registerTvosPlatformPlugins() {
 }
 
 void main() {
-  final binding = PlezyWidgetsBinding.ensureInitialized();
+  final binding = HeisucaWidgetsBinding.ensureInitialized();
   if (agentControlEnabled) AgentControlService.instance.register();
   AndroidExitDiagnostics.markStartupPhase(AndroidStartupPhase.dartMain);
   // Keep the accessibility tree available to Maestro and other UI automation
@@ -207,9 +202,10 @@ void _bootstrapApp() {
 Future<StartupThemeResolution> _resolveStartupTheme() async {
   final settings = await SettingsService.getInstance();
   await TvDetectionService.getInstance(forceTv: settings.read(SettingsService.forceTvMode));
-  await cgflixFixThemePref(settings); // CGFLIX: Isis / Heitor / Automático
+  await HeisucaSecurity.instance.load();
+  await HeisucaKids.instance.load(); // Heisuca: perfil infantil força o tema dele desde a abertura
   final mode = settings.read(SettingsService.themeMode);
-  return (themeMode: cgflixMaterialThemeMode(mode), darkTheme: cgflixDarkTheme()); // CGFLIX
+  return (themeMode: cgflixMaterialThemeMode(mode), darkTheme: cgflixDarkTheme(mode)); // CGFLIX
 }
 
 /// Wraps [step] so a failure names the gate phase it came from.
@@ -259,75 +255,7 @@ Future<_StartupDependencies> _initializeApplication() async {
   final settings = await _gatePhase(StartupPhase.preferences, SettingsService.getInstance);
   setLoggerLevel(settings.read(SettingsService.enableDebugLogging));
 
-  if (_enableSentry) {
-    // Crash reporting is observability: it must never veto the launch it
-    // exists to report on. `Sentry.init` runs its integrations eagerly, so an
-    // integration throwing used to fail the gate before any Plezy code ran.
-    //
-    // Deliberately no `appRunner`. On every non-web platform `Sentry.init`
-    // reduces it to `await appRunner()` after the integrations — error capture
-    // comes from `OnErrorIntegration`/`PlatformDispatcher.onError`, installed
-    // during init either way. Passing the startup work in would make a startup
-    // failure indistinguishable from a Sentry failure, and this guard would
-    // then run the whole gate — migrations, native recovery, database open —
-    // a second time.
-    await _optionalGatePhase(StartupPhase.crashReporting, () async {
-      final nativeDatabasePath = await _sentryNativeDatabasePath();
-      await SentryFlutter.init((options) {
-        options.dsn = _sentryDsn;
-        options.release = _sentryRelease();
-        if (nativeDatabasePath != null) options.nativeDatabasePath = nativeDatabasePath;
-        if (_sentryEnvironment.isNotEmpty) options.environment = _sentryEnvironment;
-        if (_sentryDist.isNotEmpty) options.dist = _sentryDist;
-        options.tracesSampleRate = 0;
-        options.attachStacktrace = true;
-        options.enableAutoSessionTracking = false;
-        options.recordHttpBreadcrumbs = false;
-        options.captureNativeFailedRequests = false;
-        options.enableAppHangTracking = !kDebugMode;
-        options.appHangTimeoutInterval = const Duration(seconds: 3);
-        options.beforeSend = _beforeSend;
-        options.beforeBreadcrumb = _beforeBreadcrumb;
-      });
-      // Only reached when init really completed; the phase above swallows a
-      // failure or a timeout and would otherwise leave a no-op hub that
-      // accepts events and drops them.
-      _crashReporterReady = true;
-    });
-  }
-
-  // Registered rather than awaited: sending must not sit on the critical path,
-  // but it must finish before the success path consumes the record off disk.
-  // Runs even without Sentry so a build that can never report still resolves
-  // the record instead of carrying it forever.
-  StartupDiagnosticsStore.holdForFlush(flushPendingStartupFailure());
-
-  AndroidExitDiagnostics.markTelemetryReady();
   return _initializeStartup(settings);
-}
-
-/// Release identifier for Sentry.
-///
-/// `PackageInfo.fromPlatform()` reads the executable's Win32 version resource
-/// and throws `WindowsException`/`ArgumentError` when that read fails (UNC
-/// launch, antivirus interception). Official builds always define
-/// `GIT_COMMIT`, so resolve that first and only pay the platform read — inside
-/// a guard — when there is no commit to use.
-String _sentryRelease() {
-  if (gitCommit.length >= 7) return 'plezy@${gitCommit.substring(0, 7)}';
-  if (gitCommit.isNotEmpty) return 'plezy@$gitCommit';
-  return 'plezy@unknown';
-}
-
-Future<String?> _sentryNativeDatabasePath() async {
-  if (kIsWeb || !(Platform.isWindows || Platform.isLinux)) return null;
-  try {
-    final directory = await getApplicationSupportDirectory();
-    return p.join(directory.path, 'sentry-native');
-  } catch (error, stackTrace) {
-    appLogger.d('Sentry native database location unavailable', error: error, stackTrace: stackTrace);
-    return null;
-  }
 }
 
 const startupBootstrapProgressKey = Key('startup-bootstrap-progress');
@@ -341,7 +269,7 @@ String _diagnosticsVersion = gitCommit.isEmpty ? 'unknown' : gitCommit.substring
 /// `PackageInfo.fromPlatform()` reads the executable's Win32 version resource
 /// and throws `WindowsException`/`ArgumentError` when that read fails (a UNC
 /// launch, antivirus interception). It used to run inside the startup gate for
-/// a value only Sentry consumed; here a failure just leaves the commit label.
+/// the build label; a failure leaves the commit label.
 Future<void> _primeDiagnosticsVersion() async {
   try {
     final info = await PackageInfo.fromPlatform();
@@ -377,98 +305,6 @@ StartupFailureRecord describeStartupFailure(Object error, StackTrace stackTrace)
   repairable: _isRepairable(error),
 );
 
-/// Whether `SentryFlutter.init` actually completed this launch.
-///
-/// The crash-reporting phase is best-effort, so init can fail or time out and
-/// leave a no-op hub behind. A no-op hub accepts `captureMessage` and returns
-/// an empty id *without throwing*, so "the send did not throw" is not evidence
-/// that anything was sent.
-var _crashReporterReady = false;
-
-/// Sends a persisted startup failure to the crash reporter, once.
-///
-/// Reporting cannot happen where the failure is caught. The gate opens
-/// preferences — the likeliest thing to fail, and the whole reason #1732 has
-/// no telemetry — before crash reporting exists, so a capture there goes to a
-/// no-op hub and is silently dropped. Initialising the reporter first is not
-/// an option either: `_beforeSend` reads the crash-reporting opt-out from
-/// settings, which are not loaded yet, so early events would bypass a user's
-/// choice.
-///
-/// So every failure is persisted first and flushed here, immediately after
-/// the reporter comes up with settings loaded. In practice that is the user's
-/// own retry, seconds later, in the same process.
-///
-/// The record is only marked reported on proof of delivery — a non-empty
-/// Sentry id — or when the user has opted out, which is a deliberate
-/// suppression rather than a failure to retry. Anything else leaves it
-/// pending for the next launch.
-@visibleForTesting
-Future<void> flushPendingStartupFailure({
-  Future<SentryId> Function(StartupFailureRecord record)? send,
-  bool? reporterReady,
-  bool? crashReportingEnabled,
-  bool? reportingCompiledIn,
-}) async {
-  final record = await StartupDiagnosticsStore.peekPersisted();
-  if (record == null || record.reported) return;
-
-  final optedIn = crashReportingEnabled ?? SettingsService.instanceOrNull?.read(SettingsService.crashReporting) ?? true;
-  final canEverReport = reportingCompiledIn ?? _enableSentry;
-  if (!optedIn || !canEverReport) {
-    // Deliberate suppression, not a delivery failure. Marking it reported is
-    // what lets `consumePrevious` eventually drop the file; without this a
-    // fork build with no DSN, or an opted-out user, would carry the record
-    // forever.
-    appLogger.d(
-      optedIn
-          ? 'Startup failure not reported: crash reporting is not available in this build'
-          : 'Startup failure not reported: crash reporting is disabled',
-    );
-    await StartupDiagnosticsStore.markReported(record);
-    return;
-  }
-
-  if (!(reporterReady ?? _crashReporterReady)) {
-    // Kept on disk deliberately: `consumePrevious` retains an unreported
-    // record so the next launch can try again.
-    appLogger.d('Startup failure kept for the next launch: crash reporting is not initialised');
-    return;
-  }
-
-  try {
-    final id = await (send ?? _captureStartupFailure)(record);
-    if (id == const SentryId.empty()) {
-      // A no-op hub, a disabled client, or an event dropped in `beforeSend`.
-      appLogger.d('Startup failure was not accepted by the crash reporter; keeping it for the next launch');
-      return;
-    }
-    await StartupDiagnosticsStore.markReported(record);
-  } catch (error, stackTrace) {
-    // Leave it unreported so the next launch tries again.
-    appLogger.d('Could not report the startup failure', error: error, stackTrace: stackTrace);
-  }
-}
-
-Future<SentryId> _captureStartupFailure(StartupFailureRecord record) {
-  // The original error object is long gone by now; the record is the
-  // allowlisted, already-redacted rendering of it.
-  return Sentry.captureMessage(
-    'Startup failed: ${record.headline}',
-    level: SentryLevel.fatal,
-    withScope: (scope) {
-      scope.setTag('startup.phase', record.phaseId);
-      scope.setContexts('startup', {
-        'phase': record.phaseId,
-        'errorType': record.errorType,
-        'repairable': record.repairable,
-        'when': record.timestamp.toUtc().toIso8601String(),
-        'stackTrace': ?record.stackTrace,
-      });
-    },
-  );
-}
-
 /// Default [StartupBootstrap.repair]: states the cost, runs the repair that
 /// matches the failure, then reports what was kept and what was lost.
 ///
@@ -492,9 +328,11 @@ Future<StartupRepairResult> repairStartupStorage(
   // store the key cannot be read out of signs the user out of everything. An
   // all-zero file is exactly that case (#1732), and telling them their
   // sign-ins are safe would be a promise the outcome dialog then contradicts.
-  final signInsSurvive = unreadableKey != null
-      ? unreadableKey != credentialVaultKeyPref
-      : (await PrefsRecovery.previewSalvage()).vaultKey != null;
+  // No Android a chave também pode estar só no Keystore (P5), fora das prefs.
+  final signInsSurvive = await CredentialVault.signInsSurviveRepair(
+    unreadableKey: unreadableKey,
+    prefsHaveVaultKey: unreadableKey != null || (await PrefsRecovery.previewSalvage()).vaultKey != null,
+  );
   if (!context.mounted) return StartupRepairResult.none;
 
   final confirmed = await showConfirmDialog(
@@ -864,7 +702,9 @@ class _StartupBootstrapState<T> extends State<StartupBootstrap<T>> {
     // what turned a black Android TV splash into a flashbang (#1833).
     return Scaffold(
       backgroundColor: widget.transparentWhileLoading ? Colors.transparent : null,
-      body: const Center(child: CircularProgressIndicator(key: startupBootstrapProgressKey)),
+      body: widget.transparentWhileLoading
+          ? const SizedBox.expand(key: startupBootstrapProgressKey)
+          : const Center(child: CircularProgressIndicator(key: startupBootstrapProgressKey)),
     );
   }
 }
@@ -1014,7 +854,6 @@ void _startNonessentialInitialization(SettingsService settings) {
     () => initializeDateFormatting(settings.read(SettingsService.appLocale).intlLocaleName, null),
   );
   bestEffort('Download storage', () => DownloadStorageService.instance.initialize(settings));
-  bestEffort('Trackers', TrackerCoordinator.instance.initialize);
 
   bestEffort('Legacy image cache cleanup', () async {
     if (settings.read(SettingsService.cleanedOldImageCache)) return;
@@ -1045,15 +884,12 @@ void _startNonessentialInitialization(SettingsService settings) {
   });
 
   if (PlatformDetector.isDesktopOS()) {
-    bestEffort('Discord RPC', DiscordRPCService.instance.initialize);
     // Detection forks helper processes; resolve it here so the External Player
     // settings page never has to wait on a cold probe.
     bestEffort('External player detection', KnownPlayers.getForCurrentPlatform);
   }
 
-  if (settings.read(SettingsService.crashReporting)) {
-    unawaited(AndroidExitDiagnostics.logPreviousExit());
-  }
+  unawaited(AndroidExitDiagnostics.logPreviousExit());
 
   bestEffort('Shader licenses', _registerShaderLicenses);
   // The startup-gate application can precede the engine's first metrics
@@ -1068,12 +904,11 @@ Future<void> _logEnvironmentDiagnostics() async {
   final commitSuffix = gitCommit.isNotEmpty ? ' (${gitCommit.substring(0, 7)})' : '';
   String renderer = '';
   if (Platform.isAndroid) {
-    final rendererName = await const MethodChannel('com.plezy/theme').invokeMethod<String>('getRenderer');
+    final rendererName = await const MethodChannel('app.heisuca/theme').invokeMethod<String>('getRenderer');
     renderer = ' [$rendererName]';
-    await Future.sync(() => Sentry.configureScope((scope) => scope.setTag('renderer', rendererName ?? 'unknown')));
   }
   appLogger.i(
-    'Plezy v${packageInfo.version}+${packageInfo.buildNumber}$commitSuffix$renderer'
+    'Heisuca v${packageInfo.version}+${packageInfo.buildNumber}$commitSuffix$renderer'
     ' [effects: ${DevicePerformance.describeSync()}]',
   );
   appLogger.i('Display: ${DevicePerformance.describeDisplay()}');
@@ -1081,101 +916,6 @@ Future<void> _logEnvironmentDiagnostics() async {
   if (Platform.isAndroid) {
     appLogger.i('Startup RSS: ${ProcessInfo.currentRss >> 20}MB');
   }
-}
-
-Breadcrumb? _beforeBreadcrumb(Breadcrumb? breadcrumb, Hint _) {
-  if (breadcrumb == null) return null;
-
-  final message = breadcrumb.message;
-  final data = breadcrumb.data;
-  if (message == null && (data == null || data.isEmpty)) return breadcrumb;
-
-  if (message != null) breadcrumb.message = LogRedactionManager.redact(message);
-  if (data != null) breadcrumb.data = data.map((k, v) => MapEntry(k, v is String ? LogRedactionManager.redact(v) : v));
-  return breadcrumb;
-}
-
-FutureOr<SentryEvent?> _beforeSend(SentryEvent event, Hint _) {
-  // Drop event if user opted out of crash reporting.
-  final instance = SettingsService.instanceOrNull;
-  if (instance != null && !instance.read(SettingsService.crashReporting)) return null;
-
-  // Drop unactionable errors
-  final exceptions = event.exceptions;
-  if (exceptions != null) {
-    bool shouldDrop(SentryException e) {
-      final v = e.value;
-      final lowerValue = v?.toLowerCase();
-      // Windows file-lock errors from cache manager cleanup
-      if (e.type == 'FileSystemException' && v != null && v.contains('plexImageCache') && v.contains('errno = 32')) {
-        return true;
-      }
-      if (e.type == 'FileSystemException' &&
-          lowerValue != null &&
-          lowerValue.contains('cached_network_image_ce') &&
-          (lowerValue.contains('lock failed') || lowerValue.contains('writefrom failed'))) {
-        return true;
-      }
-      // Linux without DBus/NetworkManager
-      if (e.type == 'DBusServiceUnknownException' || (v != null && v.contains('system_bus_socket'))) {
-        return true;
-      }
-      // Device out of disk space
-      if (isStorageFullMessage(v)) return true;
-      // Native HTTP errors from CFNetwork (server errors, not actionable)
-      if (e.type == 'HTTPClientError') return true;
-      // Benign EventChannel teardown race: the engine replies this when a
-      // 'cancel' lands after the stream is already gone, and the framework
-      // reports it via FlutterError — nothing was ever wrong user-side.
-      if (e.type == 'PlatformException' && v != null && v.contains('No active stream to cancel')) return true;
-      // Discord RPC errors when Discord is not running
-      if (e.type == 'DiscordStateException') return true;
-      return false;
-    }
-
-    if (exceptions.any(shouldDrop)) return null;
-
-    // Scrub Plex tokens and server URLs from exception messages
-    for (final e in exceptions) {
-      final value = e.value;
-      if (value != null) {
-        e.value = LogRedactionManager.redact(value);
-      }
-    }
-  }
-
-  // Enrich TimeoutException with operation name + duration as tags/fingerprint.
-  // value format: "TimeoutException after 0:00:05.000000: <operation> timed out"
-  if (exceptions != null) {
-    final timeoutException = exceptions.where((e) => e.type == 'TimeoutException').firstOrNull;
-    if (timeoutException != null) {
-      final value = timeoutException.value ?? '';
-      final colonIdx = value.indexOf(': ');
-      final message = colonIdx >= 0 ? value.substring(colonIdx + 2) : value;
-      final operation = message.endsWith(' timed out')
-          ? message.substring(0, message.length - ' timed out'.length)
-          : null;
-      final durationMatch = RegExp(r'after (\d+:\d{2}:\d{2}\.\d+)').firstMatch(value);
-
-      final tags = event.tags ??= {};
-      if (operation != null) tags['timeout.operation'] = operation;
-      if (durationMatch != null) tags['timeout.duration'] = durationMatch.group(1)!;
-      event.fingerprint = ['TimeoutException', ?operation];
-    }
-  }
-
-  // Scrub breadcrumb messages and data
-  final breadcrumbs = event.breadcrumbs;
-  if (breadcrumbs != null) {
-    for (final b in breadcrumbs) {
-      final message = b.message;
-      final data = b.data;
-      if (message != null) b.message = LogRedactionManager.redact(message);
-      if (data != null) b.data = data.map((k, v) => MapEntry(k, v is String ? LogRedactionManager.redact(v) : v));
-    }
-  }
-
-  return event;
 }
 
 void _registerShaderLicenses() {
@@ -1296,7 +1036,6 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
   final Set<String> _pendingSyncKeys = <String>{};
   bool _isAutoDeleteRunning = false;
   bool _lastConnectivityWasWifi = false;
-  bool _lastConnectivityHadNetwork = true;
   Future<void>? _shutdownFuture;
 
   /// Last time server health probes ran from a resume event (cooldown for desktop)
@@ -1387,16 +1126,6 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
 
     _libraryEventService.dispose();
     _downloadManager.dispose();
-    // Quitting straight from the player is a real stop: the trackers that own
-    // their own watched semantics need the terminal report before the process
-    // goes away. Bounded — a hung tracker must not hold the app open.
-    try {
-      await TrackerCoordinator.instance.stopPlayback().timeout(const Duration(seconds: 3));
-    } catch (e, st) {
-      appLogger.w('Tracker shutdown did not complete before exit', error: e, stackTrace: st);
-    }
-    TrackerCoordinator.instance.cancelInFlight();
-
     await _serverManager.shutdown();
     await Future.wait([
       httpClient.closeGracefully(drainTimeout: const Duration(seconds: 5)),
@@ -1488,21 +1217,12 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
   void _startConnectivitySyncTrigger(DownloadProvider downloadProvider, OfflineModeProvider offlineModeProvider) {
     _removeConnectivitySyncListener();
     _lastConnectivityWasWifi = offlineModeProvider.hasWifiOrEthernet;
-    _lastConnectivityHadNetwork = offlineModeProvider.hasNetworkConnection;
     _connectivitySyncProvider = offlineModeProvider;
     _connectivitySyncListener = () {
       final hasWifi = offlineModeProvider.hasWifiOrEthernet;
       final movedOntoWifi = hasWifi && !_lastConnectivityWasWifi;
       _lastConnectivityWasWifi = hasWifi;
 
-      final hasNetwork = offlineModeProvider.hasNetworkConnection;
-      final networkRestored = hasNetwork && !_lastConnectivityHadNetwork;
-      _lastConnectivityHadNetwork = hasNetwork;
-
-      if (networkRestored) {
-        appLogger.d('Network restored — replaying queued tracker writes');
-        unawaited(TrackerCoordinator.instance.flushWriteQueue());
-      }
       if (movedOntoWifi) {
         appLogger.d('Connectivity moved onto WiFi/Ethernet — triggering sync pass');
         _autoDeleteAndSync(downloadProvider);
@@ -1580,7 +1300,6 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
       case AppLifecycleState.resumed:
         // App came back to foreground - trigger sync check
         _offlineWatchSyncService.onAppResumed();
-        unawaited(TrackerCoordinator.instance.flushWriteQueue());
         // Re-arm the per-server library push channels torn down on pause
         // (and any that exhausted their reconnect attempts).
         _libraryEventService.resume();
@@ -1643,6 +1362,12 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
         // can manage stored Jellyfin/Plex connections without re-creating
         // the registry per-call site.
         Provider<SettingsService>.value(value: widget.settings),
+        ChangeNotifierProvider<UpdateController>(lazy: false, create: (_) {
+          final controlador = UpdateController.doApp(widget.settings);
+          WidgetsBinding.instance.addPostFrameCallback((_) => unawaited(controlador.aoAbrir()));
+          return controlador;
+        }),
+        ChangeNotifierProvider<HeisucaKids>.value(value: HeisucaKids.instance), // Heisuca: modo infantil
         Provider<StorageService>.value(value: widget.storage),
         Provider<AppDatabase>.value(value: _appDatabase),
         Provider<ConnectionRegistry>(create: (_) => ConnectionRegistry(_appDatabase)),
@@ -1866,8 +1591,9 @@ class _AppShell extends StatelessWidget {
                     locale: cgflixMaterialLocale(context), // CGFLIX: Material no idioma do app
                     supportedLocales: cgflixSupportedLocales, // CGFLIX
                     localizationsDelegates: cgflixLocalizationsDelegates, // CGFLIX
-                    theme: cgflixLightTheme(), // CGFLIX: Heitor (claro, verde)
-                    darkTheme: cgflixDarkTheme(), // CGFLIX: Isis (escuro, roxo)
+                    // Heisuca: no modo infantil o tema é o do perfil (Ichigo/Sorairo), nos dois modos.
+                    theme: heisucaKidsTheme(context) ?? cgflixLightTheme(), // CGFLIX: Heitor (claro, verde)
+                    darkTheme: heisucaKidsTheme(context) ?? cgflixDarkTheme(themeProvider.themeMode), // CGFLIX: Isis (escuro, roxo)
                     themeMode: cgflixMaterialThemeMode(themeProvider.themeMode), // CGFLIX
                     navigatorKey: rootNavigatorKey,
                     navigatorObservers: [BackKeySuppressorObserver()],
@@ -1887,7 +1613,7 @@ class _AppShell extends StatelessWidget {
                       const SingleActivator(LogicalKeyboardKey.gameButtonB): const DismissIntent(),
                     },
                     builder: (context, child) {
-                      final shell = cgflixSystemBars(context, rootShell(child)); // CGFLIX
+                      final shell = HeisucaAppLock(child: cgflixSystemBars(context, rootShell(child))); // CGFLIX
                       if (!agentControlEnabled) return shell;
                       return AgentControlScope(
                         commandContext: () => rootNavigatorKey.currentState?.overlay?.context,
@@ -2023,10 +1749,11 @@ class SetupScreen extends StatefulWidget {
 class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
   String _statusMessage = '';
 
-  // Heisuca: a troca de tela espera a abertura terminar (teto de 3 s se o callback não vier).
+  // Heisuca: a troca de tela espera a abertura terminar (teto de 4 s se o callback não vier).
   final Completer<void> _aberturaConcluida = Completer<void>();
-  Future<void> _aguardarAbertura() =>
-      _aberturaConcluida.future.timeout(const Duration(seconds: 3), onTimeout: () {});
+  /// `true` quando o Início veio do cache ou não há o que carregar: a abertura fica com o piso de 1 s.
+  final Completer<bool> _homePreloadCompleter = Completer<bool>();
+  Future<void> _aguardarAbertura() => _aberturaConcluida.future.timeout(const Duration(seconds: 4), onTimeout: () {});
   bool _enteringOffline = false;
 
   // Per-server connection status: serverId -> (name, connected?)
@@ -2046,6 +1773,7 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
   }
 
   Future<void> _enterOfflineMode() async {
+    if (!_homePreloadCompleter.isCompleted) _homePreloadCompleter.complete(true);
     if (_enteringOffline) return;
     _enteringOffline = true;
     _setStatus(t.common.startingOfflineMode);
@@ -2057,6 +1785,7 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
 
   Future<void> _loadSavedCredentials() async {
     if (shouldBypassSetupForDatabaseRecovery(widget.databaseRecoveryOutcome)) {
+      if (!_homePreloadCompleter.isCompleted) _homePreloadCompleter.complete(true);
       final message = t.auth.localDataRecoveryRequired;
       final debugRouter = widget.debugRecoveryRequiredRouter;
       if (debugRouter != null) {
@@ -2127,12 +1856,8 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
     // below. It never skips connecting: `none` means "no internet-capable
     // adapter", and a loopback or LAN-without-WAN server is still reachable
     // (#2505).
-    unawaited(Sentry.addBreadcrumb(Breadcrumb(message: 'Checking network connectivity', category: 'setup')));
-    final hasNetwork = !(await ConnectivityProbe.check()).contains(ConnectivityResult.none);
 
-    unawaited(
-      Sentry.addBreadcrumb(Breadcrumb(message: 'Network check done: hasNetwork=$hasNetwork', category: 'setup')),
-    );
+    final hasNetwork = !(await ConnectivityProbe.check()).contains(ConnectivityResult.none);
 
     _setStatus(t.common.loadingServers);
 
@@ -2149,23 +1874,29 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
     } catch (e, st) {
       // Defence-in-depth: a DB-open failure here used to propagate
       // uncaught and strand the splash forever (#1022). Route to auth so
-      // the user is never trapped, and surface to Sentry so an unknown
+      // the user is never trapped, and keep a local log so an unknown
       // regression doesn't go silent.
       appLogger.e('Setup: failed to load connections; returning to auth', error: e, stackTrace: st);
-      unawaited(Sentry.captureException(e, stackTrace: st));
+
+      if (!_homePreloadCompleter.isCompleted) _homePreloadCompleter.complete(true);
       if (mounted) {
-        unawaited(_aguardarAbertura().then((_) {
-        if (mounted) Navigator.pushReplacement(context, fadeRoute(const HeisucaLoginScreen()));
-      }));
+        unawaited(
+          _aguardarAbertura().then((_) {
+            if (mounted) Navigator.pushReplacement(context, fadeRoute(const HeisucaLoginScreen()));
+          }),
+        );
       }
       return;
     }
 
     if (allConnections.isEmpty) {
+      if (!_homePreloadCompleter.isCompleted) _homePreloadCompleter.complete(true);
       if (mounted) {
-        unawaited(_aguardarAbertura().then((_) {
-        if (mounted) Navigator.pushReplacement(context, fadeRoute(const HeisucaLoginScreen()));
-      }));
+        unawaited(
+          _aguardarAbertura().then((_) {
+            if (mounted) Navigator.pushReplacement(context, fadeRoute(const HeisucaLoginScreen()));
+          }),
+        );
       }
       return;
     }
@@ -2186,16 +1917,6 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
       });
     }
 
-    final plexCount = allConnections.whereType<PlexAccountConnection>().fold<int>(0, (n, c) => n + c.servers.length);
-    final mediaBrowserCount = allConnections.whereType<JellyfinConnection>().length;
-    unawaited(
-      Sentry.addBreadcrumb(
-        Breadcrumb(
-          message: 'Handing off to MainScreen with $plexCount Plex + $mediaBrowserCount MediaBrowser server(s)',
-          category: 'setup',
-        ),
-      ),
-    );
     _setStatus(t.common.connectingToServers);
 
     // Snapshot Provider refs before further awaits.
@@ -2213,10 +1934,13 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
     if (!mounted) return;
 
     if (activeProfile.active == null && activeProfile.profiles.isEmpty) {
+      if (!_homePreloadCompleter.isCompleted) _homePreloadCompleter.complete(true);
       appLogger.w('Setup: stored connections exist but no profiles resolved after bootstrap; returning to auth');
-      unawaited(_aguardarAbertura().then((_) {
-        if (mounted) Navigator.pushReplacement(context, fadeRoute(const HeisucaLoginScreen()));
-      }));
+      unawaited(
+        _aguardarAbertura().then((_) {
+          if (mounted) Navigator.pushReplacement(context, fadeRoute(const HeisucaLoginScreen()));
+        }),
+      );
       return;
     }
 
@@ -2239,7 +1963,9 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
     final settings = await SettingsService.getInstance();
     if (!mounted) return;
     final hasNoActive = activeProfile.active == null && activeProfile.profiles.isNotEmpty;
-    final shouldPrompt = hasNoActive || activeProfile.requiresSelectionOnOpen(settings);
+    // Heisuca: perfil infantil ativo nunca abre "quem está assistindo" (seria a saída sem PIN).
+    final kidsActive = HeisucaKids.instance.isKids(activeProfile.activeId);
+    final shouldPrompt = hasNoActive || (!kidsActive && activeProfile.requiresSelectionOnOpen(settings));
 
     var bindingSucceeded = activeProfile.lastBindingSucceeded;
     if (shouldPrompt) {
@@ -2268,6 +1994,16 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
       await _enterOfflineMode();
       return;
     }
+
+    // Preload do Início (destaque, Continuar, 1ª fileira e artes) para abertura ágil
+    final multiServer = context.read<MultiServerProvider>();
+    unawaited(
+      HeisucaHomePreloader.preloadHomeDataAndArt(context, multiServer: multiServer)
+          .catchError((_) => false)
+          .then((comCache) {
+            if (!_homePreloadCompleter.isCompleted) _homePreloadCompleter.complete(comCache);
+          }),
+    );
 
     // Repopulate metadata for downloaded items now that per-backend caches
     // are resolvable (the Connections row + live MediaBrowser client are in
@@ -2321,6 +2057,7 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
 
   @override
   void dispose() {
+    if (!_homePreloadCompleter.isCompleted) _homePreloadCompleter.complete(true);
     _statusSub?.cancel();
     _connectProgressSub?.cancel();
     super.dispose();
@@ -2378,6 +2115,7 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
   @override
   Widget build(BuildContext context) {
     return HeisucaOpeningSplash(
+      preloadFuture: _homePreloadCompleter.future,
       onAnimationFinished: () {
         if (!_aberturaConcluida.isCompleted) _aberturaConcluida.complete();
       },

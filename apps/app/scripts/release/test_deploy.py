@@ -45,9 +45,9 @@ NOT A VALID LINE
 
     def test_expands_references_to_earlier_keys(self) -> None:
         # The real .env relies on this: SUPPLY_PACKAGE_NAME=${DELIVER_APP_IDENTIFIER}
-        text = "DELIVER_APP_IDENTIFIER=com.edde746.plezy\nSUPPLY_PACKAGE_NAME=${DELIVER_APP_IDENTIFIER}\n"
+        text = "DELIVER_APP_IDENTIFIER=app.heisuca\nSUPPLY_PACKAGE_NAME=${DELIVER_APP_IDENTIFIER}\n"
         values = parse_env_text(text)
-        self.assertEqual(values["SUPPLY_PACKAGE_NAME"], "com.edde746.plezy")
+        self.assertEqual(values["SUPPLY_PACKAGE_NAME"], "app.heisuca")
 
     def test_expands_from_base_environment(self) -> None:
         values = parse_env_text("A=${HOME_LIKE}/sub\n", {"HOME_LIKE": "/base"})
@@ -67,7 +67,7 @@ class LoadEnvFileTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             (root / ".env").write_text(
-                "DELIVER_APP_IDENTIFIER=com.edde746.plezy\n"
+                "DELIVER_APP_IDENTIFIER=app.heisuca\n"
                 "SUPPLY_PACKAGE_NAME=${DELIVER_APP_IDENTIFIER}\n"
                 "APPLE_TEAM_ID=G88U5B5783\n",
                 encoding="utf-8",
@@ -83,8 +83,8 @@ class LoadEnvFileTest(unittest.TestCase):
             ):
                 loaded = deploy.load_env_file()
 
-        self.assertEqual(loaded["DELIVER_APP_IDENTIFIER"], "com.edde746.plezy")
-        self.assertEqual(loaded["SUPPLY_PACKAGE_NAME"], "com.edde746.plezy")
+        self.assertEqual(loaded["DELIVER_APP_IDENTIFIER"], "app.heisuca")
+        self.assertEqual(loaded["SUPPLY_PACKAGE_NAME"], "app.heisuca")
         self.assertEqual(loaded["APPLE_TEAM_ID"], "G88U5B5783")
 
 

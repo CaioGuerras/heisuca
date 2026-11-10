@@ -1,12 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/cgflix/cgflix_detail.dart';
-import 'package:plezy/cgflix/home/cgflix_actions.dart';
-import 'package:plezy/cgflix/home/cgflix_preview_sheet.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/media/media_part.dart';
-import 'package:plezy/media/media_stream.dart';
-import 'package:plezy/media/media_version.dart';
+import 'package:heisuca/cgflix/cgflix_detail.dart';
+import 'package:heisuca/cgflix/home/cgflix_actions.dart';
+import 'package:heisuca/cgflix/home/cgflix_preview_sheet.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_part.dart';
+import 'package:heisuca/media/media_stream.dart';
+import 'package:heisuca/media/media_version.dart';
 
 MediaItem _item({
   MediaKind kind = MediaKind.movie,

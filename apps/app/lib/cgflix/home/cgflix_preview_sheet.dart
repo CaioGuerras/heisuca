@@ -1,6 +1,5 @@
 // Prévia de um título (painel inferior), como no site: fundo, logo, ano · classificação ·
 // duração/temporadas · ★ nota, gêneros, sinopse curta e Assistir / Minha lista / Detalhes.
-import 'dart:ui' show FontFeature;
 
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';

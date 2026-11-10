@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/utils/continuation_pagination_coordinator.dart';
+import 'package:heisuca/utils/continuation_pagination_coordinator.dart';
 
 void main() {
   group('ContinuationPaginationCoordinator', () {

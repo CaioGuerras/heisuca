@@ -50,29 +50,18 @@ enum PlayNextRetryPresentation {
   countdown,
 }
 
-/// Decide whether a failed episode advance re-presents the Play Next prompt.
-///
-/// A transient server blip at the exact moment of an EOF transition used to
-/// park the screen on the finished episode's last frame with no way forward
-/// but the transport controls (#1867) — while a retry seconds later
-/// typically succeeds. Only EOF-driven advances qualify: a mid-episode Next
-/// press rolls back to a still-valid playing stream, and non-transient
-/// failures (missing file, auth) must not retry-loop. Watch Together
-/// sessions never auto-retry — the sync layer owns transitions — but the
-/// manual prompt remains available, matching the Next button.
 PlayNextRetryPresentation playNextRetryPresentation({
   required bool wasAtCompletion,
   required PlaybackFailureReason? failureReason,
   required bool hasNext,
   required bool autoPlayEnabled,
-  required bool inWatchTogetherSession,
   required int autoRetriesUsed,
 }) {
   if (!wasAtCompletion || !hasNext) return PlayNextRetryPresentation.none;
   if (failureReason != PlaybackFailureReason.serverUnavailable) {
     return PlayNextRetryPresentation.none;
   }
-  final autoRetry = autoPlayEnabled && !inWatchTogetherSession && autoRetriesUsed < maxPlayNextTransientRetries;
+  final autoRetry = autoPlayEnabled && autoRetriesUsed < maxPlayNextTransientRetries;
   return autoRetry ? PlayNextRetryPresentation.countdown : PlayNextRetryPresentation.manual;
 }
 

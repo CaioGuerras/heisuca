@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/utils/notification_permission.dart';
+import 'package:heisuca/utils/notification_permission.dart';
 
 void main() {
   setUp(NotificationPermission.debugReset);

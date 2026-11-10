@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/mpv/player/platform/player_android.dart';
-import 'package:plezy/services/settings_service.dart';
+import 'package:heisuca/mpv/player/platform/player_android.dart';
+import 'package:heisuca/services/settings_service.dart';
 
 import '../test_helpers/mock_player_channels.dart';
 import '../test_helpers/prefs.dart';
@@ -22,8 +22,8 @@ void main() {
 
   Future<void> withPlayer(Future<void> Function(PlayerAndroid player) body) async {
     await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/exo_player',
-      eventChannelName: 'com.plezy/exo_player/events',
+      methodChannelName: 'app.heisuca/exo_player',
+      eventChannelName: 'app.heisuca/exo_player/events',
       testBody: () async {
         final player = PlayerAndroid();
         try {

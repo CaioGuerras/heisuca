@@ -280,8 +280,10 @@ class OverlaySheetHost extends StatefulWidget {
   /// handler should start with `if (BackKeyCoordinator.consumeIfHandled()) return;`
   /// so the system path dedups against the key path.
   final VoidCallback? onSystemBack;
+  /// Efeito após o pop confirmado; cancelamento do gesto não chega aqui.
+  final VoidCallback? onPopped;
 
-  const OverlaySheetHost({super.key, required this.child, this.onOpenChanged, this.canPop, this.onSystemBack});
+  const OverlaySheetHost({super.key, required this.child, this.onOpenChanged, this.canPop, this.onSystemBack, this.onPopped});
 
   @override
   State<OverlaySheetHost> createState() => _OverlaySheetHostState();
@@ -603,7 +605,7 @@ class _OverlaySheetHostState extends State<OverlaySheetHost> with SingleTickerPr
       content = PopScope(
         canPop: canPop && !_isOpen,
         onPopInvokedWithResult: (didPop, result) {
-          if (didPop) return;
+          if (didPop) { widget.onPopped?.call(); return; }
           if (_isOpen && !_isClosing) {
             // Only TV routes one Back through both the focused key path and
             // the platform pop, so only TV needs to dedup them. Touch

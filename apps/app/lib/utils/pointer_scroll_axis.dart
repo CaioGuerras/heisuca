@@ -55,14 +55,15 @@ mixin PointerScrollAxisLock on GestureBinding {
 }
 
 /// The app's binding: installs [PointerScrollAxisLock] and [SemanticsTreeGate].
-class PlezyWidgetsBinding extends WidgetsFlutterBinding with PointerScrollAxisLock, SemanticsTreeGate {
+class HeisucaWidgetsBinding extends WidgetsFlutterBinding with PointerScrollAxisLock, SemanticsTreeGate {
   static bool _initialized = false;
 
   /// Creates the binding on first call and returns it afterwards, mirroring
   /// [WidgetsFlutterBinding.ensureInitialized].
-  static WidgetsBinding ensureInitialized() {
+  static WidgetsBinding ensureInitialized({WidgetsBinding Function()? createBinding}) {
     if (!_initialized) {
-      PlezyWidgetsBinding();
+      // A bancada compõe os mesmos mixins com o binding oficial integration_test.
+      (createBinding ?? HeisucaWidgetsBinding.new)();
       _initialized = true;
     }
     return WidgetsBinding.instance;

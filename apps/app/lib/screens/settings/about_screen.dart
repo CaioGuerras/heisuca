@@ -1,6 +1,6 @@
-import 'dart:ui';
+import '../../heisuca/heisuca_news.dart';
 import 'package:flutter/material.dart';
-import 'package:plezy/widgets/app_icon.dart';
+import 'package:heisuca/widgets/app_icon.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../cgflix/apoio/cgflix_apoio_screen.dart';
@@ -16,14 +16,18 @@ import '../../i18n/strings.g.dart';
 import '../../theme/mono_tokens.dart';
 import 'licenses_screen.dart';
 
-class AboutScreen extends StatelessWidget {
+class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
 
-  static final Future<PackageInfo> _packageInfoFuture = PackageInfo.fromPlatform();
+  @override
+  State<AboutScreen> createState() => _AboutScreenState();
+}
+
+class _AboutScreenState extends State<AboutScreen> {
+  final Future<PackageInfo> _packageInfoFuture = PackageInfo.fromPlatform();
 
   @override
   Widget build(BuildContext context) {
-    final appName = t.app.title;
     final palette = context.cgflix;
 
     return FutureBuilder<PackageInfo>(
@@ -41,29 +45,7 @@ class AboutScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         const SizedBox(height: 16),
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(24),
-                            boxShadow: [
-                              BoxShadow(
-                                color: palette.accent.withValues(alpha: 0.28),
-                                blurRadius: 32,
-                                spreadRadius: -4,
-                              ),
-                            ],
-                          ),
-                          child: const HeisucaLogo(height: 84, apenasSelo: true),
-                        ),
-                        const SizedBox(height: 14),
-                        Text(
-                          appName.toUpperCase(),
-                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontFamily: 'Sora',
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 3.0,
-                          ),
-                        ),
+                        const HeisucaLogo(height: 64),
                         const SizedBox(height: 6),
                         Text(
                           'Nada entre você e o filme.',
@@ -82,20 +64,7 @@ class AboutScreen extends StatelessWidget {
                             fontFeatures: const [FontFeature.tabularFigures()],
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        const CgflixDedication(),
-                        const SizedBox(height: 20),
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 440),
-                          child: Text(
-                            t.about.appDescription,
-                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.45),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        const CgflixCredits(),
-                        const CgflixApoioAboutLine(),
+                        const SizedBox(height: 24),
                       ],
                     ),
                   ),
@@ -106,6 +75,17 @@ class AboutScreen extends StatelessWidget {
                     margin: EdgeInsets.zero,
                     children: [
                       const CgflixDicasAboutTile(),
+                      if (heisucaNewsAvailable(context)) const HeisucaNewsEntry(),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  const Center(child: HeisucaOpenSourceCard()),
+                  const SettingsSectionHeader('Agradecimentos'),
+                  const Center(child: HeisucaTributeCards()),
+                  const SizedBox(height: 24),
+                  SettingsGroup(
+                    margin: EdgeInsets.zero,
+                    children: [
                       FocusableListTile(
                         leading: const AppIcon(Symbols.description_rounded, fill: 1),
                         title: Text(t.about.openSourceLicenses),
@@ -117,6 +97,14 @@ class AboutScreen extends StatelessWidget {
                       ),
                     ],
                   ),
+
+                  const SizedBox(height: 16),
+                  const CgflixApoioAboutLine(),
+                  const SizedBox(height: 16),
+                  const Center(child: HeisucaAiSeal()),
+                  const SizedBox(height: 16),
+
+                  const Center(child: CgflixDedication()),
 
                   const SizedBox(height: 24),
                 ]),

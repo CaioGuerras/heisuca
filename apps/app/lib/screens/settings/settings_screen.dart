@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:plezy/widgets/app_icon.dart';
+import 'package:heisuca/widgets/app_icon.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -15,11 +15,10 @@ import '../../cgflix/cgflix_configuracoes.dart';
 import '../../cgflix/cgflix_dicas.dart';
 import '../../cgflix/conta/cgflix_conta.dart';
 import '../../cgflix/cgflix_theme_picker.dart';
-import '../../cgflix/cgflix_trakt.dart';
 import '../../focus/focus_memory_tracker.dart';
-import '../../focus/focusable_text_field.dart';
 import '../../focus/input_mode_tracker.dart';
 import '../../i18n/strings.g.dart';
+import '../../heisuca/heisuca_source_scope.dart';
 import '../main_screen.dart';
 import '../../mixins/mounted_set_state_mixin.dart';
 import '../../mixins/refreshable.dart';
@@ -34,18 +33,15 @@ import '../../services/file_picker_service.dart';
 import '../../services/saf_storage_service.dart';
 import '../../services/settings_export_service.dart';
 import '../../providers/theme_provider.dart';
-import '../../providers/seerr_account_provider.dart';
 import '../../services/account_preferences_accounts.dart';
 import '../../services/keyboard_shortcuts_service.dart';
 import '../../services/background_work_diagnostics_service.dart';
 import '../../services/settings_service.dart' as settings;
 import '../../services/settings_mutation_service.dart';
 import '../../widgets/background_download_warning_banner.dart';
-import '../../services/update_service.dart';
 import '../../utils/dialogs.dart';
 import '../../utils/snackbar_helper.dart';
 import '../../utils/platform_detector.dart';
-import '../../utils/update_dialog.dart';
 import '../../widgets/desktop_app_bar.dart';
 import '../../widgets/dialog_action_button.dart';
 import '../../widgets/focusable_list_tile.dart';
@@ -57,27 +53,30 @@ import '../../widgets/settings_section.dart';
 import '../../widgets/system_bottom_inset.dart';
 import '../../profiles/active_profile_provider.dart';
 import '../../profiles/profile.dart';
-import '../../watch_together/services/watch_together_relay_endpoint.dart';
 import 'about_screen.dart';
+import '../../services/updates/update_controller.dart';
+import '../updates/update_settings_screen.dart';
 import 'add_connection_screen.dart';
 import 'account_preferences_screen.dart';
 import 'appearance_settings_screen.dart';
 import 'keyboard_shortcuts_screen.dart';
 import 'logs_screen.dart';
 import '../profile/profile_switch_screen.dart';
-import 'services_settings_screen.dart';
 import 'settings_utils.dart';
-import 'tracker_service_info.dart';
-import '../../widgets/loading_indicator_box.dart';
+
+enum HeisucaSettingsSection { downloads, subtitles, diagnostics, sources }
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({
     super.key,
+    this.heisucaSection,
     this.downloadDirectoryWritableChecker,
     this.settingsExporter,
     this.settingsImporter,
     this.backgroundWorkDiagnosticsService,
   });
+
+  final HeisucaSettingsSection? heisucaSection;
 
   @visibleForTesting
   final Future<bool> Function(Directory directory)? downloadDirectoryWritableChecker;
@@ -103,33 +102,23 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
   static const _kDonate = 'donate';
   static const _kAppearance = 'appearance';
   static const _kManageLibraries = 'manage_libraries';
-  static const _kServices = 'services';
   static const _kDownloadLocation = 'download_location';
   static const _kDownloadOnWifiOnly = 'download_on_wifi_only';
   static const _kAutoRemoveWatchedDownloads = 'auto_remove_watched_downloads';
   static const _kBackgroundDownloads = 'background_downloads';
   static const _kVideoPlayerControls = 'video_player_controls';
   static const _kVideoPlayerNavigation = 'video_player_navigation';
-  static const _kCompanionRemoteServer = 'companion_remote_server';
-  static const _kCrashReporting = 'crash_reporting';
   static const _kDebugLogging = 'debug_logging';
   static const _kAutoHidePerformanceOverlay = 'auto_hide_performance_overlay';
   static const _kViewLogs = 'view_logs';
   static const _kClearImageCache = 'clear_image_cache';
   static const _kResetSettings = 'reset_settings';
-  static const _kCheckForUpdates = 'check_for_updates';
-  static const _kAutoCheckUpdatesOnStartup = 'auto_check_updates_on_startup';
   static const _kAbout = 'about';
-  static const _kWatchTogetherRelay = 'watch_together_relay';
   static const _kExportSettings = 'export_settings';
   static const _kImportSettings = 'import_settings';
 
   KeyboardShortcutsService? _keyboardService;
   late final bool _keyboardShortcutsSupported = KeyboardShortcutsService.isPlatformSupported();
-
-  // Update checking state
-  bool _isCheckingForUpdate = false;
-  Map<String, dynamic>? _updateInfo;
 
   @override
   void initState() {
@@ -186,7 +175,7 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
   Widget build(BuildContext context) {
     final hasLibraries = context.select<LibrariesProvider, bool>((p) => p.libraries.isNotEmpty);
 
-    if (OverlaySheetController.maybeOf(context) != null) {
+    if (widget.heisucaSection != null || OverlaySheetController.maybeOf(context) != null) {
       return _buildContent(context, hasLibraries: hasLibraries);
     }
 
@@ -207,15 +196,42 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
     return CgflixSettingsScope(
       // CGFLIX (refino 2b): lista plana no padrão das Configurações do Android (sem sanfonas)
       child: Scaffold(
+        // canRequestFocus: false — este Focus só intercepta teclas; focável, ele virava o primeiro
+        // destino do D-pad (a tela inteira) e as linhas ficavam inalcançáveis.
         body: Focus(
+          canRequestFocus: false,
+          skipTraversal: true,
           onKeyEvent: _handleKeyEvent,
           child: CustomScrollView(
             primary: false,
             slivers: [
-              ExcludeFocus(child: CustomAppBar(title: Text(t.settings.title), pinned: true)),
+              ExcludeFocus(
+                child: CustomAppBar(
+                  title: Text(switch (widget.heisucaSection) {
+                    HeisucaSettingsSection.downloads => "Downloads",
+                    HeisucaSettingsSection.subtitles => "Áudio e legendas",
+                    HeisucaSettingsSection.diagnostics => "Diagnóstico e backup",
+                    HeisucaSettingsSection.sources => "Fontes e conexões",
+                    null => t.settings.title,
+                  }),
+                  pinned: true,
+                ),
+              ),
               SliverList(
                 delegate: SliverChildListDelegate([
-                  ..._cgflixMainList(sheetContext, accounts: accounts, hasLibraries: hasLibraries),
+                  ...switch (widget.heisucaSection) {
+                    HeisucaSettingsSection.downloads => _cgflixDownloadsChildren(),
+                    HeisucaSettingsSection.subtitles => <Widget>[
+                      if (accounts.isNotEmpty) _buildAccountPreferencesTile(sheetContext),
+                      const CgflixSubtitleStyleTile(),
+                      const CgflixAdvancedSubtitles(),
+                    ],
+                    HeisucaSettingsSection.diagnostics => <Widget>[_buildAdvancedSection(), _buildBackupSection()],
+                    HeisucaSettingsSection.sources => <Widget>[
+                      _buildConnectionsSection(sheetContext, hasLibraries: hasLibraries),
+                    ],
+                    null => _cgflixMainList(sheetContext, accounts: accounts, hasLibraries: hasLibraries),
+                  },
                   const SizedBox(height: 24),
                 ]),
               ),
@@ -269,6 +285,13 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
       SettingsGroup(
         title: 'Ajuda',
         children: [
+          if (context.watch<UpdateController?>()?.permiteAjustes == true)
+            SettingNavigationTile(
+              icon: Symbols.system_update_rounded,
+              title: 'Atualizações',
+              subtitle: 'Versões do app e canais de atualização',
+              destinationBuilder: (_) => const UpdateSettingsScreen(),
+            ),
           SettingNavigationTile(
             key: const ValueKey('cgflix-config-dicas'),
             icon: Symbols.lightbulb_rounded,
@@ -335,11 +358,10 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
   /// CGFLIX: a subtela Avançado, por assunto.
   List<Widget> _cgflixAdvancedChildren(BuildContext context, {required bool hasLibraries}) => [
     _buildConnectionsSection(context, hasLibraries: hasLibraries),
-    CgflixAdvancedFeatures(extra: _cgflixControlsTiles(context)),
+    ..._cgflixControlsTiles(context),
     const CgflixAdvancedPlayback(),
     const CgflixAdvancedSubtitles(),
     const CgflixAdvancedGeneral(),
-    if (UpdateService.isUpdateCheckAvailable) _buildUpdateSection(),
     _buildAdvancedSection(),
     // Hidden on Android TV / tvOS (no document picker); desktop in
     // force-TV mode keeps it — FilePickerService works there.
@@ -347,7 +369,7 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
   ];
 
   List<Widget> _cgflixControlsTiles(BuildContext context) {
-    if (!_keyboardShortcutsSupported && !PlatformDetector.shouldActAsRemoteHost(context)) return const [];
+    if (!_keyboardShortcutsSupported) return const [];
     final section = _buildControlsSection(context);
     return section is SettingsGroup ? section.children : const [];
   }
@@ -396,27 +418,6 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
     );
   }
 
-  Widget _buildServicesTile() {
-    // The tracker account providers are watched through [TrackerServiceInfo].
-    return Consumer<SeerrAccountProvider>(
-      builder: (context, seerr, _) {
-        final connectedNames = <String>[
-          for (final info in TrackerServiceInfo.all)
-            if (info.isConnected(context)) info.displayName,
-          if (seerr.isConnected) t.services.names.seerr,
-        ];
-        final subtitle = connectedNames.isEmpty ? t.settings.servicesDescription : connectedNames.join(' · ');
-        return SettingNavigationTile(
-          focusNode: _focusTracker.get(_kServices),
-          icon: Symbols.sync_rounded,
-          title: t.settings.services,
-          subtitle: subtitle,
-          destinationBuilder: (_) => const ServicesSettingsScreen(),
-        );
-      },
-    );
-  }
-
   Widget _buildConnectionsSection(BuildContext context, {required bool hasLibraries}) {
     final active = context.select<ActiveProfileProvider, Profile?>((p) => p.active);
     final subtitle = active == null
@@ -439,6 +440,11 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
             // CGFLIX (refino 2b): na tela, um resumo que um leigo entende; o perfil fica para o leitor de tela.
             subtitle: 'Entrar em outro servidor Plex, Jellyfin ou Emby',
             onTap: () {
+              // Heisuca: mesma porta do menu Você; ao adicionar, já passa a mostrar a fonte nova.
+              if (widget.heisucaSection != null) {
+                heisucaAddSource(context);
+                return;
+              }
               final active = context.read<ActiveProfileProvider>().active;
               Navigator.push(context, MaterialPageRoute(builder: (_) => AddConnectionScreen(targetProfile: active)));
             },
@@ -447,7 +453,6 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
         if (!multipleProfiles) _buildProfilesTile(context), // CGFLIX: com vários perfis, fica em Conta
         // CGFLIX: "Preferências da conta" (idiomas) subiu para o topo; bibliotecas e serviços vêm para cá.
         if (hasLibraries) _buildManageLibrariesTile(context),
-        if (cgflixShowsServicesTile) _buildServicesTile(), // CGFLIX: só com o Trakt do CGFLIX
       ],
     );
   }
@@ -586,10 +591,8 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
     );
   }
 
-  /// Input devices: keyboard shortcuts on platforms with a physical keyboard,
-  /// and the companion-remote host on surfaces that can be controlled from a
-  /// phone. Either half may be absent; the caller skips the section when both
-  /// are.
+  /// Input devices: keyboard shortcuts on platforms with a physical keyboard.
+  /// The caller skips the section when there is none.
   Widget _buildControlsSection(BuildContext context) {
     final children = <Widget>[
       if (_keyboardService != null) ...[
@@ -613,14 +616,6 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
           subtitle: t.settings.videoPlayerNavigationDescription,
         ),
       ],
-      if (PlatformDetector.shouldActAsRemoteHost(context))
-        SettingSwitchTile(
-          focusNode: _focusTracker.get(_kCompanionRemoteServer),
-          pref: settings.SettingsService.enableCompanionRemoteServer,
-          icon: Symbols.phone_android_rounded,
-          title: t.settings.companionRemoteServer,
-          subtitle: t.settings.companionRemoteServerDescription,
-        ),
     ];
     // Keyboard platforms render nothing until the shortcuts service loads; an
     // empty SettingsGroup would paint a bare section title.
@@ -632,22 +627,6 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
     return SettingsGroup(
       title: 'Diagnóstico', // CGFLIX: registros, memória de imagens, restaurar
       children: [
-        SettingNavigationTile(
-          focusNode: _focusTracker.get(_kWatchTogetherRelay),
-          icon: Symbols.dns_rounded,
-          title: t.settings.watchTogetherRelay,
-          subtitle: t.settings.watchTogetherRelayDescription,
-          onTap: () => _showRelayUrlDialog(),
-        ),
-        // CGFLIX: sem ENABLE_SENTRY (nossos builds) a chave não fazia nada; fica escondida.
-        if (const bool.fromEnvironment('ENABLE_SENTRY'))
-          SettingSwitchTile(
-            focusNode: _focusTracker.get(_kCrashReporting),
-            pref: settings.SettingsService.crashReporting,
-            icon: Symbols.monitoring_rounded,
-            title: t.settings.crashReporting,
-            subtitle: t.settings.crashReportingDescription,
-          ),
         SettingSwitchTile(
           focusNode: _focusTracker.get(_kDebugLogging),
           pref: settings.SettingsService.enableDebugLogging,
@@ -685,15 +664,6 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
         ),
         if (kDebugMode)
           SettingNavigationTile(
-            icon: Symbols.error_rounded,
-            title: 'Test Sentry',
-            subtitle: 'Send a test error',
-            onTap: () {
-              throw Exception("Example exception");
-            },
-          ),
-        if (kDebugMode)
-          SettingNavigationTile(
             icon: Symbols.timer_rounded,
             title: 'Test ANR',
             subtitle: 'Block the main thread for 10 seconds',
@@ -727,62 +697,6 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
         ),
         // TODO: Cloud settings sync/backup (#1795, #1979) goes here once a
         // sync backend exists (iCloud on Apple platforms, or the relay).
-      ],
-    );
-  }
-
-  Widget _buildAutoCheckUpdatesOnStartupTile() => SettingSwitchTile(
-    focusNode: _focusTracker.get(_kAutoCheckUpdatesOnStartup),
-    pref: settings.SettingsService.autoCheckUpdatesOnStartup,
-    icon: Symbols.notifications_active_rounded,
-    title: t.settings.autoCheckUpdatesOnStartup,
-    subtitle: t.settings.autoCheckUpdatesOnStartupDescription,
-  );
-
-  Widget _buildUpdateSection() {
-    if (UpdateService.useNativeUpdater) {
-      return SettingsGroup(
-        title: t.settings.updates,
-        children: [
-          SettingNavigationTile(
-            focusNode: _focusTracker.get(_kCheckForUpdates),
-            icon: Symbols.system_update_rounded,
-            title: t.settings.checkForUpdates,
-            onTap: () => UpdateService.checkForUpdatesNative(inBackground: false),
-          ),
-          _buildAutoCheckUpdatesOnStartupTile(),
-        ],
-      );
-    }
-
-    final hasUpdate = _updateInfo != null && _updateInfo!['hasUpdate'] == true;
-
-    return SettingsGroup(
-      title: t.settings.updates,
-      children: [
-        FocusableListTile(
-          focusNode: _focusTracker.get(_kCheckForUpdates),
-          leading: AppIcon(
-            hasUpdate ? Symbols.system_update_rounded : Symbols.check_circle_rounded,
-            fill: 1,
-            color: hasUpdate ? Colors.orange : null,
-          ),
-          title: Text(hasUpdate ? t.settings.updateAvailable : t.settings.checkForUpdates),
-          subtitle: hasUpdate ? Text(t.update.versionAvailable(version: _updateInfo!['latestVersion'])) : null,
-          trailing: _isCheckingForUpdate
-              ? const LoadingIndicatorBox(size: 24)
-              : const AppIcon(Symbols.chevron_right_rounded, fill: 1),
-          onTap: _isCheckingForUpdate
-              ? null
-              : () {
-                  if (hasUpdate) {
-                    _showUpdateDialog();
-                  } else {
-                    _checkForUpdates();
-                  }
-                },
-        ),
-        _buildAutoCheckUpdatesOnStartupTile(),
       ],
     );
   }
@@ -893,13 +807,6 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
     }
   }
 
-  Future<void> _showRelayUrlDialog() async {
-    await showScopedDialog<void>(
-      context: context,
-      builder: (_) => _RelayUrlDialog(settingsService: _settingsService),
-    );
-  }
-
   Future<void> _showClearImageCacheDialog() async {
     final confirmed = await showConfirmDialog(
       context,
@@ -1001,120 +908,6 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
           if (mounted) showErrorSnackBar(context, t.settings.importSettingsInvalidFile);
         }
       },
-    );
-  }
-
-  Future<void> _checkForUpdates() async {
-    setState(() => _isCheckingForUpdate = true);
-
-    try {
-      final updateInfo = await UpdateService.checkForUpdates();
-
-      if (mounted) {
-        setState(() {
-          _updateInfo = updateInfo;
-          _isCheckingForUpdate = false;
-        });
-
-        if (updateInfo == null || updateInfo['hasUpdate'] != true) {
-          showAppSnackBar(context, t.update.latestVersion);
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _isCheckingForUpdate = false);
-        showErrorSnackBar(context, t.update.checkFailed);
-      }
-    }
-  }
-
-  void _showUpdateDialog() {
-    final updateInfo = _updateInfo;
-    if (updateInfo == null) return;
-    unawaited(
-      showUpdateAvailableDialog(context, updateInfo, title: t.settings.updateAvailable, dismissLabel: t.common.close),
-    );
-  }
-}
-
-class _RelayUrlDialog extends StatefulWidget {
-  final settings.SettingsService settingsService;
-
-  const _RelayUrlDialog({required this.settingsService});
-
-  @override
-  State<_RelayUrlDialog> createState() => _RelayUrlDialogState();
-}
-
-class _RelayUrlDialogState extends State<_RelayUrlDialog> {
-  late final TextEditingController _controller;
-  final _saveFocusNode = FocusNode(debugLabel: 'WatchTogetherRelaySave');
-  bool _relayUrlInvalid = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(
-      text: widget.settingsService.read(settings.SettingsService.customRelayUrl) ?? '',
-    );
-  }
-
-  @override
-  void dispose() {
-    _saveFocusNode.dispose();
-    _controller.dispose();
-    super.dispose();
-  }
-
-  Future<void> _reset() async {
-    _controller.clear();
-    await widget.settingsService.write(settings.SettingsService.customRelayUrl, null);
-    if (mounted) Navigator.pop(context);
-  }
-
-  Future<void> _save() async {
-    final value = _controller.text;
-    if (value.trim().isEmpty) {
-      await widget.settingsService.write(settings.SettingsService.customRelayUrl, null);
-      if (mounted) Navigator.pop(context);
-      return;
-    }
-
-    final endpoint = WatchTogetherRelayEndpoint.tryParseCustom(value);
-    if (endpoint == null) {
-      setState(() => _relayUrlInvalid = true);
-      return;
-    }
-    await widget.settingsService.write(settings.SettingsService.customRelayUrl, endpoint.canonicalBaseUrl);
-    if (mounted) Navigator.pop(context);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(t.settings.watchTogetherRelay),
-      content: FocusableTextField(
-        controller: _controller,
-        decoration: InputDecoration(
-          labelText: t.common.url,
-          hintText: t.settings.watchTogetherRelayHint,
-          errorText: _relayUrlInvalid ? t.settings.watchTogetherRelayInvalid : null,
-        ),
-        autofocus: true,
-        textInputAction: TextInputAction.done,
-        onChanged: (_) {
-          if (_relayUrlInvalid) {
-            setState(() => _relayUrlInvalid = false);
-          }
-        },
-        onEditingComplete: () => _saveFocusNode.requestFocus(),
-        onNavigateDown: _saveFocusNode.requestFocus,
-      ),
-      actions: [
-        DialogActionButton(onPressed: _reset, label: t.settings.resetToDefault),
-        DialogActionButton(onPressed: () => Navigator.pop(context), label: t.common.cancel),
-        DialogActionButton(focusNode: _saveFocusNode, onPressed: _save, label: t.common.save),
-      ],
     );
   }
 }

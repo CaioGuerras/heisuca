@@ -4,8 +4,8 @@ import 'package:fake_async/fake_async.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/focus/focus_navigation_intent.dart';
-import 'package:plezy/services/apple_tv_remote_touch_service.dart';
+import 'package:heisuca/focus/focus_navigation_intent.dart';
+import 'package:heisuca/services/apple_tv_remote_touch_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

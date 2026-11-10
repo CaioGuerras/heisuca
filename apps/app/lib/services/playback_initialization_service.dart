@@ -122,7 +122,7 @@ class PlaybackInitializationService {
       offlineSource = await _resolveOfflineVideoSource(
         ServerId(serverId),
         metadata.id,
-        mediaIndex: options.selectedMediaIndex,
+        mediaIndex: options.selectedMediaIndex ?? 0,
         selectedMediaSourceId: options.selectedMediaSourceId,
         // With no client, or when playback must stay offline, there is nothing
         // to stream from, so any downloaded version beats failing. Otherwise

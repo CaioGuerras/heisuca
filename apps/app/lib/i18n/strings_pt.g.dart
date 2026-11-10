@@ -76,7 +76,6 @@ class TranslationsPt extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _Translations$collections$pt collections = _Translations$collections$pt._(_root);
 	@override late final _Translations$playlists$pt playlists = _Translations$playlists$pt._(_root);
 	@override late final _Translations$music$pt music = _Translations$music$pt._(_root);
-	@override late final _Translations$watchTogether$pt watchTogether = _Translations$watchTogether$pt._(_root);
 	@override late final _Translations$downloads$pt downloads = _Translations$downloads$pt._(_root);
 	@override late final _Translations$shaders$pt shaders = _Translations$shaders$pt._(_root);
 	@override late final _Translations$companionRemote$pt companionRemote = _Translations$companionRemote$pt._(_root);
@@ -344,12 +343,6 @@ class _Translations$settings$pt extends Translations$settings$en {
 	@override String get keyboardShortcutsDescription => 'Mudar os atalhos de teclado';
 	@override String get videoPlayerNavigation => 'Navegação do reprodutor de vídeo';
 	@override String get videoPlayerNavigationDescription => 'Usar as setas para andar pelos controles do reprodutor';
-	@override String get watchTogetherRelay => 'Servidor do Assistir juntos';
-	@override String get watchTogetherRelayDescription => 'Usar outro servidor para o Assistir juntos. Todos precisam usar o mesmo.';
-	@override String get watchTogetherRelayHint => 'https://minha-retransmissao.exemplo.com.br';
-	@override String get watchTogetherRelayInvalid => 'Digite um endereço válido, começando com http:// ou https://.';
-	@override String get crashReporting => 'Relatório de erros';
-	@override String get crashReportingDescription => 'Enviar relatórios de erro para ajudar a melhorar o app';
 	@override String get debugLogging => 'Registros de diagnóstico';
 	@override String get debugLoggingDescription => 'Guardar registros detalhados para ajudar a resolver problemas';
 	@override String get viewLogs => 'Ver registros (logs)';
@@ -431,8 +424,6 @@ class _Translations$settings$pt extends Translations$settings$en {
 	@override String get maxVolume => 'Volume máximo';
 	@override String get maxVolumeDescription => 'Deixar o volume passar de 100% para vídeos com som baixo';
 	@override String maxVolumePercent({required Object percent}) => '${percent}%';
-	@override String get discordRichPresence => 'Discord Rich Presence';
-	@override String get discordRichPresenceDescription => 'Mostrar o que você está assistindo no Discord';
 	@override String get services => 'Serviços';
 	@override String get servicesDescription => 'Conecte o Trakt para registrar o que você assiste';
 	@override String get manageLibrariesDescription => 'Mudar a ordem e ocultar bibliotecas';
@@ -497,6 +488,8 @@ class _Translations$settings$pt extends Translations$settings$en {
 	@override String get requireProfileSelectionOnOpenDescription => 'Mostrar a escolha de perfil sempre que abrir o app';
 	@override String get forceTvMode => 'Forçar modo TV';
 	@override String get forceTvModeDescription => 'Usar o visual de TV em aparelhos que não são reconhecidos como TV. Precisa reiniciar o app.';
+	@override String get tvUseNativeKeyboard => 'Usar teclado da TV';
+	@override String get tvUseNativeKeyboardDescription => 'Usar o teclado do sistema da TV em vez do teclado do aplicativo';
 	@override String get startInFullscreen => 'Iniciar em tela cheia';
 	@override String get startInFullscreenDescription => 'Abrir o Heisuca em tela cheia';
 	@override String get exitFullscreenOnPlayerClose => 'Sair da tela cheia ao fechar o reprodutor';
@@ -601,8 +594,6 @@ class _Translations$fileInfo$pt extends Translations$fileInfo$en {
 	@override String versionCounter({required Object index, required Object count}) => 'Versão ${index} de ${count}';
 	@override String fileCounter({required Object index, required Object count}) => 'Arquivo ${index} de ${count}';
 	@override String get noStreams => 'O servidor não informou as faixas deste arquivo.';
-	@override String get copyPath => 'Copiar caminho';
-	@override String get pathCopied => 'Caminho do arquivo copiado';
 	@override String get codec => 'Codec';
 	@override String get codecTag => 'Tag do codec';
 	@override String get resolution => 'Resolução';
@@ -662,7 +653,6 @@ class _Translations$fileInfo$pt extends Translations$fileInfo$en {
 	@override String get temporary => 'Temporário';
 	@override String get timeBase => 'Base de tempo';
 	@override String get overallBitrate => 'Taxa de bits total';
-	@override String get path => 'Caminho';
 	@override String get fileName => 'Nome do arquivo';
 	@override String get size => 'Tamanho';
 	@override String get totalSize => 'Tamanho total';
@@ -1000,6 +990,10 @@ class _Translations$messages$pt extends Translations$messages$en {
 	@override String get streamSelectionFailed => 'Não deu para trocar o áudio ou a legenda. Tente de novo.';
 	@override String get trackSelectionNotRemembered => 'Esta escolha de áudio ou legenda vale só para este vídeo.';
 	@override String get serverUnavailableForProfile => 'Nenhum servidor disponível para este perfil';
+	@override String get unplayableMediaTitle => 'Este aparelho não consegue tocar este arquivo';
+	@override String unplayableMediaPlayVersion({required Object resolution}) => 'Tocar versão ${resolution}';
+	@override String get unplayableMediaTryAnyway => 'Tentar assim mesmo';
+	@override String get unplayableMediaBack => 'Voltar';
 }
 
 // Path: subtitlingStyling
@@ -1080,7 +1074,7 @@ class _Translations$profiles$pt extends Translations$profiles$en {
 	final TranslationsPt _root; // ignore: unused_field
 
 	// Translations
-	@override String get addPlezyProfile => 'Adicionar perfil Heisuca';
+	@override String get addHeisucaProfile => 'Adicionar perfil Heisuca';
 	@override String get switchingProfile => 'Trocando de perfil…';
 	@override String get deleteThisProfileTitle => 'Excluir este perfil?';
 	@override String deleteThisProfileMessage({required Object displayName}) => 'Remover ${displayName}. As conexões com os servidores continuam.';
@@ -1340,7 +1334,6 @@ class _Translations$about$pt extends Translations$about$en {
 	@override String get title => 'Sobre';
 	@override String get openSourceLicenses => 'Licenças de código aberto';
 	@override String versionLabel({required Object version}) => 'Versão ${version}';
-	@override String get appDescription => 'Os filmes e séries da família, em qualquer tela';
 	@override String get viewLicensesDescription => 'Ver as licenças de bibliotecas de terceiros';
 }
 
@@ -1409,7 +1402,7 @@ class _Translations$startup$pt extends Translations$startup$en {
 	@override String get repairSucceeded => 'Dados reparados';
 	@override String get repairNeedsRestart => 'Dados reparados — reinicie o app';
 	@override String get restartRequiredBody => 'Seus dados foram reparados, mas o Heisuca precisa ser reiniciado. Feche o Heisuca e abra de novo.';
-	@override String get quitPlezy => 'Sair do Heisuca';
+	@override String get quitHeisuca => 'Sair do Heisuca';
 	@override String get repairFailed => 'Não deu para reparar';
 	@override String get repairKeptSignIns => 'Seus servidores e perfis ainda estão conectados.';
 	@override String get repairLostSignIns => 'Não deu para recuperar a chave que protege seus acessos salvos. Você vai precisar entrar de novo em todos os servidores e perfis.';
@@ -1694,90 +1687,6 @@ class _Translations$music$pt extends Translations$music$en {
 	@override String get instantMixEmpty => 'O mix instantâneo veio sem nenhuma faixa';
 	@override String noAudioUrl({required Object track}) => 'Não foi encontrado o endereço do áudio de ${track}';
 	@override late final _Translations$music$discography$pt discography = _Translations$music$discography$pt._(_root);
-}
-
-// Path: watchTogether
-class _Translations$watchTogether$pt extends Translations$watchTogether$en {
-	_Translations$watchTogether$pt._(TranslationsPt root) : this._root = root, super.internal(root);
-
-	final TranslationsPt _root; // ignore: unused_field
-
-	// Translations
-	@override String get title => 'Assistir juntos';
-	@override String get description => 'Assista ao mesmo tempo com amigos e família, cada um na sua tela';
-	@override String get createSession => 'Criar sessão';
-	@override String get creating => 'Criando...';
-	@override String get joinSession => 'Entrar na sessão';
-	@override String get joining => 'Entrando...';
-	@override String get controlMode => 'Modo de controle';
-	@override String get controlModeQuestion => 'Quem pode pausar e avançar?';
-	@override String get hostOnly => 'Só o anfitrião';
-	@override String get anyone => 'Qualquer pessoa';
-	@override String get hostingSession => 'Você criou uma sessão';
-	@override String get inSession => 'Em uma sessão';
-	@override String get sessionCode => 'Código da sessão';
-	@override String get openSessionControls => 'Abrir os controles do Assistir juntos';
-	@override String get copySessionCode => 'Copiar código da sessão';
-	@override String get hostControlsPlayback => 'Só o anfitrião pode pausar e avançar';
-	@override String get anyoneCanControl => 'Qualquer pessoa pode pausar e avançar';
-	@override String get hostControls => 'Anfitrião controla';
-	@override String get anyoneControls => 'Todos controlam';
-	@override String get participants => 'Participantes';
-	@override String get host => 'Anfitrião';
-	@override String get hostBadge => 'ANFITRIÃO';
-	@override String get youAreHost => 'Você é o anfitrião';
-	@override String get makeHost => 'Tornar anfitrião';
-	@override String get makeHostQuestion => 'Passar o controle de anfitrião?';
-	@override String makeHostConfirm({required Object name}) => '${name} vai controlar o vídeo e conduzir a sessão para todos.';
-	@override String get transfer => 'Passar';
-	@override String hostChangedTo({required Object name}) => '${name} agora é o anfitrião';
-	@override String get youAreNowHost => 'Agora você é o anfitrião';
-	@override String hostTransferFailed({required Object name}) => 'Não deu para passar o controle para ${name}';
-	@override String get watchingWithOthers => 'Assistindo com outras pessoas';
-	@override String get endSession => 'Encerrar sessão';
-	@override String get leaveSession => 'Sair da sessão';
-	@override String get endSessionQuestion => 'Encerrar sessão?';
-	@override String get leaveSessionQuestion => 'Sair da sessão?';
-	@override String get endSessionConfirm => 'Isso vai encerrar a sessão para todo mundo.';
-	@override String get leaveSessionConfirm => 'Você vai sair da sessão.';
-	@override String get endSessionConfirmOverlay => 'Isso vai encerrar o Assistir juntos para todo mundo.';
-	@override String get leaveSessionConfirmOverlay => 'Você vai sair do Assistir juntos.';
-	@override String get end => 'Encerrar';
-	@override String get leave => 'Sair';
-	@override String get syncing => 'Sincronizando...';
-	@override String get joinWatchSession => 'Entrar na sessão';
-	@override String get enterCodeHint => 'Digite o código de 5 letras e números';
-	@override String get pasteFromClipboard => 'Colar';
-	@override String get pleaseEnterCode => 'Digite o código da sessão';
-	@override String get codeMustBe5Chars => 'O código da sessão tem 5 letras e números';
-	@override String get joinInstructions => 'Digite o código que o anfitrião passou para entrar.';
-	@override String get failedToCreate => 'Não deu para criar a sessão. Confira a internet e tente de novo.';
-	@override String get failedToJoin => 'Não deu para entrar na sessão. Confira o código e tente de novo.';
-	@override String get sessionCodeCopied => 'Código da sessão copiado';
-	@override String get relayUnreachable => 'Não deu para falar com o servidor do Assistir juntos. Sua operadora de internet pode estar bloqueando.';
-	@override String get reconnectingToHost => 'Reconectando ao anfitrião...';
-	@override String get currentPlayback => 'O que está passando';
-	@override String get joinCurrentPlayback => 'Ir para o que está passando';
-	@override String get joinCurrentPlaybackDescription => 'Voltar para o que o anfitrião está assistindo agora';
-	@override String get failedToOpenCurrentPlayback => 'Não deu para abrir o que está passando. Tente de novo.';
-	@override String participantJoined({required Object name}) => '${name} entrou';
-	@override String participantLeft({required Object name}) => '${name} saiu';
-	@override String participantPaused({required Object name}) => '${name} pausou';
-	@override String participantResumed({required Object name}) => '${name} continuou';
-	@override String participantSeeked({required Object name}) => '${name} avançou ou voltou o vídeo';
-	@override String participantChangedSpeed({required Object name, required Object speed}) => '${name} mudou a velocidade para ${speed}';
-	@override String participantBuffering({required Object name}) => '${name} está carregando o vídeo';
-	@override String participantNeedsUpdate({required Object name}) => '${name} está com uma versão antiga do app — precisa atualizar para assistirem juntos';
-	@override String resumingWithout({required Object name}) => 'Continuando sem ${name}';
-	@override String get waitingForParticipants => 'Esperando os outros carregarem o vídeo...';
-	@override String waitingForName({required Object name}) => 'Esperando ${name}...';
-	@override String get recentRooms => 'Salas recentes';
-	@override String get renameRoom => 'Renomear sala';
-	@override String get removeRoom => 'Remover';
-	@override String get guestSwitchUnavailable => 'Não deu para trocar — o servidor não está disponível';
-	@override String get guestSwitchFailed => 'Não deu para trocar — este título não está no seu servidor';
-	@override String get defaultDisplayName => 'Usuário';
-	@override late final _Translations$watchTogether$errors$pt errors = _Translations$watchTogether$errors$pt._(_root);
 }
 
 // Path: downloads
@@ -2858,20 +2767,6 @@ class _Translations$music$discography$pt extends Translations$music$discography$
 	@override String get compilations => 'Compilações';
 }
 
-// Path: watchTogether.errors
-class _Translations$watchTogether$errors$pt extends Translations$watchTogether$errors$en {
-	_Translations$watchTogether$errors$pt._(TranslationsPt root) : this._root = root, super.internal(root);
-
-	final TranslationsPt _root; // ignore: unused_field
-
-	// Translations
-	@override String get timedOut => 'O servidor do Assistir juntos demorou demais para responder. Tente de novo.';
-	@override String get connectionLost => 'A conexão caiu antes de a sessão ficar pronta. Tente de novo.';
-	@override String get invalidRelayResponse => 'O servidor do Assistir juntos respondeu algo inesperado. Tente de novo.';
-	@override String get sessionEnded => 'O anfitrião encerrou a sessão';
-	@override String get sessionUnavailable => 'Não deu para voltar a esta sessão. Entre em uma sala ou crie uma nova.';
-}
-
 // Path: downloads.backgroundWarning
 class _Translations$downloads$backgroundWarning$pt extends Translations$downloads$backgroundWarning$en {
 	_Translations$downloads$backgroundWarning$pt._(TranslationsPt root) : this._root = root, super.internal(root);
@@ -3328,12 +3223,6 @@ extension on TranslationsPt {
 			'settings.keyboardShortcutsDescription' => 'Mudar os atalhos de teclado',
 			'settings.videoPlayerNavigation' => 'Navegação do reprodutor de vídeo',
 			'settings.videoPlayerNavigationDescription' => 'Usar as setas para andar pelos controles do reprodutor',
-			'settings.watchTogetherRelay' => 'Servidor do Assistir juntos',
-			'settings.watchTogetherRelayDescription' => 'Usar outro servidor para o Assistir juntos. Todos precisam usar o mesmo.',
-			'settings.watchTogetherRelayHint' => 'https://minha-retransmissao.exemplo.com.br',
-			'settings.watchTogetherRelayInvalid' => 'Digite um endereço válido, começando com http:// ou https://.',
-			'settings.crashReporting' => 'Relatório de erros',
-			'settings.crashReportingDescription' => 'Enviar relatórios de erro para ajudar a melhorar o app',
 			'settings.debugLogging' => 'Registros de diagnóstico',
 			'settings.debugLoggingDescription' => 'Guardar registros detalhados para ajudar a resolver problemas',
 			'settings.viewLogs' => 'Ver registros (logs)',
@@ -3415,8 +3304,6 @@ extension on TranslationsPt {
 			'settings.maxVolume' => 'Volume máximo',
 			'settings.maxVolumeDescription' => 'Deixar o volume passar de 100% para vídeos com som baixo',
 			'settings.maxVolumePercent' => ({required Object percent}) => '${percent}%',
-			'settings.discordRichPresence' => 'Discord Rich Presence',
-			'settings.discordRichPresenceDescription' => 'Mostrar o que você está assistindo no Discord',
 			'settings.services' => 'Serviços',
 			'settings.servicesDescription' => 'Conecte o Trakt para registrar o que você assiste',
 			'settings.manageLibrariesDescription' => 'Mudar a ordem e ocultar bibliotecas',
@@ -3481,6 +3368,8 @@ extension on TranslationsPt {
 			'settings.requireProfileSelectionOnOpenDescription' => 'Mostrar a escolha de perfil sempre que abrir o app',
 			'settings.forceTvMode' => 'Forçar modo TV',
 			'settings.forceTvModeDescription' => 'Usar o visual de TV em aparelhos que não são reconhecidos como TV. Precisa reiniciar o app.',
+			'settings.tvUseNativeKeyboard' => 'Usar teclado da TV',
+			'settings.tvUseNativeKeyboardDescription' => 'Usar o teclado do sistema da TV em vez do teclado do aplicativo',
 			'settings.startInFullscreen' => 'Iniciar em tela cheia',
 			'settings.startInFullscreenDescription' => 'Abrir o Heisuca em tela cheia',
 			'settings.exitFullscreenOnPlayerClose' => 'Sair da tela cheia ao fechar o reprodutor',
@@ -3582,8 +3471,6 @@ extension on TranslationsPt {
 			'fileInfo.versionCounter' => ({required Object index, required Object count}) => 'Versão ${index} de ${count}',
 			'fileInfo.fileCounter' => ({required Object index, required Object count}) => 'Arquivo ${index} de ${count}',
 			'fileInfo.noStreams' => 'O servidor não informou as faixas deste arquivo.',
-			'fileInfo.copyPath' => 'Copiar caminho',
-			'fileInfo.pathCopied' => 'Caminho do arquivo copiado',
 			'fileInfo.codec' => 'Codec',
 			'fileInfo.codecTag' => 'Tag do codec',
 			'fileInfo.resolution' => 'Resolução',
@@ -3619,8 +3506,6 @@ extension on TranslationsPt {
 			'fileInfo.dolbyVision' => 'Dolby Vision',
 			'fileInfo.dolbyVisionLevel' => 'Nível Dolby Vision',
 			'fileInfo.dolbyVisionVersion' => 'Versão Dolby Vision',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.dolbyVisionLayers' => 'Camadas Dolby Vision',
 			'fileInfo.baseLayerCompatibility' => 'Compatibilidade da camada base',
 			'fileInfo.avcBitstream' => 'Bitstream AVC',
@@ -3629,6 +3514,8 @@ extension on TranslationsPt {
 			'fileInfo.streamIdentifier' => 'Identificador do fluxo',
 			'fileInfo.streamIndex' => 'Índice do fluxo',
 			'fileInfo.streamId' => 'ID do fluxo',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.language' => 'Idioma',
 			'fileInfo.languageCode' => 'Código do idioma',
 			'fileInfo.streamTitle' => 'Título da faixa',
@@ -3645,7 +3532,6 @@ extension on TranslationsPt {
 			'fileInfo.temporary' => 'Temporário',
 			'fileInfo.timeBase' => 'Base de tempo',
 			'fileInfo.overallBitrate' => 'Taxa de bits total',
-			'fileInfo.path' => 'Caminho',
 			'fileInfo.fileName' => 'Nome do arquivo',
 			'fileInfo.size' => 'Tamanho',
 			'fileInfo.totalSize' => 'Tamanho total',
@@ -3915,6 +3801,10 @@ extension on TranslationsPt {
 			'messages.streamSelectionFailed' => 'Não deu para trocar o áudio ou a legenda. Tente de novo.',
 			'messages.trackSelectionNotRemembered' => 'Esta escolha de áudio ou legenda vale só para este vídeo.',
 			'messages.serverUnavailableForProfile' => 'Nenhum servidor disponível para este perfil',
+			'messages.unplayableMediaTitle' => 'Este aparelho não consegue tocar este arquivo',
+			'messages.unplayableMediaPlayVersion' => ({required Object resolution}) => 'Tocar versão ${resolution}',
+			'messages.unplayableMediaTryAnyway' => 'Tentar assim mesmo',
+			'messages.unplayableMediaBack' => 'Voltar',
 			'subtitlingStyling.text' => 'Texto',
 			'subtitlingStyling.border' => 'Contorno',
 			'subtitlingStyling.background' => 'Fundo',
@@ -3959,7 +3849,7 @@ extension on TranslationsPt {
 			'mpvConfig.removeLine' => 'Remover linha',
 			'mpvConfig.embeddedVoHint' => 'No Linux, vo, gpu-context e gpu-api são ignorados: o vídeo dentro do app sempre usa vo=libmpv, e o gpu-next (necessário para filtros como o ArtCNN) não funciona dentro do app.',
 			'dialog.confirmAction' => 'Confirmar',
-			'profiles.addPlezyProfile' => 'Adicionar perfil Heisuca',
+			'profiles.addHeisucaProfile' => 'Adicionar perfil Heisuca',
 			'profiles.switchingProfile' => 'Trocando de perfil…',
 			'profiles.deleteThisProfileTitle' => 'Excluir este perfil?',
 			'profiles.deleteThisProfileMessage' => ({required Object displayName}) => 'Remover ${displayName}. As conexões com os servidores continuam.',
@@ -4133,13 +4023,13 @@ extension on TranslationsPt {
 			'errors.reasonUnreachable' => 'não deu para falar com o servidor',
 			'errors.reasonRefused' => 'o servidor recusou o pedido',
 			'errors.reasonNotFound' => 'o item não está mais no servidor',
-			_ => null,
-		} ?? switch (path) {
 			'errors.reasonServerError' => 'o servidor teve um problema',
 			'errors.reasonCancelled' => 'o pedido foi cancelado',
 			'errors.reasonUnexpected' => 'aconteceu um erro inesperado',
 			'libraries.title' => 'Bibliotecas',
 			'libraries.fallbackTitle' => 'Biblioteca',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.scanLibraryFiles' => 'Procurar arquivos novos',
 			'libraries.scanLibrary' => 'Atualizar biblioteca',
 			'libraries.analyze' => 'Analisar',
@@ -4253,7 +4143,6 @@ extension on TranslationsPt {
 			'about.title' => 'Sobre',
 			'about.openSourceLicenses' => 'Licenças de código aberto',
 			'about.versionLabel' => ({required Object version}) => 'Versão ${version}',
-			'about.appDescription' => 'Os filmes e séries da família, em qualquer tela',
 			'about.viewLicensesDescription' => 'Ver as licenças de bibliotecas de terceiros',
 			'serverSelection.noServersFoundForAccount' => ({required Object username, required Object email}) => 'Nenhum servidor encontrado para ${username} (${email})',
 			'serverSelection.failedToLoadServers' => ({required Object error}) => 'Não deu para carregar os servidores: ${error}',
@@ -4286,7 +4175,7 @@ extension on TranslationsPt {
 			'startup.repairSucceeded' => 'Dados reparados',
 			'startup.repairNeedsRestart' => 'Dados reparados — reinicie o app',
 			'startup.restartRequiredBody' => 'Seus dados foram reparados, mas o Heisuca precisa ser reiniciado. Feche o Heisuca e abra de novo.',
-			'startup.quitPlezy' => 'Sair do Heisuca',
+			'startup.quitHeisuca' => 'Sair do Heisuca',
 			'startup.repairFailed' => 'Não deu para reparar',
 			'startup.repairKeptSignIns' => 'Seus servidores e perfis ainda estão conectados.',
 			'startup.repairLostSignIns' => 'Não deu para recuperar a chave que protege seus acessos salvos. Você vai precisar entrar de novo em todos os servidores e perfis.',
@@ -4615,87 +4504,6 @@ extension on TranslationsPt {
 			'music.discography.singlesAndEps' => 'Singles e EPs',
 			'music.discography.live' => 'Ao vivo',
 			'music.discography.compilations' => 'Compilações',
-			'watchTogether.title' => 'Assistir juntos',
-			'watchTogether.description' => 'Assista ao mesmo tempo com amigos e família, cada um na sua tela',
-			'watchTogether.createSession' => 'Criar sessão',
-			'watchTogether.creating' => 'Criando...',
-			'watchTogether.joinSession' => 'Entrar na sessão',
-			'watchTogether.joining' => 'Entrando...',
-			'watchTogether.controlMode' => 'Modo de controle',
-			'watchTogether.controlModeQuestion' => 'Quem pode pausar e avançar?',
-			'watchTogether.hostOnly' => 'Só o anfitrião',
-			'watchTogether.anyone' => 'Qualquer pessoa',
-			'watchTogether.hostingSession' => 'Você criou uma sessão',
-			'watchTogether.inSession' => 'Em uma sessão',
-			'watchTogether.sessionCode' => 'Código da sessão',
-			'watchTogether.openSessionControls' => 'Abrir os controles do Assistir juntos',
-			'watchTogether.copySessionCode' => 'Copiar código da sessão',
-			'watchTogether.hostControlsPlayback' => 'Só o anfitrião pode pausar e avançar',
-			'watchTogether.anyoneCanControl' => 'Qualquer pessoa pode pausar e avançar',
-			'watchTogether.hostControls' => 'Anfitrião controla',
-			'watchTogether.anyoneControls' => 'Todos controlam',
-			'watchTogether.participants' => 'Participantes',
-			'watchTogether.host' => 'Anfitrião',
-			'watchTogether.hostBadge' => 'ANFITRIÃO',
-			'watchTogether.youAreHost' => 'Você é o anfitrião',
-			'watchTogether.makeHost' => 'Tornar anfitrião',
-			'watchTogether.makeHostQuestion' => 'Passar o controle de anfitrião?',
-			'watchTogether.makeHostConfirm' => ({required Object name}) => '${name} vai controlar o vídeo e conduzir a sessão para todos.',
-			'watchTogether.transfer' => 'Passar',
-			'watchTogether.hostChangedTo' => ({required Object name}) => '${name} agora é o anfitrião',
-			'watchTogether.youAreNowHost' => 'Agora você é o anfitrião',
-			'watchTogether.hostTransferFailed' => ({required Object name}) => 'Não deu para passar o controle para ${name}',
-			'watchTogether.watchingWithOthers' => 'Assistindo com outras pessoas',
-			'watchTogether.endSession' => 'Encerrar sessão',
-			_ => null,
-		} ?? switch (path) {
-			'watchTogether.leaveSession' => 'Sair da sessão',
-			'watchTogether.endSessionQuestion' => 'Encerrar sessão?',
-			'watchTogether.leaveSessionQuestion' => 'Sair da sessão?',
-			'watchTogether.endSessionConfirm' => 'Isso vai encerrar a sessão para todo mundo.',
-			'watchTogether.leaveSessionConfirm' => 'Você vai sair da sessão.',
-			'watchTogether.endSessionConfirmOverlay' => 'Isso vai encerrar o Assistir juntos para todo mundo.',
-			'watchTogether.leaveSessionConfirmOverlay' => 'Você vai sair do Assistir juntos.',
-			'watchTogether.end' => 'Encerrar',
-			'watchTogether.leave' => 'Sair',
-			'watchTogether.syncing' => 'Sincronizando...',
-			'watchTogether.joinWatchSession' => 'Entrar na sessão',
-			'watchTogether.enterCodeHint' => 'Digite o código de 5 letras e números',
-			'watchTogether.pasteFromClipboard' => 'Colar',
-			'watchTogether.pleaseEnterCode' => 'Digite o código da sessão',
-			'watchTogether.codeMustBe5Chars' => 'O código da sessão tem 5 letras e números',
-			'watchTogether.joinInstructions' => 'Digite o código que o anfitrião passou para entrar.',
-			'watchTogether.failedToCreate' => 'Não deu para criar a sessão. Confira a internet e tente de novo.',
-			'watchTogether.failedToJoin' => 'Não deu para entrar na sessão. Confira o código e tente de novo.',
-			'watchTogether.sessionCodeCopied' => 'Código da sessão copiado',
-			'watchTogether.relayUnreachable' => 'Não deu para falar com o servidor do Assistir juntos. Sua operadora de internet pode estar bloqueando.',
-			'watchTogether.reconnectingToHost' => 'Reconectando ao anfitrião...',
-			'watchTogether.currentPlayback' => 'O que está passando',
-			'watchTogether.joinCurrentPlayback' => 'Ir para o que está passando',
-			'watchTogether.joinCurrentPlaybackDescription' => 'Voltar para o que o anfitrião está assistindo agora',
-			'watchTogether.failedToOpenCurrentPlayback' => 'Não deu para abrir o que está passando. Tente de novo.',
-			'watchTogether.participantJoined' => ({required Object name}) => '${name} entrou',
-			'watchTogether.participantLeft' => ({required Object name}) => '${name} saiu',
-			'watchTogether.participantPaused' => ({required Object name}) => '${name} pausou',
-			'watchTogether.participantResumed' => ({required Object name}) => '${name} continuou',
-			'watchTogether.participantSeeked' => ({required Object name}) => '${name} avançou ou voltou o vídeo',
-			'watchTogether.participantChangedSpeed' => ({required Object name, required Object speed}) => '${name} mudou a velocidade para ${speed}',
-			'watchTogether.participantBuffering' => ({required Object name}) => '${name} está carregando o vídeo',
-			'watchTogether.participantNeedsUpdate' => ({required Object name}) => '${name} está com uma versão antiga do app — precisa atualizar para assistirem juntos',
-			'watchTogether.resumingWithout' => ({required Object name}) => 'Continuando sem ${name}',
-			'watchTogether.waitingForParticipants' => 'Esperando os outros carregarem o vídeo...',
-			'watchTogether.waitingForName' => ({required Object name}) => 'Esperando ${name}...',
-			'watchTogether.recentRooms' => 'Salas recentes',
-			'watchTogether.renameRoom' => 'Renomear sala',
-			'watchTogether.removeRoom' => 'Remover',
-			'watchTogether.guestSwitchUnavailable' => 'Não deu para trocar — o servidor não está disponível',
-			'watchTogether.guestSwitchFailed' => 'Não deu para trocar — este título não está no seu servidor',
-			'watchTogether.defaultDisplayName' => 'Usuário',
-			'watchTogether.errors.timedOut' => 'O servidor do Assistir juntos demorou demais para responder. Tente de novo.',
-			'watchTogether.errors.connectionLost' => 'A conexão caiu antes de a sessão ficar pronta. Tente de novo.',
-			'watchTogether.errors.invalidRelayResponse' => 'O servidor do Assistir juntos respondeu algo inesperado. Tente de novo.',
-			'watchTogether.errors.sessionEnded' => 'O anfitrião encerrou a sessão',
-			'watchTogether.errors.sessionUnavailable' => 'Não deu para voltar a esta sessão. Entre em uma sala ou crie uma nova.',
 			'downloads.title' => 'Baixados',
 			'downloads.manage' => 'Organizar',
 			'downloads.tvShows' => 'Séries',
@@ -4734,6 +4542,8 @@ extension on TranslationsPt {
 			'downloads.resumeAll' => 'Continuar todos',
 			'downloads.deleteAll' => 'Apagar todos',
 			'downloads.selectVersion' => 'Escolher versão',
+			_ => null,
+		} ?? switch (path) {
 			'downloads.allEpisodes' => 'Todos os episódios',
 			'downloads.unwatchedOnly' => 'Só não assistidos',
 			'downloads.nextNUnwatched' => ({required Object count}) => 'Próximos ${count} episódios não assistidos',
@@ -5161,8 +4971,6 @@ extension on TranslationsPt {
 			'services.deviceCode.title' => ({required Object service}) => 'Ativar o Heisuca no ${service}',
 			'services.deviceCode.instructions' => 'Leia o código QR ou abra o endereço abaixo e digite este código:',
 			'services.deviceCode.openToActivate' => ({required Object service}) => 'Abrir ${service} para ativar',
-			_ => null,
-		} ?? switch (path) {
 			'services.deviceCode.copyCode' => 'Copiar código de ativação',
 			'services.deviceCode.waitingForAuthorization' => 'Esperando a autorização…',
 			'services.deviceCode.codeCopied' => 'Código copiado',

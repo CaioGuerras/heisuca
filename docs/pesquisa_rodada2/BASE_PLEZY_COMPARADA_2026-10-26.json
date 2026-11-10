@@ -1,0 +1,278 @@
+{
+  "importacao": "612b0a6a8fef6a7822f1ceca4eb08a96a0608f86",
+  "normalizacao": "Remove prefixo apps/app; apenas texto em diretórios de código/teste/plataformas. Conteúdo comparado pelo blob SHA, sem alterar marca, whitespace ou imports.",
+  "tags": [
+    {
+      "tag": "2.22.0",
+      "identicos": 1812,
+      "alterados": 205,
+      "adicionados": 123,
+      "removidos": 6,
+      "diferenca": 334
+    },
+    {
+      "tag": "2.23.0",
+      "identicos": 1744,
+      "alterados": 277,
+      "adicionados": 119,
+      "removidos": 18,
+      "diferenca": 414
+    },
+    {
+      "tag": "2.21.0",
+      "identicos": 1539,
+      "alterados": 456,
+      "adicionados": 145,
+      "removidos": 8,
+      "diferenca": 609
+    },
+    {
+      "tag": "2.24.0",
+      "identicos": 1461,
+      "alterados": 499,
+      "adicionados": 180,
+      "removidos": 130,
+      "diferenca": 809
+    },
+    {
+      "tag": "2.20.0",
+      "identicos": 1287,
+      "alterados": 659,
+      "adicionados": 194,
+      "removidos": 9,
+      "diferenca": 862
+    },
+    {
+      "tag": "2.19.1",
+      "identicos": 1139,
+      "alterados": 754,
+      "adicionados": 247,
+      "removidos": 10,
+      "diferenca": 1011
+    },
+    {
+      "tag": "2.19.0",
+      "identicos": 1134,
+      "alterados": 757,
+      "adicionados": 249,
+      "removidos": 10,
+      "diferenca": 1016
+    },
+    {
+      "tag": "2.18.0",
+      "identicos": 960,
+      "alterados": 852,
+      "adicionados": 328,
+      "removidos": 17,
+      "diferenca": 1197
+    },
+    {
+      "tag": "2.17.0",
+      "identicos": 902,
+      "alterados": 846,
+      "adicionados": 392,
+      "removidos": 31,
+      "diferenca": 1269
+    },
+    {
+      "tag": "2.17.1",
+      "identicos": 912,
+      "alterados": 838,
+      "adicionados": 390,
+      "removidos": 42,
+      "diferenca": 1270
+    },
+    {
+      "tag": "2.16.0",
+      "identicos": 837,
+      "alterados": 889,
+      "adicionados": 414,
+      "removidos": 21,
+      "diferenca": 1324
+    },
+    {
+      "tag": "2.15.0",
+      "identicos": 826,
+      "alterados": 896,
+      "adicionados": 418,
+      "removidos": 19,
+      "diferenca": 1333
+    },
+    {
+      "tag": "2.14.0",
+      "identicos": 721,
+      "alterados": 979,
+      "adicionados": 440,
+      "removidos": 24,
+      "diferenca": 1443
+    },
+    {
+      "tag": "2.13.0",
+      "identicos": 661,
+      "alterados": 1022,
+      "adicionados": 457,
+      "removidos": 30,
+      "diferenca": 1509
+    },
+    {
+      "tag": "2.12.0",
+      "identicos": 575,
+      "alterados": 1040,
+      "adicionados": 525,
+      "removidos": 29,
+      "diferenca": 1594
+    },
+    {
+      "tag": "2.12.1",
+      "identicos": 575,
+      "alterados": 1041,
+      "adicionados": 524,
+      "removidos": 29,
+      "diferenca": 1594
+    },
+    {
+      "tag": "2.11.1",
+      "identicos": 530,
+      "alterados": 1034,
+      "adicionados": 576,
+      "removidos": 24,
+      "diferenca": 1634
+    },
+    {
+      "tag": "2.11.0",
+      "identicos": 523,
+      "alterados": 1028,
+      "adicionados": 589,
+      "removidos": 36,
+      "diferenca": 1653
+    },
+    {
+      "tag": "2.10.0",
+      "identicos": 472,
+      "alterados": 1045,
+      "adicionados": 623,
+      "removidos": 36,
+      "diferenca": 1704
+    },
+    {
+      "tag": "2.9.1",
+      "identicos": 286,
+      "alterados": 1008,
+      "adicionados": 846,
+      "removidos": 52,
+      "diferenca": 1906
+    },
+    {
+      "tag": "2.9.0",
+      "identicos": 271,
+      "alterados": 1014,
+      "adicionados": 855,
+      "removidos": 55,
+      "diferenca": 1924
+    },
+    {
+      "tag": "2.8.0",
+      "identicos": 152,
+      "alterados": 850,
+      "adicionados": 1138,
+      "removidos": 54,
+      "diferenca": 2042
+    },
+    {
+      "tag": "2.7.1",
+      "identicos": 143,
+      "alterados": 834,
+      "adicionados": 1163,
+      "removidos": 65,
+      "diferenca": 2062
+    },
+    {
+      "tag": "2.7.0",
+      "identicos": 142,
+      "alterados": 835,
+      "adicionados": 1163,
+      "removidos": 65,
+      "diferenca": 2063
+    },
+    {
+      "tag": "2.6.0",
+      "identicos": 109,
+      "alterados": 799,
+      "adicionados": 1232,
+      "removidos": 69,
+      "diferenca": 2100
+    },
+    {
+      "tag": "2.5.0",
+      "identicos": 105,
+      "alterados": 783,
+      "adicionados": 1252,
+      "removidos": 69,
+      "diferenca": 2104
+    },
+    {
+      "tag": "2.4.0",
+      "identicos": 95,
+      "alterados": 766,
+      "adicionados": 1279,
+      "removidos": 73,
+      "diferenca": 2118
+    },
+    {
+      "tag": "2.4.1",
+      "identicos": 95,
+      "alterados": 766,
+      "adicionados": 1279,
+      "removidos": 73,
+      "diferenca": 2118
+    },
+    {
+      "tag": "2.2.0",
+      "identicos": 92,
+      "alterados": 743,
+      "adicionados": 1305,
+      "removidos": 72,
+      "diferenca": 2120
+    },
+    {
+      "tag": "2.2.1",
+      "identicos": 92,
+      "alterados": 743,
+      "adicionados": 1305,
+      "removidos": 72,
+      "diferenca": 2120
+    },
+    {
+      "tag": "2.3.0",
+      "identicos": 92,
+      "alterados": 745,
+      "adicionados": 1303,
+      "removidos": 72,
+      "diferenca": 2120
+    },
+    {
+      "tag": "2.1.1",
+      "identicos": 90,
+      "alterados": 727,
+      "adicionados": 1323,
+      "removidos": 71,
+      "diferenca": 2121
+    },
+    {
+      "tag": "2.1.0",
+      "identicos": 88,
+      "alterados": 727,
+      "adicionados": 1325,
+      "removidos": 73,
+      "diferenca": 2125
+    },
+    {
+      "tag": "2.0.0",
+      "identicos": 68,
+      "alterados": 696,
+      "adicionados": 1376,
+      "removidos": 72,
+      "diferenca": 2144
+    }
+  ]
+}

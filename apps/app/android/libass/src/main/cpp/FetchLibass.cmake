@@ -4,6 +4,7 @@ foreach(_var IN ITEMS
         LIBASS_VERSION
         LIBASS_SHA256
         LIBASS_ZIP_URL
+        LIBASS_ZIP_MIRROR_URL
         LIBASS_CACHE_DIR
         LIBASS_ROOT
         LIBASS_ARCHIVE
@@ -24,15 +25,37 @@ if(NOT EXISTS "${LIBASS_ARCHIVE}" OR NOT EXISTS "${LIBASS_HEADER}")
     file(MAKE_DIRECTORY "${LIBASS_CACHE_DIR}")
     set(_libass_zip "${LIBASS_CACHE_DIR}/libass-android-${LIBASS_VERSION}.zip")
 
-    message(STATUS "Fetching fork libass ${LIBASS_VERSION} from ${LIBASS_ZIP_URL}")
-    file(DOWNLOAD "${LIBASS_ZIP_URL}" "${_libass_zip}"
-        EXPECTED_HASH "SHA256=${LIBASS_SHA256}"
-        TLS_VERIFY ON
-        STATUS _libass_dl)
-    list(GET _libass_dl 0 _libass_dl_code)
-    if(NOT _libass_dl_code EQUAL 0)
+    # O zip vem de um release de terceiro (edde746/libass) e já falhou por erro HTTP no CI (31/10).
+    # file(DOWNLOAD) não repete sozinho: tenta até 4 vezes, cada uma conferindo o sha256 fixado.
+    set(_libass_ok FALSE)
+    foreach(_attempt RANGE 1 4)
+        # Alterna origens: uma fora do ar não derruba o build (o espelho fica nas tentativas ímpares).
+        math(EXPR _libass_impar "${_attempt} % 2")
+        if(_libass_impar)
+            set(_libass_url "${LIBASS_ZIP_MIRROR_URL}")
+        else()
+            set(_libass_url "${LIBASS_ZIP_URL}")
+        endif()
+        message(STATUS "Fetching fork libass ${LIBASS_VERSION} from ${_libass_url} (attempt ${_attempt}/4)")
+        file(DOWNLOAD "${_libass_url}" "${_libass_zip}"
+            EXPECTED_HASH "SHA256=${LIBASS_SHA256}"
+            TLS_VERIFY ON
+            TIMEOUT 300
+            INACTIVITY_TIMEOUT 60
+            STATUS _libass_dl)
+        list(GET _libass_dl 0 _libass_dl_code)
+        if(_libass_dl_code EQUAL 0)
+            set(_libass_ok TRUE)
+            break()
+        endif()
         file(REMOVE "${_libass_zip}")
-        message(FATAL_ERROR "Failed to download libass: ${_libass_dl}")
+        message(WARNING "libass download attempt ${_attempt}/4 failed: ${_libass_dl}")
+        if(_attempt LESS 4)
+            execute_process(COMMAND "${CMAKE_COMMAND}" -E sleep 15)
+        endif()
+    endforeach()
+    if(NOT _libass_ok)
+        message(FATAL_ERROR "Failed to download libass ${LIBASS_VERSION} from all sources: ${_libass_dl}")
     endif()
 
     file(REMOVE_RECURSE "${LIBASS_ROOT}")

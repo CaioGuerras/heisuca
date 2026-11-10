@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/media/media_server_client.dart';
-import 'package:plezy/models/catalog/catalog_item.dart';
-import 'package:plezy/services/catalog/catalog_source.dart';
-import 'package:plezy/services/catalog/library_watchlist_candidates.dart';
-import 'package:plezy/utils/external_ids.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/models/catalog/catalog_item.dart';
+import 'package:heisuca/services/catalog/catalog_source.dart';
+import 'package:heisuca/services/catalog/library_watchlist_candidates.dart';
+import 'package:heisuca/utils/external_ids.dart';
 
 import '../../test_helpers/media_items.dart';
 
@@ -75,7 +75,7 @@ void main() {
     test('pairs each source with its resolved ids, skipping out-of-domain and failing sources', () async {
       final trakt = _FakeWatchlistSource(CatalogSourceId.trakt, resolveTo: const CatalogItemIds(imdb: 'tt1'));
       final mal = _FakeWatchlistSource(CatalogSourceId.mal); // resolves null: not in domain
-      final simkl = _FakeWatchlistSource(CatalogSourceId.simkl, resolveError: StateError('down'));
+      final simkl = _FakeWatchlistSource(CatalogSourceId.seerr, resolveError: StateError('down'));
 
       final failed = <CatalogSource>[];
       final candidates = await resolveWatchlistCandidates(

@@ -76,7 +76,6 @@ class TranslationsNl extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _Translations$collections$nl collections = _Translations$collections$nl._(_root);
 	@override late final _Translations$playlists$nl playlists = _Translations$playlists$nl._(_root);
 	@override late final _Translations$music$nl music = _Translations$music$nl._(_root);
-	@override late final _Translations$watchTogether$nl watchTogether = _Translations$watchTogether$nl._(_root);
 	@override late final _Translations$downloads$nl downloads = _Translations$downloads$nl._(_root);
 	@override late final _Translations$shaders$nl shaders = _Translations$shaders$nl._(_root);
 	@override late final _Translations$companionRemote$nl companionRemote = _Translations$companionRemote$nl._(_root);
@@ -124,7 +123,7 @@ class _Translations$auth$nl extends Translations$auth$en {
 	@override String get quickConnectWaiting => 'Wachten op goedkeuring…';
 	@override String get quickConnectCancel => 'Annuleren';
 	@override String get quickConnectExpired => 'Quick Connect is verlopen. Probeer opnieuw.';
-	@override String get localDataRecoveryRequired => 'Plezy kon lokale aanmeldings- en openstaande afspeelgegevens niet veilig herstellen. Meld je opnieuw aan.';
+	@override String get localDataRecoveryRequired => 'Heisuca kon lokale aanmeldings- en openstaande afspeelgegevens niet veilig herstellen. Meld je opnieuw aan.';
 	@override String get pinCheckRejected => 'De controle van de Plex-pincode is geweigerd';
 }
 
@@ -226,7 +225,7 @@ class _Translations$settings$nl extends Translations$settings$en {
 
 	// Translations
 	@override String get title => 'Instellingen';
-	@override String get supportDeveloper => 'Steun Plezy';
+	@override String get supportDeveloper => 'Steun Heisuca';
 	@override String get supportDeveloperDescription => 'Doneer via Liberapay om de ontwikkeling te steunen';
 	@override String get language => 'Taal';
 	@override String get theme => 'Thema';
@@ -344,12 +343,6 @@ class _Translations$settings$nl extends Translations$settings$en {
 	@override String get keyboardShortcutsDescription => 'Pas de toetsenbordsneltoetsen aan';
 	@override String get videoPlayerNavigation => 'Videospelernavigatie';
 	@override String get videoPlayerNavigationDescription => 'Gebruik de pijltjestoetsen om door de videospelerbediening te navigeren';
-	@override String get watchTogetherRelay => 'Relay voor Samen kijken';
-	@override String get watchTogetherRelayDescription => 'Stel een aangepaste relay in. Iedereen moet dezelfde server gebruiken.';
-	@override String get watchTogetherRelayHint => 'https://mijn-relay.voorbeeld.nl';
-	@override String get watchTogetherRelayInvalid => 'Voer een geldige HTTP- of HTTPS-basis-URL voor de relay in.';
-	@override String get crashReporting => 'Crashrapportage';
-	@override String get crashReportingDescription => 'Crashrapporten verzenden om de app te verbeteren';
 	@override String get debugLogging => 'Debuglogboek';
 	@override String get debugLoggingDescription => 'Schakel gedetailleerde logboekregistratie in om problemen op te lossen';
 	@override String get viewLogs => 'Logbestanden bekijken';
@@ -368,7 +361,7 @@ class _Translations$settings$nl extends Translations$settings$en {
 	@override String get importSettingsDescription => 'Voorkeuren herstellen vanuit een bestand';
 	@override String get importSettingsConfirm => 'Hiermee worden je huidige instellingen vervangen. Doorgaan?';
 	@override String get importSettingsSuccess => 'Instellingen geïmporteerd';
-	@override String get importSettingsInvalidFile => 'Dit bestand is geen geldige Plezy-export';
+	@override String get importSettingsInvalidFile => 'Dit bestand is geen geldige Heisuca-export';
 	@override String get importSettingsNoUser => 'Meld je aan voordat je instellingen importeert';
 	@override String get shortcutsReset => 'Sneltoetsen gereset naar standaard';
 	@override String get about => 'Over';
@@ -430,8 +423,6 @@ class _Translations$settings$nl extends Translations$settings$en {
 	@override String get maxVolume => 'Maximaal volume';
 	@override String get maxVolumeDescription => 'Volume boven 100% toestaan voor stille media';
 	@override String maxVolumePercent({required Object percent}) => '${percent}%';
-	@override String get discordRichPresence => 'Discord Rich Presence';
-	@override String get discordRichPresenceDescription => 'Toon op Discord wat je aan het kijken bent';
 	@override String get services => 'Diensten';
 	@override String get servicesDescription => 'Koppel Trakt, MyAnimeList, Seerr en meer';
 	@override String get manageLibrariesDescription => 'Bibliotheken herordenen en verbergen';
@@ -489,7 +480,7 @@ class _Translations$settings$nl extends Translations$settings$en {
 	@override String get forceTvMode => 'Tv-modus afdwingen';
 	@override String get forceTvModeDescription => 'Dwing de tv-indeling af op apparaten zonder automatische detectie. Herstart vereist.';
 	@override String get startInFullscreen => 'Starten in volledig scherm';
-	@override String get startInFullscreenDescription => 'Open Plezy bij het starten in volledig scherm';
+	@override String get startInFullscreenDescription => 'Open Heisuca bij het starten in volledig scherm';
 	@override String get exitFullscreenOnPlayerClose => 'Volledig scherm verlaten bij sluiten van speler';
 	@override String get exitFullscreenOnPlayerCloseDescription => 'Verlaat automatisch de volledigschermmodus wanneer de videospeler wordt gesloten';
 	@override String get autoHidePerformanceOverlay => 'Prestatie-overlay automatisch verbergen';
@@ -538,7 +529,7 @@ class _Translations$settings$nl extends Translations$settings$en {
 	@override String get playerScopeGlobal => 'Overal';
 	@override String get playerScopeLibrary => 'Per bibliotheek';
 	@override String get playerScopeTitle => 'Per serie of film';
-	@override String get exportDialogTitle => 'Plezy-instellingen exporteren';
+	@override String get exportDialogTitle => 'Heisuca-instellingen exporteren';
 }
 
 // Path: search
@@ -591,8 +582,6 @@ class _Translations$fileInfo$nl extends Translations$fileInfo$en {
 	@override String versionCounter({required Object index, required Object count}) => 'Versie ${index} van ${count}';
 	@override String fileCounter({required Object index, required Object count}) => 'Bestand ${index} van ${count}';
 	@override String get noStreams => 'De server rapporteerde geen streams voor dit bestand.';
-	@override String get copyPath => 'Pad kopiëren';
-	@override String get pathCopied => 'Bestandspad gekopieerd';
 	@override String get codec => 'Codec';
 	@override String get codecTag => 'Codec-tag';
 	@override String get resolution => 'Resolutie';
@@ -652,7 +641,6 @@ class _Translations$fileInfo$nl extends Translations$fileInfo$en {
 	@override String get temporary => 'Tijdelijk';
 	@override String get timeBase => 'Tijdbasis';
 	@override String get overallBitrate => 'Totale bitrate';
-	@override String get path => 'Pad';
 	@override String get fileName => 'Bestandsnaam';
 	@override String get size => 'Grootte';
 	@override String get totalSize => 'Totale grootte';
@@ -736,8 +724,8 @@ class _Translations$mediaMenu$nl extends Translations$mediaMenu$en {
 		one: '${n} andere aflevering staat in hetzelfde bestand en wordt ook verwijderd:',
 		other: '${n} andere afleveringen staan in hetzelfde bestand en worden ook verwijderd:',
 	);
-	@override String get deleteScopeUnverifiedProbeFailed => 'Plezy kon niet controleren welke bestanden hiermee worden verwijderd, dus het kan meer verwijderen dan het hierboven genoemde item. Annuleer en probeer het opnieuw, of verwijder toch.';
-	@override String get deleteScopeUnverifiedNoFileInfo => 'Je server heeft geen bestandsgegevens voor dit item verstrekt, dus Plezy kan niet controleren welke bestanden hiermee worden verwijderd. Het kan meer verwijderen dan het hierboven genoemde item.';
+	@override String get deleteScopeUnverifiedProbeFailed => 'Heisuca kon niet controleren welke bestanden hiermee worden verwijderd, dus het kan meer verwijderen dan het hierboven genoemde item. Annuleer en probeer het opnieuw, of verwijder toch.';
+	@override String get deleteScopeUnverifiedNoFileInfo => 'Je server heeft geen bestandsgegevens voor dit item verstrekt, dus Heisuca kan niet controleren welke bestanden hiermee worden verwijderd. Het kan meer verwijderen dan het hierboven genoemde item.';
 	@override String get mediaDeletedSuccessfully => 'Media-item succesvol verwijderd';
 	@override String get mediaFailedToDelete => 'Verwijderen van media-item mislukt';
 	@override String get rate => 'Beoordelen';
@@ -1070,7 +1058,7 @@ class _Translations$profiles$nl extends Translations$profiles$en {
 	final TranslationsNl _root; // ignore: unused_field
 
 	// Translations
-	@override String get addPlezyProfile => 'Plezy-profiel toevoegen';
+	@override String get addHeisucaProfile => 'Heisuca-profiel toevoegen';
 	@override String get switchingProfile => 'Profiel wisselen…';
 	@override String get deleteThisProfileTitle => 'Dit profiel verwijderen?';
 	@override String deleteThisProfileMessage({required Object displayName}) => 'Verwijder ${displayName}. Verbindingen blijven ongewijzigd.';
@@ -1152,7 +1140,7 @@ class _Translations$connections$nl extends Translations$connections$en {
 	@override String accessDeniedMany({required Object count}) => '${count} servers weigerden toegang voor dit account';
 	@override String get signInAgain => 'Opnieuw aanmelden';
 	@override String editMediaBrowserTitle({required Object product}) => '${product}-verbinding bewerken';
-	@override String editMediaBrowserIntro({required Object serverName}) => 'Voeg URL\'s toe aan ${serverName} of verwijder ze. Plezy gebruikt de bereikbare URL met de laagste latentie.';
+	@override String editMediaBrowserIntro({required Object serverName}) => 'Voeg URL\'s toe aan ${serverName} of verwijder ze. Heisuca gebruikt de bereikbare URL met de laagste latentie.';
 }
 
 // Path: accountPreferences
@@ -1166,7 +1154,7 @@ class _Translations$accountPreferences$nl extends Translations$accountPreference
 	@override String hubSubtitleSingle({required Object account}) => 'Audio-, ondertitel- en bibliotheekopties opgeslagen op ${account}';
 	@override String hubSubtitleMultiple({required Object count}) => 'Audio-, ondertitel- en bibliotheekopties opgeslagen op ${count} accounts';
 	@override String get pickAccount => 'Elk account slaat zijn eigen voorkeuren op. Kies het account dat je wilt bewerken.';
-	@override String get storedOnAccount => 'Deze opties worden op het account zelf opgeslagen, zodat elke app die ermee is aangemeld ze gebruikt — ook Plezy op je andere apparaten.';
+	@override String get storedOnAccount => 'Deze opties worden op het account zelf opgeslagen, zodat elke app die ermee is aangemeld ze gebruikt — ook Heisuca op je andere apparaten.';
 	@override String get noAccounts => 'Geen accounts om te configureren';
 	@override String get noAccountsHint => 'Log in bij Plex of verbind een Jellyfin- of Emby-server en de voorkeuren die op dat account zijn opgeslagen, verschijnen hier.';
 	@override String get unavailable => 'Dit account is niet bereikbaar';
@@ -1327,7 +1315,6 @@ class _Translations$about$nl extends Translations$about$en {
 	@override String get title => 'Over';
 	@override String get openSourceLicenses => 'Opensourcelicenties';
 	@override String versionLabel({required Object version}) => 'Versie ${version}';
-	@override String get appDescription => 'Een mooie Plex-, Jellyfin- en Emby-client voor Flutter';
 	@override String get viewLicensesDescription => 'Licenties van bibliotheken van derden bekijken';
 }
 
@@ -1376,9 +1363,9 @@ class _Translations$startup$nl extends Translations$startup$en {
 	final TranslationsNl _root; // ignore: unused_field
 
 	// Translations
-	@override String get failedTitle => 'Plezy kon niet starten';
+	@override String get failedTitle => 'Heisuca kon niet starten';
 	@override String get failedBody => 'Er is iets misgegaan tijdens het opstarten. De onderstaande details laten zien wat er misging.';
-	@override String get failedBodyRepairable => 'Het opgeslagen instellingenbestand van Plezy is beschadigd en moet opnieuw worden opgebouwd voordat Plezy kan starten. Opnieuw proberen helpt niet — kies \'Opslag repareren\'.';
+	@override String get failedBodyRepairable => 'Het opgeslagen instellingenbestand van Heisuca is beschadigd en moet opnieuw worden opgebouwd voordat Heisuca kan starten. Opnieuw proberen helpt niet — kies \'Opslag repareren\'.';
 	@override String get phaseLabel => 'Stap';
 	@override String get showDetails => 'Details tonen';
 	@override String get hideDetails => 'Details verbergen';
@@ -1387,16 +1374,16 @@ class _Translations$startup$nl extends Translations$startup$en {
 	@override String get uploadDetails => 'Details uploaden';
 	@override String get repairStorage => 'Opslag repareren';
 	@override String get repairTitle => 'Opgeslagen gegevens repareren?';
-	@override String get repairBodyCommon => 'Het instellingenbestand van Plezy is beschadigd en kan niet worden gelezen. Door te repareren worden alle instellingen teruggezet naar hun standaardwaarde.';
+	@override String get repairBodyCommon => 'Het instellingenbestand van Heisuca is beschadigd en kan niet worden gelezen. Door te repareren worden alle instellingen teruggezet naar hun standaardwaarde.';
 	@override String get repairBodyOneCredential => 'Eén opgeslagen aanmelding is beschadigd en kan niet worden gelezen. Door te repareren wordt alleen die ene verwijderd; je andere instellingen blijven onaangetast.';
 	@override String get repairBodySignInsKept => 'Je servers en profielen blijven naar verwachting aangemeld.';
 	@override String get repairBodySignInsLost => 'De sleutel die je opgeslagen aanmeldingen beschermt, kan niet uit dit bestand worden hersteld. Je moet je daarom opnieuw aanmelden bij elke server en elk profiel. Er wordt niets op je mediaserver gewijzigd.';
-	@override String get repairBodySessionsUncertain => 'Trackers (MAL, AniList, Simkl, Trakt) en Seerr worden apart opgeslagen en blijven mogelijk wel of niet bewaard. Plezy vertelt je precies wat het heeft bewaard.';
+	@override String get repairBodySessionsUncertain => 'Trackers (MAL, AniList, Simkl, Trakt) en Seerr worden apart opgeslagen en blijven mogelijk wel of niet bewaard. Heisuca vertelt je precies wat het heeft bewaard.';
 	@override String get repairConfirm => 'Repareren';
 	@override String get repairSucceeded => 'Opslag gerepareerd';
 	@override String get repairNeedsRestart => 'Opslag gerepareerd — herstart vereist';
-	@override String get restartRequiredBody => 'Je gegevens zijn gerepareerd, maar Plezy moet opnieuw starten voordat het ze kan gebruiken. Sluit Plezy en open het opnieuw.';
-	@override String get quitPlezy => 'Plezy afsluiten';
+	@override String get restartRequiredBody => 'Je gegevens zijn gerepareerd, maar Heisuca moet opnieuw starten voordat het ze kan gebruiken. Sluit Heisuca en open het opnieuw.';
+	@override String get quitHeisuca => 'Heisuca afsluiten';
 	@override String get repairFailed => 'Repareren mislukt';
 	@override String get repairKeptSignIns => 'Je servers en profielen zijn nog steeds aangemeld.';
 	@override String get repairLostSignIns => 'De sleutel die je opgeslagen aanmeldingen beschermt, kon niet worden hersteld. Je moet je opnieuw aanmelden bij elke server en elk profiel.';
@@ -1405,7 +1392,7 @@ class _Translations$startup$nl extends Translations$startup$en {
 	@override String get backupWarning => 'Het bevat je aanmeldgegevens. Upload of deel het niet.';
 	@override String get deleteBackup => 'Kopie verwijderen';
 	@override String get backupDeleted => 'Kopie verwijderd.';
-	@override String get previousFailureTitle => 'Plezy kon de vorige keer niet starten';
+	@override String get previousFailureTitle => 'Heisuca kon de vorige keer niet starten';
 }
 
 // Path: licenses
@@ -1681,90 +1668,6 @@ class _Translations$music$nl extends Translations$music$en {
 	@override String get instantMixEmpty => 'De instantmix leverde geen nummers op';
 	@override String noAudioUrl({required Object track}) => 'Er is geen audio-URL beschikbaar voor ${track}';
 	@override late final _Translations$music$discography$nl discography = _Translations$music$discography$nl._(_root);
-}
-
-// Path: watchTogether
-class _Translations$watchTogether$nl extends Translations$watchTogether$en {
-	_Translations$watchTogether$nl._(TranslationsNl root) : this._root = root, super.internal(root);
-
-	final TranslationsNl _root; // ignore: unused_field
-
-	// Translations
-	@override String get title => 'Samen kijken';
-	@override String get description => 'Kijk synchroon met vrienden en familie';
-	@override String get createSession => 'Sessie maken';
-	@override String get creating => 'Sessie maken...';
-	@override String get joinSession => 'Deelnemen aan sessie';
-	@override String get joining => 'Deelnemen...';
-	@override String get controlMode => 'Bedieningsmodus';
-	@override String get controlModeQuestion => 'Wie kan het afspelen bedienen?';
-	@override String get hostOnly => 'Alleen host';
-	@override String get anyone => 'Iedereen';
-	@override String get hostingSession => 'Sessie hosten';
-	@override String get inSession => 'In sessie';
-	@override String get sessionCode => 'Sessiecode';
-	@override String get openSessionControls => 'Bediening voor Samen kijken openen';
-	@override String get copySessionCode => 'Sessiecode kopiëren';
-	@override String get hostControlsPlayback => 'Host bedient het afspelen';
-	@override String get anyoneCanControl => 'Iedereen kan het afspelen bedienen';
-	@override String get hostControls => 'Host bedient';
-	@override String get anyoneControls => 'Iedereen bedient';
-	@override String get participants => 'Deelnemers';
-	@override String get host => 'Host';
-	@override String get hostBadge => 'HOST';
-	@override String get youAreHost => 'Jij bent de host';
-	@override String get makeHost => 'Tot host maken';
-	@override String get makeHostQuestion => 'Host overdragen?';
-	@override String makeHostConfirm({required Object name}) => '${name} bedient dan het afspelen en de sessie voor iedereen.';
-	@override String get transfer => 'Overdragen';
-	@override String hostChangedTo({required Object name}) => '${name} is nu de host';
-	@override String get youAreNowHost => 'Jij bent nu de host';
-	@override String hostTransferFailed({required Object name}) => 'Kon ${name} niet tot host maken';
-	@override String get watchingWithOthers => 'Kijken met anderen';
-	@override String get endSession => 'Sessie beëindigen';
-	@override String get leaveSession => 'Sessie verlaten';
-	@override String get endSessionQuestion => 'Sessie beëindigen?';
-	@override String get leaveSessionQuestion => 'Sessie verlaten?';
-	@override String get endSessionConfirm => 'Dit beëindigt de sessie voor alle deelnemers.';
-	@override String get leaveSessionConfirm => 'Je wordt uit de sessie verwijderd.';
-	@override String get endSessionConfirmOverlay => 'Dit beëindigt de kijksessie voor alle deelnemers.';
-	@override String get leaveSessionConfirmOverlay => 'Je wordt losgekoppeld van de kijksessie.';
-	@override String get end => 'Beëindigen';
-	@override String get leave => 'Verlaten';
-	@override String get syncing => 'Synchroniseren...';
-	@override String get joinWatchSession => 'Deelnemen aan kijksessie';
-	@override String get enterCodeHint => 'Voer de code van 5 tekens in';
-	@override String get pasteFromClipboard => 'Plakken vanaf klembord';
-	@override String get pleaseEnterCode => 'Voer een sessiecode in';
-	@override String get codeMustBe5Chars => 'De sessiecode moet 5 tekens lang zijn';
-	@override String get joinInstructions => 'Voer de sessiecode van de host in om deel te nemen.';
-	@override String get failedToCreate => 'Sessie maken mislukt';
-	@override String get failedToJoin => 'Deelnemen aan sessie mislukt';
-	@override String get sessionCodeCopied => 'Sessiecode naar het klembord gekopieerd';
-	@override String get relayUnreachable => 'De relayserver is onbereikbaar. Een blokkering door je internetprovider kan Samen kijken verhinderen.';
-	@override String get reconnectingToHost => 'Opnieuw verbinden met host...';
-	@override String get currentPlayback => 'Wat nu wordt afgespeeld';
-	@override String get joinCurrentPlayback => 'Deelnemen aan huidige weergave';
-	@override String get joinCurrentPlaybackDescription => 'Ga terug naar wat de host nu kijkt';
-	@override String get failedToOpenCurrentPlayback => 'Wat nu wordt afgespeeld kon niet worden geopend';
-	@override String participantJoined({required Object name}) => '${name} is toegetreden';
-	@override String participantLeft({required Object name}) => '${name} heeft de sessie verlaten';
-	@override String participantPaused({required Object name}) => '${name} heeft gepauzeerd';
-	@override String participantResumed({required Object name}) => '${name} heeft hervat';
-	@override String participantSeeked({required Object name}) => '${name} heeft de afspeelpositie gewijzigd';
-	@override String participantChangedSpeed({required Object name, required Object speed}) => '${name} heeft de snelheid op ${speed} gezet';
-	@override String participantBuffering({required Object name}) => '${name} is aan het bufferen';
-	@override String participantNeedsUpdate({required Object name}) => '${name} gebruikt een oudere appversie — synchronisatie niet beschikbaar';
-	@override String resumingWithout({required Object name}) => 'Hervatten zonder ${name}';
-	@override String get waitingForParticipants => 'Wachten tot anderen klaar zijn met laden...';
-	@override String waitingForName({required Object name}) => 'Wachten op ${name}...';
-	@override String get recentRooms => 'Recente kamers';
-	@override String get renameRoom => 'Kamer hernoemen';
-	@override String get removeRoom => 'Verwijderen';
-	@override String get guestSwitchUnavailable => 'Kon niet schakelen — server niet beschikbaar voor synchronisatie';
-	@override String get guestSwitchFailed => 'Kon niet schakelen — inhoud niet gevonden op deze server';
-	@override String get defaultDisplayName => 'Gebruiker';
-	@override late final _Translations$watchTogether$errors$nl errors = _Translations$watchTogether$errors$nl._(_root);
 }
 
 // Path: downloads
@@ -2155,11 +2058,11 @@ class _Translations$trakt$nl extends Translations$trakt$en {
 	@override String get connected => 'Verbonden';
 	@override String connectedAs({required Object username}) => 'Verbonden als @${username}';
 	@override String get disconnectConfirm => 'Trakt-account loskoppelen?';
-	@override String get disconnectConfirmBody => 'Plezy stuurt geen gebeurtenissen meer naar Trakt. Je kunt op elk moment opnieuw verbinding maken.';
+	@override String get disconnectConfirmBody => 'Heisuca stuurt geen gebeurtenissen meer naar Trakt. Je kunt op elk moment opnieuw verbinding maken.';
 	@override String get scrobble => 'Realtime scrobblen';
 	@override String get scrobbleDescription => 'Stuur tijdens het afspelen gebeurtenissen voor afspelen, pauzeren en stoppen naar Trakt.';
 	@override String get watchedSync => 'Kijkstatus synchroniseren';
-	@override String get watchedSyncDescription => 'Wanneer je items in Plezy als bekeken markeert, worden ze op Trakt ook als bekeken gemarkeerd.';
+	@override String get watchedSyncDescription => 'Wanneer je items in Heisuca als bekeken markeert, worden ze op Trakt ook als bekeken gemarkeerd.';
 }
 
 // Path: seerr
@@ -2178,10 +2081,10 @@ class _Translations$seerr$nl extends Translations$seerr$en {
 	@override String get signInWithEmby => 'Inloggen met Emby';
 	@override String get signInWithLocal => 'Een lokaal account gebruiken';
 	@override String get email => 'E-mail';
-	@override String get noSignInMethods => 'Deze Seerr-instantie biedt geen inlogmethode die Plezy ondersteunt.';
+	@override String get noSignInMethods => 'Deze Seerr-instantie biedt geen inlogmethode die Heisuca ondersteunt.';
 	@override String get instance => 'Instantie';
 	@override String get disconnectConfirm => 'Seerr loskoppelen?';
-	@override String get disconnectConfirmBody => 'Plezy vergeet deze Seerr-instantie. Je kunt altijd opnieuw verbinden.';
+	@override String get disconnectConfirmBody => 'Heisuca vergeet deze Seerr-instantie. Je kunt altijd opnieuw verbinden.';
 	@override String get request => 'Aanvragen';
 	@override String get request4k => 'Aanvragen in 4K';
 	@override String get seasons => 'Seizoenen';
@@ -2206,7 +2109,7 @@ class _Translations$seerr$nl extends Translations$seerr$en {
 	@override String get statusBlocklisted => 'Op de blokkeerlijst';
 	@override String couldNotReach({required Object url, required Object error}) => 'Kon ${url} niet bereiken: ${error}';
 	@override String noInstanceAtUrl({required Object url, required Object status}) => 'Geen Seerr-instantie op ${url} (HTTP ${status})';
-	@override String get behindAuthProxy => 'Een authenticerende reverse proxy (SSO of HTTP-auth) heeft geantwoord in plaats van Seerr. Plezy kan hierdoor niet inloggen: laat het /api/v1-pad van Seerr de proxy omzeilen voor deze app, of gebruik een adres dat Seerr direct bereikt.';
+	@override String get behindAuthProxy => 'Een authenticerende reverse proxy (SSO of HTTP-auth) heeft geantwoord in plaats van Seerr. Heisuca kan hierdoor niet inloggen: laat het /api/v1-pad van Seerr de proxy omzeilen voor deze app, of gebruik een adres dat Seerr direct bereikt.';
 	@override String get invalidUrl => 'Voer een serveradres in, zoals https://seerr.example.com';
 	@override String get quickConnectUnsupported => 'Deze Seerr-instantie ondersteunt Quick Connect niet. Hiervoor is Seerr 3.4 of nieuwer nodig.';
 	@override String get notInitialized => 'De eerste configuratie van deze Seerr-instantie is niet voltooid';
@@ -2236,7 +2139,7 @@ class _Translations$services$nl extends Translations$services$en {
 	@override String get scrobble => 'Voortgang automatisch volgen';
 	@override String get scrobbleDescription => 'Werk je lijst bij wanneer je een aflevering of film afrondt.';
 	@override String disconnectConfirm({required Object service}) => '${service} loskoppelen?';
-	@override String disconnectConfirmBody({required Object service}) => 'Plezy werkt ${service} niet meer bij. Je kunt op elk moment opnieuw verbinding maken.';
+	@override String disconnectConfirmBody({required Object service}) => 'Heisuca werkt ${service} niet meer bij. Je kunt op elk moment opnieuw verbinding maken.';
 	@override String connectFailed({required Object service}) => 'Verbinding maken met ${service} is mislukt. Probeer het opnieuw.';
 	@override late final _Translations$services$names$nl names = _Translations$services$names$nl._(_root);
 	@override late final _Translations$services$deviceCode$nl deviceCode = _Translations$services$deviceCode$nl._(_root);
@@ -2800,20 +2703,6 @@ class _Translations$music$discography$nl extends Translations$music$discography$
 	@override String get compilations => 'Compilaties';
 }
 
-// Path: watchTogether.errors
-class _Translations$watchTogether$errors$nl extends Translations$watchTogether$errors$en {
-	_Translations$watchTogether$errors$nl._(TranslationsNl root) : this._root = root, super.internal(root);
-
-	final TranslationsNl _root; // ignore: unused_field
-
-	// Translations
-	@override String get timedOut => 'De relayserver heeft niet op tijd gereageerd';
-	@override String get connectionLost => 'De verbinding is verbroken voordat de sessie gereed was';
-	@override String get invalidRelayResponse => 'De relayserver heeft een onverwacht antwoord verzonden';
-	@override String get sessionEnded => 'De host heeft de sessie beëindigd';
-	@override String get sessionUnavailable => 'Kan deze sessie niet hervatten. Neem deel aan of maak een kamer om door te gaan.';
-}
-
 // Path: downloads.backgroundWarning
 class _Translations$downloads$backgroundWarning$nl extends Translations$downloads$backgroundWarning$en {
 	_Translations$downloads$backgroundWarning$nl._(TranslationsNl root) : this._root = root, super.internal(root);
@@ -2826,14 +2715,14 @@ class _Translations$downloads$backgroundWarning$nl extends Translations$download
 	@override String get bannerAction => 'Details';
 	@override String get sheetTitle => 'Downloads op de achtergrond zijn geblokkeerd';
 	@override String get sheetTitleDegraded => 'Downloads op de achtergrond kunnen beperkt zijn';
-	@override String get sheetIntro => 'Android verhindert dat Plezy betrouwbaar op de achtergrond downloadt.';
-	@override String get sheetIntroDegraded => 'Je apparaat beperkt wanneer Plezy op de achtergrond kan downloaden.';
-	@override String get reasonBackgroundRestricted => 'Het achtergrondgebruik van Plezy is beperkt. Stel het batterij- of achtergrondgebruik in op "Onbeperkt".';
-	@override String get reasonStandbyRestricted => 'Android heeft Plezy in een beperkte stand-bymodus geplaatst. Stel het batterijgebruik in op "Onbeperkt".';
+	@override String get sheetIntro => 'Android verhindert dat Heisuca betrouwbaar op de achtergrond downloadt.';
+	@override String get sheetIntroDegraded => 'Je apparaat beperkt wanneer Heisuca op de achtergrond kan downloaden.';
+	@override String get reasonBackgroundRestricted => 'Het achtergrondgebruik van Heisuca is beperkt. Stel het batterij- of achtergrondgebruik in op "Onbeperkt".';
+	@override String get reasonStandbyRestricted => 'Android heeft Heisuca in een beperkte stand-bymodus geplaatst. Stel het batterijgebruik in op "Onbeperkt".';
 	@override String get reasonDownloadChannelBlocked => 'Downloadmeldingen zijn uitgeschakeld, waardoor voortgang en bediening mogelijk niet beschikbaar zijn.';
 	@override String get reasonNotificationsDisabled => 'Meldingen zijn uitgeschakeld. Op Android 13 of nieuwer zijn ze vereist voor langdurige downloads op de achtergrond.';
 	@override String get reasonDataSaver => 'Databesparing is ingeschakeld en blokkeert downloads op de achtergrond via mobiele data. Via Wi-Fi zouden downloads nog wel moeten werken.';
-	@override String get reasonOemUnknown => 'Downloads zijn herhaaldelijk gestopt terwijl Plezy op de achtergrond draaide. Controleer de instellingen voor het batterij- of achtergrondgebruik van Plezy.';
+	@override String get reasonOemUnknown => 'Downloads zijn herhaaldelijk gestopt terwijl Heisuca op de achtergrond draaide. Controleer de instellingen voor het batterij- of achtergrondgebruik van Heisuca.';
 	@override String get openSettings => 'Instellingen openen';
 	@override String get stillNotWorking => 'Apparaatspecifieke hulp';
 	@override String get stillNotWorkingDescription => 'Bekijk de stappen voor je apparaat of stuur een logbestand vanuit Instellingen › Logbestanden bekijken als het probleem aanhoudt.';
@@ -2887,19 +2776,19 @@ class _Translations$companionRemote$pairing$nl extends Translations$companionRem
 	final TranslationsNl _root; // ignore: unused_field
 
 	// Translations
-	@override String get discoveryDescription => 'Plezy-apparaten met hetzelfde Plex-account verschijnen hier';
+	@override String get discoveryDescription => 'Heisuca-apparaten met hetzelfde Plex-account verschijnen hier';
 	@override String get hostAddressHint => '192.168.1.100:48632';
 	@override String get connecting => 'Verbinden...';
 	@override String get searchingForDevices => 'Apparaten zoeken...';
 	@override String get noDevicesFound => 'Geen apparaten gevonden op je netwerk';
-	@override String get noDevicesHint => 'Open Plezy op je desktop en gebruik op beide apparaten dezelfde wifi';
+	@override String get noDevicesHint => 'Open Heisuca op je desktop en gebruik op beide apparaten dezelfde wifi';
 	@override String get availableDevices => 'Beschikbare apparaten';
 	@override String get manualConnection => 'Handmatige verbinding';
 	@override String get cryptoInitFailed => 'Kon beveiligde verbinding niet starten. Log eerst in bij Plex.';
 	@override String get validationHostRequired => 'Voer het hostadres in';
 	@override String get validationHostFormat => 'Formaat moet IP:poort zijn (bijv. 192.168.1.100:48632)';
 	@override String get connectionTimedOut => 'Er is een time-out opgetreden. Gebruik op beide apparaten hetzelfde netwerk.';
-	@override String get sessionNotFound => 'Apparaat niet gevonden. Zorg dat Plezy op de host draait.';
+	@override String get sessionNotFound => 'Apparaat niet gevonden. Zorg dat Heisuca op de host draait.';
 	@override String get authFailed => 'Authenticatie mislukt. Beide apparaten hebben hetzelfde Plex-account nodig.';
 	@override String failedToConnect({required Object error}) => 'Kan niet verbinden: ${error}';
 }
@@ -2978,7 +2867,7 @@ class _Translations$services$deviceCode$nl extends Translations$services$deviceC
 	final TranslationsNl _root; // ignore: unused_field
 
 	// Translations
-	@override String title({required Object service}) => 'Plezy activeren op ${service}';
+	@override String title({required Object service}) => 'Heisuca activeren op ${service}';
 	@override String get instructions => 'Scan de QR-code of ga naar het onderstaande adres en voer deze code in:';
 	@override String openToActivate({required Object service}) => 'Open ${service} om te activeren';
 	@override String get copyCode => 'Activeringscode kopiëren';
@@ -3054,7 +2943,7 @@ extension on TranslationsNl {
 			'auth.quickConnectWaiting' => 'Wachten op goedkeuring…',
 			'auth.quickConnectCancel' => 'Annuleren',
 			'auth.quickConnectExpired' => 'Quick Connect is verlopen. Probeer opnieuw.',
-			'auth.localDataRecoveryRequired' => 'Plezy kon lokale aanmeldings- en openstaande afspeelgegevens niet veilig herstellen. Meld je opnieuw aan.',
+			'auth.localDataRecoveryRequired' => 'Heisuca kon lokale aanmeldings- en openstaande afspeelgegevens niet veilig herstellen. Meld je opnieuw aan.',
 			'auth.pinCheckRejected' => 'De controle van de Plex-pincode is geweigerd',
 			'common.cancel' => 'Annuleren',
 			'common.save' => 'Opslaan',
@@ -3141,7 +3030,7 @@ extension on TranslationsNl {
 			'update.latestVersion' => 'Je hebt de nieuwste versie',
 			'update.checkFailed' => 'Kon niet controleren op updates',
 			'settings.title' => 'Instellingen',
-			'settings.supportDeveloper' => 'Steun Plezy',
+			'settings.supportDeveloper' => 'Steun Heisuca',
 			'settings.supportDeveloperDescription' => 'Doneer via Liberapay om de ontwikkeling te steunen',
 			'settings.language' => 'Taal',
 			'settings.theme' => 'Thema',
@@ -3259,12 +3148,6 @@ extension on TranslationsNl {
 			'settings.keyboardShortcutsDescription' => 'Pas de toetsenbordsneltoetsen aan',
 			'settings.videoPlayerNavigation' => 'Videospelernavigatie',
 			'settings.videoPlayerNavigationDescription' => 'Gebruik de pijltjestoetsen om door de videospelerbediening te navigeren',
-			'settings.watchTogetherRelay' => 'Relay voor Samen kijken',
-			'settings.watchTogetherRelayDescription' => 'Stel een aangepaste relay in. Iedereen moet dezelfde server gebruiken.',
-			'settings.watchTogetherRelayHint' => 'https://mijn-relay.voorbeeld.nl',
-			'settings.watchTogetherRelayInvalid' => 'Voer een geldige HTTP- of HTTPS-basis-URL voor de relay in.',
-			'settings.crashReporting' => 'Crashrapportage',
-			'settings.crashReportingDescription' => 'Crashrapporten verzenden om de app te verbeteren',
 			'settings.debugLogging' => 'Debuglogboek',
 			'settings.debugLoggingDescription' => 'Schakel gedetailleerde logboekregistratie in om problemen op te lossen',
 			'settings.viewLogs' => 'Logbestanden bekijken',
@@ -3283,7 +3166,7 @@ extension on TranslationsNl {
 			'settings.importSettingsDescription' => 'Voorkeuren herstellen vanuit een bestand',
 			'settings.importSettingsConfirm' => 'Hiermee worden je huidige instellingen vervangen. Doorgaan?',
 			'settings.importSettingsSuccess' => 'Instellingen geïmporteerd',
-			'settings.importSettingsInvalidFile' => 'Dit bestand is geen geldige Plezy-export',
+			'settings.importSettingsInvalidFile' => 'Dit bestand is geen geldige Heisuca-export',
 			'settings.importSettingsNoUser' => 'Meld je aan voordat je instellingen importeert',
 			'settings.shortcutsReset' => 'Sneltoetsen gereset naar standaard',
 			'settings.about' => 'Over',
@@ -3345,8 +3228,6 @@ extension on TranslationsNl {
 			'settings.maxVolume' => 'Maximaal volume',
 			'settings.maxVolumeDescription' => 'Volume boven 100% toestaan voor stille media',
 			'settings.maxVolumePercent' => ({required Object percent}) => '${percent}%',
-			'settings.discordRichPresence' => 'Discord Rich Presence',
-			'settings.discordRichPresenceDescription' => 'Toon op Discord wat je aan het kijken bent',
 			'settings.services' => 'Diensten',
 			'settings.servicesDescription' => 'Koppel Trakt, MyAnimeList, Seerr en meer',
 			'settings.manageLibrariesDescription' => 'Bibliotheken herordenen en verbergen',
@@ -3404,7 +3285,7 @@ extension on TranslationsNl {
 			'settings.forceTvMode' => 'Tv-modus afdwingen',
 			'settings.forceTvModeDescription' => 'Dwing de tv-indeling af op apparaten zonder automatische detectie. Herstart vereist.',
 			'settings.startInFullscreen' => 'Starten in volledig scherm',
-			'settings.startInFullscreenDescription' => 'Open Plezy bij het starten in volledig scherm',
+			'settings.startInFullscreenDescription' => 'Open Heisuca bij het starten in volledig scherm',
 			'settings.exitFullscreenOnPlayerClose' => 'Volledig scherm verlaten bij sluiten van speler',
 			'settings.exitFullscreenOnPlayerCloseDescription' => 'Verlaat automatisch de volledigschermmodus wanneer de videospeler wordt gesloten',
 			'settings.autoHidePerformanceOverlay' => 'Prestatie-overlay automatisch verbergen',
@@ -3453,7 +3334,7 @@ extension on TranslationsNl {
 			'settings.playerScopeGlobal' => 'Overal',
 			'settings.playerScopeLibrary' => 'Per bibliotheek',
 			'settings.playerScopeTitle' => 'Per serie of film',
-			'settings.exportDialogTitle' => 'Plezy-instellingen exporteren',
+			'settings.exportDialogTitle' => 'Heisuca-instellingen exporteren',
 			'search.hint' => 'Zoek films, series, muziek...',
 			'search.tryDifferentTerm' => 'Probeer een andere zoekterm',
 			'search.searchYourMedia' => 'Zoek in je media',
@@ -3503,8 +3384,6 @@ extension on TranslationsNl {
 			'fileInfo.versionCounter' => ({required Object index, required Object count}) => 'Versie ${index} van ${count}',
 			'fileInfo.fileCounter' => ({required Object index, required Object count}) => 'Bestand ${index} van ${count}',
 			'fileInfo.noStreams' => 'De server rapporteerde geen streams voor dit bestand.',
-			'fileInfo.copyPath' => 'Pad kopiëren',
-			'fileInfo.pathCopied' => 'Bestandspad gekopieerd',
 			'fileInfo.codec' => 'Codec',
 			'fileInfo.codecTag' => 'Codec-tag',
 			'fileInfo.resolution' => 'Resolutie',
@@ -3550,8 +3429,6 @@ extension on TranslationsNl {
 			'fileInfo.streamId' => 'Stream-ID',
 			'fileInfo.language' => 'Taal',
 			'fileInfo.languageCode' => 'Taalcode',
-			_ => null,
-		} ?? switch (path) {
 			'fileInfo.streamTitle' => 'Tracktitel',
 			'fileInfo.channels' => 'Kanalen',
 			'fileInfo.sampleRate' => 'Samplingsnelheid',
@@ -3562,11 +3439,12 @@ extension on TranslationsNl {
 			'fileInfo.matchScore' => 'Matchscore',
 			'fileInfo.externalDelivery' => 'Kan afzonderlijk worden geleverd',
 			'fileInfo.sidecarPath' => 'Sidecar-pad',
+			_ => null,
+		} ?? switch (path) {
 			'fileInfo.sourceStream' => 'Gekopieerd van',
 			'fileInfo.temporary' => 'Tijdelijk',
 			'fileInfo.timeBase' => 'Tijdbasis',
 			'fileInfo.overallBitrate' => 'Totale bitrate',
-			'fileInfo.path' => 'Pad',
 			'fileInfo.fileName' => 'Bestandsnaam',
 			'fileInfo.size' => 'Grootte',
 			'fileInfo.totalSize' => 'Totale grootte',
@@ -3632,8 +3510,8 @@ extension on TranslationsNl {
 			'mediaMenu.deleteEpisodeCountWarning' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('nl'))(n, one: 'Hiermee wordt de ${n} aflevering erin verwijderd, inclusief het bestand.', other: 'Hiermee worden alle ${n} afleveringen erin verwijderd, inclusief hun bestanden.', ), 
 			'mediaMenu.deleteMultiPartWarning' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('nl'))(n, one: 'Dit item wordt opgeslagen als ${n} bestand, dat wordt verwijderd.', other: 'Dit item wordt opgeslagen over ${n} bestanden, en ze worden allemaal verwijderd.', ), 
 			'mediaMenu.deleteSharedFileHeading' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('nl'))(n, one: '${n} andere aflevering staat in hetzelfde bestand en wordt ook verwijderd:', other: '${n} andere afleveringen staan in hetzelfde bestand en worden ook verwijderd:', ), 
-			'mediaMenu.deleteScopeUnverifiedProbeFailed' => 'Plezy kon niet controleren welke bestanden hiermee worden verwijderd, dus het kan meer verwijderen dan het hierboven genoemde item. Annuleer en probeer het opnieuw, of verwijder toch.',
-			'mediaMenu.deleteScopeUnverifiedNoFileInfo' => 'Je server heeft geen bestandsgegevens voor dit item verstrekt, dus Plezy kan niet controleren welke bestanden hiermee worden verwijderd. Het kan meer verwijderen dan het hierboven genoemde item.',
+			'mediaMenu.deleteScopeUnverifiedProbeFailed' => 'Heisuca kon niet controleren welke bestanden hiermee worden verwijderd, dus het kan meer verwijderen dan het hierboven genoemde item. Annuleer en probeer het opnieuw, of verwijder toch.',
+			'mediaMenu.deleteScopeUnverifiedNoFileInfo' => 'Je server heeft geen bestandsgegevens voor dit item verstrekt, dus Heisuca kan niet controleren welke bestanden hiermee worden verwijderd. Het kan meer verwijderen dan het hierboven genoemde item.',
 			'mediaMenu.mediaDeletedSuccessfully' => 'Media-item succesvol verwijderd',
 			'mediaMenu.mediaFailedToDelete' => 'Verwijderen van media-item mislukt',
 			'mediaMenu.rate' => 'Beoordelen',
@@ -3880,7 +3758,7 @@ extension on TranslationsNl {
 			'mpvConfig.removeLine' => 'Regel verwijderen',
 			'mpvConfig.embeddedVoHint' => 'vo, gpu-context en gpu-api worden genegeerd op Linux: ingebedde video wordt altijd weergegeven via vo=libmpv op het videovlak, en gpu-next (nodig voor compute-shaders zoals ArtCNN) kan niet ingebed draaien.',
 			'dialog.confirmAction' => 'Bevestig actie',
-			'profiles.addPlezyProfile' => 'Plezy-profiel toevoegen',
+			'profiles.addHeisucaProfile' => 'Heisuca-profiel toevoegen',
 			'profiles.switchingProfile' => 'Profiel wisselen…',
 			'profiles.deleteThisProfileTitle' => 'Dit profiel verwijderen?',
 			'profiles.deleteThisProfileMessage' => ({required Object displayName}) => 'Verwijder ${displayName}. Verbindingen blijven ongewijzigd.',
@@ -3953,12 +3831,12 @@ extension on TranslationsNl {
 			'connections.accessDeniedMany' => ({required Object count}) => '${count} servers weigerden toegang voor dit account',
 			'connections.signInAgain' => 'Opnieuw aanmelden',
 			'connections.editMediaBrowserTitle' => ({required Object product}) => '${product}-verbinding bewerken',
-			'connections.editMediaBrowserIntro' => ({required Object serverName}) => 'Voeg URL\'s toe aan ${serverName} of verwijder ze. Plezy gebruikt de bereikbare URL met de laagste latentie.',
+			'connections.editMediaBrowserIntro' => ({required Object serverName}) => 'Voeg URL\'s toe aan ${serverName} of verwijder ze. Heisuca gebruikt de bereikbare URL met de laagste latentie.',
 			'accountPreferences.sectionTitle' => 'Accountvoorkeuren',
 			'accountPreferences.hubSubtitleSingle' => ({required Object account}) => 'Audio-, ondertitel- en bibliotheekopties opgeslagen op ${account}',
 			'accountPreferences.hubSubtitleMultiple' => ({required Object count}) => 'Audio-, ondertitel- en bibliotheekopties opgeslagen op ${count} accounts',
 			'accountPreferences.pickAccount' => 'Elk account slaat zijn eigen voorkeuren op. Kies het account dat je wilt bewerken.',
-			'accountPreferences.storedOnAccount' => 'Deze opties worden op het account zelf opgeslagen, zodat elke app die ermee is aangemeld ze gebruikt — ook Plezy op je andere apparaten.',
+			'accountPreferences.storedOnAccount' => 'Deze opties worden op het account zelf opgeslagen, zodat elke app die ermee is aangemeld ze gebruikt — ook Heisuca op je andere apparaten.',
 			'accountPreferences.noAccounts' => 'Geen accounts om te configureren',
 			'accountPreferences.noAccountsHint' => 'Log in bij Plex of verbind een Jellyfin- of Emby-server en de voorkeuren die op dat account zijn opgeslagen, verschijnen hier.',
 			'accountPreferences.unavailable' => 'Dit account is niet bereikbaar',
@@ -4064,8 +3942,6 @@ extension on TranslationsNl {
 			'libraries.refreshMetadata' => 'Metadata vernieuwen',
 			'libraries.emptyTrash' => 'Prullenbak legen',
 			'libraries.emptyingTrash' => ({required Object title}) => 'Prullenbak legen voor "${title}"...',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.trashEmptied' => ({required Object title}) => 'Prullenbak geleegd voor "${title}"',
 			'libraries.failedToEmptyTrash' => ({required Object error}) => 'Kon prullenbak niet legen: ${error}',
 			'libraries.analyzing' => ({required Object title}) => 'Analyseren "${title}"...',
@@ -4077,6 +3953,8 @@ extension on TranslationsNl {
 			'libraries.thisLibraryIsEmpty' => 'Deze bibliotheek is leeg',
 			'libraries.noItemsMatchFilters' => 'Geen items komen overeen met de actieve filters',
 			'libraries.resetFilters' => 'Filters opnieuw instellen',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.all' => 'Alles',
 			'libraries.clearAll' => 'Alles wissen',
 			'libraries.scanLibraryConfirm' => ({required Object title}) => 'Weet je zeker dat je "${title}" wilt scannen?',
@@ -4145,7 +4023,6 @@ extension on TranslationsNl {
 			'about.title' => 'Over',
 			'about.openSourceLicenses' => 'Opensourcelicenties',
 			'about.versionLabel' => ({required Object version}) => 'Versie ${version}',
-			'about.appDescription' => 'Een mooie Plex-, Jellyfin- en Emby-client voor Flutter',
 			'about.viewLicensesDescription' => 'Licenties van bibliotheken van derden bekijken',
 			'serverSelection.noServersFoundForAccount' => ({required Object username, required Object email}) => 'Geen servers gevonden voor ${username} (${email})',
 			'serverSelection.failedToLoadServers' => ({required Object error}) => 'Kon servers niet laden: ${error}',
@@ -4158,9 +4035,9 @@ extension on TranslationsNl {
 			'logs.clearLogs' => 'Logbestanden wissen',
 			'logs.copyLogs' => 'Logbestanden kopiëren',
 			'logs.uploadLogs' => 'Logbestanden uploaden',
-			'startup.failedTitle' => 'Plezy kon niet starten',
+			'startup.failedTitle' => 'Heisuca kon niet starten',
 			'startup.failedBody' => 'Er is iets misgegaan tijdens het opstarten. De onderstaande details laten zien wat er misging.',
-			'startup.failedBodyRepairable' => 'Het opgeslagen instellingenbestand van Plezy is beschadigd en moet opnieuw worden opgebouwd voordat Plezy kan starten. Opnieuw proberen helpt niet — kies \'Opslag repareren\'.',
+			'startup.failedBodyRepairable' => 'Het opgeslagen instellingenbestand van Heisuca is beschadigd en moet opnieuw worden opgebouwd voordat Heisuca kan starten. Opnieuw proberen helpt niet — kies \'Opslag repareren\'.',
 			'startup.phaseLabel' => 'Stap',
 			'startup.showDetails' => 'Details tonen',
 			'startup.hideDetails' => 'Details verbergen',
@@ -4169,16 +4046,16 @@ extension on TranslationsNl {
 			'startup.uploadDetails' => 'Details uploaden',
 			'startup.repairStorage' => 'Opslag repareren',
 			'startup.repairTitle' => 'Opgeslagen gegevens repareren?',
-			'startup.repairBodyCommon' => 'Het instellingenbestand van Plezy is beschadigd en kan niet worden gelezen. Door te repareren worden alle instellingen teruggezet naar hun standaardwaarde.',
+			'startup.repairBodyCommon' => 'Het instellingenbestand van Heisuca is beschadigd en kan niet worden gelezen. Door te repareren worden alle instellingen teruggezet naar hun standaardwaarde.',
 			'startup.repairBodyOneCredential' => 'Eén opgeslagen aanmelding is beschadigd en kan niet worden gelezen. Door te repareren wordt alleen die ene verwijderd; je andere instellingen blijven onaangetast.',
 			'startup.repairBodySignInsKept' => 'Je servers en profielen blijven naar verwachting aangemeld.',
 			'startup.repairBodySignInsLost' => 'De sleutel die je opgeslagen aanmeldingen beschermt, kan niet uit dit bestand worden hersteld. Je moet je daarom opnieuw aanmelden bij elke server en elk profiel. Er wordt niets op je mediaserver gewijzigd.',
-			'startup.repairBodySessionsUncertain' => 'Trackers (MAL, AniList, Simkl, Trakt) en Seerr worden apart opgeslagen en blijven mogelijk wel of niet bewaard. Plezy vertelt je precies wat het heeft bewaard.',
+			'startup.repairBodySessionsUncertain' => 'Trackers (MAL, AniList, Simkl, Trakt) en Seerr worden apart opgeslagen en blijven mogelijk wel of niet bewaard. Heisuca vertelt je precies wat het heeft bewaard.',
 			'startup.repairConfirm' => 'Repareren',
 			'startup.repairSucceeded' => 'Opslag gerepareerd',
 			'startup.repairNeedsRestart' => 'Opslag gerepareerd — herstart vereist',
-			'startup.restartRequiredBody' => 'Je gegevens zijn gerepareerd, maar Plezy moet opnieuw starten voordat het ze kan gebruiken. Sluit Plezy en open het opnieuw.',
-			'startup.quitPlezy' => 'Plezy afsluiten',
+			'startup.restartRequiredBody' => 'Je gegevens zijn gerepareerd, maar Heisuca moet opnieuw starten voordat het ze kan gebruiken. Sluit Heisuca en open het opnieuw.',
+			'startup.quitHeisuca' => 'Heisuca afsluiten',
 			'startup.repairFailed' => 'Repareren mislukt',
 			'startup.repairKeptSignIns' => 'Je servers en profielen zijn nog steeds aangemeld.',
 			'startup.repairLostSignIns' => 'De sleutel die je opgeslagen aanmeldingen beschermt, kon niet worden hersteld. Je moet je opnieuw aanmelden bij elke server en elk profiel.',
@@ -4187,7 +4064,7 @@ extension on TranslationsNl {
 			'startup.backupWarning' => 'Het bevat je aanmeldgegevens. Upload of deel het niet.',
 			'startup.deleteBackup' => 'Kopie verwijderen',
 			'startup.backupDeleted' => 'Kopie verwijderd.',
-			'startup.previousFailureTitle' => 'Plezy kon de vorige keer niet starten',
+			'startup.previousFailureTitle' => 'Heisuca kon de vorige keer niet starten',
 			'licenses.relatedPackages' => 'Gerelateerde pakketten',
 			'licenses.license' => 'Licentie',
 			'licenses.licenseNumber' => ({required Object number}) => 'Licentie ${number}',
@@ -4506,87 +4383,6 @@ extension on TranslationsNl {
 			'music.discography.singlesAndEps' => 'Singles en EP\'s',
 			'music.discography.live' => 'Live',
 			'music.discography.compilations' => 'Compilaties',
-			'watchTogether.title' => 'Samen kijken',
-			'watchTogether.description' => 'Kijk synchroon met vrienden en familie',
-			'watchTogether.createSession' => 'Sessie maken',
-			'watchTogether.creating' => 'Sessie maken...',
-			'watchTogether.joinSession' => 'Deelnemen aan sessie',
-			'watchTogether.joining' => 'Deelnemen...',
-			'watchTogether.controlMode' => 'Bedieningsmodus',
-			'watchTogether.controlModeQuestion' => 'Wie kan het afspelen bedienen?',
-			'watchTogether.hostOnly' => 'Alleen host',
-			'watchTogether.anyone' => 'Iedereen',
-			'watchTogether.hostingSession' => 'Sessie hosten',
-			'watchTogether.inSession' => 'In sessie',
-			'watchTogether.sessionCode' => 'Sessiecode',
-			'watchTogether.openSessionControls' => 'Bediening voor Samen kijken openen',
-			'watchTogether.copySessionCode' => 'Sessiecode kopiëren',
-			'watchTogether.hostControlsPlayback' => 'Host bedient het afspelen',
-			'watchTogether.anyoneCanControl' => 'Iedereen kan het afspelen bedienen',
-			'watchTogether.hostControls' => 'Host bedient',
-			'watchTogether.anyoneControls' => 'Iedereen bedient',
-			'watchTogether.participants' => 'Deelnemers',
-			'watchTogether.host' => 'Host',
-			'watchTogether.hostBadge' => 'HOST',
-			'watchTogether.youAreHost' => 'Jij bent de host',
-			'watchTogether.makeHost' => 'Tot host maken',
-			'watchTogether.makeHostQuestion' => 'Host overdragen?',
-			'watchTogether.makeHostConfirm' => ({required Object name}) => '${name} bedient dan het afspelen en de sessie voor iedereen.',
-			'watchTogether.transfer' => 'Overdragen',
-			'watchTogether.hostChangedTo' => ({required Object name}) => '${name} is nu de host',
-			'watchTogether.youAreNowHost' => 'Jij bent nu de host',
-			'watchTogether.hostTransferFailed' => ({required Object name}) => 'Kon ${name} niet tot host maken',
-			'watchTogether.watchingWithOthers' => 'Kijken met anderen',
-			'watchTogether.endSession' => 'Sessie beëindigen',
-			'watchTogether.leaveSession' => 'Sessie verlaten',
-			'watchTogether.endSessionQuestion' => 'Sessie beëindigen?',
-			'watchTogether.leaveSessionQuestion' => 'Sessie verlaten?',
-			'watchTogether.endSessionConfirm' => 'Dit beëindigt de sessie voor alle deelnemers.',
-			'watchTogether.leaveSessionConfirm' => 'Je wordt uit de sessie verwijderd.',
-			'watchTogether.endSessionConfirmOverlay' => 'Dit beëindigt de kijksessie voor alle deelnemers.',
-			'watchTogether.leaveSessionConfirmOverlay' => 'Je wordt losgekoppeld van de kijksessie.',
-			'watchTogether.end' => 'Beëindigen',
-			'watchTogether.leave' => 'Verlaten',
-			'watchTogether.syncing' => 'Synchroniseren...',
-			'watchTogether.joinWatchSession' => 'Deelnemen aan kijksessie',
-			'watchTogether.enterCodeHint' => 'Voer de code van 5 tekens in',
-			'watchTogether.pasteFromClipboard' => 'Plakken vanaf klembord',
-			'watchTogether.pleaseEnterCode' => 'Voer een sessiecode in',
-			'watchTogether.codeMustBe5Chars' => 'De sessiecode moet 5 tekens lang zijn',
-			'watchTogether.joinInstructions' => 'Voer de sessiecode van de host in om deel te nemen.',
-			'watchTogether.failedToCreate' => 'Sessie maken mislukt',
-			'watchTogether.failedToJoin' => 'Deelnemen aan sessie mislukt',
-			'watchTogether.sessionCodeCopied' => 'Sessiecode naar het klembord gekopieerd',
-			'watchTogether.relayUnreachable' => 'De relayserver is onbereikbaar. Een blokkering door je internetprovider kan Samen kijken verhinderen.',
-			'watchTogether.reconnectingToHost' => 'Opnieuw verbinden met host...',
-			'watchTogether.currentPlayback' => 'Wat nu wordt afgespeeld',
-			'watchTogether.joinCurrentPlayback' => 'Deelnemen aan huidige weergave',
-			'watchTogether.joinCurrentPlaybackDescription' => 'Ga terug naar wat de host nu kijkt',
-			'watchTogether.failedToOpenCurrentPlayback' => 'Wat nu wordt afgespeeld kon niet worden geopend',
-			'watchTogether.participantJoined' => ({required Object name}) => '${name} is toegetreden',
-			'watchTogether.participantLeft' => ({required Object name}) => '${name} heeft de sessie verlaten',
-			'watchTogether.participantPaused' => ({required Object name}) => '${name} heeft gepauzeerd',
-			'watchTogether.participantResumed' => ({required Object name}) => '${name} heeft hervat',
-			'watchTogether.participantSeeked' => ({required Object name}) => '${name} heeft de afspeelpositie gewijzigd',
-			'watchTogether.participantChangedSpeed' => ({required Object name, required Object speed}) => '${name} heeft de snelheid op ${speed} gezet',
-			'watchTogether.participantBuffering' => ({required Object name}) => '${name} is aan het bufferen',
-			'watchTogether.participantNeedsUpdate' => ({required Object name}) => '${name} gebruikt een oudere appversie — synchronisatie niet beschikbaar',
-			'watchTogether.resumingWithout' => ({required Object name}) => 'Hervatten zonder ${name}',
-			'watchTogether.waitingForParticipants' => 'Wachten tot anderen klaar zijn met laden...',
-			'watchTogether.waitingForName' => ({required Object name}) => 'Wachten op ${name}...',
-			'watchTogether.recentRooms' => 'Recente kamers',
-			'watchTogether.renameRoom' => 'Kamer hernoemen',
-			'watchTogether.removeRoom' => 'Verwijderen',
-			'watchTogether.guestSwitchUnavailable' => 'Kon niet schakelen — server niet beschikbaar voor synchronisatie',
-			_ => null,
-		} ?? switch (path) {
-			'watchTogether.guestSwitchFailed' => 'Kon niet schakelen — inhoud niet gevonden op deze server',
-			'watchTogether.defaultDisplayName' => 'Gebruiker',
-			'watchTogether.errors.timedOut' => 'De relayserver heeft niet op tijd gereageerd',
-			'watchTogether.errors.connectionLost' => 'De verbinding is verbroken voordat de sessie gereed was',
-			'watchTogether.errors.invalidRelayResponse' => 'De relayserver heeft een onverwacht antwoord verzonden',
-			'watchTogether.errors.sessionEnded' => 'De host heeft de sessie beëindigd',
-			'watchTogether.errors.sessionUnavailable' => 'Kan deze sessie niet hervatten. Neem deel aan of maak een kamer om door te gaan.',
 			'downloads.title' => 'Downloads',
 			'downloads.manage' => 'Beheren',
 			'downloads.tvShows' => 'Series',
@@ -4668,14 +4464,16 @@ extension on TranslationsNl {
 			'downloads.backgroundWarning.bannerAction' => 'Details',
 			'downloads.backgroundWarning.sheetTitle' => 'Downloads op de achtergrond zijn geblokkeerd',
 			'downloads.backgroundWarning.sheetTitleDegraded' => 'Downloads op de achtergrond kunnen beperkt zijn',
-			'downloads.backgroundWarning.sheetIntro' => 'Android verhindert dat Plezy betrouwbaar op de achtergrond downloadt.',
-			'downloads.backgroundWarning.sheetIntroDegraded' => 'Je apparaat beperkt wanneer Plezy op de achtergrond kan downloaden.',
-			'downloads.backgroundWarning.reasonBackgroundRestricted' => 'Het achtergrondgebruik van Plezy is beperkt. Stel het batterij- of achtergrondgebruik in op "Onbeperkt".',
-			'downloads.backgroundWarning.reasonStandbyRestricted' => 'Android heeft Plezy in een beperkte stand-bymodus geplaatst. Stel het batterijgebruik in op "Onbeperkt".',
+			'downloads.backgroundWarning.sheetIntro' => 'Android verhindert dat Heisuca betrouwbaar op de achtergrond downloadt.',
+			'downloads.backgroundWarning.sheetIntroDegraded' => 'Je apparaat beperkt wanneer Heisuca op de achtergrond kan downloaden.',
+			'downloads.backgroundWarning.reasonBackgroundRestricted' => 'Het achtergrondgebruik van Heisuca is beperkt. Stel het batterij- of achtergrondgebruik in op "Onbeperkt".',
+			_ => null,
+		} ?? switch (path) {
+			'downloads.backgroundWarning.reasonStandbyRestricted' => 'Android heeft Heisuca in een beperkte stand-bymodus geplaatst. Stel het batterijgebruik in op "Onbeperkt".',
 			'downloads.backgroundWarning.reasonDownloadChannelBlocked' => 'Downloadmeldingen zijn uitgeschakeld, waardoor voortgang en bediening mogelijk niet beschikbaar zijn.',
 			'downloads.backgroundWarning.reasonNotificationsDisabled' => 'Meldingen zijn uitgeschakeld. Op Android 13 of nieuwer zijn ze vereist voor langdurige downloads op de achtergrond.',
 			'downloads.backgroundWarning.reasonDataSaver' => 'Databesparing is ingeschakeld en blokkeert downloads op de achtergrond via mobiele data. Via Wi-Fi zouden downloads nog wel moeten werken.',
-			'downloads.backgroundWarning.reasonOemUnknown' => 'Downloads zijn herhaaldelijk gestopt terwijl Plezy op de achtergrond draaide. Controleer de instellingen voor het batterij- of achtergrondgebruik van Plezy.',
+			'downloads.backgroundWarning.reasonOemUnknown' => 'Downloads zijn herhaaldelijk gestopt terwijl Heisuca op de achtergrond draaide. Controleer de instellingen voor het batterij- of achtergrondgebruik van Heisuca.',
 			'downloads.backgroundWarning.openSettings' => 'Instellingen openen',
 			'downloads.backgroundWarning.stillNotWorking' => 'Apparaatspecifieke hulp',
 			'downloads.backgroundWarning.stillNotWorkingDescription' => 'Bekijk de stappen voor je apparaat of stuur een logbestand vanuit Instellingen › Logbestanden bekijken als het probleem aanhoudt.',
@@ -4738,19 +4536,19 @@ extension on TranslationsNl {
 			'companionRemote.session.stopServer' => 'Server stoppen',
 			'companionRemote.session.minimize' => 'Minimaliseren',
 			'companionRemote.session.manualAddressHint' => 'Handmatig verbindingsadres:',
-			'companionRemote.pairing.discoveryDescription' => 'Plezy-apparaten met hetzelfde Plex-account verschijnen hier',
+			'companionRemote.pairing.discoveryDescription' => 'Heisuca-apparaten met hetzelfde Plex-account verschijnen hier',
 			'companionRemote.pairing.hostAddressHint' => '192.168.1.100:48632',
 			'companionRemote.pairing.connecting' => 'Verbinden...',
 			'companionRemote.pairing.searchingForDevices' => 'Apparaten zoeken...',
 			'companionRemote.pairing.noDevicesFound' => 'Geen apparaten gevonden op je netwerk',
-			'companionRemote.pairing.noDevicesHint' => 'Open Plezy op je desktop en gebruik op beide apparaten dezelfde wifi',
+			'companionRemote.pairing.noDevicesHint' => 'Open Heisuca op je desktop en gebruik op beide apparaten dezelfde wifi',
 			'companionRemote.pairing.availableDevices' => 'Beschikbare apparaten',
 			'companionRemote.pairing.manualConnection' => 'Handmatige verbinding',
 			'companionRemote.pairing.cryptoInitFailed' => 'Kon beveiligde verbinding niet starten. Log eerst in bij Plex.',
 			'companionRemote.pairing.validationHostRequired' => 'Voer het hostadres in',
 			'companionRemote.pairing.validationHostFormat' => 'Formaat moet IP:poort zijn (bijv. 192.168.1.100:48632)',
 			'companionRemote.pairing.connectionTimedOut' => 'Er is een time-out opgetreden. Gebruik op beide apparaten hetzelfde netwerk.',
-			'companionRemote.pairing.sessionNotFound' => 'Apparaat niet gevonden. Zorg dat Plezy op de host draait.',
+			'companionRemote.pairing.sessionNotFound' => 'Apparaat niet gevonden. Zorg dat Heisuca op de host draait.',
 			'companionRemote.pairing.authFailed' => 'Authenticatie mislukt. Beide apparaten hebben hetzelfde Plex-account nodig.',
 			'companionRemote.pairing.failedToConnect' => ({required Object error}) => 'Kan niet verbinden: ${error}',
 			'companionRemote.remote.disconnectConfirm' => 'Wil je de verbinding met de externe sessie verbreken?',
@@ -4970,11 +4768,11 @@ extension on TranslationsNl {
 			'trakt.connected' => 'Verbonden',
 			'trakt.connectedAs' => ({required Object username}) => 'Verbonden als @${username}',
 			'trakt.disconnectConfirm' => 'Trakt-account loskoppelen?',
-			'trakt.disconnectConfirmBody' => 'Plezy stuurt geen gebeurtenissen meer naar Trakt. Je kunt op elk moment opnieuw verbinding maken.',
+			'trakt.disconnectConfirmBody' => 'Heisuca stuurt geen gebeurtenissen meer naar Trakt. Je kunt op elk moment opnieuw verbinding maken.',
 			'trakt.scrobble' => 'Realtime scrobblen',
 			'trakt.scrobbleDescription' => 'Stuur tijdens het afspelen gebeurtenissen voor afspelen, pauzeren en stoppen naar Trakt.',
 			'trakt.watchedSync' => 'Kijkstatus synchroniseren',
-			'trakt.watchedSyncDescription' => 'Wanneer je items in Plezy als bekeken markeert, worden ze op Trakt ook als bekeken gemarkeerd.',
+			'trakt.watchedSyncDescription' => 'Wanneer je items in Heisuca als bekeken markeert, worden ze op Trakt ook als bekeken gemarkeerd.',
 			'seerr.title' => 'Seerr',
 			'seerr.connectTitle' => 'Verbinden met Seerr',
 			'seerr.serverUrl' => 'Server-URL',
@@ -4984,10 +4782,10 @@ extension on TranslationsNl {
 			'seerr.signInWithEmby' => 'Inloggen met Emby',
 			'seerr.signInWithLocal' => 'Een lokaal account gebruiken',
 			'seerr.email' => 'E-mail',
-			'seerr.noSignInMethods' => 'Deze Seerr-instantie biedt geen inlogmethode die Plezy ondersteunt.',
+			'seerr.noSignInMethods' => 'Deze Seerr-instantie biedt geen inlogmethode die Heisuca ondersteunt.',
 			'seerr.instance' => 'Instantie',
 			'seerr.disconnectConfirm' => 'Seerr loskoppelen?',
-			'seerr.disconnectConfirmBody' => 'Plezy vergeet deze Seerr-instantie. Je kunt altijd opnieuw verbinden.',
+			'seerr.disconnectConfirmBody' => 'Heisuca vergeet deze Seerr-instantie. Je kunt altijd opnieuw verbinden.',
 			'seerr.request' => 'Aanvragen',
 			'seerr.request4k' => 'Aanvragen in 4K',
 			'seerr.seasons' => 'Seizoenen',
@@ -5012,7 +4810,7 @@ extension on TranslationsNl {
 			'seerr.statusBlocklisted' => 'Op de blokkeerlijst',
 			'seerr.couldNotReach' => ({required Object url, required Object error}) => 'Kon ${url} niet bereiken: ${error}',
 			'seerr.noInstanceAtUrl' => ({required Object url, required Object status}) => 'Geen Seerr-instantie op ${url} (HTTP ${status})',
-			'seerr.behindAuthProxy' => 'Een authenticerende reverse proxy (SSO of HTTP-auth) heeft geantwoord in plaats van Seerr. Plezy kan hierdoor niet inloggen: laat het /api/v1-pad van Seerr de proxy omzeilen voor deze app, of gebruik een adres dat Seerr direct bereikt.',
+			'seerr.behindAuthProxy' => 'Een authenticerende reverse proxy (SSO of HTTP-auth) heeft geantwoord in plaats van Seerr. Heisuca kan hierdoor niet inloggen: laat het /api/v1-pad van Seerr de proxy omzeilen voor deze app, of gebruik een adres dat Seerr direct bereikt.',
 			'seerr.invalidUrl' => 'Voer een serveradres in, zoals https://seerr.example.com',
 			'seerr.quickConnectUnsupported' => 'Deze Seerr-instantie ondersteunt Quick Connect niet. Hiervoor is Seerr 3.4 of nieuwer nodig.',
 			'seerr.notInitialized' => 'De eerste configuratie van deze Seerr-instantie is niet voltooid',
@@ -5033,14 +4831,14 @@ extension on TranslationsNl {
 			'services.scrobble' => 'Voortgang automatisch volgen',
 			'services.scrobbleDescription' => 'Werk je lijst bij wanneer je een aflevering of film afrondt.',
 			'services.disconnectConfirm' => ({required Object service}) => '${service} loskoppelen?',
-			'services.disconnectConfirmBody' => ({required Object service}) => 'Plezy werkt ${service} niet meer bij. Je kunt op elk moment opnieuw verbinding maken.',
+			'services.disconnectConfirmBody' => ({required Object service}) => 'Heisuca werkt ${service} niet meer bij. Je kunt op elk moment opnieuw verbinding maken.',
 			'services.connectFailed' => ({required Object service}) => 'Verbinding maken met ${service} is mislukt. Probeer het opnieuw.',
 			'services.names.mal' => 'MyAnimeList',
 			'services.names.anilist' => 'AniList',
 			'services.names.simkl' => 'Simkl',
 			'services.names.seerr' => 'Seerr',
 			'services.names.mdblist' => 'MDBList',
-			'services.deviceCode.title' => ({required Object service}) => 'Plezy activeren op ${service}',
+			'services.deviceCode.title' => ({required Object service}) => 'Heisuca activeren op ${service}',
 			'services.deviceCode.instructions' => 'Scan de QR-code of ga naar het onderstaande adres en voer deze code in:',
 			'services.deviceCode.openToActivate' => ({required Object service}) => 'Open ${service} om te activeren',
 			'services.deviceCode.copyCode' => 'Activeringscode kopiëren',
@@ -5092,8 +4890,6 @@ extension on TranslationsNl {
 			'addServer.borrowFromAnotherProfile' => 'Van een ander profiel lenen',
 			'addServer.borrowFromAnotherProfileSubtitle' => 'Hergebruik de verbinding van een ander profiel. Voor profielen met pincodebeveiliging is een pincode vereist.',
 			'addServer.invalidCredentials' => 'Ongeldige gebruikersnaam of ongeldig wachtwoord',
-			_ => null,
-		} ?? switch (path) {
 			'addServer.authResponseNotJson' => 'Het authenticatieantwoord was geen geldige JSON',
 			'addServer.authResponseIncomplete' => 'Het aanmeldingsantwoord van de server was onvolledig',
 			'addServer.quickConnectRejected' => 'Quick Connect is door de server geweigerd',

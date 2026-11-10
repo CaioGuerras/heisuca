@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/mpv/mpv.dart';
-import 'package:plezy/widgets/video_controls/widgets/performance_overlay/performance_stats.dart';
-import 'package:plezy/widgets/video_controls/widgets/performance_overlay/performance_stats_service.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/mpv/mpv.dart';
+import 'package:heisuca/widgets/video_controls/widgets/performance_overlay/performance_stats.dart';
+import 'package:heisuca/widgets/video_controls/widgets/performance_overlay/performance_stats_service.dart';
 
 /// Player fake that answers mpv property queries from a fixed map.
 class _PropertyPlayer implements Player {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../heisuca/heisuca_person_credits.dart'; // CGFLIX: catálogo externo opcional
 import '../cgflix/search/cgflix_sources.dart';
 import '../media/ids.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -181,6 +182,7 @@ class _ActorMediaScreenState extends BaseMediaListDetailScreen<ActorMediaScreen>
       slivers: [
         CustomAppBar(title: Text(widget.actorName), pinned: true, actions: buildFocusableAppBarActions()),
         _buildActorHeader(),
+        const SliverToBoxAdapter(child: Padding(padding: EdgeInsets.all(16), child: Text('No acervo'))), // CGFLIX
         ...buildStateSlivers(),
         if (hasItems)
           buildSparseFocusableGrid(
@@ -189,6 +191,9 @@ class _ActorMediaScreenState extends BaseMediaListDetailScreen<ActorMediaScreen>
             onRefresh: updateItem,
             onSkeletonVisible: (index) => ensureIndexLoaded(index, pageSize: _pageSize),
           ),
+        // CGFLIX: TMDB é resolvido à parte; sem ID e no kids a seção fica oculta.
+        SliverToBoxAdapter(child: HeisucaPersonCredits(serverId: widget.serverId,
+          personId: widget.personId, library: loadedItems.values.toList())),
       ],
     );
   }

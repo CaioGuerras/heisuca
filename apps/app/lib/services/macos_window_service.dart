@@ -12,7 +12,7 @@ import 'fullscreen_state_manager.dart';
 /// - Fullscreen enter/exit (for video controls)
 /// - Fullscreen state tracking (for FullscreenStateManager updates)
 class MacOSWindowService {
-  static const _channel = MethodChannel('com.plezy/window_utils');
+  static const _channel = MethodChannel('app.heisuca/window_utils');
   static bool _initialized = false;
   static bool _delegateEnabled = false;
 

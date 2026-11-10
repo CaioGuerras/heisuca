@@ -4,13 +4,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/services/device_performance.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/utils/media_image_helper.dart';
-import 'package:plezy/widgets/cycling_media_backdrop.dart';
-import 'package:plezy/widgets/tv_spotlight_background.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/services/device_performance.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/utils/media_image_helper.dart';
+import 'package:heisuca/widgets/cycling_media_backdrop.dart';
+import 'package:heisuca/widgets/tv_spotlight_background.dart';
 
 import '../test_helpers/prefs.dart';
 

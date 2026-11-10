@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/services/gamepad_service.dart';
+import 'package:heisuca/services/gamepad_service.dart';
 import 'package:universal_gamepad/universal_gamepad.dart';
 
 void main() {

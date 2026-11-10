@@ -1,0 +1,121 @@
+Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 96.0.0 (110.0.0 available)
+  analysis_server_plugin 0.3.10 (0.3.25 available)
+  analyzer 10.2.0 (14.6.0 available)
+  analyzer_plugin 0.14.4 (0.14.19 available)
+  animations 2.2.0 (3.0.0 available)
+  archive 4.2.0 (4.5.2 available)
+! auto_updater_macos 1.0.0 from git https://github.com/edde746/auto_updater at 9e150f in packages/auto_updater_macos (overridden)
+! auto_updater_platform_interface 1.0.0 from git https://github.com/edde746/auto_updater at 9e150f in packages/auto_updater_platform_interface (overridden)
+! auto_updater_windows 1.0.0 from git https://github.com/edde746/auto_updater at 9e150f in packages/auto_updater_windows (overridden)
+  build 4.0.7 (5.0.0 available)
+  build_config 1.3.1 (1.4.0 available)
+  build_daemon 4.1.2 (4.1.7 available)
+  build_runner 2.15.1 (2.17.1 available)
+  built_collection 5.1.1 (5.1.2 available)
+  built_value 8.12.6 (8.13.0 available)
+  cached_network_image_ce 4.9.0 (4.13.1 available)
+  cached_network_image_web_ce 2.1.1 (2.1.2 available)
+  cli_util 0.4.2 (0.6.0 available)
+  clock 1.1.2 (1.1.3 available)
+  code_assets 1.2.1 (2.1.0 available)
+! connectivity_plus 7.2.0 from git https://github.com/fluttercommunity/plus_plugins at bf04cd in packages/connectivity_plus/connectivity_plus (overridden)
+  cross_file 0.3.5+4 (0.4.0 available)
+  dart_code_linter 4.1.8 (4.4.2 available)
+  dart_style 3.1.7 (3.1.14 available)
+  dbus 0.7.13 (0.8.0 available)
+  device_info_plus 12.4.0 (13.3.0 available)
+  device_info_plus_platform_interface 7.0.3 (8.1.0 available)
+  drift 2.34.2 (2.35.3 available)
+  drift_dev 2.34.0 (2.35.2 available)
+  file_picker 11.0.2 (13.2.0 available)
+  flex_color_picker 3.8.0 (4.0.0 available)
+  flex_seed_scheme 4.0.1 (5.0.1 available)
+  freezed 3.2.5 (4.0.3 available)
+  glob 2.1.3 (2.2.0 available)
+  hive_ce 2.19.3 (2.22.0 available)
+  hooks 2.0.2 (2.2.0 available)
+  html 0.15.6 (0.15.7 available)
+  http_multi_server 3.2.2 (3.2.3 available)
+  io 1.0.5 (1.1.0 available)
+  json_serializable 6.14.0 (6.15.2 available)
+  logger 2.7.0 (2.8.0 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  mgenware_dart_lints 8.1.0 (8.2.0 available)
+  mime 2.0.0 (2.1.0 available)
+  native_toolchain_c 0.19.2 (0.19.5 available)
+  nm 0.5.0 (0.6.0 available)
+  objective_c 9.4.1 (9.6.2 available)
+  octo_image 2.1.0 (2.1.2 available)
+  package_config 2.2.0 (3.0.0 available)
+  package_info_plus 9.0.1 (10.2.2 available)
+  package_info_plus_platform_interface 3.2.1 (4.1.0 available)
+  path_provider_android 2.2.23 (2.3.1 available)
+  petitparser 7.0.2 (7.1.0 available)
+  platform 3.1.6 (3.2.0 available)
+  pool 1.5.2 (1.5.3 available)
+  process 5.0.5 (5.0.6 available)
+  pub_semver 2.2.0 (2.2.1 available)
+  pub_updater 0.5.0 (0.6.0 available)
+  pubspec_parse 1.5.0 (1.7.0 available)
+  qr 3.0.2 (4.0.0 available)
+  rate_limiter 1.0.0 (1.1.1 available)
+  record_use 0.6.0 (1.1.1 available)
+  saf_stream 3.1.0 (4.0.3 available)
+  screen_retriever 0.2.2 (0.3.0 available)
+  shared_preferences 2.5.5 (2.5.6 available)
+  shared_preferences_android 2.4.27 (2.5.3 available)
+  shared_preferences_foundation 2.5.6 (2.6.0 available)
+! shared_preferences_linux 2.4.1 from path packages/shared_preferences_linux (overridden)
+! shared_preferences_windows 2.4.1 from path packages/shared_preferences_windows (overridden)
+  shelf 1.4.2 (1.4.3 available)
+  slang 4.18.0 (4.19.2 available)
+  slang_build_runner 4.18.0 (4.19.0 available)
+  slang_flutter 4.18.0 (4.19.0 available)
+  source_gen 4.2.4 (4.3.1 available)
+  source_helper 1.3.12 (1.4.0 available)
+  sqlite3 3.5.0 (3.8.0 available)
+  sqlparser 0.44.5 (0.45.1 available)
+  stack_trace 1.12.1 (1.12.2 available)
+  stream_transform 2.1.1 (2.1.2 available)
+  test_api 0.7.12 (0.7.15 available)
+  unorm_dart 0.3.2 (0.3.3 available)
+  url_launcher 6.3.2 (6.3.3 available)
+  url_launcher_android 6.3.32 (6.3.33 available)
+  url_launcher_ios 6.4.1 (6.4.2 available)
+  url_launcher_linux 3.2.2 (3.2.3 available)
+  url_launcher_macos 3.2.5 (3.2.6 available)
+  url_launcher_windows 3.1.5 (3.1.6 available)
+  vector_graphics 1.2.2 (1.2.4 available)
+  vector_graphics_compiler 1.2.6 (1.3.2 available)
+  vector_math 2.4.2 (2.4.3 available)
+  vm_service 15.2.0 (15.4.0 available)
+  wakelock_plus_platform_interface 1.4.0 (1.7.0 available)
+  web 1.1.1 (1.1.2 available)
+  win32 5.15.0 (6.4.0 available)
+  win32_registry 2.1.0 (3.0.3 available)
+  win_http 0.2.2 (0.2.3 available)
+  xml 7.0.1 (7.1.0 available)
+  yaml 3.1.3 (3.1.4 available)
+Got dependencies!
+92 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /workspace/heisuca/apps/app/test/bancada/pip_overflow_policy_test.dart
+00:00 +0: P1: não expande diagnóstico fora da lista antes de delegar ao framework
+00:00 +0 -1: P1: não expande diagnóstico fora da lista antes de delegar ao framework [E]
+  Expected: <0>
+    Actual: <1>
+  Não construir a árvore de erro em janela cheia ou para exceção não candidata.
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/bancada/pip_overflow_policy_test.dart 12:7     main.<fn>
+  
+00:00 +0 -1: HUD conhecido: widgets/video_controls_header.dart:59:12, só na fase e janela PiP
+00:00 +1 -1: HUD conhecido: mobile_video_controls.dart:387:16, só na fase e janela PiP
+00:00 +2 -1: HUD conhecido: mobile_video_controls.dart:237:14, só na fase e janela PiP
+00:00 +3 -1: Some tests failed.
+
+Failing tests:
+  /workspace/heisuca/apps/app/test/bancada/pip_overflow_policy_test.dart: P1: não expande diagnóstico fora da lista antes de delegar ao framework

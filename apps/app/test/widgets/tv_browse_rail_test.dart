@@ -3,27 +3,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/focus/dpad_navigator.dart';
-import 'package:plezy/focus/input_mode_tracker.dart';
-import 'package:plezy/database/app_database.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/focus/locked_hub_controller.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_hub.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/profiles/active_profile_provider.dart';
-import 'package:plezy/providers/multi_server_provider.dart';
-import 'package:plezy/services/device_performance.dart';
-import 'package:plezy/services/multi_server_manager.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/theme/mono_theme.dart';
-import 'package:plezy/utils/platform_detector.dart';
-import 'package:plezy/widgets/animated_dim_scrim.dart';
-import 'package:plezy/widgets/media_card.dart';
-import 'package:plezy/widgets/rasterized_gradient.dart';
-import 'package:plezy/widgets/side_navigation_rail.dart';
-import 'package:plezy/widgets/tv_browse_rail.dart';
+import 'package:heisuca/focus/card_focus_scope.dart';
+import 'package:heisuca/focus/dpad_navigator.dart';
+import 'package:heisuca/focus/input_mode_tracker.dart';
+import 'package:heisuca/database/app_database.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/focus/locked_hub_controller.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_hub.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/profiles/active_profile_provider.dart';
+import 'package:heisuca/providers/multi_server_provider.dart';
+import 'package:heisuca/services/device_performance.dart';
+import 'package:heisuca/services/multi_server_manager.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/theme/mono_theme.dart';
+import 'package:heisuca/utils/platform_detector.dart';
+import 'package:heisuca/widgets/animated_dim_scrim.dart';
+import 'package:heisuca/widgets/media_card.dart';
+import 'package:heisuca/widgets/rasterized_gradient.dart';
+import 'package:heisuca/widgets/side_navigation_rail.dart';
+import 'package:heisuca/widgets/tv_browse_rail.dart';
 import 'package:provider/provider.dart';
 
 import '../test_helpers/prefs.dart';
@@ -705,13 +706,13 @@ void main() {
     // The focused card mounts a leader (CompositedTransformTarget); scope to it
     // so we measure the focused card's in-card border container.
     final cardFinder = find
-        .descendant(of: find.byType(CompositedTransformTarget), matching: find.byType(AnimatedContainer))
+        .descendant(of: find.byType(CardFocusBorder), matching: find.byType(AnimatedContainer))
         .first;
     final borderContainer = tester.widget<AnimatedContainer>(cardFinder);
     final border = (borderContainer.foregroundDecoration as BoxDecoration).border as Border;
     final cardSize = tester.getSize(cardFinder);
     final focusScale = tester.widget<AnimatedScale>(
-      find.ancestor(of: cardFinder, matching: find.byType(AnimatedScale)).first,
+      find.ancestor(of: cardFinder, matching: find.byType(AnimatedScale)).last,
     );
 
     // The border stays in-card; the glow now renders in an overlay that follows

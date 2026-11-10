@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/main.dart';
-import 'package:plezy/services/prefs_recovery.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/main.dart';
+import 'package:heisuca/services/prefs_recovery.dart';
 
 Future<void> _openDialog(
   WidgetTester tester,

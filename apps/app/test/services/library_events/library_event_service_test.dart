@@ -4,17 +4,17 @@ import 'dart:io';
 
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/media/library_change_event.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_server_client.dart';
-import 'package:plezy/media/server_capabilities.dart';
-import 'package:plezy/services/library_events/library_event_service.dart';
-import 'package:plezy/services/library_events/library_event_socket.dart';
-import 'package:plezy/services/library_events/plex_library_event_socket.dart';
-import 'package:plezy/services/multi_server_manager.dart';
-import 'package:plezy/utils/deletion_notifier.dart';
-import 'package:plezy/utils/library_content_notifier.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/media/library_change_event.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/media/server_capabilities.dart';
+import 'package:heisuca/services/library_events/library_event_service.dart';
+import 'package:heisuca/services/library_events/library_event_socket.dart';
+import 'package:heisuca/services/library_events/plex_library_event_socket.dart';
+import 'package:heisuca/services/multi_server_manager.dart';
+import 'package:heisuca/utils/deletion_notifier.dart';
+import 'package:heisuca/utils/library_content_notifier.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class _FakeChannel implements LibraryEventChannel {

@@ -41,9 +41,8 @@ class HeisucaStateStore extends ChangeNotifier {
 
     try {
       final client = cgflixClientFor(context, item);
-      if (client != null) {
-        await client.setFavorite(item, next);
-      }
+      if (client == null) throw StateError('Fonte indisponível');
+      await client.setFavorite(item, next);
       if (context.mounted) {
         showSuccessSnackBar(
           context,
@@ -90,3 +89,4 @@ class HeisucaStateStore extends ChangeNotifier {
     }
   }
 }
+

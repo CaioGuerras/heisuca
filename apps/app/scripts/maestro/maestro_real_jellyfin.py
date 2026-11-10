@@ -24,6 +24,10 @@ PASSWORD = "maestro"
 GUEST_USERNAME = "guest"
 GUEST_PASSWORD = "guest"
 SERVER_NAME = "Maestro Jellyfin"
+JELLYFIN_AUTHORIZATION = (
+    'MediaBrowser Client="Plezy E2E Bootstrap", Device="Host", '
+    'DeviceId="plezy-e2e-bootstrap", Version="1.0"'
+)
 BASE_TITLE = "Maestro Movie"
 BASE_OVERVIEW = "A deterministic movie used to verify Plezy's end-to-end flows."
 GUEST_TITLE = "Guest Galaxy"
@@ -346,7 +350,8 @@ class JellyfinApi:
         elif method == "POST":
             data = b""
         if token is not None:
-            request_headers["X-Emby-Token"] = token
+            # Jellyfin 12.4 com EnableLegacyAuthorization=false: X-Emby-Token sozinho dá 401.
+            request_headers["Authorization"] = f'{JELLYFIN_AUTHORIZATION}, Token="{token}"'
         request = urllib.request.Request(self.base_url + path, data=data, method=method, headers=request_headers)
         try:
             with urllib.request.urlopen(request, timeout=timeout) as response:
@@ -428,10 +433,7 @@ def bootstrap_server(
         api.json("POST", "/Startup/User", payload={"Name": USERNAME, "Password": PASSWORD})
         api.json("POST", "/Startup/Complete")
 
-    authorization = (
-        'MediaBrowser Client="Plezy E2E Bootstrap", Device="Host", '
-        'DeviceId="plezy-e2e-bootstrap", Version="1.0"'
-    )
+    authorization = JELLYFIN_AUTHORIZATION
 
     def authenticate(username: str, password: str) -> dict[str, Any] | None:
         status, body = api.request(

@@ -1,0 +1,30 @@
+Run 40441219054; job 121981762142; commit b0399d0.
+Teste nativo antes de qualquer patch de ressincronização.
+
+MpvPlayerBackgroundAudioTest > reativarVideoRessincronizaNoPontoAtualSemTrocarFaixa FAILED
+2026-10-27T03:03:12.8191986Z     java.lang.AssertionError at MpvPlayerBackgroundAudioTest.kt:25
+2026-10-27T03:03:13.0208003Z 
+2026-10-27T03:03:13.0208696Z 12 tests completed, 1 failed
+2026-10-27T03:03:13.1200378Z 
+2026-10-27T03:03:13.1200399Z 
+2026-10-27T03:03:13.1200982Z > Task :app:testDebugUnitTest FAILED
+2026-10-27T03:03:13.1201394Z 
+2026-10-27T03:03:13.1202185Z [Incubating] Problems report is available at: file:///home/runner/work/heisuca/heisuca/apps/app/build/reports/problems/problems-report.html
+2026-10-27T03:03:13.1203576Z 
+2026-10-27T03:03:13.1203793Z FAILURE: Build failed with an exception.
+2026-10-27T03:03:13.1204136Z 
+2026-10-27T03:03:13.1204292Z * What went wrong:
+2026-10-27T03:03:13.1204755Z Execution failed for task ':app:testDebugUnitTest'.
+2026-10-27T03:03:13.1205944Z > There were failing tests. See the report at: file:///home/runner/work/heisuca/heisuca/apps/app/build/app/reports/tests/testDebugUnitTest/index.html
+2026-10-27T03:03:13.1206889Z 
+2026-10-27T03:03:13.1207034Z * Try:
+2026-10-27T03:03:13.1207588Z > Run with --scan to get full insights from a Build Scan (powered by Develocity).
+2026-10-27T03:03:13.1208106Z 
+2026-10-27T03:03:13.1208264Z BUILD FAILED in 2m 13s
+2026-10-27T03:03:13.1208958Z Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+2026-10-27T03:03:13.1209791Z 
+2026-10-27T03:03:13.1210492Z You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+2026-10-27T03:03:13.1211356Z 
+2026-10-27T03:03:13.1212158Z For more on this, please refer to https://docs.gradle.org/9.6.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+2026-10-27T03:03:13.1213330Z 310 actionable tasks: 305 executed, 5 up-to-date
+2026-10-27T03:03:13.6064060Z

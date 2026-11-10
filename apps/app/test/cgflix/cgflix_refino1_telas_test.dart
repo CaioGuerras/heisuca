@@ -5,19 +5,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/cgflix/apoio/apoio.dart';
-import 'package:plezy/cgflix/apoio/apoio_pix.dart';
-import 'package:plezy/cgflix/apoio/apoio_pix_view.dart';
-import 'package:plezy/cgflix/apoio/cgflix_apoio_screen.dart';
-import 'package:plezy/cgflix/cgflix_slogan.dart';
-import 'package:plezy/cgflix/cgflix_theme.dart';
-import 'package:plezy/cgflix/cgflix_units.dart';
-import 'package:plezy/cgflix/cgflix_user_menu.dart';
-import 'package:plezy/cgflix/conta/cgflix_conta.dart';
-import 'package:plezy/cgflix/conta/cgflix_minha_conta_screen.dart';
-import 'package:plezy/cgflix/you/cgflix_favorites_screen.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_kind.dart';
+import 'package:heisuca/cgflix/apoio/apoio.dart';
+import 'package:heisuca/cgflix/apoio/apoio_pix.dart';
+import 'package:heisuca/cgflix/apoio/apoio_pix_view.dart';
+import 'package:heisuca/cgflix/apoio/cgflix_apoio_screen.dart';
+import 'package:heisuca/cgflix/cgflix_slogan.dart';
+import 'package:heisuca/cgflix/cgflix_theme.dart';
+import 'package:heisuca/cgflix/cgflix_units.dart';
+import 'package:heisuca/cgflix/cgflix_user_menu.dart';
+import 'package:heisuca/cgflix/conta/cgflix_conta.dart';
+import 'package:heisuca/cgflix/conta/cgflix_minha_conta_screen.dart';
+import 'package:heisuca/cgflix/you/cgflix_favorites_screen.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_kind.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 const _tela = Size(412, 914);
@@ -289,9 +289,9 @@ void main() {
           ),
         ),
       );
-      expect(find.text('Aperte o play'), findsOneWidget);
+      expect(find.text(cgflixSlogan), findsOneWidget);
       expect(tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity)).opacity, 1);
-      final texto = tester.widget<Text>(find.text('Aperte o play'));
+      final texto = tester.widget<Text>(find.text(cgflixSlogan));
       expect(texto.style?.color, CgflixPalette.forVariant(variante).textMuted);
     });
   }

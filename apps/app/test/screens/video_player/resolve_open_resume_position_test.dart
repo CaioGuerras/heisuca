@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/screens/video_player_screen.dart';
+import 'package:heisuca/screens/video_player_screen.dart';
 
 /// Pins the precedence contract of [resolveOpenResumePosition] (#2303):
 /// explicit request > shuffle-starts-from-beginning > offline progress >

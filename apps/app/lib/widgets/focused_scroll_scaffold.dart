@@ -79,8 +79,16 @@ class _FocusedScrollScaffoldState extends State<FocusedScrollScaffold> {
       if (_scopeNode.focusedChild != null) return;
       _scopeNode.requestFocus();
       _scopeNode.nextFocus();
-      if (widget.focusableAppBarActions && !_appBarFocusEnabled) {
+      // Tela sem nenhum controle focável no conteúdo (vazia/carregando): libera a barra superior
+      // para o D-pad não ficar preso no escopo da tela, sem saída nem botão voltar.
+      final semConteudoFocavel = _scopeNode.focusedChild == null || _scopeNode.focusedChild is FocusScopeNode;
+      if ((widget.focusableAppBarActions || semConteudoFocavel) && !_appBarFocusEnabled) {
         setState(() => _appBarFocusEnabled = true);
+        if (semConteudoFocavel) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) _scopeNode.nextFocus();
+          });
+        }
       }
     });
   }
@@ -104,7 +112,7 @@ class _FocusedScrollScaffoldState extends State<FocusedScrollScaffold> {
         child: Scaffold(
           body: CustomScrollView(
             slivers: [
-              if (!widget.focusableAppBarActions || !_appBarFocusEnabled)
+              if (!_appBarFocusEnabled)
                 ExcludeFocus(
                   child: CustomAppBar(
                     title: widget.title,

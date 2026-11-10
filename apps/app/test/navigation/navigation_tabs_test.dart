@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/navigation/navigation_tabs.dart';
+import 'package:heisuca/navigation/navigation_tabs.dart';
 
 void main() {
   group('NavigationTab.resolveDefaultTab', () {

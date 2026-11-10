@@ -17,7 +17,6 @@
     "Auth service not ready": "kDebugMode developer authentication diagnostic"
   },
   "lib/screens/settings/settings_screen.dart": {
-    "Test Sentry": "kDebugMode developer diagnostic affordance",
     "Send a test error": "kDebugMode developer diagnostic affordance",
     "Test ANR": "kDebugMode developer diagnostic affordance",
     "Block the main thread for 10 seconds": "kDebugMode developer diagnostic affordance",

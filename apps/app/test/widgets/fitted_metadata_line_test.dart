@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/media/media_rating.dart';
-import 'package:plezy/utils/rating_utils.dart';
-import 'package:plezy/widgets/app_icon.dart';
-import 'package:plezy/widgets/fitted_metadata_line.dart';
-import 'package:plezy/widgets/media_rating_badge.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/media/media_rating.dart';
+import 'package:heisuca/utils/rating_utils.dart';
+import 'package:heisuca/widgets/app_icon.dart';
+import 'package:heisuca/widgets/fitted_metadata_line.dart';
+import 'package:heisuca/widgets/media_rating_badge.dart';
 
 /// #1893: the TV detail metadata line used to clip at the right edge, so the
 /// quality labels at its tail vanished behind however many rating badges the

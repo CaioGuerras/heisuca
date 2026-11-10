@@ -1,12 +1,12 @@
 // Ordem dos menus do CGFLIX (refino 2): o que uma pessoa comum usa toda semana em cima, o técnico
 // embaixo, com um traço entre os assuntos. Vale para o menu do cartão (tocar e segurar) e para o
-// "⋮" da página do título, que no Plezy são o mesmo menu (`media_context_menu.dart`, 1 gancho).
+// "⋮" da página do título, que no Heisuca são o mesmo menu (`media_context_menu.dart`, 1 gancho).
 // Nada sai do menu: só muda a ordem.
 import 'package:flutter/material.dart';
 
 import '../widgets/app_menu.dart';
 
-/// Grupos do menu de um título, na ordem em que aparecem. Cada valor é o `value` da ação do Plezy.
+/// Grupos do menu de um título, na ordem em que aparecem. Cada valor é o `value` da ação do Heisuca.
 const cgflixTitleMenuGroups = <List<String>>[
   // Assistir
   ['details', 'play_from_beginning', 'series', 'shuffle_play', 'play_trailer'],
@@ -38,7 +38,7 @@ int _rankOf(String value) {
 }
 
 /// Reordena os itens do menu de um título e põe um traço entre os grupos. Menus que não são de
-/// título (música, coleção, playlist) e itens desconhecidos ficam como o Plezy montou; itens
+/// título (música, coleção, playlist) e itens desconhecidos ficam como o Heisuca montou; itens
 /// desconhecidos (extras de cada tela) vão antes do grupo "Apagar".
 List<AppMenuEntry<String>> cgflixArrangeTitleMenu(List<AppMenuItem<String>> items) {
   final known = items.where((i) => _groupOf(i.value) != null).toList();

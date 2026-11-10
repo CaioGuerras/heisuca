@@ -9,7 +9,7 @@ typedef AppExitApplication = Future<ui.AppExitResponse> Function(ui.AppExitType 
 
 class AppExitService {
   static const bool _tvosBuild = bool.fromEnvironment('TVOS_BUILD');
-  static const MethodChannel _channel = MethodChannel('com.plezy/app_exit');
+  static const MethodChannel _channel = MethodChannel('app.heisuca/app_exit');
   static Future<bool>? _gracefulExitFuture;
 
   /// Requests that the host platform closes or backgrounds the app.

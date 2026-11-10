@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider_linux/path_provider_linux.dart';
-import 'package:plezy/services/prefs_recovery.dart';
+import 'package:heisuca/services/prefs_recovery.dart';
 import 'package:shared_preferences_linux/shared_preferences_linux.dart';
 import 'package:shared_preferences_platform_interface/types.dart';
 

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../services/gamepad_service.dart';
+import '../services/settings_service.dart';
 import '../utils/platform_detector.dart';
 import '../utils/text_input_diagnostics.dart';
 import '../widgets/tv_virtual_keyboard.dart';
@@ -23,7 +24,7 @@ enum TvTextInputPresentation {
   /// Always use the platform text input implementation.
   platform,
 
-  /// Always use Plezy's in-app Flutter keyboard overlay.
+  /// Always use Heisuca's in-app Flutter keyboard overlay.
   flutterOverlay,
 }
 
@@ -31,7 +32,9 @@ bool _usesTvKeyboard({required TvTextInputPresentation presentation, TextInputTy
   if (!PlatformDetector.isTV()) return false;
   return switch (presentation) {
     TvTextInputPresentation.automatic =>
-      PlatformDetector.isAppleTV() && _isMultilineTextInput(keyboardType: keyboardType, maxLines: maxLines),
+      PlatformDetector.isAppleTV()
+          ? _isMultilineTextInput(keyboardType: keyboardType, maxLines: maxLines)
+          : !(SettingsService.instanceOrNull?.read(SettingsService.tvUseNativeKeyboard) ?? false),
     TvTextInputPresentation.platform => false,
     TvTextInputPresentation.flutterOverlay => true,
   };
@@ -100,7 +103,7 @@ void _logTvTextInput(String message) {
 }
 
 class _NativeTvTextInputFocusBridge {
-  static const _channel = MethodChannel('com.plezy/text_input');
+  static const _channel = MethodChannel('app.heisuca/text_input');
   static final Set<Object> _focusedTokens = <Object>{};
   static bool _lastSentFocused = false;
 
@@ -642,6 +645,7 @@ abstract class _FocusableTextInputBase extends StatelessWidget {
   final bool obscureText;
   final bool autocorrect;
   final bool enableSuggestions;
+  final Iterable<String>? autofillHints;
   final bool? enableInteractiveSelection;
   final int? maxLength;
   final int? maxLines;
@@ -676,6 +680,7 @@ abstract class _FocusableTextInputBase extends StatelessWidget {
     this.obscureText = false,
     this.autocorrect = true,
     this.enableSuggestions = true,
+    this.autofillHints,
     this.enableInteractiveSelection,
     this.maxLength,
     this.maxLines = 1,
@@ -1075,7 +1080,21 @@ class _FocusableTextInputHostState extends State<_FocusableTextInputHost> with W
     if (!widget.input.enabled || !widget.input._usesNativeTvKeyboard) return;
     _hasSeenNativeTextInputFocus = true;
     _suppressNativeTextInputForCurrentFocus = false;
-    _beginNativeTextInput();
+    final node = _installedFocusNode ?? _effectiveFocusNode;
+    if (node.hasFocus) {
+      _beginNativeTextInput();
+      return;
+    }
+    node.requestFocus();
+    final generation = _nativeTextInputGeneration;
+    scheduleMicrotask(() {
+      if (mounted &&
+          generation == _nativeTextInputGeneration &&
+          identical(node, _installedFocusNode) &&
+          node.hasFocus) {
+        _beginNativeTextInput();
+      }
+    });
   }
 
   VoidCallback? get _effectiveOnEditingComplete {
@@ -1517,6 +1536,7 @@ class FocusableTextField extends _FocusableTextInputBase {
     super.obscureText,
     super.autocorrect,
     super.enableSuggestions,
+    super.autofillHints,
     super.enableInteractiveSelection,
     super.maxLength,
     super.maxLines,
@@ -1563,6 +1583,7 @@ class FocusableTextField extends _FocusableTextInputBase {
         autofocus: autofocus,
         autocorrect: autocorrect,
         enableSuggestions: enableSuggestions,
+        autofillHints: autofillHints,
         obscureText: obscureText,
         maxLength: maxLength,
         maxLines: maxLines,
@@ -1609,6 +1630,7 @@ class FocusableTextFormField extends _FocusableTextInputBase {
     super.obscureText,
     super.autocorrect,
     super.enableSuggestions,
+    super.autofillHints,
     super.enableInteractiveSelection,
     super.maxLength,
     super.maxLines,
@@ -1656,6 +1678,7 @@ class FocusableTextFormField extends _FocusableTextInputBase {
         autofocus: autofocus,
         autocorrect: autocorrect,
         enableSuggestions: enableSuggestions,
+        autofillHints: autofillHints,
         obscureText: obscureText,
         maxLength: maxLength,
         maxLines: maxLines,

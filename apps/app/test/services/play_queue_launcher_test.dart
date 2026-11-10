@@ -2,17 +2,17 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_item.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_item.dart';
 
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/media/media_playlist.dart';
-import 'package:plezy/models/plex/play_queue_response.dart';
-import 'package:plezy/providers/playback_state_provider.dart';
-import 'package:plezy/services/media_list_playback_launcher.dart';
-import 'package:plezy/services/play_queue_launcher.dart';
-import 'package:plezy/services/plex_client.dart';
-import 'package:plezy/services/settings_service.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_playlist.dart';
+import 'package:heisuca/models/plex/play_queue_response.dart';
+import 'package:heisuca/providers/playback_state_provider.dart';
+import 'package:heisuca/services/media_list_playback_launcher.dart';
+import 'package:heisuca/services/play_queue_launcher.dart';
+import 'package:heisuca/services/plex_client.dart';
+import 'package:heisuca/services/settings_service.dart';
 
 import '../test_helpers/media_items.dart';
 import '../test_helpers/prefs.dart';

@@ -14,7 +14,7 @@ import '../../models/seerr/seerr_service.dart';
 import '../../models/seerr/seerr_session.dart';
 import '../../models/seerr/seerr_user.dart';
 import '../../utils/app_logger.dart';
-import '../trackers/future_coalescer.dart';
+import '../../utils/future_coalescer.dart';
 import 'seerr_auth_service.dart';
 import 'seerr_constants.dart';
 import 'seerr_exceptions.dart';

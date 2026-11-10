@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/utils/lrc_parser.dart';
+import 'package:heisuca/utils/lrc_parser.dart';
 
 void main() {
   group('parseLrc', () {

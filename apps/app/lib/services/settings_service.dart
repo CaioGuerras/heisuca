@@ -9,7 +9,7 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
 import '../models/hotkey_model.dart';
 import 'image_cache_service.dart';
-import 'package:plezy/utils/app_logger.dart';
+import 'package:heisuca/utils/app_logger.dart';
 import '../i18n/strings.g.dart';
 import '../models/mpv_config_models.dart';
 import '../models/player_setting_scope.dart';
@@ -36,9 +36,7 @@ import '../models/audio_quality_preset.dart';
 import '../models/transcode_quality_preset.dart';
 import '../navigation/navigation_tabs.dart';
 import '../utils/platform_detector.dart';
-import 'trackers/tracker_constants.dart';
 import '../profiles/profile.dart';
-import '../watch_together/services/watch_together_relay_endpoint.dart';
 
 enum ThemeMode { system, light, dark, oled }
 
@@ -264,6 +262,28 @@ class _AutomotiveUiScalePref extends Pref<double> {
       svc.writeDouble(key, value.clamp(AutomotiveUiScale.min, AutomotiveUiScale.max).toDouble());
 }
 
+/// Migrates saved 'dark' (Hisui escuro removed in F3) to Shikkoku (ThemeMode.oled).
+class _ThemeModePref extends EnumPref<ThemeMode> {
+  const _ThemeModePref()
+    : super('theme_mode', values: ThemeMode.values, defaultValueProvider: SettingsService._tvAwareThemeModeDefault);
+
+  @override
+  ThemeMode readFrom(BaseSharedPreferencesService svc) {
+    final stored = svc.readNullableString(key);
+    if (stored == null) return resolvedDefault;
+    if (stored == 'dark') {
+      return ThemeMode.oled;
+    }
+    return values.firstWhere((v) => v.name == stored, orElse: () => resolvedDefault);
+  }
+
+  @override
+  Future<void> writeTo(BaseSharedPreferencesService svc, ThemeMode value) {
+    final effective = value == ThemeMode.dark ? ThemeMode.oled : value;
+    return svc.writeString(key, effective.name);
+  }
+}
+
 /// Migrates from the legacy `use_season_poster` boolean key.
 class _EpisodePosterModePref extends EnumPref<EpisodePosterMode> {
   const _EpisodePosterModePref()
@@ -431,20 +451,6 @@ class _AudioPassthroughPref extends Pref<bool> {
   Future<void> writeTo(BaseSharedPreferencesService svc, bool value) => svc.writeBool(key, value);
 }
 
-String? _trimEmptyAsNull(String? v) {
-  final t = v?.trim();
-  return (t == null || t.isEmpty) ? null : t;
-}
-
-String? _normalizeRelayBaseUrl(String? value) {
-  if (value == null || value.trim().isEmpty) return null;
-  final endpoint = WatchTogetherRelayEndpoint.tryParseCustom(value);
-  if (endpoint == null) {
-    throw FormatException('Invalid Watch Together relay base URL');
-  }
-  return endpoint.canonicalBaseUrl;
-}
-
 String _legacyMpvEntriesToText(List<dynamic> entries) {
   final lines = <String>[];
   for (final item in entries) {
@@ -550,11 +556,15 @@ class _PreferenceGroupListenable extends ChangeNotifier {
 }
 
 class SettingsService extends BaseSharedPreferencesService {
+  // Estado local do atualizador; o código secreto fica no cofre Android, nunca nas preferências exportáveis.
+  static const updateBeta = BoolPref('heisuca_update_beta');
+  static const updateLastCheck = IntPref('heisuca_update_last_check');
+  static const updateChannel = StringPref('heisuca_update_channel', defaultValue: 'estavel');
+  static const updateAbi = StringPref('heisuca_update_abi');
   static const String defaultIntroPattern = r'(?:^|\b)(?:intro(?:duction)?|opening)(?:\b|$)|^op(?:\s?\d+)?$';
   static const String defaultCreditsPattern = r'(?:^|\b)(?:outro|closing|credits?|ending)(?:\b|$)|^ed(?:\s?\d+)?$';
 
   static const enableDebugLogging = BoolPref('enable_debug_logging', onWrite: setLoggerLevel);
-  static const crashReporting = BoolPref('crash_reporting', defaultValue: true);
   // Preferência local do Heisuca; desligada preserva a seleção do servidor.
   static const heisucaPreferPortugueseAudio = BoolPref('heisuca_prefer_portuguese_audio');
   static const enableHardwareDecoding = BoolPref('enable_hardware_decoding', defaultValue: true);
@@ -654,11 +664,8 @@ class SettingsService extends BaseSharedPreferencesService {
   /// dialog. Defaults to true (include) so existing behavior is unchanged;
   /// turning it off persists so the next download keeps the choice.
   static const downloadIncludeSpecials = BoolPref('download_include_specials', defaultValue: true);
-  static const autoCheckUpdatesOnStartup = BoolPref('auto_check_updates_on_startup', defaultValue: true);
   static const showPerformanceOverlay = BoolPref('show_performance_overlay');
   static const autoHidePerformanceOverlay = BoolPref('auto_hide_performance_overlay', defaultValue: true);
-  static const enableDiscordRPC = BoolPref('enable_discord_rpc');
-  static const enableTraktWatchedSync = BoolPref('enable_trakt_watched_sync', defaultValue: true);
   static const matchContentFrameRate = BoolPref('match_content_frame_rate');
   static const matchContentResolution = BoolPref('match_content_resolution');
   static const tunneledPlayback = BoolPref('tunneled_playback', defaultValue: false);
@@ -720,16 +727,30 @@ class SettingsService extends BaseSharedPreferencesService {
 
   /// Restore the last music session parked-paused on launch (#2148).
   static const resumeMusicOnLaunch = BoolPref('resume_music_on_launch', defaultValue: true);
+  // Zero desliga só a pergunta por episódios, sem alterar o temporizador.
+  static final stillWatchingEpisodes = IntPref(
+    'heisuca_still_watching_episodes',
+    defaultValue: 3,
+    transform: (v) => v.clamp(0, 20),
+  );
   static const autoPlayNextEpisode = BoolPref('auto_play_next_episode', defaultValue: true);
 
   /// Shuffled video queues start every episode at 0:00 instead of resuming
   /// from the server-side view offset (#2303). Off preserves resume behavior.
   static const shuffleStartsFromBeginning = BoolPref('shuffle_starts_from_beginning');
 
+  static int _defaultPlayNextCountdown() => PlatformDetector.isTV() ? 8 : 5;
+
   /// Seconds the Play Next prompt counts down before auto-advancing (#1827).
   /// 0 skips the prompt entirely and starts the next episode immediately.
   /// Only consulted while [autoPlayNextEpisode] is on.
-  static final playNextCountdown = IntPref('play_next_countdown', defaultValue: 5, transform: (v) => v.clamp(0, 30));
+  /// TV defaults to 8 seconds; other platforms default to 5 seconds.
+  static final playNextCountdown = IntPref(
+    'play_next_countdown',
+    defaultValue: 5,
+    defaultValueProvider: _defaultPlayNextCountdown,
+    transform: (v) => v.clamp(0, 30),
+  );
 
   /// Touch gestures on the player surface (#1810). Each defaults on; the
   /// edge swipes gate [MobileEdgeAdjustmentTracker] tracking and the zoom
@@ -809,7 +830,8 @@ class SettingsService extends BaseSharedPreferencesService {
     values: VisualEffectsSetting.values,
     defaultValue: VisualEffectsSetting.auto,
   );
-  static const ambientLighting = BoolPref('ambient_lighting');
+  // Heisuca (Caio, 24/10): ligada por padrão no flagship (efeito do mpv; o ExoPlayer não oferece).
+  static const ambientLighting = BoolPref('ambient_lighting', defaultValue: true);
   static const audioPassthrough = _AudioPassthroughPref();
   static const audioNormalization = BoolPref('audio_normalization');
 
@@ -828,15 +850,9 @@ class SettingsService extends BaseSharedPreferencesService {
   static const matchDynamicRange = BoolPref('match_dynamic_range');
   static const appLocale = _AppLocalePref();
   static const autoPip = _AutoPipPref();
+  // Escolha explícita: sair mantém PiP enquanto esta opção estiver desligada.
+  static const continueListening = BoolPref('heisuca_continue_listening', defaultValue: false);
   static const customDownloadPath = NullableStringPref('custom_download_path');
-  static final customRelayUrl = NullableStringPref('custom_relay_url', transform: _normalizeRelayBaseUrl);
-
-  static NullableStringPref recentRoomsForProfile(String profileId) {
-    if (profileId.trim().isEmpty) {
-      throw ArgumentError.value(profileId, 'profileId', 'Must not be empty');
-    }
-    return NullableStringPref(profileScopedPrefsKey(profileId, 'watch_together_recent_rooms'));
-  }
 
   static NullableStringPref recentMetadataTagsForProfile(String profileId) {
     if (profileId.trim().isEmpty) {
@@ -844,11 +860,6 @@ class SettingsService extends BaseSharedPreferencesService {
     }
     return NullableStringPref(profileScopedPrefsKey(profileId, 'metadata_recent_tags'));
   }
-
-  static final companionRemoteLastHostAddress = NullableStringPref(
-    'companion_remote_last_host_address',
-    transform: _trimEmptyAsNull,
-  );
 
   static final maxVolume = IntPref('max_volume', defaultValue: 100, transform: (v) => v.clamp(100, 300));
   static final downmixCenterBoost = IntPref('downmix_center_boost', transform: (v) => v.clamp(0, 12));
@@ -891,18 +902,10 @@ class SettingsService extends BaseSharedPreferencesService {
   static final displaySwitchDelay = IntPref('display_switch_delay', transform: (v) => v.clamp(0, 10));
 
   static ThemeMode _tvAwareThemeModeDefault() => ThemeMode.oled; // CGFLIX: tema escuro OLED em todos os aparelhos
-  static const themeMode = EnumPref<ThemeMode>(
-    'theme_mode',
-    values: ThemeMode.values,
-    defaultValueProvider: _tvAwareThemeModeDefault,
-  );
+  static const themeMode = _ThemeModePref();
   static const videoPlayerNavigationEnabled = BoolPref(
     'video_player_navigation_enabled',
     defaultValueProvider: PlatformDetector.isTV,
-  );
-  static const enableCompanionRemoteServer = BoolPref(
-    'enable_companion_remote_server',
-    defaultValueProvider: PlatformDetector.isDesktopOS,
   );
   static const startInFullscreen = BoolPref('start_in_fullscreen');
   static const exitFullscreenOnPlayerClose = BoolPref('exit_fullscreen_on_player_close');
@@ -920,6 +923,7 @@ class SettingsService extends BaseSharedPreferencesService {
   );
   static const automotiveUiScale = _AutomotiveUiScalePref();
   static const tvCornerSpotlightBackdrop = BoolPref('tv_corner_spotlight_backdrop');
+  static const tvUseNativeKeyboard = BoolPref('tv_use_native_keyboard');
   static const episodePosterMode = _EpisodePosterModePref();
   static const continueWatchingAction = EnumPref<ContinueWatchingAction>(
     'continue_watching_action',
@@ -1000,20 +1004,6 @@ class SettingsService extends BaseSharedPreferencesService {
   /// keeps applying until the user chooses).
   static IntPref dvrTargetSectionPref(ServerId serverId, int type) => IntPref('dvr_target_section_${type}_$serverId');
 
-  /// Per-service "scrobble to this tracker" toggle. Trakt's second toggle
-  /// ([enableTraktWatchedSync]) has no counterpart on the other services and
-  /// stays a standalone constant.
-  static BoolPref scrobblePref(TrackerService s) => BoolPref('enable_${s.name}_scrobble', defaultValue: true);
-
-  static EnumPref<TrackerLibraryFilterMode> trackerFilterModePref(TrackerService s) => EnumPref(
-    'tracker_library_filter_mode_${s.name}',
-    values: TrackerLibraryFilterMode.values,
-    defaultValue: TrackerLibraryFilterMode.blacklist,
-  );
-
-  static StringListPref trackerFilterIdsPref(TrackerService s) =>
-      StringListPref('tracker_library_filter_ids_${s.name}');
-
   /// Identity-keyed preference groups. Const list literals are canonicalized,
   /// so every builder at a call site shares one fan-out for the process
   /// lifetime. Dynamic lists receive weak entries: they get the same behavior
@@ -1061,20 +1051,14 @@ class SettingsService extends BaseSharedPreferencesService {
   Future<void> onInit() async {
     _assertCredentialsReadable();
 
-    const legacyRecentRoomsKey = 'watch_together_recent_rooms';
-    await prefs.remove(legacyRecentRoomsKey);
+    // R3: migração única da preferência persistida de tema escuro na inicialização.
+    if (readNullableString(themeMode.key) == 'dark') {
+      await prefs.setString(themeMode.key, ThemeMode.oled.name);
+    }
+
     // One-way move to the mpv default: the pre-`android_use_exoplayer` pick is
     // dropped rather than carried over, and nothing reads the old key.
     await prefs.remove(_legacyUseExoPlayerKey);
-
-    final storedRelay = readNullableString(customRelayUrl.key);
-    if (storedRelay == null) return;
-    final endpoint = WatchTogetherRelayEndpoint.tryParseCustom(storedRelay);
-    if (endpoint == null) {
-      await prefs.remove(customRelayUrl.key);
-    } else if (endpoint.canonicalBaseUrl != storedRelay) {
-      await prefs.setString(customRelayUrl.key, endpoint.canonicalBaseUrl);
-    }
   }
 
   /// Raises [UnreadableSensitivePreferenceException] if any stored credential
@@ -1095,17 +1079,6 @@ class SettingsService extends BaseSharedPreferencesService {
   }
 
   static Map<String, HotKey> defaultKeyboardHotkeys() => _defaultKeyboardHotkeys();
-
-  /// Unknown libraries are allowed only when no filter is configured.
-  bool isLibraryAllowedForTracker(TrackerService service, String? libraryGlobalKey) {
-    final filterIds = read(trackerFilterIdsPref(service));
-    final mode = read(trackerFilterModePref(service));
-    if (libraryGlobalKey == null) {
-      return mode == TrackerLibraryFilterMode.blacklist && filterIds.isEmpty;
-    }
-    final inList = filterIds.contains(libraryGlobalKey);
-    return mode == TrackerLibraryFilterMode.blacklist ? !inList : inList;
-  }
 
   static bool validCustomPlayerFields(String name, String value) => name.trim().isNotEmpty && value.trim().isNotEmpty;
 
@@ -1392,13 +1365,8 @@ class SettingsService extends BaseSharedPreferencesService {
     downloadOnWifiOnly,
     backgroundDownloadWarningAcknowledged,
     downloadIncludeSpecials,
-    autoCheckUpdatesOnStartup,
     showPerformanceOverlay,
     autoHidePerformanceOverlay,
-    enableDiscordRPC,
-    enableTraktWatchedSync,
-    // Scrobble toggle, one per tracker service.
-    for (final s in TrackerService.values) scrobblePref(s),
     matchContentFrameRate,
     matchContentResolution,
     tunneledPlayback,
@@ -1408,6 +1376,7 @@ class SettingsService extends BaseSharedPreferencesService {
     musicVolume,
     resumeMusicOnLaunch,
     autoPlayNextEpisode,
+    stillWatchingEpisodes,
     playNextCountdown,
     shuffleStartsFromBeginning,
     gestureBrightnessSwipe,
@@ -1441,6 +1410,7 @@ class SettingsService extends BaseSharedPreferencesService {
     audioDownmixNormalize,
     appLocale,
     autoPip,
+    continueListening,
     maxVolume,
     downmixCenterBoost,
     subtitlePosition,
@@ -1460,12 +1430,11 @@ class SettingsService extends BaseSharedPreferencesService {
     gridSpacing,
     automotiveUiScale,
     tvCornerSpotlightBackdrop,
+    tvUseNativeKeyboard,
     episodePosterMode,
     continueWatchingAction,
     episodeAction,
     keyboardHotkeys,
-    // Library filters, one pair per tracker service.
-    for (final s in TrackerService.values) ...[trackerFilterModePref(s), trackerFilterIdsPref(s)],
   ];
 
   /// Group two: exported but *not* reset. Mirrors the original reset surface —
@@ -1499,7 +1468,6 @@ class SettingsService extends BaseSharedPreferencesService {
     matchRefreshRate,
     matchDynamicRange,
     displaySwitchDelay,
-    enableCompanionRemoteServer,
     startInFullscreen,
     exitFullscreenOnPlayerClose,
   ];
@@ -1517,8 +1485,6 @@ class SettingsService extends BaseSharedPreferencesService {
     customShaderPresets,
     selectedExternalPlayer,
     customExternalPlayers,
-    customRelayUrl,
-    companionRemoteLastHostAddress,
     rememberedBrightnessLevel,
     refusedVideoCodecs,
   ];
@@ -1538,9 +1504,7 @@ class SettingsService extends BaseSharedPreferencesService {
           pref != keyboardHotkeys &&
           pref != globalShaderPreset)
         pref,
-    crashReporting,
     mpvConfigText,
-    customRelayUrl,
     rememberedBrightnessLevel,
   ]);
 
@@ -1550,6 +1514,7 @@ class SettingsService extends BaseSharedPreferencesService {
     'rewind_on_resume' || 'display_switch_delay' => (0, 10),
     'sleep_timer_duration' => (5, 240),
     'play_next_countdown' => (0, 30),
+    'heisuca_still_watching_episodes' => (0, 20),
     'auto_skip_delay' => (1, 30),
     'subtitle_font_size' => (10, 80),
     'subtitle_border_size' => (0, 5),
@@ -1650,4 +1615,3 @@ class SettingsService extends BaseSharedPreferencesService {
     await PlexImageCacheManager.instance.emptyCache();
   }
 }
-

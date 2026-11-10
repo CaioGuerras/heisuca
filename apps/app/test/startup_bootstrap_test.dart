@@ -7,22 +7,22 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/database/app_database.dart';
-import 'package:plezy/database/download_operations.dart';
-import 'package:plezy/database/tvos_database_recovery_store.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/main.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/models/download_models.dart';
-import 'package:plezy/providers/theme_provider.dart';
-import 'package:plezy/services/base_shared_preferences_service.dart';
-import 'package:plezy/services/prefs_recovery.dart';
-import 'package:plezy/services/settings_service.dart' as settings;
-import 'package:plezy/services/startup_diagnostics.dart';
-import 'package:plezy/theme/mono_theme.dart';
-import 'package:plezy/utils/dialogs.dart';
-import 'package:plezy/utils/layout_constants.dart';
-import 'package:plezy/widgets/startup_failure_view.dart';
+import 'package:heisuca/database/app_database.dart';
+import 'package:heisuca/database/download_operations.dart';
+import 'package:heisuca/database/tvos_database_recovery_store.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/main.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/models/download_models.dart';
+import 'package:heisuca/providers/theme_provider.dart';
+import 'package:heisuca/services/base_shared_preferences_service.dart';
+import 'package:heisuca/services/prefs_recovery.dart';
+import 'package:heisuca/services/settings_service.dart' as settings;
+import 'package:heisuca/services/startup_diagnostics.dart';
+import 'package:heisuca/theme/mono_theme.dart';
+import 'package:heisuca/utils/dialogs.dart';
+import 'package:heisuca/utils/layout_constants.dart';
+import 'package:heisuca/widgets/startup_failure_view.dart';
 
 import 'test_helpers/download_fixtures.dart';
 import 'test_helpers/prefs.dart';
@@ -199,7 +199,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(bootstrapTheme(tester).brightness, Brightness.dark);
-    expect(bootstrapTheme(tester).scaffoldBackgroundColor, const Color(0xFF000000)); // CGFLIX: Isis, preto puro (OLED)
+    expect(bootstrapTheme(tester).scaffoldBackgroundColor, const Color(0xFF17151C)); // CGFLIX: Isis, preto puro (OLED)
 
     completion.complete(1);
     await tester.pump();
@@ -398,7 +398,8 @@ void main() {
     // Copy and Upload stay live — the whole point of the failure screen is
     // that a stuck user can still get the diagnostic out.
     expect(find.byKey(startupFailureCopyKey), findsOneWidget);
-    expect(find.byKey(startupFailureUploadKey), findsOneWidget);
+    // Caio, 25/10: envio de diagnóstico removido; copiar permanece.
+    expect(find.text(t.startup.uploadDetails), findsNothing);
   });
 
   testWidgets('repair receives a context below the bootstrap MaterialApp that can show its dialogs', (tester) async {
@@ -465,10 +466,7 @@ void main() {
     await tester.pumpAndSettle();
   });
 
-  testWidgets('persists the failure so it can be reported once the reporter is up', (tester) async {
-    // Not reported inline: the earliest gate phases run before crash
-    // reporting exists, so an inline capture would reach a no-op hub and be
-    // discarded. The record is held for `flushPendingStartupFailure` (#1732).
+  testWidgets('persiste a falha para os registros locais', (tester) async {
     StartupDiagnosticsStore.resetForTesting();
     addTearDown(StartupDiagnosticsStore.resetForTesting);
 
@@ -481,7 +479,7 @@ void main() {
     await tester.pump();
 
     expect(StartupDiagnosticsStore.pending?.phase, StartupPhase.storage);
-    expect(StartupDiagnosticsStore.pending?.reported, isFalse);
+    expect(StartupDiagnosticsStore.pending?.message, isNotEmpty);
   });
 
   testWidgets('retry clears the failed generation and can commit a later success', (tester) async {

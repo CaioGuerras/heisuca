@@ -5,10 +5,12 @@ import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
 
 import '../database/app_database.dart';
+import '../exceptions/media_server_exceptions.dart';
 import '../media/media_backend.dart';
 import '../services/credential_vault.dart';
 import '../services/jellyfin_endpoint_discovery.dart';
 import '../utils/app_logger.dart';
+import '../utils/url_utils.dart';
 import 'connection.dart';
 
 /// CRUD over the persisted [Connections] table. The registry is the source
@@ -95,6 +97,9 @@ class ConnectionRegistry {
   /// Shared edit-screen/command validation. Probes public server identity only;
   /// preparing this value does not change the registry or active client.
   Future<JellyfinConnection> prepareMediaBrowserEndpoints(JellyfinConnection connection, List<String> urls) async {
+    if (urls.any(isCleartextRefusedUrl)) {
+      throw const MediaServerUrlException('Use um endereço https://');
+    }
     final input = JellyfinEndpointDiscovery.buildUserInputCandidates(urls, dialect: connection.dialect);
     final endpoint = await JellyfinEndpointDiscovery(dialect: connection.dialect).raceEndpoints(
       input.probeBaseUrls,

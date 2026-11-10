@@ -1,0 +1,33 @@
+00:00 +0: loading /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_accessibility_test.dart
+00:00 +0: P3 opções mantêm a fonte 200% quando o rótulo precisa de mais espaço
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: a value greater than or equal to <40>
+  Actual: <9.964412614629737>
+   Which: is not a value greater than or equal to <40>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_accessibility_test.dart:24:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/heisuca/apps/app/test/heisuca/heisuca_p3_accessibility_test.dart line 24
+The test description was:
+  P3 opções mantêm a fonte 200% quando o rótulo precisa de mais espaço
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +0 -1: P3 opções mantêm a fonte 200% quando o rótulo precisa de mais espaço [E]
+  Test failed. See exception logs above.
+  The test description was: P3 opções mantêm a fonte 200% quando o rótulo precisa de mais espaço
+
+00:00 +0 -1: P3 botão Heisuca recebe foco e ativa por teclado
+00:00 +1 -1: P3 Continuar assistindo respeita fonte 200% sem limitar a escala
+00:00 +2 -1: Some tests failed.
+
+Failing tests:
+  /workspace/heisuca/apps/app/test/heisuca/heisuca_p3_accessibility_test.dart: P3 opções mantêm a fonte 200% quando o rótulo precisa de mais espaço

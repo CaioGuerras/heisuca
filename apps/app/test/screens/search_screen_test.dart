@@ -4,37 +4,37 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:plezy/exceptions/media_server_exceptions.dart';
-import 'package:plezy/focus/dpad_navigator.dart';
-import 'package:plezy/focus/focusable_text_field.dart';
-import 'package:plezy/focus/key_event_utils.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/media/ids.dart';
-import 'package:plezy/media/library_query.dart';
-import 'package:plezy/media/media_backend.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/media/media_library.dart';
-import 'package:plezy/media/media_person.dart';
-import 'package:plezy/media/media_server_client.dart';
-import 'package:plezy/media/server_capabilities.dart';
-import 'package:plezy/mixins/refreshable.dart';
-import 'package:plezy/providers/hidden_libraries_provider.dart';
-import 'package:plezy/providers/libraries_provider.dart';
-import 'package:plezy/providers/multi_server_provider.dart';
-import 'package:plezy/screens/actor_media_screen.dart';
-import 'package:plezy/screens/search_screen.dart';
-import 'package:plezy/services/multi_server_manager.dart';
-import 'package:plezy/services/storage_service.dart';
-import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/theme/mono_theme.dart';
-import 'package:plezy/utils/platform_detector.dart';
-import 'package:plezy/utils/media_server_http_client.dart';
-import 'package:plezy/widgets/backend_badge.dart';
-import 'package:plezy/widgets/focusable_media_card.dart';
-import 'package:plezy/widgets/focusable_tab_chip.dart';
-import 'package:plezy/widgets/loading_indicator_box.dart';
-import 'package:plezy/widgets/person_search_row.dart';
+import 'package:heisuca/exceptions/media_server_exceptions.dart';
+import 'package:heisuca/focus/dpad_navigator.dart';
+import 'package:heisuca/focus/focusable_text_field.dart';
+import 'package:heisuca/focus/key_event_utils.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/media/ids.dart';
+import 'package:heisuca/media/library_query.dart';
+import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_library.dart';
+import 'package:heisuca/media/media_person.dart';
+import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/media/server_capabilities.dart';
+import 'package:heisuca/mixins/refreshable.dart';
+import 'package:heisuca/providers/hidden_libraries_provider.dart';
+import 'package:heisuca/providers/libraries_provider.dart';
+import 'package:heisuca/providers/multi_server_provider.dart';
+import 'package:heisuca/screens/actor_media_screen.dart';
+import 'package:heisuca/screens/search_screen.dart';
+import 'package:heisuca/services/multi_server_manager.dart';
+import 'package:heisuca/services/storage_service.dart';
+import 'package:heisuca/services/settings_service.dart';
+import 'package:heisuca/theme/mono_theme.dart';
+import 'package:heisuca/utils/platform_detector.dart';
+import 'package:heisuca/utils/media_server_http_client.dart';
+import 'package:heisuca/heisuca/heisuca_sources_ui.dart';
+import 'package:heisuca/widgets/focusable_media_card.dart';
+import 'package:heisuca/widgets/focusable_tab_chip.dart';
+import 'package:heisuca/widgets/loading_indicator_box.dart';
+import 'package:heisuca/widgets/person_search_row.dart';
 import 'package:provider/provider.dart';
 
 import '../test_helpers/prefs.dart';
@@ -470,9 +470,9 @@ void main() {
     expect(client.queries, ['movie']);
     // The source line always carries the full provenance: backend icon,
     // server name, then library name.
-    expect(find.text('Server • Movies'), findsOneWidget);
-    expect(find.text('Server • Anime'), findsOneWidget);
-    expect(find.byType(BackendBadge), findsNWidgets(2));
+    expect(find.text('Server · Movies'), findsOneWidget);
+    expect(find.text('Server · Anime'), findsOneWidget);
+    expect(find.byType(HeisucaSourceMark), findsNWidgets(2));
   });
 
   testWidgets('library name back-fills from loaded libraries when the row only carries an id', (tester) async {
@@ -488,8 +488,8 @@ void main() {
     (key.currentState! as SearchInputFocusable).submitSearchQuery('movie');
     await tester.pumpAndSettle();
 
-    expect(find.text('Server • Movies'), findsOneWidget);
-    expect(find.text('Server • Anime'), findsOneWidget);
+    expect(find.text('Server · Movies'), findsOneWidget);
+    expect(find.text('Server · Anime'), findsOneWidget);
   });
 
   testWidgets('no library label on a single-library server', (tester) async {
@@ -515,8 +515,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Movie 1'), findsOneWidget);
-    expect(find.text('Server • Movies'), findsNothing);
-    expect(find.byType(BackendBadge), findsNothing);
+    expect(find.text('Server · Movies'), findsNothing);
+    expect(find.text('Server'), findsOneWidget);
+    expect(find.byType(HeisucaSourceMark), findsOneWidget);
   });
 
   testWidgets('card refresh keeps the library stamp', (tester) async {
@@ -539,7 +540,7 @@ void main() {
 
     (key.currentState! as SearchInputFocusable).submitSearchQuery('movie');
     await tester.pumpAndSettle();
-    expect(find.text('Server • Movies'), findsOneWidget);
+    expect(find.text('Server · Movies'), findsOneWidget);
 
     // A fresh fetchItem carries no library context (a Jellyfin /Items/{id}
     // response has none); the merge must keep the stamp search applied.
@@ -557,7 +558,7 @@ void main() {
 
     expect(client.fetchedItemIds, ['movie_1']);
     expect(find.text('Movie 1 (Refreshed)'), findsOneWidget);
-    expect(find.text('Server • Movies'), findsOneWidget);
+    expect(find.text('Server · Movies'), findsOneWidget);
     final refreshed = tester.widget<FocusableMediaCard>(cardFinder).item as MediaItem;
     expect(refreshed.libraryId, '1');
     expect(refreshed.libraryTitle, 'Movies');

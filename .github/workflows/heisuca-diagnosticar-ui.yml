@@ -1,0 +1,57 @@
+name: Heisuca Diagnosticar UiAutomation
+
+on:
+  push:
+    branches: ["codex/heisuca-home-site"]
+    paths: [".github/workflows/heisuca-diagnosticar-ui.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnosticar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/app
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Compilar ferramenta sem compilar o aplicativo
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules >/dev/null
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          python3 scripts/bancada/compilar_ui.py
+      - name: Sondar conexão sem instalar app, sem tocar na tela e sem contas
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          ram-size: 4096M
+          heap-size: 512M
+          emulator-options: -no-window -gpu software -noaudio -no-boot-anim -camera-back none
+          working-directory: apps/app
+          script: |
+            adb root || true
+            timeout 45 adb wait-for-device
+            adb shell id
+            adb push .bancada/ui.jar /data/local/tmp/heisuca-bancada-ui.jar
+            python3 scripts/bancada/diagnosticar_ui.py
+      - name: Guardar diagnóstico sem servidor nem credenciais
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: heisuca-diagnostico-ui
+          path: apps/app/.bancada/ui-diagnostico/
+          if-no-files-found: warn
+          retention-days: 7

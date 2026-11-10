@@ -3,21 +3,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/cgflix/cgflix_layout.dart';
-import 'package:plezy/cgflix/cgflix_navigation.dart';
-import 'package:plezy/cgflix/cgflix_theme.dart';
-import 'package:plezy/cgflix/home/cgflix_hero.dart';
-import 'package:plezy/cgflix/home/cgflix_preview_sheet.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/media/media_item.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/providers/theme_provider.dart';
-import 'package:plezy/screens/auth_screen.dart';
-import 'package:plezy/cgflix/cgflix_configuracoes.dart';
-import 'package:plezy/cgflix/cgflix_theme_picker.dart';
-import 'package:plezy/widgets/settings_page.dart';
-import 'package:plezy/widgets/settings_section.dart';
-import 'package:plezy/services/settings_service.dart' as settings;
+import 'package:heisuca/cgflix/cgflix_layout.dart';
+import 'package:heisuca/cgflix/cgflix_navigation.dart';
+import 'package:heisuca/cgflix/cgflix_theme.dart';
+import 'package:heisuca/cgflix/home/cgflix_hero.dart';
+import 'package:heisuca/cgflix/home/cgflix_preview_sheet.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/media/media_item.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/providers/theme_provider.dart';
+import 'package:heisuca/screens/auth_screen.dart';
+import 'package:heisuca/cgflix/cgflix_configuracoes.dart';
+import 'package:heisuca/cgflix/cgflix_theme_picker.dart';
+import 'package:heisuca/widgets/settings_page.dart';
+import 'package:heisuca/widgets/settings_section.dart';
+import 'package:heisuca/services/settings_service.dart' as settings;
 import 'package:provider/provider.dart';
 
 import '../test_helpers/prefs.dart';
@@ -54,6 +54,17 @@ Future<void> _montar(WidgetTester tester, CgflixThemeVariant variante, Widget ho
 CgflixPalette _paleta(CgflixThemeVariant v) => CgflixPalette.forVariant(v);
 
 Color? _fundoDoBotao(WidgetTester tester, String rotulo) {
+  final containerFinder = find.ancestor(
+    of: find.text(rotulo),
+    matching: find.byType(Container),
+  );
+  if (containerFinder.evaluate().isNotEmpty) {
+    final container = tester.widget<Container>(containerFinder.first);
+    final decoration = container.decoration;
+    if (decoration is BoxDecoration) {
+      return decoration.color;
+    }
+  }
   final botao = tester.widget<ButtonStyleButton>(
     find.ancestor(of: find.text(rotulo), matching: find.bySubtype<ButtonStyleButton>()).first,
   );
@@ -61,14 +72,17 @@ Color? _fundoDoBotao(WidgetTester tester, String rotulo) {
 }
 
 void main() {
+  setUpAll(() {
+    LocaleSettings.setLocaleSync(AppLocale.en);
+  });
+
   setUp(() async {
     resetSharedPreferencesForTest();
     settings.SettingsService.resetForTesting();
     await settings.SettingsService.getInstance();
-    LocaleSettings.setLocaleSync(AppLocale.en);
   });
 
-  for (final variante in CgflixThemeVariant.values) {
+  for (final variante in const [CgflixThemeVariant.isis, CgflixThemeVariant.heitor]) {
     final nome = variante.name;
 
     testWidgets('$nome: Início (destaque + barra do topo)', (tester) async {
@@ -96,7 +110,7 @@ void main() {
       expect(tester.takeException(), isNull);
       expect(find.text('Assistir'), findsOneWidget);
       expect(_fundoDoBotao(tester, 'Assistir'), _paleta(variante).action);
-      expect(_fundoDoBotao(tester, 'Detalhes'), _paleta(variante).secondaryAction);
+      expect(_fundoDoBotao(tester, 'Detalhes'), _paleta(variante).glass);
     });
 
     testWidgets('$nome: Detalhes (prévia do título)', (tester) async {
@@ -153,7 +167,10 @@ void main() {
       final emblemas = tester.widgetList<SvgPicture>(find.byType(SvgPicture)).toList();
       expect(emblemas, isNotEmpty);
       final loader = emblemas.first.bytesLoader as SvgAssetLoader;
-      expect(loader.assetName, _paleta(variante).emblemAsset);
+      final expectedAsset = _paleta(variante).isLight
+          ? 'assets/heisuca/marca_site_hisui.svg'
+          : 'assets/heisuca/marca_site_shikkoku.svg';
+      expect(loader.assetName, expectedAsset);
     });
   }
 

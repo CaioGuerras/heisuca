@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plezy/i18n/strings.g.dart';
-import 'package:plezy/media/media_kind.dart';
-import 'package:plezy/models/catalog/catalog_item.dart';
-import 'package:plezy/providers/catalog_sources_provider.dart';
-import 'package:plezy/providers/explore_provider.dart';
-import 'package:plezy/services/catalog/catalog_source.dart';
-import 'package:plezy/utils/external_ids.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/models/catalog/catalog_item.dart';
+import 'package:heisuca/providers/catalog_sources_provider.dart';
+import 'package:heisuca/providers/explore_provider.dart';
+import 'package:heisuca/services/catalog/catalog_source.dart';
+import 'package:heisuca/utils/external_ids.dart';
 
 /// Minimal controllable source: rows resolve immediately unless [gate] is
 /// set, in which case fetches park on completers the test releases.

@@ -544,7 +544,6 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 }
 
-@visibleForTesting
 /// The profile to auto-select after sign-in: the account's only Plex Home
 /// user, unless it is PIN-protected. A bare activation skips the PIN check
 /// the picker performs, and the first bind of the session may reuse a cached
@@ -556,7 +555,6 @@ Profile? initialPlexHomeProfileFromCache(PlexHomeService plexHome, PlexAccountCo
   return Profile.virtualPlexHome(connectionId: accountConn.id, homeUser: users.single);
 }
 
-@visibleForTesting
 bool shouldPromptForInitialProfileSelection({
   required Profile? activeProfile,
   required bool hasProfiles,

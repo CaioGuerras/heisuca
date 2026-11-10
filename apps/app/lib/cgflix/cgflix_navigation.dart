@@ -7,13 +7,13 @@
 // "Meus pedidos" vai para o menu do usuário.
 import 'dart:io' show Platform;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import '../i18n/strings.g.dart';
 import '../navigation/navigation_tabs.dart';
-import '../navigation/settings_shortcut.dart';
 import '../screens/downloads/downloads_screen.dart';
 import '../screens/libraries/libraries_screen.dart';
 import '../screens/search_screen.dart';
@@ -21,16 +21,21 @@ import '../services/settings_service.dart';
 import '../utils/platform_detector.dart';
 import '../widgets/settings_section.dart';
 import '../widgets/app_icon.dart';
-import 'cgflix_logo.dart';
 import '../heisuca/heisuca_logo.dart';
+import '../heisuca/heisuca_library_screen.dart';
 import '../heisuca/heisuca_settings_screen.dart';
 import 'cgflix_palette.dart';
-import 'cgflix_style.dart';
 import 'cgflix_user_menu.dart';
 import 'requests/cgflix_requests_ui.dart';
 
 /// Celular e tablet usam a navegação do CGFLIX (TV e computador ficam como no upstream).
-bool cgflixUseYouTab(BuildContext context) => PlatformDetector.isMobile(context);
+///
+/// Lê a plataforma de [defaultTargetPlatform] (a mesma que o tema do app usa, ver `mono_theme.dart`), sem
+/// depender do contexto: a tela principal decide as abas no `initState`, onde `Theme.of` é proibido (o debug
+/// derrubava a Início na bancada Android).
+bool cgflixUseYouTab(BuildContext context) =>
+    !PlatformDetector.isTV() &&
+    (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS);
 
 /// Seção inicial: no celular a raiz é sempre a Início (não há mais abas para escolher);
 /// TV e computador seguem a preferência "Seção inicial" do upstream.
@@ -81,7 +86,7 @@ abstract final class CgflixPages {
   static WidgetBuilder downloads = (_) => const DownloadsScreen();
 
   /// Bibliotecas do upstream (1.5.0: no menu do usuário).
-  static WidgetBuilder libraries = (_) => const LibrariesScreen();
+  static WidgetBuilder libraries = (context) => PlatformDetector.isMobile(context) ? const HeisucaLibraryScreen() : const LibrariesScreen();
   static Route<void> Function() settings = () => MaterialPageRoute<void>(builder: (_) => const HeisucaSettingsScreen());
 
   /// "Meus pedidos" (Seerr), em tela nativa.
@@ -148,62 +153,8 @@ class CgflixTopBar extends StatelessWidget {
   /// Busca (some sem conexão).
   final bool showActions;
 
-  /// Largura natural do grupo do centro (para decidir se dá para centralizar na tela).
-  double _groupWidth(BuildContext context) {
-    final scaler = _chipTextScaler(context);
-    var width = 0.0;
-    for (final chip in chips) {
-      final painter = TextPainter(
-        // Mesmo estilo que o Text do chip recebe (o tema soma espaçamento entre letras).
-        text: TextSpan(text: chip.label, style: DefaultTextStyle.of(context).style.merge(_chipTextStyle)),
-        textDirection: TextDirection.ltr,
-        textScaler: scaler,
-        maxLines: 1,
-      )..layout();
-      // + a borda de 1 dp de cada lado (a decoração do chip soma a borda ao tamanho).
-      width += painter.width + 2 * (_chipPadding + _slotPadding + 1);
-      painter.dispose();
-    }
-    if (onClearFilter != null) width += 48;
-    if (showActions) width += 48;
-    return width;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final chipsRow = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (onClearFilter != null)
-          _RoundIconButton(
-            key: const ValueKey('cgflix-top-clear'),
-            icon: Symbols.close_rounded,
-            label: 'Voltar para Tudo',
-            onPressed: onClearFilter!,
-          ),
-        for (final chip in chips) _TopChip(key: ValueKey('cgflix-top-chip-${chip.label}'), chip: chip),
-      ],
-    );
-    final actions = [
-      if (showActions) ...[
-        _RoundIconButton(
-          key: const ValueKey('cgflix-top-search'),
-          icon: Symbols.search_rounded,
-          label: 'Buscar',
-          onPressed: () => cgflixOpenSearch(context),
-        ),
-      ],
-    ];
-    final group = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Flexible(
-          child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: chipsRow),
-        ),
-        ...actions,
-      ],
-    );
-
     return SizedBox(
       height: cgflixTopBarHeight,
       child: Padding(
@@ -245,10 +196,6 @@ WidgetStateProperty<Color?> cgflixPressedOverlay(BuildContext context) {
   });
 }
 
-const _chipPadding = 12.0;
-const _slotPadding = 6.0;
-const _chipTextStyle = TextStyle(fontSize: 14, height: 1.2, fontWeight: FontWeight.w600, fontFamily: 'Inter');
-TextScaler _chipTextScaler(BuildContext context) => MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 1.3);
 
 /// Emblema do CGFLIX que abre o menu do usuário (o novo lugar do perfil).
 class CgflixUserMenuButton extends StatelessWidget {
@@ -277,69 +224,6 @@ class CgflixUserMenuButton extends StatelessWidget {
             child: const SizedBox.square(
               dimension: size,
               child: Center(child: HeisucaLogo(height: 32, apenasSelo: true)),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _TopChip extends StatelessWidget {
-  const _TopChip({super.key, required this.chip});
-  final CgflixTopBarChip chip;
-
-  @override
-  Widget build(BuildContext context) {
-    final selected = chip.selected;
-    final palette = context.cgflix;
-    return Semantics(
-      button: true,
-      selected: selected,
-      label: selected ? '${chip.label}, filtro ativo' : 'Mostrar só ${chip.label}',
-      excludeSemantics: true,
-      // Alvo de toque de 48 dp, desenho de 36 dp (mesma linha das lupas); 6 dp de cada lado,
-      // como a lupa (48 − 36), dão o mesmo espaço visual (12 dp) entre todos os itens.
-      child: GestureDetector(
-        // Toque na margem do alvo de 48 dp também vale.
-        behavior: HitTestBehavior.opaque,
-        onTap: chip.onPressed,
-        child: Container(
-          height: 48,
-          padding: const EdgeInsets.symmetric(horizontal: _slotPadding),
-          child: Center(
-            child: AnimatedContainer(
-              duration: CgflixMotion.fast,
-              curve: CgflixMotion.curve,
-              height: _itemHeight,
-              decoration: ShapeDecoration(
-                shape: StadiumBorder(
-                  side: BorderSide(color: selected ? palette.chipSelectedBorder : palette.glassBorder),
-                ),
-                color: selected ? palette.chipSelected : palette.glass,
-              ),
-              child: Material(
-                type: MaterialType.transparency,
-                shape: const StadiumBorder(),
-                clipBehavior: Clip.antiAlias,
-                child: InkWell(
-                  onTap: chip.onPressed,
-                  overlayColor: cgflixPressedOverlay(context),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: _chipPadding),
-                    child: Center(
-                      widthFactor: 1,
-                      child: Text(
-                        chip.label,
-                        maxLines: 1,
-                        softWrap: false,
-                        textScaler: _chipTextScaler(context),
-                        style: _chipTextStyle.copyWith(color: palette.onGlass),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
             ),
           ),
         ),

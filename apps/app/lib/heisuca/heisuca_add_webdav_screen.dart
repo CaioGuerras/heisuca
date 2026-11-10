@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../focus/focusable_text_field.dart';
 import 'heisuca_theme.dart';
 
 /// Diagnóstico WebDAV: ainda não adiciona uma fonte ao catálogo.
@@ -106,7 +107,7 @@ class _HeisucaAddWebDavScreenState extends State<HeisucaAddWebDavScreen> {
                 Text(
                   'Teste o acesso ao seu servidor. Adicionar arquivos à biblioteca e reproduzir por WebDAV ainda não está disponível.',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.white.withOpacity(0.55),
+                    color: Colors.white.withValues(alpha: 0.55),
                   ),
                 ),
                 const SizedBox(height: 28),
@@ -216,7 +217,7 @@ class _CampoTexto extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 6),
-        TextFormField(
+        FocusableTextFormField(
           controller: controller,
           obscureText: obscureText,
           validator: validator,
@@ -228,7 +229,7 @@ class _CampoTexto extends StatelessWidget {
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(
-              color: Colors.white.withOpacity(0.3),
+              color: Colors.white.withValues(alpha: 0.3),
               fontSize: 14,
             ),
             prefixIcon: Icon(icon, color: Colors.white54, size: 20),

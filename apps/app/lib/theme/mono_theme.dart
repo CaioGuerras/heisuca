@@ -5,16 +5,26 @@ import '../utils/platform_detector.dart';
 import 'gapped_track_shape.dart';
 import 'mono_tokens.dart';
 
-final Map<({bool dark, bool oled, bool sumi, TargetPlatform platform, CgflixThemeVariant? kids, bool tv}), ThemeData>
+final Map<
+  ({bool dark, bool oled, bool sumi, bool player, TargetPlatform platform, CgflixThemeVariant? kids, bool tv}),
+  ThemeData
+>
 _monoThemeCache = {};
 
-ThemeData monoTheme({required bool dark, bool oled = false, bool sumi = false, CgflixThemeVariant? kids}) {
+ThemeData monoTheme({
+  required bool dark,
+  bool oled = false,
+  bool sumi = false,
+  bool player = false,
+  CgflixThemeVariant? kids,
+}) {
   // ThemeData derives several defaults from defaultTargetPlatform.
   // TV e celular compartilham os tokens; a detecção participa da chave do cache.
   final key = (
-    dark: dark || oled,
+    dark: dark || oled || player,
     oled: oled,
     sumi: sumi,
+    player: player,
     platform: defaultTargetPlatform,
     kids: kids,
     tv: PlatformDetector.isTV(),
@@ -27,6 +37,7 @@ ThemeData monoTheme({required bool dark, bool oled = false, bool sumi = false, C
     oled: key.oled,
     kids: kids,
     sumi: sumi,
+    player: player,
   ); // CGFLIX
   _monoThemeCache[key] = theme;
   return theme;

@@ -62,7 +62,7 @@ void main() {
       ),
     );
     expect(inside.brightness, Brightness.dark);
-    expect(inside.extension<CgflixPalette>(), CgflixPalette.sumi);
+    expect(inside.extension<CgflixPalette>(), CgflixPalette.player);
     expect(inside.scaffoldBackgroundColor, CgflixPalette.sumi.background);
   });
 }

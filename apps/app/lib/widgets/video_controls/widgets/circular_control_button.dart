@@ -14,8 +14,12 @@ class CircularControlButton extends StatelessWidget {
   /// Fundo do círculo (Heisuca: play na cor do tema). Padrão: preto 50%, como no upstream.
   final Color? background;
 
+  /// Contraste do ícone no círculo; o padrão continua branco sobre o véu preto.
+  final Color? foreground;
+
   const CircularControlButton({
     this.background,
+    this.foreground,
     super.key,
     required this.semanticLabel,
     required this.icon,
@@ -26,6 +30,7 @@ class CircularControlButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isEnabled = onPressed != null;
+    final foregroundColor = foreground ?? Colors.white;
     return Container(
       decoration: BoxDecoration(color: background ?? Colors.black.withValues(alpha: 0.5), shape: BoxShape.circle),
       child: Semantics(
@@ -38,7 +43,7 @@ class CircularControlButton extends StatelessWidget {
           icon: AppIcon(
             icon,
             fill: 1,
-            color: isEnabled ? Colors.white : Colors.white.withValues(alpha: 0.3),
+            color: isEnabled ? foregroundColor : foregroundColor.withValues(alpha: foregroundColor.a * 0.3),
             size: iconSize,
           ),
           iconSize: iconSize,

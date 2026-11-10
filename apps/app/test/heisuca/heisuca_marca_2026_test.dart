@@ -134,6 +134,41 @@ void main() {
       await tester.pumpWidget(const SizedBox());
     }
   });
+  testWidgets('player usa só neutros do Sumi e conserva o tema fora dele', (tester) async {
+    ThemeData? primeiro;
+    for (final variant in [CgflixThemeVariant.isis, CgflixThemeVariant.heitor, CgflixThemeVariant.sumi]) {
+      final externo = cgflixAppTheme(variant);
+      late ThemeData interno;
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: externo,
+          home: cgflixAlwaysDark(
+            Builder(
+              builder: (context) {
+                interno = Theme.of(context);
+                return const SizedBox();
+              },
+            ),
+          ),
+        ),
+      );
+      final palette = interno.extension<CgflixPalette>()!;
+      expect(palette.background, TemaSumi.temaCorFundo);
+      expect(palette.accent, TemaSumi.temaCorTexto);
+      expect(palette.progress, TemaSumi.temaCorTexto);
+      expect(interno.colorScheme.primary, TemaSumi.temaCorTexto);
+      expect(interno.radioTheme.fillColor!.resolve({WidgetState.selected}), TemaSumi.temaCorTexto);
+      expect(interno.sliderTheme.activeTrackColor, TemaSumi.temaCorTexto);
+      expect(interno.progressIndicatorTheme.color, TemaSumi.temaCorTexto);
+      primeiro ??= interno;
+      expect(identical(primeiro, interno), isTrue, reason: 'tema do player deve permanecer em cache');
+      expect(externo.extension<CgflixPalette>(), CgflixPalette.forVariant(variant));
+      if (variant == CgflixThemeVariant.sumi) {
+        expect(externo.colorScheme.primary, TemaSumi.temaCorAcento);
+      }
+    }
+    await tester.pumpWidget(const SizedBox());
+  });
   test('tema aplicado usa tokens e botão neutro', () {
     final tema = cgflixAppTheme();
     expect(tema.scaffoldBackgroundColor, TemaShikkoku.temaCorFundo);

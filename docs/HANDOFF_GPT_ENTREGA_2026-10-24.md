@@ -3,9 +3,9 @@
 ## Ordem de 09/11/2026 — Marca única dos apps (Ultron) — validação em andamento em 10/11
 
 Base `2e61808de689b2f060381730aabd15373c17d0a7`, depois da remoção do Assistir juntos.
-Primeira integração `d90bc32044057b654d678d7af24831cb2fd5595d`; complementação nesta árvore.
+Primeira integração `d90bc32044057b654d678d7af24831cb2fd5595d`; complementação `4fa4bf741711ef96e176afd9dd7573a86193d641`; projeção neutra do player nesta árvore.
 Ramo de publicação único `codex/heisuca-home-site`; worktree próprio, checkout compartilhado preservado.
-**TESTE 2.0.34+2045**. Sem PR, merge, release, AAB, produção, mudança de applicationIds ou telemetria.
+**TESTE 2.0.34+2046**. Sem PR, merge, release, AAB, produção, mudança de applicationIds ou telemetria.
 
 - Pasta `docs/marca_2026-11-09/` trazida integralmente de `origin/visao/marca-2026-11-09`, após ler LEIA.
 - Base e sete temas gerados copiados sem alterar valores nem formatação; teste confere igualdade exata com a fonte.
@@ -28,11 +28,12 @@ Ramo de publicação único `codex/heisuca-home-site`; worktree próprio, checko
 
 - Novos testes escritos antes da adaptação: base falhou em oito verificações de migração/opções/tema aplicado.
   Teste adicional do ícone automático também falhou antes da correção; evidências vermelhas preservadas.
-- 23 verificações novas: migração/persistência, opções da TV/celular, contraste dos três temas, igualdade dos gerados,
+- 24 verificações novas: migração/persistência, opções da TV/celular, contraste dos três temas, igualdade dos gerados,
   bases adultas dos quatro acentos diurnos/noturnos, abertura kids na TV, Sumi, botão/tipografia e ícone automático.
-  Nomes com acentos (Matinê, Automático) e claro também migram.
-- Portão da árvore final: **178 Python, 2.288 Flutter / 3 pulados e 8 Impeller**, verde.
-  Log `/tmp/ultron-marca-gate-entrega.log`. Nenhum limite ou skip alterado no portão.
+  Nomes com acentos (Matinê, Automático) e claro também migram. O teste do player exige cores neutras e cache estável
+  sob os três temas adultos, preservando o Sumi dourado fora dele.
+- Portão da árvore final: **178 Python, 2.289 Flutter / 3 pulados e 8 Impeller**, verde.
+  Log `/tmp/ultron-marca-gate-2046.log`. Nenhum limite ou skip alterado no portão.
 - Análise geral do app: **40 avisos/info preexistentes**, contra 41 na base; nenhum diagnóstico novo.
   Tokens imutáveis são excluídos do lint como os demais gerados; compilação/testes continuam conferindo-os e a cópia exata.
 - Testes antigos mantêm os mesmos limites de contraste/foco, agora exigindo Inter/tokens novos. Navegação em Ajustes
@@ -45,18 +46,26 @@ Ramo de publicação único `codex/heisuca-home-site`; worktree próprio, checko
 - Regressões localizadas: 135 testes passaram. Refino de telas + marca: 71 passaram. Nenhum limite de foco/contraste reduzido.
 - Os 12 pulados adicionais do modo padrão são novas capturas opcionais da variante Sumi, pelas flags já existentes.
   Executados explicitamente com `CGFLIX_CAPTURAS`: **12 passaram, nenhum pulado**. Os 59 pulados anteriores permanecem.
-- Suíte completa final comparada à base: **em execução** (`/tmp/ultron-marca-full-final.log`). Logs `/tmp/ultron-marca-*.log`.
+- Suíte ampla da 2045: **8.990 passaram / 71 pulados / 10 falhas**, os mesmos dez casos da base, zero novo.
+  Depois, revisão visual da captura real revelou controles dourados no player: código da 2045 não é o fim desta ordem.
+- Player 2046 tem projeção neutra derivada só dos tokens Sumi, sem novo tema selecionável nem cores próprias.
+  Flag separada no cache mantém o tema estável; botão de play/pausa usa BotaoFundo/BotaoTexto para manter contraste.
+  Teste novo falhou antes; marca/tema/cache/navegação/foco **51 passaram** depois.
+- Suíte completa da 2046 comparada à base: **em execução** (`/tmp/ultron-marca-full-2046.log`). Logs `/tmp/ultron-marca-*.log`.
 - Roteiro TV agora procura Sobre pelo rótulo focado e exige a página real (slogan + Dicas do Heisuca): três novos testes
   Python falharam antes e passaram depois. Impede falso verde quando só um ajuste mudou de valor; demais checks intactos.
 - Grep Shinju/8155E3: só migração comentada; grep watch_together/watchTogether no app vazio.
 
 ### Actions, artefatos, revisão e desfazer
 
-Actions da complementação aguardando commit de código. APKs só para revisão; sem distribuição.
+Actions da correção neutra 2046 aguardando commit de código. APKs só para revisão; sem distribuição.
 Rodada anterior d90: Segurança e Atualizador TV passaram. Bancada Android `42779682745` parou com
 `BANCADA_OCUPADA` antes do vídeo; proteção preservada. TV `42779682758` teve jobs verdes, mas o relatório real é
 **ATENÇÃO** por foco na Busca (o artefato da base `42732218527` já trazia esse achado).
-A conferência das imagens também revelou o falso verde do Sobre corrigido pelo novo roteiro. Não é aprovação plena da TV.
+A conferência das imagens também revelou o falso verde do Sobre corrigido pelo novo roteiro.
+A bancada Android da 2045 (`42785473411`) passou, mas a imagem `15-home-so-som.png` mostra player com HUD dourado;
+ela fundamentou a correção 2046. Nomes de arquivos de algumas cenas não coincidem com o conteúdo: selecionar capturas
+pela imagem real, sem apresentar skeleton como Home carregada ou launcher como restauração comprovada. Não é aprovação plena da TV.
 Ainda não testado em aparelho físico nem revisado independentemente por Claude/Gemini.
 Originais aposentados preservados em `~/Arquivos_Obsoletos/2026-11-09_heisuca_marca/`.
 Desfazer: reverter o commit desta marca, preservando os commits anteriores de remoção e do atualizador.

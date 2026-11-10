@@ -95,9 +95,17 @@ class CgflixPageTransitionsBuilder extends PredictiveBackPageTransitionsBuilder 
 /// Marca do CGFLIX sobre o tema do upstream. [oled] = Isis; o tema claro do upstream vira o
 /// Hisui; no modo escuro comum ou com sistema escuro vale Shikkoku (Isis).
 /// [kids] troca o claro do Heitor pela paleta infantil (Ichigo/Sorairo), com o mesmo desenho.
-ThemeData cgflixBrandTheme(ThemeData theme, {required bool oled, bool sumi = false, CgflixThemeVariant? kids}) {
+ThemeData cgflixBrandTheme(
+  ThemeData theme, {
+  required bool oled,
+  bool sumi = false,
+  bool player = false,
+  CgflixThemeVariant? kids,
+}) {
   final dark = oled || theme.brightness == Brightness.dark;
-  final palette = kids == CgflixThemeVariant.ichigo
+  final palette = player
+      ? CgflixPalette.player
+      : kids == CgflixThemeVariant.ichigo
       ? (dark ? CgflixPalette.ichigoNoite : CgflixPalette.ichigo)
       : kids == CgflixThemeVariant.sorairo
       ? (dark ? CgflixPalette.sorairoNoite : CgflixPalette.sorairo)
@@ -339,7 +347,7 @@ Widget cgflixSystemBars(BuildContext context, Widget child) =>
 /// Player, abertura do vídeo e controles do player: sempre escuros (Isis), nos dois temas.
 /// Folhas e diálogos abertos de dentro do player herdam este tema.
 Widget cgflixAlwaysDark(Widget child) => Theme(
-  data: cgflixAppTheme(CgflixThemeVariant.sumi),
+  data: monoTheme(dark: true, player: true),
   child: AnnotatedRegion<SystemUiOverlayStyle>(value: cgflixSystemOverlay(Brightness.dark), child: child),
 );
 

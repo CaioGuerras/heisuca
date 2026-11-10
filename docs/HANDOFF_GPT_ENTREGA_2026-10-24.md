@@ -1,6 +1,6 @@
 # Heisuca — entrega da rodada de 24/10/2026
 
-## 08/11/2026 — Pacote D, atualizador fora da Play (Ultron) — implementação entregue; bancada do atualizador em validação
+## 08/11/2026 — Pacote D, atualizador fora da Play (Ultron) — entregue para revisão independente (fechado em 09/11)
 
 Base `5da72fd`, contém C entregue e spec `2dba3aa`, lida integralmente. Ramo único `codex/heisuca-home-site`.
 Sem servidor, feed real, domínio inventado, promoção, release/AAB ou distribuição de APK. Revisão Claude pendente.
@@ -25,8 +25,8 @@ Versão do pacote D: **TESTE 2.0.34+2042**; applicationIds preservados.
 ### Estado da entrega
 
 Implementação, suíte comparada, APKs e CI Android/Segurança/TV geral comprovados abaixo.
-Revisão Claude e bancada independente Gemini pendentes. Bancada específica do atualizador ainda sem aprovação;
-nenhum resultado de roteiro simulado substitui o percurso real no emulador. Nenhum APK distribuído.
+Revisão Claude e bancada independente Gemini pendentes. Bancada específica do atualizador aprovada no CI `42554278602`;
+revisão independente e aparelho físico continuam pendentes. Nenhum APK distribuído.
 
 ### Unidade D2 — download privado e cancelamento
 
@@ -76,11 +76,11 @@ nenhum resultado de roteiro simulado substitui o percurso real no emulador. Nenh
   Compila base 2042 e atualização sintética 2043 com a mesma chave debug; mede cancelamento, permissão negada e versão
   realmente instalada via Android. Não exige reabertura. Não cria feed/nginx/domínio de produção nem publica APK.
 - Nove testes Python do roteiro/variantes passaram, com execução vermelha anterior; janela de fundo não conta como confirmação.
-  A rodada REAL no emulador ainda depende do CI; os testes do roteiro não a substituem.
+  A rodada real final passou no CI `42554278602`, após correções do roteiro descritas abaixo.
 - Análise estrita: **23 Dart sem achados**. `main.dart`: dois warnings antigos de métodos não usados, reproduzidos na base intacta;
   zero achados novos. `/tmp/ultron-d-strict-clean.log`, `/tmp/ultron-d-analyze-final.log`, `/tmp/ultron-d-main-base-analyze.log`.
 - Último portão completo: **172 Python, 2.273 Flutter (3 pulados), 8 Impeller**, verde. `/tmp/ultron-d-gate-final.log`.
-  Após ajuste apenas do roteiro, bateria Python inteira: **174 passaram**; Dart/Kotlin/recursos/pubspec permaneceram idênticos.
+  Após ajuste apenas do roteiro, bateria Python inteira: **175 passaram**; Dart/Kotlin/recursos/pubspec permaneceram idênticos.
   Execução `ultron-d-gate-before-title-fix.log` é anterior e falhou no teste novo do título; não é evidência final.
 - Suíte integral D: **9.262 passaram, 59 pulados, 10 falharam**. Base C `5da72fd`: **9.222/59/10**.
   Comparação exata dos nomes: **zero falhas novas**, nenhuma falha da base omitida. `/tmp/ultron-d-full.log` e
@@ -94,8 +94,9 @@ nenhum resultado de roteiro simulado substitui o percurso real no emulador. Nenh
   não substitui compilação real. `/tmp/ultron-d-ci-apk-path-check.log`. Código do app e versão mantidos; CI reiniciado.
 - Commits de unidade: D1 `79a50e5`, D2 `177484a`, D3 `56eb488`, D4 `11d5bc0`; correção de CI `f4df4b2`.
   `git diff 11d5bc0 f4df4b2 -- apps/app` vazio: testes da árvore do app continuam válidos após a correção do caminho.
-- Android `42549161215` **verde**, inclusive MobSF, testes nativos e validação de ambos os APKs. AAB pulado.
-  Segurança `42549161217` verde. TV `42548399876` verde (Google TV e TV box 1,5 GB); mesma árvore de app de `f4df4b2`.
+- [Android `42549161215`](https://github.com/CaioGuerras/heisuca/actions/runs/42549161215) **verde**, inclusive MobSF, testes nativos e validação de ambos os APKs. AAB pulado.
+  [Segurança `42549161217`](https://github.com/CaioGuerras/heisuca/actions/runs/42549161217) verde.
+  [TV `42548399876`](https://github.com/CaioGuerras/heisuca/actions/runs/42548399876) verde (Google TV e TV box 1,5 GB); mesma árvore de app de `f4df4b2`.
 - APKs de TESTE retidos para revisão: [ARM64](https://github.com/CaioGuerras/heisuca/actions/runs/42549161215/artifacts/13645241729)
   e [universal](https://github.com/CaioGuerras/heisuca/actions/runs/42549161215/artifacts/13645636464); expiram em 23/11.
   Ambos `versionCode=2042`, pacote `app.heisuca.player.teste.home`, nome Heisuca Teste, certificado
@@ -115,7 +116,7 @@ nenhum resultado de roteiro simulado substitui o percurso real no emulador. Nenh
   o percurso do atualizador. Correção restrita ao roteiro: alternativa de XML em arquivo já usada pela bancada TV,
   espera tolerante a leituras transitórias e diagnóstico de janela/atividade/erros Flutter em ambiente sintético.
   TDD: dois casos falharam antes; **174 testes Python passaram** depois. Logs `/tmp/ultron-d-hierarquia-red.log`,
-  `/tmp/ultron-d-python-hierarquia-final.log`. App/APKs inalterados. Correção enviada em `4dbcf2c`; execução `42553092811` em acompanhamento, sem aprovação antecipada.
+  `/tmp/ultron-d-python-hierarquia-final.log`. App/APKs inalterados. Correção enviada em `4dbcf2c`; execução `42553092811` falhou no reconhecimento do foco, conforme diagnóstico abaixo.
 
 
 
@@ -123,7 +124,16 @@ nenhum resultado de roteiro simulado substitui o percurso real no emulador. Nenh
   Artefato `13646831344` tem XML/captura e erros Flutter vazios: o foco está no pai semântico do botão (XML real confirmado).
   Corrigido o reconhecimento somente quando esse pai contém um único botão acionável; raiz genérica com vários botões é recusada.
   TDD: caso novo falhou antes; **175 Python passaram** após. `/tmp/ultron-d-foco-semantico-red.log`,
-  `/tmp/ultron-d-python-foco-final.log`. App/APKs inalterados; nenhuma aprovação de percurso completo nesta execução.
+  `/tmp/ultron-d-python-foco-final.log`. App/APKs inalterados. Correção `4097266`; repetição `42554278602` passou; não apaga as falhas anteriores documentadas.
+
+
+- [Atualizador TV `42554278602`](https://github.com/CaioGuerras/heisuca/actions/runs/42554278602) **verde**, SHA `4097266`.
+  Relatório real: anúncio HTTPS local; cancelamento por D-pad com cache vazio; tamanho/SHA/certificado conferidos;
+  permissão negada sem instalar; Android confirmou **2042 → 2043**. Reabertura não exigida. Artefato `13646139992`,
+  SHA ZIP `ad1a52ea7962c66f31cceb23ab80f3f93b69098c910d57a626c4ba326b716af5`, retido até 12/11.
+  Cópia de relatório/XML/capturas em `PROVAS_ULTRON_ATUALIZADOR_2026-11-08/bancada-42554278602/` no handoff local.
+  Não é teste na TCL nem revisão Gemini. Android/MobSF e TV geral verdes acima usam código do app idêntico ao final;
+  reexecuções dos mesmos binários após mudanças só no roteiro não substituem nem invalidam essas provas.
 
 ### Revisão, operação e como desfazer
 
@@ -131,8 +141,8 @@ nenhum resultado de roteiro simulado substitui o percurso real no emulador. Nenh
   Claude/Caio definem os hosts/feed; depois será necessário compilar a configuração autorizada. Nada de servidor criado aqui.
 - Não testado em TCL/Fire TV físico. Automação de CI não substitui revisão Claude nem bancada Gemini.
 - Commits: `79a50e5` (D1), `177484a` (D2), `56eb488` (D3), `11d5bc0` (D4), `f4df4b2` (nome do split),
-  `444743d` (prontidão ADB), `4dbcf2c` (hierarquia/diagnóstico). Base preservada: C `5da72fd`.
-- Desfazer somente D: reverter `4dbcf2c`, `444743d`, `f4df4b2`, `11d5bc0`, `56eb488`, `177484a`, `79a50e5`,
+  `444743d` (prontidão ADB), `4dbcf2c` (hierarquia/diagnóstico), `4097266` (foco semântico). Base preservada: C `5da72fd`.
+- Desfazer somente D: reverter `4097266`, `4dbcf2c`, `444743d`, `f4df4b2`, `11d5bc0`, `56eb488`, `177484a`, `79a50e5`,
   nessa ordem, em commits novos no ramo combinado. Resolver apenas os trechos de handoff se a consolidação documental conflitar.
   Preservar A/B/C, spec do Claude, dados e perfis. Não há configuração de servidor a reverter.
 - Checkout compartilhado do Jarvis preservado em `54d6053`; trabalho em `~/TMP/ultron-android-sobre`.

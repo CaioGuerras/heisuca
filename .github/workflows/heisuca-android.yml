@@ -271,14 +271,14 @@ jobs:
         run: flutter build appbundle --release --flavor play -PheisucaLoja=true --dart-define=GIT_COMMIT=${{ github.sha }}
 
       - name: Conferir assinatura e pacote do AAB
-        run: python3 scripts/heisuca-validar-aab.py build/app/outputs/bundle/release/app-release.aab
+        run: python3 scripts/heisuca-validar-aab.py build/app/outputs/bundle/playRelease/app-play-release.aab
 
       - name: Publicar Artifact Heisuca AAB
         uses: actions/upload-artifact@v4
         with:
           name: heisuca-aab
           path: |
-            apps/app/build/app/outputs/bundle/release/*.aab
+            apps/app/build/app/outputs/bundle/playRelease/*.aab
             apps/app/assets/heisuca/CHANGELOG_USUARIO.md
           if-no-files-found: error
           retention-days: 14

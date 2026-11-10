@@ -801,26 +801,28 @@ class _DiscoverScreenState extends State<DiscoverScreen>
             ),
             const SizedBox(width: 12),
           ],
-          FocusableActionBar(
-            key: _actionBarKey,
-            onNavigateLeft: _navigateToSidebar,
-            onNavigateDown: _focusContentFromAppBar,
-            actions: [
-              if (cgflixShowHomeHeaderExtras)
-                FocusableAction(icon: Symbols.refresh_rounded, iconColor: foregroundColor, onPressed: manualRefresh),
-              // Server Tasks — Plex-only (`/activities` API has no
-              // Jellyfin equivalent), hide the button entirely on
-              // Jellyfin-only profiles so the chrome doesn't show
-              // a permanently empty popover.
-              if (PlatformDetector.isDesktop(context) &&
-                  context.select<MultiServerProvider, bool>((p) => p.hasOnlinePlexServers))
-                FocusableAction(
-                  onPressed: () => _serverActivitiesButtonKey.currentState?.togglePanel(),
-                  child: ServerActivitiesButton(key: _serverActivitiesButtonKey),
-                ),
-              // User menu — profiles + sign out
-              _buildUserMenuAction(context),
-            ],
+          Builder(
+            builder: (context) => FocusableActionBar(
+              key: _actionBarKey,
+              onNavigateLeft: _navigateToSidebar,
+              onNavigateDown: _focusContentFromAppBar,
+              actions: [
+                if (cgflixShowHomeHeaderExtras)
+                  FocusableAction(icon: Symbols.refresh_rounded, iconColor: foregroundColor, onPressed: manualRefresh),
+                // Server Tasks — Plex-only (`/activities` API has no
+                // Jellyfin equivalent), hide the button entirely on
+                // Jellyfin-only profiles so the chrome doesn't show
+                // a permanently empty popover.
+                if (PlatformDetector.isDesktop(context) &&
+                    context.select<MultiServerProvider, bool>((p) => p.hasOnlinePlexServers))
+                  FocusableAction(
+                    onPressed: () => _serverActivitiesButtonKey.currentState?.togglePanel(),
+                    child: ServerActivitiesButton(key: _serverActivitiesButtonKey),
+                  ),
+                // User menu — profiles + sign out
+                _buildUserMenuAction(context),
+              ],
+            ),
           ),
         ],
       ),

@@ -23,7 +23,7 @@ internal object ResumeStallPolicy {
   /** Assumed fps when neither the format nor timestamp detection knows it. */
   const val FALLBACK_FPS = 24f
 
-  /** Recovery seek delta. Must stay under the 350ms watch-together drift deadband. */
+  /** Deslocamento usado na recuperação local da reprodução. */
   const val SEEK_BACK_MS = 250L
 
   /** Re-checks allowed while the clock itself is not advancing (generic stall, not this bug). */

@@ -81,11 +81,11 @@ void main() {
     await principal(tester);
     await tester.tap(find.text('Avançado'));
     await tester.pumpAndSettle();
+    expect(find.text('Assistir juntos'), findsNothing);
+    expect(find.text('Recursos extras'), findsNothing);
     for (final texto in [
       t.connections.sectionTitle,
       t.connections.addConnection,
-      'Recursos extras',
-      'Assistir juntos',
       'Ao assistir (técnico)',
       'Reprodução avançada',
       'Opções do mpv',

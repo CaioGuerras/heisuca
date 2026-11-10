@@ -23,6 +23,14 @@ class ProvasSessao(unittest.TestCase):
         self.assertEqual(prova['sessoes'], 1)
         self.assertEqual(prova['posicao_ms'], 12000)
 
+    def test_estado_nomeado_do_android_15_preserva_numero_exato(self):
+        for nome, numero in [('PLAYING', 3), ('PAUSED', 2)]:
+            with self.subTest(nome=nome):
+                texto = dump(estado=numero).replace('state=' + str(numero) + ',', 'state=' + nome + '(' + str(numero) + '),')
+                self.assertEqual(analisar_sessao(texto, PKG, 'Filme de prova', estado=numero)['estado'], numero)
+        with self.assertRaises(RuntimeError):
+            analisar_sessao(dump().replace('state=3,', 'state=PAUSED(2),'), PKG, 'Filme de prova', estado=3)
+
     def test_duas_sessoes_nao_sao_aprovadas(self):
         with self.assertRaisesRegex(RuntimeError, 'exatamente uma'):
             analisar_sessao(dump() + dump(), PKG, 'Filme de prova', estado=3)
@@ -95,3 +103,30 @@ class MenuPip(unittest.TestCase):
                 with self.assertRaisesRegex(RuntimeError, 'Sequência'):
                     alvo.poll()
                 alvo.adb.assert_not_called()
+
+
+class ConvergenciaSessao(unittest.TestCase):
+    def coletor(self, dumps):
+        alvo = Coletor('.', Mock(side_effect=[SimpleNamespace(stdout=valor.encode()) for valor in dumps]), PKG, lambda t: t)
+        alvo.pasta = unittest.mock.MagicMock()
+        return alvo
+
+    @patch('sessao_media.time.sleep')
+    def test_guarda_dump_antes_de_validar_e_aguarda_metadados(self, _sleep):
+        inicial = dump().replace('Filme de prova', 'Item anterior')
+        pronto = dump().replace('state=3,', 'state=PLAYING(3),')
+        alvo = self.coletor([inicial, pronto])
+        prova = alvo._sessao_convergida('mpv-sessao-tocando', {'titulo': 'Filme de prova', 'estado': 3, 'proximo': True})
+        self.assertEqual(prova['estado'], 3)
+        gravacoes = alvo.pasta.__truediv__.return_value.write_text.call_args_list
+        self.assertEqual([chamada.args[0] for chamada in gravacoes], [inicial, pronto])
+        _sleep.assert_called_once_with(0.2)
+
+    @patch('sessao_media.time.sleep')
+    @patch('sessao_media.time.monotonic', side_effect=[0, 0, 9])
+    def test_nao_aprova_estado_errado_apos_oito_segundos_e_preserva_dump(self, _clock, _sleep):
+        errado = dump(estado=2)
+        alvo = self.coletor([errado, errado])
+        with self.assertRaisesRegex(RuntimeError, '8 segundos'):
+            alvo._sessao_convergida('mpv-sessao-tocando', {'titulo': 'Filme de prova', 'estado': 3})
+        self.assertEqual(alvo.pasta.__truediv__.return_value.write_text.call_count, 2)

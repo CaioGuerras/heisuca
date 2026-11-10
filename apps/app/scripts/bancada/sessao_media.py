@@ -16,10 +16,11 @@ def analisar_sessao(texto, pacote, titulo, *, estado=3, proximo=False):
     inicio = linhas[0].start()
     fim = re.search(r'(?m)^\s*(?:package|packageName)=', texto[linhas[0].end():])
     trecho = texto[inicio:linhas[0].end() + fim.start()] if fim else texto[inicio:]
-    estado_lido = re.search(r'PlaybackState\s*\{\s*state=(\d+).*?position=(-?\d+).*?actions=(\d+)', trecho, re.S)
+    estado_lido = re.search(r'PlaybackState\s*\{\s*state=(?:(\d+)|[A-Z_]+\((\d+)\)),.*?position=(-?\d+).*?actions=(\d+)', trecho, re.S)
     if not estado_lido or titulo not in trecho:
         raise RuntimeError('Sessão não contém estado, posição, ações e título esperados.')
-    atual, posicao, acoes = map(int, estado_lido.groups())
+    numero, nomeado, posicao, acoes = estado_lido.groups()
+    atual, posicao, acoes = int(numero or nomeado), int(posicao), int(acoes)
     obrigatorias = 4 | 2 | 256 | (32 if proximo else 0)
     if atual != estado or posicao <= 0 or acoes & obrigatorias != obrigatorias:
         raise RuntimeError('Estado, posição ou ações da sessão não correspondem ao vídeo.')
@@ -90,6 +91,24 @@ class ProvasSessao:
                 raise RuntimeError('Botão PiP não apareceu em 8 segundos: ' + rotulo)
             time.sleep(0.2)
 
+    def _sessao_convergida(self, nome, dados):
+        limite = time.monotonic() + 8
+        tentativa = 0
+        while True:
+            tentativa += 1
+            dump = self.adb('shell', 'dumpsys', 'media_session', check=True).stdout.decode(errors='replace')
+            sufixo = '' if tentativa == 1 else '-' + str(tentativa)
+            # Preservar inclusive o dump que reprovar: um erro do parser não
+            # pode apagar a evidência real nem ser confundido com falha do motor.
+            (self.pasta / (nome + '-media-session' + sufixo + '.txt')).write_text(self.sanitizar(dump))
+            try:
+                return analisar_sessao(dump, self.pacote, dados['titulo'],
+                    estado=dados.get('estado', 3), proximo=dados.get('proximo', False))
+            except RuntimeError as erro:
+                if time.monotonic() >= limite:
+                    raise RuntimeError('Sessão não convergiu em 8 segundos: ' + str(erro)) from None
+                time.sleep(0.2)
+
     def poll(self):
         evento = self._privado('heisuca-sessao-event.json')
         try:
@@ -107,9 +126,7 @@ class ProvasSessao:
         acao = dados['acao']
         resposta = {'seq': seq, 'ok': True}
         if acao == 'sessao':
-            dump = self.adb('shell', 'dumpsys', 'media_session', check=True).stdout.decode(errors='replace')
-            prova = analisar_sessao(dump, self.pacote, dados['titulo'], estado=dados.get('estado', 3), proximo=dados.get('proximo', False))
-            (self.pasta / (nome + '-media-session.txt')).write_text(self.sanitizar(dump))
+            prova = self._sessao_convergida(nome, dados)
             resposta['sessao'] = prova
         elif acao == 'encerrada':
             limite = time.monotonic() + 8

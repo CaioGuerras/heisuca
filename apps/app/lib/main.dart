@@ -205,6 +205,7 @@ Future<StartupThemeResolution> _resolveStartupTheme() async {
   await HeisucaSecurity.instance.load();
   await HeisucaKids.instance.load(); // Heisuca: perfil infantil força o tema dele desde a abertura
   final mode = settings.read(SettingsService.themeMode);
+  await settings.write(SettingsService.themeMode, mode);
   return (themeMode: cgflixMaterialThemeMode(mode), darkTheme: cgflixDarkTheme(mode)); // CGFLIX
 }
 
@@ -1362,11 +1363,14 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
         // can manage stored Jellyfin/Plex connections without re-creating
         // the registry per-call site.
         Provider<SettingsService>.value(value: widget.settings),
-        ChangeNotifierProvider<UpdateController>(lazy: false, create: (_) {
-          final controlador = UpdateController.doApp(widget.settings);
-          WidgetsBinding.instance.addPostFrameCallback((_) => unawaited(controlador.aoAbrir()));
-          return controlador;
-        }),
+        ChangeNotifierProvider<UpdateController>(
+          lazy: false,
+          create: (_) {
+            final controlador = UpdateController.doApp(widget.settings);
+            WidgetsBinding.instance.addPostFrameCallback((_) => unawaited(controlador.aoAbrir()));
+            return controlador;
+          },
+        ),
         ChangeNotifierProvider<HeisucaKids>.value(value: HeisucaKids.instance), // Heisuca: modo infantil
         Provider<StorageService>.value(value: widget.storage),
         Provider<AppDatabase>.value(value: _appDatabase),
@@ -1593,7 +1597,9 @@ class _AppShell extends StatelessWidget {
                     localizationsDelegates: cgflixLocalizationsDelegates, // CGFLIX
                     // Heisuca: no modo infantil o tema é o do perfil (Ichigo/Sorairo), nos dois modos.
                     theme: heisucaKidsTheme(context) ?? cgflixLightTheme(), // CGFLIX: Heitor (claro, verde)
-                    darkTheme: heisucaKidsTheme(context) ?? cgflixDarkTheme(themeProvider.themeMode), // CGFLIX: Isis (escuro, roxo)
+                    darkTheme:
+                        heisucaKidsTheme(context) ??
+                        cgflixDarkTheme(themeProvider.themeMode), // CGFLIX: Isis (escuro, roxo)
                     themeMode: cgflixMaterialThemeMode(themeProvider.themeMode), // CGFLIX
                     navigatorKey: rootNavigatorKey,
                     navigatorObservers: [BackKeySuppressorObserver()],
@@ -1751,6 +1757,7 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
 
   // Heisuca: a troca de tela espera a abertura terminar (teto de 4 s se o callback não vier).
   final Completer<void> _aberturaConcluida = Completer<void>();
+
   /// `true` quando o Início veio do cache ou não há o que carregar: a abertura fica com o piso de 1 s.
   final Completer<bool> _homePreloadCompleter = Completer<bool>();
   Future<void> _aguardarAbertura() => _aberturaConcluida.future.timeout(const Duration(seconds: 4), onTimeout: () {});
@@ -1998,11 +2005,11 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
     // Preload do Início (destaque, Continuar, 1ª fileira e artes) para abertura ágil
     final multiServer = context.read<MultiServerProvider>();
     unawaited(
-      HeisucaHomePreloader.preloadHomeDataAndArt(context, multiServer: multiServer)
-          .catchError((_) => false)
-          .then((comCache) {
-            if (!_homePreloadCompleter.isCompleted) _homePreloadCompleter.complete(comCache);
-          }),
+      HeisucaHomePreloader.preloadHomeDataAndArt(context, multiServer: multiServer).catchError((_) => false).then((
+        comCache,
+      ) {
+        if (!_homePreloadCompleter.isCompleted) _homePreloadCompleter.complete(comCache);
+      }),
     );
 
     // Repopulate metadata for downloaded items now that per-backend caches

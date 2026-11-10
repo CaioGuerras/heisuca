@@ -37,10 +37,7 @@ Future<void> _montar(WidgetTester tester, CgflixThemeVariant variante, Widget ho
     TranslationProvider(
       child: ChangeNotifierProvider<ThemeProvider>.value(
         value: theme,
-        child: MaterialApp(
-          theme: cgflixAppTheme(variante),
-          home: home,
-        ),
+        child: MaterialApp(theme: cgflixAppTheme(variante), home: home),
       ),
     ),
   );
@@ -153,9 +150,13 @@ void main() {
   group('HeisucaSettingsScreen', () {
     testWidgets('medidor real está no popup das configurações, com detalhes recolhidos', (tester) async {
       const channel = MethodChannel('app.heisuca/device');
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel,
-        (_) async => <String, Object>{'totalMemBytes': (3.6 * 1024 * 1024 * 1024).round(), 'renderer': 'Impeller'});
-      addTearDown(() => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, null));
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+        channel,
+        (_) async => <String, Object>{'totalMemBytes': (3.6 * 1024 * 1024 * 1024).round(), 'renderer': 'Impeller'},
+      );
+      addTearDown(
+        () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, null),
+      );
       DevicePerformance.debugReset(autoReduced: false, totalMemBytes: (3.6 * 1024 * 1024 * 1024).round());
       addTearDown(DevicePerformance.debugReset);
       await _montar(tester, CgflixThemeVariant.isis, const HeisucaSettingsScreen());
@@ -197,14 +198,29 @@ void main() {
       expect(find.text('Shikkoku'), findsOneWidget);
       expect(find.text('Hisui'), findsOneWidget);
       expect(find.text('Hisui escuro'), findsNothing);
+      expect(find.text('Automático'), findsOneWidget);
+      expect(find.text('Sumi'), findsOneWidget);
+      await tester.scrollUntilVisible(
+        find.text('Qualidade de reprodução'),
+        250,
+        scrollable: find.byType(Scrollable).last,
+      );
       expect(find.text('Qualidade de reprodução'), findsOneWidget);
 
       await tester.tap(find.text('Avançado'));
       await tester.pumpAndSettle();
 
-      await tester.scrollUntilVisible(find.text('Decodificação por Hardware'), 300, scrollable: find.byType(Scrollable).last);
+      await tester.scrollUntilVisible(
+        find.text('Decodificação por Hardware'),
+        300,
+        scrollable: find.byType(Scrollable).last,
+      );
       expect(find.text('Decodificação por Hardware'), findsOneWidget);
-      await tester.scrollUntilVisible(find.text('Buffer de Memória RAM'), 300, scrollable: find.byType(Scrollable).last);
+      await tester.scrollUntilVisible(
+        find.text('Buffer de Memória RAM'),
+        300,
+        scrollable: find.byType(Scrollable).last,
+      );
       expect(find.text('Buffer de Memória RAM'), findsOneWidget);
     });
   });
@@ -215,10 +231,14 @@ void main() {
     await _montar(tester, CgflixThemeVariant.isis, const HeisucaSettingsScreen());
     await tester.pumpAndSettle();
     Future<void> revealIntro() async {
-      await tester.scrollUntilVisible(find.text('Pular Abertura Automático'), 200,
-        scrollable: find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)).first);
+      await tester.scrollUntilVisible(
+        find.text('Pular Abertura Automático'),
+        200,
+        scrollable: find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)).first,
+      );
       await tester.pumpAndSettle();
     }
+
     await revealIntro();
     final introSwitch = find.descendant(
       of: find.ancestor(of: find.text('Pular Abertura Automático'), matching: find.byType(Row)).first,
@@ -245,8 +265,11 @@ void main() {
     await tester.pumpAndSettle();
     final buffer = find.byKey(const ValueKey('heisuca-buffer'));
     // Lista preguiçosa: o controle só existe depois de rolar até ele (ensureVisible não acha o que não foi montado).
-    await tester.scrollUntilVisible(buffer, 200,
-      scrollable: find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)).last);
+    await tester.scrollUntilVisible(
+      buffer,
+      200,
+      scrollable: find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)).last,
+    );
     await tester.pumpAndSettle();
     expect(tester.widget<DropdownButton<settings.PlaybackBufferTier>>(buffer).onChanged, isNotNull);
     await tester.tap(buffer);
@@ -262,8 +285,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Decodificação por Hardware'), findsNothing);
     // Lista preguiçosa: o controle só existe depois de rolar até ele (ensureVisible não acha o que não foi montado).
-    await tester.scrollUntilVisible(buffer, 200,
-      scrollable: find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)).last);
+    await tester.scrollUntilVisible(
+      buffer,
+      200,
+      scrollable: find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)).last,
+    );
     await tester.pumpAndSettle();
     await tester.tap(buffer);
     await tester.pumpAndSettle();
@@ -276,11 +302,20 @@ void main() {
     testWidgets('monta biblioteca e busca adaptando a ambos os temas', (tester) async {
       final manager = MultiServerManager();
       final servers = MultiServerProvider(manager, DataAggregationService(manager));
-      addTearDown(servers.dispose); addTearDown(manager.dispose);
-      await _montar(tester, CgflixThemeVariant.heitor, ChangeNotifierProvider.value(value: servers, child: const HeisucaLibraryScreen()));
+      addTearDown(servers.dispose);
+      addTearDown(manager.dispose);
+      await _montar(
+        tester,
+        CgflixThemeVariant.heitor,
+        ChangeNotifierProvider.value(value: servers, child: const HeisucaLibraryScreen()),
+      );
       await tester.pumpAndSettle();
       expect(find.text('Biblioteca'), findsOneWidget);
-      expect(find.text('Nenhum título disponível nesta seleção.'), findsOneWidget, reason: 'sem fonte, estado vazio (sem botões falsos)');
+      expect(
+        find.text('Nenhum título disponível nesta seleção.'),
+        findsOneWidget,
+        reason: 'sem fonte, estado vazio (sem botões falsos)',
+      );
 
       await _montar(tester, CgflixThemeVariant.heitor, const HeisucaSearchScreen());
       expect(find.text('No seu Acervo'), findsOneWidget);
@@ -338,11 +373,7 @@ void main() {
           builder: (ctx) => Scaffold(
             body: Center(
               child: ElevatedButton(
-                onPressed: () => HeisucaContextMenu.show(
-                  ctx,
-                  item: itemSerie,
-                  isContinueRow: true,
-                ),
+                onPressed: () => HeisucaContextMenu.show(ctx, item: itemSerie, isContinueRow: true),
                 child: const Text('Toque Longo'),
               ),
             ),
@@ -438,4 +469,3 @@ void main() {
     });
   });
 }
-

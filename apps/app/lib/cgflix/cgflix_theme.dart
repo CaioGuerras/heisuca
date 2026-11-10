@@ -21,10 +21,9 @@ const cgflixFontFamily = 'Inter';
 const cgflixMonoFamily = 'monospace';
 const cgflixMonoFallback = ['RobotoMono', 'Courier'];
 
-
 TextTheme _heisucaTypography(TextTheme source) {
   final text = source.apply(fontFamily: cgflixFontFamily);
-  TextStyle? heading(TextStyle? style) => style?.copyWith(fontFamily: 'Sora');
+  TextStyle? heading(TextStyle? style) => style?.copyWith(fontFamily: 'Inter');
   return text.copyWith(
     displayLarge: heading(text.displayLarge),
     displayMedium: heading(text.displayMedium),
@@ -44,11 +43,12 @@ TextTheme _heisucaTypography(TextTheme source) {
 /// cantos) e recebem por cima o esquema e as camadas do CGFLIX em [cgflixBrandTheme].
 ThemeData cgflixAppTheme([CgflixThemeVariant variant = CgflixThemeVariant.isis]) => switch (variant) {
   CgflixThemeVariant.isis => monoTheme(dark: true, oled: true),
+  CgflixThemeVariant.sumi => monoTheme(dark: true, sumi: true),
   CgflixThemeVariant.heitor => monoTheme(dark: false),
   CgflixThemeVariant.ichigo || CgflixThemeVariant.sorairo => monoTheme(dark: false, kids: variant),
 };
 
-/// TV fica sempre no tema escuro, com a paleta azul própria (um tema só; 31/10).
+/// A TV oferece os temas escuros Shikkoku e Sumi.
 bool get _forceIsis => PlatformDetector.isTV();
 
 /// Tema da vaga "clara" do MaterialApp: Heitor (na TV, Isis).
@@ -56,18 +56,19 @@ ThemeData cgflixLightTheme() => cgflixAppTheme(_forceIsis ? CgflixThemeVariant.i
 
 /// Tema escuro: Shikkoku por padrão.
 ThemeData cgflixDarkTheme([settings.ThemeMode mode = settings.ThemeMode.oled]) =>
-    cgflixAppTheme(CgflixThemeVariant.isis);
+    cgflixAppTheme(mode == settings.ThemeMode.sumi ? CgflixThemeVariant.sumi : CgflixThemeVariant.isis);
 
 /// A escolha "Tema" das Configurações reaproveita a preferência `themeMode` do upstream (assim a
 /// troca na hora, o "Automático" e a abertura nativa do Android já funcionam):
 /// Shikkoku = `oled`, Hisui claro = `light`, Hisui escuro = `dark`, Automático = `system`.
 ThemeMode cgflixMaterialThemeMode(settings.ThemeMode mode) {
+  cgflixSyncAppIcon(mode);
   if (_forceIsis) return ThemeMode.dark;
-  cgflixSyncAppIcon(mode); // 1.5.0: ícone do launcher acompanha o tema (só manda quando muda)
+  // // 1.5.0: ícone do launcher acompanha o tema (só manda quando muda)
   return switch (mode) {
     settings.ThemeMode.light => ThemeMode.light,
     settings.ThemeMode.system => ThemeMode.system,
-    settings.ThemeMode.dark || settings.ThemeMode.oled => ThemeMode.dark,
+    settings.ThemeMode.dark || settings.ThemeMode.oled || settings.ThemeMode.sumi => ThemeMode.dark,
   };
 }
 
@@ -75,10 +76,16 @@ ThemeMode cgflixMaterialThemeMode(settings.ThemeMode mode) {
 /// reduzido e a cor da marca; nenhuma implementação própria do gesto.
 class CgflixPageTransitionsBuilder extends PredictiveBackPageTransitionsBuilder {
   const CgflixPageTransitionsBuilder({super.fallbackColor});
-  @override Duration get transitionDuration => DevicePerformance.isReduced ? Duration.zero : super.transitionDuration;
   @override
-  Widget buildTransitions<T>(PageRoute<T> route, BuildContext context,
-      Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+  Duration get transitionDuration => DevicePerformance.isReduced ? Duration.zero : super.transitionDuration;
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
     if (DevicePerformance.isReduced || MediaQuery.disableAnimationsOf(context)) return child;
     return super.buildTransitions(route, context, animation, secondaryAnimation, child);
   }
@@ -87,22 +94,30 @@ class CgflixPageTransitionsBuilder extends PredictiveBackPageTransitionsBuilder 
 /// Marca do CGFLIX sobre o tema do upstream. [oled] = Isis; o tema claro do upstream vira o
 /// Hisui; no modo escuro comum ou com sistema escuro vale Shikkoku (Isis).
 /// [kids] troca o claro do Heitor pela paleta infantil (Ichigo/Sorairo), com o mesmo desenho.
-ThemeData cgflixBrandTheme(ThemeData theme, {required bool oled, CgflixThemeVariant? kids}) {
-  final palette = kids != null
-      ? CgflixPalette.forVariant(kids)
-      : (oled || theme.brightness == Brightness.dark)
-          ? (_forceIsis ? CgflixPalette.tv : CgflixPalette.isis)
-          : CgflixPalette.heitor;
+ThemeData cgflixBrandTheme(ThemeData theme, {required bool oled, bool sumi = false, CgflixThemeVariant? kids}) {
+  final dark = oled || theme.brightness == Brightness.dark;
+  final palette = kids == CgflixThemeVariant.ichigo
+      ? (dark ? CgflixPalette.ichigoNoite : CgflixPalette.ichigo)
+      : kids == CgflixThemeVariant.sorairo
+      ? (dark ? CgflixPalette.sorairoNoite : CgflixPalette.sorairo)
+      : sumi
+      ? CgflixPalette.sumi
+      : dark
+      ? CgflixPalette.isis
+      : CgflixPalette.heitor;
   final accent = palette.accent;
   final branded = theme.copyWith(
     textTheme: _heisucaTypography(theme.textTheme),
     primaryTextTheme: _heisucaTypography(theme.primaryTextTheme),
     appBarTheme: theme.appBarTheme.copyWith(
-      titleTextStyle: theme.appBarTheme.titleTextStyle?.copyWith(fontFamily: 'Sora'),
+      titleTextStyle: theme.appBarTheme.titleTextStyle?.copyWith(fontFamily: 'Inter'),
       systemOverlayStyle: cgflixSystemOverlay(theme.brightness),
     ),
     pageTransitionsTheme: PageTransitionsTheme(
-      builders: {...theme.pageTransitionsTheme.builders, TargetPlatform.android: CgflixPageTransitionsBuilder(fallbackColor: palette.background)},
+      builders: {
+        ...theme.pageTransitionsTheme.builders,
+        TargetPlatform.android: CgflixPageTransitionsBuilder(fallbackColor: palette.background),
+      },
     ),
     progressIndicatorTheme: theme.progressIndicatorTheme.copyWith(color: accent),
     textSelectionTheme: theme.textSelectionTheme.copyWith(
@@ -111,19 +126,8 @@ ThemeData cgflixBrandTheme(ThemeData theme, {required bool oled, CgflixThemeVari
       selectionHandleColor: accent,
     ),
   );
-  return switch (palette.variant) {
-    CgflixThemeVariant.isis => identical(palette, CgflixPalette.tv)
-        ? _heitor(branded, s: cgflixTvScheme, p: CgflixPalette.tv)
-        : _isis(branded),
-    CgflixThemeVariant.heitor => _heitor(branded, s: cgflixHeitorScheme, p: palette),
-    CgflixThemeVariant.ichigo => _heitor(branded, s: cgflixIchigoScheme, p: CgflixPalette.ichigo),
-    CgflixThemeVariant.sorairo => _heitor(branded, s: cgflixSorairoScheme, p: CgflixPalette.sorairo),
-  };
+  return _heitor(branded, s: palette.scheme, p: palette);
 }
-
-/// Shikkoku usa os mesmos componentes e contratos de cor dos demais modos.
-ThemeData _isis(ThemeData branded) =>
-    _heitor(branded, s: cgflixIsisScheme, p: CgflixPalette.isis);
 
 /// Heitor: cada camada com ajuste próprio (não é só trocar o roxo pelo verde).
 ///   - fundo branco esverdeado #f4fcee; cartões e folhas brancos com sombra suave;
@@ -140,10 +144,10 @@ ThemeData _heitor(ThemeData branded, {ColorScheme s = cgflixHeitorScheme, Cgflix
     padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 18, vertical: 14)),
     elevation: const WidgetStatePropertyAll(0),
     backgroundColor: WidgetStateProperty.resolveWith(
-      (states) => states.contains(WidgetState.disabled) ? s.onSurface.withValues(alpha: 0.12) : s.primary,
+      (states) => states.contains(WidgetState.disabled) ? s.onSurface.withValues(alpha: 0.12) : p.action,
     ),
     foregroundColor: WidgetStateProperty.resolveWith(
-      (states) => states.contains(WidgetState.disabled) ? s.onSurface.withValues(alpha: 0.38) : s.onPrimary,
+      (states) => states.contains(WidgetState.disabled) ? s.onSurface.withValues(alpha: 0.38) : p.onAction,
     ),
     overlayColor: WidgetStateProperty.resolveWith(
       (states) => states.contains(WidgetState.pressed) || states.contains(WidgetState.focused)
@@ -159,7 +163,18 @@ ThemeData _heitor(ThemeData branded, {ColorScheme s = cgflixHeitorScheme, Cgflix
     colorScheme: s,
     scaffoldBackgroundColor: p.background,
     canvasColor: p.background,
-    focusColor: p.focused,
+    focusColor: p.focusRing.withValues(alpha: .20),
+    iconButtonTheme: IconButtonThemeData(
+      style: ButtonStyle(
+        overlayColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.focused)
+              ? p.focusRing.withValues(alpha: .22)
+              : states.contains(WidgetState.hovered)
+              ? p.text.withValues(alpha: .08)
+              : null,
+        ),
+      ),
+    ),
     hoverColor: s.onSurface.withValues(alpha: 0.05),
     dividerColor: s.outlineVariant,
     textTheme: textTheme.copyWith(bodySmall: textTheme.bodySmall?.copyWith(color: s.onSurfaceVariant)),
@@ -173,8 +188,8 @@ ThemeData _heitor(ThemeData branded, {ColorScheme s = cgflixHeitorScheme, Cgflix
     ),
     cardTheme: branded.cardTheme.copyWith(
       color: s.surfaceContainerLowest,
-      elevation: 1,
-      shadowColor: p.cardShadow.first.color,
+      elevation: 0,
+      shadowColor: p.cardShadow.isEmpty ? Colors.transparent : p.cardShadow.first.color,
       surfaceTintColor: Colors.transparent,
     ),
     bottomSheetTheme: branded.bottomSheetTheme.copyWith(
@@ -323,7 +338,7 @@ Widget cgflixSystemBars(BuildContext context, Widget child) =>
 /// Player, abertura do vídeo e controles do player: sempre escuros (Isis), nos dois temas.
 /// Folhas e diálogos abertos de dentro do player herdam este tema.
 Widget cgflixAlwaysDark(Widget child) => Theme(
-  data: cgflixDarkTheme(),
+  data: cgflixAppTheme(CgflixThemeVariant.sumi),
   child: AnnotatedRegion<SystemUiOverlayStyle>(value: cgflixSystemOverlay(Brightness.dark), child: child),
 );
 

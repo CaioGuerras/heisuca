@@ -98,8 +98,8 @@ void main() {
       await p.setThemeMode(settings.ThemeMode.oled);
       final oled = p.darkTheme;
 
-      expect(oled.scaffoldBackgroundColor, const material.Color(0xFF17151C));
-      expect(dark.scaffoldBackgroundColor, const material.Color(0xFF17151C));
+      expect(oled.scaffoldBackgroundColor, const material.Color(0xFF0F0D13));
+      expect(dark.scaffoldBackgroundColor, const material.Color(0xFF0F0D13));
 
       p.dispose();
     });

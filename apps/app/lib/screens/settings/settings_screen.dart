@@ -264,11 +264,7 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
         ),
       SettingsGroup(
         title: t.settings.appearance,
-        children: [
-          if (!PlatformDetector.isTV()) const CgflixThemeSelector(), // Isis / Heitor / Automático
-          const CgflixAppLanguageTile(),
-          _buildAppearanceTile(),
-        ],
+        children: [const CgflixThemeSelector(), const CgflixAppLanguageTile(), _buildAppearanceTile()],
       ),
       SettingsGroup(
         title: cgflixWatchHeader,

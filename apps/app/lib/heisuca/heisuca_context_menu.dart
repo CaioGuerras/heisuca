@@ -56,9 +56,10 @@ class HeisucaContextMenu extends StatelessWidget {
           child: FadeTransition(
             opacity: anim1,
             child: ScaleTransition(
-              scale: Tween<double>(begin: 0.94, end: 1.0).animate(
-                CurvedAnimation(parent: anim1, curve: Curves.easeOutBack),
-              ),
+              scale: Tween<double>(
+                begin: 0.94,
+                end: 1.0,
+              ).animate(CurvedAnimation(parent: anim1, curve: Curves.easeOutBack)),
               child: child,
             ),
           ),
@@ -90,15 +91,13 @@ class HeisucaContextMenu extends StatelessWidget {
     final isEpisode = item.kind == MediaKind.episode;
     final isShow = item.kind == MediaKind.show || isEpisode;
 
-    final bgColor = isLight ? const Color(0xFFFFFDF8) : const Color(0xFF151120);
-    final borderColor = isLight
-        ? const Color(0xFF047857).withValues(alpha: 0.20)
-        : Colors.white.withValues(alpha: 0.12);
-    final titleColor = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
-    final subColor = isLight ? const Color(0xFF047857) : const Color(0xFFA99FBB);
-    final rowBgColor = isLight ? const Color(0xFFF2EFE9) : Colors.white.withValues(alpha: 0.04);
-    final textActionColor = isLight ? const Color(0xFF164E3E) : const Color(0xFFF4F1FA);
-    final iconActionColor = isLight ? const Color(0xFF047857) : const Color(0xFF9D74FF);
+    final bgColor = context.cgflix.surface;
+    final borderColor = isLight ? context.cgflix.accent.withValues(alpha: 0.20) : Colors.white.withValues(alpha: 0.12);
+    final titleColor = isLight ? context.cgflix.text : context.cgflix.text;
+    final subColor = isLight ? context.cgflix.accent : context.cgflix.textMuted;
+    final rowBgColor = isLight ? context.cgflix.surfaceHigh : Colors.white.withValues(alpha: 0.04);
+    final textActionColor = isLight ? context.cgflix.text : context.cgflix.text;
+    final iconActionColor = isLight ? context.cgflix.accent : context.cgflix.accent;
 
     final title = isEpisode ? (item.grandparentTitle ?? item.displayTitle) : item.displayTitle;
     final subtitle = isEpisode ? item.displayTitle : null;
@@ -210,7 +209,7 @@ class HeisucaContextMenu extends StatelessWidget {
                 icon: Symbols.flag_rounded,
                 iconFill: isWatch ? 1.0 : 0.0,
                 textColor: textActionColor,
-                iconColor: isLight ? const Color(0xFF059669) : const Color(0xFF34D399),
+                iconColor: isLight ? context.cgflix.accent : context.cgflix.success,
                 rowBg: rowBgColor,
                 onTap: () {
                   Navigator.pop(context);
@@ -228,7 +227,7 @@ class HeisucaContextMenu extends StatelessWidget {
                 icon: Symbols.favorite_rounded,
                 iconFill: isFav ? 1.0 : 0.0,
                 textColor: textActionColor,
-                iconColor: const Color(0xFFFF5252),
+                iconColor: context.cgflix.danger,
                 rowBg: rowBgColor,
                 onTap: () {
                   Navigator.pop(context);
@@ -242,12 +241,10 @@ class HeisucaContextMenu extends StatelessWidget {
 
               // Baixar (ícone ↓)
               _buildActionTile(
-                label: isShow && isEpisode
-                    ? 'Baixar episódio'
-                    : (isShow ? 'Baixar episódios' : 'Baixar filme'),
+                label: isShow && isEpisode ? 'Baixar episódio' : (isShow ? 'Baixar episódios' : 'Baixar filme'),
                 icon: Symbols.download_rounded,
                 textColor: textActionColor,
-                iconColor: isLight ? const Color(0xFF0284C7) : const Color(0xFF38BDF8),
+                iconColor: isLight ? context.cgflix.accent : context.cgflix.accent,
                 rowBg: rowBgColor,
                 onTap: () {
                   Navigator.pop(context);
@@ -281,10 +278,7 @@ class HeisucaContextMenu extends StatelessWidget {
         child: Container(
           constraints: const BoxConstraints(minHeight: 48),
           padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
-          decoration: BoxDecoration(
-            color: rowBg,
-            borderRadius: BorderRadius.circular(10.0),
-          ),
+          decoration: BoxDecoration(color: rowBg, borderRadius: BorderRadius.circular(10.0)),
           child: Row(
             children: [
               Expanded(

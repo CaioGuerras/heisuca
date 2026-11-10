@@ -1,3 +1,4 @@
+import '../cgflix/cgflix_palette.dart';
 import 'package:flutter/material.dart';
 import 'heisuca_theme.dart';
 import 'heisuca_design_system.dart';
@@ -47,10 +48,8 @@ class HeisucaHero extends StatelessWidget {
               backdropUrl,
               fit: BoxFit.cover,
               errorBuilder: (_, _, _) => Container(
-                color: HeisucaTheme.roxoFundo,
-                child: const Center(
-                  child: Icon(Icons.movie_outlined, color: Colors.white24, size: 64),
-                ),
+                color: context.cgflix.background,
+                child: const Center(child: Icon(Icons.movie_outlined, color: Colors.white24, size: 64)),
               ),
             ),
           ),
@@ -59,11 +58,7 @@ class HeisucaHero extends StatelessWidget {
           Positioned.fill(
             child: IgnorePointer(
               child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: CubicScrimGradient.create(
-                    baseColor: HeisucaTheme.roxoFundo,
-                  ),
-                ),
+                decoration: BoxDecoration(gradient: CubicScrimGradient.create(baseColor: context.cgflix.background)),
               ),
             ),
           ),
@@ -84,10 +79,7 @@ class HeisucaHero extends StatelessWidget {
                     final slideAnimation = Tween<Offset>(
                       begin: const Offset(0, 0.08),
                       end: Offset.zero,
-                    ).animate(CurvedAnimation(
-                      parent: animation,
-                      curve: const Cubic(0.2, 0, 0, 1),
-                    ));
+                    ).animate(CurvedAnimation(parent: animation, curve: const Cubic(0.2, 0, 0, 1)));
                     return FadeTransition(
                       opacity: animation,
                       child: SlideTransition(position: slideAnimation, child: child),
@@ -122,11 +114,8 @@ class HeisucaHero extends StatelessWidget {
                   physics: const BouncingScrollPhysics(),
                   child: Row(
                     children: [
-                      Text(
-                        year,
-                        style: HeisucaTypography.bodyMetadata,
-                      ),
-                      _buildDotSeparator(),
+                      Text(year, style: HeisucaTypography.bodyMetadata),
+                      _buildDotSeparator(context),
                       Text(
                         runtime,
                         style: HeisucaTypography.bodyMetadata.copyWith(
@@ -134,22 +123,24 @@ class HeisucaHero extends StatelessWidget {
                         ),
                       ),
                       if (technicalBadges.isNotEmpty) ...[
-                        _buildDotSeparator(),
-                        ...technicalBadges.map((badge) => Padding(
-                              padding: const EdgeInsets.only(right: 6.0),
-                              child: HeisucaNobleBadge(label: badge),
-                            )),
+                        _buildDotSeparator(context),
+                        ...technicalBadges.map(
+                          (badge) => Padding(
+                            padding: const EdgeInsets.only(right: 6.0),
+                            child: HeisucaNobleBadge(label: badge),
+                          ),
+                        ),
                       ],
                       if (rating.isNotEmpty) ...[
-                        _buildDotSeparator(),
+                        _buildDotSeparator(context),
                         Row(
                           children: [
-                            const Icon(Icons.star_rounded, size: 16.0, color: Color(0xFFFFC107)),
+                            Icon(Icons.star_rounded, size: 16.0, color: context.cgflix.accent),
                             const SizedBox(width: 3.0),
                             Text(
                               rating,
                               style: HeisucaTypography.bodyMetadata.copyWith(
-                                color: const Color(0xFFF4F1FA),
+                                color: context.cgflix.text,
                                 fontWeight: FontWeight.w600,
                                 fontFeatures: [const FontFeature.tabularFigures()],
                               ),
@@ -169,44 +160,34 @@ class HeisucaHero extends StatelessWidget {
                     // Botão Assistir (Primário)
                     FilledButton.icon(
                       style: FilledButton.styleFrom(
-                        backgroundColor: HeisucaTheme.roxoPrimaria,
-                        foregroundColor: Colors.white,
+                        backgroundColor: context.cgflix.action,
+                        foregroundColor: context.cgflix.onAction,
                         padding: const EdgeInsets.symmetric(horizontal: 22.0, vertical: 12.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle)),
                         elevation: 0,
                       ),
                       onPressed: onPlay,
                       icon: const Icon(Icons.play_arrow_rounded, size: 22.0),
                       label: const Text(
                         'Assistir',
-                        style: TextStyle(
-                          fontFamily: HeisucaTheme.fonteTexto,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: TextStyle(fontFamily: HeisucaTheme.fonteTexto, fontWeight: FontWeight.w600),
                       ),
                     ),
                     const SizedBox(width: 12.0),
                     // Botão Detalhes (Secundário em Vidro)
                     OutlinedButton.icon(
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFFF4F1FA),
+                        foregroundColor: context.cgflix.text,
                         backgroundColor: Colors.white.withValues(alpha: 0.06),
                         side: BorderSide(color: Colors.white.withValues(alpha: 0.15), width: 0.75),
                         padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 12.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle)),
                       ),
                       onPressed: onDetails,
                       icon: const Icon(Icons.info_outline_rounded, size: 18.0),
                       label: const Text(
                         'Detalhes',
-                        style: TextStyle(
-                          fontFamily: HeisucaTheme.fonteTexto,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: TextStyle(fontFamily: HeisucaTheme.fonteTexto, fontWeight: FontWeight.w500),
                       ),
                     ),
                   ],
@@ -219,10 +200,10 @@ class HeisucaHero extends StatelessWidget {
     );
   }
 
-  static Widget _buildDotSeparator() {
-    return const Padding(
+  static Widget _buildDotSeparator(BuildContext context) {
+    return Padding(
       padding: EdgeInsets.symmetric(horizontal: 8.0),
-      child: Text('•', style: TextStyle(color: Color(0xFF554B66), fontSize: 11.0)),
+      child: Text('•', style: TextStyle(color: context.cgflix.textMuted, fontSize: 11.0)),
     );
   }
 }

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import '../cgflix/cgflix_palette.dart';
+import '../cgflix/cgflix_theme.dart';
+import 'theme/heisuca_base.dart';
+import 'theme/temas/tema_shikkoku.dart';
 
 /// Design System oficial do Heisuca (炳素華)
 /// Filosofia: "Nada entre você e o filme."
-/// Estética cinematográfica, refinada, com tipografia Sora e Inter.
+/// Estética cinematográfica, refinada, com tipografia Inter.
 class HeisucaTheme {
   // Paleta Heisuca - Roxo / Escuro de Cinema (Padrão)
   static const Color roxoFundo = heisucaShikkokuCanvas;
@@ -11,7 +13,7 @@ class HeisucaTheme {
   static const Color roxoSuperficieElevada = heisucaShikkokuSurface2;
   static const Color roxoLinha = heisucaShikkokuLine; // Hairline sutil
   static const Color roxoPrimaria = heisucaShikkokuAccent;
-  static const Color roxoSelo = Color(0xFFC82B3D); // Vermelho carmim do carimbo Heisuca
+  static const Color roxoSelo = TemaShikkoku.temaCorSelo; // Vermelho carmim do carimbo Heisuca
 
   // Paleta Heisuca - Verde Hisui (Claro / Nobre)
   static const Color verdeFundo = heisucaHisuiDarkCanvas;
@@ -20,7 +22,7 @@ class HeisucaTheme {
   static const Color verdePrimaria = heisucaHisuiAccent;
 
   // Tipografia
-  static const String fonteTitulo = 'Sora';
+  static const String fonteTitulo = HeisucaBase.fonteTitulo;
   static const String fonteTexto = 'Inter';
 
   // Raios de curvatura modernos
@@ -30,40 +32,6 @@ class HeisucaTheme {
   static const double raioSquircle = 16.0;
 
   static ThemeData criarTema({bool verde = false}) {
-    final fundo = verde ? verdeFundo : roxoFundo;
-    final superficie = verde ? verdeSuperficie : roxoSuperficie;
-    final primaria = verde ? verdePrimaria : roxoPrimaria;
-
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.dark,
-      scaffoldBackgroundColor: fundo,
-      primaryColor: primaria,
-      colorScheme: ColorScheme.dark(
-        primary: primaria,
-        surface: superficie,
-        onSurface: Colors.white,
-        outline: roxoLinha,
-      ),
-      fontFamily: fonteTexto,
-      textTheme: const TextTheme(
-        displayLarge: TextStyle(fontFamily: fonteTitulo, fontWeight: FontWeight.w700, letterSpacing: -0.02),
-        displayMedium: TextStyle(fontFamily: fonteTitulo, fontWeight: FontWeight.w700, letterSpacing: -0.01),
-        headlineLarge: TextStyle(fontFamily: fonteTitulo, fontWeight: FontWeight.w600, letterSpacing: -0.01),
-        headlineMedium: TextStyle(fontFamily: fonteTitulo, fontWeight: FontWeight.w600),
-        titleLarge: TextStyle(fontFamily: fonteTitulo, fontWeight: FontWeight.w600, fontSize: 18),
-        titleMedium: TextStyle(fontFamily: fonteTitulo, fontWeight: FontWeight.w500, fontSize: 15),
-        bodyLarge: TextStyle(fontFamily: fonteTexto, fontWeight: FontWeight.w400, fontSize: 15, height: 1.5),
-        bodyMedium: TextStyle(fontFamily: fonteTexto, fontWeight: FontWeight.w400, fontSize: 13.5, height: 1.4),
-      ),
-      cardTheme: CardThemeData(
-        color: superficie,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(raioCard),
-          side: const BorderSide(color: roxoLinha, width: 1),
-        ),
-      ),
-    );
+    return cgflixAppTheme(verde ? CgflixThemeVariant.heitor : CgflixThemeVariant.isis);
   }
 }

@@ -1,3 +1,4 @@
+import '../../cgflix/cgflix_palette.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -104,7 +105,7 @@ class _HeisucaServerStatusState extends State<HeisucaServerStatus> {
             child: Container(
               width: 8,
               height: 8,
-              decoration: BoxDecoration(color: _found ? const Color(0xFF22C55E) : muted, shape: BoxShape.circle),
+              decoration: BoxDecoration(color: _found ? context.cgflix.success : muted, shape: BoxShape.circle),
             ),
           ),
           const SizedBox(width: 6),

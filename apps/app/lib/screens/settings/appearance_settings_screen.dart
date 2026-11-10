@@ -1,3 +1,4 @@
+import '../../cgflix/cgflix_theme_picker.dart';
 import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
@@ -190,7 +191,7 @@ class AppearanceSettingsScreen extends StatelessWidget {
           icon: themeProvider.themeModeIcon,
           title: t.settings.theme,
           subtitleBuilder: themeModeLabel,
-          options: settings.ThemeMode.values.map((m) => DialogOption(value: m, title: themeModeLabel(m))).toList(),
+          options: cgflixThemeChoices.map((m) => DialogOption(value: m, title: cgflixThemeName(m))).toList(),
         );
       },
     );

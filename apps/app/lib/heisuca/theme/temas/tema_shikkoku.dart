@@ -12,15 +12,21 @@ import 'package:flutter/widgets.dart';
 class TemaShikkoku {
     TemaShikkoku._();
 
-    static const temaCorAcento = Color(0xFFC4B5FD);
-    static const temaCorBotaoFundo = Color(0xFF7444E0);
-    static const temaCorBotaoTexto = Color(0xFFFFFFFF);
-    static const temaCorFoco = Color(0xFF9D74FF);
-    static const temaCorFundo = Color(0xFF0E0B14);
-    static const temaCorPrimaria = Color(0xFF9D74FF);
-    static const temaCorSelo = Color(0xFF8155E3); /// fundo do selo 炳素華; kanji = Color(0xFFFFF8F0)
-    static const temaCorSuperficie = Color(0xFF1A1424);
-    static const temaCorTexto = Color(0xFFF4F1FA);
-    static const temaCorTexto2 = Color(0xFFA99FBB);
-    static const temaFonteTitulo = 'Sora';
+    static const temaCorAcento = Color(0xFFB8ADDE);
+    static const temaCorAcentoSuave = Color(0xFF37304C);
+    static const temaCorAviso = Color(0xFFEDBB64);
+    static const temaCorBorda = Color(0xFF3E3B44);
+    static const temaCorBotaoFundo = Color(0xFFEAE8EE); /** botão principal neutro (Assistir): texto claro sobre escuro e vice-versa */
+    static const temaCorBotaoTexto = Color(0xFF0F0D13);
+    static const temaCorErro = Color(0xFFEE757C);
+    static const temaCorFoco = Color(0xFFF1EFF5);
+    static const temaCorFundo = Color(0xFF0F0D13);
+    static const temaCorPrimaria = Color(0xFFB8ADDE); /** = acento (nome antigo, mantido para os consumidores) */
+    static const temaCorSelo = Color(0xFFC84127); /** 朱 vermelhão; só no logo, ícone e abertura; kanji = Color(0xFFFFF8F0) */
+    static const temaCorSucesso = Color(0xFF78C995);
+    static const temaCorSuperficie = Color(0xFF1A181F);
+    static const temaCorSuperficie2 = Color(0xFF26242C);
+    static const temaCorTexto = Color(0xFFEAE8EE);
+    static const temaCorTexto2 = Color(0xFFABA7B2);
+    static const temaFonteTitulo = 'Inter';
 }

@@ -3,6 +3,9 @@ include: package:flutter_lints/flutter.yaml
 analyzer:
   exclude:
     - "**/*.g.dart"
+    # Tokens gerados: a cópia deve permanecer idêntica à fonte da marca.
+    - lib/heisuca/theme/heisuca_base.dart
+    - lib/heisuca/theme/temas/**
     - "**/*.freezed.dart"
     - build/**
     - android/**

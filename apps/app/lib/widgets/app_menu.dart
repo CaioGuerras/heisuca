@@ -1,3 +1,4 @@
+import '../cgflix/cgflix_palette.dart';
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -864,7 +865,5 @@ double _estimateMenuHeight<T>(List<AppMenuEntry<T>> entries) {
 }
 
 Color _destructiveMenuForeground(BuildContext context) {
-  return Theme.of(context).colorScheme.brightness == Brightness.dark
-      ? const Color(0xFFFF453A)
-      : const Color(0xFFFF3B30);
+  return Theme.of(context).colorScheme.brightness == Brightness.dark ? context.cgflix.danger : context.cgflix.danger;
 }

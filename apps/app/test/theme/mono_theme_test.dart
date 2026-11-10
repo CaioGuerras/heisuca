@@ -20,14 +20,14 @@ void main() {
   test('the three palettes are distinct instances', () {
     final light = monoTheme(dark: false);
     final dark = monoTheme(dark: true);
-    final oled = monoTheme(dark: true, oled: true);
+    final sumi = monoTheme(dark: true, sumi: true);
 
     expect(identical(light, dark), isFalse);
-    expect(identical(dark, oled), isFalse);
+    expect(identical(dark, sumi), isFalse);
     expect(light.brightness, Brightness.light);
     expect(dark.brightness, Brightness.dark);
     // P2: slots históricos oled/dark representam Shikkoku e Hisui escuro.
-    expect(oled.scaffoldBackgroundColor, const Color(0xFF17151C));
+    expect(sumi.scaffoldBackgroundColor, const Color(0xFF000000));
     expect(dark.scaffoldBackgroundColor, isNot(const Color(0xFF000000)));
   });
 

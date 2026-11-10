@@ -8,6 +8,8 @@ object ThemeHelper {
   fun themeColor(context: Context, mode: String?): Int? {
     val resource = when (mode) {
       "oled" -> R.color.splash_oled
+      "sumi" -> R.color.splash_sumi
+      "system" -> R.color.splash_system
       "dark" -> R.color.splash_dark
       "light" -> R.color.splash_light
       else -> return null

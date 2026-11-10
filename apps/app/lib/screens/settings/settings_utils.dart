@@ -24,6 +24,7 @@ String themeModeLabel(settings.ThemeMode mode) => switch (mode) {
   settings.ThemeMode.system => t.settings.systemTheme,
   settings.ThemeMode.light => t.settings.lightTheme,
   settings.ThemeMode.dark => t.settings.darkTheme,
+  settings.ThemeMode.sumi => 'Sumi',
   settings.ThemeMode.oled => t.settings.oledTheme,
 };
 

@@ -1,3 +1,5 @@
+import '../theme/heisuca_base.dart';
+import '../../cgflix/cgflix_palette.dart';
 import 'package:flutter/material.dart';
 
 import '../../media/media_item.dart';
@@ -33,11 +35,7 @@ class HeisucaTvTitleScreen extends StatefulWidget {
   final MediaItem? targetEpisode;
 
   static Future<void> show(BuildContext context, MediaItem item) {
-    return Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => HeisucaTvTitleScreen(item: item),
-      ),
-    );
+    return Navigator.of(context).push(MaterialPageRoute(builder: (_) => HeisucaTvTitleScreen(item: item)));
   }
 
   @override
@@ -162,194 +160,190 @@ class _HeisucaTvTitleScreenState extends State<HeisucaTvTitleScreen> {
 
     return HeisucaTvCanvas(
       child: Scaffold(
-      backgroundColor: const Color(0xFF111522),
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          // 1. Backdrop escurecido com arte
-          if (imagePath != null)
-            OptimizedMediaImage(
-              imagePath: imagePath,
-              imageType: ImageType.art,
-              fit: BoxFit.cover,
-            )
-          else
-            Container(color: const Color(0xFF463339)),
+        backgroundColor: context.cgflix.background,
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            // 1. Backdrop escurecido com arte
+            if (imagePath != null)
+              OptimizedMediaImage(imagePath: imagePath, imageType: ImageType.art, fit: BoxFit.cover)
+            else
+              Container(color: context.cgflix.surfaceHigh),
 
-          // Gradiente escuro lateral e inferior
-          const DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [
-                  Color(0xF7111522),
-                  Color(0xBF111522),
-                  Color(0x26111522),
-                ],
-                stops: [0.0, 0.5, 0.9],
+            // Gradiente escuro lateral e inferior
+            DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [
+                    context.cgflix.background.withValues(alpha: 247 / 255),
+                    context.cgflix.background.withValues(alpha: 191 / 255),
+                    context.cgflix.background.withValues(alpha: 38 / 255),
+                  ],
+                  stops: [0.0, 0.5, 0.9],
+                ),
               ),
             ),
-          ),
-          const DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
-                colors: [Color(0xFF111522), Color(0x00111522)],
-                stops: [0.0, 0.6],
+            DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: [
+                    context.cgflix.background,
+                    context.cgflix.background.withValues(alpha: 0 / 255),
+                  ],
+                  stops: [0.0, 0.6],
+                ),
               ),
             ),
-          ),
 
-          // 2. Conteúdo da tela
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 36),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Voltar / Cabeçalho
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white, size: 32),
-                      onPressed: () => Navigator.of(context).maybePop(),
+            // 2. Conteúdo da tela
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 36),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Voltar / Cabeçalho
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.arrow_back, color: context.cgflix.text, size: 32),
+                        onPressed: () => Navigator.of(context).maybePop(),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Voltar',
+                        style: TextStyle(
+                          fontFamily: HeisucaTheme.fonteTexto,
+                          fontSize: 22,
+                          color: context.cgflix.text.withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Título grande
+                  Text(
+                    _item.displayTitle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: HeisucaTheme.fonteTitulo,
+                      fontSize: 64,
+                      fontWeight: FontWeight.w700,
+                      color: context.cgflix.text,
                     ),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Voltar',
-                      style: TextStyle(
-                        fontFamily: HeisucaTheme.fonteTexto,
-                        fontSize: 22,
-                        color: Colors.white.withValues(alpha: 0.7),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Metadados
+                  _buildMetadataLine(),
+                  const SizedBox(height: 16),
+
+                  // Sinopse
+                  if (_item.summary?.isNotEmpty == true)
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 1200),
+                      child: Text(
+                        _item.summary!,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: HeisucaTheme.fonteTexto,
+                          fontSize: 26,
+                          height: 1.3,
+                          color: context.cgflix.text,
+                        ),
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 24),
+                  const SizedBox(height: 28),
 
-                // Título grande
-                Text(
-                  _item.displayTitle,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontFamily: HeisucaTheme.fonteTitulo,
-                    fontSize: 64,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFFEEF2F8),
+                  // Botões de Ação
+                  Row(
+                    children: [
+                      _TvActionPill(
+                        key: const Key('heisuca-tv-title-play'),
+                        focusNode: _playFocusNode,
+                        autofocus: true,
+                        text: playLabel,
+                        isPrimary: true,
+                        onTap: () => _play(playTarget),
+                        onFocusChange: (focused) {
+                          if (focused) {
+                            HeisucaTvPlaybackWarmup.onCardFocused(context, playTarget);
+                          } else {
+                            HeisucaTvPlaybackWarmup.onFocusLost();
+                          }
+                        },
+                      ),
+                      const SizedBox(width: 20),
+                      _TvActionPill(
+                        focusNode: _tracksFocusNode,
+                        text: 'Áudio e legenda',
+                        onTap: () => _showTracksDialog(context),
+                      ),
+                      const SizedBox(width: 20),
+                      _TvActionPill(
+                        focusNode: _versionFocusNode,
+                        text: 'Versão: 1080p',
+                        onTap: () => _showVersionsDialog(context),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 12),
+                  const Spacer(),
 
-                // Metadados
-                _buildMetadataLine(),
-                const SizedBox(height: 16),
-
-                // Sinopse
-                if (_item.summary?.isNotEmpty == true)
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1200),
-                    child: Text(
-                      _item.summary!,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontFamily: HeisucaTheme.fonteTexto,
-                        fontSize: 26,
-                        height: 1.3,
-                        color: Color(0xFFDCE3EF),
+                  // Temporadas e Episódios (para Séries)
+                  if (isShow && _seasons.isNotEmpty) ...[
+                    SizedBox(
+                      height: 52,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _seasons.length,
+                        separatorBuilder: (context, idx) => const SizedBox(width: 16),
+                        itemBuilder: (context, idx) {
+                          final s = _seasons[idx];
+                          final isSel = idx == _selectedSeasonIndex;
+                          return _TvSeasonChip(
+                            text: heisucaSeasonLabel(s),
+                            isSelected: isSel,
+                            onTap: () => _onSeasonSelected(idx),
+                          );
+                        },
                       ),
                     ),
-                  ),
-                const SizedBox(height: 28),
-
-                // Botões de Ação
-                Row(
-                  children: [
-                    _TvActionPill(
-                      key: const Key('heisuca-tv-title-play'),
-                      focusNode: _playFocusNode,
-                      autofocus: true,
-                      text: playLabel,
-                      isPrimary: true,
-                      onTap: () => _play(playTarget),
-                      onFocusChange: (focused) {
-                        if (focused) {
-                          HeisucaTvPlaybackWarmup.onCardFocused(context, playTarget);
-                        } else {
-                          HeisucaTvPlaybackWarmup.onFocusLost();
-                        }
-                      },
-                    ),
-                    const SizedBox(width: 20),
-                    _TvActionPill(
-                      focusNode: _tracksFocusNode,
-                      text: 'Áudio e legenda',
-                      onTap: () => _showTracksDialog(context),
-                    ),
-                    const SizedBox(width: 20),
-                    _TvActionPill(
-                      focusNode: _versionFocusNode,
-                      text: 'Versão: 1080p',
-                      onTap: () => _showVersionsDialog(context),
-                    ),
+                    const SizedBox(height: 20),
                   ],
-                ),
-                const Spacer(),
 
-                // Temporadas e Episódios (para Séries)
-                if (isShow && _seasons.isNotEmpty) ...[
-                  SizedBox(
-                    height: 52,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: _seasons.length,
-                      separatorBuilder: (context, idx) => const SizedBox(width: 16),
-                      itemBuilder: (context, idx) {
-                        final s = _seasons[idx];
-                        final isSel = idx == _selectedSeasonIndex;
-                        return _TvSeasonChip(
-                          text: heisucaSeasonLabel(s),
-                          isSelected: isSel,
-                          onTap: () => _onSeasonSelected(idx),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                ],
-
-                if (isShow) ...[
-                  SizedBox(
-                    height: 240,
-                    child: _episodes.isEmpty
-                        ? Center(
-                            child: Text(
-                              _loading ? 'Carregando episódios...' : 'Nenhum episódio',
-                              style: const TextStyle(fontSize: 22, color: Colors.white54),
+                  if (isShow) ...[
+                    SizedBox(
+                      height: 240,
+                      child: _episodes.isEmpty
+                          ? Center(
+                              child: Text(
+                                _loading ? 'Carregando episódios...' : 'Nenhum episódio',
+                                style: TextStyle(fontSize: 22, color: context.cgflix.text.withValues(alpha: 54 / 100)),
+                              ),
+                            )
+                          : ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: _episodes.length,
+                              separatorBuilder: (context, idx) => const SizedBox(width: 20),
+                              itemBuilder: (context, idx) {
+                                final ep = _episodes[idx];
+                                return _TvEpisodeCard(episode: ep, onTap: () => _play(ep));
+                              },
                             ),
-                          )
-                        : ListView.separated(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: _episodes.length,
-                            separatorBuilder: (context, idx) => const SizedBox(width: 20),
-                            itemBuilder: (context, idx) {
-                              final ep = _episodes[idx];
-                              return _TvEpisodeCard(
-                                episode: ep,
-                                onTap: () => _play(ep),
-                              );
-                            },
-                          ),
-                  ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
     );
   }
 
@@ -369,11 +363,11 @@ class _HeisucaTvTitleScreenState extends State<HeisucaTvTitleScreen> {
 
     return Text(
       parts.join(' · '),
-      style: const TextStyle(
+      style: TextStyle(
         fontFamily: HeisucaTheme.fonteTexto,
         fontSize: 26,
         fontWeight: FontWeight.w500,
-        color: Color(0xFFC9D2E2),
+        color: context.cgflix.textMuted,
       ),
     );
   }
@@ -382,22 +376,28 @@ class _HeisucaTvTitleScreenState extends State<HeisucaTvTitleScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1E263B),
+        backgroundColor: context.cgflix.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Áudio e legenda', style: TextStyle(color: Colors.white, fontSize: 28)),
+        title: Text('Áudio e legenda', style: TextStyle(color: context.cgflix.text, fontSize: 28)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Áudio: Português (padrão)', style: TextStyle(color: Colors.white70, fontSize: 22)),
+            Text(
+              'Áudio: Português (padrão)',
+              style: TextStyle(color: context.cgflix.text.withValues(alpha: 70 / 100), fontSize: 22),
+            ),
             const SizedBox(height: 12),
-            const Text('Legenda: Desligada (padrão)', style: TextStyle(color: Colors.white70, fontSize: 22)),
+            Text(
+              'Legenda: Desligada (padrão)',
+              style: TextStyle(color: context.cgflix.text.withValues(alpha: 70 / 100), fontSize: 22),
+            ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Fechar', style: TextStyle(color: Colors.white, fontSize: 22)),
+            child: Text('Fechar', style: TextStyle(color: context.cgflix.text, fontSize: 22)),
           ),
         ],
       ),
@@ -408,15 +408,17 @@ class _HeisucaTvTitleScreenState extends State<HeisucaTvTitleScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1E263B),
+        backgroundColor: context.cgflix.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Versão do vídeo', style: TextStyle(color: Colors.white, fontSize: 28)),
-        content: const Text('Versão 1080p H.264 (decodificada por hardware)',
-            style: TextStyle(color: Colors.white70, fontSize: 22)),
+        title: Text('Versão do vídeo', style: TextStyle(color: context.cgflix.text, fontSize: 28)),
+        content: Text(
+          'Versão 1080p H.264 (decodificada por hardware)',
+          style: TextStyle(color: context.cgflix.text.withValues(alpha: 70 / 100), fontSize: 22),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Fechar', style: TextStyle(color: Colors.white, fontSize: 22)),
+            child: Text('Fechar', style: TextStyle(color: context.cgflix.text, fontSize: 22)),
           ),
         ],
       ),
@@ -496,7 +498,7 @@ class _TvActionPillState extends State<_TvActionPill> {
       child: GestureDetector(
         onTap: widget.onTap,
         child: AnimatedScale(
-          scale: active ? 1.06 : 1.0,
+          scale: active ? HeisucaBase.focoEscalaTv : 1.0,
           duration: const Duration(milliseconds: 140),
           curve: Curves.easeOutCubic,
           child: Container(
@@ -505,23 +507,17 @@ class _TvActionPillState extends State<_TvActionPill> {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: active
-                  ? Colors.white
+                  ? context.cgflix.text
                   : widget.isPrimary
-                      ? Colors.white.withValues(alpha: 0.20)
-                      : Colors.white.withValues(alpha: 0.12),
+                  ? context.cgflix.text.withValues(alpha: 0.20)
+                  : context.cgflix.text.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(34),
               border: Border.all(
-                color: active ? Colors.white : Colors.transparent,
-                width: 3.5,
+                color: active ? context.cgflix.focusRing : Colors.transparent,
+                width: HeisucaBase.focoBorda,
               ),
               boxShadow: active
-                  ? [
-                      BoxShadow(
-                        color: Colors.white.withValues(alpha: 0.35),
-                        blurRadius: 18,
-                        spreadRadius: 2,
-                      ),
-                    ]
+                  ? [BoxShadow(color: context.cgflix.text.withValues(alpha: 0.35), blurRadius: 18, spreadRadius: 2)]
                   : null,
             ),
             child: Text(
@@ -530,7 +526,7 @@ class _TvActionPillState extends State<_TvActionPill> {
                 fontFamily: HeisucaTheme.fonteTexto,
                 fontSize: 26,
                 fontWeight: active ? FontWeight.w700 : FontWeight.w600,
-                color: active ? const Color(0xFF111522) : const Color(0xFFEEF2F8),
+                color: active ? context.cgflix.background : context.cgflix.text,
               ),
             ),
           ),
@@ -541,11 +537,7 @@ class _TvActionPillState extends State<_TvActionPill> {
 }
 
 class _TvSeasonChip extends StatefulWidget {
-  const _TvSeasonChip({
-    required this.text,
-    required this.isSelected,
-    required this.onTap,
-  });
+  const _TvSeasonChip({required this.text, required this.isSelected, required this.onTap});
 
   final String text;
   final bool isSelected;
@@ -575,21 +567,21 @@ class _TvSeasonChipState extends State<_TvSeasonChip> {
       child: GestureDetector(
         onTap: widget.onTap,
         child: AnimatedScale(
-          scale: active ? 1.05 : 1.0,
+          scale: active ? HeisucaBase.focoEscalaTv : 1.0,
           duration: const Duration(milliseconds: 140),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 28),
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: active
-                  ? Colors.white
+                  ? context.cgflix.text
                   : widget.isSelected
-                      ? Colors.white.withValues(alpha: 0.25)
-                      : Colors.white.withValues(alpha: 0.08),
+                  ? context.cgflix.text.withValues(alpha: 0.25)
+                  : context.cgflix.text.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(26),
               border: Border.all(
-                color: active ? Colors.white : Colors.transparent,
-                width: 3.0,
+                color: active ? context.cgflix.focusRing : Colors.transparent,
+                width: HeisucaBase.focoBorda,
               ),
             ),
             child: Text(
@@ -597,7 +589,7 @@ class _TvSeasonChipState extends State<_TvSeasonChip> {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: active || widget.isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: active ? const Color(0xFF111522) : const Color(0xFFEEF2F8),
+                color: active ? context.cgflix.background : context.cgflix.text,
               ),
             ),
           ),
@@ -608,10 +600,7 @@ class _TvSeasonChipState extends State<_TvSeasonChip> {
 }
 
 class _TvEpisodeCard extends StatefulWidget {
-  const _TvEpisodeCard({
-    required this.episode,
-    required this.onTap,
-  });
+  const _TvEpisodeCard({required this.episode, required this.onTap});
 
   final MediaItem episode;
   final VoidCallback onTap;
@@ -631,9 +620,7 @@ class _TvEpisodeCardState extends State<_TvEpisodeCard> {
         : 0.0;
 
     final epLabel = 'E${ep.index ?? 1} · ${heisucaEpisodeLabel(ep)}';
-    final durLabel = ep.durationMs != null && ep.durationMs! > 0
-        ? '${ep.durationMs! ~/ 60000} min'
-        : '';
+    final durLabel = ep.durationMs != null && ep.durationMs! > 0 ? '${ep.durationMs! ~/ 60000} min' : '';
 
     return FocusableActionDetector(
       onFocusChange: (v) {
@@ -655,26 +642,20 @@ class _TvEpisodeCardState extends State<_TvEpisodeCard> {
       child: GestureDetector(
         onTap: widget.onTap,
         child: AnimatedScale(
-          scale: _focused ? 1.06 : 1.0,
+          scale: _focused ? HeisucaBase.focoEscalaTv : 1.0,
           duration: const Duration(milliseconds: 140),
           curve: Curves.easeOutCubic,
           child: Container(
             width: 320,
             decoration: BoxDecoration(
-              color: const Color(0xFF1E263B),
+              color: context.cgflix.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: _focused ? Colors.white : Colors.white.withValues(alpha: 0.1),
-                width: _focused ? 3.5 : 1.0,
+                color: _focused ? context.cgflix.focusRing : context.cgflix.text.withValues(alpha: 0.1),
+                width: _focused ? HeisucaBase.focoBorda : 1.0,
               ),
               boxShadow: _focused
-                  ? [
-                      BoxShadow(
-                        color: Colors.white.withValues(alpha: 0.3),
-                        blurRadius: 18,
-                        spreadRadius: 2,
-                      ),
-                    ]
+                  ? [BoxShadow(color: context.cgflix.text.withValues(alpha: 0.3), blurRadius: 18, spreadRadius: 2)]
                   : null,
             ),
             clipBehavior: Clip.antiAlias,
@@ -692,7 +673,7 @@ class _TvEpisodeCardState extends State<_TvEpisodeCard> {
                           fit: BoxFit.cover,
                         )
                       else
-                        Container(color: const Color(0xFF27314A)),
+                        Container(color: context.cgflix.surfaceHigh),
 
                       if (progress > 0)
                         Positioned(
@@ -702,8 +683,8 @@ class _TvEpisodeCardState extends State<_TvEpisodeCard> {
                           child: LinearProgressIndicator(
                             value: progress,
                             minHeight: 5,
-                            backgroundColor: Colors.white.withValues(alpha: 0.2),
-                            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFBAC6D9)),
+                            backgroundColor: context.cgflix.text.withValues(alpha: 0.2),
+                            valueColor: AlwaysStoppedAnimation<Color>(context.cgflix.accent),
                           ),
                         ),
                     ],
@@ -718,20 +699,10 @@ class _TvEpisodeCardState extends State<_TvEpisodeCard> {
                         epLabel,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFFEEF2F8),
-                        ),
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: context.cgflix.text),
                       ),
                       if (durLabel.isNotEmpty)
-                        Text(
-                          durLabel,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            color: Color(0xFFABB8CE),
-                          ),
-                        ),
+                        Text(durLabel, style: TextStyle(fontSize: 18, color: context.cgflix.textMuted)),
                     ],
                   ),
                 ),

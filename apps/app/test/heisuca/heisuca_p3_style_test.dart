@@ -21,37 +21,54 @@ void main() {
   setUp(resetSharedPreferencesForTest);
   setUpAll(() async {
     await LocaleSettings.setLocale(AppLocale.pt);
-    PackageInfo.setMockInitialValues(appName: 'Heisuca', packageName: 'app.heisuca.player.teste.home',
-        version: '2.0.34', buildNumber: '2036', buildSignature: '');
+    PackageInfo.setMockInitialValues(
+      appName: 'Heisuca',
+      packageName: 'app.heisuca.player.teste.home',
+      version: '2.0.34',
+      buildNumber: '2036',
+      buildSignature: '',
+    );
   });
   testWidgets('P3 editor avançado usa a fonte monoespaçada do app', (tester) async {
     await settings.SettingsService.getInstance();
-    await tester.pumpWidget(TranslationProvider(child: MaterialApp(theme: cgflixAppTheme(),
-      home: const MpvConfigScreen())));
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: MaterialApp(theme: cgflixAppTheme(), home: const MpvConfigScreen()),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(tester.widget<EditableText>(find.byType(EditableText)).style.fontFamily, cgflixMonoFamily);
   });
   for (final (name, widget) in [
-    ('ficha', const HeisucaSectionTitle('Episódios', colors: HeisucaTitleColors(
-      page: Colors.black, text: Colors.white, accent: Colors.white, isLight: false))),
+    (
+      'ficha',
+      const HeisucaSectionTitle(
+        'Episódios',
+        colors: HeisucaTitleColors(page: Colors.black, text: Colors.white, accent: Colors.white, isLight: false),
+      ),
+    ),
     ('configurações', const SettingsSectionHeader('Reprodução')),
   ]) {
-    testWidgets('P3 título de seção $name renderiza Sora', (tester) async {
-      await tester.pumpWidget(MaterialApp(theme: cgflixAppTheme(), home: Scaffold(body: widget)));
+    testWidgets('P3 título de seção $name renderiza Inter', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: cgflixAppTheme(),
+          home: Scaffold(body: widget),
+        ),
+      );
       final text = tester.widget<RichText>(find.byType(RichText).first);
-      expect(text.text.style!.fontFamily, 'Sora');
+      expect(text.text.style!.fontFamily, 'Inter');
     });
   }
-  for (final (name, theme) in [
-    ('Shikkoku', cgflixAppTheme()),
-    ('Hisui claro', cgflixLightTheme()),
-  ]) {
+  for (final (name, theme) in [('Shikkoku', cgflixAppTheme()), ('Hisui claro', cgflixLightTheme())]) {
     testWidgets('P3 $name: outras fontes usam a superfície do tema', (tester) async {
       await tester.pumpWidget(MaterialApp(theme: theme, home: const HeisucaLoginScreen()));
       await tester.tap(find.text('Outros servidores e pastas locais'));
       await tester.pumpAndSettle();
-      expect(tester.widget<BottomSheet>(find.byType(BottomSheet)).backgroundColor,
-        theme.extension<CgflixPalette>()!.surface);
+      expect(
+        tester.widget<BottomSheet>(find.byType(BottomSheet)).backgroundColor,
+        theme.extension<CgflixPalette>()!.surface,
+      );
     });
     testWidgets('P3 $name: ícones de Você acompanham o destaque do tema', (tester) async {
       await tester.pumpWidget(MaterialApp(theme: theme, home: const HeisucaProfileScreen()));
@@ -63,8 +80,10 @@ void main() {
       testWidgets('P3 $name: $screen usa o canvas do tema', (tester) async {
         await tester.pumpWidget(MaterialApp(theme: theme, home: child));
         await tester.pump();
-        expect(tester.widget<Scaffold>(find.byType(Scaffold).first).backgroundColor,
-            theme.extension<CgflixPalette>()!.background);
+        expect(
+          tester.widget<Scaffold>(find.byType(Scaffold).first).backgroundColor,
+          theme.extension<CgflixPalette>()!.background,
+        );
       });
     }
     testWidgets('P3 $name: dica do campo de login tem AA no preenchimento real', (tester) async {
@@ -75,22 +94,34 @@ void main() {
       final fg = decorator.decoration.hintStyle!.color!;
       expect(contrast(fg, bg), greaterThanOrEqualTo(4.5));
     });
-    test('P3 $name: títulos Sora e texto Inter no contrato do tema', () {
+    test('P3 $name: títulos Inter e texto Inter no contrato do tema', () {
       final t = theme.textTheme;
-      for (final style in [t.displayLarge, t.displayMedium, t.displaySmall,
-          t.headlineLarge, t.headlineMedium, t.headlineSmall,
-          t.titleLarge, t.titleMedium, t.titleSmall]) {
-        expect(style!.fontFamily, 'Sora');
+      for (final style in [
+        t.displayLarge,
+        t.displayMedium,
+        t.displaySmall,
+        t.headlineLarge,
+        t.headlineMedium,
+        t.headlineSmall,
+        t.titleLarge,
+        t.titleMedium,
+        t.titleSmall,
+      ]) {
+        expect(style!.fontFamily, 'Inter');
       }
       for (final style in [t.bodyLarge, t.bodyMedium, t.bodySmall, t.labelLarge, t.labelMedium, t.labelSmall]) {
         expect(style!.fontFamily, 'Inter');
       }
-      expect(theme.appBarTheme.titleTextStyle!.fontFamily, 'Sora');
+      expect(theme.appBarTheme.titleTextStyle!.fontFamily, 'Inter');
     });
   }
   testWidgets('P3 logo completo é SVG, sem palavra digitada', (tester) async {
-    await tester.pumpWidget(MaterialApp(theme: cgflixAppTheme(),
-      home: const Scaffold(body: HeisucaLogo(comSlogan: true))));
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: cgflixAppTheme(),
+        home: const Scaffold(body: HeisucaLogo(comSlogan: true)),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(find.text('HEISUCA'), findsNothing);
     final svg = tester.widget<SvgPicture>(find.byType(SvgPicture).first);
@@ -98,7 +129,11 @@ void main() {
     expect(find.text('Nada entre você e o filme.'), findsOneWidget);
   });
   testWidgets('P3 Sobre usa marca SVG, sem palavra digitada', (tester) async {
-    await tester.pumpWidget(TranslationProvider(child: MaterialApp(theme: cgflixAppTheme(), home: const AboutScreen())));
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: MaterialApp(theme: cgflixAppTheme(), home: const AboutScreen()),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(find.text('HEISUCA'), findsNothing);
     expect(tester.takeException(), isNull);

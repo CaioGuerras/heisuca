@@ -60,13 +60,13 @@ class ThemeProvider extends ChangeNotifier with DisposableChangeNotifierMixin, W
   /// provider will settle on, instead of guessing from platform brightness
   /// and flashing when the two disagree (#1833).
   static ThemeData darkThemeFor(settings.ThemeMode mode) =>
-      monoTheme(dark: true, oled: true);
+      monoTheme(dark: true, oled: mode != settings.ThemeMode.sumi, sumi: mode == settings.ThemeMode.sumi);
 
   /// Material equivalent of the app's own [settings.ThemeMode].
   static ThemeMode materialThemeModeFor(settings.ThemeMode mode) => switch (mode) {
     settings.ThemeMode.light => ThemeMode.light,
     settings.ThemeMode.dark => ThemeMode.dark,
-    settings.ThemeMode.oled => ThemeMode.dark,
+    settings.ThemeMode.oled || settings.ThemeMode.sumi => ThemeMode.dark,
     settings.ThemeMode.system => ThemeMode.system,
   };
 
@@ -81,6 +81,7 @@ class ThemeProvider extends ChangeNotifier with DisposableChangeNotifierMixin, W
         return false;
       case settings.ThemeMode.dark:
         return true;
+      case settings.ThemeMode.sumi:
       case settings.ThemeMode.oled:
         return true;
       case settings.ThemeMode.system:
@@ -108,6 +109,7 @@ class ThemeProvider extends ChangeNotifier with DisposableChangeNotifierMixin, W
     final name = switch (mode) {
       settings.ThemeMode.dark => 'dark',
       settings.ThemeMode.oled => 'oled',
+      settings.ThemeMode.sumi => 'sumi',
       settings.ThemeMode.light => 'light',
       settings.ThemeMode.system => 'system',
     };
@@ -120,6 +122,7 @@ class ThemeProvider extends ChangeNotifier with DisposableChangeNotifierMixin, W
         return Symbols.light_mode_rounded;
       case settings.ThemeMode.dark:
         return Symbols.dark_mode_rounded;
+      case settings.ThemeMode.sumi:
       case settings.ThemeMode.oled:
         return Symbols.contrast_rounded;
       case settings.ThemeMode.system:

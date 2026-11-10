@@ -168,7 +168,7 @@ class _CgflixPreviewState extends State<_CgflixPreview> {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.headlineSmall?.copyWith(
-                            fontFamily: 'Sora',
+                            fontFamily: 'Inter',
                             fontWeight: FontWeight.w800,
                             letterSpacing: -0.4,
                           ),

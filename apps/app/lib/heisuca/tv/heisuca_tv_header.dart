@@ -1,3 +1,5 @@
+import '../theme/heisuca_base.dart';
+import '../../cgflix/cgflix_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -8,12 +10,7 @@ import '../heisuca_theme.dart';
 /// Topo oficial do Heisuca na TV: Avatar no canto superior esquerdo com o nome HEISUCA ao lado.
 /// Foco no avatar abre o menu principal da TV.
 class HeisucaTvHeader extends StatefulWidget {
-  const HeisucaTvHeader({
-    super.key,
-    required this.onOpenMenu,
-    this.focusNode,
-    this.showLogo = true,
-  });
+  const HeisucaTvHeader({super.key, required this.onOpenMenu, this.focusNode, this.showLogo = true});
 
   final VoidCallback onOpenMenu;
   final FocusNode? focusNode;
@@ -53,9 +50,7 @@ class _HeisucaTvHeaderState extends State<HeisucaTvHeader> {
   Widget build(BuildContext context) {
     final profiles = context.watch<ActiveProfileProvider?>();
     final activeProfile = profiles?.active;
-    final initial = (activeProfile?.displayName.isNotEmpty == true)
-        ? activeProfile!.displayName[0].toUpperCase()
-        : 'T';
+    final initial = (activeProfile?.displayName.isNotEmpty == true) ? activeProfile!.displayName[0].toUpperCase() : 'T';
 
     return Padding(
       padding: const EdgeInsets.only(left: 48, top: 36),
@@ -78,7 +73,7 @@ class _HeisucaTvHeaderState extends State<HeisucaTvHeader> {
               key: const Key('heisuca-tv-avatar-button'),
               onTap: widget.onOpenMenu,
               child: AnimatedScale(
-                scale: _focused ? 1.08 : 1.0,
+                scale: _focused ? HeisucaBase.focoEscalaTv : 1.0,
                 duration: const Duration(milliseconds: 150),
                 curve: Curves.easeOutCubic,
                 child: Container(
@@ -87,13 +82,13 @@ class _HeisucaTvHeaderState extends State<HeisucaTvHeader> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: _focused ? Colors.white : Colors.white.withValues(alpha: 0.15),
-                      width: _focused ? 3.5 : 1.5,
+                      color: _focused ? context.cgflix.focusRing : context.cgflix.text.withValues(alpha: 0.15),
+                      width: _focused ? HeisucaBase.focoBorda : 1.5,
                     ),
                     boxShadow: _focused
                         ? [
                             BoxShadow(
-                              color: Colors.white.withValues(alpha: 0.35),
+                              color: context.cgflix.text.withValues(alpha: 0.35),
                               blurRadius: 16,
                               spreadRadius: 2,
                             ),
@@ -108,15 +103,11 @@ class _HeisucaTvHeaderState extends State<HeisucaTvHeader> {
                             avatarUrl: profiles?.avatarUrlFor(activeProfile.id),
                           )
                         : Container(
-                            color: const Color(0xFF2F6B4F),
+                            color: context.cgflix.accent,
                             alignment: Alignment.center,
                             child: Text(
                               initial,
-                              style: const TextStyle(
-                                fontSize: 26,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                              ),
+                              style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700, color: context.cgflix.text),
                             ),
                           ),
                   ),
@@ -134,7 +125,7 @@ class _HeisucaTvHeaderState extends State<HeisucaTvHeader> {
                 fontSize: 22,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 4.0,
-                color: const Color(0xFFEEF2F8),
+                color: context.cgflix.text,
               ),
             ),
           ],

@@ -988,7 +988,7 @@ class _VideoSettingsSheetState extends State<VideoSettingsSheet> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Esta reprodução', style: TextStyle(fontFamily: 'Sora', fontSize: 16)),
+                const Text('Esta reprodução', style: TextStyle(fontFamily: 'Inter', fontSize: 16)),
                 const SizedBox(height: 8),
                 Text(delivery.summary),
                 if (delivery.method == 'Transcode') ...[const SizedBox(height: 8), Text(delivery.explanation)],

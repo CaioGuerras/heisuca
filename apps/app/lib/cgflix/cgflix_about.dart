@@ -134,7 +134,7 @@ class _AboutCard extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: theme.textTheme.titleSmall?.copyWith(fontFamily: 'Sora', fontWeight: FontWeight.w700),
+                        style: theme.textTheme.titleSmall?.copyWith(fontFamily: 'Inter', fontWeight: FontWeight.w700),
                       ),
                       if (subtitle != null) ...[
                         const SizedBox(height: 4),

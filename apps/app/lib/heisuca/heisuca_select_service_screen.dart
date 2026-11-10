@@ -1,3 +1,4 @@
+import '../cgflix/cgflix_palette.dart';
 import 'package:flutter/material.dart';
 import 'heisuca_theme.dart';
 import 'heisuca_logo.dart';
@@ -10,10 +11,7 @@ import 'heisuca_add_smb_screen.dart';
 class HeisucaSelectServiceScreen extends StatelessWidget {
   final ValueChanged<HeisucaServiceType>? onSelectService;
 
-  const HeisucaSelectServiceScreen({
-    super.key,
-    this.onSelectService,
-  });
+  const HeisucaSelectServiceScreen({super.key, this.onSelectService});
 
   void _handleServiceSelection(BuildContext context, HeisucaServiceType type) {
     if (onSelectService != null) {
@@ -23,12 +21,7 @@ class HeisucaSelectServiceScreen extends StatelessWidget {
 
     switch (type) {
       case HeisucaServiceType.jellyfin:
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const HeisucaLoginScreen(),
-          ),
-        );
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const HeisucaLoginScreen()));
         break;
 
       case HeisucaServiceType.plex:
@@ -42,17 +35,11 @@ class HeisucaSelectServiceScreen extends StatelessWidget {
         break;
 
       case HeisucaServiceType.webdav:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const HeisucaAddWebDavScreen()),
-        );
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const HeisucaAddWebDavScreen()));
         break;
 
       case HeisucaServiceType.smb:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const HeisucaAddSmbScreen()),
-        );
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const HeisucaAddSmbScreen()));
         break;
 
       case HeisucaServiceType.local:
@@ -96,10 +83,7 @@ class HeisucaSelectServiceScreen extends StatelessWidget {
                       alignment: Alignment.centerLeft,
                       child: Text(
                         'Conectar Fonte de Mídia',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontSize: 19,
-                          letterSpacing: -0.2,
-                        ),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 19, letterSpacing: -0.2),
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -107,9 +91,9 @@ class HeisucaSelectServiceScreen extends StatelessWidget {
                       alignment: Alignment.centerLeft,
                       child: Text(
                         'Escolha o servidor ou armazenamento para reproduzir em alta fidelidade.',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.white.withValues(alpha: 0.55),
-                        ),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodyMedium?.copyWith(color: Colors.white.withValues(alpha: 0.55)),
                       ),
                     ),
                   ],
@@ -119,24 +103,16 @@ class HeisucaSelectServiceScreen extends StatelessWidget {
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final type = HeisucaServiceType.values[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12.0),
-                      child: _ServiceCard(
-                        type: type,
-                        onTap: () => _handleServiceSelection(context, type),
-                      ),
-                    );
-                  },
-                  childCount: HeisucaServiceType.values.length,
-                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final type = HeisucaServiceType.values[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12.0),
+                    child: _ServiceCard(type: type, onTap: () => _handleServiceSelection(context, type)),
+                  );
+                }, childCount: HeisucaServiceType.values.length),
               ),
             ),
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 32),
-            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 32)),
           ],
         ),
       ),
@@ -148,10 +124,7 @@ class _ServiceCard extends StatelessWidget {
   final HeisucaServiceType type;
   final VoidCallback onTap;
 
-  const _ServiceCard({
-    required this.type,
-    required this.onTap,
-  });
+  const _ServiceCard({required this.type, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -162,23 +135,21 @@ class _ServiceCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(HeisucaTheme.raioCard),
-        splashColor: HeisucaTheme.roxoPrimaria.withValues(alpha: 0.12),
-        highlightColor: HeisucaTheme.roxoPrimaria.withValues(alpha: 0.06),
+        splashColor: context.cgflix.accent.withValues(alpha: 0.12),
+        highlightColor: context.cgflix.accent.withValues(alpha: 0.06),
         child: Container(
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
-            color: HeisucaTheme.roxoSuperficie,
+            color: context.cgflix.surface,
             borderRadius: BorderRadius.circular(HeisucaTheme.raioCard),
             border: Border.all(
-              color: isJellyfin
-                  ? HeisucaTheme.roxoPrimaria.withValues(alpha: 0.4)
-                  : HeisucaTheme.roxoLinha,
+              color: isJellyfin ? context.cgflix.accent.withValues(alpha: 0.4) : context.cgflix.divider,
               width: isJellyfin ? 1.5 : 1.0,
             ),
             boxShadow: isJellyfin
                 ? [
                     BoxShadow(
-                      color: HeisucaTheme.roxoPrimaria.withValues(alpha: 0.08),
+                      color: context.cgflix.accent.withValues(alpha: 0.08),
                       blurRadius: 16,
                       offset: const Offset(0, 4),
                     ),
@@ -192,15 +163,11 @@ class _ServiceCard extends StatelessWidget {
                 height: 48,
                 decoration: BoxDecoration(
                   color: isJellyfin
-                      ? HeisucaTheme.roxoPrimaria.withValues(alpha: 0.18)
+                      ? context.cgflix.accent.withValues(alpha: 0.18)
                       : Colors.white.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Icon(
-                  type.icone,
-                  color: isJellyfin ? HeisucaTheme.roxoPrimaria : Colors.white70,
-                  size: 26,
-                ),
+                child: Icon(type.icone, color: isJellyfin ? context.cgflix.accent : Colors.white70, size: 26),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -223,7 +190,7 @@ class _ServiceCard extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
                             color: isJellyfin
-                                ? HeisucaTheme.roxoPrimaria.withValues(alpha: 0.2)
+                                ? context.cgflix.accent.withValues(alpha: 0.2)
                                 : Colors.white.withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(999),
                           ),
@@ -233,7 +200,7 @@ class _ServiceCard extends StatelessWidget {
                               fontFamily: HeisucaTheme.fonteTexto,
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
-                              color: isJellyfin ? HeisucaTheme.roxoPrimaria : Colors.white60,
+                              color: isJellyfin ? context.cgflix.accent : Colors.white60,
                             ),
                           ),
                         ),
@@ -253,11 +220,7 @@ class _ServiceCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: Colors.white.withValues(alpha: 0.35),
-                size: 22,
-              ),
+              Icon(Icons.chevron_right_rounded, color: Colors.white.withValues(alpha: 0.35), size: 22),
             ],
           ),
         ),

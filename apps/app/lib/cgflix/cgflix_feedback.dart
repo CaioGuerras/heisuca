@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../i18n/strings.g.dart';
 import 'cgflix_palette.dart';
+import '../heisuca/theme/temas/tema_sumi.dart';
 
 /// Cores (fundo, texto) do aviso a partir da cor que o upstream pediu. Nulo = a do tema.
 (Color?, Color?) cgflixSnackBarColors(BuildContext context, Color? upstream) {
@@ -16,7 +17,7 @@ import 'cgflix_palette.dart';
 
 /// Destaque do player (sempre escuro): o lilás do CGFLIX no lugar do âmbar do upstream (chaves
 /// ligadas, item escolhido, timer ativo).
-const cgflixPlayerAccent = heisucaShikkokuAccent;
+const cgflixPlayerAccent = TemaSumi.temaCorTexto;
 
 /// Cores dos estados de download (o upstream usava laranja/azul/âmbar/verde/vermelho soltos, quase
 /// invisíveis no fundo claro do Heitor). Tudo da paleta do tema.

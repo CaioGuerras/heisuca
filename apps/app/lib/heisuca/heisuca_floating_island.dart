@@ -34,8 +34,7 @@ class HeisucaFloatingIsland extends StatefulWidget {
   State<HeisucaFloatingIsland> createState() => _HeisucaFloatingIslandState();
 }
 
-class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
-    with SingleTickerProviderStateMixin {
+class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland> with SingleTickerProviderStateMixin {
   late AnimationController _springController;
   double _currentPosition = 0.0;
   double _targetPosition = 0.0;
@@ -45,7 +44,9 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
   List<({IconData icon, String label})> get _items => [
     (icon: Symbols.home_rounded, label: 'Início'),
     (icon: Symbols.video_library_rounded, label: 'Biblioteca'),
-    widget.kids ? (icon: Symbols.favorite_rounded, label: 'Favoritos') : (icon: Symbols.download_rounded, label: 'Baixados'),
+    widget.kids
+        ? (icon: Symbols.favorite_rounded, label: 'Favoritos')
+        : (icon: Symbols.download_rounded, label: 'Baixados'),
     (icon: Symbols.person_rounded, label: 'Você'),
   ];
 
@@ -75,17 +76,8 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
       _springController.value = target;
       return;
     }
-    const springDesc = SpringDescription(
-      mass: 1.0,
-      stiffness: 180.0,
-      damping: 20.0,
-    );
-    final springSimulation = SpringSimulation(
-      springDesc,
-      _currentPosition,
-      _targetPosition,
-      0.0,
-    );
+    const springDesc = SpringDescription(mass: 1.0, stiffness: 180.0, damping: 20.0);
+    final springSimulation = SpringSimulation(springDesc, _currentPosition, _targetPosition, 0.0);
     _springController.animateWith(springSimulation);
   }
 
@@ -105,10 +97,10 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
     final isLight = palette.isLight;
 
     final glassBg = isLight
-        ? const Color(0xFFF6FBF7).withValues(alpha: 0.82)
-        : const Color(0xFF0E0B14).withValues(alpha: 0.72);
+        ? context.cgflix.surface.withValues(alpha: 0.82)
+        : context.cgflix.background.withValues(alpha: 0.72);
     final borderSpecular = isLight
-        ? const Color(0xFF006E28).withValues(alpha: 0.18)
+        ? context.cgflix.accent.withValues(alpha: 0.18)
         : Colors.white.withValues(alpha: 0.14);
     final pillColor = palette.accent.withValues(alpha: isLight ? 0.15 : 0.24);
     final pillBorder = palette.accentSoft.withValues(alpha: isLight ? 0.40 : 0.32);
@@ -138,10 +130,7 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
               decoration: BoxDecoration(
                 color: glassBg,
                 borderRadius: BorderRadius.circular(32.0),
-                border: Border.all(
-                  color: borderSpecular,
-                  width: 0.75,
-                ),
+                border: Border.all(color: borderSpecular, width: 0.75),
               ),
               child: Stack(
                 children: [
@@ -162,10 +151,7 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
                           decoration: BoxDecoration(
                             color: pillColor,
                             borderRadius: BorderRadius.circular(23.0),
-                            border: Border.all(
-                              color: pillBorder,
-                              width: 0.75,
-                            ),
+                            border: Border.all(color: pillBorder, width: 0.75),
                           ),
                         ),
                       );
@@ -184,10 +170,10 @@ class _HeisucaFloatingIslandState extends State<HeisucaFloatingIsland>
                           avatar: index == 3 ? widget.userAvatar : null,
                           isSelected: isSelected,
                           isLight: isLight,
-                          activeColor: isLight ? palette.accent : const Color(0xFFF4F1FA),
+                          activeColor: isLight ? palette.accent : context.cgflix.text,
                           mutedColor: isLight
-                              ? const Color(0xFF3E4A42).withValues(alpha: 0.75)
-                              : const Color(0xFFA99FBB).withValues(alpha: 0.72),
+                              ? context.cgflix.textMuted.withValues(alpha: 0.75)
+                              : context.cgflix.textMuted.withValues(alpha: 0.72),
                           onTap: () {
                             HapticFeedback.lightImpact();
                             widget.onDestinationSelected(index);
@@ -249,34 +235,35 @@ class _IslandButtonState extends State<_IslandButton> {
       disableScale: true,
       borderRadius: 20,
       child: GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTapDown: (_) => setState(() => _scale = 0.88),
-      onTapUp: (_) => setState(() => _scale = 1.0),
-      onTapCancel: () => setState(() => _scale = 1.0),
-      onTap: widget.onTap,
-      onLongPress: widget.onLongPress,
-      child: Semantics(
-        button: true,
-        selected: widget.isSelected,
-        label: widget.label,
-        excludeSemantics: true,
-        child: AnimatedScale(
-          scale: _scale,
-          duration: const Duration(milliseconds: 140),
-          curve: const ElasticOutCurve(0.9),
-          child: Center(
-            child: widget.avatar ?? Icon(
-              widget.icon,
-              size: 26.0,
-              fill: widget.isSelected ? 1.0 : 0.0,
-              weight: widget.isSelected ? 600.0 : 350.0,
-              color: fg,
+        behavior: HitTestBehavior.opaque,
+        onTapDown: (_) => setState(() => _scale = 0.88),
+        onTapUp: (_) => setState(() => _scale = 1.0),
+        onTapCancel: () => setState(() => _scale = 1.0),
+        onTap: widget.onTap,
+        onLongPress: widget.onLongPress,
+        child: Semantics(
+          button: true,
+          selected: widget.isSelected,
+          label: widget.label,
+          excludeSemantics: true,
+          child: AnimatedScale(
+            scale: _scale,
+            duration: const Duration(milliseconds: 140),
+            curve: const ElasticOutCurve(0.9),
+            child: Center(
+              child:
+                  widget.avatar ??
+                  Icon(
+                    widget.icon,
+                    size: 26.0,
+                    fill: widget.isSelected ? 1.0 : 0.0,
+                    weight: widget.isSelected ? 600.0 : 350.0,
+                    color: fg,
+                  ),
             ),
           ),
         ),
       ),
-      ),
     );
   }
 }
-

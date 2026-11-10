@@ -1,3 +1,5 @@
+import '../theme/heisuca_base.dart';
+import '../../cgflix/cgflix_palette.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -94,11 +96,7 @@ class HeisucaTvHomeScreenState extends State<HeisucaTvHomeScreen> {
   }
 
   void scrollToDestaqueAndFocus() {
-    _scrollController.animateTo(
-      0,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOutCubic,
-    );
+    _scrollController.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeOutCubic);
     heroPlayFocusNode.requestFocus();
   }
 
@@ -172,188 +170,183 @@ class HeisucaTvHomeScreenState extends State<HeisucaTvHomeScreen> {
 
     return HeisucaTvCanvas(
       child: Scaffold(
-      backgroundColor: const Color(0xFF111522), // BG
-      body: Stack(
-        children: [
-          // 1. Fundo do Destaque (Arte de fundo em tela cheia com gradientes)
-          if (hero != null)
-            Positioned.fill(
-              child: _TvHeroBackdrop(item: hero),
-            ),
+        backgroundColor: context.cgflix.background, // BG
+        body: Stack(
+          children: [
+            // 1. Fundo do Destaque (Arte de fundo em tela cheia com gradientes)
+            if (hero != null) Positioned.fill(child: _TvHeroBackdrop(item: hero)),
 
-          // 2. Conteúdo rolável: Hero + Continuar + Fileiras
-          CustomScrollView(
-            controller: _scrollController,
-            slivers: [
-              SliverToBoxAdapter(
-                child: SizedBox(
-                  height: 1080,
-                  child: Stack(
-                    children: [
-                      // Header: Avatar e Logo
-                      Positioned(
-                        top: 0,
-                        left: 0,
-                        child: HeisucaTvHeader(
-                          focusNode: avatarFocusNode,
-                          onOpenMenu: widget.onOpenMenu ?? () {
-                            HeisucaTvMenu.show(
-                              context,
-                              onSelectDestination: (dest) {
-                                widget.onSelectDestination?.call(dest);
-                              },
-                            );
-                          },
-                        ),
-                      ),
-
-                      // Informações do Destaque, ancoradas acima da fileira Continuar assistindo
-                      // (24 de margem + 225 da fileira + 12 + ~40 do título = ~301, mais folga). Com 270 o título
-                      // da fileira cobria os botões quando o nome do destaque quebrava em 2 linhas (30/10).
-                      if (hero != null)
+            // 2. Conteúdo rolável: Hero + Continuar + Fileiras
+            CustomScrollView(
+              controller: _scrollController,
+              slivers: [
+                SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: 1080,
+                    child: Stack(
+                      children: [
+                        // Header: Avatar e Logo
                         Positioned(
-                          left: 48,
-                          bottom: 350,
-                          right: 600,
+                          top: 0,
+                          left: 0,
+                          child: HeisucaTvHeader(
+                            focusNode: avatarFocusNode,
+                            onOpenMenu:
+                                widget.onOpenMenu ??
+                                () {
+                                  HeisucaTvMenu.show(
+                                    context,
+                                    onSelectDestination: (dest) {
+                                      widget.onSelectDestination?.call(dest);
+                                    },
+                                  );
+                                },
+                          ),
+                        ),
+
+                        // Informações do Destaque, ancoradas acima da fileira Continuar assistindo
+                        // (24 de margem + 225 da fileira + 12 + ~40 do título = ~301, mais folga). Com 270 o título
+                        // da fileira cobria os botões quando o nome do destaque quebrava em 2 linhas (30/10).
+                        if (hero != null)
+                          Positioned(
+                            left: 48,
+                            bottom: 350,
+                            right: 600,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'EM ALTA NO BRASIL · Nº 1',
+                                  style: TextStyle(
+                                    fontFamily: HeisucaTheme.fonteTexto,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 2.0,
+                                    color: context.cgflix.accent, // AC
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  hero.displayTitle,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontFamily: HeisucaTheme.fonteTitulo,
+                                    fontSize: 64,
+                                    fontWeight: FontWeight.w700,
+                                    height: 1.1,
+                                    color: context.cgflix.text, // TX
+                                  ),
+                                ),
+                                const SizedBox(height: 14),
+                                _buildMetadataLine(hero),
+                                const SizedBox(height: 16),
+                                if (hero.summary?.isNotEmpty == true)
+                                  Text(
+                                    hero.summary!,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontFamily: HeisucaTheme.fonteTexto,
+                                      fontSize: 26,
+                                      fontWeight: FontWeight.w400,
+                                      height: 1.3,
+                                      color: context.cgflix.text,
+                                    ),
+                                  ),
+                                const SizedBox(height: 28),
+                                // Botões [Assistir] e [Detalhes]
+                                Row(
+                                  children: [
+                                    _TvButtonPill(
+                                      key: const Key('heisuca-tv-hero-play'),
+                                      focusNode: heroPlayFocusNode,
+                                      autofocus: true,
+                                      text: '▶  Assistir',
+                                      isPrimary: true,
+                                      onTap: () => _playItem(hero),
+                                      onFocusChange: (focused) {
+                                        if (focused) {
+                                          HeisucaTvPlaybackWarmup.onCardFocused(context, hero);
+                                        } else {
+                                          HeisucaTvPlaybackWarmup.onFocusLost();
+                                        }
+                                      },
+                                    ),
+                                    const SizedBox(width: 24),
+                                    _TvButtonPill(
+                                      key: const Key('heisuca-tv-hero-details'),
+                                      focusNode: heroDetailsFocusNode,
+                                      text: 'Detalhes',
+                                      isPrimary: false,
+                                      onTap: () => _openDetails(hero),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+
+                        // Fileira Continuar Assistindo (logo abaixo do destaque)
+                        Positioned(
+                          left: 0,
+                          right: 0,
+                          bottom: 24,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(
-                                'EM ALTA NO BRASIL · Nº 1',
-                                style: TextStyle(
-                                  fontFamily: HeisucaTheme.fonteTexto,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 2.0,
-                                  color: const Color(0xFFBAC6D9), // AC
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 48),
+                                child: Text(
+                                  'Continuar assistindo',
+                                  style: TextStyle(
+                                    fontFamily: HeisucaTheme.fonteTitulo,
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.w600,
+                                    color: context.cgflix.text,
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 12),
-                              Text(
-                                hero.displayTitle,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontFamily: HeisucaTheme.fonteTitulo,
-                                  fontSize: 64,
-                                  fontWeight: FontWeight.w700,
-                                  height: 1.1,
-                                  color: const Color(0xFFEEF2F8), // TX
-                                ),
-                              ),
-                              const SizedBox(height: 14),
-                              _buildMetadataLine(hero),
-                              const SizedBox(height: 16),
-                              if (hero.summary?.isNotEmpty == true)
-                                Text(
-                                  hero.summary!,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontFamily: HeisucaTheme.fonteTexto,
-                                    fontSize: 26,
-                                    fontWeight: FontWeight.w400,
-                                    height: 1.3,
-                                    color: const Color(0xFFDCE3EF),
-                                  ),
-                                ),
-                              const SizedBox(height: 28),
-                              // Botões [Assistir] e [Detalhes]
-                              Row(
-                                children: [
-                                  _TvButtonPill(
-                                    key: const Key('heisuca-tv-hero-play'),
-                                    focusNode: heroPlayFocusNode,
-                                    autofocus: true,
-                                    text: '▶  Assistir',
-                                    isPrimary: true,
-                                    onTap: () => _playItem(hero),
-                                    onFocusChange: (focused) {
-                                      if (focused) {
-                                        HeisucaTvPlaybackWarmup.onCardFocused(context, hero);
-                                      } else {
-                                        HeisucaTvPlaybackWarmup.onFocusLost();
-                                      }
-                                    },
-                                  ),
-                                  const SizedBox(width: 24),
-                                  _TvButtonPill(
-                                    key: const Key('heisuca-tv-hero-details'),
-                                    focusNode: heroDetailsFocusNode,
-                                    text: 'Detalhes',
-                                    isPrimary: false,
-                                    onTap: () => _openDetails(hero),
-                                  ),
-                                ],
-                              ),
+                              _buildContinueWatchingRow(),
                             ],
                           ),
                         ),
-
-                      // Fileira Continuar Assistindo (logo abaixo do destaque)
-                      Positioned(
-                        left: 0,
-                        right: 0,
-                        bottom: 24,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 48),
-                              child: Text(
-                                'Continuar assistindo',
-                                style: TextStyle(
-                                  fontFamily: HeisucaTheme.fonteTitulo,
-                                  fontSize: 30,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFFEEF2F8),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            _buildContinueWatchingRow(),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              // Demais Fileiras do Acervo ao rolar para baixo
-              if (_trending.isNotEmpty)
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 36, bottom: 20),
-                    child: HeisucaTvMediaRow(
-                      title: 'Em alta no Heisuca',
-                      items: _trending,
-                      onItemTap: _openDetails,
+                      ],
                     ),
                   ),
                 ),
 
-              for (final lib in _libraries)
-                if ((_libraryItems[lib.id]?.isNotEmpty ?? false))
+                // Demais Fileiras do Acervo ao rolar para baixo
+                if (_trending.isNotEmpty)
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 24, bottom: 20),
-                      child: HeisucaTvMediaRow(
-                        title: lib.title,
-                        items: _libraryItems[lib.id]!,
-                        onItemTap: _openDetails,
-                      ),
+                      padding: const EdgeInsets.only(top: 36, bottom: 20),
+                      child: HeisucaTvMediaRow(title: 'Em alta no Heisuca', items: _trending, onItemTap: _openDetails),
                     ),
                   ),
 
-              const SliverToBoxAdapter(child: SizedBox(height: 60)),
-            ],
-          ),
-        ],
+                for (final lib in _libraries)
+                  if ((_libraryItems[lib.id]?.isNotEmpty ?? false))
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 24, bottom: 20),
+                        child: HeisucaTvMediaRow(
+                          title: lib.title,
+                          items: _libraryItems[lib.id]!,
+                          onItemTap: _openDetails,
+                        ),
+                      ),
+                    ),
+
+                const SliverToBoxAdapter(child: SizedBox(height: 60)),
+              ],
+            ),
+          ],
+        ),
       ),
-    ),
     );
   }
 
@@ -364,15 +357,13 @@ class HeisucaTvHomeScreenState extends State<HeisucaTvHomeScreen> {
         fontFamily: HeisucaTheme.fonteTexto,
         fontSize: 26,
         fontWeight: FontWeight.w500,
-        color: const Color(0xFFC9D2E2), // TX2
+        color: context.cgflix.textMuted, // TX2
       ),
     );
   }
 
   Widget _buildContinueWatchingRow() {
-    final items = _continueWatching.isNotEmpty
-        ? _continueWatching
-        : (widget.continueWatchingItems ?? const []);
+    final items = _continueWatching.isNotEmpty ? _continueWatching : (widget.continueWatchingItems ?? const []);
 
     if (items.isEmpty) {
       return Container(
@@ -382,10 +373,7 @@ class HeisucaTvHomeScreenState extends State<HeisucaTvHomeScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 48),
         child: Text(
           'Nenhum item em andamento',
-          style: TextStyle(
-            fontSize: 24,
-            color: Colors.white.withValues(alpha: 0.4),
-          ),
+          style: TextStyle(fontSize: 24, color: context.cgflix.text.withValues(alpha: 0.4)),
         ),
       );
     }
@@ -400,10 +388,7 @@ class HeisucaTvHomeScreenState extends State<HeisucaTvHomeScreen> {
         separatorBuilder: (context, index) => const SizedBox(width: 24),
         itemBuilder: (context, index) {
           final item = items[index];
-          return _TvContinueCard(
-            item: item,
-            onTap: () => _playItem(item),
-          );
+          return _TvContinueCard(item: item, onTap: () => _playItem(item));
         },
       ),
     );
@@ -412,10 +397,7 @@ class HeisucaTvHomeScreenState extends State<HeisucaTvHomeScreen> {
 
 /// Cartão 16:9 Widescreen para Continuar Assistindo na TV
 class _TvContinueCard extends StatefulWidget {
-  const _TvContinueCard({
-    required this.item,
-    required this.onTap,
-  });
+  const _TvContinueCard({required this.item, required this.onTap});
 
   final MediaItem item;
   final VoidCallback onTap;
@@ -454,27 +436,21 @@ class _TvContinueCardState extends State<_TvContinueCard> {
       child: GestureDetector(
         onTap: widget.onTap,
         child: AnimatedScale(
-          scale: _focused ? 1.06 : 1.0,
+          scale: _focused ? HeisucaBase.focoEscalaTv : 1.0,
           duration: const Duration(milliseconds: 140),
           curve: Curves.easeOutCubic,
           child: Container(
             width: 400,
             height: 225,
             decoration: BoxDecoration(
-              color: const Color(0xFF1E263B),
+              color: context.cgflix.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: _focused ? Colors.white : Colors.white.withValues(alpha: 0.1),
-                width: _focused ? 3.5 : 1.0,
+                color: _focused ? context.cgflix.focusRing : context.cgflix.text.withValues(alpha: 0.1),
+                width: _focused ? HeisucaBase.focoBorda : 1.0,
               ),
               boxShadow: _focused
-                  ? [
-                      BoxShadow(
-                        color: Colors.white.withValues(alpha: 0.25),
-                        blurRadius: 18,
-                        spreadRadius: 2,
-                      ),
-                    ]
+                  ? [BoxShadow(color: context.cgflix.text.withValues(alpha: 0.25), blurRadius: 18, spreadRadius: 2)]
                   : null,
             ),
             clipBehavior: Clip.antiAlias,
@@ -488,7 +464,7 @@ class _TvContinueCardState extends State<_TvContinueCard> {
                     fit: BoxFit.cover,
                   )
                 else
-                  Container(color: const Color(0xFF27314A)),
+                  Container(color: context.cgflix.surfaceHigh),
 
                 // Gradiente escuro inferior para leitura
                 const DecoratedBox(
@@ -515,11 +491,7 @@ class _TvContinueCardState extends State<_TvContinueCard> {
                         item.displayTitle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFFDCE3EF),
-                        ),
+                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600, color: context.cgflix.text),
                       ),
                     ],
                   ),
@@ -533,8 +505,8 @@ class _TvContinueCardState extends State<_TvContinueCard> {
                   child: LinearProgressIndicator(
                     value: progress,
                     minHeight: 6,
-                    backgroundColor: Colors.white.withValues(alpha: 0.2),
-                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFBAC6D9)),
+                    backgroundColor: context.cgflix.text.withValues(alpha: 0.2),
+                    valueColor: AlwaysStoppedAnimation<Color>(context.cgflix.accent),
                   ),
                 ),
               ],
@@ -560,24 +532,20 @@ class _TvHeroBackdrop extends StatelessWidget {
       fit: StackFit.expand,
       children: [
         if (imagePath != null)
-          OptimizedMediaImage(
-            imagePath: imagePath,
-            imageType: ImageType.art,
-            fit: BoxFit.cover,
-          )
+          OptimizedMediaImage(imagePath: imagePath, imageType: ImageType.art, fit: BoxFit.cover)
         else
-          Container(color: const Color(0xFF27314A)),
+          Container(color: context.cgflix.surfaceHigh),
 
         // Gradiente da esquerda (escurece onde fica o texto e botões)
-        const DecoratedBox(
+        DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
               colors: [
-                Color(0xF7111522), // 97% opacidade
-                Color(0xBF111522), // 75%
-                Color(0x0D111522), // 5%
+                context.cgflix.background.withValues(alpha: 247 / 255), // 97% opacidade
+                context.cgflix.background.withValues(alpha: 191 / 255), // 75%
+                context.cgflix.background.withValues(alpha: 13 / 255), // 5%
               ],
               stops: [0.0, 0.45, 0.85],
             ),
@@ -585,14 +553,14 @@ class _TvHeroBackdrop extends StatelessWidget {
         ),
 
         // Gradiente de baixo (funde com a área de rolagem inferior)
-        const DecoratedBox(
+        DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.bottomCenter,
               end: Alignment.topCenter,
               colors: [
-                Color(0xFF111522),
-                Color(0x00111522),
+                context.cgflix.background,
+                context.cgflix.background.withValues(alpha: 0 / 255),
               ],
               stops: [0.0, 0.5],
             ),
@@ -676,7 +644,7 @@ class _TvButtonPillState extends State<_TvButtonPill> {
       child: GestureDetector(
         onTap: widget.onTap,
         child: AnimatedScale(
-          scale: active ? 1.06 : 1.0,
+          scale: active ? HeisucaBase.focoEscalaTv : 1.0,
           duration: const Duration(milliseconds: 140),
           curve: Curves.easeOutCubic,
           child: Container(
@@ -685,23 +653,17 @@ class _TvButtonPillState extends State<_TvButtonPill> {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: active
-                  ? Colors.white
+                  ? context.cgflix.text
                   : widget.isPrimary
-                      ? Colors.white.withValues(alpha: 0.18)
-                      : Colors.white.withValues(alpha: 0.10),
+                  ? context.cgflix.action
+                  : context.cgflix.text.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(36),
               border: Border.all(
-                color: active ? Colors.white : Colors.transparent,
-                width: 3.5,
+                color: active ? context.cgflix.focusRing : Colors.transparent,
+                width: HeisucaBase.focoBorda,
               ),
               boxShadow: active
-                  ? [
-                      BoxShadow(
-                        color: Colors.white.withValues(alpha: 0.35),
-                        blurRadius: 18,
-                        spreadRadius: 2,
-                      ),
-                    ]
+                  ? [BoxShadow(color: context.cgflix.text.withValues(alpha: 0.35), blurRadius: 18, spreadRadius: 2)]
                   : null,
             ),
             child: Text(
@@ -710,7 +672,7 @@ class _TvButtonPillState extends State<_TvButtonPill> {
                 fontFamily: HeisucaTheme.fonteTexto,
                 fontSize: 26,
                 fontWeight: active ? FontWeight.w700 : FontWeight.w600,
-                color: active ? const Color(0xFF111522) : const Color(0xFFEEF2F8),
+                color: active || widget.isPrimary ? context.cgflix.onAction : context.cgflix.text,
               ),
             ),
           ),
@@ -783,11 +745,11 @@ class _TvMediaRowState extends State<HeisucaTvMediaRow> {
         padding: const EdgeInsets.symmetric(horizontal: 48),
         child: Text(
           widget.title,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: HeisucaTheme.fonteTitulo,
             fontSize: 30,
             fontWeight: FontWeight.w600,
-            color: Color(0xFFEEF2F8),
+            color: context.cgflix.text,
           ),
         ),
       ),
@@ -805,10 +767,10 @@ class _TvMediaRowState extends State<HeisucaTvMediaRow> {
                   item?.displayTitle ?? '',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: HeisucaTheme.fonteTitulo,
                     fontSize: 28,
-                    color: Color(0xFFEEF2F8),
+                    color: context.cgflix.text,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -816,7 +778,7 @@ class _TvMediaRowState extends State<HeisucaTvMediaRow> {
                   item == null ? '' : _tvMetadata(item),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontFamily: HeisucaTheme.fonteTexto, fontSize: 22, color: Color(0xFFBAC6D9)),
+                  style: TextStyle(fontFamily: HeisucaTheme.fonteTexto, fontSize: 22, color: context.cgflix.accent),
                 ),
                 const SizedBox(height: 6),
                 Expanded(
@@ -824,11 +786,11 @@ class _TvMediaRowState extends State<HeisucaTvMediaRow> {
                     item?.summary ?? '',
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: HeisucaTheme.fonteTexto,
                       fontSize: 22,
                       height: 1.3,
-                      color: Color(0xFFDCE3EF),
+                      color: context.cgflix.text,
                     ),
                   ),
                 ),
@@ -890,15 +852,18 @@ class _TvPosterCardState extends State<_TvPosterCard> {
           child: Column(
             children: [
               AnimatedScale(
-                scale: _focused ? 1.06 : 1,
+                scale: _focused ? HeisucaBase.focoEscalaTv : 1,
                 duration: HeisucaMotion.reduced(context) ? Duration.zero : const Duration(milliseconds: 140),
                 child: Container(
                   width: 180,
                   height: 270,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1E263B),
+                    color: context.cgflix.surface,
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: _focused ? const Color(0xFFEEF2F8) : Colors.transparent, width: 3.5),
+                    border: Border.all(
+                      color: _focused ? context.cgflix.focusRing : Colors.transparent,
+                      width: HeisucaBase.focoBorda,
+                    ),
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: (item.thumbPath != null || item.artPath != null)
@@ -916,7 +881,7 @@ class _TvPosterCardState extends State<_TvPosterCard> {
                 key: ValueKey('tv-poster-title-${item.id}'),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontFamily: HeisucaTheme.fonteTexto, fontSize: 22, color: Color(0xFFDCE3EF)),
+                style: TextStyle(fontFamily: HeisucaTheme.fonteTexto, fontSize: 22, color: context.cgflix.text),
               ),
             ],
           ),

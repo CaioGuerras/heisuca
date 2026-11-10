@@ -38,7 +38,7 @@ import '../navigation/navigation_tabs.dart';
 import '../utils/platform_detector.dart';
 import '../profiles/profile.dart';
 
-enum ThemeMode { system, light, dark, oled }
+enum ThemeMode { system, light, dark, oled, sumi }
 
 /// Library density is now an int 1–5 (1 = most compact, 5 = most comfortable).
 /// Default is 3.
@@ -262,26 +262,28 @@ class _AutomotiveUiScalePref extends Pref<double> {
       svc.writeDouble(key, value.clamp(AutomotiveUiScale.min, AutomotiveUiScale.max).toDouble());
 }
 
-/// Migrates saved 'dark' (Hisui escuro removed in F3) to Shikkoku (ThemeMode.oled).
+/// Normaliza nomes antigos e restringe as opções na TV; mantém a chave histórica.
+ThemeMode migrateHeisucaTheme(String? stored, {required bool tv}) {
+  // Shinju foi aposentado: a preferência clara migra para Hisui.
+  final name = stored?.toLowerCase().replaceAll('-', '_');
+  final mode = switch (name) {
+    'system' || 'automatico' => ThemeMode.system,
+    'light' || 'hisui' || 'heitor' || 'verde' || 'shinju' || 'matine' => ThemeMode.light,
+    'sumi' || 'projetor' => ThemeMode.sumi,
+    _ => ThemeMode.oled,
+  };
+  return tv && mode != ThemeMode.sumi ? ThemeMode.oled : mode;
+}
+
 class _ThemeModePref extends EnumPref<ThemeMode> {
   const _ThemeModePref()
     : super('theme_mode', values: ThemeMode.values, defaultValueProvider: SettingsService._tvAwareThemeModeDefault);
-
   @override
-  ThemeMode readFrom(BaseSharedPreferencesService svc) {
-    final stored = svc.readNullableString(key);
-    if (stored == null) return resolvedDefault;
-    if (stored == 'dark') {
-      return ThemeMode.oled;
-    }
-    return values.firstWhere((v) => v.name == stored, orElse: () => resolvedDefault);
-  }
-
+  ThemeMode readFrom(BaseSharedPreferencesService svc) =>
+      migrateHeisucaTheme(svc.readNullableString(key), tv: PlatformDetector.isTV());
   @override
-  Future<void> writeTo(BaseSharedPreferencesService svc, ThemeMode value) {
-    final effective = value == ThemeMode.dark ? ThemeMode.oled : value;
-    return svc.writeString(key, effective.name);
-  }
+  Future<void> writeTo(BaseSharedPreferencesService svc, ThemeMode value) =>
+      svc.writeString(key, migrateHeisucaTheme(value.name, tv: PlatformDetector.isTV()).name);
 }
 
 /// Migrates from the legacy `use_season_poster` boolean key.
@@ -1051,9 +1053,10 @@ class SettingsService extends BaseSharedPreferencesService {
   Future<void> onInit() async {
     _assertCredentialsReadable();
 
-    // R3: migração única da preferência persistida de tema escuro na inicialização.
-    if (readNullableString(themeMode.key) == 'dark') {
-      await prefs.setString(themeMode.key, ThemeMode.oled.name);
+    final storedTheme = readNullableString(themeMode.key);
+    final migratedTheme = migrateHeisucaTheme(storedTheme, tv: PlatformDetector.isTV());
+    if (storedTheme != migratedTheme.name) {
+      await prefs.setString(themeMode.key, migratedTheme.name);
     }
 
     // One-way move to the mpv default: the pre-`android_use_exoplayer` pick is

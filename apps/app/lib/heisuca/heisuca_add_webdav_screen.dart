@@ -1,3 +1,4 @@
+import '../cgflix/cgflix_palette.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -67,18 +68,17 @@ class _HeisucaAddWebDavScreenState extends State<HeisucaAddWebDavScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Servidor WebDAV respondeu ao teste. A biblioteca ainda não foi adicionada; esta versão não possui catálogo WebDAV.'),
-          backgroundColor: HeisucaTheme.roxoPrimaria,
+          content: Text(
+            'Servidor WebDAV respondeu ao teste. A biblioteca ainda não foi adicionada; esta versão não possui catálogo WebDAV.',
+          ),
+          backgroundColor: context.cgflix.action,
         ),
       );
     } catch (e) {
       if (!mounted) return;
       setState(() => _conectando = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Falha ao conectar ao WebDAV: $e'),
-          backgroundColor: Colors.redAccent.shade700,
-        ),
+        SnackBar(content: Text('Falha ao conectar ao WebDAV: $e'), backgroundColor: Colors.redAccent.shade700),
       );
     }
   }
@@ -87,7 +87,10 @@ class _HeisucaAddWebDavScreenState extends State<HeisucaAddWebDavScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Testar WebDAV', style: TextStyle(fontFamily: HeisucaTheme.fonteTitulo, fontSize: 18, fontWeight: FontWeight.w600)),
+        title: const Text(
+          'Testar WebDAV',
+          style: TextStyle(fontFamily: HeisucaTheme.fonteTitulo, fontSize: 18, fontWeight: FontWeight.w600),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -106,9 +109,7 @@ class _HeisucaAddWebDavScreenState extends State<HeisucaAddWebDavScreen> {
                 const SizedBox(height: 6),
                 Text(
                   'Teste o acesso ao seu servidor. Adicionar arquivos à biblioteca e reproduzir por WebDAV ainda não está disponível.',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.white.withValues(alpha: 0.55),
-                  ),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white.withValues(alpha: 0.55)),
                 ),
                 const SizedBox(height: 28),
                 _CampoTexto(
@@ -151,11 +152,9 @@ class _HeisucaAddWebDavScreenState extends State<HeisucaAddWebDavScreen> {
                   child: ElevatedButton(
                     onPressed: _conectando ? null : _conectar,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: HeisucaTheme.roxoPrimaria,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(HeisucaTheme.raioInput),
-                      ),
+                      backgroundColor: context.cgflix.action,
+                      foregroundColor: context.cgflix.onAction,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(HeisucaTheme.raioInput)),
                       elevation: 0,
                     ),
                     child: _conectando
@@ -221,33 +220,26 @@ class _CampoTexto extends StatelessWidget {
           controller: controller,
           obscureText: obscureText,
           validator: validator,
-          style: const TextStyle(
-            fontFamily: HeisucaTheme.fonteTexto,
-            fontSize: 15,
-            color: Colors.white,
-          ),
+          style: const TextStyle(fontFamily: HeisucaTheme.fonteTexto, fontSize: 15, color: Colors.white),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(
-              color: Colors.white.withValues(alpha: 0.3),
-              fontSize: 14,
-            ),
+            hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 14),
             prefixIcon: Icon(icon, color: Colors.white54, size: 20),
             suffixIcon: suffixIcon,
             filled: true,
-            fillColor: HeisucaTheme.roxoSuperficie,
+            fillColor: context.cgflix.surface,
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(HeisucaTheme.raioInput),
-              borderSide: const BorderSide(color: HeisucaTheme.roxoLinha),
+              borderSide: BorderSide(color: context.cgflix.divider),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(HeisucaTheme.raioInput),
-              borderSide: const BorderSide(color: HeisucaTheme.roxoLinha),
+              borderSide: BorderSide(color: context.cgflix.divider),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(HeisucaTheme.raioInput),
-              borderSide: const BorderSide(color: HeisucaTheme.roxoPrimaria, width: 1.5),
+              borderSide: BorderSide(color: context.cgflix.accent, width: 1.5),
             ),
           ),
         ),
@@ -255,4 +247,3 @@ class _CampoTexto extends StatelessWidget {
     );
   }
 }
-

@@ -1,3 +1,4 @@
+import '../heisuca/theme/temas/tema_sumi.dart';
 // Controles M3 das Configurações (refino 2b, versão 1.6.1):
 //   - números viram um controle deslizante (Slider) direto na lista, com o valor no resumo;
 //   - cores viram uma escolha de círculos (com check no escolhido e o nome para o leitor de tela),
@@ -248,7 +249,7 @@ class CgflixSubtitlePreview extends StatelessWidget {
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [Color(0xFF3A5068), Color(0xFF1B2A3A), Color(0xFF0B1118)],
+                      colors: [TemaSumi.temaCorSuperficie2, TemaSumi.temaCorSuperficie, TemaSumi.temaCorFundo],
                     ),
                   ),
                   child: Align(

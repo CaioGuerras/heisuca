@@ -1,3 +1,4 @@
+import '../../cgflix/cgflix_palette.dart';
 import 'package:flutter/material.dart';
 
 import '../../utils/platform_detector.dart';
@@ -50,47 +51,33 @@ class HeisucaTvBackHandler {
   static Future<bool> showExitConfirmationDialog(BuildContext context) async {
     final result = await showDialog<bool>(
       context: context,
-      barrierColor: const Color(0x990A0C14),
+      barrierColor: const Color(0x99000000),
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1E263B),
+        backgroundColor: context.cgflix.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text(
+        title: Text(
           'Deseja sair do Heisuca?',
-          style: TextStyle(
-            color: Color(0xFFEEF2F8),
-            fontSize: 28,
-            fontWeight: FontWeight.w700,
-          ),
+          style: TextStyle(color: context.cgflix.text, fontSize: 28, fontWeight: FontWeight.w700),
         ),
         actionsPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text(
+            child: Text(
               'Cancelar',
-              style: TextStyle(
-                color: Color(0xFFABB8CE),
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(color: context.cgflix.textMuted, fontSize: 22, fontWeight: FontWeight.w600),
             ),
           ),
           const SizedBox(width: 12),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: const Color(0xFF111522),
+              backgroundColor: context.cgflix.text,
+              foregroundColor: context.cgflix.background,
               padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             ),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text(
-              'Sair',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+            child: const Text('Sair', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
           ),
         ],
       ),

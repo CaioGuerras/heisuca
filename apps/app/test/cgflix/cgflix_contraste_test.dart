@@ -14,7 +14,7 @@ void main() {
   for (final (name, s, p) in [
     ('Shikkoku', cgflixIsisScheme, CgflixPalette.isis),
     ('Hisui claro', cgflixHeitorScheme, CgflixPalette.heitor),
-    ('TV azul', cgflixTvScheme, CgflixPalette.tv),
+    ('Sumi', cgflixSumiScheme, CgflixPalette.sumi),
   ]) {
     final backgrounds = {
       'canvas': p.background,
@@ -24,8 +24,11 @@ void main() {
     };
     for (final background in backgrounds.entries) {
       for (final (role, candidate) in [
-        ('principal', p.text), ('secundário', p.textMuted),
-        ('destaque', p.accent), ('erro', p.danger), ('sucesso', p.success),
+        ('principal', p.text),
+        ('secundário', p.textMuted),
+        ('destaque', p.accent),
+        ('erro', p.danger),
+        ('sucesso', p.success),
       ]) {
         test('$name, $role em ${background.key}: papel de texto ≥ 4,5:1', () {
           final color = p.textOn(background.value, preferred: candidate);
@@ -70,8 +73,13 @@ void main() {
   }
 
   test('anel de foco (focusRing) ≥ 3:1 no canvas e na superfície das 4 paletas', () {
-    for (final p in [CgflixPalette.isis, CgflixPalette.heitor, CgflixPalette.tv,
-        CgflixPalette.ichigo, CgflixPalette.sorairo]) {
+    for (final p in [
+      CgflixPalette.isis,
+      CgflixPalette.heitor,
+      CgflixPalette.tv,
+      CgflixPalette.ichigo,
+      CgflixPalette.sorairo,
+    ]) {
       for (final bg in [p.background, p.surface]) {
         expect(contrast(p.focusRing, bg), greaterThanOrEqualTo(3), reason: '${p.variant}');
       }
@@ -80,9 +88,9 @@ void main() {
 
   test('Hisui claro: verde suave é preenchimento de selo, nunca texto/ícone', () {
     const p = CgflixPalette.heitor;
-    const pale = Color(0xFF8EB69B);
+    const pale = Color(0xFFEEEBE3);
     expect(p.badge, pale);
-    expect(p.onBadge, const Color(0xFF051F20));
+    expect(p.onBadge, const Color(0xFF1A201C));
     for (final fg in [p.text, p.textMuted, p.accent, p.accentSoft, p.success, p.danger, p.focusRing]) {
       expect(fg, isNot(pale));
     }

@@ -1,3 +1,5 @@
+import '../theme/heisuca_base.dart';
+import '../../cgflix/cgflix_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -13,12 +15,7 @@ import '../../services/updates/update_controller.dart';
 /// Acionado pelo avatar no topo esquerdo.
 /// Itens: Perfil + Trocar perfil, Início, Filmes, Séries, Animes, Buscar, Ajustes.
 class HeisucaTvMenu extends StatefulWidget {
-  const HeisucaTvMenu({
-    super.key,
-    required this.onSelectDestination,
-    this.initialDestination = 'Início',
-    this.onClose,
-  });
+  const HeisucaTvMenu({super.key, required this.onSelectDestination, this.initialDestination = 'Início', this.onClose});
 
   final ValueChanged<String> onSelectDestination;
   final String initialDestination;
@@ -31,7 +28,7 @@ class HeisucaTvMenu extends StatefulWidget {
   }) {
     return showDialog(
       context: context,
-      barrierColor: const Color(0x990A0C14),
+      barrierColor: const Color(0x99000000),
       builder: (ctx) => HeisucaTvCanvas(
         child: HeisucaTvMenu(
           onSelectDestination: (dest) {
@@ -50,14 +47,7 @@ class HeisucaTvMenu extends StatefulWidget {
 }
 
 class _HeisucaTvMenuState extends State<HeisucaTvMenu> {
-  static const _items = [
-    'Início',
-    'Filmes',
-    'Séries',
-    'Animes',
-    'Buscar',
-    'Ajustes',
-  ];
+  static const _items = ['Início', 'Filmes', 'Séries', 'Animes', 'Buscar', 'Ajustes'];
 
   late String _selected = widget.initialDestination;
   int _focusedIndex = 0;
@@ -85,8 +75,7 @@ class _HeisucaTvMenuState extends State<HeisucaTvMenu> {
       skipTraversal: true,
       onKeyEvent: (node, event) {
         if (event is KeyDownEvent) {
-          if (event.logicalKey == LogicalKeyboardKey.escape ||
-              event.logicalKey == LogicalKeyboardKey.goBack) {
+          if (event.logicalKey == LogicalKeyboardKey.escape || event.logicalKey == LogicalKeyboardKey.goBack) {
             if (widget.onClose != null) {
               widget.onClose!();
             } else {
@@ -102,19 +91,10 @@ class _HeisucaTvMenuState extends State<HeisucaTvMenu> {
           width: 520,
           height: 640,
           decoration: BoxDecoration(
-            color: const Color(0xFF1E263B), // SUP
+            color: context.cgflix.surface, // SUP
             borderRadius: BorderRadius.circular(28),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.5),
-                blurRadius: 32,
-                spreadRadius: 8,
-              ),
-            ],
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.08),
-              width: 1,
-            ),
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 32, spreadRadius: 8)],
+            border: Border.all(color: context.cgflix.text.withValues(alpha: 0.08), width: 1),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
           child: Column(
@@ -126,10 +106,7 @@ class _HeisucaTvMenuState extends State<HeisucaTvMenu> {
                   Container(
                     width: 64,
                     height: 64,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Color(0xFF2F6B4F),
-                    ),
+                    decoration: BoxDecoration(shape: BoxShape.circle, color: context.cgflix.accent),
                     clipBehavior: Clip.antiAlias,
                     child: activeProfile != null
                         ? ProfileAvatar(
@@ -140,11 +117,7 @@ class _HeisucaTvMenuState extends State<HeisucaTvMenu> {
                         : Center(
                             child: Text(
                               initial,
-                              style: const TextStyle(
-                                fontSize: 30,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                              ),
+                              style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: context.cgflix.text),
                             ),
                           ),
                   ),
@@ -162,7 +135,7 @@ class _HeisucaTvMenuState extends State<HeisucaTvMenu> {
                             fontFamily: HeisucaTheme.fonteTitulo,
                             fontSize: 26,
                             fontWeight: FontWeight.w700,
-                            color: const Color(0xFFEEF2F8),
+                            color: context.cgflix.text,
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -175,9 +148,7 @@ class _HeisucaTvMenuState extends State<HeisucaTvMenu> {
                             final navigator = Navigator.of(context);
                             navigator.pop();
                             navigator.push(
-                              MaterialPageRoute(
-                                builder: (_) => const ProfileSwitchScreen(requireSelection: false),
-                              ),
+                              MaterialPageRoute(builder: (_) => const ProfileSwitchScreen(requireSelection: false)),
                             );
                           },
                         ),
@@ -187,10 +158,7 @@ class _HeisucaTvMenuState extends State<HeisucaTvMenu> {
                 ],
               ),
               const SizedBox(height: 18),
-              Container(
-                height: 1,
-                color: const Color(0xFFDCE3EF).withValues(alpha: 0.15),
-              ),
+              Container(height: 1, color: context.cgflix.text.withValues(alpha: 0.15)),
               const SizedBox(height: 14),
 
               // 2. Lista de Itens de Navegação
@@ -227,7 +195,7 @@ class _HeisucaTvMenuState extends State<HeisucaTvMenu> {
                     fontFamily: HeisucaTheme.fonteTexto,
                     fontSize: 20,
                     fontWeight: FontWeight.w400,
-                    color: const Color(0xFFABB8CE),
+                    color: context.cgflix.textMuted,
                   ),
                 ),
               ),
@@ -282,7 +250,7 @@ class _TvMenuItemPillState extends State<_TvMenuItemPill> {
       child: GestureDetector(
         onTap: widget.onTap,
         child: AnimatedScale(
-          scale: active ? 1.04 : 1.0,
+          scale: active ? HeisucaBase.focoEscalaTv : 1.0,
           duration: const Duration(milliseconds: 140),
           curve: Curves.easeOutCubic,
           child: AnimatedContainer(
@@ -292,14 +260,12 @@ class _TvMenuItemPillState extends State<_TvMenuItemPill> {
             padding: const EdgeInsets.symmetric(horizontal: 22),
             decoration: BoxDecoration(
               color: active
-                  ? Colors.white
+                  ? context.cgflix.text
                   : widget.isSelected
-                      ? Colors.white.withValues(alpha: 0.12)
-                      : Colors.transparent,
+                  ? context.cgflix.text.withValues(alpha: 0.12)
+                  : Colors.transparent,
               borderRadius: BorderRadius.circular(16),
-              border: active
-                  ? Border.all(color: Colors.white, width: 2)
-                  : null,
+              border: active ? Border.all(color: context.cgflix.focusRing, width: HeisucaBase.focoBorda) : null,
             ),
             child: Text(
               widget.text,
@@ -308,8 +274,10 @@ class _TvMenuItemPillState extends State<_TvMenuItemPill> {
                 fontSize: widget.fontSize,
                 fontWeight: active ? FontWeight.w700 : (widget.isSelected ? FontWeight.w600 : FontWeight.w500),
                 color: active
-                    ? const Color(0xFF111522) // Fundo branco -> texto escuro
-                    : const Color(0xFFEEF2F8),
+                    ? context
+                          .cgflix
+                          .background // Fundo branco -> texto escuro
+                    : context.cgflix.text,
               ),
             ),
           ),

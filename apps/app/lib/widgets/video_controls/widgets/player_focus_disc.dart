@@ -1,3 +1,4 @@
+import '../../../heisuca/theme/temas/tema_sumi.dart';
 import 'package:flutter/material.dart';
 
 import '../../../cgflix/cgflix_feedback.dart'; // CGFLIX: destaque lilás no player
@@ -30,7 +31,7 @@ class PlayerFocusDisc extends StatelessWidget {
 
   final Widget Function(BuildContext context, Color iconColor) builder;
 
-  static const Color _fill = Colors.white;
+  static const Color _fill = TemaSumi.temaCorBotaoFundo;
   static const Color _activeFill = cgflixPlayerAccent;
 
   @override
@@ -41,10 +42,11 @@ class PlayerFocusDisc extends StatelessWidget {
       curve: Curves.easeOutCubic,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
+        border: showFocus ? Border.all(color: TemaSumi.temaCorFoco, width: FocusTheme.focusBorderWidth) : null,
         color: showFocus ? (isActive ? _activeFill : _fill) : Colors.transparent,
         boxShadow: showFocus ? const [playerFocusShadow] : const [],
       ),
-      child: builder(context, showFocus ? Colors.black.withValues(alpha: iconColor.a) : iconColor),
+      child: builder(context, showFocus ? TemaSumi.temaCorBotaoTexto.withValues(alpha: iconColor.a) : iconColor),
     );
   }
 }
@@ -65,5 +67,5 @@ void paintPlayerFocusKnob(Canvas canvas, Offset center) {
       ..color = playerFocusShadow.color
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, playerFocusShadow.blurSigma),
   );
-  canvas.drawCircle(center, playerFocusKnobRadius, Paint()..color = Colors.white);
+  canvas.drawCircle(center, playerFocusKnobRadius, Paint()..color = TemaSumi.temaCorFoco);
 }

@@ -100,7 +100,8 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
   void _onServersChanged() {
     final client = _servers.serverManager.navigationOnlineClients.values.firstOrNull;
     final feeds = _servers.serverManager.visibleOnlineClients.values.whereType<JellyfinClient>().toList();
-    final sameFeeds = feeds.length == _feedClients.length &&
+    final sameFeeds =
+        feeds.length == _feedClients.length &&
         List.generate(feeds.length, (i) => identical(feeds[i], _feedClients[i])).every((same) => same);
     final same = identical(client, _client) && sameFeeds;
 
@@ -171,10 +172,7 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
   Future<void> _pullToRefresh() async {
     _repository?.forgetMemory();
     setState(() => _generation++);
-    await Future.wait([
-      _discover.refreshNow(),
-      Future<void>.delayed(const Duration(milliseconds: 600)),
-    ]);
+    await Future.wait([_discover.refreshNow(), Future<void>.delayed(const Duration(milliseconds: 600))]);
   }
 
   @override
@@ -185,28 +183,41 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
     final isLight = context.cgflix.isLight;
     final pageColor = heisucaPageColor(_activeHeroItem, isLight: isLight, palette: context.cgflix);
 
-    if (_servers.serverManager.navigationServerId != null &&
-        _servers.serverManager.navigationOnlineClients.isEmpty) {
-      return Scaffold(backgroundColor: pageColor, body: SafeArea(child: LayoutBuilder(
-        builder: (context, constraints) => SingleChildScrollView(
-          physics: const ProMotionScrollPhysics(),
-          padding: const EdgeInsets.all(24),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: constraints.maxHeight > 48 ? constraints.maxHeight - 48 : 0),
-            child: Column(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center, children: [
-              Icon(Symbols.cloud_off_rounded, size: 48, color: context.cgflix.accent),
-              const SizedBox(height: 16),
-              const Text('Esta fonte está indisponível', textAlign: TextAlign.center,
-                style: TextStyle(fontFamily: HeisucaTheme.fonteTitulo, fontSize: 22, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              const Text('Tente reconectar ou escolha outro servidor.', textAlign: TextAlign.center),
-              const HeisucaSourceTile(),
-              TextButton(onPressed: () => _servers.serverManager.reconnectOfflineServers(forceRediscovery: true),
-                child: const Text('Tentar novamente')),
-            ]),
+    if (_servers.serverManager.navigationServerId != null && _servers.serverManager.navigationOnlineClients.isEmpty) {
+      return Scaffold(
+        backgroundColor: pageColor,
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) => SingleChildScrollView(
+              physics: const ProMotionScrollPhysics(),
+              padding: const EdgeInsets.all(24),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight > 48 ? constraints.maxHeight - 48 : 0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Symbols.cloud_off_rounded, size: 48, color: context.cgflix.accent),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Esta fonte está indisponível',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontFamily: HeisucaTheme.fonteTitulo, fontSize: 22, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text('Tente reconectar ou escolha outro servidor.', textAlign: TextAlign.center),
+                    const HeisucaSourceTile(),
+                    TextButton(
+                      onPressed: () => _servers.serverManager.reconnectOfflineServers(forceRediscovery: true),
+                      child: const Text('Tentar novamente'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
-      )));
+      );
     }
 
     return Scaffold(
@@ -215,34 +226,44 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
         duration: const Duration(milliseconds: 650),
         color: pageColor,
         child: Stack(
-        children: [
-          // Conteúdo rolável com indicador de atualização e física ProMotion
-          RefreshIndicator(
-            color: context.cgflix.accent,
-            backgroundColor: context.cgflix.surface,
-            edgeOffset: media.padding.top + 56,
-            onRefresh: _pullToRefresh,
-            child: CustomScrollView(
-              key: const PageStorageKey('heisuca-home-scroll'),
-              controller: _scrollController,
-              physics: const ProMotionScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-              slivers: repo != null
-                  ? _buildHomeSlivers(repo, heroHeight)
-                  : [SliverToBoxAdapter(child: SizedBox(height: heroHeight))],
+          children: [
+            // Conteúdo rolável com indicador de atualização e física ProMotion
+            RefreshIndicator(
+              color: context.cgflix.accent,
+              backgroundColor: context.cgflix.surface,
+              edgeOffset: media.padding.top + 56,
+              onRefresh: _pullToRefresh,
+              child: CustomScrollView(
+                key: const PageStorageKey('heisuca-home-scroll'),
+                controller: _scrollController,
+                physics: const ProMotionScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                slivers: repo != null
+                    ? _buildHomeSlivers(repo, heroHeight)
+                    : [SliverToBoxAdapter(child: SizedBox(height: heroHeight))],
+              ),
             ),
-          ),
 
-          // Topo oficial Heisuca (Logo à esquerda, Busca à direita)
-          Positioned.fill(child: HeisucaHomeChrome(
-            scrollController: _scrollController, logoAnchor: _logoAnchor, pageColor: pageColor,
-            item: _activeHeroItem,
-            client: _activeHeroItem == null ? null : cgflixClientFor(context, _activeHeroItem!),
-            onSearch: () => cgflixOpenSearch(context),
-            onHome: () => _scrollController.animateTo(0, duration: const Duration(milliseconds: 350), curve: Curves.easeOutCubic),
-            onDockedChanged: (docked) { if (mounted && docked != _heroDocked) setState(() => _heroDocked = docked); },
-          )),
-        ],
-      ),
+            // Topo oficial Heisuca (Logo à esquerda, Busca à direita)
+            Positioned.fill(
+              child: HeisucaHomeChrome(
+                scrollController: _scrollController,
+                logoAnchor: _logoAnchor,
+                pageColor: pageColor,
+                item: _activeHeroItem,
+                client: _activeHeroItem == null ? null : cgflixClientFor(context, _activeHeroItem!),
+                onSearch: () => cgflixOpenSearch(context),
+                onHome: () => _scrollController.animateTo(
+                  0,
+                  duration: const Duration(milliseconds: 350),
+                  curve: Curves.easeOutCubic,
+                ),
+                onDockedChanged: (docked) {
+                  if (mounted && docked != _heroDocked) setState(() => _heroDocked = docked);
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -274,11 +295,7 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
 
       // 2. Fileira 1: Continuar Assistindo (16:9 Widescreen)
       SliverToBoxAdapter(
-        child: _ContinueWatchingStreamRow(
-          key: ValueKey('continue:$key'),
-          discover: _discover,
-          repository: repo,
-        ),
+        child: _ContinueWatchingStreamRow(key: ValueKey('continue:$key'), discover: _discover, repository: repo),
       ),
 
       // 3. Fileira 2: Em alta no Brasil (Top 10)
@@ -292,31 +309,45 @@ class _HeisucaHomeScreenState extends State<HeisucaHomeScreen>
       ),
 
       // Mesma ordem e mesmos nomes de biblioteca que o site; sem gêneros extras.
-      SliverToBoxAdapter(child: _StreamSection<List<MediaLibrary>>(
-        key: ValueKey('libraries:$key'), stream: () => repo.videoLibraries().asStream(),
-        loading: const CgflixSkeletonRow(), builder: (libraries) => Column(children: [
-          for (final library in libraries) _StreamSection<CgflixRowData>(
-            key: ValueKey('library:${library.id}:$key'), stream: () => repo.watchLibrary(library),
-            loading: const CgflixSkeletonRow(), builder: (data) => _HeisucaShelfRow(
-              title: library.title, items: data.items, storageKey: library.id,
-              onSeeAll: widget.onOpenLibrary == null ? null : () => widget.onOpenLibrary!(library.globalKey),
-            ),
+      SliverToBoxAdapter(
+        child: _StreamSection<List<MediaLibrary>>(
+          key: ValueKey('libraries:$key'),
+          stream: () => repo.videoLibraries().asStream(),
+          loading: const CgflixSkeletonRow(),
+          builder: (libraries) => Column(
+            children: [
+              for (final library in libraries)
+                _StreamSection<CgflixRowData>(
+                  key: ValueKey('library:${library.id}:$key'),
+                  stream: () => repo.watchLibrary(library),
+                  loading: const CgflixSkeletonRow(),
+                  builder: (data) => _HeisucaShelfRow(
+                    title: library.title,
+                    items: data.items,
+                    storageKey: library.id,
+                    onSeeAll: widget.onOpenLibrary == null ? null : () => widget.onOpenLibrary!(library.globalKey),
+                  ),
+                ),
+            ],
           ),
-        ]),
-      )),
+        ),
+      ),
       // Modo infantil: o calendário vem do Sonarr/Radarr do servidor inteiro (não passa pelo filtro do
       // usuário infantil) e traria pôster de título adulto. Some no kids.
-      if (!heisucaKidsActive(context)) SliverToBoxAdapter(child: _StreamSection<List<HeisucaUpcoming>>(
-        key: ValueKey('upcoming:$key'), stream: () => repo.upcoming().asStream(),
-        loading: const CgflixSkeletonRow(), builder: (items) => _UpcomingRow(repository: repo, items: items),
-      )),
+      if (!heisucaKidsActive(context))
+        SliverToBoxAdapter(
+          child: _StreamSection<List<HeisucaUpcoming>>(
+            key: ValueKey('upcoming:$key'),
+            stream: () => repo.upcoming().asStream(),
+            loading: const CgflixSkeletonRow(),
+            builder: (items) => _UpcomingRow(repository: repo, items: items),
+          ),
+        ),
 
       // Folga no rodapé para não ficar sob a Ilha Flutuante (64dp + 14dp)
       SliverToBoxAdapter(child: SizedBox(height: MediaQuery.paddingOf(context).bottom + 96)),
     ];
   }
-
-
 }
 
 // -----------------------------------------------------------------------------
@@ -379,13 +410,27 @@ class _HeisucaHeroState extends State<_HeisucaHero> {
         final path = next.artPath ?? candidates.firstOrNull;
         if (client != null && path != null && _preloaded.add(next.globalKey)) {
           final ratio = MediaImageHelper.artworkPixelRatio(context, imageType: ImageType.art);
-          final url = MediaImageHelper.getOptimizedImageUrl(client: client, thumbPath: path, maxWidth: width,
-            maxHeight: widget.height, pixelRatio: ratio, imageType: ImageType.art);
-          final (w, h) = MediaImageHelper.getMemCacheDimensions(displayWidth: (width * ratio).round(),
-            displayHeight: (widget.height * ratio).round(), imageType: ImageType.art);
+          final url = MediaImageHelper.getOptimizedImageUrl(
+            client: client,
+            thumbPath: path,
+            maxWidth: width,
+            maxHeight: widget.height,
+            pixelRatio: ratio,
+            imageType: ImageType.art,
+          );
+          final (w, h) = MediaImageHelper.getMemCacheDimensions(
+            displayWidth: (width * ratio).round(),
+            displayHeight: (widget.height * ratio).round(),
+            imageType: ImageType.art,
+          );
           if (url.isNotEmpty) {
-            unawaited(precacheImage(MediaImageHelper.serverArtworkProvider(imageUrl: url, memWidth: w, memHeight: h), context,
-            onError: (_, _) {}));
+            unawaited(
+              precacheImage(
+                MediaImageHelper.serverArtworkProvider(imageUrl: url, memWidth: w, memHeight: h),
+                context,
+                onError: (_, _) {},
+              ),
+            );
           }
         }
       }
@@ -446,15 +491,22 @@ class _HeisucaHeroState extends State<_HeisucaHero> {
           children: [
             HeisucaArtworkMask(
               key: const ValueKey('heisuca-hero-mask'),
-              child: HeisucaParallax(controller: widget.scrollController, child: AnimatedSwitcher(
-                duration: HeisucaMotion.durationFor(context),
-                child: OptimizedMediaImage(
-                  key: ValueKey('hero_art_${item.globalKey}'), client: client,
-                  imagePath: item.artPath ?? (artCandidates.isEmpty ? null : artCandidates.first),
-                  width: screenWidth, height: widget.height, imageType: ImageType.art,
-                  alignment: const Alignment(0, -0.64), fadeInDuration: HeisucaMotion.durationFor(context),
+              child: HeisucaParallax(
+                controller: widget.scrollController,
+                child: AnimatedSwitcher(
+                  duration: HeisucaMotion.durationFor(context),
+                  child: OptimizedMediaImage(
+                    key: ValueKey('hero_art_${item.globalKey}'),
+                    client: client,
+                    imagePath: item.artPath ?? (artCandidates.isEmpty ? null : artCandidates.first),
+                    width: screenWidth,
+                    height: widget.height,
+                    imageType: ImageType.art,
+                    alignment: const Alignment(0, -0.64),
+                    fadeInDuration: HeisucaMotion.durationFor(context),
+                  ),
                 ),
-              )),
+              ),
             ),
 
             // 5. Informações Nobres Centralizadas (Esboço 03B)
@@ -526,7 +578,7 @@ class _HeroInformationBlock extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (rating.isNotEmpty) ...[
-              const Icon(Icons.star_rounded, size: 16.0, color: Color(0xFFFFC107)),
+              Icon(Icons.star_rounded, size: 16.0, color: context.cgflix.accent),
               const SizedBox(width: 3.0),
               Text(
                 rating,
@@ -568,10 +620,7 @@ class _HeroInformationBlock extends StatelessWidget {
                 ),
               ),
             ],
-            for (final b in badges.take(1)) ...[
-              _buildBullet(textMutedColor),
-              HeisucaNobleBadge(label: b),
-            ],
+            for (final b in badges.take(1)) ...[_buildBullet(textMutedColor), HeisucaNobleBadge(label: b)],
           ],
         ),
 
@@ -642,11 +691,12 @@ class _HeroInformationBlock extends StatelessWidget {
   static Widget _buildBullet(Color color) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6.0),
-      child: Text('·', style: TextStyle(color: color, fontSize: 13.0, fontWeight: FontWeight.bold)),
+      child: Text(
+        '·',
+        style: TextStyle(color: color, fontSize: 13.0, fontWeight: FontWeight.bold),
+      ),
     );
   }
-
-
 }
 
 // -----------------------------------------------------------------------------
@@ -690,7 +740,8 @@ class _HeisucaContinueWatchingRow extends StatelessWidget {
               itemBuilder: (ctx, index) {
                 final item = items[index];
                 return CgflixWideCard(
-                  width: 180, siteStyle: true,
+                  width: 180,
+                  siteStyle: true,
                   item: item,
                   client: cgflixClientFor(ctx, item),
                   onTap: () {
@@ -742,9 +793,7 @@ class _ContinueWatchingStreamRow extends StatelessWidget {
       key: const ValueKey('continue_stream'),
       stream: () => repository.watchRow(CgflixRowKind.continueWatching),
       loading: const CgflixSkeletonRow(wide: true),
-      builder: (data) => _HeisucaContinueWatchingRow(
-        items: data.items.isNotEmpty ? data.items : discover.onDeck,
-      ),
+      builder: (data) => _HeisucaContinueWatchingRow(items: data.items.isNotEmpty ? data.items : discover.onDeck),
     );
   }
 }
@@ -779,7 +828,6 @@ class _HeisucaTop10Row extends StatelessWidget {
                     letterSpacing: -0.3,
                   ),
                 ),
-
               ],
             ),
           ),
@@ -837,12 +885,7 @@ class _HeisucaTop10Row extends StatelessWidget {
 // Fileira Padrão de Acervo (Pôsteres 2:3)
 
 class _HeisucaShelfRow extends StatelessWidget {
-  const _HeisucaShelfRow({
-    required this.title,
-    required this.items,
-    required this.storageKey,
-    this.onSeeAll,
-  });
+  const _HeisucaShelfRow({required this.title, required this.items, required this.storageKey, this.onSeeAll});
 
   final String title;
   final List<MediaItem> items;
@@ -858,15 +901,33 @@ class _HeisucaShelfRow extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(padding: const EdgeInsets.fromLTRB(16, 4, 16, 11), child: Row(children: [
-            Expanded(child: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontFamily: HeisucaTheme.fonteTitulo, fontSize: 17.5, fontWeight: FontWeight.w700))),
-            if (onSeeAll != null) TextButton(onPressed: onSeeAll, child: const Text('Ver tudo ›')),
-          ])),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 11),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontFamily: HeisucaTheme.fonteTitulo,
+                      fontSize: 17.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                if (onSeeAll != null) TextButton(onPressed: onSeeAll, child: const Text('Ver tudo ›')),
+              ],
+            ),
+          ),
           SizedBox(
-            height: (120 + 5
-                + heisucaLineHeight(context, const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600))
-                + heisucaLineHeight(context, const TextStyle(fontSize: 11))).clamp(180.0, double.infinity),
+            height:
+                (120 +
+                        5 +
+                        heisucaLineHeight(context, const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600)) +
+                        heisucaLineHeight(context, const TextStyle(fontSize: 11)))
+                    .clamp(180.0, double.infinity),
             child: ListView.separated(
               key: PageStorageKey<String>('heisuca-shelf:$storageKey'),
               physics: const ProMotionScrollPhysics(),
@@ -879,35 +940,35 @@ class _HeisucaShelfRow extends StatelessWidget {
                 return _HomePosterWithCaption(
                   item: item,
                   child: CgflixPosterCard(
-                  heroTag: 'heisuca-home-${ctx.hashCode}-${item.globalKey}',
-                  width: 80,
-                  item: item,
-                  client: cgflixClientFor(ctx, item),
-                  onTap: () {
-                    HapticFeedback.lightImpact();
-                    cgflixRememberHeroTag(item, 'heisuca-home-${ctx.hashCode}-${item.globalKey}');
-                    HeisucaTitleSheet.show(ctx, item);
-                  },
-                  onLongPress: () {
-                    HeisucaContextMenu.show(
-                      ctx,
-                      item: item,
-                      onPlay: () => cgflixPlay(ctx, item),
-                      onOpenDetails: () => HeisucaTitleSheet.show(ctx, item),
-                      onDownload: () {
-                        final mClient = cgflixClientFor(ctx, item);
-                        if (mClient != null) {
-                          queueDownloadWithFeedback(
-                            ctx,
-                            metadata: item,
-                            client: mClient,
-                            downloadProvider: Provider.of<DownloadProvider>(ctx, listen: false),
-                          );
-                        }
-                      },
-                    );
-                  },
-                ),
+                    heroTag: 'heisuca-home-${ctx.hashCode}-${item.globalKey}',
+                    width: 80,
+                    item: item,
+                    client: cgflixClientFor(ctx, item),
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      cgflixRememberHeroTag(item, 'heisuca-home-${ctx.hashCode}-${item.globalKey}');
+                      HeisucaTitleSheet.show(ctx, item);
+                    },
+                    onLongPress: () {
+                      HeisucaContextMenu.show(
+                        ctx,
+                        item: item,
+                        onPlay: () => cgflixPlay(ctx, item),
+                        onOpenDetails: () => HeisucaTitleSheet.show(ctx, item),
+                        onDownload: () {
+                          final mClient = cgflixClientFor(ctx, item);
+                          if (mClient != null) {
+                            queueDownloadWithFeedback(
+                              ctx,
+                              metadata: item,
+                              client: mClient,
+                              downloadProvider: Provider.of<DownloadProvider>(ctx, listen: false),
+                            );
+                          }
+                        },
+                      );
+                    },
+                  ),
                 );
               },
             ),
@@ -934,11 +995,14 @@ class _StreamSection<T> extends StatefulWidget {
 class _StreamSectionState<T> extends State<_StreamSection<T>> {
   late final Stream<T> _stream = widget.stream();
   @override
-  Widget build(BuildContext context) => StreamBuilder<T>(stream: _stream, builder: (context, snapshot) {
-    if (snapshot.hasError) return widget.failed ?? const SizedBox.shrink();
-    if (snapshot.hasData) return widget.builder(snapshot.data as T);
-    return widget.loading;
-  });
+  Widget build(BuildContext context) => StreamBuilder<T>(
+    stream: _stream,
+    builder: (context, snapshot) {
+      if (snapshot.hasError) return widget.failed ?? const SizedBox.shrink();
+      if (snapshot.hasData) return widget.builder(snapshot.data as T);
+      return widget.loading;
+    },
+  );
 }
 
 class _HeroSkeleton extends StatelessWidget {
@@ -958,56 +1022,80 @@ class _HomeLoadFailed extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: EdgeInsets.fromLTRB(24, MediaQuery.paddingOf(context).top + 96, 24, 24),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Symbols.cloud_off_rounded, size: 48, color: context.cgflix.accent),
-              const SizedBox(height: 12),
-              Text(
-                'Não foi possível conectar ao acervo',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: HeisucaTheme.fonteTitulo,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: context.cgflix.text,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'Verifique a conexão ou puxe para atualizar',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: HeisucaTheme.fonteTexto,
-                  fontSize: 13,
-                  color: context.cgflix.textOn(context.cgflix.background, preferred: context.cgflix.textMuted),
-                ),
-              ),
-            ],
+    padding: EdgeInsets.fromLTRB(24, MediaQuery.paddingOf(context).top + 96, 24, 24),
+    child: Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Symbols.cloud_off_rounded, size: 48, color: context.cgflix.accent),
+          const SizedBox(height: 12),
+          Text(
+            'Não foi possível conectar ao acervo',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: HeisucaTheme.fonteTitulo,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: context.cgflix.text,
+            ),
           ),
-        ),
-      );
+          const SizedBox(height: 6),
+          Text(
+            'Verifique a conexão ou puxe para atualizar',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: HeisucaTheme.fonteTexto,
+              fontSize: 13,
+              color: context.cgflix.textOn(context.cgflix.background, preferred: context.cgflix.textMuted),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }
-
 
 class _HomePosterWithCaption extends StatelessWidget {
   const _HomePosterWithCaption({required this.item, required this.child});
   final MediaItem item;
   final Widget child;
   @override
-  Widget build(BuildContext context) => SizedBox(width: 80, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-    Stack(children: [child,
-      if (item.rating != null && item.rating! > 0) Positioned(right: 4, bottom: 4,
-        child: DecoratedBox(decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(4)),
-          child: Padding(padding: const EdgeInsets.symmetric(horizontal: 3),
-            child: Text(item.rating!.toStringAsFixed(1).replaceAll('.', ','), style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700))))),
-    ]),
-    const SizedBox(height: 5),
-    Text(item.displayTitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600)),
-    if (item.year != null) Text('${item.year}', style: TextStyle(fontSize: 11, color: context.cgflix.textMuted)),
-  ]));
+  Widget build(BuildContext context) => SizedBox(
+    width: 80,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Stack(
+          children: [
+            child,
+            if (item.rating != null && item.rating! > 0)
+              Positioned(
+                right: 4,
+                bottom: 4,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(4)),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 3),
+                    child: Text(
+                      item.rating!.toStringAsFixed(1).replaceAll('.', ','),
+                      style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 5),
+        Text(
+          item.displayTitle,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600),
+        ),
+        if (item.year != null) Text('${item.year}', style: TextStyle(fontSize: 11, color: context.cgflix.textMuted)),
+      ],
+    ),
+  );
 }
 
 class _UpcomingRow extends StatelessWidget {
@@ -1019,48 +1107,128 @@ class _UpcomingRow extends StatelessWidget {
     try {
       final matched = await repository.resolveUpcoming(item);
       if (!context.mounted) return;
-      if (matched != null) { unawaited(HeisucaTitleSheet.show(context, matched)); return; }
-    } catch (_) { /* Oferece o fluxo real de pedidos se o item não puder ser aberto. */ }
+      if (matched != null) {
+        unawaited(HeisucaTitleSheet.show(context, matched));
+        return;
+      }
+    } catch (_) {
+      /* Oferece o fluxo real de pedidos se o item não puder ser aberto. */
+    }
     if (!context.mounted) return;
-    await showModalBottomSheet<void>(sheetAnimationStyle: HeisucaMotion.sheetStyle(context), context: context, isScrollControlled: true, useSafeArea: true,
-      builder: (_) => SizedBox(height: MediaQuery.sizeOf(context).height * 0.72,
-        child: SingleChildScrollView(padding: const EdgeInsets.all(20), child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(item.title, style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 12),
-            const Text('Confira a disponibilidade e escolha o título para pedir.'),
-            CgflixRequestSection(query: item.title),
-          ],
-        ))));
+    await showModalBottomSheet<void>(
+      sheetAnimationStyle: HeisucaMotion.sheetStyle(context),
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (_) => SizedBox(
+        height: MediaQuery.sizeOf(context).height * 0.72,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(item.title, style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 12),
+              const Text('Confira a disponibilidade e escolha o título para pedir.'),
+              CgflixRequestSection(query: item.title),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     if (items.isEmpty) return const SizedBox.shrink();
-    return Padding(key: const ValueKey('heisuca-upcoming-row'), padding: const EdgeInsets.only(bottom: 22),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Padding(padding: EdgeInsets.fromLTRB(16, 4, 16, 12), child: Text('Em breve',
-          style: TextStyle(fontSize: 17.5, fontWeight: FontWeight.w700, fontFamily: HeisucaTheme.fonteTitulo))),
-        SizedBox(height: 180, child: ListView.separated(scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 16), itemCount: items.length,
-          separatorBuilder: (_, _) => const SizedBox(width: 8), itemBuilder: (context, index) {
-            final item = items[index];
-            return SizedBox(width: 80, child: InkWell(onTap: () => _open(context, item), child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start, children: [
-                ClipRRect(borderRadius: BorderRadius.circular(9), child: Stack(children: [
-                  OptimizedMediaImage(client: repository.upcomingImageClient, imagePath: item.imagePath, width: 80, height: 120),
-                  Positioned(top: 4, left: 4, right: 4, child: DecoratedBox(
-                    decoration: BoxDecoration(color: context.cgflix.accent, borderRadius: BorderRadius.circular(8)),
-                    child: Padding(padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                      child: Text(item.isMovie ? 'Em breve' : 'Novo episódio', maxLines: 1, overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w700))))),
-                ])),
-                const SizedBox(height: 5),
-                Text(item.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600)),
-                Text(item.subtitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 11, color: context.cgflix.textMuted)),
-              ],
-            )));
-          })),
-      ]));
+    return Padding(
+      key: const ValueKey('heisuca-upcoming-row'),
+      padding: const EdgeInsets.only(bottom: 22),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 4, 16, 12),
+            child: Text(
+              'Em breve',
+              style: TextStyle(fontSize: 17.5, fontWeight: FontWeight.w700, fontFamily: HeisucaTheme.fonteTitulo),
+            ),
+          ),
+          SizedBox(
+            height: 180,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: items.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 8),
+              itemBuilder: (context, index) {
+                final item = items[index];
+                return SizedBox(
+                  width: 80,
+                  child: InkWell(
+                    onTap: () => _open(context, item),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(9),
+                          child: Stack(
+                            children: [
+                              OptimizedMediaImage(
+                                client: repository.upcomingImageClient,
+                                imagePath: item.imagePath,
+                                width: 80,
+                                height: 120,
+                              ),
+                              Positioned(
+                                top: 4,
+                                left: 4,
+                                right: 4,
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    color: context.cgflix.accent,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                    child: Text(
+                                      item.isMovie ? 'Em breve' : 'Novo episódio',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          item.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600),
+                        ),
+                        Text(
+                          item.subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 11, color: context.cgflix.textMuted),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

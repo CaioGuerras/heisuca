@@ -1,3 +1,8 @@
+import '../theme/heisuca_base.dart';
+import '../../services/settings_service.dart' as settings;
+import '../../cgflix/cgflix_theme_picker.dart';
+import '../../providers/theme_provider.dart';
+import '../../cgflix/cgflix_palette.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -67,10 +72,7 @@ class _HeisucaTvSettingsScreenState extends State<HeisucaTvSettingsScreen> {
     final next = _subtitleLang == 'Português' ? 'Desligada' : 'Português';
     setState(() => _subtitleLang = next);
     final settings = SettingsService.instanceOrNull;
-    await settings?.write(
-      SettingsService.subtitleSearchLanguage,
-      next == 'Português' ? 'por' : null,
-    );
+    await settings?.write(SettingsService.subtitleSearchLanguage, next == 'Português' ? 'por' : null);
   }
 
   Future<void> _cycleSubtitleSize() async {
@@ -112,134 +114,149 @@ class _HeisucaTvSettingsScreenState extends State<HeisucaTvSettingsScreen> {
 
     return HeisucaTvCanvas(
       child: Scaffold(
-      backgroundColor: const Color(0xFF111522),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 36),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Topo
-            Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.white, size: 32),
-                  onPressed: () => Navigator.of(context).maybePop(),
-                ),
-                const SizedBox(width: 12),
-                const Text(
-                  'Ajustes',
-                  style: TextStyle(
-                    fontFamily: HeisucaTheme.fonteTitulo,
-                    fontSize: 36,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFFEEF2F8),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 36),
-
-            // Lista Enxuta de Ajustes para TV
-            Expanded(
-              child: ListView(
+        backgroundColor: context.cgflix.background,
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 36),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Topo
+              Row(
                 children: [
-                  _TvSettingsRow(
-                    autofocus: true,
-                    title: 'Perfil',
-                    value: profileName,
-                    actionLabel: 'Trocar perfil',
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const ProfileSwitchScreen(requireSelection: false),
-                        ),
-                      );
-                    },
+                  IconButton(
+                    icon: Icon(Icons.arrow_back, color: context.cgflix.text, size: 32),
+                    onPressed: () => Navigator.of(context).maybePop(),
                   ),
-                  const SizedBox(height: 16),
-                  _TvSettingsRow(
-                    title: 'Áudio padrão',
-                    value: _preferPortuguese ? 'Português (dublado)' : 'Idioma original',
-                    onTap: _toggleAudio,
-                  ),
-                  const SizedBox(height: 16),
-                  _TvSettingsRow(
-                    title: 'Legenda padrão',
-                    value: _subtitleLang,
-                    onTap: _toggleSubtitle,
-                  ),
-                  const SizedBox(height: 16),
-                  _TvSettingsRow(
-                    title: 'Tamanho da legenda',
-                    value: sizeLabel,
-                    onTap: _cycleSubtitleSize,
-                  ),
-                  const SizedBox(height: 16),
-                  _TvSettingsRow(
-                    title: 'Ainda está aí?',
-                    value: _stillWatching ? 'Ligado (após 3 episódios)' : 'Desligado',
-                    onTap: _toggleStillWatching,
-                  ),
-                  const SizedBox(height: 16),
-                  _TvSettingsRow(
-                    title: 'Desempenho na tela',
-                    value: _performanceOverlay ? 'Ligado' : 'Desligado',
-                    onTap: _togglePerformanceOverlay,
-                  ),
-                  const SizedBox(height: 16),
-                  if (atualizacoes?.permiteAjustes == true) ...[
-                    _TvSettingsRow(title: 'Atualizações', value: 'Versões do app e canais de atualização', actionLabel: 'Ver',
-                      onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const UpdateSettingsScreen()))),
-                    const SizedBox(height: 16),
-                  ],
-                  _TvSettingsRow(
-                    title: 'Sobre',
-                    value: 'Heisuca 2.0 (炳素華) · Créditos Wholphin',
-                    actionLabel: 'Ver',
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const AboutScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  _TvSettingsRow(
-                    title: 'Sair',
-                    value: 'Trocar de servidor ou desconectar',
-                    isDestructive: true,
-                    onTap: () async {
-                      final confirmed = await showDialog<bool>(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                          backgroundColor: const Color(0xFF1E263B),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                          title: const Text('Sair do Heisuca?', style: TextStyle(color: Colors.white, fontSize: 26)),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(ctx).pop(false),
-                              child: const Text('Cancelar', style: TextStyle(color: Colors.white70, fontSize: 20)),
-                            ),
-                            ElevatedButton(
-                              onPressed: () => Navigator.of(ctx).pop(true),
-                              child: const Text('Sair', style: TextStyle(fontSize: 20)),
-                            ),
-                          ],
-                        ),
-                      );
-                      if (confirmed == true && mounted) {
-                        unawaited(SystemNavigator.pop());
-                      }
-                    },
+                  const SizedBox(width: 12),
+                  Text(
+                    'Ajustes',
+                    style: TextStyle(
+                      fontFamily: HeisucaTheme.fonteTitulo,
+                      fontSize: 36,
+                      fontWeight: FontWeight.w700,
+                      color: context.cgflix.text,
+                    ),
                   ),
                 ],
               ),
-            ),
-          ],
+              const SizedBox(height: 36),
+
+              // Lista Enxuta de Ajustes para TV
+              Expanded(
+                child: ListView(
+                  children: [
+                    _TvSettingsRow(
+                      autofocus: true,
+                      title: 'Perfil',
+                      value: profileName,
+                      actionLabel: 'Trocar perfil',
+                      onTap: () {
+                        Navigator.of(
+                          context,
+                        ).push(MaterialPageRoute(builder: (_) => const ProfileSwitchScreen(requireSelection: false)));
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    _TvSettingsRow(
+                      title: 'Tema',
+                      value: cgflixThemeName(
+                        context.watch<ThemeProvider?>()?.themeMode ??
+                            SettingsService.instanceOrNull?.read(SettingsService.themeMode) ??
+                            settings.ThemeMode.oled,
+                      ),
+                      actionLabel: 'Trocar',
+                      onTap: () async {
+                        final provider = context.read<ThemeProvider>();
+                        await provider.setThemeMode(
+                          provider.themeMode == settings.ThemeMode.sumi
+                              ? settings.ThemeMode.oled
+                              : settings.ThemeMode.sumi,
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    _TvSettingsRow(
+                      title: 'Áudio padrão',
+                      value: _preferPortuguese ? 'Português (dublado)' : 'Idioma original',
+                      onTap: _toggleAudio,
+                    ),
+                    const SizedBox(height: 16),
+                    _TvSettingsRow(title: 'Legenda padrão', value: _subtitleLang, onTap: _toggleSubtitle),
+                    const SizedBox(height: 16),
+                    _TvSettingsRow(title: 'Tamanho da legenda', value: sizeLabel, onTap: _cycleSubtitleSize),
+                    const SizedBox(height: 16),
+                    _TvSettingsRow(
+                      title: 'Ainda está aí?',
+                      value: _stillWatching ? 'Ligado (após 3 episódios)' : 'Desligado',
+                      onTap: _toggleStillWatching,
+                    ),
+                    const SizedBox(height: 16),
+                    _TvSettingsRow(
+                      title: 'Desempenho na tela',
+                      value: _performanceOverlay ? 'Ligado' : 'Desligado',
+                      onTap: _togglePerformanceOverlay,
+                    ),
+                    const SizedBox(height: 16),
+                    if (atualizacoes?.permiteAjustes == true) ...[
+                      _TvSettingsRow(
+                        title: 'Atualizações',
+                        value: 'Versões do app e canais de atualização',
+                        actionLabel: 'Ver',
+                        onTap: () =>
+                            Navigator.of(context).push(MaterialPageRoute(builder: (_) => const UpdateSettingsScreen())),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    _TvSettingsRow(
+                      title: 'Sobre',
+                      value: 'Heisuca 2.0 (炳素華) · Créditos Wholphin',
+                      actionLabel: 'Ver',
+                      onTap: () {
+                        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AboutScreen()));
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    _TvSettingsRow(
+                      title: 'Sair',
+                      value: 'Trocar de servidor ou desconectar',
+                      isDestructive: true,
+                      onTap: () async {
+                        final confirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            backgroundColor: context.cgflix.surface,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            title: Text('Sair do Heisuca?', style: TextStyle(color: context.cgflix.text, fontSize: 26)),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(ctx).pop(false),
+                                child: Text(
+                                  'Cancelar',
+                                  style: TextStyle(
+                                    color: context.cgflix.text.withValues(alpha: 70 / 100),
+                                    fontSize: 20,
+                                  ),
+                                ),
+                              ),
+                              ElevatedButton(
+                                onPressed: () => Navigator.of(ctx).pop(true),
+                                child: const Text('Sair', style: TextStyle(fontSize: 20)),
+                              ),
+                            ],
+                          ),
+                        );
+                        if (confirmed == true && mounted) {
+                          unawaited(SystemNavigator.pop());
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-    ),
     );
   }
 }
@@ -286,28 +303,20 @@ class _TvSettingsRowState extends State<_TvSettingsRow> {
       child: GestureDetector(
         onTap: widget.onTap,
         child: AnimatedScale(
-          scale: active ? 1.03 : 1.0,
+          scale: active ? HeisucaBase.focoEscalaTv : 1.0,
           duration: const Duration(milliseconds: 140),
           curve: Curves.easeOutCubic,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 20),
             decoration: BoxDecoration(
-              color: active
-                  ? Colors.white
-                  : const Color(0xFF1E263B), // SUP
+              color: active ? context.cgflix.text : context.cgflix.surface, // SUP
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: active ? Colors.white : Colors.white.withValues(alpha: 0.08),
-                width: active ? 3.5 : 1.0,
+                color: active ? context.cgflix.focusRing : context.cgflix.text.withValues(alpha: 0.08),
+                width: active ? HeisucaBase.focoBorda : 1.0,
               ),
               boxShadow: active
-                  ? [
-                      BoxShadow(
-                        color: Colors.white.withValues(alpha: 0.25),
-                        blurRadius: 16,
-                        spreadRadius: 2,
-                      ),
-                    ]
+                  ? [BoxShadow(color: context.cgflix.text.withValues(alpha: 0.25), blurRadius: 16, spreadRadius: 2)]
                   : null,
             ),
             child: Row(
@@ -323,8 +332,8 @@ class _TvSettingsRowState extends State<_TvSettingsRow> {
                           fontSize: 26,
                           fontWeight: FontWeight.w700,
                           color: active
-                              ? (widget.isDestructive ? const Color(0xFFC82B3D) : const Color(0xFF111522))
-                              : (widget.isDestructive ? const Color(0xFFEF4444) : const Color(0xFFEEF2F8)),
+                              ? (widget.isDestructive ? context.cgflix.danger : context.cgflix.background)
+                              : (widget.isDestructive ? context.cgflix.danger : context.cgflix.text),
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -333,7 +342,7 @@ class _TvSettingsRowState extends State<_TvSettingsRow> {
                         style: TextStyle(
                           fontFamily: HeisucaTheme.fonteTexto,
                           fontSize: 22,
-                          color: active ? const Color(0xFF303D59) : const Color(0xFFABB8CE),
+                          color: active ? context.cgflix.surfaceHigh : context.cgflix.textMuted,
                         ),
                       ),
                     ],
@@ -343,7 +352,7 @@ class _TvSettingsRowState extends State<_TvSettingsRow> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: active ? const Color(0xFF111522) : Colors.white.withValues(alpha: 0.12),
+                      color: active ? context.cgflix.background : context.cgflix.text.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -351,7 +360,7 @@ class _TvSettingsRowState extends State<_TvSettingsRow> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
-                        color: active ? Colors.white : const Color(0xFFEEF2F8),
+                        color: active ? context.cgflix.text : context.cgflix.text,
                       ),
                     ),
                   )
@@ -359,7 +368,7 @@ class _TvSettingsRowState extends State<_TvSettingsRow> {
                   Icon(
                     Icons.chevron_right,
                     size: 30,
-                    color: active ? const Color(0xFF111522) : Colors.white54,
+                    color: active ? context.cgflix.background : context.cgflix.text.withValues(alpha: 54 / 100),
                   ),
               ],
             ),

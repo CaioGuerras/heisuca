@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Heisuca: paleta oficial Shikkoku (#1A1424) e variantes adaptativas -->
-    <color name="ic_launcher_background">#1A1424</color>
-    <color name="ic_launcher_background_hisui">#1A2327</color>
-    <color name="ic_launcher_background_ichigo">#FFFFFF</color>
-    <color name="ic_launcher_background_shinju">#FFFFFF</color>
-    <color name="ic_launcher_background_sorairo">#FFFFFF</color>
-    <color name="ic_launcher_background_heitor">#f4fcee</color>
-    <color name="splash_background">#17151C</color>
-    <color name="splash_dark">#051F20</color>
-    <color name="splash_oled">#17151C</color>
-    <color name="splash_light">#DAF1DE</color>
+    <color name="splash_background">#0F0D13</color>
+    <color name="splash_dark">#0F0D13</color>
+    <color name="splash_oled">#0F0D13</color>
+    <color name="splash_light">#F8F6EF</color>
+    <color name="splash_sumi">#000000</color>
+    <color name="splash_system">#F8F6EF</color>
 </resources>

@@ -1,3 +1,6 @@
+import 'package:heisuca/heisuca/theme/heisuca_base.dart';
+import 'package:heisuca/heisuca/theme/temas/tema_hisui.dart';
+import 'package:heisuca/heisuca/theme/temas/tema_shikkoku.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -23,19 +26,19 @@ void main() {
     final provider = ThemeProvider();
     await Future<void>.delayed(Duration.zero);
     expect(provider.themeMode, settings.ThemeMode.oled);
-    expect(provider.darkTheme.scaffoldBackgroundColor, const Color(0xFF17151C));
+    expect(provider.darkTheme.scaffoldBackgroundColor, const Color(0xFF0F0D13));
     expect(cgflixDarkTheme(provider.themeMode), provider.darkTheme);
     provider.dispose();
     expect(service.read(settings.SettingsService.themeMode), settings.ThemeMode.oled);
   });
   test('P2 contraste e cores da marca não alteram o modo infantil', () {
     for (final p in [CgflixPalette.ichigo, CgflixPalette.sorairo]) {
-      expect(HeisucaBrandColors(p).substitute('heisuca-word-1', 'path', 'fill', Colors.red), Colors.red);
+      expect(HeisucaBrandColors(p).substitute('heisuca-word-1', 'path', 'fill', Colors.red), p.text);
     }
   });
   test('P2 abertura Android usa os mesmos fundos', () {
     final colors = File('android/app/src/main/res/values/colors.xml').readAsStringSync().toUpperCase();
-    for (final color in ['17151C', 'DAF1DE', '051F20']) {
+    for (final color in ['0F0D13', 'F8F6EF', '000000']) {
       expect(colors, contains('#$color'));
     }
   });
@@ -50,36 +53,63 @@ void main() {
   Future<void> checkField(WidgetTester tester, {required bool label}) async {
     for (final theme in [cgflixAppTheme(), cgflixLightTheme(), cgflixDarkTheme(settings.ThemeMode.dark)]) {
       final scheme = theme.colorScheme;
-      for (final bg in [scheme.surface, scheme.surfaceContainerLowest,
-          scheme.surfaceContainerHigh, scheme.surfaceContainerHighest]) {
-        await tester.pumpWidget(MaterialApp(theme: theme,
-          home: Scaffold(backgroundColor: bg, body: TextField(
-            decoration: InputDecoration(labelText: label ? 'Seu nome' : null,
-              floatingLabelBehavior: FloatingLabelBehavior.always, errorText: 'Confira este campo.')))));
+      for (final bg in [
+        scheme.surface,
+        scheme.surfaceContainerLowest,
+        scheme.surfaceContainerHigh,
+        scheme.surfaceContainerHighest,
+      ]) {
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: theme,
+            home: Scaffold(
+              backgroundColor: bg,
+              body: TextField(
+                decoration: InputDecoration(
+                  labelText: label ? 'Seu nome' : null,
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  errorText: 'Confira este campo.',
+                ),
+              ),
+            ),
+          ),
+        );
         await tester.pumpAndSettle();
         final paragraph = tester.renderObject<RenderParagraph>(find.text(label ? 'Seu nome' : 'Confira este campo.'));
         final color = (paragraph.text as TextSpan).style!.color!;
-        expect(contrast(color, bg), greaterThanOrEqualTo(4.5),
-          reason: 'campo real: ${theme.brightness}, fundo $bg, rótulo=$label');
+        expect(
+          contrast(color, bg),
+          greaterThanOrEqualTo(4.5),
+          reason: 'campo real: ${theme.brightness}, fundo $bg, rótulo=$label',
+        );
       }
     }
   }
+
   testWidgets('P2 rótulo real de campo com erro é AA', (tester) => checkField(tester, label: true));
   testWidgets('P2 erro real de campo é AA sobre cartão', (tester) => checkField(tester, label: false));
   testWidgets('P2 selo de erro mantém AA no cartão escuro', (tester) async {
     const p = CgflixPalette.isis;
-    await tester.pumpWidget(MaterialApp(theme: cgflixAppTheme(),
-      home: Scaffold(backgroundColor: p.surface, body: CgflixStatusBadge(
-        label: 'Não disponível', icon: Symbols.block_rounded, color: p.danger))));
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: cgflixAppTheme(),
+        home: Scaffold(
+          backgroundColor: p.surface,
+          body: CgflixStatusBadge(label: 'Não disponível', icon: Symbols.block_rounded, color: p.danger),
+        ),
+      ),
+    );
     final text = tester.widget<Text>(find.text('Não disponível'));
-    final badge = tester.widget<Container>(find.ancestor(of: find.text('Não disponível'), matching: find.byType(Container)).first);
+    final badge = tester.widget<Container>(
+      find.ancestor(of: find.text('Não disponível'), matching: find.byType(Container)).first,
+    );
     final bg = Color.alphaBlend((badge.decoration! as BoxDecoration).color!, p.surface);
     expect(contrast(text.style!.color!, bg), greaterThanOrEqualTo(4.5));
   });
   for (final entry in [
-    (true, true, const Color(0xFF17151C), const Color(0xFF292531), const Color(0xFFE2DDE7)),
-    (false, false, const Color(0xFFDAF1DE), const Color(0xFFFFFFFF), const Color(0xFF051F20)),
-    (true, false, const Color(0xFF17151C), const Color(0xFF292531), const Color(0xFFE2DDE7)),
+    (true, true, const Color(0xFF0F0D13), const Color(0xFF1A181F), const Color(0xFFEAE8EE)),
+    (false, false, const Color(0xFFF8F6EF), const Color(0xFFFEFDFA), const Color(0xFF1A201C)),
+    (true, false, const Color(0xFF0F0D13), const Color(0xFF1A181F), const Color(0xFFEAE8EE)),
   ]) {
     test('P2 tokens e Material concordam: dark=${entry.$1}, oled=${entry.$2}', () {
       final theme = monoTheme(dark: entry.$1, oled: entry.$2);
@@ -94,8 +124,11 @@ void main() {
       expect(p.isLight, !entry.$1);
       final mapper = HeisucaBrandColors(p);
       expect(mapper.substitute('heisuca-word-1', 'path', 'fill', Colors.red), p.text);
-      expect(mapper.substitute('heisuca-ink-2', 'path', 'fill', Colors.red), p.onAction);
-      expect(mapper.substitute('heisuca-fill-0', 'rect', 'fill', Colors.red), p.accent);
+      expect(mapper.substitute('heisuca-ink-2', 'path', 'fill', Colors.red), HeisucaBase.marcaKanjiDoSelo);
+      expect(
+        mapper.substitute('heisuca-fill-0', 'rect', 'fill', Colors.red),
+        p.isLight ? TemaHisui.temaCorSelo : TemaShikkoku.temaCorSelo,
+      );
     });
   }
 }

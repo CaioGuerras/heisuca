@@ -165,11 +165,11 @@ class CgflixRow extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontFamily: 'Sora',
-                    fontSize: 17.5,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.35,
-                  ),
+                fontFamily: 'Inter',
+                fontSize: 17.5,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.35,
+              ),
             ),
           ),
           SizedBox(
@@ -409,108 +409,137 @@ class CgflixWideCard extends StatelessWidget {
                       ],
               ),
               child: DecoratedBox(
-              position: DecorationPosition.foreground,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: context.cgflix.isLight
-                      ? Colors.black.withValues(alpha: 0.08)
-                      : Colors.white.withValues(alpha: 0.11),
-                  width: 0.75,
+                position: DecorationPosition.foreground,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: context.cgflix.isLight
+                        ? Colors.black.withValues(alpha: 0.08)
+                        : Colors.white.withValues(alpha: 0.11),
+                    width: 0.75,
+                  ),
                 ),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: SizedBox(
-                  width: width,
-                  height: artHeight,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      ColoredBox(
-                        color: context.cgflix.surface,
-                        child: OptimizedMediaImage(
-                          client: client,
-                          imagePath: cgflixWidePath(item),
-                          width: width,
-                          height: artHeight,
-                          imageType: ImageType.thumb,
-                          fadeInDuration: CgflixMotion.fast,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: SizedBox(
+                    width: width,
+                    height: artHeight,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        ColoredBox(
+                          color: context.cgflix.surface,
+                          child: OptimizedMediaImage(
+                            client: client,
+                            imagePath: cgflixWidePath(item),
+                            width: width,
+                            height: artHeight,
+                            imageType: ImageType.thumb,
+                            fadeInDuration: CgflixMotion.fast,
+                          ),
                         ),
-                      ),
-                      // Scrim sutil inferior e selo de play rápido
-                      Positioned(
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        height: 44,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.black.withValues(alpha: 0.0),
-                                Colors.black.withValues(alpha: 0.65),
-                              ],
+                        // Scrim sutil inferior e selo de play rápido
+                        Positioned(
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          height: 44,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [Colors.black.withValues(alpha: 0.0), Colors.black.withValues(alpha: 0.65)],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      if (siteStyle) Align(alignment: Alignment.center, child: Container(
-                        width: 42, height: 42, decoration: BoxDecoration(shape: BoxShape.circle,
-                          color: Colors.black26, border: Border.all(color: Colors.white, width: 2)),
-                        child: const AppIcon(Symbols.play_arrow_rounded, fill: 1, size: 30, color: Colors.white),
-                      )) else Positioned(left: 8, bottom: progress != null ? 9 : 7,
-                        child: Container(width: 26, height: 26, decoration: const BoxDecoration(
-                          color: Colors.black54, shape: BoxShape.circle),
-                          child: const Center(child: AppIcon(Symbols.play_arrow_rounded, fill: 1, size: 16, color: Colors.white)))),
-                      if (siteStyle && (item.viewOffsetMs ?? 0) > 0 && (item.durationMs ?? 0) > 0)
-                        Positioned(right: 8, bottom: 12, child: Text('${_clock(item.viewOffsetMs!)} / ${_clock(item.durationMs!)}',
-                          style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600,
-                            fontFeatures: [FontFeature.tabularFigures()]))),
-                      if (progress != null)
-                        Positioned(
-                          left: siteStyle ? 10 : 0,
-                          right: siteStyle ? 10 : 0,
-                          bottom: siteStyle ? 5 : 0,
-                          child: LinearProgressIndicator(
-                            value: progress,
-                            minHeight: 3.5,
-                            color: siteStyle ? Colors.white : context.cgflix.accent,
-                            backgroundColor: siteStyle ? Colors.white38 : context.cgflix.progressTrack,
+                        if (siteStyle)
+                          Align(
+                            alignment: Alignment.center,
+                            child: Container(
+                              width: 42,
+                              height: 42,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.black26,
+                                border: Border.all(color: Colors.white, width: 2),
+                              ),
+                              child: const AppIcon(Symbols.play_arrow_rounded, fill: 1, size: 30, color: Colors.white),
+                            ),
+                          )
+                        else
+                          Positioned(
+                            left: 8,
+                            bottom: progress != null ? 9 : 7,
+                            child: Container(
+                              width: 26,
+                              height: 26,
+                              decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
+                              child: const Center(
+                                child: AppIcon(Symbols.play_arrow_rounded, fill: 1, size: 16, color: Colors.white),
+                              ),
+                            ),
                           ),
-                        ),
-                    ],
+                        if (siteStyle && (item.viewOffsetMs ?? 0) > 0 && (item.durationMs ?? 0) > 0)
+                          Positioned(
+                            right: 8,
+                            bottom: 12,
+                            child: Text(
+                              '${_clock(item.viewOffsetMs!)} / ${_clock(item.durationMs!)}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                fontFeatures: [FontFeature.tabularFigures()],
+                              ),
+                            ),
+                          ),
+                        if (progress != null)
+                          Positioned(
+                            left: siteStyle ? 10 : 0,
+                            right: siteStyle ? 10 : 0,
+                            bottom: siteStyle ? 5 : 0,
+                            child: LinearProgressIndicator(
+                              value: progress,
+                              minHeight: 3.5,
+                              color: siteStyle ? Colors.white : context.cgflix.accent,
+                              backgroundColor: siteStyle ? Colors.white38 : context.cgflix.progressTrack,
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
             ),
             const SizedBox(height: 6),
             SizedBox(
               height: titleBlockHeightFor(context, siteStyle: siteStyle) - 6,
               child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600, fontSize: siteStyle ? 12 : null),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      fontSize: siteStyle ? 12 : null,
+                    ),
+                  ),
+                  if (subtitle != null && subtitle.isNotEmpty)
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: context.cgflix.textMuted,
+                        fontSize: siteStyle ? 10.5 : null,
+                        fontFeatures: const [FontFeature.tabularFigures()],
                       ),
-                      if (subtitle != null && subtitle.isNotEmpty)
-                        Text(
-                          subtitle,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: context.cgflix.textMuted,
-                            fontSize: siteStyle ? 10.5 : null,
-                            fontFeatures: const [FontFeature.tabularFigures()],
-                          ),
-                        ),
-                    ],
+                    ),
+                ],
               ),
             ),
           ],
@@ -547,7 +576,12 @@ class CgflixTop10Card extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final number = '$rank';
-    final baseStyle = TextStyle(fontSize: siteStyle ? 72 : 128, height: siteStyle ? 0.74 : 1, fontWeight: FontWeight.w900, letterSpacing: siteStyle ? -4.3 : -10);
+    final baseStyle = TextStyle(
+      fontSize: siteStyle ? 72 : 128,
+      height: siteStyle ? 0.74 : 1,
+      fontWeight: FontWeight.w900,
+      letterSpacing: siteStyle ? -4.3 : -10,
+    );
     final strokeStyle = baseStyle.copyWith(
       foreground: Paint()
         ..style = PaintingStyle.stroke
@@ -595,4 +629,3 @@ class CgflixTop10Card extends StatelessWidget {
     );
   }
 }
-

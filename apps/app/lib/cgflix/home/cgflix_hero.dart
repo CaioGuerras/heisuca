@@ -284,7 +284,7 @@ class _HeroInfo extends StatelessWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: theme.textTheme.headlineMedium?.copyWith(
-                fontFamily: 'Sora',
+                fontFamily: 'Inter',
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.6,
               ),
@@ -312,7 +312,7 @@ class _HeroInfo extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.star_rounded, size: 15, color: Color(0xFFFFC107)),
+                  Icon(Icons.star_rounded, size: 15, color: context.cgflix.accent),
                   const SizedBox(width: 2),
                   Text(
                     rating,

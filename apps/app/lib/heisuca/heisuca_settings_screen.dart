@@ -1,3 +1,4 @@
+import '../cgflix/cgflix_theme_picker.dart';
 import 'heisuca_dpad_focus.dart';
 import '../services/device_performance.dart';
 import 'heisuca_device_status.dart';
@@ -63,9 +64,9 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
 
   void _showSaveError() {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Não foi possível acessar as configurações. Tente novamente.')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Não foi possível acessar as configurações. Tente novamente.')));
   }
 
   Future<void> _save<T>(settings.Pref<T> pref, T value) async {
@@ -113,17 +114,22 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
     final p = _deviceService.profile;
     final settingsNow = _settings;
     final effectsLabel = switch (settingsNow?.read(settings.SettingsService.visualEffects).name) {
-      'full' => 'completos', 'reduced' => 'reduzidos', _ => 'automática',
+      'full' => 'completos',
+      'reduced' => 'reduzidos',
+      _ => 'automática',
     };
     await DevicePerformance.getInstance();
     if (!mounted) return;
-    await showDialog<void>(context: context,
+    await showDialog<void>(
+      context: context,
       animationStyle: AnimationStyle(duration: HeisucaMotion.durationFor(context), curve: HeisucaMotion.curve),
       builder: (_) => HeisucaDeviceStatusDialog(
-      profile: p, effectsPreference: effectsLabel,
-      exoPlayer: settingsNow?.read(settings.SettingsService.useExoPlayer) == true,
-      hardwareDecoding: settingsNow?.read(settings.SettingsService.enableHardwareDecoding) != false,
-    ));
+        profile: p,
+        effectsPreference: effectsLabel,
+        exoPlayer: settingsNow?.read(settings.SettingsService.useExoPlayer) == true,
+        hardwareDecoding: settingsNow?.read(settings.SettingsService.enableHardwareDecoding) != false,
+      ),
+    );
   }
 
   @override
@@ -222,9 +228,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                         borderRadius: BorderRadius.circular(10.0),
                         border: Border.all(color: accentColor.withValues(alpha: 0.4), width: 0.8),
                       ),
-                      child: Center(
-                        child: Icon(Symbols.smartphone_rounded, color: accentColor, size: 24.0),
-                      ),
+                      child: Center(child: Icon(Symbols.smartphone_rounded, color: accentColor, size: 24.0)),
                     ),
                     const SizedBox(width: 12.0),
                     Expanded(
@@ -271,35 +275,32 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
               height: 48.0,
-              decoration: BoxDecoration(
-                color: tabBg,
-                borderRadius: BorderRadius.circular(10.0),
+              decoration: BoxDecoration(color: tabBg, borderRadius: BorderRadius.circular(10.0)),
+              child: HeisucaDpadFocus(
+                borderRadius: 8,
+                child: TabBar(
+                  controller: _tabController,
+                  indicator: BoxDecoration(color: accentColor, borderRadius: BorderRadius.circular(8.0)),
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  dividerColor: Colors.transparent,
+                  labelStyle: const TextStyle(
+                    fontFamily: HeisucaTheme.fonteTexto,
+                    fontSize: 13.0,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  unselectedLabelStyle: const TextStyle(
+                    fontFamily: HeisucaTheme.fonteTexto,
+                    fontSize: 13.0,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  labelColor: context.cgflix.onAction,
+                  unselectedLabelColor: subtitleColor,
+                  tabs: const [
+                    Tab(text: 'Geral'),
+                    Tab(text: 'Avançado'),
+                  ],
+                ),
               ),
-              child: HeisucaDpadFocus(borderRadius: 8, child: TabBar(
-                controller: _tabController,
-                indicator: BoxDecoration(
-                  color: accentColor,
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                indicatorSize: TabBarIndicatorSize.tab,
-                dividerColor: Colors.transparent,
-                labelStyle: const TextStyle(
-                  fontFamily: HeisucaTheme.fonteTexto,
-                  fontSize: 13.0,
-                  fontWeight: FontWeight.w700,
-                ),
-                unselectedLabelStyle: const TextStyle(
-                  fontFamily: HeisucaTheme.fonteTexto,
-                  fontSize: 13.0,
-                  fontWeight: FontWeight.w500,
-                ),
-                labelColor: context.cgflix.onAction,
-                unselectedLabelColor: subtitleColor,
-                tabs: const [
-                  Tab(text: 'Geral'),
-                  Tab(text: 'Avançado'),
-                ],
-              )),
             ),
 
             // Conteúdo das Abas
@@ -307,16 +308,16 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
               child: AbsorbPointer(
                 absorbing: _settings == null || _saving,
                 child: TabBarView(
-                controller: _tabController,
-                physics: const HeisucaSpringPhysics(),
-                children: [
-                  // Aba 1: Geral (Configurações simples e seguras)
-                  _buildGeneralTab(isLight),
+                  controller: _tabController,
+                  physics: const HeisucaSpringPhysics(),
+                  children: [
+                    // Aba 1: Geral (Configurações simples e seguras)
+                    _buildGeneralTab(isLight),
 
-                  // Aba 2: Avançado (Área técnica isolada)
-                  _buildAdvancedTab(isLight),
-                ],
-              ),
+                    // Aba 2: Avançado (Área técnica isolada)
+                    _buildAdvancedTab(isLight),
+                  ],
+                ),
               ),
             ),
           ],
@@ -332,30 +333,43 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
       children: [
         _buildSectionHeader('Aparência e Tema', isLight),
         const SizedBox(height: 8.0),
-        LayoutBuilder(builder: (context, constraints) {
-          final selected = context.watch<ThemeProvider>().themeMode;
-          final choices = [
-            ('Shikkoku', 'Escuro', settings.ThemeMode.oled, CgflixPalette.isis),
-            ('Hisui', 'Claro', settings.ThemeMode.light, CgflixPalette.heitor),
-          ];
-          return Wrap(spacing: 12, runSpacing: 12, children: [
-            for (final choice in choices)
-              SizedBox(
-                width: constraints.maxWidth < 380 ? constraints.maxWidth : (constraints.maxWidth - 12) / 2,
-                child: _buildThemeOptionCard(
-                  title: choice.$1,
-                  subtitle: choice.$2,
-                  preview: choice.$4,
-                  isSelected: selected == choice.$3 ||
-                      (selected == settings.ThemeMode.system && choice.$3 ==
-                          (isLight ? settings.ThemeMode.light : settings.ThemeMode.oled)),
-                  onTap: () async {
-                    await context.read<ThemeProvider>().setThemeMode(choice.$3);
-                  },
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final selected = context.watch<ThemeProvider>().themeMode;
+            final choices = [
+              for (final mode in cgflixThemeChoices)
+                (
+                  cgflixThemeName(mode),
+                  cgflixThemeDescription(mode),
+                  mode,
+                  mode == settings.ThemeMode.light
+                      ? CgflixPalette.heitor
+                      : mode == settings.ThemeMode.sumi
+                      ? CgflixPalette.sumi
+                      : CgflixPalette.isis,
                 ),
-              ),
-          ]);
-        }),
+            ];
+            return Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                for (final choice in choices)
+                  SizedBox(
+                    width: constraints.maxWidth < 380 ? constraints.maxWidth : (constraints.maxWidth - 12) / 2,
+                    child: _buildThemeOptionCard(
+                      title: choice.$1,
+                      subtitle: choice.$2,
+                      preview: choice.$4,
+                      isSelected: selected == choice.$3,
+                      onTap: () async {
+                        await context.read<ThemeProvider>().setThemeMode(choice.$3);
+                      },
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
 
         const SizedBox(height: 18.0),
 
@@ -365,26 +379,30 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
           title: const Text('Qualidade de reprodução'),
           subtitle: const Text('Original prioriza reprodução direta. Reduzir exige transcodificação no servidor.'),
         ),
-        HeisucaDpadFocus(borderRadius: 8, child: DropdownButton<TranscodeQualityPreset>(
-          key: const ValueKey('heisuca-quality'),
-          isExpanded: true,
-          value: _settings?.read(settings.SettingsService.defaultQualityPreset) ?? TranscodeQualityPreset.original,
-          items: TranscodeQualityPreset.displayOrder.map((quality) => DropdownMenuItem(
-            value: quality,
-            child: Text(qualityPresetLabel(quality)),
-          )).toList(),
-          onChanged: (value) {
-            if (value != null) _save(settings.SettingsService.defaultQualityPreset, value);
-          },
-        )),
+        HeisucaDpadFocus(
+          borderRadius: 8,
+          child: DropdownButton<TranscodeQualityPreset>(
+            key: const ValueKey('heisuca-quality'),
+            isExpanded: true,
+            value: _settings?.read(settings.SettingsService.defaultQualityPreset) ?? TranscodeQualityPreset.original,
+            items: TranscodeQualityPreset.displayOrder
+                .map((quality) => DropdownMenuItem(value: quality, child: Text(qualityPresetLabel(quality))))
+                .toList(),
+            onChanged: (value) {
+              if (value != null) _save(settings.SettingsService.defaultQualityPreset, value);
+            },
+          ),
+        ),
         const SizedBox(height: 14.0),
         _buildSwitchTile(
           title: 'Pular Abertura Automático',
           subtitle: 'Usa os marcadores disponíveis no vídeo; sem eles, não avança.',
           value: _settings?.read(settings.SettingsService.skipIntroMode) == settings.SkipMarkerMode.auto,
           isLight: isLight,
-          onChanged: (value) => _save(settings.SettingsService.skipIntroMode,
-              value ? settings.SkipMarkerMode.auto : settings.SkipMarkerMode.button),
+          onChanged: (value) => _save(
+            settings.SettingsService.skipIntroMode,
+            value ? settings.SkipMarkerMode.auto : settings.SkipMarkerMode.button,
+          ),
         ),
 
         const SizedBox(height: 18.0),
@@ -402,11 +420,15 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
   }
 
   Widget _settingsLink(IconData icon, String title, String subtitle, Widget page) => ListTile(
-    leading: Icon(icon), title: Text(title), subtitle: Text(subtitle), trailing: const Icon(Icons.chevron_right),
+    leading: Icon(icon),
+    title: Text(title),
+    subtitle: Text(subtitle),
+    trailing: const Icon(Icons.chevron_right),
     onTap: () async {
       await Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => page));
       if (mounted) setState(() {});
-    });
+    },
+  );
 
   Widget _buildAdvancedTab(bool isLight) {
     final usesExoPlayer = _settings?.read(settings.SettingsService.useExoPlayer) ?? false;
@@ -419,19 +441,43 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
       physics: const HeisucaSpringPhysics(),
       padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 10.0, bottom: 120.0),
       children: [
-        _settingsLink(Icons.play_circle_outline, 'Ao assistir',
-          'Gestos, PiP, retomada, abertura e próximo episódio', const PlaybackSettingsScreen()),
-        _settingsLink(Icons.tune, 'Vídeo e áudio avançados',
-          'Motor, HDR, taxa de quadros, canais e normalização', const PlaybackSettingsScreen(cgflixTechnical: true)),
-        _settingsLink(Icons.subtitles_outlined, 'Áudio e legendas',
-          'Idiomas, estilo, posição e legendas ASS', const SettingsScreen(heisucaSection: HeisucaSettingsSection.subtitles)),
-        _settingsLink(Icons.download_outlined, 'Downloads',
-          'Pasta, Wi-Fi e remoção de episódios assistidos', const SettingsScreen(heisucaSection: HeisucaSettingsSection.downloads)),
+        _settingsLink(
+          Icons.play_circle_outline,
+          'Ao assistir',
+          'Gestos, PiP, retomada, abertura e próximo episódio',
+          const PlaybackSettingsScreen(),
+        ),
+        _settingsLink(
+          Icons.tune,
+          'Vídeo e áudio avançados',
+          'Motor, HDR, taxa de quadros, canais e normalização',
+          const PlaybackSettingsScreen(cgflixTechnical: true),
+        ),
+        _settingsLink(
+          Icons.subtitles_outlined,
+          'Áudio e legendas',
+          'Idiomas, estilo, posição e legendas ASS',
+          const SettingsScreen(heisucaSection: HeisucaSettingsSection.subtitles),
+        ),
+        _settingsLink(
+          Icons.download_outlined,
+          'Downloads',
+          'Pasta, Wi-Fi e remoção de episódios assistidos',
+          const SettingsScreen(heisucaSection: HeisucaSettingsSection.downloads),
+        ),
         const HeisucaSourceTile(),
-        _settingsLink(Icons.dns_outlined, 'Gerenciar conexões',
-          'Adicionar e administrar serviços do perfil', const SettingsScreen(heisucaSection: HeisucaSettingsSection.sources)),
-        _settingsLink(Icons.monitor_heart_outlined, 'Diagnóstico e backup',
-          'Logs, desempenho, cache e exportação de ajustes', const SettingsScreen(heisucaSection: HeisucaSettingsSection.diagnostics)),
+        _settingsLink(
+          Icons.dns_outlined,
+          'Gerenciar conexões',
+          'Adicionar e administrar serviços do perfil',
+          const SettingsScreen(heisucaSection: HeisucaSettingsSection.sources),
+        ),
+        _settingsLink(
+          Icons.monitor_heart_outlined,
+          'Diagnóstico e backup',
+          'Logs, desempenho, cache e exportação de ajustes',
+          const SettingsScreen(heisucaSection: HeisucaSettingsSection.diagnostics),
+        ),
         const SizedBox(height: 24),
         // Alerta educativo sobre opções avançadas
         Container(
@@ -448,11 +494,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
               Expanded(
                 child: Text(
                   'As alterações serão usadas nas próximas reproduções. O suporte depende do aparelho e do vídeo.',
-                  style: TextStyle(
-                    fontFamily: HeisucaTheme.fonteTexto,
-                    fontSize: 11.5,
-                    color: context.cgflix.text,
-                  ),
+                  style: TextStyle(fontFamily: HeisucaTheme.fonteTexto, fontSize: 11.5, color: context.cgflix.text),
                 ),
               ),
             ],
@@ -462,13 +504,14 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
         const SizedBox(height: 16.0),
 
         _buildSectionHeader('Decodificação de vídeo', isLight),
-        if (!usesExoPlayer) _buildSwitchTile(
-          title: 'Decodificação por Hardware',
-          subtitle: 'Permite usar o decodificador do aparelho quando compatível.',
-          value: _settings?.read(settings.SettingsService.enableHardwareDecoding) ?? true,
-          isLight: isLight,
-          onChanged: (v) => _save(settings.SettingsService.enableHardwareDecoding, v),
-        ),
+        if (!usesExoPlayer)
+          _buildSwitchTile(
+            title: 'Decodificação por Hardware',
+            subtitle: 'Permite usar o decodificador do aparelho quando compatível.',
+            value: _settings?.read(settings.SettingsService.enableHardwareDecoding) ?? true,
+            isLight: isLight,
+            onChanged: (v) => _save(settings.SettingsService.enableHardwareDecoding, v),
+          ),
         _buildSwitchTile(
           title: 'Ajustar Frequência ao Vídeo',
           subtitle: 'Solicita uma frequência compatível com o vídeo, quando disponível.',
@@ -487,13 +530,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
             borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
             border: Border.all(color: borderColor, width: 0.6),
             boxShadow: isLight
-                ? [
-                    BoxShadow(
-                      color: context.cgflix.cardShadow.first.color,
-                      blurRadius: 8.0,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
+                ? [BoxShadow(color: context.cgflix.cardShadow.first.color, blurRadius: 8.0, offset: const Offset(0, 2))]
                 : null,
           ),
           child: Column(
@@ -532,19 +569,23 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                     : 'Buffer mpv limitado à memória do aparelho. Aplicado na próxima reprodução; pode reduzir sob pressão de RAM.',
                 style: TextStyle(color: titleColor, fontSize: 12),
               ),
-              HeisucaDpadFocus(borderRadius: 8, child: DropdownButton<settings.PlaybackBufferTier>(
-                key: const ValueKey('heisuca-buffer'),
-                isExpanded: true,
-                value: _settings?.read(settings.SettingsService.playbackBufferTier) ?? settings.PlaybackBufferTier.auto,
-                items: const [
-                  DropdownMenuItem(value: settings.PlaybackBufferTier.auto, child: Text('Automático')),
-                  DropdownMenuItem(value: settings.PlaybackBufferTier.large, child: Text('Grande')),
-                  DropdownMenuItem(value: settings.PlaybackBufferTier.extraLarge, child: Text('Muito grande')),
-                ],
-                onChanged: (value) {
-                  if (value != null) _save(settings.SettingsService.playbackBufferTier, value);
-                },
-              )),
+              HeisucaDpadFocus(
+                borderRadius: 8,
+                child: DropdownButton<settings.PlaybackBufferTier>(
+                  key: const ValueKey('heisuca-buffer'),
+                  isExpanded: true,
+                  value:
+                      _settings?.read(settings.SettingsService.playbackBufferTier) ?? settings.PlaybackBufferTier.auto,
+                  items: const [
+                    DropdownMenuItem(value: settings.PlaybackBufferTier.auto, child: Text('Automático')),
+                    DropdownMenuItem(value: settings.PlaybackBufferTier.large, child: Text('Grande')),
+                    DropdownMenuItem(value: settings.PlaybackBufferTier.extraLarge, child: Text('Muito grande')),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) _save(settings.SettingsService.playbackBufferTier, value);
+                  },
+                ),
+              ),
             ],
           ),
         ),
@@ -560,10 +601,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
             decoration: BoxDecoration(
               color: context.cgflix.divider,
               borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
-              border: Border.all(
-                color: context.cgflix.divider,
-                width: 0.8,
-              ),
+              border: Border.all(color: context.cgflix.divider, width: 0.8),
             ),
             child: Center(
               child: Text(
@@ -620,13 +658,7 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
           borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
           border: Border.all(color: borderColor, width: 0.6),
           boxShadow: isLight
-              ? [
-                  BoxShadow(
-                    color: context.cgflix.cardShadow.first.color,
-                    blurRadius: 8.0,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
+              ? [BoxShadow(color: context.cgflix.cardShadow.first.color, blurRadius: 8.0, offset: const Offset(0, 2))]
               : null,
         ),
         child: Row(
@@ -646,24 +678,25 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
                   ),
                   Text(
                     subtitle,
-                    style: TextStyle(
-                      fontFamily: HeisucaTheme.fonteTexto,
-                      fontSize: 11.5,
-                      color: subtitleColor,
-                    ),
+                    style: TextStyle(fontFamily: HeisucaTheme.fonteTexto, fontSize: 11.5, color: subtitleColor),
                   ),
                 ],
               ),
             ),
-            HeisucaDpadFocus(borderRadius: 24, child: Switch(
-              value: value,
-              onChanged: _settings == null || _saving ? null : (v) {
-                HapticFeedback.lightImpact();
-                onChanged(v);
-              },
-              activeThumbColor: activeColor,
-              activeTrackColor: activeColor.withValues(alpha: 0.35),
-            )),
+            HeisucaDpadFocus(
+              borderRadius: 24,
+              child: Switch(
+                value: value,
+                onChanged: _settings == null || _saving
+                    ? null
+                    : (v) {
+                        HapticFeedback.lightImpact();
+                        onChanged(v);
+                      },
+                activeThumbColor: activeColor,
+                activeTrackColor: activeColor.withValues(alpha: 0.35),
+              ),
+            ),
           ],
         ),
       ),
@@ -689,25 +722,42 @@ class _HeisucaSettingsScreenState extends State<HeisucaSettingsScreen> with Sing
           decoration: BoxDecoration(
             color: palette.surface,
             borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
-            border: Border.all(color: isSelected ? palette.focusRing : palette.divider,
-                width: isSelected ? 2 : 1),
+            border: Border.all(color: isSelected ? palette.focusRing : palette.divider, width: isSelected ? 2 : 1),
           ),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Container(
-              height: 48,
-              width: double.infinity,
-              decoration: BoxDecoration(color: preview.background, borderRadius: BorderRadius.circular(8)),
-              child: Center(child: Theme(
-                data: cgflixAppTheme(preview.variant).copyWith(extensions: [preview]),
-                child: const HeisucaLogo(height: 24, siteHeader: true),
-              )),
-            ),
-            const SizedBox(height: 8),
-            Text(title, style: TextStyle(fontFamily: HeisucaTheme.fonteTitulo,
-                fontSize: 14, fontWeight: FontWeight.w600, color: palette.text)),
-            Text(subtitle, style: TextStyle(fontFamily: HeisucaTheme.fonteTexto,
-                fontSize: 12, color: palette.textOn(palette.surface))),
-          ]),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 48,
+                width: double.infinity,
+                decoration: BoxDecoration(color: preview.background, borderRadius: BorderRadius.circular(8)),
+                child: Center(
+                  child: Theme(
+                    data: cgflixAppTheme(preview.variant).copyWith(extensions: [preview]),
+                    child: const HeisucaLogo(height: 24, siteHeader: true),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                title,
+                style: TextStyle(
+                  fontFamily: HeisucaTheme.fonteTitulo,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: palette.text,
+                ),
+              ),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontFamily: HeisucaTheme.fonteTexto,
+                  fontSize: 12,
+                  color: palette.textOn(palette.surface),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

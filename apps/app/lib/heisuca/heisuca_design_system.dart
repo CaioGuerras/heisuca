@@ -1,3 +1,5 @@
+import 'theme/heisuca_base.dart';
+import '../cgflix/cgflix_palette.dart';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
@@ -19,8 +21,7 @@ class OklchColor {
 
   /// Converte Color (sRGB) para OKLCH.
   factory OklchColor.fromColor(Color color) {
-    double toLinear(double v) =>
-        v <= 0.04045 ? v / 12.92 : math.pow((v + 0.055) / 1.055, 2.4).toDouble();
+    double toLinear(double v) => v <= 0.04045 ? v / 12.92 : math.pow((v + 0.055) / 1.055, 2.4).toDouble();
 
     final rLin = toLinear(color.r);
     final gLin = toLinear(color.g);
@@ -79,8 +80,7 @@ class OklchColor {
     final y = -1.2684380046 * l3 + 2.6097574011 * m3 - 0.3413193965 * s3;
     final z = -0.0041960863 * l3 - 0.7034186147 * m3 + 1.7076147010 * s3;
 
-    double fromLinear(double v) =>
-        v <= 0.0031308 ? 12.92 * v : 1.055 * math.pow(v, 1.0 / 2.4).toDouble() - 0.055;
+    double fromLinear(double v) => v <= 0.0031308 ? 12.92 * v : 1.055 * math.pow(v, 1.0 / 2.4).toDouble() - 0.055;
 
     final r = (fromLinear(3.2404542 * x - 1.5371385 * y - 0.4985314 * z) * 255).clamp(0.0, 255.0).round();
     final g = (fromLinear(-0.9692660 * x + 1.8760108 * y + 0.0415560 * z) * 255).clamp(0.0, 255.0).round();
@@ -114,12 +114,7 @@ class CubicScrimGradient {
 
 /// Halo de Luz Dinâmico sob a arte Hero, suave e cinematográfico.
 class DynamicAmbientHalo extends StatelessWidget {
-  const DynamicAmbientHalo({
-    super.key,
-    required this.ambientColor,
-    required this.child,
-    this.haloHeight = 420.0,
-  });
+  const DynamicAmbientHalo({super.key, required this.ambientColor, required this.child, this.haloHeight = 420.0});
 
   final Color ambientColor;
   final Widget child;
@@ -141,8 +136,8 @@ class DynamicAmbientHalo extends StatelessWidget {
                   center: const Alignment(0.0, -0.4),
                   radius: 1.15,
                   colors: [
-                    ambientColor.withValues(alpha: 0.35),
-                    ambientColor.withValues(alpha: 0.12),
+                    Theme.of(context).colorScheme.surface.withValues(alpha: 0.35),
+                    Theme.of(context).colorScheme.surface.withValues(alpha: 0.12),
                     Colors.transparent,
                   ],
                   stops: const [0.0, 0.55, 1.0],
@@ -157,10 +152,10 @@ class DynamicAmbientHalo extends StatelessWidget {
   }
 }
 
-/// Tipografia Cinematográfica Heisuca: Sora + Inter.
+/// Tipografia Cinematográfica Heisuca: Inter.
 /// Todos os números de tempo e contadores usam [tabularFigures] para eliminar o "layout jitter".
 abstract final class HeisucaTypography {
-  static const fontBrand = 'Sora';
+  static const fontBrand = HeisucaBase.fonteTitulo;
   static const fontInterface = 'Inter';
   static const fontKanji = 'Shippori Mincho';
 
@@ -170,7 +165,6 @@ abstract final class HeisucaTypography {
     fontSize: 34.0,
     height: 1.15,
     letterSpacing: -0.85,
-    color: Color(0xFFF4F1FA),
   );
 
   static const titleHero = TextStyle(
@@ -179,7 +173,6 @@ abstract final class HeisucaTypography {
     fontSize: 24.0,
     height: 1.20,
     letterSpacing: -0.36,
-    color: Color(0xFFF4F1FA),
   );
 
   static const titleSection = TextStyle(
@@ -188,7 +181,6 @@ abstract final class HeisucaTypography {
     fontSize: 18.0,
     height: 1.25,
     letterSpacing: -0.18,
-    color: Color(0xFFF4F1FA),
   );
 
   static const bodySynopsis = TextStyle(
@@ -197,7 +189,6 @@ abstract final class HeisucaTypography {
     fontSize: 15.0,
     height: 1.50,
     letterSpacing: 0.0,
-    color: Color(0xFFA99FBB),
   );
 
   static const bodyMetadata = TextStyle(
@@ -206,7 +197,6 @@ abstract final class HeisucaTypography {
     fontSize: 13.0,
     height: 1.35,
     letterSpacing: 0.13,
-    color: Color(0xFFA99FBB),
   );
 
   static const labelBadge = TextStyle(
@@ -215,7 +205,6 @@ abstract final class HeisucaTypography {
     fontSize: 10.5,
     height: 1.20,
     letterSpacing: 0.74,
-    color: Color(0xFFFFFFFF),
   );
 
   /// Estilo numérico tabular à prova de layout jitter.
@@ -225,20 +214,14 @@ abstract final class HeisucaTypography {
     fontSize: 12.5,
     height: 1.0,
     letterSpacing: 0.0,
-    fontFeatures: [
-      ui.FontFeature.tabularFigures(),
-    ],
-    color: Color(0xFFF4F1FA),
+    fontFeatures: [ui.FontFeature.tabularFigures()],
   );
 }
 
 /// Badge Técnico Nobre e Monocromático (4K UHD, HDR10+, DOLBY VISION, DOLBY ATMOS).
 /// Substitui caixas berrantes por micro-vidro chanfrado de alta sofisticação.
 class HeisucaNobleBadge extends StatelessWidget {
-  const HeisucaNobleBadge({
-    super.key,
-    required this.label,
-  });
+  const HeisucaNobleBadge({super.key, required this.label});
 
   final String label;
 
@@ -249,21 +232,18 @@ class HeisucaNobleBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 6.0),
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.08),
+        color: context.cgflix.surfaceHigh,
         borderRadius: BorderRadius.circular(4.0),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.18),
-          width: 0.5,
-        ),
+        border: Border.all(color: context.cgflix.divider, width: 0.5),
       ),
       child: Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: HeisucaTypography.fontInterface,
           fontSize: 9.5,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.74,
-          color: Color(0xFFF4F1FA),
+          color: context.cgflix.text,
         ),
       ),
     );
@@ -274,25 +254,15 @@ class HeisucaNobleBadge extends StatelessWidget {
 /// Calibrada para 120Hz/144Hz com mola criticamente amortecida (mass: 1.0, stiffness: 180.0, damping: 20.0)
 /// e limiar de arranque imediato (3.0dp) para painéis LTPO/pOLED de alta taxa de amostragem de toque.
 class ProMotionScrollPhysics extends BouncingScrollPhysics {
-  const ProMotionScrollPhysics({
-    super.parent,
-    super.decelerationRate = ScrollDecelerationRate.normal,
-  });
+  const ProMotionScrollPhysics({super.parent, super.decelerationRate = ScrollDecelerationRate.normal});
 
   @override
   ProMotionScrollPhysics applyTo(ScrollPhysics? ancestor) {
-    return ProMotionScrollPhysics(
-      parent: buildParent(ancestor),
-      decelerationRate: decelerationRate,
-    );
+    return ProMotionScrollPhysics(parent: buildParent(ancestor), decelerationRate: decelerationRate);
   }
 
   @override
-  SpringDescription get spring => const SpringDescription(
-        mass: 1.0,
-        stiffness: 180.0,
-        damping: 20.0,
-      );
+  SpringDescription get spring => const SpringDescription(mass: 1.0, stiffness: 180.0, damping: 20.0);
 
   @override
   double get minFlingVelocity => 40.0;
@@ -386,9 +356,7 @@ class _HeisucaSpringPressableState extends State<HeisucaSpringPressable> {
   @override
   Widget build(BuildContext context) {
     // Escala: normal 1.0 -> toque 0.96 -> pré-tensão aos 200ms 0.925
-    final targetScale = _inPreTension
-        ? (widget.pressedScale * 0.965)
-        : (_pressed ? widget.pressedScale : 1.0);
+    final targetScale = _inPreTension ? (widget.pressedScale * 0.965) : (_pressed ? widget.pressedScale : 1.0);
 
     return FocusableWrapper(
       onSelect: widget.onTap,
@@ -397,28 +365,26 @@ class _HeisucaSpringPressableState extends State<HeisucaSpringPressable> {
       canRequestFocus: widget.onTap != null || widget.onLongPress != null,
       disableScale: true,
       child: Listener(
-      onPointerDown: _onPointerDown,
-      onPointerUp: _onPointerUp,
-      onPointerCancel: _onPointerCancel,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: widget.onTap,
-        onLongPress: () {
-          if (widget.enableHaptics) {
-            HapticFeedback.mediumImpact();
-          }
-          widget.onLongPress?.call();
-        },
-        onSecondaryTap: widget.onSecondaryTap,
-        child: AnimatedScale(
-          scale: targetScale,
-          duration: _pressed
-              ? const Duration(milliseconds: 110)
-              : const Duration(milliseconds: 280),
-          curve: _pressed ? Curves.easeOutCubic : const ElasticOutCurve(0.85),
-          child: widget.child,
+        onPointerDown: _onPointerDown,
+        onPointerUp: _onPointerUp,
+        onPointerCancel: _onPointerCancel,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: widget.onTap,
+          onLongPress: () {
+            if (widget.enableHaptics) {
+              HapticFeedback.mediumImpact();
+            }
+            widget.onLongPress?.call();
+          },
+          onSecondaryTap: widget.onSecondaryTap,
+          child: AnimatedScale(
+            scale: targetScale,
+            duration: _pressed ? const Duration(milliseconds: 110) : const Duration(milliseconds: 280),
+            curve: _pressed ? Curves.easeOutCubic : const ElasticOutCurve(0.85),
+            child: widget.child,
+          ),
         ),
-      ),
       ),
     );
   }
@@ -454,13 +420,7 @@ class HeisucaMagneticMorphPill extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         borderRadius: r,
-        boxShadow: [
-          BoxShadow(
-            color: color.withValues(alpha: 0.35),
-            blurRadius: 16.0,
-            spreadRadius: 1.0,
-          ),
-        ],
+        boxShadow: [BoxShadow(color: color.withValues(alpha: 0.35), blurRadius: 16.0, spreadRadius: 1.0)],
       ),
     );
   }

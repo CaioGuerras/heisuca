@@ -1,17 +1,24 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import '../cgflix/cgflix_palette.dart';
 import '../cgflix/cgflix_theme.dart';
 import '../utils/platform_detector.dart';
 import 'gapped_track_shape.dart';
 import 'mono_tokens.dart';
 
-final Map<({bool dark, bool oled, TargetPlatform platform, CgflixThemeVariant? kids, bool tv}), ThemeData> _monoThemeCache = {};
+final Map<({bool dark, bool oled, bool sumi, TargetPlatform platform, CgflixThemeVariant? kids, bool tv}), ThemeData>
+_monoThemeCache = {};
 
-ThemeData monoTheme({required bool dark, bool oled = false, CgflixThemeVariant? kids}) {
+ThemeData monoTheme({required bool dark, bool oled = false, bool sumi = false, CgflixThemeVariant? kids}) {
   // ThemeData derives several defaults from defaultTargetPlatform.
-  // A TV tem paleta própria (azul); a detecção pode chegar depois do primeiro tema.
-  final key = (dark: dark || oled, oled: oled, platform: defaultTargetPlatform, kids: kids, tv: PlatformDetector.isTV());
+  // TV e celular compartilham os tokens; a detecção participa da chave do cache.
+  final key = (
+    dark: dark || oled,
+    oled: oled,
+    sumi: sumi,
+    platform: defaultTargetPlatform,
+    kids: kids,
+    tv: PlatformDetector.isTV(),
+  );
   final cached = _monoThemeCache[key];
   if (cached != null) return cached;
 
@@ -19,39 +26,21 @@ ThemeData monoTheme({required bool dark, bool oled = false, CgflixThemeVariant? 
     _buildMonoTheme(dark: key.dark, oled: key.oled, platform: key.platform),
     oled: key.oled,
     kids: kids,
+    sumi: sumi,
   ); // CGFLIX
   _monoThemeCache[key] = theme;
   return theme;
 }
 
 ThemeData _buildMonoTheme({required bool dark, required bool oled, required TargetPlatform platform}) {
-  // neutral greys tuned for crisp contrast
-  final ({Color bg, Color surface, Color outline, Color text, Color textMuted}) c;
-  if (oled) {
-    c = (
-      bg: const Color(0xFF000000), // Pure black for OLED
-      surface: const Color(0xFF0A0A0A), // Very dark gray
-      outline: const Color(0x1FFFFFFF),
-      text: const Color(0xFFEDEDED),
-      textMuted: const Color(0x99EDEDED),
-    );
-  } else if (dark) {
-    c = (
-      bg: const Color(0xFF0E0F12),
-      surface: const Color(0xFF15171C),
-      outline: const Color(0x1FFFFFFF),
-      text: const Color(0xFFEDEDED),
-      textMuted: const Color(0x99EDEDED),
-    );
-  } else {
-    c = (
-      bg: const Color(0xFFF7F7F8),
-      surface: const Color(0xFFFFFFFF),
-      outline: const Color(0x19000000),
-      text: const Color(0xFF111111),
-      textMuted: const Color(0x99111111),
-    );
-  }
+  final palette = dark || oled ? CgflixPalette.isis : CgflixPalette.heitor;
+  final c = (
+    bg: palette.background,
+    surface: palette.surface,
+    outline: palette.divider,
+    text: palette.text,
+    textMuted: palette.textMuted,
+  );
 
   final isDark = dark || oled;
   final clickableCursor = WidgetStateProperty.resolveWith<MouseCursor>(
@@ -90,7 +79,7 @@ ThemeData _buildMonoTheme({required bool dark, required bool oled, required Targ
       onSecondary: c.bg,
       surface: c.surface,
       onSurface: c.text,
-      error: const Color(0xFFB00020),
+      error: palette.danger,
       onError: Colors.white,
       tertiary: c.text,
       onTertiary: c.bg,

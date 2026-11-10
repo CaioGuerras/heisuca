@@ -25,6 +25,8 @@ internal object CgflixAppIconChannel {
   private const val ISIS = "app.heisuca.IconeIsis"
   private const val HEITOR = "app.heisuca.IconeHeitor"
 
+  private const val SUMI = "app.heisuca.IconeSumi"
+
   @Volatile private var wanted: String? = null
   private var callbacksRegistered = false
 
@@ -39,7 +41,11 @@ internal object CgflixAppIconChannel {
         result.notImplemented()
         return@setMethodCallHandler
       }
-      wanted = if (call.argument<Boolean>("heitor") == true) HEITOR else ISIS
+      wanted = when (call.argument<String>("tema")) {
+        "sumi" -> SUMI
+        "hisui" -> HEITOR
+        else -> if (call.argument<Boolean>("heitor") == true) HEITOR else ISIS
+      }
       result.success(null)
     }
   }
@@ -49,12 +55,12 @@ internal object CgflixAppIconChannel {
     val pm = context.packageManager
     val pkg = context.packageName
     val on = ComponentName(pkg, target)
-    val off = ComponentName(pkg, if (target == ISIS) HEITOR else ISIS)
-    if (isEnabled(pm, on, default = target == ISIS) && !isEnabled(pm, off, default = off.className == ISIS)) return
+    val others = listOf(ISIS, HEITOR, SUMI).filter { it != target }.map { ComponentName(pkg, it) }
+    if (isEnabled(pm, on, default = target == ISIS) && others.none { isEnabled(pm, it, default = it.className == ISIS) }) return
     try {
-      // Primeiro liga o novo: o launcher nunca fica sem ícone
+      // Primeiro liga o novo: o launcher nunca fica sem ícone.
       pm.setComponentEnabledSetting(on, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
-      pm.setComponentEnabledSetting(off, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
+      others.forEach { pm.setComponentEnabledSetting(it, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP) }
     } catch (e: Exception) {
       Log.w(TAG, "não deu para trocar o ícone do app", e)
     }

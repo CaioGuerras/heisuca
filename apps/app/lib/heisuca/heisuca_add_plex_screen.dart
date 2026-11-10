@@ -1,3 +1,4 @@
+import '../cgflix/cgflix_palette.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,10 +24,7 @@ import 'heisuca_theme.dart';
 
 /// Tela de conexão com servidores Plex via PIN / QR Code do Heisuca.
 class HeisucaAddPlexScreen extends StatefulWidget {
-  const HeisucaAddPlexScreen({
-    super.key,
-    this.onLoginSuccess,
-  });
+  const HeisucaAddPlexScreen({super.key, this.onLoginSuccess});
 
   final VoidCallback? onLoginSuccess;
 
@@ -96,9 +94,9 @@ class _HeisucaAddPlexScreenState extends State<HeisucaAddPlexScreen> {
       );
 
       if (promptHandled || activeProfiles.active == null) {
-        final selected = await Navigator.of(context).push<bool>(
-          MaterialPageRoute(builder: (_) => const ProfileSwitchScreen(requireSelection: true)),
-        );
+        final selected = await Navigator.of(
+          context,
+        ).push<bool>(MaterialPageRoute(builder: (_) => const ProfileSwitchScreen(requireSelection: true)));
         if (!mounted) return;
         if (selected != true || activeProfiles.active == null) {
           setState(() {
@@ -115,10 +113,9 @@ class _HeisucaAddPlexScreenState extends State<HeisucaAddPlexScreen> {
       if (widget.onLoginSuccess != null) {
         widget.onLoginSuccess!();
       } else {
-        await Navigator.of(context).pushAndRemoveUntil(
-          fadeRoute(const ProfileSessionScreen(initialPromptHandled: true)),
-          (route) => false,
-        );
+        await Navigator.of(
+          context,
+        ).pushAndRemoveUntil(fadeRoute(const ProfileSessionScreen(initialPromptHandled: true)), (route) => false);
       }
     } catch (e, st) {
       appLogger.e('Erro ao autenticar conta Plex', error: e, stackTrace: st);
@@ -133,28 +130,21 @@ class _HeisucaAddPlexScreenState extends State<HeisucaAddPlexScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const bg = Color(0xFF0E0B16);
-    const surf = Color(0xFF181324);
-    const line = Color(0xFF2A203D);
-    const accent = Color(0xFF9D74FF);
-    const text = Color(0xFFF4F1FA);
-    const text2 = Color(0xFFA99FBB);
-
     return Scaffold(
-      backgroundColor: bg,
+      backgroundColor: context.cgflix.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Conectar Servidor Plex',
           style: TextStyle(
             fontFamily: HeisucaTheme.fonteTitulo,
             fontSize: 18.0,
             fontWeight: FontWeight.w700,
-            color: text,
+            color: context.cgflix.text,
           ),
         ),
-        iconTheme: const IconThemeData(color: text),
+        iconTheme: IconThemeData(color: context.cgflix.text),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -166,9 +156,9 @@ class _HeisucaAddPlexScreenState extends State<HeisucaAddPlexScreen> {
               Container(
                 padding: const EdgeInsets.all(22.0),
                 decoration: BoxDecoration(
-                  color: surf,
+                  color: context.cgflix.surface,
                   borderRadius: BorderRadius.circular(24.0),
-                  border: Border.all(color: line, width: 1.4),
+                  border: Border.all(color: context.cgflix.divider, width: 1.4),
                 ),
                 child: Column(
                   children: [
@@ -176,39 +166,35 @@ class _HeisucaAddPlexScreenState extends State<HeisucaAddPlexScreen> {
                       width: 56.0,
                       height: 56.0,
                       decoration: BoxDecoration(
-                        color: accent.withValues(alpha: 0.12),
+                        color: context.cgflix.accent.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(16.0),
                       ),
-                      child: const Icon(
-                        Icons.movie_filter_rounded,
-                        color: accent,
-                        size: 32.0,
-                      ),
+                      child: Icon(Icons.movie_filter_rounded, color: context.cgflix.accent, size: 32.0),
                     ),
                     const SizedBox(height: 16.0),
-                    const Text(
+                    Text(
                       'Autenticação Plex',
                       style: TextStyle(
                         fontFamily: HeisucaTheme.fonteTitulo,
                         fontSize: 20.0,
                         fontWeight: FontWeight.w700,
-                        color: text,
+                        color: context.cgflix.text,
                       ),
                     ),
                     const SizedBox(height: 8.0),
-                    const Text(
+                    Text(
                       'Entre com sua conta do Plex para sincronizar seus servidores, bibliotecas e perfis.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: HeisucaTheme.fonteTexto,
                         fontSize: 14.0,
-                        color: text2,
+                        color: context.cgflix.textMuted,
                         height: 1.4,
                       ),
                     ),
                     const SizedBox(height: 24.0),
                     if (_isLoading) ...[
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.symmetric(vertical: 24.0),
                         child: Column(
                           children: [
@@ -217,7 +203,7 @@ class _HeisucaAddPlexScreenState extends State<HeisucaAddPlexScreen> {
                               height: 32.0,
                               child: CircularProgressIndicator(
                                 strokeWidth: 3.0,
-                                valueColor: AlwaysStoppedAnimation<Color>(accent),
+                                valueColor: AlwaysStoppedAnimation<Color>(context.cgflix.accent),
                               ),
                             ),
                             SizedBox(height: 16.0),
@@ -226,7 +212,7 @@ class _HeisucaAddPlexScreenState extends State<HeisucaAddPlexScreen> {
                               style: TextStyle(
                                 fontFamily: HeisucaTheme.fonteTexto,
                                 fontSize: 14.0,
-                                color: text,
+                                color: context.cgflix.text,
                               ),
                             ),
                           ],
@@ -254,12 +240,10 @@ class _HeisucaAddPlexScreenState extends State<HeisucaAddPlexScreen> {
                                     ),
                                   ),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: accent,
+                                    backgroundColor: context.cgflix.accent,
                                     foregroundColor: Colors.white,
                                     elevation: 0,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(14.0),
-                                    ),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.0)),
                                   ),
                                 ),
                               ),
@@ -278,11 +262,9 @@ class _HeisucaAddPlexScreenState extends State<HeisucaAddPlexScreen> {
                                     ),
                                   ),
                                   style: OutlinedButton.styleFrom(
-                                    foregroundColor: text,
-                                    side: const BorderSide(color: line, width: 1.2),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(14.0),
-                                    ),
+                                    foregroundColor: context.cgflix.text,
+                                    side: BorderSide(color: context.cgflix.divider, width: 1.2),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.0)),
                                   ),
                                 ),
                               ),
@@ -296,21 +278,21 @@ class _HeisucaAddPlexScreenState extends State<HeisucaAddPlexScreen> {
                       Container(
                         padding: const EdgeInsets.all(12.0),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF381520),
+                          color: context.cgflix.surfaceHigh,
                           borderRadius: BorderRadius.circular(12.0),
-                          border: Border.all(color: const Color(0xFFFF5252).withValues(alpha: 0.5)),
+                          border: Border.all(color: context.cgflix.danger.withValues(alpha: 0.5)),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.error_outline_rounded, color: Color(0xFFFF5252), size: 20.0),
+                            Icon(Icons.error_outline_rounded, color: context.cgflix.danger, size: 20.0),
                             const SizedBox(width: 10.0),
                             Expanded(
                               child: Text(
                                 _errorMessage!,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontFamily: HeisucaTheme.fonteTexto,
                                   fontSize: 13.0,
-                                  color: Color(0xFFFFE0E0),
+                                  color: context.cgflix.text,
                                 ),
                               ),
                             ),

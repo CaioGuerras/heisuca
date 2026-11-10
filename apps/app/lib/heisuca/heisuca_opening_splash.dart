@@ -1,3 +1,5 @@
+import 'theme/temas/tema_hisui.dart';
+import 'theme/temas/tema_shikkoku.dart';
 import 'dart:async';
 
 import 'package:clock/clock.dart';
@@ -123,10 +125,10 @@ class _HeisucaOpeningSplashState extends State<HeisucaOpeningSplash> with Single
     final palette = context.cgflix;
     final isLight = palette.isLight;
 
-    final bg = isLight ? const Color(0xFFF7F3EC) : const Color(0xFF0E0B16);
-    final accent = isLight ? const Color(0xFF047857) : const Color(0xFF9D74FF);
-    final glowColor = isLight ? const Color(0xFF059669) : const Color(0xFF7444E0);
-    final sloganColor = isLight ? const Color(0xFF134E4A) : const Color(0xFFCBC0DE);
+    final bg = isLight ? context.cgflix.background : context.cgflix.background;
+    final accent = context.cgflix.isLight ? TemaHisui.temaCorSelo : TemaShikkoku.temaCorSelo;
+    final glowColor = isLight ? context.cgflix.accent : context.cgflix.accent;
+    final sloganColor = isLight ? context.cgflix.text : context.cgflix.textMuted;
 
     return Scaffold(
       backgroundColor: bg,

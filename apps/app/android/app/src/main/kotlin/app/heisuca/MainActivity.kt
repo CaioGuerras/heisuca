@@ -1053,8 +1053,9 @@ class MainActivity : FlutterActivity() {
             val themeId = when (mode) {
               "dark" -> R.style.SplashTheme_Dark
               "oled" -> R.style.SplashTheme_Oled
+              "sumi" -> R.style.SplashTheme_Sumi
               "light" -> R.style.SplashTheme_Light
-              "system" -> android.content.res.Resources.ID_NULL
+              "system" -> R.style.SplashTheme_System
               else -> android.content.res.Resources.ID_NULL
             }
             splashScreen.setSplashScreenTheme(themeId)

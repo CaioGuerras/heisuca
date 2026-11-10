@@ -27,17 +27,20 @@ void main() {
   });
   final phase = Platform.environment['P3_STATE_PHASE'];
   for (final mode in [settings.ThemeMode.oled, settings.ThemeMode.light, settings.ThemeMode.dark]) {
-    for (final (device, size, dpr) in [
-      ('moto', const Size(1080, 2400), 2.625),
-      ('tab', const Size(1200, 1920), 1.5),
-    ]) {
+    for (final (device, size, dpr) in [('moto', const Size(1080, 2400), 2.625), ('tab', const Size(1200, 1920), 1.5)]) {
       for (final landscape in [false, true]) {
         for (final scale in [1.0, 2.0]) {
           for (final (screen, scenario) in [
-            ('inicio', 'vazio'), ('inicio', 'erro'), ('inicio', 'carregando'), ('inicio', 'offline'),
-            ('biblioteca', 'vazio'), ('biblioteca', 'erro'), ('biblioteca', 'carregando'),
+            ('inicio', 'vazio'),
+            ('inicio', 'erro'),
+            ('inicio', 'carregando'),
+            ('inicio', 'offline'),
+            ('biblioteca', 'vazio'),
+            ('biblioteca', 'erro'),
+            ('biblioteca', 'carregando'),
           ]) {
-            final tag = '$screen-$scenario-${mode.name}-$device-${landscape ? "paisagem" : "retrato"}-f${(scale * 100).round()}';
+            final tag =
+                '$screen-$scenario-${mode.name}-$device-${landscape ? "paisagem" : "retrato"}-f${(scale * 100).round()}';
             testWidgets('P3 estado $tag', (tester) async {
               final f = HeisucaP3Fixture(scenario: scenario);
               await tester.runAsync(() => f.initialize(mode));
@@ -52,19 +55,27 @@ void main() {
               final previous = FlutterError.onError;
               FlutterError.onError = (details) {
                 errors.add(details.toString());
-                if (!(details.library == 'rendering library' && details.exceptionAsString().contains('RenderFlex overflowed'))) {
+                if (!(details.library == 'rendering library' &&
+                    details.exceptionAsString().contains('RenderFlex overflowed'))) {
                   previous?.call(details);
                 }
               };
               try {
-                await tester.pumpWidget(f.wrap(MaterialApp(
-                  theme: mode == settings.ThemeMode.light ? cgflixLightTheme() : cgflixDarkTheme(mode),
-                  debugShowCheckedModeBanner: false,
-                  builder: (context, child) => MediaQuery(data: MediaQuery.of(context).copyWith(
-                    textScaler: TextScaler.linear(scale), disableAnimations: true),
-                    child: RepaintBoundary(key: boundary, child: child!)),
-                  home: f.scope(screen == 'inicio' ? const HeisucaHomeScreen() : const HeisucaLibraryScreen()),
-                )));
+                await tester.pumpWidget(
+                  f.wrap(
+                    MaterialApp(
+                      theme: mode == settings.ThemeMode.light ? cgflixLightTheme() : cgflixDarkTheme(mode),
+                      debugShowCheckedModeBanner: false,
+                      builder: (context, child) => MediaQuery(
+                        data: MediaQuery.of(
+                          context,
+                        ).copyWith(textScaler: TextScaler.linear(scale), disableAnimations: true),
+                        child: RepaintBoundary(key: boundary, child: child!),
+                      ),
+                      home: f.scope(screen == 'inicio' ? const HeisucaHomeScreen() : const HeisucaLibraryScreen()),
+                    ),
+                  ),
+                );
                 for (var i = 0; i < 10; i++) {
                   await tester.runAsync(() async => Future<void>.delayed(const Duration(milliseconds: 20)));
                   await tester.pump(const Duration(milliseconds: 100));
@@ -84,7 +95,7 @@ void main() {
                   final heading = find.text('Esta fonte está indisponível');
                   expect(heading, findsOneWidget);
                   final text = tester.widget<RichText>(find.descendant(of: heading, matching: find.byType(RichText)));
-                  if (text.text.style!.fontFamily != 'Sora') errors.add('Título de fonte indisponível não usa Sora.');
+                  if (text.text.style!.fontFamily != 'Inter') errors.add('Título de fonte indisponível não usa Inter.');
                 }
                 if (screen == 'inicio' && scenario == 'carregando') expect(find.byType(CgflixShimmer), findsWidgets);
                 if (screen == 'biblioteca') {
@@ -95,7 +106,9 @@ void main() {
                     }
                   } else if (scenario == 'vazio') {
                     expect(find.text('Nenhum título disponível nesta seleção.'), findsOneWidget);
-                  } else { expect(find.byType(LinearProgressIndicator), findsWidgets); }
+                  } else {
+                    expect(find.byType(LinearProgressIndicator), findsWidgets);
+                  }
                 }
                 final targets = await heisucaTapTargets.evaluate(tester);
                 if (!targets.passed) errors.add(targets.reason!);
@@ -108,11 +121,20 @@ void main() {
                     File('${out.path}/$tag.png').writeAsBytesSync(png!.buffer.asUint8List());
                     frame.dispose();
                   });
-                  File('${out.path}/$tag.json').writeAsStringSync(jsonEncode({
-                    'tela': screen, 'estado': scenario, 'tema': mode.name, 'dispositivo': device, 'fonte': scale,
-                    'larguraPx': tester.view.physicalSize.width, 'alturaPx': tester.view.physicalSize.height,
-                    'dpr': dpr, 'erros': errors, 'limite': 'tela e cliente reais com servidor HTTP falso; sem aparelho',
-                  }));
+                  File('${out.path}/$tag.json').writeAsStringSync(
+                    jsonEncode({
+                      'tela': screen,
+                      'estado': scenario,
+                      'tema': mode.name,
+                      'dispositivo': device,
+                      'fonte': scale,
+                      'larguraPx': tester.view.physicalSize.width,
+                      'alturaPx': tester.view.physicalSize.height,
+                      'dpr': dpr,
+                      'erros': errors,
+                      'limite': 'tela e cliente reais com servidor HTTP falso; sem aparelho',
+                    }),
+                  );
                 }
               } finally {
                 f.releasePendingResponses();

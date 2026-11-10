@@ -28,10 +28,7 @@ void main() {
   });
   final phase = Platform.environment['P3_PROMPT_PHASE'];
   for (final mode in [settings.ThemeMode.oled, settings.ThemeMode.light, settings.ThemeMode.dark]) {
-    for (final (device, size, dpr) in [
-      ('moto', const Size(1080, 2400), 2.625),
-      ('tab', const Size(1200, 1920), 1.5),
-    ]) {
+    for (final (device, size, dpr) in [('moto', const Size(1080, 2400), 2.625), ('tab', const Size(1200, 1920), 1.5)]) {
       for (final landscape in [false, true]) {
         for (final scale in [1.0, 2.0]) {
           for (final scene in ['sono', 'episodios', 'proximo']) {
@@ -52,44 +49,81 @@ void main() {
               addTearDown(cancel.dispose);
               addTearDown(confirm.dispose);
               addTearDown(countdown.dispose);
-              final episode = MediaItem.jellyfin(id: 'ep2', serverId: 'srv-1', kind: MediaKind.episode,
-                title: 'Uma história para continuar em família', parentIndex: 1, index: 2);
+              final episode = MediaItem.jellyfin(
+                id: 'ep2',
+                serverId: 'srv-1',
+                kind: MediaKind.episode,
+                title: 'Uma história para continuar em família',
+                parentIndex: 1,
+                index: 2,
+              );
               final heading = scene == 'proximo' ? 'T1 E2 · ${episode.title}' : t.videoControls.stillWatching;
               final prompt = scene == 'proximo'
-                  ? VideoPlayerPlayNextOverlay(visible: true, nextEpisode: episode,
-                      autoPlayCountdown: countdown, cancelFocusNode: cancel, confirmFocusNode: confirm,
-                      chromeController: chrome, onCancel: () {}, onPlayNext: () {})
-                  : VideoPlayerStillWatchingOverlay(visible: true, pausedForEpisodes: scene == 'episodios',
-                      countdown: countdown, pauseFocusNode: cancel, continueFocusNode: confirm,
-                      chromeController: chrome, onPause: () {}, onContinue: () {});
+                  ? VideoPlayerPlayNextOverlay(
+                      visible: true,
+                      nextEpisode: episode,
+                      autoPlayCountdown: countdown,
+                      cancelFocusNode: cancel,
+                      confirmFocusNode: confirm,
+                      chromeController: chrome,
+                      onCancel: () {},
+                      onPlayNext: () {},
+                    )
+                  : VideoPlayerStillWatchingOverlay(
+                      visible: true,
+                      pausedForEpisodes: scene == 'episodios',
+                      countdown: countdown,
+                      pauseFocusNode: cancel,
+                      continueFocusNode: confirm,
+                      chromeController: chrome,
+                      onPause: () {},
+                      onContinue: () {},
+                    );
               final boundary = GlobalKey();
               final semantics = tester.ensureSemantics();
               final errors = <String>[];
               final previous = FlutterError.onError;
               FlutterError.onError = (details) {
                 errors.add(details.toString());
-                if (!(details.library == 'rendering library' && details.exceptionAsString().contains('RenderFlex overflowed'))) {
+                if (!(details.library == 'rendering library' &&
+                    details.exceptionAsString().contains('RenderFlex overflowed'))) {
                   previous?.call(details);
                 }
               };
               try {
-                await tester.pumpWidget(ChangeNotifierProvider.value(value: playback, child: MaterialApp(
-                  theme: mode == settings.ThemeMode.light ? cgflixLightTheme() : cgflixDarkTheme(mode),
-                  debugShowCheckedModeBanner: false,
-                  builder: (context, child) => MediaQuery(data: MediaQuery.of(context).copyWith(
-                    textScaler: TextScaler.linear(scale), disableAnimations: true),
-                    child: RepaintBoundary(key: boundary, child: child!)),
-                  home: Scaffold(body: Stack(children: [prompt])),
-                )));
+                await tester.pumpWidget(
+                  ChangeNotifierProvider.value(
+                    value: playback,
+                    child: MaterialApp(
+                      theme: mode == settings.ThemeMode.light ? cgflixLightTheme() : cgflixDarkTheme(mode),
+                      debugShowCheckedModeBanner: false,
+                      builder: (context, child) => MediaQuery(
+                        data: MediaQuery.of(
+                          context,
+                        ).copyWith(textScaler: TextScaler.linear(scale), disableAnimations: true),
+                        child: RepaintBoundary(key: boundary, child: child!),
+                      ),
+                      home: Scaffold(body: Stack(children: [prompt])),
+                    ),
+                  ),
+                );
                 await tester.pumpAndSettle();
                 final headingFinder = find.text(heading);
                 expect(headingFinder, findsOneWidget);
-                final renderedHeading = tester.widget<RichText>(find.descendant(of: headingFinder, matching: find.byType(RichText)));
-                if (renderedHeading.text.style!.fontFamily != 'Sora') errors.add('Título do aviso não renderiza Sora.');
-                final card = tester.widget<Container>(find.ancestor(of: headingFinder, matching: find.byType(Container)).first);
+                final renderedHeading = tester.widget<RichText>(
+                  find.descendant(of: headingFinder, matching: find.byType(RichText)),
+                );
+                if (renderedHeading.text.style!.fontFamily != 'Inter') {
+                  errors.add('Título do aviso não renderiza Inter.');
+                }
+                final card = tester.widget<Container>(
+                  find.ancestor(of: headingFinder, matching: find.byType(Container)).first,
+                );
                 final color = (card.decoration! as BoxDecoration).color;
-                if (color != cgflixDarkTheme(mode).extension<CgflixPalette>()!.surface && mode != settings.ThemeMode.light ||
-                    mode == settings.ThemeMode.light && color != cgflixLightTheme().extension<CgflixPalette>()!.surface) {
+                if (color != cgflixDarkTheme(mode).extension<CgflixPalette>()!.surface &&
+                        mode != settings.ThemeMode.light ||
+                    mode == settings.ThemeMode.light &&
+                        color != cgflixLightTheme().extension<CgflixPalette>()!.surface) {
                   errors.add('O aviso usa uma superfície fora da paleta.');
                 }
                 final rect = tester.getRect(find.byWidget(prompt));
@@ -108,11 +142,19 @@ void main() {
                     File('${out.path}/$tag.png').writeAsBytesSync(png!.buffer.asUint8List());
                     frame.dispose();
                   });
-                  File('${out.path}/$tag.json').writeAsStringSync(jsonEncode({
-                    'cena': scene, 'tema': mode.name, 'dispositivo': device, 'fonte': scale,
-                    'larguraPx': tester.view.physicalSize.width, 'alturaPx': tester.view.physicalSize.height,
-                    'dpr': dpr, 'erros': errors, 'limite': 'widget real; sem player/aparelho nativo',
-                  }));
+                  File('${out.path}/$tag.json').writeAsStringSync(
+                    jsonEncode({
+                      'cena': scene,
+                      'tema': mode.name,
+                      'dispositivo': device,
+                      'fonte': scale,
+                      'larguraPx': tester.view.physicalSize.width,
+                      'alturaPx': tester.view.physicalSize.height,
+                      'dpr': dpr,
+                      'erros': errors,
+                      'limite': 'widget real; sem player/aparelho nativo',
+                    }),
+                  );
                 }
               } finally {
                 await tester.pumpWidget(const SizedBox());

@@ -1,4 +1,5 @@
 import 'dart:ui';
+import '../heisuca/theme/heisuca_base.dart';
 import 'package:flutter/material.dart';
 
 MonoTokens tokens(BuildContext context) => Theme.of(context).extension<MonoTokens>()!;
@@ -18,7 +19,7 @@ BorderRadius groupItemRadii(BuildContext context, int index, int count) {
 class MonoTokens extends ThemeExtension<MonoTokens> {
   /// Effectively-stadium radius for pill shapes; the renderer proportionally
   /// clamps oversized RRect radii (same trick as FocusableButton).
-  static const double radiusFull = 100;
+  static const double radiusFull = HeisucaBase.raioTotal;
 
   final double radiusSm;
   final double radiusMd;

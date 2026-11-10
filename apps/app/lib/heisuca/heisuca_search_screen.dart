@@ -45,23 +45,17 @@ class _HeisucaSearchScreenState extends State<HeisucaSearchScreen> {
     final palette = context.cgflix;
     final isLight = palette.isLight;
 
-    final bg = isLight ? const Color(0xFFF7F3EC) : const Color(0xFF0E0B16);
-    final textTitle = isLight ? const Color(0xFF134E4A) : const Color(0xFFF4F1FA);
-    final textMuted = isLight ? const Color(0xFF64748B) : const Color(0xFFA99FBB);
+    final bg = isLight ? context.cgflix.background : context.cgflix.background;
+    final textTitle = isLight ? context.cgflix.text : context.cgflix.text;
+    final textMuted = isLight ? context.cgflix.textMuted : context.cgflix.textMuted;
     final searchBg = isLight ? Colors.white : Colors.white.withValues(alpha: 0.06);
-    final searchBorder = isLight ? const Color(0xFFCBD5E1) : Colors.white.withValues(alpha: 0.12);
-    final searchHint = isLight ? const Color(0xFF94A3B8) : const Color(0xFF8E859E);
+    final searchBorder = isLight ? context.cgflix.divider : Colors.white.withValues(alpha: 0.12);
+    final searchHint = isLight ? context.cgflix.textMuted : context.cgflix.textMuted;
 
-    final seerrBannerBg = isLight
-        ? const Color(0xFF047857).withValues(alpha: 0.08)
-        : const Color(0xFF7A40F2).withValues(alpha: 0.10);
-    final seerrBannerBorder = isLight
-        ? const Color(0xFF047857).withValues(alpha: 0.25)
-        : const Color(0xFF7A40F2).withValues(alpha: 0.3);
-    final seerrIconColor = isLight ? const Color(0xFF047857) : const Color(0xFFA78BFA);
-    final seerrBtnGrad = isLight
-        ? const [Color(0xFF059669), Color(0xFF047857)]
-        : const [Color(0xFF7A40F2), Color(0xFF5A25D0)];
+    final seerrBannerBg = palette.surface;
+    final seerrBannerBorder = palette.divider;
+    final seerrIconColor = palette.accent;
+    final seerrBtnGrad = [palette.action, palette.action];
 
     return Scaffold(
       backgroundColor: bg,
@@ -97,18 +91,10 @@ class _HeisucaSearchScreenState extends State<HeisucaSearchScreen> {
                     Expanded(
                       child: FocusableTextField(
                         controller: _searchController,
-                        style: TextStyle(
-                          fontFamily: HeisucaTheme.fonteTexto,
-                          fontSize: 14.5,
-                          color: textTitle,
-                        ),
+                        style: TextStyle(fontFamily: HeisucaTheme.fonteTexto, fontSize: 14.5, color: textTitle),
                         decoration: InputDecoration(
                           hintText: 'Buscar filmes, séries, animes ou atores...',
-                          hintStyle: TextStyle(
-                            fontFamily: HeisucaTheme.fonteTexto,
-                            fontSize: 13.5,
-                            color: searchHint,
-                          ),
+                          hintStyle: TextStyle(fontFamily: HeisucaTheme.fonteTexto, fontSize: 13.5, color: searchHint),
                           border: InputBorder.none,
                         ),
                       ),
@@ -144,8 +130,22 @@ class _HeisucaSearchScreenState extends State<HeisucaSearchScreen> {
                   ),
                   const SizedBox(height: 10.0),
 
-                  _buildLocalResultTile('Duna: Parte 2', '2024 • Ficção Científica', '4K HDR Atmos', isLight, textTitle, textMuted),
-                  _buildLocalResultTile('Oppenheimer', '2023 • Drama Histórico', '4K HDR', isLight, textTitle, textMuted),
+                  _buildLocalResultTile(
+                    'Duna: Parte 2',
+                    '2024 • Ficção Científica',
+                    '4K HDR Atmos',
+                    isLight,
+                    textTitle,
+                    textMuted,
+                  ),
+                  _buildLocalResultTile(
+                    'Oppenheimer',
+                    '2023 • Drama Histórico',
+                    '4K HDR',
+                    isLight,
+                    textTitle,
+                    textMuted,
+                  ),
 
                   const SizedBox(height: 24.0),
 
@@ -181,7 +181,7 @@ class _HeisucaSearchScreenState extends State<HeisucaSearchScreen> {
                           style: TextStyle(
                             fontFamily: HeisucaTheme.fonteTexto,
                             fontSize: 12.5,
-                            color: isLight ? const Color(0xFF334155) : const Color(0xFFC7BED8),
+                            color: isLight ? context.cgflix.textMuted : context.cgflix.textMuted,
                           ),
                         ),
                         const SizedBox(height: 14.0),
@@ -200,14 +200,14 @@ class _HeisucaSearchScreenState extends State<HeisucaSearchScreen> {
                               gradient: LinearGradient(colors: seerrBtnGrad),
                               borderRadius: BorderRadius.circular(10.0),
                             ),
-                            child: const Center(
+                            child: Center(
                               child: Text(
                                 'Pedir no Seerr',
                                 style: TextStyle(
                                   fontFamily: HeisucaTheme.fonteTexto,
                                   fontSize: 13.5,
                                   fontWeight: FontWeight.w700,
-                                  color: Colors.white,
+                                  color: palette.onAction,
                                 ),
                               ),
                             ),
@@ -227,10 +227,17 @@ class _HeisucaSearchScreenState extends State<HeisucaSearchScreen> {
     );
   }
 
-  Widget _buildLocalResultTile(String title, String subtitle, String quality, bool isLight, Color textTitle, Color textMuted) {
+  Widget _buildLocalResultTile(
+    String title,
+    String subtitle,
+    String quality,
+    bool isLight,
+    Color textTitle,
+    Color textMuted,
+  ) {
     final tileBg = isLight ? Colors.white : Colors.white.withValues(alpha: 0.04);
-    final tileBorder = isLight ? const Color(0xFFE2E8F0) : Colors.white.withValues(alpha: 0.07);
-    final iconColor = isLight ? const Color(0xFF047857) : const Color(0xFF7A40F2);
+    final tileBorder = isLight ? context.cgflix.divider : Colors.white.withValues(alpha: 0.07);
+    final iconColor = isLight ? context.cgflix.accent : context.cgflix.accent;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10.0),
@@ -245,13 +252,7 @@ class _HeisucaSearchScreenState extends State<HeisucaSearchScreen> {
             borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
             border: Border.all(color: tileBorder, width: 0.6),
             boxShadow: isLight
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.03),
-                      blurRadius: 8.0,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
+                ? [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8.0, offset: const Offset(0, 2))]
                 : null,
           ),
           child: Row(
@@ -260,13 +261,13 @@ class _HeisucaSearchScreenState extends State<HeisucaSearchScreen> {
                 width: 48.0,
                 height: 70.0,
                 decoration: BoxDecoration(
-                  color: isLight ? const Color(0xFFE2E8F0) : const Color(0xFF231C30),
+                  color: isLight ? context.cgflix.divider : context.cgflix.surface,
                   borderRadius: BorderRadius.circular(6.0),
                 ),
                 child: Center(
                   child: Icon(
                     Symbols.movie_rounded,
-                    color: isLight ? const Color(0xFF94A3B8) : Colors.white24,
+                    color: isLight ? context.cgflix.textMuted : Colors.white24,
                     size: 20.0,
                   ),
                 ),
@@ -288,17 +289,13 @@ class _HeisucaSearchScreenState extends State<HeisucaSearchScreen> {
                     const SizedBox(height: 3.0),
                     Text(
                       subtitle,
-                      style: TextStyle(
-                        fontFamily: HeisucaTheme.fonteTexto,
-                        fontSize: 12.0,
-                        color: textMuted,
-                      ),
+                      style: TextStyle(fontFamily: HeisucaTheme.fonteTexto, fontSize: 12.0, color: textMuted),
                     ),
                     const SizedBox(height: 5.0),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 1.5),
                       decoration: BoxDecoration(
-                        color: isLight ? const Color(0xFFE2E8F0) : Colors.white.withValues(alpha: 0.08),
+                        color: isLight ? context.cgflix.divider : Colors.white.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(3.0),
                       ),
                       child: Text(
@@ -307,7 +304,7 @@ class _HeisucaSearchScreenState extends State<HeisucaSearchScreen> {
                           fontFamily: HeisucaTheme.fonteTexto,
                           fontSize: 9.0,
                           fontWeight: FontWeight.w700,
-                          color: isLight ? const Color(0xFF047857) : const Color(0xFFDCD7E8),
+                          color: isLight ? context.cgflix.accent : context.cgflix.text,
                         ),
                       ),
                     ),

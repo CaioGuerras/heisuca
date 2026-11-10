@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../cgflix/cgflix_palette.dart';
+import '../heisuca/theme/heisuca_base.dart';
 import '../services/device_performance.dart';
 import '../theme/mono_tokens.dart';
 import '../utils/platform_detector.dart';
@@ -7,13 +8,13 @@ import '../utils/platform_detector.dart';
 class FocusTheme {
   FocusTheme._();
 
-  static const double focusScale = 1.02;
-  static const double fullCardFocusScale = 1.03;
+  static const double focusScale = HeisucaBase.focoEscalaTv;
+  static const double fullCardFocusScale = HeisucaBase.focoEscalaTv;
 
   /// Round 40px player controls: the card scale is imperceptible on a
   /// control that small, so the focused disc grows enough to be seen move.
-  static const double playerControlFocusScale = 1.12;
-  static const double focusBorderWidth = 2.5;
+  static const double playerControlFocusScale = HeisucaBase.focoEscalaTv;
+  static const double focusBorderWidth = HeisucaBase.focoBorda;
   static const double defaultBorderRadius = 8.0;
   static const double focusGlowInnerBlurRadius = 18;
   static const double focusGlowOuterBlurRadius = 34;

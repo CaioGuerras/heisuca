@@ -189,10 +189,7 @@ void main() {
         fixture.wrap(
           MaterialApp(
             home: Scaffold(
-              body: HeisucaTvHomeScreen(
-                heroItem: testItem,
-                continueWatchingItems: [cwItem],
-              ),
+              body: HeisucaTvHomeScreen(heroItem: testItem, continueWatchingItems: [cwItem]),
             ),
           ),
         ),
@@ -241,8 +238,11 @@ void main() {
       const tela = Rect.fromLTWH(0, 0, 960, 540);
       for (final chave in ['heisuca-tv-hero-play', 'heisuca-tv-hero-details', 'heisuca-tv-avatar-button']) {
         final rect = tester.getRect(find.byKey(Key(chave)));
-        expect(tela.contains(rect.topLeft) && tela.contains(rect.bottomRight - const Offset(0.01, 0.01)), isTrue,
-            reason: '$chave fora da tela: $rect');
+        expect(
+          tela.contains(rect.topLeft) && tela.contains(rect.bottomRight - const Offset(0.01, 0.01)),
+          isTrue,
+          reason: '$chave fora da tela: $rect',
+        );
       }
       expect(tester.takeException(), isNull);
     });
@@ -281,12 +281,7 @@ void main() {
         fixture.wrap(
           MaterialApp(
             home: Scaffold(
-              body: HeisucaTvTitleScreen(
-                item: serie,
-                seasons: [temporada],
-                episodes: [ep],
-                targetEpisode: ep,
-              ),
+              body: HeisucaTvTitleScreen(item: serie, seasons: [temporada], episodes: [ep], targetEpisode: ep),
             ),
           ),
         ),
@@ -342,19 +337,13 @@ void main() {
       expect(confirmationShown, true);
     });
 
-    testWidgets('G1.5 Ajustes na TV: oito itens, incluindo desempenho; Sair acessível pelo D-pad', (tester) async {
+    testWidgets('G1.5 Ajustes na TV: nove itens, incluindo tema e desempenho; Sair acessível pelo D-pad', (
+      tester,
+    ) async {
       await tester.binding.setSurfaceSize(const Size(1920, 1080));
       addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
 
-      await tester.pumpWidget(
-        fixture.wrap(
-          const MaterialApp(
-            home: Scaffold(
-              body: HeisucaTvSettingsScreen(),
-            ),
-          ),
-        ),
-      );
+      await tester.pumpWidget(fixture.wrap(const MaterialApp(home: Scaffold(body: HeisucaTvSettingsScreen()))));
       await tester.pumpAndSettle();
 
       expect(find.text('Perfil'), findsOneWidget);
@@ -363,11 +352,12 @@ void main() {
       expect(find.text('Tamanho da legenda'), findsOneWidget);
       expect(find.text('Ainda está aí?'), findsOneWidget);
       expect(find.text('Desempenho na tela'), findsOneWidget);
-      expect(find.text('Sobre'), findsOneWidget);
-      for (var i = 0; i < 7; i++) {
+      expect(find.text('Tema'), findsOneWidget);
+      for (var i = 0; i < 8; i++) {
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
         await tester.pumpAndSettle();
       }
+      expect(find.text('Sobre'), findsOneWidget);
       expect(find.text('Sair'), findsOneWidget);
       final focused = FocusManager.instance.primaryFocus!.context!;
       expect(find.descendant(of: find.byWidget(focused.widget), matching: find.text('Sair')), findsOneWidget);

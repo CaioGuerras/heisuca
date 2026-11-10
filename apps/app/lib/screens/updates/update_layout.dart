@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../cgflix/cgflix_palette.dart';
 import '../../heisuca/heisuca_theme.dart';
 import '../../utils/platform_detector.dart';
 import '../../widgets/dialog_action_button.dart';
@@ -14,17 +13,14 @@ class UpdateLayout extends StatelessWidget {
     final tv = PlatformDetector.isTV();
     final atual = Theme.of(context);
     final tema = atual.copyWith(
-      colorScheme: tv ? cgflixTvScheme : atual.colorScheme,
-      textTheme: atual.textTheme.apply(
-        fontFamily: HeisucaTheme.fonteTexto,
-        bodyColor: tv ? heisucaTvText : atual.colorScheme.onSurface,
-      ),
+      colorScheme: atual.colorScheme,
+      textTheme: atual.textTheme.apply(fontFamily: HeisucaTheme.fonteTexto, bodyColor: atual.colorScheme.onSurface),
     );
     final tela = Theme(
       data: tema,
       child: Builder(
         builder: (context) => Scaffold(
-          backgroundColor: tv ? heisucaTvCanvas : tema.colorScheme.surface,
+          backgroundColor: tema.scaffoldBackgroundColor,
           body: SafeArea(
             child: Center(
               child: ConstrainedBox(

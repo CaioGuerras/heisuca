@@ -1,9 +1,9 @@
 # Heisuca — entrega da rodada de 24/10/2026
 
-## Ordem de 09/11/2026 — Marca única dos apps (Ultron) — validação em andamento em 10/11
+## Ordem de 09/11/2026 — Marca única dos apps (Ultron) — entregue para revisão em 10/11
 
 Base `2e61808de689b2f060381730aabd15373c17d0a7`, depois da remoção do Assistir juntos.
-Primeira integração `d90bc32044057b654d678d7af24831cb2fd5595d`; complementação `4fa4bf741711ef96e176afd9dd7573a86193d641`; projeção neutra do player nesta árvore.
+Primeira integração `d90bc32044057b654d678d7af24831cb2fd5595d`; complementação `4fa4bf741711ef96e176afd9dd7573a86193d641`; projeção neutra do player `61189b5878024b9cb446b53e59910a93733cfc57`.
 Ramo de publicação único `codex/heisuca-home-site`; worktree próprio, checkout compartilhado preservado.
 **TESTE 2.0.34+2046**. Sem PR, merge, release, AAB, produção, mudança de applicationIds ou telemetria.
 
@@ -51,24 +51,51 @@ Ramo de publicação único `codex/heisuca-home-site`; worktree próprio, checko
 - Player 2046 tem projeção neutra derivada só dos tokens Sumi, sem novo tema selecionável nem cores próprias.
   Flag separada no cache mantém o tema estável; botão de play/pausa usa BotaoFundo/BotaoTexto para manter contraste.
   Teste novo falhou antes; marca/tema/cache/navegação/foco **51 passaram** depois.
-- Suíte completa da 2046 comparada à base: **em execução** (`/tmp/ultron-marca-full-2046.log`). Logs `/tmp/ultron-marca-*.log`.
+- Suíte completa da 2046: **8.991 passaram / 71 pulados / 10 falhas**, mesmos dez nomes da base; **zero falhas novas**.
+  Comparação exata preservada em `ultron-marca-full-comparacao-2046.json`. Logs `/tmp/ultron-marca-*.log`.
 - Roteiro TV agora procura Sobre pelo rótulo focado e exige a página real (slogan + Dicas do Heisuca): três novos testes
   Python falharam antes e passaram depois. Impede falso verde quando só um ajuste mudou de valor; demais checks intactos.
 - Grep Shinju/8155E3: só migração comentada; grep watch_together/watchTogether no app vazio.
 
 ### Actions, artefatos, revisão e desfazer
 
-Actions da correção neutra 2046 aguardando commit de código. APKs só para revisão; sem distribuição.
-Rodada anterior d90: Segurança e Atualizador TV passaram. Bancada Android `42779682745` parou com
-`BANCADA_OCUPADA` antes do vídeo; proteção preservada. TV `42779682758` teve jobs verdes, mas o relatório real é
-**ATENÇÃO** por foco na Busca (o artefato da base `42732218527` já trazia esse achado).
-A conferência das imagens também revelou o falso verde do Sobre corrigido pelo novo roteiro.
-A bancada Android da 2045 (`42785473411`) passou, mas a imagem `15-home-so-som.png` mostra player com HUD dourado;
-ela fundamentou a correção 2046. Nomes de arquivos de algumas cenas não coincidem com o conteúdo: selecionar capturas
-pela imagem real, sem apresentar skeleton como Home carregada ou launcher como restauração comprovada. Não é aprovação plena da TV.
-Ainda não testado em aparelho físico nem revisado independentemente por Claude/Gemini.
-Originais aposentados preservados em `~/Arquivos_Obsoletos/2026-11-09_heisuca_marca/`.
-Desfazer: reverter o commit desta marca, preservando os commits anteriores de remoção e do atualizador.
+Código final **`61189b5878024b9cb446b53e59910a93733cfc57`**, TESTE **2.0.34+2046**.
+
+| Run desta SHA | Resultado |
+| --- | --- |
+| [Android/MobSF 42790880079](https://github.com/CaioGuerras/heisuca/actions/runs/42790880079) | Verde; AAB pulado |
+| [Bancada Android 42790879913](https://github.com/CaioGuerras/heisuca/actions/runs/42790879913) | Verde; limites visuais abaixo |
+| [TV 42790879993](https://github.com/CaioGuerras/heisuca/actions/runs/42790879993) | Jobs verdes nos dois perfis; relatórios ATENÇÃO por foco na Busca |
+| [Segurança 42790879658](https://github.com/CaioGuerras/heisuca/actions/runs/42790879658) | Verde |
+| [Atualizador TV 42790879686](https://github.com/CaioGuerras/heisuca/actions/runs/42790879686) | Verde; sintético 2046 → 2047 |
+| [Desastrado 42790879557](https://github.com/CaioGuerras/heisuca/actions/runs/42790879557) | Job verde; relatório ATENÇÃO |
+
+- TV Google e TV box trazem **ATENÇÃO** por foco invisível na Busca; o relatório Google da base `42732218527` já tinha o achado.
+  Não é aprovação plena da TV. Sobre agora abriu realmente e foi reconhecido por conteúdo, sem falso verde.
+- Desastrado injetou 5.000 eventos, mas relatório **ATENÇÃO**: vídeo indisponível para a etapa de queda de rede,
+  saída da conta não concluída para senha errada, tela sem marco/mensagem com servidor fora e ANR do Pixel Launcher.
+  Esses passos não são aprovação; não alterei servidor nem reduzi a exigência dos testes.
+- Atualizador comprovou anúncio, cancelamento/cache vazio, integridade/certificado e permissão negada antes da instalação.
+- Capturas da SHA611 inspecionadas: Google TV `01_inicio.png` tem Home Shikkoku carregada;
+  `06_player_pausado.png` do Google TV tem HUD neutro, mas sem quadro de vídeo; a TV box ainda mostra spinner. Android `05-player-inicio.png` tem vídeo renderizado
+  e HUD neutro de Sumi: pausa clara com ícone preto, textos de áudio/legendas claros, sem dourado.
+- Capturas em `~/cgflix/handoffs/PROVAS_ULTRON_MARCA_2026-11-09/{googletv-2046,bancada-android-2046}/`.
+  Roteiro não alterna temas: não há Home real capturada em Hisui/Sumi. Capturas Sumi opcionais são widgets.
+  Android `02-inicio` é skeleton, `16/17/18` mostram launcher e `21` tem vídeo+spinner; não comprovam visualmente
+  ações de sessão/restauração estabilizada, apesar do relatório automático verde.
+- APKs ARM64 `13752531480` e universal `13752411978`, retidos para revisão, sem distribuição:
+  ambos `versionCode=2046`, pacote `app.heisuca.player.teste.home`, certificado SHA-256
+  `d415544dae728cd8d402827f1bf17b6af00b2443295b3bad8b463d65d3acd4c1`, igual à base.
+  SHA-256 APK ARM64 `1ef821a68c3902eda1ab2434872e1dd878931e38ece446d94f1cb08052d4af5e`;
+  universal `ee725a9a9c8f5c319038d1716d7a08d3724a6845154cb01de843e044eb6c54d8`.
+- Não testado em aparelho físico; revisão independente Claude/Gemini pendente. Nada de produção.
+- Rodadas intermediárias e a captura dourada2045 estão preservadas como histórico, não provas do código final.
+  d90 teve Bancada Android ocupada; proteção preservada. Workflows e portão não foram alterados.
+- Originais aposentados/temporários preservados em `~/Arquivos_Obsoletos/2026-11-09_heisuca_marca/`.
+  `dart_test.yaml` local limitava concorrência só na bancada Whatbox; arquivado, nunca commitado.
+- Desfazer: reverter **61189b58**, **4fa4bf74**, **d90bc320**, nessa ordem, preservando remoção/atualizador anteriores.
+  Para instalar APK reconstruído, usar build number maior que o instalado e preservar assinatura/applicationId.
+
 
 
 

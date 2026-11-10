@@ -1,5 +1,112 @@
 # Heisuca — entrega da rodada de 24/10/2026
 
+
+## 09/11/2026 — Remoção definitiva do Assistir juntos (Ultron) — entregue para revisão
+
+Árvore final de código `31a34c29fc231723666d3ce09d2000098c2da737`, ramo único `codex/heisuca-home-site`.
+Remoção `ae2212a0`, expectativas do Avançado `55567964`, contexto da Home `31a34c29`.
+Base de código `4097266`; consolidação do D `17e4a183` preservada. **TESTE 2.0.34+2043**, applicationIds preservados.
+Push direto; sem PR, merge, publicação de release/AAB, produção ou distribuição de APK.
+
+- Módulo inteiro, parte do player, provider/rotas/menus/overlays e preferências do recurso removidos.
+- Abertura, troca de fonte/episódio, seek, velocidade, PiP e saída mantêm os guardas locais de dono e geração.
+- Traduções-fonte de todos os idiomas sem o recurso; geradas novamente com `dart run slang`.
+- `base_peer_service.dart` era exclusivo do transporte removido e também saiu. Fake de Player compartilhado preservado
+  por renomeação `test/test_helpers/watch_together_fakes.dart` → `player_fakes.dart`; falsos de transporte retirados.
+- Testes exclusivos saíram; testes mistos preservam as verificações dos demais recursos. Nenhum skip novo.
+- Changelog do usuário: **“O Assistir juntos saiu do app.”**
+- `web_socket_channel` continua necessário nos eventos de biblioteca (`library_event_socket.dart` e conectores).
+- Chromecast remoto em MainActivity/focusable_text_field e AirPlay preservados; nenhum Cast substituto criado.
+- Workflows e `heisuca-checar.sh` sem alteração. Só comentário obsoleto de ResumeStallPolicy saiu, sem mudar nenhum valor.
+- Servidor Go legado/protocolo continuam fora do cliente compilado; gerador deixou de emitir o Dart apagado.
+  Nenhum serviço/configuração de servidor mudou. Relay de conectividade Plex foi preservado.
+
+### Validação local final
+
+- Busca exigida `git grep -n -i -e watch_together -e watchTogether -- apps/app`: **vazia** (rc 1 / zero bytes).
+- Portão repetido na árvore corrigida: **175 Python, 2.265 Flutter / 3 pulados, 8 Impeller**, verde.
+- Suíte completa: **8.958 passaram, 59 pulados preexistentes, 10 falharam**. Base D **9.262/59/10**.
+  Comparação exata por nome: **zero falhas novas** e mesmos dez casos, nenhum omitido. Suíte geral conserva essas falhas.
+- Análise estrita: **104 Dart alterados sem apontamentos** (103 + teste adicional; contexto da Home revalidado).
+  Análise geral do app: **41 avisos/info**, contra 43 na base; zero diagnóstico novo, sem alterar configuração da análise.
+  Testes de dependências vendorizadas têm seus próprios dev-deps; o escopo do app é `lib integration_test test_driver test`.
+- Gerador do servidor Go: 9 testes; isolamento do codegen: 8 testes, ambos verdes. Strings regeneradas com Slang.
+- A suíte ampla detectou duas expectativas antigas de presença no Avançado; passaram a exigir ausência, mantendo
+  os outros asserts e o teste de cabeçalhos. Arquivo inteiro: 9 testes passaram.
+- A suíte também detectou contexto do provider Plex fora do build após retirar Consumer. Builder local corrigiu;
+  testes de Discover intactos após a falha: Home + Configurações **20 passaram**. Não houve afrouxamento para passar.
+- Logs integrais anteriores, inclusive falhos, e finais preservados em
+  `~/cgflix/handoffs/PROVAS_ULTRON_REMOVER_ASSISTIR_JUNTOS_2026-11-09/`.
+  `/tmp/ultron-remover-gate-final.log`, `/tmp/ultron-remover-full.log`, `/tmp/ultron-remover-comparison.json`,
+  `/tmp/ultron-remover-analysis-comparison.json`, `/tmp/ultron-remover-contexto-strict.log`.
+
+### Actions da árvore final
+
+- [Android `42732218992`](https://github.com/CaioGuerras/heisuca/actions/runs/42732218992): **verde**, APKs e MobSF; AAB pulado.
+  Direta ARM64 e universal confirmaram `versionCode=2043`; certificado SHA-256
+  `d415544dae728cd8d402827f1bf17b6af00b2443295b3bad8b463d65d3acd4c1`, igual à base.
+  Artefatos retidos para revisão: ARM64 `13726760115`, universal `13725234274`, validade até 24/11; sem distribuição.
+  SHA-256 dos APKs: ARM64 `83d662a24d3027973ae99f6a751ae5b50a8598afb00614727eb624eb6dbf78f7`;
+  universal `c91b164505da399b9ba062d70530551d69b62be75551efe3b4dd26a5678770ff`.
+  Compilação TV conferiu permissões direta/Play e `versionCode=2043` em ambas.
+- [Bancada Android `42732218773`](https://github.com/CaioGuerras/heisuca/actions/runs/42732218773): **verde**.
+- [TV `42732218527`](https://github.com/CaioGuerras/heisuca/actions/runs/42732218527): **verde**, Google TV e TV box API 36 / 1,5 GB.
+- [Segurança `42732218546`](https://github.com/CaioGuerras/heisuca/actions/runs/42732218546): **verde**.
+- [Atualizador TV `42732218529`](https://github.com/CaioGuerras/heisuca/actions/runs/42732218529): primeira tentativa
+  falhou no ADB de preparação do emulador, antes de iniciar o roteiro Python/app (exit 255; offline/not found).
+  Sem artefato de roteiro na primeira. **Tentativa 2 verde**, mesma SHA e nenhum ajuste de workflow/configuração.
+  Relatório confirmou anúncio, cancelamento/cache vazio, integridade/certificado, permissão negada e instalação **2043 → 2044**.
+- [Desastrado `42732218651`](https://github.com/CaioGuerras/heisuca/actions/runs/42732218651): **em execução**, não contado como aprovado.
+- Runs intermediários não validam o Builder final. Não testado em aparelho físico; revisão independente pendente.
+
+### Arquivos apagados (37)
+
+- `apps/app/lib/screens/video_player/parts/watch_together.dart`
+- `apps/app/lib/services/base_peer_service.dart`
+- `apps/app/lib/watch_together/models/playback_state.dart`
+- `apps/app/lib/watch_together/models/sync_message.dart`
+- `apps/app/lib/watch_together/models/watch_session.dart`
+- `apps/app/lib/watch_together/models/watch_session.freezed.dart`
+- `apps/app/lib/watch_together/primitives.dart`
+- `apps/app/lib/watch_together/providers/watch_together_provider.dart`
+- `apps/app/lib/watch_together/screens/watch_together_screen.dart`
+- `apps/app/lib/watch_together/services/attached_player.dart`
+- `apps/app/lib/watch_together/services/clock_sync.dart`
+- `apps/app/lib/watch_together/services/current_playback_dispatcher.dart`
+- `apps/app/lib/watch_together/services/guest_playback_reconciler.dart`
+- `apps/app/lib/watch_together/services/host_playback_coordinator.dart`
+- `apps/app/lib/watch_together/services/recent_rooms_service.dart`
+- `apps/app/lib/watch_together/services/recent_rooms_service.g.dart`
+- `apps/app/lib/watch_together/services/relay_protocol.g.dart`
+- `apps/app/lib/watch_together/services/watch_together_controller.dart`
+- `apps/app/lib/watch_together/services/watch_together_peer_service.dart`
+- `apps/app/lib/watch_together/services/watch_together_relay_endpoint.dart`
+- `apps/app/lib/watch_together/watch_together.dart`
+- `apps/app/lib/watch_together/widgets/join_session_dialog.dart`
+- `apps/app/lib/watch_together/widgets/watch_together_overlay.dart`
+- `apps/app/test/watch_together/attached_player_test.dart`
+- `apps/app/test/watch_together/clock_sync_test.dart`
+- `apps/app/test/watch_together/current_playback_dispatcher_test.dart`
+- `apps/app/test/watch_together/guest_playback_reconciler_test.dart`
+- `apps/app/test/watch_together/host_playback_coordinator_test.dart`
+- `apps/app/test/watch_together/playback_state_test.dart`
+- `apps/app/test/watch_together/primitives_test.dart`
+- `apps/app/test/watch_together/recent_rooms_service_test.dart`
+- `apps/app/test/watch_together/sync_message_test.dart`
+- `apps/app/test/watch_together/watch_together_controller_test.dart`
+- `apps/app/test/watch_together/watch_together_overlay_test.dart`
+- `apps/app/test/watch_together/watch_together_peer_service_test.dart`
+- `apps/app/test/watch_together/watch_together_provider_test.dart`
+- `apps/app/test/watch_together/watch_together_screen_test.dart`
+
+### Continuidade e reversão
+
+- Handoff: `~/cgflix/handoffs/HANDOFF_ULTRON_REMOVER_ASSISTIR_JUNTOS_2026-11-09.md`.
+- Originais removidos: `~/Arquivos_Obsoletos/2026-11-09_heisuca_remover_assistir_juntos/`.
+  Configuração local temporária de concorrência foi arquivada e nunca commitada.
+- Desfazer a tarefa: reverter `31a34c29`, `55567964`, `ae2212a0`, nessa ordem; pode acumular com `--no-commit`
+  e concluir numa única reversão. Preservar D, spec, dados/perfis e serviços. Checkout do Jarvis preservado em `54d6053`.
+
 ## 08/11/2026 — Pacote D, atualizador fora da Play (Ultron) — entregue para revisão independente (fechado em 09/11)
 
 Base `5da72fd`, contém C entregue e spec `2dba3aa`, lida integralmente. Ramo único `codex/heisuca-home-site`.

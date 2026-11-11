@@ -21,12 +21,16 @@ void main() {
   });
 
   test('o feed é https, do nosso site, e só no ramo de produção', () {
-    final feed = linhas.where((l) => l.contains('HEISUCA_UPDATE_FEED_URL=')).toList();
+    // Pelo índice: as duas linhas são iguais, e procurar pelo texto acharia sempre a primeira.
+    final feed = [
+      for (var i = 0; i < linhas.length; i++)
+        if (linhas[i].contains('HEISUCA_UPDATE_FEED_URL=')) i,
+    ];
     expect(feed, hasLength(2));
-    for (final linha in feed) {
-      expect(linha, contains('--dart-define=HEISUCA_UPDATE_FEED_URL=https://heisuca.docaio.com.br/pacotes/ '));
-      expect(linha, contains('--dart-define=HEISUCA_UPDATE_APK_HOSTS=heisuca.docaio.com.br)'));
-      expect(linhas[linhas.indexOf(linha) - 1], contains('== claude/producao-*'));
+    for (final i in feed) {
+      expect(linhas[i], contains('--dart-define=HEISUCA_UPDATE_FEED_URL=https://heisuca.docaio.com.br/pacotes/ '));
+      expect(linhas[i], contains('--dart-define=HEISUCA_UPDATE_APK_HOSTS=heisuca.docaio.com.br)'));
+      expect(linhas[i - 1], contains('== claude/producao-*'));
     }
   });
 }

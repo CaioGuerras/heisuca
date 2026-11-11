@@ -21,13 +21,25 @@ class CorPosterCache extends ChangeNotifier {
   final Map<String, Future<void>> _emCalculo = <String, Future<void>>{};
   final Set<String> _invalidos = <String>{};
 
+  /// Paletas já montadas, por pôster e tema: a tela pede a mesma a cada quadro.
+  final LinkedHashMap<(String, PapelDoTema), PaletaPoster> _paletas =
+      LinkedHashMap<(String, PapelDoTema), PaletaPoster>();
+
   /// A paleta já pronta, ou `null` se a cor desse pôster ainda não foi calculada.
   PaletaPoster? ler(String? hash, PapelDoTema tema) {
     if (hash == null) return null;
     final semente = _sementes.remove(hash);
     if (semente == null) return null;
     _sementes[hash] = semente; // volta para o fim: usado por último
-    return PaletaPoster.de(semente: semente, tema: tema);
+    final chave = (hash, tema);
+    final pronta = _paletas[chave];
+    if (pronta != null && pronta.semente == semente) return pronta;
+    final nova = PaletaPoster.de(semente: semente, tema: tema);
+    _paletas[chave] = nova;
+    while (_paletas.length > capacidade * 3) {
+      _paletas.remove(_paletas.keys.first);
+    }
+    return nova;
   }
 
   /// Calcula, em lote e fora da thread da tela, o que ainda falta de [hashes].

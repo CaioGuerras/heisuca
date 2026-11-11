@@ -159,8 +159,13 @@ class TemaHeisuca extends ThemeExtension<TemaHeisuca> {
       surfaceTint: fundo.withValues(alpha: 0),
     );
     final botao = ButtonStyle(
-      backgroundColor: WidgetStatePropertyAll(botaoFundo),
-      foregroundColor: WidgetStatePropertyAll(botaoTexto),
+      // Sem ação o botão apaga; foco e toque seguem a camada padrão do Material sobre a cor do texto.
+      backgroundColor: WidgetStateProperty.resolveWith(
+        (estados) => estados.contains(WidgetState.disabled) ? botaoFundo.withValues(alpha: 0.38) : botaoFundo,
+      ),
+      foregroundColor: WidgetStateProperty.resolveWith(
+        (estados) => estados.contains(WidgetState.disabled) ? botaoTexto.withValues(alpha: 0.6) : botaoTexto,
+      ),
       shape: const WidgetStatePropertyAll(StadiumBorder()),
     );
     return ThemeData(

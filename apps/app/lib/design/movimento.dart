@@ -56,6 +56,10 @@ abstract final class Movimento {
     double velocidade = 0,
     bool reduzido = false,
   }) {
+    assert(
+      controle.lowerBound == double.negativeInfinity && controle.upperBound == double.infinity,
+      'A mola passa do alvo: crie o controle com AnimationController.unbounded.',
+    );
     if (reduzido) {
       controle.value = alvo;
       return TickerFuture.complete();

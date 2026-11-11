@@ -25,6 +25,14 @@ void main() {
     }
   });
 
+  test('a paleta de um pôster num tema é montada uma vez e reaproveitada', () async {
+    final cache = CorPosterCache();
+    await cache.aquecer([hashes[0]]);
+    final primeira = cache.ler(hashes[0], TemasCorPoster.shikkoku);
+    expect(identical(cache.ler(hashes[0], TemasCorPoster.shikkoku), primeira), isTrue);
+    expect(identical(cache.ler(hashes[0], TemasCorPoster.hisui), primeira), isFalse);
+  });
+
   test('dois pedidos do mesmo pôster calculam uma vez e os dois esperam', () async {
     final cache = CorPosterCache();
     var avisos = 0;

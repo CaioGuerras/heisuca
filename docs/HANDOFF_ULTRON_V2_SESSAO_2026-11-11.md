@@ -95,3 +95,12 @@ Falha nova: `Botão PiP não apareceu em 8 segundos: Pausar`; sem ANR. Não clas
 A prova agora preserva captura, XML, atividades e sessão também nessa falha, sem tocar, repetir a ação,
 reconhecer sucesso ou ampliar o prazo. Teste novo falhou antes e passou depois; 208 testes Python aprovados.
 Nova execução para diagnóstico e conclusão; esta run vermelha não é aprovação.
+
+Segunda run [43012943290](https://github.com/CaioGuerras/heisuca/actions/runs/43012943290):
+mesma reprovação PiP, sem ANR. Captura mostra vídeo em janela fixada, sessão PLAYING(3), posição 44637,
+ações 4452347; XML do uiautomator contém apenas o launcher. O menu não permaneceu visível na coleta.
+A leitura da prova passou ao helper UiAutomation já compilado pelo workflow: consulta todas as janelas
+sem esperar idle, encontra somente botão visível/habilitado pelo rótulo e continua tocando no retângulo real.
+Não há botão inventado, nova tentativa, alteração no app ou relaxamento de prazo/asserção.
+Teste escrito antes do ajuste comprova envio único do helper e leitura instantânea, sem uiautomator;
+209 testes Python passaram. Helper compilado localmente. Nova execução obrigatória, sem aprovação antecipada.

@@ -139,6 +139,18 @@ class MenuPip(unittest.TestCase):
         alvo._abrir_menu_pip = Mock()
         return alvo
 
+    @patch('sessao_media.Path.is_file', return_value=True)
+    def test_leitor_pip_usa_janelas_sem_esperar_idle_e_envia_helper_uma_vez(self, _arquivo):
+        xml = self.xml('Pausar')
+        alvo = self.coletor()
+        alvo.adb.return_value = SimpleNamespace(stdout=('BANCADA_PIP: conectado\n' + xml + '\nencerrando').encode())
+        self.assertEqual(alvo._xml(), xml)
+        self.assertEqual(alvo._xml(), xml)
+        chamadas = alvo.adb.call_args_list
+        self.assertEqual(sum(c.args[0] == 'push' for c in chamadas), 1)
+        self.assertEqual(sum('--dump' in c.args for c in chamadas), 2)
+        self.assertFalse(any('uiautomator' in c.args for c in chamadas))
+
     def test_menu_ja_aberto_nao_recebe_toque_que_o_fecharia(self):
         alvo = self.coletor()
         alvo._xml = Mock(return_value=self.xml('Tocar'))

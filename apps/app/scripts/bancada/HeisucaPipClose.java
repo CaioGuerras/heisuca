@@ -1,5 +1,9 @@
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.app.UiAutomation;
+import android.graphics.Rect;
+import android.util.Xml;
+import org.xmlpull.v1.XmlSerializer;
+import java.io.StringWriter;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -24,6 +28,33 @@ public final class HeisucaPipClose {
         return null;
     }
 
+    /** Consulta instantânea das janelas; não espera a animação/vídeo ficar idle. */
+    private static void writeNode(XmlSerializer xml, AccessibilityNodeInfo node, int depth) throws Exception {
+        if (node == null || depth > 80) return;
+        Rect bounds = new Rect();
+        node.getBoundsInScreen(bounds);
+        xml.startTag(null, "node");
+        xml.attribute(null, "text", node.getText() == null ? "" : node.getText().toString());
+        xml.attribute(null, "content-desc", node.getContentDescription() == null ? "" : node.getContentDescription().toString());
+        xml.attribute(null, "package", String.valueOf(node.getPackageName()));
+        xml.attribute(null, "resource-id", node.getViewIdResourceName() == null ? "" : node.getViewIdResourceName());
+        xml.attribute(null, "enabled", Boolean.toString(node.isEnabled() && node.isVisibleToUser()));
+        xml.attribute(null, "bounds", "[" + bounds.left + "," + bounds.top + "][" + bounds.right + "," + bounds.bottom + "]");
+        for (int i = 0; i < node.getChildCount(); i++) writeNode(xml, node.getChild(i), depth + 1);
+        xml.endTag(null, "node");
+    }
+
+    private static void dumpWindows(UiAutomation ui) throws Exception {
+        StringWriter output = new StringWriter();
+        XmlSerializer xml = Xml.newSerializer();
+        xml.setOutput(output);
+        xml.startTag(null, "hierarchy");
+        for (AccessibilityWindowInfo window : ui.getWindows()) writeNode(xml, window.getRoot(), 0);
+        xml.endTag(null, "hierarchy");
+        xml.flush();
+        System.out.println(output);
+    }
+
     public static void main(String[] args) {
         try { run(args); }
         catch (Throwable error) {
@@ -37,7 +68,8 @@ public final class HeisucaPipClose {
         Looper.prepareMainLooper();
         System.out.println("BANCADA_PIP: início do helper");
         boolean probe = args.length == 1 && "--probe".equals(args[0]);
-        if (!probe && !(args.length == 1 && "--dismiss-pip".equals(args[0])))
+        boolean dump = args.length == 1 && "--dump".equals(args[0]);
+        if (!probe && !dump && !(args.length == 1 && "--dismiss-pip".equals(args[0])))
             throw new IllegalArgumentException("Ação nativa inválida.");
         HandlerThread thread = new HandlerThread("bancada-pip");
         thread.start();
@@ -55,6 +87,10 @@ public final class HeisucaPipClose {
             info.flags |= AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS
                     | AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS;
             ui.setServiceInfo(info);
+            if (dump) {
+                dumpWindows(ui);
+                return;
+            }
             if (probe) {
                 System.out.println("BANCADA_PIP: janelas=" + ui.getWindows().size());
                 return;

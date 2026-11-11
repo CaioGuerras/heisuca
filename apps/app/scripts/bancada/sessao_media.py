@@ -51,14 +51,28 @@ class ProvasSessao:
         self.pasta, self.adb, self.pacote, self.sanitizar = Path(pasta), adb, pacote, sanitizar
         self.ultimo = 0
         self.provas = []
+        self.leitor_enviado = False
 
     def _privado(self, arquivo):
         return self.adb('exec-out', 'run-as', self.pacote, 'cat', 'files/' + arquivo)
 
     def _xml(self):
-        self.adb('shell', 'uiautomator', 'dump', '/sdcard/heisuca-sessao.xml', check=True)
-        resultado = self.adb('exec-out', 'cat', '/sdcard/heisuca-sessao.xml', check=True)
-        return resultado.stdout.decode(errors='replace')
+        # Ler todas as janelas sem esperar idle: o menu PiP se oculta enquanto
+        # o uiautomator aguarda a animação/vídeo terminar e devolve só o launcher.
+        remoto = '/data/local/tmp/heisuca-bancada-ui.jar'
+        if not self.leitor_enviado:
+            helper = Path(__file__).resolve().parents[2] / '.bancada/ui.jar'
+            if not helper.is_file():
+                raise RuntimeError('Ferramenta nativa da bancada não compilada.')
+            self.adb('push', str(helper), remoto, check=True)
+            self.leitor_enviado = True
+        resultado = self.adb('shell', 'CLASSPATH=' + remoto, 'app_process', '/system/bin',
+                             'HeisucaPipClose', '--dump', check=True)
+        texto = resultado.stdout.decode(errors='replace')
+        inicio, fim = texto.find('<hierarchy'), texto.rfind('</hierarchy>')
+        if inicio < 0 or fim < inicio:
+            raise RuntimeError('Leitor de janelas não devolveu hierarquia XML.')
+        return texto[inicio:fim + len('</hierarchy>')]
 
     def _abrir_menu_pip(self):
         # A janela fixada é obtida do Android, nunca de um toque adivinhado na tela.

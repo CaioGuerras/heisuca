@@ -28,8 +28,8 @@ estado lido=3 esperado=3; posição=2462 ms (esperado > 0); ações=0x43effb obr
 ```
 
 Condição que falhou: **ação Tocar (4) ausente**. Estado e posição estão corretos; Pausar (2), Buscar (256) e Próximo
-(32) estão presentes. As27amostras mostram estado3, posições2462/5265/8227 e a mesma máscara.
-Não é problema de parse do Android15: o parser já leu corretamente PLAYING(3). Não há evidência de atraso do motor.
+(32) estão presentes. As 27 amostras mostram estado 3, posições 2462/5265/8227 e a mesma máscara.
+Não é problema de parse do Android 15: o parser já leu corretamente PLAYING(3). Não há evidência de atraso do motor.
 
 ## Causa encontrada na Media3
 
@@ -37,7 +37,7 @@ A porta já declara `Player.COMMAND_PLAY_PAUSE`. Na fonte da versão efetivament
 `MediaSessionLegacyStub.convertCommandToPlaybackStateActions` publica Tocar+Alternar quando deve mostrar Tocar,
 e Pausar+Alternar no outro estado. O comando público da porta não possui flags independentes Play/Pause.
 Assim, a prova anterior exige dois bits simultâneos que a conversão padrão da Media3 alterna por estado.
-[Arquivo oficial da versão1.11.0](https://github.com/androidx/media/blob/1.11.0/libraries/session/src/main/java/androidx/media3/session/MediaSessionLegacyStub.java).
+[Arquivo oficial da versão 1.11.0](https://github.com/androidx/media/blob/1.11.0/libraries/session/src/main/java/androidx/media3/session/MediaSessionLegacyStub.java).
 
 Não substituí a sessão, não falsifiquei estado, não fiz reflexão/patch privado da biblioteca e não retirei o bit
 obrigatório da prova. Como a ordem exige conservar a checagem, foi pedida decisão ao dono: autorizar prova por estado
@@ -46,14 +46,19 @@ A validação do Android Build após o rebase é independente dessa decisão e c
 
 ## Validação e entrega
 
-Portão local verde:198Python na execução inicial,2386Flutter/3pulados,8Impeller e15Kotlin/0falhas.
-A fixture real foi acrescentada após a etapa Python; suíte Python final separada:199passaram.
+Portão local verde:198 Python na execução inicial,2.386 Flutter / 3 pulados,8 Impeller e 15 Kotlin / 0 falhas.
+A fixture real foi acrescentada após a etapa Python; suíte Python final separada:199 passaram.
 Novo teste Kotlin confirma COMMAND_PLAY_PAUSE e encaminhamento de pause/play nos dois estados, sem alterar o app.
-Android Build/segurança após rebase: aguardando runs.
+Código publicado `deff9130727273baf58748067418af5922b8509e`, usando force-with-lease com cabeça esperada 6003c4a6.
+- [Android Build 42987214757](https://github.com/CaioGuerras/heisuca/actions/runs/42987214757): **verde**, APKs ARM64/universal e MobSF; AAB pulado.
+- [Segurança 42987214595](https://github.com/CaioGuerras/heisuca/actions/runs/42987214595): verde, segredos e dependências.
+- Bancada 42886090476: vermelho anterior diagnosticado acima; sem novo disparo enquanto o contrato não for decidido.
+APKs de teste ARM64/universal gerados e retidos, sem distribuição. ARM64 efetivo conferido:versionCode 2047,
+pacote app.heisuca.player.teste.home, certificado SHA-256 d415544dae728cd8d402827f1bf17b6af00b2443295b3bad8b463d65d3acd4c1, igual à base.
 Bancada verde após diagnóstico: pendente da decisão/correção de contrato acima, sem aprovação afirmada.
 Uma sessão somente; nenhum plugin legado restaurado; nenhum segredo/telemetria adicionado.
 Não testados Bluetooth, fone físico, carro e aparelho real. Retomada com transporte Dart encerrado permanece
-limitada como na entrega de10/11; nenhum motor headless foi criado.
+limitada como na entrega de 10/11; nenhum motor headless foi criado.
 Provas completas: `~/cgflix/handoffs/PROVAS_ULTRON_V2_SESSAO_CORRECAO_2026-11-11/`.
 
 Desfazer o rebase publicado exige coordenar com quem integrou o ramo. A cabeça anterior era

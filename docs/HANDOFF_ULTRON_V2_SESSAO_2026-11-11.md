@@ -12,7 +12,7 @@ Toda chamada preserva pip-botao-N.txt e duração do host; o helper registra con
 abertura, busca e total, além das janelas com número de nós e XML final.
 Botão ausente em leitor válido mantém mensagem própria de oito segundos. Falha preserva captura
 e o XML da própria consulta, sem reconectar nem substituir a causa por uma segunda leitura.
-Instalação ffmpeg: archive e azure como reserva, update 45 s / instalação 120 s por espelho, conexão 5 s;
+Instalação ffmpeg: archive e mirrors.kernel.org como reserva, update 45 s / instalação 120 s por espelho, conexão 5 s;
 se ambos falharem, falha o passo. Lista original restaurada ao sair. Nenhum outro passo foi alterado.
 Testes escritos antes: negativos do leitor falharam (8 falhas/2 erros); seis testes dos espelhos tiveram
 cinco falhas antes. Depois, 33 testes da sessão e seis dos espelhos passaram. Helper Java compilado.
@@ -22,6 +22,13 @@ A análise mantém os 40 avisos/informações herdados, sem novo erro. DEX confe
 Nova bancada: aguardando execução, sem aprovação antecipada.
 Se botão ausente com leitor válido, parar e entregar evidência ao revisor. Se FrameTiming falhar,
 relatar números e preservar mínimo de 30. Nenhuma edição no app, versão, IDs ou assinatura.
+
+As tentativas 1–3 da run 43058775685 falharam antes de compilar: archive e azure atingiram 45 s cada.
+Reserva substituída por mirrors.kernel.org, em domínio independente, mantendo exatamente dois destinos,
+limites e verificação APT das assinaturas Ubuntu. Origem da lista e consulta do InRelease conferidas:
+https://packages.ubuntu.com/jammy-updates/amd64/linux-image-5.15.0-164-generic/download
+A consulta local de https://mirrors.kernel.org/ubuntu/dists/resolute/InRelease respondeu 200 em 3,44 s;
+isso não substitui a validação no Actions. Novo teste da reserva falhou antes da mudança e passou depois.
 
 ## Histórico anterior — bloqueado, sem aprovação da bancada
 

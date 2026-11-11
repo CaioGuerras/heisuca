@@ -64,7 +64,7 @@ jobs:
             sudo cp /etc/apt/apt-mirrors.txt "$espelhos_originais"
             trap 'sudo cp "$espelhos_originais" /etc/apt/apt-mirrors.txt' EXIT
             ffmpeg_instalado=false
-            for espelho in archive.ubuntu.com azure.archive.ubuntu.com; do
+            for espelho in archive.ubuntu.com mirrors.kernel.org; do
               sed -E "s#https?://(azure\.archive|archive|security)\.ubuntu\.com/ubuntu#https://${espelho}/ubuntu#g" \
                 "$espelhos_originais" | sudo tee /etc/apt/apt-mirrors.txt >/dev/null
               echo "Tentando ffmpeg pelo espelho ${espelho}"

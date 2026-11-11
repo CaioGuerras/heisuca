@@ -65,9 +65,15 @@ if [[ "$falhas" == ambos ]] || [[ "$falhas" == arquivo && "$espelho" == *'https:
         resultado, log, atual, original, limites = self.executar(falha_update='arquivo')
         self.assertEqual(resultado.returncode, 0, resultado.stderr)
         self.assertEqual(log.count('|'), 3)
-        self.assertIn('https://azure.archive.ubuntu.com/ubuntu', log)
+        self.assertIn('https://mirrors.kernel.org/ubuntu', log)
         self.assertEqual(atual, original)
         self.assertEqual(limites, ['45s', '45s', '120s'])
+
+    def test_reserva_independente_usa_espelho_listado_pelo_ubuntu(self):
+        resultado, log, atual, original, limites = self.executar(falha_update='arquivo')
+        self.assertEqual(resultado.returncode, 0, resultado.stderr)
+        self.assertIn('https://mirrors.kernel.org/ubuntu', log)
+        self.assertEqual(atual, original)
 
     def test_falha_na_instalacao_tenta_reserva(self):
         resultado, log, atual, original, limites = self.executar(falha_install='arquivo')

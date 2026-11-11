@@ -49,26 +49,39 @@ app inteiro pela árvore de uma tag do Plezy.
 2. **Sem servidor embutido nem pré-preenchido** (decisão da Etapa 1A, por segurança): o campo do Jellyfin começa vazio, com a dica neutra `https://seu.servidor.com`.
 3. Sem segredos, tokens, chaves ou telemetria no código, nos logs e nos workflows.
 4. Licença GPL-3.0 e aviso de direitos autorais do Plezy numa página padrão de licenças (obrigação legal). A marca do app
-   é **Heisuca** (selo 炳, `docs/marca/`); nada do nome/logo do Plezy nem do "C com play" do CGFLIX antigo.
-5. Identidade visual: temas e regras em `docs/PILARES_HEISUCA.md` e `docs/marca/` (Shikkoku/Fukamurasaki padrão, Hisui,
-   Ichigo, Sorairo, Shinju); Sora para títulos, Inter para texto; a marca HEISUCA é SVG.
-6. Ramo único `codex/heisuca-home-site`, push direto (sem PR, sem ramo novo, sem merge no `main`); regras em `AGENTS.md`.
+   é **Heisuca**; nada do nome/logo do Plezy nem do "C com play" do CGFLIX antigo.
+5. Identidade visual (aprovada em 09/11/2026): `../../docs/marca_2026-11-09/LEIA.md`. Três temas: Shikkoku (escuro,
+   padrão), Hisui (claro) e Sumi (preto OLED); Ichigo e Sorairo são só acentos do kids; Shinju foi aposentado. Inter em
+   tudo; Sora só no logotipo. Botão principal neutro, acento só em coisa pequena, selo 朱 só no logo e no ícone.
+6. Ramos: o app em uso sai de ramos `claude/producao-*` (por `workflow_dispatch`). Ramos `claude/heisuca-*` e
+   `codex/heisuca-*` geram **"Heisuca Teste"** (pacote `…teste.home`): servem para teste, nunca para a pasta de
+   produção. Nunca fazer merge no `main` sem o dono pedir. Regras gerais em `../../AGENTS.md`.
+7. Build nova só em teste até o dono aprovar. Toda entrega diz "não testado em aparelho" quando for o caso.
 
-## Histórico — Etapa 0 (já concluída; NÃO executar): APK do CGFLIX compilando sozinho
-1. Ler o projeto (README, `pubspec.yaml`, `android/`, workflows existentes) e entender como o upstream gera o APK.
-2. Marca: nome exibido "CGFLIX", `applicationId` Android `br.com.docaio.cgflix` (sem conflitar com o Plezy instalado),
-   ícone a partir de `cgflix-brand/cgflix-icone-512.png`/`cgflix-icone.svg` (adaptive icon), splash com fundo `#07060a`.
-3. Tela de entrada: servidor Jellyfin com campo vazio (nada pré-preenchido, desde a Etapa 1A); Plex continua
-   disponível como no original. Idioma padrão PT-BR quando o app tiver tradução (não quebrar os outros idiomas).
-4. **GitHub Actions** `.github/workflows/cgflix-android.yml`: a cada push no `main` e em PRs, gerar o APK de release (assinado
-   com chave de debug por enquanto; deixar pronto para receber um keystore por secrets depois) e publicar como artifact; em tags
-   `v*`, anexar o APK a uma Release. Desligar/neutralizar workflows do upstream que dependam de segredos que não temos.
-5. Rodar o build localmente no contêiner se for viável (Flutter/Android SDK); se não, garantir que o workflow está correto.
-6. `CGFLIX.md` na raiz: o que foi mudado em relação ao upstream (lista de arquivos), como sincronizar com o upstream, próximos
-   passos sugeridos (selos Dublado/Legendado, Pedidos/Seerr por Quick Connect, aviso das 2 telas, atualização pelo nosso servidor).
-7. PR para o `main` deste fork com tudo isso.
-Pronto quando: PR aberto, workflow verde (ou erro explicado no PR), APK como artifact.
+## Android V2 (em construção desde 10/11/2026)
 
+App novo dentro deste mesmo código: a V2 nasce em pastas próprias e convive com as telas atuais até substituí-las.
+Ramo: `claude/heisuca-v2`. Só aparelho forte (8 GB ou mais); aparelho fraco terá versão separada, nunca "modo leve".
+Referência visual: VidHub e o site do Heisuca. O fundo das telas é tingido pela cor do pôster nos três temas.
+
+- **Fundação** (`lib/design/`): `tema.dart` (`TemaHeisuca`: shikkoku, hisui, sumi), `tipo.dart` (`Tipo.x(tema)`),
+  `movimento.dart` (molas e tempos; respeita "remover animações"), `vibracao.dart`, `forma.dart` (superelipse, pílula,
+  espaços), `cor_poster/` (cor do pôster em Oklab) e `componentes/` (`Toque`, `Botao`, `BotaoDeIcone`, `Cartao`,
+  `BarraFlutuante`).
+- **Regras da V2:**
+  1. Nenhuma cor, tempo, curva ou raio escrito à mão fora de `lib/design/`: tudo vem dos tokens
+     (`test/design/sem_cor_a_mao_test.dart` reprova).
+  2. Os tokens têm duas cópias, que andam juntas: `lib/heisuca/theme/` e `../../docs/marca_2026-11-09/dart/`.
+     São gerados; não editar à mão.
+  3. Todo componente interativo usa `Toque` (resposta ao dedo, foco, semântica, vibração). Sem `InkWell` nem onda.
+  4. Comportamento do sistema, aparência nossa: gesto de voltar, teclado, leitor de tela, letra grande e
+     "remover animações" funcionam como no Android; o desenho é do Heisuca.
+  5. Componente novo entra com teste em `test/design/`: os três temas, área de toque de 48, teclado, leitor de tela,
+     letra grande e "remover animações".
+- **Antes do push:** `dart format -l 120 lib/design test/design`, `flutter test test/design` e
+  `flutter test test/heisuca`. O portão completo é `scripts/heisuca-checar.sh` (o mesmo do GitHub Actions).
+- A sessão de mídia da V2 é outra frente, no ramo `codex/heisuca-v2-sessao`: não mexer nela daqui, e ela não mexe em
+  `lib/design/`, `test/design/` nem em `docs/marca_2026-11-09/`.
 
 ## Mídia fora do app — etapa M (implementação, 26/10)
 

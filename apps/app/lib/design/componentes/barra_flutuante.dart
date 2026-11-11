@@ -44,6 +44,9 @@ class BarraFlutuante extends StatefulWidget {
   static const double _desfoque = 24;
   static const double _icone = 24;
 
+  /// A letra do rótulo cresce com o sistema só até aqui: a ilha tem altura fixa.
+  static const double _letraMaxima = 1.3;
+
   @override
   State<BarraFlutuante> createState() => _BarraFlutuanteState();
 }
@@ -180,6 +183,7 @@ class _Destino extends StatelessWidget {
               Text(
                 destino.rotulo,
                 style: Tipo.legenda(tema).copyWith(color: tinta, fontWeight: ativo ? FontWeight.w600 : FontWeight.w500),
+                textScaler: MediaQuery.textScalerOf(context).clamp(maxScaleFactor: BarraFlutuante._letraMaxima),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),

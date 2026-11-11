@@ -110,6 +110,32 @@ void main() {
     expect(chamadas, ['HapticFeedbackType.mediumImpact']);
   });
 
+  testWidgets('teclado: espaço e o botão central do controle também ativam', (tester) async {
+    var toques = 0;
+    await tester.pumpWidget(naTela(Botao(rotulo: 'Assistir', aoTocar: () => toques++)));
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.space);
+    await tester.sendKeyEvent(LogicalKeyboardKey.select);
+    await tester.pumpAndSettle();
+    expect(toques, 2);
+  });
+
+  testWidgets('botão que perde a ação com o dedo em cima volta ao tamanho', (tester) async {
+    await tester.pumpWidget(naTela(Botao(rotulo: 'Baixar', aoTocar: () {})));
+    final gesto = await tester.startGesture(tester.getCenter(find.byType(Botao)));
+    await tester.pump(const Duration(milliseconds: 150));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(_escalaDe(tester), closeTo(0.96, 0.01));
+    await tester.pumpWidget(naTela(const Botao(rotulo: 'Baixar', aoTocar: null)));
+    await tester.pumpAndSettle();
+    expect(_escalaDe(tester), closeTo(1, 0.001));
+    await gesto.up();
+    await tester.pumpAndSettle();
+    expect(_escalaDe(tester), closeTo(1, 0.001));
+  });
+
   testWidgets('o botão de ícone tem nome para o leitor de tela', (tester) async {
     final alca = tester.ensureSemantics();
     var toques = 0;

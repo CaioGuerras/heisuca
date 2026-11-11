@@ -77,14 +77,29 @@ class _ToqueState extends State<Toque> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
+  @override
+  void didUpdateWidget(Toque antigo) {
+    super.didUpdateWidget(antigo);
+    // Perdeu a ação com o dedo em cima: solta aqui, senão o componente fica encolhido.
+    if (!widget.ativo && _apertado) {
+      _apertado = false;
+      _animarAperto();
+    }
+  }
+
   void _apertar(bool apertado) {
-    if (!mounted || !widget.ativo || _apertado == apertado) return;
+    // Soltar vale sempre; apertar, só com ação.
+    if (!mounted || _apertado == apertado || (apertado && !widget.ativo)) return;
     setState(() => _apertado = apertado);
+    _animarAperto();
+  }
+
+  void _animarAperto() {
     if (_reduzido) {
       _aperto.value = 0;
       return;
     }
-    Movimento.comMola(_aperto, apertado ? 1 : 0, mola: Movimento.molaRapida);
+    Movimento.comMola(_aperto, _apertado ? 1 : 0, mola: Movimento.molaRapida);
   }
 
   void _tocar() {
@@ -144,7 +159,10 @@ class _ToqueState extends State<Toque> with SingleTickerProviderStateMixin {
         enabled: widget.ativo,
         mouseCursor: widget.ativo ? SystemMouseCursors.click : SystemMouseCursors.basic,
         onShowFocusHighlight: (foco) => setState(() => _foco = foco),
-        actions: <Type, Action<Intent>>{ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => _tocar())},
+        actions: <Type, Action<Intent>>{
+          ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => _tocar()),
+          ButtonActivateIntent: CallbackAction<ButtonActivateIntent>(onInvoke: (_) => _tocar()),
+        },
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           excludeFromSemantics: true,

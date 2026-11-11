@@ -99,4 +99,35 @@ void main() {
     expect(eventos, ['abrir', 'menu']);
     alca.dispose();
   });
+
+  testWidgets('com arte: a imagem cobre o quadro e o leitor de tela ouve tempo e nota', (tester) async {
+    final alca = tester.ensureSemantics();
+    await tester.pumpWidget(
+      naTela(
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Cartao(
+              key: const Key('c'),
+              titulo: 'One Piece',
+              subtitulo: 'T23:E2',
+              largura: 160,
+              formato: FormatoDoCartao.paisagem,
+              arte: const ColoredBox(key: Key('arte'), color: Color(0xFF123456)),
+              progresso: 0.66,
+              tempo: '26:44 / 40:39',
+              aoTocar: () {},
+            ),
+            Cartao(key: const Key('n'), titulo: 'InuYasha', largura: 120, nota: '8,6', aoTocar: () {}),
+          ],
+        ),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+    expect(tester.getSize(find.byKey(const Key('arte'))), const Size(160, 90));
+    expect(find.text('26:44 / 40:39'), findsOneWidget);
+    expect(find.bySemanticsLabel('One Piece, T23:E2, 26:44 / 40:39, 66%'), findsOneWidget);
+    expect(find.bySemanticsLabel('InuYasha, 8,6'), findsOneWidget);
+    alca.dispose();
+  });
 }

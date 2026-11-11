@@ -119,4 +119,33 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('cinco destinos em 320 dp com letra em 200%: não estoura e todo destino tem 48 de toque', (tester) async {
+    const cinco = [..._destinos, DestinoDaBarra(icone: Icons.person, rotulo: 'Perfil')];
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: TemaHeisuca.shikkoku.paraMaterial(),
+        home: MediaQuery(
+          data: const MediaQueryData(size: Size(320, 640), textScaler: TextScaler.linear(2.0)),
+          child: Scaffold(
+            body: Center(
+              child: SizedBox(
+                width: 296,
+                child: BarraFlutuante(destinos: cinco, indice: 4, aoMudar: (_) {}),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+    final barra = tester.getRect(find.byType(BarraFlutuante));
+    expect(barra.width, lessThanOrEqualTo(296));
+    for (final destino in cinco) {
+      final alvo = tester.getRect(find.bySemanticsLabel(destino.rotulo));
+      expect(alvo.height, greaterThanOrEqualTo(48), reason: destino.rotulo);
+      expect(alvo.left, greaterThanOrEqualTo(barra.left - 0.5), reason: destino.rotulo);
+      expect(alvo.right, lessThanOrEqualTo(barra.right + 0.5), reason: destino.rotulo);
+    }
+  });
 }

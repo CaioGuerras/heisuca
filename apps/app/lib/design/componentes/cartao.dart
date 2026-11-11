@@ -72,7 +72,7 @@ class Cartao extends StatelessWidget {
     final forma = Forma.superelipse(Forma.raioMedio);
     final visto = (progresso ?? 0).clamp(0.0, 1.0);
     final temRodape = visto > 0 || tempo != null || nota != null;
-    final rotulo = [titulo, ?subtitulo, if (visto > 0) '${(visto * 100).round()}%'].join(', ');
+    final rotulo = [titulo, ?subtitulo, ?tempo, ?nota, if (visto > 0) '${(visto * 100).round()}%'].join(', ');
 
     final quadro = AspectRatio(
       aspectRatio: formato.proporcao,
@@ -85,6 +85,8 @@ class Cartao extends StatelessWidget {
             AnimatedSwitcher(
               duration: Movimento.tempo(context, Movimento.cartao),
               switchInCurve: Movimento.entra,
+              // O padrão do AnimatedSwitcher deixa o filho no tamanho que ele quiser: a arte não cobriria o quadro.
+              layoutBuilder: (atual, anteriores) => Stack(fit: StackFit.expand, children: [...anteriores, ?atual]),
               child: arte ?? const SizedBox.expand(),
             ),
             if (temRodape)

@@ -120,6 +120,11 @@ public final class HeisucaPipClose {
             if (!target.performAction(actionId))
                 throw new IllegalStateException("Android recusou " + actionName + " do PiP.");
             System.out.println("BANCADA_PIP: " + actionName + " do Android aceito");
+            if (show) {
+                SystemClock.sleep(500);
+                // Preservar a janela antes de desconectar a acessibilidade.
+                dumpWindows(ui);
+            }
         } finally {
             System.out.println("BANCADA_PIP: encerrando conexão");
             if (ui != null) UiAutomation.class.getMethod("disconnect").invoke(ui);

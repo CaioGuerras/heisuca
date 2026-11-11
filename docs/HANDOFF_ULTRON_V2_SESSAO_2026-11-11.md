@@ -122,3 +122,8 @@ Os botões continuam exigidos no XML por rótulo, visibilidade e habilitação; 
 Mesmo prazo externo de oito segundos e uma solicitação de abertura. Nenhuma ação extra de reprodução.
 Teste negativo escrito antes do ajuste; 211 Python aprovados. Exige nova prova completa no Android.
 Fonte: https://android.googlesource.com/platform/frameworks/base/+/refs/heads/android15-release/libs/WindowManager/Shell/src/com/android/wm/shell/pip/phone/PipAccessibilityInteractionConnection.java
+
+Run 43030274371: reprovada, mesmo botão Pausar ausente; ACTION_CLICK aceito não comprova botão.
+Acrescentada preservação da hierarquia na conexão que solicita abertura, antes de desconectar acessibilidade,
+para distinguir menu não aberto de menu ocultado entre consultas. Nenhum sucesso é sintetizado.
+211 testes Python aprovados, incluindo preservação da resposta de abertura; exige nova execução.

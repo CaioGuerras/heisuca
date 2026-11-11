@@ -75,8 +75,10 @@ class ProvasSessao:
 
     def _abrir_menu_pip(self):
         # ACTION_CLICK na janela PiP do Android abre o menu; nenhum comando do app.
-        self.adb('shell', 'CLASSPATH=/data/local/tmp/heisuca-bancada-ui.jar',
+        resposta = self.adb('shell', 'CLASSPATH=/data/local/tmp/heisuca-bancada-ui.jar',
                  'app_process', '/system/bin', 'HeisucaPipClose', '--show-pip-menu', check=True)
+        (self.pasta / ('pip-abertura-' + str(self.ultimo + 1) + '.txt')).write_text(
+            self.sanitizar(resposta.stdout.decode(errors='replace')))
 
     def _acao_pip(self, rotulo):
         # Um toque na janela fecha um menu que já estava aberto. Primeiro ler;

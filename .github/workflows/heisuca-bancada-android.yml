@@ -54,13 +54,33 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
           if ! command -v ffprobe >/dev/null; then
-            # 40344379555: índices 6 MB/s, pacotes do mirror Azure ~60 KB/s e retry.
-            # Usa o arquivo oficial do Ubuntu, mantendo repositórios/chaves/assinaturas.
-            if [ -f /etc/apt/apt-mirrors.txt ]; then
-              sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' /etc/apt/apt-mirrors.txt
+            # Cada espelho tem prazo próprio; falha de DNS não consome os dez minutos.
+            # A reserva parte da lista original, mantendo as chaves e assinaturas do Ubuntu.
+            if [ ! -f /etc/apt/apt-mirrors.txt ]; then
+              echo 'Infraestrutura: lista de espelhos Ubuntu ausente.' >&2
+              exit 1
             fi
-            sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update
-            sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y --no-install-recommends ffmpeg
+            espelhos_originais=$(mktemp)
+            sudo cp /etc/apt/apt-mirrors.txt "$espelhos_originais"
+            trap 'sudo cp "$espelhos_originais" /etc/apt/apt-mirrors.txt' EXIT
+            ffmpeg_instalado=false
+            for espelho in archive.ubuntu.com azure.archive.ubuntu.com; do
+              sed -E "s#https?://(azure\.archive|archive|security)\.ubuntu\.com/ubuntu#https://${espelho}/ubuntu#g" \
+                "$espelhos_originais" | sudo tee /etc/apt/apt-mirrors.txt >/dev/null
+              echo "Tentando ffmpeg pelo espelho ${espelho}"
+              if sudo timeout --kill-after=5s 45s apt-get -o Acquire::Retries=0 -o Acquire::http::Timeout=5 -o Acquire::https::Timeout=5 \
+                   -o APT::Update::Error-Mode=any update && \
+                 sudo timeout --kill-after=5s 120s apt-get -o Acquire::Retries=0 -o Acquire::http::Timeout=5 -o Acquire::https::Timeout=5 \
+                   install -y --no-install-recommends ffmpeg; then
+                ffmpeg_instalado=true
+                break
+              fi
+              echo "Infraestrutura: falhou o espelho ${espelho}; verificando reserva disponível." >&2
+            done
+            if [ "$ffmpeg_instalado" != true ]; then
+              echo 'Infraestrutura: não foi possível instalar ffmpeg pelos dois espelhos.' >&2
+              exit 1
+            fi
           fi
           mkdir -p .bancada/evidencias
       - name: Dependências

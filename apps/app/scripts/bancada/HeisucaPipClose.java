@@ -14,7 +14,7 @@ import android.view.accessibility.AccessibilityWindowInfo;
 public final class HeisucaPipClose {
     private static final String PACKAGE = "app.heisuca.player.teste.home";
 
-    private static AccessibilityNodeInfo dismissTarget(UiAutomation ui) {
+    private static AccessibilityNodeInfo pipTarget(UiAutomation ui, int actionId) {
         for (AccessibilityWindowInfo window : ui.getWindows()) {
             if (!window.isInPictureInPictureMode()) continue;
             AccessibilityNodeInfo root = window.getRoot();
@@ -22,7 +22,7 @@ public final class HeisucaPipClose {
             String pkg = String.valueOf(root.getPackageName());
             if (!PACKAGE.equals(pkg) && !"com.android.systemui".equals(pkg)) continue;
             for (AccessibilityNodeInfo.AccessibilityAction action : root.getActionList()) {
-                if (action.getId() == AccessibilityNodeInfo.ACTION_DISMISS) return root;
+                if (action.getId() == actionId) return root;
             }
         }
         return null;
@@ -69,7 +69,8 @@ public final class HeisucaPipClose {
         System.out.println("BANCADA_PIP: início do helper");
         boolean probe = args.length == 1 && "--probe".equals(args[0]);
         boolean dump = args.length == 1 && "--dump".equals(args[0]);
-        if (!probe && !dump && !(args.length == 1 && "--dismiss-pip".equals(args[0])))
+        boolean show = args.length == 1 && "--show-pip-menu".equals(args[0]);
+        if (!probe && !dump && !show && !(args.length == 1 && "--dismiss-pip".equals(args[0])))
             throw new IllegalArgumentException("Ação nativa inválida.");
         HandlerThread thread = new HandlerThread("bancada-pip");
         thread.start();
@@ -95,10 +96,12 @@ public final class HeisucaPipClose {
                 System.out.println("BANCADA_PIP: janelas=" + ui.getWindows().size());
                 return;
             }
+            int actionId = show ? AccessibilityNodeInfo.ACTION_CLICK : AccessibilityNodeInfo.ACTION_DISMISS;
+            String actionName = show ? "ACTION_CLICK" : "ACTION_DISMISS";
             long deadline = SystemClock.uptimeMillis() + 2500;
             AccessibilityNodeInfo target;
             do {
-                target = dismissTarget(ui);
+                target = pipTarget(ui, actionId);
                 if (target == null) SystemClock.sleep(50);
             } while (target == null && SystemClock.uptimeMillis() < deadline);
             if (target == null) {
@@ -109,14 +112,14 @@ public final class HeisucaPipClose {
                             + " pacote=" + (root == null ? "sem raiz" : root.getPackageName())
                             + " ações=" + (root == null ? "sem raiz" : root.getActionList()));
                 }
-                throw new IllegalStateException("Janela PiP não oferece ACTION_DISMISS do Android.");
+                throw new IllegalStateException("Janela PiP não oferece " + actionName + " do Android.");
             }
-            // AOSP 15: AbstractAccessibilityServiceConnection encaminha essa ação PiP
-            // ao PipAccessibilityInteractionConnection, que chama MotionHelper.dismissPip.
+            // AOSP 15: PipAccessibilityInteractionConnection encaminha CLICK ao menu
+            // e DISMISS a MotionHelper.dismissPip. A ação vem da janela fixada.
             // Só uma ação; não chama o app, não força foco e não simula um pop.
-            if (!target.performAction(AccessibilityNodeInfo.ACTION_DISMISS))
-                throw new IllegalStateException("Android recusou ACTION_DISMISS do PiP.");
-            System.out.println("BANCADA_PIP: ACTION_DISMISS do Android aceito");
+            if (!target.performAction(actionId))
+                throw new IllegalStateException("Android recusou " + actionName + " do PiP.");
+            System.out.println("BANCADA_PIP: " + actionName + " do Android aceito");
         } finally {
             System.out.println("BANCADA_PIP: encerrando conexão");
             if (ui != null) UiAutomation.class.getMethod("disconnect").invoke(ui);

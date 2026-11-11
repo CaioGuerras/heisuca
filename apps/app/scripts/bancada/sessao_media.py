@@ -5,7 +5,6 @@ import re
 import time
 from pathlib import Path
 import xml.etree.ElementTree as ET
-from acoes import pip_bounds
 
 
 def analisar_sessao(texto, pacote, titulo, *, estado=3, proximo=False):
@@ -75,14 +74,9 @@ class ProvasSessao:
         return hierarquia.group()
 
     def _abrir_menu_pip(self):
-        # A janela fixada é obtida do Android, nunca de um toque adivinhado na tela.
-        atividades = self.adb('shell', 'dumpsys', 'activity', 'activities', check=True).stdout.decode(errors='replace')
-        retangulo = pip_bounds(atividades)
-        if retangulo is None:
-            raise RuntimeError('Android não forneceu os limites da janela PiP deste app.')
-        x1, y1, x2, y2 = retangulo
-        self.adb('shell', 'input', 'tap', str((x1+x2)//2), str((y1+y2)//2), check=True)
-        time.sleep(0.5)
+        # ACTION_CLICK na janela PiP do Android abre o menu; nenhum comando do app.
+        self.adb('shell', 'CLASSPATH=/data/local/tmp/heisuca-bancada-ui.jar',
+                 'app_process', '/system/bin', 'HeisucaPipClose', '--show-pip-menu', check=True)
 
     def _acao_pip(self, rotulo):
         # Um toque na janela fecha um menu que já estava aberto. Primeiro ler;

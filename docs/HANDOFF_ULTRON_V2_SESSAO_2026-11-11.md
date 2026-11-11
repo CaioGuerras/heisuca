@@ -113,3 +113,12 @@ Corrigida somente a extração do XML vazio: nenhuma consulta adicional, mesmo l
 Teste novo falhou antes e passou depois; 210 testes Python aprovados. A prova do PiP ainda exige nova execução.
 Portão final antes deste ajuste de extração: 209 Python, 2.386 Flutter / 3 pulos preexistentes,
 8 Impeller e 15 Kotlin; saída APROVADO. Build 43015390118 verde, sem distribuição de APK.
+
+Run 43027989859: contrato de sessão mpv aprovado; menu PiP não visível após abertura por toque;
+reprovação preservada, sem aprovação parcial. A abertura passou à ACTION_CLICK da própria janela PiP,
+assim como a bancada já usa ACTION_DISMISS para fechar. O Android 15 encaminha CLICK a
+`onAccessibilityShowMenu()` em PipAccessibilityInteractionConnection; não chama o app nem simula transporte.
+Os botões continuam exigidos no XML por rótulo, visibilidade e habilitação; acionamento real pelo retângulo lido.
+Mesmo prazo externo de oito segundos e uma solicitação de abertura. Nenhuma ação extra de reprodução.
+Teste negativo escrito antes do ajuste; 211 Python aprovados. Exige nova prova completa no Android.
+Fonte: https://android.googlesource.com/platform/frameworks/base/+/refs/heads/android15-release/libs/WindowManager/Shell/src/com/android/wm/shell/pip/phone/PipAccessibilityInteractionConnection.java

@@ -158,6 +158,13 @@ class MenuPip(unittest.TestCase):
         self.assertEqual(alvo._xml(), '<hierarchy />')
         self.assertEqual(sum('--dump' in c.args for c in alvo.adb.call_args_list), 1)
 
+    def test_abertura_pip_usa_acao_da_janela_do_sistema_sem_toque_adivinhado(self):
+        alvo = Coletor('.', Mock(return_value=SimpleNamespace(stdout=b'menu solicitado')), PKG, lambda t: t)
+        alvo._abrir_menu_pip()
+        self.assertEqual(alvo.adb.call_count, 1)
+        self.assertIn('--show-pip-menu', alvo.adb.call_args.args)
+        self.assertNotIn('input', alvo.adb.call_args.args)
+
     def test_menu_ja_aberto_nao_recebe_toque_que_o_fecharia(self):
         alvo = self.coletor()
         alvo._xml = Mock(return_value=self.xml('Tocar'))

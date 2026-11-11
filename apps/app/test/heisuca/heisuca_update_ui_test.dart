@@ -10,7 +10,10 @@ import 'package:http/testing.dart';
 import 'package:provider/provider.dart';
 import 'package:heisuca/cgflix/cgflix_theme.dart';
 import 'package:heisuca/cgflix/requests/cgflix_secure_store.dart';
+import 'package:heisuca/heisuca/heisuca_profile_screen.dart';
 import 'package:heisuca/heisuca/tv/heisuca_tv_menu.dart';
+import 'package:heisuca/i18n/strings.g.dart';
+import 'package:heisuca/providers/theme_provider.dart';
 import 'package:heisuca/screens/updates/update_screen.dart';
 import 'package:heisuca/screens/updates/update_settings_screen.dart';
 import 'package:heisuca/services/settings_service.dart';
@@ -196,5 +199,94 @@ void main() {
     expect(consultas, 1);
     await mostrar(tester, const UpdateSettingsScreen());
     expect(find.textContaining('Já verificamos hoje'), findsOneWidget);
+  });
+
+  group('celular', () {
+    Future<void> perfil(WidgetTester tester, UpdateController controlador, {double letra = 1}) async {
+      TvDetectionService.debugSetTvOverride(false);
+      tester.view.physicalSize = const Size(360, 780);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final tema = ThemeProvider();
+      addTearDown(tema.dispose);
+      await tester.runAsync(controlador.iniciar);
+      await tester.pumpWidget(
+        TranslationProvider(
+          child: MultiProvider(
+            providers: [
+              ChangeNotifierProvider<ThemeProvider>.value(value: tema),
+              ChangeNotifierProvider<UpdateController>.value(value: controlador),
+            ],
+            child: MaterialApp(
+              theme: cgflixDarkTheme(),
+              builder: (context, child) => MediaQuery(
+                data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(letra)),
+                child: child!,
+              ),
+              home: const HeisucaProfileScreen(),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      addTearDown(() => tester.pumpWidget(const SizedBox.shrink()));
+    }
+
+    Future<void> rolarAte(WidgetTester tester, Finder alvo) async {
+      await tester.scrollUntilVisible(alvo, 200, scrollable: find.byType(Scrollable).first);
+      await tester.pumpAndSettle(); // o salto até o item só aparece no quadro seguinte
+    }
+
+    testWidgets('a tela Você tem a entrada Atualizações e ela abre a tela certa', (tester) async {
+      await perfil(tester, c);
+      await rolarAte(tester, find.text('Atualizações'));
+      expect(find.text('Buscar versão nova e escolher o canal'), findsOneWidget);
+      await tester.tap(find.text('Atualizações'));
+      await tester.pumpAndSettle();
+      expect(find.byType(UpdateSettingsScreen), findsOneWidget);
+      expect(find.text('Verificar agora'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('com versão maior no ar, a entrada avisa antes de abrir', (tester) async {
+      await tester.runAsync(() async {
+        await c.iniciar();
+        await c.verificar(manual: true);
+      });
+      expect(c.oferta, isNotNull);
+      await perfil(tester, c);
+      await rolarAte(tester, find.text('Atualizações'));
+      expect(find.text('Versão nova disponível'), findsOneWidget);
+    });
+
+    testWidgets('na versão da loja a entrada não aparece', (tester) async {
+      final loja = UpdateController(
+        config: ConfiguracaoAtualizacao(feed: 'https://feed.example/', distribuicao: 'play'),
+        feed: c.feed,
+        instalador: c.instalador,
+        settings: settings,
+        segredos: segredos,
+        emReproducao: () => false,
+      );
+      addTearDown(loja.dispose);
+      await perfil(tester, loja);
+      await rolarAte(tester, find.text('Sair da conta'));
+      expect(find.text('Sobre o Heisuca'), findsOneWidget);
+      expect(find.text('Atualizações'), findsNothing);
+    });
+
+    testWidgets('tela estreita com letra em 200%: entrada e tela de atualizações não estouram', (tester) async {
+      await perfil(tester, c, letra: 2);
+      await rolarAte(tester, find.text('Atualizações'));
+      expect(tester.takeException(), isNull);
+      await tester.tap(find.text('Atualizações'));
+      await tester.pumpAndSettle();
+      expect(find.byType(UpdateSettingsScreen), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      final lista = find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)).first;
+      await tester.scrollUntilVisible(find.text('Voltar'), 200, scrollable: lista);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    });
   });
 }

@@ -23,6 +23,8 @@ import '../profiles/profile_avatar.dart';
 import '../screens/profile/profile_switch_screen.dart';
 import '../screens/profile/profile_teardown.dart';
 import '../screens/settings/about_screen.dart';
+import '../screens/updates/update_settings_screen.dart';
+import '../services/updates/update_controller.dart';
 import '../utils/dialogs.dart';
 import 'heisuca_design_system.dart';
 import 'heisuca_settings_screen.dart';
@@ -44,6 +46,7 @@ class HeisucaProfileScreen extends StatelessWidget {
     final isLight = palette.isLight;
     final profiles = context.watch<ActiveProfileProvider?>();
     final active = profiles?.active;
+    final atualizacoes = context.watch<UpdateController?>();
 
     // Heisuca: no modo infantil a tela usa a paleta do perfil (Ichigo/Sorairo) e fica enxuta.
     final kids = heisucaKidsActive(context);
@@ -347,6 +350,22 @@ class HeisucaProfileScreen extends StatelessWidget {
                     Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const HeisucaSettingsScreen()));
                   },
                 ),
+                // Só na versão baixada pelo site: na loja quem atualiza é a própria loja.
+                if (atualizacoes?.permiteAjustes == true)
+                  _buildProfileTile(
+                    icon: Symbols.system_update_rounded,
+                    title: 'Atualizações',
+                    subtitle: atualizacoes?.oferta != null
+                        ? 'Versão nova disponível'
+                        : 'Buscar versão nova e escolher o canal',
+                    textColor: textTitle,
+                    subColor: textSub,
+                    iconColor: palette.accent,
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const UpdateSettingsScreen()));
+                    },
+                  ),
                 _buildProfileTile(
                   icon: Symbols.info_rounded,
                   title: 'Sobre o Heisuca',

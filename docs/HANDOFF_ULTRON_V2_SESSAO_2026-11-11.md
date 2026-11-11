@@ -10,7 +10,7 @@ Versão, applicationIds, assinatura e motores preservados. **não testado em apa
 Três testes novos escritos antes da correção da mensagem: estado diferente, posição zero e bits ausentes.
 A mensagem agora informa estado lido/esperado, posição, ações/obrigatórias/faltantes em hexadecimal e nomes dos bits.
 Negativo `/tmp/ultron-v2-correcao-diagnostico-red.log`; depois **17 testes Python passaram**, incluindo fixture literal da run.
-Nenhuma condição de aprovação nem o prazo de oito segundos mudou.
+Na etapa de diagnóstico, nenhuma condição de aprovação nem o prazo de oito segundos mudou.
 
 Artefato `13796583682` da run [42886090476](https://github.com/CaioGuerras/heisuca/actions/runs/42886090476)
 baixado. Os dumps `mpv-sessao-tocando-media-session*.txt` foram lidos e preservados privadamente.
@@ -39,12 +39,28 @@ e Pausar+Alternar no outro estado. O comando público da porta não possui flags
 Assim, a prova anterior exige dois bits simultâneos que a conversão padrão da Media3 alterna por estado.
 [Arquivo oficial da versão 1.11.0](https://github.com/androidx/media/blob/1.11.0/libraries/session/src/main/java/androidx/media3/session/MediaSessionLegacyStub.java).
 
-Não substituí a sessão, não falsifiquei estado, não fiz reflexão/patch privado da biblioteca e não retirei o bit
-obrigatório da prova. Como a ordem exige conservar a checagem, foi pedida decisão ao dono: autorizar prova por estado
-com Pausar→Tocar reais, ou discutir mudança na Media3 para expor ambos os bits simultâneos. **Decisão pendente**.
-A validação do Android Build após o rebase é independente dessa decisão e continua.
+## Decisão do revisor — contrato por estado
 
-## Validação e entrega
+Em 11/11, o revisor confirmou o diagnóstico e retirou a premissa de defeito do app: a alternância dos bits é normal
+na Media3. O erro estava no contrato da prova. Foi autorizado exigir os comandos por estado esperado:
+
+| Estado | Ações obrigatórias, além de Próximo (32) quando existe |
+| --- | --- |
+| 3, tocando | Pausar (2) + Tocar/Pausar (512) + Buscar (256) |
+| 2, pausado | Tocar (4) + Tocar/Pausar (512) + Buscar (256) |
+
+Com Próximo, máscaras 0x322/0x324; sem Próximo, 0x302/0x304. Estados fora de 2/3 continuam reprovados.
+A mensagem preserva estado lido/esperado, posição e bits ausentes em hexadecimal e por nome.
+O dump real acima agora é aprovado. Cada bit obrigatório tem prova negativa; Tocar ausente ao tocar e Pausar
+ausente ao pausar são aceitos. O dump sintético segue o mesmo contrato, sem apagar os testes existentes.
+
+Não houve mudança na Media3, no serviço, no app, no percurso de integração nem em PortaSessaoPlayerTest.kt.
+Permanecem oito segundos, mesma frequência e mesmo número de tentativas; não há novo skip ou tolerância de erro.
+O percurso existente comprova tocar→pausa real pelo sistema→estado 2→tocar real pelo sistema nos dois motores.
+Testes escritos antes da mudança da máscara falharam; depois, 25 testes Python da prova passaram.
+Logs privados: ultron-v2-contrato-red.log e ultron-v2-contrato-green.log.
+
+## Validação anterior ao contrato autorizado
 
 Portão local verde:198 Python na execução inicial,2.386 Flutter / 3 pulados,8 Impeller e 15 Kotlin / 0 falhas.
 A fixture real foi acrescentada após a etapa Python; suíte Python final separada:199 passaram.
@@ -52,10 +68,10 @@ Novo teste Kotlin confirma COMMAND_PLAY_PAUSE e encaminhamento de pause/play nos
 Código publicado `deff9130727273baf58748067418af5922b8509e`, usando force-with-lease com cabeça esperada 6003c4a6.
 - [Android Build 42987214757](https://github.com/CaioGuerras/heisuca/actions/runs/42987214757): **verde**, APKs ARM64/universal e MobSF; AAB pulado.
 - [Segurança 42987214595](https://github.com/CaioGuerras/heisuca/actions/runs/42987214595): verde, segredos e dependências.
-- Bancada 42886090476: vermelho anterior diagnosticado acima; sem novo disparo enquanto o contrato não for decidido.
+- Bancada 42886090476: vermelho anterior diagnosticado acima; a decisão do revisor autoriza o contrato corrigido.
 APKs de teste ARM64/universal gerados e retidos, sem distribuição. ARM64 efetivo conferido:versionCode 2047,
 pacote app.heisuca.player.teste.home, certificado SHA-256 d415544dae728cd8d402827f1bf17b6af00b2443295b3bad8b463d65d3acd4c1, igual à base.
-Bancada verde após diagnóstico: pendente da decisão/correção de contrato acima, sem aprovação afirmada.
+A validação do contrato autorizado está registrada a seguir.
 Uma sessão somente; nenhum plugin legado restaurado; nenhum segredo/telemetria adicionado.
 Não testados Bluetooth, fone físico, carro e aparelho real. Retomada com transporte Dart encerrado permanece
 limitada como na entrega de 10/11; nenhum motor headless foi criado.
@@ -63,3 +79,11 @@ Provas completas: `~/cgflix/handoffs/PROVAS_ULTRON_V2_SESSAO_CORRECAO_2026-11-11
 
 Desfazer o rebase publicado exige coordenar com quem integrou o ramo. A cabeça anterior era
 `6003c4a682c1aa9a22a722549d154654dd6db139`; não mover outros ramos nem publicar APK de produção.
+
+## Execução do contrato autorizado
+
+Portão local concluído com saída `APROVADO: análise e testes concluídos.` e código de saída 0.
+207 testes Python, 2.386 Flutter (3 pulos preexistentes), 8 Impeller e 15 Kotlin: nenhuma falha.
+A análise mantém 40 avisos/informações herdados, com as opções existentes do portão, sem novos erros.
+Código: commit que introduz esta seção. Bancada: aguardando publicação e execução; ainda sem aprovação.
+Desfazer somente este ajuste: `git revert <commit do contrato por estado>`.

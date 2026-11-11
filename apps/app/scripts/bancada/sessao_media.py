@@ -21,11 +21,11 @@ def analisar_sessao(texto, pacote, titulo, *, estado=3, proximo=False):
         raise RuntimeError('Sessão não contém estado, posição, ações e título esperados.')
     numero, nomeado, posicao, acoes = estado_lido.groups()
     atual, posicao, acoes = int(numero or nomeado), int(posicao), int(acoes)
-    obrigatorias = 4 | 2 | 256 | (32 if proximo else 0)
-    if atual != estado or posicao <= 0 or acoes & obrigatorias != obrigatorias:
+    obrigatorias = {3: 2, 2: 4}.get(estado, 0) | 512 | 256 | (32 if proximo else 0)
+    if estado not in (2, 3) or atual != estado or posicao <= 0 or acoes & obrigatorias != obrigatorias:
         faltantes = obrigatorias & ~acoes
         nomes = ', '.join(f'{nome}=0x{bit:x}' for bit, nome in
-                          [(4, 'tocar'), (2, 'pausar'), (256, 'buscar'), (32, 'próximo')]
+                          [(4, 'tocar'), (2, 'pausar'), (512, 'tocar/pausar'), (256, 'buscar'), (32, 'próximo')]
                           if faltantes & bit) or 'nenhum'
         raise RuntimeError(
             f'Estado, posição ou ações da sessão não correspondem ao vídeo: '

@@ -8,7 +8,9 @@ from sessao_media import analisar_sessao, encontrar_acao_pip, ProvasSessao as Co
 PKG = 'app.heisuca.player.teste.home'
 
 
-def dump(estado=3, acoes=295, posicao=12000):
+def dump(estado=3, acoes=None, posicao=12000):
+    if acoes is None:
+        acoes = (4 if estado == 2 else 2) | 512 | 256 | 32
     return f'''Sessions Stack - have 1 sessions:
   Heisuca (userId=0)
     package={PKG}
@@ -48,10 +50,10 @@ class ProvasSessao(unittest.TestCase):
 
     def test_diagnostico_informa_estado_lido_e_esperado(self):
         with self.assertRaises(RuntimeError) as falha:
-            analisar_sessao(dump(estado=2), PKG, 'Filme de prova', estado=3, proximo=True)
+            analisar_sessao(dump(estado=2, acoes=0x322), PKG, 'Filme de prova', estado=3, proximo=True)
         self.assertIn('estado lido=2 esperado=3', str(falha.exception))
         self.assertIn('posição=12000 ms (esperado > 0)', str(falha.exception))
-        self.assertIn('ações=0x127 obrigatórias=0x126 faltantes=0x0', str(falha.exception))
+        self.assertIn('ações=0x322 obrigatórias=0x322 faltantes=0x0', str(falha.exception))
 
     def test_diagnostico_informa_posicao_zero(self):
         with self.assertRaises(RuntimeError) as falha:
@@ -64,19 +66,59 @@ class ProvasSessao(unittest.TestCase):
         with self.assertRaises(RuntimeError) as falha:
             analisar_sessao(dump(acoes=4), PKG, 'Filme de prova', estado=3, proximo=True)
         texto = str(falha.exception)
-        self.assertIn('ações=0x4 obrigatórias=0x126 faltantes=0x122', texto)
-        for campo in ['pausar=0x2', 'buscar=0x100', 'próximo=0x20']:
+        self.assertIn('ações=0x4 obrigatórias=0x322 faltantes=0x322', texto)
+        for campo in ['pausar=0x2', 'tocar/pausar=0x200', 'buscar=0x100', 'próximo=0x20']:
             self.assertIn(campo, texto)
         self.assertNotIn('tocar=0x4', texto)
 
-    def test_dump_real_da_run_rejeita_apenas_bit_tocar_ausente(self):
+    def test_dump_real_da_run_e_aprovado_tocando_sem_bit_tocar(self):
         texto = (Path(__file__).parent / 'fixtures/media_session_android15_42886090476.txt').read_text()
-        with self.assertRaises(RuntimeError) as falha:
-            analisar_sessao(texto, PKG, 'Vídeo de amostra', estado=3, proximo=True)
-        diagnostico = str(falha.exception)
-        self.assertIn('estado lido=3 esperado=3', diagnostico)
-        self.assertIn('posição=2462 ms', diagnostico)
-        self.assertIn('ações=0x43effb obrigatórias=0x126 faltantes=0x4 (tocar=0x4)', diagnostico)
+        prova = analisar_sessao(texto, PKG, 'Vídeo de amostra', estado=3, proximo=True)
+        self.assertEqual(prova['estado'], 3)
+        self.assertEqual(prova['posicao_ms'], 2462)
+        self.assertEqual(prova['acoes'], 4452347)
+        self.assertEqual(prova['sessoes'], 1)
+
+    def test_tocando_sem_tocar_e_pausado_sem_pausar_sao_aprovados(self):
+        for estado, acoes in [(3, 0x322), (2, 0x324)]:
+            with self.subTest(estado=estado):
+                prova = analisar_sessao(dump(estado=estado, acoes=acoes), PKG, 'Filme de prova',
+                                       estado=estado, proximo=True)
+                self.assertEqual(prova['acoes'], acoes)
+
+    def test_tocando_sem_pausar_reprova(self):
+        with self.assertRaisesRegex(RuntimeError, r'faltantes=0x2 \(pausar=0x2\)'):
+            analisar_sessao(dump(acoes=0x320), PKG, 'Filme de prova', estado=3, proximo=True)
+
+    def test_pausado_sem_tocar_reprova(self):
+        with self.assertRaisesRegex(RuntimeError, r'faltantes=0x4 \(tocar=0x4\)'):
+            analisar_sessao(dump(estado=2, acoes=0x320), PKG, 'Filme de prova', estado=2, proximo=True)
+
+    def test_sem_tocar_pausar_reprova_nos_dois_estados(self):
+        for estado, acoes in [(3, 0x122), (2, 0x124)]:
+            with self.subTest(estado=estado), self.assertRaisesRegex(RuntimeError, 'faltantes=0x200.*tocar/pausar=0x200'):
+                analisar_sessao(dump(estado=estado, acoes=acoes), PKG, 'Filme de prova', estado=estado, proximo=True)
+
+    def test_sem_buscar_reprova_nos_dois_estados(self):
+        for estado, acoes in [(3, 0x222), (2, 0x224)]:
+            with self.subTest(estado=estado), self.assertRaisesRegex(RuntimeError, 'faltantes=0x100.*buscar=0x100'):
+                analisar_sessao(dump(estado=estado, acoes=acoes), PKG, 'Filme de prova', estado=estado, proximo=True)
+
+    def test_sem_proximo_reprova_quando_existe_proximo(self):
+        for estado, acoes in [(3, 0x302), (2, 0x304)]:
+            with self.subTest(estado=estado), self.assertRaisesRegex(RuntimeError, 'faltantes=0x20.*próximo=0x20'):
+                analisar_sessao(dump(estado=estado, acoes=acoes), PKG, 'Filme de prova', estado=estado, proximo=True)
+
+    def test_sem_proximo_aprova_quando_nao_existe_proximo(self):
+        for estado, acoes in [(3, 0x302), (2, 0x304)]:
+            with self.subTest(estado=estado):
+                analisar_sessao(dump(estado=estado, acoes=acoes), PKG, 'Filme de prova', estado=estado, proximo=False)
+
+    def test_estados_diferentes_de_dois_e_tres_reprovam(self):
+        for estado in [0, 1, 4, 5, 6, 7, 8, 99]:
+            for esperado in [2, 3, estado]:
+                with self.subTest(estado=estado, esperado=esperado), self.assertRaises(RuntimeError):
+                    analisar_sessao(dump(estado=estado, acoes=0x326), PKG, 'Filme de prova', estado=esperado)
 
     def test_botao_pip_precisa_existir_visivel_e_habilitado(self):
         xml = '<hierarchy><node text="" content-desc="Pausar" enabled="true" bounds="[10,20][50,60]" /></hierarchy>'

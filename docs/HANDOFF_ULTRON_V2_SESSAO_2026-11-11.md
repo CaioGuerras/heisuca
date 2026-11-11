@@ -87,3 +87,11 @@ Portão local concluído com saída `APROVADO: análise e testes concluídos.` e
 A análise mantém 40 avisos/informações herdados, com as opções existentes do portão, sem novos erros.
 Código: commit que introduz esta seção. Bancada: aguardando publicação e execução; ainda sem aprovação.
 Desfazer somente este ajuste: `git revert <commit do contrato por estado>`.
+
+Primeira run do contrato, [43010848612](https://github.com/CaioGuerras/heisuca/actions/runs/43010848612):
+reprovada depois de aprovar mpv tocando (3, posição 2086, ações 4452347), pausa do sistema,
+mpv pausado (2, posição 3086, ações 4452349), retomada e capturas do HUD.
+Falha nova: `Botão PiP não apareceu em 8 segundos: Pausar`; sem ANR. Não classificada como infraestrutura.
+A prova agora preserva captura, XML, atividades e sessão também nessa falha, sem tocar, repetir a ação,
+reconhecer sucesso ou ampliar o prazo. Teste novo falhou antes e passou depois; 208 testes Python aprovados.
+Nova execução para diagnóstico e conclusão; esta run vermelha não é aprovação.

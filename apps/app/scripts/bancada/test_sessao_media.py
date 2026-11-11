@@ -1,5 +1,6 @@
 """O protocolo de prova recusa sessões duplicadas e ações sem efeito."""
 import unittest
+import tempfile
 from pathlib import Path
 from unittest.mock import Mock, patch
 from types import SimpleNamespace
@@ -167,6 +168,22 @@ class MenuPip(unittest.TestCase):
             alvo._acao_pip('Pausar')
         alvo._abrir_menu_pip.assert_called_once()
         alvo.adb.assert_not_called()
+
+    def test_falha_pip_preserva_tela_janelas_e_sessao_sem_ack(self):
+        import json
+        with tempfile.TemporaryDirectory() as pasta:
+            alvo = Coletor(pasta, Mock(return_value=SimpleNamespace(stdout=b'diagnostico')), PKG, lambda t: t)
+            alvo._privado = Mock(return_value=SimpleNamespace(stdout=json.dumps({
+                'seq': 1, 'nome': 'mpv-pip-pausa', 'acao': 'pip-botao', 'rotulo': 'Pausar'}).encode()))
+            alvo._acao_pip = Mock(side_effect=RuntimeError('Botão PiP não apareceu em 8 segundos: Pausar'))
+            alvo._xml = Mock(return_value='<hierarchy/>')
+            with self.assertRaisesRegex(RuntimeError, '8 segundos'):
+                alvo.poll()
+            for sufixo in ['falha.png', 'falha.xml', 'falha-atividades.txt', 'falha-sessao.txt']:
+                self.assertTrue((Path(pasta) / ('mpv-pip-pausa-' + sufixo)).is_file(), sufixo)
+            self.assertEqual(alvo.ultimo, 0)
+            self.assertEqual(alvo.provas, [])
+            self.assertFalse(any('input' in chamada.args or 'mv' in chamada.args for chamada in alvo.adb.call_args_list))
 
     def test_sequencia_do_ack_exige_inteiro_positivo_sem_converter_booleano(self):
         import json

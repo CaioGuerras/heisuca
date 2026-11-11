@@ -151,7 +151,18 @@ class ProvasSessao:
             self.adb('shell', 'cmd', 'media_session', 'dispatch', acao, check=True)
         elif acao == 'pip-botao':
             rotulo = dados['rotulo']
-            x, y, xml = self._acao_pip(rotulo)
+            try:
+                x, y, xml = self._acao_pip(rotulo)
+            except RuntimeError:
+                # A prova segue reprovada; preservar o estado real sem tocar ou repetir a ação.
+                (self.pasta / (nome + '-falha.png')).write_bytes(
+                    self.adb('exec-out', 'screencap', '-p', check=True).stdout)
+                (self.pasta / (nome + '-falha.xml')).write_text(self.sanitizar(self._xml()))
+                for sufixo, argumentos in [('atividades', ('activity', 'activities')),
+                                           ('sessao', ('media_session',))]:
+                    texto = self.adb('shell', 'dumpsys', *argumentos, check=True).stdout.decode(errors='replace')
+                    (self.pasta / (nome + '-falha-' + sufixo + '.txt')).write_text(self.sanitizar(texto))
+                raise
             (self.pasta / (nome + '-menu.png')).write_bytes(self.adb('exec-out', 'screencap', '-p', check=True).stdout)
             (self.pasta / (nome + '-menu.xml')).write_text(self.sanitizar(xml))
             self.adb('shell', 'input', 'tap', str(x), str(y), check=True)

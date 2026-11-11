@@ -8,7 +8,7 @@ import '../cgflix/cgflix_navigation.dart';
 import '../cgflix/home/cgflix_home_logic.dart';
 import '../heisuca/heisuca_floating_island.dart';
 import '../heisuca/kids/heisuca_kids_flow.dart';
-import '../heisuca/heisuca_home_screen.dart';
+import '../features/inicio/ligacao.dart';
 import '../heisuca/heisuca_profile_screen.dart';
 import '../cgflix/you/cgflix_favorites_screen.dart';
 import '../profiles/profile_avatar.dart';
@@ -1102,7 +1102,7 @@ class _MainScreenState extends State<MainScreen>
                 onSelectDestination: _handleTvDestination,
               )
             : cgflixUseYouTab(context) // CGFLIX: no celular a Início é Heisuca Flagship (Esboço 03B)
-            ? HeisucaHomeScreen(key: _screenKeys[tab], onOpenLibrary: _selectLibrary)
+            ? LigacaoDoInicio(key: _screenKeys[tab], aoAbrirBiblioteca: _selectLibrary)
             : DiscoverScreen(key: _screenKeys[tab]),
       NavigationTabId.explore => ExploreScreen(key: _screenKeys[tab]),
       NavigationTabId.libraries =>

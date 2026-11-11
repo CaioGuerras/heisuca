@@ -33,4 +33,7 @@ abstract final class TemasCorPoster {
   );
 
   static final todos = <PapelDoTema>[shikkoku, hisui, sumi];
+
+  /// O papel do tema pelo nome (`TemaHeisuca.nome`). Nome desconhecido cai no Shikkoku.
+  static PapelDoTema de(String nome) => todos.firstWhere((p) => p.nome == nome, orElse: () => shikkoku);
 }

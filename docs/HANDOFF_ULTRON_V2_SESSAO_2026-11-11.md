@@ -104,3 +104,12 @@ sem esperar idle, encontra somente botão visível/habilitado pelo rótulo e con
 Não há botão inventado, nova tentativa, alteração no app ou relaxamento de prazo/asserção.
 Teste escrito antes do ajuste comprova envio único do helper e leitura instantânea, sem uiautomator;
 209 testes Python passaram. Helper compilado localmente. Nova execução obrigatória, sem aprovação antecipada.
+
+Run 43015408212, tentativa 1: sessões corretas nos dois motores; amostra de FrameTiming insuficiente
+(29 mpv e 21 ExoPlayer, exigidos 30), sem ANR. Exigência preservada; repetição sem mudar o teste.
+Tentativa 2: teste reprovado às 12:21 por leitura de hierarquia vazia válida (`<hierarchy />`)
+como XML ausente; depois a finalização do emulador ficou presa até o limite de 70 minutos do job.
+Corrigida somente a extração do XML vazio: nenhuma consulta adicional, mesmo laço/prazo de oito segundos.
+Teste novo falhou antes e passou depois; 210 testes Python aprovados. A prova do PiP ainda exige nova execução.
+Portão final antes deste ajuste de extração: 209 Python, 2.386 Flutter / 3 pulos preexistentes,
+8 Impeller e 15 Kotlin; saída APROVADO. Build 43015390118 verde, sem distribuição de APK.

@@ -151,6 +151,13 @@ class MenuPip(unittest.TestCase):
         self.assertEqual(sum('--dump' in c.args for c in chamadas), 2)
         self.assertFalse(any('uiautomator' in c.args for c in chamadas))
 
+    @patch('sessao_media.Path.is_file', return_value=True)
+    def test_leitor_aceita_hierarquia_vazia_valida_sem_repetir_consulta(self, _arquivo):
+        alvo = self.coletor()
+        alvo.adb.return_value = SimpleNamespace(stdout=b'conectado\n<hierarchy />\nencerrando')
+        self.assertEqual(alvo._xml(), '<hierarchy />')
+        self.assertEqual(sum('--dump' in c.args for c in alvo.adb.call_args_list), 1)
+
     def test_menu_ja_aberto_nao_recebe_toque_que_o_fecharia(self):
         alvo = self.coletor()
         alvo._xml = Mock(return_value=self.xml('Tocar'))

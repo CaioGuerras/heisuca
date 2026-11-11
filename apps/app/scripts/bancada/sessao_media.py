@@ -69,10 +69,10 @@ class ProvasSessao:
         resultado = self.adb('shell', 'CLASSPATH=' + remoto, 'app_process', '/system/bin',
                              'HeisucaPipClose', '--dump', check=True)
         texto = resultado.stdout.decode(errors='replace')
-        inicio, fim = texto.find('<hierarchy'), texto.rfind('</hierarchy>')
-        if inicio < 0 or fim < inicio:
+        hierarquia = re.search(r'<hierarchy\b[^>]*(?:/>|>.*?</hierarchy>)', texto, re.S)
+        if hierarquia is None:
             raise RuntimeError('Leitor de janelas não devolveu hierarquia XML.')
-        return texto[inicio:fim + len('</hierarchy>')]
+        return hierarquia.group()
 
     def _abrir_menu_pip(self):
         # A janela fixada é obtida do Android, nunca de um toque adivinhado na tela.

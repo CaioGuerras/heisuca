@@ -1,6 +1,7 @@
 """Provas locais de MediaSession/PiP; nenhum comando de servidor."""
 import base64
 import json
+import shlex
 import re
 import time
 from pathlib import Path
@@ -51,62 +52,69 @@ class ProvasSessao:
         self.ultimo = 0
         self.provas = []
         self.leitor_enviado = False
+        self.chamadas_pip = 0
+        self.ultimo_xml_pip = ''
 
     def _privado(self, arquivo):
         return self.adb('exec-out', 'run-as', self.pacote, 'cat', 'files/' + arquivo)
 
-    def _xml(self):
-        # Ler todas as janelas sem esperar idle: o menu PiP se oculta enquanto
-        # o uiautomator aguarda a animação/vídeo terminar e devolve só o launcher.
+    def _helper(self, modo, *argumentos):
         remoto = '/data/local/tmp/heisuca-bancada-ui.jar'
         if not self.leitor_enviado:
             helper = Path(__file__).resolve().parents[2] / '.bancada/ui.jar'
             if not helper.is_file():
-                raise RuntimeError('Ferramenta nativa da bancada não compilada.')
+                raise RuntimeError('Leitor de janelas vazio: ferramenta nativa não compilada.')
             self.adb('push', str(helper), remoto, check=True)
             self.leitor_enviado = True
-        resultado = self.adb('shell', 'CLASSPATH=' + remoto, 'app_process', '/system/bin',
-                             'HeisucaPipClose', '--dump', check=True)
+        return self.adb('shell', 'CLASSPATH=' + remoto, 'app_process', '/system/bin',
+                        'HeisucaPipClose', modo, *argumentos, capture_errors=True)
+
+    def _ler_hierarquia(self, resultado):
         texto = resultado.stdout.decode(errors='replace')
         hierarquia = re.search(r'<hierarchy\b[^>]*(?:/>|>.*?</hierarchy>)', texto, re.S)
-        if hierarquia is None:
-            raise RuntimeError('Leitor de janelas não devolveu hierarquia XML.')
-        return hierarquia.group()
+        xml = hierarquia.group() if hierarquia else ''
+        self.ultimo_xml_pip = xml
+        try:
+            tem_nos = bool(xml) and any(True for _ in ET.fromstring(xml).iter('node'))
+        except ET.ParseError:
+            tem_nos = False
+        if resultado.returncode != 0 or not tem_nos:
+            raise RuntimeError('Leitor de janelas vazio: ' + self.sanitizar(texto).strip())
+        return xml
 
-    def _abrir_menu_pip(self):
-        # ACTION_CLICK na janela PiP do Android abre o menu; nenhum comando do app.
-        resposta = self.adb('shell', 'CLASSPATH=/data/local/tmp/heisuca-bancada-ui.jar',
-                 'app_process', '/system/bin', 'HeisucaPipClose', '--show-pip-menu', check=True)
-        (self.pasta / ('pip-abertura-' + str(self.ultimo + 1) + '.txt')).write_text(
-            self.sanitizar(resposta.stdout.decode(errors='replace')))
+    def _xml(self):
+        return self._ler_hierarquia(self._helper('--dump'))
 
     def _acao_pip(self, rotulo):
-        # Um toque na janela fecha um menu que já estava aberto. Primeiro ler;
-        # se os botões já existem, esperar apenas a atualização Tocar/Pausar.
-        limite = time.monotonic() + 8
-        abertura_pedida = False
-        rotulos = ('Tocar', 'Pausar', 'Voltar 10 segundos', 'Avançar 10 segundos', 'Próximo')
-        while True:
-            xml = self._xml()
-            try:
-                x, y = encontrar_acao_pip(xml, rotulo)
-                return x, y, xml
-            except RuntimeError:
-                pass
-            menu_visivel = False
-            for atual in rotulos:
-                try:
-                    encontrar_acao_pip(xml, atual)
-                    menu_visivel = True
-                    break
-                except RuntimeError:
-                    pass
-            if not menu_visivel and not abertura_pedida:
-                self._abrir_menu_pip()
-                abertura_pedida = True
-            if time.monotonic() >= limite:
-                raise RuntimeError('Botão PiP não apareceu em 8 segundos: ' + rotulo)
-            time.sleep(0.2)
+        if rotulo not in ('Tocar', 'Pausar', 'Voltar 10 segundos', 'Avançar 10 segundos', 'Próximo'):
+            raise RuntimeError('Rótulo PiP inválido.')
+        self.chamadas_pip += 1
+        self.ultimo_xml_pip = ''
+        inicio = time.monotonic()
+        resultado = None
+        try:
+            # Uma conexão, um prazo total de oito segundos, no máximo uma abertura.
+            resultado = self._helper('--pip-botao', shlex.quote(rotulo))
+        finally:
+            texto = resultado.stdout.decode(errors='replace') if resultado is not None else 'Leitor não executou.'
+            (self.pasta / f'pip-botao-{self.chamadas_pip}.txt').write_text(self.sanitizar(texto))
+            (self.pasta / f'pip-botao-{self.chamadas_pip}-host.json').write_text(json.dumps({
+                'duracao_ms': round((time.monotonic() - inicio) * 1000, 3),
+                'codigo': resultado.returncode if resultado is not None else None,
+            }, ensure_ascii=False))
+        xml = self._ler_hierarquia(resultado)
+        centro = re.search(r'BANCADA_BOTAO: x=(\d+) y=(\d+)', texto)
+        if centro is None:
+            if 'BANCADA_BOTAO_AUSENTE: prazo_ms=8000' not in texto:
+                raise RuntimeError('Leitor de janelas vazio: resposta sem resultado do botão. ' + self.sanitizar(texto))
+            raise RuntimeError('Botão PiP não apareceu em 8 segundos: ' + rotulo)
+        try:
+            x, y = encontrar_acao_pip(xml, rotulo)
+        except RuntimeError:
+            raise RuntimeError('Leitor de janelas vazio: centro sem rótulo habilitado no XML. ' + self.sanitizar(texto)) from None
+        if (x, y) != tuple(map(int, centro.groups())):
+            raise RuntimeError('Leitor de janelas vazio: centro diverge do XML. ' + self.sanitizar(texto))
+        return x, y, xml
 
     def _sessao_convergida(self, nome, dados):
         limite = time.monotonic() + 8
@@ -167,7 +175,8 @@ class ProvasSessao:
                 # A prova segue reprovada; preservar o estado real sem tocar ou repetir a ação.
                 (self.pasta / (nome + '-falha.png')).write_bytes(
                     self.adb('exec-out', 'screencap', '-p', check=True).stdout)
-                (self.pasta / (nome + '-falha.xml')).write_text(self.sanitizar(self._xml()))
+                (self.pasta / (nome + '-falha.xml')).write_text(self.sanitizar(
+                    self.ultimo_xml_pip or '<!-- Leitor sem XML; veja pip-botao-N.txt. -->'))
                 for sufixo, argumentos in [('atividades', ('activity', 'activities')),
                                            ('sessao', ('media_session',))]:
                     texto = self.adb('shell', 'dumpsys', *argumentos, check=True).stdout.decode(errors='replace')

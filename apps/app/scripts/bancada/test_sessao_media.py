@@ -134,16 +134,23 @@ class MenuPip(unittest.TestCase):
     def xml(rotulo):
         return '<hierarchy><node text="" content-desc="' + rotulo + '" enabled="true" bounds="[10,20][50,60]" /></hierarchy>'
 
-    def coletor(self):
-        alvo = Coletor('.', Mock(), PKG, lambda texto: texto)
-        alvo._abrir_menu_pip = Mock()
+    def coletor(self, pasta='.'):
+        alvo = Coletor(pasta, Mock(), PKG, lambda texto: texto)
+        alvo.leitor_enviado = True
         return alvo
+
+    def resposta(self, rotulo='Pausar', centro=True, abertura=1):
+        return ('BANCADA_JANELA: tipo=2 pip=false pacote=com.android.systemui nos=1\n'
+                + self.xml(rotulo) + '\nBANCADA_TEMPOS: conectar_ms=20 primeira_leitura_ms=50 '
+                + f'abertura_ms=30 achar_rotulo_ms=100 aberturas={abertura} total_ms=200\n'
+                + ('BANCADA_BOTAO: x=30 y=40\n' if centro else 'BANCADA_BOTAO_AUSENTE: prazo_ms=8000\n'))
 
     @patch('sessao_media.Path.is_file', return_value=True)
     def test_leitor_pip_usa_janelas_sem_esperar_idle_e_envia_helper_uma_vez(self, _arquivo):
         xml = self.xml('Pausar')
         alvo = self.coletor()
-        alvo.adb.return_value = SimpleNamespace(stdout=('BANCADA_PIP: conectado\n' + xml + '\nencerrando').encode())
+        alvo.leitor_enviado = False
+        alvo.adb.return_value = SimpleNamespace(returncode=0, stdout=('conectado\n' + xml).encode())
         self.assertEqual(alvo._xml(), xml)
         self.assertEqual(alvo._xml(), xml)
         chamadas = alvo.adb.call_args_list
@@ -151,51 +158,97 @@ class MenuPip(unittest.TestCase):
         self.assertEqual(sum('--dump' in c.args for c in chamadas), 2)
         self.assertFalse(any('uiautomator' in c.args for c in chamadas))
 
-    @patch('sessao_media.Path.is_file', return_value=True)
-    def test_leitor_aceita_hierarquia_vazia_valida_sem_repetir_consulta(self, _arquivo):
+    def test_leitor_aceita_hierarquia_vazia_valida_sem_repetir_consulta(self):
+        # Regressão invertida: XML sintaticamente válido não comprova janelas.
         alvo = self.coletor()
-        alvo.adb.return_value = SimpleNamespace(stdout=b'conectado\n<hierarchy />\nencerrando')
-        self.assertEqual(alvo._xml(), '<hierarchy />')
-        self.assertEqual(sum('--dump' in c.args for c in alvo.adb.call_args_list), 1)
+        alvo.adb.return_value = SimpleNamespace(returncode=0, stdout=b'BANCADA_PIP: janelas=0 raizes=0\n<hierarchy />')
+        with self.assertRaisesRegex(RuntimeError, 'Leitor de janelas vazio.*janelas=0 raizes=0'):
+            alvo._xml()
+        self.assertEqual(alvo.adb.call_count, 1)
 
     def test_abertura_pip_usa_acao_do_sistema_e_preserva_resposta_sem_toque(self):
         with tempfile.TemporaryDirectory() as pasta:
-            alvo = Coletor(pasta, Mock(return_value=SimpleNamespace(stdout=b'<hierarchy />')), PKG, lambda t: t)
-            alvo._abrir_menu_pip()
+            alvo = self.coletor(pasta)
+            texto = self.resposta()
+            alvo.adb.return_value = SimpleNamespace(returncode=0, stdout=texto.encode())
+            self.assertEqual(alvo._acao_pip('Pausar'), (30, 40, self.xml('Pausar')))
             self.assertEqual(alvo.adb.call_count, 1)
-            self.assertIn('--show-pip-menu', alvo.adb.call_args.args)
+            self.assertIn('--pip-botao', alvo.adb.call_args.args)
             self.assertNotIn('input', alvo.adb.call_args.args)
-            self.assertEqual((Path(pasta) / 'pip-abertura-1.txt').read_text(), '<hierarchy />')
+            self.assertEqual((Path(pasta) / 'pip-botao-1.txt').read_text(), texto)
 
     def test_menu_ja_aberto_nao_recebe_toque_que_o_fecharia(self):
-        alvo = self.coletor()
-        alvo._xml = Mock(return_value=self.xml('Tocar'))
-        self.assertEqual(alvo._acao_pip('Tocar'), (30, 40, self.xml('Tocar')))
-        alvo._abrir_menu_pip.assert_not_called()
+        with tempfile.TemporaryDirectory() as pasta:
+            alvo = self.coletor(pasta)
+            alvo.adb.return_value = SimpleNamespace(returncode=0, stdout=self.resposta('Tocar', abertura=0).encode())
+            self.assertEqual(alvo._acao_pip('Tocar'), (30, 40, self.xml('Tocar')))
+            self.assertEqual(alvo.adb.call_count, 1)
+            self.assertNotIn('--show-pip-menu', alvo.adb.call_args.args)
 
-    @patch('sessao_media.time.sleep')
-    def test_menu_aberto_aguarda_rotulo_atualizar_sem_fechar(self, _sleep):
-        alvo = self.coletor()
-        alvo._xml = Mock(side_effect=[self.xml('Pausar'), self.xml('Tocar')])
-        self.assertEqual(alvo._acao_pip('Tocar'), (30, 40, self.xml('Tocar')))
-        alvo._abrir_menu_pip.assert_not_called()
+    def test_menu_aberto_aguarda_rotulo_atualizar_sem_fechar(self):
+        with tempfile.TemporaryDirectory() as pasta:
+            alvo = self.coletor(pasta)
+            texto = self.resposta('Tocar', abertura=0)
+            alvo.adb.return_value = SimpleNamespace(returncode=0, stdout=texto.encode())
+            alvo._acao_pip('Tocar')
+            self.assertEqual(alvo.adb.call_count, 1)
+            self.assertIn('aberturas=0', (Path(pasta) / 'pip-botao-1.txt').read_text())
 
-    @patch('sessao_media.time.sleep')
-    def test_menu_fechado_abre_uma_vez_e_consulta_de_novo(self, _sleep):
-        alvo = self.coletor()
-        alvo._xml = Mock(side_effect=['<hierarchy/>', self.xml('Pausar')])
-        self.assertEqual(alvo._acao_pip('Pausar'), (30, 40, self.xml('Pausar')))
-        alvo._abrir_menu_pip.assert_called_once()
-
-    @patch('sessao_media.time.sleep')
-    @patch('sessao_media.time.monotonic', side_effect=[0, 0, 9])
-    def test_botao_ausente_falha_em_oito_segundos_sem_tentar_tocar(self, _clock, _sleep):
-        alvo = self.coletor()
-        alvo._xml = Mock(return_value='<hierarchy/>')
-        with self.assertRaisesRegex(RuntimeError, '8 segundos'):
+    def test_menu_fechado_abre_uma_vez_e_consulta_de_novo(self):
+        with tempfile.TemporaryDirectory() as pasta:
+            alvo = self.coletor(pasta)
+            alvo.adb.return_value = SimpleNamespace(returncode=0, stdout=self.resposta(abertura=1).encode())
             alvo._acao_pip('Pausar')
-        alvo._abrir_menu_pip.assert_called_once()
-        alvo.adb.assert_not_called()
+            self.assertEqual(alvo.adb.call_count, 1)
+            self.assertIn('aberturas=1', (Path(pasta) / 'pip-botao-1.txt').read_text())
+
+    def test_botao_ausente_falha_em_oito_segundos_sem_tentar_tocar(self):
+        with tempfile.TemporaryDirectory() as pasta:
+            alvo = self.coletor(pasta)
+            texto = self.resposta('Tocar', centro=False)
+            alvo.adb.return_value = SimpleNamespace(returncode=0, stdout=texto.encode())
+            with self.assertRaisesRegex(RuntimeError, 'Botão PiP não apareceu em 8 segundos: Pausar'):
+                alvo._acao_pip('Pausar')
+            self.assertEqual(alvo.adb.call_count, 1)
+            self.assertEqual((Path(pasta) / 'pip-botao-1.txt').read_text(), texto)
+
+    def test_helper_com_erro_reprova_como_leitor_e_preserva_diagnostico(self):
+        with tempfile.TemporaryDirectory() as pasta:
+            alvo = self.coletor(pasta)
+            texto = 'BANCADA_PIP: janelas=2 raizes=0\nBANCADA_TEMPOS: conectar_ms=50 total_ms=2500'
+            alvo.adb.return_value = SimpleNamespace(returncode=1, stdout=texto.encode())
+            with self.assertRaisesRegex(RuntimeError, 'Leitor de janelas vazio.*janelas=2 raizes=0') as falha:
+                alvo._acao_pip('Pausar')
+            self.assertNotIn('Botão PiP não apareceu', str(falha.exception))
+            self.assertEqual((Path(pasta) / 'pip-botao-1.txt').read_text(), texto)
+
+    def test_acao_com_xml_vazio_reprova_como_leitor_sem_nova_consulta(self):
+        with tempfile.TemporaryDirectory() as pasta:
+            alvo = self.coletor(pasta)
+            alvo.adb.return_value = SimpleNamespace(returncode=0, stdout=b'<hierarchy />')
+            with self.assertRaisesRegex(RuntimeError, 'Leitor de janelas vazio'):
+                alvo._acao_pip('Pausar')
+            self.assertEqual(alvo.adb.call_count, 1)
+            self.assertTrue((Path(pasta) / 'pip-botao-1.txt').is_file())
+
+    def test_chamadas_preservam_numeros_distintos_e_tempos_mesmo_com_falha(self):
+        with tempfile.TemporaryDirectory() as pasta:
+            alvo = self.coletor(pasta)
+            alvo.adb.return_value = SimpleNamespace(returncode=0, stdout=self.resposta().encode())
+            alvo._acao_pip('Pausar')
+            alvo.adb.return_value = SimpleNamespace(returncode=1, stdout=b'BANCADA_TEMPOS: total_ms=2500')
+            with self.assertRaisesRegex(RuntimeError, 'Leitor de janelas vazio'):
+                alvo._acao_pip('Tocar')
+            for numero in (1, 2):
+                texto = (Path(pasta) / f'pip-botao-{numero}.txt').read_text()
+                self.assertIn('BANCADA_TEMPOS:', texto)
+
+    def test_centro_precisa_corresponder_ao_rotulo_habilitado_no_xml(self):
+        with tempfile.TemporaryDirectory() as pasta:
+            alvo = self.coletor(pasta)
+            alvo.adb.return_value = SimpleNamespace(returncode=0, stdout=self.resposta().replace('x=30', 'x=999').encode())
+            with self.assertRaisesRegex(RuntimeError, 'Leitor de janelas vazio'):
+                alvo._acao_pip('Pausar')
 
     def test_falha_pip_preserva_tela_janelas_e_sessao_sem_ack(self):
         import json
@@ -204,11 +257,12 @@ class MenuPip(unittest.TestCase):
             alvo._privado = Mock(return_value=SimpleNamespace(stdout=json.dumps({
                 'seq': 1, 'nome': 'mpv-pip-pausa', 'acao': 'pip-botao', 'rotulo': 'Pausar'}).encode()))
             alvo._acao_pip = Mock(side_effect=RuntimeError('Botão PiP não apareceu em 8 segundos: Pausar'))
-            alvo._xml = Mock(return_value='<hierarchy/>')
+            alvo.ultimo_xml_pip = self.xml('Tocar')
             with self.assertRaisesRegex(RuntimeError, '8 segundos'):
                 alvo.poll()
             for sufixo in ['falha.png', 'falha.xml', 'falha-atividades.txt', 'falha-sessao.txt']:
                 self.assertTrue((Path(pasta) / ('mpv-pip-pausa-' + sufixo)).is_file(), sufixo)
+            self.assertEqual((Path(pasta) / 'mpv-pip-pausa-falha.xml').read_text(), self.xml('Tocar'))
             self.assertEqual(alvo.ultimo, 0)
             self.assertEqual(alvo.provas, [])
             self.assertFalse(any('input' in chamada.args or 'mv' in chamada.args for chamada in alvo.adb.call_args_list))

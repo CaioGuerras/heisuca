@@ -1,6 +1,29 @@
 # Heisuca V2 — sessão de mídia — 11/11/2026
 
-## Estado atual: bloqueado, sem aprovação da bancada
+## Rodada atual — conserto do leitor e espelho reserva
+
+Revisão de a5d064d3: contrato de sessão aprovado e intocado. A causa comprovada da leitura vazia
+é consultar janelas logo após setServiceInfo, antes da lista interativa estar disponível.
+A aceitação de `<hierarchy />` em 00302532 foi retirada: vazio ou helper com erro reprova como leitor.
+--dump agora espera raiz não nula até 2.500 ms (leituras a cada 50 ms); sem raiz, imprime contagens e falha.
+--pip-botao conecta uma vez, aguarda raízes, abre no máximo uma vez e procura o rótulo habilitado
+na mesma conexão, com prazo total de oito segundos incluindo conexão e primeira leitura.
+Toda chamada preserva pip-botao-N.txt e duração do host; o helper registra conexão, primeira leitura,
+abertura, busca e total, além das janelas com número de nós e XML final.
+Botão ausente em leitor válido mantém mensagem própria de oito segundos. Falha preserva captura
+e o XML da própria consulta, sem reconectar nem substituir a causa por uma segunda leitura.
+Instalação ffmpeg: archive e azure como reserva, update 45 s / instalação 120 s por espelho, conexão 5 s;
+se ambos falharem, falha o passo. Lista original restaurada ao sair. Nenhum outro passo foi alterado.
+Testes escritos antes: negativos do leitor falharam (8 falhas/2 erros); seis testes dos espelhos tiveram
+cinco falhas antes. Depois, 33 testes da sessão e seis dos espelhos passaram. Helper Java compilado.
+Portão local APROVADO, saída 0: 221 Python na execução, 2.386 Flutter (3 pulos herdados),
+8 Impeller e 15 Kotlin. Após acrescentar a regressão do empacotamento DEX, suíte Python final: 222 passaram.
+A análise mantém os 40 avisos/informações herdados, sem novo erro. DEX conferido com classe principal e auxiliares.
+Nova bancada: aguardando execução, sem aprovação antecipada.
+Se botão ausente com leitor válido, parar e entregar evidência ao revisor. Se FrameTiming falhar,
+relatar números e preservar mínimo de 30. Nenhuma edição no app, versão, IDs ou assinatura.
+
+## Histórico anterior — bloqueado, sem aprovação da bancada
 
 Ramo `codex/heisuca-v2-sessao`; início desta rodada em `d88f553b`.
 Contrato por estado implementado e provado. **Entrega ainda não pronta**: falta prova completa de PiP nos dois motores.

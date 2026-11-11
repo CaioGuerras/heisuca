@@ -16,7 +16,7 @@ def main():
     subprocess.run(['javac', '--release', '8', '-cp', str(android), '-d', str(output),
                     'scripts/bancada/HeisucaPipClose.java'], check=True)
     subprocess.run([str(d8), '--lib', str(android), '--output', str(output),
-                    str(output / 'HeisucaPipClose.class')], check=True)
+                    *map(str, sorted(output.glob('HeisucaPipClose*.class')))], check=True)
     subprocess.run(['jar', 'cf', '.bancada/ui.jar', '-C', str(output), 'classes.dex'], check=True)
 
 

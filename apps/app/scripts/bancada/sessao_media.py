@@ -23,7 +23,14 @@ def analisar_sessao(texto, pacote, titulo, *, estado=3, proximo=False):
     atual, posicao, acoes = int(numero or nomeado), int(posicao), int(acoes)
     obrigatorias = 4 | 2 | 256 | (32 if proximo else 0)
     if atual != estado or posicao <= 0 or acoes & obrigatorias != obrigatorias:
-        raise RuntimeError('Estado, posição ou ações da sessão não correspondem ao vídeo.')
+        faltantes = obrigatorias & ~acoes
+        nomes = ', '.join(f'{nome}=0x{bit:x}' for bit, nome in
+                          [(4, 'tocar'), (2, 'pausar'), (256, 'buscar'), (32, 'próximo')]
+                          if faltantes & bit) or 'nenhum'
+        raise RuntimeError(
+            f'Estado, posição ou ações da sessão não correspondem ao vídeo: '
+            f'estado lido={atual} esperado={estado}; posição={posicao} ms (esperado > 0); '
+            f'ações=0x{acoes:x} obrigatórias=0x{obrigatorias:x} faltantes=0x{faltantes:x} ({nomes}).')
     return {'sessoes': 1, 'estado': atual, 'posicao_ms': posicao, 'acoes': acoes, 'tituloConferido': True}
 
 

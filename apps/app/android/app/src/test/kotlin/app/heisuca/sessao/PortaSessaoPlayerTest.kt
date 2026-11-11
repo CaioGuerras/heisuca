@@ -36,6 +36,21 @@ class PortaSessaoPlayerTest {
     assertNotNull(porta.playerError)
   }
 
+  @Test fun tocarPausarPermaneceDisponivelNosDoisEstadosDoMotor() {
+    val eventos = mutableListOf<String>()
+    val porta = PortaSessaoPlayer(Looper.getMainLooper()) { acao, _ -> eventos.add(acao) }
+    val item = EstadoSessao(titulo = "Filme", posicaoMs = 2462, estado = "playing",
+      comandos = setOf("play", "pause", "seek", "next"))
+    porta.atualizar(item)
+    assertTrue(porta.isCommandAvailable(Player.COMMAND_PLAY_PAUSE))
+    porta.pause()
+    assertEquals("pause", eventos.last())
+    porta.atualizar(item.copy(estado = "paused"))
+    assertTrue(porta.isCommandAvailable(Player.COMMAND_PLAY_PAUSE))
+    porta.play()
+    assertEquals("play", eventos.last())
+  }
+
   @Test fun trocaDeItemNaoConservaPosicaoOuComandosAntigos() {
     val porta = porta()
     porta.atualizar(EstadoSessao(titulo = "Primeiro", estado = "playing", comandos = setOf("next", "seek")))

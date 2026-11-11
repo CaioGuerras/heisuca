@@ -1,5 +1,6 @@
 """O protocolo de prova recusa sessões duplicadas e ações sem efeito."""
 import unittest
+from pathlib import Path
 from unittest.mock import Mock, patch
 from types import SimpleNamespace
 from sessao_media import analisar_sessao, encontrar_acao_pip, ProvasSessao as Coletor
@@ -44,6 +45,38 @@ class ProvasSessao(unittest.TestCase):
         for valor in [dump(estado=2), dump(posicao=0), dump(acoes=4)]:
             with self.subTest(valor=valor), self.assertRaises(RuntimeError):
                 analisar_sessao(valor, PKG, 'Filme de prova', estado=3, proximo=True)
+
+    def test_diagnostico_informa_estado_lido_e_esperado(self):
+        with self.assertRaises(RuntimeError) as falha:
+            analisar_sessao(dump(estado=2), PKG, 'Filme de prova', estado=3, proximo=True)
+        self.assertIn('estado lido=2 esperado=3', str(falha.exception))
+        self.assertIn('posição=12000 ms (esperado > 0)', str(falha.exception))
+        self.assertIn('ações=0x127 obrigatórias=0x126 faltantes=0x0', str(falha.exception))
+
+    def test_diagnostico_informa_posicao_zero(self):
+        with self.assertRaises(RuntimeError) as falha:
+            analisar_sessao(dump(posicao=0), PKG, 'Filme de prova', estado=3, proximo=True)
+        self.assertIn('estado lido=3 esperado=3', str(falha.exception))
+        self.assertIn('posição=0 ms (esperado > 0)', str(falha.exception))
+        self.assertIn('faltantes=0x0', str(falha.exception))
+
+    def test_diagnostico_identifica_bits_obrigatorios_ausentes(self):
+        with self.assertRaises(RuntimeError) as falha:
+            analisar_sessao(dump(acoes=4), PKG, 'Filme de prova', estado=3, proximo=True)
+        texto = str(falha.exception)
+        self.assertIn('ações=0x4 obrigatórias=0x126 faltantes=0x122', texto)
+        for campo in ['pausar=0x2', 'buscar=0x100', 'próximo=0x20']:
+            self.assertIn(campo, texto)
+        self.assertNotIn('tocar=0x4', texto)
+
+    def test_dump_real_da_run_rejeita_apenas_bit_tocar_ausente(self):
+        texto = (Path(__file__).parent / 'fixtures/media_session_android15_42886090476.txt').read_text()
+        with self.assertRaises(RuntimeError) as falha:
+            analisar_sessao(texto, PKG, 'Vídeo de amostra', estado=3, proximo=True)
+        diagnostico = str(falha.exception)
+        self.assertIn('estado lido=3 esperado=3', diagnostico)
+        self.assertIn('posição=2462 ms', diagnostico)
+        self.assertIn('ações=0x43effb obrigatórias=0x126 faltantes=0x4 (tocar=0x4)', diagnostico)
 
     def test_botao_pip_precisa_existir_visivel_e_habilitado(self):
         xml = '<hierarchy><node text="" content-desc="Pausar" enabled="true" bounds="[10,20][50,60]" /></hierarchy>'

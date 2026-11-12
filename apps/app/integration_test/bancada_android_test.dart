@@ -15,7 +15,7 @@ import 'package:heisuca/services/settings_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:heisuca/main.dart' as app;
-import 'package:heisuca/heisuca/heisuca_home_screen.dart';
+import 'package:heisuca/features/inicio/ligacao.dart';
 import 'package:heisuca/heisuca/heisuca_login_screen.dart';
 import 'package:heisuca/heisuca/heisuca_profile_screen.dart';
 import 'package:heisuca/heisuca/heisuca_title_sheet.dart';
@@ -184,8 +184,8 @@ void main() {
     await tester.enterText(field('password'), '');
     await tester.ensureVisible(find.text('Iniciar sessão'));
     await tester.tap(find.text('Iniciar sessão'));
-    await until(() => find.byType(HeisucaHomeScreen).evaluate().isNotEmpty, 'Início');
-    final context = tester.element(find.byType(HeisucaHomeScreen).first);
+    await until(() => find.byType(LigacaoDoInicio).evaluate().isNotEmpty, 'Início');
+    final context = tester.element(find.byType(LigacaoDoInicio).first);
     final clients = context
         .read<MultiServerProvider>()
         .serverManager
@@ -230,7 +230,7 @@ void main() {
         'fichaVisivel': find.byType(HeisucaTitleSheet).evaluate().isNotEmpty,
         'fichaNaArvore': find.byType(HeisucaTitleSheet, skipOffstage: false).evaluate().isNotEmpty,
         'buscaVisivel': find.byType(SearchScreen).evaluate().isNotEmpty,
-        'inicioVisivel': find.byType(HeisucaHomeScreen).evaluate().isNotEmpty,
+        'inicioVisivel': find.byType(LigacaoDoInicio).evaluate().isNotEmpty,
         'pipAtivo': PipService().isPipActive.value,
         'cicloFlutter': binding.lifecycleState?.name,
         'servicoMidiaForeground': await PipService.isMediaPlaybackServiceActive(),
@@ -243,7 +243,10 @@ void main() {
       print('BANCADA_RETORNO: ${jsonEncode(state)}');
       await shot('12-falha-retorno');
     };
-    await tester.tap(find.widgetWithIcon(IconButton, Icons.search_rounded).first);
+    // A busca é o botão redondo do topo da Início; espera aparecer e aceitar toque antes de tocar.
+    final buscar = find.byTooltip('Buscar').hitTestable();
+    await until(() => buscar.evaluate().isNotEmpty, 'botão Buscar da Início');
+    await tester.tap(buscar.first);
     await until(() => find.byType(SearchScreen).evaluate().isNotEmpty, 'busca');
     await tester.enterText(find.byType(TextField).first, title);
     FocusManager.instance.primaryFocus?.unfocus();
@@ -471,7 +474,7 @@ void main() {
       await shot('08-busca-retorno-$attempt', back: true);
       await waitBancada(binding, const Duration(milliseconds: 500));
     }
-    await until(() => find.byType(HeisucaHomeScreen).evaluate().isNotEmpty, 'voltar à Início');
+    await until(() => find.byType(LigacaoDoInicio).evaluate().isNotEmpty, 'voltar à Início');
     await tester.tap(find.byKey(const ValueKey('heisuca-nav-1')));
     await waitBancada(binding, const Duration(seconds: 2));
     await shot('09-biblioteca');

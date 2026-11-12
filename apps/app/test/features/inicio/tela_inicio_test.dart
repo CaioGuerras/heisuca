@@ -158,6 +158,8 @@ void main() {
     final botao = find.bySemanticsLabel('Buscar');
     expect(botao, findsOneWidget);
     expect(tester.getSize(botao).shortestSide, greaterThanOrEqualTo(48));
+    // O percurso do emulador acha o botão pela dica (sem a árvore de semântica) e exige que aceite toque.
+    expect(find.byTooltip('Buscar').hitTestable(), findsOneWidget);
     await tester.tap(botao);
     await tester.pumpAndSettle();
     expect(buscas, 1);

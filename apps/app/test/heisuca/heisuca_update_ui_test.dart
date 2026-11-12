@@ -200,6 +200,17 @@ void main() {
     await mostrar(tester, const UpdateSettingsScreen());
     expect(find.textContaining('Já verificamos hoje'), findsOneWidget);
   });
+  testWidgets('salvar código zera o limite; no canal de teste o manual sempre consulta', (tester) async {
+    await tester.runAsync(() async {
+      await c.aoAbrir();
+      await c.definirCodigo('codigo-sintetico-sem-credencial-123');
+      await c.verificar(manual: true);
+      await c.verificar(manual: true);
+      await c.verificar();
+    });
+    expect(consultas, 3);
+    expect(c.mensagem, isNot(contains('Já verificamos hoje')));
+  });
 
   group('celular', () {
     Future<void> perfil(WidgetTester tester, UpdateController controlador, {double letra = 1}) async {

@@ -139,7 +139,8 @@ class UpdateController extends ChangeNotifier {
     mensagem = null;
     _avisar();
     try {
-      final encontrada = await _checker!.verificar();
+      // Canal de teste: o botão manual sempre consulta (testador precisa da build nova na hora).
+      final encontrada = await _checker!.verificar(ignorarLimite: manual && codigo.isNotEmpty);
       if (_descartado || emReproducao()) return;
       oferta = encontrada;
       if (manual) {
@@ -280,6 +281,8 @@ class UpdateController extends ChangeNotifier {
   Future<void> _mudarCanal() async {
     oferta = null;
     _checker?.disponivel = null;
+    // Canal novo: a consulta do dia feita no canal antigo não vale para este.
+    await settings.write(SettingsService.updateLastCheck, 0);
     await _remover(_arquivo);
     _arquivo = null;
     await settings.write(

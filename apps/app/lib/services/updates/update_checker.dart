@@ -26,15 +26,16 @@ class UpdateChecker {
   OfertaAtualizacao? disponivel;
   Future<OfertaAtualizacao?>? _pendente;
 
-  Future<OfertaAtualizacao?> verificar() => _pendente ??= _verificar().whenComplete(() => _pendente = null);
+  Future<OfertaAtualizacao?> verificar({bool ignorarLimite = false}) =>
+      _pendente ??= _verificar(ignorarLimite).whenComplete(() => _pendente = null);
 
-  Future<OfertaAtualizacao?> _verificar() async {
+  Future<OfertaAtualizacao?> _verificar(bool ignorarLimite) async {
     falhou = false;
     limitadoHoje = false;
     if (!feed.config.ligado || emReproducao()) return null;
     final instante = agora();
     final ultima = lerUltima();
-    if (ultima != null && instante.difference(ultima) < const Duration(hours: 24)) {
+    if (!ignorarLimite && ultima != null && instante.difference(ultima) < const Duration(hours: 24)) {
       limitadoHoje = true;
       return disponivel;
     }

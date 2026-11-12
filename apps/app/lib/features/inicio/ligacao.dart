@@ -18,7 +18,6 @@ import '../../heisuca/heisuca_motion.dart';
 import '../../heisuca/heisuca_plex_home_repository.dart';
 import '../../heisuca/heisuca_source_scope.dart';
 import '../../heisuca/heisuca_title_logo.dart';
-import '../../heisuca/heisuca_title_sheet.dart';
 import '../../heisuca/heisuca_upcoming.dart';
 import '../../heisuca/kids/heisuca_kids_flow.dart';
 import '../../media/media_item.dart';
@@ -36,6 +35,7 @@ import '../../utils/media_image_helper.dart';
 import '../../widgets/optimized_media_image.dart';
 import '../casca/pilula_do_perfil_ativo.dart';
 import '../tema_da_v2.dart';
+import '../titulo/ligacao.dart' show LigacaoDoTitulo;
 import 'aviso.dart';
 import 'fileira.dart';
 import 'modelo.dart';
@@ -57,21 +57,18 @@ String? restam(int? duracaoMs, int? vistoMs) {
 }
 
 /// Fração já vista, de 0 a 1. Sem duração ou sem ponto de parada, `null` (o cartão não desenha a barra).
-@visibleForTesting
 double? progressoDe(int? duracaoMs, int? vistoMs) {
   if (duracaoMs == null || duracaoMs <= 0 || vistoMs == null || vistoMs <= 0) return null;
   return (vistoMs / duracaoMs).clamp(0.0, 1.0);
 }
 
 /// Nota com uma casa e vírgula ("8,6"). Sem nota, ou nota zero, `null`.
-@visibleForTesting
 String? notaDe(double? nota) {
   if (nota == null || nota <= 0) return null;
   return nota.toStringAsFixed(1).replaceAll('.', ',');
 }
 
 /// Junta os pedaços que existem com " · ". Sem nenhum, `null`.
-@visibleForTesting
 String? juntar(Iterable<String?> partes) {
   final presentes = [
     for (final parte in partes)
@@ -202,7 +199,7 @@ class _LigacaoDoInicioState extends State<LigacaoDoInicio>
   // As folhas abrem com o contexto desta ligação, acima do tema da V2: seguem com o tema atual do app.
 
   void _abrir(MediaItem item) {
-    if (mounted) unawaited(HeisucaTitleSheet.show(context, item));
+    if (mounted) unawaited(LigacaoDoTitulo.abrir(context, item));
   }
 
   void _assistir(MediaItem item) {

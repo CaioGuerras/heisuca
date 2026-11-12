@@ -209,6 +209,9 @@ class _BarraDoTitulo extends StatelessWidget {
         duration: Movimento.tempo(context, Movimento.troca),
         switchInCurve: Movimento.entra,
         switchOutCurve: Movimento.sai,
+        // A pilha padrão do AnimatedSwitcher deixa o filho com o tamanho que ele quiser: a barra encolhia até a
+        // altura da linha e sobrava uma fresta atrás das horas. Aqui ela ocupa o lugar inteiro.
+        layoutBuilder: (atual, antigos) => Stack(fit: StackFit.expand, children: [...antigos, ?atual]),
         child: !visivel
             ? const SizedBox.expand()
             : DecoratedBox(

@@ -113,7 +113,8 @@ class _FundoTingidoState extends State<FundoTingido> {
                     gradient: RadialGradient(
                       center: Alignment.topCenter,
                       // O raio do degradê é fração do lado menor; o alcance do halo é fração da altura.
-                      radius: paleta.alcanceHalo * tamanho.height / tamanho.shortestSide,
+                      // Janela sem tamanho (0 px) daria 0/0; aí o halo simplesmente não tem raio.
+                      radius: tamanho.shortestSide > 0 ? paleta.alcanceHalo * tamanho.height / tamanho.shortestSide : 0,
                       colors: [Color(paleta.halo), Color(paleta.halo).withValues(alpha: 0)],
                     ),
                   ),

@@ -308,6 +308,13 @@ void main() {
 
     int barrasAVista(WidgetTester tester) => find.byKey(TelaTitulo.chaveDaBarra).evaluate().length;
 
+    /// A barra ocupa o lugar inteiro dela: de ponta a ponta, do alto da tela até o fim da faixa, sem fresta.
+    void esperaABarraInteira(WidgetTester tester) {
+      final barra = find.byKey(TelaTitulo.chaveDaBarra);
+      final cima = MediaQuery.paddingOf(tester.element(barra)).top;
+      expect(tester.getRect(barra), Rect.fromLTWH(0, 0, 390, cima + TelaTitulo.alturaDaBarra));
+    }
+
     testWidgets('no começo a barra não aparece nem recebe toque; o botão grande é o único "assistir"', (tester) async {
       var plays = 0;
       await montar(
@@ -344,6 +351,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -900));
       await tester.pumpAndSettle();
       expect(barrasAVista(tester), 1);
+      esperaABarraInteira(tester);
 
       final pequeno = find.byTooltip('Continuar T1:E3').hitTestable();
       expect(pequeno, findsOneWidget);
@@ -380,6 +388,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -900));
       await tester.pumpAndSettle();
       expect(barrasAVista(tester), 1);
+      esperaABarraInteira(tester);
       expect(find.byTooltip('Assistir'), findsNothing);
       expect(tester.takeException(), isNull);
     });

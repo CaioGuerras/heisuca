@@ -294,4 +294,141 @@ void main() {
       expect(tester.takeException(), isNull, reason: tema.nome);
     }
   });
+
+  group('barra do topo', () {
+    const alto = SizedBox(height: 1600);
+
+    Future<void> montar(WidgetTester tester, Widget tela, {bool semAnimacao = false}) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(naTela(tela, semAnimacao: semAnimacao));
+      await tester.pumpAndSettle();
+    }
+
+    int barrasAVista(WidgetTester tester) => find.byKey(TelaTitulo.chaveDaBarra).evaluate().length;
+
+    testWidgets('no começo a barra não aparece nem recebe toque; o botão grande é o único "assistir"', (tester) async {
+      var plays = 0;
+      await montar(
+        tester,
+        TelaTitulo(
+          pagina: _cheia(aoAssistir: () => plays++),
+          secoes: const [alto],
+          cores: CorPosterCache(),
+        ),
+      );
+      expect(barrasAVista(tester), 0);
+      expect(find.byTooltip('Continuar T1:E3').hitTestable(), findsNothing);
+      await tester.tap(find.text('Continuar T1:E3'));
+      await tester.pumpAndSettle();
+      expect(plays, 1);
+    });
+
+    testWidgets('quando o botão de assistir sai de vista, a barra entra com o nome e um assistir de 48', (
+      tester,
+    ) async {
+      var plays = 0;
+      var menus = 0;
+      var voltas = 0;
+      await montar(
+        tester,
+        TelaTitulo(
+          pagina: _cheia(aoAssistir: () => plays++),
+          secoes: const [alto],
+          aoVoltar: () => voltas++,
+          aoAbrirMenu: () => menus++,
+          cores: CorPosterCache(),
+        ),
+      );
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -900));
+      await tester.pumpAndSettle();
+      expect(barrasAVista(tester), 1);
+
+      final pequeno = find.byTooltip('Continuar T1:E3').hitTestable();
+      expect(pequeno, findsOneWidget);
+      expect(tester.getSize(pequeno).shortestSide, greaterThanOrEqualTo(48));
+      // O nome fica entre o voltar e o assistir, sem passar por baixo de nenhum botão.
+      final nome = tester.getRect(find.text('Deadwood').hitTestable());
+      expect(nome.left, greaterThanOrEqualTo(tester.getRect(find.byTooltip('Voltar')).right));
+      expect(nome.right, lessThanOrEqualTo(tester.getRect(pequeno).left));
+      expect(tester.getRect(pequeno).right, lessThanOrEqualTo(tester.getRect(find.byTooltip('Mais opções')).left));
+
+      await tester.tap(pequeno);
+      await tester.tap(find.byTooltip('Voltar'));
+      await tester.tap(find.byTooltip('Mais opções'));
+      await tester.pumpAndSettle();
+      expect((plays, voltas, menus), (1, 1, 1));
+
+      // De volta ao começo, a barra sai.
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, 900));
+      await tester.pumpAndSettle();
+      expect(barrasAVista(tester), 0);
+      expect(find.byTooltip('Continuar T1:E3').hitTestable(), findsNothing);
+    });
+
+    testWidgets('sem botão de assistir, a barra entra só com o nome depois que a arte passou', (tester) async {
+      await montar(
+        tester,
+        TelaTitulo(
+          pagina: PaginaDoTitulo(chave: 'd', titulo: 'Deadwood'),
+          secoes: const [alto],
+          cores: CorPosterCache(),
+        ),
+      );
+      expect(barrasAVista(tester), 0);
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -900));
+      await tester.pumpAndSettle();
+      expect(barrasAVista(tester), 1);
+      expect(find.byTooltip('Assistir'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('com o leitor de tela, o assistir da barra só existe enquanto ela está à vista', (tester) async {
+      final alca = tester.ensureSemantics();
+      await montar(tester, TelaTitulo(pagina: _cheia(), secoes: const [alto], cores: CorPosterCache()));
+      expect(find.bySemanticsLabel('Continuar T1:E3'), findsOneWidget);
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -900));
+      await tester.pumpAndSettle();
+      expect(find.bySemanticsLabel('Continuar T1:E3').hitTestable(), findsOneWidget);
+      alca.dispose();
+    });
+
+    testWidgets('a arte fica para trás e some ao rolar; com "remover animações" ela rola junto', (tester) async {
+      Finder daArte(Type tipo) => find.descendant(of: find.byType(CabecaDoTitulo), matching: find.byType(tipo));
+
+      await montar(tester, TelaTitulo(pagina: _cheia(), secoes: const [alto], cores: CorPosterCache()));
+      expect(tester.widget<Opacity>(daArte(Opacity).first).opacity, 1);
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -200));
+      await tester.pump();
+      final rolado = tester.state<ScrollableState>(find.byType(Scrollable).first).position.pixels;
+      expect(rolado, greaterThan(0));
+      final altura = tester.widget<CabecaDoTitulo>(find.byType(CabecaDoTitulo)).alturaDaArte;
+      expect(tester.widget<Opacity>(daArte(Opacity).first).opacity, closeTo(1 - rolado / altura, 0.001));
+      final desvio = tester.widget<Transform>(daArte(Transform).first).transform.getTranslation().y;
+      expect(desvio, closeTo(rolado * CabecaDoTitulo.atrasoDaArte, 0.001));
+
+      await montar(
+        tester,
+        TelaTitulo(key: UniqueKey(), pagina: _cheia(), secoes: const [alto], cores: CorPosterCache()),
+        semAnimacao: true,
+      );
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -200));
+      await tester.pump();
+      expect(daArte(Opacity), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('controle de rolagem de fora continua valendo e a barra o acompanha', (tester) async {
+      final controle = ScrollController();
+      addTearDown(controle.dispose);
+      await montar(
+        tester,
+        TelaTitulo(pagina: _cheia(), secoes: const [alto], controle: controle, cores: CorPosterCache()),
+      );
+      controle.jumpTo(900);
+      await tester.pumpAndSettle();
+      expect(barrasAVista(tester), 1);
+    });
+  });
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
@@ -16,12 +17,27 @@ import 'modelo.dart';
 ///
 /// A altura é a do conteúdo: com letra grande o bloco cresce para baixo, nada é cortado.
 class CabecaDoTitulo extends StatelessWidget {
-  const CabecaDoTitulo({super.key, required this.pagina, required this.alturaDaArte});
+  const CabecaDoTitulo({
+    super.key,
+    required this.pagina,
+    required this.alturaDaArte,
+    this.chaveDoAssistir,
+    this.rolagem,
+  });
 
   final PaginaDoTitulo pagina;
 
   /// Altura da arte, do topo da tela até onde ela termina de se desfazer.
   final double alturaDaArte;
+
+  /// Marca o botão de assistir, para a tela saber quando ele saiu de vista.
+  final Key? chaveDoAssistir;
+
+  /// Quanto a página já rolou. Com isto a arte sobe mais devagar que o texto e vai sumindo.
+  final ValueListenable<double>? rolagem;
+
+  /// Fração da rolagem que a arte deixa de acompanhar: ela fica para trás enquanto o texto sobe.
+  static const double atrasoDaArte = 0.4;
 
   /// Onde a arte começa a se desfazer, em fração da própria altura.
   static const double inicioDoEsmaecer = 0.55;
@@ -58,16 +74,20 @@ class CabecaDoTitulo extends StatelessWidget {
                 right: 0,
                 height: alturaDaArte,
                 child: ExcludeSemantics(
-                  child: ShaderMask(
-                    blendMode: BlendMode.dstIn,
-                    // Só o alfa conta: a arte se desfaz no fundo tingido da tela.
-                    shaderCallback: (area) => LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      stops: const [0, inicioDoEsmaecer, 1],
-                      colors: [tema.fundo, tema.fundo, tema.fundo.withValues(alpha: 0)],
-                    ).createShader(area),
-                    child: pagina.arte!(context, Size(largura, alturaDaArte)),
+                  child: _ArteQueFica(
+                    rolagem: rolagem,
+                    altura: alturaDaArte,
+                    child: ShaderMask(
+                      blendMode: BlendMode.dstIn,
+                      // Só o alfa conta: a arte se desfaz no fundo tingido da tela.
+                      shaderCallback: (area) => LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        stops: const [0, inicioDoEsmaecer, 1],
+                        colors: [tema.fundo, tema.fundo, tema.fundo.withValues(alpha: 0)],
+                      ).createShader(area),
+                      child: pagina.arte!(context, Size(largura, alturaDaArte)),
+                    ),
                   ),
                 ),
               ),
@@ -111,6 +131,7 @@ class CabecaDoTitulo extends StatelessWidget {
                   if (pagina.aoAssistir != null) ...[
                     const SizedBox(height: Forma.espaco4),
                     Botao(
+                      key: chaveDoAssistir,
                       rotulo: pagina.rotuloDeAssistir,
                       icone: Symbols.play_arrow_rounded,
                       expandido: true,
@@ -156,6 +177,33 @@ class CabecaDoTitulo extends StatelessWidget {
               ),
             ),
           ],
+        );
+      },
+    );
+  }
+}
+
+/// A arte acompanha a rolagem com atraso e some aos poucos; com "remover animações" ela rola junto, parada.
+class _ArteQueFica extends StatelessWidget {
+  const _ArteQueFica({required this.rolagem, required this.altura, required this.child});
+
+  final ValueListenable<double>? rolagem;
+  final double altura;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final rolagem = this.rolagem;
+    if (rolagem == null || Movimento.reduzido(context)) return child;
+    return ValueListenableBuilder<double>(
+      valueListenable: rolagem,
+      child: child,
+      builder: (context, rolado, child) {
+        // Puxar a página para baixo (rolagem negativa) não mexe na arte.
+        final andou = rolado.clamp(0.0, altura);
+        return Transform.translate(
+          offset: Offset(0, andou * CabecaDoTitulo.atrasoDaArte),
+          child: Opacity(opacity: 1 - andou / altura, child: child),
         );
       },
     );

@@ -119,9 +119,10 @@ jobs:
           if [[ "$GITHUB_REF_NAME" == codex/heisuca-* || "$GITHUB_REF_NAME" == claude/heisuca-* ]]; then
             preview_args+=(-PheisucaPreview=true)
           fi
-          # Atualizador próprio: só a versão do site (flavor direct, ramo de produção). A da Play nunca recebe feed.
+          # Atualizador próprio: só o flavor direct. No ramo de produção é a versão do site; em claude/heisuca-* é o
+          # "Heisuca Teste", que se atualiza pelo canal de teste (com código). A da Play nunca recebe feed.
           feed_args=()
-          if [[ "$GITHUB_REF_NAME" == claude/producao-* ]]; then
+          if [[ "$GITHUB_REF_NAME" == claude/producao-* || "$GITHUB_REF_NAME" == claude/heisuca-* ]]; then
             feed_args+=(--dart-define=HEISUCA_UPDATE_FEED_URL=https://heisuca.docaio.com.br/pacotes/ --dart-define=HEISUCA_UPDATE_APK_HOSTS=heisuca.docaio.com.br)
           fi
           flutter build apk --release --flavor direct --target-platform android-arm64 --split-per-abi -PtargetAbi=arm64-v8a "${preview_args[@]}" "${feed_args[@]}" --dart-define=GIT_COMMIT=${{ github.sha }}
@@ -171,9 +172,10 @@ jobs:
           fi
           build_number=$(sed -n 's/^version: *[^+]*+\([0-9]\+\).*/\1/p' pubspec.yaml)
           [ -n "$build_number" ] || { echo "::error::build number não encontrado no pubspec.yaml"; exit 1; }
-          # Atualizador próprio: só a versão do site (flavor direct, ramo de produção). A da Play nunca recebe feed.
+          # Atualizador próprio: só o flavor direct. No ramo de produção é a versão do site; em claude/heisuca-* é o
+          # "Heisuca Teste", que se atualiza pelo canal de teste (com código). A da Play nunca recebe feed.
           feed_args=()
-          if [[ "$GITHUB_REF_NAME" == claude/producao-* ]]; then
+          if [[ "$GITHUB_REF_NAME" == claude/producao-* || "$GITHUB_REF_NAME" == claude/heisuca-* ]]; then
             feed_args+=(--dart-define=HEISUCA_UPDATE_FEED_URL=https://heisuca.docaio.com.br/pacotes/ --dart-define=HEISUCA_UPDATE_APK_HOSTS=heisuca.docaio.com.br)
           fi
           flutter build apk --release --flavor direct --target-platform android-arm,android-arm64 --build-number "$build_number" -PheisucaAbis=armeabi-v7a,arm64-v8a "${preview_args[@]}" "${feed_args[@]}" --dart-define=GIT_COMMIT=${{ github.sha }}

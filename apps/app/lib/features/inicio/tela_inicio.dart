@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import '../../design/componentes/botao.dart';
 import '../../design/cor_poster/cor_poster_cache.dart';
-import '../../design/cor_poster/paleta_poster.dart';
-import '../../design/cor_poster/temas_cor_poster.dart';
 import '../../design/forma.dart';
-import '../../design/movimento.dart';
 import '../../design/tema.dart';
+import '../fundo_tingido.dart';
 import 'destaque.dart';
 import 'modelo.dart';
 
@@ -77,55 +74,28 @@ class TelaInicio extends StatefulWidget {
 
 class _TelaInicioState extends State<TelaInicio> {
   int _atual = 0;
-
-  CorPosterCache get _cores => widget.cores ?? CorPosterCache.global;
+  List<String> _hashes = const [];
 
   @override
   void initState() {
     super.initState();
-    _cores.addListener(_mudou);
-    _aquecer();
+    _juntarHashes();
   }
 
   @override
   void didUpdateWidget(TelaInicio antiga) {
     super.didUpdateWidget(antiga);
-    final antes = antiga.cores ?? CorPosterCache.global;
-    if (antes != _cores) {
-      antes.removeListener(_mudou);
-      _cores.addListener(_mudou);
-    }
     if (_atual >= widget.destaques.length) _atual = 0;
-    if (!identical(antiga.destaques, widget.destaques)) _aquecer();
+    if (!identical(antiga.destaques, widget.destaques)) _juntarHashes();
   }
 
-  @override
-  void dispose() {
-    _cores.removeListener(_mudou);
-    super.dispose();
-  }
-
-  void _mudou() {
-    if (mounted) setState(() {});
-  }
-
-  void _aquecer() {
-    final hashes = [for (final titulo in widget.destaques) ?titulo.hash];
-    if (hashes.isNotEmpty) _cores.aquecer(hashes);
-  }
+  void _juntarHashes() => _hashes = [for (final titulo in widget.destaques) ?titulo.hash];
 
   @override
   Widget build(BuildContext context) {
     final base = TemaHeisuca.de(context);
-    final papel = TemasCorPoster.de(base.nome);
     final destaques = widget.destaques;
     final hash = destaques.isEmpty ? null : destaques[_atual.clamp(0, destaques.length - 1)].hash;
-    final paleta = _cores.ler(hash, papel) ?? PaletaPoster.neutra(papel);
-
-    // O pôster tinge fundo e superfícies; texto e acento continuam os do tema.
-    final tingido = base.copyWith(superficie: Color(paleta.superficie), superficie2: Color(paleta.superficie2));
-    final material = Theme.of(context);
-    final tempo = Movimento.tempo(context, Movimento.tema);
 
     final media = MediaQuery.of(context);
     final alturaDoDestaque = (media.size.height * TelaInicio.fracaoDoDestaque).clamp(
@@ -134,7 +104,7 @@ class _TelaInicioState extends State<TelaInicio> {
     );
     final temDestaque = destaques.isNotEmpty || widget.destaqueCarregando;
 
-    Widget lista = CustomScrollView(
+    final lista = CustomScrollView(
       key: widget.chaveDeRolagem,
       controller: widget.controle,
       physics: const AlwaysScrollableScrollPhysics(),
@@ -158,102 +128,67 @@ class _TelaInicioState extends State<TelaInicio> {
         SliverToBoxAdapter(child: SizedBox(height: media.padding.bottom + widget.folgaInferior)),
       ],
     );
-    if (widget.aoAtualizar != null) {
-      lista = RefreshIndicator(
-        color: base.texto,
-        backgroundColor: Color(paleta.superficie2),
-        edgeOffset: media.padding.top + Forma.espaco2,
-        onRefresh: widget.aoAtualizar!,
-        child: lista,
-      );
-    }
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: base.brilho == Brightness.dark ? Brightness.light : Brightness.dark,
-        statusBarBrightness: base.brilho,
-      ),
-      child: AnimatedTheme(
-        duration: tempo,
-        curve: Movimento.padrao,
-        data: material.copyWith(
-          extensions: [
-            for (final extensao in material.extensions.values)
-              if (extensao is! TemaHeisuca) extensao,
-            tingido,
-          ],
-        ),
-        child: ColoredBox(
-          color: base.fundo,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // O fundo não rola: é a parede da tela, e muda de cor com o destaque.
-              ExcludeSemantics(
-                child: AnimatedContainer(
-                  duration: tempo,
-                  curve: Movimento.padrao,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [for (final cor in paleta.degrade()) Color(cor)],
-                    ),
-                  ),
-                  foregroundDecoration: BoxDecoration(
-                    gradient: RadialGradient(
-                      center: Alignment.topCenter,
-                      // O raio do degradê é fração do lado menor; o alcance do halo é fração da altura.
-                      radius: paleta.alcanceHalo * media.size.height / media.size.shortestSide,
-                      colors: [Color(paleta.halo), Color(paleta.halo).withValues(alpha: 0)],
-                    ),
+    return FundoTingido(
+      hash: hash,
+      preparar: _hashes,
+      cores: widget.cores,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (widget.aoAtualizar == null)
+            lista
+          else
+            // Dentro do fundo tingido: o indicador usa a superfície já com a cor do pôster.
+            Builder(
+              builder: (context) => RefreshIndicator(
+                color: base.texto,
+                backgroundColor: TemaHeisuca.de(context).superficie2,
+                edgeOffset: media.padding.top + Forma.espaco2,
+                onRefresh: widget.aoAtualizar!,
+                child: lista,
+              ),
+            ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: media.padding.top + Forma.espaco6,
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      base.fundo.withValues(alpha: TelaInicio.opacidadeDoVeu),
+                      base.fundo.withValues(alpha: 0),
+                    ],
                   ),
                 ),
               ),
-              lista,
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                height: media.padding.top + Forma.espaco6,
-                child: IgnorePointer(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          base.fundo.withValues(alpha: TelaInicio.opacidadeDoVeu),
-                          base.fundo.withValues(alpha: 0),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              if (widget.perfil != null)
-                PositionedDirectional(
-                  top: media.padding.top + Forma.espaco2,
-                  start: Forma.espaco4,
-                  // A busca fica do outro lado: a pílula não passa por baixo dela.
-                  end: Forma.espaco4 + Forma.toqueMinimo + Forma.espaco2,
-                  child: Align(alignment: AlignmentDirectional.centerStart, child: widget.perfil),
-                ),
-              if (widget.aoBuscar != null)
-                PositionedDirectional(
-                  top: media.padding.top + Forma.espaco2,
-                  end: Forma.espaco4,
-                  child: BotaoDeIcone(
-                    icone: Symbols.search_rounded,
-                    rotulo: 'Buscar',
-                    sobreArte: true,
-                    aoTocar: widget.aoBuscar,
-                  ),
-                ),
-            ],
+            ),
           ),
-        ),
+          if (widget.perfil != null)
+            PositionedDirectional(
+              top: media.padding.top + Forma.espaco2,
+              start: Forma.espaco4,
+              // A busca fica do outro lado: a pílula não passa por baixo dela.
+              end: Forma.espaco4 + Forma.toqueMinimo + Forma.espaco2,
+              child: Align(alignment: AlignmentDirectional.centerStart, child: widget.perfil),
+            ),
+          if (widget.aoBuscar != null)
+            PositionedDirectional(
+              top: media.padding.top + Forma.espaco2,
+              end: Forma.espaco4,
+              child: BotaoDeIcone(
+                icone: Symbols.search_rounded,
+                rotulo: 'Buscar',
+                sobreArte: true,
+                aoTocar: widget.aoBuscar,
+              ),
+            ),
+        ],
       ),
     );
   }

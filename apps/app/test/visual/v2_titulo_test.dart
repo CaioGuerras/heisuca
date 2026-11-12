@@ -10,9 +10,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:heisuca/design/cor_poster/cor_poster_cache.dart';
 import 'package:heisuca/design/cor_poster/temas_cor_poster.dart';
 import 'package:heisuca/design/tema.dart';
+import 'package:heisuca/features/titulo/elenco.dart';
 import 'package:heisuca/features/titulo/episodios.dart';
+import 'package:heisuca/features/titulo/generos.dart';
+import 'package:heisuca/features/titulo/info_da_midia.dart';
 import 'package:heisuca/features/titulo/modelo.dart';
 import 'package:heisuca/features/titulo/tela_titulo.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 import 'heisuca_snapshot.dart';
 
@@ -78,6 +82,42 @@ void main() {
                     const TemporadaDoTitulo(chave: 't2', nome: 'Temporada 2'),
                   ],
                 ),
+                Elenco(
+                  pessoas: [
+                    for (final (nome, papel) in const [
+                      ('Timothy Olyphant', 'Seth Bullock'),
+                      ('Ian McShane', 'Al Swearengen'),
+                      ('Molly Parker', 'Alma Garret'),
+                      ('Brad Dourif', 'Doc Cochran'),
+                      ('Robin Weigert', 'Calamity Jane'),
+                    ])
+                      PessoaDoTitulo(chave: nome, nome: nome, papel: papel, aoTocar: () {}),
+                  ],
+                ),
+                Generos(
+                  generos: [
+                    for (final nome in const ['Faroeste', 'Crime', 'Drama']) GeneroDoTitulo(nome: nome, aoTocar: () {}),
+                  ],
+                ),
+                const InfoDaMidia(
+                  grupos: [
+                    GrupoDeInfo(
+                      titulo: 'Vídeo',
+                      icone: Symbols.movie_rounded,
+                      linhas: [
+                        ('Resolução', '1920x1080'),
+                        ('Codec', 'H.264'),
+                        ('Faixa dinâmica', 'SDR'),
+                        ('Quadros', '23,976'),
+                      ],
+                    ),
+                    GrupoDeInfo(
+                      titulo: 'Áudio',
+                      icone: Symbols.volume_up_rounded,
+                      linhas: [('Idioma', 'Português'), ('Codec', 'AC3'), ('Canais', '5.1')],
+                    ),
+                  ],
+                ),
               ],
               pagina: PaginaDoTitulo(
                 chave: 'd',
@@ -115,6 +155,10 @@ void main() {
       );
       await tester.pumpAndSettle();
       await expectLater(find.byType(MaterialApp), matchesGoldenFile('out/v2_titulo_${tema.nome}.png'));
+      // O fim da página: elenco, gêneros e sobre a mídia.
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -3000));
+      await tester.pumpAndSettle();
+      await expectLater(find.byType(MaterialApp), matchesGoldenFile('out/v2_titulo_${tema.nome}_fim.png'));
     }, skip: !heisucaSnapshotEnabled);
   }
 }

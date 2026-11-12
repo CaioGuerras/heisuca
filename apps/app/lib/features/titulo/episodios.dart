@@ -3,6 +3,7 @@ import 'package:material_symbols_icons/symbols.dart';
 
 import '../../design/componentes/cabecalho_de_fileira.dart';
 import '../../design/componentes/cartao.dart';
+import '../../design/componentes/pilula_de_escolha.dart';
 import '../../design/componentes/toque.dart';
 import '../../design/forma.dart';
 import '../../design/movimento.dart';
@@ -33,7 +34,7 @@ class Episodios extends StatefulWidget {
   static const int tamanhoDaFaixa = 10;
 
   /// Altura do desenho da faixa; a área de toque continua em [Forma.toqueMinimo].
-  static const double alturaDaFaixa = 36;
+  static const double alturaDaFaixa = PilulaDeEscolha.altura;
 
   /// Quantos cartões vazios guardam o lugar enquanto os episódios carregam.
   static const int cartoesCarregando = 3;
@@ -227,7 +228,7 @@ class _EpisodiosState extends State<Episodios> {
   }
 }
 
-/// Uma faixa de episódios ("11-20"): leva a fileira até o primeiro deles.
+/// A faixa de dez episódios ("1-10") que rola a fileira até eles.
 class _Faixa extends StatelessWidget {
   const _Faixa({required this.primeiro, required this.ultimo, required this.escolhida, required this.aoTocar});
 
@@ -237,45 +238,13 @@ class _Faixa extends StatelessWidget {
   final VoidCallback aoTocar;
 
   @override
-  Widget build(BuildContext context) {
-    final tema = TemaHeisuca.de(context);
-    final texto = primeiro == ultimo ? '$primeiro' : '$primeiro-$ultimo';
-    return Toque(
-      forma: Forma.pilula(),
-      rotulo: primeiro == ultimo ? 'Episódio $primeiro' : 'Episódios $primeiro a $ultimo',
-      selecionado: escolhida,
-      excluirSemantica: true,
-      aoTocar: aoTocar,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: Forma.toqueMinimo, minWidth: Forma.toqueMinimo),
-        child: Center(
-          widthFactor: 1,
-          child: DecoratedBox(
-            decoration: ShapeDecoration(
-              color: escolhida ? tema.superficie2 : null,
-              shape: Forma.pilula(lado: BorderSide(color: escolhida ? tema.superficie2 : tema.borda)),
-            ),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: Episodios.alturaDaFaixa, minWidth: Forma.toqueMinimo),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: Forma.espaco3),
-                child: Center(
-                  widthFactor: 1,
-                  heightFactor: 1,
-                  child: Text(
-                    texto,
-                    style: Tipo.tempo(
-                      tema,
-                    ).copyWith(color: escolhida ? tema.texto : tema.texto2, fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => PilulaDeEscolha(
+    texto: primeiro == ultimo ? '$primeiro' : '$primeiro-$ultimo',
+    rotulo: primeiro == ultimo ? 'Episódio $primeiro' : 'Episódios $primeiro a $ultimo',
+    selecionado: escolhida,
+    algarismos: true,
+    aoTocar: aoTocar,
+  );
 }
 
 /// O lugar dos episódios enquanto não chegam: cartões vazios, das mesmas medidas.

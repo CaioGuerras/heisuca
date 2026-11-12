@@ -114,3 +114,41 @@ class TemporadaDoTitulo {
   /// `null` enquanto os episódios não chegam; lista vazia quando a temporada não tem nenhum.
   final List<EpisodioDoTitulo>? episodios;
 }
+
+/// Alguém do elenco ou da equipe.
+@immutable
+class PessoaDoTitulo {
+  const PessoaDoTitulo({required this.chave, required this.nome, this.papel, this.foto, this.aoTocar});
+
+  final String chave;
+  final String nome;
+
+  /// O personagem, ou a função ("Direção").
+  final String? papel;
+  final FazArte? foto;
+  final VoidCallback? aoTocar;
+
+  /// Como o leitor de tela anuncia: "Ian McShane, Al Swearengen".
+  String get rotulo => (papel == null || papel!.trim().isEmpty) ? nome : '$nome, ${papel!.trim()}';
+}
+
+/// Um gênero do título; com [aoTocar], leva aos títulos do mesmo gênero.
+@immutable
+class GeneroDoTitulo {
+  const GeneroDoTitulo({required this.nome, this.aoTocar});
+
+  final String nome;
+  final VoidCallback? aoTocar;
+}
+
+/// Um cartão de dados técnicos da mídia ("Vídeo", "Áudio"): pares de nome e valor, já em texto.
+///
+/// Só o que interessa a quem assiste. O caminho do arquivo no servidor não entra aqui.
+@immutable
+class GrupoDeInfo {
+  const GrupoDeInfo({required this.titulo, required this.linhas, this.icone});
+
+  final String titulo;
+  final IconData? icone;
+  final List<(String nome, String valor)> linhas;
+}

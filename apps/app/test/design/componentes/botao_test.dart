@@ -149,4 +149,35 @@ void main() {
     expect(toques, 1);
     alca.dispose();
   });
+
+  testWidgets('botão de liga e desliga: ligado, o ícone fica cheio e o leitor de tela diz o estado', (tester) async {
+    final alca = tester.ensureSemantics();
+    for (final tema in TemaHeisuca.todos) {
+      for (final ligado in [false, true]) {
+        await tester.pumpWidget(
+          naTela(
+            tema: tema,
+            BotaoDeIcone(icone: Icons.favorite, rotulo: 'Minha lista', selecionado: ligado, aoTocar: () {}),
+          ),
+        );
+        expect(tester.widget<Icon>(find.byType(Icon)).fill, ligado ? 1 : 0, reason: tema.nome);
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('Minha lista')).flagsCollection.isSelected.toBoolOrNull(),
+          ligado,
+          reason: tema.nome,
+        );
+        expect(tester.getSize(find.byType(BotaoDeIcone)), const Size(48, 48));
+      }
+    }
+    alca.dispose();
+  });
+
+  testWidgets('botão de ícone comum não se anuncia como selecionável', (tester) async {
+    final alca = tester.ensureSemantics();
+    await tester.pumpWidget(naTela(BotaoDeIcone(icone: Icons.search, rotulo: 'Buscar', aoTocar: () {})));
+    final no = tester.getSemantics(find.bySemanticsLabel('Buscar'));
+    expect(no.flagsCollection.isSelected.toBoolOrNull(), isNull);
+    expect(no.flagsCollection.isButton, isTrue);
+    alca.dispose();
+  });
 }

@@ -8,6 +8,7 @@ import '../../design/forma.dart';
 import '../../design/tema.dart';
 import '../../design/tipo.dart';
 import '../../design/vibracao.dart';
+import '../meta_do_titulo.dart';
 import 'modelo.dart';
 
 /// O destaque no topo do Início: a arte sobe até a barra de status e se desfaz no fundo.
@@ -103,10 +104,12 @@ class _Pagina extends StatelessWidget {
     final tema = TemaHeisuca.de(context);
     final rotulo = [
       titulo.titulo,
-      if (titulo.nota != null) 'nota ${titulo.nota}',
-      ?titulo.anos,
-      ?titulo.generos,
-      if (titulo.classificacao != null) 'classificação ${titulo.classificacao}',
+      ...MetaDoTitulo.rotulos(
+        nota: titulo.nota,
+        anos: titulo.anos,
+        generos: titulo.generos,
+        classificacao: titulo.classificacao,
+      ),
     ].join(', ');
 
     return LayoutBuilder(
@@ -168,7 +171,12 @@ class _Pagina extends StatelessWidget {
                               : titulo.logo!(context, tamanhoDoLogo, Center(child: semLogo)),
                         ),
                         const SizedBox(height: Forma.espaco2),
-                        _Meta(titulo: titulo),
+                        MetaDoTitulo(
+                          nota: titulo.nota,
+                          anos: titulo.anos,
+                          generos: titulo.generos,
+                          classificacao: titulo.classificacao,
+                        ),
                         if (titulo.sinopse != null) ...[
                           const SizedBox(height: Forma.espaco2),
                           Text.rich(
@@ -220,66 +228,6 @@ class _Pagina extends StatelessWidget {
           ],
         );
       },
-    );
-  }
-}
-
-/// "★ nota · anos · gêneros · classificação". O que falta não aparece, nem o ponto dele.
-class _Meta extends StatelessWidget {
-  const _Meta({required this.titulo});
-
-  final TituloEmDestaque titulo;
-
-  @override
-  Widget build(BuildContext context) {
-    final tema = TemaHeisuca.de(context);
-    final estilo = Tipo.tempo(tema);
-    final partes = <Widget>[
-      if (titulo.nota != null)
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Symbols.star_rounded, size: 16, fill: 1, color: tema.acento),
-            const SizedBox(width: Forma.espaco1),
-            Text(
-              titulo.nota!,
-              style: estilo.copyWith(color: tema.texto, fontWeight: FontWeight.w700),
-            ),
-          ],
-        ),
-      if (titulo.anos != null) Text(titulo.anos!, style: estilo),
-      if (titulo.generos != null) Text(titulo.generos!, maxLines: 1, overflow: TextOverflow.ellipsis, style: estilo),
-      if (titulo.classificacao != null)
-        DecoratedBox(
-          decoration: ShapeDecoration(
-            shape: Forma.superelipse(Forma.raioPequeno, lado: BorderSide(color: tema.borda)),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: Forma.espaco2, vertical: Forma.espaco1 / 2),
-            child: Text(titulo.classificacao!, style: Tipo.legenda(tema).copyWith(color: tema.texto)),
-          ),
-        ),
-    ];
-    if (partes.isEmpty) return const SizedBox.shrink();
-    // Numa linha só quando cabe; com letra grande, o que não cabe desce para a linha de baixo.
-    return Wrap(
-      alignment: WrapAlignment.center,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      runSpacing: Forma.espaco1,
-      children: [
-        for (var i = 0; i < partes.length; i++)
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (i > 0)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: Forma.espaco2),
-                  child: Text('·', style: estilo),
-                ),
-              Flexible(child: partes[i]),
-            ],
-          ),
-      ],
     );
   }
 }

@@ -6,6 +6,7 @@ import '../../design/cor_poster/cor_poster_cache.dart';
 import '../../design/forma.dart';
 import '../../design/tema.dart';
 import '../fundo_tingido.dart';
+import '../veu_do_topo.dart';
 import 'destaque.dart';
 import 'modelo.dart';
 
@@ -64,9 +65,6 @@ class TelaInicio extends StatefulWidget {
 
   /// Altura do topo quando não há destaque: só o lugar do botão de busca.
   static const double topoSemDestaque = 72;
-
-  /// Véu no tom do papel atrás da barra de status, para as horas e os ícones se lerem sobre a arte.
-  static const double opacidadeDoVeu = 0.55;
 
   @override
   State<TelaInicio> createState() => _TelaInicioState();
@@ -149,26 +147,7 @@ class _TelaInicioState extends State<TelaInicio> {
                 child: lista,
               ),
             ),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: media.padding.top + Forma.espaco6,
-            child: IgnorePointer(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      base.fundo.withValues(alpha: TelaInicio.opacidadeDoVeu),
-                      base.fundo.withValues(alpha: 0),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
+          const VeuDoTopo(),
           if (widget.perfil != null)
             PositionedDirectional(
               top: media.padding.top + Forma.espaco2,

@@ -92,12 +92,16 @@ class BotaoDeIcone extends StatelessWidget {
     required this.rotulo,
     required this.aoTocar,
     this.sobreArte = false,
+    this.selecionado,
     this.vibracao,
   });
 
   final IconData icone;
   final String rotulo;
   final VoidCallback? aoTocar;
+
+  /// Para botão de liga e desliga (na lista, visto): ligado, o ícone fica cheio. `null` para um botão comum.
+  final bool? selecionado;
 
   /// Fica sobre a arte do título: fundo translúcido, para a arte aparecer por baixo.
   final bool sobreArte;
@@ -119,6 +123,7 @@ class BotaoDeIcone extends StatelessWidget {
         forma: forma,
         rotulo: rotulo,
         excluirSemantica: true,
+        selecionado: selecionado,
         aoTocar: aoTocar,
         vibracao: vibracao,
         escala: 0.92,
@@ -129,7 +134,7 @@ class BotaoDeIcone extends StatelessWidget {
             color: tema.superficie.withValues(alpha: sobreArte ? opacidadeSobreArte : 1),
             shape: forma,
           ),
-          child: Icon(icone, size: HeisucaBase.espaco6, color: tema.texto),
+          child: Icon(icone, size: HeisucaBase.espaco6, fill: selecionado == true ? 1 : 0, color: tema.texto),
         ),
       ),
     );

@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:heisuca/features/inicio/fileira.dart';
+import 'package:heisuca/features/titulo/elenco.dart';
 import 'package:heisuca/features/titulo/episodios.dart';
+import 'package:heisuca/features/titulo/generos.dart';
+import 'package:heisuca/features/titulo/info_da_midia.dart';
 import 'package:heisuca/features/titulo/ligacao.dart';
 import 'package:heisuca/media/ids.dart';
 import 'package:heisuca/media/media_backend.dart';
+import 'package:heisuca/media/media_file_info.dart';
+import 'package:heisuca/media/media_hub.dart';
 import 'package:heisuca/media/media_item.dart';
 import 'package:heisuca/media/media_kind.dart';
+import 'package:heisuca/media/media_role.dart';
 import 'package:heisuca/media/media_server_client.dart';
 
 import '../../design/componentes/apoio.dart';
@@ -83,6 +90,21 @@ class _Servidor extends MediaServerClient {
   Future<List<MediaItem>> fetchChildren(String parentId) async {
     pedidos.add('filhos:$parentId');
     return filhos[parentId] ?? const [];
+  }
+
+  /// Sem resposta guardada, o servidor falha: a página tem de seguir sem a seção.
+  List<MediaHub>? parecidos;
+  final info = <String, MediaFileInfo>{};
+  final pedidosDeInfo = <String>[];
+
+  @override
+  Future<List<MediaHub>> fetchRelatedHubs(String id, {int count = 10}) async =>
+      parecidos ?? (throw StateError('sem parecidos'));
+
+  @override
+  Future<MediaFileInfo?> getFileInfo(MediaItem item) async {
+    pedidosDeInfo.add(item.id);
+    return info[item.id] ?? (throw StateError('sem dados do arquivo'));
   }
 
   @override
@@ -213,4 +235,101 @@ void main() {
     expect(find.byType(Episodios), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  group('complementos', () {
+    test('parecidos: junta os grupos sem repetir e sem o próprio título', () {
+      final a = _item('a', MediaKind.movie), b = _item('b', MediaKind.movie), eu = _item('eu', MediaKind.movie);
+      final grupos = [
+        MediaHub(id: '1', title: 'Parecidos', type: 'movie', items: [a, eu, b]),
+        MediaHub(id: '2', title: 'Do mesmo diretor', type: 'movie', items: [b, a]),
+      ];
+      expect(parecidosDe(grupos, 'eu').map((item) => item.id), ['a', 'b']);
+      expect(parecidosDe(const [], 'eu'), isEmpty);
+    });
+
+    test('dados do arquivo: só grupos com linha, da primeira versão', () {
+      expect(gruposDeInfoDe(null), isEmpty);
+      expect(gruposDeInfoDe(const MediaFileInfo()), isEmpty);
+      final grupos = gruposDeInfoDe(_arquivo);
+      expect(grupos.map((grupo) => grupo.titulo), ['Vídeo']);
+      expect(grupos.single.linhas, contains(('Resolução', '1920 × 1080')));
+      expect(grupos.single.linhas.every((linha) => linha.$2.trim().isNotEmpty), isTrue);
+    });
+
+    testWidgets('filme com tudo: elenco, parecidos, gêneros e dados do arquivo, nesta ordem', (tester) async {
+      final filme = PlexMediaItem(
+        id: 'filme',
+        kind: MediaKind.movie,
+        title: 'A Viagem',
+        serverId: 'casa',
+        genres: const ['Animação', ' ', 'Fantasia'],
+        roles: const [
+          MediaRole(id: 'p1', tag: 'Rumi Hiiragi', role: 'Chihiro'),
+          MediaRole(tag: 'Miyu Irino'),
+          MediaRole(tag: '  '),
+        ],
+      );
+      final servidor = _Servidor()
+        ..itens['filme'] = filme
+        ..parecidos = [
+          MediaHub(
+            id: '1',
+            title: 'Parecidos',
+            type: 'movie',
+            items: [
+              _item('outro', MediaKind.movie, titulo: 'O Castelo Animado'),
+              filme,
+            ],
+          ),
+        ]
+        ..info['filme'] = _arquivo;
+      await _abrir(tester, filme, servidor);
+
+      expect(find.text('Rumi Hiiragi'), findsOneWidget);
+      expect(find.text('Chihiro'), findsOneWidget);
+      expect(find.text('Miyu Irino'), findsOneWidget);
+      expect(find.text('Mais como este'), findsOneWidget);
+      expect(find.text('O Castelo Animado'), findsOneWidget);
+      expect(find.descendant(of: find.byType(Generos), matching: find.text('Fantasia')), findsOneWidget);
+      expect(find.text('Sobre a mídia'), findsOneWidget);
+      expect(find.textContaining('1920 × 1080', findRichText: true), findsOneWidget);
+
+      double topo(Type secao) => tester.getTopLeft(find.byType(secao)).dy;
+      expect(topo(Elenco), lessThan(topo(Fileira)));
+      expect(topo(Fileira), lessThan(topo(Generos)));
+      expect(topo(Generos), lessThan(topo(InfoDaMidia)));
+      expect(servidor.pedidosDeInfo, ['filme']);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('servidor sem parecidos nem dados do arquivo: as seções somem e a página não acusa falha', (
+      tester,
+    ) async {
+      final filme = _item('filme', MediaKind.movie, titulo: 'A Viagem');
+      await _abrir(tester, filme, _Servidor()..itens['filme'] = filme);
+
+      expect(find.text('Assistir'), findsOneWidget);
+      expect(find.byType(Elenco), findsNothing);
+      expect(find.byType(Fileira), findsNothing);
+      expect(find.byType(Generos), findsNothing);
+      expect(find.byType(InfoDaMidia), findsNothing);
+      expect(find.text('Tentar de novo'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('série: os dados do arquivo são os do episódio do botão, com o código no título', (tester) async {
+      final servidor = _servidorDaSerie()
+        ..proximo = _episodio('t1', 1, 2, visto: 60000)
+        ..info['t1-e2'] = _arquivo;
+      await _abrir(tester, _serie, servidor);
+
+      expect(servidor.pedidosDeInfo, ['t1-e2']);
+      expect(find.textContaining('Sobre a mídia · '), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  });
 }
+
+const _arquivo = MediaFileInfo(
+  versions: [MediaFileVersion(container: 'mkv', width: 1920, height: 1080, videoCodec: 'hevc', bitrateKbps: 4200)],
+);

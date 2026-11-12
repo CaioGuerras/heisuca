@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../cgflix/home/cgflix_actions.dart';
 import '../../design/componentes/botao.dart';
+import '../../design/componentes/cartao.dart';
 import '../../design/forma.dart';
 import '../../design/tema.dart';
 import '../../design/tipo.dart';
@@ -11,16 +12,26 @@ import '../../heisuca/heisuca_context_menu.dart';
 import '../../heisuca/heisuca_home_style.dart';
 import '../../heisuca/heisuca_state_store.dart';
 import '../../heisuca/heisuca_title_logo.dart';
+import '../../heisuca/heisuca_title_parts.dart';
 import '../../heisuca/heisuca_title_sheet.dart';
+import '../../media/media_file_info.dart';
+import '../../media/media_hub.dart';
 import '../../media/media_item.dart';
 import '../../media/media_kind.dart';
+import '../../media/media_role.dart';
 import '../../media/media_server_client.dart';
+import '../../screens/actor_media_screen.dart';
 import '../../services/settings_service.dart';
 import '../../utils/media_image_helper.dart';
 import '../../widgets/optimized_media_image.dart';
+import '../inicio/fileira.dart';
 import '../inicio/ligacao.dart' show juntar, notaDe, progressoDe;
+import '../inicio/modelo.dart';
 import '../tema_da_v2.dart';
+import 'elenco.dart';
 import 'episodios.dart';
+import 'generos.dart';
+import 'info_da_midia.dart';
 import 'modelo.dart';
 import 'tela_titulo.dart';
 
@@ -81,6 +92,29 @@ List<MediaItem> soEpisodios(Iterable<MediaItem> filhos) =>
       ..sort((a, b) => (a.index ?? 0).compareTo(b.index ?? 0));
 
 /// De onde sai o cliente do servidor de um item. Os testes trocam por um de mentira.
+/// Os títulos parecidos, sem repetir e sem o próprio título. O servidor manda em grupos; a tela mostra uma fileira só.
+@visibleForTesting
+List<MediaItem> parecidosDe(List<MediaHub> grupos, String menos) {
+  final vistos = <String, MediaItem>{};
+  for (final grupo in grupos) {
+    for (final item in grupo.items) {
+      if (item.id != menos) vistos.putIfAbsent(item.globalKey, () => item);
+    }
+  }
+  return vistos.values.toList();
+}
+
+/// O arquivo em grupos de linhas ("Vídeo", "Áudio", "Legendas"), já sem linha vazia. Vale a primeira versão.
+@visibleForTesting
+List<GrupoDeInfo> gruposDeInfoDe(MediaFileInfo? info) {
+  final versao = info?.versions.firstOrNull;
+  if (versao == null) return const [];
+  return [
+    for (final cartao in heisucaMediaInfoCards(versao))
+      if (cartao.rows.isNotEmpty) GrupoDeInfo(titulo: cartao.title, icone: cartao.icon, linhas: cartao.rows),
+  ];
+}
+
 typedef ClienteDe = MediaServerClient? Function(BuildContext context, MediaItem item);
 
 /// Liga a tela Título da V2 ao acervo e ao player.
@@ -116,6 +150,11 @@ class _LigacaoDoTituloState extends State<LigacaoDoTitulo> {
   int _aberta = 0;
   bool _falhou = false;
   bool _entradaUsada = false;
+
+  /// O que vem depois da página pronta, sem segurar nada: parecidos e os dados do arquivo.
+  List<MediaItem>? _parecidos;
+  MediaFileInfo? _info;
+  String? _infoDe;
   int _geracao = 0;
 
   @override
@@ -161,6 +200,7 @@ class _LigacaoDoTituloState extends State<LigacaoDoTitulo> {
           _alvo = null;
           _temporadas = null;
         });
+        unawaited(_carregarComplementos(cliente, geracao));
         return;
       }
       setState(() {
@@ -169,6 +209,7 @@ class _LigacaoDoTituloState extends State<LigacaoDoTitulo> {
         final tocado = _entradaUsada ? null : (widget.episodio ?? (entrada.kind == MediaKind.episode ? entrada : null));
         _alvo = _ehSerie ? (tocado ?? resposta.onDeckEpisode ?? (denovo ? null : _alvo)) : null;
       });
+      unawaited(_carregarComplementos(cliente, geracao));
       if (!_ehSerie) return;
 
       if (filhos != null || _temporadas == null) {
@@ -188,6 +229,32 @@ class _LigacaoDoTituloState extends State<LigacaoDoTitulo> {
     } catch (_) {
       if (!velho()) setState(() => _falhou = true);
     }
+  }
+
+  /// Parecidos e dados do arquivo. Se o servidor não responder, a seção só não aparece.
+  Future<void> _carregarComplementos(MediaServerClient cliente, int geracao) async {
+    bool velho() => !mounted || geracao != _geracao;
+    final alvo = _ehSerie ? _alvo : _item;
+    await Future.wait([
+      if (_parecidos == null)
+        () async {
+          try {
+            final parecidos = parecidosDe(await cliente.fetchRelatedHubs(_item.id), _item.id);
+            if (!velho()) setState(() => _parecidos = parecidos);
+          } catch (_) {}
+        }(),
+      if (alvo != null && alvo.id != _infoDe)
+        () async {
+          try {
+            final info = await cliente.getFileInfo(alvo);
+            if (velho()) return;
+            setState(() {
+              _info = info;
+              _infoDe = alvo.id;
+            });
+          } catch (_) {}
+        }(),
+    ]);
   }
 
   Future<void> _carregarTemporada(int indice, {bool denovo = false}) async {
@@ -337,8 +404,70 @@ class _LigacaoDoTituloState extends State<LigacaoDoTitulo> {
       ),
   ];
 
+  List<PessoaDoTitulo> _emElenco(MediaServerClient? cliente) => [
+    for (final (indice, MediaRole papel) in (_item.roles ?? const <MediaRole>[]).indexed)
+      if (papel.tag.trim().isNotEmpty)
+        PessoaDoTitulo(
+          chave: '${papel.id ?? papel.tag}-$indice',
+          nome: papel.tag,
+          papel: papel.role,
+          foto: papel.thumbPath == null || papel.thumbPath!.isEmpty
+              ? null
+              : (context, tamanho) => OptimizedMediaImage(
+                  client: cliente,
+                  imagePath: papel.thumbPath,
+                  width: tamanho.width,
+                  height: tamanho.height,
+                  imageType: ImageType.square,
+                ),
+          aoTocar: cliente == null || papel.id == null || papel.id!.isEmpty ? null : () => _abrirPessoa(cliente, papel),
+        ),
+  ];
+
+  void _abrirPessoa(MediaServerClient cliente, MediaRole papel) {
+    unawaited(
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => ActorMediaScreen(
+            actorName: papel.tag,
+            personId: papel.id!,
+            actorThumb: papel.thumbPath,
+            characterName: papel.role,
+            serverId: cliente.serverId.value,
+            serverName: cliente.serverName,
+            backend: cliente.backend,
+          ),
+        ),
+      ),
+    );
+  }
+
+  ItemDaFileira _emParecido(MediaItem item) => ItemDaFileira(
+    chave: item.globalKey,
+    titulo: item.displayTitle,
+    arte: (context, tamanho) => OptimizedMediaImage(
+      client: widget.clienteDe(context, item),
+      imagePath: cgflixPosterPath(item),
+      width: tamanho.width,
+      height: tamanho.height,
+    ),
+    hash: heisucaArtworkHash(item),
+    nota: notaDe(item.rating),
+    aoTocar: () => unawaited(LigacaoDoTitulo.abrir(context, item)),
+    aoSegurar: () => _menu(item),
+  );
+
   @override
   Widget build(BuildContext context) {
+    final cliente = widget.clienteDe(context, _item);
+    final elenco = _emElenco(cliente);
+    final parecidos = _parecidos ?? const <MediaItem>[];
+    final generos = [
+      for (final genero in _item.genres ?? const <String>[])
+        if (genero.trim().isNotEmpty) GeneroDoTitulo(nome: genero.trim()),
+    ];
+    final info = gruposDeInfoDe(_info);
+    final codigo = _ehSerie && _alvo != null ? cgflixEpisodeCode(_alvo!) : '';
     final temporadas = _temporadas;
     final alvo = _ehSerie ? _alvo : _item;
     return SobOTemaDaV2(
@@ -355,6 +484,19 @@ class _LigacaoDoTituloState extends State<LigacaoDoTitulo> {
                 inicial: _aberta,
                 aoMudarTemporada: _mudarTemporada,
               ),
+            if (elenco.isNotEmpty) Elenco(pessoas: elenco),
+            if (parecidos.isNotEmpty)
+              Fileira(
+                dados: FileiraDoInicio(
+                  chave: 'parecidos-${_item.id}',
+                  titulo: 'Mais como este',
+                  formato: FormatoDoCartao.poster,
+                  itens: [for (final item in parecidos) _emParecido(item)],
+                ),
+              ),
+            if (generos.isNotEmpty) Generos(generos: generos),
+            if (info.isNotEmpty)
+              InfoDaMidia(grupos: info, titulo: codigo.isEmpty ? 'Sobre a mídia' : 'Sobre a mídia · $codigo'),
             if (_falhou) _Falha(aoTentar: () => unawaited(_carregar())),
           ],
         ),

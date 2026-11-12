@@ -6,12 +6,13 @@ import '../heisuca/tv/heisuca_tv_settings_screen.dart';
 import '../heisuca/tv/heisuca_tv_back_handler.dart';
 import '../cgflix/cgflix_navigation.dart';
 import '../cgflix/home/cgflix_home_logic.dart';
-import '../heisuca/heisuca_floating_island.dart';
+import '../design/componentes/barra_flutuante.dart';
+import '../features/casca/casca.dart';
+import '../features/casca/pilula_do_perfil_ativo.dart';
+import '../features/tema_da_v2.dart';
 import '../heisuca/kids/heisuca_kids_flow.dart';
 import '../features/inicio/ligacao.dart';
-import '../heisuca/heisuca_profile_screen.dart';
 import '../cgflix/you/cgflix_favorites_screen.dart';
-import '../profiles/profile_avatar.dart';
 import 'dart:async';
 import 'updates/update_screen.dart';
 import '../media/ids.dart';
@@ -390,6 +391,12 @@ class _MainScreenState extends State<MainScreen>
   // Na TV, a soltura só pode agir se esta rota recebeu o início do mesmo aperto.
   KeyDownEvent? _tvBackKeyDown;
   String? _selectedLibraryGlobalKey;
+
+  /// Fonte da camada "Minha lista" enquanto ela está aberta sobre as abas; a barra a mostra como destino ativo.
+  CgflixFavoritesSource? _myList;
+
+  /// Perfil que abriu a camada: se o perfil mudar, a lista aberta já não é a dele.
+  String? _myListProfileId;
   Future<void>? _desktopExitFuture;
 
   /// Whether the app is in offline mode (no server connection)
@@ -1111,6 +1118,7 @@ class _MainScreenState extends State<MainScreen>
                 key: _screenKeys[tab],
                 initialLibraryKey: _selectedLibraryGlobalKey,
                 onLibrarySelected: _handleLibrariesScreenSelected,
+                extraActions: [_buildProfileAction()],
               )
             : LibrariesScreen(
                 key: _screenKeys[tab],
@@ -1119,7 +1127,10 @@ class _MainScreenState extends State<MainScreen>
               ),
       NavigationTabId.liveTv => LiveTvScreen(key: _screenKeys[tab]),
       NavigationTabId.search => SearchScreen(key: _screenKeys[tab]),
-      NavigationTabId.downloads => DownloadsScreen(key: _screenKeys[tab]),
+      NavigationTabId.downloads => DownloadsScreen(
+        key: _screenKeys[tab],
+        profileAction: cgflixUseYouTab(context) ? _buildProfileAction() : null,
+      ),
       NavigationTabId.settings =>
         PlatformDetector.isTV() ? const HeisucaTvSettingsScreen() : SettingsScreen(key: _screenKeys[tab]),
     };
@@ -1280,6 +1291,8 @@ class _MainScreenState extends State<MainScreen>
     setState(() {
       _isReconnecting = false;
       _isOffline = newOffline;
+      // Sem conexão a lista não carrega: a camada fecha e fica a aba de baixo.
+      if (_isOffline) _myList = null;
       _selectedLibraryGlobalKey = _isOffline ? null : _selectedLibraryGlobalKey;
 
       if (_isOffline) {
@@ -1436,6 +1449,13 @@ class _MainScreenState extends State<MainScreen>
       // Keep the focus ring in step with the new selection; the sidebar scope
       // already has focus, so no post-frame deferral is needed.
       _sideNavKey.currentState?.focusHomeItem();
+      _lastBackPressAt = null;
+      return KeyEventResult.handled;
+    }
+
+    // "Minha lista" aberta sobre a primeira aba: voltar fecha a lista antes de pedir o segundo toque para sair.
+    if (_myList != null) {
+      _closeMyList();
       _lastBackPressAt = null;
       return KeyEventResult.handled;
     }
@@ -1765,6 +1785,8 @@ class _MainScreenState extends State<MainScreen>
     final wasMounted = _mountedTabs.contains(tab);
     setState(() {
       _currentTab = tab;
+      // Escolher uma aba fecha a camada "Minha lista".
+      _myList = null;
       if (!wasMounted) {
         _mountedTabs.add(tab);
         _screens = _buildScreens(_isOffline);
@@ -2307,71 +2329,130 @@ class _MainScreenState extends State<MainScreen>
     );
   }
 
-  /// Heisuca: shell com Ilha Flutuante Inferior de Vidro (Início, Biblioteca, Buscar, Usuário).
+  /// Heisuca: casca da V2. A barra flutuante leva a Início, Explorar, Minha lista e Baixados;
+  /// o perfil fica no topo de cada tela.
   Widget _buildCgflixShell(BuildContext context) {
-    final profiles = context.watch<ActiveProfileProvider?>();
-    final activeProfile = profiles?.active;
     final insets = _miniPlayerInsets;
     if (insets != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) insets.setNavInsets(bottom: 80, start: 0);
+        if (mounted) insets.setNavInsets(bottom: Casca.reserva, start: 0);
       });
     }
 
-    final tabIndex = switch (_currentTab) {
-      NavigationTabId.discover => 0,
-      NavigationTabId.libraries => 1,
-      NavigationTabId.downloads => 2,
-      _ => 0,
-    };
+    final kids = heisucaKidsActive(context);
+    final activeProfileId = context.watch<ActiveProfileProvider?>()?.activeId;
+    final myList = _myList;
+    if (myList != null && _myListProfileId != activeProfileId) {
+      // Trocou o perfil com a lista aberta: a lista era do perfil anterior.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _closeMyList();
+      });
+    }
 
-    return Scaffold(
-      body: Stack(
+    final index = myList != null
+        ? _myListDestination
+        : switch (_currentTab) {
+            NavigationTabId.libraries => 1,
+            NavigationTabId.downloads when !kids => 3,
+            _ => 0,
+          };
+
+    return Casca(
+      indice: index,
+      aoMudar: _selectShellDestination,
+      destinos: [
+        const DestinoDaBarra(icone: Symbols.home_rounded, rotulo: 'Início'),
+        DestinoDaBarra(
+          icone: Symbols.explore_rounded,
+          rotulo: 'Explorar',
+          aoSegurar: () => _showLibraryQuickPicker(context),
+        ),
+        const DestinoDaBarra(icone: Symbols.bookmark_rounded, rotulo: 'Minha lista'),
+        // No modo infantil os baixados ficam fora da barra.
+        if (!kids) const DestinoDaBarra(icone: Symbols.download_rounded, rotulo: 'Baixados'),
+      ],
+      corpo: Stack(
         children: [
+          // As abas continuam montadas por baixo da lista, paradas e fora do leitor de tela.
           Positioned.fill(
-            child: Column(
-              children: [
-                if (_isOffline) CgflixOfflineTopBar(reconnecting: _isReconnecting, onReconnect: _triggerReconnect),
-                Expanded(
-                  child: _isOffline
-                      ? MediaQuery.removePadding(context: context, removeTop: true, child: _buildTickerAwareStack())
-                      : _buildTickerAwareStack(),
+            child: Offstage(
+              offstage: myList != null,
+              child: TickerMode(
+                enabled: myList == null,
+                child: Column(
+                  children: [
+                    if (_isOffline) CgflixOfflineTopBar(reconnecting: _isReconnecting, onReconnect: _triggerReconnect),
+                    Expanded(
+                      child: _isOffline
+                          ? MediaQuery.removePadding(context: context, removeTop: true, child: _buildTickerAwareStack())
+                          : _buildTickerAwareStack(),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-          HeisucaFloatingIsland(
-            currentIndex: tabIndex,
-            userLabel: activeProfile?.displayName.split(RegExp(r'[\s._-]')).first ?? 'Você',
-            kids: heisucaKidsActive(context),
-            userAvatar: activeProfile == null
-                ? null
-                : ProfileAvatar(profile: activeProfile, size: 23, avatarUrl: profiles?.avatarUrlFor(activeProfile.id)),
-            onLibrariesLongPress: () {
-              Feedback.forLongPress(context);
-              _showLibraryQuickPicker(context);
-            },
-            onDestinationSelected: (i) {
-              if (i == 0) _selectTab(NavigationTabId.discover);
-              if (i == 1) _selectTab(NavigationTabId.libraries);
-              if (i == 2 && !heisucaKidsActive(context, listen: false)) _selectTab(NavigationTabId.downloads);
-              if (i == 2 && heisucaKidsActive(context, listen: false)) {
-                final source = CgflixFavoritesSource.of(context);
-                if (source != null) {
-                  cgflixOpenFavorites(context, source);
-                } else {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(const SnackBar(content: Text('Favoritos indisponíveis para esta conexão.')));
-                }
-              }
-              if (i == 3) {
-                Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const HeisucaProfileScreen()));
-              }
-            },
-          ),
+          if (myList != null)
+            Positioned.fill(
+              child: CgflixFavoritesScreen(
+                source: myList,
+                title: 'Minha lista',
+                embedded: true,
+                actions: [_buildProfileAction()],
+                bottomInset: Casca.reserva + MediaQuery.paddingOf(context).bottom,
+              ),
+            ),
         ],
       ),
     );
+  }
+
+  /// Lugar de "Minha lista" na barra flutuante.
+  static const int _myListDestination = 2;
+
+  /// O avatar de quem está usando o app, no cabeçalho das telas da casca. Abre "Você".
+  Widget _buildProfileAction() {
+    return const Padding(
+      padding: EdgeInsetsDirectional.only(end: 8),
+      child: Center(child: SobOTemaDaV2(child: PilulaDoPerfilAtivo(soAvatar: true))),
+    );
+  }
+
+  void _selectShellDestination(int index) {
+    if (index == _myListDestination) {
+      _openMyList();
+      return;
+    }
+    final tab = switch (index) {
+      1 => NavigationTabId.libraries,
+      3 => NavigationTabId.downloads,
+      _ => NavigationTabId.discover,
+    };
+    if (!_getVisibleTabs(_isOffline).any((t) => t.id == tab)) {
+      if (_isOffline) showMainSnackBar('Sem conexão: só os baixados estão disponíveis.');
+      return;
+    }
+    _selectTab(tab);
+  }
+
+  void _openMyList() {
+    final source = _isOffline ? null : CgflixFavoritesSource.of(context);
+    if (source == null) {
+      showMainSnackBar(
+        _isOffline ? 'Sem conexão: só os baixados estão disponíveis.' : 'Minha lista indisponível para esta conexão.',
+      );
+      return;
+    }
+    setState(() {
+      _myList = source;
+      _myListProfileId = context.read<ActiveProfileProvider?>()?.activeId;
+    });
+  }
+
+  /// Fecha a camada "Minha lista"; a aba que estava por baixo volta a aparecer.
+  void _closeMyList() {
+    if (_myList == null) return;
+    setState(() => _myList = null);
+    _onScreen<TabVisibilityAware>(_currentTab, (screen) => screen.onTabShown());
   }
 }

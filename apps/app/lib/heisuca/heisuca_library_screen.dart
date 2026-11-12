@@ -20,9 +20,11 @@ import '../cgflix/you/cgflix_favorites_screen.dart';
 
 /// Biblioteca Heisuca: grade de pôsteres, filtros em pílulas e dados paginados da fonte ativa.
 class HeisucaLibraryScreen extends StatefulWidget {
-  const HeisucaLibraryScreen({super.key, this.initialLibraryKey, this.onLibrarySelected});
+  const HeisucaLibraryScreen({super.key, this.initialLibraryKey, this.onLibrarySelected, this.extraActions = const []});
   final String? initialLibraryKey;
   final ValueChanged<String>? onLibrarySelected;
+  /// Ações do cabeçalho depois de "Ordenar" (o avatar de quem está usando o app).
+  final List<Widget> extraActions;
   @override
   State<HeisucaLibraryScreen> createState() => _HeisucaLibraryScreenState();
 }
@@ -125,6 +127,7 @@ class _HeisucaLibraryScreenState extends State<HeisucaLibraryScreen> with Refres
       PopupMenuButton<String>(tooltip: 'Ordenar', icon: const Icon(Icons.sort), onSelected: (field) {
         _sort = LibrarySort(field: field, direction: field == 'title' ? LibrarySortDirection.ascending : LibrarySortDirection.descending); _reload();
       }, itemBuilder: (_) => const [PopupMenuItem(value: 'title', child: Text('Título A–Z')), PopupMenuItem(value: 'addedAt', child: Text('Adicionados recentemente')), PopupMenuItem(value: 'rating', child: Text('Nota'))]),
+      ...widget.extraActions,
     ]), body: Column(children: [
       // Caio, 24/10: só botões (sem lista que abre por cima). Um botão por biblioteca da fonte: no CGSERVER
       // são Animes/Filmes/Séries; nos Plex dos amigos, os nomes que cada servidor tiver.

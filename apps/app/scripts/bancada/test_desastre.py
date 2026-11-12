@@ -27,6 +27,12 @@ LOGIN_SEM_DICA = xml(
     no('android.widget.EditText', b='[40,700][1040,820]'),
     no(text='Iniciar sessão', b='[40,900][1040,1020]'))
 INICIO = xml(no(desc='Início'), no(desc='Biblioteca'), no(desc='Baixados'), no(desc='Você'))
+# Casca nova: a pílula do perfil no topo e a barra flutuante embaixo.
+INICIO_V2 = xml(no(desc='Você, teste', b='[20,80][260,176]'), no(desc='Buscar', b='[960,80][1056,176]'),
+                no(desc='Início', b='[100,1900][300,2028]'), no(desc='Explorar', b='[300,1900][500,2028]'),
+                no(desc='Minha lista', b='[500,1900][700,2028]'), no(desc='Baixados', b='[700,1900][900,2028]'))
+INICIO_V2_KIDS = xml(no(desc='Você', b='[20,80][116,176]'), no(desc='Início', b='[100,1900][300,2028]'),
+                     no(desc='Explorar', b='[300,1900][500,2028]'), no(desc='Minha lista', b='[500,1900][700,2028]'))
 
 
 class Uiautomator(unittest.TestCase):
@@ -45,6 +51,10 @@ class Uiautomator(unittest.TestCase):
     def test_marcos(self):
         self.assertEqual(marco(parse_uiautomator(LOGIN)), 'login')
         self.assertEqual(marco(parse_uiautomator(INICIO)), 'inicio')
+        self.assertEqual(marco(parse_uiautomator(INICIO_V2)), 'inicio')
+        self.assertEqual(marco(parse_uiautomator(INICIO_V2_KIDS)), 'inicio')
+        # "Minha lista" sozinha é botão da ficha, não a barra de abas.
+        self.assertIsNone(marco(parse_uiautomator(xml(no(desc='Assistir'), no(desc='Minha lista'), no(desc='Fechar')))))
         self.assertIsNone(marco(parse_uiautomator(xml(no(text='Carregando')))))
 
     def test_xml_invalido_ou_vazio(self):
@@ -322,6 +332,19 @@ class AbaVoce(unittest.TestCase):
             no(desc='Baixados', b='[200,1100][300,1200]'), no(desc='teste', b='[300,1100][400,1200]'),
             no(text='Downloads automáticos', b='[40,300][400,380]')))
         self.assertEqual(aba_voce(nos)['desc'], 'teste')
+
+    def test_casca_nova_acha_a_pilula_do_topo_e_nao_a_ultima_aba(self):
+        self.assertEqual(aba_voce(parse_uiautomator(INICIO_V2))['desc'], 'Você, teste')
+        self.assertEqual(aba_voce(parse_uiautomator(INICIO_V2_KIDS))['desc'], 'Você')
+
+    def test_casca_nova_sem_a_pilula_nao_devolve_baixados(self):
+        nos = parse_uiautomator(xml(
+            no(desc='Início', b='[100,1900][300,2028]'), no(desc='Explorar', b='[300,1900][500,2028]'),
+            no(desc='Minha lista', b='[500,1900][700,2028]'), no(desc='Baixados', b='[700,1900][900,2028]')))
+        self.assertIsNone(aba_voce(nos))
+
+    def test_nome_que_comeca_com_voce_nao_e_a_pilula(self):
+        self.assertIsNone(aba_voce(parse_uiautomator(xml(no(text='Você viu? O filme')))))
 
     def test_sem_barra_usa_voce_ou_nada(self):
         self.assertEqual(aba_voce(parse_uiautomator(xml(no(desc='Você')))) ['desc'], 'Você')

@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:heisuca/design/cor_poster/cor_poster_cache.dart';
 import 'package:heisuca/design/cor_poster/paleta_poster.dart';
 import 'package:heisuca/design/cor_poster/temas_cor_poster.dart';
+import 'package:heisuca/design/componentes/pilula_de_perfil.dart';
 import 'package:heisuca/design/tema.dart';
 import 'package:heisuca/features/inicio/destaque.dart';
 import 'package:heisuca/features/inicio/modelo.dart';
@@ -170,6 +171,60 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.bySemanticsLabel('Buscar'), findsNothing);
     alca.dispose();
+  });
+
+  testWidgets('a pílula do perfil fica no topo, do lado oposto ao da busca, e recebe o toque', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    var toques = 0;
+    await tester.pumpWidget(
+      naTela(
+        TelaInicio(
+          destaques: const [_viagem],
+          fileiras: const [],
+          aoBuscar: () {},
+          perfil: PilulaDePerfil(nome: 'Marina', aoTocar: () => toques++),
+          cores: CorPosterCache(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final pilula = tester.getRect(find.byType(PilulaDePerfil));
+    final busca = tester.getRect(find.byTooltip('Buscar'));
+    expect(pilula.left, lessThan(busca.left));
+    expect(pilula.right, lessThanOrEqualTo(busca.left), reason: 'a pílula não entra debaixo da busca');
+    expect(pilula.center.dy, closeTo(busca.center.dy, 1));
+    expect(pilula.height, greaterThanOrEqualTo(48));
+
+    await tester.tap(find.byType(PilulaDePerfil));
+    expect(toques, 1);
+  });
+
+  testWidgets('nome longo e letra em 200%: a pílula encolhe e a tela não estoura', (tester) async {
+    tester.view.physicalSize = const Size(320, 700);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await tester.pumpWidget(
+      naTela(
+        TelaInicio(
+          destaques: const [_viagem],
+          fileiras: const [],
+          aoBuscar: () {},
+          perfil: PilulaDePerfil(nome: 'Maria Antonieta das Neves', aoTocar: () {}),
+          cores: CorPosterCache(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(MediaQuery.textScalerOf(tester.element(find.byType(TelaInicio))).scale(10), 20);
+
+    expect(tester.takeException(), isNull);
+    final pilula = tester.getRect(find.byType(PilulaDePerfil));
+    expect(pilula.right, lessThanOrEqualTo(tester.getRect(find.byTooltip('Buscar')).left));
   });
 
   testWidgets('puxar para atualizar só existe quando a tela recebe o que fazer, e chama uma vez', (tester) async {

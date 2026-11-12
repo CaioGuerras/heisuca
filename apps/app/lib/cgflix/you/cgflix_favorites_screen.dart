@@ -65,8 +65,27 @@ Future<void> cgflixOpenFavorites(BuildContext context, CgflixFavoritesSource sou
 );
 
 class CgflixFavoritesScreen extends StatefulWidget {
-  const CgflixFavoritesScreen({super.key, required this.source});
+  const CgflixFavoritesScreen({
+    super.key,
+    required this.source,
+    this.title = 'Favoritos',
+    this.embedded = false,
+    this.actions,
+    this.bottomInset = 0,
+  });
   final CgflixFavoritesSource source;
+
+  /// Título do cabeçalho. A barra de baixo abre esta tela como "Minha lista".
+  final String title;
+
+  /// A tela entra como camada da tela principal, sem rota própria: o cabeçalho fica sem a seta de voltar.
+  final bool embedded;
+
+  /// Ações do cabeçalho (o avatar de quem está usando o app).
+  final List<Widget>? actions;
+
+  /// Espaço a mais no fim da grade, para o último pôster sair de baixo da barra flutuante.
+  final double bottomInset;
 
   @override
   State<CgflixFavoritesScreen> createState() => _CgflixFavoritesScreenState();
@@ -98,7 +117,7 @@ class _CgflixFavoritesScreenState extends State<CgflixFavoritesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Favoritos')),
+      appBar: AppBar(automaticallyImplyLeading: !widget.embedded, title: Text(widget.title), actions: widget.actions),
       body: FutureBuilder<List<MediaItem>>(
         future: _future,
         builder: (context, snapshot) {
@@ -144,7 +163,7 @@ class _CgflixFavoritesScreenState extends State<CgflixFavoritesScreen> {
             else Expanded(child: RefreshIndicator(
             onRefresh: _refresh,
             child: GridView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+              padding: EdgeInsets.fromLTRB(16, 8, 16, 32 + widget.bottomInset),
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                 maxCrossAxisExtent: 140,
                 childAspectRatio: 2 / 3,

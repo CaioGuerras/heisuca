@@ -15,6 +15,8 @@ import 'package:heisuca/services/settings_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:heisuca/main.dart' as app;
+import 'package:heisuca/design/componentes/barra_flutuante.dart';
+import 'package:heisuca/design/componentes/pilula_de_perfil.dart';
 import 'package:heisuca/features/inicio/ligacao.dart';
 import 'package:heisuca/heisuca/heisuca_login_screen.dart';
 import 'package:heisuca/heisuca/heisuca_profile_screen.dart';
@@ -475,13 +477,17 @@ void main() {
       await waitBancada(binding, const Duration(milliseconds: 500));
     }
     await until(() => find.byType(LigacaoDoInicio).evaluate().isNotEmpty, 'voltar à Início');
-    await tester.tap(find.byKey(const ValueKey('heisuca-nav-1')));
+    // A barra flutuante leva às telas; "Você" abre pela pílula do topo da tela que está à vista.
+    Finder destinoDaBarra(String rotulo) =>
+        find.descendant(of: find.byType(BarraFlutuante), matching: find.text(rotulo));
+    await tester.tap(destinoDaBarra('Explorar'));
     await waitBancada(binding, const Duration(seconds: 2));
     await shot('09-biblioteca');
-    await tester.tap(find.byKey(const ValueKey('heisuca-nav-2')));
+    await tester.tap(destinoDaBarra('Baixados'));
     await waitBancada(binding, const Duration(seconds: 2));
     await shot('10-baixados');
-    await tester.tap(find.byKey(const ValueKey('heisuca-nav-3')));
+    await until(() => find.byType(PilulaDePerfil).hitTestable().evaluate().isNotEmpty, 'pílula do perfil');
+    await tester.tap(find.byType(PilulaDePerfil).hitTestable().first);
     await until(() => find.byType(HeisucaProfileScreen).evaluate().isNotEmpty, 'Você');
     await shot('11-voce', back: true);
     await waitBancada(binding, const Duration(seconds: 1));

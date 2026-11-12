@@ -5,7 +5,6 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 
 import '../../cgflix/cgflix_navigation.dart';
-import '../../cgflix/cgflix_palette.dart';
 import '../../cgflix/home/cgflix_actions.dart';
 import '../../cgflix/home/cgflix_home_logic.dart';
 import '../../cgflix/home/cgflix_home_repository.dart';
@@ -35,6 +34,8 @@ import '../../services/plex_client.dart';
 import '../../utils/download_utils.dart';
 import '../../utils/media_image_helper.dart';
 import '../../widgets/optimized_media_image.dart';
+import '../casca/pilula_do_perfil_ativo.dart';
+import '../tema_da_v2.dart';
 import 'aviso.dart';
 import 'fileira.dart';
 import 'modelo.dart';
@@ -78,21 +79,6 @@ String? juntar(Iterable<String?> partes) {
   ];
   return presentes.isEmpty ? null : presentes.join(' · ');
 }
-
-/// O tema da V2 que corresponde ao tema escolhido no app.
-///
-/// O kids ainda não tem acento próprio na V2: usa o claro ou o escuro, conforme o brilho.
-@visibleForTesting
-TemaHeisuca temaDaPaleta(CgflixPalette paleta) {
-  if (paleta.variant == CgflixThemeVariant.sumi) return TemaHeisuca.sumi;
-  return paleta.isLight ? TemaHeisuca.hisui : TemaHeisuca.shikkoku;
-}
-
-/// O tema Material da V2, guardando as extensões que as folhas e os menus atuais ainda leem.
-@visibleForTesting
-ThemeData temaDaV2(ThemeData atual, TemaHeisuca tema) => tema.paraMaterial().copyWith(
-  extensions: [...atual.extensions.values.where((extensao) => extensao is! TemaHeisuca), tema],
-);
 
 /// Liga a tela Início da V2 ao acervo: servidores, fileiras, player, ficha do título e menu.
 ///
@@ -473,6 +459,7 @@ class _LigacaoDoInicioState extends State<LigacaoDoInicio>
     aoBuscar: () => unawaited(cgflixOpenSearch(context)),
     aoAtualizar: _puxarParaAtualizar,
     controle: _rolagem,
+    perfil: const PilulaDoPerfilAtivo(sobreArte: true),
     chaveDeRolagem: const PageStorageKey('heisuca-home-scroll'),
   );
 
@@ -527,7 +514,7 @@ class _LigacaoDoInicioState extends State<LigacaoDoInicio>
         pronto: (dados) => _tela(destaques: _destaquesDe(dados.items), fileiras: fileiras),
       );
     }
-    return Theme(data: temaDaV2(Theme.of(context), temaDaPaleta(context.cgflix)), child: tela);
+    return SobOTemaDaV2(child: tela);
   }
 }
 

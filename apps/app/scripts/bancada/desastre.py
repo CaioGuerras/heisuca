@@ -130,7 +130,10 @@ def campos_login(nos):
 def marco(nos):
     """'inicio' (barra de abas), 'login' ou None."""
     rotulos = {r.strip().lower() for n in nos for r in _rotulos(n)}
-    if {'início', 'biblioteca'} <= rotulos and ({'você', 'baixados'} & rotulos):
+    # Barra de abas: a casca nova (Início · Explorar · Minha lista · Baixados) ou a ilha antiga
+    # (Início · Biblioteca · Baixados · Você).
+    if 'início' in rotulos and ({'explorar', 'biblioteca'} & rotulos) \
+            and ({'você', 'baixados', 'minha lista'} & rotulos):
         return 'inicio'
     if 'iniciar sessão' in rotulos and any(n['cls'].endswith('EditText') for n in nos):
         return 'login'
@@ -255,7 +258,7 @@ def classificar(achados, marco_final=None, retomou=True):
 PT_MENSAGEM = re.compile(
     r'sem conex|conexão|conexao|internet|offline|tente novamente|não foi possível|nao foi possivel|servidor|'
     r'indisponível|usuário ou senha|senha incorreta|incorret|inválid', re.I)
-ABAS = ('início', 'biblioteca', 'baixados', 'você', 'favoritos')
+ABAS = ('início', 'biblioteca', 'explorar', 'minha lista', 'baixados', 'você', 'favoritos')
 
 
 def mensagem_pt(nos):
@@ -434,11 +437,29 @@ def listar_visivel(nos, servidor, nomes=()):
     return saida
 
 
+def _e_voce(rotulo):
+    """O leitor de tela anuncia a pílula do perfil como 'Você' ou 'Você, <nome>'."""
+    baixo = rotulo.strip().lower()
+    return baixo == 'você' or baixo.startswith('você,')
+
+
 def aba_voce(nos):
-    """Última aba da barra. O rótulo dela é o primeiro nome do usuário, não 'Você': acha pela linha de 'Baixados'."""
+    """Onde se abre "Você".
+
+    Casca nova: a pílula do perfil, no topo da tela ('Você' ou 'Você, <nome>').
+    Ilha antiga: a última aba da barra. O rótulo dela é o primeiro nome do usuário, não 'Você': acha pela linha de
+    'Baixados'.
+    """
+    pilulas = [n for n in nos if n['centro'] and any(_e_voce(r) for r in _rotulos(n))]
+    if pilulas:
+        return next((n for n in pilulas if n['clickable']), pilulas[0])
+    rotulos = {r.strip().lower() for n in nos for r in _rotulos(n)}
+    if {'explorar', 'minha lista'} & rotulos:
+        # Barra nova sem a pílula à vista: a última aba dela é "Baixados", não "Você".
+        return None
     candidatos = [n for n in nos if n['centro'] and any(r.strip().lower() in ('início', 'biblioteca', 'baixados', 'favoritos') for r in _rotulos(n))]
     if not candidatos:
-        return achar_texto(nos, 'Você')
+        return None
     ref = max(candidatos, key=lambda n: n['centro'][1])
     linha = [n for n in nos if n['clickable'] and n['centro'] and abs(n['centro'][1] - ref['centro'][1]) <= 40]
     return max(linha, key=lambda n: n['centro'][0]) if linha else None

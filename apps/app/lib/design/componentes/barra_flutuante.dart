@@ -12,9 +12,12 @@ import 'toque.dart';
 /// Um destino da barra flutuante.
 @immutable
 class DestinoDaBarra {
-  const DestinoDaBarra({required this.icone, required this.rotulo});
+  const DestinoDaBarra({required this.icone, required this.rotulo, this.aoSegurar});
   final IconData icone;
   final String rotulo;
+
+  /// Atalho do toque longo (por exemplo, escolher a biblioteca sem abrir a aba). `null`: não há.
+  final VoidCallback? aoSegurar;
 }
 
 /// A ilha de navegação: uma pílula que flutua sobre o conteúdo, no pé da tela.
@@ -169,6 +172,7 @@ class _Destino extends StatelessWidget {
       excluirSemantica: true,
       selecionado: ativo,
       aoTocar: aoTocar,
+      aoSegurar: destino.aoSegurar,
       escala: 0.94,
       child: TweenAnimationBuilder<double>(
         tween: Tween<double>(end: ativo ? 1 : 0),

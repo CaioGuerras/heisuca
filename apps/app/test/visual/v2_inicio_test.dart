@@ -7,13 +7,20 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:heisuca/cgflix/cgflix_palette.dart';
+import 'package:heisuca/design/componentes/barra_flutuante.dart';
 import 'package:heisuca/design/componentes/cartao.dart';
+import 'package:heisuca/design/componentes/pilula_de_perfil.dart';
 import 'package:heisuca/design/cor_poster/cor_poster_cache.dart';
 import 'package:heisuca/design/cor_poster/temas_cor_poster.dart';
 import 'package:heisuca/design/tema.dart';
+import 'package:heisuca/features/casca/casca.dart';
 import 'package:heisuca/features/inicio/fileira.dart';
 import 'package:heisuca/features/inicio/modelo.dart';
 import 'package:heisuca/features/inicio/tela_inicio.dart';
+import 'package:heisuca/features/tema_da_v2.dart';
+
+import 'package:material_symbols_icons/symbols.dart';
 
 import 'heisuca_snapshot.dart';
 
@@ -128,14 +135,36 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           debugShowCheckedModeBanner: false,
-          theme: tema.paraMaterial(),
-          home: Scaffold(
-            body: TelaInicio(
+          // A casca lê o tema escolhido no app (a paleta); a tela, o tema da V2.
+          theme: temaDaV2(
+            ThemeData(
+              extensions: [
+                switch (tema.nome) {
+                  'hisui' => CgflixPalette.heitor,
+                  'sumi' => CgflixPalette.sumi,
+                  _ => CgflixPalette.isis,
+                },
+              ],
+            ),
+            tema,
+          ),
+          home: Casca(
+            indice: 0,
+            aoMudar: (_) {},
+            desfoque: false,
+            destinos: const [
+              DestinoDaBarra(icone: Symbols.home_rounded, rotulo: 'Início'),
+              DestinoDaBarra(icone: Symbols.explore_rounded, rotulo: 'Explorar'),
+              DestinoDaBarra(icone: Symbols.bookmark_rounded, rotulo: 'Minha lista'),
+              DestinoDaBarra(icone: Symbols.download_rounded, rotulo: 'Baixados'),
+            ],
+            corpo: TelaInicio(
               destaques: destaques,
               fileiras: [for (final fileira in fileiras) Fileira(dados: fileira, cores: cores)],
               aoBuscar: () {},
+              perfil: PilulaDePerfil(nome: 'Caio', aoTocar: () {}, sobreArte: true),
               cores: cores,
-              folgaInferior: 24,
+              folgaInferior: Casca.reserva,
             ),
           ),
         ),

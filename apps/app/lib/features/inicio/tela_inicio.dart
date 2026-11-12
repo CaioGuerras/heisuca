@@ -23,6 +23,7 @@ class TelaInicio extends StatefulWidget {
     this.destaqueCarregando = false,
     this.noLugarDoDestaque,
     this.aoBuscar,
+    this.perfil,
     this.aoAtualizar,
     this.controle,
     this.chaveDeRolagem,
@@ -43,6 +44,9 @@ class TelaInicio extends StatefulWidget {
   final Widget? noLugarDoDestaque;
 
   final VoidCallback? aoBuscar;
+
+  /// O que fica no canto de cima, do lado oposto à busca: a pílula de quem está usando o app.
+  final Widget? perfil;
 
   /// Puxar para atualizar; sem isto o gesto não existe.
   final Future<void> Function()? aoAtualizar;
@@ -228,10 +232,18 @@ class _TelaInicioState extends State<TelaInicio> {
                   ),
                 ),
               ),
-              if (widget.aoBuscar != null)
-                Positioned(
+              if (widget.perfil != null)
+                PositionedDirectional(
                   top: media.padding.top + Forma.espaco2,
-                  right: Forma.espaco4,
+                  start: Forma.espaco4,
+                  // A busca fica do outro lado: a pílula não passa por baixo dela.
+                  end: Forma.espaco4 + Forma.toqueMinimo + Forma.espaco2,
+                  child: Align(alignment: AlignmentDirectional.centerStart, child: widget.perfil),
+                ),
+              if (widget.aoBuscar != null)
+                PositionedDirectional(
+                  top: media.padding.top + Forma.espaco2,
+                  end: Forma.espaco4,
                   child: BotaoDeIcone(
                     icone: Symbols.search_rounded,
                     rotulo: 'Buscar',

@@ -41,9 +41,10 @@ class Ctx:
     def abas(self):
         """Toca em cada aba que existir, devolvendo quantas encontrou."""
         n = 0
-        for nome in ('Biblioteca', 'Baixados', 'Você', 'Início'):
+        # "Explorar" é a aba que a ilha antiga chamava de "Biblioteca".
+        for nome in (('Explorar', 'Biblioteca'), ('Baixados',), ('Você',), ('Início',)):
             nos = dump()
-            alvo = aba_voce(nos) if nome == 'Você' else achar_texto(nos, nome)
+            alvo = aba_voce(nos) if nome == ('Você',) else achar_texto(nos, *nome)
             if alvo:
                 tocar(alvo)
                 n += 1
@@ -353,9 +354,9 @@ def e11_leitor_de_tela(ctx):
         else:
             ctx.achados.append((ATENCAO, 'talkback-ausente', 'TalkBack ausente na imagem; só a checagem de semântica'))
         sem = []
-        for nome in ('Início', 'Biblioteca', 'Você'):
+        for nome in ('Início', 'Explorar', 'Você'):
             nos = dump()
-            alvo = aba_voce(nos) if nome == 'Você' else achar_texto(nos, nome)
+            alvo = aba_voce(nos) if nome == 'Você' else achar_texto(nos, nome, 'Biblioteca' if nome == 'Explorar' else nome)
             if alvo:
                 tocar(alvo)
                 time.sleep(2)

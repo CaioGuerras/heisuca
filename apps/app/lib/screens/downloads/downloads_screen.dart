@@ -38,7 +38,10 @@ import '../../i18n/strings.g.dart';
 import 'sync_rules_screen.dart';
 
 class DownloadsScreen extends StatefulWidget {
-  const DownloadsScreen({super.key});
+  const DownloadsScreen({super.key, this.profileAction});
+
+  /// Ação do cabeçalho depois das ações da tela (o avatar de quem está usando o app).
+  final Widget? profileAction;
 
   @override
   State<DownloadsScreen> createState() => DownloadsScreenState();
@@ -185,6 +188,7 @@ class DownloadsScreenState extends State<DownloadsScreen>
                     ),
                 ],
               ),
+              ?widget.profileAction,
             ],
           ),
           SliverFillRemaining(

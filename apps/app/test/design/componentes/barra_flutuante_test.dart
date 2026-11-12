@@ -148,4 +148,34 @@ void main() {
       expect(alvo.right, lessThanOrEqualTo(barra.right + 0.5), reason: destino.rotulo);
     }
   });
+
+  testWidgets('toque longo num destino chama o atalho dele, sem mudar de destino', (tester) async {
+    final alca = tester.ensureSemantics();
+    var atalhos = 0;
+    final mudancas = <int>[];
+    await tester.pumpWidget(
+      naTela(
+        SizedBox(
+          width: 380,
+          child: BarraFlutuante(
+            destinos: [
+              const DestinoDaBarra(icone: Icons.home, rotulo: 'Início'),
+              DestinoDaBarra(icone: Icons.explore, rotulo: 'Explorar', aoSegurar: () => atalhos++),
+            ],
+            indice: 0,
+            aoMudar: mudancas.add,
+          ),
+        ),
+      ),
+    );
+    await tester.longPress(find.text('Explorar'));
+    await tester.pumpAndSettle();
+    expect(atalhos, 1);
+    expect(mudancas, isEmpty);
+
+    // Quem usa o leitor de tela alcança o mesmo atalho; o destino sem atalho não anuncia toque longo.
+    expect(tester.getSemantics(find.bySemanticsLabel('Explorar')), isSemantics(hasLongPressAction: true));
+    expect(tester.getSemantics(find.bySemanticsLabel('Início')), isSemantics(hasLongPressAction: false));
+    alca.dispose();
+  });
 }

@@ -4,6 +4,7 @@
 - Visual novo: três temas (Shikkoku, Hisui e Sumi) e ícone novo.
 - Cores novas em todos os temas, com destaque mais visível ao navegar pelo controle da TV ou pelo teclado.
 - Botões e áreas de toque maiores e mais fáceis de acertar, também com letras grandes.
+- O app avisa quando sai uma versão nova e atualiza por dentro: veja em Você › Atualizações (na TV, em Configurações › Atualizações). Vale para a versão baixada pelo site.
 
 ### Mais seguro
 - Seus dados de acesso ficam guardados na área protegida do aparelho e são apagados por completo quando você sai da conta.

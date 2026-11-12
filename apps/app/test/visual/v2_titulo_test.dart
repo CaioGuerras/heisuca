@@ -10,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:heisuca/design/cor_poster/cor_poster_cache.dart';
 import 'package:heisuca/design/cor_poster/temas_cor_poster.dart';
 import 'package:heisuca/design/tema.dart';
+import 'package:heisuca/features/titulo/episodios.dart';
 import 'package:heisuca/features/titulo/modelo.dart';
 import 'package:heisuca/features/titulo/tela_titulo.dart';
 
@@ -38,6 +39,46 @@ void main() {
             body: TelaTitulo(
               cores: cores,
               aoAbrirMenu: () {},
+              secoes: [
+                Episodios(
+                  aoVerTudo: (_) {},
+                  temporadas: [
+                    TemporadaDoTitulo(
+                      chave: 't1',
+                      nome: 'Temporada 1',
+                      episodios: [
+                        for (final (n, nome) in const [
+                          'Deadwood',
+                          'Águas profundas',
+                          'Reconhecendo o terreno',
+                          'Aqui jaz um homem',
+                        ].indexed)
+                          EpisodioDoTitulo(
+                            chave: 'e$n',
+                            numero: n + 1,
+                            nome: nome,
+                            duracao: '1h 2min',
+                            progresso: n < 2 ? 1 : (n == 2 ? 0.4 : null),
+                            atual: n == 2,
+                            aoTocar: () {},
+                            arte: (context, tamanho) => DecoratedBox(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [Color(paleta.superficie2), Color(paleta.semente)],
+                                ),
+                              ),
+                              child: SizedBox.fromSize(size: tamanho),
+                            ),
+                          ),
+                        for (var n = 5; n <= 12; n++) EpisodioDoTitulo(chave: 'e$n', numero: n, nome: 'Episódio $n'),
+                      ],
+                    ),
+                    const TemporadaDoTitulo(chave: 't2', nome: 'Temporada 2'),
+                  ],
+                ),
+              ],
               pagina: PaginaDoTitulo(
                 chave: 'd',
                 titulo: 'Deadwood',

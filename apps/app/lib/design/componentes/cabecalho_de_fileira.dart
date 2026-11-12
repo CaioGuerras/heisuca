@@ -7,9 +7,26 @@ import 'toque.dart';
 
 /// Título de uma fileira, com "Ver tudo" à direita quando há para onde ir.
 class CabecalhoDeFileira extends StatelessWidget {
-  const CabecalhoDeFileira({super.key, required this.titulo, this.aoVerTudo, this.iconeDeVerTudo});
+  const CabecalhoDeFileira({
+    super.key,
+    required this.titulo,
+    this.aoVerTudo,
+    this.iconeDeVerTudo,
+    this.aoTocarTitulo,
+    this.iconeDoTitulo,
+    this.rotuloDoTitulo,
+  });
 
   final String titulo;
+
+  /// O título vira um seletor (a temporada, por exemplo): o toque abre a escolha.
+  final VoidCallback? aoTocarTitulo;
+
+  /// Seta ao lado do título quando ele é um seletor.
+  final IconData? iconeDoTitulo;
+
+  /// Como o leitor de tela anuncia o seletor; por padrão, o próprio título.
+  final String? rotuloDoTitulo;
 
   /// Sem destino, o "Ver tudo" não aparece.
   final VoidCallback? aoVerTudo;
@@ -29,7 +46,34 @@ class CabecalhoDeFileira extends StatelessWidget {
             Expanded(
               child: Semantics(
                 header: true,
-                child: Text(titulo, maxLines: 1, overflow: TextOverflow.ellipsis, style: Tipo.subtitulo(tema)),
+                child: aoTocarTitulo == null
+                    ? Text(titulo, maxLines: 1, overflow: TextOverflow.ellipsis, style: Tipo.subtitulo(tema))
+                    : Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: Toque(
+                          forma: Forma.pilula(),
+                          rotulo: rotuloDoTitulo ?? titulo,
+                          excluirSemantica: true,
+                          aoTocar: aoTocarTitulo,
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(minHeight: Forma.toqueMinimo),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    titulo,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: Tipo.subtitulo(tema),
+                                  ),
+                                ),
+                                if (iconeDoTitulo != null) Icon(iconeDoTitulo, size: 24, color: tema.texto2),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
               ),
             ),
             if (aoVerTudo != null)

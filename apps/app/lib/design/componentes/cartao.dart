@@ -34,6 +34,7 @@ class Cartao extends StatelessWidget {
     this.progresso,
     this.tempo,
     this.nota,
+    this.emDestaque = false,
     this.aoTocar,
     this.aoSegurar,
   });
@@ -57,6 +58,9 @@ class Cartao extends StatelessWidget {
 
   /// Nota sobre a arte ("8,6").
   final String? nota;
+
+  /// O cartão do que está em uso agora (o episódio atual): ganha contorno na cor de acento.
+  final bool emDestaque;
   final VoidCallback? aoTocar;
 
   /// Toque longo: abre o menu do cartão.
@@ -64,6 +68,9 @@ class Cartao extends StatelessWidget {
 
   static const double _alturaDaBarra = 3;
   static const double _veu = 0.72;
+
+  /// Espessura do contorno de [emDestaque].
+  static const double contornoDoDestaque = 2;
 
   @override
   Widget build(BuildContext context) {
@@ -99,6 +106,15 @@ class Cartao extends StatelessWidget {
                       sobreArte.fundo.withValues(alpha: 0),
                       sobreArte.fundo.withValues(alpha: _veu),
                     ],
+                  ),
+                ),
+              ),
+            if (emDestaque)
+              DecoratedBox(
+                decoration: ShapeDecoration(
+                  shape: Forma.superelipse(
+                    Forma.raioMedio,
+                    lado: BorderSide(color: tema.acento, width: contornoDoDestaque),
                   ),
                 ),
               ),
@@ -149,6 +165,7 @@ class Cartao extends StatelessWidget {
         forma: forma,
         rotulo: rotulo,
         excluirSemantica: true,
+        selecionado: emDestaque ? true : null,
         aoTocar: aoTocar,
         aoSegurar: aoSegurar,
         child: Column(

@@ -65,3 +65,52 @@ class PaginaDoTitulo {
   final bool visto;
   final VoidCallback? aoAlternarVisto;
 }
+
+/// Um episódio na página do título.
+@immutable
+class EpisodioDoTitulo {
+  const EpisodioDoTitulo({
+    required this.chave,
+    required this.numero,
+    required this.nome,
+    this.arte,
+    this.duracao,
+    this.progresso,
+    this.atual = false,
+    this.aoTocar,
+    this.aoSegurar,
+  });
+
+  final String chave;
+  final int numero;
+  final String nome;
+  final FazArte? arte;
+
+  /// Duração já em texto ("58 min").
+  final String? duracao;
+
+  /// Quanto já foi visto, de 0 a 1.
+  final double? progresso;
+
+  /// O episódio que o botão "Assistir" vai tocar: a fileira abre nele e ele ganha contorno.
+  final bool atual;
+  final VoidCallback? aoTocar;
+  final VoidCallback? aoSegurar;
+
+  /// O nome como aparece no cartão: "3. O acordo".
+  String get rotulo => nome.trim().isEmpty ? 'Episódio $numero' : '$numero. $nome';
+}
+
+/// Uma temporada e os episódios dela.
+@immutable
+class TemporadaDoTitulo {
+  const TemporadaDoTitulo({required this.chave, required this.nome, this.episodios});
+
+  final String chave;
+
+  /// "Temporada 1", "Especiais".
+  final String nome;
+
+  /// `null` enquanto os episódios não chegam; lista vazia quando a temporada não tem nenhum.
+  final List<EpisodioDoTitulo>? episodios;
+}

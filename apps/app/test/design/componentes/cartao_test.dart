@@ -130,4 +130,55 @@ void main() {
     expect(find.bySemanticsLabel('InuYasha, 8,6'), findsOneWidget);
     alca.dispose();
   });
+
+  for (final tema in TemaHeisuca.todos) {
+    testWidgets('${tema.nome}: o cartão em destaque ganha contorno na cor de acento e o leitor diz "selecionado"', (
+      tester,
+    ) async {
+      final alca = tester.ensureSemantics();
+      ShapeDecoration? contorno() {
+        final achados = tester
+            .widgetList<DecoratedBox>(find.descendant(of: find.byType(Cartao), matching: find.byType(DecoratedBox)))
+            .map((caixa) => caixa.decoration)
+            .whereType<ShapeDecoration>()
+            .where((forma) => forma.shape is OutlinedBorder && (forma.shape as OutlinedBorder).side.width > 0);
+        return achados.isEmpty ? null : achados.first;
+      }
+
+      await tester.pumpWidget(
+        naTela(
+          tema: tema,
+          Cartao(
+            titulo: '3. O acordo',
+            largura: 200,
+            formato: FormatoDoCartao.paisagem,
+            emDestaque: true,
+            aoTocar: () {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final lado = (contorno()!.shape as OutlinedBorder).side;
+      expect(lado.color, tema.acento);
+      expect(lado.width, Cartao.contornoDoDestaque);
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('3. O acordo')).flagsCollection.isSelected.toBoolOrNull(),
+        isTrue,
+      );
+
+      await tester.pumpWidget(
+        naTela(
+          tema: tema,
+          Cartao(titulo: '3. O acordo', largura: 200, formato: FormatoDoCartao.paisagem, aoTocar: () {}),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(contorno(), isNull);
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('3. O acordo')).flagsCollection.isSelected.toBoolOrNull(),
+        isNull,
+      );
+      alca.dispose();
+    });
+  }
 }

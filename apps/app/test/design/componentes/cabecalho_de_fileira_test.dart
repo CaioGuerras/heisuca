@@ -70,4 +70,68 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
+
+  for (final tema in TemaHeisuca.todos) {
+    testWidgets('${tema.nome}: título como seletor tem 48 de toque, chama a ação e mostra a seta', (tester) async {
+      var toques = 0;
+      await tester.pumpWidget(
+        naTela(
+          tema: tema,
+          CabecalhoDeFileira(titulo: 'Temporada 1', aoTocarTitulo: () => toques++, iconeDoTitulo: Icons.expand_more),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.widget<Text>(find.text('Temporada 1')).style!.color, tema.texto);
+      expect(tester.widget<Icon>(find.byIcon(Icons.expand_more)).color, tema.texto2);
+      expect(tester.getSize(find.byType(Toque)).height, greaterThanOrEqualTo(48));
+      await tester.tap(find.text('Temporada 1'));
+      await tester.pumpAndSettle();
+      expect(toques, 1);
+    });
+  }
+
+  testWidgets('seletor: teclado aciona, e o leitor de tela ouve cabeçalho, botão e o rótulo dado', (tester) async {
+    final leitor = tester.ensureSemantics();
+    var toques = 0;
+    await tester.pumpWidget(
+      naTela(
+        CabecalhoDeFileira(
+          titulo: 'Temporada 1',
+          aoTocarTitulo: () => toques++,
+          rotuloDoTitulo: 'Temporada 1, trocar de temporada',
+          aoVerTudo: () {},
+        ),
+      ),
+    );
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pumpAndSettle();
+    expect(toques, 1, reason: 'o seletor vem antes do "Ver tudo" na ordem do foco');
+    final no = tester.getSemantics(find.bySemanticsLabel('Temporada 1, trocar de temporada'));
+    expect(no.flagsCollection.isButton, isTrue);
+    expect(find.bySemanticsLabel('Ver tudo de Temporada 1'), findsOneWidget);
+    leitor.dispose();
+  });
+
+  testWidgets('seletor com letra em 200% e nome longo: corta em vez de estourar', (tester) async {
+    tester.view.physicalSize = const Size(320, 600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await tester.pumpWidget(
+      naTela(
+        semAnimacao: true,
+        CabecalhoDeFileira(
+          titulo: 'Temporada 12: A grande travessia do deserto',
+          aoTocarTitulo: () {},
+          iconeDoTitulo: Icons.expand_more,
+          aoVerTudo: () {},
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
 }

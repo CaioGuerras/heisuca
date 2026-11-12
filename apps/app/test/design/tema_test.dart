@@ -4,8 +4,9 @@ import 'package:heisuca/design/tema.dart';
 import 'package:heisuca/design/tipo.dart';
 
 void main() {
-  for (final tema in TemaHeisuca.todos) {
-    group(tema.nome, () {
+  for (final tema in [...TemaHeisuca.todos, ...TemaHeisuca.doKids]) {
+    final doKids = TemaHeisuca.doKids.contains(tema);
+    group(doKids ? 'kids sobre ${tema.nome}, acento ${tema.acento.toARGB32().toRadixString(16)}' : tema.nome, () {
       final material = tema.paraMaterial();
 
       test('texto, texto secundário e botão principal são legíveis', () {
@@ -46,6 +47,36 @@ void main() {
       });
     });
   }
+
+  test('o kids é o claro ou o escuro com outro acento: o resto não muda', () {
+    final pares = {
+      TemaHeisuca.ichigo: TemaHeisuca.hisui,
+      TemaHeisuca.sorairo: TemaHeisuca.hisui,
+      TemaHeisuca.ichigoNoite: TemaHeisuca.shikkoku,
+      TemaHeisuca.sorairoNoite: TemaHeisuca.shikkoku,
+    };
+    expect(pares.keys, unorderedEquals(TemaHeisuca.doKids));
+    for (final MapEntry(key: kids, value: base) in pares.entries) {
+      // O nome é o do tema de base: é por ele que a cor do pôster escolhe como tingir o fundo.
+      expect(kids.nome, base.nome);
+      expect(kids.brilho, base.brilho);
+      expect(kids.acento, isNot(base.acento));
+      expect(kids.acentoSuave, isNot(base.acentoSuave));
+      expect(
+        [kids.fundo, kids.superficie, kids.superficie2, kids.borda, kids.texto, kids.texto2],
+        [base.fundo, base.superficie, base.superficie2, base.borda, base.texto, base.texto2],
+      );
+      expect(
+        [kids.botaoFundo, kids.botaoTexto, kids.foco, kids.selo, kids.erro, kids.aviso, kids.sucesso],
+        [base.botaoFundo, base.botaoTexto, base.foco, base.selo, base.erro, base.aviso, base.sucesso],
+      );
+      // O acento aparece em coisa pequena sobre o fundo e as superfícies: precisa de 3:1 para se ver.
+      for (final fundo in [kids.fundo, kids.superficie, kids.superficie2]) {
+        expect(TemaHeisuca.contraste(kids.acento, fundo), greaterThanOrEqualTo(3));
+      }
+    }
+    expect({for (final tema in TemaHeisuca.doKids) tema.acento}, hasLength(4));
+  });
 
   test('contraste: preto no branco dá 21 e cor igual dá 1', () {
     const preto = Color.fromARGB(255, 0, 0, 0), branco = Color.fromARGB(255, 255, 255, 255);

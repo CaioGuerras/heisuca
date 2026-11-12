@@ -12,6 +12,13 @@ void main() {
       expect(temaDaPaleta(CgflixPalette.sumi), TemaHeisuca.sumi);
     });
 
+    test('o kids leva o acento do Ichigo ou do Sorairo, de dia e à noite', () {
+      expect(temaDaPaleta(CgflixPalette.ichigo), TemaHeisuca.ichigo);
+      expect(temaDaPaleta(CgflixPalette.ichigoNoite), TemaHeisuca.ichigoNoite);
+      expect(temaDaPaleta(CgflixPalette.sorairo), TemaHeisuca.sorairo);
+      expect(temaDaPaleta(CgflixPalette.sorairoNoite), TemaHeisuca.sorairoNoite);
+    });
+
     test('o kids segue o brilho da paleta', () {
       for (final paleta in [
         CgflixPalette.ichigo,
@@ -19,7 +26,7 @@ void main() {
         CgflixPalette.ichigoNoite,
         CgflixPalette.sorairoNoite,
       ]) {
-        expect(temaDaPaleta(paleta), paleta.isLight ? TemaHeisuca.hisui : TemaHeisuca.shikkoku);
+        expect(temaDaPaleta(paleta).brilho, paleta.isLight ? Brightness.light : Brightness.dark);
       }
     });
   });

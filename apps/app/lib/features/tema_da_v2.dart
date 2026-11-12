@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 import '../cgflix/cgflix_palette.dart';
 import '../design/tema.dart';
 
-/// O tema da V2 que corresponde ao tema escolhido no app.
+/// O tema da V2 que corresponde à paleta do app.
 ///
-/// O kids ainda não tem acento próprio na V2: usa o claro ou o escuro, conforme o brilho.
-TemaHeisuca temaDaPaleta(CgflixPalette paleta) {
-  if (paleta.variant == CgflixThemeVariant.sumi) return TemaHeisuca.sumi;
-  return paleta.isLight ? TemaHeisuca.hisui : TemaHeisuca.shikkoku;
-}
+/// O kids usa o claro ou o escuro, conforme o brilho, com o acento do Ichigo ou do Sorairo.
+TemaHeisuca temaDaPaleta(CgflixPalette paleta) => switch (paleta.variant) {
+  CgflixThemeVariant.sumi => TemaHeisuca.sumi,
+  CgflixThemeVariant.ichigo => paleta.isLight ? TemaHeisuca.ichigo : TemaHeisuca.ichigoNoite,
+  CgflixThemeVariant.sorairo => paleta.isLight ? TemaHeisuca.sorairo : TemaHeisuca.sorairoNoite,
+  _ => paleta.isLight ? TemaHeisuca.hisui : TemaHeisuca.shikkoku,
+};
 
 /// O tema Material da V2, guardando as extensões que as folhas e os menus atuais ainda leem.
 ThemeData temaDaV2(ThemeData atual, TemaHeisuca tema) => tema.paraMaterial().copyWith(

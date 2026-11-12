@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../heisuca/theme/heisuca_base.dart';
 import '../heisuca/theme/temas/tema_hisui.dart';
+import '../heisuca/theme/temas/tema_ichigo.dart';
+import '../heisuca/theme/temas/tema_ichigo_noite.dart';
 import '../heisuca/theme/temas/tema_shikkoku.dart';
+import '../heisuca/theme/temas/tema_sorairo.dart';
+import '../heisuca/theme/temas/tema_sorairo_noite.dart';
 import '../heisuca/theme/temas/tema_sumi.dart';
 import 'tipo.dart';
 
@@ -114,7 +118,97 @@ class TemaHeisuca extends ThemeExtension<TemaHeisuca> {
     sucesso: TemaSumi.temaCorSucesso,
   );
 
+  // O kids não é um tema: é o claro ou o escuro com outro acento. O nome continua o do tema de base,
+  // para a cor do pôster tingir o fundo do mesmo jeito.
+
+  /// Kids Ichigo (morango) de dia: o Hisui com o acento do Ichigo.
+  static const ichigo = TemaHeisuca(
+    nome: 'hisui',
+    brilho: Brightness.light,
+    fundo: TemaHisui.temaCorFundo,
+    superficie: TemaHisui.temaCorSuperficie,
+    superficie2: TemaHisui.temaCorSuperficie2,
+    borda: TemaHisui.temaCorBorda,
+    texto: TemaHisui.temaCorTexto,
+    texto2: TemaHisui.temaCorTexto2,
+    acento: TemaIchigo.temaCorAcento,
+    acentoSuave: TemaIchigo.temaCorAcentoSuave,
+    botaoFundo: TemaHisui.temaCorBotaoFundo,
+    botaoTexto: TemaHisui.temaCorBotaoTexto,
+    foco: TemaHisui.temaCorFoco,
+    selo: TemaHisui.temaCorSelo,
+    erro: TemaHisui.temaCorErro,
+    aviso: TemaHisui.temaCorAviso,
+    sucesso: TemaHisui.temaCorSucesso,
+  );
+
+  /// Kids Ichigo à noite: o Shikkoku com o acento do Ichigo.
+  static const ichigoNoite = TemaHeisuca(
+    nome: 'shikkoku',
+    brilho: Brightness.dark,
+    fundo: TemaShikkoku.temaCorFundo,
+    superficie: TemaShikkoku.temaCorSuperficie,
+    superficie2: TemaShikkoku.temaCorSuperficie2,
+    borda: TemaShikkoku.temaCorBorda,
+    texto: TemaShikkoku.temaCorTexto,
+    texto2: TemaShikkoku.temaCorTexto2,
+    acento: TemaIchigoNoite.temaCorAcento,
+    acentoSuave: TemaIchigoNoite.temaCorAcentoSuave,
+    botaoFundo: TemaShikkoku.temaCorBotaoFundo,
+    botaoTexto: TemaShikkoku.temaCorBotaoTexto,
+    foco: TemaShikkoku.temaCorFoco,
+    selo: TemaShikkoku.temaCorSelo,
+    erro: TemaShikkoku.temaCorErro,
+    aviso: TemaShikkoku.temaCorAviso,
+    sucesso: TemaShikkoku.temaCorSucesso,
+  );
+
+  /// Kids Sorairo (céu) de dia: o Hisui com o acento do Sorairo.
+  static const sorairo = TemaHeisuca(
+    nome: 'hisui',
+    brilho: Brightness.light,
+    fundo: TemaHisui.temaCorFundo,
+    superficie: TemaHisui.temaCorSuperficie,
+    superficie2: TemaHisui.temaCorSuperficie2,
+    borda: TemaHisui.temaCorBorda,
+    texto: TemaHisui.temaCorTexto,
+    texto2: TemaHisui.temaCorTexto2,
+    acento: TemaSorairo.temaCorAcento,
+    acentoSuave: TemaSorairo.temaCorAcentoSuave,
+    botaoFundo: TemaHisui.temaCorBotaoFundo,
+    botaoTexto: TemaHisui.temaCorBotaoTexto,
+    foco: TemaHisui.temaCorFoco,
+    selo: TemaHisui.temaCorSelo,
+    erro: TemaHisui.temaCorErro,
+    aviso: TemaHisui.temaCorAviso,
+    sucesso: TemaHisui.temaCorSucesso,
+  );
+
+  /// Kids Sorairo à noite: o Shikkoku com o acento do Sorairo.
+  static const sorairoNoite = TemaHeisuca(
+    nome: 'shikkoku',
+    brilho: Brightness.dark,
+    fundo: TemaShikkoku.temaCorFundo,
+    superficie: TemaShikkoku.temaCorSuperficie,
+    superficie2: TemaShikkoku.temaCorSuperficie2,
+    borda: TemaShikkoku.temaCorBorda,
+    texto: TemaShikkoku.temaCorTexto,
+    texto2: TemaShikkoku.temaCorTexto2,
+    acento: TemaSorairoNoite.temaCorAcento,
+    acentoSuave: TemaSorairoNoite.temaCorAcentoSuave,
+    botaoFundo: TemaShikkoku.temaCorBotaoFundo,
+    botaoTexto: TemaShikkoku.temaCorBotaoTexto,
+    foco: TemaShikkoku.temaCorFoco,
+    selo: TemaShikkoku.temaCorSelo,
+    erro: TemaShikkoku.temaCorErro,
+    aviso: TemaShikkoku.temaCorAviso,
+    sucesso: TemaShikkoku.temaCorSucesso,
+  );
+
   static const todos = <TemaHeisuca>[shikkoku, hisui, sumi];
+
+  /// Os acentos do kids, sobre o claro e o escuro.
+  static const doKids = <TemaHeisuca>[ichigo, ichigoNoite, sorairo, sorairoNoite];
 
   /// O tema da tela. Fora de um `Theme` da V2, vale o padrão (Shikkoku).
   static TemaHeisuca de(BuildContext context) => Theme.of(context).extension<TemaHeisuca>() ?? shikkoku;

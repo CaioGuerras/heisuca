@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 import '../forma.dart';
 import '../movimento.dart';
@@ -34,6 +35,7 @@ class Cartao extends StatelessWidget {
     this.progresso,
     this.tempo,
     this.nota,
+    this.visto = false,
     this.emDestaque = false,
     this.aoTocar,
     this.aoSegurar,
@@ -59,6 +61,9 @@ class Cartao extends StatelessWidget {
   /// Nota sobre a arte ("8,6").
   final String? nota;
 
+  /// Já foi visto até o fim: ganha o ✓ no canto de cima da arte.
+  final bool visto;
+
   /// O cartão do que está em uso agora (o episódio atual): ganha contorno na cor de acento.
   final bool emDestaque;
   final VoidCallback? aoTocar;
@@ -72,14 +77,46 @@ class Cartao extends StatelessWidget {
   /// Espessura do contorno de [emDestaque].
   static const double contornoDoDestaque = 2;
 
+  /// Lado do círculo do ✓ de [visto] e do desenho dentro dele.
+  static const double seloDeVisto = 24;
+  static const double _iconeDoVisto = 16;
+
+  // As mesmas medidas do texto embaixo da arte (Tipo.pequeno e Tipo.legenda).
+  static const double _letraDoTitulo = 14;
+  static const double _alturaDoTitulo = 1.25;
+  static const double _letraDoSubtitulo = 12;
+  static const double _alturaDoSubtitulo = 1.45;
+
+  /// Altura do cartão inteiro (arte, nome e subtítulo) na letra do aparelho.
+  ///
+  /// Quem monta fileira ou grade reserva este espaço antes de o cartão existir.
+  static double alturaPara(
+    BuildContext context, {
+    required double largura,
+    FormatoDoCartao formato = FormatoDoCartao.poster,
+    bool comSubtitulo = false,
+  }) {
+    final letra = MediaQuery.textScalerOf(context);
+    final titulo = letra.scale(_letraDoTitulo) * _alturaDoTitulo;
+    final subtitulo = comSubtitulo ? letra.scale(_letraDoSubtitulo) * _alturaDoSubtitulo : 0.0;
+    return (largura / formato.proporcao + Forma.espaco2 + titulo + subtitulo).ceilToDouble() + 2;
+  }
+
   @override
   Widget build(BuildContext context) {
     final tema = TemaHeisuca.de(context);
     final sobreArte = TemaHeisuca.sumi;
     final forma = Forma.superelipse(Forma.raioMedio);
-    final visto = (progresso ?? 0).clamp(0.0, 1.0);
-    final temRodape = visto > 0 || tempo != null || nota != null;
-    final rotulo = [titulo, ?subtitulo, ?tempo, ?nota, if (visto > 0) '${(visto * 100).round()}%'].join(', ');
+    final fracao = (progresso ?? 0).clamp(0.0, 1.0);
+    final temRodape = fracao > 0 || tempo != null || nota != null;
+    final rotulo = [
+      titulo,
+      ?subtitulo,
+      ?tempo,
+      ?nota,
+      if (fracao > 0) '${(fracao * 100).round()}%',
+      if (visto) 'visto',
+    ].join(', ');
 
     final quadro = AspectRatio(
       aspectRatio: formato.proporcao,
@@ -118,6 +155,23 @@ class Cartao extends StatelessWidget {
                   ),
                 ),
               ),
+            if (visto)
+              Align(
+                alignment: AlignmentDirectional.topEnd,
+                child: Padding(
+                  padding: const EdgeInsets.all(Forma.espaco2),
+                  child: DecoratedBox(
+                    decoration: ShapeDecoration(
+                      color: sobreArte.fundo.withValues(alpha: _veu),
+                      shape: Forma.pilula(),
+                    ),
+                    child: SizedBox.square(
+                      dimension: seloDeVisto,
+                      child: Icon(Symbols.check_rounded, size: _iconeDoVisto, weight: 700, color: sobreArte.texto),
+                    ),
+                  ),
+                ),
+              ),
             if (temRodape)
               Padding(
                 padding: const EdgeInsets.all(Forma.espaco2),
@@ -131,7 +185,7 @@ class Cartao extends StatelessWidget {
                         style: Tipo.tempo(tema).copyWith(color: sobreArte.texto, fontWeight: FontWeight.w600),
                         maxLines: 1,
                       ),
-                    if (visto > 0) ...[
+                    if (fracao > 0) ...[
                       const SizedBox(height: Forma.espaco1),
                       ClipPath(
                         clipper: ShapeBorderClipper(shape: Forma.pilula()),
@@ -143,7 +197,7 @@ class Cartao extends StatelessWidget {
                               ColoredBox(color: sobreArte.texto.withValues(alpha: 0.32)),
                               FractionallySizedBox(
                                 alignment: AlignmentDirectional.centerStart,
-                                widthFactor: visto,
+                                widthFactor: fracao,
                                 child: ColoredBox(color: sobreArte.texto),
                               ),
                             ],

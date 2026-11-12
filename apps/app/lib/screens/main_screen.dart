@@ -1,5 +1,5 @@
 import '../heisuca/heisuca_motion.dart'; // CGFLIX: entrada de abas sem perder estado.
-import '../heisuca/heisuca_library_screen.dart';
+import '../features/explorar/ligacao.dart';
 import '../heisuca/tv/heisuca_tv_home_screen.dart';
 import '../heisuca/tv/heisuca_tv_menu.dart';
 import '../heisuca/tv/heisuca_tv_settings_screen.dart';
@@ -1114,11 +1114,10 @@ class _MainScreenState extends State<MainScreen>
       NavigationTabId.explore => ExploreScreen(key: _screenKeys[tab]),
       NavigationTabId.libraries =>
         cgflixUseYouTab(context) && !_isOffline
-            ? HeisucaLibraryScreen(
+            ? LigacaoDoExplorar(
                 key: _screenKeys[tab],
-                initialLibraryKey: _selectedLibraryGlobalKey,
-                onLibrarySelected: _handleLibrariesScreenSelected,
-                extraActions: [_buildProfileAction()],
+                bibliotecaInicial: _selectedLibraryGlobalKey,
+                aoEscolherBiblioteca: _handleLibrariesScreenSelected,
               )
             : LibrariesScreen(
                 key: _screenKeys[tab],

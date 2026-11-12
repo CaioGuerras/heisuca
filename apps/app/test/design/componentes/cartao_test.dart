@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:heisuca/design/componentes/cartao.dart';
 import 'package:heisuca/design/tema.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 import 'apoio.dart';
 
@@ -181,4 +182,65 @@ void main() {
       alca.dispose();
     });
   }
+
+  for (final tema in TemaHeisuca.todos) {
+    testWidgets('${tema.nome}: título visto ganha o ✓ de 24 no canto e o leitor de tela diz "visto"', (tester) async {
+      await tester.pumpWidget(
+        naTela(
+          tema: tema,
+          const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Cartao(key: Key('v'), titulo: 'Akira', subtitulo: '1988', largura: 120, visto: true),
+              Cartao(key: Key('n'), titulo: 'Paprika', largura: 120),
+            ],
+          ),
+        ),
+      );
+      final selo = find.descendant(of: find.byKey(const Key('v')), matching: find.byIcon(Symbols.check_rounded));
+      expect(selo, findsOneWidget);
+      expect(tester.getSize(find.ancestor(of: selo, matching: find.byType(SizedBox)).first), const Size.square(24));
+      expect(
+        tester.widget<Icon>(selo).color,
+        TemaHeisuca.sumi.texto,
+        reason: 'sobre a arte, sempre os neutros do Sumi',
+      );
+      final quadro = tester.getRect(
+        find.descendant(of: find.byKey(const Key('v')), matching: find.byType(AspectRatio)),
+      );
+      final ondeEsta = tester.getRect(selo);
+      expect(ondeEsta.center.dy, lessThan(quadro.top + 40));
+      expect(ondeEsta.center.dx, greaterThan(quadro.right - 40));
+      expect(find.bySemanticsLabel('Akira, 1988, visto'), findsOneWidget);
+      expect(
+        find.descendant(of: find.byKey(const Key('n')), matching: find.byIcon(Symbols.check_rounded)),
+        findsNothing,
+      );
+      expect(find.bySemanticsLabel('Paprika'), findsOneWidget);
+    });
+  }
+
+  testWidgets('alturaPara reserva a altura que o cartão ocupa, também com letra grande', (tester) async {
+    for (final letra in [1.0, 2.0]) {
+      for (final comSubtitulo in [false, true]) {
+        late double reservada;
+        await tester.pumpWidget(
+          MediaQuery(
+            data: MediaQueryData(textScaler: TextScaler.linear(letra)),
+            child: naTela(
+              Builder(
+                builder: (context) {
+                  reservada = Cartao.alturaPara(context, largura: 120, comSubtitulo: comSubtitulo);
+                  return Cartao(titulo: 'Akira', subtitulo: comSubtitulo ? '1988' : null, largura: 120);
+                },
+              ),
+            ),
+          ),
+        );
+        final real = tester.getSize(find.byType(Cartao)).height;
+        expect(reservada, greaterThanOrEqualTo(real), reason: 'letra $letra, subtítulo $comSubtitulo');
+        expect(reservada - real, lessThan(6), reason: 'letra $letra, subtítulo $comSubtitulo');
+      }
+    }
+  });
 }

@@ -17,26 +17,16 @@ class MedidaDaFileira {
 
   factory MedidaDaFileira.de(BuildContext context, FormatoDoCartao formato, {required bool comSubtitulo}) {
     final tela = MediaQuery.sizeOf(context).width;
-    final letra = MediaQuery.textScalerOf(context);
     final largura = switch (formato) {
       FormatoDoCartao.poster => ((tela - Forma.espaco4) / 3.3).clamp(104.0, 160.0),
       FormatoDoCartao.paisagem => ((tela - Forma.espaco4) / 1.55).clamp(200.0, 320.0),
     };
-    final quadro = largura / formato.proporcao;
-    final titulo = letra.scale(_letraDoTitulo) * _alturaDoTitulo;
-    final subtitulo = comSubtitulo ? letra.scale(_letraDoSubtitulo) * _alturaDoSubtitulo : 0.0;
     return MedidaDaFileira._(
       largura: largura,
-      alturaDoQuadro: quadro,
-      altura: (quadro + Forma.espaco2 + titulo + subtitulo).ceilToDouble() + 2,
+      alturaDoQuadro: largura / formato.proporcao,
+      altura: Cartao.alturaPara(context, largura: largura, formato: formato, comSubtitulo: comSubtitulo),
     );
   }
-
-  // As mesmas medidas de texto que o Cartao usa embaixo da arte.
-  static const double _letraDoTitulo = 14;
-  static const double _alturaDoTitulo = 1.25;
-  static const double _letraDoSubtitulo = 12;
-  static const double _alturaDoSubtitulo = 1.45;
 
   final double largura;
   final double alturaDoQuadro;

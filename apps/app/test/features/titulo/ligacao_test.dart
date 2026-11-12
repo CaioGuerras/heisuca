@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:heisuca/design/componentes/cartao.dart';
 import 'package:heisuca/features/inicio/fileira.dart';
 import 'package:heisuca/features/titulo/elenco.dart';
 import 'package:heisuca/features/titulo/episodios.dart';
@@ -117,11 +118,19 @@ _Servidor _servidorDaSerie() => _Servidor()
   ..filhos['t1'] = [_episodio('t1', 1, 2), _episodio('t1', 1, 1)]
   ..filhos['t2'] = [_episodio('t2', 2, 1)];
 
-Future<void> _abrir(WidgetTester tester, MediaItem item, _Servidor servidor) async {
+Future<void> _abrir(WidgetTester tester, MediaItem item, _Servidor servidor, {List<MediaItem>? vistos}) async {
   tester.view.physicalSize = const Size(400, 1600);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  await tester.pumpWidget(naTela(LigacaoDoTitulo(item: item, clienteDe: (_, _) => servidor)));
+  await tester.pumpWidget(
+    naTela(
+      LigacaoDoTitulo(
+        item: item,
+        clienteDe: (_, _) => servidor,
+        alternarVisto: vistos == null ? null : (_, marcado) async => vistos.add(marcado),
+      ),
+    ),
+  );
   await tester.pumpAndSettle();
 }
 
@@ -208,6 +217,56 @@ void main() {
     expect(find.byType(Episodios), findsOneWidget);
     expect(find.text('Assistir T1:E2'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  group('"Já vi"', () {
+    testWidgets('na cabeça de uma série marca a série toda, não o episódio do botão', (tester) async {
+      final vistos = <MediaItem>[];
+      final servidor = _servidorDaSerie()..proximo = _episodio('t1', 1, 2, visto: 60000);
+      await _abrir(tester, _serie, servidor, vistos: vistos);
+      servidor.pedidos.clear();
+
+      await tester.tap(find.byTooltip('Já vi'));
+      await tester.pumpAndSettle();
+
+      expect([for (final item in vistos) (item.id, item.kind)], [('serie', MediaKind.show)]);
+      expect(servidor.pedidos, contains('item:serie'), reason: 'a página se atualiza depois de marcar');
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('página aberta por um episódio: a cabeça continua valendo para a série', (tester) async {
+      final vistos = <MediaItem>[];
+      await _abrir(tester, _episodio('t1', 1, 2), _servidorDaSerie(), vistos: vistos);
+
+      await tester.tap(find.byTooltip('Já vi'));
+      await tester.pumpAndSettle();
+
+      expect([for (final item in vistos) item.id], ['serie']);
+    });
+
+    testWidgets('no menu de um episódio marca só aquele episódio', (tester) async {
+      final vistos = <MediaItem>[];
+      await _abrir(tester, _serie, _servidorDaSerie(), vistos: vistos);
+
+      await tester.longPress(find.descendant(of: find.byType(Episodios), matching: find.byType(Cartao)).first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Marcar como visto'));
+      await tester.pumpAndSettle();
+
+      expect([for (final item in vistos) item.kind], [MediaKind.episode]);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('num filme marca o filme', (tester) async {
+      final vistos = <MediaItem>[];
+      final filme = _item('filme', MediaKind.movie, titulo: 'A Viagem', duracao: 105 * 60000);
+      await _abrir(tester, filme, _Servidor()..itens['filme'] = filme, vistos: vistos);
+
+      await tester.tap(find.byTooltip('Já vi'));
+      await tester.pumpAndSettle();
+
+      expect([for (final item in vistos) item.id], ['filme']);
+    });
   });
 
   testWidgets('filme: sem episódios, com a duração e o botão de assistir', (tester) async {

@@ -122,7 +122,13 @@ typedef ClienteDe = MediaServerClient? Function(BuildContext context, MediaItem 
 /// Recebe o item tocado (filme, série, temporada ou episódio). Episódio e temporada abrem a página da série,
 /// com aquele episódio como o próximo a tocar ou aquela temporada aberta.
 class LigacaoDoTitulo extends StatefulWidget {
-  const LigacaoDoTitulo({super.key, required this.item, this.episodio, this.clienteDe = cgflixClientFor});
+  const LigacaoDoTitulo({
+    super.key,
+    required this.item,
+    this.episodio,
+    this.clienteDe = cgflixClientFor,
+    this.alternarVisto,
+  });
 
   final MediaItem item;
 
@@ -130,6 +136,9 @@ class LigacaoDoTitulo extends StatefulWidget {
   final MediaItem? episodio;
 
   final ClienteDe clienteDe;
+
+  /// Quem grava o "Já vi" no servidor. Sem ele, vale o estado do app; os testes põem o deles.
+  final Future<void> Function(BuildContext context, MediaItem item)? alternarVisto;
 
   /// Abre a página do título por cima da tela atual.
   static Future<void> abrir(BuildContext context, MediaItem item, {MediaItem? episodio}) => Navigator.of(context).push(
@@ -293,8 +302,10 @@ class _LigacaoDoTituloState extends State<LigacaoDoTitulo> {
     if (mounted) await _carregar(denovo: true);
   }
 
-  Future<void> _alternarVisto() async {
-    await HeisucaStateStore.instance.toggleWatched(context, _alvo ?? _item);
+  /// "Já vi" vale para o que foi tocado: na cabeça da página é o título inteiro (numa série, todos os episódios);
+  /// no menu de um episódio, só aquele episódio.
+  Future<void> _alternarVisto(MediaItem item) async {
+    await (widget.alternarVisto ?? HeisucaStateStore.instance.toggleWatched)(context, item);
     if (mounted) await _carregar(denovo: true);
   }
 
@@ -309,7 +320,7 @@ class _LigacaoDoTituloState extends State<LigacaoDoTitulo> {
         context,
         item: item,
         onPlay: aoAssistir,
-        onToggleWatched: identical(item, _item) ? () => unawaited(_alternarVisto()) : null,
+        onToggleWatched: () => unawaited(_alternarVisto(item)),
         onToggleFavorite: identical(item, _item) ? () => unawaited(_alternarLista()) : null,
       ),
     );
@@ -366,8 +377,8 @@ class _LigacaoDoTituloState extends State<LigacaoDoTitulo> {
       aoAssistir: alvo == null ? null : () => unawaited(_assistir(alvo)),
       naLista: estado.isFavorite(item),
       aoAlternarLista: () => unawaited(_alternarLista()),
-      visto: estado.isWatched(alvo ?? item),
-      aoAlternarVisto: () => unawaited(_alternarVisto()),
+      visto: estado.isWatched(item),
+      aoAlternarVisto: () => unawaited(_alternarVisto(item)),
     );
   }
 

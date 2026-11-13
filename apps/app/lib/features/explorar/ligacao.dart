@@ -110,7 +110,7 @@ class _LigacaoDoExplorarState extends State<LigacaoDoExplorar> with Refreshable,
   String? _genero;
   bool _soNaoVistos = false;
 
-  /// O pedido de filtros da biblioteca aberta falhou: "atualizar" pede de novo.
+  /// Os filtros da biblioteca aberta não chegaram (erro, ou resposta sem os gêneros): "atualizar" pede de novo.
   bool _filtrosFalharam = false;
   OrdemDoExplorar _ordem = OrdemDoExplorar.titulo;
 
@@ -234,6 +234,7 @@ class _LigacaoDoExplorarState extends State<LigacaoDoExplorar> with Refreshable,
 
   Future<void> _abrirBiblioteca(_Fonte fonte) async {
     final filtros = _carregarFiltros(fonte);
+    final geracao = _geracaoDosFiltros;
     // Com "não vistos" ligado, a página precisa saber o nome do filtro nesta biblioteca antes de sair.
     if (_soNaoVistos) {
       ++_geracao;
@@ -243,7 +244,8 @@ class _LigacaoDoExplorarState extends State<LigacaoDoExplorar> with Refreshable,
         _falhouNosTitulos = false;
       });
       await filtros;
-      if (!mounted || fonte.chave != _atual?.chave) return;
+      // Outra abertura veio depois desta (até da mesma biblioteca, num ir e voltar): a lista é dela.
+      if (!mounted || geracao != _geracaoDosFiltros || fonte.chave != _atual?.chave) return;
     }
     await _recarregar();
   }
@@ -273,7 +275,9 @@ class _LigacaoDoExplorarState extends State<LigacaoDoExplorar> with Refreshable,
       }
       if (!mounted || geracao != _geracaoDosFiltros) return;
       setState(() {
-        _filtrosFalharam = false;
+        // O Jellyfin responde sem os gêneros, e sem erro, quando a consulta dos filtros estoura o tempo:
+        // resposta sem gênero conta como filtro que não chegou.
+        _filtrosFalharam = genero == null || valores.isEmpty;
         _filtroDeGenero = genero;
         _filtroDeNaoVistos = naoVistos;
         _generos = [

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:heisuca/features/explorar/ligacao.dart';
@@ -41,6 +43,13 @@ class _Servidor extends MediaServerClient {
   /// Pedidos de página que ainda vão falhar, pelo ponto de partida da página.
   final paginasQueFalham = <int, int>{};
 
+  /// Pedidos de filtros que ainda vão voltar pela metade (sem os gêneros e sem erro), por biblioteca.
+  /// É o que o cliente do Jellyfin devolve quando a consulta dos filtros estoura o tempo.
+  final filtrosPelaMetade = <String, int>{};
+
+  /// Esperas que os próximos pedidos de filtros de cada biblioteca cumprem antes de responder, na ordem.
+  final esperasDosFiltros = <String, List<Completer<void>>>{};
+
   final pedidosDeFiltros = <String>[];
   final pedidosDePagina = <(String, LibraryQuery)>[];
 
@@ -64,7 +73,19 @@ class _Servidor extends MediaServerClient {
       filtrosQueFalham[libraryId] = faltam - 1;
       throw StateError('sem filtros');
     }
-    return LibraryFilterResult(filters: [_filtro('unwatched')], cachedValues: const {});
+    final esperas = esperasDosFiltros[libraryId];
+    if (esperas != null && esperas.isNotEmpty) await esperas.removeAt(0).future;
+    final pelaMetade = filtrosPelaMetade[libraryId] ?? 0;
+    if (pelaMetade > 0) {
+      filtrosPelaMetade[libraryId] = pelaMetade - 1;
+      return LibraryFilterResult(filters: [_filtro('unwatched')], cachedValues: const {});
+    }
+    return LibraryFilterResult(
+      filters: [_filtro('unwatched'), _filtro('genre')],
+      cachedValues: {
+        'genre': [MediaFilterValue(key: 'acao', title: 'Ação')],
+      },
+    );
   }
 
   @override
@@ -138,6 +159,49 @@ void main() {
       isTrue,
       reason: 'a escolha de "não vistos" segue ligada e volta a valer quando o filtro chega',
     );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('filtros que voltam pela metade, sem erro, são pedidos de novo ao puxar para atualizar', (tester) async {
+    final servidor = _Servidor()..filtrosPelaMetade['filmes'] = 1;
+    await _abrir(tester, servidor);
+    expect(find.text('Ação'), findsNothing);
+    expect(find.text('Título 0'), findsOneWidget);
+
+    final antes = servidor.pedidosDeFiltros.length;
+    await tester.widget<TelaExplorar>(find.byType(TelaExplorar)).aoAtualizar!();
+    await tester.pumpAndSettle();
+
+    expect(servidor.pedidosDeFiltros.length, antes + 1);
+    expect(find.text('Ação'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('resposta atrasada dos filtros não recarrega a grade depois de ir e voltar de biblioteca', (
+    tester,
+  ) async {
+    final servidor = _Servidor();
+    await _abrir(tester, servidor);
+    await tester.tap(find.text('Não vistos'));
+    await tester.pumpAndSettle();
+
+    // A primeira ida às séries fica esperando os filtros; a pessoa volta aos filmes e vai às séries de novo.
+    final atrasada = Completer<void>();
+    servidor.esperasDosFiltros['series'] = [atrasada];
+    await tester.tap(find.text('Séries'));
+    await tester.pump();
+    await tester.tap(find.text('Filmes'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Séries'));
+    await tester.pumpAndSettle();
+    expect(find.text('Título 0'), findsOneWidget);
+    final antes = servidor.pedidosDePagina.length;
+
+    atrasada.complete();
+    await tester.pumpAndSettle();
+
+    expect(servidor.pedidosDePagina.length, antes, reason: 'a resposta velha não pede a primeira página outra vez');
+    expect(find.text('Título 0'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

@@ -63,6 +63,16 @@ void main() {
       findsNothing,
       reason: 'a fileira de espera não tem nada para o leitor de tela ler',
     );
+    for (final espera in find.byType(FileiraCarregando).evaluate()) {
+      expect(
+        find.descendant(
+          of: find.byWidget(espera.widget),
+          matching: find.byWidgetPredicate((w) => w is ExcludeSemantics && w.excluding),
+        ),
+        findsWidgets,
+        reason: 'a fileira de espera inteira fica fora da árvore do leitor de tela',
+      );
+    }
   });
 
   testWidgets('carregando com a lista na tela mantém a lista', (tester) async {

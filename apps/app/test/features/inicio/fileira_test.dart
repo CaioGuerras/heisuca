@@ -156,6 +156,38 @@ void main() {
     expect(pedido!.height / pedido!.width, closeTo(1.5, 0.02));
   });
 
+  testWidgets('pôster no menor tamanho (tela de 360) com letra em 200% não estoura', (tester) async {
+    await tester.pumpWidget(
+      naTela(
+        MediaQuery(
+          data: const MediaQueryData(size: Size(360, 780), textScaler: TextScaler.linear(2)),
+          child: _naLargura(
+            Fileira(
+              cores: CorPosterCache(),
+              dados: FileiraDoInicio(
+                chave: 'series',
+                titulo: 'Séries',
+                itens: [
+                  for (var i = 0; i < 6; i++)
+                    ItemDaFileira(
+                      chave: '$i',
+                      titulo: 'Um título comprido de série $i',
+                      subtitulo: '2024',
+                      nota: '8,1',
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(tester.getSize(find.byType(Cartao).first).width, 88);
+    expect(tester.getSize(find.byType(Cartao).first).height, greaterThanOrEqualTo(48));
+  });
+
   testWidgets('letra grande não estoura a fileira', (tester) async {
     await tester.pumpWidget(
       naTela(

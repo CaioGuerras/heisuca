@@ -64,7 +64,15 @@ void main() {
   late Completer<void> validado;
   late List<String> acoes;
   final bytes = List<int>.generate(128, (i) => i);
+
+  /// Quando existe, o servidor só entrega o APK depois que o teste a completa.
+  Completer<void>? esperaDoApk;
+
+  /// Completa quando o pedido do APK chega ao servidor.
+  late Completer<void> pedidoDoApk;
   setUp(() async {
+    esperaDoApk = null;
+    pedidoDoApk = Completer<void>();
     resetSharedPreferencesForTest();
     TvDetectionService.debugSetTvOverride(true);
     settings = await SettingsService.getInstance();
@@ -91,7 +99,11 @@ void main() {
     final feed = UpdateFeedClient(
       config,
       cliente: MockClient((r) async {
-        if (!r.url.path.endsWith('.json')) return http.Response.bytes(bytes, 200);
+        if (!r.url.path.endsWith('.json')) {
+          if (!pedidoDoApk.isCompleted) pedidoDoApk.complete();
+          await esperaDoApk?.future;
+          return http.Response.bytes(bytes, 200);
+        }
         consultas++;
         return http.Response(
           jsonEncode({
@@ -197,9 +209,15 @@ void main() {
     expect(acoes.where((a) => a == 'instalar'), hasLength(1));
     expect(find.textContaining('abra o app de novo'), findsOneWidget);
   });
-  testWidgets('sair da tela de Atualizações não cancela o download em andamento', (tester) async {
+  testWidgets('sair da tela de Atualizações com o download em andamento: ele termina e o arquivo fica', (tester) async {
     final espia = _ControladorQueConta(c);
     addTearDown(espia.dispose);
+    esperaDoApk = Completer<void>();
+    await tester.runAsync(() async {
+      await espia.iniciar();
+      await espia.verificar(manual: true);
+    });
+    expect(espia.oferta, isNotNull);
     await tester.pumpWidget(
       MaterialApp(
         theme: cgflixDarkTheme(),
@@ -208,10 +226,30 @@ void main() {
     );
     await tester.pump();
 
-    // O usuário sai da tela.
+    // O download começa e o servidor segura os bytes: a transferência está no meio.
+    late Future<void> download;
+    await tester.runAsync(() async {
+      download = espia.baixar();
+      await pedidoDoApk.future.timeout(const Duration(seconds: 3));
+    });
+    expect(espia.baixando, isTrue);
+
+    // O usuário sai da tela com a transferência no meio.
     await tester.pumpWidget(const SizedBox.shrink());
+    expect(espia.cancelamentos, 0);
+    expect(espia.baixando, isTrue);
+
+    await tester.runAsync(() async {
+      esperaDoApk!.complete();
+      await download.timeout(const Duration(seconds: 5));
+    });
 
     expect(espia.cancelamentos, 0);
+    expect(espia.baixando, isFalse);
+    expect(espia.pronto, isTrue, reason: 'o download é do app: termina mesmo sem a tela');
+    final apks = pasta.listSync(recursive: true).whereType<File>().where((f) => f.path.endsWith('.apk')).toList();
+    expect(apks, hasLength(1));
+    expect(apks.single.readAsBytesSync(), bytes);
   });
 
   testWidgets('abertura e botão manual não consultam durante reprodução', (tester) async {

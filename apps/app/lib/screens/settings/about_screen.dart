@@ -59,7 +59,6 @@ class _AboutScreenState extends State<AboutScreen> {
                         const SizedBox(height: 6),
                         Text(
                           cgflixVersionLabel(appVersion, appBuild),
-                          semanticsLabel: t.about.versionLabel(version: appVersion),
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: tokens(context).textMuted,
                             fontFeatures: const [FontFeature.tabularFigures()],

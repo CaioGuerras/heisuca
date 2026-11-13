@@ -69,6 +69,13 @@ void main() {
   });
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
+  testWidgets('Sobre: o leitor de tela lê a versão com o número da build', (tester) async {
+    final semantica = tester.ensureSemantics();
+    await _sobre(tester, CgflixThemeVariant.isis);
+    expect(tester.getSemantics(find.text('Versão 2.0.34 (38)')).label, contains('Versão 2.0.34 (38)'));
+    semantica.dispose();
+  });
+
   for (final tema in [CgflixThemeVariant.isis, CgflixThemeVariant.heitor]) {
     testWidgets('Sobre $tema: ordem única, textos aprovados, selo e dedicatória', (tester) async {
       await _sobre(tester, tema);

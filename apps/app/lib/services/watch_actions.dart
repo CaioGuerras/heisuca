@@ -39,7 +39,7 @@ class WatchActions {
     MediaItem item, {
     required bool watched,
     bool? offline,
-  }) => prepare(context, item, offline: offline)(watched: watched);
+  }) async => prepare(context, item, offline: offline)(watched: watched);
 
   /// Lê agora do [context] tudo de que a gravação precisa e devolve a gravação pronta.
   ///

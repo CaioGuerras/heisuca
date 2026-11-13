@@ -107,7 +107,8 @@ class HeisucaStateStore extends ChangeNotifier {
     return _emOrdem('v:$key', () async {
       try {
         if (gravar == null) throw StateError('Fonte indisponível');
-        await gravar(watched: next);
+        // Sem fonte para gravar, nada foi marcado: é falha, não sucesso.
+        if (await gravar(watched: next) == WatchMarkOutcome.skipped) throw StateError('Fonte indisponível');
         _vistoNoServidor[key] = next;
         if (context.mounted) {
           showSuccessSnackBar(context, next ? 'Marcado como visto' : 'Marcado como não visto');

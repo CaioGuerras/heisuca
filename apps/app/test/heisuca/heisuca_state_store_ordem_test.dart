@@ -254,4 +254,21 @@ void main() {
     expect(loja.isWatched(item), isTrue);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('"visto" de título sem fonte para gravar: a tela volta e não diz que marcou', (tester) async {
+    final servidor = _Servidor();
+    final contexto = await _montar(tester, servidor);
+    // O título é de um servidor que não está ligado.
+    final item = _favorito('ordem-7').copyWith(serverId: 'fora');
+    final loja = HeisucaStateStore.instance;
+
+    final resultado = await loja.toggleWatched(contexto, item);
+    await tester.pump();
+
+    expect(resultado, isFalse);
+    expect(loja.isWatched(item), isFalse);
+    expect(servidor.chegaram, isEmpty);
+    expect(find.text('Marcado como visto'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
 }

@@ -157,12 +157,17 @@ void main() {
   });
 
   testWidgets('pôster no menor tamanho (tela de 360) com letra em 200% não estoura', (tester) async {
+    // A janela tem mesmo 360 de largura: não basta dizer 360 no MediaQuery.
+    tester.view.physicalSize = const Size(360, 780);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     await tester.pumpWidget(
       naTela(
         MediaQuery(
           data: const MediaQueryData(size: Size(360, 780), textScaler: TextScaler.linear(2)),
-          child: _naLargura(
-            Fileira(
+          child: SizedBox(
+            width: 360,
+            child: Fileira(
               cores: CorPosterCache(),
               dados: FileiraDoInicio(
                 chave: 'series',

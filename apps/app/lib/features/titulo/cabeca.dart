@@ -194,7 +194,8 @@ class _ArteQueFica extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final rolagem = this.rolagem;
-    if (rolagem == null || Movimento.reduzido(context)) return child;
+    // Sem altura não há o que desfazer (e a conta dividiria por zero).
+    if (rolagem == null || altura <= 0 || Movimento.reduzido(context)) return child;
     return ValueListenableBuilder<double>(
       valueListenable: rolagem,
       child: child,

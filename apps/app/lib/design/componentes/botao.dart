@@ -35,6 +35,8 @@ class Botao extends StatelessWidget {
 
   /// `null` deixa o botão inativo.
   final VoidCallback? aoTocar;
+
+  /// Use um ícone de `Symbols`: o preenchimento só existe nessa família.
   final IconData? icone;
   final TipoDeBotao tipo;
 
@@ -96,6 +98,7 @@ class BotaoDeIcone extends StatelessWidget {
     this.vibracao,
   });
 
+  /// Use um ícone de `Symbols`: o preenchimento que marca o selecionado só existe nessa família.
   final IconData icone;
   final String rotulo;
   final VoidCallback? aoTocar;

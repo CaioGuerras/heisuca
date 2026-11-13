@@ -428,6 +428,18 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
+    testWidgets('arte sem altura não quebra a conta de quanto ela some', (tester) async {
+      final rolagem = ValueNotifier<double>(0);
+      addTearDown(rolagem.dispose);
+      await montar(
+        tester,
+        SingleChildScrollView(
+          child: CabecaDoTitulo(pagina: _cheia(), alturaDaArte: 0, rolagem: rolagem),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('controle de rolagem de fora continua valendo e a barra o acompanha', (tester) async {
       final controle = ScrollController();
       addTearDown(controle.dispose);

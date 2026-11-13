@@ -11,6 +11,7 @@ import '../../design/componentes/botao.dart';
 import '../../heisuca/heisuca_context_menu.dart';
 import '../../heisuca/heisuca_home_style.dart';
 import '../../heisuca/heisuca_media_category.dart';
+import '../../heisuca/heisuca_state_store.dart';
 import '../../media/media_item.dart';
 import '../../mixins/refreshable.dart';
 import '../../providers/download_provider.dart';
@@ -44,11 +45,26 @@ List<GrupoDeFavoritos> agruparFavoritos(Iterable<MediaItem> favoritos) {
   ];
 }
 
+/// Uma gravação pedida pelo menu do cartão: termina quando o servidor respondeu.
+typedef GravacaoDoMenu = Future<void> Function(BuildContext context, MediaItem item);
+
 /// Liga a tela Minha lista da V2 aos favoritos do servidor, à ficha do título e ao menu.
 class LigacaoDaMinhaLista extends StatefulWidget {
-  const LigacaoDaMinhaLista({super.key, required this.fonte, this.folgaInferior = 96});
+  const LigacaoDaMinhaLista({
+    super.key,
+    required this.fonte,
+    this.folgaInferior = 96,
+    this.gravarFavorito,
+    this.gravarVisto,
+  });
 
   final CgflixFavoritesSource fonte;
+
+  /// Troca o favorito no servidor e só termina com a gravação feita. Por padrão, a loja do app.
+  final GravacaoDoMenu? gravarFavorito;
+
+  /// Troca o "visto" no servidor e só termina com a gravação feita. Por padrão, a loja do app.
+  final GravacaoDoMenu? gravarVisto;
 
   /// Espaço no fim da lista para a barra flutuante.
   final double folgaInferior;
@@ -142,18 +158,31 @@ class _LigacaoDaMinhaListaState extends State<LigacaoDaMinhaLista> with Refresha
     );
   }
 
+  /// Espera a ação terminar e só então pede a lista: pedir antes devolve o estado velho do servidor.
+  Future<void> _gravar(GravacaoDoMenu gravacao, MediaItem item) async {
+    if (!mounted) return;
+    try {
+      await gravacao(context, item);
+    } finally {
+      if (mounted) unawaited(_carregar());
+    }
+  }
+
   void _menu(MediaItem item) {
     if (!mounted) return;
     unawaited(
       HeisucaContextMenu.show(
         context,
         item: item,
-        onPlay: () => unawaited(cgflixPlay(context, item)),
+        // Na volta do player a marca de visto pode ter mudado.
+        onPlay: () => unawaited(_gravar(cgflixPlay, item)),
+        // A ficha já pede a lista de novo na volta.
         onOpenDetails: () => unawaited(_abrir(item)),
         onDownload: () => _baixar(item),
-      ).whenComplete(() {
-        if (mounted) unawaited(_carregar());
-      }),
+        onToggleFavorite: () =>
+            unawaited(_gravar(widget.gravarFavorito ?? HeisucaStateStore.instance.toggleFavorite, item)),
+        onToggleWatched: () => unawaited(_gravar(widget.gravarVisto ?? HeisucaStateStore.instance.toggleWatched, item)),
+      ),
     );
   }
 

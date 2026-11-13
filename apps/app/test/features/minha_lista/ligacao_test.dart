@@ -26,7 +26,12 @@ MediaItem _item(String id, MediaKind tipo, {String? biblioteca, int? ano}) => Me
   year: ano,
 );
 
-Future<void> _abrir(WidgetTester tester, CgflixFavoritesSource fonte) async {
+Future<void> _abrir(
+  WidgetTester tester,
+  CgflixFavoritesSource fonte, {
+  GravacaoDoMenu? gravarFavorito,
+  GravacaoDoMenu? gravarVisto,
+}) async {
   tester.view.physicalSize = const Size(400, 1600);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -37,7 +42,7 @@ Future<void> _abrir(WidgetTester tester, CgflixFavoritesSource fonte) async {
   await tester.pumpWidget(
     ChangeNotifierProvider.value(
       value: servidores,
-      child: naTela(LigacaoDaMinhaLista(fonte: fonte)),
+      child: naTela(LigacaoDaMinhaLista(fonte: fonte, gravarFavorito: gravarFavorito, gravarVisto: gravarVisto)),
     ),
   );
   await tester.pump();
@@ -153,5 +158,68 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Título novo'), findsOneWidget);
     expect(find.text('Título velho'), findsNothing);
+  });
+
+  testWidgets('tirar dos favoritos pelo menu: a lista só é pedida de novo depois de a gravação terminar', (
+    tester,
+  ) async {
+    final gravacao = Completer<void>();
+    var noServidor = [_item('f1', MediaKind.movie).copyWith(isFavorite: true), _item('f2', MediaKind.movie)];
+    var pedidos = 0;
+    await _abrir(
+      tester,
+      CgflixFavoritesSource(
+        load: () async {
+          pedidos++;
+          return noServidor;
+        },
+      ),
+      gravarFavorito: (context, item) async {
+        await gravacao.future;
+        noServidor = [_item('f2', MediaKind.movie)];
+      },
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Título f1'), findsOneWidget);
+
+    await tester.longPress(find.text('Título f1'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Tirar dos favoritos').hitTestable().first);
+    await tester.pumpAndSettle();
+    final antes = pedidos;
+    expect(antes, 1, reason: 'com a gravação em curso, a lista ainda não é pedida de novo');
+
+    gravacao.complete();
+    await tester.pumpAndSettle();
+
+    expect(pedidos, antes + 1, reason: 'a gravação terminou: a lista é pedida de novo');
+    expect(find.text('Título f1'), findsNothing, reason: 'o título que saiu dos favoritos some do cartão');
+    expect(find.text('Título f2'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('marcar como visto pelo menu: a marca aparece depois de a gravação terminar', (tester) async {
+    final gravacao = Completer<void>();
+    var visto = false;
+    await _abrir(
+      tester,
+      CgflixFavoritesSource(load: () async => [_item('f1', MediaKind.movie).copyWith(viewCount: visto ? 1 : 0)]),
+      gravarVisto: (context, item) async {
+        await gravacao.future;
+        visto = true;
+      },
+    );
+    await tester.pumpAndSettle();
+    expect(tester.widget<Cartao>(find.byType(Cartao)).visto, isFalse);
+
+    await tester.longPress(find.text('Título f1'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Marcar como visto').hitTestable().first);
+    await tester.pumpAndSettle();
+    gravacao.complete();
+    await tester.pumpAndSettle();
+
+    expect(tester.widget<Cartao>(find.byType(Cartao)).visto, isTrue);
+    expect(tester.takeException(), isNull);
   });
 }

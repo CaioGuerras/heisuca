@@ -98,6 +98,20 @@ void main() {
       expect(await arquivos(), isEmpty);
     }
   });
+  test('bytes a mais: a conexão é fechada, não fica aberta até o servidor desistir', () async {
+    var fechou = false;
+    final fluxo = StreamController<List<int>>(onCancel: () => fechou = true);
+    fluxo.add([...conteudo, 0]);
+    final client = MockClient.streaming((_, _) async => http.StreamedResponse(fluxo.stream, 200));
+
+    await expectLater(
+      criar(client).baixar(apk),
+      throwsA(isA<FalhaAtualizacao>().having((f) => f.codigo, 'codigo', 'arquivoInvalido')),
+    );
+    expect(fechou, isTrue);
+    expect(await arquivos(), isEmpty);
+  });
+
   test('pouco espaço é informado antes de qualquer requisição', () async {
     var chamadas = 0;
     await expectLater(
@@ -243,9 +257,15 @@ void main() {
             _cai(conteudo.sublist(inicio, inicio + 40)),
             pedido == 1 ? 200 : 206,
             contentLength: 128 - inicio,
+            headers: {if (pedido > 1) 'content-range': 'bytes $inicio-127/128'},
           );
         }
-        return http.StreamedResponse(Stream.value(conteudo.sublist(120)), 206, contentLength: 8);
+        return http.StreamedResponse(
+          Stream.value(conteudo.sublist(120)),
+          206,
+          contentLength: 8,
+          headers: {'content-range': 'bytes 120-127/128'},
+        );
       });
 
       final baixado = await comQuedas(cliente, tentativas: 2).baixar(apk);
@@ -271,6 +291,42 @@ void main() {
         throwsA(isA<FalhaAtualizacao>().having((f) => f.codigo, 'codigo', 'arquivoInvalido')),
       );
       expect(await arquivos(), isEmpty);
+    });
+
+    test('resto sem dizer de onde começa (206 sem Content-Range) é recusado como arquivo inválido', () async {
+      final cliente = _ClienteQueCai(
+        (pedido, range) => pedido == 1
+            ? http.StreamedResponse(_cai(conteudo.sublist(0, 50)), 200, contentLength: 128)
+            : http.StreamedResponse(Stream.value(conteudo.sublist(50)), 206, contentLength: 78),
+      );
+
+      await expectLater(
+        comQuedas(cliente).baixar(apk),
+        throwsA(isA<FalhaAtualizacao>().having((f) => f.codigo, 'codigo', 'arquivoInvalido')),
+      );
+      expect(cliente.ranges, [null, 'bytes=50-']);
+      expect(await arquivos(), isEmpty);
+    });
+
+    test('recomeço do zero que cai com progresso zera a conta de quedas seguidas', () async {
+      // Só uma queda seguida é permitida. O segundo pedido recomeça do zero e cai com 50 bytes novos: é progresso.
+      final cliente = _ClienteQueCai(
+        (pedido, range) => switch (pedido) {
+          1 => http.StreamedResponse(_cai(conteudo.sublist(0, 100)), 200, contentLength: 128),
+          2 => http.StreamedResponse(_cai(conteudo.sublist(0, 50)), 200, contentLength: 128),
+          _ => http.StreamedResponse(
+            Stream.value(conteudo.sublist(50)),
+            206,
+            contentLength: 78,
+            headers: {'content-range': 'bytes 50-127/128'},
+          ),
+        },
+      );
+
+      final baixado = await comQuedas(cliente, tentativas: 1).baixar(apk);
+
+      expect(cliente.ranges, [null, 'bytes=100-', 'bytes=50-']);
+      expect(await baixado.readAsBytes(), conteudo);
     });
 
     test('resposta definitiva do servidor (404) não é tentada de novo', () async {

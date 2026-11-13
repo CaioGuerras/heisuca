@@ -92,7 +92,7 @@ class UpdateDownloader {
       var retomadas = 0;
       Future<Never> cancelou() => controle.sinal.then<Never>((_) => throw const FalhaAtualizacao('cancelado'));
       while (recebidos < apk.bytes) {
-        final noComeco = recebidos;
+        var noComeco = recebidos;
         try {
           final resposta = await Future.any([
             cliente.abrir(apk.url, cancelar: controle.sinal, aPartirDe: recebidos),
@@ -106,11 +106,13 @@ class UpdateDownloader {
             resumo = _Resumo();
             hash = sha256.startChunkedConversion(resumo);
             recebidos = 0;
+            noComeco = 0;
           }
           final falta = apk.bytes - recebidos;
           final intervalo = resposta.headers['content-range'];
+          // Resto sem dizer de onde começa não serve: não há como saber se emenda no que já foi gravado.
           if ((resposta.contentLength != null && resposta.contentLength != falta) ||
-              (resposta.statusCode == 206 && intervalo != null && !intervalo.startsWith('bytes $recebidos-'))) {
+              (resposta.statusCode == 206 && (intervalo == null || !intervalo.startsWith('bytes $recebidos-')))) {
             await resposta.stream.listen((_) {}).cancel();
             throw const FalhaAtualizacao('arquivoInvalido');
           }

@@ -1,3 +1,17 @@
+## 2.0.36 — O que mudou
+
+### Novo
+- Início novo: destaque em tela cheia com o logo do título, e o fundo acompanha a cor do pôster. O destaque troca só pelo seu dedo.
+- Página do título nova, em tela inteira: temporadas, episódios, elenco, "Mais como este" e os dados do arquivo.
+- Explorar novo: bibliotecas, gêneros, ordem e "Não vistos" no topo, com ✓ no que você já viu.
+- Minha lista nova, separada por tipo. Em servidor Plex, o título vai para a lista da sua conta Plex.
+- Barra flutuante embaixo: Início, Explorar, Minha lista e Baixados. A busca e o seu perfil ficam no topo.
+
+### Melhor
+- Favoritar e marcar como visto ficaram mais firmes: toques seguidos são gravados na ordem, e a tela não fica diferente do servidor quando uma gravação falha.
+- Atualizações: o download continua se você sair da tela e retoma de onde parou se a conexão cair.
+- Sobre: a versão mostra também o número da build.
+
 ## 2.0.34 — O que mudou
 
 ### Novo

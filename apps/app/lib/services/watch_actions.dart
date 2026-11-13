@@ -39,36 +39,46 @@ class WatchActions {
     MediaItem item, {
     required bool watched,
     bool? offline,
-  }) async {
+  }) => prepare(context, item, offline: offline)(watched: watched);
+
+  /// Lê agora do [context] tudo de que a gravação precisa e devolve a gravação pronta.
+  ///
+  /// Quem enfileira gravações chama a função devolvida mais tarde: ela não toca mais no [context], então vale mesmo
+  /// com a tela de origem já fechada.
+  static Future<WatchMarkOutcome> Function({required bool watched}) prepare(
+    BuildContext context,
+    MediaItem item, {
+    bool? offline,
+  }) {
     final isOffline = offline ?? context.read<OfflineModeProvider>().isOffline;
     final serverId = item.serverId;
+    final offlineWatch = isOffline && serverId != null ? context.read<OfflineWatchProvider>() : null;
+    final client = !isOffline && serverId != null ? context.tryGetMediaClientForServer(ServerId(serverId)) : null;
 
-    if (isOffline && serverId != null) {
-      final offlineWatch = context.read<OfflineWatchProvider>();
-      if (watched) {
-        await offlineWatch.markAsWatched(serverId: ServerId(serverId), itemId: item.id);
-      } else {
-        await offlineWatch.markAsUnwatched(serverId: ServerId(serverId), itemId: item.id);
+    return ({required bool watched}) async {
+      if (offlineWatch != null && serverId != null) {
+        if (watched) {
+          await offlineWatch.markAsWatched(serverId: ServerId(serverId), itemId: item.id);
+        } else {
+          await offlineWatch.markAsUnwatched(serverId: ServerId(serverId), itemId: item.id);
+        }
+        return WatchMarkOutcome.queuedOffline;
       }
-      return WatchMarkOutcome.queuedOffline;
-    }
+      if (client == null) return WatchMarkOutcome.skipped;
 
-    if (serverId == null) return WatchMarkOutcome.skipped;
-    final client = context.tryGetMediaClientForServer(ServerId(serverId));
-    if (client == null) return WatchMarkOutcome.skipped;
-
-    if (watched) {
-      await client.markWatched(item);
-    } else {
-      await client.markUnwatched(item);
-    }
-    WatchStateNotifier().notifyWatched(
-      item: item,
-      isNowWatched: watched,
-      cacheServerId: client.cacheServerId,
-      serverAcknowledged: true,
-    );
-    return WatchMarkOutcome.marked;
+      if (watched) {
+        await client.markWatched(item);
+      } else {
+        await client.markUnwatched(item);
+      }
+      WatchStateNotifier().notifyWatched(
+        item: item,
+        isNowWatched: watched,
+        cacheServerId: client.cacheServerId,
+        serverAcknowledged: true,
+      );
+      return WatchMarkOutcome.marked;
+    };
   }
 
   /// Removes [item] from Continue Watching without touching watch state.

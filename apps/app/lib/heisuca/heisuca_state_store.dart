@@ -26,6 +26,11 @@ class HeisucaStateStore extends ChangeNotifier {
   /// A última gravação pendente de cada título, por tipo: a seguinte espera esta terminar.
   final Map<String, Future<void>> _fila = {};
 
+  /// Quantas trocas cada fila já recebeu: só a troca mais nova pode desfazer o que a tela mostra.
+  final Map<String, int> _trocas = {};
+
+  int _novaTroca(String fila) => _trocas[fila] = (_trocas[fila] ?? 0) + 1;
+
   String _chave(MediaItem item) => item.globalKey.isNotEmpty ? item.globalKey : item.id;
 
   bool isFavorite(MediaItem item) => _favorites[_chave(item)] ?? item.isFavorite ?? false;
@@ -57,6 +62,7 @@ class HeisucaStateStore extends ChangeNotifier {
 
     // O cliente é lido já: depois da espera a tela de origem pode ter saído.
     final client = cgflixClientFor(context, item);
+    final troca = _novaTroca('f:$key');
     return _emOrdem('f:$key', () async {
       try {
         if (client == null) throw StateError('Fonte indisponível');
@@ -69,7 +75,7 @@ class HeisucaStateStore extends ChangeNotifier {
       } catch (_) {
         // Falhou: a tela volta ao que o servidor tem, a não ser que já exista uma escolha mais nova.
         final noServidor = _favoritoNoServidor[key] ?? !next;
-        if (_favorites[key] == next) {
+        if (_trocas['f:$key'] == troca) {
           _favorites[key] = noServidor;
           notifyListeners();
         }
@@ -90,10 +96,18 @@ class HeisucaStateStore extends ChangeNotifier {
     _watched[key] = next;
     notifyListeners();
 
+    // O que a gravação precisa é lido já: depois da espera a tela de origem pode ter saído.
+    Future<WatchMarkOutcome> Function({required bool watched})? gravar;
+    try {
+      gravar = WatchActions.prepare(context, item);
+    } catch (_) {
+      // Sem ter como gravar, a troca falha na vez dela, como qualquer outra.
+    }
+    final troca = _novaTroca('v:$key');
     return _emOrdem('v:$key', () async {
       try {
-        if (!context.mounted) throw StateError('Tela fechada antes da gravação');
-        await WatchActions.setWatched(context, item, watched: next);
+        if (gravar == null) throw StateError('Fonte indisponível');
+        await gravar(watched: next);
         _vistoNoServidor[key] = next;
         if (context.mounted) {
           showSuccessSnackBar(context, next ? 'Marcado como visto' : 'Marcado como não visto');
@@ -101,7 +115,7 @@ class HeisucaStateStore extends ChangeNotifier {
         return next;
       } catch (_) {
         final noServidor = _vistoNoServidor[key] ?? !next;
-        if (_watched[key] == next) {
+        if (_trocas['v:$key'] == troca) {
           _watched[key] = noServidor;
           notifyListeners();
         }

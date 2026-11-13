@@ -438,6 +438,10 @@ void main() {
         ),
       );
       expect(tester.takeException(), isNull);
+      // Com a página rolada a conta é refeita: continua sem erro.
+      rolagem.value = 80;
+      await tester.pump();
+      expect(tester.takeException(), isNull);
     });
 
     testWidgets('controle de rolagem de fora continua valendo e a barra o acompanha', (tester) async {

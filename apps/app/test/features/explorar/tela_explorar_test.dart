@@ -380,6 +380,27 @@ void main() {
     expect(pedidos, greaterThan(0));
   });
 
+  testWidgets('puxar a grade para baixo chama o atualizar', (tester) async {
+    _tela(tester, const Size(400, 900));
+    var pedidos = 0;
+    await tester.pumpWidget(
+      naTela(
+        TelaExplorar(
+          bibliotecas: _bibliotecas,
+          bibliotecaAtual: 'f',
+          itens: _itens(60),
+          aoAtualizar: () async => pedidos++,
+          cores: CorPosterCache(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.fling(find.byType(CustomScrollView), const Offset(0, 400), 1000);
+    await tester.pumpAndSettle();
+    expect(pedidos, 1);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('o fundo segue a cor do primeiro pôster', (tester) async {
     _tela(tester, const Size(400, 900));
     final hashes = [

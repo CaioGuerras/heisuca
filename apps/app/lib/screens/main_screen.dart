@@ -243,6 +243,13 @@ bool shouldRetryActiveProfileBindAfterReconnect({
   return hasActiveProfile && !hasVisibleConnectedServers && (hasManagerOnlineServers || !hasKnownOfflineServers);
 }
 
+/// Heisuca: "Baixados" entra na barra flutuante? No modo infantil ela fica de fora, menos sem conexão
+/// (só os baixados funcionam) e quando a tela aberta já é a dos baixados (a barra mostra onde a pessoa está).
+@visibleForTesting
+bool baixadosNaBarraDaCasca({required bool infantil, required bool semConexao, required NavigationTabId abaAtual}) {
+  return !infantil || semConexao || abaAtual == NavigationTabId.downloads;
+}
+
 @visibleForTesting
 bool shouldRenderMainScreenOffline({
   required bool providerOffline,
@@ -2348,11 +2355,12 @@ class _MainScreenState extends State<MainScreen>
       });
     }
 
+    final comBaixados = baixadosNaBarraDaCasca(infantil: kids, semConexao: _isOffline, abaAtual: _currentTab);
     final index = myList != null
         ? _myListDestination
         : switch (_currentTab) {
             NavigationTabId.libraries => 1,
-            NavigationTabId.downloads when !kids => 3,
+            NavigationTabId.downloads when comBaixados => 3,
             _ => 0,
           };
 
@@ -2367,8 +2375,8 @@ class _MainScreenState extends State<MainScreen>
           aoSegurar: () => _showLibraryQuickPicker(context),
         ),
         const DestinoDaBarra(icone: Symbols.bookmark_rounded, rotulo: 'Minha lista'),
-        // No modo infantil os baixados ficam fora da barra.
-        if (!kids) const DestinoDaBarra(icone: Symbols.download_rounded, rotulo: 'Baixados'),
+        // No modo infantil os baixados só entram na barra sem conexão ou com a tela deles aberta.
+        if (comBaixados) const DestinoDaBarra(icone: Symbols.download_rounded, rotulo: 'Baixados'),
       ],
       corpo: Stack(
         children: [

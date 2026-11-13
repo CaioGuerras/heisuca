@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:heisuca/design/componentes/cartao.dart';
+import 'package:heisuca/design/componentes/pilula_de_perfil.dart';
 import 'package:heisuca/design/cor_poster/cor_poster_cache.dart';
 import 'package:heisuca/design/tema.dart';
 import 'package:heisuca/features/inicio/fileira.dart';
@@ -57,6 +58,11 @@ void main() {
     await tester.pump();
     expect(find.byType(FileiraCarregando), findsNWidgets(TelaMinhaLista.fileirasDeEspera));
     expect(find.byType(Fileira), findsNothing);
+    expect(
+      find.descendant(of: find.byType(FileiraCarregando), matching: find.bySemanticsLabel(RegExp('.+'))),
+      findsNothing,
+      reason: 'a fileira de espera não tem nada para o leitor de tela ler',
+    );
   });
 
   testWidgets('carregando com a lista na tela mantém a lista', (tester) async {
@@ -147,6 +153,30 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('letra em 200%: a pílula do perfil não encosta no título da tela', (tester) async {
+    await tester.pumpWidget(
+      naTela(
+        Builder(
+          builder: (context) => MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(2)),
+            child: TelaMinhaLista(
+              fileiras: [_fileira('series', 'Séries', 4)],
+              aoBuscar: () {},
+              perfil: PilulaDePerfil(nome: 'Maria Antonieta', aoTocar: () {}),
+              cores: CorPosterCache(),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    final pilula = tester.getRect(find.byType(PilulaDePerfil));
+    final titulo = tester.getRect(find.text('Minha lista'));
+    expect(pilula.bottom, lessThanOrEqualTo(titulo.top));
+    expect(pilula.right, lessThanOrEqualTo(tester.getRect(find.bySemanticsLabel('Buscar')).left));
   });
 
   testWidgets('o fim da lista guarda espaço para a barra flutuante', (tester) async {

@@ -311,6 +311,54 @@ void main() {
     expect(find.text('Esta biblioteca ainda está vazia'), findsNothing);
   });
 
+  testWidgets('página seguinte que falha: o fim da grade oferece tentar de novo', (tester) async {
+    _tela(tester, const Size(400, 900));
+    var tentativas = 0;
+    Widget tela({VoidCallback? aoTentarMais, Widget? aviso, int itens = 3}) => naTela(
+      TelaExplorar(
+        bibliotecas: _bibliotecas,
+        bibliotecaAtual: 'f',
+        itens: _itens(itens),
+        aoTentarMais: aoTentarMais,
+        aviso: aviso,
+        cores: CorPosterCache(),
+      ),
+    );
+
+    await tester.pumpWidget(tela());
+    await tester.pump();
+    expect(find.text('Tentar de novo'), findsNothing, reason: 'sem falha não há o que tentar');
+
+    await tester.pumpWidget(tela(aoTentarMais: () => tentativas++));
+    await tester.pump();
+    expect(find.text('Não foi possível carregar mais títulos.'), findsOneWidget);
+    await tester.tap(find.text('Tentar de novo'));
+    expect(tentativas, 1);
+
+    await tester.pumpWidget(tela(aoTentarMais: () => tentativas++, itens: 0));
+    await tester.pump();
+    expect(find.text('Tentar de novo'), findsNothing, reason: 'sem título na tela quem fala é o aviso');
+  });
+
+  testWidgets('grade que cabe inteira na tela pede a próxima página sem esperar a rolagem', (tester) async {
+    _tela(tester, const Size(400, 900));
+    var pedidos = 0;
+    await tester.pumpWidget(
+      naTela(
+        TelaExplorar(
+          bibliotecas: _bibliotecas,
+          bibliotecaAtual: 'f',
+          itens: _itens(3),
+          aoChegarPertoDoFim: () => pedidos++,
+          cores: CorPosterCache(),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+    expect(pedidos, greaterThan(0));
+  });
+
   testWidgets('perto do fim da rolagem pede a próxima página', (tester) async {
     _tela(tester, const Size(400, 900));
     var pedidos = 0;

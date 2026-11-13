@@ -329,6 +329,13 @@ class _LigacaoDoExplorarState extends State<LigacaoDoExplorar> with Refreshable,
     if (!_carregando && !_mais && _temMais && !_falhouNosTitulos) unawaited(_pagina());
   }
 
+  /// A página seguinte falhou e os títulos já carregados seguem na tela: tenta só ela de novo.
+  void _tentarMais() {
+    if (_mais) return;
+    setState(() => _falhouNosTitulos = false);
+    unawaited(_pagina());
+  }
+
   Future<void> _pagina() async {
     final fonte = _atual;
     if (fonte == null || _mais) return;
@@ -488,6 +495,7 @@ class _LigacaoDoExplorarState extends State<LigacaoDoExplorar> with Refreshable,
         carregando: !foraDoAr && _carregando,
         carregandoMais: _mais && _itens.isNotEmpty,
         aoChegarPertoDoFim: _pertoDoFim,
+        aoTentarMais: _falhouNosTitulos && _itens.isNotEmpty ? _tentarMais : null,
         aviso: _aviso(foraDoAr),
         aoBuscar: () => unawaited(cgflixOpenSearch(context)),
         perfil: const PilulaDoPerfilAtivo(sobreArte: true),

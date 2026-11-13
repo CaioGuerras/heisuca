@@ -37,6 +37,7 @@ class TelaExplorar extends StatefulWidget {
     this.carregando = false,
     this.carregandoMais = false,
     this.aoChegarPertoDoFim,
+    this.aoTentarMais,
     this.aviso,
     this.aoBuscar,
     this.perfil,
@@ -83,6 +84,9 @@ class TelaExplorar extends StatefulWidget {
 
   /// A rolagem chegou perto do fim: hora de pedir a próxima página.
   final VoidCallback? aoChegarPertoDoFim;
+
+  /// A página seguinte falhou: o fim da grade diz isso e oferece tentar de novo.
+  final VoidCallback? aoTentarMais;
 
   /// O que ocupa o lugar da grade quando há algo a dizer (falha de carga, fonte sem biblioteca).
   final Widget? aviso;
@@ -163,11 +167,20 @@ class _TelaExplorarState extends State<TelaExplorar> {
   }
 
   bool _rolou(ScrollNotification aviso) {
-    final medida = aviso.metrics;
+    _conferirOFim(aviso.metrics);
+    return false;
+  }
+
+  /// A lista mudou de tamanho sem ninguém rolar: grade que cabe inteira na tela também pede a página seguinte.
+  bool _mediu(ScrollMetricsNotification aviso) {
+    _conferirOFim(aviso.metrics);
+    return false;
+  }
+
+  void _conferirOFim(ScrollMetrics medida) {
     if (medida.axis == Axis.vertical && medida.extentAfter < TelaExplorar.distanciaDoFim) {
       widget.aoChegarPertoDoFim?.call();
     }
-    return false;
   }
 
   Future<void> _escolherOrdem() async {
@@ -252,87 +265,109 @@ class _TelaExplorarState extends State<TelaExplorar> {
 
     final lista = NotificationListener<ScrollNotification>(
       onNotification: _rolou,
-      child: CustomScrollView(
-        key: widget.chaveDeRolagem,
-        controller: widget.controle,
-        physics: const AlwaysScrollableScrollPhysics(),
-        slivers: [
-          SliverToBoxAdapter(child: SizedBox(height: media.padding.top + TelaExplorar.topo)),
-          if (temBiblioteca) ...[
-            SliverToBoxAdapter(
-              child: _Faixa(
-                rotulo: 'Bibliotecas',
-                pilulas: [
-                  for (final biblioteca in widget.bibliotecas)
-                    PilulaDeEscolha(
-                      texto: biblioteca.titulo,
-                      selecionado: biblioteca.chave == widget.bibliotecaAtual,
-                      aoTocar: biblioteca.chave == widget.bibliotecaAtual
-                          ? null
-                          : () => widget.aoEscolherBiblioteca?.call(biblioteca.chave),
-                    ),
-                  if (widget.aoAbrirFavoritos != null)
-                    PilulaDeEscolha(texto: 'Favoritos', aoTocar: widget.aoAbrirFavoritos),
-                ],
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: _Faixa(
-                rotulo: 'Ordem e filtros',
-                pilulas: [
-                  PilulaDeEscolha(
-                    texto: widget.ordem.rotulo,
-                    rotulo: 'Ordenar, agora por ${widget.ordem.rotulo}',
-                    aoTocar: _escolherOrdem,
-                  ),
-                  if (widget.soNaoVistos case final ligado?)
-                    PilulaDeEscolha(
-                      texto: 'Não vistos',
-                      rotulo: 'Só não vistos',
-                      selecionado: ligado,
-                      aoTocar: () => widget.aoMudarSoNaoVistos?.call(!ligado),
-                    ),
-                ],
-              ),
-            ),
-            if (widget.generos.isNotEmpty)
+      child: NotificationListener<ScrollMetricsNotification>(
+        onNotification: _mediu,
+        child: CustomScrollView(
+          key: widget.chaveDeRolagem,
+          controller: widget.controle,
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverToBoxAdapter(child: SizedBox(height: media.padding.top + TelaExplorar.topo)),
+            if (temBiblioteca) ...[
               SliverToBoxAdapter(
                 child: _Faixa(
-                  rotulo: 'Gêneros',
+                  rotulo: 'Bibliotecas',
                   pilulas: [
-                    for (final genero in widget.generos)
+                    for (final biblioteca in widget.bibliotecas)
                       PilulaDeEscolha(
-                        texto: genero.nome,
-                        selecionado: genero.chave == widget.generoAtual,
-                        aoTocar: () =>
-                            widget.aoEscolherGenero?.call(genero.chave == widget.generoAtual ? null : genero.chave),
+                        texto: biblioteca.titulo,
+                        selecionado: biblioteca.chave == widget.bibliotecaAtual,
+                        aoTocar: biblioteca.chave == widget.bibliotecaAtual
+                            ? null
+                            : () => widget.aoEscolherBiblioteca?.call(biblioteca.chave),
+                      ),
+                    if (widget.aoAbrirFavoritos != null)
+                      PilulaDeEscolha(texto: 'Favoritos', aoTocar: widget.aoAbrirFavoritos),
+                  ],
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: _Faixa(
+                  rotulo: 'Ordem e filtros',
+                  pilulas: [
+                    PilulaDeEscolha(
+                      texto: widget.ordem.rotulo,
+                      rotulo: 'Ordenar, agora por ${widget.ordem.rotulo}',
+                      aoTocar: _escolherOrdem,
+                    ),
+                    if (widget.soNaoVistos case final ligado?)
+                      PilulaDeEscolha(
+                        texto: 'Não vistos',
+                        rotulo: 'Só não vistos',
+                        selecionado: ligado,
+                        aoTocar: () => widget.aoMudarSoNaoVistos?.call(!ligado),
                       ),
                   ],
                 ),
               ),
-            const SliverToBoxAdapter(child: SizedBox(height: Forma.espaco2)),
-          ],
-          if (widget.aviso != null)
-            SliverToBoxAdapter(child: widget.aviso)
-          else if (vazia)
-            SliverToBoxAdapter(
-              child: _temFiltro
-                  ? Aviso(
-                      icone: Symbols.filter_alt_off_rounded,
-                      titulo: 'Nenhum título com estes filtros',
-                      texto: 'Tire um filtro para ver mais títulos.',
-                      acoes: [Botao(rotulo: 'Limpar filtros', aoTocar: _limparFiltros)],
-                    )
-                  : const Aviso(
-                      icone: Symbols.video_library_rounded,
-                      titulo: 'Esta biblioteca ainda está vazia',
-                      texto: 'Puxe para atualizar ou escolha outra biblioteca.',
+              if (widget.generos.isNotEmpty)
+                SliverToBoxAdapter(
+                  child: _Faixa(
+                    rotulo: 'Gêneros',
+                    pilulas: [
+                      for (final genero in widget.generos)
+                        PilulaDeEscolha(
+                          texto: genero.nome,
+                          selecionado: genero.chave == widget.generoAtual,
+                          aoTocar: () =>
+                              widget.aoEscolherGenero?.call(genero.chave == widget.generoAtual ? null : genero.chave),
+                        ),
+                    ],
+                  ),
+                ),
+              const SliverToBoxAdapter(child: SizedBox(height: Forma.espaco2)),
+            ],
+            if (widget.aviso != null)
+              SliverToBoxAdapter(child: widget.aviso)
+            else if (vazia)
+              SliverToBoxAdapter(
+                child: _temFiltro
+                    ? Aviso(
+                        icone: Symbols.filter_alt_off_rounded,
+                        titulo: 'Nenhum título com estes filtros',
+                        texto: 'Tire um filtro para ver mais títulos.',
+                        acoes: [Botao(rotulo: 'Limpar filtros', aoTocar: _limparFiltros)],
+                      )
+                    : const Aviso(
+                        icone: Symbols.video_library_rounded,
+                        titulo: 'Esta biblioteca ainda está vazia',
+                        texto: 'Puxe para atualizar ou escolha outra biblioteca.',
+                      ),
+              )
+            else if (temBiblioteca || widget.carregando)
+              Builder(builder: _grade),
+            if (widget.aoTentarMais != null && widget.aviso == null && itens.isNotEmpty)
+              SliverToBoxAdapter(
+                child: Builder(
+                  builder: (context) => Padding(
+                    padding: const EdgeInsets.fromLTRB(Forma.espaco4, Forma.espaco4, Forma.espaco4, 0),
+                    child: Column(
+                      children: [
+                        Text(
+                          'Não foi possível carregar mais títulos.',
+                          textAlign: TextAlign.center,
+                          style: Tipo.pequeno(TemaHeisuca.de(context)),
+                        ),
+                        const SizedBox(height: Forma.espaco2),
+                        Botao(rotulo: 'Tentar de novo', tipo: TipoDeBotao.secundario, aoTocar: widget.aoTentarMais),
+                      ],
                     ),
-            )
-          else if (temBiblioteca || widget.carregando)
-            Builder(builder: _grade),
-          SliverToBoxAdapter(child: SizedBox(height: media.padding.bottom + widget.folgaInferior)),
-        ],
+                  ),
+                ),
+              ),
+            SliverToBoxAdapter(child: SizedBox(height: media.padding.bottom + widget.folgaInferior)),
+          ],
+        ),
       ),
     );
 

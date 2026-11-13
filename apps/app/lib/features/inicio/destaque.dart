@@ -72,11 +72,15 @@ class _DestaqueState extends State<Destaque> {
       child: Column(
         children: [
           Expanded(
-            child: PageView.builder(
-              controller: _paginas,
-              itemCount: widget.titulos.length,
-              onPageChanged: _mudou,
-              itemBuilder: (context, i) => _Pagina(key: ValueKey(widget.titulos[i].chave), titulo: widget.titulos[i]),
+            child: ScrollConfiguration(
+              behavior: const _RolagemDoDestaque(),
+              child: PageView.builder(
+                controller: _paginas,
+                physics: const FisicaDoDestaque(),
+                itemCount: widget.titulos.length,
+                onPageChanged: _mudou,
+                itemBuilder: (context, i) => _Pagina(key: ValueKey(widget.titulos[i].chave), titulo: widget.titulos[i]),
+              ),
             ),
           ),
           SizedBox(
@@ -89,6 +93,36 @@ class _DestaqueState extends State<Destaque> {
       ),
     );
   }
+}
+
+/// A rolagem do destaque não depende do tema.
+///
+/// O comportamento padrão do Material consulta o tema; a cada troca de página o fundo muda de cor por alguns
+/// quadros, o tema muda junto e o Flutter refaz a posição da rolagem a cada quadro, recalculando o alvo com a
+/// velocidade do momento. Com a mola do app, que passa um pouco do alvo, o alvo virava a página seguinte e o
+/// destaque varria todas as páginas sem parar, indo e voltando.
+class _RolagemDoDestaque extends ScrollBehavior {
+  const _RolagemDoDestaque();
+
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) => const BouncingScrollPhysics();
+
+  @override
+  Widget buildOverscrollIndicator(BuildContext context, Widget child, ScrollableDetails details) => child;
+}
+
+/// Página a página, com mola que não oscila em volta do alvo.
+///
+/// Segunda proteção do mesmo defeito (ver [_RolagemDoDestaque]): mesmo que a posição seja refeita no meio do
+/// movimento, a página não fica indo e voltando.
+class FisicaDoDestaque extends PageScrollPhysics {
+  const FisicaDoDestaque({super.parent});
+
+  @override
+  FisicaDoDestaque applyTo(ScrollPhysics? ancestor) => FisicaDoDestaque(parent: buildParent(ancestor));
+
+  @override
+  SpringDescription get spring => SpringDescription.withDampingRatio(mass: 1, stiffness: 180);
 }
 
 class _Pagina extends StatelessWidget {

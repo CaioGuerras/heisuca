@@ -11,7 +11,8 @@ import 'cgflix_palette.dart';
 
 const cgflixDedicationText = 'Feito com amor, para Isis e Heitor';
 
-/// Dedicatória discreta no fim, preservada por decisão do Caio em 08/11.
+/// Dedicatória discreta no fim, preservada por decisão do Caio em 08/11. Fica acima do selo de IA (Caio, 13/11);
+/// só ela começa com "Feito", para as duas linhas não parecerem a mesma frase repetida.
 class CgflixDedication extends StatelessWidget {
   const CgflixDedication({super.key});
 
@@ -29,7 +30,7 @@ class HeisucaAiSeal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Text(
-    '🤖 Feito em parceria com IA: Claude, Codex e Gemini.',
+    '🤖 Em parceria com IA: Claude, Codex e Gemini.',
     style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.cgflix.textMuted),
     textAlign: TextAlign.center,
   );
@@ -107,7 +108,8 @@ class _AboutCard extends StatelessWidget {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 460),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        // Embaixo sobra pouco: o botão do link já traz a própria área de toque de 48.
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
         decoration: BoxDecoration(
           color: palette.surface,
           borderRadius: BorderRadius.circular(16),
@@ -147,7 +149,7 @@ class _AboutCard extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(description, style: theme.textTheme.bodySmall?.copyWith(color: palette.textMuted, height: 1.45)),
-            const SizedBox(height: 8),
+            const SizedBox(height: 2),
             Align(
               alignment: Alignment.centerRight,
               child: TextButton.icon(

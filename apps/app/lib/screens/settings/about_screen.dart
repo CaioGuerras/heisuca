@@ -34,6 +34,7 @@ class _AboutScreenState extends State<AboutScreen> {
       future: _packageInfoFuture,
       builder: (context, snapshot) {
         final appVersion = snapshot.data?.version ?? '';
+        final appBuild = snapshot.data?.buildNumber ?? '';
         return FocusedScrollScaffold(
           title: Text(t.about.title),
           slivers: [
@@ -57,7 +58,7 @@ class _AboutScreenState extends State<AboutScreen> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          cgflixVersionLabel(appVersion),
+                          cgflixVersionLabel(appVersion, appBuild),
                           semanticsLabel: t.about.versionLabel(version: appVersion),
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: tokens(context).textMuted,
@@ -68,8 +69,6 @@ class _AboutScreenState extends State<AboutScreen> {
                       ],
                     ),
                   ),
-
-                  const SizedBox(height: 36),
 
                   SettingsGroup(
                     margin: EdgeInsets.zero,
@@ -101,10 +100,9 @@ class _AboutScreenState extends State<AboutScreen> {
                   const SizedBox(height: 16),
                   const CgflixApoioAboutLine(),
                   const SizedBox(height: 16),
-                  const Center(child: HeisucaAiSeal()),
-                  const SizedBox(height: 16),
-
                   const Center(child: CgflixDedication()),
+                  const SizedBox(height: 8),
+                  const Center(child: HeisucaAiSeal()),
 
                   const SizedBox(height: 24),
                 ]),

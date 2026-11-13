@@ -22,7 +22,7 @@ import 'package:heisuca/widgets/app_icon.dart';
 
 import '../../test_helpers/multi_server_fixtures.dart';
 
-const _selo = '🤖 Feito em parceria com IA: Claude, Codex e Gemini.';
+const _selo = '🤖 Em parceria com IA: Claude, Codex e Gemini.';
 const _codigo = 'O Heisuca é software livre: qualquer pessoa pode ver, estudar e melhorar o código.';
 const _canalUrl = MethodChannel('plugins.flutter.io/url_launcher');
 
@@ -75,7 +75,7 @@ void main() {
       final ordem = [
         find.byType(HeisucaLogo),
         find.text('Nada entre você e o filme.'),
-        find.text('Versão 2.0.34'),
+        find.text('Versão 2.0.34 (38)'),
         find.byType(CgflixDicasAboutTile),
         find.byType(HeisucaNewsEntry),
         find.byType(HeisucaOpenSourceCard),
@@ -83,8 +83,9 @@ void main() {
         find.byType(HeisucaTributeCards),
         find.text(t.about.openSourceLicenses),
         find.byType(CgflixApoioAboutLine),
-        find.byType(HeisucaAiSeal),
+        // A dedicatória vem antes do selo de IA (Caio, 13/11).
         find.byType(CgflixDedication),
+        find.byType(HeisucaAiSeal),
       ];
       double anterior = -1;
       for (final alvo in ordem) {

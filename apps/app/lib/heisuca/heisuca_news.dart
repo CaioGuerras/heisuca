@@ -125,14 +125,16 @@ class _HeisucaNewsEntryState extends State<HeisucaNewsEntry> {
       final unread = snapshot.hasData && snapshot.data!.getString('heisuca.news.read') != heisucaNewsVersion;
       return FocusableListTile(
         leading: const AppIcon(Symbols.auto_awesome_rounded, fill: 0),
-        subtitle: const Text('O que mudou no Heisuca.'),
+        subtitle: const Text('O que mudou no Heisuca'),
+        trailing: const AppIcon(Symbols.chevron_right_rounded, fill: 1),
         onTap: () async {
           await Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const HeisucaNewsScreen()));
           if (mounted) setState(() {});
         },
         title: Row(
           children: [
-            const Text('Novidades'),
+            // Com a seta à direita e letra ampliada o título pode não caber: encolhe em vez de estourar.
+            const Flexible(child: Text('Novidades', overflow: TextOverflow.ellipsis)),
             if (unread) ...[
               const SizedBox(width: 8),
               Semantics(

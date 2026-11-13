@@ -6,6 +6,8 @@ import 'package:heisuca/cgflix/cgflix_version.dart';
 void main() {
   test('Sobre mostra "Versão 1.6.2" abaixo do nome', () {
     expect(cgflixVersionLabel('1.6.2'), 'Versão 1.6.2');
+    expect(cgflixVersionLabel('2.0.36', '3010'), 'Versão 2.0.36 (3010)');
+    expect(cgflixVersionLabel('', '3010'), '');
     expect(cgflixVersionLabel(''), '');
   });
 

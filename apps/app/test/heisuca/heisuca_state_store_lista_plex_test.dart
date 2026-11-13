@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:heisuca/heisuca/heisuca_context_menu.dart';
 import 'package:heisuca/heisuca/heisuca_lista_plex.dart';
 import 'package:heisuca/heisuca/heisuca_state_store.dart';
 import 'package:heisuca/media/ids.dart';
@@ -21,6 +22,10 @@ class _Conta implements ListaDoPlex {
   final gravados = <bool>[];
   bool falha = false;
   Completer<void>? esperaDaPergunta;
+  Completer<void>? esperaDaGravacao;
+
+  /// Para cada pedido da ponte, na ordem: o contexto de quem pediu estava dentro do perfil?
+  final pedidosDeDentroDoPerfil = <bool>[];
 
   @override
   Future<bool?> estaNaLista() async {
@@ -31,8 +36,14 @@ class _Conta implements ListaDoPlex {
   @override
   Future<void> gravar(bool naLista) async {
     gravados.add(naLista);
-    if (falha) throw StateError('sem rede');
+    // Como a conta de verdade: a lista em memória muda antes de o servidor responder e volta se ele recusar.
+    final antes = naConta;
     naConta = naLista;
+    await esperaDaGravacao?.future;
+    if (falha) {
+      naConta = antes;
+      throw StateError('sem rede');
+    }
   }
 }
 
@@ -56,6 +67,20 @@ class _Servidor extends MediaServerClient {
   dynamic noSuchMethod(Invocation invocation) => null;
 }
 
+/// Marca o que só existe dentro do perfil (no app, as fontes de catálogo com a conta Plex).
+class _DoPerfil {
+  const _DoPerfil();
+}
+
+bool _dentroDoPerfil(BuildContext context) {
+  try {
+    Provider.of<_DoPerfil>(context, listen: false);
+    return true;
+  } on ProviderNotFoundException {
+    return false;
+  }
+}
+
 MediaItem _filme(String id) =>
     MediaItem(id: id, backend: MediaBackend.plex, kind: MediaKind.movie, title: 'Filme do amigo', serverId: 'amigo');
 
@@ -66,7 +91,10 @@ void main() {
   Future<BuildContext> montar(WidgetTester tester) async {
     conta = _Conta();
     servidor = _Servidor();
-    ListaDoPlex.fabricaDeTeste = (context, item, cliente) => conta;
+    ListaDoPlex.fabricaDeTeste = (context, item, cliente) {
+      conta.pedidosDeDentroDoPerfil.add(_dentroDoPerfil(context));
+      return conta;
+    };
     addTearDown(() => ListaDoPlex.fabricaDeTeste = null);
     final gerente = MultiServerManager()..debugRegisterClientForTesting(servidor);
     final servidores = MultiServerProvider(gerente, DataAggregationService(gerente));
@@ -82,12 +110,16 @@ void main() {
           ChangeNotifierProvider.value(value: semRede),
         ],
         child: MaterialApp(
-          home: Scaffold(
-            body: Builder(
-              builder: (context) {
-                contexto = context;
-                return const SizedBox.shrink();
-              },
+          // Como no app: o que é do perfil fica abaixo do navegador raiz.
+          home: Provider<_DoPerfil>.value(
+            value: const _DoPerfil(),
+            child: Scaffold(
+              body: Builder(
+                builder: (context) {
+                  contexto = context;
+                  return const SizedBox.shrink();
+                },
+              ),
             ),
           ),
         ),
@@ -188,5 +220,46 @@ void main() {
     await loja.conferirLista(contexto, item);
 
     expect(loja.isFavorite(item), isFalse);
+  });
+
+  testWidgets('pergunta feita com a gravação a caminho não vira "o que a conta tem" se a gravação falhar', (
+    tester,
+  ) async {
+    final contexto = await montar(tester);
+    final item = _filme('plex-7');
+    final loja = HeisucaStateStore.instance;
+    await loja.conferirLista(contexto, item);
+    expect(loja.isFavorite(item), isFalse);
+
+    conta
+      ..esperaDaGravacao = Completer<void>()
+      ..falha = true;
+    final gravacao = loja.toggleFavorite(contexto, item);
+    // O menu abre com a gravação ainda a caminho: a conta responde com o que mostra, não com o que o servidor tem.
+    await loja.conferirLista(contexto, item);
+    conta.esperaDaGravacao!.complete();
+    await gravacao;
+    await tester.pump();
+
+    expect(conta.naConta, isFalse);
+    expect(loja.isFavorite(item), isFalse, reason: 'a conta recusou: a tela volta para "fora da lista"');
+    await tester.pump(const Duration(seconds: 5));
+  });
+
+  testWidgets('menu do cartão sem ação própria grava com o contexto de quem abriu, não com o do diálogo', (
+    tester,
+  ) async {
+    final contexto = await montar(tester);
+    final item = _filme('plex-8');
+
+    unawaited(HeisucaContextMenu.show(contexto, item: item));
+    await tester.pumpAndSettle();
+    conta.pedidosDeDentroDoPerfil.clear();
+    await tester.tap(find.text('Favoritar'));
+    await tester.pumpAndSettle();
+
+    expect(conta.gravados, [true]);
+    expect(conta.pedidosDeDentroDoPerfil, [true], reason: 'o diálogo fica no navegador raiz, fora do perfil');
+    await tester.pump(const Duration(seconds: 5));
   });
 }

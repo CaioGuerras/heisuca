@@ -107,6 +107,9 @@ class HeisucaStateStore extends ChangeNotifier {
     final lista = ListaDoPlex.de(context, item, cgflixClientFor(context, item));
     if (lista == null) return;
     final key = _chave(item);
+    // Com gravação a caminho a conta responde com o que mostra, não com o que o servidor tem: a resposta não
+    // serve de "confirmado", e a gravação acerta a tela quando terminar.
+    if (_fila.containsKey('f:$key')) return;
     final troca = _trocas['f:$key'];
     final bool? naLista;
     try {

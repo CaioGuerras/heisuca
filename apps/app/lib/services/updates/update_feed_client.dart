@@ -50,6 +50,10 @@ class OfertaAtualizacao {
   final List<ApkAtualizacao> apks;
 }
 
+/// Código de um canal fechado (teste ou beta de um grupo): vira um trecho do endereço do feed, por isso só letras,
+/// números, `_` e `-`. De 6 a 256 caracteres: curto o bastante para ser ditado a um grupo de testadores.
+bool codigoDeCanalValido(String codigo) => RegExp(r'^[A-Za-z0-9_-]{6,256}$').hasMatch(codigo);
+
 /// O pedido foi recusado de vez: endereço fora do permitido, redirecionamento inválido ou resposta definitiva do
 /// servidor. Diferente de uma queda de rede, tentar de novo não muda o resultado. Sem detalhes, como as demais falhas.
 class RecusaDeAtualizacao extends FormatException {
@@ -126,7 +130,7 @@ class UpdateFeedClient {
   Future<OfertaAtualizacao?> consultar(String canal, {String? codigo}) async {
     if (!config.ligado) return null;
     if (!{'estavel', 'beta', 'teste'}.contains(canal)) throw const FormatException('Canal inválido.');
-    if (canal == 'teste' && (codigo == null || !RegExp(r'^[A-Za-z0-9_-]{20,256}$').hasMatch(codigo))) {
+    if (canal == 'teste' && (codigo == null || !codigoDeCanalValido(codigo))) {
       throw const FormatException('Código inválido.');
     }
     LogRedactionManager.registerToken(codigo);

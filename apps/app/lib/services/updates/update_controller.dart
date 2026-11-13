@@ -262,7 +262,7 @@ class UpdateController extends ChangeNotifier {
     await iniciar();
     if (ocupado || _descartado || !habilitado) return;
     final novo = valor.trim();
-    if (novo.isNotEmpty && !RegExp(r'^[A-Za-z0-9_-]{20,256}$').hasMatch(novo)) {
+    if (novo.isNotEmpty && !codigoDeCanalValido(novo)) {
       mensagem = 'Confira o código do canal de teste.';
       _avisar();
       return;

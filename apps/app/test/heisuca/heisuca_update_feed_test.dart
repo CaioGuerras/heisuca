@@ -241,4 +241,11 @@ void main() {
     expect(await c.verificar(), isNull);
     expect(chamadas, 1);
   });
+  test('código de canal: aceita o curto de um grupo de testadores e recusa o que não cabe num endereço', () {
+    expect(codigoDeCanalValido('LCDbeta'), isTrue);
+    expect(codigoDeCanalValido('codigo-sintetico-sem-credencial-123'), isTrue);
+    for (final ruim in ['', 'abc', 'LCD beta', 'LCD/beta', '../beta1', 'LCDbeta?x=1', 'açúcar-beta']) {
+      expect(codigoDeCanalValido(ruim), isFalse, reason: ruim);
+    }
+  });
 }

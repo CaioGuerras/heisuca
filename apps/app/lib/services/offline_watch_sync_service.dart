@@ -163,6 +163,11 @@ class OfflineWatchSyncService extends ChangeNotifier with DisposableChangeNotifi
   /// Whether a sync is currently in progress
   bool get isSyncing => _isSyncing;
 
+  /// Changes on every active-profile switch. A caller that prepares a watch
+  /// mark now and queues it later hands this back as `expectedProfileGeneration`
+  /// so the mark is never stored for a profile other than the one that made it.
+  int get profileGeneration => _profileGeneration;
+
   void setActiveProfileId(String? profileId, {int? availableProfileCount}) {
     if (profileId != _activeProfileId) {
       _profileGeneration++;
@@ -349,18 +354,45 @@ class OfflineWatchSyncService extends ChangeNotifier with DisposableChangeNotifi
     return (clientScopeId: clientScopeId, profileId: profileId, rowId: queued.rowId, revision: queued.revision);
   }
 
-  Future<QueuedOfflineWatchAction> queueMarkWatched({required ServerId serverId, required String itemId}) =>
-      _queueWatchStatusAction(serverId: serverId, itemId: itemId, actionType: OfflineActionType.watched.id);
+  /// With [expectedProfileGeneration] (see [profileGeneration]) the mark is
+  /// refused with a [StateError] when the active profile changed since the
+  /// caller read it: nothing is stored, rather than a mark owned by the wrong
+  /// profile.
+  Future<QueuedOfflineWatchAction> queueMarkWatched({
+    required ServerId serverId,
+    required String itemId,
+    int? expectedProfileGeneration,
+  }) => _queueWatchStatusAction(
+    serverId: serverId,
+    itemId: itemId,
+    actionType: OfflineActionType.watched.id,
+    expectedProfileGeneration: expectedProfileGeneration,
+  );
 
-  Future<QueuedOfflineWatchAction> queueMarkUnwatched({required ServerId serverId, required String itemId}) =>
-      _queueWatchStatusAction(serverId: serverId, itemId: itemId, actionType: OfflineActionType.unwatched.id);
+  /// See [queueMarkWatched] for [expectedProfileGeneration].
+  Future<QueuedOfflineWatchAction> queueMarkUnwatched({
+    required ServerId serverId,
+    required String itemId,
+    int? expectedProfileGeneration,
+  }) => _queueWatchStatusAction(
+    serverId: serverId,
+    itemId: itemId,
+    actionType: OfflineActionType.unwatched.id,
+    expectedProfileGeneration: expectedProfileGeneration,
+  );
 
   Future<QueuedOfflineWatchAction> _queueWatchStatusAction({
     required ServerId serverId,
     required String itemId,
     required String actionType,
+    int? expectedProfileGeneration,
   }) async {
     final clientScopeId = await _clientScopeIdForItem(ServerId(serverId), itemId);
+    // Checked after the last await and in the same turn as the insert: the
+    // scope and the profile below both belong to the profile that asked.
+    if (expectedProfileGeneration != null && expectedProfileGeneration != _profileGeneration) {
+      throw StateError('Active profile changed before the offline watch mark was queued');
+    }
     final profileId = _activeProfileId;
     final queued = await _database.insertWatchAction(
       profileId: profileId,

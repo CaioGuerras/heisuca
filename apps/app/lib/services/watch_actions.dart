@@ -54,13 +54,24 @@ class WatchActions {
     final serverId = item.serverId;
     final offlineWatch = isOffline && serverId != null ? context.read<OfflineWatchProvider>() : null;
     final client = !isOffline && serverId != null ? context.tryGetMediaClientForServer(ServerId(serverId)) : null;
+    // O perfil dono da marcação é o da hora do toque. Se ele mudar antes de a gravação rodar, a fila sem conexão
+    // recusa (erro) em vez de gravar para o perfil seguinte.
+    final perfilDoToque = offlineWatch?.profileGeneration;
 
     return ({required bool watched}) async {
       if (offlineWatch != null && serverId != null) {
         if (watched) {
-          await offlineWatch.markAsWatched(serverId: ServerId(serverId), itemId: item.id);
+          await offlineWatch.markAsWatched(
+            serverId: ServerId(serverId),
+            itemId: item.id,
+            expectedProfileGeneration: perfilDoToque,
+          );
         } else {
-          await offlineWatch.markAsUnwatched(serverId: ServerId(serverId), itemId: item.id);
+          await offlineWatch.markAsUnwatched(
+            serverId: ServerId(serverId),
+            itemId: item.id,
+            expectedProfileGeneration: perfilDoToque,
+          );
         }
         return WatchMarkOutcome.queuedOffline;
       }

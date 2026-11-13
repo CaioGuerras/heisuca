@@ -110,11 +110,26 @@ class OfflineWatchProvider extends ChangeNotifier with DisposableChangeNotifierM
     }
   }
 
+  /// Changes on every active-profile switch; see
+  /// [OfflineWatchSyncService.profileGeneration].
+  int get profileGeneration => _syncService.profileGeneration;
+
   /// Mark an item as watched while offline.
   ///
   /// This queues the action for sync when online and emits a [WatchStateEvent].
-  Future<void> markAsWatched({required ServerId serverId, required String itemId}) async {
-    final queued = await _syncService.queueMarkWatched(serverId: serverId, itemId: itemId);
+  ///
+  /// [expectedProfileGeneration] (see [profileGeneration]) refuses the mark
+  /// when the active profile changed since the caller read it.
+  Future<void> markAsWatched({
+    required ServerId serverId,
+    required String itemId,
+    int? expectedProfileGeneration,
+  }) async {
+    final queued = await _syncService.queueMarkWatched(
+      serverId: serverId,
+      itemId: itemId,
+      expectedProfileGeneration: expectedProfileGeneration,
+    );
     _emitWatchStateChange(
       serverId: serverId,
       itemId: itemId,
@@ -144,8 +159,18 @@ class OfflineWatchProvider extends ChangeNotifier with DisposableChangeNotifierM
   /// Mark an item as unwatched while offline.
   ///
   /// This queues the action for sync when online and emits a [WatchStateEvent].
-  Future<void> markAsUnwatched({required ServerId serverId, required String itemId}) async {
-    final queued = await _syncService.queueMarkUnwatched(serverId: serverId, itemId: itemId);
+  ///
+  /// [expectedProfileGeneration]: see [markAsWatched].
+  Future<void> markAsUnwatched({
+    required ServerId serverId,
+    required String itemId,
+    int? expectedProfileGeneration,
+  }) async {
+    final queued = await _syncService.queueMarkUnwatched(
+      serverId: serverId,
+      itemId: itemId,
+      expectedProfileGeneration: expectedProfileGeneration,
+    );
     _emitWatchStateChange(
       serverId: serverId,
       itemId: itemId,

@@ -15,10 +15,11 @@ import 'modelo.dart';
 class MedidaDaFileira {
   const MedidaDaFileira._({required this.largura, required this.alturaDoQuadro, required this.altura});
 
+  /// O pôster deixa ver quatro cartões e o começo do quinto num celular; a paisagem, um e meio.
   factory MedidaDaFileira.de(BuildContext context, FormatoDoCartao formato, {required bool comSubtitulo}) {
     final tela = MediaQuery.sizeOf(context).width;
     final largura = switch (formato) {
-      FormatoDoCartao.poster => ((tela - Forma.espaco4) / 3.3).clamp(104.0, 160.0),
+      FormatoDoCartao.poster => ((tela - Forma.espaco4) / 4.3).clamp(88.0, 140.0),
       FormatoDoCartao.paisagem => ((tela - Forma.espaco4) / 1.55).clamp(200.0, 320.0),
     };
     return MedidaDaFileira._(

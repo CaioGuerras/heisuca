@@ -70,6 +70,7 @@ class ItemDaFileira {
     this.progresso,
     this.tempo,
     this.nota,
+    this.visto = false,
     this.aoTocar,
     this.aoSegurar,
   });
@@ -86,6 +87,9 @@ class ItemDaFileira {
   /// "restam 38 min".
   final String? tempo;
   final String? nota;
+
+  /// Já foi visto até o fim: o cartão ganha o ✓.
+  final bool visto;
   final VoidCallback? aoTocar;
   final VoidCallback? aoSegurar;
 }

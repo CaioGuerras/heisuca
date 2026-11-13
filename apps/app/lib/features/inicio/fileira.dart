@@ -116,6 +116,7 @@ class _FileiraState extends State<Fileira> {
         progresso: item.progresso,
         tempo: item.tempo,
         nota: item.nota,
+        visto: item.visto,
         aoTocar: item.aoTocar,
         aoSegurar: item.aoSegurar,
       );

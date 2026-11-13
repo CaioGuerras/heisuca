@@ -116,6 +116,7 @@ class _LigacaoDaMinhaListaState extends State<LigacaoDaMinhaLista> with Refresha
     ),
     hash: heisucaArtworkHash(item),
     nota: notaDe(item.rating),
+    visto: item.isWatched,
     aoTocar: () => unawaited(_abrir(item)),
     aoSegurar: () => _menu(item),
   );

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:heisuca/design/componentes/cartao.dart';
 import 'package:heisuca/cgflix/you/cgflix_favorites_screen.dart';
 import 'package:heisuca/features/minha_lista/ligacao.dart';
 import 'package:heisuca/features/minha_lista/tela_minha_lista.dart';
@@ -68,6 +69,18 @@ void main() {
     expect(find.text('Título f1'), findsOneWidget);
     expect(find.text('1999'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('título já visto ganha a marca de visto no cartão', (tester) async {
+    await _abrir(
+      tester,
+      CgflixFavoritesSource(
+        load: () async => [_item('f1', MediaKind.movie).copyWith(viewCount: 1), _item('f2', MediaKind.movie)],
+      ),
+    );
+    await tester.pumpAndSettle();
+    final vistos = tester.widgetList<Cartao>(find.byType(Cartao)).map((cartao) => cartao.visto).toList();
+    expect(vistos, [true, false]);
   });
 
   testWidgets('sem favoritos: aviso que diz como guardar um título', (tester) async {

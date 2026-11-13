@@ -12,6 +12,7 @@ import '../features/casca/pilula_do_perfil_ativo.dart';
 import '../features/tema_da_v2.dart';
 import '../heisuca/kids/heisuca_kids_flow.dart';
 import '../features/inicio/ligacao.dart';
+import '../features/minha_lista/ligacao.dart';
 import '../cgflix/you/cgflix_favorites_screen.dart';
 import 'dart:async';
 import 'updates/update_screen.dart';
@@ -2401,13 +2402,7 @@ class _MainScreenState extends State<MainScreen>
           ),
           if (myList != null)
             Positioned.fill(
-              child: CgflixFavoritesScreen(
-                source: myList,
-                title: 'Minha lista',
-                embedded: true,
-                actions: [_buildProfileAction()],
-                bottomInset: Casca.reserva + MediaQuery.paddingOf(context).bottom,
-              ),
+              child: LigacaoDaMinhaLista(fonte: myList, folgaInferior: Casca.reserva),
             ),
         ],
       ),

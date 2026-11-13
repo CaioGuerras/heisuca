@@ -24,7 +24,7 @@ class _UpdateScreenState extends State<UpdateScreen> {
 
   @override
   void dispose() {
-    _c.cancelar();
+    // Sair da tela não cancela: o download é do app e continua; ao voltar, a tela mostra onde ele está.
     _acao.dispose();
     _voltar.dispose();
     super.dispose();

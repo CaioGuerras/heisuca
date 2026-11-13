@@ -24,6 +24,24 @@ class _ClienteComFalhaNaLimpeza extends http.BaseClient {
   }
 }
 
+/// Servidor de mentira para quedas: cada pedido devolve o que o teste mandar e anota o `Range` recebido.
+class _ClienteQueCai extends http.BaseClient {
+  _ClienteQueCai(this.responder);
+  final http.StreamedResponse Function(int pedido, String? range) responder;
+  final ranges = <String?>[];
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    ranges.add(request.headers['range']);
+    return responder(ranges.length, request.headers['range']);
+  }
+}
+
+/// Entrega [bytes] e derruba a conexão em seguida.
+Stream<List<int>> _cai(List<int> bytes) async* {
+  if (bytes.isNotEmpty) yield bytes;
+  throw const SocketException('conexão caiu');
+}
+
 void main() {
   final conteudo = List<int>.generate(128, (i) => i);
   late Directory cache;
@@ -161,5 +179,128 @@ void main() {
     );
     expect(await arquivos(), isEmpty);
     expect(await (await downloader.baixar(apk)).length(), 128);
+  });
+  group('queda de rede no meio do download', () {
+    UpdateDownloader comQuedas(http.Client client, {int tentativas = 4}) => UpdateDownloader(
+      cliente: UpdateFeedClient(config, cliente: client),
+      cache: () async => cache,
+      espacoLivre: () async => 1024 * 1024 * 1024,
+      tentativas: tentativas,
+      espera: Duration.zero,
+    );
+
+    test('retoma de onde parou, pedindo só o resto, e o arquivo fecha com o SHA certo', () async {
+      final cliente = _ClienteQueCai(
+        (pedido, range) => pedido == 1
+            ? http.StreamedResponse(_cai(conteudo.sublist(0, 50)), 200, contentLength: 128)
+            : http.StreamedResponse(
+                Stream.value(conteudo.sublist(50)),
+                206,
+                contentLength: 78,
+                headers: {'content-range': 'bytes 50-127/128'},
+              ),
+      );
+      final progresso = <int>[];
+      final baixado = await comQuedas(cliente).baixar(apk, progresso: (bytes, _) => progresso.add(bytes));
+
+      expect(cliente.ranges, [null, 'bytes=50-']);
+      expect(await baixado.readAsBytes(), conteudo);
+      expect(progresso, [50, 128]);
+      expect((await arquivos()).map((a) => a.path.split('.').last), ['apk']);
+    });
+
+    test('servidor que ignora o pedido de resto e manda tudo de novo: recomeça do zero, sem misturar', () async {
+      final cliente = _ClienteQueCai(
+        (pedido, range) => pedido == 1
+            ? http.StreamedResponse(_cai(conteudo.sublist(0, 50)), 200, contentLength: 128)
+            : http.StreamedResponse(Stream.value(conteudo), 200, contentLength: 128),
+      );
+
+      final baixado = await comQuedas(cliente).baixar(apk);
+
+      expect(cliente.ranges, [null, 'bytes=50-']);
+      expect(await baixado.readAsBytes(), conteudo);
+    });
+
+    test('quedas seguidas sem receber nada: desiste com falha de rede, não de arquivo, e não deixa parcial', () async {
+      final cliente = _ClienteQueCai((pedido, range) => http.StreamedResponse(_cai(const []), 200, contentLength: 128));
+
+      await expectLater(
+        comQuedas(cliente, tentativas: 2).baixar(apk),
+        throwsA(isA<FalhaAtualizacao>().having((f) => f.codigo, 'codigo', 'rede')),
+      );
+
+      expect(cliente.ranges, hasLength(3));
+      expect(await arquivos(), isEmpty);
+    });
+
+    test('queda com progresso zera a conta de quedas seguidas', () async {
+      // Cai a cada 40 bytes: são 3 quedas, mais do que as 2 seguidas permitidas, mas todas com progresso.
+      final cliente = _ClienteQueCai((pedido, range) {
+        final inicio = (pedido - 1) * 40;
+        if (pedido <= 3) {
+          return http.StreamedResponse(
+            _cai(conteudo.sublist(inicio, inicio + 40)),
+            pedido == 1 ? 200 : 206,
+            contentLength: 128 - inicio,
+          );
+        }
+        return http.StreamedResponse(Stream.value(conteudo.sublist(120)), 206, contentLength: 8);
+      });
+
+      final baixado = await comQuedas(cliente, tentativas: 2).baixar(apk);
+
+      expect(cliente.ranges, [null, 'bytes=40-', 'bytes=80-', 'bytes=120-']);
+      expect(await baixado.readAsBytes(), conteudo);
+    });
+
+    test('resto que começa no lugar errado é recusado como arquivo inválido', () async {
+      final cliente = _ClienteQueCai(
+        (pedido, range) => pedido == 1
+            ? http.StreamedResponse(_cai(conteudo.sublist(0, 50)), 200, contentLength: 128)
+            : http.StreamedResponse(
+                Stream.value(conteudo.sublist(50)),
+                206,
+                contentLength: 78,
+                headers: {'content-range': 'bytes 0-77/128'},
+              ),
+      );
+
+      await expectLater(
+        comQuedas(cliente).baixar(apk),
+        throwsA(isA<FalhaAtualizacao>().having((f) => f.codigo, 'codigo', 'arquivoInvalido')),
+      );
+      expect(await arquivos(), isEmpty);
+    });
+
+    test('resposta definitiva do servidor (404) não é tentada de novo', () async {
+      final cliente = _ClienteQueCai((pedido, range) => http.StreamedResponse(const Stream.empty(), 404));
+
+      await expectLater(
+        comQuedas(cliente).baixar(apk),
+        throwsA(isA<FalhaAtualizacao>().having((f) => f.codigo, 'codigo', 'arquivoInvalido')),
+      );
+      expect(cliente.ranges, hasLength(1));
+    });
+
+    test('cancelar durante a pausa entre tentativas encerra como cancelado', () async {
+      final cancelamento = CancelamentoAtualizacao();
+      final cliente = _ClienteQueCai((pedido, range) {
+        scheduleMicrotask(cancelamento.cancelar);
+        return http.StreamedResponse(_cai(conteudo.sublist(0, 10)), 200, contentLength: 128);
+      });
+      final downloader = UpdateDownloader(
+        cliente: UpdateFeedClient(config, cliente: cliente),
+        cache: () async => cache,
+        espacoLivre: () async => 1024 * 1024 * 1024,
+        espera: const Duration(seconds: 30),
+      );
+
+      await expectLater(
+        downloader.baixar(apk, cancelamento: cancelamento),
+        throwsA(isA<FalhaAtualizacao>().having((f) => f.codigo, 'codigo', 'cancelado')),
+      );
+      expect(await arquivos(), isEmpty);
+    });
   });
 }

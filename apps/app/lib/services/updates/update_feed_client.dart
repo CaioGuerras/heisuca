@@ -50,6 +50,12 @@ class OfertaAtualizacao {
   final List<ApkAtualizacao> apks;
 }
 
+/// O pedido foi recusado de vez: endereço fora do permitido, redirecionamento inválido ou resposta definitiva do
+/// servidor. Diferente de uma queda de rede, tentar de novo não muda o resultado. Sem detalhes, como as demais falhas.
+class RecusaDeAtualizacao extends FormatException {
+  const RecusaDeAtualizacao() : super('Não foi possível obter a atualização.');
+}
+
 class UpdateFeedClient {
   UpdateFeedClient(this.config, {this.cliente});
   final ConfiguracaoAtualizacao config;
@@ -61,10 +67,18 @@ class UpdateFeedClient {
 
   /// Não usa o cliente de mídia: sem autenticação, identificadores ou registro de URLs.
   /// Redirecionamento é manual, antes de enviar qualquer requisição ao novo destino.
-  Future<http.StreamedResponse> abrir(Uri uri, {bool somenteFeed = false, Future<void>? cancelar}) async {
+  ///
+  /// [aPartirDe]: pede só o resto do arquivo (`Range`), para retomar um download interrompido. O servidor pode
+  /// responder 206 (o resto) ou 200 (o arquivo inteiro, se ignorar o pedido); quem chama confere qual veio.
+  Future<http.StreamedResponse> abrir(
+    Uri uri, {
+    bool somenteFeed = false,
+    Future<void>? cancelar,
+    int? aPartirDe,
+  }) async {
     try {
       for (var saltos = 0; saltos <= 3; saltos++) {
-        if (!config.permite(uri, somenteFeed: somenteFeed)) throw const FormatException();
+        if (!config.permite(uri, somenteFeed: somenteFeed)) throw const RecusaDeAtualizacao();
         final aborto = Completer<void>();
         void abortar() {
           if (!aborto.isCompleted) aborto.complete();
@@ -73,6 +87,7 @@ class UpdateFeedClient {
         if (cancelar != null) unawaited(cancelar.then((_) => abortar()));
         final prazo = Timer(const Duration(seconds: 20), abortar);
         final pedido = http.AbortableRequest('GET', uri, abortTrigger: aborto.future)..followRedirects = false;
+        if (aPartirDe != null && aPartirDe > 0) pedido.headers['range'] = 'bytes=$aPartirDe-';
         late http.StreamedResponse resposta;
         try {
           resposta = await (cliente ?? (_cliente ??= http.Client())).send(pedido).timeout(const Duration(seconds: 21));
@@ -86,16 +101,21 @@ class UpdateFeedClient {
         if ([301, 302, 303, 307, 308].contains(resposta.statusCode)) {
           await resposta.stream.listen((_) {}).cancel();
           final destino = resposta.headers['location'];
-          if (destino == null || saltos == 3) throw const FormatException();
+          if (destino == null || saltos == 3) throw const RecusaDeAtualizacao();
           uri = uri.resolve(destino);
           continue;
         }
-        if (resposta.statusCode != 200) {
+        final aceito = resposta.statusCode == 200 || (resposta.statusCode == 206 && (aPartirDe ?? 0) > 0);
+        if (!aceito) {
           await resposta.stream.listen((_) {}).cancel();
-          throw const FormatException();
+          // 5xx pode ser passageiro (vale tentar de novo); o resto é resposta definitiva do servidor.
+          if (resposta.statusCode >= 500) throw const FormatException();
+          throw const RecusaDeAtualizacao();
         }
         return resposta;
       }
+    } on RecusaDeAtualizacao {
+      rethrow;
     } catch (_) {
       // Nunca propagar uma ClientException com o caminho secreto do canal de teste.
       throw const FormatException('Não foi possível obter a atualização.');

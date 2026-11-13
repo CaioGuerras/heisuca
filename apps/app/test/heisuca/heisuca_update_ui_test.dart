@@ -25,6 +25,34 @@ import 'package:heisuca/utils/log_redaction_manager.dart';
 import 'package:heisuca/utils/platform_detector.dart';
 import '../test_helpers/prefs.dart';
 
+/// Conta os pedidos de cancelamento que a tela faz ao controlador.
+class _ControladorQueConta extends UpdateController {
+  _ControladorQueConta(UpdateController base)
+    : super(
+        config: base.config,
+        feed: base.feed,
+        instalador: base.instalador,
+        settings: base.settings,
+        segredos: base.segredos,
+        emReproducao: base.emReproducao,
+        cache: base.cache,
+      );
+  int cancelamentos = 0;
+  bool _fechando = false;
+  @override
+  void cancelar() {
+    if (!_fechando) cancelamentos++;
+    super.cancelar();
+  }
+
+  @override
+  void dispose() {
+    // O próprio dispose cancela; o que interessa é o que a tela pede.
+    _fechando = true;
+    super.dispose();
+  }
+}
+
 void main() {
   const nativo = MethodChannel('app.heisuca/updates');
   late UpdateController c;
@@ -169,6 +197,23 @@ void main() {
     expect(acoes.where((a) => a == 'instalar'), hasLength(1));
     expect(find.textContaining('abra o app de novo'), findsOneWidget);
   });
+  testWidgets('sair da tela de Atualizações não cancela o download em andamento', (tester) async {
+    final espia = _ControladorQueConta(c);
+    addTearDown(espia.dispose);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: cgflixDarkTheme(),
+        home: UpdateScreen(controlador: espia),
+      ),
+    );
+    await tester.pump();
+
+    // O usuário sai da tela.
+    await tester.pumpWidget(const SizedBox.shrink());
+
+    expect(espia.cancelamentos, 0);
+  });
+
   testWidgets('abertura e botão manual não consultam durante reprodução', (tester) async {
     reproduzindo = true;
     await tester.runAsync(c.aoAbrir);

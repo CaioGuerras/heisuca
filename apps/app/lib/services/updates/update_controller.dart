@@ -210,6 +210,7 @@ class UpdateController extends ChangeNotifier {
         FalhaAtualizacao(codigo: 'cancelado') => 'Download cancelado.',
         FalhaAtualizacao(codigo: 'espaco') => 'Libere espaço no aparelho antes de baixar.',
         FalhaAtualizacao(codigo: 'abi') => 'Esta versão não é compatível com este aparelho.',
+        FalhaAtualizacao(codigo: 'rede') => 'A conexão caiu durante o download. Tente de novo.',
         _ => 'Arquivo corrompido ou inválido. Tente de novo.',
       };
     } finally {

@@ -88,6 +88,9 @@ void main() {
   late _Conta conta;
   late _Servidor servidor;
 
+  /// Como a troca de perfil no app: o navegador raiz (e o menu aberto nele) fica, a tela do perfil sai.
+  late Future<void> Function() trocarDePerfil;
+
   Future<BuildContext> montar(WidgetTester tester) async {
     conta = _Conta();
     servidor = _Servidor();
@@ -103,28 +106,30 @@ void main() {
     final semRede = OfflineModeProvider(gerente);
     addTearDown(semRede.dispose);
     late BuildContext contexto;
+    Widget app(Widget inicio) => MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: servidores),
+        ChangeNotifierProvider.value(value: semRede),
+      ],
+      child: MaterialApp(home: inicio),
+    );
     await tester.pumpWidget(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider.value(value: servidores),
-          ChangeNotifierProvider.value(value: semRede),
-        ],
-        child: MaterialApp(
-          // Como no app: o que é do perfil fica abaixo do navegador raiz.
-          home: Provider<_DoPerfil>.value(
-            value: const _DoPerfil(),
-            child: Scaffold(
-              body: Builder(
-                builder: (context) {
-                  contexto = context;
-                  return const SizedBox.shrink();
-                },
-              ),
+      app(
+        // Como no app: o que é do perfil fica abaixo do navegador raiz.
+        Provider<_DoPerfil>.value(
+          value: const _DoPerfil(),
+          child: Scaffold(
+            body: Builder(
+              builder: (context) {
+                contexto = context;
+                return const SizedBox.shrink();
+              },
             ),
           ),
         ),
       ),
     );
+    trocarDePerfil = () => tester.pumpWidget(app(const Scaffold(body: Text('Quem está assistindo?'))));
     return contexto;
   }
 
@@ -261,5 +266,53 @@ void main() {
     expect(conta.gravados, [true]);
     expect(conta.pedidosDeDentroDoPerfil, [true], reason: 'o diálogo fica no navegador raiz, fora do perfil');
     await tester.pump(const Duration(seconds: 5));
+  });
+
+  testWidgets('perfil trocado com o menu aberto: "Favoritar" não muda nada nem estoura', (tester) async {
+    final contexto = await montar(tester);
+    final item = _filme('plex-9');
+    final loja = HeisucaStateStore.instance;
+    var avisos = 0;
+    void contar() => avisos++;
+    loja.addListener(contar);
+    addTearDown(() => loja.removeListener(contar));
+
+    unawaited(HeisucaContextMenu.show(contexto, item: item));
+    await tester.pumpAndSettle();
+    await trocarDePerfil();
+    await tester.pump();
+    expect(contexto.mounted, isFalse, reason: 'a tela que abriu o menu saiu com o perfil');
+    expect(find.text('Favoritar'), findsOneWidget, reason: 'o menu fica: está no navegador raiz');
+    conta.pedidosDeDentroDoPerfil.clear();
+    avisos = 0;
+
+    await tester.tap(find.text('Favoritar'));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(conta.gravados, isEmpty);
+    expect(conta.pedidosDeDentroDoPerfil, isEmpty, reason: 'ninguém consulta a conta com o contexto de quem saiu');
+    expect(loja.isFavorite(item), isFalse, reason: 'sem gravação possível, a tela não mostra o título na lista');
+    expect(avisos, 0);
+  });
+
+  testWidgets('perfil trocado: "visto" pedido por quem já saiu não muda nada', (tester) async {
+    final contexto = await montar(tester);
+    final item = _filme('plex-10');
+    final loja = HeisucaStateStore.instance;
+    await trocarDePerfil();
+    await tester.pump();
+    var avisos = 0;
+    void contar() => avisos++;
+    loja.addListener(contar);
+    addTearDown(() => loja.removeListener(contar));
+
+    final resultado = await loja.toggleWatched(contexto, item);
+    await tester.pumpAndSettle();
+
+    expect(resultado, isFalse);
+    expect(loja.isWatched(item), isFalse);
+    expect(avisos, 0, reason: 'nem a troca otimista acontece');
+    expect(tester.takeException(), isNull);
   });
 }

@@ -53,6 +53,8 @@ class HeisucaStateStore extends ChangeNotifier {
   }
 
   Future<bool> toggleFavorite(BuildContext context, MediaItem item) async {
+    // Quem pediu já saiu da tela (perfil trocado com o menu aberto): não há conta onde gravar, nada muda.
+    if (!context.mounted) return isFavorite(item);
     final key = _chave(item);
     final next = !isFavorite(item);
     _favoritoNoServidor.putIfAbsent(key, () => !next);
@@ -125,6 +127,8 @@ class HeisucaStateStore extends ChangeNotifier {
   }
 
   Future<bool> toggleWatched(BuildContext context, MediaItem item) async {
+    // Quem pediu já saiu da tela (perfil trocado com o menu aberto): não há conta onde gravar, nada muda.
+    if (!context.mounted) return isWatched(item);
     final key = _chave(item);
     final next = !isWatched(item);
     _vistoNoServidor.putIfAbsent(key, () => !next);

@@ -109,6 +109,9 @@ class _LigacaoDoExplorarState extends State<LigacaoDoExplorar> with Refreshable,
   List<GeneroDoExplorar> _generos = const [];
   String? _genero;
   bool _soNaoVistos = false;
+
+  /// O pedido de filtros da biblioteca aberta falhou: "atualizar" pede de novo.
+  bool _filtrosFalharam = false;
   OrdemDoExplorar _ordem = OrdemDoExplorar.titulo;
 
   // Cada resposta só vale se ninguém pediu outra coisa enquanto ela vinha.
@@ -132,7 +135,7 @@ class _LigacaoDoExplorarState extends State<LigacaoDoExplorar> with Refreshable,
   }
 
   @override
-  void refresh() => unawaited(_recarregar());
+  void refresh() => unawaited(_atualizar());
 
   @override
   void loadLibraryByKey(String libraryGlobalKey) {
@@ -226,6 +229,7 @@ class _LigacaoDoExplorarState extends State<LigacaoDoExplorar> with Refreshable,
     _filtroDeNaoVistos = null;
     _generos = const [];
     _genero = null;
+    _filtrosFalharam = false;
   }
 
   Future<void> _abrirBiblioteca(_Fonte fonte) async {
@@ -241,6 +245,13 @@ class _LigacaoDoExplorarState extends State<LigacaoDoExplorar> with Refreshable,
       await filtros;
       if (!mounted || fonte.chave != _atual?.chave) return;
     }
+    await _recarregar();
+  }
+
+  /// "Puxar para atualizar" e "Tentar novamente": os filtros que não chegaram são pedidos de novo antes da lista.
+  Future<void> _atualizar() async {
+    final fonte = _atual;
+    if (fonte != null && _filtrosFalharam) return _abrirBiblioteca(fonte);
     await _recarregar();
   }
 
@@ -262,6 +273,7 @@ class _LigacaoDoExplorarState extends State<LigacaoDoExplorar> with Refreshable,
       }
       if (!mounted || geracao != _geracaoDosFiltros) return;
       setState(() {
+        _filtrosFalharam = false;
         _filtroDeGenero = genero;
         _filtroDeNaoVistos = naoVistos;
         _generos = [
@@ -273,6 +285,8 @@ class _LigacaoDoExplorarState extends State<LigacaoDoExplorar> with Refreshable,
       });
     } catch (_) {
       // Sem filtros a biblioteca continua navegável: as faixas de gênero e "não vistos" só não aparecem.
+      // O "atualizar" seguinte pede os filtros outra vez.
+      if (mounted && geracao == _geracaoDosFiltros) _filtrosFalharam = true;
     }
   }
 
@@ -455,7 +469,7 @@ class _LigacaoDoExplorarState extends State<LigacaoDoExplorar> with Refreshable,
         icone: Symbols.cloud_off_rounded,
         titulo: 'Não foi possível carregar os títulos',
         texto: 'Verifique a conexão e tente de novo.',
-        acoes: [Botao(rotulo: 'Tentar novamente', aoTocar: () => unawaited(_recarregar()))],
+        acoes: [Botao(rotulo: 'Tentar novamente', aoTocar: () => unawaited(_atualizar()))],
       );
     }
     if (!_carregando && _fontes.isEmpty) {
@@ -499,7 +513,7 @@ class _LigacaoDoExplorarState extends State<LigacaoDoExplorar> with Refreshable,
         aviso: _aviso(foraDoAr),
         aoBuscar: () => unawaited(cgflixOpenSearch(context)),
         perfil: const PilulaDoPerfilAtivo(sobreArte: true),
-        aoAtualizar: _recarregar,
+        aoAtualizar: _atualizar,
         controle: _rolagem,
       ),
     );

@@ -257,6 +257,50 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
+    testWidgets('a página sai com o menu de um episódio aberto: as ações do menu não fazem nada nem estouram', (
+      tester,
+    ) async {
+      // O menu abre no navegador raiz e sobrevive à página (troca de perfil com ele aberto).
+      tester.view.physicalSize = const Size(400, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final servidor = _servidorDaSerie();
+      for (final acao in ['Marcar como visto', 'Assistir agora']) {
+        final vistos = <MediaItem>[];
+        final naPagina = ValueNotifier(true);
+        addTearDown(naPagina.dispose);
+        await tester.pumpWidget(
+          naTela(
+            ValueListenableBuilder<bool>(
+              valueListenable: naPagina,
+              builder: (context, mostra, _) => mostra
+                  ? LigacaoDoTitulo(
+                      item: _serie,
+                      clienteDe: (_, _) => servidor,
+                      alternarVisto: (_, marcado) async => vistos.add(marcado),
+                    )
+                  : const Text('Quem está assistindo?'),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        await tester.longPress(find.descendant(of: find.byType(Episodios), matching: find.byType(Cartao)).first);
+        await tester.pumpAndSettle();
+        expect(find.text(acao), findsOneWidget, reason: 'o menu abriu');
+        naPagina.value = false;
+        await tester.pump();
+        expect(find.byType(LigacaoDoTitulo), findsNothing);
+        expect(find.text(acao), findsOneWidget, reason: 'o menu continua aberto');
+
+        await tester.tap(find.text(acao));
+        await tester.pumpAndSettle();
+
+        expect(tester.takeException(), isNull, reason: acao);
+        expect(vistos, isEmpty, reason: acao);
+        await tester.pumpWidget(const SizedBox.shrink());
+      }
+    });
+
     testWidgets('num filme marca o filme', (tester) async {
       final vistos = <MediaItem>[];
       final filme = _item('filme', MediaKind.movie, titulo: 'A Viagem', duracao: 105 * 60000);

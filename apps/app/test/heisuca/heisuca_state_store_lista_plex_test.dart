@@ -51,6 +51,15 @@ class _Conta implements ListaDoPlex {
 class _Servidor extends MediaServerClient {
   int favoritadas = 0;
 
+  /// Marcações de visto que chegaram ao servidor.
+  final vistos = <bool>[];
+
+  @override
+  Future<void> markWatched(MediaItem item) async => vistos.add(true);
+
+  @override
+  Future<void> markUnwatched(MediaItem item) async => vistos.add(false);
+
   @override
   ServerId get serverId => ServerId('amigo');
 
@@ -294,6 +303,47 @@ void main() {
     expect(conta.pedidosDeDentroDoPerfil, isEmpty, reason: 'ninguém consulta a conta com o contexto de quem saiu');
     expect(loja.isFavorite(item), isFalse, reason: 'sem gravação possível, a tela não mostra o título na lista');
     expect(avisos, 0);
+  });
+
+  testWidgets('perfil trocado com o menu aberto: "Marcar como visto" do menu não grava nem estoura', (tester) async {
+    final contexto = await montar(tester);
+    final item = _filme('plex-11');
+    final loja = HeisucaStateStore.instance;
+
+    // Menu sem ação própria de visto, como no Início e no Explorar.
+    unawaited(HeisucaContextMenu.show(contexto, item: item));
+    await tester.pumpAndSettle();
+    await trocarDePerfil();
+    await tester.pump();
+    expect(contexto.mounted, isFalse, reason: 'a tela que abriu o menu saiu com o perfil');
+    expect(find.text('Marcar como visto'), findsOneWidget, reason: 'o menu fica: está no navegador raiz');
+    var avisos = 0;
+    void contar() => avisos++;
+    loja.addListener(contar);
+    addTearDown(() => loja.removeListener(contar));
+
+    await tester.tap(find.text('Marcar como visto'));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(servidor.vistos, isEmpty, reason: 'o servidor segue acessível, mas quem pediu já não está no perfil');
+    expect(loja.isWatched(item), isFalse);
+    expect(avisos, 0);
+    expect(find.text('Marcado como visto'), findsNothing);
+  });
+
+  testWidgets('menu sem ação própria, com quem abriu ainda na tela: "Marcar como visto" grava', (tester) async {
+    final contexto = await montar(tester);
+    final item = _filme('plex-12');
+
+    unawaited(HeisucaContextMenu.show(contexto, item: item));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Marcar como visto'));
+    await tester.pumpAndSettle();
+
+    expect(servidor.vistos, [true]);
+    expect(HeisucaStateStore.instance.isWatched(item), isTrue);
+    await tester.pump(const Duration(seconds: 5));
   });
 
   testWidgets('perfil trocado: "visto" pedido por quem já saiu não muda nada', (tester) async {

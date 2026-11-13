@@ -77,9 +77,10 @@ class HeisucaContextMenu extends StatelessWidget {
               isContinueRow: isContinueRow,
               onPlay: onPlay,
               onOpenDetails: onOpenDetails,
-              onToggleWatched: onToggleWatched,
               // O diálogo abre no navegador raiz, fora do perfil: a gravação usa o contexto de quem abriu o menu,
-              // que é onde está a conta do perfil.
+              // que é onde está a conta do perfil. Se quem abriu já saiu (perfil trocado), a loja não grava nada.
+              onToggleWatched:
+                  onToggleWatched ?? () => unawaited(HeisucaStateStore.instance.toggleWatched(context, item)),
               onToggleFavorite:
                   onToggleFavorite ?? () => unawaited(HeisucaStateStore.instance.toggleFavorite(context, item)),
               onDownload: onDownload,

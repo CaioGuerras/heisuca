@@ -307,7 +307,10 @@ class _LigacaoDoTituloState extends State<LigacaoDoTitulo> {
   // --- O que cada toque faz ------------------------------------------------------
   // O player e os menus abrem com o contexto desta ligação, acima do tema da V2.
 
+  // O menu fica no navegador raiz e pode sobreviver a esta tela (perfil trocado com ele aberto): quem saiu não age.
+
   Future<void> _assistir(MediaItem alvo) async {
+    if (!mounted) return;
     await cgflixPlay(context, alvo);
     if (mounted) await _carregar(denovo: true);
   }
@@ -315,16 +318,19 @@ class _LigacaoDoTituloState extends State<LigacaoDoTitulo> {
   /// "Já vi" vale para o que foi tocado: na cabeça da página é o título inteiro (numa série, todos os episódios);
   /// no menu de um episódio, só aquele episódio.
   Future<void> _alternarVisto(MediaItem item) async {
+    if (!mounted) return;
     await (widget.alternarVisto ?? HeisucaStateStore.instance.toggleWatched)(context, item);
     if (mounted) await _carregar(denovo: true);
   }
 
   Future<void> _alternarLista() async {
+    if (!mounted) return;
     await HeisucaStateStore.instance.toggleFavorite(context, _item);
     if (mounted) setState(() {});
   }
 
   void _menu(MediaItem item, {VoidCallback? aoAssistir}) {
+    if (!mounted) return;
     unawaited(
       HeisucaContextMenu.show(
         context,

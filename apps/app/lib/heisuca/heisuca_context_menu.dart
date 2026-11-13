@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -44,6 +45,8 @@ class HeisucaContextMenu extends StatelessWidget {
     VoidCallback? onDownload,
   }) {
     HapticFeedback.mediumImpact();
+    // Em servidor Plex a lista é da conta: o rótulo se acerta quando a resposta chega.
+    unawaited(HeisucaStateStore.instance.conferirLista(context, item));
     return showGeneralDialog<void>(
       context: context,
       barrierDismissible: true,

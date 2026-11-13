@@ -5,6 +5,7 @@ import '../cgflix/home/cgflix_actions.dart';
 import '../media/media_item.dart';
 import '../services/watch_actions.dart';
 import '../utils/snackbar_helper.dart';
+import 'heisuca_lista_plex.dart';
 
 /// Gerenciador de estado reativo e instantâneo para Favoritos e Vistos no Heisuca.
 /// Garante que o estado nunca fique defasado na interface e que os textos/ícones
@@ -62,14 +63,25 @@ class HeisucaStateStore extends ChangeNotifier {
 
     // O cliente é lido já: depois da espera a tela de origem pode ter saído.
     final client = cgflixClientFor(context, item);
+    // Título de servidor Plex: a lista é a Watchlist da conta (o Plex não tem favorito por servidor).
+    final listaDoPlex = ListaDoPlex.de(context, item, client);
     final troca = _novaTroca('f:$key');
     return _emOrdem('f:$key', () async {
       try {
-        if (client == null) throw StateError('Fonte indisponível');
-        await client.setFavorite(item, next);
+        if (listaDoPlex != null) {
+          await listaDoPlex.gravar(next);
+        } else {
+          if (client == null) throw StateError('Fonte indisponível');
+          await client.setFavorite(item, next);
+        }
         _favoritoNoServidor[key] = next;
         if (context.mounted) {
-          showSuccessSnackBar(context, next ? 'Adicionado aos favoritos' : 'Removido dos favoritos');
+          showSuccessSnackBar(
+            context,
+            listaDoPlex != null
+                ? (next ? 'Adicionado à sua lista do Plex' : 'Removido da sua lista do Plex')
+                : (next ? 'Adicionado aos favoritos' : 'Removido dos favoritos'),
+          );
         }
         return next;
       } catch (_) {
@@ -85,6 +97,28 @@ class HeisucaStateStore extends ChangeNotifier {
         return noServidor;
       }
     });
+  }
+
+  /// Título de servidor Plex: pergunta à conta se ele está na lista e acerta a tela.
+  ///
+  /// O título não traz essa resposta (no Plex a lista é da conta, não do servidor). Não desfaz escolha feita na
+  /// tela enquanto a pergunta estava a caminho. Fora do Plex não faz nada.
+  Future<void> conferirLista(BuildContext context, MediaItem item) async {
+    final lista = ListaDoPlex.de(context, item, cgflixClientFor(context, item));
+    if (lista == null) return;
+    final key = _chave(item);
+    final troca = _trocas['f:$key'];
+    final bool? naLista;
+    try {
+      naLista = await lista.estaNaLista();
+    } catch (_) {
+      return;
+    }
+    if (naLista == null || _trocas['f:$key'] != troca) return;
+    final mudou = isFavorite(item) != naLista;
+    _favoritoNoServidor[key] = naLista;
+    _favorites[key] = naLista;
+    if (mudou) notifyListeners();
   }
 
   Future<bool> toggleWatched(BuildContext context, MediaItem item) async {

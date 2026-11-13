@@ -171,7 +171,17 @@ class _LigacaoDoTituloState extends State<LigacaoDoTitulo> {
     super.initState();
     final entrada = widget.item;
     _alvo = widget.episodio ?? (entrada.kind == MediaKind.episode ? entrada : null);
-    WidgetsBinding.instance.addPostFrameCallback((_) => unawaited(_carregar()));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Depois de carregar: aberto por um episódio, o título da página passa a ser a série.
+      unawaited(_carregar().whenComplete(_conferirLista));
+    });
+  }
+
+  /// Em servidor Plex a "Minha lista" é da conta: a resposta chega depois e o botão se acerta.
+  Future<void> _conferirLista() async {
+    if (!mounted) return;
+    await HeisucaStateStore.instance.conferirLista(context, _item);
+    if (mounted) setState(() {});
   }
 
   bool get _ehSerie => _item.kind == MediaKind.show;

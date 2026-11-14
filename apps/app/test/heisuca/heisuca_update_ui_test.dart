@@ -353,6 +353,51 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('campo do código aberto à toa: tocar de novo em "Com código" ou escolher outro canal fecha', (
+    tester,
+  ) async {
+    await mostrar(tester, const UpdateSettingsScreen());
+
+    await tester.tap(find.byKey(const ValueKey('atualizador-canal-codigo')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('atualizador-codigo')), findsOneWidget);
+    expect(escolhaDoCanal(tester, 'codigo').selecionado, isTrue, reason: 'a marca acompanha o campo aberto');
+    expect(escolhaDoCanal(tester, 'estavel').selecionado, isFalse);
+
+    await tester.tap(find.byKey(const ValueKey('atualizador-canal-codigo')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('atualizador-codigo')), findsNothing, reason: 'tocar de novo fecha o campo');
+    expect(escolhaDoCanal(tester, 'estavel').selecionado, isTrue);
+
+    await tester.tap(find.byKey(const ValueKey('atualizador-canal-codigo')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('atualizador-canal-estavel')));
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('atualizador-codigo')),
+      findsNothing,
+      reason: 'escolher outro canal fecha o campo',
+    );
+    expect(escolhaDoCanal(tester, 'estavel').selecionado, isTrue);
+    expect(c.canal, 'Estável');
+  });
+
+  testWidgets('TV: depois de remover o código, o foco volta para "Com código" (não fica em lugar nenhum)', (
+    tester,
+  ) async {
+    await mostrar(tester, const UpdateSettingsScreen());
+    await tester.runAsync(() => c.definirCodigo('codigo-sintetico-sem-credencial-123'));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('Remover código'));
+    await acionar(tester, () => tester.tap(find.text('Remover código')), () => c.codigo.isEmpty);
+    await tester.pumpAndSettle();
+
+    final foco = FocusManager.instance.primaryFocus;
+    expect(foco?.debugLabel, 'atualizador-com-codigo');
+    expect(foco?.context?.mounted, isTrue);
+  });
+
   group('celular', () {
     Future<void> perfil(WidgetTester tester, UpdateController controlador, {double letra = 1}) async {
       TvDetectionService.debugSetTvOverride(false);

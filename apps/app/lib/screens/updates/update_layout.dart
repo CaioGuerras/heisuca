@@ -166,10 +166,10 @@ class UpdateStatusCard extends StatelessWidget {
         ? 'Baixando ${(parte * 100).floor()}%'
         : c.pronto
         ? 'Pronta para instalar'
-        : oferta != null
-        ? 'Versão nova disponível'
         : c.verificando
         ? 'Procurando versão nova…'
+        : oferta != null
+        ? 'Versão nova disponível'
         : 'Heisuca ${c.estado.versao}';
     final rotulo = c.baixando
         ? 'Cancelar'
@@ -223,7 +223,8 @@ class UpdateStatusCard extends StatelessWidget {
             foco: foco,
             focoInicial: true,
             expandido: true,
-            aoTocar: _executar,
+            // Verificando ou abrindo o instalador, o botão espera (o controlador já recusaria o toque).
+            aoTocar: c.verificando || c.instalando ? null : _executar,
           ),
           if (mostraOferta) ...[
             const SizedBox(height: Forma.espaco3),

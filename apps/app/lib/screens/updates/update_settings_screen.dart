@@ -55,11 +55,29 @@ class _UpdateSettingsScreenState extends State<UpdateSettingsScreen> {
     // Salvo: o código não fica na tela.
     _codigo.clear();
     setState(() => _digitando = false);
+    _focarNoCanal();
   }
 
   Future<void> _removerCodigo() async {
     await _c.definirCodigo('');
-    if (mounted) setState(() => _digitando = false);
+    if (!mounted) return;
+    setState(() => _digitando = false);
+    _focarNoCanal();
+  }
+
+  /// O botão que estava com o foco some depois de salvar ou remover o código. Na TV o foco iria para lugar nenhum
+  /// e o controle remoto ficaria sem rumo: ele volta para "Com código".
+  void _focarNoCanal() {
+    if (!PlatformDetector.isTV()) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _comCodigo.requestFocus();
+    });
+  }
+
+  /// Estável ou Beta: fecha o campo do código, se estiver aberto, e muda o canal se for outro.
+  void _escolher({required bool beta}) {
+    setState(() => _digitando = false);
+    if (_c.beta != beta) unawaited(_c.definirBeta(beta));
   }
 
   List<Widget> _canal(TemaHeisuca tema) {
@@ -70,25 +88,26 @@ class _UpdateSettingsScreenState extends State<UpdateSettingsScreen> {
         key: const ValueKey('atualizador-canal-estavel'),
         titulo: 'Estável',
         texto: 'Versões já aprovadas.',
-        escolhida: !comCodigo && !_c.beta,
+        escolhida: !comCodigo && !_digitando && !_c.beta,
         foco: _estavel,
-        aoTocar: livre && !comCodigo ? () => unawaited(_c.definirBeta(false)) : null,
+        aoTocar: livre && !comCodigo ? () => _escolher(beta: false) : null,
       ),
       UpdateChoice(
         key: const ValueKey('atualizador-canal-beta'),
         titulo: 'Beta',
         texto: 'Chega antes; pode ter falhas.',
-        escolhida: !comCodigo && _c.beta,
+        escolhida: !comCodigo && !_digitando && _c.beta,
         foco: _beta,
-        aoTocar: livre && !comCodigo ? () => unawaited(_c.definirBeta(true)) : null,
+        aoTocar: livre && !comCodigo ? () => _escolher(beta: true) : null,
       ),
       UpdateChoice(
         key: const ValueKey('atualizador-canal-codigo'),
         titulo: 'Com código',
         texto: comCodigo ? 'Código salvo neste aparelho.' : 'Para quem recebeu um código de teste.',
-        escolhida: comCodigo,
+        // Com o campo aberto, a marca fica aqui; tocar de novo fecha o campo sem mudar nada.
+        escolhida: comCodigo || _digitando,
         foco: _comCodigo,
-        aoTocar: livre ? () => setState(() => _digitando = !comCodigo) : null,
+        aoTocar: livre && !comCodigo ? () => setState(() => _digitando = !_digitando) : null,
       ),
       if (comCodigo) ...[
         const SizedBox(height: Forma.espaco3),

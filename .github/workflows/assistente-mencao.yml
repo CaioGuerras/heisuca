@@ -50,6 +50,8 @@ jobs:
         if: steps.ligado.outputs.sim == '1'
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Ramos do assistente fora de "claude/**": esse prefixo dispara os builds e a bancada do app.
+          branch_prefix: "assistente/"
           claude_args: |
             --max-turns 20
             --append-system-prompt "Responda sempre em português do Brasil, de forma direta. Você revisa e explica; não altere arquivos, não faça commit nem push. Regras do projeto: AGENTS.md e apps/app/CLAUDE.md."

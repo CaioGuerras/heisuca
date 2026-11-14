@@ -302,6 +302,26 @@ void main() {
     expect(find.text('Favoritar'), findsNothing);
   });
 
+  testWidgets('menu de um episódio de Plex não oferece "Minha lista": a lista da conta só guarda filme e série', (
+    tester,
+  ) async {
+    final contexto = await montar(tester);
+    final episodio = MediaItem(
+      id: 'plex-ep-1',
+      backend: MediaBackend.plex,
+      kind: MediaKind.episode,
+      title: 'Piloto',
+      serverId: 'amigo',
+    );
+
+    unawaited(HeisucaContextMenu.show(contexto, item: episodio));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Marcar como visto'), findsOneWidget, reason: 'o menu abriu');
+    expect(find.text('Minha lista'), findsNothing);
+    expect(find.text('Favoritar'), findsNothing);
+  });
+
   testWidgets('perfil trocado com o menu aberto: "Minha lista" não muda nada nem estoura', (tester) async {
     final contexto = await montar(tester);
     final item = _filme('plex-9');

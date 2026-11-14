@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import '../cgflix/home/cgflix_actions.dart';
+import '../media/media_backend.dart';
 import '../media/media_item.dart';
 import '../services/watch_actions.dart';
 import '../utils/snackbar_helper.dart';
@@ -96,7 +97,9 @@ class HeisucaStateStore extends ChangeNotifier {
         if (context.mounted) {
           showErrorSnackBar(
             context,
-            listaDoPlex != null ? 'Não foi possível atualizar a sua lista' : 'Não foi possível atualizar os favoritos',
+            item.backend == MediaBackend.plex
+                ? 'Não foi possível atualizar a sua lista'
+                : 'Não foi possível atualizar os favoritos',
           );
         }
         return noServidor;

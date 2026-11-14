@@ -230,25 +230,27 @@ class HeisucaContextMenu extends StatelessWidget {
                 },
               ),
 
-              // Jellyfin: favorito do servidor (♡ / ♥). Plex não tem favorito: é a lista da conta (marcador).
-              _buildActionTile(
-                label: listaDaConta
-                    ? (isFav ? 'Tirar da Minha lista' : 'Minha lista')
-                    : (isFav ? 'Tirar dos favoritos' : 'Favoritar'),
-                icon: listaDaConta ? Symbols.bookmark_rounded : Symbols.favorite_rounded,
-                iconFill: isFav ? 1.0 : 0.0,
-                textColor: textActionColor,
-                iconColor: context.cgflix.danger,
-                rowBg: rowBgColor,
-                onTap: () {
-                  Navigator.pop(context);
-                  if (onToggleFavorite != null) {
-                    onToggleFavorite?.call();
-                  } else {
-                    store.toggleFavorite(context, item);
-                  }
-                },
-              ),
+              // Jellyfin: favorito do servidor (♡ / ♥). Plex não tem favorito: é a lista da conta (marcador), que só
+              // guarda filme e série; num episódio ou temporada de Plex a ação não existe.
+              if (!listaDaConta || item.kind == MediaKind.movie || item.kind == MediaKind.show)
+                _buildActionTile(
+                  label: listaDaConta
+                      ? (isFav ? 'Tirar da Minha lista' : 'Minha lista')
+                      : (isFav ? 'Tirar dos favoritos' : 'Favoritar'),
+                  icon: listaDaConta ? Symbols.bookmark_rounded : Symbols.favorite_rounded,
+                  iconFill: isFav ? 1.0 : 0.0,
+                  textColor: textActionColor,
+                  iconColor: context.cgflix.danger,
+                  rowBg: rowBgColor,
+                  onTap: () {
+                    Navigator.pop(context);
+                    if (onToggleFavorite != null) {
+                      onToggleFavorite?.call();
+                    } else {
+                      store.toggleFavorite(context, item);
+                    }
+                  },
+                ),
 
               // Baixar (ícone ↓)
               _buildActionTile(

@@ -1,0 +1,43 @@
+name: Pedido ou ideia
+description: Algo que você gostaria de ver no Heisuca.
+title: "Pedido: "
+labels: ["pedido"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por ajudar. Escreva do seu jeito, em português mesmo; não precisa de termo técnico.
+  - type: textarea
+    id: pedido
+    attributes:
+      label: O que você gostaria
+      description: Conte o que quer fazer e hoje não consegue, ou o que ficaria melhor.
+      placeholder: "Ex.: queria escolher a legenda padrão por série."
+    validations:
+      required: true
+  - type: textarea
+    id: motivo
+    attributes:
+      label: Por que isso ajuda
+      description: Em que momento você sentiu falta disso?
+  - type: dropdown
+    id: onde
+    attributes:
+      label: Onde você usa
+      multiple: true
+      options:
+        - Celular Android
+        - Android TV ou TV box
+        - TV Samsung ou LG
+        - Site (navegador)
+    validations:
+      required: true
+  - type: dropdown
+    id: servidor
+    attributes:
+      label: Seu servidor
+      options:
+        - Jellyfin
+        - Plex
+        - Os dois
+        - Não sei

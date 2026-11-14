@@ -1,0 +1,63 @@
+name: Problema
+description: Algo que não funcionou como devia.
+title: "Problema: "
+labels: ["problema"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Quanto mais exato o caminho até o problema, mais rápido ele some. Não cole senha, endereço do seu servidor nem código de canal.
+  - type: textarea
+    id: o-que
+    attributes:
+      label: O que aconteceu
+      description: O que você fez, o que esperava e o que apareceu.
+      placeholder: "Abri um filme, toquei em Assistir e a tela ficou preta com som."
+    validations:
+      required: true
+  - type: textarea
+    id: passos
+    attributes:
+      label: Como repetir
+      description: Passo a passo, se você conseguir repetir.
+      placeholder: |
+        1. Abrir o Início
+        2. Tocar em …
+  - type: input
+    id: versao
+    attributes:
+      label: Versão do app
+      description: "Está em Você › Sobre. Ex.: Versão 2.0.36 (3016)"
+    validations:
+      required: true
+  - type: input
+    id: aparelho
+    attributes:
+      label: Aparelho
+      placeholder: "Ex.: Galaxy S23, Android 15 · TV box Xiaomi · TV Samsung 2021"
+    validations:
+      required: true
+  - type: dropdown
+    id: servidor
+    attributes:
+      label: Seu servidor
+      options:
+        - Jellyfin
+        - Plex
+        - Os dois
+        - Não sei
+    validations:
+      required: true
+  - type: dropdown
+    id: frequencia
+    attributes:
+      label: Acontece sempre?
+      options:
+        - Sempre
+        - Às vezes
+        - Aconteceu uma vez
+  - type: textarea
+    id: extra
+    attributes:
+      label: Captura de tela ou vídeo
+      description: Arraste a imagem ou o vídeo para cá. Ajuda muito.

@@ -1,4 +1,3 @@
-import 'heisuca_dpad_focus.dart';
 import '../cgflix/cgflix_login_checks.dart';
 import '../focus/focusable_text_field.dart';
 import 'heisuca_motion.dart';
@@ -31,6 +30,12 @@ import 'heisuca_design_system.dart';
 import 'heisuca_logo.dart';
 import 'heisuca_theme.dart';
 import 'widgets/heisuca_server_status.dart';
+import '../design/componentes/botao.dart';
+import '../design/forma.dart';
+import '../design/tema.dart';
+import '../design/tipo.dart';
+import '../features/fundo_tingido.dart';
+import '../features/tema_da_v2.dart';
 
 /// Tela de Conexão e Login Heisuca Flagship 2026.
 /// Conexão Rápida (Quick Connect), 3 campos limpos, autenticação direta no Jellyfin
@@ -50,6 +55,9 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
   late final TextEditingController _userController;
   late final TextEditingController _passwordController;
   bool _obscurePassword = true;
+
+  /// Largura máxima do formulário em tela larga (tablet, TV).
+  static const double _larguraMaxima = 480;
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -185,6 +193,8 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
       if (!mounted) return;
 
       // 5. Transição suave direto para o app sem telas legadas
+      // O Android oferece guardar servidor, usuário e senha no preenchimento automático.
+      TextInput.finishAutofillContext();
       unawaited(HapticFeedback.mediumImpact());
       if (widget.onLoginSuccess != null) {
         widget.onLoginSuccess!();
@@ -363,18 +373,16 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final palette = context.cgflix;
-    final bg = palette.background;
-    final surf = palette.surface;
-    final border = palette.divider;
-    final accent = palette.accent;
-    final text = palette.text;
-    final text2 = palette.textOn(surf, preferred: palette.textMuted);
-    final hintColor = text2;
+  Widget build(BuildContext context) => SobOTemaDaV2(
+    // Sem pôster ainda: o fundo da V2 com o halo neutro do tema.
+    child: FundoTingido(hash: null, child: Builder(builder: _corpo)),
+  );
 
+  Widget _corpo(BuildContext context) {
+    final tema = TemaHeisuca.de(context);
+    final tv = PlatformDetector.isTV();
     return Scaffold(
-      backgroundColor: bg,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -382,206 +390,140 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
               physics: const HeisucaSpringPhysics(),
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                // Largura máxima de 480 pela margem, sem Center: a coluna precisa receber a altura mínima da tela
+                // para o topo, o formulário e o rodapé se distribuírem.
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 20.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Topo: Ícone discreto de Conexão Rápida no canto superior direito (apenas layout de TV)
-                      if (PlatformDetector.isTV())
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            IconButton(
-                              icon: Icon(Icons.qr_code_2_rounded, color: accent, size: 26.0),
-                              tooltip: 'Conexão Rápida',
-                              onPressed: _showQuickConnectModal,
-                            ),
-                          ],
-                        )
-                      else
-                        const SizedBox.shrink(),
-
-                      // Bloco Central: Logo Heisuca, Formulário e Botão de Conectar
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Center(child: HeisucaLogo(height: 52, comSlogan: true)),
-                          const SizedBox(height: 36.0),
-
-                          // 2. Campo: Servidor
-                          _InputLabel(label: 'SERVIDOR', color: accent),
-                          const SizedBox(height: 8.0),
-                          _GlassTextField(
-                            key: const ValueKey('heisuca-login-server'),
-                            controller: _serverController,
-                            prefixIcon: Icons.dns_outlined,
-                            hintText: 'https://seuservidor.com',
-                            bgColor: surf,
-                            borderColor: border,
-                            textColor: text,
-                            hintColor: hintColor,
-                            enabled: !_isLoading,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: ((constraints.maxWidth - _larguraMaxima) / 2).clamp(0, double.infinity),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: Forma.espaco6, vertical: Forma.espaco4),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Quick Connect no canto, no celular e na TV: entrar sem digitar a senha.
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: BotaoDeIcone(
+                            icone: Icons.qr_code_2_rounded,
+                            rotulo: 'Conexão Rápida',
+                            aoTocar: _isLoading ? null : _showQuickConnectModal,
                           ),
-                          const SizedBox(height: 6.0),
-                          HeisucaServerStatus(controller: _serverController),
+                        ),
 
-                          const SizedBox(height: 16.0),
+                        AutofillGroup(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Center(child: HeisucaLogo(height: 52, comSlogan: true)),
+                              const SizedBox(height: Forma.espaco6 + Forma.espaco4),
 
-                          // 3. Campo: Usuário
-                          _InputLabel(label: 'USUÁRIO', color: accent),
-                          const SizedBox(height: 8.0),
-                          _GlassTextField(
-                            key: const ValueKey('heisuca-login-user'),
-                            controller: _userController,
-                            prefixIcon: Icons.person_outline_rounded,
-                            hintText: 'Nome de usuário',
-                            bgColor: surf,
-                            borderColor: border,
-                            textColor: text,
-                            hintColor: hintColor,
-                            enabled: !_isLoading,
-                          ),
-
-                          const SizedBox(height: 16.0),
-
-                          // 4. Campo: Senha
-                          _InputLabel(label: 'SENHA', color: accent),
-                          const SizedBox(height: 8.0),
-                          _GlassTextField(
-                            key: const ValueKey('heisuca-login-password'),
-                            controller: _passwordController,
-                            prefixIcon: Icons.lock_outline_rounded,
-                            hintText: '••••••••',
-                            bgColor: surf,
-                            borderColor: border,
-                            textColor: text,
-                            hintColor: hintColor,
-                            obscureText: _obscurePassword,
-                            enabled: !_isLoading,
-                            onSubmitted: (_) => _signInDirect(),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                                color: text2,
-                                size: 20.0,
+                              // Os rótulos ficam em maiúsculas: a bancada acha cada campo por eles.
+                              const _InputLabel(label: 'SERVIDOR'),
+                              const SizedBox(height: Forma.espaco2),
+                              _GlassTextField(
+                                key: const ValueKey('heisuca-login-server'),
+                                controller: _serverController,
+                                prefixIcon: Icons.dns_outlined,
+                                hintText: 'https://seuservidor.com',
+                                enabled: !_isLoading,
+                                autofillHints: const [AutofillHints.url],
+                                teclado: TextInputType.url,
                               ),
-                              onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                            ),
-                          ),
+                              const SizedBox(height: Forma.espaco1),
+                              HeisucaServerStatus(controller: _serverController),
 
-                          const SizedBox(height: 20.0),
+                              const SizedBox(height: Forma.espaco4),
 
-                          // Banner de Erro Elegante em Carmim
-                          if (_errorMessage != null) ...[
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.errorContainer,
-                                borderRadius: BorderRadius.circular(14.0),
-                                border: Border.all(color: Theme.of(context).colorScheme.error, width: 1.2),
+                              const _InputLabel(label: 'USUÁRIO'),
+                              const SizedBox(height: Forma.espaco2),
+                              _GlassTextField(
+                                key: const ValueKey('heisuca-login-user'),
+                                controller: _userController,
+                                prefixIcon: Icons.person_outline_rounded,
+                                hintText: 'Nome de usuário',
+                                enabled: !_isLoading,
+                                autofillHints: const [AutofillHints.username],
                               ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.error_outline_rounded,
-                                    color: Theme.of(context).colorScheme.error,
+
+                              const SizedBox(height: Forma.espaco4),
+
+                              const _InputLabel(label: 'SENHA'),
+                              const SizedBox(height: Forma.espaco2),
+                              _GlassTextField(
+                                key: const ValueKey('heisuca-login-password'),
+                                controller: _passwordController,
+                                prefixIcon: Icons.lock_outline_rounded,
+                                hintText: 'Pode ficar em branco',
+                                obscureText: _obscurePassword,
+                                enabled: !_isLoading,
+                                autofillHints: const [AutofillHints.password],
+                                onSubmitted: (_) => _signInDirect(),
+                                suffixIcon: IconButton(
+                                  tooltip: _obscurePassword ? 'Mostrar senha' : 'Esconder senha',
+                                  // Na TV o olho recebe foco pelo controle: o realce vem do tema da V2, visível
+                                  // também no preto do Sumi.
+                                  focusColor: tema.foco.withValues(alpha: 0.4),
+                                  icon: Icon(
+                                    _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                                    color: tema.texto2,
                                     size: 20.0,
                                   ),
-                                  const SizedBox(width: 12.0),
-                                  Expanded(
-                                    child: Text(
-                                      _errorMessage!,
-                                      style: TextStyle(
-                                        fontFamily: HeisucaTheme.fonteTexto,
-                                        fontSize: 13.5,
-                                        color: Theme.of(context).colorScheme.onErrorContainer,
-                                        fontWeight: FontWeight.w500,
+                                  onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                                ),
+                              ),
+
+                              const SizedBox(height: Forma.espaco6),
+
+                              if (_errorMessage != null) ...[
+                                Semantics(
+                                  liveRegion: true,
+                                  child: DecoratedBox(
+                                    decoration: ShapeDecoration(
+                                      color: tema.superficie,
+                                      shape: Forma.superelipse(Forma.raioMedio, lado: BorderSide(color: tema.erro)),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(Forma.espaco3),
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.error_outline_rounded, color: tema.erro, size: 20.0),
+                                          const SizedBox(width: Forma.espaco3),
+                                          Expanded(child: Text(_errorMessage!, style: Tipo.pequeno(tema))),
+                                        ],
                                       ),
                                     ),
                                   ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 16.0),
-                          ],
-
-                          // 5. Botão Primário: Conectar ao Servidor
-                          HeisucaSpringPressable(
-                            onTap: _isLoading ? null : _signInDirect,
-                            child: Container(
-                              constraints: const BoxConstraints(minHeight: 56),
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                              decoration: BoxDecoration(color: palette.action, borderRadius: BorderRadius.circular(28)),
-                              alignment: Alignment.center,
-                              child: _isLoading
-                                  ? Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        SizedBox(
-                                          width: 22,
-                                          height: 22,
-                                          child: CircularProgressIndicator(strokeWidth: 2.4, color: palette.onAction),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Flexible(
-                                          child: Text(
-                                            'Iniciando sessão...',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              fontFamily: HeisucaTheme.fonteTexto,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                              color: palette.onAction,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    )
-                                  : Text(
-                                      'Iniciar sessão',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontFamily: HeisucaTheme.fonteTexto,
-                                        fontSize: 16.5,
-                                        fontWeight: FontWeight.w700,
-                                        color: palette.onAction,
-                                      ),
-                                    ),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      // Rodapé: + Outros servidores e pastas locais
-                      Padding(
-                        padding: const EdgeInsets.only(top: 24.0, bottom: 8.0),
-                        child: Center(
-                          child: HeisucaDpadFocus(
-                            borderRadius: 20,
-                            child: TextButton.icon(
-                              onPressed: _showSourcesBottomSheet,
-                              icon: Icon(Icons.add_circle_outline_rounded, size: 18.0, color: text2),
-                              label: Text(
-                                'Outros servidores e pastas locais',
-                                style: TextStyle(
-                                  fontFamily: HeisucaTheme.fonteTexto,
-                                  fontSize: 14.0,
-                                  fontWeight: FontWeight.w500,
-                                  color: text2,
                                 ),
+                                const SizedBox(height: Forma.espaco4),
+                              ],
+
+                              // O texto do botão também é o que a bancada procura.
+                              Botao(
+                                rotulo: _isLoading ? 'Iniciando sessão...' : 'Iniciar sessão',
+                                expandido: true,
+                                focoInicial: tv,
+                                aoTocar: _isLoading ? null : () => unawaited(_signInDirect()),
                               ),
-                              style: TextButton.styleFrom(
-                                foregroundColor: text2,
-                                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-                              ),
+                            ],
+                          ),
+                        ),
+
+                        Padding(
+                          padding: const EdgeInsets.only(top: Forma.espaco6),
+                          child: Center(
+                            child: Botao(
+                              rotulo: 'Outros servidores e pastas locais',
+                              icone: Icons.add_circle_outline_rounded,
+                              tipo: TipoDeBotao.discreto,
+                              aoTocar: _isLoading ? null : _showSourcesBottomSheet,
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -594,22 +536,13 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
 }
 
 class _InputLabel extends StatelessWidget {
-  const _InputLabel({required this.label, required this.color});
+  const _InputLabel({required this.label});
   final String label;
-  final Color color;
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      label,
-      style: TextStyle(
-        fontFamily: HeisucaTheme.fonteTexto,
-        fontSize: 12.0,
-        fontWeight: FontWeight.w700,
-        letterSpacing: 0.8,
-        color: color,
-      ),
-    );
+    final tema = TemaHeisuca.de(context);
+    return Text(label, style: Tipo.legenda(tema).copyWith(letterSpacing: 0.8));
   }
 }
 
@@ -619,58 +552,96 @@ class _GlassTextField extends StatelessWidget {
     required this.controller,
     required this.prefixIcon,
     required this.hintText,
-    required this.bgColor,
-    required this.borderColor,
-    required this.textColor,
-    required this.hintColor,
     this.obscureText = false,
     this.enabled = true,
     this.onSubmitted,
     this.suffixIcon,
-  }) : onChanged = null;
+    this.autofillHints,
+    this.teclado,
+  });
 
   final TextEditingController controller;
   final IconData prefixIcon;
   final String hintText;
-  final Color bgColor;
-  final Color borderColor;
-  final Color textColor;
-  final Color hintColor;
   final bool obscureText;
   final bool enabled;
   final ValueChanged<String>? onSubmitted;
-  final ValueChanged<String>? onChanged;
   final Widget? suffixIcon;
+
+  /// O que o preenchimento automático do Android pode pôr aqui.
+  final Iterable<String>? autofillHints;
+  final TextInputType? teclado;
 
   @override
   Widget build(BuildContext context) {
-    final outline = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(HeisucaTheme.raioInput),
-      borderSide: BorderSide(color: borderColor),
+    final tema = TemaHeisuca.de(context);
+    OutlinedBorder borda(Color cor, [double largura = 1]) => Forma.superelipse(
+      Forma.raioMedio,
+      lado: BorderSide(color: cor, width: largura),
     );
+    InputBorder contorno(Color cor, [double largura = 1]) => _BordaDeCampo(borda(cor, largura));
     return FocusableTextField(
       controller: controller,
       enabled: enabled,
       obscureText: obscureText,
       onSubmitted: onSubmitted,
-      onChanged: onChanged,
+      autofillHints: autofillHints,
+      keyboardType: teclado,
+      autocorrect: false,
+      enableSuggestions: !obscureText && autofillHints?.contains(AutofillHints.url) != true,
       textInputAction: onSubmitted != null ? TextInputAction.done : TextInputAction.next,
-      style: TextStyle(fontFamily: HeisucaTheme.fonteTexto, fontSize: 15.5, color: textColor),
+      style: Tipo.texto(tema),
       decoration: InputDecoration(
         filled: true,
-        fillColor: bgColor,
-        border: outline,
-        enabledBorder: outline,
-        disabledBorder: outline,
-        focusedBorder: outline.copyWith(borderSide: BorderSide(color: context.cgflix.focusRing, width: 2)),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        prefixIcon: Icon(prefixIcon, color: hintColor, size: 22),
+        fillColor: tema.superficie,
+        border: contorno(tema.borda),
+        enabledBorder: contorno(tema.borda),
+        disabledBorder: contorno(tema.borda),
+        focusedBorder: contorno(tema.foco, 2),
+        contentPadding: const EdgeInsets.symmetric(horizontal: Forma.espaco4, vertical: Forma.espaco4),
+        prefixIcon: Icon(prefixIcon, color: tema.texto2, size: 22),
         suffixIcon: suffixIcon,
         hintText: hintText,
-        hintStyle: TextStyle(color: hintColor, fontSize: 15),
+        hintStyle: Tipo.texto(tema).copyWith(color: tema.texto2),
       ),
     );
   }
+}
+
+/// A borda do campo em superelipse, no lugar do retângulo arredondado do Material.
+class _BordaDeCampo extends InputBorder {
+  const _BordaDeCampo(this.forma) : super(borderSide: BorderSide.none);
+  final OutlinedBorder forma;
+
+  @override
+  _BordaDeCampo copyWith({BorderSide? borderSide}) => this;
+
+  @override
+  bool get isOutline => true;
+
+  @override
+  EdgeInsetsGeometry get dimensions => forma.dimensions;
+
+  @override
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) =>
+      forma.getInnerPath(rect, textDirection: textDirection);
+
+  @override
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) =>
+      forma.getOuterPath(rect, textDirection: textDirection);
+
+  @override
+  void paint(
+    Canvas canvas,
+    Rect rect, {
+    double? gapStart,
+    double gapExtent = 0.0,
+    double gapPercentage = 0.0,
+    TextDirection? textDirection,
+  }) => forma.paint(canvas, rect, textDirection: textDirection);
+
+  @override
+  ShapeBorder scale(double t) => _BordaDeCampo(forma.scale(t) as OutlinedBorder);
 }
 
 class _SourceTile extends StatelessWidget {

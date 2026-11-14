@@ -3,6 +3,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:heisuca/features/fundo_tingido.dart';
+import 'package:heisuca/features/tema_da_v2.dart';
 import 'package:heisuca/cgflix/cgflix_theme.dart';
 import 'package:heisuca/heisuca/heisuca_logo.dart';
 import 'package:heisuca/heisuca/heisuca_login_screen.dart';
@@ -80,6 +82,15 @@ void main() {
       testWidgets('P3 $name: $screen usa o canvas do tema', (tester) async {
         await tester.pumpWidget(MaterialApp(theme: theme, home: child));
         await tester.pump();
+        // A entrada da V2 pinta o fundo pela parede da V2 (fundo do tema + halo); o Scaffold fica transparente.
+        final fundoDaV2 = find.byType(FundoTingido);
+        if (fundoDaV2.evaluate().isNotEmpty) {
+          final parede = tester.widget<ColoredBox>(
+            find.descendant(of: fundoDaV2, matching: find.byType(ColoredBox)).first,
+          );
+          expect(parede.color, temaDaPaleta(theme.extension<CgflixPalette>()!).fundo);
+          return;
+        }
         expect(
           tester.widget<Scaffold>(find.byType(Scaffold).first).backgroundColor,
           theme.extension<CgflixPalette>()!.background,

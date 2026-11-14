@@ -83,7 +83,7 @@ void main() {
       expect(find.text('SENHA'), findsOneWidget);
       expect(find.text('Iniciar sessão'), findsOneWidget);
       expect(find.text('Outros servidores e pastas locais'), findsOneWidget);
-      expect(find.byIcon(Icons.qr_code_2_rounded), findsNothing);
+      expect(find.byTooltip('Conexão Rápida'), findsOneWidget, reason: 'Quick Connect no ícone também no celular');
     });
 
     testWidgets('monta sem erro no modo claro', (tester) async {

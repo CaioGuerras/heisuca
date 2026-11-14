@@ -8,10 +8,7 @@ import 'package:heisuca/utils/platform_detector.dart';
 
 import '../test_helpers/prefs.dart';
 
-Widget _montar(Widget child) => MaterialApp(
-  theme: cgflixAppTheme(CgflixThemeVariant.isis),
-  home: child,
-);
+Widget _montar(Widget child) => MaterialApp(theme: cgflixAppTheme(CgflixThemeVariant.isis), home: child);
 
 void main() {
   tearDown(() {
@@ -20,15 +17,16 @@ void main() {
   });
 
   group('HeisucaLoginScreen F1 QuickConnect TV vs Celular', () {
-    testWidgets('login em celular não exibe o botão de Conexão Rápida (QR)', (tester) async {
+    // V2 (PLANO §4, Entrada): Quick Connect no ícone também no celular, para entrar sem digitar a senha.
+    testWidgets('login em celular exibe o botão de Conexão Rápida (QR)', (tester) async {
       TvDetectionService.debugReset();
       TvDetectionService.setForceTVSync(false);
 
       await tester.pumpWidget(_montar(const HeisucaLoginScreen()));
       await tester.pump();
 
-      expect(find.byIcon(Icons.qr_code_2_rounded), findsNothing);
-      expect(find.byTooltip('Conexão Rápida'), findsNothing);
+      expect(find.byIcon(Icons.qr_code_2_rounded), findsOneWidget);
+      expect(find.byTooltip('Conexão Rápida'), findsOneWidget);
     });
 
     testWidgets('login em TV exibe o botão de Conexão Rápida (QR)', (tester) async {
@@ -45,7 +43,9 @@ void main() {
   });
 
   group('HeisucaLoginScreen T1 TV native text input focus bridge', () {
-    testWidgets('foco no campo de usuário em TV chama setNativeTextInputFocused(true) e false ao desfocar', (tester) async {
+    testWidgets('foco no campo de usuário em TV chama setNativeTextInputFocused(true) e false ao desfocar', (
+      tester,
+    ) async {
       resetSharedPreferencesForTest();
       final settings = await SettingsService.getInstance();
       await settings.write(SettingsService.tvUseNativeKeyboard, true);
@@ -84,5 +84,25 @@ void main() {
 
       expect(sentStates, [true, false]);
     });
+  });
+
+  testWidgets('servidor, usuário e senha avisam o preenchimento automático do Android, dentro de um grupo só', (
+    tester,
+  ) async {
+    TvDetectionService.debugReset();
+    TvDetectionService.setForceTVSync(false);
+    await tester.pumpWidget(_montar(const HeisucaLoginScreen()));
+    await tester.pump();
+
+    List<String>? dicas(String chave) => tester
+        .widget<TextField>(find.descendant(of: find.byKey(ValueKey(chave)), matching: find.byType(TextField)))
+        .autofillHints
+        ?.toList();
+    expect(dicas('heisuca-login-server'), [AutofillHints.url]);
+    expect(dicas('heisuca-login-user'), [AutofillHints.username]);
+    expect(dicas('heisuca-login-password'), [AutofillHints.password]);
+    for (final chave in ['heisuca-login-server', 'heisuca-login-user', 'heisuca-login-password']) {
+      expect(find.ancestor(of: find.byKey(ValueKey(chave)), matching: find.byType(AutofillGroup)), findsOneWidget);
+    }
   });
 }

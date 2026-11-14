@@ -185,7 +185,7 @@ void main() {
     expect(resultado, isFalse);
     expect(loja.isFavorite(item), isFalse);
     expect(find.text('Adicionado à sua lista do Plex'), findsNothing);
-    expect(find.text('Não foi possível atualizar os favoritos'), findsOneWidget);
+    expect(find.text('Não foi possível atualizar a sua lista'), findsOneWidget);
     await tester.pump(const Duration(seconds: 5));
   });
 
@@ -269,7 +269,7 @@ void main() {
     unawaited(HeisucaContextMenu.show(contexto, item: item));
     await tester.pumpAndSettle();
     conta.pedidosDeDentroDoPerfil.clear();
-    await tester.tap(find.text('Favoritar'));
+    await tester.tap(find.text('Minha lista'));
     await tester.pumpAndSettle();
 
     expect(conta.gravados, [true]);
@@ -277,7 +277,32 @@ void main() {
     await tester.pump(const Duration(seconds: 5));
   });
 
-  testWidgets('perfil trocado com o menu aberto: "Favoritar" não muda nada nem estoura', (tester) async {
+  testWidgets('menu do cartão: título de Jellyfin mostra "Favoritar"; título de Plex mostra "Minha lista"', (
+    tester,
+  ) async {
+    final contexto = await montar(tester);
+    final doJellyfin = MediaItem(
+      id: 'jf-1',
+      backend: MediaBackend.jellyfin,
+      kind: MediaKind.movie,
+      title: 'Filme nosso',
+      serverId: 'casa',
+    );
+
+    unawaited(HeisucaContextMenu.show(contexto, item: doJellyfin));
+    await tester.pumpAndSettle();
+    expect(find.text('Favoritar'), findsOneWidget);
+    expect(find.text('Minha lista'), findsNothing);
+    Navigator.of(contexto, rootNavigator: true).pop();
+    await tester.pumpAndSettle();
+
+    unawaited(HeisucaContextMenu.show(contexto, item: _filme('plex-13')));
+    await tester.pumpAndSettle();
+    expect(find.text('Minha lista'), findsOneWidget);
+    expect(find.text('Favoritar'), findsNothing);
+  });
+
+  testWidgets('perfil trocado com o menu aberto: "Minha lista" não muda nada nem estoura', (tester) async {
     final contexto = await montar(tester);
     final item = _filme('plex-9');
     final loja = HeisucaStateStore.instance;
@@ -291,11 +316,11 @@ void main() {
     await trocarDePerfil();
     await tester.pump();
     expect(contexto.mounted, isFalse, reason: 'a tela que abriu o menu saiu com o perfil');
-    expect(find.text('Favoritar'), findsOneWidget, reason: 'o menu fica: está no navegador raiz');
+    expect(find.text('Minha lista'), findsOneWidget, reason: 'o menu fica: está no navegador raiz');
     conta.pedidosDeDentroDoPerfil.clear();
     avisos = 0;
 
-    await tester.tap(find.text('Favoritar'));
+    await tester.tap(find.text('Minha lista'));
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);

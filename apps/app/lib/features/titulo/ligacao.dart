@@ -14,6 +14,7 @@ import '../../heisuca/heisuca_state_store.dart';
 import '../../heisuca/heisuca_title_logo.dart';
 import '../../heisuca/heisuca_title_parts.dart';
 import '../../heisuca/heisuca_title_sheet.dart';
+import '../../media/media_backend.dart';
 import '../../media/media_file_info.dart';
 import '../../media/media_hub.dart';
 import '../../media/media_item.dart';
@@ -392,6 +393,7 @@ class _LigacaoDoTituloState extends State<LigacaoDoTitulo> {
       progresso: alvo == null ? null : progressoDe(alvo.durationMs, alvo.viewOffsetMs),
       aoAssistir: alvo == null ? null : () => unawaited(_assistir(alvo)),
       naLista: estado.isFavorite(item),
+      listaDaConta: item.backend == MediaBackend.plex,
       aoAlternarLista: () => unawaited(_alternarLista()),
       visto: estado.isWatched(item),
       aoAlternarVisto: () => unawaited(_alternarVisto(item)),

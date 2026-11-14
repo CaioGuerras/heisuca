@@ -25,6 +25,7 @@ class PaginaDoTitulo {
     this.progresso,
     this.aoAssistir,
     this.naLista = false,
+    this.listaDaConta = false,
     this.aoAlternarLista,
     this.visto = false,
     this.aoAlternarVisto,
@@ -60,6 +61,10 @@ class PaginaDoTitulo {
   final VoidCallback? aoAssistir;
 
   final bool naLista;
+
+  /// O que o botão guarda. Falso: favorito do servidor (Jellyfin), com coração e "Favoritar". Verdadeiro: a lista
+  /// da conta (Plex não tem favorito por servidor), com marcador e "Minha lista" (Caio, 13/11).
+  final bool listaDaConta;
   final VoidCallback? aoAlternarLista;
 
   final bool visto;

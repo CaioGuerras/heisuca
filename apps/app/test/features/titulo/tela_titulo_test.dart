@@ -11,6 +11,7 @@ import 'package:heisuca/design/tema.dart';
 import 'package:heisuca/features/titulo/cabeca.dart';
 import 'package:heisuca/features/titulo/modelo.dart';
 import 'package:heisuca/features/titulo/tela_titulo.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 import '../../design/componentes/apoio.dart';
 
@@ -40,6 +41,7 @@ PaginaDoTitulo _cheia({
   VoidCallback? aoAlternarLista,
   VoidCallback? aoAlternarVisto,
   bool naLista = false,
+  bool listaDaConta = false,
   bool visto = false,
   String? hash,
 }) => PaginaDoTitulo(
@@ -60,6 +62,7 @@ PaginaDoTitulo _cheia({
   ),
   aoAssistir: aoAssistir ?? () {},
   naLista: naLista,
+  listaDaConta: listaDaConta,
   aoAlternarLista: aoAlternarLista ?? () {},
   visto: visto,
   aoAlternarVisto: aoAlternarVisto ?? () {},
@@ -89,7 +92,7 @@ void main() {
       expect(find.text('7,1'), findsOneWidget);
       expect(find.text('3 temporadas · 1h 2min · 1080p'), findsOneWidget);
       expect(find.text('Continuar T1:E3'), findsOneWidget);
-      expect(find.byTooltip('Minha lista'), findsOneWidget);
+      expect(find.byTooltip('Favoritar'), findsOneWidget);
       expect(find.byTooltip('Já vi'), findsOneWidget);
       expect(find.byTooltip('Voltar').hitTestable(), findsOneWidget);
       expect(find.byTooltip('Mais opções').hitTestable(), findsOneWidget);
@@ -140,7 +143,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Akira'), findsOneWidget);
     expect(find.byType(Botao), findsNothing);
-    expect(find.byTooltip('Minha lista'), findsNothing);
+    expect(find.byTooltip('Favoritar'), findsNothing);
     expect(find.byTooltip('Já vi'), findsNothing);
     expect(find.byTooltip('Mais opções'), findsNothing);
     expect(find.textContaining('·'), findsNothing);
@@ -169,28 +172,65 @@ void main() {
     );
     await tester.pumpAndSettle();
     await tester.tap(find.byType(Botao));
-    await tester.tap(find.byTooltip('Minha lista'));
+    await tester.tap(find.byTooltip('Favoritar'));
     await tester.tap(find.byTooltip('Já vi'));
     await tester.pumpAndSettle();
     expect(toques, ['assistir', 'lista', 'visto']);
 
     expect(tester.getSize(find.byType(Botao)).height, greaterThanOrEqualTo(48));
     expect(tester.getSize(find.byType(Botao)).width, greaterThan(300), reason: 'o botão ocupa a largura da tela');
-    for (final dica in ['Minha lista', 'Já vi', 'Voltar']) {
+    for (final dica in ['Favoritar', 'Já vi', 'Voltar']) {
       expect(tester.getSize(find.byTooltip(dica)).shortestSide, greaterThanOrEqualTo(48), reason: dica);
     }
     Icon icone(String dica) =>
         tester.widget<Icon>(find.descendant(of: find.byTooltip(dica), matching: find.byType(Icon)));
-    expect(icone('Minha lista').fill, 1, reason: 'na lista, o coração fica cheio');
+    expect(icone('Favoritar').fill, 1, reason: 'favorito, o coração fica cheio');
     expect(icone('Já vi').fill, 0);
   });
 
-  testWidgets('o leitor de tela lê o nome como cabeçalho e o estado de "Minha lista"', (tester) async {
+  testWidgets('título de servidor Plex: o botão é "Minha lista", com marcador, e não existe "Favoritar"', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      naTela(
+        TelaTitulo(
+          pagina: _cheia(listaDaConta: true, naLista: true, aoAlternarLista: () {}),
+          cores: CorPosterCache(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byTooltip('Minha lista'), findsOneWidget);
+    expect(find.byTooltip('Favoritar'), findsNothing);
+    final icone = tester.widget<Icon>(find.descendant(of: find.byTooltip('Minha lista'), matching: find.byType(Icon)));
+    expect(icone.icon, Symbols.bookmark_rounded);
+    expect(icone.fill, 1, reason: 'na lista, o marcador fica cheio');
+  });
+
+  testWidgets('título de Jellyfin: o botão é o coração de "Favoritar", sem "Minha lista"', (tester) async {
+    await tester.pumpWidget(
+      naTela(
+        TelaTitulo(
+          pagina: _cheia(aoAlternarLista: () {}),
+          cores: CorPosterCache(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byTooltip('Favoritar'), findsOneWidget);
+    expect(find.byTooltip('Minha lista'), findsNothing);
+    final icone = tester.widget<Icon>(find.descendant(of: find.byTooltip('Favoritar'), matching: find.byType(Icon)));
+    expect(icone.icon, Symbols.favorite_rounded);
+  });
+
+  testWidgets('o leitor de tela lê o nome como cabeçalho e o estado de "Favoritar"', (tester) async {
     final alca = tester.ensureSemantics();
     await tester.pumpWidget(naTela(TelaTitulo(pagina: _cheia(naLista: true), cores: CorPosterCache())));
     await tester.pumpAndSettle();
     expect(tester.getSemantics(find.bySemanticsLabel('Deadwood')).flagsCollection.isHeader, isTrue);
-    expect(tester.getSemantics(find.bySemanticsLabel('Minha lista')).flagsCollection.isSelected.toBoolOrNull(), isTrue);
+    expect(tester.getSemantics(find.bySemanticsLabel('Favoritar')).flagsCollection.isSelected.toBoolOrNull(), isTrue);
     expect(tester.getSemantics(find.bySemanticsLabel('Já vi')).flagsCollection.isSelected.toBoolOrNull(), isFalse);
     expect(find.bySemanticsLabel('40% assistido'), findsOneWidget);
     alca.dispose();

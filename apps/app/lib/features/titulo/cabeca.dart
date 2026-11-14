@@ -150,8 +150,8 @@ class CabecaDoTitulo extends StatelessWidget {
                       children: [
                         if (pagina.aoAlternarLista != null)
                           BotaoDeIcone(
-                            icone: Symbols.favorite_rounded,
-                            rotulo: 'Minha lista',
+                            icone: pagina.listaDaConta ? Symbols.bookmark_rounded : Symbols.favorite_rounded,
+                            rotulo: pagina.listaDaConta ? 'Minha lista' : 'Favoritar',
                             selecionado: pagina.naLista,
                             vibracao: Vibracao.confirmar,
                             aoTocar: pagina.aoAlternarLista,

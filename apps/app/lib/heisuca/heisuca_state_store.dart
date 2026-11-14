@@ -94,7 +94,10 @@ class HeisucaStateStore extends ChangeNotifier {
           notifyListeners();
         }
         if (context.mounted) {
-          showErrorSnackBar(context, 'Não foi possível atualizar os favoritos');
+          showErrorSnackBar(
+            context,
+            listaDoPlex != null ? 'Não foi possível atualizar a sua lista' : 'Não foi possível atualizar os favoritos',
+          );
         }
         return noServidor;
       }

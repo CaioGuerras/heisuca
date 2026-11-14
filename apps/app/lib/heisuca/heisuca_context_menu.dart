@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import '../cgflix/cgflix_palette.dart';
+import '../media/media_backend.dart';
 import '../media/media_item.dart';
 import '../media/media_kind.dart';
 import 'heisuca_design_system.dart';
@@ -115,6 +116,7 @@ class HeisucaContextMenu extends StatelessWidget {
       listenable: store,
       builder: (context, _) {
         final isFav = store.isFavorite(item);
+        final listaDaConta = item.backend == MediaBackend.plex;
         final isWatch = store.isWatched(item);
 
         return Container(
@@ -228,10 +230,12 @@ class HeisucaContextMenu extends StatelessWidget {
                 },
               ),
 
-              // Favoritar / Tirar dos favoritos (ícone ♡ / ♥)
+              // Jellyfin: favorito do servidor (♡ / ♥). Plex não tem favorito: é a lista da conta (marcador).
               _buildActionTile(
-                label: isFav ? 'Tirar dos favoritos' : 'Favoritar',
-                icon: Symbols.favorite_rounded,
+                label: listaDaConta
+                    ? (isFav ? 'Tirar da Minha lista' : 'Minha lista')
+                    : (isFav ? 'Tirar dos favoritos' : 'Favoritar'),
+                icon: listaDaConta ? Symbols.bookmark_rounded : Symbols.favorite_rounded,
                 iconFill: isFav ? 1.0 : 0.0,
                 textColor: textActionColor,
                 iconColor: context.cgflix.danger,

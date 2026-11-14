@@ -10,6 +10,7 @@ import 'package:http/testing.dart';
 import 'package:provider/provider.dart';
 import 'package:heisuca/cgflix/cgflix_theme.dart';
 import 'package:heisuca/cgflix/requests/cgflix_secure_store.dart';
+import 'package:heisuca/design/componentes/toque.dart';
 import 'package:heisuca/heisuca/heisuca_profile_screen.dart';
 import 'package:heisuca/heisuca/tv/heisuca_tv_menu.dart';
 import 'package:heisuca/i18n/strings.g.dart';
@@ -24,6 +25,11 @@ import 'package:heisuca/services/updates/update_feed_client.dart';
 import 'package:heisuca/utils/log_redaction_manager.dart';
 import 'package:heisuca/utils/platform_detector.dart';
 import '../test_helpers/prefs.dart';
+
+/// A linha de escolha do canal ("estavel", "beta" ou "codigo") na tela de ajustes.
+Toque escolhaDoCanal(WidgetTester tester, String canal) => tester.widget<Toque>(
+  find.descendant(of: find.byKey(ValueKey('atualizador-canal-$canal')), matching: find.byType(Toque)),
+);
 
 /// Conta os pedidos de cancelamento que a tela faz ao controlador.
 class _ControladorQueConta extends UpdateController {
@@ -262,7 +268,7 @@ void main() {
   });
   testWidgets('beta persiste e código fica no cofre, nunca nas preferências exportáveis', (tester) async {
     await mostrar(tester, const UpdateSettingsScreen());
-    await acionar(tester, () => tester.tap(find.textContaining('Receber versões beta')), () => c.beta);
+    await acionar(tester, () => tester.tap(find.byKey(const ValueKey('atualizador-canal-beta'))), () => c.beta);
     expect(c.beta, true);
     const codigo = 'codigo-sintetico-sem-credencial-123';
     await tester.runAsync(() => c.definirCodigo(codigo));
@@ -271,7 +277,8 @@ void main() {
     expect(segredos.values.values, contains(codigo));
     expect(settings.prefs.getString('heisuca_update_test_code_v1'), isNull);
     expect(LogRedactionManager.redact(codigo), isNot(codigo));
-    expect(find.textContaining('Canal: Teste'), findsOneWidget);
+    expect(escolhaDoCanal(tester, 'codigo').selecionado, isTrue, reason: 'com código salvo, o canal é o de teste');
+    expect(escolhaDoCanal(tester, 'beta').selecionado, isFalse);
   });
   testWidgets('uma verificação ao abrir, limite diário também no botão manual', (tester) async {
     await tester.runAsync(() async {
@@ -293,6 +300,57 @@ void main() {
     });
     expect(consultas, 3);
     expect(c.mensagem, isNot(contains('Já verificamos hoje')));
+  });
+  testWidgets('ajustes mostram o estado da versão e uma única ação principal', (tester) async {
+    await mostrar(tester, const UpdateSettingsScreen());
+    expect(find.textContaining('Versão instalada: 2.0.34'), findsOneWidget);
+    expect(find.byKey(const ValueKey('atualizador-acao')), findsOneWidget);
+    expect(find.text('Verificar agora'), findsOneWidget);
+    expect(FocusManager.instance.primaryFocus?.debugLabel, 'atualizador-acao');
+
+    await acionar(tester, () => tester.tap(find.text('Verificar agora')), () => c.oferta != null);
+    expect(find.textContaining('2.0.35'), findsWidgets);
+    expect(find.text('Melhorias no app.'), findsOneWidget);
+    expect(find.text('Baixar'), findsOneWidget);
+    expect(find.text('Verificar agora'), findsNothing, reason: 'a ação principal muda; não aparece uma segunda');
+    expect(find.text('Ver nova versão'), findsNothing);
+    expect(find.byKey(const ValueKey('atualizador-acao')), findsOneWidget);
+  });
+  testWidgets('canal: três escolhas com uma marcada; código salvo trava as outras até ser removido', (tester) async {
+    await mostrar(tester, const UpdateSettingsScreen());
+    expect(escolhaDoCanal(tester, 'estavel').selecionado, isTrue);
+    expect(escolhaDoCanal(tester, 'beta').selecionado, isFalse);
+    expect(escolhaDoCanal(tester, 'codigo').selecionado, isFalse);
+    expect(find.byKey(const ValueKey('atualizador-codigo')), findsNothing);
+
+    await acionar(tester, () => tester.tap(find.byKey(const ValueKey('atualizador-canal-beta'))), () => c.beta);
+    expect(escolhaDoCanal(tester, 'estavel').selecionado, isFalse);
+    expect(escolhaDoCanal(tester, 'beta').selecionado, isTrue);
+
+    // "Com código" só abre o campo: o canal muda quando o código é salvo.
+    await tester.tap(find.byKey(const ValueKey('atualizador-canal-codigo')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('atualizador-codigo')), findsOneWidget);
+    expect(find.text('Salvar código'), findsOneWidget);
+    expect(c.canal, 'Beta');
+
+    await tester.runAsync(() => c.definirCodigo('codigo-sintetico-sem-credencial-123'));
+    await tester.pumpAndSettle();
+    expect(c.canal, 'Teste');
+    expect(escolhaDoCanal(tester, 'codigo').selecionado, isTrue);
+    expect(escolhaDoCanal(tester, 'beta').selecionado, isFalse);
+    expect(escolhaDoCanal(tester, 'estavel').aoTocar, isNull);
+    expect(escolhaDoCanal(tester, 'beta').aoTocar, isNull);
+    expect(find.byKey(const ValueKey('atualizador-codigo')), findsNothing, reason: 'o código salvo não fica na tela');
+
+    await tester.ensureVisible(find.text('Remover código'));
+    await acionar(tester, () => tester.tap(find.text('Remover código')), () => c.codigo.isEmpty);
+    expect(segredos.values.values, isNot(contains('codigo-sintetico-sem-credencial-123')));
+    expect(c.canal, 'Beta');
+    expect(escolhaDoCanal(tester, 'beta').selecionado, isTrue);
+    expect(escolhaDoCanal(tester, 'beta').aoTocar, isNotNull);
+    expect(find.text('Remover código'), findsNothing);
+    expect(tester.takeException(), isNull);
   });
 
   group('celular', () {
@@ -378,7 +436,12 @@ void main() {
       expect(find.byType(UpdateSettingsScreen), findsOneWidget);
       expect(tester.takeException(), isNull);
       final lista = find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)).first;
-      await tester.scrollUntilVisible(find.text('Voltar'), 200, scrollable: lista);
+      // No celular quem volta é a seta do topo; a lista vai até a escolha do canal.
+      expect(find.byTooltip('Voltar'), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('Com código'), 200, scrollable: lista);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      await tester.drag(lista, const Offset(0, -3000));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
     });

@@ -2,13 +2,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../../design/componentes/botao.dart';
+import '../../design/forma.dart';
+import '../../design/tema.dart';
+import '../../design/tipo.dart';
 import '../../focus/focusable_text_field.dart';
-import '../../heisuca/heisuca_theme.dart';
 import '../../services/updates/update_controller.dart';
 import '../../utils/platform_detector.dart';
 import 'update_layout.dart';
-import 'update_screen.dart';
 
+/// Atualizações, a partir dos ajustes: o estado da versão, a ação principal e de qual canal as versões chegam.
 class UpdateSettingsScreen extends StatefulWidget {
   const UpdateSettingsScreen({super.key, this.controlador});
   final UpdateController? controlador;
@@ -19,112 +22,151 @@ class UpdateSettingsScreen extends StatefulWidget {
 class _UpdateSettingsScreenState extends State<UpdateSettingsScreen> {
   late final UpdateController _c;
   final _codigo = TextEditingController();
+  final _acao = FocusNode(debugLabel: 'atualizador-acao');
+  final _estavel = FocusNode(debugLabel: 'atualizador-estavel');
   final _beta = FocusNode(debugLabel: 'atualizador-beta');
+  final _comCodigo = FocusNode(debugLabel: 'atualizador-com-codigo');
   final _campo = FocusNode(debugLabel: 'atualizador-codigo');
   final _salvar = FocusNode(debugLabel: 'atualizador-salvar');
-  final _verificar = FocusNode(debugLabel: 'atualizador-verificar');
-  final _nova = FocusNode(debugLabel: 'atualizador-nova');
   final _voltar = FocusNode(debugLabel: 'atualizador-voltar');
+
+  /// A pessoa escolheu "Com código" e ainda não salvou um: o campo fica aberto.
+  bool _digitando = false;
+
   @override
   void initState() {
     super.initState();
     _c = widget.controlador ?? context.read<UpdateController>();
-    unawaited(_carregar());
-  }
-
-  Future<void> _carregar() async {
-    await _c.iniciar();
-    if (mounted) _codigo.text = _c.codigo;
+    unawaited(_c.iniciar());
   }
 
   @override
   void dispose() {
     _codigo.dispose();
-    for (final foco in [_beta, _campo, _salvar, _verificar, _nova, _voltar]) {
+    for (final foco in [_acao, _estavel, _beta, _comCodigo, _campo, _salvar, _voltar]) {
       foco.dispose();
     }
     super.dispose();
   }
 
+  Future<void> _salvarCodigo() async {
+    await _c.definirCodigo(_codigo.text);
+    if (!mounted || _c.codigo.isEmpty) return;
+    // Salvo: o código não fica na tela.
+    _codigo.clear();
+    setState(() => _digitando = false);
+  }
+
+  Future<void> _removerCodigo() async {
+    await _c.definirCodigo('');
+    if (mounted) setState(() => _digitando = false);
+  }
+
+  List<Widget> _canal(TemaHeisuca tema) {
+    final comCodigo = _c.codigo.isNotEmpty;
+    final livre = !_c.ocupado;
+    return [
+      UpdateChoice(
+        key: const ValueKey('atualizador-canal-estavel'),
+        titulo: 'Estável',
+        texto: 'Versões já aprovadas.',
+        escolhida: !comCodigo && !_c.beta,
+        foco: _estavel,
+        aoTocar: livre && !comCodigo ? () => unawaited(_c.definirBeta(false)) : null,
+      ),
+      UpdateChoice(
+        key: const ValueKey('atualizador-canal-beta'),
+        titulo: 'Beta',
+        texto: 'Chega antes; pode ter falhas.',
+        escolhida: !comCodigo && _c.beta,
+        foco: _beta,
+        aoTocar: livre && !comCodigo ? () => unawaited(_c.definirBeta(true)) : null,
+      ),
+      UpdateChoice(
+        key: const ValueKey('atualizador-canal-codigo'),
+        titulo: 'Com código',
+        texto: comCodigo ? 'Código salvo neste aparelho.' : 'Para quem recebeu um código de teste.',
+        escolhida: comCodigo,
+        foco: _comCodigo,
+        aoTocar: livre ? () => setState(() => _digitando = !comCodigo) : null,
+      ),
+      if (comCodigo) ...[
+        const SizedBox(height: Forma.espaco3),
+        Text('Para escolher Estável ou Beta, remova o código.', style: Tipo.pequeno(tema)),
+        const SizedBox(height: Forma.espaco3),
+        Botao(
+          rotulo: 'Remover código',
+          tipo: TipoDeBotao.secundario,
+          expandido: true,
+          foco: _salvar,
+          aoTocar: livre ? () => unawaited(_removerCodigo()) : null,
+        ),
+      ] else if (_digitando) ...[
+        const SizedBox(height: Forma.espaco3),
+        DecoratedBox(
+          decoration: ShapeDecoration(
+            color: tema.superficie2,
+            shape: Forma.superelipse(
+              Forma.raioMedio,
+              lado: BorderSide(color: _campo.hasFocus ? tema.foco : tema.borda),
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Forma.espaco3),
+            child: FocusableTextField(
+              key: const ValueKey('atualizador-codigo'),
+              controller: _codigo,
+              focusNode: _campo,
+              obscureText: true,
+              autocorrect: false,
+              enableSuggestions: false,
+              inputFormatters: [LengthLimitingTextInputFormatter(256)],
+              textInputAction: TextInputAction.done,
+              style: Tipo.texto(tema),
+              decoration: InputDecoration(
+                hintText: 'Digite ou cole o código',
+                hintStyle: Tipo.texto(tema).copyWith(color: tema.texto2),
+                border: InputBorder.none,
+              ),
+              onNavigateUp: _comCodigo.requestFocus,
+              onNavigateDown: _salvar.requestFocus,
+              onSubmitted: (_) => _salvar.requestFocus(),
+            ),
+          ),
+        ),
+        const SizedBox(height: Forma.espaco3),
+        Botao(
+          rotulo: 'Salvar código',
+          tipo: TipoDeBotao.secundario,
+          expandido: true,
+          foco: _salvar,
+          aoTocar: livre ? () => unawaited(_salvarCodigo()) : null,
+        ),
+      ],
+    ];
+  }
+
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
-    animation: _c,
+    animation: Listenable.merge([_c, _campo]),
     builder: (context, _) => UpdateLayout(
       titulo: 'Atualizações',
       children: [
-        if (!_c.habilitado)
-          const UpdateCard(children: [Text('As atualizações estão indisponíveis nesta instalação.')])
-        else ...[
-          UpdateCard(
-            children: [
-              Text('Canal: ${_c.canal}'),
-              const SizedBox(height: 8),
-              const Text('Versões beta podem ter falhas. Você pode voltar ao canal estável quando quiser.'),
-            ],
+        UpdateStatusCard(controlador: _c, foco: _acao),
+        if (_c.habilitado)
+          Builder(
+            builder: (context) =>
+                UpdateCard(titulo: 'Versões que você recebe', children: _canal(TemaHeisuca.de(context))),
           ),
-          UpdateButton(
-            texto: 'Receber versões beta: ${_c.beta ? 'ligado' : 'desligado'}',
-            foco: _beta,
-            autofocus: true,
-            abaixo: _campo.requestFocus,
-            onPressed: _c.ocupado ? null : () => unawaited(_c.definirBeta(!_c.beta)),
+        if (PlatformDetector.isTV())
+          Botao(
+            rotulo: 'Voltar',
+            tipo: TipoDeBotao.secundario,
+            expandido: true,
+            foco: _voltar,
+            focoInicial: !_c.habilitado,
+            aoTocar: () => unawaited(Navigator.of(context).maybePop()),
           ),
-          UpdateCard(
-            children: [
-              const Text('Código do canal de teste'),
-              const SizedBox(height: 12),
-              FocusableTextField(
-                key: const ValueKey('atualizador-codigo'),
-                controller: _codigo,
-                focusNode: _campo,
-                obscureText: true,
-                autocorrect: false,
-                enableSuggestions: false,
-                inputFormatters: [LengthLimitingTextInputFormatter(256)],
-                textInputAction: TextInputAction.done,
-                style: TextStyle(fontFamily: HeisucaTheme.fonteTexto, fontSize: PlatformDetector.isTV() ? 22 : 17),
-                decoration: const InputDecoration(hintText: 'Digite ou cole o código', border: OutlineInputBorder()),
-                onNavigateUp: _beta.requestFocus,
-                onNavigateDown: _salvar.requestFocus,
-                onSubmitted: (_) => _salvar.requestFocus(),
-              ),
-              const SizedBox(height: 12),
-              UpdateButton(
-                texto: 'Salvar código',
-                foco: _salvar,
-                acima: _campo.requestFocus,
-                abaixo: _verificar.requestFocus,
-                onPressed: _c.ocupado ? null : () => unawaited(_c.definirCodigo(_codigo.text)),
-              ),
-              if (_c.codigo.isNotEmpty) const Text('Remova o código para voltar ao canal público.'),
-            ],
-          ),
-          UpdateButton(
-            texto: _c.verificando ? 'Verificando…' : 'Verificar agora',
-            foco: _verificar,
-            acima: _salvar.requestFocus,
-            abaixo: _c.oferta != null ? _nova.requestFocus : _voltar.requestFocus,
-            onPressed: _c.ocupado ? null : () => unawaited(_c.verificar(manual: true)),
-          ),
-          if (_c.oferta != null)
-            UpdateButton(
-              texto: 'Ver nova versão',
-              foco: _nova,
-              acima: _verificar.requestFocus,
-              abaixo: _voltar.requestFocus,
-              primario: true,
-              onPressed: () =>
-                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => UpdateScreen(controlador: _c))),
-            ),
-        ],
-        if (_c.mensagem != null) UpdateCard(children: [Semantics(liveRegion: true, child: Text(_c.mensagem!))]),
-        UpdateButton(
-          texto: 'Voltar',
-          foco: _voltar,
-          autofocus: !_c.habilitado,
-          acima: _c.oferta != null ? _nova.requestFocus : _verificar.requestFocus,
-          onPressed: () => Navigator.of(context).maybePop(),
-        ),
       ],
     ),
   );

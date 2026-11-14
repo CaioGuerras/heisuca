@@ -413,6 +413,8 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                         ),
 
                         AutofillGroup(
+                          // Sair sem entrar não oferece guardar o que foi digitado: só o login aceito oferece.
+                          onDisposeAction: AutofillContextAction.cancel,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             mainAxisSize: MainAxisSize.min,

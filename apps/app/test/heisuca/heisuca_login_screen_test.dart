@@ -104,5 +104,15 @@ void main() {
     for (final chave in ['heisuca-login-server', 'heisuca-login-user', 'heisuca-login-password']) {
       expect(find.ancestor(of: find.byKey(ValueKey(chave)), matching: find.byType(AutofillGroup)), findsOneWidget);
     }
+    expect(find.byType(AutofillGroup), findsOneWidget, reason: 'os três campos dividem o mesmo grupo');
+  });
+
+  testWidgets('sair da tela sem entrar não oferece guardar a senha: só o login aceito oferece', (tester) async {
+    TvDetectionService.debugReset();
+    TvDetectionService.setForceTVSync(false);
+    await tester.pumpWidget(_montar(const HeisucaLoginScreen()));
+    await tester.pump();
+
+    expect(tester.widget<AutofillGroup>(find.byType(AutofillGroup)).onDisposeAction, AutofillContextAction.cancel);
   });
 }

@@ -50,6 +50,12 @@ Future<void> _writeHistory(List<String> history) async {
   }
 }
 
+/// Lê o histórico da busca, do mais novo ao mais velho. Ilegível vira lista vazia.
+Future<List<String>> cgflixReadSearchHistory() => _readHistory();
+
+/// Grava o histórico inteiro (tirar um termo, limpar tudo).
+Future<void> cgflixWriteSearchHistory(List<String> history) => _writeHistory(history);
+
 /// Guarda uma busca que achou algo (chamado pela tela de busca).
 void cgflixRememberSearch(String query) => unawaited(_remember(query));
 

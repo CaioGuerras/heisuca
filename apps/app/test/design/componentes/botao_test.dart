@@ -180,4 +180,38 @@ void main() {
     expect(no.flagsCollection.isButton, isTrue);
     alca.dispose();
   });
+
+  testWidgets('botão com foco inicial recebe o foco e o controle remoto leva o foco de um botão ao outro', (
+    tester,
+  ) async {
+    final primeiro = FocusNode(debugLabel: 'primeiro');
+    final segundo = FocusNode(debugLabel: 'segundo');
+    addTearDown(primeiro.dispose);
+    addTearDown(segundo.dispose);
+    var toques = 0;
+    await tester.pumpWidget(
+      naTela(
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Botao(rotulo: 'Baixar', foco: primeiro, focoInicial: true, aoTocar: () => toques++),
+            Botao(rotulo: 'Voltar', foco: segundo, tipo: TipoDeBotao.secundario, aoTocar: () {}),
+          ],
+        ),
+      ),
+    );
+    await tester.pump();
+    expect(primeiro.hasPrimaryFocus, isTrue);
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.select);
+    expect(toques, 1, reason: 'o botão do centro do controle aciona o botão em foco');
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    await tester.pump();
+    expect(segundo.hasPrimaryFocus, isTrue);
+
+    primeiro.requestFocus();
+    await tester.pump();
+    expect(primeiro.hasPrimaryFocus, isTrue, reason: 'quem tem o nó manda o foco para o botão');
+  });
 }

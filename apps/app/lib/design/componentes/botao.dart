@@ -29,9 +29,17 @@ class Botao extends StatelessWidget {
     this.tipo = TipoDeBotao.principal,
     this.expandido = false,
     this.vibracao,
+    this.foco,
+    this.focoInicial = false,
   });
 
   final String rotulo;
+
+  /// Nó de foco de quem precisa mandar o foco para o botão. Quem passa, descarta.
+  final FocusNode? foco;
+
+  /// Recebe o foco ao aparecer, se ninguém na tela o tiver.
+  final bool focoInicial;
 
   /// `null` deixa o botão inativo.
   final VoidCallback? aoTocar;
@@ -63,6 +71,8 @@ class Botao extends StatelessWidget {
       forma: forma,
       aoTocar: aoTocar,
       vibracao: vibracao,
+      foco: foco,
+      focoInicial: focoInicial,
       child: Container(
         constraints: const BoxConstraints(minHeight: altura, minWidth: altura),
         width: expandido ? double.infinity : null,

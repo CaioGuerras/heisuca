@@ -21,9 +21,17 @@ class Toque extends StatefulWidget {
     this.vibracao,
     this.escala = 0.96,
     this.excluirSemantica = false,
+    this.foco,
+    this.focoInicial = false,
   });
 
   final Widget child;
+
+  /// Nó de foco de quem precisa mandar o foco para cá (controle remoto, teclado). Quem passa, descarta.
+  final FocusNode? foco;
+
+  /// Recebe o foco ao aparecer, se ninguém na tela o tiver.
+  final bool focoInicial;
 
   /// Contorno do componente: é a forma do anel de foco.
   final OutlinedBorder forma;
@@ -157,6 +165,8 @@ class _ToqueState extends State<Toque> with SingleTickerProviderStateMixin {
       onLongPress: widget.aoSegurar == null ? null : _segurar,
       child: FocusableActionDetector(
         enabled: widget.ativo,
+        focusNode: widget.foco,
+        autofocus: widget.focoInicial,
         mouseCursor: widget.ativo ? SystemMouseCursors.click : SystemMouseCursors.basic,
         onShowFocusHighlight: (foco) => setState(() => _foco = foco),
         actions: <Type, Action<Intent>>{

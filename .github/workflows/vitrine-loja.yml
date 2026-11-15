@@ -1,8 +1,10 @@
 name: Heisuca Vitrine da Loja
 
 # Capturas para a ficha da Google Play, com o servidor PÚBLICO de demonstração do Jellyfin (sem segredos).
-# Só manual. Passos de cache/setup copiados da Bancada Android (heisuca-bancada-android.yml), que fica intacta.
+# Manual, ou por push no ramo vitrine/loja (o workflow_dispatch só aparece com o arquivo no main). Passos de cache/setup copiados da Bancada Android (heisuca-bancada-android.yml), que fica intacta.
 on:
+  push:
+    branches: ["vitrine/loja"]
   workflow_dispatch:
     inputs:
       tamanho:
@@ -81,8 +83,8 @@ jobs:
       - name: Emulador e capturas
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
         env:
-          VITRINE_TAMANHO: ${{ inputs.tamanho }}
-          VITRINE_DENSIDADE: ${{ inputs.densidade }}
+          VITRINE_TAMANHO: ${{ inputs.tamanho || '1080x2400' }}
+          VITRINE_DENSIDADE: ${{ inputs.densidade || '420' }}
         with:
           api-level: 35
           target: google_apis

@@ -1,3 +1,10 @@
+## 2.0.39 — O que mudou
+
+### Novo
+- Baixados novo no celular: tudo agrupado por série, com o espaço usado, o progresso e o botão de tocar.
+- "Apagar vistos" e "Manter 1, 3 ou 5" por série. Episódio ainda não visto só sai se você confirmar.
+- Tela Você nova: toque no seu avatar no topo para ver conta, perfis, atualizações e sair.
+
 ## 2.0.38 — O que mudou
 
 ### Melhor

@@ -161,21 +161,30 @@ class _LigacaoDosBaixadosState extends State<LigacaoDosBaixados> {
     }
   }
 
+  /// Conjunto já tratado pela limpeza automática (perfil + baixas completas e vistas de séries com regra).
+  String? _ultimaLimpeza;
+
   Future<void> _limparRegras() async {
-    final grupos = {
-      for (final baixa in _provider!.downloads.entries) grupoDaBaixa(baixa.key, _provider!.getMetadata(baixa.key)),
-    };
+    final provider = _provider!;
     final geracao = _geracao;
-    final regras = <String, int>{};
-    for (final grupo in grupos) {
-      final n = _manter(grupo);
-      if (n != null) regras[grupo] = n;
+    final grupos = <String>{};
+    final vistas = <String>[];
+    for (final baixa in provider.downloads.entries) {
+      final item = provider.getMetadata(baixa.key);
+      if (item == null || !item.isWatched || baixa.value.status != DownloadStatus.completed) continue;
+      final grupo = grupoDaBaixa(baixa.key, item);
+      if (_manter(grupo) == null) continue;
+      grupos.add(grupo);
+      vistas.add(baixa.key);
     }
-    if (regras.isEmpty) return;
+    // O provider avisa a cada progresso: só limpa quando o conjunto de vistos com regra muda.
+    final assinatura = '${_perfis?.activeId}|$geracao|${vistas.join('|')}';
+    if (vistas.isEmpty || assinatura == _ultimaLimpeza) return;
+    _ultimaLimpeza = assinatura;
     await _executar(() async {
-      for (final regra in regras.entries) {
+      for (final grupo in grupos) {
         if (!mounted || geracao != _geracao) return;
-        await _apagar(regra.key, geracao: geracao);
+        await _apagar(grupo, geracao: geracao);
       }
     });
   }

@@ -86,6 +86,7 @@ class _BaixadosDeTeste extends ChangeNotifier implements DownloadProvider {
   final apagados = <String>[];
   Future<void> Function()? depoisDeApagar;
   Future<void>? inicializacao;
+  bool falharAoApagar = false;
 
   void adicionar(int n, {bool visto = false}) {
     final baixa = episodio(n, visto: visto);
@@ -109,6 +110,7 @@ class _BaixadosDeTeste extends ChangeNotifier implements DownloadProvider {
   @override
   Future<void> deleteDownload(String chave) async {
     apagados.add(chave);
+    if (falharAoApagar) throw StateError('falha simulada ao apagar');
     progresso.remove(chave);
     notifyListeners();
     await depoisDeApagar?.call();
@@ -198,6 +200,33 @@ void main() {
     baixados.notifyListeners();
     await tester.pumpAndSettle();
     expect(baixados.downloads.containsKey('casa:1-6'), isTrue);
+  });
+
+  testWidgets('limpeza automática só roda de novo quando o conjunto de vistos muda', (tester) async {
+    resetSharedPreferencesForTest();
+    final preferencias = await SettingsService.getInstance();
+    await preferencias.writeInt('heisuca_v2_baixados_manter:perfil-1:casa:serie', 3);
+    final baixados = _BaixadosDeTeste()
+      ..adicionar(1, visto: true)
+      ..adicionar(2)
+      ..falharAoApagar = true;
+    final perfis = _PerfisDeTeste();
+    await tester.pumpWidget(_ligacao(baixados, perfis));
+    await tester.pumpAndSettle();
+    expect(baixados.apagados, ['casa:1-1']);
+    // Avisos de progresso repetidos não disparam nova tentativa sobre o mesmo conjunto.
+    for (var i = 0; i < 5; i++) {
+      baixados.notifyListeners();
+      await tester.pumpAndSettle();
+    }
+    expect(baixados.apagados, ['casa:1-1']);
+    // Um episódio visto novo muda o conjunto: a limpeza roda de novo.
+    baixados
+      ..falharAoApagar = false
+      ..adicionar(3, visto: true)
+      ..notifyListeners();
+    await tester.pumpAndSettle();
+    expect(baixados.downloads.keys, ['casa:1-2']);
   });
 
   testWidgets('callback da tela anterior não opera sobre outro perfil', (tester) async {

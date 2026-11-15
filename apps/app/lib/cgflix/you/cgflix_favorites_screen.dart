@@ -106,7 +106,10 @@ class _CgflixFavoritesScreenState extends State<CgflixFavoritesScreen> {
 
   Future<void> _refresh() async {
     final next = _load();
-    setState(() => _future = next);
+    // Corpo em bloco: a atribuição em seta devolveria o Future e o setState recusa.
+    setState(() {
+      _future = next;
+    });
     try {
       await next;
     } catch (_) {

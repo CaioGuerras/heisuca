@@ -81,5 +81,21 @@ void main() {
     }
     expect(tester.takeException(), isNull);
   });
+  testWidgets('puxar para atualizar os favoritos recarrega sem erro de setState', (tester) async {
+    var cargas = 0;
+    await tester.pumpWidget(MaterialApp(theme: cgflixAppTheme(CgflixThemeVariant.isis),
+      home: CgflixFavoritesScreen(source: CgflixFavoritesSource(load: () async {
+        cargas++;
+        return [MediaItem.jellyfin(id: 'film', kind: MediaKind.movie, title: 'Filme')];
+      }))));
+    await tester.pumpAndSettle();
+    expect(cargas, 1);
+    // Sem await: o show() só termina quando os quadros avançam.
+    final atualizou = tester.state<RefreshIndicatorState>(find.byType(RefreshIndicator).first).show();
+    await tester.pumpAndSettle();
+    await atualizou;
+    expect(cargas, 2);
+    expect(tester.takeException(), isNull);
+  });
 
 }

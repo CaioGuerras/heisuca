@@ -5,6 +5,7 @@
 // com Voltar (botão e gesto). TV e computador continuam com a navegação do upstream.
 // Etapa 1E: sai o ícone "Pedir": os pedidos ficam dentro da busca ("Disponível para pedir") e
 // "Meus pedidos" vai para o menu do usuário.
+import '../features/busca/ligacao.dart';
 import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
@@ -82,11 +83,13 @@ List<NavigationTab> cgflixMobileTabs(List<NavigationTab> visibleTabs) {
 /// Páginas que a barra do topo e o menu abrem. Ficam aqui (trocáveis) para os testes da
 /// navegação não precisarem montar o app inteiro.
 abstract final class CgflixPages {
-  static WidgetBuilder search = (_) => const SearchScreen();
+  /// No celular abre a busca da V2; na TV e no computador, a de antes.
+  static WidgetBuilder search = (context) => cgflixUseYouTab(context) ? const LigacaoDaBusca() : const SearchScreen();
   static WidgetBuilder downloads = (_) => const DownloadsScreen();
 
   /// Bibliotecas do upstream (1.5.0: no menu do usuário).
-  static WidgetBuilder libraries = (context) => PlatformDetector.isMobile(context) ? const HeisucaLibraryScreen() : const LibrariesScreen();
+  static WidgetBuilder libraries = (context) =>
+      PlatformDetector.isMobile(context) ? const HeisucaLibraryScreen() : const LibrariesScreen();
   static Route<void> Function() settings = () => MaterialPageRoute<void>(builder: (_) => const HeisucaSettingsScreen());
 
   /// "Meus pedidos" (Seerr), em tela nativa.
@@ -195,7 +198,6 @@ WidgetStateProperty<Color?> cgflixPressedOverlay(BuildContext context) {
     return null;
   });
 }
-
 
 /// Emblema do CGFLIX que abre o menu do usuário (o novo lugar do perfil).
 class CgflixUserMenuButton extends StatelessWidget {

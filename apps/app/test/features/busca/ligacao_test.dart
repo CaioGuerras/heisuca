@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:heisuca/cgflix/cgflix_navigation.dart';
 import 'package:heisuca/cgflix/search/cgflix_search_extras.dart';
 import 'package:heisuca/design/componentes/cartao.dart';
 import 'package:heisuca/features/busca/ligacao.dart';
@@ -12,6 +14,7 @@ import 'package:heisuca/media/media_server_client.dart';
 import 'package:heisuca/media/server_capabilities.dart';
 import 'package:heisuca/providers/hidden_libraries_provider.dart';
 import 'package:heisuca/providers/multi_server_provider.dart';
+import 'package:heisuca/screens/search_screen.dart';
 import 'package:heisuca/services/data_aggregation_service.dart';
 import 'package:heisuca/services/multi_server_manager.dart';
 import 'package:heisuca/services/settings_service.dart';
@@ -175,5 +178,23 @@ void main() {
     await tester.pumpAndSettle();
     expect(servidor.buscas, ['naruto', 'naruto']);
     expect(find.byType(Cartao), findsOneWidget);
+  });
+  testWidgets('a busca do app abre a V2 no celular e a antiga no computador', (tester) async {
+    late Widget celular;
+    late Widget computador;
+    await tester.pumpWidget(
+      Builder(
+        builder: (context) {
+          debugDefaultTargetPlatformOverride = TargetPlatform.android;
+          celular = CgflixPages.search(context);
+          debugDefaultTargetPlatformOverride = TargetPlatform.linux;
+          computador = CgflixPages.search(context);
+          debugDefaultTargetPlatformOverride = null;
+          return const SizedBox.shrink();
+        },
+      ),
+    );
+    expect(celular, isA<LigacaoDaBusca>());
+    expect(computador, isA<SearchScreen>());
   });
 }

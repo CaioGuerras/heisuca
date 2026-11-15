@@ -7,6 +7,7 @@ import '../heisuca/tv/heisuca_tv_back_handler.dart';
 import '../cgflix/cgflix_navigation.dart';
 import '../cgflix/home/cgflix_home_logic.dart';
 import '../design/componentes/barra_flutuante.dart';
+import '../features/busca/ligacao.dart';
 import '../features/casca/casca.dart';
 import '../features/casca/pilula_do_perfil_ativo.dart';
 import '../features/tema_da_v2.dart';
@@ -1133,7 +1134,10 @@ class _MainScreenState extends State<MainScreen>
                 onLibrarySelected: _handleLibrariesScreenSelected,
               ),
       NavigationTabId.liveTv => LiveTvScreen(key: _screenKeys[tab]),
-      NavigationTabId.search => SearchScreen(key: _screenKeys[tab]),
+      NavigationTabId.search =>
+        cgflixUseYouTab(context)
+            ? LigacaoDaBusca(key: _screenKeys[tab], folgaInferior: Casca.reserva, focoInicial: false)
+            : SearchScreen(key: _screenKeys[tab]),
       NavigationTabId.downloads => DownloadsScreen(
         key: _screenKeys[tab],
         profileAction: cgflixUseYouTab(context) ? _buildProfileAction() : null,

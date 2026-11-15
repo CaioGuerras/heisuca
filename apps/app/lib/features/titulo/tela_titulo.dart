@@ -9,7 +9,6 @@ import '../../design/movimento.dart';
 import '../../design/tema.dart';
 import '../../design/tipo.dart';
 import '../../design/vibracao.dart';
-import '../fundo_tingido.dart';
 import '../veu_do_topo.dart';
 import 'cabeca.dart';
 import 'modelo.dart';
@@ -125,9 +124,8 @@ class _TelaTituloState extends State<TelaTitulo> {
     final pagina = widget.pagina;
     final topo = media.padding.top + Forma.espaco2;
 
-    return FundoTingido(
-      hash: pagina.hash,
-      cores: widget.cores,
+    return ColoredBox(
+      color: TemaHeisuca.de(context).fundo,
       child: Stack(
         fit: StackFit.expand,
         children: [

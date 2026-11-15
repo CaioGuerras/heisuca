@@ -315,6 +315,7 @@ void main() {
       await tester.pumpAndSettle();
       await _mostrar(tester, 'Perfil infantil');
       expect(find.text('Entrar no perfil Ana'), findsOneWidget);
+      expect(find.text('Ana: nome, foto, tema e PIN'), findsOneWidget);
       await tester.tap(_cartao('Perfil infantil'));
       expect(chamadas.de('perfilInfantil:Ana'), 1);
     });
@@ -379,6 +380,7 @@ void main() {
       await HeisucaKids.instance.save(_registro);
       await _montar(tester, chamadas);
       expect(find.text('Entrar no perfil Ana'), findsOneWidget);
+      expect(find.text('Ana: nome, foto, tema e PIN'), findsOneWidget);
       await tester.tap(_cartao('Perfil infantil'));
       await tester.pump();
       expect(chamadas.de('perfilInfantil:Ana'), 1);

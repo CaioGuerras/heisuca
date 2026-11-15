@@ -87,11 +87,11 @@ void main() {
   });
   test('TV oferece apenas Shikkoku e Sumi', () {
     TvDetectionService.debugSetTvOverride(true);
-    expect(cgflixThemeChoices.map(cgflixThemeName), ['Shikkoku', 'Sumi']);
+    expect(cgflixThemeChoices.map(cgflixThemeName), ['Escuro', 'OLED']);
   });
   test('celular oferece Automático e os três temas', () {
     TvDetectionService.debugSetTvOverride(false);
-    expect(cgflixThemeChoices.map(cgflixThemeName), ['Automático', 'Shikkoku', 'Hisui', 'Sumi']);
+    expect(cgflixThemeChoices.map(cgflixThemeName), ['Automático', 'Escuro', 'Claro', 'OLED']);
   });
   for (final t in [
     ('Shikkoku', TemaShikkoku.temaCorFundo, TemaShikkoku.temaCorTexto, TemaShikkoku.temaCorTexto2),

@@ -178,7 +178,7 @@ void main() {
 
     testWidgets('seletor de tema salva a escolha real', (tester) async {
       await _montar(tester, CgflixThemeVariant.isis, const HeisucaSettingsScreen());
-      final choice = find.text('Hisui');
+      final choice = find.text('Claro');
       await tester.ensureVisible(choice);
       await tester.pumpAndSettle();
       await tester.tap(choice);
@@ -195,11 +195,11 @@ void main() {
       expect(find.text('Geral'), findsOneWidget);
       expect(find.text('Avançado'), findsOneWidget);
       expect(find.text('Aparência e Tema'), findsOneWidget);
-      expect(find.text('Shikkoku'), findsOneWidget);
-      expect(find.text('Hisui'), findsOneWidget);
+      expect(find.text('Escuro'), findsOneWidget);
+      expect(find.text('Claro'), findsOneWidget);
       expect(find.text('Hisui escuro'), findsNothing);
       expect(find.text('Automático'), findsOneWidget);
-      expect(find.text('Sumi'), findsOneWidget);
+      expect(find.text('OLED'), findsOneWidget);
       await tester.scrollUntilVisible(
         find.text('Qualidade de reprodução'),
         250,

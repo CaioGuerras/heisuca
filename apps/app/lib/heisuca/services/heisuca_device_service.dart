@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+import '../../utils/device_identity.dart';
+
 /// Informações reportadas pelo Android, sem inferir recursos de reprodução.
 class HeisucaDeviceProfile {
   final String? deviceName;
@@ -21,7 +23,7 @@ class HeisucaDeviceProfile {
     final memory = data['totalMemBytes'];
     final refresh = data['maxRefreshRateHz'];
     return HeisucaDeviceProfile(
-      deviceName: text('deviceName'),
+      deviceName: text('deviceName') == null ? null : nomeDoAparelho('', text('deviceName')!),
       currentRefreshRateHz: (data['currentRefreshRateHz'] as num?)?.toDouble(),
       renderer: text('renderer'), lowMemory: data['lowMemory'] as bool?,
       chipset: text('chipset'),

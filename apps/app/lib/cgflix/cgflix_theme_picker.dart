@@ -1,5 +1,5 @@
 // Escolha única de tema, persistida na chave histórica theme_mode.
-// TV: Shikkoku e Sumi. Outros aparelhos: também Automático e Hisui.
+// TV: Escuro e OLED. Outros aparelhos: também Automático e Claro.
 import 'package:flutter/widgets.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
@@ -7,21 +7,24 @@ import '../screens/settings/settings_utils.dart';
 import '../services/settings_service.dart' as settings;
 import '../widgets/setting_tile.dart';
 import '../utils/platform_detector.dart';
+import '../utils/tela_oled.dart';
 
 /// A TV oferece só os dois temas escuros oficiais.
 List<settings.ThemeMode> get cgflixThemeChoices => PlatformDetector.isTV()
     ? const [settings.ThemeMode.oled, settings.ThemeMode.sumi]
     : const [settings.ThemeMode.system, settings.ThemeMode.oled, settings.ThemeMode.light, settings.ThemeMode.sumi];
 String cgflixThemeName(settings.ThemeMode mode) => switch (mode) {
-  settings.ThemeMode.light => 'Hisui',
+  settings.ThemeMode.light => 'Claro',
   settings.ThemeMode.system => 'Automático',
-  settings.ThemeMode.sumi => 'Sumi',
-  settings.ThemeMode.dark || settings.ThemeMode.oled => 'Shikkoku',
+  settings.ThemeMode.sumi => 'OLED',
+  settings.ThemeMode.dark || settings.ThemeMode.oled => 'Escuro',
 };
 String cgflixThemeDescription(settings.ThemeMode mode) => switch (mode) {
-  settings.ThemeMode.light => 'Claro',
-  settings.ThemeMode.system => 'Segue o modo claro/escuro do aparelho',
-  _ => 'Escuro',
+  settings.ThemeMode.light => 'Fundo claro',
+  settings.ThemeMode.system =>
+    TelaOled.ativa ? 'Segue o aparelho; no escuro usa o OLED' : 'Segue o modo claro/escuro do aparelho',
+  settings.ThemeMode.sumi => 'Preto puro, economiza bateria em tela OLED',
+  _ => 'Fundo escuro',
 };
 
 /// O que aparece na tela (resumo da Aparência e linha "Tema"): só o nome.

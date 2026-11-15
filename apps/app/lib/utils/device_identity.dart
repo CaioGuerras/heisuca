@@ -7,6 +7,26 @@ import 'package:unorm_dart/unorm_dart.dart';
 import 'app_logger.dart';
 import 'platform_detector.dart';
 
+/// Nome do aparelho para mostrar: não repete a marca quando o modelo já a traz
+/// ("motorola" + "motorola edge 60 pro" vira "Motorola Edge 60 Pro") e põe a
+/// primeira letra maiúscula só nas palavras escritas todas em minúsculas (e só se o nome começar em minúscula, como vem do sistema)
+/// ("SM-S921B" fica como está). Se [nomeSalvo] vier, ele também é limpo.
+String nomeDoAparelho(String marca, String modelo, [String? nomeSalvo]) {
+  final m = marca.trim(), mod = modelo.trim();
+  final jaTemMarca = m.isEmpty || mod.toLowerCase().startsWith(m.toLowerCase());
+  final base = (nomeSalvo != null && nomeSalvo.trim().isNotEmpty) ? nomeSalvo : (jaTemMarca ? mod : '$m $mod');
+  final palavras = base.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+  // Remove palavras repetidas em sequência ("motorola motorola edge" -> "motorola edge").
+  final limpas = <String>[];
+  for (final p in palavras) {
+    if (limpas.isNotEmpty && limpas.last.toLowerCase() == p.toLowerCase()) continue;
+    limpas.add(p);
+  }
+  // Nome que já começa com maiúscula foi escrito por gente: não mexe.
+  if (limpas.isEmpty || limpas.first[0] != limpas.first[0].toLowerCase()) return limpas.join(' ');
+  return limpas.map((p) => p == p.toLowerCase() && p.isNotEmpty ? p[0].toUpperCase() + p.substring(1) : p).join(' ');
+}
+
 /// What this install should call itself when talking to media servers and
 /// companion peers: a real platform name, the hardware model, and the
 /// user-facing device name (Plex dashboards show it as the "Player";
@@ -57,7 +77,7 @@ class DeviceIdentityService {
         return DeviceIdentity(
           platform: 'Android',
           deviceModel: androidInfo.model,
-          deviceName: assignedName ?? '${androidInfo.brand} ${androidInfo.model}',
+          deviceName: nomeDoAparelho(androidInfo.brand, androidInfo.model, assignedName),
           isTv: isTv,
         );
       }

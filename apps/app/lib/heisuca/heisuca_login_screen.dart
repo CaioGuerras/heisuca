@@ -8,6 +8,8 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
 import '../cgflix/cgflix_palette.dart';
+import '../media/media_backend.dart';
+import '../widgets/backend_badge.dart';
 import '../exceptions/media_server_exceptions.dart';
 import '../media/media_browser_dialect.dart';
 import '../navigation/profile_session_screen.dart';
@@ -67,10 +69,17 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
     _serverController = TextEditingController(text: widget.initialServerUrl);
     _userController = TextEditingController();
     _passwordController = TextEditingController();
+    _serverController.addListener(_limparErroAoDigitar);
+  }
+
+  /// Aviso velho (endereço faltando, erro de login) some assim que a pessoa mexe no endereço.
+  void _limparErroAoDigitar() {
+    if (_errorMessage != null && mounted) setState(() => _errorMessage = null);
   }
 
   @override
   void dispose() {
+    _serverController.removeListener(_limparErroAoDigitar);
     _serverController.dispose();
     _userController.dispose();
     _passwordController.dispose();
@@ -241,6 +250,7 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
     }
 
     final palette = context.cgflix;
+    if (_errorMessage != null) setState(() => _errorMessage = null);
 
     showModalBottomSheet<void>(
       sheetAnimationStyle: HeisucaMotion.sheetStyle(context),
@@ -301,8 +311,8 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                 ),
                 const SizedBox(height: 20.0),
                 _SourceTile(
-                  brandColor: context.cgflix.accent, // Plex Gold
-                  icon: Icons.movie_filter_rounded,
+                  brandColor: const Color(0xFFE5A00D),
+                  leading: const BackendBadge(backend: MediaBackend.plex, size: 26.0, color: Color(0xFFE5A00D)),
                   title: 'Conta Plex',
                   subtitle: 'Acesse servidores locais ou compartilhados via Plex PIN ou QR Code',
                   onTap: () {
@@ -315,8 +325,8 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                 ),
                 const SizedBox(height: 12.0),
                 _SourceTile(
-                  brandColor: context.cgflix.accent, // Jellyfin Purple
-                  icon: Icons.dns_rounded,
+                  brandColor: const Color(0xFF00A4DC),
+                  leading: const BackendBadge(backend: MediaBackend.jellyfin, size: 26.0, color: Color(0xFF00A4DC)),
                   title: 'Servidor Jellyfin',
                   subtitle: 'Streaming direto de alta fidelidade via Jellyfin Server',
                   onTap: () {
@@ -328,8 +338,8 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                 ),
                 const SizedBox(height: 12.0),
                 _SourceTile(
-                  brandColor: context.cgflix.accent, // Emby Green
-                  icon: Icons.play_circle_filled_rounded,
+                  brandColor: const Color(0xFF52B54B),
+                  leading: const BackendBadge(backend: MediaBackend.emby, size: 26.0, color: Color(0xFF52B54B)),
                   title: 'Servidor Emby',
                   subtitle: 'Conectar a uma biblioteca ou servidor de mídia Emby',
                   onTap: () {
@@ -341,24 +351,24 @@ class _HeisucaLoginScreenState extends State<HeisucaLoginScreen> {
                 ),
                 const SizedBox(height: 12.0),
                 _SourceTile(
-                  brandColor: context.cgflix.accent, // SMB Blue
-                  icon: Icons.folder_shared_rounded,
+                  brandColor: palette.textMuted,
+                  leading: Icon(Icons.folder_shared_rounded, color: palette.textOn(palette.surface, preferred: palette.textMuted), size: 24.0),
                   title: 'Pasta de Rede Local (SMB / Samba)',
                   subtitle: 'Em breve · ainda não reproduz por aqui',
                   onTap: null,
                 ),
                 const SizedBox(height: 12.0),
                 _SourceTile(
-                  brandColor: context.cgflix.accent, // WebDAV Sky Blue
-                  icon: Icons.cloud_queue_rounded,
+                  brandColor: palette.textMuted,
+                  leading: Icon(Icons.cloud_queue_rounded, color: palette.textOn(palette.surface, preferred: palette.textMuted), size: 24.0),
                   title: 'Servidor WebDAV',
                   subtitle: 'Em breve · ainda não reproduz por aqui',
                   onTap: null,
                 ),
                 const SizedBox(height: 12.0),
                 _SourceTile(
-                  brandColor: context.cgflix.accent, // Local Storage Orange
-                  icon: Icons.sd_storage_rounded,
+                  brandColor: palette.textMuted,
+                  leading: Icon(Icons.sd_storage_rounded, color: palette.textOn(palette.surface, preferred: palette.textMuted), size: 24.0),
                   title: 'Arquivos deste Dispositivo',
                   subtitle: 'Em breve · ainda não reproduz por aqui',
                   onTap: null,
@@ -649,14 +659,14 @@ class _BordaDeCampo extends InputBorder {
 class _SourceTile extends StatelessWidget {
   const _SourceTile({
     required this.brandColor,
-    required this.icon,
+    required this.leading,
     required this.title,
     required this.subtitle,
     this.onTap,
   });
 
   final Color brandColor;
-  final IconData icon;
+  final Widget leading;
   final String title;
   final String subtitle;
 
@@ -688,7 +698,7 @@ class _SourceTile extends StatelessWidget {
                   color: brandColor.withValues(alpha: 0.16),
                   borderRadius: BorderRadius.circular(14.0),
                 ),
-                child: Icon(icon, color: brandColor, size: 24.0),
+                child: Center(child: leading),
               ),
               const SizedBox(width: 14.0),
               Expanded(

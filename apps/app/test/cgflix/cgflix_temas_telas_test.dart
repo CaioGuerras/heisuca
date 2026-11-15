@@ -144,7 +144,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       expect(find.text('Tema'), findsOneWidget);
-      expect(find.text('Shikkoku'), findsOneWidget); // padrão, só o nome (refino 2)
+      expect(find.text('Escuro'), findsOneWidget); // padrão, só o nome (refino 2)
       expect(find.textContaining('escuro'), findsNothing);
       final fundo =
           tester.widget<Scaffold>(find.byType(Scaffold).first).backgroundColor ??

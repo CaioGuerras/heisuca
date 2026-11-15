@@ -12,8 +12,8 @@ import 'package:flutter/widgets.dart';
 class TemaShikkoku {
     TemaShikkoku._();
 
-    static const temaCorAcento = Color(0xFFB8ADDE);
-    static const temaCorAcentoSuave = Color(0xFF37304C);
+    static const temaCorAcento = Color(0xFFDCB875);
+    static const temaCorAcentoSuave = Color(0xFF392B11);
     static const temaCorAviso = Color(0xFFEDBB64);
     static const temaCorBorda = Color(0xFF3E3B44);
     static const temaCorBotaoFundo = Color(0xFFEAE8EE); /** botão principal neutro (Assistir): texto claro sobre escuro e vice-versa */
@@ -21,7 +21,7 @@ class TemaShikkoku {
     static const temaCorErro = Color(0xFFEE757C);
     static const temaCorFoco = Color(0xFFF1EFF5);
     static const temaCorFundo = Color(0xFF0F0D13);
-    static const temaCorPrimaria = Color(0xFFB8ADDE); /** = acento (nome antigo, mantido para os consumidores) */
+    static const temaCorPrimaria = Color(0xFFDCB875); /** = acento (nome antigo, mantido para os consumidores) */
     static const temaCorSelo = Color(0xFFC84127); /** 朱 vermelhão; só no logo, ícone e abertura; kanji = Color(0xFFFFF8F0) */
     static const temaCorSucesso = Color(0xFF78C995);
     static const temaCorSuperficie = Color(0xFF1A181F);

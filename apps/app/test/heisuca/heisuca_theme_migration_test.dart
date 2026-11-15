@@ -39,8 +39,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Shikkoku'), findsOneWidget);
-    expect(find.text('Hisui'), findsOneWidget);
+    expect(find.text('Escuro'), findsOneWidget);
+    expect(find.text('Claro'), findsOneWidget);
     expect(find.text('Hisui escuro'), findsNothing);
   });
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:heisuca/cgflix/cgflix_theme.dart';
 import 'package:heisuca/heisuca/heisuca_login_screen.dart';
@@ -11,6 +12,7 @@ import '../test_helpers/prefs.dart';
 Widget _montar(Widget child) => MaterialApp(theme: cgflixAppTheme(CgflixThemeVariant.isis), home: child);
 
 void main() {
+  _testesFontesEAviso();
   tearDown(() {
     TvDetectionService.debugReset();
     TvDetectionService.setForceTVSync(false);
@@ -114,5 +116,34 @@ void main() {
     await tester.pump();
 
     expect(tester.widget<AutofillGroup>(find.byType(AutofillGroup)).onDisposeAction, AutofillContextAction.cancel);
+  });
+}
+
+void _testesFontesEAviso() {
+  group('HeisucaLoginScreen folha de fontes e aviso', () {
+    testWidgets('folha mostra as 3 marcas em SVG e sem o ícone genérico', (tester) async {
+      await tester.pumpWidget(_montar(const HeisucaLoginScreen()));
+      await tester.pump();
+      await tester.tap(find.text('Outros servidores e pastas locais'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Adicionar Fontes e Servidores'), findsOneWidget);
+      expect(find.descendant(of: find.byType(BottomSheet), matching: find.byType(SvgPicture)), findsNWidgets(3));
+      expect(find.byIcon(Icons.dns_rounded), findsNothing);
+      expect(find.byIcon(Icons.movie_filter_rounded), findsNothing);
+    });
+
+    testWidgets('aviso da conexão rápida some ao digitar o endereço', (tester) async {
+      await tester.pumpWidget(_montar(const HeisucaLoginScreen()));
+      await tester.pump();
+      await tester.tap(find.byTooltip('Conexão Rápida'));
+      await tester.pump();
+      const aviso = 'Digite o endereço do servidor para usar a conexão rápida.';
+      expect(find.text(aviso), findsOneWidget);
+
+      await tester.enterText(find.byKey(const ValueKey('heisuca-login-server')), 'https://meu.servidor.com');
+      await tester.pump();
+      expect(find.text(aviso), findsNothing);
+    });
   });
 }

@@ -11,7 +11,7 @@ void main() {
     expect(theme.scaffoldBackgroundColor, const Color(0xFF0F0D13));
     expect(theme.colorScheme, cgflixIsisScheme);
     expect(theme.colorScheme.surface, const Color(0xFF0F0D13));
-    expect(theme.progressIndicatorTheme.color, const Color(0xFFB8ADDE));
+    expect(theme.progressIndicatorTheme.color, const Color(0xFFDCB875));
     expect(theme.extension<CgflixPalette>(), CgflixPalette.isis);
   });
 

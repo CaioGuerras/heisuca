@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences_foundation/shared_preferences_foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart' as material show ThemeMode;
+import 'utils/tela_oled.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -204,6 +205,7 @@ Future<StartupThemeResolution> _resolveStartupTheme() async {
   await TvDetectionService.getInstance(forceTv: settings.read(SettingsService.forceTvMode));
   await HeisucaSecurity.instance.load();
   await HeisucaKids.instance.load(); // Heisuca: perfil infantil força o tema dele desde a abertura
+  await TelaOled.detectar(); // Automático no escuro usa o OLED em aparelho de tela OLED
   final mode = settings.read(SettingsService.themeMode);
   final storedMode = settings.readNullableString(SettingsService.themeMode.key);
   if (storedMode != null && storedMode != mode.name) {

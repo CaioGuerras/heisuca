@@ -10,6 +10,7 @@ import '../theme/mono_theme.dart';
 import '../heisuca/theme/heisuca_base.dart';
 import '../theme/mono_tokens.dart';
 import '../utils/platform_detector.dart';
+import '../utils/tela_oled.dart';
 import 'cgflix_app_icon.dart';
 import 'cgflix_configuracoes.dart';
 import 'cgflix_palette.dart';
@@ -57,7 +58,11 @@ ThemeData cgflixLightTheme() => cgflixAppTheme(_forceIsis ? CgflixThemeVariant.i
 
 /// Tema escuro: Shikkoku por padrão.
 ThemeData cgflixDarkTheme([settings.ThemeMode mode = settings.ThemeMode.oled]) =>
-    cgflixAppTheme(mode == settings.ThemeMode.sumi ? CgflixThemeVariant.sumi : CgflixThemeVariant.isis);
+    cgflixAppTheme(
+      mode == settings.ThemeMode.sumi || (mode == settings.ThemeMode.system && !_forceIsis && TelaOled.ativa)
+          ? CgflixThemeVariant.sumi
+          : CgflixThemeVariant.isis,
+    );
 
 /// A escolha "Tema" das Configurações reaproveita a preferência `themeMode` do upstream (assim a
 /// troca na hora, o "Automático" e a abertura nativa do Android já funcionam):
@@ -247,6 +252,8 @@ ThemeData _heitor(ThemeData branded, {ColorScheme s = cgflixHeitorScheme, Cgflix
       activeTrackColor: s.primary,
       thumbColor: s.primary,
       inactiveTrackColor: s.onSurface.withValues(alpha: 0.12),
+      // Halo do foco no controle remoto: 12 % (padrão) some com acento claro e quente (dourado 15/11).
+      overlayColor: s.primary.withValues(alpha: 0.24),
     ),
     switchTheme: cgflixSwitchTheme(s), // refino 2b: com o check no polegar (M3)
     radioTheme: RadioThemeData(

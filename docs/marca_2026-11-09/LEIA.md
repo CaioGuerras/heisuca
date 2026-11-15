@@ -12,8 +12,10 @@ a cor vem do pôster e do vídeo. Nenhuma área grande colorida fora da arte.
 | Fundo | `#0F0D13` | `#F8F6EF` | `#000000` |
 | Superfícies | `#1A181F` / `#26242C` | `#FEFDFA` / `#EEEBE3` | `#100F0E` / `#1D1C1A` |
 | Texto 1 / 2 | `#EAE8EE` / `#ABA7B2` | `#1A201C` / `#545E57` | `#DBD9D5` / `#96938E` |
-| Acento | `#B8ADDE` | `#276C4F` | `#DCB875` |
+| Acento | `#DCB875` | `#276C4F` | `#DCB875` |
 | Selo 朱 | `#C84127` | `#C3381C` | `#C84127` |
+
+15/11: o acento do Shikkoku trocou de lilás `#B8ADDE` para o dourado do Sumi (`#DCB875`; suave `#392B11`), a pedido do dono.
 
 Valores completos (borda, foco, erro, aviso, sucesso, botão, acento suave): `dart/temas/tema_*.dart`.
 Base (espaços, raios, tempos, curvas, fontes): `dart/heisuca_base.dart`.

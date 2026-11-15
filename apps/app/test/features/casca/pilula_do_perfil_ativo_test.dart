@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:heisuca/design/componentes/pilula_de_perfil.dart';
 import 'package:heisuca/features/casca/pilula_do_perfil_ativo.dart';
+import 'package:heisuca/features/voce/ligacao.dart';
 import 'package:heisuca/profiles/active_profile_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -43,5 +44,21 @@ void main() {
     final pilula = tester.widget<PilulaDePerfil>(find.byType(PilulaDePerfil));
     expect(pilula.sobreArte, isTrue);
     expect(pilula.soAvatar, isTrue);
+  });
+
+  testWidgets('sem ação própria, o toque abre a tela Você', (tester) async {
+    tester.view.physicalSize = const Size(412, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      Provider<ActiveProfileProvider?>.value(
+        value: null,
+        child: MaterialApp(home: Scaffold(body: PilulaDoPerfilAtivo())),
+      ),
+    );
+    expect(find.byType(LigacaoDaVoce), findsNothing);
+    await tester.tap(find.byType(PilulaDePerfil));
+    await tester.pumpAndSettle();
+    expect(find.byType(LigacaoDaVoce), findsOneWidget);
   });
 }

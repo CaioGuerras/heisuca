@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../design/componentes/pilula_de_perfil.dart';
-import '../../heisuca/heisuca_profile_screen.dart';
 import '../../profiles/active_profile_provider.dart';
 import '../../profiles/profile_avatar.dart';
+import '../voce/ligacao.dart';
 
 /// O nome curto de quem usa o app: a primeira palavra do nome do perfil.
 String primeiroNome(String? nome) {
@@ -41,8 +41,7 @@ class PilulaDoPerfilAtivo extends StatelessWidget {
               avatarUrl: perfis?.avatarUrlFor(perfil.id),
             ),
       aoTocar:
-          aoAbrir ??
-          () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const HeisucaProfileScreen())),
+          aoAbrir ?? () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const LigacaoDaVoce())),
     );
   }
 }

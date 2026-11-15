@@ -304,10 +304,12 @@ void main() {
       'botão Assistir habilitado',
     );
     // A ficha V2 se reorganiza quando chegam logo e arte: rola e toca no mesmo passo, sem pausa entre conferir e tocar.
+    // Rola até o meio da tela: no topo, o cabeçalho fixo da ficha cobre o botão e ele não recebe toque.
     final playControl = assistir.hitTestable();
     final tocarAte = DateTime.now().add(const Duration(seconds: 30));
     while (true) {
-      await tester.ensureVisible(assistir.first);
+      if (playControl.evaluate().isNotEmpty) break;
+      await Scrollable.ensureVisible(tester.element(assistir.first), alignment: 0.5);
       await waitBancada(binding, const Duration(milliseconds: 200));
       if (playControl.evaluate().isNotEmpty) break;
       if (DateTime.now().isAfter(tocarAte)) {

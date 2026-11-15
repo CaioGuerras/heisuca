@@ -22,8 +22,8 @@ import 'package:heisuca/design/componentes/cartao.dart';
 import 'package:heisuca/features/busca/ligacao.dart';
 import 'package:heisuca/features/inicio/ligacao.dart';
 import 'package:heisuca/features/titulo/ligacao.dart';
+import 'package:heisuca/features/voce/ligacao.dart';
 import 'package:heisuca/heisuca/heisuca_login_screen.dart';
-import 'package:heisuca/heisuca/heisuca_profile_screen.dart';
 import 'package:heisuca/providers/multi_server_provider.dart';
 import 'package:heisuca/profiles/active_profile_provider.dart';
 import 'package:heisuca/profiles/profile_registry.dart';
@@ -505,7 +505,7 @@ void main() {
     await shot('10-baixados');
     await until(() => find.byType(PilulaDePerfil).hitTestable().evaluate().isNotEmpty, 'pílula do perfil');
     await tester.tap(find.byType(PilulaDePerfil).hitTestable().first);
-    await until(() => find.byType(HeisucaProfileScreen).evaluate().isNotEmpty, 'Você');
+    await until(() => find.byType(LigacaoDaVoce).evaluate().isNotEmpty, 'Você');
     await shot('11-voce', back: true);
     await waitBancada(binding, const Duration(seconds: 1));
     binding.reportData!['testeEncerrado'] = true;

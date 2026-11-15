@@ -78,7 +78,7 @@ void main() {
     final client = UpdateFeedClient(config, cliente: MockClient((_) async => http.Response(' ' * 65537, 200)));
     await expectLater(client.consultar('estavel'), throwsFormatException);
   });
-  test('redirecionamento do feed não vaza o código para outro host', () async {
+  test('redirecionamento do feed para outro host é recusado', () async {
     var chamadas = 0;
     final client = UpdateFeedClient(
       config,
@@ -87,7 +87,7 @@ void main() {
         return http.Response('', 302, headers: {'location': 'https://apk.example/receber'});
       }),
     );
-    await expectLater(client.consultar('teste', codigo: 'codigo-sintetico-sem-credencial-123'), throwsFormatException);
+    await expectLater(client.consultar('beta'), throwsFormatException);
     expect(chamadas, 1);
   });
   test('redirecionamento HTTPS no host do feed é limitado e aceito', () async {
@@ -138,13 +138,13 @@ void main() {
       expect((await c.verificar())?.build, build > 41 ? build : null);
     }
   });
-  test('beta consulta os dois canais e escolhe o maior; teste fica isolado', () async {
+  test('beta consulta os dois canais e escolhe o maior; não existe canal de teste', () async {
     final canais = <String>[];
     final c = UpdateChecker(
       feed: UpdateFeedClient(
         config,
         cliente: MockClient((r) async {
-          final canal = r.url.path.contains('/teste/') ? 'teste' : r.url.pathSegments.reversed.skip(1).first;
+          final canal = r.url.pathSegments.reversed.skip(1).first;
           canais.add(canal);
           return http.Response(jsonEncode(feed(canal: canal, build: canal == 'estavel' ? 44 : 43)), 200);
         }),
@@ -158,17 +158,8 @@ void main() {
     expect((await c.verificar())?.build, 44);
     expect(canais, ['estavel', 'beta']);
     canais.clear();
-    final teste = UpdateChecker(
-      feed: c.feed,
-      buildInstalado: 41,
-      emReproducao: () => false,
-      lerUltima: () => null,
-      gravarUltima: (_) async {},
-      beta: () => true,
-      codigo: () => 'codigo-sintetico-sem-credencial-123',
-    );
-    expect((await teste.verificar())?.canal, 'teste');
-    expect(canais, ['teste']);
+    await expectLater(c.feed.consultar('teste'), throwsFormatException);
+    expect(canais, isEmpty, reason: 'canal fora da lista nem chega à rede');
   });
   test('uma verificação por 24h, inclusive falha e chamadas simultâneas', () async {
     var chamadas = 0;
@@ -241,11 +232,18 @@ void main() {
     expect(await c.verificar(), isNull);
     expect(chamadas, 1);
   });
-  test('código de canal: aceita o curto de um grupo de testadores e recusa o que não cabe num endereço', () {
-    expect(codigoDeCanalValido('LCDbeta'), isTrue);
-    expect(codigoDeCanalValido('codigo-sintetico-sem-credencial-123'), isTrue);
-    for (final ruim in ['', 'abc', 'LCD beta', 'LCD/beta', '../beta1', 'LCDbeta?x=1', 'açúcar-beta']) {
-      expect(codigoDeCanalValido(ruim), isFalse, reason: ruim);
+  test('canal: só estavel e beta; qualquer outro nome é recusado sem tocar a rede', () async {
+    var chamadas = 0;
+    final client = UpdateFeedClient(
+      config,
+      cliente: MockClient((_) async {
+        chamadas++;
+        return http.Response('', 404);
+      }),
+    );
+    for (final ruim in ['', 'teste', 'codigoantigo', 'Beta', '../beta', 'beta/../estavel', 'estavel?x=1']) {
+      await expectLater(client.consultar(ruim), throwsFormatException, reason: ruim);
     }
+    expect(chamadas, 0);
   });
 }

@@ -42,7 +42,7 @@ void main() {
     final feed = UpdateFeedClient(
       config,
       cliente: MockClient((r) async {
-        final canal = r.url.path.contains('/teste/') ? 'teste' : 'estavel';
+        final canal = r.url.path.contains('/beta/') ? 'beta' : 'estavel';
         // Em bytes UTF-8: com corpo em texto, o pacote http mandaria os acentos em Latin-1.
         return http.Response.bytes(
           utf8.encode(
@@ -84,10 +84,10 @@ void main() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(nativo, null);
   });
 
-  for (final (nome, comVersaoNova, codigo) in [
-    ('em_dia', false, ''),
-    ('versao_nova', true, ''),
-    ('com_codigo', false, 'LCDbeta'),
+  for (final (nome, comVersaoNova, beta) in [
+    ('em_dia', false, false),
+    ('versao_nova', true, false),
+    ('beta', false, true),
   ]) {
     testWidgets('Atualizações: $nome', (tester) async {
       await heisucaLoadFonts();
@@ -95,7 +95,7 @@ void main() {
       final c = await tester.runAsync(() => controlador(comVersaoNova: comVersaoNova));
       addTearDown(c!.dispose);
       await tester.runAsync(c.iniciar);
-      if (codigo.isNotEmpty) await tester.runAsync(() => c.definirCodigo(codigo));
+      if (beta) await tester.runAsync(() => c.definirBeta(true));
       await tester.runAsync(() => c.verificar(manual: true));
       await tester.pumpWidget(
         MaterialApp(

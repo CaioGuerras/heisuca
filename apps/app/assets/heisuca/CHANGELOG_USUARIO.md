@@ -1,3 +1,16 @@
+## 2.0.37 — O que mudou
+
+### Novo
+- Busca nova: abre pela lupa no topo e mostra os resultados no desenho novo do app, nos três temas.
+- Tela de entrada nova: o celular preenche usuário e senha guardados, e o Quick Connect fica à mão.
+- Atualizações em um cartão só: o estado e o botão juntos, e a escolha de versões num lugar só.
+
+### Melhor
+- Jellyfin usa o coração de favorito; Plex usa a Minha lista da sua conta, também no menu de episódio.
+- Minha lista: puxe para baixo para atualizar.
+- Página do título: o botão Assistir responde ao primeiro toque.
+- Sair da tela de entrada sem entrar não pede mais para guardar a senha.
+
 ## 2.0.36 — O que mudou
 
 ### Novo

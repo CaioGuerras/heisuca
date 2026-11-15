@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../../utils/log_redaction_manager.dart';
 
 class ConfiguracaoAtualizacao {
   ConfiguracaoAtualizacao({this.feed = '', this.hostsApk = '', this.distribuicao = 'direct'});
@@ -49,10 +48,6 @@ class OfertaAtualizacao {
   final int build;
   final List<ApkAtualizacao> apks;
 }
-
-/// Código de um canal fechado (teste ou beta de um grupo): vira um trecho do endereço do feed, por isso só letras,
-/// números, `_` e `-`. De 6 a 256 caracteres: curto o bastante para ser ditado a um grupo de testadores.
-bool codigoDeCanalValido(String codigo) => RegExp(r'^[A-Za-z0-9_-]{6,256}$').hasMatch(codigo);
 
 /// O pedido foi recusado de vez: endereço fora do permitido, redirecionamento inválido ou resposta definitiva do
 /// servidor. Diferente de uma queda de rede, tentar de novo não muda o resultado. Sem detalhes, como as demais falhas.
@@ -127,15 +122,10 @@ class UpdateFeedClient {
     throw const FormatException('Redirecionamento inválido.');
   }
 
-  Future<OfertaAtualizacao?> consultar(String canal, {String? codigo}) async {
+  Future<OfertaAtualizacao?> consultar(String canal) async {
     if (!config.ligado) return null;
-    if (!{'estavel', 'beta', 'teste'}.contains(canal)) throw const FormatException('Canal inválido.');
-    if (canal == 'teste' && (codigo == null || !codigoDeCanalValido(codigo))) {
-      throw const FormatException('Código inválido.');
-    }
-    LogRedactionManager.registerToken(codigo);
-    final caminho = canal == 'teste' ? 'teste/$codigo/latest.json' : '$canal/latest.json';
-    final resposta = await abrir(config.origem!.resolve(caminho), somenteFeed: true);
+    if (!{'estavel', 'beta'}.contains(canal)) throw const FormatException('Canal inválido.');
+    final resposta = await abrir(config.origem!.resolve('$canal/latest.json'), somenteFeed: true);
     final acumulado = <int>[];
     try {
       if ((resposta.contentLength ?? 0) > limiteJson) {

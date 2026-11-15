@@ -7,6 +7,7 @@ import '../../design/forma.dart';
 import '../../design/tema.dart';
 import '../../design/tipo.dart';
 import '../fundo_tingido.dart';
+import '../casca/casca.dart';
 import 'modelo.dart';
 
 /// Só desenha os dados recebidos; todas as operações pertencem à ligação.
@@ -20,7 +21,7 @@ class TelaBaixados extends StatelessWidget {
     this.carregando = false,
     this.aviso,
     this.cores,
-    this.folgaInferior = 96,
+    this.folgaInferior = Casca.reserva,
   });
   final List<GrupoBaixado> grupos;
   final Widget? perfil;
@@ -66,7 +67,8 @@ class TelaBaixados extends StatelessWidget {
               const SizedBox(height: Forma.espaco4),
               Botao(rotulo: 'Explorar', aoTocar: aoExplorar),
             ],
-            for (final grupo in grupos) _Grupo(dados: grupo),
+            if (!carregando)
+              for (final grupo in grupos) _Grupo(dados: grupo),
           ],
         );
       },
@@ -91,7 +93,10 @@ class _Grupo extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ExcludeSemantics(
+              Semantics(
+                image: true,
+                label: dados.titulo,
+                excludeSemantics: true,
                 child: Cartao(
                   titulo: '',
                   largura: largura,
@@ -135,6 +140,7 @@ class _Grupo extends StatelessWidget {
               Botao(rotulo: 'Retomar', tipo: TipoDeBotao.secundario, aoTocar: item.aoRetomar),
             ] else
               Botao(rotulo: 'Assistir', tipo: TipoDeBotao.secundario, aoTocar: item.aoAssistir),
+            Botao(rotulo: 'Apagar', tipo: TipoDeBotao.discreto, aoTocar: item.aoApagar),
             const SizedBox(height: Forma.espaco2),
           ],
           if (dados.serie) ...[
@@ -144,11 +150,11 @@ class _Grupo extends StatelessWidget {
               spacing: Forma.espaco2,
               runSpacing: Forma.espaco2,
               children: [
-                for (final n in [1, 3, 5])
+                for (final n in <int?>[null, 1, 3, 5])
                   Semantics(
                     selected: dados.manter == n,
                     child: Botao(
-                      rotulo: 'Manter $n',
+                      rotulo: n == null ? 'Não limpar' : 'Manter $n',
                       tipo: dados.manter == n ? TipoDeBotao.principal : TipoDeBotao.secundario,
                       aoTocar: dados.aoManter == null ? null : () => dados.aoManter!(n),
                     ),

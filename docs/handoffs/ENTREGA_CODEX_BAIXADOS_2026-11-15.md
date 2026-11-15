@@ -116,3 +116,98 @@ Restaurar somente a importação e o caso `NavigationTabId.downloads` de `main_s
 mover a pasta nova e o teste novo para o arquivo de obsoletos. Não usar limpeza global do worktree.
 As preferências `heisuca_v2_baixados_manter:*` ficam sem consumidor se a feature for retirada;
 não alteram as preferências legadas nem as regras de sincronização.
+
+## Correção
+
+Solicitação: `PROMPT_CODEX_BAIXADOS_CORRECAO_2026-11-15.md`, sobre `5c5085a4`,
+no mesmo ramo `claude/heisuca-v2-baixados`. Esta seção substitui o comportamento de retenção
+registrado na primeira entrega: downloads incompletos não contam em N e não vistos nunca
+são apagados automaticamente.
+
+- Limpeza automática usa apenas episódios completos e vistos de grupos com regra ligada.
+  N só conta episódios completos e não vistos, em ordem de temporada/episódio.
+- Ao tocar em Manter 1/3/5, o diálogo informa quantos não vistos seriam apagados e oferece
+  Cancelar/Apagar. A confirmação autoriza somente as chaves contadas naquele momento;
+  downloads que chegam depois ficam preservados. Cancelar preserva os não vistos;
+  a escolha de limpeza de vistos permanece salva.
+- A ligação usa `DownloadProvider.downloads`, que já filtra por propriedade do perfil ativo
+  (`_ownedDownloadKeys`). Reconfere pertencimento, conclusão e estado de visto antes de
+  cada exclusão. Troca de perfil invalida callbacks e confirmações pendentes.
+  `deleteDownload` já preserva a cópia física quando há outros donos.
+- “Não limpar” remove a preferência por perfil/série, com seleção visual e semântica.
+- Filmes e episódios têm “Apagar”, com confirmação, usando `deleteDownload` existente.
+- Nome do grupo vem de `grandparentTitle` ou dos metadados da série; sem esse nome, usa
+  “Série baixada”, sem promover o título de um episódio a nome da série.
+- Episódios apresentados em ordem de temporada/episódio; carregamento esconde os grupos;
+  pôster tem semântica de imagem com título; folga inferior usa `Casca.reserva`.
+- Diálogo com `Botao`, tema V2 e tokens existentes. Nada alterado na Fundação ou no downloader.
+
+### Provas e validação
+
+Antes da correção, os dois testes ajustados falharam no código anterior (saída 1):
+
+```text
+manter N conta somente completos não vistos [E]
+Expected: ['casa:1-3']
+  Actual: ['casa:1-2', 'casa:1-3']
+Some tests failed.
+Failing tests:
+  ...: Manter N pede confirmação; remontar nunca apaga não vistos
+  ...: manter N conta somente completos não vistos
+```
+
+No log anterior o primeiro teste ainda tinha o nome histórico
+“ligação grava Manter N e reaplica depois de remontar a tela”.
+Evidência: `/tmp/baixados-correcao-antes.log`.
+
+Os testes cobrem cancelar/confirmar, novas notificações, remontagem, limpeza de vistos,
+desativação com remoção real da preferência, exclusão avulsa de filme e episódio,
+troca de perfil durante confirmação, nome/ordem pela ligação real, carregamento,
+semântica do pôster e rolagem até o filme e sua última ação com letra em 200%.
+O teste de propriedade usa o provider real, banco em memória e estado de download
+injetado: trocar para um perfil com regra não remove o download do anterior.
+Não comprova transferência ou exclusão de arquivo real.
+
+Ambiente: `/tmp/heisuca-baixados-flutter`,
+`PUB_CACHE=/tmp/heisuca-baixados-pub-cache`, `TMPDIR=/tmp`.
+Comandos no diretório `apps/app`, todos concluídos com saída 0:
+
+```text
+$ dart format -l 120 lib/features/baixados test/heisuca/baixados_v2_test.dart
+Formatted apps/app/lib/features/baixados/ligacao.dart
+Formatted 4 files (1 changed) in 0.04 seconds.
+
+$ flutter analyze lib/features/baixados lib/screens/main_screen.dart test/heisuca/baixados_v2_test.dart
+Analyzing 3 items...
+No issues found! (ran in 27.4s)
+
+$ flutter test test/design test/heisuca --reporter expanded
+01:46 +1663 ~3: /mnt/nvme4n1/caioguerras/TMP/heisuca-baixados/apps/app/test/heisuca/heisuca_p3_matrix_test.dart: (tearDownAll)
+01:46 +1663 ~3: All tests passed!
+```
+
+Suíte final: 1663 testes passaram; 3 skips preexistentes, sem novos skips.
+Logs: `/tmp/baixados-correcao-format.log`, `/tmp/baixados-correcao-analyze-final.log`
+e `/tmp/baixados-correcao-suite.log`. `git diff --check` sem apontamentos.
+Os 27 testes de Baixados também passaram dentro da suíte completa com o código final.
+
+### Entrega e limites
+
+Arquivos alterados: `lib/features/baixados/{ligacao,modelo,tela_baixados}.dart`,
+`test/heisuca/baixados_v2_test.dart` (em `apps/app/`) e este relatório.
+Sem alteração em `main_screen.dart`, versão, applicationId, Fundação ou downloader.
+Sem push, APK ou publicação. **Não testado em aparelho.** Revisão independente pendente.
+
+O Git deste worktree aponta para área somente para leitura; não é possível gravar
+`index.lock` nem criar os commits locais pedidos. Mudanças preservadas no worktree.
+A cópia do relatório em `cgflix/handoffs/` e o marcador global de andamento também
+ficam fora das áreas graváveis; a entrega atual é este arquivo no repositório.
+Não houve pedido de ampliação de permissão nem contorno do isolamento.
+
+### Como desfazer a correção
+
+O diff do código está preservado em `/tmp/baixados-correcao-2026-11-15.patch`.
+Para desfazer em ambiente autorizado, primeiro guardar cópia dos quatro arquivos alterados
+e deste relatório; então restaurar somente esses quatro arquivos a partir de `5c5085a4`.
+**Essa reversão reintroduz o comportamento de perda de dados reprovado na revisão.**
+Não requer alterar regras do downloader, serviços, versão ou dados dos perfis.

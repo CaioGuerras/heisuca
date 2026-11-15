@@ -5,6 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../cgflix/home/cgflix_actions.dart';
+import '../../design/componentes/botao.dart';
+import '../../design/forma.dart';
+import '../../design/tema.dart';
+import '../../design/tipo.dart';
 import '../../heisuca/heisuca_home_style.dart';
 import '../../media/ids.dart';
 import '../../media/media_item.dart';
@@ -13,6 +17,7 @@ import '../../models/download_models.dart';
 import '../../profiles/active_profile_provider.dart';
 import '../../providers/download_provider.dart';
 import '../../services/settings_service.dart';
+import '../casca/casca.dart';
 import '../tema_da_v2.dart';
 import 'modelo.dart';
 import 'tela_baixados.dart';
@@ -21,12 +26,12 @@ import 'tela_baixados.dart';
 String grupoDaBaixa(String chave, MediaItem? item) =>
     item?.isEpisode == true && item?.grandparentId != null ? '${item!.serverId}:${item.grandparentId}' : chave;
 
-/// Seleciona apenas episódios completos. O restante da fila nunca é cancelado pela limpeza.
+/// Sem limite explícito, só seleciona vistos. O limite é usado apenas após confirmação.
 List<String> baixasParaApagar(
   Iterable<({String chave, MediaItem item, DownloadProgress progresso})> baixas, {
   int? manter,
 }) {
-  final ordenadas = baixas.where((b) => b.item.isEpisode).toList()
+  final ordenadas = baixas.where((b) => b.item.isEpisode && b.progresso.status == DownloadStatus.completed).toList()
     ..sort((a, b) {
       final temporada = (a.item.parentIndex ?? 0).compareTo(b.item.parentIndex ?? 0);
       if (temporada != 0) return temporada;
@@ -36,15 +41,13 @@ List<String> baixasParaApagar(
   var proximos = 0;
   return [
     for (final baixa in ordenadas)
-      if ((baixa.item.isWatched || (manter != null && ++proximos > manter)) &&
-          baixa.progresso.status == DownloadStatus.completed)
-        baixa.chave,
+      if (baixa.item.isWatched || (manter != null && ++proximos > manter)) baixa.chave,
   ];
 }
 
 /// Ponte com o downloader existente. A preferência é da série e do perfil ativo.
 class LigacaoDosBaixados extends StatefulWidget {
-  const LigacaoDosBaixados({super.key, required this.aoExplorar, this.perfil, this.folgaInferior = 96});
+  const LigacaoDosBaixados({super.key, required this.aoExplorar, this.perfil, this.folgaInferior = Casca.reserva});
   final VoidCallback aoExplorar;
   final Widget? perfil;
   final double folgaInferior;
@@ -139,20 +142,21 @@ class _LigacaoDosBaixadosState extends State<LigacaoDosBaixados> {
     }
   }
 
-  Future<void> _apagar(String grupo, {int? manter, int? geracao}) async {
+  Future<void> _apagar(String grupo, {int? geracao}) async {
     final atual = geracao ?? _geracao;
     final provider = _provider!;
     final candidatos = baixasParaApagar([
       for (final baixa in provider.downloads.entries)
         if (provider.getMetadata(baixa.key) case final item?)
           if (grupoDaBaixa(baixa.key, item) == grupo) (chave: baixa.key, item: item, progresso: baixa.value),
-    ], manter: manter);
+    ]);
     for (final chave in candidatos) {
       if (!mounted || atual != _geracao) return;
       // Reconfere o estado depois de cada operação assíncrona.
       final item = provider.getMetadata(chave);
+      if (!provider.downloads.containsKey(chave)) continue;
       if (item == null || provider.getProgress(chave)?.status != DownloadStatus.completed) continue;
-      if (manter == null && !item.isWatched) continue;
+      if (!item.isWatched) continue;
       await provider.deleteDownload(chave);
     }
   }
@@ -171,18 +175,85 @@ class _LigacaoDosBaixadosState extends State<LigacaoDosBaixados> {
     await _executar(() async {
       for (final regra in regras.entries) {
         if (!mounted || geracao != _geracao) return;
-        await _apagar(regra.key, manter: regra.value, geracao: geracao);
+        await _apagar(regra.key, geracao: geracao);
       }
     });
   }
 
-  Future<void> _salvar(String grupo, int n) async {
+  Future<bool> _confirmar(String pergunta) async =>
+      await showDialog<bool>(
+        context: context,
+        builder: (_) => SobOTemaDaV2(
+          child: Builder(
+            builder: (context) {
+              final tema = TemaHeisuca.de(context);
+              return Dialog(
+                backgroundColor: tema.superficie,
+                shape: Forma.superelipse(Forma.raioMedio),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(Forma.espaco4),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(pergunta, style: Tipo.subtitulo(tema)),
+                      const SizedBox(height: Forma.espaco4),
+                      Botao(
+                        rotulo: 'Cancelar',
+                        tipo: TipoDeBotao.secundario,
+                        aoTocar: () => Navigator.of(context).pop(false),
+                      ),
+                      Botao(rotulo: 'Apagar', aoTocar: () => Navigator.of(context).pop(true)),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ) ??
+      false;
+
+  Future<void> _apagarItem(String chave, String titulo) async {
+    final geracao = _geracao;
+    if (!await _confirmar('Apagar “$titulo” dos baixados?')) return;
+    if (!mounted || geracao != _geracao || !_provider!.downloads.containsKey(chave)) return;
+    await _provider!.deleteDownload(chave);
+  }
+
+  Future<void> _salvar(String grupo, int? n) async {
     final geracao = _geracao;
     final chave = _chaveDaRegra(grupo);
     await _executar(() async {
+      if (n == null) {
+        await _preferencias!.prefs.remove(chave);
+        return;
+      }
       await _preferencias!.writeInt(chave, n);
       if (!mounted || geracao != _geracao) return;
-      await _apagar(grupo, manter: n, geracao: geracao);
+      // downloads já contém só as chaves pertencentes ao perfil ativo.
+      final candidatos = baixasParaApagar([
+        for (final baixa in _provider!.downloads.entries)
+          if (_provider!.getMetadata(baixa.key) case final item?)
+            if (grupoDaBaixa(baixa.key, item) == grupo) (chave: baixa.key, item: item, progresso: baixa.value),
+      ], manter: n);
+      final naoVistos = candidatos.where((c) => !_provider!.getMetadata(c)!.isWatched).toSet();
+      final confirmou =
+          naoVistos.isNotEmpty &&
+          await _confirmar(
+            naoVistos.length == 1
+                ? 'Apagar 1 episódio ainda não visto?'
+                : 'Apagar ${naoVistos.length} episódios ainda não vistos?',
+          );
+      // A confirmação autoriza só o conjunto mostrado, nunca itens que chegaram depois.
+      for (final candidato in candidatos) {
+        if (!mounted || geracao != _geracao) return;
+        if (!_provider!.downloads.containsKey(candidato)) continue;
+        final item = _provider!.getMetadata(candidato);
+        if (item == null || _provider!.getProgress(candidato)?.status != DownloadStatus.completed) continue;
+        if (!item.isWatched && (!confirmou || !naoVistos.contains(candidato))) continue;
+        await _provider!.deleteDownload(candidato);
+      }
     });
   }
 
@@ -197,6 +268,14 @@ class _LigacaoDosBaixadosState extends State<LigacaoDosBaixados> {
   GrupoBaixado _grupo(String chave, List<MapEntry<String, DownloadProgress>> baixas) {
     final provider = _provider!;
     final geracao = _geracao;
+    baixas.sort((a, b) {
+      final x = provider.getMetadata(a.key);
+      final y = provider.getMetadata(b.key);
+      final temporada = (x?.parentIndex ?? 0).compareTo(y?.parentIndex ?? 0);
+      if (temporada != 0) return temporada;
+      final episodio = (x?.index ?? 0).compareTo(y?.index ?? 0);
+      return episodio != 0 ? episodio : a.key.compareTo(b.key);
+    });
     final primeiro = provider.getMetadata(baixas.first.key);
     final poster = provider.getMetadata(chave) ?? primeiro;
     final serie = primeiro?.isEpisode == true;
@@ -206,7 +285,11 @@ class _LigacaoDosBaixadosState extends State<LigacaoDosBaixados> {
         : provider.getArtworkLocalPath(ServerId(primeiro!.serverId!), thumb);
     return GrupoBaixado(
       chave: chave,
-      titulo: primeiro?.displayTitle ?? 'Título baixado',
+      titulo:
+          (serie
+              ? primeiro?.grandparentTitle ?? (poster?.isShow == true ? poster?.title : 'Série baixada')
+              : primeiro?.title) ??
+          'Título baixado',
       serie: serie,
       hash: heisucaArtworkHash(poster),
       arte: local == null
@@ -258,6 +341,7 @@ class _LigacaoDosBaixadosState extends State<LigacaoDosBaixados> {
                 await _provider!.queueDownload(item, cliente);
               }
             }),
+      aoApagar: _acao(() => _apagarItem(baixa.key, item?.title ?? 'Título baixado')),
       aoAssistir: item == null ? null : _acao(() => cgflixPlay(context, item)),
     );
   }

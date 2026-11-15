@@ -12,6 +12,7 @@ class ItemBaixado {
     this.aoPausar,
     this.aoRetomar,
     this.aoAssistir,
+    this.aoApagar,
   });
   final String chave;
   final String titulo;
@@ -20,6 +21,7 @@ class ItemBaixado {
   final VoidCallback? aoPausar;
   final VoidCallback? aoRetomar;
   final VoidCallback? aoAssistir;
+  final VoidCallback? aoApagar;
 }
 
 enum EstadoDaBaixa { esperando, baixando, pausado, interrompido, pronto }
@@ -46,7 +48,7 @@ class GrupoBaixado {
   final String? hash;
   final int? manter;
   final VoidCallback? aoApagarVistos;
-  final ValueChanged<int>? aoManter;
+  final ValueChanged<int?>? aoManter;
 }
 
 String espacoEmTexto(int bytes) {

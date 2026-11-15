@@ -387,7 +387,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(baixados.downloads, isEmpty);
     expect(find.text('Nada baixado ainda'), findsOneWidget);
-    // Voltar ao conjunto do primeiro perfil prova que a linha física sobreviveu.
+    // Voltar ao conjunto do primeiro perfil prova que o progresso não foi apagado (deleteDownload o remove).
     baixados.debugSeedState(ownedDownloadKeys: {baixa.chave}, metadata: {baixa.chave: baixa.item});
     expect(baixados.downloads.keys, [baixa.chave]);
     expect(baixados.getProgress(baixa.chave)?.status, DownloadStatus.completed);

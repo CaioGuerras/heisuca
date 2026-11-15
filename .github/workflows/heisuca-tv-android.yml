@@ -25,6 +25,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - name: Conferir se o ramo tem a ponta da V2
+        working-directory: .
+        run: scripts/heisuca-ramo-em-dia.sh "${{ github.ref_name }}"
       - name: Liberar espaço na VM
         working-directory: /
         run: |

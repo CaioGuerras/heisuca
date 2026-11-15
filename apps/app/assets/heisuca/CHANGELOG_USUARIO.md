@@ -1,3 +1,8 @@
+## 2.0.38 — O que mudou
+
+### Melhor
+- Atualizações: agora há só dois canais, Estável e Beta. Quem recebia versões de teste passa para o Beta sozinho.
+
 ## 2.0.37 — O que mudou
 
 ### Novo

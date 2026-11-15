@@ -52,12 +52,7 @@ class UpdateController extends ChangeNotifier {
   int total = 0;
   bool get ocupado => baixando || verificando || instalando;
   bool get beta => settings.read(SettingsService.updateBeta);
-  String get codigo => _codigo ?? '';
-  String get canal => codigo.isNotEmpty
-      ? 'Teste'
-      : beta
-      ? 'Beta'
-      : 'Estável';
+  String get canal => beta ? 'Beta' : 'Estável';
   String? mensagem;
   EstadoInstalador get estado => _estado;
   EstadoInstalador _estado = const EstadoInstalador();
@@ -65,8 +60,8 @@ class UpdateController extends ChangeNotifier {
   Future<void>? _inicializacao;
   bool _verificouAbertura = false;
   bool _descartado = false;
-  String? _codigo;
-  static const _chaveCodigo = 'heisuca_update_test_code_v1';
+  /// Código do antigo canal de teste. Só é lido para levar quem o tinha ao Beta e então apagado.
+  static const _chaveCodigoAntigo = 'heisuca_update_test_code_v1';
   File? _arquivo;
   ApkAtualizacao? _apk;
   CancelamentoAtualizacao? _cancelamento;
@@ -81,23 +76,13 @@ class UpdateController extends ChangeNotifier {
     try {
       _estado = await instalador.estado();
       if (_descartado || !_estado.habilitado || _estado.build <= 0) return;
-      _codigo = await segredos.readOrThrow(_chaveCodigo);
-      if (_codigo?.isEmpty == true) _codigo = null;
-      LogRedactionManager.registerToken(_codigo);
-      await settings.write(
-        SettingsService.updateChannel,
-        codigo.isNotEmpty
-            ? 'teste'
-            : beta
-            ? 'beta'
-            : 'estavel',
-      );
+      await _migrarCodigoAntigo();
+      await settings.write(SettingsService.updateChannel, beta ? 'beta' : 'estavel');
       _checker = UpdateChecker(
         feed: feed,
         buildInstalado: _estado.build,
         emReproducao: emReproducao,
         beta: () => beta,
-        codigo: () => _codigo,
         lerUltima: () {
           final data = settings.read(SettingsService.updateLastCheck);
           return data > 0 ? DateTime.fromMillisecondsSinceEpoch(data, isUtc: true) : null;
@@ -105,7 +90,6 @@ class UpdateController extends ChangeNotifier {
         gravarUltima: (data) => settings.write(SettingsService.updateLastCheck, data.millisecondsSinceEpoch),
       );
     } catch (_) {
-      // Falha ao ler o cofre não muda silenciosamente o usuário do teste para um canal público.
       _estado = const EstadoInstalador();
       mensagem = 'Não foi possível carregar as opções de atualização.';
     }
@@ -140,7 +124,7 @@ class UpdateController extends ChangeNotifier {
     _avisar();
     try {
       // Canal de teste: o botão manual sempre consulta (testador precisa da build nova na hora).
-      final encontrada = await _checker!.verificar(ignorarLimite: manual && codigo.isNotEmpty);
+      final encontrada = await _checker!.verificar(ignorarLimite: manual && beta);
       if (_descartado || emReproducao()) return;
       oferta = encontrada;
       if (manual) {
@@ -258,24 +242,16 @@ class UpdateController extends ChangeNotifier {
     await _mudarCanal();
   }
 
-  Future<void> definirCodigo(String valor) async {
-    await iniciar();
-    if (ocupado || _descartado || !habilitado) return;
-    final novo = valor.trim();
-    if (novo.isNotEmpty && !codigoDeCanalValido(novo)) {
-      mensagem = 'Confira o código do canal de teste.';
-      _avisar();
-      return;
-    }
-    LogRedactionManager.registerToken(novo);
+  /// Quem usava o antigo canal de teste com código passa a receber o Beta, e o código sai do aparelho.
+  Future<void> _migrarCodigoAntigo() async {
     try {
-      await segredos.writeOrThrow(_chaveCodigo, novo);
-      if (await segredos.readOrThrow(_chaveCodigo) != novo) throw const FormatException();
-      _codigo = novo.isEmpty ? null : novo;
-      await _mudarCanal();
+      final antigo = await segredos.readOrThrow(_chaveCodigoAntigo);
+      if (antigo == null || antigo.isEmpty) return;
+      LogRedactionManager.registerToken(antigo);
+      await settings.write(SettingsService.updateBeta, true);
+      await segredos.writeOrThrow(_chaveCodigoAntigo, '');
     } catch (_) {
-      mensagem = 'Não foi possível salvar o código neste aparelho.';
-      _avisar();
+      // Cofre ilegível: segue no canal salvo nas preferências.
     }
   }
 
@@ -286,14 +262,7 @@ class UpdateController extends ChangeNotifier {
     await settings.write(SettingsService.updateLastCheck, 0);
     await _remover(_arquivo);
     _arquivo = null;
-    await settings.write(
-      SettingsService.updateChannel,
-      codigo.isNotEmpty
-          ? 'teste'
-          : beta
-          ? 'beta'
-          : 'estavel',
-    );
+    await settings.write(SettingsService.updateChannel, beta ? 'beta' : 'estavel');
     mensagem = 'Canal salvo. Você pode verificar as atualizações.';
     _avisar();
   }

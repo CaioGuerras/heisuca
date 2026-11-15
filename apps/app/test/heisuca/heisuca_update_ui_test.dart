@@ -26,7 +26,7 @@ import 'package:heisuca/utils/log_redaction_manager.dart';
 import 'package:heisuca/utils/platform_detector.dart';
 import '../test_helpers/prefs.dart';
 
-/// A linha de escolha do canal ("estavel", "beta" ou "codigo") na tela de ajustes.
+/// A linha de escolha do canal ("estavel" ou "beta") na tela de ajustes.
 Toque escolhaDoCanal(WidgetTester tester, String canal) => tester.widget<Toque>(
   find.descendant(of: find.byKey(ValueKey('atualizador-canal-$canal')), matching: find.byType(Toque)),
 );
@@ -266,19 +266,24 @@ void main() {
     expect(consultas, 0);
     expect(find.textContaining('Pare a reprodução'), findsOneWidget);
   });
-  testWidgets('beta persiste e código fica no cofre, nunca nas preferências exportáveis', (tester) async {
+  testWidgets('beta persiste nas preferências e nada vai para o cofre', (tester) async {
     await mostrar(tester, const UpdateSettingsScreen());
     await acionar(tester, () => tester.tap(find.byKey(const ValueKey('atualizador-canal-beta'))), () => c.beta);
     expect(c.beta, true);
+    expect(settings.read(SettingsService.updateBeta), isTrue);
+    expect(segredos.values.values.where((v) => v.isNotEmpty), isEmpty);
+    expect(escolhaDoCanal(tester, 'beta').selecionado, isTrue);
+    expect(escolhaDoCanal(tester, 'estavel').selecionado, isFalse);
+  });
+  testWidgets('quem tinha o código antigo passa para o Beta e o código sai do cofre', (tester) async {
     const codigo = 'codigo-sintetico-sem-credencial-123';
-    await tester.runAsync(() => c.definirCodigo(codigo));
-    await tester.pumpAndSettle();
-    expect(c.codigo, codigo);
-    expect(segredos.values.values, contains(codigo));
+    await segredos.writeOrThrow('heisuca_update_test_code_v1', codigo);
+    await tester.runAsync(c.iniciar);
+    expect(c.beta, isTrue);
+    expect(c.canal, 'Beta');
+    expect(segredos.values.values, isNot(contains(codigo)));
     expect(settings.prefs.getString('heisuca_update_test_code_v1'), isNull);
     expect(LogRedactionManager.redact(codigo), isNot(codigo));
-    expect(escolhaDoCanal(tester, 'codigo').selecionado, isTrue, reason: 'com código salvo, o canal é o de teste');
-    expect(escolhaDoCanal(tester, 'beta').selecionado, isFalse);
   });
   testWidgets('uma verificação ao abrir, limite diário também no botão manual', (tester) async {
     await tester.runAsync(() async {
@@ -290,15 +295,16 @@ void main() {
     await mostrar(tester, const UpdateSettingsScreen());
     expect(find.textContaining('Já verificamos hoje'), findsOneWidget);
   });
-  testWidgets('salvar código zera o limite; no canal de teste o manual sempre consulta', (tester) async {
+  testWidgets('no Beta o botão manual sempre consulta; a abertura segue o limite diário', (tester) async {
     await tester.runAsync(() async {
+      await c.definirBeta(true);
       await c.aoAbrir();
-      await c.definirCodigo('codigo-sintetico-sem-credencial-123');
       await c.verificar(manual: true);
       await c.verificar(manual: true);
       await c.verificar();
     });
-    expect(consultas, 3);
+    // Três verificações (abertura + 2 manuais), cada uma lê os feeds estavel e beta; a última automática não consulta.
+    expect(consultas, 6);
     expect(c.mensagem, isNot(contains('Já verificamos hoje')));
   });
   testWidgets('ajustes mostram o estado da versão e uma única ação principal', (tester) async {
@@ -316,85 +322,38 @@ void main() {
     expect(find.text('Ver nova versão'), findsNothing);
     expect(find.byKey(const ValueKey('atualizador-acao')), findsOneWidget);
   });
-  testWidgets('canal: três escolhas com uma marcada; código salvo trava as outras até ser removido', (tester) async {
+  testWidgets('canal: só Estável e Beta, sempre uma marcada', (tester) async {
     await mostrar(tester, const UpdateSettingsScreen());
     expect(escolhaDoCanal(tester, 'estavel').selecionado, isTrue);
     expect(escolhaDoCanal(tester, 'beta').selecionado, isFalse);
-    expect(escolhaDoCanal(tester, 'codigo').selecionado, isFalse);
-    expect(find.byKey(const ValueKey('atualizador-codigo')), findsNothing);
+    expect(find.byKey(const ValueKey('atualizador-canal-codigo')), findsNothing);
+    expect(find.textContaining('código'), findsNothing);
+    expect(find.byType(TextField), findsNothing, reason: 'não há campo para digitar');
 
     await acionar(tester, () => tester.tap(find.byKey(const ValueKey('atualizador-canal-beta'))), () => c.beta);
+    expect(c.canal, 'Beta');
     expect(escolhaDoCanal(tester, 'estavel').selecionado, isFalse);
     expect(escolhaDoCanal(tester, 'beta').selecionado, isTrue);
 
-    // "Com código" só abre o campo: o canal muda quando o código é salvo.
-    await tester.tap(find.byKey(const ValueKey('atualizador-canal-codigo')));
-    await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('atualizador-codigo')), findsOneWidget);
-    expect(find.text('Salvar código'), findsOneWidget);
-    expect(c.canal, 'Beta');
-
-    await tester.runAsync(() => c.definirCodigo('codigo-sintetico-sem-credencial-123'));
-    await tester.pumpAndSettle();
-    expect(c.canal, 'Teste');
-    expect(escolhaDoCanal(tester, 'codigo').selecionado, isTrue);
+    await acionar(tester, () => tester.tap(find.byKey(const ValueKey('atualizador-canal-estavel'))), () => !c.beta);
+    expect(c.canal, 'Estável');
+    expect(escolhaDoCanal(tester, 'estavel').selecionado, isTrue);
     expect(escolhaDoCanal(tester, 'beta').selecionado, isFalse);
-    expect(escolhaDoCanal(tester, 'estavel').aoTocar, isNull);
-    expect(escolhaDoCanal(tester, 'beta').aoTocar, isNull);
-    expect(find.byKey(const ValueKey('atualizador-codigo')), findsNothing, reason: 'o código salvo não fica na tela');
-
-    await tester.ensureVisible(find.text('Remover código'));
-    await acionar(tester, () => tester.tap(find.text('Remover código')), () => c.codigo.isEmpty);
-    expect(segredos.values.values, isNot(contains('codigo-sintetico-sem-credencial-123')));
-    expect(c.canal, 'Beta');
-    expect(escolhaDoCanal(tester, 'beta').selecionado, isTrue);
-    expect(escolhaDoCanal(tester, 'beta').aoTocar, isNotNull);
-    expect(find.text('Remover código'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('campo do código aberto à toa: tocar de novo em "Com código" ou escolher outro canal fecha', (
-    tester,
-  ) async {
+  testWidgets('TV: OK no Beta escolhe o canal e o foco fica nele (não some)', (tester) async {
     await mostrar(tester, const UpdateSettingsScreen());
-
-    await tester.tap(find.byKey(const ValueKey('atualizador-canal-codigo')));
+    tester
+        .widget<Focus>(find.byWidgetPredicate((w) => w is Focus && w.focusNode?.debugLabel == 'atualizador-beta'))
+        .focusNode!
+        .requestFocus();
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('atualizador-codigo')), findsOneWidget);
-    expect(escolhaDoCanal(tester, 'codigo').selecionado, isTrue, reason: 'a marca acompanha o campo aberto');
-    expect(escolhaDoCanal(tester, 'estavel').selecionado, isFalse);
-
-    await tester.tap(find.byKey(const ValueKey('atualizador-canal-codigo')));
+    expect(FocusManager.instance.primaryFocus?.debugLabel, 'atualizador-beta');
+    await acionar(tester, () async => tester.sendKeyEvent(LogicalKeyboardKey.select), () => c.beta);
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('atualizador-codigo')), findsNothing, reason: 'tocar de novo fecha o campo');
-    expect(escolhaDoCanal(tester, 'estavel').selecionado, isTrue);
-
-    await tester.tap(find.byKey(const ValueKey('atualizador-canal-codigo')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('atualizador-canal-estavel')));
-    await tester.pumpAndSettle();
-    expect(
-      find.byKey(const ValueKey('atualizador-codigo')),
-      findsNothing,
-      reason: 'escolher outro canal fecha o campo',
-    );
-    expect(escolhaDoCanal(tester, 'estavel').selecionado, isTrue);
-    expect(c.canal, 'Estável');
-  });
-
-  testWidgets('TV: depois de remover o código, o foco volta para "Com código" (não fica em lugar nenhum)', (
-    tester,
-  ) async {
-    await mostrar(tester, const UpdateSettingsScreen());
-    await tester.runAsync(() => c.definirCodigo('codigo-sintetico-sem-credencial-123'));
-    await tester.pumpAndSettle();
-
-    await tester.ensureVisible(find.text('Remover código'));
-    await acionar(tester, () => tester.tap(find.text('Remover código')), () => c.codigo.isEmpty);
-    await tester.pumpAndSettle();
-
     final foco = FocusManager.instance.primaryFocus;
-    expect(foco?.debugLabel, 'atualizador-com-codigo');
+    expect(foco?.debugLabel, 'atualizador-beta');
     expect(foco?.context?.mounted, isTrue);
   });
 
@@ -483,7 +442,7 @@ void main() {
       final lista = find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)).first;
       // No celular quem volta é a seta do topo; a lista vai até a escolha do canal.
       expect(find.byTooltip('Voltar'), findsOneWidget);
-      await tester.scrollUntilVisible(find.text('Com código'), 200, scrollable: lista);
+      await tester.scrollUntilVisible(find.text('Beta'), 200, scrollable: lista);
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       await tester.drag(lista, const Offset(0, -3000));

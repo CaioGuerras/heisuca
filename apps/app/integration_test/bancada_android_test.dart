@@ -299,12 +299,22 @@ void main() {
     } finally {
       http.close(force: true);
     }
-    await tester.ensureVisible(assistir.first);
+    await until(
+      () => assistir.evaluate().isNotEmpty && (assistir.evaluate().first.widget as Botao).aoTocar != null,
+      'botão Assistir habilitado',
+    );
+    // A ficha V2 se reorganiza quando chegam logo e arte: rola e toca no mesmo passo, sem pausa entre conferir e tocar.
     final playControl = assistir.hitTestable();
-    await until(() {
-      final controls = playControl.evaluate();
-      return controls.isNotEmpty && (controls.first.widget as Botao).aoTocar != null;
-    }, 'botão Assistir habilitado e visível');
+    final tocarAte = DateTime.now().add(const Duration(seconds: 30));
+    while (true) {
+      await tester.ensureVisible(assistir.first);
+      await waitBancada(binding, const Duration(milliseconds: 200));
+      if (playControl.evaluate().isNotEmpty) break;
+      if (DateTime.now().isAfter(tocarAte)) {
+        await captureTimeout('botão Assistir visível');
+        throw StateError('Tempo esgotado na etapa: botão Assistir visível.');
+      }
+    }
     await tester.tap(playControl.first);
     await until(() => find.byType(MobileVideoControls).evaluate().isNotEmpty, 'player nativo');
     final player = tester.widget<MobileVideoControls>(find.byType(MobileVideoControls).first).player;

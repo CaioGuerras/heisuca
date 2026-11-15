@@ -328,6 +328,7 @@ class _LigacaoDaBuscaState extends State<LigacaoDaBusca> with DebouncedMediaSear
     final query = texto.trim();
     if (query.isEmpty) return;
     searchFocusNode.unfocus();
+    cancelPendingSearch();
     if (query != lastSearchedQuery || lastSearchFailed) unawaited(runSearch(query));
   }
 

@@ -63,6 +63,9 @@ mixin DebouncedMediaSearch<T extends StatefulWidget, R> on State<T> {
   /// remains authoritative for preventing stale UI commits.
   void onSearchInvalidated() {}
 
+  /// Cancela a busca que esperava a pausa na digitação (quem já buscou pelo teclado chama antes).
+  void cancelPendingSearch() => _debounceTimer?.cancel();
+
   @override
   void initState() {
     super.initState();

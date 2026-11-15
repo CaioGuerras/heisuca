@@ -179,6 +179,18 @@ void main() {
     expect(servidor.buscas, ['naruto', 'naruto']);
     expect(find.byType(Cartao), findsOneWidget);
   });
+  testWidgets('enviar pelo teclado antes da pausa busca uma vez só', (tester) async {
+    final servidor = _Servidor()..titulos = [_titulo('f1', 'Duna', MediaKind.movie)];
+    await _abrir(tester, servidor);
+    await tester.enterText(find.byType(TextField), 'duna');
+    await tester.testTextInput.receiveAction(TextInputAction.search);
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
+
+    expect(servidor.buscas, ['duna']);
+    expect(find.byType(Cartao), findsOneWidget);
+  });
+
   testWidgets('a busca do app abre a V2 no celular e a antiga no computador', (tester) async {
     late Widget celular;
     late Widget computador;

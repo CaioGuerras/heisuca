@@ -10,6 +10,7 @@ import '../../cgflix/cgflix_navigation.dart';
 import '../../cgflix/cgflix_user_menu.dart' show cgflixUserMenuDebugOnline;
 import '../../cgflix/conta/cgflix_conta.dart';
 import '../../cgflix/conta/cgflix_minha_conta_screen.dart';
+import '../../design/forma.dart';
 import '../../heisuca/heisuca_security.dart';
 import '../../heisuca/heisuca_settings_screen.dart';
 import '../../heisuca/kids/heisuca_kids.dart';
@@ -134,7 +135,7 @@ class AcoesDaVoce {
 ///
 /// Abre pela pílula do perfil no topo da casca.
 class LigacaoDaVoce extends StatelessWidget {
-  const LigacaoDaVoce({super.key, this.folgaInferior = 24, this.acoes = const AcoesDaVoce.padrao()});
+  const LigacaoDaVoce({super.key, this.folgaInferior = Forma.espaco6, this.acoes = const AcoesDaVoce.padrao()});
 
   final double folgaInferior;
   final AcoesDaVoce acoes;
@@ -143,7 +144,7 @@ class LigacaoDaVoce extends StatelessWidget {
   static bool _servidorOnline(BuildContext context) {
     if (cgflixUserMenuDebugOnline case final forcado?) return forcado;
     try {
-      final servidores = Provider.of<MultiServerProvider?>(context, listen: false);
+      final servidores = context.watch<MultiServerProvider?>();
       return servidores?.serverManager.visibleOnlineClients.isNotEmpty ?? false;
     } on ProviderNotFoundException {
       return false;
@@ -159,8 +160,9 @@ class LigacaoDaVoce extends StatelessWidget {
   Widget build(BuildContext context) {
     final perfis = context.watch<ActiveProfileProvider?>();
     final ativo = perfis?.active;
-    final infantil = heisucaKidsActive(context);
-    final perfilInfantil = HeisucaKids.instance.forParent(ativo?.id);
+    final kids = context.watch<HeisucaKids?>() ?? HeisucaKids.instance;
+    final infantil = kids.isKids(ativo?.id);
+    final perfilInfantil = kids.forParent(ativo?.id);
     final atualizacoes = context.watch<UpdateController?>();
     final online = _servidorOnline(context);
     final conta = online ? CgflixConta.of(context) : null;
@@ -291,7 +293,7 @@ class LigacaoDaVoce extends StatelessWidget {
                 avatarUrl: perfis?.avatarUrlFor(ativo.id),
               ),
         grupos: grupos,
-        aoVoltar: () => unawaited(Navigator.of(context).maybePop()),
+        aoVoltar: Navigator.of(context).canPop() ? () => unawaited(Navigator.of(context).maybePop()) : null,
         folgaInferior: folgaInferior,
       ),
     );

@@ -43,7 +43,7 @@ class TelaVoce extends StatelessWidget {
     required this.grupos,
     this.avatar,
     this.aoVoltar,
-    this.folgaInferior = 24,
+    this.folgaInferior = Forma.espaco6,
   });
 
   /// Nome de quem usa o app, no cabeçalho.
@@ -62,10 +62,10 @@ class TelaVoce extends StatelessWidget {
   final double folgaInferior;
 
   /// Altura reservada no topo para o botão de voltar.
-  static const double topo = 72;
+  static const double topo = Forma.toqueMinimo + Forma.espaco6;
 
   /// Lado da foto no cabeçalho.
-  static const double ladoDoAvatar = 64;
+  static const double ladoDoAvatar = Forma.toqueMinimo + Forma.espaco4;
 
   @override
   Widget build(BuildContext context) {

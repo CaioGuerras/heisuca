@@ -118,6 +118,9 @@ jobs:
             adb shell wm density 210
             adb shell wm size
             adb shell wm density
+            # 43661393908: "Pixel Launcher isn't responding" (launcher sem CPU) cobriu o Assistir na ficha.
+            # Só esconde o diálogo do sistema; ANR do app segue detectado por logcat/dumpsys no executar.py.
+            adb shell settings put global hide_error_dialogs 1
             python3 scripts/bancada/executar.py
       - name: Diagnóstico do runner quando o emulador some
         if: failure()

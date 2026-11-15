@@ -32,3 +32,13 @@ targetRules = ["generic-api-key"]
 paths = ['''^apps/web/testes/falso/dados/dados\.json$''']
 regexTarget = "match"
 regexes = ['''Key"\s*:\s*"([0-9]+|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})"''']
+
+# (d) Chave de cache do binário do mpv-build (12 hex = commit curto) no lock do libmpv.
+# O cgf-mpv-vigia grava uma nova a cada atualização; só este arquivo e só este formato.
+[[allowlists]]
+description = "chave de cache do mpv-build no mpv-build.lock.json"
+condition = "AND"
+targetRules = ["generic-api-key"]
+paths = ['''^apps/app/mpv-build\.lock\.json$''']
+regexTarget = "match"
+regexes = ['''key"\s*:\s*"[0-9a-f]{12}"''']

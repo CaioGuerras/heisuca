@@ -86,7 +86,7 @@ class CabecaDoTitulo extends StatelessWidget {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           stops: [0, inicioDoEsmaecer, 1],
-                          colors: [Color(0xFFFFFFFF), Color(0xFFFFFFFF), Color(0x00FFFFFF)],
+                          colors: [Color(0xFF000000), Color(0xFF000000), Colors.transparent],
                         ).createShader(area),
                         child: pagina.arte!(context, Size(largura, alturaDaArte)),
                       ),

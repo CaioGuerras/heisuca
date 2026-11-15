@@ -101,10 +101,7 @@ void main() {
       await espera(const Duration(milliseconds: 600));
       final atual = ++seq;
       final tmp = File('${support.path}/heisuca-vitrine-event.tmp');
-      await tmp.writeAsString(
-        jsonEncode({'seq': atual, 'nome': ?nome, if (voltar) 'voltar': true}),
-        flush: true,
-      );
+      await tmp.writeAsString(jsonEncode({'seq': atual, 'nome': ?nome, if (voltar) 'voltar': true}), flush: true);
       await tmp.rename('${support.path}/heisuca-vitrine-event.json');
       final ack = File('${support.path}/heisuca-vitrine-ack.json');
       final limite = DateTime.now().add(const Duration(seconds: 60));
@@ -196,8 +193,11 @@ void main() {
     Finder destino(String rotulo) => find.descendant(of: find.byType(BarraFlutuante), matching: find.text(rotulo));
     await tester.tap(destino('Explorar').first);
     await ate(() => find.byType(LigacaoDoExplorar).evaluate().isNotEmpty, 'Explorar');
-    await ate(() => find.text('Ordem e filtros').evaluate().isNotEmpty || find.byType(Cartao).evaluate().isNotEmpty,
-        'filtros do Explorar', segundos: 60);
+    await ate(
+      () => find.text('Ordem e filtros').evaluate().isNotEmpty || find.byType(Cartao).evaluate().isNotEmpty,
+      'filtros do Explorar',
+      segundos: 60,
+    );
     await esperaArte(find.byType(LigacaoDoExplorar), 'Explorar', minimo: 3);
     await captura('04-explorar');
 
@@ -214,9 +214,13 @@ void main() {
     await espera(const Duration(milliseconds: 300));
     await tester.tap(config.hitTestable().first);
     await ate(
-      () => find.byType(HeisucaSettingsScreen).evaluate().isNotEmpty && find.text('Aparência e Tema').evaluate().isNotEmpty,
+      () =>
+          find.byType(HeisucaSettingsScreen).evaluate().isNotEmpty &&
+          find.text('Aparência e Tema').evaluate().isNotEmpty,
       'Configurações',
     );
+    // A loja não deve mostrar o nome técnico do aparelho de teste: rola até o título da seção.
+    await Scrollable.ensureVisible(tester.element(find.text('Aparência e Tema').first), alignment: 0.0);
     await espera(const Duration(seconds: 1));
     await captura('05-aparencia');
 
@@ -240,16 +244,20 @@ void main() {
       matching: find.byWidgetPredicate((w) => w is Cartao && w.titulo.toLowerCase().contains(termo.toLowerCase())),
     );
     String? termo;
-    for (final candidato in _buscas) {
-      await tester.enterText(find.descendant(of: busca, matching: find.byType(TextField)).first, candidato);
-      FocusManager.instance.primaryFocus?.unfocus();
-      final limite = DateTime.now().add(const Duration(seconds: 25));
-      while (resultados(candidato).evaluate().isEmpty && DateTime.now().isBefore(limite)) {
-        await espera(const Duration(milliseconds: 400));
-      }
-      if (resultados(candidato).evaluate().isNotEmpty) {
-        termo = candidato;
-        break;
+    // O servidor de demonstração às vezes demora a responder (tempo esgotado na conexão):
+    // repete a lista de termos algumas vezes antes de desistir.
+    for (var rodada = 0; rodada < 3 && termo == null; rodada++) {
+      for (final candidato in _buscas) {
+        await tester.enterText(find.descendant(of: busca, matching: find.byType(TextField)).first, candidato);
+        FocusManager.instance.primaryFocus?.unfocus();
+        final limite = DateTime.now().add(const Duration(seconds: 25));
+        while (resultados(candidato).evaluate().isEmpty && DateTime.now().isBefore(limite)) {
+          await espera(const Duration(milliseconds: 400));
+        }
+        if (resultados(candidato).evaluate().isNotEmpty) {
+          termo = candidato;
+          break;
+        }
       }
     }
     if (termo == null) throw StateError('Nenhum título do acervo de demonstração apareceu na busca.');
@@ -286,7 +294,8 @@ void main() {
     await ate(() => find.byType(MobileVideoControls).evaluate().isNotEmpty, 'player', segundos: 60);
     final player = tester.widget<MobileVideoControls>(find.byType(MobileVideoControls).first).player;
     await ate(
-      () => player.state.hasRenderedFrame && player.state.playing && player.currentPosition >= const Duration(seconds: 1),
+      () =>
+          player.state.hasRenderedFrame && player.state.playing && player.currentPosition >= const Duration(seconds: 1),
       'primeiro quadro',
       segundos: 120,
     );

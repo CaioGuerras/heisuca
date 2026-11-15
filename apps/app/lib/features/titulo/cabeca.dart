@@ -77,16 +77,19 @@ class CabecaDoTitulo extends StatelessWidget {
                   child: _ArteQueFica(
                     rolagem: rolagem,
                     altura: alturaDaArte,
-                    child: ShaderMask(
-                      blendMode: BlendMode.dstIn,
-                      // Só o alfa conta: a arte se desfaz no fundo tingido da tela.
-                      shaderCallback: (area) => LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        stops: const [0, inicioDoEsmaecer, 1],
-                        colors: [tema.fundo, tema.fundo, tema.fundo.withValues(alpha: 0)],
-                      ).createShader(area),
-                      child: pagina.arte!(context, Size(largura, alturaDaArte)),
+                    // Camada própria: a transição de cor do fundo tingido não redesenha a arte a cada quadro.
+                    child: RepaintBoundary(
+                      child: ShaderMask(
+                        blendMode: BlendMode.dstIn,
+                        // Só o alfa conta: máscara fixa, sem depender da cor do tema que está em transição.
+                        shaderCallback: (area) => const LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          stops: [0, inicioDoEsmaecer, 1],
+                          colors: [Color(0xFFFFFFFF), Color(0xFFFFFFFF), Color(0x00FFFFFF)],
+                        ).createShader(area),
+                        child: pagina.arte!(context, Size(largura, alturaDaArte)),
+                      ),
                     ),
                   ),
                 ),

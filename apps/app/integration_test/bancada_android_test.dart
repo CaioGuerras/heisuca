@@ -17,21 +17,21 @@ import 'package:provider/provider.dart';
 import 'package:heisuca/main.dart' as app;
 import 'package:heisuca/design/componentes/barra_flutuante.dart';
 import 'package:heisuca/design/componentes/pilula_de_perfil.dart';
+import 'package:heisuca/design/componentes/botao.dart';
+import 'package:heisuca/design/componentes/cartao.dart';
+import 'package:heisuca/features/busca/ligacao.dart';
 import 'package:heisuca/features/inicio/ligacao.dart';
+import 'package:heisuca/features/titulo/ligacao.dart';
 import 'package:heisuca/heisuca/heisuca_login_screen.dart';
 import 'package:heisuca/heisuca/heisuca_profile_screen.dart';
-import 'package:heisuca/heisuca/heisuca_title_sheet.dart';
-import 'package:heisuca/media/media_item.dart';
 import 'package:heisuca/providers/multi_server_provider.dart';
 import 'package:heisuca/profiles/active_profile_provider.dart';
 import 'package:heisuca/profiles/profile_registry.dart';
-import 'package:heisuca/screens/search_screen.dart';
 import 'package:heisuca/screens/video_player_screen.dart';
 import 'package:heisuca/services/jellyfin_auth_header.dart';
 import 'package:heisuca/services/jellyfin_client.dart';
 import 'package:heisuca/utils/pointer_scroll_axis.dart';
 import 'package:heisuca/utils/semantics_tree_gate.dart';
-import 'package:heisuca/widgets/focusable_media_card.dart';
 import 'package:heisuca/widgets/video_controls/mobile_video_controls.dart';
 import 'package:heisuca/widgets/video_controls/player_chrome_controller.dart';
 import 'package:heisuca/widgets/video_controls/video_controls.dart';
@@ -229,9 +229,9 @@ void main() {
         'etapa': stage,
         'playerVisivel': find.byType(VideoPlayerScreen).evaluate().isNotEmpty,
         'playerNaArvore': find.byType(VideoPlayerScreen, skipOffstage: false).evaluate().isNotEmpty,
-        'fichaVisivel': find.byType(HeisucaTitleSheet).evaluate().isNotEmpty,
-        'fichaNaArvore': find.byType(HeisucaTitleSheet, skipOffstage: false).evaluate().isNotEmpty,
-        'buscaVisivel': find.byType(SearchScreen).evaluate().isNotEmpty,
+        'fichaVisivel': find.byType(LigacaoDoTitulo).evaluate().isNotEmpty,
+        'fichaNaArvore': find.byType(LigacaoDoTitulo, skipOffstage: false).evaluate().isNotEmpty,
+        'buscaVisivel': find.byType(LigacaoDaBusca).evaluate().isNotEmpty,
         'inicioVisivel': find.byType(LigacaoDoInicio).evaluate().isNotEmpty,
         'pipAtivo': PipService().isPipActive.value,
         'cicloFlutter': binding.lifecycleState?.name,
@@ -249,18 +249,23 @@ void main() {
     final buscar = find.byTooltip('Buscar').hitTestable();
     await until(() => buscar.evaluate().isNotEmpty, 'botão Buscar da Início');
     await tester.tap(buscar.first);
-    await until(() => find.byType(SearchScreen).evaluate().isNotEmpty, 'busca');
+    await until(() => find.byType(LigacaoDaBusca).evaluate().isNotEmpty, 'busca');
     await tester.enterText(find.byType(TextField).first, title);
     FocusManager.instance.primaryFocus?.unfocus();
+    // O botão principal do Título V2: "Assistir", ou "Continuar" quando já há progresso.
+    final assistir = find.byWidgetPredicate(
+      (w) => w is Botao && (w.rotulo == 'Assistir' || w.rotulo.startsWith('Continuar')),
+    );
     final card = find.byWidgetPredicate(
-      (w) => w is FocusableMediaCard && w.item is MediaItem && (w.item as MediaItem).id == itemId,
+      // O cartão da Busca V2 leva a chave global do item ("servidor:id").
+      (w) => w is Cartao && w.key is ValueKey<String> && (w.key as ValueKey<String>).value.endsWith(':$itemId'),
     );
     await until(() => card.evaluate().isNotEmpty, 'resultado da busca');
     await tester.ensureVisible(card.first);
     await shot('03-busca');
     await tester.tap(card.first);
     await until(
-      () => find.byType(HeisucaTitleSheet).evaluate().isNotEmpty && find.text('Assistir').evaluate().isNotEmpty,
+      () => find.byType(LigacaoDoTitulo).evaluate().isNotEmpty && assistir.evaluate().isNotEmpty,
       'ficha',
     );
     await shot('04-ficha');
@@ -294,11 +299,11 @@ void main() {
     } finally {
       http.close(force: true);
     }
-    await tester.ensureVisible(find.text('Assistir').first);
-    final playControl = find.ancestor(of: find.text('Assistir'), matching: find.byType(InkWell)).hitTestable();
+    await tester.ensureVisible(assistir.first);
+    final playControl = assistir.hitTestable();
     await until(() {
       final controls = playControl.evaluate();
-      return controls.isNotEmpty && (controls.first.widget as InkWell).onTap != null;
+      return controls.isNotEmpty && (controls.first.widget as Botao).aoTocar != null;
     }, 'botão Assistir habilitado e visível');
     await tester.tap(playControl.first);
     await until(() => find.byType(MobileVideoControls).evaluate().isNotEmpty, 'player nativo');
@@ -467,12 +472,12 @@ void main() {
     await shot('06-player', back: true);
     // Não confundir uma amostra anterior à captura com os pixels do PNG confirmado.
     await until(
-      () => find.byType(VideoPlayerScreen).evaluate().isEmpty && find.byType(HeisucaTitleSheet).evaluate().isNotEmpty,
+      () => find.byType(VideoPlayerScreen).evaluate().isEmpty && find.byType(LigacaoDoTitulo).evaluate().isNotEmpty,
       'voltar à ficha',
     );
     await shot('07-ficha-retorno', back: true);
-    await until(() => find.byType(SearchScreen).evaluate().isNotEmpty, 'voltar à busca');
-    for (var attempt = 0; attempt < 3 && find.byType(SearchScreen).evaluate().isNotEmpty; attempt++) {
+    await until(() => find.byType(LigacaoDaBusca).evaluate().isNotEmpty, 'voltar à busca');
+    for (var attempt = 0; attempt < 3 && find.byType(LigacaoDaBusca).evaluate().isNotEmpty; attempt++) {
       await shot('08-busca-retorno-$attempt', back: true);
       await waitBancada(binding, const Duration(milliseconds: 500));
     }

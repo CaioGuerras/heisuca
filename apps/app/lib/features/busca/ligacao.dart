@@ -89,12 +89,22 @@ class _LigacaoDaBuscaState extends State<LigacaoDaBusca> with DebouncedMediaSear
 
   // --- histórico -----------------------------------------------------------
 
+  /// Quem já gravou antes da leitura terminar vence: a leitura não traz de volta o histórico velho.
+  bool _recentesMudaram = false;
+
   Future<void> _lerRecentes() async {
     final lidos = await cgflixReadSearchHistory();
-    if (mounted) setState(() => _recentes = lidos);
+    if (mounted && !_recentesMudaram) setState(() => _recentes = lidos);
+  }
+
+  /// Busca que achou algo: parte do que está gravado, mesmo que a tela ainda não tenha lido.
+  Future<void> _lembrar(String termo) async {
+    final gravados = _recentesMudaram ? _recentes : await cgflixReadSearchHistory();
+    if (mounted) await _gravarRecentes(cgflixPushHistory(gravados, termo));
   }
 
   Future<void> _gravarRecentes(List<String> novos) async {
+    _recentesMudaram = true;
     setState(() => _recentes = novos);
     await cgflixWriteSearchHistory(novos);
   }
@@ -221,7 +231,7 @@ class _LigacaoDaBuscaState extends State<LigacaoDaBusca> with DebouncedMediaSear
       _pessoas = [for (final pessoa in rankPeopleSearchResults(pessoas, query)) _emPessoa(pessoa)];
     });
 
-    if (results.isNotEmpty) unawaited(_gravarRecentes(cgflixPushHistory(_recentes, query)));
+    if (results.isNotEmpty) unawaited(_lembrar(query));
     if (unificado != null && unificado.failedServerIds.isNotEmpty) {
       showAppSnackBar(context, 'Nem todos os servidores responderam. Mostrando o que foi encontrado.');
     }
@@ -354,23 +364,28 @@ class _LigacaoDaBuscaState extends State<LigacaoDaBusca> with DebouncedMediaSear
 
   @override
   Widget build(BuildContext context) => SobOTemaDaV2(
-    child: TelaBusca(
-      campo: searchController,
-      foco: searchFocusNode,
-      focoInicial: widget.focoInicial,
-      aoVoltar: () => unawaited(Navigator.of(context).maybePop()),
-      aoEnviar: _enviar,
-      recentes: _recentes,
-      aoEscolherRecente: _escolherRecente,
-      aoTirarRecente: (termo) => unawaited(_gravarRecentes([..._recentes.where((r) => r != termo)])),
-      aoLimparRecentes: () => unawaited(_gravarRecentes(const [])),
-      titulos: _titulos,
-      pessoas: _pessoas,
-      buscando: isSearching,
-      buscou: hasSearched,
-      aviso: _aviso(),
-      pedir: lastSearchedQuery.isEmpty ? null : CgflixRequestSection(query: lastSearchedQuery),
-      folgaInferior: widget.folgaInferior,
+    // Aberta por cima da Início não há Scaffold acima: o campo de texto precisa de um Material.
+    child: Material(
+      type: MaterialType.transparency,
+      child: TelaBusca(
+        campo: searchController,
+        foco: searchFocusNode,
+        focoInicial: widget.focoInicial,
+        // Como aba da tela principal não há para onde voltar: sem a seta.
+        aoVoltar: Navigator.of(context).canPop() ? () => unawaited(Navigator.of(context).maybePop()) : null,
+        aoEnviar: _enviar,
+        recentes: _recentes,
+        aoEscolherRecente: _escolherRecente,
+        aoTirarRecente: (termo) => unawaited(_gravarRecentes([..._recentes.where((r) => r != termo)])),
+        aoLimparRecentes: () => unawaited(_gravarRecentes(const [])),
+        titulos: _titulos,
+        pessoas: _pessoas,
+        buscando: isSearching,
+        buscou: hasSearched,
+        aviso: _aviso(),
+        pedir: lastSearchedQuery.isEmpty ? null : CgflixRequestSection(query: lastSearchedQuery),
+        folgaInferior: widget.folgaInferior,
+      ),
     ),
   );
 }

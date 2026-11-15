@@ -71,7 +71,7 @@ class _Servidor extends MediaServerClient {
 MediaItem _titulo(String id, String nome, MediaKind tipo) =>
     MediaItem(id: id, backend: MediaBackend.jellyfin, kind: tipo, title: nome, serverId: 'casa', serverName: 'Casa');
 
-Future<void> _abrir(WidgetTester tester, _Servidor servidor) async {
+Future<void> _abrir(WidgetTester tester, _Servidor servidor, {bool empilhada = false}) async {
   tester.view.physicalSize = const Size(400, 1600);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -87,7 +87,18 @@ Future<void> _abrir(WidgetTester tester, _Servidor servidor) async {
         ChangeNotifierProvider<MultiServerProvider>.value(value: servidores),
         ChangeNotifierProvider<HiddenLibrariesProvider>.value(value: ocultas),
       ],
-      child: naTela(const LigacaoDaBusca(focoInicial: false)),
+      child: naTela(
+        empilhada
+            ? Builder(
+                builder: (context) => TextButton(
+                  onPressed: () => Navigator.of(
+                    context,
+                  ).push(MaterialPageRoute<void>(builder: (_) => const LigacaoDaBusca(focoInicial: false))),
+                  child: const Text('Abrir a busca'),
+                ),
+              )
+            : const LigacaoDaBusca(focoInicial: false),
+      ),
     ),
   );
   await tester.pumpAndSettle();
@@ -189,6 +200,29 @@ void main() {
 
     expect(servidor.buscas, ['duna']);
     expect(find.byType(Cartao), findsOneWidget);
+  });
+
+  testWidgets('como aba não há seta de voltar; aberta por cima de outra tela, há', (tester) async {
+    await _abrir(tester, _Servidor());
+    expect(find.bySemanticsLabel('Voltar'), findsNothing);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+
+    await _abrir(tester, _Servidor(), empilhada: true);
+    await tester.tap(find.text('Abrir a busca'));
+    await tester.pumpAndSettle();
+    expect(find.bySemanticsLabel('Voltar'), findsOneWidget);
+    await tester.tap(find.bySemanticsLabel('Voltar'));
+    await tester.pumpAndSettle();
+    expect(find.text('Abrir a busca'), findsOneWidget);
+  });
+
+  testWidgets('busca nova entra no topo do histórico já gravado, sem apagar os antigos', (tester) async {
+    await cgflixWriteSearchHistory(['naruto']);
+    final servidor = _Servidor()..titulos = [_titulo('f1', 'Alien', MediaKind.movie)];
+    await _abrir(tester, servidor);
+    await _buscar(tester, 'alien');
+    expect(await cgflixReadSearchHistory(), ['alien', 'naruto']);
   });
 
   testWidgets('a busca do app abre a V2 no celular e a antiga no computador', (tester) async {

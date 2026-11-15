@@ -8,6 +8,7 @@ import '../../design/componentes/toque.dart';
 import '../../design/cor_poster/cor_poster_cache.dart';
 import '../../design/cor_poster/temas_cor_poster.dart';
 import '../../design/forma.dart';
+import '../../design/movimento.dart';
 import '../../design/tema.dart';
 import '../../design/tipo.dart';
 import '../explorar/tela_explorar.dart' show TelaExplorar;
@@ -78,6 +79,9 @@ class TelaBusca extends StatefulWidget {
 
   /// Quantos cartões de espera a busca mostra.
   static const int cartoesCarregando = 6;
+
+  /// Opacidade do resultado anterior enquanto a busca nova não volta.
+  static const double opacidadeDesatualizada = 0.5;
 
   /// Lado da foto de uma pessoa.
   static const double ladoDaFoto = 72;
@@ -181,8 +185,9 @@ class _TelaBuscaState extends State<TelaBusca> {
         _grade(context, const [], esperando: true)
       else ...[
         if (_filtros.isNotEmpty) SliverToBoxAdapter(child: _pilulas()),
-        if (_mostraPessoas && widget.pessoas.isNotEmpty) SliverToBoxAdapter(child: _Pessoas(pessoas: widget.pessoas)),
-        if (_titulosVisiveis.isNotEmpty) _grade(context, _titulosVisiveis),
+        if (_mostraPessoas && widget.pessoas.isNotEmpty)
+          _antigo(context, SliverToBoxAdapter(child: _Pessoas(pessoas: widget.pessoas))),
+        if (_titulosVisiveis.isNotEmpty) _antigo(context, _grade(context, _titulosVisiveis)),
       ],
       if (widget.buscou && widget.pedir != null)
         SliverToBoxAdapter(
@@ -265,6 +270,14 @@ class _TelaBuscaState extends State<TelaBusca> {
           ),
       ],
     ),
+  );
+
+  /// Enquanto a busca nova não volta, o resultado da anterior fica esmaecido.
+  Widget _antigo(BuildContext context, Widget sliver) => SliverAnimatedOpacity(
+    opacity: widget.buscando ? TelaBusca.opacidadeDesatualizada : 1,
+    duration: Movimento.tempo(context, Movimento.troca),
+    curve: Movimento.padrao,
+    sliver: sliver,
   );
 
   Widget _grade(BuildContext context, List<TituloDaBusca> itens, {bool esperando = false}) {

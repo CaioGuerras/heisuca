@@ -224,6 +224,20 @@ void main() {
     expect(find.byType(Cartao), findsNWidgets(TelaBusca.cartoesCarregando));
   });
 
+  testWidgets('buscando com resultado antigo: o resultado fica esmaecido até a busca voltar', (tester) async {
+    _tela(tester);
+    double opacidade() => tester.widget<SliverAnimatedOpacity>(find.byType(SliverAnimatedOpacity).first).opacity;
+
+    await tester.pumpWidget(_busca(titulos: const [_filme], buscou: true));
+    await tester.pumpAndSettle();
+    expect(opacidade(), 1);
+
+    await tester.pumpWidget(_busca(titulos: const [_filme], buscando: true, buscou: true));
+    await tester.pumpAndSettle();
+    expect(opacidade(), TelaBusca.opacidadeDesatualizada);
+    expect(find.byType(Cartao), findsOneWidget);
+  });
+
   testWidgets('o × limpa o campo e só aparece com texto; voltar chama quem abriu', (tester) async {
     _tela(tester);
     final campo = TextEditingController();

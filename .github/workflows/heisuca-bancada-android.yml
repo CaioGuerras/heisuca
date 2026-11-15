@@ -119,6 +119,11 @@ jobs:
             adb shell wm size
             adb shell wm density
             python3 scripts/bancada/executar.py
+      - name: Diagnóstico do runner quando o emulador some
+        if: failure()
+        run: |
+          free -m
+          sudo dmesg -T | grep -iE 'out of memory|killed process|oom-kill|qemu|emulator' | tail -30
       - name: Classificar sem confundir infraestrutura com aprovação
         if: always()
         env:

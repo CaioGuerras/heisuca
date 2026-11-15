@@ -53,7 +53,7 @@ class UpdateChecker {
             melhor = oferta;
           }
         } catch (_) {
-          /* Consulta automática falha em silêncio, sem registrar endereço/código. */
+          /* Consulta automática falha em silêncio, sem registrar o endereço. */
         }
       }
       if (emReproducao() || beta() != betaInicial) return null;

@@ -60,6 +60,7 @@ class UpdateController extends ChangeNotifier {
   Future<void>? _inicializacao;
   bool _verificouAbertura = false;
   bool _descartado = false;
+
   /// Código do antigo canal de teste. Só é lido para levar quem o tinha ao Beta e então apagado.
   static const _chaveCodigoAntigo = 'heisuca_update_test_code_v1';
   File? _arquivo;
@@ -123,7 +124,7 @@ class UpdateController extends ChangeNotifier {
     mensagem = null;
     _avisar();
     try {
-      // Canal de teste: o botão manual sempre consulta (testador precisa da build nova na hora).
+      // Beta: o botão manual sempre consulta, para pegar a build nova na hora.
       final encontrada = await _checker!.verificar(ignorarLimite: manual && beta);
       if (_descartado || emReproducao()) return;
       oferta = encontrada;
@@ -248,10 +249,11 @@ class UpdateController extends ChangeNotifier {
       final antigo = await segredos.readOrThrow(_chaveCodigoAntigo);
       if (antigo == null || antigo.isEmpty) return;
       LogRedactionManager.registerToken(antigo);
-      await settings.write(SettingsService.updateBeta, true);
+      // Apaga primeiro: se o cofre não grava, o canal salvo fica como está, sem forçar o Beta a cada abertura.
       await segredos.writeOrThrow(_chaveCodigoAntigo, '');
+      await settings.write(SettingsService.updateBeta, true);
     } catch (_) {
-      // Cofre ilegível: segue no canal salvo nas preferências.
+      // Cofre ilegível ou sem gravação: segue no canal salvo nas preferências.
     }
   }
 

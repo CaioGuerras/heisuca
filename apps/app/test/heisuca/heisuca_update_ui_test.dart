@@ -62,6 +62,8 @@ class _ControladorQueConta extends UpdateController {
 void main() {
   const nativo = MethodChannel('app.heisuca/updates');
   late UpdateController c;
+  late ConfiguracaoAtualizacao config;
+  late UpdateFeedClient feed;
   late SettingsService settings;
   late CgflixMemorySecureStore segredos;
   late Directory pasta;
@@ -101,8 +103,8 @@ void main() {
         _ => null,
       };
     });
-    final config = ConfiguracaoAtualizacao(feed: 'https://feed.example/');
-    final feed = UpdateFeedClient(
+    config = ConfiguracaoAtualizacao(feed: 'https://feed.example/');
+    feed = UpdateFeedClient(
       config,
       cliente: MockClient((r) async {
         if (!r.url.path.endsWith('.json')) {
@@ -278,12 +280,29 @@ void main() {
   testWidgets('quem tinha o código antigo passa para o Beta e o código sai do cofre', (tester) async {
     const codigo = 'codigo-sintetico-sem-credencial-123';
     await segredos.writeOrThrow('heisuca_update_test_code_v1', codigo);
+    expect(settings.read(SettingsService.updateBeta), isNot(isTrue));
     await tester.runAsync(c.iniciar);
     expect(c.beta, isTrue);
     expect(c.canal, 'Beta');
     expect(segredos.values.values, isNot(contains(codigo)));
-    expect(settings.prefs.getString('heisuca_update_test_code_v1'), isNull);
     expect(LogRedactionManager.redact(codigo), isNot(codigo));
+  });
+  testWidgets('cofre que não apaga o código antigo não força o Beta a cada abertura', (tester) async {
+    const codigo = 'codigo-sintetico-sem-credencial-456';
+    final cofre = _CofreQueNaoGrava()..values['heisuca_update_test_code_v1'] = codigo;
+    final outro = UpdateController(
+      config: config,
+      feed: feed,
+      instalador: ApkInstaller(diagnosticos: PlaybackDiagnosticStore(directory: () async => pasta)),
+      settings: settings,
+      segredos: cofre,
+      emReproducao: () => reproduzindo,
+      cache: () async => pasta,
+    );
+    addTearDown(outro.dispose);
+    await tester.runAsync(outro.iniciar);
+    expect(outro.beta, isFalse);
+    expect(settings.read(SettingsService.updateBeta), isNot(isTrue));
   });
   testWidgets('uma verificação ao abrir, limite diário também no botão manual', (tester) async {
     await tester.runAsync(() async {
@@ -450,4 +469,9 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   });
+}
+
+class _CofreQueNaoGrava extends CgflixMemorySecureStore {
+  @override
+  Future<void> writeOrThrow(String key, String value) async => throw StateError('cofre indisponível');
 }

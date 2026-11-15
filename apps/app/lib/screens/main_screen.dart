@@ -1,3 +1,4 @@
+import '../features/baixados/ligacao.dart';
 import '../heisuca/heisuca_motion.dart'; // CGFLIX: entrada de abas sem perder estado.
 import '../features/explorar/ligacao.dart';
 import '../heisuca/tv/heisuca_tv_home_screen.dart';
@@ -1138,10 +1139,15 @@ class _MainScreenState extends State<MainScreen>
         cgflixUseYouTab(context)
             ? LigacaoDaBusca(key: _screenKeys[tab], folgaInferior: Casca.reserva, focoInicial: false)
             : SearchScreen(key: _screenKeys[tab]),
-      NavigationTabId.downloads => DownloadsScreen(
-        key: _screenKeys[tab],
-        profileAction: cgflixUseYouTab(context) ? _buildProfileAction() : null,
-      ),
+      NavigationTabId.downloads =>
+        cgflixUseYouTab(context)
+            ? LigacaoDosBaixados(
+                perfil: _buildProfileAction(),
+                key: _screenKeys[tab],
+                folgaInferior: Casca.reserva,
+                aoExplorar: () => _selectTab(NavigationTabId.libraries),
+              )
+            : DownloadsScreen(key: _screenKeys[tab]),
       NavigationTabId.settings =>
         PlatformDetector.isTV() ? const HeisucaTvSettingsScreen() : SettingsScreen(key: _screenKeys[tab]),
     };

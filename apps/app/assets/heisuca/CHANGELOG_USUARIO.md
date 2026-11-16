@@ -1,3 +1,20 @@
+## 2.0.44 — O que mudou
+
+### Melhor
+- A nota e o tempo restante no pôster ficam num fundo escuro: dá para ler mesmo em capa clara.
+
+## 2.0.43 — O que mudou
+
+### Melhor
+- Explorar mais limpo: os pôsteres mostram menos texto. O ano aparece na ordem por lançamento e a nota na ordem por nota.
+- Selo do tipo no canto do pôster: séries mostram as temporadas, coleções mostram quantos filmes têm.
+
+## 2.0.42 — O que mudou
+
+### Melhor
+- Perfis infantis: toque para entrar e use o botão ao lado para editar.
+- Excluir um perfil infantil pede o PIN do responsável.
+
 ## 2.0.41 — O que mudou
 
 ### Novo

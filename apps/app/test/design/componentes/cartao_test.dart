@@ -232,6 +232,26 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('nota e tempo ficam numa pílula escura, legíveis em pôster claro', (tester) async {
+    for (final caso in [
+      const Cartao(key: Key('c'), titulo: 'Amélie', largura: 120, nota: '8,3', corDoPoster: Color(0xFFFFFFFF)),
+      const Cartao(key: Key('c'), titulo: 'Amélie', largura: 120, tempo: '12 min', corDoPoster: Color(0xFFFFFFFF)),
+    ]) {
+      await tester.pumpWidget(naTela(caso));
+      final texto = find.text(caso.nota ?? caso.tempo!);
+      final pilula = find.ancestor(of: texto, matching: find.byKey(const Key('cartao-pilula-rodape')));
+      expect(pilula, findsOneWidget);
+      final fundo = (tester.widget<DecoratedBox>(pilula).decoration as ShapeDecoration).color!;
+      final cor = tester.widget<Text>(texto).style!.color!;
+      // Pílula sobre branco puro: o texto precisa de contraste de pelo menos 4,5:1.
+      final fundoReal = Color.alphaBlend(fundo, const Color(0xFFFFFFFF));
+      final claro = cor.computeLuminance(), escuro = fundoReal.computeLuminance();
+      final contraste = (claro > escuro ? (claro + 0.05) / (escuro + 0.05) : (escuro + 0.05) / (claro + 0.05));
+      expect(contraste, greaterThanOrEqualTo(4.5), reason: 'contraste $contraste');
+      expect(tester.takeException(), isNull);
+    }
+  });
+
   testWidgets('alturaPara reserva a altura que o cartão ocupa, também com letra grande', (tester) async {
     for (final letra in [1.0, 2.0]) {
       for (final comSubtitulo in [false, true]) {

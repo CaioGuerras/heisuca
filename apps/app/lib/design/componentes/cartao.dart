@@ -205,11 +205,22 @@ class Cartao extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
+                    // Mesma pílula do selo: só o véu do rodapé não basta em pôster claro, e o texto sumia.
                     if (tempo != null || nota != null)
-                      Text(
-                        tempo ?? nota!,
-                        style: Tipo.tempo(tema).copyWith(color: sobreArte.texto, fontWeight: FontWeight.w600),
-                        maxLines: 1,
+                      DecoratedBox(
+                        key: const Key('cartao-pilula-rodape'),
+                        decoration: ShapeDecoration(
+                          color: sobreArte.fundo.withValues(alpha: _veu),
+                          shape: Forma.pilula(),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: Forma.espaco2, vertical: Forma.espaco1),
+                          child: Text(
+                            tempo ?? nota!,
+                            style: Tipo.tempo(tema).copyWith(color: sobreArte.texto, fontWeight: FontWeight.w600),
+                            maxLines: 1,
+                          ),
+                        ),
                       ),
                     if (fracao > 0) ...[
                       const SizedBox(height: Forma.espaco1),

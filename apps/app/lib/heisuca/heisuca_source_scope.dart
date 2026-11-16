@@ -184,6 +184,12 @@ Future<void> heisucaAddSource(BuildContext context) async {
     );
     return;
   }
+  // Sem o escopo de fonte (tela larga) a navegação junta todos os servidores: não há fonte vista para escolher.
+  if (selection == null) {
+    final texto = news.length == 1 ? 'Fonte adicionada: ${name(news.single)}' : '${news.length} fontes adicionadas';
+    messenger?.showSnackBar(SnackBar(content: Text(texto)));
+    return;
+  }
   var chosen = news.length == 1 ? news.single : null;
   if (chosen == null && navigator.mounted && context.mounted) {
     chosen = await showModalBottomSheet<String>(
@@ -205,7 +211,7 @@ Future<void> heisucaAddSource(BuildContext context) async {
     );
   }
   if (chosen == null) return;
-  await selection?.select(chosen);
+  await selection.select(chosen);
   messenger?.showSnackBar(SnackBar(content: Text('Agora você está vendo: ${name(chosen)}')));
 }
 

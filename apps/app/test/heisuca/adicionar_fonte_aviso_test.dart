@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:heisuca/cgflix/cgflix_theme.dart';
 import 'package:heisuca/heisuca/heisuca_source_scope.dart';
+import 'package:heisuca/heisuca/kids/heisuca_kids.dart';
+import 'package:heisuca/profiles/profile.dart' show computePinHash;
 import 'package:heisuca/profiles/profile_connection.dart';
 import 'package:heisuca/screens/settings/add_connection_screen.dart';
 import 'package:heisuca/services/settings_service.dart' as settings;
@@ -80,6 +82,46 @@ void main() {
     }
     await tester.pump(const Duration(milliseconds: 400));
   }
+
+  testWidgets('no modo infantil a porta de adicionar fonte não abre, venha de onde vier', (tester) async {
+    await tester.runAsync(() async {
+      resetSharedPreferencesForTest();
+      fixture = HeisucaP3Fixture();
+      await fixture.initialize(settings.ThemeMode.dark);
+      HeisucaKids.instance.debugReset();
+      await HeisucaKids.instance.save(
+        HeisucaKidsRecord(
+          parentProfileId: 'pai',
+          kidsProfileId: 'familia',
+          variant: CgflixThemeVariant.ichigo,
+          ceiling: 'livre',
+          pinHash: computePinHash('2468'),
+          name: 'Ana',
+        ),
+      );
+    });
+    addTearDown(HeisucaKids.instance.debugReset);
+    addTearDown(() => encerrar(tester));
+    await tester.pumpWidget(
+      fixture.wrap(
+        MaterialApp(
+          theme: cgflixDarkTheme(),
+          navigatorKey: navigator,
+          home: Scaffold(
+            body: Builder(
+              builder: (context) =>
+                  TextButton(onPressed: () => heisucaAddSource(context), child: const Text('Adicionar fonte')),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.tap(find.text('Adicionar fonte'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.byType(AddConnectionScreen), findsNothing);
+  });
 
   testWidgets('com o escopo de fonte o aviso diz que a fonte nova é a vista', (tester) async {
     await adicionar(tester, comEscopo: true);

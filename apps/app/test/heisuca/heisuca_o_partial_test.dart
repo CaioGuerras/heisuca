@@ -129,7 +129,7 @@ void main() {
     });
     await tester.pumpAndSettle();
     expect(find.text('Novidades'), findsOneWidget);
-    expect(find.text('2.0.40 — O que mudou'), findsOneWidget);
+    expect(find.text('$heisucaNewsVersion — O que mudou'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

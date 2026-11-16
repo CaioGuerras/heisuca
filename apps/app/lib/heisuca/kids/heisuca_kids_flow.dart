@@ -267,7 +267,7 @@ class _HeisucaKidsSetupScreenState extends State<HeisucaKidsSetupScreen> {
     Widget choice({
       required bool selected,
       required String title,
-      required String subtitle,
+      String? subtitle,
       required VoidCallback onTap,
       String? asset,
     }) => Padding(
@@ -294,8 +294,10 @@ class _HeisucaKidsSetupScreenState extends State<HeisucaKidsSetupScreen> {
                         title,
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: palette.onGlass),
                       ),
-                      const SizedBox(height: 2),
-                      Text(subtitle, style: TextStyle(fontSize: 13, color: palette.textMuted)),
+                      if (subtitle != null) ...[
+                        const SizedBox(height: 2),
+                        Text(subtitle, style: TextStyle(fontSize: 13, color: palette.textMuted)),
+                      ],
                     ],
                   ),
                 ),
@@ -375,14 +377,12 @@ class _HeisucaKidsSetupScreenState extends State<HeisucaKidsSetupScreen> {
                       choice(
                         selected: _variant == CgflixThemeVariant.ichigo,
                         title: 'Menina · Ichigo',
-                        subtitle: 'Morangos, melancias e corações',
                         asset: 'morango',
                         onTap: () => setState(() => _variant = CgflixThemeVariant.ichigo),
                       ),
                       choice(
                         selected: _variant == CgflixThemeVariant.sorairo,
                         title: 'Menino · Sorairo',
-                        subtitle: 'Nuvens, estrelas e aviõezinhos',
                         asset: 'aviao',
                         onTap: () => setState(() => _variant = CgflixThemeVariant.sorairo),
                       ),

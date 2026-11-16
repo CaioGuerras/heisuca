@@ -74,7 +74,7 @@ class _HeisucaKidsOpeningState extends State<HeisucaKidsOpening> with SingleTick
   Widget build(BuildContext context) {
     final palette = PlatformDetector.isTV()
         ? context.cgflix
-        : CgflixPalette.forVariant(widget.variant, dark: MediaQuery.platformBrightnessOf(context) == Brightness.dark);
+        : CgflixPalette.forVariant(widget.variant, dark: Theme.of(context).brightness == Brightness.dark);
     final ichigo = widget.variant == CgflixThemeVariant.ichigo;
     final name = widget.name.trim().isEmpty ? '' : ', ${widget.name.trim().characters.take(24)}';
     return Material(

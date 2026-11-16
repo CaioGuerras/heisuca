@@ -12,6 +12,7 @@ import '../providers/multi_server_provider.dart';
 import '../screens/profile/profile_switch_screen.dart';
 import '../screens/settings/add_connection_screen.dart';
 import 'kids/heisuca_kids_flow.dart';
+import '../widgets/backend_badge.dart';
 
 /// A fonte não altera login, perfil nem a resolução de clientes para downloads.
 /// Remontar os consumidores descarta resultados pendentes da navegação anterior.
@@ -155,6 +156,8 @@ String heisucaBackendLabel(String name) => switch (name) {
 /// espera o rebind do perfil e o servidor novo aparecer, e então PASSA a mostrá-lo; se uma
 /// conta Plex trouxe vários servidores, pergunta qual. Nada de sucesso sem servidor de verdade.
 Future<void> heisucaAddSource(BuildContext context) async {
+  // Segunda trava: a tela Você já esconde a entrada no modo infantil; aqui vale para qualquer outro caminho.
+  if (heisucaKidsActive(context, listen: false)) return;
   final servers = context.read<MultiServerProvider>();
   final profiles = context.read<ActiveProfileProvider>();
   final selection = context.getInheritedWidgetOfExactType<_SourceSelection>();
@@ -253,7 +256,11 @@ Future<void> heisucaChooseSource(BuildContext context) async {
               Builder(
                 builder: (_) {
                   final client = servers.getClientForServer(ServerId(id));
+                  final backend = servers.serverManager.backendForServer(ServerId(id));
                   return HeisucaSourceRow(
+                    leading: backend == null
+                        ? null
+                        : BackendBadge(backend: backend, size: 26, color: backendBrandColor(backend)),
                     title: client?.serverName ?? servers.serverManager.serverDisplayName(ServerId(id)),
                     subtitle: heisucaBackendLabel(
                       servers.serverManager.backendForServer(ServerId(id))?.name ?? 'Fonte',

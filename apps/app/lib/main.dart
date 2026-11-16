@@ -1600,10 +1600,10 @@ class _AppShell extends StatelessWidget {
                     locale: cgflixMaterialLocale(context), // CGFLIX: Material no idioma do app
                     supportedLocales: cgflixSupportedLocales, // CGFLIX
                     localizationsDelegates: cgflixLocalizationsDelegates, // CGFLIX
-                    // Heisuca: no modo infantil o tema é o do perfil (Ichigo/Sorairo), nos dois modos.
-                    theme: heisucaKidsTheme(context) ?? cgflixLightTheme(), // CGFLIX: Heitor (claro, verde)
+                    // Heisuca: no modo infantil o tema é o do perfil (Ichigo/Sorairo); claro ou escuro segue o app.
+                    theme: heisucaKidsTheme(context, dark: false) ?? cgflixLightTheme(), // CGFLIX: Heitor (claro, verde)
                     darkTheme:
-                        heisucaKidsTheme(context) ??
+                        heisucaKidsTheme(context, dark: true) ??
                         cgflixDarkTheme(themeProvider.themeMode), // CGFLIX: Isis (escuro, roxo)
                     themeMode: cgflixMaterialThemeMode(themeProvider.themeMode), // CGFLIX
                     navigatorKey: rootNavigatorKey,

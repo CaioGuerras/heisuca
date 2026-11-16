@@ -10,21 +10,39 @@ import '../../connection/connection.dart';
 
 @immutable
 class HeisucaKidsRecord {
-  const HeisucaKidsRecord({required this.parentProfileId, required this.kidsProfileId, required this.variant,
-    required this.ceiling, required this.pinHash, required this.name});
+  const HeisucaKidsRecord({
+    required this.parentProfileId,
+    required this.kidsProfileId,
+    required this.variant,
+    required this.ceiling,
+    required this.pinHash,
+    required this.name,
+  });
   final String parentProfileId, kidsProfileId, ceiling, pinHash, name;
   final CgflixThemeVariant variant;
 
-  Map<String, Object?> toJson() => {'pai': parentProfileId, 'kids': kidsProfileId, 'tema': variant.name,
-    'teto': ceiling, 'pin': pinHash, 'nome': name};
+  Map<String, Object?> toJson() => {
+    'pai': parentProfileId,
+    'kids': kidsProfileId,
+    'tema': variant.name,
+    'teto': ceiling,
+    'pin': pinHash,
+    'nome': name,
+  };
 
   static HeisucaKidsRecord? fromJson(Object? json) {
     if (json is! Map) return null;
     final variant = CgflixThemeVariant.values.where((v) => v.name == json['tema'] && v.isKids).firstOrNull;
     final pai = json['pai'], kids = json['kids'], pin = json['pin'];
     if (variant == null || pai is! String || kids is! String || pin is! String || pin.isEmpty) return null;
-    return HeisucaKidsRecord(parentProfileId: pai, kidsProfileId: kids, variant: variant,
-      ceiling: json['teto'] == '10' ? '10' : 'livre', pinHash: pin, name: json['nome'] is String ? json['nome'] as String : 'Criança');
+    return HeisucaKidsRecord(
+      parentProfileId: pai,
+      kidsProfileId: kids,
+      variant: variant,
+      ceiling: json['teto'] == '10' ? '10' : 'livre',
+      pinHash: pin,
+      name: json['nome'] is String ? json['nome'] as String : 'Criança',
+    );
   }
 }
 
@@ -51,7 +69,9 @@ class HeisucaKids extends ChangeNotifier {
             if (r != null) _byKids[r.kidsProfileId] = r;
           }
         }
-      } on FormatException { /* registro corrompido: começa vazio, nunca trava a abertura */ }
+      } on FormatException {
+        /* registro corrompido: começa vazio, nunca trava a abertura */
+      }
     }
     _loaded = true;
     notifyListeners();
@@ -84,7 +104,10 @@ class HeisucaKids extends ChangeNotifier {
   }
 
   @visibleForTesting
-  void debugReset() { _byKids.clear(); _loaded = false; }
+  void debugReset() {
+    _byKids.clear();
+    _loaded = false;
+  }
 }
 
 /// Conexão do usuário infantil criado pelo cgflix-kids (contrato do servidor: nome `<pessoa>-kids`).

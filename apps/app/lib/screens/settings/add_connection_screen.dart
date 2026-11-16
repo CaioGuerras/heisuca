@@ -4,7 +4,9 @@ import '../../heisuca/heisuca_logo.dart';
 import '../../heisuca/heisuca_sources_ui.dart';
 import '../../heisuca/heisuca_theme.dart';
 import '../../i18n/strings.g.dart';
+import '../../media/media_backend.dart';
 import '../../media/media_browser_dialect.dart';
+import '../../widgets/backend_badge.dart';
 import '../../profiles/profile.dart';
 import '../profile/borrow_connection_screen.dart';
 import 'add_jellyfin_screen.dart';
@@ -35,6 +37,7 @@ class AddConnectionScreen extends StatelessWidget {
         title: t.addServer.signInWithPlexCard,
         subtitle: scoped ? t.addServer.signInWithPlexCardSubtitleScoped : t.addServer.signInWithPlexCardSubtitle,
         builder: (_) => AddPlexAccountScreen(targetProfile: targetProfile),
+        backend: MediaBackend.plex,
       ),
       _BackendOption(
         title: t.addServer.connectToMediaBrowserCard(product: jellyfinDialect.productName),
@@ -45,6 +48,7 @@ class AddConnectionScreen extends StatelessWidget {
               )
             : t.addServer.connectToMediaBrowserCardSubtitle,
         builder: (_) => AddJellyfinScreen(targetProfile: targetProfile, dialect: jellyfinDialect),
+        backend: MediaBackend.jellyfin,
       ),
       _BackendOption(
         title: t.addServer.connectToMediaBrowserCard(product: embyDialect.productName),
@@ -55,6 +59,7 @@ class AddConnectionScreen extends StatelessWidget {
               )
             : t.addServer.connectToMediaBrowserCardSubtitle,
         builder: (_) => AddJellyfinScreen(targetProfile: targetProfile, dialect: embyDialect),
+        backend: MediaBackend.emby,
       ),
       if (scoped)
         _BackendOption(
@@ -63,20 +68,63 @@ class AddConnectionScreen extends StatelessWidget {
           builder: (_) => BorrowConnectionScreen(targetProfile: targetProfile!),
         ),
     ];
-    return Scaffold(backgroundColor: context.cgflix.background, body: SafeArea(child: CustomScrollView(slivers: [
-      SliverToBoxAdapter(child: Padding(padding: const EdgeInsets.fromLTRB(14, 8, 20, 18), child: Row(children: [
-        IconButton(tooltip: 'Voltar', onPressed: () => Navigator.maybePop(context), icon: const Icon(Icons.arrow_back_rounded)),
-        const SizedBox(width: 8), const HeisucaLogo(siteHeader: true, height: 26),
-      ]))),
-      SliverToBoxAdapter(child: Padding(padding: const EdgeInsets.fromLTRB(20, 8, 20, 24), child: Text(
-        scoped ? t.addServer.addConnectionTitleScoped(name: targetProfile!.displayName) : t.addServer.addConnectionTitle,
-        style: TextStyle(fontFamily: HeisucaTheme.fonteTitulo, fontSize: 28, fontWeight: FontWeight.w600, color: context.cgflix.onGlass)))),
-      SliverList.list(children: [for (final option in options) HeisucaSourceRow(title: option.title,
-        subtitle: option.subtitle, onTap: () async {
-          final added = await Navigator.push<bool>(context, MaterialPageRoute(builder: option.builder));
-          if (added == true && context.mounted) Navigator.of(context).pop(true);
-        })]),
-    ])));
+    return Scaffold(
+      backgroundColor: context.cgflix.background,
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(14, 8, 20, 18),
+                child: Row(
+                  children: [
+                    IconButton(
+                      tooltip: 'Voltar',
+                      onPressed: () => Navigator.maybePop(context),
+                      icon: const Icon(Icons.arrow_back_rounded),
+                    ),
+                    const SizedBox(width: 8),
+                    const HeisucaLogo(siteHeader: true, height: 26),
+                  ],
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                child: Text(
+                  scoped
+                      ? t.addServer.addConnectionTitleScoped(name: targetProfile!.displayName)
+                      : t.addServer.addConnectionTitle,
+                  style: TextStyle(
+                    fontFamily: HeisucaTheme.fonteTitulo,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w600,
+                    color: context.cgflix.onGlass,
+                  ),
+                ),
+              ),
+            ),
+            SliverList.list(
+              children: [
+                for (final option in options)
+                  HeisucaSourceRow(
+                    title: option.title,
+                    subtitle: option.subtitle,
+                    leading: option.backend == null
+                        ? Icon(Icons.people_alt_outlined, color: context.cgflix.accent)
+                        : BackendBadge(backend: option.backend!, size: 26, color: backendBrandColor(option.backend!)),
+                    onTap: () async {
+                      final added = await Navigator.push<bool>(context, MaterialPageRoute(builder: option.builder));
+                      if (added == true && context.mounted) Navigator.of(context).pop(true);
+                    },
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -85,5 +133,8 @@ class _BackendOption {
   final String subtitle;
   final WidgetBuilder builder;
 
-  const _BackendOption({required this.title, required this.subtitle, required this.builder});
+  /// Logo do servidor na linha; `null` = usar a conexão de outro perfil.
+  final MediaBackend? backend;
+
+  const _BackendOption({required this.title, required this.subtitle, required this.builder, this.backend});
 }

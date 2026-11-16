@@ -12,10 +12,19 @@ class HeisucaKidsPhoto extends StatelessWidget {
   Widget build(BuildContext context) {
     final parsed = Uri.tryParse(uri ?? '');
     if (parsed == null || parsed.scheme != 'file' || parsed.host.isNotEmpty) return fallback;
-    return Semantics(label: 'Foto da criança', image: true, child: ClipOval(
-      child: Image.file(File.fromUri(parsed), width: size, height: size, fit: BoxFit.cover,
-        cacheWidth: (size * MediaQuery.devicePixelRatioOf(context)).ceil(),
-        errorBuilder: (_, _, _) => fallback),
-    ));
+    return Semantics(
+      label: 'Foto da criança',
+      image: true,
+      child: ClipOval(
+        child: Image.file(
+          File.fromUri(parsed),
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          cacheWidth: (size * MediaQuery.devicePixelRatioOf(context)).ceil(),
+          errorBuilder: (_, _, _) => fallback,
+        ),
+      ),
+    );
   }
 }

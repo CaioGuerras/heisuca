@@ -3,6 +3,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../media/media_backend.dart';
 
+/// Cor da marca de cada servidor, a mesma da tela de entrada.
+Color backendBrandColor(MediaBackend backend) => switch (backend) {
+  MediaBackend.plex => const Color(0xFFE5A00D),
+  MediaBackend.jellyfin => const Color(0xFF00A4DC),
+  MediaBackend.emby => const Color(0xFF52B54B),
+};
+
 /// Tiny SVG badge for a [MediaBackend] (Plex chevron / Jellyfin or Emby mark).
 /// All assets render in `currentColor` so they pick up whatever foreground
 /// the parent provides — pass [color] to override, otherwise inherits from

@@ -279,7 +279,7 @@ class LigacaoDaVoce extends StatelessWidget {
               chave: 'apoie',
               icone: Symbols.favorite_rounded,
               titulo: 'Apoie',
-              subtitulo: 'Ajude a manter o servidor no ar',
+              subtitulo: 'Ajude a manter o Heisuca',
               aoTocar: () => acoes.apoie(context),
             ),
         ],

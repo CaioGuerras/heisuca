@@ -1,3 +1,13 @@
+## 2.0.41 — O que mudou
+
+### Novo
+- Minha lista com Plex: o que você salva aparece na sua lista do Plex.
+
+### Melhor
+- Adicionar servidor com o logo de cada app (Plex, Jellyfin, Emby), também na escolha de fonte.
+- O modo infantil segue o tema do app: claro fica claro, mesmo com o celular no escuro.
+- Escolha do tema infantil mais simples.
+
 ## 2.0.40 — O que mudou
 
 ### Novo

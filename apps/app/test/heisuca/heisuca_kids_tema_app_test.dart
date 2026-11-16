@@ -6,6 +6,7 @@ import 'package:heisuca/heisuca/kids/heisuca_kids.dart';
 import 'package:heisuca/heisuca/kids/heisuca_kids_theme.dart';
 import 'package:heisuca/profiles/active_profile_provider.dart';
 import 'package:heisuca/profiles/profile.dart';
+import 'package:heisuca/theme/mono_theme.dart';
 import '../test_helpers/prefs.dart';
 
 class _Profiles extends ChangeNotifier implements ActiveProfileProvider {
@@ -22,6 +23,7 @@ class _Profiles extends ChangeNotifier implements ActiveProfileProvider {
 final _kid = Profile.local(id: 'kids-1', displayName: 'Ana', createdAt: DateTime(2026, 11, 17));
 
 /// Monta o MaterialApp do mesmo jeito que o main.dart: tema do kids nas duas versões, `themeMode` do app decide.
+/// Sem tema de reserva: se o tema infantil não vier, o MaterialApp cai no padrão do Flutter e a cor reprova.
 Future<Brightness> _brilhoNoKids(WidgetTester tester, {required ThemeMode doApp, required Brightness doCelular}) async {
   tester.platformDispatcher.platformBrightnessTestValue = doCelular;
   addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
@@ -36,12 +38,17 @@ Future<Brightness> _brilhoNoKids(WidgetTester tester, {required ThemeMode doApp,
       ],
       child: Builder(
         builder: (context) => MaterialApp(
-          theme: heisucaKidsTheme(context, dark: false) ?? ThemeData.light(),
-          darkTheme: heisucaKidsTheme(context, dark: true) ?? ThemeData.dark(),
+          theme: heisucaKidsTheme(context, dark: false),
+          darkTheme: heisucaKidsTheme(context, dark: true),
           themeMode: doApp,
           home: Builder(
             builder: (inner) {
-              visto = Theme.of(inner).brightness;
+              final tema = Theme.of(inner);
+              visto = tema.brightness;
+              // É mesmo o tema infantil (Ichigo) daquele brilho, não um tema qualquer.
+              final esperado = monoTheme(dark: visto == Brightness.dark, kids: CgflixThemeVariant.ichigo);
+              expect(tema.colorScheme.primary, esperado.colorScheme.primary);
+              expect(tema.scaffoldBackgroundColor, esperado.scaffoldBackgroundColor);
               return const SizedBox.shrink();
             },
           ),

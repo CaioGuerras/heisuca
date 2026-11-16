@@ -1,0 +1,39 @@
+00:00 +0: loading /mnt/nvme4n1/caioguerras/TMP/heisuca-minhalista-plex/apps/app/test/features/minha_lista/fontes_plex_test.dart
+00:00 +0: só Plex: a Watchlist entra na Minha lista com o título do servidor
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:00 +1: Jellyfin + Emby + Plex: todos entram, sem duplicar o mesmo título
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (14ms)
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (13ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CProviderIds%2CGenres%2CChildCount%2CRecursiveItemCount%2CProductionYear%2COfficialRating%2CPremiereDate%2CUserDataLastPlayedDate&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&ParentId=filmes&Filters=IsFavorite&IncludeItemTypes=Movie%2CSeries&SortBy=SortName&SortOrder=Ascending&Limit=300&StartIndex=0 → 200 (1ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CProviderIds%2CGenres%2CChildCount%2CRecursiveItemCount%2CProductionYear%2COfficialRating%2CPremiereDate%2CUserDataLastPlayedDate&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&ParentId=filmes&Filters=IsFavorite&IncludeItemTypes=Movie%2CSeries&SortBy=SortName&SortOrder=Ascending&Limit=300&StartIndex=0 → 200 (1ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:00 +2: Plex falhando: mantém os favoritos do Jellyfin
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (2ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CProviderIds%2CGenres%2CChildCount%2CRecursiveItemCount%2CProductionYear%2COfficialRating%2CPremiereDate%2CUserDataLastPlayedDate&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&ParentId=filmes&Filters=IsFavorite&IncludeItemTypes=Movie%2CSeries&SortBy=SortName&SortOrder=Ascending&Limit=300&StartIndex=0 → 200 (0ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:00 +3: sem conta Plex não derruba Jellyfin; todas falhando devolvem erro
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CProviderIds%2CGenres%2CChildCount%2CRecursiveItemCount%2CProductionYear%2COfficialRating%2CPremiereDate%2CUserDataLastPlayedDate&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&ParentId=filmes&Filters=IsFavorite&IncludeItemTypes=Movie%2CSeries&SortBy=SortName&SortOrder=Ascending&Limit=300&StartIndex=0 → 200 (0ms)
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:00 +4: Jellyfin falhando mantém Plex; todas as redes falhando propagam erro
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:00 +5: pagina a Watchlist, resolve uma vez e só inclui o acervo conectado
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:00 +6: cartão Plex: tirar da lista grava pela loja padrão e atualiza a aba
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:01 +7: resolução tem no máximo quatro pedidos simultâneos
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:01 +8: servidor Plex falha sem esconder outro Plex que respondeu
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:01 +9: All tests passed!

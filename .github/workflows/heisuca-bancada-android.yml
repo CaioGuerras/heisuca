@@ -18,6 +18,14 @@ jobs:
     name: Percurso real no emulador (independente do APK)
     runs-on: ubuntu-latest
     timeout-minutes: 70
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {variante: base, n: 1, atraso: 0, gpu: "-gpu software"}
+          - {variante: base, n: 2, atraso: 300, gpu: "-gpu software"}
+          - {variante: semvulkan, n: 1, atraso: 150, gpu: "-gpu software -feature -Vulkan"}
+          - {variante: semvulkan, n: 2, atraso: 450, gpu: "-gpu software -feature -Vulkan"}
     defaults:
       run:
         working-directory: apps/app
@@ -89,6 +97,13 @@ jobs:
           df -h /
       - name: Compilar leitor rápido das janelas PiP (só bancada)
         run: python3 scripts/bancada/compilar_ui.py
+      - name: Monitor do runner (EXPERIMENTO)
+        run: |
+          mkdir -p .bancada/evidencias
+          nohup sh -c 'while true; do date -u +%T; vmstat 1 2 | tail -1; ps -eo pid,rss,pcpu,nlwp,comm --sort=-pcpu | head -6; sleep 4; done' > .bancada/evidencias/host-monitor.log 2>&1 &
+          cat /proc/sys/kernel/core_pattern
+          # Jobs paralelos do experimento: escalona a escolha da conta (o rodízio só pula conta já tocando).
+          sleep ${{ matrix.atraso }}
       - name: Emulador e percurso autenticado
         id: percurso
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
@@ -108,7 +123,7 @@ jobs:
           # AOSP trace 40303114336: raster preso em glGetActiveUniform/qemu_pipe_read.
           # swiftshader_indirect foi descontinuado no Emulator 36.4.9; usa o backend
           # de software suportado escolhido pelo Emulator, sem trocar o motor do app.
-          emulator-options: -no-window -gpu software -noaudio -no-boot-anim -camera-back none
+          emulator-options: -no-window ${{ matrix.gpu }} -noaudio -no-boot-anim -camera-back none
           working-directory: apps/app
           script: |
             for tentativa in 1 2 3 4 5; do timeout 30 adb wait-for-device || true; if adb root; then timeout 30 adb wait-for-device || true; break; fi; echo "Tentativa $tentativa/5 de adb root falhou, aguardando..."; sleep 3; done  # uma linha: o emulator-runner roda cada linha num sh -c separado
@@ -124,12 +139,19 @@ jobs:
             # 43661393908: "Pixel Launcher isn't responding" (launcher sem CPU) cobriu o Assistir na ficha.
             # Só esconde o diálogo do sistema; ANR do app segue detectado por logcat/dumpsys no executar.py.
             adb shell settings put global hide_error_dialogs 1
+            nohup sh -c "adb logcat -v threadtime | grep --line-buffered -iE 'impeller|vulkan|gfxstream|libc  |DEBUG   |crash|lowmemorykiller|lmkd|watchdog|ANR in|am_kill' | sed -E 's/(api_key|ApiKey|token|Token|AccessToken|X-Emby-Token)([=: \"]+)[^&\" ]*/\1\2[omitido]/g; s#https?://[^ ]*#[url]#g' > .bancada/evidencias/logcat-filtrado.txt" >/dev/null 2>&1 &
             python3 scripts/bancada/executar.py
       - name: Diagnóstico do runner quando o emulador some
         if: failure()
         run: |
           free -m
-          sudo dmesg -T | grep -iE 'out of memory|killed process|oom-kill|qemu|emulator' | tail -30
+          sudo dmesg -T | tail -40
+          ps -eo pid,rss,pcpu,etime,comm | grep -iE 'qemu|emulator|netsim|crashpad' || echo 'emulador não está mais vivo'
+          ls -laR /tmp/android-runner 2>/dev/null | head -40
+          for d in $(find /tmp/android-runner -xdev -type f \( -name '*.dmp' -o -name '*.dmp.*' \) 2>/dev/null | head -3); do
+            echo "== $d"; strings -n 8 "$d" | grep -iE 'hang|fatal|abort|assert|crash|check failed|vk|gfxstream|thread' | grep -viE 'token|api_key|password|senha' | head -40
+          done
+          if [ -f .bancada/evidencias/host-monitor.log ]; then tail -60 .bancada/evidencias/host-monitor.log; fi
       - name: Classificar sem confundir infraestrutura com aprovação
         if: always()
         env:
@@ -161,7 +183,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: heisuca-bancada-android
+          name: heisuca-bancada-android-${{ matrix.variante }}-${{ matrix.n }}
           path: apps/app/.bancada/evidencias/
           if-no-files-found: error
           retention-days: 7

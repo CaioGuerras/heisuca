@@ -1,4 +1,4 @@
-import 'package:os_media_controls/os_media_controls.dart';
+import 'package:heisuca/services/sessao_media.dart';
 
 /// Authorization boundary for user-originated OS media commands, owned by
 /// whoever holds the transport (the video screen, the music session).

@@ -14,6 +14,7 @@ from servidor import BancadaIndisponivel, RestauracaoFalhou, Servidor, seleciona
 
 from capturas import APP_ID, Capturas, adb
 from diagnosticos import coletar
+from sessao_media import ProvasSessao
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / '.bancada/evidencias'
@@ -67,6 +68,7 @@ def main():
         env['HEISUCA_BANCADA_EVIDENCIAS'] = str(OUT)
         protected = names + [client.token]
         captures.start()
+        provas_sessao = ProvasSessao(OUT, adb, APP_ID, lambda texto: limpar_log(texto, protected, base))
         playback_possible = True
         command = ['flutter', 'drive', '--driver', 'test_driver/bancada_android_test.dart',
             '--target', 'integration_test/bancada_android_test.dart', '--use-application-binary',
@@ -95,6 +97,7 @@ def main():
                 reader.start()
                 while process.poll() is None:
                     captures.poll()
+                    provas_sessao.poll()
                     time.sleep(0.2)
                 code = process.wait()
                 reader.join(timeout=10)
@@ -127,6 +130,8 @@ def main():
                     raise RuntimeError('Uma captura de vídeo não tem faixa de imagem e duração válidas.')
             if not all(details.get('foraDoApp', {}).get(key) is True for key in ['padraoDesligado', 'pipPadrao', 'audioComServico', 'controlesDaSessao', 'audioAposFecharPip']):
                 raise RuntimeError('Percurso de mídia fora do app não comprovado.')
+            provas_sessao.verificar(details.get('sessaoHud') or {})
+            report.update({'sessaoHud': details['sessaoHud']})
             report.update({'status': 'aprovado', 'video': details['video'], 'passos': details['passos'], 'foraDoApp': details['foraDoApp'], 'restaurosNativos': details.get('restaurosNativos')})
             if details.get('avisos'):
                 report.update({'status': 'atenção', 'avisos': details['avisos'],

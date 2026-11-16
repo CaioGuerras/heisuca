@@ -6,6 +6,7 @@ import '../../media/media_item_types.dart';
 import '../../media/media_server_client.dart';
 import '../../mpv/mpv.dart';
 import '../../services/media_controls_manager.dart';
+import '../../services/sessao_media.dart';
 import '../../services/settings_service.dart';
 import '../../utils/app_logger.dart';
 import '../../utils/platform_detector.dart';
@@ -44,6 +45,9 @@ class MediaControlsScreenController {
     required this._clearWasPlayingBeforeInactive,
     required this._wakelock,
     required this._recordLifecycle,
+    this.hasFatalPlaybackError,
+    this.hasNextItem,
+    this.hasPreviousItem,
   });
 
   final MediaControlsManager? Function() _manager;
@@ -75,6 +79,10 @@ class MediaControlsScreenController {
   final void Function() _clearWasPlayingBeforeInactive;
   final WakelockController _wakelock;
   final void Function(String state, {String? action}) _recordLifecycle;
+
+  final bool Function()? hasFatalPlaybackError;
+  final bool Function()? hasNextItem;
+  final bool Function()? hasPreviousItem;
 
   bool _suspendedForTvBackground = false;
 
@@ -121,8 +129,8 @@ class MediaControlsScreenController {
     // restarts when nothing earlier is loaded, and next resolves once the
     // adjacent item arrives.
     final hasNavigableItems = _metadata().isEpisode || _isPlaylistActive();
-    final hasNextItem = isLive ? _hasNextLiveChannel() : hasNavigableItems;
-    final hasPreviousItem = isLive ? _hasPreviousLiveChannel() : hasNavigableItems;
+    final hasNextItem = isLive ? _hasNextLiveChannel() : this.hasNextItem?.call() ?? hasNavigableItems;
+    final hasPreviousItem = isLive ? _hasPreviousLiveChannel() : this.hasPreviousItem?.call() ?? hasNavigableItems;
     final contentCanSeek = !isLive && currentPlayer.state.seekable;
     final canControlPlayback = _canControlPlayback();
     final canNavigateMediaItems = _canNavigateMediaItems();
@@ -197,16 +205,35 @@ class MediaControlsScreenController {
   }
 
   /// Pushes the current playback state to the OS media session.
-  void pushPlaybackState() {
+  void pushPlaybackState({bool force = true}) {
     if (_suspendedForTvBackground) return;
     final currentPlayer = _player();
     if (currentPlayer == null) return;
 
+    final estado = currentPlayer.state;
+    final detalhado = hasFatalPlaybackError?.call() == true
+        ? PlaybackState.error
+        : estado.completed
+        ? PlaybackState.ended
+        : estado.buffering
+        ? PlaybackState.buffering
+        : null;
+    if (detalhado != null) {
+      unawaited(
+        _manager()?.updateDetailedPlaybackState(
+          state: detalhado,
+          position: estado.position,
+          speed: estado.rate,
+          force: force,
+        ),
+      );
+      return;
+    }
     _manager()?.updatePlaybackState(
       isPlaying: currentPlayer.state.isActive,
       position: currentPlayer.state.position,
       speed: currentPlayer.state.rate,
-      force: true, // Force update since this is an explicit state change
+      force: force,
     );
   }
 }

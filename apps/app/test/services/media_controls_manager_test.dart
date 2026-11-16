@@ -14,7 +14,7 @@ import '../test_helpers/media_items.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  const channel = MethodChannel('com.edde746.os_media_controls/methods');
+  const channel = MethodChannel('app.heisuca.sessao/metodos');
   final calls = <MethodCall>[];
   TargetPlatform? previousPlatformOverride;
 

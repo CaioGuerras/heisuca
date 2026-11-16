@@ -88,8 +88,8 @@ void main() {
     // The recovered playback brings the OS media session up, which activates
     // and cancels its event stream; an unmocked EventChannel reports its
     // MissingPluginException as a test failure.
-    const mediaControlMethods = MethodChannel('com.edde746.os_media_controls/methods');
-    const mediaControlEvents = MethodChannel('com.edde746.os_media_controls/events');
+    const mediaControlMethods = MethodChannel('app.heisuca.sessao/metodos');
+    const mediaControlEvents = MethodChannel('app.heisuca.sessao/eventos');
     messenger.setMockMethodCallHandler(windowChannel, (call) async => call.method.startsWith('is') ? false : null);
     messenger.setMockMethodCallHandler(mediaControlMethods, (call) async => null);
     messenger.setMockMethodCallHandler(mediaControlEvents, (call) async => null);

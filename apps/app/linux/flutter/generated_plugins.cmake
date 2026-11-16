@@ -3,7 +3,6 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  os_media_controls
   screen_retriever_linux
   universal_gamepad
   url_launcher_linux

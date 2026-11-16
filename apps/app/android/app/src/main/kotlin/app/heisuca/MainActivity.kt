@@ -35,6 +35,7 @@ import app.heisuca.shared.AssistiveTechnologyMonitor
 import app.heisuca.shared.DeviceQuirks
 import app.heisuca.shared.MediaCodecQuery
 import app.heisuca.shared.ThemeHelper
+import app.heisuca.sessao.SessaoBridge
 import app.heisuca.watchnext.WatchNextPlugin
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.android.FlutterTextureView
@@ -724,6 +725,12 @@ class MainActivity : FlutterActivity() {
     }
   }
 
+  override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
+    SessaoBridge.onStateChanged = null
+    SessaoBridge.detach()
+    super.cleanUpFlutterEngine(flutterEngine)
+  }
+
   override fun getFlutterShellArgs(): FlutterShellArgs {
     val args = super.getFlutterShellArgs()
     selectedFlutterRenderer = selectFlutterRenderer()
@@ -915,6 +922,15 @@ class MainActivity : FlutterActivity() {
 
   override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
     super.configureFlutterEngine(flutterEngine)
+    SessaoBridge.attach(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
+    SessaoBridge.onStateChanged = {
+      runOnUiThread {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && isPipSupportedDevice() && !isFinishing && !isDestroyed) {
+          runCatching { setPictureInPictureParams(buildPipParams(autoPipWidth, autoPipHeight, autoPipReady)) }
+            .onFailure { Log.w(TAG, "Não foi possível atualizar os controles da janela flutuante", it) }
+        }
+      }
+    }
     if (BuildConfig.HEISUCA_ATUALIZADOR) {
       atualizadorApk = app.heisuca.updates.ApkInstaller(this).also {
         it.registrar(flutterEngine.dartExecutor.binaryMessenger)
@@ -1072,6 +1088,9 @@ class MainActivity : FlutterActivity() {
 
     MethodChannel(flutterEngine.dartExecutor.binaryMessenger, PIP_CHANNEL).setMethodCallHandler { call, result ->
       when (call.method) {
+        "getMaxNumPictureInPictureActions" -> {
+          result.success(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) maxNumPictureInPictureActions else 0)
+        }
         "isMediaPlaybackServiceActive" -> {
           result.success(hasMediaPlaybackService(this))
         }
@@ -1291,7 +1310,13 @@ class MainActivity : FlutterActivity() {
   @RequiresApi(Build.VERSION_CODES.O)
   private fun buildPipParams(width: Int, height: Int, autoEnterEnabled: Boolean? = null): PictureInPictureParams {
     if (!isInPictureInPictureMode) window.decorView.getGlobalVisibleRect(lastPipSourceRect)
-    return heisucaPipParams(width, height, lastPipSourceRect, autoEnterEnabled)
+    val estado = SessaoBridge.estado
+    val pronto = pipAutomatico(autoEnterEnabled ?: autoPipReady, estado.tocando, estado.isVideo)
+    val controles = pipControles(estado.tocando,
+      estado.temItem && estado.isVideo && "play" in estado.comandos && "pause" in estado.comandos,
+      "skipForward" in estado.comandos && "skipBackward" in estado.comandos,
+      "next" in estado.comandos)
+    return heisucaPipParams(width, height, lastPipSourceRect, pronto, pipAcoes(this, controles))
   }
 }
 

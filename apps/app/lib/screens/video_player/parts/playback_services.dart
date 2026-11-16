@@ -119,6 +119,7 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
 
     _playerStreamSubscriptions.add(
       currentPlayer.streams.completed.listen((done) {
+        _mediaControls.pushPlaybackState();
         // completed=false means a file (re)loaded after a reconnect-seek or fresh
         // open — re-arm the end-of-video latch so the real EOF can still show Play
         // Next. But only when playback is clear of the end region: a stray
@@ -174,6 +175,7 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
     _playerStreamSubscriptions.add(
       currentPlayer.streams.buffering.listen((isBuffering) {
         _isBuffering.value = isBuffering;
+        _mediaControls.pushPlaybackState();
       }),
     );
 
@@ -597,11 +599,7 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
 
     _mediaControlSubscriptions.add(
       currentPlayer.streams.position.listen((position) {
-        mediaControlsManager.updatePlaybackState(
-          isPlaying: currentPlayer.state.isActive,
-          position: position,
-          speed: currentPlayer.state.rate,
-        );
+        _mediaControls.pushPlaybackState(force: false);
         // Canais ao vivo informam a linha do tempo apenas por [_sendLiveTimeline].
         if (widget.isLive) return;
       }),

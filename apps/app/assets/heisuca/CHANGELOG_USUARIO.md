@@ -4,6 +4,7 @@
 - Servidores na tela Você: troque de servidor ou adicione outro sem sair do que você já usa.
 
 ### Melhor
+- Controles do sistema refeitos: tela de bloqueio, fone e janela flutuante com botões.
 - Temas com nomes claros, detalhe dourado no tema escuro e o OLED automático.
 
 ## 2.0.39 — O que mudou

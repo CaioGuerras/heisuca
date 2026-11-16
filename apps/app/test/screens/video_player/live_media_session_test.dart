@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:os_media_controls/os_media_controls.dart';
+import 'package:heisuca/services/sessao_media.dart';
 import 'package:heisuca/database/app_database.dart';
 import 'package:heisuca/media/ids.dart';
 import 'package:heisuca/media/live_tv_support.dart';
@@ -45,8 +45,8 @@ import '../../test_helpers/prefs.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  const mediaControlChannel = MethodChannel('com.edde746.os_media_controls/methods');
-  const mediaControlEvents = MethodChannel('com.edde746.os_media_controls/events');
+  const mediaControlChannel = MethodChannel('app.heisuca.sessao/metodos');
+  const mediaControlEvents = MethodChannel('app.heisuca.sessao/eventos');
   final calls = <MethodCall>[];
 
   setUp(() async {
@@ -239,6 +239,60 @@ void main() {
     );
   });
 
+  test('estados nativos preservam carregamento e fim na sessão', () async {
+    for (final caso in [
+      (const PlayerState(buffering: true), 'buffering'),
+      (const PlayerState(completed: true), 'ended'),
+    ]) {
+      final manager = MediaControlsManager();
+      addTearDown(manager.dispose);
+      final controller = _liveController(
+        manager: manager,
+        player: _LiveMediaSessionPlayer(state: caso.$1),
+      );
+      calls.clear();
+      controller.pushPlaybackState();
+      await pumpEventQueue();
+      expect((calls.single.arguments as Map)['state'], caso.$2);
+    }
+  });
+
+  test('erro fatal prevalece sobre o motor ainda marcado como tocando', () async {
+    final manager = MediaControlsManager();
+    addTearDown(manager.dispose);
+    final controller = _liveController(
+      manager: manager,
+      player: _LiveMediaSessionPlayer(state: const PlayerState(playing: true)),
+      hasFatalPlaybackError: () => true,
+    );
+    controller.pushPlaybackState();
+    await pumpEventQueue();
+    expect((calls.single.arguments as Map)['state'], 'error');
+  });
+
+  test('último item desabilita próximo sem perder os outros controles', () async {
+    final manager = MediaControlsManager();
+    addTearDown(manager.dispose);
+    var temProximo = true;
+    final controller = _liveController(
+      manager: manager,
+      player: _LiveMediaSessionPlayer(state: const PlayerState(seekable: true)),
+      isLive: false,
+      hasNextItem: () => temProximo,
+      hasPreviousItem: () => true,
+    );
+    await controller.syncAvailability();
+    expect(
+      calls.firstWhere((c) => c.method == 'enableControls').arguments,
+      containsAll(['play', 'pause', 'previous', 'next', 'seek', 'stop', 'skipForward', 'skipBackward', 'changeSpeed']),
+    );
+    calls.clear();
+    temProximo = false;
+    await controller.syncAvailability();
+    expect(calls.single.method, 'disableControls');
+    expect(calls.single.arguments, ['next']);
+  });
+
   test('live skip follows the capture buffer and never rewinds on resume', () async {
     final previousPlatformOverride = debugDefaultTargetPlatformOverride;
     debugDefaultTargetPlatformOverride = TargetPlatform.android;
@@ -327,20 +381,27 @@ MediaControlsScreenController _liveController({
   bool Function()? hasNextChannel,
   bool Function()? hasPreviousChannel,
   Future<void> Function(Duration position)? seek,
+  bool Function()? hasFatalPlaybackError,
+  bool isLive = true,
+  bool Function()? hasNextItem,
+  bool Function()? hasPreviousItem,
 }) {
   return MediaControlsScreenController(
     manager: () => manager,
     player: () => player,
     isMounted: () => true,
-    isLive: true,
+    isLive: isLive,
     hasLiveSeekWindow: hasSeekWindow ?? () => false,
     hasNextLiveChannel: hasNextChannel ?? () => false,
     hasPreviousLiveChannel: hasPreviousChannel ?? () => false,
     shouldSkipForPip: () => false,
     isPlayerInitialized: () => true,
+    hasFatalPlaybackError: hasFatalPlaybackError,
+    hasNextItem: hasNextItem,
+    hasPreviousItem: hasPreviousItem,
     metadata: () => testMediaItem(kind: MediaKind.clip, title: 'Channel 5'),
     client: () => null,
-    isPlaylistActive: () => false,
+    isPlaylistActive: () => !isLive,
     canControlPlayback: () => true,
     canNavigateMediaItems: () => true,
     rewindOnResumeSeconds: () => 10,
@@ -406,8 +467,8 @@ class _LiveShell {
 }
 
 class _LiveMediaSessionPlayer implements Player {
-  _LiveMediaSessionPlayer()
-    : _state = const PlayerState(position: Duration.zero, duration: Duration.zero, seekable: false);
+  _LiveMediaSessionPlayer({PlayerState? state})
+    : _state = state ?? const PlayerState(position: Duration.zero, duration: Duration.zero, seekable: false);
 
   final PlayerState _state;
   final List<Duration> seekTargets = [];

@@ -5,7 +5,7 @@ import 'package:drift/native.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/widgets.dart';
-import 'package:os_media_controls/os_media_controls.dart';
+import 'package:heisuca/services/sessao_media.dart';
 import 'package:heisuca/database/app_database.dart';
 import 'package:heisuca/media/ids.dart';
 import 'package:heisuca/media/media_backend.dart';

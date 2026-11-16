@@ -13,6 +13,7 @@ import '../../cgflix/conta/cgflix_minha_conta_screen.dart';
 import '../../design/forma.dart';
 import '../../heisuca/heisuca_security.dart';
 import '../../heisuca/heisuca_settings_screen.dart';
+import '../../heisuca/heisuca_source_scope.dart';
 import '../../heisuca/kids/heisuca_kids.dart';
 import '../../heisuca/kids/heisuca_kids_flow.dart';
 import '../../heisuca/kids/heisuca_kids_identity.dart';
@@ -44,6 +45,7 @@ class AcoesDaVoce {
     required this.atualizacoes,
     required this.sobre,
     required this.trocarUsuario,
+    required this.servidores,
     required this.confirmarSaida,
     required this.sair,
     required this.apoie,
@@ -61,6 +63,7 @@ class AcoesDaVoce {
       atualizacoes = _atualizacoes,
       sobre = _sobre,
       trocarUsuario = _trocarUsuario,
+      servidores = _servidores,
       confirmarSaida = _confirmarSaida,
       sair = _sair,
       apoie = _apoie;
@@ -75,6 +78,9 @@ class AcoesDaVoce {
   final void Function(BuildContext context) atualizacoes;
   final void Function(BuildContext context) sobre;
   final void Function(BuildContext context) trocarUsuario;
+
+  /// Lista os servidores salvos, troca entre eles e adiciona outro sem sair do atual.
+  final void Function(BuildContext context) servidores;
 
   /// Pergunta se quer mesmo sair. `true` confirma.
   final Future<bool> Function(BuildContext context) confirmarSaida;
@@ -117,6 +123,8 @@ class AcoesDaVoce {
       rootNavigator: true,
     ).push(MaterialPageRoute<void>(builder: (_) => const ProfileSwitchScreen())),
   );
+
+  static void _servidores(BuildContext context) => unawaited(heisucaChooseSource(context));
 
   static Future<bool> _confirmarSaida(BuildContext context) => showConfirmDialog(
     context,
@@ -206,6 +214,13 @@ class LigacaoDaVoce extends StatelessWidget {
             titulo: 'Trocar usuário',
             subtitulo: 'Entrar com outro perfil salvo',
             aoTocar: () => acoes.trocarUsuario(context),
+          ),
+          ItemDaVoce(
+            chave: 'servidores',
+            icone: Symbols.dns_rounded,
+            titulo: 'Servidores',
+            subtitulo: 'Trocar de servidor ou adicionar outro',
+            aoTocar: () => acoes.servidores(context),
           ),
         ],
         [

@@ -143,6 +143,7 @@ class _Chamadas {
     atualizacoes: (_) => registrar('atualizacoes'),
     sobre: (_) => registrar('sobre'),
     trocarUsuario: (_) => registrar('trocarUsuario'),
+    servidores: (_) => registrar('servidores'),
     confirmarSaida: (_) async {
       registrar('confirmarSaida');
       return confirma;
@@ -243,6 +244,7 @@ void main() {
           'Minha conta': 'minhaConta',
           'Meus pedidos': 'meusPedidos',
           'Trocar usuário': 'trocarUsuario',
+          'Servidores': 'servidores',
           'Perfis e PIN': 'perfis:pai',
           'Modo infantil': 'modoInfantil',
           'Configurações': 'configuracoes',
@@ -354,6 +356,8 @@ void main() {
       expect(find.text('Minha conta'), findsNothing);
       expect(find.text('Meus pedidos'), findsNothing);
       expect(find.text('Trocar usuário'), findsOneWidget);
+      // Servidor fora do ar é justamente quando a pessoa precisa adicionar outro.
+      expect(find.text('Servidores'), findsOneWidget);
     });
 
     testWidgets('sem apoio some o Apoie', (tester) async {
@@ -391,6 +395,7 @@ void main() {
       await _montar(tester, chamadas, ativo: _filho);
       expect(find.text('Sair do modo infantil'), findsOneWidget);
       expect(find.text('Configurações'), findsNothing);
+      expect(find.text('Servidores'), findsNothing);
       expect(find.text('Sair'), findsNothing);
       await tester.tap(_cartao('Sair do modo infantil'));
       await tester.pump();

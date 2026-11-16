@@ -213,7 +213,9 @@ Future<void> heisucaChooseSource(BuildContext context) async {
   if (heisucaKidsActive(context, listen: false)) return;
   final source = context.getInheritedWidgetOfExactType<_SourceSelection>();
   final servers = context.read<MultiServerProvider?>();
-  if (source == null || servers == null) return;
+  if (servers == null) return;
+  // Sem a lista de fontes montada (tela larga), ainda dá para adicionar outra sem sair da atual.
+  if (source == null) return heisucaAddSource(context);
   await showModalBottomSheet<void>(
     sheetAnimationStyle: HeisucaMotion.sheetStyle(context),
     context: context,

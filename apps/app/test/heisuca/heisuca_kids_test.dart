@@ -19,6 +19,7 @@ import 'package:heisuca/profiles/active_profile_provider.dart';
 import 'package:heisuca/profiles/profile.dart';
 import 'package:heisuca/connection/connection.dart';
 import 'package:heisuca/services/jellyfin_client.dart';
+import 'package:heisuca/i18n/strings.g.dart';
 import '../test_helpers/prefs.dart';
 import '../visual/heisuca_snapshot.dart';
 
@@ -37,6 +38,13 @@ class _Profiles extends ChangeNotifier implements ActiveProfileProvider {
   bool get isBinding => false;
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+/// Responsável ativo com a criança salva no aparelho (para editar e excluir).
+class _Family extends _Profiles {
+  _Family() : super(_parent);
+  @override
+  List<Profile> get profiles => [_parent, _child];
 }
 
 final _now = DateTime(2026, 10, 23);
@@ -244,6 +252,75 @@ void main() {
     expect(find.text('Trocar perfil'), findsOneWidget);
     expect(find.textContaining('144'), findsNothing, reason: 'não anunciar 144 Hz sem verificar');
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('kids configurado: a linha entra, o botão à direita abre a edição', (tester) async {
+    await HeisucaKids.instance.save(_record);
+    await _pumpYou(tester, _parent);
+    expect(find.text('Entrar no perfil Ana'), findsOneWidget);
+    expect(find.text('Perfil infantil'), findsNothing, reason: 'uma linha só, sem item duplicado');
+    await tester.tap(find.byTooltip('Editar perfil de Ana'));
+    await tester.pumpAndSettle();
+    expect(find.byType(HeisucaKidsIdentityScreen), findsOneWidget);
+    expect(find.text('Excluir perfil infantil'), findsOneWidget);
+  });
+
+  Future<List<String>> excluir(WidgetTester tester, String pin) async {
+    tester.view.physicalSize = const Size(412, 1800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await HeisucaKids.instance.save(_record);
+    final apagados = <String>[];
+    final profiles = _Family();
+    addTearDown(profiles.dispose);
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: ChangeNotifierProvider<ActiveProfileProvider>.value(
+          value: profiles,
+          child: MaterialApp(
+            theme: cgflixAppTheme(),
+            home: Builder(
+              builder: (context) => Scaffold(
+                body: TextButton(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => HeisucaKidsIdentityScreen(
+                        record: _record,
+                        deleteProfile: (_, p) async {
+                          apagados.add(p.id);
+                          return true;
+                        },
+                      ),
+                    ),
+                  ),
+                  child: const Text('abrir'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('abrir'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Excluir perfil infantil'));
+    await tester.tap(find.text('Excluir perfil infantil'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.descendant(of: find.byType(Dialog), matching: find.byType(TextField)), pin);
+    await tester.pumpAndSettle();
+    return apagados;
+  }
+
+  testWidgets('excluir com PIN errado não apaga nada', (tester) async {
+    expect(await excluir(tester, '0000'), isEmpty);
+    expect(HeisucaKids.instance.forParent('pai'), isNotNull);
+    expect(find.text('PIN incorreto.'), findsOneWidget);
+  });
+
+  testWidgets('excluir com o PIN do responsável apaga o perfil e o registro do kids', (tester) async {
+    expect(await excluir(tester, '2468'), ['kids-1']);
+    expect(HeisucaKids.instance.forParent('pai'), isNull);
+    expect(find.byType(HeisucaKidsIdentityScreen), findsNothing);
   });
 
   testWidgets('modo infantil: só Favoritos, Bibliotecas e a saída com PIN', (tester) async {

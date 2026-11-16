@@ -13,6 +13,7 @@ import 'heisuca_kids_flow.dart';
 import '../../profiles/profile.dart';
 import '../../services/jellyfin_client.dart';
 import '../../screens/profile/pin_entry_dialog.dart';
+import '../../screens/profile/profile_teardown.dart';
 import '../../providers/multi_server_provider.dart';
 import '../../cgflix/cgflix_palette.dart';
 
@@ -29,11 +30,30 @@ Future<String?> heisucaPickProfilePhoto() async {
   return file.uri.toString();
 }
 
+/// Confirma e apaga o perfil local da criança pelo mesmo caminho da troca de perfil.
+Future<bool> heisucaDeleteKidsProfile(BuildContext context, Profile profile) => confirmAndDeleteProfile(
+  context,
+  profile: profile,
+  title: 'Excluir perfil infantil?',
+  message:
+      'O perfil de ${profile.displayName} sai deste aparelho, com os downloads dele. '
+      'A conta da criança no servidor continua; para criar de novo, use Modo infantil.',
+  confirmText: 'Excluir',
+);
+
 /// Perfil infantil (menu do responsável): nome, foto, tema, classificação e PIN, com retorno visível.
 /// A classificação é aplicada no SERVIDOR (cgflix-kids), com a sessão do responsável.
 class HeisucaKidsIdentityScreen extends StatefulWidget {
-  const HeisucaKidsIdentityScreen({super.key, required this.record, this.pickPhoto = heisucaPickProfilePhoto});
+  const HeisucaKidsIdentityScreen({
+    super.key,
+    required this.record,
+    this.pickPhoto = heisucaPickProfilePhoto,
+    this.deleteProfile = heisucaDeleteKidsProfile,
+  });
   final Future<String?> Function() pickPhoto;
+
+  /// Apaga o perfil local da criança (downloads, conexões, preferências); `true` = apagado.
+  final Future<bool> Function(BuildContext context, Profile profile) deleteProfile;
   final HeisucaKidsRecord record;
   @override
   State<HeisucaKidsIdentityScreen> createState() => _HeisucaKidsIdentityScreenState();
@@ -140,6 +160,35 @@ class _HeisucaKidsIdentityScreenState extends State<HeisucaKidsIdentityScreen> {
     }
   }
 
+  /// Excluir pede o PIN do responsável e a confirmação; só então apaga o perfil e o registro do kids.
+  Future<void> _delete() async {
+    final profiles = context.read<ActiveProfileProvider>();
+    final r = widget.record;
+    if (profiles.activeId != r.parentProfileId) {
+      _say('Abra esta tela pelo perfil do responsável.');
+      return;
+    }
+    final pin = await showPinEntryDialog(context, 'PIN do responsável');
+    if (pin == null || !mounted) return;
+    if (!verifyPin(pin, _pinHash)) {
+      _say('PIN incorreto.');
+      return;
+    }
+    setState(() => _saving = true);
+    try {
+      final profile = profiles.profiles.where((p) => p.id == r.kidsProfileId).firstOrNull;
+      if (profile != null && !await widget.deleteProfile(context, profile)) return;
+      await HeisucaKids.instance.remove(r.kidsProfileId);
+      if (!mounted) return;
+      _say('Perfil infantil excluído.');
+      Navigator.pop(context);
+    } catch (_) {
+      if (mounted) _say('Não foi possível excluir o perfil.');
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -240,6 +289,13 @@ class _HeisucaKidsIdentityScreenState extends State<HeisucaKidsIdentityScreen> {
           ),
           const SizedBox(height: 16),
           FilledButton(onPressed: _saving ? null : _save, child: Text(_saving ? 'Salvando…' : 'Salvar')),
+          const SizedBox(height: 24),
+          TextButton.icon(
+            onPressed: _saving ? null : _delete,
+            style: TextButton.styleFrom(foregroundColor: scheme.error),
+            icon: const Icon(Icons.delete_outline_rounded),
+            label: const Text('Excluir perfil infantil'),
+          ),
         ],
       ),
     );

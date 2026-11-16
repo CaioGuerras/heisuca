@@ -101,24 +101,27 @@ class HeisucaProfileScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20.0),
                       child: BackdropFilter(
                         filter: ui.ImageFilter.blur(sigmaX: 16.0, sigmaY: 16.0),
-                        child: HeisucaDpadFocus(borderRadius: 20, child: InkWell(
-                          onTap: () {
-                            HapticFeedback.lightImpact();
-                            Navigator.of(context).pop();
-                          },
-                          borderRadius: BorderRadius.circular(20.0),
-                          child: Container(
-                            width: 48.0,
-                            height: 48.0,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: palette.glass,
-                              borderRadius: BorderRadius.circular(20.0),
-                              border: Border.all(color: cardBorder, width: 0.8),
+                        child: HeisucaDpadFocus(
+                          borderRadius: 20,
+                          child: InkWell(
+                            onTap: () {
+                              HapticFeedback.lightImpact();
+                              Navigator.of(context).pop();
+                            },
+                            borderRadius: BorderRadius.circular(20.0),
+                            child: Container(
+                              width: 48.0,
+                              height: 48.0,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: palette.glass,
+                                borderRadius: BorderRadius.circular(20.0),
+                                border: Border.all(color: cardBorder, width: 0.8),
+                              ),
+                              child: Icon(Symbols.arrow_back_rounded, color: textTitle, size: 22.0),
                             ),
-                            child: Icon(Symbols.arrow_back_rounded, color: textTitle, size: 22.0),
                           ),
-                        )),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 14.0),
@@ -158,15 +161,8 @@ class HeisucaProfileScreen extends StatelessWidget {
                         Container(
                           width: 58.0,
                           height: 58.0,
-                          decoration: BoxDecoration(
-                            color: palette.badge,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Symbols.person_rounded,
-                            color: palette.onBadge,
-                            size: 32.0,
-                          ),
+                          decoration: BoxDecoration(color: palette.badge, shape: BoxShape.circle),
+                          child: Icon(Symbols.person_rounded, color: palette.onBadge, size: 32.0),
                         ),
                       const SizedBox(width: 16.0),
                       // Nome e Chip de Status
@@ -309,19 +305,14 @@ class HeisucaProfileScreen extends StatelessWidget {
                     HapticFeedback.lightImpact();
                     heisucaEnterKids(context);
                   },
+                  // Tocar na linha entra no kids; o botão à direita abre a edição (nome, foto, tema, PIN, excluir).
+                  trailingTooltip: kidsRecord != null ? 'Editar perfil de ${kidsRecord.name}' : null,
+                  onTrailingTap: kidsRecord == null
+                      ? null
+                      : () => Navigator.of(
+                          context,
+                        ).push(MaterialPageRoute<void>(builder: (_) => HeisucaKidsIdentityScreen(record: kidsRecord))),
                 ),
-                if (kidsRecord != null)
-                  _buildProfileTile(
-                    icon: Symbols.edit_rounded,
-                    title: 'Perfil infantil',
-                    subtitle: '${kidsRecord.name} · nome, foto, tema, classificação e PIN',
-                    textColor: textTitle,
-                    subColor: textSub,
-                    iconColor: textTitle,
-                    onTap: () => Navigator.of(
-                      context,
-                    ).push(MaterialPageRoute<void>(builder: (_) => HeisucaKidsIdentityScreen(record: kidsRecord))),
-                  ),
               ]),
               if (active != null)
                 ...secao('Privacidade e segurança', [
@@ -451,51 +442,68 @@ class HeisucaProfileScreen extends StatelessWidget {
     required Color subColor,
     required Color iconColor,
     required VoidCallback onTap,
+    VoidCallback? onTrailingTap,
+    String? trailingTooltip,
   }) {
-    return HeisucaDpadFocus(borderRadius: HeisucaTheme.raioSquircle, child: InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
-        child: Row(
-          children: [
-            Container(
-              width: 38.0,
-              height: 38.0,
-              decoration: BoxDecoration(color: iconColor.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10.0)),
-              child: Icon(icon, color: iconColor, size: 22.0, fill: iconFill),
-            ),
-            const SizedBox(width: 14.0),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontFamily: HeisucaTheme.fonteTexto,
-                      fontSize: 15.0,
-                      fontWeight: FontWeight.w600,
-                      color: textColor,
-                    ),
-                  ),
-                  const SizedBox(height: 2.0),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontFamily: HeisucaTheme.fonteTexto,
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w400,
-                      color: subColor,
-                    ),
-                  ),
-                ],
+    return HeisucaDpadFocus(
+      borderRadius: HeisucaTheme.raioSquircle,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+          child: Row(
+            children: [
+              Container(
+                width: 38.0,
+                height: 38.0,
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: Icon(icon, color: iconColor, size: 22.0, fill: iconFill),
               ),
-            ),
-            Icon(Symbols.chevron_right_rounded, color: subColor.withValues(alpha: 0.6), size: 20.0),
-          ],
+              const SizedBox(width: 14.0),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontFamily: HeisucaTheme.fonteTexto,
+                        fontSize: 15.0,
+                        fontWeight: FontWeight.w600,
+                        color: textColor,
+                      ),
+                    ),
+                    const SizedBox(height: 2.0),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontFamily: HeisucaTheme.fonteTexto,
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w400,
+                        color: subColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (onTrailingTap == null)
+                Icon(Symbols.chevron_right_rounded, color: subColor.withValues(alpha: 0.6), size: 20.0)
+              else ...[
+                Container(width: 1, height: 28, color: subColor.withValues(alpha: 0.25)),
+                IconButton(
+                  tooltip: trailingTooltip,
+                  onPressed: onTrailingTap,
+                  icon: Icon(Symbols.edit_rounded, color: textColor, size: 20.0),
+                ),
+              ],
+            ],
+          ),
         ),
       ),
-    ));
+    );
   }
 }

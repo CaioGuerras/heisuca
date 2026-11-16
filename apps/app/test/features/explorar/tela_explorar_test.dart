@@ -29,6 +29,7 @@ List<ItemDoExplorar> _itens(int quantos, {VoidCallback? aoTocar, VoidCallback? a
       anos: '${2000 + i}',
       nota: i == 0 ? '8,6' : null,
       visto: i == 1,
+      selo: i == 2 ? '3 temp.' : null,
       aoTocar: aoTocar,
       aoSegurar: aoSegurar,
     ),
@@ -89,10 +90,40 @@ void main() {
       expect(terceiro.top, primeiro.top);
       expect(quarto.left, primeiro.left);
       expect(quarto.top, greaterThan(primeiro.bottom));
-      expect(find.bySemanticsLabel('Título 0, 2000, 8,6'), findsOneWidget);
-      expect(find.bySemanticsLabel('Título 1, 2001, visto'), findsOneWidget);
+      // Menos texto: na ordem A–Z o cartão diz só o nome (e o selo do tipo, quando houver).
+      expect(find.bySemanticsLabel('Título 0'), findsOneWidget);
+      expect(find.bySemanticsLabel('Título 1, visto'), findsOneWidget);
+      expect(find.bySemanticsLabel('Título 2, 3 temp.'), findsOneWidget);
+      expect(find.text('2000'), findsNothing);
+      expect(find.text('8,6'), findsNothing);
       expect(find.bySemanticsLabel('Buscar'), findsOneWidget);
       expect(find.bySemanticsLabel('Ordenar, agora por Título A–Z'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  for (final (ordem, rotulo, aparece, some) in [
+    (OrdemDoExplorar.lancamento, 'Título 0, 2000', '2000', '8,6'),
+    (OrdemDoExplorar.nota, 'Título 0, 8,6', '8,6', '2000'),
+    (OrdemDoExplorar.recentes, 'Título 0', null, '2000'),
+  ]) {
+    testWidgets('ordem ${ordem.name}: o cartão mostra só o dado da ordem escolhida', (tester) async {
+      _tela(tester, const Size(400, 900));
+      await tester.pumpWidget(
+        naTela(
+          TelaExplorar(
+            bibliotecas: _bibliotecas,
+            bibliotecaAtual: 'f',
+            ordem: ordem,
+            itens: _itens(3),
+            cores: CorPosterCache(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.bySemanticsLabel(rotulo), findsOneWidget);
+      if (aparece != null) expect(find.text(aparece), findsOneWidget);
+      expect(find.text(some), findsNothing);
       expect(tester.takeException(), isNull);
     });
   }

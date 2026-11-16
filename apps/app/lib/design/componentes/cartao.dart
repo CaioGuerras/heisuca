@@ -37,6 +37,7 @@ class Cartao extends StatelessWidget {
     this.nota,
     this.visto = false,
     this.emDestaque = false,
+    this.selo,
     this.aoTocar,
     this.aoSegurar,
   });
@@ -66,6 +67,9 @@ class Cartao extends StatelessWidget {
 
   /// O cartão do que está em uso agora (o episódio atual): ganha contorno na cor de acento.
   final bool emDestaque;
+
+  /// Selo curto no canto de cima, do lado oposto ao ✓: diz o tipo do título ("3 temp.", "4 filmes").
+  final String? selo;
   final VoidCallback? aoTocar;
 
   /// Toque longo: abre o menu do cartão.
@@ -111,6 +115,7 @@ class Cartao extends StatelessWidget {
     final temRodape = fracao > 0 || tempo != null || nota != null;
     final rotulo = [
       titulo,
+      ?selo,
       ?subtitulo,
       ?tempo,
       ?nota,
@@ -152,6 +157,27 @@ class Cartao extends StatelessWidget {
                   shape: Forma.superelipse(
                     Forma.raioMedio,
                     lado: BorderSide(color: tema.acento, width: contornoDoDestaque),
+                  ),
+                ),
+              ),
+            if (selo != null)
+              Align(
+                alignment: AlignmentDirectional.topStart,
+                child: Padding(
+                  padding: const EdgeInsets.all(Forma.espaco2),
+                  child: DecoratedBox(
+                    decoration: ShapeDecoration(
+                      color: sobreArte.fundo.withValues(alpha: _veu),
+                      shape: Forma.pilula(),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: Forma.espaco2, vertical: Forma.espaco1),
+                      child: Text(
+                        selo!,
+                        style: Tipo.tempo(tema).copyWith(color: sobreArte.texto, fontWeight: FontWeight.w600),
+                        maxLines: 1,
+                      ),
+                    ),
                   ),
                 ),
               ),

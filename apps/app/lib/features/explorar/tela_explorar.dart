@@ -206,7 +206,10 @@ class _TelaExplorarState extends State<TelaExplorar> {
     final itens = widget.itens;
     final esperando = widget.carregando && itens.isEmpty;
     final papel = TemasCorPoster.de(TemaHeisuca.de(context).nome);
-    final comSubtitulo = itens.any((item) => item.anos != null);
+    // Menos texto: o cartão leva só pôster e nome; o ano e a nota aparecem quando são a ordem escolhida.
+    final mostraAno = widget.ordem == OrdemDoExplorar.lancamento;
+    final mostraNota = widget.ordem == OrdemDoExplorar.nota;
+    final comSubtitulo = mostraAno && itens.any((item) => item.anos != null);
 
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: Forma.espaco4),
@@ -238,12 +241,13 @@ class _TelaExplorarState extends State<TelaExplorar> {
               return Cartao(
                 key: ValueKey(item.chave),
                 titulo: item.titulo,
-                subtitulo: item.anos,
+                subtitulo: mostraAno ? item.anos : null,
                 largura: largura,
                 corDoPoster: paleta == null ? null : Color(paleta.superficie2),
                 arte: item.arte?.call(context, quadro),
-                nota: item.nota,
+                nota: mostraNota ? item.nota : null,
                 visto: item.visto,
+                selo: item.selo,
                 aoTocar: item.aoTocar,
                 aoSegurar: item.aoSegurar,
               );

@@ -44,6 +44,7 @@ class ItemDoExplorar {
     this.hash,
     this.nota,
     this.visto = false,
+    this.selo,
     this.aoTocar,
     this.aoSegurar,
   });
@@ -63,6 +64,9 @@ class ItemDoExplorar {
 
   /// Já foi visto até o fim (a série inteira, no caso de série).
   final bool visto;
+
+  /// Selo do tipo sobre o pôster ("3 temp.", "4 filmes"); filme fica sem selo.
+  final String? selo;
   final VoidCallback? aoTocar;
 
   /// Toque longo: abre o menu do título.

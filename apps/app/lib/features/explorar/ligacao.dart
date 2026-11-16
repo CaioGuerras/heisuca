@@ -439,6 +439,7 @@ class _LigacaoDoExplorarState extends State<LigacaoDoExplorar> with Refreshable,
     hash: heisucaArtworkHash(item),
     nota: notaDe(item.rating),
     visto: item.isWatched,
+    selo: seloDe(item.kind, item.childCount),
     aoTocar: () => _abrir(item),
     aoSegurar: () => _menu(item),
   );
@@ -522,4 +523,14 @@ class _LigacaoDoExplorarState extends State<LigacaoDoExplorar> with Refreshable,
       ),
     );
   }
+}
+
+/// Selo do tipo no cartão do Explorar: série mostra as temporadas, coleção os filmes; o resto fica sem selo.
+String? seloDe(MediaKind tipo, int? filhos) {
+  if (filhos == null || filhos <= 0) return null;
+  return switch (tipo) {
+    MediaKind.show => '$filhos temp.',
+    MediaKind.collection => filhos == 1 ? '1 filme' : '$filhos filmes',
+    _ => null,
+  };
 }

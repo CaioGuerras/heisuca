@@ -220,6 +220,18 @@ void main() {
     });
   }
 
+  testWidgets('selo do tipo fica no canto de cima, do lado oposto ao ✓, e o leitor de tela ouve', (tester) async {
+    await tester.pumpWidget(
+      naTela(const Cartao(key: Key('s'), titulo: 'Dark', largura: 120, selo: '3 temp.', visto: true)),
+    );
+    final quadro = tester.getRect(find.descendant(of: find.byKey(const Key('s')), matching: find.byType(AspectRatio)));
+    final selo = tester.getRect(find.text('3 temp.'));
+    expect(selo.top, lessThan(quadro.top + 40));
+    expect(selo.left, lessThan(quadro.left + 40));
+    expect(find.bySemanticsLabel('Dark, 3 temp., visto'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('alturaPara reserva a altura que o cartão ocupa, também com letra grande', (tester) async {
     for (final letra in [1.0, 2.0]) {
       for (final comSubtitulo in [false, true]) {

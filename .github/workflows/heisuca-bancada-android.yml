@@ -18,16 +18,6 @@ jobs:
     name: Percurso real no emulador (independente do APK)
     runs-on: ubuntu-latest
     timeout-minutes: 70
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          # Rodada 6 (EXPERIMENTO): -HostComposition sozinho caiu 1 em 4 com o mesmo SEGV ...3f5.
-          - {variante: hostcomp-nodelay, n: 1, atraso: 0, gpu: "-gpu software -feature -HostComposition,NoDelayCloseColorBuffer"}
-          - {variante: nodelay, n: 1, atraso: 120, gpu: "-gpu software -feature NoDelayCloseColorBuffer"}
-          - {variante: hostcomp-nodelay, n: 2, atraso: 240, gpu: "-gpu software -feature -HostComposition,NoDelayCloseColorBuffer"}
-          - {variante: nodelay, n: 2, atraso: 360, gpu: "-gpu software -feature NoDelayCloseColorBuffer"}
-          - {variante: hostcomp, n: 1, atraso: 480, gpu: "-gpu software -feature -HostComposition"}
     defaults:
       run:
         working-directory: apps/app
@@ -99,9 +89,6 @@ jobs:
           df -h /
       - name: Compilar leitor rápido das janelas PiP (só bancada)
         run: python3 scripts/bancada/compilar_ui.py
-      - name: Escalonar jobs paralelos (EXPERIMENTO)
-        # O rodízio só pula conta que já está tocando: o atraso evita dois jobs na mesma conta.
-        run: sleep ${{ matrix.atraso }}
       - name: Emulador e percurso autenticado
         id: percurso
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
@@ -126,7 +113,7 @@ jobs:
           # sem Vulkan, sem GLAsyncSwap e sem GLDMA; lavapipe e o canary 37.3.9 dão SIGILL no decodificador GLES.
           # Sem a composição no host, o SurfaceFlinger do guest compõe a tela e o compositor do host deixa de usar
           # os ColorBuffers do guest. Medição e runs: handoffs/NOITE_2026-11-16/ENTREGA_JARVIS.md (CGFLIX).
-          emulator-options: -no-window ${{ matrix.gpu }} -noaudio -no-boot-anim -camera-back none
+          emulator-options: -no-window -gpu software -feature -HostComposition -noaudio -no-boot-anim -camera-back none
           working-directory: apps/app
           script: |
             for tentativa in 1 2 3 4 5; do timeout 30 adb wait-for-device || true; if adb root; then timeout 30 adb wait-for-device || true; break; fi; echo "Tentativa $tentativa/5 de adb root falhou, aguardando..."; sleep 3; done  # uma linha: o emulator-runner roda cada linha num sh -c separado
@@ -184,7 +171,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: heisuca-bancada-android-${{ matrix.variante }}-${{ matrix.n }}
+          name: heisuca-bancada-android
           path: apps/app/.bancada/evidencias/
           if-no-files-found: error
           retention-days: 7

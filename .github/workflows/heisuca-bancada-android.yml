@@ -18,15 +18,6 @@ jobs:
     name: Percurso real no emulador (independente do APK)
     runs-on: ubuntu-latest
     timeout-minutes: 70
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          # Rodada 5: mesma imagem google_apis, outra API (gfxstream e drivers do guest diferentes), emulador 37.2.13.
-          - {variante: api34, n: 1, atraso: 0, cores: "", emu: "", api: 34, gpu: "-gpu software"}
-          - {variante: api36, n: 1, atraso: 120, cores: "", emu: "", api: 36, gpu: "-gpu software"}
-          - {variante: api34, n: 2, atraso: 240, cores: "", emu: "", api: 34, gpu: "-gpu software"}
-          - {variante: api36, n: 2, atraso: 360, cores: "", emu: "", api: 36, gpu: "-gpu software"}
     defaults:
       run:
         working-directory: apps/app
@@ -98,13 +89,6 @@ jobs:
           df -h /
       - name: Compilar leitor rápido das janelas PiP (só bancada)
         run: python3 scripts/bancada/compilar_ui.py
-      - name: Monitor do runner (EXPERIMENTO)
-        run: |
-          mkdir -p .bancada/evidencias
-          nohup sh -c 'while true; do date -u +%T; vmstat 1 2 | tail -1; ps -eo pid,rss,pcpu,nlwp,comm --sort=-pcpu | head -6; sleep 4; done' > .bancada/evidencias/host-monitor.log 2>&1 &
-          cat /proc/sys/kernel/core_pattern
-          # Jobs paralelos do experimento: escalona a escolha da conta (o rodízio só pula conta já tocando).
-          sleep ${{ matrix.atraso }}
       - name: Emulador e percurso autenticado
         id: percurso
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
@@ -112,20 +96,24 @@ jobs:
           HEISUCA_TESTE_SERVIDOR: ${{ secrets.HEISUCA_TESTE_SERVIDOR }}
           HEISUCA_TESTE_CONTAS: ${{ secrets.HEISUCA_TESTE_CONTAS }}
         with:
-          api-level: ${{ matrix.api }}
-          emulator-build: ${{ matrix.emu }}
+          api-level: 35
           # Retoma a imagem da K para comparar foco/Activity sem misturar com a troca para AOSP.
           target: google_apis
           arch: x86_64
           profile: pixel_6
-          cores: ${{ matrix.cores || steps.ambiente.outputs.cores }}
+          cores: ${{ steps.ambiente.outputs.cores }}
           ram-size: 4096M
           heap-size: 512M
           disable-animations: false
           # AOSP trace 40303114336: raster preso em glGetActiveUniform/qemu_pipe_read.
           # swiftshader_indirect foi descontinuado no Emulator 36.4.9; usa o backend
           # de software suportado escolhido pelo Emulator, sem trocar o motor do app.
-          emulator-options: -no-window ${{ matrix.gpu }} -noaudio -no-boot-anim -camera-back none
+          # -feature -HostComposition: desde a Busca V2 (c8f12d26) o qemu do Emulator 37.2.13 morria com SIGSEGV
+          # (PC sempre em ...3f5, fora de qualquer módulo) logo depois de 02-inicio/03-busca, com swangle, swiftshader,
+          # sem Vulkan, sem GLAsyncSwap e sem GLDMA; lavapipe e o canary 37.3.9 dão SIGILL no decodificador GLES.
+          # Sem a composição no host, o SurfaceFlinger do guest compõe a tela e o compositor do host deixa de usar
+          # os ColorBuffers do guest. Medição e runs: handoffs/NOITE_2026-11-16/ENTREGA_JARVIS.md (CGFLIX).
+          emulator-options: -no-window -gpu software -feature -HostComposition -noaudio -no-boot-anim -camera-back none
           working-directory: apps/app
           script: |
             for tentativa in 1 2 3 4 5; do timeout 30 adb wait-for-device || true; if adb root; then timeout 30 adb wait-for-device || true; break; fi; echo "Tentativa $tentativa/5 de adb root falhou, aguardando..."; sleep 3; done  # uma linha: o emulator-runner roda cada linha num sh -c separado
@@ -141,27 +129,17 @@ jobs:
             # 43661393908: "Pixel Launcher isn't responding" (launcher sem CPU) cobriu o Assistir na ficha.
             # Só esconde o diálogo do sistema; ANR do app segue detectado por logcat/dumpsys no executar.py.
             adb shell settings put global hide_error_dialogs 1
-            nohup sh -c "adb logcat -v threadtime | grep --line-buffered -iE 'impeller|vulkan|gfxstream|libc  |DEBUG   |crash|lowmemorykiller|lmkd|watchdog|ANR in|am_kill' | sed -E 's/(api_key|ApiKey|token|Token|AccessToken|X-Emby-Token)([=: \"]+)[^&\" ]*/\1\2[omitido]/g; s#https?://[^ ]*#[url]#g' > .bancada/evidencias/logcat-filtrado.txt" >/dev/null 2>&1 &
             python3 scripts/bancada/executar.py
       - name: Diagnóstico do runner quando o emulador some
         if: failure()
         run: |
           free -m
-          sudo dmesg -T | tail -40
+          sudo dmesg -T | grep -iE 'out of memory|killed process|oom-kill|qemu|emulator|kvm|segfault|traps' | tail -30
           ps -eo pid,rss,pcpu,etime,comm | grep -iE 'qemu|emulator|netsim|crashpad' || echo 'emulador não está mais vivo'
-          ls -laR /tmp/android-runner 2>/dev/null | head -40
-          for d in $(find /tmp/android-runner -xdev -type f \( -name '*.dmp' -o -name '*.dmp.*' \) 2>/dev/null | head -3); do
-            echo "== $d"; strings -n 8 "$d" | grep -iE 'hang|fatal|abort|assert|crash|check failed|vk|gfxstream|thread' | grep -viE 'token|api_key|password|senha' | head -40
-          done
-          if [ -f .bancada/evidencias/host-monitor.log ]; then tail -60 .bancada/evidencias/host-monitor.log; fi
+          # Emulador que some sem OOM morreu por sinal: o systemd-coredump do runner guarda sinal e pilha.
           for i in $(seq 1 24); do pgrep -x systemd-coredum >/dev/null || break; sleep 5; done
-          sudo coredumpctl list --no-pager
-          sudo coredumpctl info --no-pager -1 | grep -vE '^ +(Command Line|Environment)' | head -220
-          if sudo coredumpctl list --no-pager -q >/dev/null 2>&1; then
-            sudo apt-get install -y -qq gdb >/dev/null 2>&1 && sudo coredumpctl debug --no-pager -1 \
-              --debugger-arguments='-batch -ex "info threads" -ex "bt 25" -ex "x/8i $pc-16" -ex "info proc mappings"' 2>&1 \
-              | grep -viE 'token|api_key|https?://|password|senha' | grep -vE '^\s+0x[0-9a-f]+ +0x[0-9a-f]+ +0x[0-9a-f]+ +0x0 +$' | head -160
-          fi
+          sudo coredumpctl list --no-pager || echo 'sem core dump'
+          sudo coredumpctl info --no-pager -1 2>/dev/null | grep -E '^ +(PID|Signal|Executable|Timestamp):|Stack trace of thread|^ +#[0-9]+ ' | head -40
       - name: Classificar sem confundir infraestrutura com aprovação
         if: always()
         env:
@@ -193,7 +171,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: heisuca-bancada-android-${{ matrix.variante }}-${{ matrix.n }}
+          name: heisuca-bancada-android
           path: apps/app/.bancada/evidencias/
           if-no-files-found: error
           retention-days: 7

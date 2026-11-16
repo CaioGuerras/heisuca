@@ -22,13 +22,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Rodada 4: caminho GLES do host no emulador padrão (37.2.13). Hoje: swangle (ANGLE sobre SwiftShader).
-          - {variante: swiftshader, n: 1, atraso: 0, cores: "", emu: "", gpu: "-gpu swiftshader"}
-          - {variante: lavapipe, n: 1, atraso: 150, cores: "", emu: "", gpu: "-gpu lavapipe"}
-          - {variante: semasyncswap, n: 1, atraso: 300, cores: "", emu: "", gpu: "-gpu software -feature -GLAsyncSwap"}
-          - {variante: semhostcomp, n: 1, atraso: 450, cores: "", emu: "", gpu: "-gpu software -feature -HostComposition"}
-          - {variante: semgldma, n: 1, atraso: 600, cores: "", emu: "", gpu: "-gpu software -feature -GLDMA,-GLDMA2"}
-          - {variante: nodelayclose, n: 1, atraso: 750, cores: "", emu: "", gpu: "-gpu software -feature NoDelayCloseColorBuffer"}
+          # Rodada 5: mesma imagem google_apis, outra API (gfxstream e drivers do guest diferentes), emulador 37.2.13.
+          - {variante: api34, n: 1, atraso: 0, cores: "", emu: "", api: 34, gpu: "-gpu software"}
+          - {variante: api36, n: 1, atraso: 120, cores: "", emu: "", api: 36, gpu: "-gpu software"}
+          - {variante: api34, n: 2, atraso: 240, cores: "", emu: "", api: 34, gpu: "-gpu software"}
+          - {variante: api36, n: 2, atraso: 360, cores: "", emu: "", api: 36, gpu: "-gpu software"}
     defaults:
       run:
         working-directory: apps/app
@@ -114,7 +112,7 @@ jobs:
           HEISUCA_TESTE_SERVIDOR: ${{ secrets.HEISUCA_TESTE_SERVIDOR }}
           HEISUCA_TESTE_CONTAS: ${{ secrets.HEISUCA_TESTE_CONTAS }}
         with:
-          api-level: 35
+          api-level: ${{ matrix.api }}
           emulator-build: ${{ matrix.emu }}
           # Retoma a imagem da K para comparar foco/Activity sem misturar com a troca para AOSP.
           target: google_apis

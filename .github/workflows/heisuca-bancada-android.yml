@@ -22,10 +22,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {variante: guest, n: 1, atraso: 0, cores: "", gpu: "-gpu guest"}
-          - {variante: cores3, n: 1, atraso: 150, cores: "3", gpu: "-gpu software"}
-          - {variante: guest, n: 2, atraso: 300, cores: "", gpu: "-gpu guest"}
-          - {variante: cores3, n: 2, atraso: 450, cores: "3", gpu: "-gpu software"}
+          # Rodada 3: versão do emulador. 12414864 = 35.2.10 (sem "-gpu software"); 16863232 = 37.3.9 (canal canary).
+          - {variante: emu35, n: 1, atraso: 0, cores: "", emu: "12414864", gpu: "-gpu swiftshader_indirect"}
+          - {variante: emu37c, n: 1, atraso: 150, cores: "", emu: "16863232", gpu: "-gpu software"}
+          - {variante: emu35, n: 2, atraso: 300, cores: "", emu: "12414864", gpu: "-gpu swiftshader_indirect"}
+          - {variante: emu37c, n: 2, atraso: 450, cores: "", emu: "16863232", gpu: "-gpu software"}
     defaults:
       run:
         working-directory: apps/app
@@ -112,6 +113,7 @@ jobs:
           HEISUCA_TESTE_CONTAS: ${{ secrets.HEISUCA_TESTE_CONTAS }}
         with:
           api-level: 35
+          emulator-build: ${{ matrix.emu }}
           # Retoma a imagem da K para comparar foco/Activity sem misturar com a troca para AOSP.
           target: google_apis
           arch: x86_64
@@ -155,6 +157,11 @@ jobs:
           for i in $(seq 1 24); do pgrep -x systemd-coredum >/dev/null || break; sleep 5; done
           sudo coredumpctl list --no-pager
           sudo coredumpctl info --no-pager -1 | grep -vE '^ +(Command Line|Environment)' | head -120
+          if sudo coredumpctl list --no-pager -q >/dev/null 2>&1; then
+            sudo apt-get install -y -qq gdb >/dev/null 2>&1 && sudo coredumpctl debug --no-pager -1 \
+              --debugger-arguments='-batch -ex "info threads" -ex "bt 25" -ex "x/8i $pc-16" -ex "info proc mappings"' 2>&1 \
+              | grep -viE 'token|api_key|https?://|password|senha' | grep -vE '^\s+0x[0-9a-f]+ +0x[0-9a-f]+ +0x[0-9a-f]+ +0x0 +$' | head -160
+          fi
       - name: Classificar sem confundir infraestrutura com aprovação
         if: always()
         env:

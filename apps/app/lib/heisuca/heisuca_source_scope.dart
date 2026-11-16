@@ -2,6 +2,7 @@ import 'heisuca_motion.dart';
 import 'heisuca_sources_ui.dart';
 import '../cgflix/cgflix_palette.dart';
 import 'dart:async';
+import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -160,6 +161,11 @@ Future<void> heisucaAddSource(BuildContext context) async {
   final navigator = Navigator.of(context, rootNavigator: true);
   final messenger = ScaffoldMessenger.maybeOf(context);
   final before = {...servers.expectedServerIds};
+  // O id da conexão é estável (servidor + usuário): cadastrar de novo o mesmo login não cria ligação nova.
+  Set<String> ligacoes() => {
+    for (final link in profiles.connectionsByProfile[profiles.activeId] ?? const []) link.connectionId,
+  };
+  final ligacoesAntes = ligacoes();
   final added = await navigator.push<bool>(
     MaterialPageRoute(builder: (_) => AddConnectionScreen(targetProfile: profiles.active)),
   );
@@ -167,13 +173,20 @@ Future<void> heisucaAddSource(BuildContext context) async {
   if (profiles.isBinding) await profiles.awaitBindingSettle();
   // A conta Plex descobre os servidores depois do login; dá um tempo curto para chegarem.
   List<String> fresh() => servers.expectedServerIds.where((id) => !before.contains(id)).toList();
-  final deadline = DateTime.now().add(const Duration(seconds: 12));
-  while (fresh().isEmpty && DateTime.now().isBefore(deadline)) {
+  final deadline = clock.now().add(const Duration(seconds: 12));
+  while (fresh().isEmpty && clock.now().isBefore(deadline)) {
     await Future<void>.delayed(const Duration(milliseconds: 300));
   }
   final news = fresh();
   String name(String id) =>
       servers.getClientForServer(ServerId(id))?.serverName ?? servers.serverManager.serverDisplayName(ServerId(id));
+  // Sem perfil ativo a conexão não fica ligada a ninguém, e a comparação não diz nada.
+  if (news.isEmpty && profiles.activeId != null && ligacoes().difference(ligacoesAntes).isEmpty) {
+    messenger?.showSnackBar(
+      const SnackBar(content: Text('Essa conexão já estava salva. Nenhuma fonte nova foi adicionada.')),
+    );
+    return;
+  }
   if (news.isEmpty) {
     messenger?.showSnackBar(
       const SnackBar(

@@ -84,8 +84,11 @@ class _Profiles extends ChangeNotifier implements ActiveProfileProvider {
   String? avatarUrlFor(String profileId) => null;
   @override
   Map<String, Connection> get connectionsById => const {};
+
+  /// Ligações do perfil; os testes do "Adicionar fonte" trocam isto.
+  Map<String, List<ProfileConnection>> conexoes = const {};
   @override
-  Map<String, List<ProfileConnection>> get connectionsByProfile => const {};
+  Map<String, List<ProfileConnection>> get connectionsByProfile => conexoes;
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

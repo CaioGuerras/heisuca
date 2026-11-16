@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:heisuca/cgflix/cgflix_theme.dart';
 import 'package:heisuca/heisuca/heisuca_source_scope.dart';
+import 'package:heisuca/profiles/profile_connection.dart';
 import 'package:heisuca/screens/settings/add_connection_screen.dart';
 import 'package:heisuca/services/settings_service.dart' as settings;
 import '../test_helpers/heisuca_p3_fixture.dart';
@@ -14,6 +15,14 @@ void main() {
   late HeisucaP3Fixture fixture;
   final navigator = GlobalKey<NavigatorState>();
 
+  ProfileConnection ligacao(String id) => ProfileConnection(
+    profileId: 'familia',
+    connectionId: id,
+    userToken: '',
+    userIdentifier: 'u',
+    tokenAcquiredAt: DateTime.utc(2026),
+  );
+
   Future<void> encerrar(WidgetTester tester) async {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(seconds: 1));
@@ -23,12 +32,21 @@ void main() {
     });
   }
 
-  Future<void> adicionar(WidgetTester tester, {required bool comEscopo, Set<String> novos = const {'srv-2'}}) async {
+  Future<void> adicionar(
+    WidgetTester tester, {
+    required bool comEscopo,
+    Set<String> novos = const {'srv-2'},
+    List<String> conexoesAntes = const [],
+    List<String> conexoesDepois = const ['jf-novo'],
+  }) async {
     await tester.runAsync(() async {
       resetSharedPreferencesForTest();
       fixture = HeisucaP3Fixture();
       await fixture.initialize(settings.ThemeMode.dark);
     });
+    fixture.profiles.conexoes = {
+      'familia': [for (final id in conexoesAntes) ligacao(id)],
+    };
     addTearDown(() => encerrar(tester));
     final botao = Builder(
       builder: (context) =>
@@ -52,10 +70,15 @@ void main() {
     expect(find.byType(AddConnectionScreen), findsOneWidget);
     // O login deu certo e o servidor novo chegou.
     fixture.servers.setExpectedVisibleServerIds({'srv-1', ...novos});
+    fixture.profiles.conexoes = {
+      'familia': [for (final id in conexoesDepois) ligacao(id)],
+    };
     navigator.currentState!.pop(true);
-    for (var i = 0; i < 6; i++) {
+    // A espera pelo servidor novo vai até 12 s.
+    for (var i = 0; i < 35 && find.byType(SnackBar).evaluate().isEmpty; i++) {
       await tester.pump(const Duration(milliseconds: 400));
     }
+    await tester.pump(const Duration(milliseconds: 400));
   }
 
   testWidgets('com o escopo de fonte o aviso diz que a fonte nova é a vista', (tester) async {
@@ -73,5 +96,28 @@ void main() {
     await adicionar(tester, comEscopo: false, novos: {'srv-2', 'srv-3'});
     expect(find.text('Qual fonte você quer ver?'), findsNothing);
     expect(find.text('2 fontes adicionadas'), findsOneWidget);
+  });
+
+  testWidgets('conexão que já estava salva não promete servidor novo', (tester) async {
+    await adicionar(
+      tester,
+      comEscopo: true,
+      novos: const {},
+      conexoesAntes: ['jf-velho'],
+      conexoesDepois: ['jf-velho'],
+    );
+    expect(find.textContaining('nenhum servidor novo respondeu'), findsNothing);
+    expect(find.text('Essa conexão já estava salva. Nenhuma fonte nova foi adicionada.'), findsOneWidget);
+  });
+
+  testWidgets('conexão nova cujo servidor ainda não respondeu avisa que ele aparece depois', (tester) async {
+    await adicionar(
+      tester,
+      comEscopo: true,
+      novos: const {},
+      conexoesAntes: ['jf-velho'],
+      conexoesDepois: ['jf-velho', 'jf-novo'],
+    );
+    expect(find.textContaining('nenhum servidor novo respondeu'), findsOneWidget);
   });
 }

@@ -22,11 +22,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Rodada 3: versão do emulador. 12414864 = 35.2.10 (sem "-gpu software"); 16863232 = 37.3.9 (canal canary).
-          - {variante: emu35, n: 1, atraso: 0, cores: "", emu: "12414864", gpu: "-gpu swiftshader_indirect"}
-          - {variante: emu37c, n: 1, atraso: 150, cores: "", emu: "16863232", gpu: "-gpu software"}
-          - {variante: emu35, n: 2, atraso: 300, cores: "", emu: "12414864", gpu: "-gpu swiftshader_indirect"}
-          - {variante: emu37c, n: 2, atraso: 450, cores: "", emu: "16863232", gpu: "-gpu software"}
+          # Rodada 4: caminho GLES do host no emulador padrão (37.2.13). Hoje: swangle (ANGLE sobre SwiftShader).
+          - {variante: swiftshader, n: 1, atraso: 0, cores: "", emu: "", gpu: "-gpu swiftshader"}
+          - {variante: lavapipe, n: 1, atraso: 150, cores: "", emu: "", gpu: "-gpu lavapipe"}
+          - {variante: semasyncswap, n: 1, atraso: 300, cores: "", emu: "", gpu: "-gpu software -feature -GLAsyncSwap"}
+          - {variante: semhostcomp, n: 1, atraso: 450, cores: "", emu: "", gpu: "-gpu software -feature -HostComposition"}
+          - {variante: semgldma, n: 1, atraso: 600, cores: "", emu: "", gpu: "-gpu software -feature -GLDMA,-GLDMA2"}
+          - {variante: nodelayclose, n: 1, atraso: 750, cores: "", emu: "", gpu: "-gpu software -feature NoDelayCloseColorBuffer"}
     defaults:
       run:
         working-directory: apps/app
@@ -156,7 +158,7 @@ jobs:
           if [ -f .bancada/evidencias/host-monitor.log ]; then tail -60 .bancada/evidencias/host-monitor.log; fi
           for i in $(seq 1 24); do pgrep -x systemd-coredum >/dev/null || break; sleep 5; done
           sudo coredumpctl list --no-pager
-          sudo coredumpctl info --no-pager -1 | grep -vE '^ +(Command Line|Environment)' | head -120
+          sudo coredumpctl info --no-pager -1 | grep -vE '^ +(Command Line|Environment)' | head -220
           if sudo coredumpctl list --no-pager -q >/dev/null 2>&1; then
             sudo apt-get install -y -qq gdb >/dev/null 2>&1 && sudo coredumpctl debug --no-pager -1 \
               --debugger-arguments='-batch -ex "info threads" -ex "bt 25" -ex "x/8i $pc-16" -ex "info proc mappings"' 2>&1 \

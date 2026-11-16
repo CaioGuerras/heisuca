@@ -32,7 +32,7 @@ class CgflixFavoritesSource {
     } on ProviderNotFoundException {
       return null;
     }
-    final clients = servers?.serverManager.navigationOnlineClients.values.toList() ?? const <MediaServerClient>[];
+    final clients = servers?.serverManager.visibleOnlineClients.values.toList() ?? const <MediaServerClient>[];
     CatalogSourcesProvider? catalogs;
     try {
       catalogs = Provider.of<CatalogSourcesProvider?>(context, listen: false);
@@ -172,7 +172,7 @@ class _CgflixFavoritesScreenState extends State<CgflixFavoritesScreen> {
               itemBuilder: (context, i) => LayoutBuilder(
                 builder: (context, box) => CgflixPosterCard(
                   item: visible[i],
-                  client: widget.source.client,
+                  client: cgflixClientFor(context, visible[i]) ?? widget.source.client,
                   width: box.maxWidth,
                   onTap: () => cgflixOpenDetails(context, visible[i]).then((_) {
                     // Saiu da Minha lista na página do título? Atualiza a grade.

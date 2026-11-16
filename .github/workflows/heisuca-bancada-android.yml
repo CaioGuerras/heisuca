@@ -89,13 +89,17 @@ jobs:
           df -h /
       - name: Compilar leitor rápido das janelas PiP (só bancada)
         run: python3 scripts/bancada/compilar_ui.py
+      # Até 3 tentativas, e só quando o qemu do emulador morre por sinal (SIGSEGV do Emulator 37.2.13, ~30% das
+      # execuções; ENTREGA_JARVIS de 16/11). Falha do app não ganha nova tentativa: qemu_caiu.sh exige o core do qemu.
+      # O continue-on-error só deixa a próxima tentativa rodar; quem decide o vermelho é a classificação no fim.
       - name: Emulador e percurso autenticado
         id: percurso
+        continue-on-error: true
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
-        env:
+        env: &ambiente_percurso
           HEISUCA_TESTE_SERVIDOR: ${{ secrets.HEISUCA_TESTE_SERVIDOR }}
           HEISUCA_TESTE_CONTAS: ${{ secrets.HEISUCA_TESTE_CONTAS }}
-        with:
+        with: &emulador_percurso
           api-level: 35
           # Retoma a imagem da K para comparar foco/Activity sem misturar com a troca para AOSP.
           target: google_apis
@@ -130,8 +134,32 @@ jobs:
             # Só esconde o diálogo do sistema; ANR do app segue detectado por logcat/dumpsys no executar.py.
             adb shell settings put global hide_error_dialogs 1
             python3 scripts/bancada/executar.py
+      - name: O qemu caiu na 1ª tentativa?
+        id: queda1
+        if: steps.percurso.outcome == 'failure'
+        run: scripts/bancada/qemu_caiu.sh 1
+      - name: Emulador e percurso autenticado (2ª tentativa, só após queda do qemu)
+        id: percurso2
+        if: steps.queda1.outputs.caiu == 'true'
+        continue-on-error: true
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
+        env: *ambiente_percurso
+        with: *emulador_percurso
+      - name: O qemu caiu na 2ª tentativa?
+        id: queda2
+        if: steps.percurso2.outcome == 'failure'
+        run: scripts/bancada/qemu_caiu.sh 2
+      - name: Emulador e percurso autenticado (3ª tentativa, só após queda do qemu)
+        id: percurso3
+        if: steps.queda2.outputs.caiu == 'true'
+        continue-on-error: true
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
+        env: *ambiente_percurso
+        with: *emulador_percurso
       - name: Diagnóstico do runner quando o emulador some
-        if: failure()
+        if: >-
+          failure() || steps.percurso.outcome == 'failure' || steps.percurso2.outcome == 'failure'
+          || steps.percurso3.outcome == 'failure'
         run: |
           free -m
           sudo dmesg -T | grep -iE 'out of memory|killed process|oom-kill|qemu|emulator|kvm|segfault|traps' | tail -30
@@ -143,12 +171,16 @@ jobs:
       - name: Classificar sem confundir infraestrutura com aprovação
         if: always()
         env:
-          RESULTADO_ETAPA: ${{ steps.percurso.outcome }}
+          RESULTADO_TENTATIVAS: >-
+            ${{ steps.percurso.outcome }} ${{ steps.percurso2.outcome }} ${{ steps.percurso3.outcome }}
           RESULTADO_BUILD: ${{ steps.bancada_build.outcome }}
         run: |
           python3 - <<'PY'
           import json, os
           from pathlib import Path
+          # Vale a última tentativa que rodou; as anteriores só existem se o qemu caiu (infraestrutura).
+          tentativas = [r for r in os.environ['RESULTADO_TENTATIVAS'].split() if r != 'skipped']
+          os.environ['RESULTADO_ETAPA'] = tentativas[-1] if tentativas else 'skipped'
           path = Path('.bancada/evidencias/relatorio.json')
           if not path.exists():
               path.parent.mkdir(parents=True, exist_ok=True)
@@ -162,6 +194,9 @@ jobs:
           with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
               summary.write('### Bancada Android: ' + report['estado'] + '\n\n')
               if report.get('motivo'): summary.write(report['motivo'] + '\n\n')
+              if len(tentativas) > 1:
+                  summary.write(f'Tentativas: {len(tentativas)} ({" → ".join(tentativas)}); as anteriores caíram '
+                                'por queda do qemu, com evidências em tentativa-N/.\n\n')
               summary.write('Este workflow é separado do APK. Falha de infraestrutura é instabilidade, nunca teste verde.\n')
               summary.write('Sem contas -kids; somente item sem histórico, com restauração conferida.\n')
           if report['estado'] == 'vermelho':

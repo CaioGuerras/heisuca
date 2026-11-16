@@ -1,0 +1,295 @@
+00:00 +0: loading /mnt/nvme4n1/caioguerras/TMP/heisuca-minhalista-plex/apps/app/test/features/minha_lista/fontes_plex_test.dart
+00:00 +0: só Plex: a Watchlist entra na Minha lista com o título do servidor
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: not null
+  Actual: <null>
+Minha lista também existe com só Plex
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///mnt/nvme4n1/caioguerras/TMP/heisuca-minhalista-plex/apps/app/test/features/minha_lista/fontes_plex_test.dart:189:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///mnt/nvme4n1/caioguerras/TMP/heisuca-minhalista-plex/apps/app/test/features/minha_lista/fontes_plex_test.dart line 189
+The test description was:
+  só Plex: a Watchlist entra na Minha lista com o título do servidor
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +0 -1: só Plex: a Watchlist entra na Minha lista com o título do servidor [E]
+  Test failed. See exception logs above.
+  The test description was: só Plex: a Watchlist entra na Minha lista com o título do servidor
+  
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:00 +0 -1: Jellyfin + Emby + Plex: todos entram, sem duplicar o mesmo título
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (11ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&ParentId=filmes&Filters=IsFavorite&IncludeItemTypes=Movie%2CSeries&SortBy=SortName&SortOrder=Ascending&Limit=300&StartIndex=0 → 200 (0ms)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: ['Jellyfin 1', 'Jellyfin 3', 'Plex 2']
+  Actual: MappedListIterable<MediaItem, String?>:['Jellyfin 1']
+   Which: at location [1] is MappedListIterable<MediaItem, String?>:['Jellyfin 1'] which shorter
+than expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///mnt/nvme4n1/caioguerras/TMP/heisuca-minhalista-plex/apps/app/test/features/minha_lista/fontes_plex_test.dart:206:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///mnt/nvme4n1/caioguerras/TMP/heisuca-minhalista-plex/apps/app/test/features/minha_lista/fontes_plex_test.dart line 206
+The test description was:
+  Jellyfin + Emby + Plex: todos entram, sem duplicar o mesmo título
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +0 -2: Jellyfin + Emby + Plex: todos entram, sem duplicar o mesmo título [E]
+  Test failed. See exception logs above.
+  The test description was: Jellyfin + Emby + Plex: todos entram, sem duplicar o mesmo título
+  
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:00 +0 -2: Plex falhando: mantém os favoritos do Jellyfin
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (1ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&ParentId=filmes&Filters=IsFavorite&IncludeItemTypes=Movie%2CSeries&SortBy=SortName&SortOrder=Ascending&Limit=300&StartIndex=0 → 200 (0ms)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: [1]
+  Actual: []
+   Which: at location [0] is [] which shorter than expected
+a falha foi de uma fonte efetivamente consultada
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///mnt/nvme4n1/caioguerras/TMP/heisuca-minhalista-plex/apps/app/test/features/minha_lista/fontes_plex_test.dart:219:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///mnt/nvme4n1/caioguerras/TMP/heisuca-minhalista-plex/apps/app/test/features/minha_lista/fontes_plex_test.dart line 219
+The test description was:
+  Plex falhando: mantém os favoritos do Jellyfin
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +0 -3: Plex falhando: mantém os favoritos do Jellyfin [E]
+  Test failed. See exception logs above.
+  The test description was: Plex falhando: mantém os favoritos do Jellyfin
+  
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:00 +0 -3: sem conta Plex não derruba Jellyfin; todas falhando devolvem erro
+[D]  GET [REDACTED_URL]Users/user-1/Views → 200 (0ms)
+[D]  GET [REDACTED_URL]Items?UserId=user-1&Recursive=true&Fields=Overview%2CDateCreated%2CGenres%2CChildCount%2CRecursiveItemCount&EnableUserData=true&EnableImageTypes=Primary%2CBackdrop%2CLogo&ImageTypeLimit=3&ParentId=filmes&Filters=IsFavorite&IncludeItemTypes=Movie%2CSeries&SortBy=SortName&SortOrder=Ascending&Limit=300&StartIndex=0 → 200 (0ms)
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following _TypeError was thrown while running async test code:
+Null check operator used on a null value
+
+When the exception was thrown, this was the stack:
+#0      main.<anonymous closure>.<anonymous closure> (file:///mnt/nvme4n1/caioguerras/TMP/heisuca-minhalista-plex/apps/app/test/features/minha_lista/fontes_plex_test.dart:229:56)
+#1      AutomatedTestWidgetsFlutterBinding.runAsync.<anonymous closure> (package:flutter_test/src/binding.dart:2308:17)
+#4      AutomatedTestWidgetsFlutterBinding.runAsync (package:flutter_test/src/binding.dart:2304:26)
+#5      WidgetTester.runAsync (package:flutter_test/src/widget_tester.dart:838:17)
+#6      main.<anonymous closure> (file:///mnt/nvme4n1/caioguerras/TMP/heisuca-minhalista-plex/apps/app/test/features/minha_lista/fontes_plex_test.dart:229:18)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +0 -4: sem conta Plex não derruba Jellyfin; todas falhando devolvem erro [E]
+  Test failed. See exception logs above.
+  The test description was: sem conta Plex não derruba Jellyfin; todas falhando devolvem erro
+  
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:00 +0 -4: Jellyfin falhando mantém Plex; todas as redes falhando propagam erro
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following MediaServerHttpException was thrown while running async test code:
+MediaServerHttpException(connectionTimeout: sem conexão: jf.example.com/Users/user-1/Views)
+
+When the exception was thrown, this was the stack:
+#0      MediaServerHttpClient._perform (package:heisuca/utils/media_server_http_client.dart:378:7)
+<asynchronous suspension>
+#1      FailoverHttpClient._sendWithFailover (package:heisuca/utils/failover_http_client.dart:142:18)
+<asynchronous suspension>
+#2      _JellyfinBrowseMethods._fetchLibraries (package:heisuca/services/jellyfin_client/parts/browse.dart:324:22)
+<asynchronous suspension>
+#3      _JellyfinBrowseMethods.fetchLibraries.<anonymous closure> (package:heisuca/services/jellyfin_client/parts/browse.dart:311:44)
+<asynchronous suspension>
+<asynchronous suspension>
+#5      CgflixFavoritesSource.of.<anonymous closure> (package:heisuca/cgflix/you/cgflix_favorites_screen.dart:36:27)
+<asynchronous suspension>
+<asynchronous suspension>
+#7      main.<anonymous closure> (file:///mnt/nvme4n1/caioguerras/TMP/heisuca-minhalista-plex/apps/app/test/features/minha_lista/fontes_plex_test.dart:237:13)
+<asynchronous suspension>
+#8      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#9      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+The exception was caught asynchronously.
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following _TypeError was thrown running a test:
+Null check operator used on a null value
+
+When the exception was thrown, this was the stack:
+#0      main.<anonymous closure> (file:///mnt/nvme4n1/caioguerras/TMP/heisuca-minhalista-plex/apps/app/test/features/minha_lista/fontes_plex_test.dart:237:56)
+<asynchronous suspension>
+#1      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#2      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  Jellyfin falhando mantém Plex; todas as redes falhando propagam erro
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following message was thrown:
+Multiple exceptions (2) were detected during the running of the current test, and at least one was
+unexpected.
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +0 -5: Jellyfin falhando mantém Plex; todas as redes falhando propagam erro [E]
+  Test failed. See exception logs above.
+  The test description was: Jellyfin falhando mantém Plex; todas as redes falhando propagam erro
+  
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:00 +0 -5: pagina a Watchlist, resolve uma vez e só inclui o acervo conectado
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: not null
+  Actual: <null>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///mnt/nvme4n1/caioguerras/TMP/heisuca-minhalista-plex/apps/app/test/features/minha_lista/fontes_plex_test.dart:249:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///mnt/nvme4n1/caioguerras/TMP/heisuca-minhalista-plex/apps/app/test/features/minha_lista/fontes_plex_test.dart line 249
+The test description was:
+  pagina a Watchlist, resolve uma vez e só inclui o acervo conectado
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +0 -6: pagina a Watchlist, resolve uma vez e só inclui o acervo conectado [E]
+  Test failed. See exception logs above.
+  The test description was: pagina a Watchlist, resolve uma vez e só inclui o acervo conectado
+  
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:00 +0 -6: cartão Plex: tirar da lista grava pela loja padrão e atualiza a aba
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: not null
+  Actual: <null>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///mnt/nvme4n1/caioguerras/TMP/heisuca-minhalista-plex/apps/app/test/features/minha_lista/fontes_plex_test.dart:267:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///mnt/nvme4n1/caioguerras/TMP/heisuca-minhalista-plex/apps/app/test/features/minha_lista/fontes_plex_test.dart line 267
+The test description was:
+  cartão Plex: tirar da lista grava pela loja padrão e atualiza a aba
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +0 -7: cartão Plex: tirar da lista grava pela loja padrão e atualiza a aba [E]
+  Test failed. See exception logs above.
+  The test description was: cartão Plex: tirar da lista grava pela loja padrão e atualiza a aba
+  
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:00 +0 -7: resolução tem no máximo quatro pedidos simultâneos
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: not null
+  Actual: <null>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///mnt/nvme4n1/caioguerras/TMP/heisuca-minhalista-plex/apps/app/test/features/minha_lista/fontes_plex_test.dart:287:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///mnt/nvme4n1/caioguerras/TMP/heisuca-minhalista-plex/apps/app/test/features/minha_lista/fontes_plex_test.dart line 287
+The test description was:
+  resolução tem no máximo quatro pedidos simultâneos
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +0 -8: resolução tem no máximo quatro pedidos simultâneos [E]
+  Test failed. See exception logs above.
+  The test description was: resolução tem no máximo quatro pedidos simultâneos
+  
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:00 +0 -8: servidor Plex falha sem esconder outro Plex que respondeu
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: not null
+  Actual: <null>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///mnt/nvme4n1/caioguerras/TMP/heisuca-minhalista-plex/apps/app/test/features/minha_lista/fontes_plex_test.dart:311:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///mnt/nvme4n1/caioguerras/TMP/heisuca-minhalista-plex/apps/app/test/features/minha_lista/fontes_plex_test.dart line 311
+The test description was:
+  servidor Plex falha sem esconder outro Plex que respondeu
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +0 -9: servidor Plex falha sem esconder outro Plex que respondeu [E]
+  Test failed. See exception logs above.
+  The test description was: servidor Plex falha sem esconder outro Plex que respondeu
+  
+[I]  Gracefully disconnecting all servers
+[I]  Stopped network monitoring
+00:00 +0 -9: Some tests failed.
+
+Failing tests:
+  /mnt/nvme4n1/caioguerras/TMP/heisuca-minhalista-plex/apps/app/test/features/minha_lista/fontes_plex_test.dart: Jellyfin + Emby + Plex: todos entram, sem duplicar o mesmo título
+  /mnt/nvme4n1/caioguerras/TMP/heisuca-minhalista-plex/apps/app/test/features/minha_lista/fontes_plex_test.dart: Jellyfin falhando mantém Plex; todas as redes falhando propagam erro
+  /mnt/nvme4n1/caioguerras/TMP/heisuca-minhalista-plex/apps/app/test/features/minha_lista/fontes_plex_test.dart: Plex falhando: mantém os favoritos do Jellyfin
+  /mnt/nvme4n1/caioguerras/TMP/heisuca-minhalista-plex/apps/app/test/features/minha_lista/fontes_plex_test.dart: cartão Plex: tirar da lista grava pela loja padrão e atualiza a aba
+  ... and 5 more

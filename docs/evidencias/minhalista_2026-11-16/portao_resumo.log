@@ -1,0 +1,50 @@
+Comando: bash scripts/heisuca-checar.sh
+Código de saída: 0
+Ran 181 tests in 5.648s
+OK
+   info • Don't invoke 'print' in production code. Try using a logging framework • integration_test/bancada_android_test.dart:66:5 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • integration_test/bancada_android_test.dart:114:9 • avoid_print
+   info • Use the null-aware marker '?' rather than a null check via an 'if'. Try using '?' • integration_test/bancada_android_test.dart:146:87 • use_null_aware_elements
+   info • Use the null-aware marker '?' rather than a null check via an 'if'. Try using '?' • integration_test/bancada_android_test.dart:148:9 • use_null_aware_elements
+   info • Don't invoke 'print' in production code. Try using a logging framework • integration_test/bancada_android_test.dart:245:7 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • integration_test/bancada_android_test.dart:372:5 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • integration_test/bancada_android_test.dart:431:5 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • integration_test/bancada_android_test.dart:442:5 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • integration_test/bancada_android_test.dart:464:5 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • integration_test/bancada_android_test.dart:467:5 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • integration_test/bancada_android_test.dart:481:5 • avoid_print
+   info • Statements in an if should be enclosed in a block. Try wrapping the statement in a block • integration_test/support/pip_overflow_policy.dart:6:88 • curly_braces_in_flow_control_structures
+   info • Statements in an if should be enclosed in a block. Try wrapping the statement in a block • integration_test/support/pip_overflow_policy.dart:36:88 • curly_braces_in_flow_control_structures
+   info • Missing an 'await' for the 'Future' computed by this expression. Try adding an 'await' or wrapping the expression with 'unawaited' • lib/heisuca/heisuca_state_store.dart:52:54 • unawaited_futures
+warning • The declaration '_buildStatusText' isn't referenced. Try removing the declaration of '_buildStatusText' • lib/main.dart:2078:10 • unused_element
+warning • The declaration '_buildServerStatusList' isn't referenced. Try removing the declaration of '_buildServerStatusList' • lib/main.dart:2092:10 • unused_element
+   info • Unnecessary use of multiple underscores. Try using '_' • lib/profiles/profile_avatar.dart:74:80 • unnecessary_underscores
+   info • Unnecessary use of multiple underscores. Try using '_' • lib/profiles/profile_avatar.dart:74:84 • unnecessary_underscores
+warning • Unused import: '../cgflix/cgflix_logo.dart'. Try removing the import directive • lib/screens/auth_screen.dart:27:8 • unused_import
+warning • Unused import: '../cgflix/cgflix_slogan.dart'. Try removing the import directive • lib/screens/auth_screen.dart:28:8 • unused_import
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/auth_screen.dart:304:53 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/auth_screen.dart:338:49 • deprecated_member_use
+   info • The import of 'dart:ui' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart'. Try removing the import directive • lib/widgets/video_controls/widgets/skip_marker_button.dart:1:8 • unnecessary_import
+   info • Statements in an if should be enclosed in a block. Try wrapping the statement in a block • lib/widgets/video_controls/widgets/track_chapter_controls.dart:133:21 • curly_braces_in_flow_control_structures
+   info • Statements in an if should be enclosed in a block. Try wrapping the statement in a block • lib/widgets/video_controls/widgets/track_chapter_controls.dart:450:21 • curly_braces_in_flow_control_structures
+   info • The import of 'package:heisuca/cgflix/cgflix_palette.dart' is unnecessary because all of the used elements are also provided by the import of 'package:heisuca/cgflix/cgflix_theme.dart'. Try removing the import directive • test/heisuca/heisuca_home_parity_test.dart:4:8 • unnecessary_import
+   info • The import of 'package:heisuca/cgflix/cgflix_palette.dart' is unnecessary because all of the used elements are also provided by the import of 'package:heisuca/cgflix/cgflix_theme.dart'. Try removing the import directive • test/heisuca/heisuca_jellyfin_home_golden_test.dart:7:8 • unnecessary_import
+   info • Statements in an if should be enclosed in a block. Try wrapping the statement in a block • test/heisuca/heisuca_jellyfin_home_golden_test.dart:48:36 • curly_braces_in_flow_control_structures
+   info • Statements in an if should be enclosed in a block. Try wrapping the statement in a block • test/heisuca/heisuca_o_partial_test.dart:36:25 • curly_braces_in_flow_control_structures
+   info • Statements in an if should be enclosed in a block. Try wrapping the statement in a block • test/heisuca/heisuca_plex_home_test.dart:107:52 • curly_braces_in_flow_control_structures
+   info • The import of 'package:heisuca/cgflix/cgflix_palette.dart' is unnecessary because all of the used elements are also provided by the import of 'package:heisuca/cgflix/cgflix_theme.dart'. Try removing the import directive • test/heisuca/heisuca_predictive_back_test.dart:4:8 • unnecessary_import
+   info • Statements in an if should be enclosed in a block. Try wrapping the statement in a block • test/heisuca/heisuca_series_episodes_test.dart:27:25 • curly_braces_in_flow_control_structures
+   info • The import of 'package:heisuca/cgflix/cgflix_palette.dart' is unnecessary because all of the used elements are also provided by the import of 'package:heisuca/cgflix/cgflix_theme.dart'. Try removing the import directive • test/heisuca/heisuca_sources_ui_test.dart:6:8 • unnecessary_import
+warning • Unused import: 'package:heisuca/media/media_kind.dart'. Try removing the import directive • test/heisuca/heisuca_title_seasons_real_test.dart:12:8 • unused_import
+warning • Unused import: 'package:heisuca/media/media_item.dart'. Try removing the import directive • test/heisuca/heisuca_tv1_g5_test.dart:10:8 • unused_import
+warning • The value of the local variable 'countBeforePlay' isn't used. Try removing the variable or using it • test/heisuca/heisuca_tv1_g5_test.dart:406:13 • unused_local_variable
+   info • Unclosed instance of 'Sink'. Try invoking 'close' in the function in which the 'Sink' was created • test/heisuca/heisuca_update_downloader_test.dart:103:11 • close_sinks
+   info • Invalid use of a private type in a public API. Try making the private type public, or making the API that uses the private type also be private • test/test_helpers/heisuca_p3_fixture.dart:91:14 • library_private_types_in_public_api
+   info • Invalid use of a private type in a public API. Try making the private type public, or making the API that uses the private type also be private • test/test_helpers/heisuca_p3_fixture.dart:93:14 • library_private_types_in_public_api
+   info • Invalid use of a private type in a public API. Try making the private type public, or making the API that uses the private type also be private • test/test_helpers/heisuca_p3_fixture.dart:94:14 • library_private_types_in_public_api
+   info • Statements in an if should be enclosed in a block. Try wrapping the statement in a block • test/test_helpers/heisuca_p3_fixture.dart:137:36 • curly_braces_in_flow_control_structures
+   info • Statements in an if should be enclosed in a block. Try wrapping the statement in a block • test/test_helpers/heisuca_p3_fixture.dart:145:34 • curly_braces_in_flow_control_structures
+42 issues found. (ran in 45.1s)
+01:42 +2790 ~3: All tests passed!
+00:35 +8: All tests passed!
+APROVADO: análise e testes concluídos.

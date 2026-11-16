@@ -22,10 +22,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {variante: base, n: 1, atraso: 0, gpu: "-gpu software"}
-          - {variante: base, n: 2, atraso: 300, gpu: "-gpu software"}
-          - {variante: semvulkan, n: 1, atraso: 150, gpu: "-gpu software -feature -Vulkan"}
-          - {variante: semvulkan, n: 2, atraso: 450, gpu: "-gpu software -feature -Vulkan"}
+          - {variante: guest, n: 1, atraso: 0, cores: "", gpu: "-gpu guest"}
+          - {variante: cores3, n: 1, atraso: 150, cores: "3", gpu: "-gpu software"}
+          - {variante: guest, n: 2, atraso: 300, cores: "", gpu: "-gpu guest"}
+          - {variante: cores3, n: 2, atraso: 450, cores: "3", gpu: "-gpu software"}
     defaults:
       run:
         working-directory: apps/app
@@ -116,7 +116,7 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_6
-          cores: ${{ steps.ambiente.outputs.cores }}
+          cores: ${{ matrix.cores || steps.ambiente.outputs.cores }}
           ram-size: 4096M
           heap-size: 512M
           disable-animations: false
@@ -152,6 +152,9 @@ jobs:
             echo "== $d"; strings -n 8 "$d" | grep -iE 'hang|fatal|abort|assert|crash|check failed|vk|gfxstream|thread' | grep -viE 'token|api_key|password|senha' | head -40
           done
           if [ -f .bancada/evidencias/host-monitor.log ]; then tail -60 .bancada/evidencias/host-monitor.log; fi
+          for i in $(seq 1 24); do pgrep -x systemd-coredum >/dev/null || break; sleep 5; done
+          sudo coredumpctl list --no-pager
+          sudo coredumpctl info --no-pager -1 | grep -vE '^ +(Command Line|Environment)' | head -120
       - name: Classificar sem confundir infraestrutura com aprovação
         if: always()
         env:

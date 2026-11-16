@@ -28,7 +28,10 @@ class _Gerente extends MultiServerManager {
   _Gerente(this.clientes);
   final Map<String, MediaServerClient> clientes;
   @override
-  Map<String, MediaServerClient> get navigationOnlineClients => clientes;
+  Map<String, MediaServerClient> get visibleOnlineClients => clientes;
+  // A biblioteca aberta pode limitar a navegação a um servidor; a lista é do perfil inteiro.
+  @override
+  Map<String, MediaServerClient> get navigationOnlineClients => Map.fromEntries(clientes.entries.take(1));
 }
 
 class _Catalogos extends CatalogSourcesProvider {

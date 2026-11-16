@@ -108,12 +108,13 @@ jobs:
           # AOSP trace 40303114336: raster preso em glGetActiveUniform/qemu_pipe_read.
           # swiftshader_indirect foi descontinuado no Emulator 36.4.9; usa o backend
           # de software suportado escolhido pelo Emulator, sem trocar o motor do app.
+          # Experimento (17/11): -gpu guest renderiza dentro do Android, sem o decodificador GLES do host onde o qemu caía.
           # -feature -HostComposition: desde a Busca V2 (c8f12d26) o qemu do Emulator 37.2.13 morria com SIGSEGV
           # (PC sempre em ...3f5, fora de qualquer módulo) logo depois de 02-inicio/03-busca, com swangle, swiftshader,
           # sem Vulkan, sem GLAsyncSwap e sem GLDMA; lavapipe e o canary 37.3.9 dão SIGILL no decodificador GLES.
           # Sem a composição no host, o SurfaceFlinger do guest compõe a tela e o compositor do host deixa de usar
           # os ColorBuffers do guest. Medição e runs: handoffs/NOITE_2026-11-16/ENTREGA_JARVIS.md (CGFLIX).
-          emulator-options: -no-window -gpu software -feature -HostComposition -noaudio -no-boot-anim -camera-back none
+          emulator-options: -no-window -gpu guest -noaudio -no-boot-anim -camera-back none
           working-directory: apps/app
           script: |
             for tentativa in 1 2 3 4 5; do timeout 30 adb wait-for-device || true; if adb root; then timeout 30 adb wait-for-device || true; break; fi; echo "Tentativa $tentativa/5 de adb root falhou, aguardando..."; sleep 3; done  # uma linha: o emulator-runner roda cada linha num sh -c separado

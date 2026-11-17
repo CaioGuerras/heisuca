@@ -7,6 +7,11 @@ on:
     branches: ["vitrine/loja"]
   workflow_dispatch:
     inputs:
+      formato:
+        description: "Capturas de celular ou TV"
+        type: choice
+        options: [celular, tv]
+        default: celular
       tamanho:
         description: "Resolução do AVD (largura x altura em pixels)"
         default: "1080x2400"
@@ -23,6 +28,7 @@ concurrency:
 
 jobs:
   vitrine:
+    if: inputs.formato != 'tv'
     name: Capturas da loja no emulador
     runs-on: ubuntu-latest
     timeout-minutes: 70
@@ -126,5 +132,67 @@ jobs:
           path: |
             apps/app/.vitrine/capturas/
             apps/app/.vitrine/execucao.log
+          if-no-files-found: error
+          retention-days: 14
+
+  tv:
+    name: Capturas reais de TV com filme livre
+    if: inputs.formato == 'tv'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    permissions:
+      contents: read
+      actions: read
+    defaults:
+      run:
+        working-directory: apps/app
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Conferir a origem do APK já compilado
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const {data:r}=await github.rest.actions.getWorkflowRun({...context.repo, run_id:44135392305});
+            if(r.head_sha!=='b61c7dda2cdc39427b6cbd7949c741922e4e0788') throw new Error('APK de outra versão');
+      - uses: actions/download-artifact@v4
+        with:
+          name: heisuca-tv-debug-apk
+          path: apps/app/build/app/outputs/flutter-apk/
+          run-id: 44135392305
+          github-token: ${{ github.token }}
+      - name: Preparar KVM e imagens
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules >/dev/null
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          python3 -m pip install --quiet pillow
+          mkdir -p .vitrine-tv
+      - name: Google TV 1080p e capturas
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
+        with:
+          api-level: 36
+          target: google-tv
+          arch: x86_64
+          profile: tv_1080p
+          cores: 4
+          ram-size: 2048M
+          heap-size: 512M
+          disable-animations: false
+          emulator-options: -no-window -gpu software -noaudio -no-boot-anim -camera-back none
+          working-directory: apps/app
+          script: |
+            timeout 45 adb wait-for-device
+            adb root
+            timeout 45 adb wait-for-device
+            adb shell wm size 1920x1080
+            python3 scripts/vitrine_tv.py
+      - name: Guardar capturas e diagnóstico
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vitrine-loja-tv
+          path: apps/app/.vitrine-tv/
           if-no-files-found: error
           retention-days: 14

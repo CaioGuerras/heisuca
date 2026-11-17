@@ -1,3 +1,8 @@
+## 2.0.45 — O que mudou
+
+### Corrigido
+- Na TV, Assistir no destaque de uma série abre o próximo episódio ou o primeiro disponível. Se não houver episódio, abre a ficha da série.
+
 ## 2.0.44 — O que mudou
 
 ### Melhor

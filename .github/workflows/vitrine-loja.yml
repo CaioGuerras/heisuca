@@ -168,7 +168,7 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
           python3 -m pip install --quiet pillow
-          mkdir -p .vitrine-tv
+          mkdir -p vitrine-tv
       - name: Google TV 1080p e capturas
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
         with:
@@ -193,7 +193,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: vitrine-loja-tv
-          path: apps/app/.vitrine-tv/
+          path: apps/app/vitrine-tv/
           if-no-files-found: error
           retention-days: 14
 

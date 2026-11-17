@@ -13,9 +13,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent / 'bancada'))
 import tv
 from capturas import APP_ID, adb
 from desastre import achar_texto
-from ui import digitar, fechar_teclado, tocar
+from ui import apagar_campo, digitar, fechar_teclado, tocar
 
-OUT = Path(__file__).resolve().parents[1] / '.vitrine-tv'
+OUT = Path(__file__).resolve().parents[1] / 'vitrine-tv'
 DEMO = 'https://demo.jellyfin.org/stable'
 TITULO = 'Caminandes: Llamigos'
 
@@ -53,10 +53,21 @@ def main():
         esperar(lambda ns: tv.reconhecer_tela_tv(ns) == 'inicio', 'início')
         _, menu = tv.abrir_destino_tv('Buscar')
         assert menu, 'menu da TV não abriu'
-        nos = esperar(lambda ns: any(n['cls'].endswith('EditText') for n in ns), 'campo de busca')
-        campo = next(n for n in nos if n['cls'].endswith('EditText'))
-        tocar(campo)
+        # Na TV, o campo de leitura pode ser uma View de semântica, não EditText.
+        def campo_busca(ns):
+            return next((n for n in ns if n['cls'].endswith('EditText')), None) or achar_texto(
+                ns, 'Buscar filmes, séries', 'Search movies, shows', 'Filmes, séries e pessoas', exato=False)
+        nos = esperar(lambda ns: campo_busca(ns) is not None, 'campo de busca')
+        tocar(campo_busca(nos))
+        if not tv.teclado_virtual_tv_aberto(tv.dump_tv()):
+            tv.dpad_center(0.8)
+        apagar_campo()
         digitar('Llamigos')
+        time.sleep(1)
+        if tv.teclado_virtual_tv_aberto(tv.dump_tv()):
+            tv.acionar_concluir_teclado_virtual()
+        else:
+            adb('shell', 'input', 'keyevent', '66')
         esperar(lambda ns: achar_texto(ns, TITULO, exato=False) is not None, 'resultado Llamigos')
         fechar_teclado()
         time.sleep(5)
@@ -80,6 +91,7 @@ def main():
         (OUT/'relatorio.json').write_text(json.dumps({'estado':'capturas-geradas-conferir-visualmente','servidor':DEMO,'titulo':TITULO,'imagens':sorted(p.name for p in OUT.glob('0*.png'))},ensure_ascii=False,indent=2))
     except Exception:
         tv.capturar_png(OUT/'diagnostico-falha.png')
+        (OUT/'diagnostico-nos.json').write_text(json.dumps(tv.dump_tv(),ensure_ascii=False,indent=2))
         raise
     finally:
         # Encerra a reprodução/sessão pelo app, sem mexer na conta pública.

@@ -12,6 +12,7 @@ import '../../services/plex_client.dart';
 import '../../utils/media_image_helper.dart';
 import '../../utils/video_player_navigation.dart';
 import '../../widgets/optimized_media_image.dart';
+import '../../cgflix/home/cgflix_actions.dart';
 import '../../cgflix/home/cgflix_home_logic.dart';
 import '../../cgflix/home/cgflix_home_repository.dart';
 import '../heisuca_plex_home_repository.dart';
@@ -156,8 +157,16 @@ class HeisucaTvHomeScreenState extends State<HeisucaTvHomeScreen> {
     }
   }
 
-  void _playItem(MediaItem item) {
-    navigateToVideoPlayer(context, metadata: item);
+  /// Série no destaque toca o próximo episódio (ou o 1º); sem episódio, abre a ficha da TV.
+  /// Antes a série ia direto ao player e dava "O servidor não mandou nenhuma versão…" (17/11).
+  Future<void> _playItem(MediaItem item) async {
+    final playable = await cgflixResolvePlayable(cgflixClientFor(context, item), item);
+    if (!mounted) return;
+    if (playable == null) {
+      _openDetails(item);
+      return;
+    }
+    await navigateToVideoPlayer(context, metadata: playable);
   }
 
   void _openDetails(MediaItem item) {

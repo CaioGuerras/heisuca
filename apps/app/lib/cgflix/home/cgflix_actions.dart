@@ -70,39 +70,42 @@ Future<void> cgflixOpenDetails(BuildContext context, MediaItem item, {String? he
   if (_pendingHeroTags[item.globalKey] == heroTag) _pendingHeroTags.remove(item.globalKey);
 }
 
+/// O que o "Assistir" toca: filme, episódio e clipe tocam como estão; série toca o próximo
+/// episódio quando o servidor sabe qual é, senão o 1º episódio. Devolve null quando não há
+/// o que tocar (quem chama abre a página do título). O Início da TV também usa (17/11: o
+/// destaque-série da TV mandava a série ao player e dava "O servidor não mandou nenhuma versão").
+Future<MediaItem?> cgflixResolvePlayable(MediaServerClient? client, MediaItem item) async {
+  if (item.kind == MediaKind.movie || item.kind == MediaKind.episode || item.kind == MediaKind.clip) {
+    return item;
+  }
+  if (item.kind != MediaKind.show || client == null) return null;
+  try {
+    final result = await client.fetchItemWithOnDeck(item.id).timeout(const Duration(seconds: 10));
+    final next = result.onDeckEpisode;
+    if (next != null) return next;
+  } catch (e) {
+    appLogger.w('CGFLIX: próximo episódio não encontrado', error: e);
+  }
+  try {
+    final episodes = await client.fetchPlayableDescendants(item.id).timeout(const Duration(seconds: 10));
+    if (episodes.isNotEmpty) return episodes.first;
+  } catch (e) {
+    appLogger.w('CGFLIX: falha ao buscar episódios da série', error: e);
+  }
+  return null;
+}
+
 /// "Assistir": filme e episódio tocam direto; série toca o próximo episódio quando o
 /// servidor sabe qual é, senão abre a página (para escolher a temporada).
 Future<void> cgflixPlay(BuildContext context, MediaItem item) async {
   unawaited(HapticFeedback.lightImpact());
-  if (item.kind == MediaKind.movie || item.kind == MediaKind.episode || item.kind == MediaKind.clip) {
-    await navigateToVideoPlayer(context, metadata: item);
+  final playable = await cgflixResolvePlayable(cgflixClientFor(context, item), item);
+  if (!context.mounted) return;
+  if (playable != null) {
+    await navigateToVideoPlayer(context, metadata: playable);
     return;
   }
-  if (item.kind == MediaKind.show) {
-    final client = cgflixClientFor(context, item);
-    if (client != null) {
-      try {
-        final result = await client.fetchItemWithOnDeck(item.id).timeout(const Duration(seconds: 10));
-        final next = result.onDeckEpisode;
-        if (next != null && context.mounted) {
-          await navigateToVideoPlayer(context, metadata: next);
-          return;
-        }
-      } catch (e) {
-        appLogger.w('CGFLIX: próximo episódio não encontrado', error: e);
-      }
-      try {
-        final episodes = await client.fetchPlayableDescendants(item.id).timeout(const Duration(seconds: 10));
-        if (episodes.isNotEmpty && context.mounted) {
-          await navigateToVideoPlayer(context, metadata: episodes.first);
-          return;
-        }
-      } catch (e) {
-        appLogger.w('CGFLIX: falha ao buscar episódios da série', error: e);
-      }
-    }
-  }
-  if (context.mounted) await cgflixOpenDetails(context, item);
+  await cgflixOpenDetails(context, item);
 }
 
 /// "Minha lista" = favoritos do Jellyfin/Plex. Devolve o novo estado (ou o antigo, se falhar).

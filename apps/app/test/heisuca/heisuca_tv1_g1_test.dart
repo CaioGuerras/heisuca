@@ -247,6 +247,37 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
+    testWidgets('G1.2c Assistir no destaque-SÉRIE não manda a série ao player: sem episódio, abre a ficha', (
+      tester,
+    ) async {
+      // 17/11 (bancada googletv-36, run 43900149189): o destaque era uma série e o Assistir mandava
+      // a própria série ao player ("O servidor não mandou nenhuma versão deste vídeo…"). Agora a
+      // série resolve o próximo episódio ou o 1º; sem servidor que responda, abre a ficha da TV.
+      final serie = MediaItem.jellyfin(
+        id: 'serie-destaque',
+        serverId: 'sem-servidor',
+        title: 'Série do destaque',
+        kind: MediaKind.show,
+        year: 2025,
+      );
+
+      await tester.pumpWidget(
+        fixture.wrap(
+          MaterialApp(
+            home: Scaffold(body: HeisucaTvHomeScreen(heroItem: serie)),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(HeisucaTvTitleScreen), findsNothing);
+
+      await tester.tap(find.byKey(const Key('heisuca-tv-hero-play')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(HeisucaTvTitleScreen), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('G1.3 Título TV: Continuar em foco, áudio/legenda, versão e temporadas', (tester) async {
       await tester.binding.setSurfaceSize(const Size(1920, 1080));
       addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));

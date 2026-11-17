@@ -10,7 +10,7 @@ on:
       formato:
         description: "Capturas de celular ou TV"
         type: choice
-        options: [celular, tv]
+        options: [celular, tv, play-tv]
         default: celular
       tamanho:
         description: "Resolução do AVD (largura x altura em pixels)"
@@ -23,12 +23,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: heisuca-vitrine-${{ github.ref }}
+  group: heisuca-vitrine-${{ github.ref }}-${{ inputs.formato || 'celular' }}
   cancel-in-progress: true
 
 jobs:
   vitrine:
-    if: inputs.formato != 'tv'
+    if: inputs.formato != 'tv' && inputs.formato != 'play-tv'
     name: Capturas da loja no emulador
     runs-on: ubuntu-latest
     timeout-minutes: 70
@@ -194,5 +194,46 @@ jobs:
         with:
           name: vitrine-loja-tv
           path: apps/app/.vitrine-tv/
+          if-no-files-found: error
+          retention-days: 14
+
+  play-tv:
+    name: Consultar a ficha pública na Play da TV
+    if: inputs.formato == 'play-tv'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Preparar KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules >/dev/null
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          mkdir -p play-tv
+      - name: Abrir a ficha na loja da Google TV
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
+        with:
+          api-level: 36
+          target: google-tv
+          arch: x86_64
+          profile: tv_1080p
+          cores: 4
+          ram-size: 2048M
+          heap-size: 512M
+          disable-animations: false
+          emulator-options: -no-window -gpu software -noaudio -no-boot-anim -camera-back none
+          script: |
+            timeout 45 adb wait-for-device
+            adb shell pm list packages com.android.vending > play-tv/pacote-loja.txt
+            adb shell am start -a android.intent.action.VIEW -d 'market://details?id=app.heisuca.player' -p com.android.vending > play-tv/abrir-ficha.txt 2>&1
+            sleep 20
+            adb shell uiautomator dump /sdcard/play-tv.xml
+            adb pull /sdcard/play-tv.xml play-tv/play-tv.xml
+            adb exec-out screencap -p > play-tv/play-tv.png
+      - name: Guardar a consulta sem conta Google
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: play-tv-consulta-publica
+          path: play-tv/
           if-no-files-found: error
           retention-days: 14

@@ -1,0 +1,24 @@
+Heisuca para Windows
+===================
+
+INSTALADOR
+O instalador cria atalhos e permite atualizar e desinstalar o aplicativo.
+Heisuca e CGFLIX possuem identidades e pastas distintas: um não substitui o outro.
+
+ZIP SEM INSTALAÇÃO
+Extraia o ZIP inteiro numa pasta e abra heisuca.exe. Mantenha os arquivos juntos.
+Esta distribuição dispensa instalação; não é um modo que guarda todos os dados
+junto ao executável. Configurações, histórico e sessões ficam no perfil do Windows.
+As sessões são protegidas pelo Windows; copiá-las a outro usuário/PC não transfere o login.
+
+USO
+Abrir arquivo / Abrir URL para vídeos locais ou endereços de reprodução.
+Bibliotecas para conectar Plex ou Jellyfin. Ajustes para aparência, privacidade e atalhos.
+O programa não fornece filmes, contas nem servidores.
+
+DADOS
+A desinstalação preserva os dados do perfil do usuário.
+Limpar arquivos recentes apaga só o histórico do aplicativo, nunca seus vídeos.
+
+LICENÇA
+Software livre GPL-3.0, derivado de Plezy. Licenças no app e na pasta licenses.

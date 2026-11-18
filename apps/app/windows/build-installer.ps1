@@ -4,6 +4,8 @@
 # Supports single-arch (backward compat) and dual-arch builds.
 
 param(
+    [ValidateSet("CGFLIX", "Heisuca")]
+    [string]$Product = "CGFLIX",
     [string]$OutputDir = ".",
     [string]$Version = "1.0.0",
     [string]$X64BuildDir,
@@ -15,6 +17,8 @@ param(
 
 function New-InnoSetupScript {
     param(
+        [ValidateSet("CGFLIX", "Heisuca")]
+        [string]$Product = "CGFLIX",
         [Parameter(Mandatory)][string]$Version,
         [Parameter(Mandatory)][bool]$HasX64,
         [Parameter(Mandatory)][bool]$HasArm64,
@@ -23,7 +27,7 @@ function New-InnoSetupScript {
 
     # Uninstall registry keys are named "{AppId}_is1", so the installer and the
     # elevation code below have to agree on this GUID.
-    $AppGuid = '4213385e-f7be-4f2b-95f9-54082a28bb8f'
+    $AppGuid = if ($Product -eq 'Heisuca') { 'ddf45e29-4518-4c70-a963-998f215557d8' } else { '4213385e-f7be-4f2b-95f9-54082a28bb8f' }
 
     if ($HasX64 -and $HasArm64) {
         $ArchAllowed = 'x64compatible arm64'
@@ -39,7 +43,7 @@ Source: "staging\arm64\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
         $FilesSection = 'Source: "staging\arm64\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs'
     }
 
-    return @"
+    $SetupText = @"
 #define Name "CGFLIX"
 #define Version "$Version"
 #define Publisher "CGFLIX"
@@ -227,20 +231,38 @@ begin
   end;
 end;
 "@
+    if ($Product -eq 'Heisuca') {
+        $SetupText = $SetupText.Replace('CGFLIX', 'Heisuca').Replace('cgflix', 'heisuca')
+        $SetupText = $SetupText.Replace('https://netflix.docaio.com.br/app', 'https://heisuca.docaio.com.br')
+        $SetupText = $SetupText.Replace('Filename: "{app}\{#ExeName}";', 'Filename: "{app}\{#ExeName}"; WorkingDir: "{app}";')
+        $LicenseArch = if ($HasX64) { 'x64' } else { 'arm64' }
+        $SetupText = $SetupText.Replace('AppPublisher={#Publisher}', "AppPublisher={#Publisher}`nAppPublisherURL=https://heisuca.docaio.com.br`nSetupIconFile=app_icon.ico`nLicenseFile=staging\$LicenseArch\licenses\LICENSE")
+
+    }
+    return $SetupText
 }
 
 $ErrorActionPreference = "Stop"
 
 Write-Host "Building Windows installer packages..." -ForegroundColor Cyan
 
+$PackagePrefix = if ($Product -eq 'Heisuca') { 'heisuca' } else { 'cgflix' }
+$ResolvedOutput = [IO.Path]::GetFullPath($OutputDir)
+New-Item -ItemType Directory -Path $ResolvedOutput -Force | Out-Null
+if ($X64BuildDir) { $X64BuildDir = [IO.Path]::GetFullPath($X64BuildDir) }
+if ($Arm64BuildDir) { $Arm64BuildDir = [IO.Path]::GetFullPath($Arm64BuildDir) }
+
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ProjectRoot = Split-Path -Parent $ScriptDir
 Set-Location $ProjectRoot
 
-$ResolvedOutput = Resolve-Path $OutputDir
+
 
 if (-not $X64BuildDir -and (Test-Path "build\windows\x64\runner\Release")) {
     $X64BuildDir = "build\windows\x64\runner\Release"
+}
+if (-not $X64BuildDir -and (Test-Path "build\windows\x64\direct\runner\Release")) {
+    $X64BuildDir = (Resolve-Path "build\windows\x64\direct\runner\Release").Path
 }
 if (-not $Arm64BuildDir -and (Test-Path "build\windows\arm64\runner\Release")) {
     $Arm64BuildDir = "build\windows\arm64\runner\Release"
@@ -263,14 +285,24 @@ $SetupScript = "setup.iss"
 if ($EmitScriptOnly) {
     $EmittedScript = Join-Path $ResolvedOutput $SetupScript
     Write-Host "`nGenerating Inno Setup script only..." -ForegroundColor Cyan
-    New-InnoSetupScript -Version $Version -HasX64 ([bool]$HasX64) -HasArm64 ([bool]$HasArm64) -OutputDir $ResolvedOutput |
-        Out-File -FilePath $EmittedScript -Encoding ASCII
+    New-InnoSetupScript -Product $Product -Version $Version -HasX64 ([bool]$HasX64) -HasArm64 ([bool]$HasArm64) -OutputDir $ResolvedOutput |
+        Out-File -FilePath $EmittedScript -Encoding utf8BOM
     Write-Host "Created: $EmittedScript" -ForegroundColor Green
     exit 0
 }
 
+foreach ($BuildDir in @($X64BuildDir, $Arm64BuildDir)) {
+    if ($Product -eq 'Heisuca' -and $BuildDir) {
+        Copy-Item -LiteralPath (Join-Path $ScriptDir 'PORTABLE_HEISUCA.txt') -Destination (Join-Path $BuildDir 'LEIA-ME.txt')
+    }
+    if ($BuildDir) {
+        $ExpectedExe = Join-Path $BuildDir "$PackagePrefix.exe"
+        if (-not (Test-Path -LiteralPath $ExpectedExe)) { throw "Executable missing: $PackagePrefix.exe" }
+    }
+}
+
 Write-Host "`nChecking for 7-Zip..." -ForegroundColor Cyan
-if (-not (Get-Command 7z -ErrorAction SilentlyContinue)) {
+if ($Product -eq 'CGFLIX' -and -not (Get-Command 7z -ErrorAction SilentlyContinue)) {
     if (Test-Path "C:\Program Files\7-Zip\7z.exe") {
         $env:Path += ";C:\Program Files\7-Zip"
     } elseif (Get-Command choco -ErrorAction SilentlyContinue) {
@@ -284,14 +316,14 @@ if (-not (Get-Command 7z -ErrorAction SilentlyContinue)) {
 
 if ($HasX64) {
     Write-Host "`nCreating x64 portable archive..." -ForegroundColor Cyan
-    $X64Portable = Join-Path $ResolvedOutput "cgflix-windows-x64-portable.zip"
-    $X64Portable7z = Join-Path $ResolvedOutput "cgflix-windows-x64-portable.7z"
+    $X64Portable = Join-Path $ResolvedOutput "${PackagePrefix}-windows-x64-portable.zip"
+    $X64Portable7z = Join-Path $ResolvedOutput "${PackagePrefix}-windows-x64-portable.7z"
     Push-Location $X64BuildDir
     try {
         if (Test-Path $X64Portable) { Remove-Item $X64Portable -Force }
         if (Test-Path $X64Portable7z) { Remove-Item $X64Portable7z -Force }
         Compress-Archive -Path * -DestinationPath $X64Portable -Force
-        if (Get-Command 7z -ErrorAction SilentlyContinue) {
+        if ($Product -eq 'CGFLIX' -and (Get-Command 7z -ErrorAction SilentlyContinue)) {
             7z a -mx=9 $X64Portable7z *
         }
         Write-Host "Created: $X64Portable" -ForegroundColor Green
@@ -302,14 +334,14 @@ if ($HasX64) {
 
 if ($HasArm64) {
     Write-Host "`nCreating arm64 portable archive..." -ForegroundColor Cyan
-    $Arm64Portable = Join-Path $ResolvedOutput "cgflix-windows-arm64-portable.zip"
-    $Arm64Portable7z = Join-Path $ResolvedOutput "cgflix-windows-arm64-portable.7z"
+    $Arm64Portable = Join-Path $ResolvedOutput "${PackagePrefix}-windows-arm64-portable.zip"
+    $Arm64Portable7z = Join-Path $ResolvedOutput "${PackagePrefix}-windows-arm64-portable.7z"
     Push-Location $Arm64BuildDir
     try {
         if (Test-Path $Arm64Portable) { Remove-Item $Arm64Portable -Force }
         if (Test-Path $Arm64Portable7z) { Remove-Item $Arm64Portable7z -Force }
         Compress-Archive -Path * -DestinationPath $Arm64Portable -Force
-        if (Get-Command 7z -ErrorAction SilentlyContinue) {
+        if ($Product -eq 'CGFLIX' -and (Get-Command 7z -ErrorAction SilentlyContinue)) {
             7z a -mx=9 $Arm64Portable7z *
         }
         Write-Host "Created: $Arm64Portable" -ForegroundColor Green
@@ -319,8 +351,13 @@ if ($HasArm64) {
 }
 
 Write-Host "`nStaging files for installer..." -ForegroundColor Cyan
-$StagingDir = "staging"
-if (Test-Path $StagingDir) { Remove-Item $StagingDir -Recurse -Force }
+$StagingRoot = Join-Path $ResolvedOutput ("packaging-" + [Guid]::NewGuid().ToString('N'))
+$StagingDir = Join-Path $StagingRoot 'staging'
+New-Item -ItemType Directory -Path $StagingDir -Force | Out-Null
+$SetupScript = Join-Path $StagingRoot 'setup.iss'
+if ($Product -eq 'Heisuca') {
+    Copy-Item -LiteralPath (Join-Path $ScriptDir 'runner\resources\app_icon.ico') -Destination (Join-Path $StagingRoot 'app_icon.ico')
+}
 
 if ($HasX64) {
     $X64Staging = Join-Path $StagingDir "x64"
@@ -334,8 +371,8 @@ if ($HasArm64) {
 }
 
 Write-Host "`nGenerating Inno Setup script..." -ForegroundColor Cyan
-New-InnoSetupScript -Version $Version -HasX64 ([bool]$HasX64) -HasArm64 ([bool]$HasArm64) -OutputDir $ResolvedOutput |
-    Out-File -FilePath $SetupScript -Encoding ASCII
+New-InnoSetupScript -Product $Product -Version $Version -HasX64 ([bool]$HasX64) -HasArm64 ([bool]$HasArm64) -OutputDir $ResolvedOutput |
+    Out-File -FilePath $SetupScript -Encoding utf8BOM
 Write-Host "Created: $SetupScript" -ForegroundColor Green
 
 Write-Host "`nChecking for Inno Setup..." -ForegroundColor Cyan
@@ -344,7 +381,7 @@ $InnoSetupPath = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
 if (-not (Test-Path $InnoSetupPath)) {
     if (Get-Command ISCC.exe -ErrorAction SilentlyContinue) {
         $InnoSetupPath = (Get-Command ISCC.exe).Source
-    } elseif (Get-Command choco -ErrorAction SilentlyContinue) {
+    } elseif ($Product -eq 'CGFLIX' -and (Get-Command choco -ErrorAction SilentlyContinue)) {
         Write-Host "Inno Setup not found. Installing via Chocolatey..." -ForegroundColor Yellow
         choco install innosetup --allow-empty-checksums -y
         if (Test-Path $InnoSetupPath) {
@@ -371,12 +408,12 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 # Ensure installer is in output directory if Inno outputted to root
-$ExpectedInstaller = Join-Path $ResolvedOutput 'cgflix-windows-installer.exe'
-if (-not (Test-Path $ExpectedInstaller) -and (Test-Path 'cgflix-windows-installer.exe')) {
-    Move-Item 'cgflix-windows-installer.exe' $ResolvedOutput -Force
+$ExpectedInstaller = Join-Path $ResolvedOutput "${PackagePrefix}-windows-installer.exe"
+if (-not (Test-Path $ExpectedInstaller) -and (Test-Path "${PackagePrefix}-windows-installer.exe")) {
+    Move-Item "${PackagePrefix}-windows-installer.exe" $ResolvedOutput -Force
 }
 
-Remove-Item $StagingDir -Recurse -Force -ErrorAction SilentlyContinue
+# Preserve the generated .iss and staged input for audit of this build.
 
 Write-Host "`nBuild complete!" -ForegroundColor Green
 if ($HasX64)   { Write-Host "Portable (x64):   $X64Portable" -ForegroundColor White }

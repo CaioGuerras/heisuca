@@ -3,6 +3,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
+import 'desktop/platform/desktop_metadata_cache.dart';
 
 import 'desktop/desktop_root.dart';
 
@@ -24,6 +25,8 @@ Future<void> main(List<String> arguments) async {
       await windowManager.focus();
     });
   }
+
+  await initializeDesktopMetadataCaches();
 
   runApp(DesktopRoot(initialSource: arguments.isEmpty ? null : arguments.first));
 }

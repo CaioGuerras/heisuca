@@ -9,6 +9,10 @@ import 'package:integration_test/integration_test.dart';
 import 'package:path/path.dart' as p;
 
 import 'package:heisuca/connection/connection.dart';
+import 'package:heisuca/desktop/platform/desktop_metadata_cache.dart';
+import 'package:heisuca/services/plex_api_cache.dart';
+import 'package:heisuca/services/jellyfin_api_cache.dart';
+import 'package:heisuca/media/ids.dart';
 import 'package:heisuca/services/jellyfin_client.dart';
 import 'package:heisuca/mpv/models.dart';
 import 'package:heisuca/mpv/player/player.dart';
@@ -18,6 +22,20 @@ import 'package:heisuca/desktop/desktop_playback_controller.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
+  testWidgets('Bootstrap desktop real inicializa caches dos dois backends no Windows', (tester) async {
+    final dir = await Directory.systemTemp.createTemp('heisuca-native-cache-');
+    final database = await initializeDesktopMetadataCaches(supportDirectory: dir);
+    try {
+      await PlexApiCache.instance.put(ServerId('plex-fixture'), '/fixture', {'proof': 'plex'});
+      await JellyfinApiCache.instance.put(ServerId('jellyfin-fixture'), '/fixture', {'proof': 'jellyfin'});
+      expect((await PlexApiCache.instance.get(ServerId('plex-fixture'), '/fixture'))?['proof'], 'plex');
+      expect((await JellyfinApiCache.instance.get(ServerId('jellyfin-fixture'), '/fixture'))?['proof'], 'jellyfin');
+    } finally {
+      await database.close();
+      await dir.delete(recursive: true);
+    }
+  });
 
   testWidgets('Cliente Jellyfin real consulta biblioteca local com identidade Heisuca', (tester) async {
     final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);

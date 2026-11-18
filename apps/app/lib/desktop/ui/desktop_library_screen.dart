@@ -858,6 +858,7 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
         ),
         Expanded(
           child: GridView.builder(
+            key: PageStorageKey('desktop-grid:${server.id}:${_selectedLibrary?.id}:$_searchQuery:$_searchAllServer'),
             controller: _gridScrollController,
             padding: const EdgeInsets.fromLTRB(24.0, 8.0, 24.0, 24.0),
             gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(

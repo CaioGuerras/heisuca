@@ -356,6 +356,24 @@ void main() {
     expect(find.text('Biblioteca de filmes não encontrada'),findsNothing);expect(find.text('Privado A'),findsNothing);
   });
 
+  testWidgets('voltar da ficha preserva a posição na grade da biblioteca', (tester) async {
+    tester.view.physicalSize=const Size(1280,800);tester.view.devicePixelRatio=1;
+    addTearDown(tester.view.resetPhysicalSize);addTearDown(tester.view.resetDevicePixelRatio);
+    final items=List.generate(50,(i)=>MediaItem.plex(id:'m$i',kind:MediaKind.movie,title:'Título $i'));
+    final client=_FakeMediaServerClient(backend:MediaBackend.plex,onFetchLibraries:()async=>[
+      const MediaLibrary(id:'movies',backend:MediaBackend.plex,title:'Filmes',kind:MediaKind.movie)],
+      onFetchLibraryPagedContent:(id,query,kind,abort)async=>LibraryPage(items:items,totalCount:items.length));
+    final servers=_FakeServersController(initialConnections:[DesktopServerConnection(id:'A',name:'Fonte A',backend:MediaBackend.plex,client:client)]);
+    addTearDown(servers.dispose);
+    await tester.pumpWidget(_buildTestApp(servers:servers,onPlay:(_,_,_)async{}));await tester.pumpAndSettle();
+    await tester.drag(find.byType(GridView),const Offset(0,-700));await tester.pumpAndSettle();
+    double offset()=>tester.state<ScrollableState>(find.descendant(of:find.byType(GridView),matching:find.byType(Scrollable)).first).position.pixels;
+    final before=offset();expect(before,greaterThan(500));
+    await tester.tap(find.textContaining(RegExp(r'^Título [0-9]+$')).hitTestable().first);await tester.pumpAndSettle();
+    await tester.tap(find.text('Voltar à grade'));await tester.pumpAndSettle();
+    expect(offset(),closeTo(before,1));
+  });
+
   WidgetController.hitTestWarningShouldBeFatal = true;
   testWidgets('sem conexões exibe ações reais e aviso de sessão temporária sem texto DPAPI', (tester) async {
     tester.view.physicalSize = const Size(1280, 800);

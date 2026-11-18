@@ -1,9 +1,13 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:heisuca/desktop/desktop_app.dart';
+import 'package:heisuca/heisuca/heisuca_logo.dart';
+import 'package:heisuca/desktop/desktop_preferences.dart';
+import 'package:heisuca/design/tema.dart';
 import 'package:heisuca/desktop/desktop_playback_controller.dart';
 import 'package:heisuca/models/audio_channel_limit.dart';
 import 'package:heisuca/mpv/models.dart';
@@ -444,7 +448,7 @@ void main() {
     await tester.pumpWidget(DesktopApp(controller: controller));
     await tester.pump();
 
-    expect(find.text('Heisuca'), findsOneWidget);
+    expect(find.byType(HeisucaLogo), findsOneWidget);
     expect(find.text('Abrir arquivo'), findsOneWidget);
     expect(find.text('Abrir URL'), findsOneWidget);
     expect(find.textContaining('Plex'), findsNothing);
@@ -682,4 +686,94 @@ void main() {
     await controller.close();
     controller.dispose();
   });
+  testWidgets('Ajustes troca os três temas e recentes retomam o arquivo com offset real', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(1280, 760));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final preferences = DesktopPreferences();
+    addTearDown(preferences.dispose);
+    final path = '${Directory.systemTemp.path}${Platform.pathSeparator}filme.mkv';
+    final uri = File(path).uri.toString();
+    preferences.recordLocal(uri: uri, title: 'Meu filme', positionMs: 30000, durationMs: 100000);
+    final fake = _FakePlayer();
+    final controller = DesktopPlaybackController(playerFactory: () => fake);
+    addTearDown(controller.dispose);
+    await tester.pumpWidget(DesktopApp(controller: controller, preferences: preferences,
+        onSetFullScreen: (value) async => value));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ajustes'));
+    await tester.pumpAndSettle();
+    for (final choice in ['Hisui · claro', 'Sumi · preto', 'Shikkoku · escuro']) {
+      await tester.tap(find.text(choice));
+      await tester.pumpAndSettle();
+      final palette = Theme.of(tester.element(find.text('Aparência'))).extension<TemaHeisuca>()!;
+      expect(palette.nome, preferences.theme);
+      expect(tester.takeException(), isNull);
+    }
+    await tester.tap(find.text('Voltar'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Meu filme'));
+    await tester.tap(find.text('Meu filme'));
+    await tester.pump();
+    expect(fake.openedMedia.single.uri, DesktopPlaybackController.normalizeSourceForTest(path));
+    expect(controller.localFileUri, uri);
+    expect(fake.openedMedia.single.start, const Duration(seconds: 30));
+    fake.emitReadyFrame();
+    await tester.pump();
+    await tester.pumpWidget(const SizedBox.shrink());
+    controller.dispose();
+  });
+
+  testWidgets('arquivo enviado à instância aberta fecha ajustes e abre a nova fonte', (tester) async {
+    final players = <_FakePlayer>[];
+    final controller = DesktopPlaybackController(playerFactory: () {
+      final player = _FakePlayer(); players.add(player); return player;
+    });
+    addTearDown(controller.dispose);
+    await tester.pumpWidget(DesktopApp(controller: controller, onSetFullScreen: (value) async => value));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ajustes'));
+    await tester.pumpAndSettle();
+    const channel = MethodChannel('heisuca/desktop_files');
+    final path = '${Directory.systemTemp.path}${Platform.pathSeparator}novo arquivo.mkv';
+    await tester.binding.defaultBinaryMessenger.handlePlatformMessage(channel.name,
+      channel.codec.encodeMethodCall(MethodCall('openFile', path)), (_) {});
+    players.single.emitReadyFrame();
+    await tester.pumpAndSettle();
+    expect(find.text('Aparência'), findsNothing);
+    expect(players.single.openedMedia.single.uri, DesktopPlaybackController.normalizeSourceForTest(path));
+    expect(controller.localFileUri, File(path).uri.toString());
+    final epoch = controller.sourceEpoch;
+    await tester.binding.defaultBinaryMessenger.handlePlatformMessage(channel.name,
+      channel.codec.encodeMethodCall(MethodCall('openFile', 'x' * 9000)), (_) {});
+    expect(controller.sourceEpoch, epoch);
+    await tester.pumpWidget(const SizedBox.shrink());
+    controller.dispose();
+  });
+
+  testWidgets('soltar arquivo abre vídeo e soltar SRT seleciona legenda sem trocar a mídia', (tester) async {
+    final fake = _FakePlayer();
+    final controller = DesktopPlaybackController(playerFactory: () => fake);
+    await tester.pumpWidget(DesktopApp(controller: controller, onSetFullScreen: (value) async => value));
+    const channel = MethodChannel('heisuca/desktop_files');
+    final path = '${Directory.systemTemp.path}${Platform.pathSeparator}filme.mkv';
+    Future<void> drop(List<String> files) => tester.binding.defaultBinaryMessenger.handlePlatformMessage(
+      channel.name, channel.codec.encodeMethodCall(MethodCall('dropFiles', files)), (_) {});
+    await drop([path]);
+    fake.emitReadyFrame();
+    await tester.pump();
+    expect(fake.openedMedia, hasLength(1));
+    final epoch = controller.sourceEpoch;
+    final subtitle = '${Directory.systemTemp.path}${Platform.pathSeparator}legenda.srt';
+    await drop([subtitle]);
+    await tester.pump();
+    expect(fake.state.track.subtitle?.id, endsWith('legenda.srt'));
+    expect(controller.sourceEpoch, epoch);
+    await drop([path, path]);
+    await tester.pump();
+    expect(find.text('Escolha um único vídeo ou legenda por vez.'), findsOneWidget);
+    expect(fake.openedMedia, hasLength(1));
+    await tester.pumpWidget(const SizedBox.shrink());
+    controller.dispose();
+  });
+
 }

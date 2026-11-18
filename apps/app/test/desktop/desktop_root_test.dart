@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:heisuca/desktop/desktop_root.dart';
+import 'package:heisuca/desktop/desktop_preferences.dart';
 import 'package:heisuca/desktop/platform/desktop_connection_vault.dart';
 import 'package:heisuca/desktop/ui/desktop_library_screen.dart';
 
 void main() {
   testWidgets('entrada real abre bibliotecas sem exigir conta para arquivos', (tester) async {
-    await tester.pumpWidget(DesktopRoot(vault: MemoryDesktopConnectionVault()));
+    await tester.pumpWidget(DesktopRoot(vault: MemoryDesktopConnectionVault(), preferences: DesktopPreferences()));
     await tester.pumpAndSettle();
     expect(find.text('Abrir arquivo'), findsOneWidget);
     expect(find.text('Bibliotecas'), findsOneWidget);

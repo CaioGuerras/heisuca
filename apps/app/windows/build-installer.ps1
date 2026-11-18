@@ -235,6 +235,19 @@ end;
         $SetupText = $SetupText.Replace('CGFLIX', 'Heisuca').Replace('cgflix', 'heisuca')
         $SetupText = $SetupText.Replace('https://netflix.docaio.com.br/app', 'https://heisuca.docaio.com.br')
         $SetupText = $SetupText.Replace('Filename: "{app}\{#ExeName}";', 'Filename: "{app}\{#ExeName}"; WorkingDir: "{app}";')
+        $SetupText = $SetupText.Replace('PrivilegesRequired=lowest', "PrivilegesRequired=lowest`nAppMutex=br.com.docaio.heisuca.SingleInstance`nChangesAssociations=yes")
+        $SetupText = $SetupText.Replace('[CustomMessages]', "[CustomMessages]`nenglish.FileAssociations=Add Heisuca to Open with`nbrazilianportuguese.FileAssociations=Mostrar Heisuca em Abrir com`nenglish.VideoFiles=Video files:`nbrazilianportuguese.VideoFiles=Arquivos de vídeo:")
+        $SetupText = $SetupText.Replace('[Tasks]', "[Tasks]`nName: ""fileassociations""; Description: ""{cm:FileAssociations}""; GroupDescription: ""{cm:VideoFiles}""; Flags: unchecked")
+        $Registry = @'
+[Registry]
+Root: HKCU; Subkey: "Software\Classes\Heisuca.Video"; ValueType: string; ValueData: "Vídeo do Heisuca"; Flags: uninsdeletekey; Tasks: fileassociations
+Root: HKCU; Subkey: "Software\Classes\Heisuca.Video\DefaultIcon"; ValueType: string; ValueData: "{app}\{#ExeName},0"; Tasks: fileassociations
+Root: HKCU; Subkey: "Software\Classes\Heisuca.Video\shell\open\command"; ValueType: string; ValueData: """{app}\{#ExeName}"" ""%1"""; Tasks: fileassociations
+'@
+        foreach ($Extension in @('.mkv', '.mp4', '.webm', '.avi', '.mov', '.m4v', '.ts')) {
+            $Registry += "`nRoot: HKCU; Subkey: ""Software\Classes\$Extension\OpenWithProgids""; ValueType: string; ValueName: ""Heisuca.Video""; ValueData: """"; Flags: uninsdeletevalue; Tasks: fileassociations"
+        }
+        $SetupText = $SetupText.Replace('[Code]', "$Registry`n`n[Code]")
         $LicenseArch = if ($HasX64) { 'x64' } else { 'arm64' }
         $SetupText = $SetupText.Replace('AppPublisher={#Publisher}', "AppPublisher={#Publisher}`nAppPublisherURL=https://heisuca.docaio.com.br`nSetupIconFile=app_icon.ico`nLicenseFile=staging\$LicenseArch\licenses\LICENSE")
 

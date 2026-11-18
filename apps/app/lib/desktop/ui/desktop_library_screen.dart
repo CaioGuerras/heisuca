@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../design/tema.dart';
+import '../../design/componentes/toque.dart';
+import '../../heisuca/heisuca_logo.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -893,7 +896,10 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
     required bool fullWidth,
   }) {
     final item = _detailItem!;
+    final artwork = item.artPath ?? item.thumbPath;
     return _MediaDetailPanel(
+      imageUrl: artwork == null || artwork.isEmpty ? null : server.client.thumbnailUrl(artwork, width: 900),
+      headers: server.client.streamHeaders,
       palette: palette,
       item: item,
       parentBreadcrumbTitle: _detailBreadcrumbs.isNotEmpty ? _detailBreadcrumbs.last.displayTitle : null,
@@ -961,19 +967,13 @@ class _LibraryPalette {
   factory _LibraryPalette.of(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
+    final palette = theme.extension<TemaHeisuca>() ??
+        (theme.brightness == Brightness.dark ? TemaHeisuca.shikkoku : TemaHeisuca.hisui);
     return _LibraryPalette(
-      background: isDark ? HeisucaTheme.roxoFundo : theme.scaffoldBackgroundColor,
-      surface: isDark ? HeisucaTheme.roxoSuperficie : scheme.surface,
-      elevated: isDark ? HeisucaTheme.roxoSuperficieElevada : scheme.surfaceContainerHighest,
-      line: isDark ? HeisucaTheme.roxoLinha : scheme.outlineVariant,
-      primary: isDark ? HeisucaTheme.roxoPrimaria : scheme.primary,
-      onPrimary: isDark ? Colors.white : scheme.onPrimary,
-      seal: HeisucaTheme.roxoSelo,
-      text: isDark ? Colors.white : scheme.onSurface,
-      textMuted: isDark ? const Color(0xFFB7B4C4) : scheme.onSurfaceVariant,
-      error: scheme.error,
-      errorContainer: scheme.errorContainer,
+      background: palette.fundo, surface: palette.superficie, elevated: palette.superficie2,
+      line: palette.borda, primary: palette.botaoFundo, onPrimary: palette.botaoTexto,
+      seal: palette.selo, text: palette.texto, textMuted: palette.texto2,
+      error: palette.erro, errorContainer: scheme.errorContainer,
     );
   }
 }
@@ -1018,6 +1018,7 @@ class _HeaderBar extends StatelessWidget {
                 icon: const Icon(Icons.arrow_back, size: 18.0),
                 label: const Text('Voltar'),
               ),
+              const HeisucaLogo(width: 136, height: 42),
               Text(
                 'Bibliotecas',
                 style: HeisucaTypography.titleHero.copyWith(color: palette.text),
@@ -1620,9 +1621,13 @@ class _MediaGridCardState extends State<_MediaGridCard> {
         side: BorderSide(color: borderColor, width: borderWidth),
       ),
       clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: widget.onTap,
-        onFocusChange: (focused) => setState(() => _focused = focused),
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _focused = true),
+        onExit: (_) => setState(() => _focused = false),
+        cursor: SystemMouseCursors.click,
+        child: Toque(
+        forma: RoundedRectangleBorder(borderRadius: BorderRadius.circular(HeisucaTheme.raioCard)),
+        aoTocar: widget.onTap,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -1635,6 +1640,14 @@ class _MediaGridCardState extends State<_MediaGridCard> {
                 mutedColor: palette.textMuted,
               ),
             ),
+            if ((item.durationMs ?? 0) > 0 && (item.viewOffsetMs ?? 0) > 0)
+              LinearProgressIndicator(
+                value: (item.viewOffsetMs! / item.durationMs!).clamp(0.0, 1.0),
+                minHeight: 3,
+                color: Theme.of(context).colorScheme.primary,
+                backgroundColor: palette.elevated,
+                semanticsLabel: 'Progresso de reprodução',
+              ),
             Padding(
               padding: const EdgeInsets.all(10.0),
               child: Column(
@@ -1662,7 +1675,7 @@ class _MediaGridCardState extends State<_MediaGridCard> {
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 }
@@ -1694,6 +1707,7 @@ class _CardArtwork extends StatelessWidget {
         url,
         fit: BoxFit.cover,
         headers: headers,
+        excludeFromSemantics: true,
         errorBuilder: (context, error, stackTrace) {
           return _ArtworkFallback(kind: kind, elevatedColor: elevatedColor, mutedColor: mutedColor);
         },
@@ -1828,6 +1842,8 @@ class _CenteredMessageState extends StatelessWidget {
 
 class _MediaDetailPanel extends StatelessWidget {
   const _MediaDetailPanel({
+    this.imageUrl,
+    this.headers = const {},
     required this.palette,
     required this.item,
     required this.parentBreadcrumbTitle,
@@ -1851,6 +1867,8 @@ class _MediaDetailPanel extends StatelessWidget {
     required this.onLoadMoreChildren,
   });
 
+  final String? imageUrl;
+  final Map<String, String> headers;
   final _LibraryPalette palette;
   final MediaItem item;
   final String? parentBreadcrumbTitle;
@@ -1921,6 +1939,13 @@ class _MediaDetailPanel extends StatelessWidget {
                   ),
                 ],
               ),
+              if (imageUrl != null) ...[
+                const SizedBox(height: 14),
+                ClipRRect(borderRadius: BorderRadius.circular(HeisucaTheme.raioCard),
+                  child: AspectRatio(aspectRatio: 16 / 9, child: _CardArtwork(
+                    imageUrl: imageUrl, headers: headers, kind: item.kind,
+                    elevatedColor: palette.elevated, mutedColor: palette.textMuted))),
+              ],
               const SizedBox(height: 12.0),
               Text(
                 item.displayTitle.isNotEmpty ? item.displayTitle : (item.title ?? 'Sem título'),

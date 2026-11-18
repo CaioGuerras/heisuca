@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:window_manager/window_manager.dart';
 import 'desktop/platform/desktop_metadata_cache.dart';
 
@@ -26,6 +27,10 @@ Future<void> main(List<String> arguments) async {
     });
   }
 
+  LicenseRegistry.addLicense(() async* {
+    yield LicenseEntryWithLineBreaks(['Heisuca (derivado de Plezy)'],
+      await rootBundle.loadString('assets/heisuca/LICENCA_GPL_3.txt'));
+  });
   await initializeDesktopMetadataCaches();
 
   runApp(DesktopRoot(initialSource: arguments.isEmpty ? null : arguments.first));

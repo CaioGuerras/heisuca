@@ -63,7 +63,7 @@ jobs:
         run: flutter analyze --no-pub lib/main_desktop.dart lib/desktop test/desktop integration_test/desktop_native_playback_test.dart
 
       - name: Testes unitarios e widgets desktop
-        run: flutter test --no-pub test/desktop test/services/plex_auth_service_test.dart test/services/playback_progress_tracker_test.dart test/services/jellyfin_auth_header_test.dart
+        run: flutter test --no-pub test/desktop test/design test/services/plex_auth_service_test.dart test/services/playback_progress_tracker_test.dart test/services/jellyfin_auth_header_test.dart
 
       - name: Preparar cache Windows e instalar engine DComp (SHA/stamp validados)
         run: |
@@ -71,7 +71,7 @@ jobs:
           .\windows\tool\install-patched-engine.ps1
 
       - name: Compilar Windows Release (entrypoint desktop)
-        run: flutter build windows --release -t lib/main_desktop.dart --dart-define=GIT_COMMIT=${{ github.sha }}
+        run: flutter build windows --release -t lib/main_desktop.dart --dart-define=HEISUCA_DESKTOP_REVISION=${{ github.sha }} --dart-define=GIT_COMMIT=${{ github.sha }}
 
       - name: Verificar bundle Windows (heisuca.exe, libmpv, vulkan, runtime, licencas)
         run: |
@@ -201,6 +201,14 @@ jobs:
         timeout-minutes: 5
         run: .\tool\desktop\test-windows-package.ps1
 
+      - name: Capturar inicio nativo nos tres temas Heisuca
+        timeout-minutes: 3
+        run: |
+          foreach ($theme in @('shikkoku', 'hisui', 'sumi')) {
+            & pwsh -NoProfile -File '.\tool\desktop\capture-native-windows.ps1' -HomeOnly -Theme $theme -Output "dist/home-evidence/$theme"
+            if ($LASTEXITCODE -ne 0) { throw "Home capture failed: $theme" }
+          }
+
       - name: Publicar ZIP sem instalacao (sem release/publicacao)
         uses: actions/upload-artifact@v4
         with:
@@ -229,5 +237,6 @@ jobs:
           path: |
             apps/app/dist/native-evidence/
             apps/app/dist/install-evidence/
+            apps/app/dist/home-evidence/
           if-no-files-found: warn
           retention-days: 14

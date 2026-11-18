@@ -3,11 +3,13 @@
 #include <optional>
 
 #include "desktop_vault.h"
+#include "utils.h"
+#include <shellapi.h>
 #include "flutter/generated_plugin_registrant.h"
 #include "mpv/display_mode_manager.h"
 #include "mpv/mpv_plugin.h"
 
-static constexpr wchar_t kWindowPlacementKey[] = L"Software\\Plezy";
+static constexpr wchar_t kWindowPlacementKey[] = L"Software\\Heisuca\\Desktop";
 static constexpr wchar_t kWindowPlacementValue[] = L"WindowPlacement";
 
 static UINT_PTR g_saveTimerId = 0;
@@ -166,6 +168,10 @@ bool FlutterWindow::OnCreate() {
       flutter_controller_->engine()->GetRegistrarForPlugin("MpvAudioPlayerPlugin"));
 
   RegisterWindowChannel();
+  ::DragAcceptFiles(GetHandle(), TRUE);
+  desktop_files_channel_ = std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(
+      flutter_controller_->engine()->messenger(), "heisuca/desktop_files",
+      &flutter::StandardMethodCodec::GetInstance());
   vault_channel_ = SetUpDesktopVaultChannel(flutter_controller_->engine()->messenger());
 
   SetChildContent(flutter_controller_->view()->GetNativeWindow());
@@ -199,6 +205,7 @@ void FlutterWindow::OnDestroy() {
     SaveWindowPlacement(GetHandle());
   }
 
+  desktop_files_channel_ = nullptr;
   vault_channel_ = nullptr;
   window_channel_ = nullptr;
 
@@ -211,6 +218,38 @@ void FlutterWindow::OnDestroy() {
 
 LRESULT
 FlutterWindow::MessageHandler(HWND hwnd, UINT const message, WPARAM const wparam, LPARAM const lparam) noexcept {
+  if (message == WM_DROPFILES && desktop_files_channel_) {
+    const auto drop = reinterpret_cast<HDROP>(wparam);
+    const UINT count = ::DragQueryFileW(drop, 0xffffffff, nullptr, 0);
+    flutter::EncodableList paths;
+    for (UINT i = 0; i < count && i < 32; ++i) {
+      const UINT length = ::DragQueryFileW(drop, i, nullptr, 0);
+      if (length == 0 || length > 8192) continue;
+      std::vector<wchar_t> path(length + 1);
+      if (::DragQueryFileW(drop, i, path.data(), length + 1) == 0) continue;
+      const auto attributes = ::GetFileAttributesW(path.data());
+      if (attributes == INVALID_FILE_ATTRIBUTES || (attributes & FILE_ATTRIBUTE_DIRECTORY)) continue;
+      const auto utf8 = Utf8FromUtf16(path.data());
+      if (!utf8.empty()) paths.emplace_back(utf8);
+    }
+    ::DragFinish(drop);
+    desktop_files_channel_->InvokeMethod("dropFiles", std::make_unique<flutter::EncodableValue>(paths));
+    return 0;
+  }
+  if (message == WM_COPYDATA && desktop_files_channel_) {
+    const auto* data = reinterpret_cast<const COPYDATASTRUCT*>(lparam);
+    if (!data || data->dwData != 0x48454953 || !data->lpData || data->cbData < 2 || data->cbData > 65536) return FALSE;
+    const auto* bytes = static_cast<const char*>(data->lpData);
+    if (bytes[data->cbData - 1] != '\0') return FALSE;
+    const std::string source(bytes, data->cbData - 1);
+    if (source.find('\0') != std::string::npos ||
+        MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, source.data(), static_cast<int>(source.size()), nullptr, 0) == 0) return FALSE;
+    for (const unsigned char character : source) {
+      if (character < 0x20 || character == 0x7f) return FALSE;
+    }
+    desktop_files_channel_->InvokeMethod("openFile", std::make_unique<flutter::EncodableValue>(source));
+    return TRUE;
+  }
   // Give Flutter, including plugins, an opportunity to handle window messages.
   if (flutter_controller_) {
     std::optional<LRESULT> result = flutter_controller_->HandleTopLevelWindowProc(hwnd, message, wparam, lparam);

@@ -1,28 +1,23 @@
-# Heisuca Desktop — marco local em validação
+# Heisuca Windows — instalador e experiência desktop
 
-Base: Heisuca 2.0.45+3030 (b61c7dda). Branch: gemini/heisuca-desktop-windows. Este ramo é uma prévia técnica desktop: não é uma nova versão Estável Android, não substitui o site e não muda feeds de atualização.
+Base técnica Heisuca 2.0.45+3030. Ramo gemini/heisuca-desktop-windows. Sem alterações de Android, site, feeds ou Estável.
 
-Implementação inicial por Gemini Hydrogen 01 (controller), Hydrogen 02 (interface), Hydrogen 03 (Windows/CI), Flash05 (integração nativa); Jocasta auditou e corrigiu. Pesquisa em oito frentes, auditoria de base Carbon04, revisão de plano Carbon09 e revisão independente de UI Carbon09. A revisão do controller em Carbon03 não iniciou porque o provedor deixou de listar o modelo nessa conta; redistribuída à conta02, sem créditos extras.
+## Marcos com prova
 
-24 testes locais unitários/widget passaram. Análise dos arquivos novos sem erros/avisos. A análise geral da base tinha 95 ocorrências anteriores. Contraprova: o teste novo de fechar durante open nativo que nunca responde falhou antes da correção e passou depois; chamadas/streams da instância interrompida são descartadas. Testes também cobrem caminho Unicode, URL com userinfo, timeout sem frame, erro seguro, cancelamento de seletor, argumentos iniciais, foco em campos e layout800x600 com texto200%.
+- M2 b1d1580f: CI44325345100 aprovado,171 testes Windows +4 nativos. ZIP M2 preservado.
+- Empacotamento751bfaed: CI44334448984 aprovado. Gerador Inno do CGFLIX reaproveitado e parametrizado; AppId, nomes e pasta Heisuca próprios. Teste real instala, reinstala, reproduz do executável instalado e desinstala, preservando arquivo do usuário e a fixture de registro CGFLIX. Não é teste de migração de uma instalação CGFLIX real.
+- Acabamento atual: temas e marca oficiais, ajustes/privacidade/licenças, arquivos recentes com retomada, velocidade, arte/progresso das fichas/cartões e interação Toque. IPC de arquivo na instância existente, espera por janela que ainda inicia e arrastar vídeo/legenda. Esta revisão exige novo CI da ponta para validar os deltas nativos e pacotes finais.
 
-A bancada Windows ainda precisa executar neste commit. O teste real usa imagem sintética, H264, 2AAC e 2SRT. Som físico/GPU/HDR/DPI/multimonitor/SmartScreen e integração Plex/Jellyfin ainda não têm prova nesta prévia. Nenhum resultado de teste com fake será apresentado como prova de vídeo no Windows.
+## Distribuições
 
-## Correções de auditoria
+Instalador Inno por usuário, com desinstalação e atualização por cima. O Heisuca não assume a identidade nem o registro do CGFLIX. Abrir com é opcional e não muda o aplicativo padrão do Windows. O ZIP contém o mesmo runtime e funciona extraído sem instalação. Seu histórico, ajustes e cofre continuam no perfil do Windows: o ZIP não é um modo de dados inteiramente transportável. Tokens de conexão ficam somente no cofre DPAPI.
 
-- URI do Dart remove userinfo vazio; bloquear @ na autoridade crua antes de analisar.
-- Close/open que interrompem abertura não podem cancelar o watchdog e prender a fila. Cada fonte de mídia recebe uma instância Player própria, com aposentadoria da anterior e cadeia de posse nativa do PlayerBase; nenhum evento tardio pode reaproveitar o estado Dart da mídia anterior.
-- Frame antigo não confirma fonte nova; controller governa a visibilidade. Video usa identidade do player como key.
-- Timer de auto-hide agora é cancelado no momento de abrir o menu, não por tear-off antigo.
-- Falha de seletor tem aviso seguro; legenda atrasada não pode ir para outro player/título.
-- Fechar mídia não espera o gerenciador de tela cheia. Falha de fullscreen não falsifica estado.
-- Arrasto da timeline é zerado ao fechar/falhar/trocar mídia; menus devolvem foco.
-- Teclas em botões/slider mantêm semântica acessível normal do controle focado; não tratamos isso como defeito. Atalhos de player operam fora de edição/modal.
+## Provas exigidas na ponta
 
-Abertura por argv funciona na primeira instância; repasse do arquivo à instância já aberta ainda é pendência. Instalador legado não é usado (ainda aponta cgflix.exe); CI entrega ZIP portátil experimental. Sem atualização automática herdada ou assinatura nova.
+Análise sem ocorrências; testes desktop/design e regressões dos serviços compartilhados; backend Windows real, SQLite e DPAPI; instalador real e hash do binário instalado; vídeo com quadro/relógio/faixas/legenda/seek/velocidade; handoff com dono oculto temporariamente reproduz a corrida de inicialização; histórico confirma a nova fonte; dados do perfil preservados após desinstalar. Capturas nativas de vídeo e das três aparências ficam nos artifacts; uma captura Flutter local é só prévia visual.
 
-Reversão: reverter os commits deste ramo; não houve deploy nem migração de banco. Para reproduzir: apps/app, Flutter3.47.1, flutter test test/desktop; flutter build windows --release -t lib/main_desktop.dart após windows/tool/install-patched-engine.ps1 em Windows compatível.
+## Limites de homologação
 
-A primeira execução Windows (44250561506) bloqueou corretamente em um lint novo de guarda sem bloco. Corrigido; não foi tratado como build aprovado. Captura da Home gerada pelo Flutter com fontes reais em ferramenta de preview, sem conteúdo fictício; ela não é prova de DComp/MPV no Windows. A marca antiga CGFLIX que o gerador havia usado foi trocada pelo SVG oficial Heisuca, e a cópia da tela removeu detalhes internos do desenvolvimento.
+Sem homologação em PC físico, GPU/HDR/passthrough, múltiplos monitores e configurações dos servidores particulares de cada pessoa. x64 é o alvo compilado; preservar suporte do gerador ARM64 não comprova uma build ARM64. Atualização automática Windows e publicação pública de uma versão Estável não estão ligadas. Fila de múltiplos arquivos e refinamentos de integração com o sistema seguem critérios do plano; o picker/drag desta etapa atende um vídeo por vez.
 
-O executável Windows compilou no run44251696414 (156s), porém o pacote foi corretamente bloqueado: Flutter3.47 aplica o default-flavor direct também no Windows, gerando build/windows/x64/direct/runner/Release. O CI procurava a pasta sem flavor. Caminhos corrigidos sem alterar pubspec. A revisão final pediu notificar a UI assim que o Player é criado, para montar Video enquanto open aguarda; corrigido com regressão dedicada. Código de stop obsoleto removido após adoção de Player por fonte. Em erro fatal a Home mostra o banner e opções de abrir outra mídia; isso é recuperação prevista, não ausência de feedback.
+Reversão: voltar por novo commit ao marco b1d1580f ou usar o pacote M2 preservado, mantendo cópia dos dados. Nenhum force push ou alteração do produto CGFLIX em produção.

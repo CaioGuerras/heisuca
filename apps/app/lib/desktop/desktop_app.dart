@@ -17,12 +17,19 @@ import '../mpv/player/player.dart';
 import '../mpv/player/player_state.dart';
 import '../mpv/video.dart';
 import 'desktop_playback_controller.dart';
+import 'desktop_preferences.dart';
+import 'desktop_theme.dart';
+import 'ui/desktop_settings_screen.dart';
+import '../design/tema.dart';
+import '../heisuca/theme/temas/tema_sumi.dart';
+import '../heisuca/heisuca_logo.dart';
 
 /// Shell desktop Heisuca para reprodução direta de arquivos locais e URLs HTTP(S).
 class DesktopApp extends StatefulWidget {
   const DesktopApp({
     super.key,
     this.controller,
+    this.preferences,
     this.initialSource,
     this.onPickVideoFile,
     this.onPickSubtitleFile,
@@ -32,6 +39,7 @@ class DesktopApp extends StatefulWidget {
     this.onBeforeClose,
   });
 
+  final DesktopPreferences? preferences;
   final WidgetBuilder? libraryBuilder;
   final Future<void> Function()? onBeforeClose;
   final DesktopPlaybackController? controller;
@@ -45,8 +53,11 @@ class DesktopApp extends StatefulWidget {
   State<DesktopApp> createState() => _DesktopAppState();
 }
 
-class _DesktopAppState extends State<DesktopApp> with WindowListener {
+class _DesktopAppState extends State<DesktopApp> with WindowListener, WidgetsBindingObserver {
   DesktopPlaybackController? _ownedController;
+  late DesktopPreferences _preferences;
+  bool _ownsPreferences = false;
+  static const _desktopFiles = MethodChannel('heisuca/desktop_files');
   late DesktopPlaybackController _controller;
 
   final FocusNode _shortcutFocusNode = FocusNode(debugLabel: 'heisuca_desktop_shortcuts');
@@ -76,8 +87,13 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
   @override
   void initState() {
     super.initState();
+    _preferences = widget.preferences ?? DesktopPreferences();
+    _ownsPreferences = widget.preferences == null;
+    _preferences.addListener(_onPreferencesChanged);
+    _desktopFiles.setMethodCallHandler(_receiveDesktopFile);
     _attachController();
     _attachWindowListenerIfDesktop();
+    WidgetsBinding.instance.addObserver(this);
     final initialSource = widget.initialSource;
     if (initialSource != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -89,6 +105,13 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
   @override
   void didUpdateWidget(covariant DesktopApp oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.preferences != widget.preferences) {
+      _preferences.removeListener(_onPreferencesChanged);
+      if (_ownsPreferences) _preferences.dispose();
+      _preferences = widget.preferences ?? DesktopPreferences();
+      _ownsPreferences = widget.preferences == null;
+      _preferences.addListener(_onPreferencesChanged);
+    }
     if (oldWidget.controller != widget.controller) {
       _detachController();
       _attachController();
@@ -98,6 +121,10 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
   @override
   void dispose() {
     _controlsHideTimer?.cancel();
+    _desktopFiles.setMethodCallHandler(null);
+    _preferences.removeListener(_onPreferencesChanged);
+    if (_ownsPreferences) _preferences.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     _detachWindowListener();
     _detachController();
     _playbackRestartSub?.cancel();
@@ -155,6 +182,10 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
   }
 
   Future<void> _flushAndCloseWindow() async {
+    // A launcher waiting on the owner must see a closing window as hidden,
+    // not forward a new source to a process that is flushing and exiting.
+    try { await windowManager.hide().timeout(const Duration(seconds: 1)); }
+    on Object { /* Continue with the bounded flush if the OS rejects hiding. */ }
     try {
       await widget.onBeforeClose!().timeout(const Duration(seconds: 3));
     } on Object {
@@ -393,7 +424,8 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
       } else {
         url = await showDialog<String>(
           context: dialogContext,
-          builder: (_) => const _OpenUrlDialog(),
+          builder: (_) => Theme(data: desktopTheme(_controller.hasMedia ? 'sumi' : _preferences.theme,
+            WidgetsBinding.instance.platformDispatcher.platformBrightness), child: const _OpenUrlDialog()),
         );
       }
     } finally {
@@ -564,58 +596,57 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
     }
   }
 
-  ThemeData _buildDesktopTheme() {
-    final base = HeisucaTheme.criarTema();
-    final focusSide = WidgetStateProperty.resolveWith<BorderSide?>((states) {
-      if (states.contains(WidgetState.focused)) {
-        return const BorderSide(color: HeisucaTheme.roxoPrimaria, width: 2.0);
-      }
-      return null;
-    });
+  @override
+  void didChangePlatformBrightness() {
+    if (_preferences.theme == 'system' && mounted) setState(() {});
+  }
 
-    return base.copyWith(
-      scaffoldBackgroundColor: HeisucaTheme.roxoFundo,
-      canvasColor: HeisucaTheme.roxoSuperficie,
-      focusColor: HeisucaTheme.roxoPrimaria.withValues(alpha: 0.24),
-      tooltipTheme: TooltipThemeData(
-        decoration: BoxDecoration(
-          color: HeisucaTheme.roxoSuperficieElevada,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: HeisucaTheme.roxoLinha),
-        ),
-        textStyle: HeisucaTypography.bodyMetadata.copyWith(color: Colors.white),
-      ),
-      filledButtonTheme: FilledButtonThemeData(
-        style: (base.filledButtonTheme.style ?? const ButtonStyle()).copyWith(
-          side: focusSide,
-          shape: WidgetStatePropertyAll(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(HeisucaTheme.raioInput),
-            ),
-          ),
-        ),
-      ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: (base.outlinedButtonTheme.style ?? const ButtonStyle()).copyWith(
-          side: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.focused)) {
-              return const BorderSide(color: HeisucaTheme.roxoPrimaria, width: 2.0);
-            }
-            return const BorderSide(color: HeisucaTheme.roxoLinha);
-          }),
-          shape: WidgetStatePropertyAll(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(HeisucaTheme.raioInput),
-            ),
-          ),
-        ),
-      ),
-      iconButtonTheme: IconButtonThemeData(
-        style: (base.iconButtonTheme.style ?? const ButtonStyle()).copyWith(
-          side: focusSide,
-        ),
-      ),
-    );
+  Future<void> _receiveDesktopFile(MethodCall call) async {
+    if (!mounted) return;
+    final String source;
+    if (call.method == 'dropFiles') {
+      final files = call.arguments;
+      if (files is! List || files.length != 1 || files.first is! String) {
+        _showOperationError('Escolha um único vídeo ou legenda por vez.');
+        return;
+      }
+      source = files.first as String;
+    } else if (call.method == 'openFile' && call.arguments is String) {
+      source = call.arguments as String;
+    } else {
+      return;
+    }
+    if (source.isEmpty || source.length > 8192) return;
+    final subtitle = RegExp(r'\.(srt|ass|ssa|vtt)$', caseSensitive: false).hasMatch(source);
+    if (call.method == 'dropFiles' && subtitle) {
+      if (!_controller.hasMedia) {
+        _showOperationError('Abra um vídeo antes de adicionar a legenda.');
+      } else {
+        await _controller.addSubtitle(source);
+      }
+      return;
+    }
+    final context = _shellContext;
+    if (context != null && context.mounted) Navigator.of(context).popUntil((route) => route.isFirst);
+    await _controller.open(source);
+  }
+
+  void _onPreferencesChanged() {
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _openSettings() async {
+    final context = _shellContext;
+    if (context == null || _openingLibrary) return;
+    _openingLibrary = true;
+    _controlsHideTimer?.cancel();
+    try {
+      await Navigator.of(context).push<void>(MaterialPageRoute(
+        builder: (_) => DesktopSettingsScreen(preferences: _preferences)));
+    } finally {
+      _openingLibrary = false;
+      if (mounted) _revealControlsAndScheduleHide();
+    }
   }
 
   @override
@@ -623,7 +654,7 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
     return MaterialApp(
       title: 'Heisuca',
       debugShowCheckedModeBanner: false,
-      theme: _buildDesktopTheme(),
+      theme: desktopTheme(_preferences.theme, WidgetsBinding.instance.platformDispatcher.platformBrightness),
       locale: const Locale('pt', 'BR'),
       supportedLocales: const [Locale('pt', 'BR')],
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
@@ -652,29 +683,19 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
 
     return Scaffold(
       backgroundColor: hasVideoWidget ? Colors.transparent : HeisucaTheme.roxoFundo,
-      body: showPlayerStage ? _buildPlayerStage(context) : _buildHomeStage(context),
+      body: showPlayerStage ? Theme(data: desktopTheme('sumi', Brightness.dark),
+        child: Builder(builder: _buildPlayerStage)) : _buildHomeStage(context),
     );
   }
 
   Widget _buildHomeStage(BuildContext context) {
+    final palette = Theme.of(context).extension<TemaHeisuca>()!;
     final visibleError = _controller.error != null && _controller.error != _dismissedError
         ? _controller.error
         : null;
 
     return DecoratedBox(
-      decoration: BoxDecoration(
-        color: HeisucaTheme.roxoFundo,
-        gradient: RadialGradient(
-          center: const Alignment(0.0, -0.55),
-          radius: 1.15,
-          colors: [
-            HeisucaTheme.roxoPrimaria.withValues(alpha: 0.14),
-            HeisucaTheme.roxoSelo.withValues(alpha: 0.06),
-            HeisucaTheme.roxoFundo,
-          ],
-          stops: const [0.0, 0.45, 1.0],
-        ),
-      ),
+      decoration: BoxDecoration(color: palette.fundo),
       child: LayoutBuilder(
         builder: (context, constraints) {
           final horizontalPadding = constraints.maxWidth < 900 ? 24.0 : 48.0;
@@ -690,52 +711,25 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Wrap(
+                        alignment: WrapAlignment.spaceBetween,
                         crossAxisAlignment: WrapCrossAlignment.center,
-                        spacing: 14,
-                        runSpacing: 10,
+                        spacing: 24, runSpacing: 16,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: HeisucaTheme.roxoSuperficie,
-                              borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
-                              border: Border.all(color: HeisucaTheme.roxoLinha),
-                            ),
-                            child: SvgPicture.asset(
-                              'assets/heisuca/icone_shikkoku.svg',
-                              width: 34,
-                              height: 34,
-                              semanticsLabel: 'Emblema Heisuca',
-                            ),
-                          ),
-                          Text(
-                            'Heisuca',
-                            style: HeisucaTypography.displayCinematic.copyWith(color: Colors.white),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                            decoration: BoxDecoration(
-                              color: HeisucaTheme.roxoSelo.withValues(alpha: 0.16),
-                              borderRadius: BorderRadius.circular(HeisucaTheme.raioPilula),
-                              border: Border.all(color: HeisucaTheme.roxoSelo.withValues(alpha: 0.55)),
-                            ),
-                            child: Text(
-                              'HEISUCA · PLAYER',
-                              style: HeisucaTypography.labelBadge.copyWith(color: Colors.white),
-                            ),
-                          ),
+                          const HeisucaLogo(width: 280, height: 90),
+                          OutlinedButton.icon(onPressed: _openSettings,
+                            icon: const Icon(Icons.tune_rounded), label: const Text('Ajustes')),
                         ],
                       ),
                       const SizedBox(height: 22),
                       Text(
                         'Nada entre você e o filme.',
-                        style: HeisucaTypography.titleHero.copyWith(color: Colors.white),
+                        style: HeisucaTypography.titleHero.copyWith(color: palette.texto),
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'Abra seus vídeos e links de reprodução. Sem precisar criar uma conta.',
+                        'Sua biblioteca ou seus arquivos. Do seu jeito.',
                         style: HeisucaTypography.bodySynopsis.copyWith(
-                          color: Colors.white.withValues(alpha: 0.78),
+                          color: palette.texto2,
                         ),
                       ),
                       if (visibleError != null) ...[
@@ -746,22 +740,22 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
                       Container(
                         padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
-                          color: HeisucaTheme.roxoSuperficie,
+                          color: palette.superficie,
                           borderRadius: BorderRadius.circular(HeisucaTheme.raioCard),
-                          border: Border.all(color: HeisucaTheme.roxoLinha),
+                          border: Border.all(color: palette.borda),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               'O que vamos assistir?',
-                              style: HeisucaTypography.titleSection.copyWith(color: Colors.white),
+                              style: HeisucaTypography.titleSection.copyWith(color: palette.texto),
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Escolha um vídeo do computador ou abra um link. Durante a reprodução, você pode trocar o áudio e escolher a legenda.',
+                              'Conecte sua biblioteca ou escolha um vídeo do computador.',
                               style: HeisucaTypography.bodyMetadata.copyWith(
-                                color: Colors.white.withValues(alpha: 0.72),
+                                color: palette.texto2,
                               ),
                             ),
                             const SizedBox(height: 20),
@@ -798,6 +792,7 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
                       ),
                       const SizedBox(height: 18),
                       _buildShortcutHints(),
+                      if (_preferences.recents.isNotEmpty) _buildRecentFiles(context),
                     ],
                   ),
                 ),
@@ -809,20 +804,49 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
     );
   }
 
+  Widget _buildRecentFiles(BuildContext context) {
+    final palette = Theme.of(context).extension<TemaHeisuca>()!;
+    return Padding(padding: const EdgeInsets.only(top: 28), child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('Arquivos recentes', style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 14),
+        for (final entry in _preferences.recents.take(6))
+          Padding(padding: const EdgeInsets.only(bottom: 8), child: OutlinedButton(
+            onPressed: () => unawaited(_controller.open(entry.uri, displayTitle: entry.title,
+              start: Duration(milliseconds: entry.resumePositionMs))),
+            style: OutlinedButton.styleFrom(padding: const EdgeInsets.all(16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
+            child: Row(children: [
+              Icon(entry.resumePositionMs > 0 ? Icons.play_arrow_rounded : Icons.movie_outlined, color: palette.texto2),
+              const SizedBox(width: 14),
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(entry.title, maxLines: 2, overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleMedium),
+                if (entry.resumePositionMs > 0) Text('Continuar em ${_formatDuration(Duration(milliseconds: entry.resumePositionMs))}',
+                  style: Theme.of(context).textTheme.bodySmall),
+              ])),
+            ]),
+          )),
+      ],
+    ));
+  }
+
   Widget _buildHomeErrorBanner(String message) {
+    final palette = Theme.of(_shellContext!).extension<TemaHeisuca>()!;
     return Semantics(
       liveRegion: true,
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: HeisucaTheme.roxoSelo.withValues(alpha: 0.14),
+          color: palette.erro.withValues(alpha: 0.10),
           borderRadius: BorderRadius.circular(HeisucaTheme.raioSquircle),
-          border: Border.all(color: HeisucaTheme.roxoSelo.withValues(alpha: 0.65)),
+          border: Border.all(color: palette.erro.withValues(alpha: 0.55)),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.error_outline_rounded, color: Colors.white),
+            Icon(Icons.error_outline_rounded, color: palette.erro),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -831,7 +855,7 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
                   Text(
                     'Falha ao abrir mídia',
                     style: HeisucaTypography.bodyMetadata.copyWith(
-                      color: Colors.white,
+                      color: palette.texto,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -839,7 +863,7 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
                   Text(
                     message,
                     style: HeisucaTypography.bodyMetadata.copyWith(
-                      color: Colors.white.withValues(alpha: 0.88),
+                      color: palette.texto2,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -875,9 +899,9 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: HeisucaTheme.roxoSuperficie,
+              color: Theme.of(_shellContext!).colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: HeisucaTheme.roxoLinha),
+              border: Border.all(color: Theme.of(_shellContext!).colorScheme.outlineVariant),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -885,20 +909,20 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: HeisucaTheme.roxoSuperficieElevada,
+                    color: Theme.of(_shellContext!).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: HeisucaTheme.roxoLinha),
+                    border: Border.all(color: Theme.of(_shellContext!).colorScheme.outlineVariant),
                   ),
                   child: Text(
                     keys,
-                    style: HeisucaTypography.labelBadge.copyWith(color: Colors.white),
+                    style: HeisucaTypography.labelBadge.copyWith(color: Theme.of(_shellContext!).colorScheme.onSurface),
                   ),
                 ),
                 const SizedBox(width: 6),
                 Text(
                   action,
                   style: HeisucaTypography.bodyMetadata.copyWith(
-                    color: Colors.white.withValues(alpha: 0.78),
+                    color: Theme.of(_shellContext!).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -938,8 +962,8 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
 
     return Container(
       decoration: const BoxDecoration(
-        color: HeisucaTheme.roxoSuperficie,
-        border: Border(bottom: BorderSide(color: HeisucaTheme.roxoLinha)),
+        color: TemaSumi.temaCorSuperficie,
+        border: Border(bottom: BorderSide(color: TemaSumi.temaCorBorda)),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       child: Row(
@@ -963,11 +987,21 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: HeisucaTypography.bodyMetadata.copyWith(
-                color: Colors.white,
+                color: TemaSumi.temaCorTexto,
                 fontWeight: FontWeight.w600,
               ),
             ),
           ),
+          PopupMenuButton<double>(
+            tooltip: 'Velocidade', enabled: _controller.hasMedia,
+            onOpened: () => _controlsHideTimer?.cancel(),
+            onCanceled: _revealControlsAndScheduleHide,
+            onSelected: (rate) { unawaited(_controller.setRate(rate)); _revealControlsAndScheduleHide(); },
+            icon: const Icon(Icons.speed_rounded),
+            itemBuilder: (context) => [for (final rate in const [0.5, 0.75, 1.0, 1.25, 1.5, 2.0])
+              CheckedPopupMenuItem(value: rate, checked: _controller.state.rate == rate, child: Text('$rate×'))],
+          ),
+          IconButton(tooltip: 'Ajustes', onPressed: _openSettings, icon: const Icon(Icons.tune_rounded)),
           if (widget.libraryBuilder != null)
             IconButton(
               tooltip: 'Bibliotecas',
@@ -1020,9 +1054,9 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
-                    color: HeisucaTheme.roxoSuperficie.withValues(alpha: 0.9),
+                    color: TemaSumi.temaCorSuperficie.withValues(alpha: 0.9),
                     borderRadius: BorderRadius.circular(HeisucaTheme.raioPilula),
-                    border: Border.all(color: HeisucaTheme.roxoLinha),
+                    border: Border.all(color: TemaSumi.temaCorBorda),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -1036,7 +1070,7 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
                       Flexible(
                         child: Text(
                           'Armazenando em buffer...',
-                          style: HeisucaTypography.bodyMetadata.copyWith(color: Colors.white),
+                          style: HeisucaTypography.bodyMetadata.copyWith(color: TemaSumi.temaCorTexto),
                         ),
                       ),
                     ],
@@ -1102,7 +1136,7 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
             IconButton(
               tooltip: 'Voltar ao início',
               onPressed: _closeMedia,
-              icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+              icon: const Icon(Icons.arrow_back_rounded, color: TemaSumi.temaCorTexto),
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -1110,13 +1144,13 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
                 title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: HeisucaTypography.titleSection.copyWith(color: Colors.white),
+                style: HeisucaTypography.titleSection.copyWith(color: TemaSumi.temaCorTexto),
               ),
             ),
             IconButton(
               tooltip: 'Sair da tela cheia (Esc)',
               onPressed: () => _setFullScreen(false),
-              icon: const Icon(Icons.fullscreen_exit_rounded, color: Colors.white),
+              icon: const Icon(Icons.fullscreen_exit_rounded, color: TemaSumi.temaCorTexto),
             ),
           ],
         ),
@@ -1135,9 +1169,9 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
             child: Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: HeisucaTheme.roxoSuperficie.withValues(alpha: 0.94),
+                color: TemaSumi.temaCorSuperficie.withValues(alpha: 0.94),
                 borderRadius: BorderRadius.circular(HeisucaTheme.raioCard),
-                border: Border.all(color: HeisucaTheme.roxoLinha),
+                border: Border.all(color: TemaSumi.temaCorBorda),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -1147,7 +1181,7 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
                   Text(
                     'Abrindo mídia...',
                     textAlign: TextAlign.center,
-                    style: HeisucaTypography.titleSection.copyWith(color: Colors.white),
+                    style: HeisucaTypography.titleSection.copyWith(color: TemaSumi.temaCorTexto),
                   ),
                   if (title != null && title.isNotEmpty) ...[
                     const SizedBox(height: 6),
@@ -1157,7 +1191,7 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: HeisucaTypography.bodyMetadata.copyWith(
-                        color: Colors.white.withValues(alpha: 0.8),
+                        color: TemaSumi.temaCorTexto.withValues(alpha: 0.8),
                       ),
                     ),
                   ],
@@ -1166,7 +1200,7 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
                     'Aguardando confirmação do primeiro quadro.',
                     textAlign: TextAlign.center,
                     style: HeisucaTypography.bodyMetadata.copyWith(
-                      color: Colors.white.withValues(alpha: 0.65),
+                      color: TemaSumi.temaCorTexto.withValues(alpha: 0.65),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -1194,9 +1228,9 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
               child: Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: HeisucaTheme.roxoSuperficie.withValues(alpha: 0.96),
+                  color: TemaSumi.temaCorSuperficie.withValues(alpha: 0.96),
                   borderRadius: BorderRadius.circular(HeisucaTheme.raioCard),
-                  border: Border.all(color: HeisucaTheme.roxoSelo.withValues(alpha: 0.75)),
+                  border: Border.all(color: TemaHeisuca.sumi.erro.withValues(alpha: 0.75)),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -1204,12 +1238,12 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.error_outline_rounded, color: Colors.white),
+                        const Icon(Icons.error_outline_rounded, color: TemaSumi.temaCorTexto),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             'Não foi possível reproduzir',
-                            style: HeisucaTypography.titleSection.copyWith(color: Colors.white),
+                            style: HeisucaTypography.titleSection.copyWith(color: TemaSumi.temaCorTexto),
                           ),
                         ),
                       ],
@@ -1218,7 +1252,7 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
                     Text(
                       errorMessage,
                       style: HeisucaTypography.bodySynopsis.copyWith(
-                        color: Colors.white.withValues(alpha: 0.86),
+                        color: TemaSumi.temaCorTexto.withValues(alpha: 0.86),
                       ),
                     ),
                     const SizedBox(height: 18),
@@ -1273,9 +1307,9 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: HeisucaTheme.roxoSuperficie.withValues(alpha: 0.9),
+              color: TemaSumi.temaCorSuperficie.withValues(alpha: 0.9),
               borderRadius: BorderRadius.circular(HeisucaTheme.raioCard),
-              border: Border.all(color: HeisucaTheme.roxoLinha),
+              border: Border.all(color: TemaSumi.temaCorBorda),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -1284,7 +1318,7 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
                   children: [
                     Text(
                       _formatDuration(displayedPosition),
-                      style: HeisucaTypography.tabularTimestamp.copyWith(color: Colors.white),
+                      style: HeisucaTypography.tabularTimestamp.copyWith(color: TemaSumi.temaCorTexto),
                     ),
                     Expanded(
                       child: Semantics(
@@ -1312,7 +1346,7 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
                     Text(
                       _formatDuration(state.duration),
                       style: HeisucaTypography.tabularTimestamp.copyWith(
-                        color: Colors.white.withValues(alpha: 0.78),
+                        color: TemaSumi.temaCorTexto.withValues(alpha: 0.78),
                       ),
                     ),
                   ],
@@ -1338,7 +1372,7 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
                             },
                             icon: Icon(
                               state.isActive ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                              color: Colors.white,
+                              color: TemaSumi.temaCorTexto,
                             ),
                           ),
                           IconButton(
@@ -1416,7 +1450,7 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
       message: 'Faixas de áudio',
       child: PopupMenuButton<AudioTrack>(
         tooltip: '',
-        color: HeisucaTheme.roxoSuperficieElevada,
+        color: TemaSumi.temaCorSuperficie2,
         onOpened: () => _controlsHideTimer?.cancel(),
         onCanceled: () {
           _shortcutFocusNode.requestFocus();
@@ -1449,7 +1483,7 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
           Icon(
             selected ? Icons.check_rounded : Icons.circle_outlined,
             size: 16,
-            color: selected ? HeisucaTheme.roxoPrimaria : Colors.white.withValues(alpha: 0.45),
+            color: selected ? TemaSumi.temaCorAcento : TemaSumi.temaCorTexto.withValues(alpha: 0.45),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -1474,7 +1508,7 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
       message: 'Legendas e arquivo externo',
       child: PopupMenuButton<_SubtitleMenuChoice>(
         tooltip: '',
-        color: HeisucaTheme.roxoSuperficieElevada,
+        color: TemaSumi.temaCorSuperficie2,
         onOpened: () => _controlsHideTimer?.cancel(),
         onCanceled: () {
           _shortcutFocusNode.requestFocus();
@@ -1523,7 +1557,7 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
           Icon(
             selected ? Icons.check_rounded : Icons.circle_outlined,
             size: 16,
-            color: selected ? HeisucaTheme.roxoPrimaria : Colors.white.withValues(alpha: 0.45),
+            color: selected ? TemaSumi.temaCorAcento : TemaSumi.temaCorTexto.withValues(alpha: 0.45),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -1603,16 +1637,16 @@ class _MenuButtonPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: HeisucaTheme.roxoSuperficieElevada,
+        color: TemaSumi.temaCorSuperficie2,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: HeisucaTheme.roxoLinha),
+        border: Border.all(color: TemaSumi.temaCorBorda),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 17, color: Colors.white),
+          Icon(icon, size: 17, color: TemaSumi.temaCorTexto),
           const SizedBox(width: 6),
-          Text(label, style: HeisucaTypography.bodyMetadata.copyWith(color: Colors.white)),
+          Text(label, style: HeisucaTypography.bodyMetadata.copyWith(color: TemaSumi.temaCorTexto)),
         ],
       ),
     );
@@ -1687,12 +1721,13 @@ class _OpenUrlDialogState extends State<_OpenUrlDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = Theme.of(context).extension<TemaHeisuca>() ?? TemaHeisuca.shikkoku;
     return AlertDialog(
       scrollable: true,
-      backgroundColor: HeisucaTheme.roxoSuperficie,
+      backgroundColor: palette.superficie,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(HeisucaTheme.raioCard),
-        side: const BorderSide(color: HeisucaTheme.roxoLinha),
+        side: BorderSide(color: palette.borda),
       ),
       title: const Text('Abrir URL HTTP(S)'),
       content: ConstrainedBox(
@@ -1704,7 +1739,7 @@ class _OpenUrlDialogState extends State<_OpenUrlDialog> {
             Text(
               'Informe um endereço direto http:// ou https:// para reprodução.',
               style: HeisucaTypography.bodyMetadata.copyWith(
-                color: Colors.white.withValues(alpha: 0.78),
+                color: palette.texto2,
               ),
             ),
             const SizedBox(height: 14),
@@ -1718,7 +1753,7 @@ class _OpenUrlDialogState extends State<_OpenUrlDialog> {
                 hintText: 'https://...',
                 errorText: _errorText,
                 filled: true,
-                fillColor: HeisucaTheme.roxoSuperficieElevada,
+                fillColor: palette.superficie2,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(HeisucaTheme.raioInput),
                 ),

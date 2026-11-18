@@ -12,7 +12,8 @@ foreach ($product in @('CGFLIX', 'Heisuca')) {
   $expected = if ($product -eq 'Heisuca') {
     @('#define Name "Heisuca"', '#define ExeName "heisuca.exe"',
       'ddf45e29-4518-4c70-a963-998f215557d8', 'OutputBaseFilename=heisuca-windows-installer',
-      'PrivilegesRequired=lowest', 'https://heisuca.docaio.com.br', 'UninstallSubkey')
+      'PrivilegesRequired=lowest', 'https://heisuca.docaio.com.br', 'UninstallSubkey',
+      'Heisuca.Video', 'Flags: uninsdeletevalue', 'AppMutex=br.com.docaio.heisuca.SingleInstance')
   } else {
     @('#define Name "CGFLIX"', '#define ExeName "cgflix.exe"',
       '4213385e-f7be-4f2b-95f9-54082a28bb8f', 'OutputBaseFilename=cgflix-windows-installer',

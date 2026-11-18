@@ -21,7 +21,7 @@ New-ItemProperty -Path $oldKey -Name 'DisplayName' -Value 'CGFLIX' -Force | Out-
 New-ItemProperty -Path $oldKey -Name 'InstallLocation' -Value $oldDestination -Force | Out-Null
 $sentinel = Join-Path $destination 'meus-dados-preservados.txt'
 function Invoke-Installer {
-  $process = Start-Process -FilePath $installerPath -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/NORUN=1', ('/DIR="'+$destination+'"')) -Wait -PassThru
+  $process = Start-Process -FilePath $installerPath -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/NORUN=1', '/TASKS=fileassociations', ('/DIR="'+$destination+'"')) -Wait -PassThru
   if ($process.ExitCode -ne 0) { throw "Installer exit code: $($process.ExitCode)" }
 }
 $uninstallPath = Join-Path $destination 'unins000.exe'
@@ -35,19 +35,29 @@ try {
   }
   $entry = Get-ItemProperty $ownKey
   if ($entry.DisplayName -notlike 'Heisuca*') { throw 'Wrong uninstall identity.' }
+  if (-not (Test-Path 'HKCU:\Software\Classes\Heisuca.Video')) { throw 'Open with registration missing.' }
   $evidence.installed = $true
   'Arquivo criado pelo usuário; não pertence ao manifesto do instalador.' | Set-Content -LiteralPath $sentinel -Encoding UTF8
   Invoke-Installer
   if (-not (Test-Path $sentinel)) { throw 'Reinstall lost user-created data.' }
   $evidence.reinstalled = $true
-  & pwsh -NoProfile -File 'tool/desktop/capture-native-windows.ps1' -Bundle $destination -Output $Output
+  & pwsh -NoProfile -File 'tool/desktop/capture-native-windows.ps1' -Bundle $destination -Output $Output -VerifySecondInstance
   if ($LASTEXITCODE -ne 0) { throw 'Installed executable failed native video proof.' }
   $evidence.installedVideo = $true
+  # PathProviderWindows derives this from CompanyName/ProductName in Runner.rc.
+  $profile = Join-Path $env:APPDATA 'br.com.docaio\Heisuca'
+  $preferences = Join-Path $profile 'heisuca-desktop-preferences.json'
+  if (-not (Test-Path $preferences)) { throw 'Installed app did not persist local-file history.' }
+  $history = Get-Content -LiteralPath $preferences -Raw | ConvertFrom-Json
+  if ($history.recents.Count -eq 0 -or $history.recents[0].uri -notlike '*segunda*fonte*') { throw 'Second source did not reach Dart/file history.' }
+  $profileHash = (Get-FileHash -LiteralPath $preferences).Hash
   $remove = Start-Process -FilePath $uninstallPath -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART') -PassThru -Wait
   if ($remove.ExitCode -ne 0) { throw 'Uninstall failed.' }
   if ((Test-Path $installedExe) -or (Test-Path $ownKey)) { throw 'Uninstall left executable/registry entry.' }
+  if (Test-Path 'HKCU:\Software\Classes\Heisuca.Video') { throw 'Own Open with registration was not removed.' }
   $evidence.uninstalled = $true
-  $evidence.userDataPreserved = Test-Path $sentinel
+  $evidence.userDataPreserved = (Test-Path $sentinel) -and (Test-Path $preferences) -and
+    ((Get-FileHash -LiteralPath $preferences).Hash -eq $profileHash)
   $evidence.cgflixPreserved = (Test-Path $oldSentinel) -and ((Get-ItemProperty $oldKey).InstallLocation -eq $oldDestination)
   if (-not $evidence.userDataPreserved -or -not $evidence.cgflixPreserved) { throw 'Uninstall damaged data or CGFLIX coexistence fixture.' }
 } finally {

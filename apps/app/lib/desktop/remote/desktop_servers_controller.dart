@@ -764,6 +764,8 @@ class DesktopServersController extends ChangeNotifier {
     unawaited(_persistVaultWithWarning());
   }
 
+  Future<void> flushPersistence() => _persistQueue;
+
   Future<bool> _persistVaultWithWarning() {
     final entries = _savedConnections.map(_encodeVaultEntry).toList(growable: false);
     final future = _persistQueue.then((_) async {

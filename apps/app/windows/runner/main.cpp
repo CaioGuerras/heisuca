@@ -17,29 +17,43 @@ wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev, _In_ wchar_t* command
   // compositing breaks.)
   ::SetEnvironmentVariableW(L"FLUTTER_WINDOWS_DCOMP", L"1");
 
+  const auto launch_arguments = GetCommandLineArguments();
+
   HANDLE mutex = CreateMutex(nullptr, TRUE, L"br.com.docaio.heisuca.SingleInstance");
   if (GetLastError() == ERROR_ALREADY_EXISTS) {
-    HWND existing = FindWindow(L"FLUTTER_RUNNER_WIN32_WINDOW", L"Heisuca");
-    if (existing && IsWindowVisible(existing)) {
-      ShowWindow(existing, SW_RESTORE);
-      SetForegroundWindow(existing);
-      if (mutex) {
-        CloseHandle(mutex);
+    const auto deadline = ::GetTickCount64() + 20000;
+    while (true) {
+      HWND existing = FindWindow(L"FLUTTER_RUNNER_WIN32_WINDOW", L"Heisuca");
+      if (existing && IsWindowVisible(existing)) {
+        if (!launch_arguments.empty()) {
+          const auto& source = launch_arguments.front();
+          if (!source.empty() && source.size() < 65536) {
+            COPYDATASTRUCT data{};
+            data.dwData = 0x48454953;  // HEIS: bounded UTF-8 source, never a command.
+            data.cbData = static_cast<DWORD>(source.size() + 1);
+            data.lpData = const_cast<char*>(source.c_str());
+            DWORD_PTR accepted = 0;
+            const auto forwarded = ::SendMessageTimeout(existing, WM_COPYDATA, 0, reinterpret_cast<LPARAM>(&data),
+                SMTO_ABORTIFHUNG | SMTO_BLOCK, 2000, &accepted);
+            if (!forwarded || accepted != TRUE) {
+              if (mutex) CloseHandle(mutex);
+              return EXIT_FAILURE;
+            }
+          }
+        }
+        ShowWindow(existing, SW_RESTORE);
+        SetForegroundWindow(existing);
+        if (mutex) {
+          CloseHandle(mutex);
+        }
+        return EXIT_SUCCESS;
       }
-      return EXIT_SUCCESS;
-    }
-    // A hidden (or already destroyed) window is either still starting - it
-    // shows itself on its first frame - or exiting: the exit path hides the
-    // window before a teardown of up to 15 s. Restoring it would bring back a
-    // window that is about to vanish. Wait for the other instance instead:
-    // if it is exiting, it releases the mutex and this launch takes over.
-    constexpr DWORD kExitingInstanceWaitMs = 20000;
-    const DWORD wait = mutex ? WaitForSingleObject(mutex, kExitingInstanceWaitMs) : WAIT_FAILED;
-    if (wait != WAIT_OBJECT_0 && wait != WAIT_ABANDONED) {
-      if (mutex) {
-        CloseHandle(mutex);
+      const DWORD wait = mutex ? WaitForSingleObject(mutex, 100) : WAIT_FAILED;
+      if (wait == WAIT_OBJECT_0 || wait == WAIT_ABANDONED) break;
+      if (wait == WAIT_FAILED || ::GetTickCount64() >= deadline) {
+        if (mutex) CloseHandle(mutex);
+        return EXIT_FAILURE;
       }
-      return EXIT_SUCCESS;
     }
   }
 

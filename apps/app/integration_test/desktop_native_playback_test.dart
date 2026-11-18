@@ -259,6 +259,11 @@ void main() {
           );
         }
 
+        // Playback speed must reach libmpv, not only change a UI label.
+        await controller.setRate(1.25);
+        expect(double.tryParse(await player.getProperty('speed') ?? ''), closeTo(1.25, 0.001));
+        await controller.setRate(1.0);
+
         // 6. Pausar, seek para 5s, retomar e verificar avanço contínuo do relógio
         await player.pause();
         pollStopwatch.reset();

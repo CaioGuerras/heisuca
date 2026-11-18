@@ -77,6 +77,7 @@ class DesktopPlaybackController extends ChangeNotifier {
   bool _hasMedia = false;
   bool _disposed = false;
 
+  String? _localFileUri;
   int _openGeneration = 0;
   int? _lastHttpStatus;
   int? _activeSourceId;
@@ -89,6 +90,7 @@ class DesktopPlaybackController extends ChangeNotifier {
   PlayerState get state => _state;
 
   String? get title => _title;
+  String? get localFileUri => _localFileUri;
 
   String? get error => _error;
 
@@ -122,6 +124,7 @@ class DesktopPlaybackController extends ChangeNotifier {
       _cancelSubscriptions();
       _opening = false;
       _hasMedia = false;
+      _localFileUri = null;
       _title = null;
       _state = const PlayerState();
       _error = resolution.errorMessage ?? _msgInvalidSource;
@@ -133,6 +136,8 @@ class DesktopPlaybackController extends ChangeNotifier {
       return;
     }
 
+    _localFileUri = resolved.isLocal
+        ? Uri.file(resolved.uri, windows: p.windows.isAbsolute(resolved.uri)).toString() : null;
     final attemptGen = ++_openGeneration;
     _cancelWatchdog();
     _cancelSubscriptions();
@@ -194,6 +199,7 @@ class DesktopPlaybackController extends ChangeNotifier {
         !identical(_state, const PlayerState());
     _opening = false;
     _hasMedia = false;
+    _localFileUri = null;
     _title = null;
     _error = null;
     _state = const PlayerState();
@@ -211,6 +217,11 @@ class DesktopPlaybackController extends ChangeNotifier {
   Future<void> seek(Duration position) {
     final target = position.isNegative ? Duration.zero : position;
     return _runPlaybackAction((activePlayer) => activePlayer.seek(target));
+  }
+
+  Future<void> setRate(double rate) async {
+    if (!rate.isFinite || rate < 0.25 || rate > 3.0) return;
+    await _runPlaybackAction((player) => player.setRate(rate));
   }
 
   Future<void> setVolume(double volume) async {
@@ -260,6 +271,7 @@ class DesktopPlaybackController extends ChangeNotifier {
     _player = null;
     _opening = false;
     _hasMedia = false;
+    _localFileUri = null;
     _title = null;
     _error = null;
     _state = const PlayerState();
@@ -413,6 +425,7 @@ class DesktopPlaybackController extends ChangeNotifier {
     ++_openGeneration;
     _opening = false;
     _hasMedia = false;
+    _localFileUri = null;
     _title = null;
     _state = const PlayerState();
     _error = safeMessage;

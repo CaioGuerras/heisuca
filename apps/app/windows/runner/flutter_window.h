@@ -27,6 +27,7 @@ class FlutterWindow : public Win32Window {
 
   std::unique_ptr<flutter::MethodChannel<flutter::EncodableValue>> window_channel_;
   std::unique_ptr<flutter::MethodChannel<flutter::EncodableValue>> vault_channel_;
+  std::unique_ptr<flutter::MethodChannel<flutter::EncodableValue>> desktop_files_channel_;
 
   // Fullscreen state tracking for monitor-aware native fullscreen.
   // Maximize state lives inside `placement_before_fullscreen_.showCmd`.

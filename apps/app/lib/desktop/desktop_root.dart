@@ -11,7 +11,8 @@ import 'ui/desktop_library_screen.dart';
 
 /// Owns the desktop session graph; local playback never requires an account.
 class DesktopRoot extends StatefulWidget {
-  const DesktopRoot({super.key, this.initialSource});
+  const DesktopRoot({super.key, this.initialSource, this.vault});
+  final DesktopConnectionVault? vault;
   final String? initialSource;
 
   @override
@@ -27,7 +28,7 @@ class _DesktopRootState extends State<DesktopRoot> {
   void initState() {
     super.initState();
     _playback = DesktopPlaybackController();
-    _servers = DesktopServersController(vault: createDesktopConnectionVault());
+    _servers = DesktopServersController(vault: widget.vault ?? createDesktopConnectionVault());
     _remote = DesktopRemotePlaybackCoordinator(playback: _playback);
     unawaited(_servers.restore());
   }

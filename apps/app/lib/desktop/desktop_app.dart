@@ -18,6 +18,7 @@ import '../mpv/player/player_state.dart';
 import '../mpv/video.dart';
 import 'desktop_playback_controller.dart';
 import 'desktop_preferences.dart';
+import 'desktop_home_actions.dart';
 import 'desktop_theme.dart';
 import 'ui/desktop_settings_screen.dart';
 import '../design/tema.dart';
@@ -36,11 +37,13 @@ class DesktopApp extends StatefulWidget {
     this.onRequestUrl,
     this.onSetFullScreen,
     this.libraryBuilder,
+    this.homeBuilder,
     this.onBeforeClose,
   });
 
   final DesktopPreferences? preferences;
   final WidgetBuilder? libraryBuilder;
+  final Widget Function(BuildContext, DesktopHomeActions)? homeBuilder;
   final Future<void> Function()? onBeforeClose;
   final DesktopPlaybackController? controller;
   final String? initialSource;
@@ -719,6 +722,19 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener, WidgetsBin
         ? _controller.error
         : null;
 
+    final builder = widget.homeBuilder;
+    if (builder != null) {
+      return builder(context, DesktopHomeActions(
+        openFile: () => unawaited(_openFile()), openUrl: () => unawaited(_openUrl()),
+        openLibrary: () => unawaited(_openLibrary()), openSettings: () => unawaited(_openSettings()),
+        openRecent: (entry) {
+          setState(() => _dismissedError = null);
+          unawaited(_controller.open(entry.uri, displayTitle: entry.title,
+            start: Duration(milliseconds: entry.resumePositionMs)));
+        },
+        error: visibleError, dismissError: () => setState(() => _dismissedError = _controller.error),
+      ));
+    }
     return DecoratedBox(
       decoration: BoxDecoration(color: palette.fundo),
       child: LayoutBuilder(

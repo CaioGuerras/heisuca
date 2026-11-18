@@ -25,9 +25,15 @@ class DesktopLibraryScreen extends StatefulWidget {
     super.key,
     required this.servers,
     required this.onPlay,
+    this.initialServerId, this.initialItem, this.initialKind, this.initialSearch, this.onServerSelected, this.artworkBuilder,
   });
 
+  final Widget Function(MediaItem item, bool landscape)? artworkBuilder;
   final DesktopServersController servers;
+  final String? initialServerId, initialSearch;
+  final MediaItem? initialItem;
+  final MediaKind? initialKind;
+  final ValueChanged<String>? onServerSelected;
   final Future<void> Function(DesktopServerConnection, MediaItem, int?) onPlay;
 
   @override
@@ -42,6 +48,11 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
   final ScrollController _gridScrollController = ScrollController();
 
   String? _selectedServerId;
+  late final String? _initialServerId;
+  late final MediaItem? _initialItem;
+  late final MediaKind? _initialKind;
+  bool _initialTargetApplied = false;
+  bool _initialKindUnavailable = false;
   MediaServerClient? _activeClient;
   Set<String> _knownServerIds = <String>{};
 
@@ -88,6 +99,12 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
     super.initState();
     widget.servers.addListener(_onServersChanged);
     _knownServerIds = widget.servers.connections.map((c) => c.id).toSet();
+    _initialServerId = widget.initialServerId;
+    _initialItem = widget.initialItem;
+    _initialKind = widget.initialKind;
+    _searchController.text = widget.initialSearch ?? '';
+    _searchQuery = (widget.initialSearch ?? '').trim();
+    _searchAllServer = _searchQuery.isNotEmpty;
     _syncSelectedServer(forceReload: true, allowSetState: false);
   }
 
@@ -157,6 +174,11 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
         }
       }
     }
+    if (_selectedServerId == null && _initialServerId != null) {
+      for (final connection in connections) {
+        if (connection.id == _initialServerId) { target = connection; break; }
+      }
+    }
     target ??= _selectedServer ?? connections.first;
 
     final changedServer = target.id != _selectedServerId || !identical(target.client, _activeClient);
@@ -170,8 +192,18 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
   void _selectServer(DesktopServerConnection server, {bool allowSetState = true}) {
     _searchDebounce?.cancel();
     _abortAllPending();
+    // A intenção da Home pertence à fonte de origem e nunca migra para outra.
+    if ((_selectedServerId != null && _selectedServerId != server.id) ||
+        (_initialServerId != null && server.id != _initialServerId)) {
+      _initialTargetApplied = true;
+      _initialKindUnavailable = false;
+      _searchController.clear();
+      _searchQuery = '';
+      _searchAllServer = false;
+    }
     _selectedServerId = server.id;
     _activeClient = server.client;
+    widget.onServerSelected?.call(server.id);
     _resetLibrariesState(loading: true);
     _resetItemsState();
     _resetDetailState();
@@ -238,9 +270,19 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
         _loadingLibraries = false;
         _librariesError = null;
         _selectedLibrary = visible.isNotEmpty ? visible.first : null;
+        if (!_initialTargetApplied && _initialKind != null) {
+          _initialKindUnavailable = !visible.any((library) => library.kind == _initialKind);
+          for (final library in visible) {
+            if (library.kind == _initialKind) { _selectedLibrary = library; break; }
+          }
+        }
       });
       if (visible.isNotEmpty) {
         unawaited(_loadItems(reset: true));
+      }
+      if (!_initialTargetApplied) {
+        _initialTargetApplied = true;
+        if (_initialItem != null) _openItemDetail(_initialItem);
       }
     } on Object {
       if (!mounted || epoch != _librariesEpoch || abort.isAborted) return;
@@ -265,6 +307,7 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
   }
 
   void _selectLibrary(MediaLibrary library) {
+    _initialKindUnavailable = false;
     if (_selectedLibrary?.id == library.id && _itemsError == null) return;
     _itemsAbort?.abort();
     _detailAbort?.abort();
@@ -717,57 +760,21 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
     if (server == null) {
       return const SizedBox.shrink();
     }
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isWide = constraints.maxWidth >= 1040.0;
-        if (!isWide && _detailItem != null) {
-          return _buildDetailPanel(palette, server, fullWidth: true);
-        }
-        if (isWide) {
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SizedBox(
-                width: 240.0,
-                child: _LibrariesSidebar(
-                  palette: palette,
-                  libraries: _libraries,
-                  selectedLibrary: _selectedLibrary,
-                  loading: _loadingLibraries,
-                  error: _librariesError,
-                  onSelect: _selectLibrary,
-                  onRetry: _retryLibraries,
-                ),
-              ),
-              Expanded(child: _buildMainGridColumn(palette, server)),
-              if (_detailItem != null)
-                SizedBox(
-                  width: 370.0,
-                  child: _buildDetailPanel(palette, server, fullWidth: false),
-                ),
-            ],
-          );
-        }
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _LibrariesStrip(
-              palette: palette,
-              libraries: _libraries,
-              selectedLibrary: _selectedLibrary,
-              loading: _loadingLibraries,
-              error: _librariesError,
-              onSelect: _selectLibrary,
-              onRetry: _retryLibraries,
-            ),
-            Expanded(child: _buildMainGridColumn(palette, server)),
-          ],
-        );
-      },
-    );
+    if (_detailItem != null) return _buildDetailPanel(palette, server, fullWidth: true);
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      _LibrariesStrip(palette: palette, libraries: _libraries, selectedLibrary: _selectedLibrary,
+        loading: _loadingLibraries, error: _librariesError, onSelect: _selectLibrary, onRetry: _retryLibraries),
+      Expanded(child: _buildMainGridColumn(palette, server)),
+    ]);
   }
 
   Widget _buildMainGridColumn(_LibraryPalette palette, DesktopServerConnection server) {
+    if (_initialKindUnavailable) {
+      return _CenteredMessageState(palette: palette, icon: Icons.video_library_outlined,
+        title: _initialKind == MediaKind.movie ? 'Biblioteca de filmes não encontrada' : 'Biblioteca de séries não encontrada',
+        message: 'Você pode explorar as outras bibliotecas deste servidor.', actionLabel: 'Ver bibliotecas',
+        onAction: () => setState(() => _initialKindUnavailable = false));
+    }
     if (_loadingLibraries && _libraries.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -837,7 +844,7 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
     }
 
     final textScaler = MediaQuery.textScalerOf(context);
-    final cardExtent = 216.0 + textScaler.scale(68.0);
+    final cardExtent = 256.0 + textScaler.scale(68.0);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -852,11 +859,11 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
         Expanded(
           child: GridView.builder(
             controller: _gridScrollController,
-            padding: const EdgeInsets.fromLTRB(20.0, 8.0, 20.0, 20.0),
+            padding: const EdgeInsets.fromLTRB(24.0, 8.0, 24.0, 24.0),
             gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 230.0,
-              mainAxisSpacing: 14.0,
-              crossAxisSpacing: 14.0,
+              maxCrossAxisExtent: 210.0,
+              mainAxisSpacing: 22.0,
+              crossAxisSpacing: 22.0,
               mainAxisExtent: cardExtent,
             ),
             itemCount: _items.length + (_hasMore || _itemsError != null ? 1 : 0),
@@ -878,6 +885,7 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
               return _MediaGridCard(
                 palette: palette,
                 item: item,
+                artwork: widget.artworkBuilder?.call(item, false),
                 imageUrl: thumbUrl,
                 headers: server.client.streamHeaders,
                 selected: _detailItem?.id == item.id,
@@ -898,7 +906,8 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
     final item = _detailItem!;
     final artwork = item.artPath ?? item.thumbPath;
     return _MediaDetailPanel(
-      imageUrl: artwork == null || artwork.isEmpty ? null : server.client.thumbnailUrl(artwork, width: 900),
+      artwork: widget.artworkBuilder?.call(item, true),
+      imageUrl: artwork == null || artwork.isEmpty ? null : server.client.thumbnailUrl(artwork, width: 1600),
       headers: server.client.streamHeaders,
       palette: palette,
       item: item,
@@ -997,65 +1006,23 @@ class _HeaderBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final server = selectedServer;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 14.0),
-      decoration: BoxDecoration(
-        color: palette.surface,
-        border: Border(bottom: BorderSide(color: palette.line)),
-      ),
-      child: Wrap(
-        spacing: 12.0,
-        runSpacing: 10.0,
-        alignment: WrapAlignment.spaceBetween,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          Wrap(
-            spacing: 12.0,
-            runSpacing: 8.0,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              OutlinedButton.icon(
-                onPressed: onBack,
-                icon: const Icon(Icons.arrow_back, size: 18.0),
-                label: const Text('Voltar'),
-              ),
-              const HeisucaLogo(width: 136, height: 42),
-              Text(
-                'Bibliotecas',
-                style: HeisucaTypography.titleHero.copyWith(color: palette.text),
-              ),
-              if (server != null)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-                  decoration: BoxDecoration(
-                    color: palette.elevated,
-                    borderRadius: const BorderRadius.all(Radius.circular(HeisucaTheme.raioPilula)),
-                    border: Border.fromBorderSide(BorderSide(color: palette.line)),
-                  ),
-                  child: Text(
-                    '${_backendLabel(server.backend)} · ${server.name} · ${_healthLabel(server.health)}',
-                    style: HeisucaTypography.bodyMetadata.copyWith(color: palette.text),
-                  ),
-                ),
-            ],
-          ),
-          Wrap(
-            spacing: 10.0,
-            runSpacing: 8.0,
-            children: [
-              OutlinedButton.icon(
-                onPressed: onConnectPlex,
-                icon: const Icon(Icons.cast_connected, size: 18.0),
-                label: const Text('Conectar Plex'),
-              ),
-              FilledButton.icon(
-                onPressed: onConnectJellyfin,
-                icon: const Icon(Icons.dns_outlined, size: 18.0),
-                label: const Text('Conectar Jellyfin'),
-              ),
-            ],
-          ),
-        ],
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      color: palette.background,
+      child: Wrap(spacing: 20, runSpacing: 10, alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center, children: [
+          Wrap(spacing: 20, runSpacing: 10, crossAxisAlignment: WrapCrossAlignment.center, children: [
+            TextButton.icon(onPressed: onBack, icon: const Icon(Icons.arrow_back, size: 18), label: const Text('Voltar')),
+            const HeisucaLogo(width: 156, height: 34, siteHeader: true),
+            Padding(padding: const EdgeInsets.symmetric(vertical: 9), child: Text('Bibliotecas',
+              style: TextStyle(fontFamily: 'Inter', fontSize: 13, fontWeight: FontWeight.w600, color: palette.text))),
+          ]),
+          if (server == null) Wrap(spacing: 10, runSpacing: 10, children: [
+            OutlinedButton.icon(onPressed: onConnectPlex, icon: const Icon(Icons.cast_connected, size: 18), label: const Text('Conectar Plex')),
+            FilledButton.icon(onPressed: onConnectJellyfin, icon: const Icon(Icons.dns_outlined, size: 18), label: const Text('Conectar Jellyfin')),
+          ]) else PopupMenuButton<String>(tooltip: 'Adicionar conexão', icon: Icon(Icons.add, color: palette.text),
+            onSelected: (value) => value == 'plex' ? onConnectPlex() : onConnectJellyfin(),
+            itemBuilder: (_) => const [PopupMenuItem(value: 'plex', child: Text('Conectar Plex')), PopupMenuItem(value: 'jellyfin', child: Text('Conectar Jellyfin'))]),
+        ]),
     );
   }
 }
@@ -1329,102 +1296,6 @@ class _EmptyConnectionsView extends StatelessWidget {
   }
 }
 
-class _LibrariesSidebar extends StatelessWidget {
-  const _LibrariesSidebar({
-    required this.palette,
-    required this.libraries,
-    required this.selectedLibrary,
-    required this.loading,
-    required this.error,
-    required this.onSelect,
-    required this.onRetry,
-  });
-
-  final _LibraryPalette palette;
-  final List<MediaLibrary> libraries;
-  final MediaLibrary? selectedLibrary;
-  final bool loading;
-  final String? error;
-  final ValueChanged<MediaLibrary> onSelect;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: palette.surface,
-        border: Border(right: BorderSide(color: palette.line)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16.0, 14.0, 16.0, 8.0),
-            child: Text(
-              'Acervos',
-              style: HeisucaTypography.labelBadge.copyWith(color: palette.textMuted),
-            ),
-          ),
-          if (loading && libraries.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Center(child: CircularProgressIndicator()),
-            )
-          else if (error != null && libraries.isEmpty)
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(error!, style: HeisucaTypography.bodyMetadata.copyWith(color: palette.textMuted)),
-                  const SizedBox(height: 8.0),
-                  TextButton(onPressed: onRetry, child: const Text('Tentar novamente')),
-                ],
-              ),
-            )
-          else
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
-                itemCount: libraries.length,
-                itemBuilder: (context, index) {
-                  final lib = libraries[index];
-                  final selected = selectedLibrary?.id == lib.id;
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 4.0),
-                    child: Material(type: MaterialType.transparency, child: ListTile(
-                      selected: selected,
-                      selectedTileColor: palette.primary.withValues(alpha: 0.18),
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(HeisucaTheme.raioSquircle)),
-                      ),
-                      title: Text(
-                        lib.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: HeisucaTypography.bodyMetadata.copyWith(
-                          color: palette.text,
-                          fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                        ),
-                      ),
-                      subtitle: lib.kind == MediaKind.unknown
-                          ? null
-                          : Text(
-                              _kindLabel(lib.kind),
-                              style: HeisucaTypography.labelBadge.copyWith(color: palette.textMuted),
-                            ),
-                      onTap: () => onSelect(lib),
-                    )),
-                  );
-                },
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
 class _LibrariesStrip extends StatelessWidget {
   const _LibrariesStrip({
     required this.palette,
@@ -1585,12 +1456,14 @@ class _MediaGridCard extends StatefulWidget {
     required this.item,
     required this.imageUrl,
     required this.headers,
+    this.artwork,
     required this.selected,
     required this.onTap,
   });
 
   final _LibraryPalette palette;
   final MediaItem item;
+  final Widget? artwork;
   final String? imageUrl;
   final Map<String, String> headers;
   final bool selected;
@@ -1607,7 +1480,7 @@ class _MediaGridCardState extends State<_MediaGridCard> {
   Widget build(BuildContext context) {
     final item = widget.item;
     final palette = widget.palette;
-    final borderColor = _focused || widget.selected ? palette.primary : palette.line;
+    final borderColor = _focused || widget.selected ? palette.primary : Colors.transparent;
     final borderWidth = _focused || widget.selected ? 2.0 : 1.0;
     final metaParts = <String>[
       _kindLabel(item.kind),
@@ -1615,7 +1488,7 @@ class _MediaGridCardState extends State<_MediaGridCard> {
     ];
 
     return Material(
-      color: palette.surface,
+      color: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: const BorderRadius.all(Radius.circular(HeisucaTheme.raioCard)),
         side: BorderSide(color: borderColor, width: borderWidth),
@@ -1632,7 +1505,7 @@ class _MediaGridCardState extends State<_MediaGridCard> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
-              child: _CardArtwork(
+              child: widget.artwork ?? _CardArtwork(
                 imageUrl: widget.imageUrl,
                 headers: widget.headers,
                 kind: item.kind,
@@ -1842,6 +1715,7 @@ class _CenteredMessageState extends StatelessWidget {
 
 class _MediaDetailPanel extends StatelessWidget {
   const _MediaDetailPanel({
+    this.artwork,
     this.imageUrl,
     this.headers = const {},
     required this.palette,
@@ -1867,6 +1741,7 @@ class _MediaDetailPanel extends StatelessWidget {
     required this.onLoadMoreChildren,
   });
 
+  final Widget? artwork;
   final String? imageUrl;
   final Map<String, String> headers;
   final _LibraryPalette palette;
@@ -1902,19 +1777,20 @@ class _MediaDetailPanel extends StatelessWidget {
     final hasChildrenSection = _shouldFetchChildren(item);
 
     return CallbackShortcuts(
-      bindings: <ShortcutActivator, VoidCallback>{
-        const SingleActivator(LogicalKeyboardKey.escape): onClose,
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: palette.surface,
-          border: fullWidth ? null : Border(left: BorderSide(color: palette.line)),
-        ),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+      bindings: <ShortcutActivator, VoidCallback>{const SingleActivator(LogicalKeyboardKey.escape): onClose},
+      child: ColoredBox(color: palette.background, child: SingleChildScrollView(child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          LayoutBuilder(builder: (context, bounds) {
+            final narrow = bounds.maxWidth < 1000 || MediaQuery.textScalerOf(context).scale(14) > 20;
+            final pad = bounds.maxWidth < 900 ? 24.0 : 48.0;
+            return Stack(children: [
+              if(imageUrl != null || artwork != null) Positioned(top:0, right:0, bottom:0, width:bounds.maxWidth * .83,
+                child:artwork ?? _CardArtwork(imageUrl:imageUrl,headers:headers,kind:item.kind,elevatedColor:palette.elevated,mutedColor:palette.textMuted)),
+              Positioned.fill(child:DecoratedBox(decoration:BoxDecoration(gradient:LinearGradient(
+                colors:[palette.background,palette.background.withValues(alpha:.96),palette.background.withValues(alpha:.42),palette.background.withValues(alpha:.12)],stops:const[0,.27,.64,1])))),
+              Positioned.fill(child:DecoratedBox(decoration:BoxDecoration(gradient:LinearGradient(begin:Alignment.topCenter,end:Alignment.bottomCenter,
+                colors:[Colors.transparent,palette.background],stops:const[.35,1])))),
+              Padding(padding:EdgeInsets.fromLTRB(pad,18,pad,34),child:Column(crossAxisAlignment:CrossAxisAlignment.stretch,children:[
               Wrap(
                 spacing: 8.0,
                 runSpacing: 8.0,
@@ -1939,17 +1815,13 @@ class _MediaDetailPanel extends StatelessWidget {
                   ),
                 ],
               ),
-              if (imageUrl != null) ...[
-                const SizedBox(height: 14),
-                ClipRRect(borderRadius: BorderRadius.circular(HeisucaTheme.raioCard),
-                  child: AspectRatio(aspectRatio: 16 / 9, child: _CardArtwork(
-                    imageUrl: imageUrl, headers: headers, kind: item.kind,
-                    elevatedColor: palette.elevated, mutedColor: palette.textMuted))),
-              ],
-              const SizedBox(height: 12.0),
+
+                const SizedBox(height:40),
+                Align(alignment:Alignment.centerLeft,child:ConstrainedBox(constraints:BoxConstraints(maxWidth:narrow ? bounds.maxWidth : 610),
+                  child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
               Text(
                 item.displayTitle.isNotEmpty ? item.displayTitle : (item.title ?? 'Sem título'),
-                style: HeisucaTypography.titleHero.copyWith(color: palette.text),
+                style: TextStyle(fontFamily: 'Inter', fontSize: narrow ? 34 : 48, fontWeight: FontWeight.w600, height: 1.15, color: palette.text),
               ),
               if (item.displaySubtitle != null && item.displaySubtitle!.isNotEmpty) ...[
                 const SizedBox(height: 4.0),
@@ -1978,59 +1850,6 @@ class _MediaDetailPanel extends StatelessWidget {
                         ),
                       ),
                   ],
-                ),
-              ],
-              if (item.genres != null && item.genres!.isNotEmpty) ...[
-                const SizedBox(height: 10.0),
-                Text(
-                  item.genres!.join(' · '),
-                  style: HeisucaTypography.bodyMetadata.copyWith(color: palette.textMuted),
-                ),
-              ],
-              if (item.summary != null && item.summary!.trim().isNotEmpty) ...[
-                const SizedBox(height: 14.0),
-                Text(
-                  item.summary!.trim(),
-                  style: HeisucaTypography.bodySynopsis.copyWith(color: palette.text),
-                ),
-              ],
-              if (hasMultipleVersions) ...[
-                const SizedBox(height: 16.0),
-                Text(
-                  'Versões disponíveis',
-                  style: HeisucaTypography.titleSection.copyWith(color: palette.text),
-                ),
-                const SizedBox(height: 8.0),
-                Wrap(
-                  spacing: 8.0,
-                  runSpacing: 8.0,
-                  children: [
-                    for (var i = 0; i < versions.length; i++)
-                      ChoiceChip(
-                        label: Text(
-                          versions[i].isPlayable
-                              ? _formatMediaVersionLabel(versions[i], i)
-                              : '${_formatMediaVersionLabel(versions[i], i)} (Indisponível)',
-                        ),
-                        selected: safeVersionIndex == i,
-                        onSelected: versions[i].isPlayable ? (_) => onSelectVersion(i) : null,
-                      ),
-                  ],
-                ),
-              ],
-              if (playbackError != null) ...[
-                const SizedBox(height: 12.0),
-                Container(
-                  padding: const EdgeInsets.all(12.0),
-                  decoration: BoxDecoration(
-                    color: palette.errorContainer,
-                    borderRadius: const BorderRadius.all(Radius.circular(HeisucaTheme.raioInput)),
-                    border: Border.fromBorderSide(BorderSide(color: palette.error)),
-                  ),
-                  child: Text(
-                    playbackError!,
-                    style: HeisucaTypography.bodyMetadata.copyWith(color: palette.text),
-                  ),
                 ),
               ],
               if (canPlayDirect || (item.kind == MediaKind.show && onDeckEpisode != null)) ...[
@@ -2065,6 +1884,66 @@ class _MediaDetailPanel extends StatelessWidget {
                               ? 'Assistir série'
                               : (item.hasActiveProgress ? 'Continuar' : 'Assistir'),
                         ),
+                      ),
+                  ],
+                ),
+              ],
+              if (item.genres != null && item.genres!.isNotEmpty) ...[
+                const SizedBox(height: 10.0),
+                Text(
+                  item.genres!.join(' · '),
+                  style: HeisucaTypography.bodyMetadata.copyWith(color: palette.textMuted),
+                ),
+              ],
+              if (item.summary != null && item.summary!.trim().isNotEmpty) ...[
+                const SizedBox(height: 14.0),
+                Text(
+                  item.summary!.trim(),
+                  style: HeisucaTypography.bodySynopsis.copyWith(color: palette.text),
+                ),
+              ],
+
+                  ]))),
+              if (playbackError != null) ...[
+                const SizedBox(height: 12.0),
+                Container(
+                  padding: const EdgeInsets.all(12.0),
+                  decoration: BoxDecoration(
+                    color: palette.errorContainer,
+                    borderRadius: const BorderRadius.all(Radius.circular(HeisucaTheme.raioInput)),
+                    border: Border.fromBorderSide(BorderSide(color: palette.error)),
+                  ),
+                  child: Text(
+                    playbackError!,
+                    style: HeisucaTypography.bodyMetadata.copyWith(color: palette.text),
+                  ),
+                ),
+              ],
+
+              ])),
+            ]);
+          }),
+          Padding(padding:const EdgeInsets.fromLTRB(48,0,48,40),child:Column(crossAxisAlignment:CrossAxisAlignment.stretch,children:[
+              if (hasMultipleVersions) ...[
+                const SizedBox(height: 16.0),
+                Text(
+                  'Versões disponíveis',
+                  style: HeisucaTypography.titleSection.copyWith(color: palette.text),
+                ),
+                const SizedBox(height: 8.0),
+                Wrap(
+                  spacing: 8.0,
+                  runSpacing: 8.0,
+                  children: [
+                    for (var i = 0; i < versions.length; i++)
+                      ChoiceChip(
+                        label: Text(
+                          versions[i].isPlayable
+                              ? _formatMediaVersionLabel(versions[i], i)
+                              : '${_formatMediaVersionLabel(versions[i], i)} (Indisponível)',
+                        ),
+                        selected: safeVersionIndex == i,
+                        onSelected: versions[i].isPlayable ? (_) => onSelectVersion(i) : null,
                       ),
                   ],
                 ),
@@ -2129,10 +2008,10 @@ class _MediaDetailPanel extends StatelessWidget {
                     ],
                   ),
               ],
-            ],
-          ),
-        ),
-      ),
+
+          ])),
+        ],
+      ))),
     );
   }
 }
@@ -2593,15 +2472,6 @@ String _backendLabel(MediaBackend backend) {
     MediaBackend.plex => 'Plex',
     MediaBackend.jellyfin => 'Jellyfin',
     MediaBackend.emby => 'Emby',
-  };
-}
-
-String _healthLabel(HealthStatus health) {
-  return switch (health) {
-    HealthStatus.online => 'Online',
-    HealthStatus.offline => 'Offline',
-    HealthStatus.authError => 'Autenticação necessária',
-    HealthStatus.accessDenied => 'Acesso negado',
   };
 }
 

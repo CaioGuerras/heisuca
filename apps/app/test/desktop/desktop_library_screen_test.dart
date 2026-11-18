@@ -284,6 +284,78 @@ Widget _buildTestApp({
 }
 
 void main() {
+  testWidgets('entrada pela Home mantém servidor, categoria e título corretos', (tester) async {
+    var wrongCalls=0;String? loadedLibrary,loadedItem;
+    final wrong=_FakeMediaServerClient(backend:MediaBackend.plex,onFetchLibraries:()async{wrongCalls++;return [];});
+    const target=MediaItem.jellyfin(id:'same-id',kind:MediaKind.movie,title:'Título da fonte B');
+    final right=_FakeMediaServerClient(backend:MediaBackend.jellyfin,onFetchLibraries:()async=>[
+      const MediaLibrary(id:'shows',backend:MediaBackend.jellyfin,title:'Séries da B',kind:MediaKind.show),
+      const MediaLibrary(id:'movies',backend:MediaBackend.jellyfin,title:'Filmes da B',kind:MediaKind.movie)],
+      onFetchLibraryPagedContent:(library,query,kind,abort)async{loadedLibrary=library;return const LibraryPage(items:<MediaItem>[],totalCount:0);},
+      onFetchItemWithOnDeck:(id)async{loadedItem=id;return(item:target,onDeckEpisode:null);});
+    final servers=_FakeServersController(initialConnections:[
+      DesktopServerConnection(id:'A',name:'Fonte A',backend:MediaBackend.plex,client:wrong),
+      DesktopServerConnection(id:'B',name:'Fonte B',backend:MediaBackend.jellyfin,client:right)]);
+    addTearDown(servers.dispose);
+    await tester.pumpWidget(MaterialApp(theme:ThemeData.dark(),home:DesktopLibraryScreen(servers:servers,initialServerId:'B',
+      initialKind:MediaKind.movie,initialItem:target,onPlay:(_,_,_)async{})));
+    await tester.pumpAndSettle();
+    expect(wrongCalls,0);expect(loadedLibrary,'movies');expect(loadedItem,'same-id');expect(find.text('Título da fonte B'),findsWidgets);
+    expect(tester.takeException(),isNull);
+  });
+  testWidgets('busca enviada pela Home usa o servidor escolhido, sem virar catálogo vazio', (tester) async {
+    String? searched;
+    final client=_FakeMediaServerClient(backend:MediaBackend.plex,onFetchLibraries:()async=>[
+      const MediaLibrary(id:'movies',backend:MediaBackend.plex,title:'Filmes',kind:MediaKind.movie)]);
+    client.onSearchItems=(query,limit,abort)async{searched=query;return [const MediaItem.plex(id:'matrix',kind:MediaKind.movie,title:'Matrix encontrado')];};
+    final servers=_FakeServersController(initialConnections:[DesktopServerConnection(id:'A',name:'Fonte A',backend:MediaBackend.plex,client:client)]);
+    addTearDown(servers.dispose);
+    await tester.pumpWidget(MaterialApp(theme:ThemeData.dark(),home:DesktopLibraryScreen(servers:servers,initialServerId:'A',initialSearch:'Matrix',onPlay:(_,_,_)async{})));
+    await tester.pumpAndSettle();expect(searched,'Matrix');expect(find.text('Matrix encontrado'),findsWidgets);expect(tester.takeException(),isNull);
+  });
+  testWidgets('entrada Filmes não troca silenciosamente para biblioteca de séries', (tester) async {
+    final client=_FakeMediaServerClient(backend:MediaBackend.plex,onFetchLibraries:()async=>[
+      const MediaLibrary(id:'shows',backend:MediaBackend.plex,title:'Só séries',kind:MediaKind.show)]);
+    final servers=_FakeServersController(initialConnections:[DesktopServerConnection(id:'A',name:'Fonte A',backend:MediaBackend.plex,client:client)]);
+    addTearDown(servers.dispose);
+    await tester.pumpWidget(MaterialApp(theme:ThemeData.dark(),home:DesktopLibraryScreen(servers:servers,initialKind:MediaKind.movie,onPlay:(_,_,_)async{})));
+    await tester.pumpAndSettle();expect(find.text('Biblioteca de filmes não encontrada'),findsOneWidget);expect(tester.takeException(),isNull);
+  });
+
+  testWidgets('alvo da Home sobrevive a rebuild enquanto as bibliotecas carregam', (tester) async {
+    final pending=Completer<List<MediaLibrary>>();var opened=0;
+    const target=MediaItem.plex(id:'alvo',kind:MediaKind.movie,title:'Alvo preservado');
+    final client=_FakeMediaServerClient(backend:MediaBackend.plex,onFetchLibraries:()=>pending.future,
+      onFetchItemWithOnDeck:(id)async{opened++;return(item:target,onDeckEpisode:null);});
+    final servers=_FakeServersController(initialConnections:[DesktopServerConnection(id:'A',name:'Fonte A',backend:MediaBackend.plex,client:client)]);
+    addTearDown(servers.dispose);
+    Widget screen(bool initial)=>MaterialApp(theme:ThemeData.dark(),home:DesktopLibraryScreen(servers:servers,
+      initialServerId:initial?'A':null,initialItem:initial?target:null,onPlay:(_,_,_)async{}));
+    await tester.pumpWidget(screen(true));await tester.pump();
+    await tester.pumpWidget(screen(false));await tester.pump();
+    pending.complete([const MediaLibrary(id:'movies',backend:MediaBackend.plex,title:'Filmes',kind:MediaKind.movie)]);
+    await tester.pumpAndSettle();expect(opened,1);expect(find.text('Alvo preservado'),findsWidgets);
+  });
+  testWidgets('troca durante carga não aplica alvo nem busca da Home na outra fonte', (tester) async {
+    final pending=Completer<List<MediaLibrary>>();var opened=0,searches=0;MediaKind? loadedKind;
+    final a=_FakeMediaServerClient(backend:MediaBackend.plex,onFetchLibraries:()=>pending.future);
+    final b=_FakeMediaServerClient(backend:MediaBackend.jellyfin,onFetchLibraries:()async=>[
+      const MediaLibrary(id:'shows',backend:MediaBackend.jellyfin,title:'Séries da B',kind:MediaKind.show)],
+      onFetchItemWithOnDeck:(id)async{opened++;return(item:null,onDeckEpisode:null);},
+      onFetchLibraryPagedContent:(id,query,kind,abort)async{loadedKind=kind;return const LibraryPage(items:<MediaItem>[],totalCount:0);});
+    b.onSearchItems=(q,limit,abort)async{searches++;return [];};
+    final servers=_FakeServersController(initialConnections:[
+      DesktopServerConnection(id:'A',name:'Fonte A',backend:MediaBackend.plex,client:a),
+      DesktopServerConnection(id:'B',name:'Fonte B',backend:MediaBackend.jellyfin,client:b)]);
+    addTearDown(servers.dispose);
+    await tester.pumpWidget(MaterialApp(theme:ThemeData.dark(),home:DesktopLibraryScreen(servers:servers,initialServerId:'A',
+      initialKind:MediaKind.movie,initialSearch:'Matrix',initialItem:const MediaItem.plex(id:'alvo',kind:MediaKind.movie,title:'Privado A'),onPlay:(_,_,_)async{})));
+    await tester.pump();await tester.tap(find.text('Jellyfin: Fonte B'));await tester.pumpAndSettle();
+    pending.complete([]);await tester.pumpAndSettle();
+    expect(opened,0);expect(searches,0);expect(loadedKind,MediaKind.show);
+    expect(find.text('Biblioteca de filmes não encontrada'),findsNothing);expect(find.text('Privado A'),findsNothing);
+  });
+
   WidgetController.hitTestWarningShouldBeFatal = true;
   testWidgets('sem conexões exibe ações reais e aviso de sessão temporária sem texto DPAPI', (tester) async {
     tester.view.physicalSize = const Size(1280, 800);

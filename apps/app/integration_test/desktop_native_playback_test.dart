@@ -1,10 +1,15 @@
 import 'dart:io';
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path/path.dart' as p;
 
+import 'package:heisuca/connection/connection.dart';
+import 'package:heisuca/services/jellyfin_client.dart';
 import 'package:heisuca/mpv/models.dart';
 import 'package:heisuca/mpv/player/player.dart';
 import 'package:heisuca/mpv/video.dart';
@@ -13,6 +18,47 @@ import 'package:heisuca/desktop/desktop_playback_controller.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
+  testWidgets('Cliente Jellyfin real consulta biblioteca local com identidade Heisuca', (tester) async {
+    final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+    String? header;
+    server.listen((request) async {
+      header = request.headers.value('Authorization');
+      request.response.headers.contentType = ContentType.json;
+      request.response.write('{"Items":[],"TotalRecordCount":0}');
+      await request.response.close();
+    });
+    final baseUrl = 'http://127.0.0.1:${server.port}';
+    final connection = JellyfinConnection(
+      id: 'fixture/user', baseUrl: baseUrl, baseUrls: [baseUrl],
+      serverName: 'Fixture', serverMachineId: 'fixture', userId: 'user',
+      userName: 'Fixture', accessToken: 'canario-publico-fixture',
+      deviceId: 'fixture-desktop', createdAt: DateTime.utc(2026),
+    );
+    JellyfinClient? client;
+    try {
+      client = await JellyfinClient.create(connection, clientName: 'Heisuca Windows');
+      expect(await client.fetchLibraries().timeout(const Duration(seconds: 5)), isEmpty);
+      expect(header, contains('Client="Heisuca%20Windows"'));
+    } finally {
+      client?.close();
+      await server.close(force: true);
+    }
+  });
+
+  testWidgets('DPAPI nativo protege e recupera sessão no usuário Windows', (tester) async {
+    expect(Platform.isWindows, isTrue);
+    const channel = MethodChannel('heisuca/desktop_vault');
+    final plain = Uint8List.fromList(utf8.encode('canario-publico-sem-credenciais'));
+    final cipher = await channel.invokeMethod<Uint8List>('protect', plain);
+    expect(cipher, isNotNull);
+    expect(cipher, isNot(equals(plain)));
+    final restored = await channel.invokeMethod<Uint8List>('unprotect', cipher!);
+    expect(restored, orderedEquals(plain));
+    final corrupt = Uint8List.fromList(cipher)..[0] ^= 0xff;
+    await expectLater(channel.invokeMethod<Uint8List>('unprotect', corrupt),
+        throwsA(isA<PlatformException>()));
+  });
 
   testWidgets(
     'Reprodução nativa desktop Windows - backend libmpv real e pipeline DComp',

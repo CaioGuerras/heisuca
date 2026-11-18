@@ -96,12 +96,21 @@ class DesktopPlaybackController extends ChangeNotifier {
 
   bool get hasMedia => _hasMedia;
 
+  /// Changes for every open/close/fatal failure, including equal titles.
+  int get sourceEpoch => _openGeneration;
+
   @visibleForTesting
   static String? normalizeSourceForTest(String source, {bool? isWindows}) {
     return _resolveMediaSource(source, isWindows: isWindows).source?.uri;
   }
 
-  Future<void> open(String source) async {
+  Future<void> open(
+    String source, {
+    Map<String, String>? headers,
+    String? displayTitle,
+    Duration? start,
+    List<SubtitleTrack>? externalSubtitles,
+  }) async {
     if (_disposed) return;
 
     _retirePlayer();
@@ -129,7 +138,7 @@ class DesktopPlaybackController extends ChangeNotifier {
     _cancelSubscriptions();
     _opening = true;
     _hasMedia = false;
-    _title = resolved.title;
+    _title = displayTitle?.trim().isNotEmpty == true ? displayTitle!.trim() : resolved.title;
     _error = null;
     _state = const PlayerState();
     _lastHttpStatus = null;
@@ -153,7 +162,10 @@ class DesktopPlaybackController extends ChangeNotifier {
       _canConfirmFromState = !beforeState.hasRenderedFrame;
       _startWatchdog(attemptGen);
 
-      await _performPlayerOpen(targetPlayer, Media(resolved.uri), attemptGen);
+      final media = Media(resolved.uri,
+        headers: headers == null ? null : Map<String, String>.unmodifiable(headers),
+        start: start == null || start.isNegative ? null : start);
+      await _performPlayerOpen(targetPlayer, media, attemptGen, externalSubtitles);
       if (_disposed || _openGeneration != attemptGen) return;
 
       final afterState = targetPlayer.state;
@@ -287,13 +299,15 @@ class DesktopPlaybackController extends ChangeNotifier {
     return created;
   }
 
-  Future<void> _performPlayerOpen(Player targetPlayer, Media media, int attemptGen) async {
+  Future<void> _performPlayerOpen(
+    Player targetPlayer, Media media, int attemptGen, List<SubtitleTrack>? externalSubtitles,
+  ) async {
     final callCompleter = Completer<void>();
     _activeOpenCallCompleter = callCompleter;
 
     late final Future<void> openFuture;
     try {
-      openFuture = targetPlayer.open(media);
+      openFuture = targetPlayer.open(media, externalSubtitles: externalSubtitles);
     } on Object catch (err) {
       if (identical(_activeOpenCallCompleter, callCompleter)) {
         _activeOpenCallCompleter = null;

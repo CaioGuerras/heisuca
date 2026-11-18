@@ -61,6 +61,7 @@ class PlexAuthService {
   final String _platformVersion;
   final String _platform;
   final String? _deviceName;
+  final String _productName;
 
   PlexAuthService._(
     this._http,
@@ -68,8 +69,8 @@ class PlexAuthService {
     this._appVersion,
     this._platformVersion,
     this._platform,
-    this._deviceName,
-  );
+    this._deviceName, [String? productName]
+  ) : _productName = _resolveProductName(productName);
 
   @visibleForTesting
   PlexAuthService.forTesting({
@@ -79,13 +80,21 @@ class PlexAuthService {
     String platformVersion = 'test',
     String platform = 'Flutter',
     String? deviceName,
-  }) : this._(http, clientIdentifier, appVersion, platformVersion, platform, deviceName);
+    String? productName,
+  }) : this._(http, clientIdentifier, appVersion, platformVersion, platform, deviceName, productName);
 
   /// Close the underlying HTTP client. Call when the service is short-lived
   /// (created for a single API call) to avoid leaking sockets.
+  static String _resolveProductName(String? productName) {
+    final trimmed = productName?.trim();
+    if (trimmed == null || trimmed.isEmpty) return _appName;
+    final sanitized = sanitizeHeaderValue(trimmed);
+    return sanitized == null || sanitized.isEmpty ? _appName : sanitized;
+  }
+
   void dispose() => _http.close();
 
-  static Future<PlexAuthService> create() async {
+  static Future<PlexAuthService> create({String? productName}) async {
     final storage = await StorageService.getInstance();
     final http = MediaServerHttpClient(
       connectTimeout: MediaServerTimeouts.plexTvConnect,
@@ -101,6 +110,7 @@ class PlexAuthService {
       Platform.operatingSystemVersion,
       identity.platform,
       sanitizeHeaderValue(identity.deviceName),
+      productName,
     );
   }
 
@@ -109,7 +119,7 @@ class PlexAuthService {
   Map<String, String> _getCommonHeaders({String? authToken}) {
     final headers = {
       'Accept': 'application/json',
-      'X-Plex-Product': _appName,
+      'X-Plex-Product': _productName,
       'X-Plex-Client-Identifier': _clientIdentifier,
       'X-Plex-Platform': _platform,
       'X-Plex-Device-Name': ?_deviceName,
@@ -163,7 +173,7 @@ class PlexAuthService {
 
   /// Construct the Auth App URL for the user to visit
   String getAuthUrl(String pinCode) {
-    final params = {'clientID': _clientIdentifier, 'code': pinCode, 'context[device][product]': _appName};
+    final params = {'clientID': _clientIdentifier, 'code': pinCode, 'context[device][product]': _productName};
 
     return 'https://app.plex.tv/auth#?${encodeQueryParameters(params)}';
   }
@@ -311,7 +321,7 @@ class PlexAuthService {
       'includeProviders': '1',
       'includeSettings': '1',
       'includeSharedSettings': '1',
-      'X-Plex-Product': _appName,
+      'X-Plex-Product': _productName,
       'X-Plex-Version': _appVersion,
       'X-Plex-Client-Identifier': _clientIdentifier,
       'X-Plex-Platform': _platform,

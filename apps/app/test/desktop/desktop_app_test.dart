@@ -83,6 +83,11 @@ class _FakePlayer implements Player {
   final List<List<String>> commands = [];
   int togglePauseCalls = 0;
 
+  void emitPosition(Duration value) {
+    _state = _state.copyWith(position: value);
+    _positionController.add(value);
+  }
+
   void emitReadyFrame({
     Duration duration = const Duration(minutes: 10),
     Duration position = Duration.zero,
@@ -369,6 +374,27 @@ class _FakePlayer implements Player {
 }
 
 void main() {
+  testWidgets('ticks de reprodução não mantêm os controles permanentemente visíveis', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(1280, 760));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final fake = _FakePlayer();
+    final controller = DesktopPlaybackController(playerFactory: () => fake);
+    await tester.pumpWidget(DesktopApp(controller: controller, onSetFullScreen: (value) async => value));
+    await controller.open('/tmp/video.mkv');
+    fake.emitReadyFrame();
+    await tester.pump();
+    expect(find.text('Legendas').hitTestable(), findsOneWidget);
+    for (var i=1; i<=4; i++) {
+      await tester.pump(const Duration(seconds: 1));
+      fake.emitPosition(Duration(seconds: i));
+      await tester.pump();
+    }
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('Legendas').hitTestable(), findsNothing);
+    await tester.pumpWidget(const SizedBox.shrink());
+    controller.dispose();
+  });
+
   testWidgets('falha do seletor mostra aviso seguro sem erro assíncrono', (tester) async {
     await tester.binding.setSurfaceSize(const Size(1280, 760));
     addTearDown(() => tester.binding.setSurfaceSize(null));

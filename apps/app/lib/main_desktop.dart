@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 
-import 'desktop/desktop_app.dart';
+import 'desktop/desktop_root.dart';
 
 Future<void> main(List<String> arguments) async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,10 +19,11 @@ Future<void> main(List<String> arguments) async {
     );
     await windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.setTitle('Heisuca');
+      await windowManager.setPreventClose(true);
       await windowManager.show();
       await windowManager.focus();
     });
   }
 
-  runApp(DesktopApp(initialSource: arguments.isEmpty ? null : arguments.first));
+  runApp(DesktopRoot(initialSource: arguments.isEmpty ? null : arguments.first));
 }

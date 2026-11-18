@@ -78,6 +78,7 @@ class _FakePlayer implements Player {
 
   final List<String> callLog = <String>[];
   final List<Media> openedMedia = <Media>[];
+  List<SubtitleTrack>? lastExternalSubtitles;
   final List<Duration> soughtPositions = <Duration>[];
   final List<double> setVolumes = <double>[];
   final List<AudioTrack> selectedAudioTracks = <AudioTrack>[];
@@ -141,6 +142,7 @@ class _FakePlayer implements Player {
   }) async {
     callLog.add('open');
     openedMedia.add(media);
+    lastExternalSubtitles = externalSubtitles;
     // Match native start-file: a new source clears the old rendered frame.
     _state = _state.copyWith(hasRenderedFrame: false);
     _fileStartedController.add(null);
@@ -244,6 +246,21 @@ class _FakePlayer implements Player {
 }
 
 void main() {
+  test('origem autenticada mantém headers, ponto inicial e legendas fora do título', () async {
+    final fake = _FakePlayer();
+    final controller = DesktopPlaybackController(playerFactory: () => fake);
+    const headers = {'X-Test-Token': 'CANARY_AUTH'};
+    final subtitles = [SubtitleTrack.uri('https://example.invalid/sub.srt')];
+    await controller.open('https://example.invalid/video.mkv?token=CANARY_URL',
+      headers: headers, start: const Duration(seconds: 31), displayTitle: 'Um filme', externalSubtitles: subtitles);
+    expect(fake.openedMedia.single.headers, headers);
+    expect(fake.openedMedia.single.start, const Duration(seconds: 31));
+    expect(fake.lastExternalSubtitles, subtitles);
+    expect(controller.title, 'Um filme');
+    expect(controller.title, isNot(contains('CANARY')));
+    controller.dispose();
+  });
+
   test('anuncia novo player antes de open nativo completar para montar Video', () async {
     final pending = Completer<void>();
     final fake = _FakePlayer()..onOpen = (_) => pending.future;

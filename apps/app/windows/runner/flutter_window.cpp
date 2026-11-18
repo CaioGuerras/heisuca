@@ -2,6 +2,7 @@
 
 #include <optional>
 
+#include "desktop_vault.h"
 #include "flutter/generated_plugin_registrant.h"
 #include "mpv/display_mode_manager.h"
 #include "mpv/mpv_plugin.h"
@@ -165,6 +166,7 @@ bool FlutterWindow::OnCreate() {
       flutter_controller_->engine()->GetRegistrarForPlugin("MpvAudioPlayerPlugin"));
 
   RegisterWindowChannel();
+  vault_channel_ = SetUpDesktopVaultChannel(flutter_controller_->engine()->messenger());
 
   SetChildContent(flutter_controller_->view()->GetNativeWindow());
 
@@ -197,6 +199,7 @@ void FlutterWindow::OnDestroy() {
     SaveWindowPlacement(GetHandle());
   }
 
+  vault_channel_ = nullptr;
   window_channel_ = nullptr;
 
   if (flutter_controller_) {

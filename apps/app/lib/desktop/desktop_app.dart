@@ -28,8 +28,12 @@ class DesktopApp extends StatefulWidget {
     this.onPickSubtitleFile,
     this.onRequestUrl,
     this.onSetFullScreen,
+    this.libraryBuilder,
+    this.onBeforeClose,
   });
 
+  final WidgetBuilder? libraryBuilder;
+  final Future<void> Function()? onBeforeClose;
   final DesktopPlaybackController? controller;
   final String? initialSource;
   final Future<String?> Function()? onPickVideoFile;
@@ -54,6 +58,8 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
   StreamSubscription<void>? _fileStartedSub;
   Timer? _controlsHideTimer;
 
+  bool _closingWindow = false;
+  bool _openingLibrary = false;
   bool _listeningWindow = false;
   bool _isFullScreen = false;
   bool _controlsVisible = true;
@@ -142,6 +148,37 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
   }
 
   @override
+  void onWindowClose() {
+    if (widget.onBeforeClose == null || _closingWindow) return;
+    _closingWindow = true;
+    unawaited(_flushAndCloseWindow());
+  }
+
+  Future<void> _flushAndCloseWindow() async {
+    try {
+      await widget.onBeforeClose!().timeout(const Duration(seconds: 3));
+    } on Object {
+      // Closing remains bounded even when a server does not respond.
+    } finally {
+      await windowManager.destroy();
+    }
+  }
+
+  Future<void> _openLibrary() async {
+    final context = _shellContext;
+    final builder = widget.libraryBuilder;
+    if (context == null || builder == null || _openingLibrary) return;
+    _openingLibrary = true;
+    _controlsHideTimer?.cancel();
+    try {
+      await Navigator.of(context).push<void>(MaterialPageRoute(builder: builder));
+    } finally {
+      _openingLibrary = false;
+      if (mounted) _revealControlsAndScheduleHide();
+    }
+  }
+
+  @override
   void onWindowEnterFullScreen() {
     if (!mounted || _isFullScreen) return;
     setState(() => _isFullScreen = true);
@@ -199,7 +236,8 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
     if (_controller.opening || _controller.error != null || !_controller.state.isActive) {
       _controlsHideTimer?.cancel();
       _controlsVisible = true;
-    } else if (_controlsVisible && _draggingSeekMs == null) {
+    } else if (_controlsVisible && _draggingSeekMs == null &&
+        _controlsHideTimer?.isActive != true && !_isModalOnTop()) {
       _scheduleHideControls();
     }
 
@@ -224,7 +262,7 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
   }
 
   bool _isModalOnTop() {
-    if (_openingUrlDialog || _pickingFile || _pickingSubtitle) return true;
+    if (_openingLibrary || _openingUrlDialog || _pickingFile || _pickingSubtitle) return true;
     final ctx = _shellContext;
     if (ctx == null || !ctx.mounted) return false;
     return ModalRoute.of(ctx)?.isCurrent == false;
@@ -344,7 +382,7 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
   }
 
   Future<void> _openUrl() async {
-    if (_openingUrlDialog || !mounted) return;
+    if (_openingLibrary || _openingUrlDialog || !mounted) return;
     final dialogContext = _shellContext;
     if (dialogContext == null || !dialogContext.mounted) return;
     _openingUrlDialog = true;
@@ -731,6 +769,12 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
                               spacing: 12,
                               runSpacing: 12,
                               children: [
+                                if (widget.libraryBuilder != null)
+                                  FilledButton.tonalIcon(
+                                    onPressed: _openLibrary,
+                                    icon: const Icon(Icons.video_library_outlined),
+                                    label: const Text('Bibliotecas'),
+                                  ),
                                 Tooltip(
                                   message: 'Abrir arquivo de vídeo local (Ctrl+O)',
                                   child: FilledButton.icon(
@@ -924,6 +968,12 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
               ),
             ),
           ),
+          if (widget.libraryBuilder != null)
+            IconButton(
+              tooltip: 'Bibliotecas',
+              onPressed: _openLibrary,
+              icon: const Icon(Icons.video_library_outlined),
+            ),
           IconButton(
             tooltip: 'Abrir arquivo (Ctrl+O)',
             onPressed: _openFile,

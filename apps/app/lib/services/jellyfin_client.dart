@@ -317,6 +317,7 @@ class JellyfinClient
     JellyfinConnection connection, {
     FavoriteChannelsRepository? favoritesRepository,
     void Function()? onAllEndpointsExhausted,
+    String? clientName,
   }) async {
     // Register every normalized connection endpoint and the token before any
     // HTTP traffic. Orchestration logs contain no literals; this additionally
@@ -334,7 +335,7 @@ class JellyfinClient
     // name, which the helpers below turn into a usable client and device.
     final identity = await DeviceIdentityService.resolve();
     final authHeader = buildJellyfinAuthHeader(
-      clientName: jellyfinClientName(identity),
+      clientName: clientName ?? jellyfinClientName(identity),
       clientVersion: version,
       deviceName: jellyfinDeviceName(identity),
       deviceId: connection.deviceId,

@@ -11,6 +11,7 @@ on:
       - "apps/app/lib/desktop/**"
       - "apps/app/test/desktop/**"
       - "apps/app/integration_test/desktop_native_playback_test.dart"
+      - "apps/app/tool/desktop/**"
   workflow_dispatch:
 
 permissions:
@@ -42,7 +43,7 @@ jobs:
       - name: Cache de dependencias nativas Windows (CMake _deps)
         uses: actions/cache@v4
         with:
-          path: apps/app/build/windows/x64/_deps
+          path: apps/app/build/windows/x64/direct/_deps
           key: heisuca-win-native-x64-${{ hashFiles('apps/app/windows/CMakeLists.txt', 'apps/app/mpv-build.lock.json') }}
 
       - name: Setup Flutter (3.47.1 pinned)
@@ -71,7 +72,7 @@ jobs:
 
       - name: Verificar bundle Windows (heisuca.exe, libmpv, vulkan, runtime, licencas)
         run: |
-          $bundleDir = "build/windows/x64/runner/Release"
+          $bundleDir = "build/windows/x64/direct/runner/Release"
           if (-not (Test-Path -LiteralPath $bundleDir -PathType Container)) {
             throw "Diretorio de bundle Windows nao existe: $bundleDir"
           }
@@ -129,7 +130,7 @@ jobs:
 
       - name: Copiar licenca GPL e atribuicoes para o bundle
         run: |
-          $bundleDir = "build/windows/x64/runner/Release"
+          $bundleDir = "build/windows/x64/direct/runner/Release"
           $licensesDir = Join-Path $bundleDir "licenses"
           New-Item -ItemType Directory -Path $licensesDir -Force | Out-Null
 
@@ -175,9 +176,13 @@ jobs:
         timeout-minutes: 12
         run: flutter test --no-pub integration_test/desktop_native_playback_test.dart -d windows
 
+      - name: Capturar janela Windows com video em movimento (sem audio fisico)
+        timeout-minutes: 3
+        run: .\tool\desktop\capture-native-windows.ps1
+
       - name: Empacotar ZIP e gerar SHA-256
         run: |
-          $bundleDir = "build/windows/x64/runner/Release"
+          $bundleDir = "build/windows/x64/direct/runner/Release"
           $distDir = "dist"
           New-Item -ItemType Directory -Path $distDir -Force | Out-Null
 
@@ -202,4 +207,13 @@ jobs:
             apps/app/dist/heisuca-windows-x64.zip
             apps/app/dist/heisuca-windows-x64.zip.sha256
           if-no-files-found: error
+          retention-days: 14
+
+      - name: Guardar capturas e evidencia mesmo em falha visual
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: heisuca-windows-native-evidence
+          path: apps/app/dist/native-evidence/
+          if-no-files-found: warn
           retention-days: 14

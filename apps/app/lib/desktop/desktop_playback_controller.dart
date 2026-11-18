@@ -108,7 +108,7 @@ class DesktopPlaybackController extends ChangeNotifier {
     final resolution = _resolveMediaSource(source);
     final resolved = resolution.source;
     if (resolved == null) {
-      final failGen = ++_openGeneration;
+      ++_openGeneration;
       _cancelWatchdog();
       _cancelSubscriptions();
       _opening = false;
@@ -121,15 +121,6 @@ class DesktopPlaybackController extends ChangeNotifier {
       _canConfirmFromState = false;
       notifyListeners();
 
-      final existingPlayer = _player;
-      if (existingPlayer != null && !existingPlayer.disposed) {
-        await _enqueue(() async {
-          if (_disposed || _openGeneration != failGen || existingPlayer.disposed) {
-            return;
-          }
-          await _stopSafely(existingPlayer);
-        });
-      }
       return;
     }
 
@@ -155,9 +146,12 @@ class DesktopPlaybackController extends ChangeNotifier {
       }
 
       _attachStreams(targetPlayer, attemptGen);
+      // Video must mount and send its native rectangle while open is pending,
+      // rather than waiting for a frame that may itself require that surface.
+      notifyListeners();
       final beforeState = targetPlayer.state;
       _canConfirmFromState = !beforeState.hasRenderedFrame;
-      _startWatchdog(attemptGen, targetPlayer);
+      _startWatchdog(attemptGen);
 
       await _performPlayerOpen(targetPlayer, Media(resolved.uri), attemptGen);
       if (_disposed || _openGeneration != attemptGen) return;
@@ -198,13 +192,6 @@ class DesktopPlaybackController extends ChangeNotifier {
       notifyListeners();
     }
 
-    final targetPlayer = _player;
-    if (targetPlayer == null || targetPlayer.disposed) return;
-
-    await _enqueue(() async {
-      if (_disposed || targetPlayer.disposed) return;
-      await _stopSafely(targetPlayer);
-    });
   }
 
   Future<void> togglePause() => _runPlaybackAction((activePlayer) => activePlayer.playOrPause());
@@ -314,7 +301,7 @@ class DesktopPlaybackController extends ChangeNotifier {
       if (!callCompleter.isCompleted) {
         callCompleter.complete();
       }
-      _handleOpenException(err, attemptGen, targetPlayer);
+      _handleOpenException(err, attemptGen);
       return;
     }
 
@@ -337,7 +324,7 @@ class DesktopPlaybackController extends ChangeNotifier {
       if (identical(_activeOpenCallCompleter, callCompleter)) {
         _activeOpenCallCompleter = null;
       }
-      _handleOpenException(err, attemptGen, targetPlayer);
+      _handleOpenException(err, attemptGen);
       return;
     }
 
@@ -346,21 +333,21 @@ class DesktopPlaybackController extends ChangeNotifier {
     }
   }
 
-  void _handleOpenException(Object err, int attemptGen, Player failedPlayer) {
+  void _handleOpenException(Object err, int attemptGen) {
     if (_disposed || _openGeneration != attemptGen) return;
     if (err is PlayerInitializationException) {
-      _failAttempt(attemptGen, _msgInitFailed, discardPlayer: failedPlayer);
+      _failAttempt(attemptGen, _msgInitFailed);
     } else {
       _failAttempt(attemptGen, _msgOpenFailed);
     }
   }
 
-  void _startWatchdog(int attemptGen, Player targetPlayer) {
+  void _startWatchdog(int attemptGen) {
     _cancelWatchdog();
     _watchdogTimer = Timer(_openTimeout, () {
       if (_disposed || _openGeneration != attemptGen || !_opening) return;
       final message = _lastHttpStatus == 503 ? _msgHttp503 : _msgTimeout;
-      _failAttempt(attemptGen, message, stopPlayer: !targetPlayer.disposed);
+      _failAttempt(attemptGen, message);
     });
   }
 
@@ -401,12 +388,7 @@ class DesktopPlaybackController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _failAttempt(
-    int attemptGen,
-    String safeMessage, {
-    Player? discardPlayer,
-    bool stopPlayer = false,
-  }) {
+  void _failAttempt(int attemptGen, String safeMessage) {
     if (_disposed || _openGeneration != attemptGen) return;
 
     _retirePlayer();
@@ -414,7 +396,7 @@ class DesktopPlaybackController extends ChangeNotifier {
     _cancelSubscriptions();
     _completeActiveOpenCall();
 
-    final failGen = ++_openGeneration;
+    ++_openGeneration;
     _opening = false;
     _hasMedia = false;
     _title = null;
@@ -423,25 +405,6 @@ class DesktopPlaybackController extends ChangeNotifier {
     _lastHttpStatus = null;
     _activeSourceId = null;
     _canConfirmFromState = false;
-
-    if (discardPlayer != null) {
-      if (identical(_player, discardPlayer)) {
-        _player = null;
-      }
-      if (!discardPlayer.disposed) {
-        unawaited(_disposePlayerSafely(discardPlayer));
-      }
-    } else if (stopPlayer) {
-      final target = _player;
-      if (target != null && !target.disposed) {
-        unawaited(
-          _enqueue(() async {
-            if (_disposed || _openGeneration != failGen || target.disposed) return;
-            await _stopSafely(target);
-          }),
-        );
-      }
-    }
 
     notifyListeners();
   }
@@ -503,12 +466,12 @@ class DesktopPlaybackController extends ChangeNotifier {
       }, onError: onStreamError),
       streams.fileLoadFailed.listen((_) {
         if (!isActiveSession()) return;
-        _failAttempt(attemptGen, _messageForHttpStatus(_lastHttpStatus), stopPlayer: true);
+        _failAttempt(attemptGen, _messageForHttpStatus(_lastHttpStatus));
       }, onError: onStreamError),
       streams.sourceFailed.listen((PlayerSourceFailed event) {
         if (!isActiveSession()) return;
         if (_activeSourceId != null && event.sourceId != _activeSourceId) return;
-        _failAttempt(attemptGen, _messageForHttpStatus(_lastHttpStatus), stopPlayer: true);
+        _failAttempt(attemptGen, _messageForHttpStatus(_lastHttpStatus));
       }, onError: onStreamError),
       streams.log.listen((PlayerLog logEntry) {
         if (!isActiveSession()) return;
@@ -529,13 +492,7 @@ class DesktopPlaybackController extends ChangeNotifier {
           // Erros genéricos de plataforma/propriedade permanecem separados de falha de abertura.
           return;
         }
-        final isInitFailure = playerError.cause == PlayerError.playerInitFailed;
-        _failAttempt(
-          attemptGen,
-          fatalMessage,
-          discardPlayer: isInitFailure ? targetPlayer : null,
-          stopPlayer: !isInitFailure,
-        );
+        _failAttempt(attemptGen, fatalMessage);
       }, onError: onStreamError),
     ]);
   }
@@ -603,14 +560,6 @@ class DesktopPlaybackController extends ChangeNotifier {
     if (identical(next, _state)) return false;
     _state = next;
     return true;
-  }
-
-  Future<void> _stopSafely(Player targetPlayer) async {
-    try {
-      await targetPlayer.stop();
-    } on Object catch (_) {
-      // Ignora erro de parada durante teardown ou após falha.
-    }
   }
 
   Future<void> _disposePlayerSafely(Player targetPlayer) async {

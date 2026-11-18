@@ -8,6 +8,8 @@ import 'package:path/path.dart' as p;
 import 'package:heisuca/mpv/models.dart';
 import 'package:heisuca/mpv/player/player.dart';
 import 'package:heisuca/mpv/video.dart';
+import 'package:heisuca/desktop/desktop_app.dart';
+import 'package:heisuca/desktop/desktop_playback_controller.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -39,21 +41,11 @@ void main() {
 
       // Instanciação real do backend Windows via Player() factory (sem mocks)
       final player = Player();
+      final controller = DesktopPlaybackController(playerFactory: () => player);
 
       try {
         // Árvore com fundo transparente para composição direta (DirectComposition)
-        await tester.pumpWidget(
-          MaterialApp(
-            theme: ThemeData(scaffoldBackgroundColor: Colors.transparent),
-            home: Scaffold(
-              backgroundColor: Colors.transparent,
-              body: Video(
-                player: player,
-                backgroundColor: Colors.transparent,
-              ),
-            ),
-          ),
-        );
+        await tester.pumpWidget(DesktopApp(controller: controller));
 
         // Abertura com inicialização preguiçosa (lazy open); sem print de URI/tokens
         // Runner has no physical sound device. Decode audio through mpv's
@@ -61,7 +53,7 @@ void main() {
         await player.setProperty('ao', 'null');
         await player.setProperty('hwdec', 'no');
         await player.setProperty('d3d11-warp', 'yes');
-        await player.open(Media(fixtureFile.path), play: true);
+        await controller.open(fixtureFile.path);
 
         // 1. Aguarda primeiro quadro renderizado e avanço do relógio >= 1s
         final pollStopwatch = Stopwatch()..start();
@@ -80,6 +72,9 @@ void main() {
             'position=${player.state.position}. Esperado hasRenderedFrame=true e position>=1s em até 30s.',
           );
         }
+
+        expect(controller.hasMedia, isTrue, reason: 'O shell deve reconhecer a mídia pronta.');
+        expect(find.byType(Video), findsOneWidget, reason: 'A superfície de vídeo deve estar montada no shell.');
 
         // 2. Aguarda e valida enumeração de 2 faixas de áudio e 2 faixas de legenda
         var tracksDiscovered = false;
@@ -255,6 +250,7 @@ void main() {
         // addPostFrameCallback de layout tentem chamar setVideoRect após o dispose
         await tester.pumpWidget(const SizedBox.shrink());
         await tester.pump(const Duration(milliseconds: 100));
+        controller.dispose();
         await player.dispose();
       }
     },

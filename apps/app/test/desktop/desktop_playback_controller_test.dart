@@ -244,6 +244,22 @@ class _FakePlayer implements Player {
 }
 
 void main() {
+  test('anuncia novo player antes de open nativo completar para montar Video', () async {
+    final pending = Completer<void>();
+    final fake = _FakePlayer()..onOpen = (_) => pending.future;
+    final controller = DesktopPlaybackController(playerFactory: () => fake);
+    var announcedPlayer = false;
+    controller.addListener(() {
+      if (controller.player != null && controller.opening) announcedPlayer = true;
+    });
+    final opening = controller.open('/tmp/abertura.mkv');
+    await Future<void>.microtask(() {});
+    expect(announcedPlayer, isTrue);
+    await controller.close();
+    await opening;
+    controller.dispose();
+  });
+
   test('trocar mídia pronta cria outro player e não aceita estado da anterior', () async {
     final first = _FakePlayer();
     final second = _FakePlayer();

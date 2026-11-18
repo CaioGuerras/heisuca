@@ -409,9 +409,9 @@ void main() {
     await tester.binding.setSurfaceSize(const Size(1280, 760));
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
-    final fakePlayer = _FakePlayer();
+    var fakePlayer = _FakePlayer();
     final controller = DesktopPlaybackController(
-      playerFactory: () => fakePlayer,
+      playerFactory: () => fakePlayer.disposed ? fakePlayer = _FakePlayer() : fakePlayer,
       openTimeout: const Duration(milliseconds: 80),
     );
 
@@ -461,8 +461,8 @@ void main() {
     await tester.binding.setSurfaceSize(const Size(1280, 760));
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
-    final fakePlayer = _FakePlayer();
-    final controller = DesktopPlaybackController(playerFactory: () => fakePlayer);
+    var fakePlayer = _FakePlayer();
+    final controller = DesktopPlaybackController(playerFactory: () => fakePlayer.disposed ? fakePlayer = _FakePlayer() : fakePlayer);
     var filePickerCalls = 0;
 
     await tester.pumpWidget(
@@ -502,8 +502,8 @@ void main() {
     await tester.binding.setSurfaceSize(const Size(1280, 760));
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
-    final fakePlayer = _FakePlayer();
-    final controller = DesktopPlaybackController(playerFactory: () => fakePlayer);
+    var fakePlayer = _FakePlayer();
+    final controller = DesktopPlaybackController(playerFactory: () => fakePlayer.disposed ? fakePlayer = _FakePlayer() : fakePlayer);
     final fullscreenHistory = <bool>[];
     var openFileShortcutCalls = 0;
 
@@ -599,8 +599,8 @@ void main() {
     await tester.binding.setSurfaceSize(const Size(800, 600));
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
-    final fakePlayer = _FakePlayer();
-    final controller = DesktopPlaybackController(playerFactory: () => fakePlayer);
+    var fakePlayer = _FakePlayer();
+    final controller = DesktopPlaybackController(playerFactory: () => fakePlayer.disposed ? fakePlayer = _FakePlayer() : fakePlayer);
     const externalSubPath = r'C:\legendas\filme.srt';
 
     await tester.pumpWidget(

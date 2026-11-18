@@ -104,7 +104,7 @@ class DesktopPlaybackController extends ChangeNotifier {
   Future<void> open(String source) async {
     if (_disposed) return;
 
-    _retireOpeningPlayer();
+    _retirePlayer();
     final resolution = _resolveMediaSource(source);
     final resolved = resolution.source;
     if (resolved == null) {
@@ -176,7 +176,7 @@ class DesktopPlaybackController extends ChangeNotifier {
 
   Future<void> close() async {
     if (_disposed) return;
-    _retireOpeningPlayer();
+    _retirePlayer();
     ++_openGeneration;
     _cancelWatchdog();
     _cancelSubscriptions();
@@ -369,10 +369,10 @@ class DesktopPlaybackController extends ChangeNotifier {
     _watchdogTimer = null;
   }
 
-  // A superseded native call may never return. Retire that instance rather
-  // than reusing it: its late events/results must never become the next file.
-  void _retireOpeningPlayer() {
-    if (!_opening && _activeOpenCallCompleter == null) return;
+  // Each media source owns one Player lifetime. Reusing an EventChannel
+  // listener cannot distinguish queued events from the outgoing source.
+  // PlayerBase serializes native ownership/disposal across these instances.
+  void _retirePlayer() {
     _cancelSubscriptions();
     _completeActiveOpenCall();
     final retired = _player;
@@ -409,6 +409,7 @@ class DesktopPlaybackController extends ChangeNotifier {
   }) {
     if (_disposed || _openGeneration != attemptGen) return;
 
+    _retirePlayer();
     _cancelWatchdog();
     _cancelSubscriptions();
     _completeActiveOpenCall();

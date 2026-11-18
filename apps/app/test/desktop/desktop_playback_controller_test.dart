@@ -106,7 +106,7 @@ class _FakePlayer implements Player {
 
   void emitPlaybackRestart() {
     _state = _state.copyWith(hasRenderedFrame: true);
-    _playbackRestartController.add(null);
+    if (!_playbackRestartController.isClosed) _playbackRestartController.add(null);
   }
 
   void emitFileStarted() {
@@ -124,7 +124,7 @@ class _FakePlayer implements Player {
 
   void emitPlaying(bool playing) {
     _state = _state.copyWith(playing: playing);
-    _playingController.add(playing);
+    if (!_playingController.isClosed) _playingController.add(playing);
   }
 
   void emitLog(PlayerLog log) => _logController.add(log);
@@ -244,11 +244,35 @@ class _FakePlayer implements Player {
 }
 
 void main() {
+  test('trocar mídia pronta cria outro player e não aceita estado da anterior', () async {
+    final first = _FakePlayer();
+    final second = _FakePlayer();
+    var calls = 0;
+    final controller = DesktopPlaybackController(playerFactory: () => calls++ == 0 ? first : second);
+    await controller.open('/tmp/primeiro.mkv');
+    first.emitPlaybackRestart();
+    await Future<void>.microtask(() {});
+    expect(controller.hasMedia, isTrue);
+    await controller.open('/tmp/segundo.mkv');
+    expect(first.disposed, isTrue);
+    expect(controller.player, same(second));
+    expect(controller.hasMedia, isFalse);
+    first.emitPlaybackRestart();
+    first.emitPlaying(true);
+    await Future<void>.microtask(() {});
+    expect(controller.hasMedia, isFalse);
+    expect(controller.opening, isTrue);
+    second.emitPlaybackRestart();
+    await Future<void>.microtask(() {});
+    expect(controller.hasMedia, isTrue);
+    controller.dispose();
+  });
+
   test('fechar interrompe open nativo que nunca completa sem depender do watchdog', () {
     fakeAsync((async) {
       final nativeOpen = Completer<void>();
-      final fake = _FakePlayer()..onOpen = (_) => nativeOpen.future;
-      final controller = DesktopPlaybackController(playerFactory: () => fake);
+      var fake = _FakePlayer()..onOpen = (_) => nativeOpen.future;
+      final controller = DesktopPlaybackController(playerFactory: () => fake.disposed ? fake = _FakePlayer() : fake);
       var closed = false;
       unawaited(controller.open('/tmp/travado.mkv'));
       async.flushMicrotasks();
@@ -300,8 +324,8 @@ void main() {
 
   group('DesktopPlaybackController - validação WindowsUnicode, Unix, file URI e esquemas maliciosos', () {
     test('preserva WindowsUnicode, #, % literal, UNC, Unix e file URI via package:path', () async {
-      final fake = _FakePlayer();
-      final controller = DesktopPlaybackController(playerFactory: () => fake);
+      var fake = _FakePlayer();
+      final controller = DesktopPlaybackController(playerFactory: () => fake.disposed ? fake = _FakePlayer() : fake);
 
       await controller.open(r'C:\Vídeos\アニメ #1 [100%] %20.mkv');
       expect(fake.openedMedia.last.uri, r'C:\Vídeos\アニメ #1 [100%] %20.mkv');
@@ -431,8 +455,8 @@ void main() {
   group('DesktopPlaybackController - timeout sem frame e confirmação por frame real', () {
     test('Future.open retornar não basta; timeout sem frame falha e evento atrasado não vira sucesso', () {
       fakeAsync((async) {
-        final fake = _FakePlayer();
-        final controller = DesktopPlaybackController(playerFactory: () => fake);
+        var fake = _FakePlayer();
+        final controller = DesktopPlaybackController(playerFactory: () => fake.disposed ? fake = _FakePlayer() : fake);
 
         unawaited(controller.open('/tmp/filme.mkv'));
         async.flushMicrotasks();
@@ -456,7 +480,7 @@ void main() {
         expect(controller.opening, isFalse);
         expect(controller.hasMedia, isFalse);
         expect(controller.error, isNotNull);
-        expect(fake.callLog, contains('stop'));
+        expect(fake.disposed, isTrue);
 
         final capturedError = controller.error;
         // Evento atrasado após erro não pode converter erro em sucesso.
@@ -475,8 +499,8 @@ void main() {
 
     test('encerra watchdog quando playbackRestart confirma frame real', () {
       fakeAsync((async) {
-        final fake = _FakePlayer();
-        final controller = DesktopPlaybackController(playerFactory: () => fake);
+        var fake = _FakePlayer();
+        final controller = DesktopPlaybackController(playerFactory: () => fake.disposed ? fake = _FakePlayer() : fake);
 
         unawaited(controller.open('/tmp/filme.mkv'));
         async.flushMicrotasks();
@@ -503,8 +527,8 @@ void main() {
 
     test('player.open travado desbloqueia no timeout sem deadlock', () {
       fakeAsync((async) {
-        final fake = _FakePlayer()..onOpen = (_) => Completer<void>().future;
-        final controller = DesktopPlaybackController(playerFactory: () => fake);
+        var fake = _FakePlayer()..onOpen = (_) => Completer<void>().future;
+        final controller = DesktopPlaybackController(playerFactory: () => fake.disposed ? fake = _FakePlayer() : fake);
 
         var completed = false;
         unawaited(controller.open('/tmp/travado.mkv').then((_) => completed = true));
@@ -523,11 +547,11 @@ void main() {
     });
 
     test('confirma também quando hasRenderedFrame transiciona de false para true no open', () async {
-      final fake = _FakePlayer()
+      var fake = _FakePlayer()
         ..onOpen = (_) async {
           // Atualiza state direto sem stream playbackRestart.
         };
-      final controller = DesktopPlaybackController(playerFactory: () => fake);
+      final controller = DesktopPlaybackController(playerFactory: () => fake.disposed ? fake = _FakePlayer() : fake);
       fake.onOpen = (_) async {
         fake.state = fake.state.copyWith(hasRenderedFrame: true);
       };
@@ -593,11 +617,11 @@ void main() {
     });
 
     test('sanitiza exceção bruta de open com URL, usuário e token', () async {
-      final fake = _FakePlayer()
+      var fake = _FakePlayer()
         ..onOpen = (_) => Future<void>.error(
           Exception('libmpv failed at https://caio:topsecret@media.internal/x.mkv?token=ABC_XYZ'),
         );
-      final controller = DesktopPlaybackController(playerFactory: () => fake);
+      final controller = DesktopPlaybackController(playerFactory: () => fake.disposed ? fake = _FakePlayer() : fake);
 
       await controller.open('https://media.internal/x.mkv?token=ABC_XYZ');
       expect(controller.opening, isFalse);
@@ -613,8 +637,8 @@ void main() {
 
     test('separa evento generic error de falha ao iniciar e trata fileLoadFailed/sourceFailed', () {
       fakeAsync((async) {
-        final fake = _FakePlayer();
-        final controller = DesktopPlaybackController(playerFactory: () => fake);
+        var fake = _FakePlayer();
+        final controller = DesktopPlaybackController(playerFactory: () => fake.disposed ? fake = _FakePlayer() : fake);
 
         unawaited(controller.open('https://cdn.example.com/movie.mkv?token=SECRET'));
         async.flushMicrotasks();
@@ -701,11 +725,11 @@ void main() {
     });
 
     test('open inválido concorrente invalida abertura em andamento e não vira sucesso', () async {
-      final fake = _FakePlayer();
+      var fake = _FakePlayer();
       final slowOpen = Completer<void>();
       fake.onOpen = (_) => slowOpen.future;
 
-      final controller = DesktopPlaybackController(playerFactory: () => fake);
+      final controller = DesktopPlaybackController(playerFactory: () => fake.disposed ? fake = _FakePlayer() : fake);
       final f1 = controller.open('/tmp/valido.mkv');
       await Future<void>.microtask(() {});
       final f2 = controller.open('javascript:alert(1)');
@@ -726,8 +750,8 @@ void main() {
     });
 
     test('controles de reprodução, clamp e addSubtitle funcionam com mídia ativa', () async {
-      final fake = _FakePlayer();
-      final controller = DesktopPlaybackController(playerFactory: () => fake);
+      var fake = _FakePlayer();
+      final controller = DesktopPlaybackController(playerFactory: () => fake.disposed ? fake = _FakePlayer() : fake);
 
       await controller.open('/tmp/filme.mkv');
       fake.emitPlaybackRestart();
@@ -764,9 +788,9 @@ void main() {
 
   group('DesktopPlaybackController - dispose e métodos após dispose', () {
     test('dispose cancela subscriptions/timers, captura erro de teardown e métodos após dispose são seguros', () async {
-      final fake = _FakePlayer()..onDispose = () => Future<void>.error(StateError('native teardown failure'));
+      var fake = _FakePlayer()..onDispose = () => Future<void>.error(StateError('native teardown failure'));
       var notifications = 0;
-      final controller = DesktopPlaybackController(playerFactory: () => fake)
+      final controller = DesktopPlaybackController(playerFactory: () => fake.disposed ? fake = _FakePlayer() : fake)
         ..addListener(() => notifications++);
 
       await controller.open('/tmp/video.mkv');

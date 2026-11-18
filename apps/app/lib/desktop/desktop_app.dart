@@ -407,7 +407,9 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
     }
     _shortcutFocusNode.requestFocus();
     if (!_controller.hasMedia || !identical(_controller.player, playerBefore) ||
-        _controller.title != titleBefore) return;
+        _controller.title != titleBefore) {
+      return;
+    }
     try {
       await _controller.addSubtitle(path);
     } catch (_) {}
@@ -662,7 +664,7 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
                               border: Border.all(color: HeisucaTheme.roxoLinha),
                             ),
                             child: SvgPicture.asset(
-                              'assets/cgflix_emblema.svg',
+                              'assets/heisuca/icone_shikkoku.svg',
                               width: 34,
                               height: 34,
                               semanticsLabel: 'Emblema Heisuca',
@@ -680,7 +682,7 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
                               border: Border.all(color: HeisucaTheme.roxoSelo.withValues(alpha: 0.55)),
                             ),
                             child: Text(
-                              '炳素華 · DESKTOP',
+                              'HEISUCA · PLAYER',
                               style: HeisucaTypography.labelBadge.copyWith(color: Colors.white),
                             ),
                           ),
@@ -693,7 +695,7 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'Reprodução direta de arquivos locais e endereços HTTP ou HTTPS neste primeiro marco para desktop, sem necessidade de conta ou servidor.',
+                        'Abra seus vídeos e links de reprodução. Sem precisar criar uma conta.',
                         style: HeisucaTypography.bodySynopsis.copyWith(
                           color: Colors.white.withValues(alpha: 0.78),
                         ),
@@ -714,12 +716,12 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Abrir fonte de mídia',
+                              'O que vamos assistir?',
                               style: HeisucaTypography.titleSection.copyWith(color: Colors.white),
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Selecione um vídeo armazenado no computador ou informe um endereço HTTP(S) válido. Faixas de áudio e legendas SRT, ASS e VTT podem ser alternadas durante a exibição.',
+                              'Escolha um vídeo do computador ou abra um link. Durante a reprodução, você pode trocar o áudio e escolher a legenda.',
                               style: HeisucaTypography.bodyMetadata.copyWith(
                                 color: Colors.white.withValues(alpha: 0.72),
                               ),
@@ -905,7 +907,7 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
           ),
           const SizedBox(width: 8),
           SvgPicture.asset(
-            'assets/cgflix_emblema.svg',
+            'assets/heisuca/icone_shikkoku.svg',
             width: 22,
             height: 22,
             semanticsLabel: 'Heisuca',

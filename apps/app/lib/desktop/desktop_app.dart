@@ -417,7 +417,9 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener {
 
   void _showOperationError(String message) {
     final context = _shellContext;
-    if (!mounted || context == null || !context.mounted) return;
+    if (!mounted || context == null || !context.mounted) {
+      return;
+    }
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 

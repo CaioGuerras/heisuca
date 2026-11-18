@@ -33,6 +33,8 @@ class _FakeMediaServerClient implements MediaServerClient {
   final String? _serverName;
   final Map<String, String> _streamHeaders;
 
+  Object session = Object();
+  @override Object get authenticationSessionId => session;
   bool closed = false;
   Future<List<MediaLibrary>> Function()? onFetchLibraries;
   Future<LibraryPage<MediaItem>> Function(
@@ -231,6 +233,11 @@ class _FakeServersController extends DesktopServersController {
     }
   }
 
+  void updateConnections(List<DesktopServerConnection> value) {
+    _connections..clear()..addAll(value);
+    notifyListeners();
+  }
+
   @override
   Future<void> disconnect(String id) async {
     _connections.removeWhere((conn) => conn.id == id);
@@ -372,6 +379,55 @@ void main() {
     await tester.tap(find.textContaining(RegExp(r'^Título [0-9]+$')).hitTestable().first);await tester.pumpAndSettle();
     await tester.tap(find.text('Voltar à grade'));await tester.pumpAndSettle();
     expect(offset(),closeTo(before,1));
+  });
+
+  testWidgets('mudança de sessão no mesmo cliente descarta catálogo anterior', (tester) async {
+    var generation=0;
+    final client=_FakeMediaServerClient(backend:MediaBackend.plex,onFetchLibraries:()async=>[
+      const MediaLibrary(id:'movies',backend:MediaBackend.plex,title:'Filmes',kind:MediaKind.movie)],
+      onFetchLibraryPagedContent:(id,query,kind,abort)async=>LibraryPage(items:[MediaItem.plex(id:'g$generation',kind:MediaKind.movie,title:'Sessão $generation')],totalCount:1));
+    final source=DesktopServerConnection(id:'A',name:'A',backend:MediaBackend.plex,client:client);
+    final servers=_FakeServersController(initialConnections:[source]);addTearDown(servers.dispose);
+    await tester.pumpWidget(_buildTestApp(servers:servers,onPlay:(_,_,_)async{}));await tester.pumpAndSettle();expect(find.text('Sessão 0'),findsOneWidget);
+    generation=1;client.session=Object();servers.updateConnections([source]);await tester.pumpAndSettle();
+    expect(find.text('Sessão 0'),findsNothing);expect(find.text('Sessão 1'),findsOneWidget);
+  });
+  testWidgets('aba disponível sai do aviso de categoria ausente e restringe busca global', (tester) async {
+    var searches=0;String? library;
+    final client=_FakeMediaServerClient(backend:MediaBackend.plex,onFetchLibraries:()async=>[
+      const MediaLibrary(id:'shows',backend:MediaBackend.plex,title:'Só séries',kind:MediaKind.show)],
+      onFetchLibraryPagedContent:(id,query,kind,abort)async{library=id;return const LibraryPage(items:<MediaItem>[],totalCount:0);});
+    client.onSearchItems=(q,limit,abort)async{searches++;return [];};
+    final servers=_FakeServersController(initialConnections:[DesktopServerConnection(id:'A',name:'A',backend:MediaBackend.plex,client:client)]);addTearDown(servers.dispose);
+    await tester.pumpWidget(MaterialApp(home:DesktopLibraryScreen(servers:servers,initialKind:MediaKind.movie,onPlay:(_,_,_)async{})));await tester.pumpAndSettle();
+    expect(find.text('Biblioteca de filmes não encontrada'),findsOneWidget);await tester.tap(find.text('Só séries'));await tester.pumpAndSettle();
+    expect(find.text('Biblioteca de filmes não encontrada'),findsNothing);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpWidget(MaterialApp(home:DesktopLibraryScreen(servers:servers,initialSearch:'Matrix',onPlay:(_,_,_)async{})));await tester.pumpAndSettle();expect(searches,1);
+    library=null;await tester.tap(find.text('Só séries'));await tester.pumpAndSettle();expect(searches,1);expect(library,'shows');
+  });
+  testWidgets('ficha abre apesar de falha na lista de bibliotecas e escolhe versão disponível tardia', (tester) async {
+    int? played;
+    const item=MediaItem.plex(id:'m',kind:MediaKind.movie,title:'Versões tardias');
+    const complete=MediaItem.plex(id:'m',kind:MediaKind.movie,title:'Versões tardias',mediaVersions:[
+      MediaVersion(id:'bad',parts:[MediaPart(id:'bad',exists:false)]),MediaVersion(id:'good')]);
+    final client=_FakeMediaServerClient(backend:MediaBackend.plex,onFetchLibraries:()async=>throw StateError('unavailable'),
+      onFetchItemWithOnDeck:(id)async=>(item:complete,onDeckEpisode:null));
+    final servers=_FakeServersController(initialConnections:[DesktopServerConnection(id:'A',name:'A',backend:MediaBackend.plex,client:client)]);addTearDown(servers.dispose);
+    await tester.pumpWidget(MaterialApp(home:DesktopLibraryScreen(servers:servers,initialItem:item,onPlay:(_,_,index)async{played=index;})));await tester.pumpAndSettle();
+    expect(find.text('Versões tardias'),findsOneWidget);await tester.tap(find.text('Assistir'));await tester.pumpAndSettle();expect(played,1);
+  });
+  testWidgets('falha de play antigo não contamina outra ficha', (tester) async {
+    final pending=Completer<void>();const a=MediaItem.plex(id:'a',kind:MediaKind.movie,title:'Filme A');const b=MediaItem.plex(id:'b',kind:MediaKind.movie,title:'Filme B');
+    final client=_FakeMediaServerClient(backend:MediaBackend.plex,onFetchLibraries:()async=>[
+      const MediaLibrary(id:'movies',backend:MediaBackend.plex,title:'Filmes',kind:MediaKind.movie)],
+      onFetchLibraryPagedContent:(id,query,kind,abort)async=>const LibraryPage(items:[a,b],totalCount:2));
+    final servers=_FakeServersController(initialConnections:[DesktopServerConnection(id:'A',name:'A',backend:MediaBackend.plex,client:client)]);addTearDown(servers.dispose);
+    await tester.pumpWidget(_buildTestApp(servers:servers,onPlay:(_,_,_)=>pending.future));await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Filme A'));await tester.pumpAndSettle();await tester.tap(find.text('Filme A'));await tester.pumpAndSettle();await tester.tap(find.text('Assistir'));await tester.pump();
+    await tester.tap(find.text('Voltar à grade'));await tester.pumpAndSettle();await tester.ensureVisible(find.text('Filme B'));await tester.pumpAndSettle();await tester.tap(find.text('Filme B'));await tester.pumpAndSettle();
+    pending.completeError(StateError('old'));await tester.pumpAndSettle();expect(find.text('Filme B'),findsOneWidget);
+    expect(find.text('Não foi possível iniciar a reprodução neste momento.'),findsNothing);
   });
 
   WidgetController.hitTestWarningShouldBeFatal = true;

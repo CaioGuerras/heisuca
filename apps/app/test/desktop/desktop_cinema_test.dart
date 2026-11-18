@@ -12,6 +12,7 @@ import 'package:heisuca/media/media_hub.dart';
 import 'package:heisuca/media/media_item.dart';
 import 'package:heisuca/media/media_kind.dart';
 import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/desktop/ui/desktop_session_artwork.dart';
 
 class CinemaFakeClient implements MediaServerClient {
   Object session = Object();
@@ -33,6 +34,11 @@ MediaHub hub(String title) => MediaHub(id: 'recent', title: title, type: 'movie'
 Future<void> settle() async {await Future<void>.delayed(Duration.zero);}
 
 void main() {
+  test('cache de arte não compartilha URL entre sessões diferentes', () {
+    final session=Object();
+    expect(DesktopSessionArtwork('https://server/image',const {},session),DesktopSessionArtwork('https://server/image',const {},session));
+    expect(DesktopSessionArtwork('https://server/image',const {},session),isNot(DesktopSessionArtwork('https://server/image',const {},Object())));
+  });
   test('troca de servidor descarta resposta antiga e limpa imediatamente os dados da outra fonte', () async {
     final a = Completer<List<MediaHub>>(), b = Completer<List<MediaHub>>();
     final ca = CinemaFakeClient()..load = (_) => a.future;
@@ -95,6 +101,22 @@ void main() {
     await tester.tap(find.byTooltip('Escolher biblioteca'));await tester.pumpAndSettle();
     await tester.tap(find.text('Fonte B'));await tester.pumpAndSettle();expect(catalog.source?.id,'Fonte B');
     expect(tester.takeException(),isNull);await tester.pumpWidget(const SizedBox.shrink());catalog.dispose();servers.dispose();prefs.dispose();
+  });
+  testWidgets('Home com título longo mantém Assistir acessível a200% em800x600', (tester) async {
+    tester.view.physicalSize=const Size(800,600);tester.view.devicePixelRatio=1;
+    addTearDown(tester.view.resetPhysicalSize);addTearDown(tester.view.resetDevicePixelRatio);
+    const item=MediaItem.plex(id:'long',kind:MediaKind.movie,title:'Um título muito longo para testar a acessibilidade da biblioteca de cinema',year:2024,durationMs:7200000,
+      summary:'Uma sinopse que ocupa mais de uma linha e não pode esconder o botão de assistir quando a pessoa aumenta o tamanho do texto.');
+    final client=CinemaFakeClient()..load=(_)async=>[const MediaHub(id:'recent',title:'Recentes',type:'movie',items:[item])];
+    final servers=CinemaFakeServers()..current=[connection('Fonte A',client)];final catalog=DesktopCinemaController(servers);
+    final prefs=DesktopPreferences();var plays=0;await tester.pump();
+    final actions=DesktopHomeActions(openFile:(){},openUrl:(){},openLibrary:(){},openSettings:(){},openRecent:(_){},dismissError:(){});
+    await tester.pumpWidget(MaterialApp(theme:desktopTheme('shikkoku',Brightness.dark),home:Scaffold(body:MediaQuery(
+      data:const MediaQueryData(textScaler:TextScaler.linear(2)),child:DesktopCinemaHome(catalog:catalog,preferences:prefs,actions:actions,
+        onBrowse:(_,_,_,_){},onPlay:(_,_)async{plays++;},artworkBuilder:(_,_,_)=>const SizedBox())))));
+    await tester.pumpAndSettle();await tester.ensureVisible(find.text('Assistir'));await tester.pumpAndSettle();
+    await tester.tap(find.text('Assistir'));await tester.pumpAndSettle();expect(plays,1);expect(tester.takeException(),isNull);
+    await tester.pumpWidget(const SizedBox.shrink());catalog.dispose();servers.dispose();prefs.dispose();
   });
   testWidgets('controles da Home levam a fonte/item/busca corretos e reproduzem pelo callback real', (tester) async {
     tester.view.physicalSize=const Size(1440,960);tester.view.devicePixelRatio=1;

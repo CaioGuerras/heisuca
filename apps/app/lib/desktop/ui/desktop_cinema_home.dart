@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
+import 'desktop_session_artwork.dart';
 import 'package:flutter/material.dart';
 import '../../design/tema.dart';
 import '../../design/componentes/toque.dart';
@@ -31,7 +31,11 @@ class _DesktopCinemaHomeState extends State<DesktopCinemaHome> {
   final _search = TextEditingController();
   bool _starting = false;
   String? _playError;
-  Object? _playErrorSession;
+  Object? _playErrorSession, _playClient;
+  String? _playSourceId;
+  int _playEpoch = 0;
+  bool get _samePlaySource => source != null && source!.id == _playSourceId && identical(source!.client, _playClient) && identical(source!.client.authenticationSessionId, _playErrorSession);
+  bool get _startingHere => _starting && _samePlaySource;
   TemaHeisuca get p => Theme.of(context).extension<TemaHeisuca>()!;
   DesktopServerConnection? get source => widget.catalog.source;
   @override
@@ -63,11 +67,13 @@ class _DesktopCinemaHomeState extends State<DesktopCinemaHome> {
   void browse({MediaItem? item, MediaKind? kind, String? search}) => widget.onBrowse(source, item, kind, search);
   Future<void> play(MediaItem item) async {
     final server = source;
-    if (server == null || _starting) return;
+    if (server == null || _startingHere) return;
+    final epoch = ++_playEpoch;
+    _playClient = server.client; _playSourceId = server.id;
     setState(() { _starting = true; _playError = null; _playErrorSession = server.client.authenticationSessionId; });
     try { await widget.onPlay(server, item); }
-    on Object { if (mounted) setState(() => _playError = 'Não foi possível iniciar este título. Abra os detalhes para tentar outra versão.'); }
-    finally { if (mounted) setState(() => _starting = false); }
+    on Object { if (mounted && epoch == _playEpoch) setState(() => _playError = 'Não foi possível iniciar este título. Abra os detalhes para tentar outra versão.'); }
+    finally { if (mounted && epoch == _playEpoch) setState(() => _starting = false); }
   }
   Widget artwork(MediaItem item, {bool landscape = false, bool large = false}) {
     final server = source;
@@ -79,7 +85,7 @@ class _DesktopCinemaHomeState extends State<DesktopCinemaHome> {
     if (path == null || path.isEmpty) return ColoredBox(color: p.superficie);
     try {
       final url = server.client.thumbnailUrl(path, width: landscape ? (large ? 1600 : 640) : 400);
-      return Image(image: _SessionArtwork(url, server.client.streamHeaders, server.client.authenticationSessionId),
+      return Image(image: DesktopSessionArtwork(url, server.client.streamHeaders, server.client.authenticationSessionId),
         fit: BoxFit.cover, errorBuilder: (_, _, _) => ColoredBox(color: p.superficie),
         excludeFromSemantics: true, gaplessPlayback: false);
     } on Object { return ColoredBox(color: p.superficie); }
@@ -122,23 +128,23 @@ class _DesktopCinemaHomeState extends State<DesktopCinemaHome> {
   Widget hero(MediaItem item, double width) {
     final pad = width < 900 ? 24.0 : 48.0;
     final narrow = width < 900 || MediaQuery.textScalerOf(context).scale(14) > 20;
-    return SizedBox(height: narrow ? 440 : 360, child: Stack(children: [
+    return ConstrainedBox(constraints: BoxConstraints(minHeight: narrow ? 440 : 360), child: Stack(children: [
       Positioned(right: 0, top: 0, bottom: 0, width: width * .84, child: artwork(item, landscape: true, large: true)),
       Positioned.fill(child: DecoratedBox(decoration: BoxDecoration(gradient: LinearGradient(
         colors: [p.fundo, p.fundo.withValues(alpha: .94), p.fundo.withValues(alpha: .35), p.fundo.withValues(alpha: .06)],
         stops: const [0,.26,.6,1])))),
       Positioned.fill(child: DecoratedBox(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter,
         colors: [Colors.transparent,p.fundo], stops: const [.4,1])))),
-      Positioned(left: pad, top: 24, width: narrow ? width - pad * 2 : 490, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Padding(padding: EdgeInsets.fromLTRB(pad, 24, pad, 34), child: Align(alignment: Alignment.centerLeft, child: SizedBox(width: narrow ? width - pad * 2 : 490, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         sourcePicker(), const SizedBox(height: 20), text(item.displayTitle, size: narrow ? 34 : 47, bold: true, lines: 2),
         const SizedBox(height: 12), text([if(item.year != null) '${item.year}', if((item.durationMs ?? 0) > 0) duration(item.durationMs!),
           if(item.kind == MediaKind.show) 'Série'].join('   ·   '), size: 12, color: p.texto2), const SizedBox(height: 13),
         if ((item.summary ?? '').isNotEmpty) text(item.summary!, size: 13, color: p.texto2, lines: 2),
         const SizedBox(height: 22), Wrap(spacing: 10, runSpacing: 10, children: [
-          button(_starting ? 'Abrindo…' : 'Assistir', Icons.play_arrow_rounded, _starting ? null : () => unawaited(play(item)), primary: true),
+          button(_startingHere ? 'Abrindo…' : 'Assistir', Icons.play_arrow_rounded, _startingHere ? null : () => unawaited(play(item)), primary: true),
           button('Ver detalhes', Icons.info_outline, () => browse(item: item)),
         ]),
-      ])),
+      ])))),
     ]));
   }
   String duration(int ms) {
@@ -218,7 +224,7 @@ class _DesktopCinemaHomeState extends State<DesktopCinemaHome> {
     builder: (context, _) => ColoredBox(color: p.fundo, child: LayoutBuilder(builder: (_, bounds) => Column(children: [header(bounds.maxWidth),
       Expanded(child: ListView(children: [
         if(widget.actions.error != null) message(widget.actions.error!, dismiss: widget.actions.dismissError),
-        if(_playError != null && identical(_playErrorSession, source?.client.authenticationSessionId)) message(_playError!, dismiss: () => setState(() => _playError = null)),
+        if(_playError != null && _samePlaySource) message(_playError!, dismiss: () => setState(() => _playError = null)),
         if(widget.catalog.error != null) message(widget.catalog.error!, retry: () => unawaited(widget.catalog.refresh())),
         if(widget.catalog.featured == null && source != null)
           Padding(padding: const EdgeInsets.fromLTRB(24, 12, 24, 0), child: Align(alignment: Alignment.centerLeft, child: sourcePicker())),
@@ -233,22 +239,6 @@ class _DesktopCinemaHomeState extends State<DesktopCinemaHome> {
 }
 
 /// A chave inclui a sessão: a mesmaURL com headers de outro perfil não reutiliza arte privada do anterior.
-class _SessionArtwork extends ImageProvider<_SessionArtwork> {
-  _SessionArtwork(String url, Map<String,String> headers, this.session) : source = NetworkImage(url, headers: Map.unmodifiable(headers));
-  final NetworkImage source;
-  final Object session;
-  @override
-  Future<_SessionArtwork> obtainKey(ImageConfiguration configuration) => SynchronousFuture(this);
-  @override
-  ImageStreamCompleter loadImage(_SessionArtwork key, ImageDecoderCallback decode) {
-    // ignore: deprecated_member_use
-    return source.loadImage(source, decode);
-  }
-  @override
-  bool operator ==(Object other) => other is _SessionArtwork && source == other.source && identical(session, other.session);
-  @override
-  int get hashCode => Object.hash(source, identityHashCode(session));
-}
 class _CinemaHover extends StatefulWidget {
   const _CinemaHover({required this.child, required this.onTap});
   final Widget child;

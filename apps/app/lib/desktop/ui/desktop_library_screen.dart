@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'desktop_session_artwork.dart';
 
 import 'package:flutter/material.dart';
 import '../../design/tema.dart';
@@ -52,8 +53,10 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
   late final MediaItem? _initialItem;
   late final MediaKind? _initialKind;
   bool _initialTargetApplied = false;
+  bool _initialItemOpened = false;
   bool _initialKindUnavailable = false;
   MediaServerClient? _activeClient;
+  Object? _activeAuthentication;
   Set<String> _knownServerIds = <String>{};
 
   int _librariesEpoch = 0;
@@ -154,7 +157,9 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
 
     if (connections.isEmpty) {
       _abortAllPending();
+      if (_activeClient != null) _clearInitialIntentAndSearch();
       _selectedServerId = null;
+      _activeAuthentication = null;
       _activeClient = null;
       _resetLibrariesState();
       _resetItemsState();
@@ -181,7 +186,7 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
     }
     target ??= _selectedServer ?? connections.first;
 
-    final changedServer = target.id != _selectedServerId || !identical(target.client, _activeClient);
+    final changedServer = target.id != _selectedServerId || !identical(target.client, _activeClient) || !identical(target.client.authenticationSessionId, _activeAuthentication);
     if (!changedServer && !forceReload) {
       return;
     }
@@ -192,17 +197,15 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
   void _selectServer(DesktopServerConnection server, {bool allowSetState = true}) {
     _searchDebounce?.cancel();
     _abortAllPending();
-    // A intenção da Home pertence à fonte de origem e nunca migra para outra.
+    // Nenhuma intenção de outra fonte/sessão é reaplicada ao novo catálogo.
     if ((_selectedServerId != null && _selectedServerId != server.id) ||
-        (_initialServerId != null && server.id != _initialServerId)) {
-      _initialTargetApplied = true;
-      _initialKindUnavailable = false;
-      _searchController.clear();
-      _searchQuery = '';
-      _searchAllServer = false;
+        (_initialServerId != null && server.id != _initialServerId) ||
+        (_activeClient != null && !identical(_activeAuthentication, server.client.authenticationSessionId))) {
+      _clearInitialIntentAndSearch();
     }
     _selectedServerId = server.id;
     _activeClient = server.client;
+    _activeAuthentication = server.client.authenticationSessionId;
     widget.onServerSelected?.call(server.id);
     _resetLibrariesState(loading: true);
     _resetItemsState();
@@ -212,6 +215,21 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
     }
     final epoch = _librariesEpoch;
     unawaited(_fetchLibrariesFor(server, epoch));
+    if (!_initialItemOpened && !_initialTargetApplied && _initialItem != null) {
+      _initialItemOpened = true;
+      _openItemDetail(_initialItem);
+    }
+    if (_searchAllServer && _searchQuery.isNotEmpty) unawaited(_loadItems(reset: true));
+  }
+
+  void _clearInitialIntentAndSearch() {
+    _searchDebounce?.cancel();
+    _initialTargetApplied = true;
+    _initialItemOpened = true;
+    _initialKindUnavailable = false;
+    _searchController.clear();
+    _searchQuery = '';
+    _searchAllServer = false;
   }
 
   void _abortAllPending() {
@@ -277,12 +295,12 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
           }
         }
       });
-      if (visible.isNotEmpty) {
+      if (visible.isNotEmpty && !_searchAllServer) {
         unawaited(_loadItems(reset: true));
       }
       if (!_initialTargetApplied) {
         _initialTargetApplied = true;
-        if (_initialItem != null) _openItemDetail(_initialItem);
+        if (_initialItem != null && !_initialItemOpened) { _initialItemOpened = true; _openItemDetail(_initialItem); }
       }
     } on Object {
       if (!mounted || epoch != _librariesEpoch || abort.isAborted) return;
@@ -307,14 +325,15 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
   }
 
   void _selectLibrary(MediaLibrary library) {
-    _initialKindUnavailable = false;
-    if (_selectedLibrary?.id == library.id && _itemsError == null) return;
+    if (_selectedLibrary?.id == library.id && _itemsError == null && !_initialKindUnavailable && !_searchAllServer) return;
     _itemsAbort?.abort();
     _detailAbort?.abort();
     _itemsEpoch++;
     _detailEpoch++;
     setState(() {
       _selectedLibrary = library;
+      _initialKindUnavailable = false;
+      _searchAllServer = false;
       _resetItemsState();
       _resetDetailState();
     });
@@ -581,7 +600,7 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
         if (fetchedItem != null) {
           _detailItem = fetchedItem;
           final versions = fetchedItem.mediaVersions ?? const <MediaVersion>[];
-          if (_selectedVersionIndex >= versions.length) {
+          if (_selectedVersionIndex >= versions.length || (versions.isNotEmpty && !versions[_selectedVersionIndex].isPlayable)) {
             _selectedVersionIndex = _defaultPlayableVersionIndex(versions);
           }
         }
@@ -655,13 +674,16 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
   Future<void> _playItem(MediaItem item, {int? versionIndex}) async {
     final server = _selectedServer;
     if (server == null || _startingPlayback) return;
+    final epoch = _detailEpoch;
+    final session = server.client.authenticationSessionId;
+    bool current() => mounted && epoch == _detailEpoch && identical(server.client, _activeClient) && identical(session, server.client.authenticationSessionId);
     setState(() {
       _startingPlayback = true;
       _playbackError = null;
     });
     try {
       await widget.onPlay(server, item, versionIndex);
-      if (!mounted) return;
+      if (!mounted || !current()) return;
       if (Navigator.of(context).canPop()) {
         Navigator.of(context).pop();
       } else {
@@ -670,7 +692,7 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
         });
       }
     } on Object {
-      if (!mounted) return;
+      if (!mounted || !current()) return;
       setState(() {
         _startingPlayback = false;
         _playbackError = 'Não foi possível iniciar a reprodução neste momento.';
@@ -775,10 +797,10 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
         message: 'Você pode explorar as outras bibliotecas deste servidor.', actionLabel: 'Ver bibliotecas',
         onAction: () => setState(() => _initialKindUnavailable = false));
     }
-    if (_loadingLibraries && _libraries.isEmpty) {
+    if (_loadingLibraries && _libraries.isEmpty && !_searchAllServer) {
       return const Center(child: CircularProgressIndicator());
     }
-    if (_librariesError != null && _libraries.isEmpty) {
+    if (_librariesError != null && _libraries.isEmpty && !_searchAllServer) {
       return _CenteredMessageState(
         palette: palette,
         icon: Icons.error_outline,
@@ -788,7 +810,7 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
         onAction: _retryLibraries,
       );
     }
-    if (!_loadingLibraries && _libraries.isEmpty) {
+    if (!_loadingLibraries && _libraries.isEmpty && !_searchAllServer) {
       return _CenteredMessageState(
         palette: palette,
         icon: Icons.video_library_outlined,
@@ -889,6 +911,7 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
                 artwork: widget.artworkBuilder?.call(item, false),
                 imageUrl: thumbUrl,
                 headers: server.client.streamHeaders,
+                session: server.client.authenticationSessionId,
                 selected: _detailItem?.id == item.id,
                 onTap: () => _openItemDetail(item),
               );
@@ -910,6 +933,7 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
       artwork: widget.artworkBuilder?.call(item, true),
       imageUrl: artwork == null || artwork.isEmpty ? null : server.client.thumbnailUrl(artwork, width: 1600),
       headers: server.client.streamHeaders,
+      session: server.client.authenticationSessionId,
       palette: palette,
       item: item,
       parentBreadcrumbTitle: _detailBreadcrumbs.isNotEmpty ? _detailBreadcrumbs.last.displayTitle : null,
@@ -1453,6 +1477,7 @@ class _SearchBar extends StatelessWidget {
 
 class _MediaGridCard extends StatefulWidget {
   const _MediaGridCard({
+    this.session,
     required this.palette,
     required this.item,
     required this.imageUrl,
@@ -1466,6 +1491,7 @@ class _MediaGridCard extends StatefulWidget {
   final MediaItem item;
   final Widget? artwork;
   final String? imageUrl;
+  final Object? session;
   final Map<String, String> headers;
   final bool selected;
   final VoidCallback onTap;
@@ -1509,6 +1535,7 @@ class _MediaGridCardState extends State<_MediaGridCard> {
               child: widget.artwork ?? _CardArtwork(
                 imageUrl: widget.imageUrl,
                 headers: widget.headers,
+                session: widget.session,
                 kind: item.kind,
                 elevatedColor: palette.elevated,
                 mutedColor: palette.textMuted,
@@ -1556,6 +1583,7 @@ class _MediaGridCardState extends State<_MediaGridCard> {
 
 class _CardArtwork extends StatelessWidget {
   const _CardArtwork({
+    this.session,
     required this.imageUrl,
     required this.headers,
     required this.kind,
@@ -1564,6 +1592,7 @@ class _CardArtwork extends StatelessWidget {
   });
 
   final String? imageUrl;
+  final Object? session;
   final Map<String, String> headers;
   final MediaKind kind;
   final Color elevatedColor;
@@ -1577,10 +1606,9 @@ class _CardArtwork extends StatelessWidget {
     }
     return ColoredBox(
       color: elevatedColor,
-      child: Image.network(
-        url,
+      child: Image(
+        image: DesktopSessionArtwork(url, headers, session ?? this),
         fit: BoxFit.cover,
-        headers: headers,
         excludeFromSemantics: true,
         errorBuilder: (context, error, stackTrace) {
           return _ArtworkFallback(kind: kind, elevatedColor: elevatedColor, mutedColor: mutedColor);
@@ -1716,6 +1744,7 @@ class _CenteredMessageState extends StatelessWidget {
 
 class _MediaDetailPanel extends StatelessWidget {
   const _MediaDetailPanel({
+    this.session,
     this.artwork,
     this.imageUrl,
     this.headers = const {},
@@ -1744,6 +1773,7 @@ class _MediaDetailPanel extends StatelessWidget {
 
   final Widget? artwork;
   final String? imageUrl;
+  final Object? session;
   final Map<String, String> headers;
   final _LibraryPalette palette;
   final MediaItem item;
@@ -1786,7 +1816,7 @@ class _MediaDetailPanel extends StatelessWidget {
             final pad = bounds.maxWidth < 900 ? 24.0 : 48.0;
             return Stack(children: [
               if(imageUrl != null || artwork != null) Positioned(top:0, right:0, bottom:0, width:bounds.maxWidth * .83,
-                child:artwork ?? _CardArtwork(imageUrl:imageUrl,headers:headers,kind:item.kind,elevatedColor:palette.elevated,mutedColor:palette.textMuted)),
+                child:artwork ?? _CardArtwork(imageUrl:imageUrl,headers:headers,session:session,kind:item.kind,elevatedColor:palette.elevated,mutedColor:palette.textMuted)),
               Positioned.fill(child:DecoratedBox(decoration:BoxDecoration(gradient:LinearGradient(
                 colors:[palette.background,palette.background.withValues(alpha:.96),palette.background.withValues(alpha:.42),palette.background.withValues(alpha:.12)],stops:const[0,.27,.64,1])))),
               Positioned.fill(child:DecoratedBox(decoration:BoxDecoration(gradient:LinearGradient(begin:Alignment.topCenter,end:Alignment.bottomCenter,

@@ -1,0 +1,7 @@
+1
+00:00:00,500 --> 00:00:07,000
+Heisuca: English test subtitles.
+
+2
+00:00:07,000 --> 00:00:14,500
+Switch tracks and seek to verify playback.

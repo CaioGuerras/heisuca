@@ -91,13 +91,14 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
+            VALUE "Comments", "Licensed under GNU GPL v3.0. Derived from Plezy (edde746/plezy)." "\0"
             VALUE "CompanyName", "br.com.docaio" "\0"
-            VALUE "FileDescription", "CGFLIX" "\0"
+            VALUE "FileDescription", "Heisuca" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "CGFLIX" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 CGFLIX. All rights reserved." "\0"
-            VALUE "OriginalFilename", "cgflix.exe" "\0"
-            VALUE "ProductName", "CGFLIX" "\0"
+            VALUE "InternalName", "Heisuca" "\0"
+            VALUE "LegalCopyright", "GPL-3.0; Copyright (C) 2026 Heisuca contributors (based on Plezy)" "\0"
+            VALUE "OriginalFilename", "heisuca.exe" "\0"
+            VALUE "ProductName", "Heisuca" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
@@ -109,7 +110,8 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// WinSparkle EdDSA public key for update signature verification
+// Upstream WinSparkle EdDSA public key (preserved without signature changes;
+// auto-updater is not active in Heisuca Windows builds)
 //
 EdDSAPub EDDSA {"q7t6eu1txRrqv1PeWDCRV95rFxnmD/D3GZWbUPMwUyU="}
 

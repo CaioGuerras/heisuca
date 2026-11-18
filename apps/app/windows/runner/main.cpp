@@ -8,21 +8,24 @@
 
 int APIENTRY
 wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev, _In_ wchar_t* command_line, _In_ int show_command) {
-  // Plezy requires the bundled flutter-plezy engine, which presents the Flutter
-  // UI on a topmost DirectComposition visual when FLUTTER_WINDOWS_DCOMP is set.
-  // The mpv video window is then a plain child composed beneath the UI in the
-  // same HWND: window capture (Discord/OBS) works, there is no transparency
-  // hack, and min/max animations are native. Must be set before the engine is
-  // created. (On a stock engine the flag is a no-op and compositing breaks.)
+  // Heisuca requires the bundled flutter-plezy engine, which presents the
+  // Flutter UI on a topmost DirectComposition visual when FLUTTER_WINDOWS_DCOMP
+  // is set. The mpv video window is then a plain child composed beneath the UI
+  // in the same HWND: window capture (Discord/OBS) works, there is no
+  // transparency hack, and min/max animations are native. Must be set before
+  // the engine is created. (On a stock engine the flag is a no-op and
+  // compositing breaks.)
   ::SetEnvironmentVariableW(L"FLUTTER_WINDOWS_DCOMP", L"1");
 
-  HANDLE mutex = CreateMutex(nullptr, TRUE, L"br.com.docaio.cgflix.SingleInstance");
+  HANDLE mutex = CreateMutex(nullptr, TRUE, L"br.com.docaio.heisuca.SingleInstance");
   if (GetLastError() == ERROR_ALREADY_EXISTS) {
-    HWND existing = FindWindow(L"FLUTTER_RUNNER_WIN32_WINDOW", L"CGFLIX");
+    HWND existing = FindWindow(L"FLUTTER_RUNNER_WIN32_WINDOW", L"Heisuca");
     if (existing && IsWindowVisible(existing)) {
       ShowWindow(existing, SW_RESTORE);
       SetForegroundWindow(existing);
-      CloseHandle(mutex);
+      if (mutex) {
+        CloseHandle(mutex);
+      }
       return EXIT_SUCCESS;
     }
     // A hidden (or already destroyed) window is either still starting - it
@@ -31,9 +34,11 @@ wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev, _In_ wchar_t* command
     // window that is about to vanish. Wait for the other instance instead:
     // if it is exiting, it releases the mutex and this launch takes over.
     constexpr DWORD kExitingInstanceWaitMs = 20000;
-    const DWORD wait = WaitForSingleObject(mutex, kExitingInstanceWaitMs);
+    const DWORD wait = mutex ? WaitForSingleObject(mutex, kExitingInstanceWaitMs) : WAIT_FAILED;
     if (wait != WAIT_OBJECT_0 && wait != WAIT_ABANDONED) {
-      CloseHandle(mutex);
+      if (mutex) {
+        CloseHandle(mutex);
+      }
       return EXIT_SUCCESS;
     }
   }
@@ -67,7 +72,11 @@ wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev, _In_ wchar_t* command
   FlutterWindow window(project);
   Win32Window::Point origin(10, 10);
   Win32Window::Size size(1280, 720);
-  if (!window.Create(L"CGFLIX", origin, size)) {
+  if (!window.Create(L"Heisuca", origin, size)) {
+    ::CoUninitialize();
+    if (mutex) {
+      CloseHandle(mutex);
+    }
     return EXIT_FAILURE;
   }
   window.SetQuitOnClose(true);
@@ -85,6 +94,8 @@ wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev, _In_ wchar_t* command
   window.Destroy();
 
   ::CoUninitialize();
-  CloseHandle(mutex);
+  if (mutex) {
+    CloseHandle(mutex);
+  }
   return EXIT_SUCCESS;
 }

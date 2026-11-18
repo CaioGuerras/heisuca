@@ -2,7 +2,7 @@ name: Heisuca TV Android
 
 on:
   push:
-    branches: ["codex/heisuca-home-site", "claude/heisuca-**", "gemini/heisuca-**"]
+    branches: ["codex/heisuca-home-site", "claude/heisuca-**", "gemini/heisuca-**", "!gemini/heisuca-desktop-**"]
     paths-ignore: ["docs/**", "AGENTS.md", "apps/app/CLAUDE.md"]
   workflow_dispatch:
 

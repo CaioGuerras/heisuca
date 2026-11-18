@@ -1,5 +1,9 @@
 # Checks the shared generator without downloading tools or touching a real install.
 $ErrorActionPreference = 'Stop'
+$iscc = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6/ISCC.exe'
+if (-not (Test-Path -LiteralPath $iscc)) { throw 'Inno Setup compiler is required for the installer contract.' }
+$icon = (Resolve-Path 'windows/runner/resources/app_icon.ico').Path
+$license = (Resolve-Path '../../LICENSE').Path
 $builder = (Resolve-Path 'windows/build-installer.ps1').Path
 $testRoot = Join-Path $env:RUNNER_TEMP ('heisuca-contract-' + [Guid]::NewGuid().ToString('N'))
 $fake = Join-Path $testRoot 'build com espaços'
@@ -26,5 +30,18 @@ foreach ($product in @('CGFLIX', 'Heisuca')) {
     throw 'Heisuca must not take over CGFLIX identity.'
   }
   if ($script -match '(?im)^\[UninstallDelete\]') { throw 'Uninstaller must preserve user-created files.' }
+  if ([regex]::Matches($script, '(?m)^\[Registry\]\r?$').Count -ne $(if ($product -eq 'Heisuca') { 1 } else { 0 })) {
+    throw 'Registry section must appear only once and never inside Pascal comments.'
+  }
+  # Compile the actual generated script with tiny fixture payloads. Substring
+  # checks alone cannot detect malformed sections or invalid Inno/Pascal syntax.
+  $payload = Join-Path $outDir 'staging/x64/licenses'
+  New-Item -ItemType Directory -Path $payload -Force | Out-Null
+  Copy-Item -LiteralPath $license -Destination (Join-Path $payload 'LICENSE')
+  Copy-Item -LiteralPath $icon -Destination (Join-Path $outDir 'app_icon.ico')
+  Set-Content -LiteralPath (Join-Path $outDir "staging/x64/$($product.ToLowerInvariant()).exe") -Value 'installer contract fixture'
+  & $iscc (Join-Path $outDir 'setup.iss')
+  if ($LASTEXITCODE -ne 0) { throw "Inno compilation failed for $product" }
+
 }
 Write-Host 'Installer contracts: CGFLIX preserved; Heisuca identity and per-user setup verified.'

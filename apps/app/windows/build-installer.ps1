@@ -247,7 +247,8 @@ Root: HKCU; Subkey: "Software\Classes\Heisuca.Video\shell\open\command"; ValueTy
         foreach ($Extension in @('.mkv', '.mp4', '.webm', '.avi', '.mov', '.m4v', '.ts')) {
             $Registry += "`nRoot: HKCU; Subkey: ""Software\Classes\$Extension\OpenWithProgids""; ValueType: string; ValueName: ""Heisuca.Video""; ValueData: """"; Flags: uninsdeletevalue; Tasks: fileassociations"
         }
-        $SetupText = $SetupText.Replace('[Code]', "$Registry`n`n[Code]")
+        # Match the section line only: Pascal comments also mention [Code].
+        $SetupText = [regex]::Replace($SetupText, '(?m)^\[Code\]\r?$', [System.Text.RegularExpressions.MatchEvaluator]{ param($match) "$Registry`n`n[Code]" })
         $LicenseArch = if ($HasX64) { 'x64' } else { 'arm64' }
         $SetupText = $SetupText.Replace('AppPublisher={#Publisher}', "AppPublisher={#Publisher}`nAppPublisherURL=https://heisuca.docaio.com.br`nSetupIconFile=app_icon.ico`nLicenseFile=staging\$LicenseArch\licenses\LICENSE")
 

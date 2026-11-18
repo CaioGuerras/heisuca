@@ -235,7 +235,7 @@ void main() {
     test('retorna instancia funcional de DesktopConnectionVault', () {
       final vault = createDesktopConnectionVault();
       expect(vault, isA<DesktopConnectionVault>());
-      if (!kIsWeb && Platform.isWindows) {
+      if (!kIsWeb && (Platform.isWindows || Platform.isLinux)) {
         expect(vault.persistent, isTrue);
       } else {
         expect(vault.persistent, isFalse);

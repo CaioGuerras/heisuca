@@ -48,6 +48,7 @@ DesktopConnectionVault createDesktopConnectionVault({Future<Directory> Function(
   if (!kIsWeb && Platform.isWindows) {
     return PlatformWindowsVault(getDirectory: getDirectory, channel: channel);
   }
+  if (!kIsWeb && Platform.isLinux) return PlatformLinuxVault(channel: channel);
   return MemoryDesktopConnectionVault();
 }
 class MemoryDesktopConnectionVault implements DesktopConnectionVault {
@@ -134,6 +135,54 @@ class PlatformWindowsVault implements DesktopConnectionVault {
         }
       } on Object { throw _vaultFailure; }
       finally { plain.fillRange(0, plain.length, 0); }
+    });
+  }
+}
+
+/// Secret Service owns the persistent payload; no unencrypted session file.
+/// Only an absent service on the first read enables the explicit memory mode.
+class PlatformLinuxVault implements DesktopConnectionVault {
+  PlatformLinuxVault({MethodChannel? channel}) : _channel = channel ?? const MethodChannel('heisuca/desktop_vault');
+  final MethodChannel _channel;
+  final _memory = MemoryDesktopConnectionVault();
+  Future<void> _queue = Future<void>.value();
+  bool _persistent = true, _opened = false;
+  @override bool get persistent => _persistent;
+  Future<T> _serialized<T>(Future<T> Function() action) {
+    final result = _queue.then((_) => action());
+    _queue = result.then<void>((_) {}, onError: (Object _) {});
+    return result;
+  }
+  @override Future<List<Map<String, dynamic>>> read() => _serialized(_read);
+  Future<List<Map<String, dynamic>>> _read() async {
+    if (!_persistent) return _memory.read();
+    try {
+      final value = await _channel.invokeMethod<Uint8List>('read').timeout(const Duration(seconds: 15));
+      try {
+        final entries = value == null ? <Map<String,dynamic>>[] : _decode(value);
+        _opened = true;
+        return entries;
+      } finally { value?.fillRange(0, value.length, 0); }
+    } on PlatformException catch (error) {
+      if (!_opened && error.code == 'keyringUnavailable') {
+        _persistent = false;
+        return _memory.read();
+      }
+      throw _vaultFailure;
+    } on Object { throw _vaultFailure; }
+  }
+  @override Future<void> write(List<Map<String, dynamic>> entries) {
+    final Uint8List frozen;
+    try { frozen = _encode(entries); }
+    on Object { return Future<void>.error(_vaultFailure); }
+    return _serialized(() async {
+      try {
+        if (!_opened && _persistent) await _read();
+        if (!_persistent) { await _memory.write(_decode(frozen)); return; }
+        final ok = await _channel.invokeMethod<bool>('write', frozen).timeout(const Duration(seconds: 15));
+        if (ok != true) throw _vaultFailure;
+      } on Object { throw _vaultFailure; }
+      finally { frozen.fillRange(0, frozen.length, 0); }
     });
   }
 }

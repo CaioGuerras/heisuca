@@ -5,10 +5,10 @@ project(runner LANGUAGES CXX)
 # registered by the runner subdirectory.
 include(CTest)
 
-set(BINARY_NAME "plezy")
+set(BINARY_NAME "heisuca")
 # The unique GTK application identifier for this application. See:
 # https://wiki.gnome.org/HowDoI/ChooseApplicationID
-set(APPLICATION_ID "com.edde746.plezy")
+set(APPLICATION_ID "app.heisuca.player.desktop")
 
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.

@@ -8,6 +8,7 @@
 
 #include "flutter/generated_plugin_registrant.h"
 #include "mpv/mpv_plugin.h"
+#include "desktop_vault.h"
 
 // On Wayland the mpv video plane is a wl_subsurface stacked *below* this
 // window's surface, so the window needs an alpha channel for it to show
@@ -65,11 +66,11 @@ static void my_application_activate(GApplication* application) {
   if (use_header_bar) {
     GtkHeaderBar* header_bar = GTK_HEADER_BAR(gtk_header_bar_new());
     gtk_widget_show(GTK_WIDGET(header_bar));
-    gtk_header_bar_set_title(header_bar, "Plezy");
+    gtk_header_bar_set_title(header_bar, "Heisuca");
     gtk_header_bar_set_show_close_button(header_bar, TRUE);
     gtk_window_set_titlebar(window, GTK_WIDGET(header_bar));
   } else {
-    gtk_window_set_title(window, "Plezy");
+    gtk_window_set_title(window, "Heisuca");
   }
 
   gtk_window_set_default_size(window, 1280, 720);
@@ -84,6 +85,8 @@ static void my_application_activate(GApplication* application) {
 
   // Register Flutter plugins.
   fl_register_plugins(FL_PLUGIN_REGISTRY(self->flutter_view));
+
+  heisuca_desktop_vault_register(self->flutter_view);
 
   // Register the MPV plugin. Video goes to the native Wayland plane; there is no other path, so a session that
   // cannot host one is refused by name rather than played into nothing.

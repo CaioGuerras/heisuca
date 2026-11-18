@@ -28,6 +28,7 @@ worth failing on.
 """
 
 import argparse
+import os
 import importlib.util
 import os
 import shutil
@@ -147,7 +148,7 @@ def host_libraries(bundle: Path) -> tuple[dict[str, str], list[str]]:
     # rglob for the objects to inspect, though: those same modules pull in host
     # libraries nothing else in the bundle links, and scanning only lib/*.so*
     # left their dependencies out of ldd entirely.
-    binaries = [bundle / "plezy", *sorted(bundle.rglob("*.so*"))]
+    binaries = [bundle / os.environ.get("APP_BINARY", "plezy"), *sorted(bundle.rglob("*.so*"))]
     needed: dict[str, str] = {}
     problems: list[str] = []
     for binary in binaries:
@@ -215,7 +216,7 @@ def main() -> int:
     parser.add_argument("--root", type=Path, default=PROJECT_ROOT, help="repository root")
     arguments = parser.parse_args()
 
-    if not (arguments.bundle / "plezy").exists():
+    if not (arguments.bundle / os.environ.get("APP_BINARY", "plezy")).exists():
         print(f"::error::{arguments.bundle}/plezy does not exist - nothing to check", file=sys.stderr)
         return 1
 

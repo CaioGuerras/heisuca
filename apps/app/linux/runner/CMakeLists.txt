@@ -4,6 +4,7 @@ project(runner LANGUAGES CXX)
 add_executable(${BINARY_NAME}
   "main.cc"
   "my_application.cc"
+  "desktop_vault.cc"
   "mpv/mpv_player.cc"
   "mpv/mpv_plugin.cc"
   "mpv/plane_render_executor.cc"
@@ -30,6 +31,8 @@ pkg_check_modules(WAYLAND_EGL REQUIRED IMPORTED_TARGET wayland-egl)
 pkg_check_modules(EGL REQUIRED IMPORTED_TARGET egl)
 pkg_check_modules(MPV REQUIRED IMPORTED_TARGET mpv)
 pkg_check_modules(EPOXY REQUIRED IMPORTED_TARGET epoxy)
+pkg_check_modules(SECRET REQUIRED IMPORTED_TARGET libsecret-1)
+target_link_libraries(${BINARY_NAME} PRIVATE PkgConfig::SECRET)
 
 # Vendored wayland-scanner output for color-management-v1 (staging), which backs
 # HDR on the native video plane. Built separately because it is C (the runner is

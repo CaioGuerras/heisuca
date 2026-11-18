@@ -1,0 +1,79 @@
+name: Heisuca Desktop Linux Build
+on:
+  push:
+    branches: ["gemini/heisuca-desktop-windows"]
+    paths:
+      - ".github/workflows/heisuca-desktop-linux.yml"
+      - "apps/app/linux/**"
+      - "apps/app/lib/desktop/**"
+      - "apps/app/lib/main_desktop.dart"
+      - "apps/app/test/desktop/**"
+      - "apps/app/integration_test/desktop_linux_playback_test.dart"
+      - "apps/app/tool/desktop/*linux*"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: heisuca-linux-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  linux-x64:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: apps/app
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Dependencias Linux e bancada isolada
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev libsecret-1-dev libepoxy-dev libwayland-dev libegl1-mesa-dev libva-dev libdrm-dev libgbm-dev libasound2-dev libevdev-dev libvdpau-dev libvulkan-dev libx11-xcb-dev libxcb-dri3-0 zstd patchelf weston xvfb dbus-x11 gnome-keyring pulseaudio python3-pil python3-xlib
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.47.1'
+          cache: true
+      - name: Dependencias Flutter
+        run: flutter pub get --no-example
+      - name: Analise e testes desktop
+        run: |
+          flutter analyze --no-pub lib/main_desktop.dart lib/desktop test/desktop integration_test/desktop_linux_playback_test.dart
+          flutter test --no-pub test/desktop test/design test/services/plex_auth_service_test.dart test/services/playback_progress_tracker_test.dart test/services/jellyfin_auth_header_test.dart
+      - name: libmpv Linux pinada e verificada
+        run: |
+          python3 scripts/fetch_linux_libmpv.py --dest libmpv-prefix
+          echo "PKG_CONFIG_PATH=$PWD/libmpv-prefix/lib/pkgconfig:$PWD/libmpv-prefix/lib/x86_64-linux-gnu/pkgconfig" >> "$GITHUB_ENV"
+          echo "LD_LIBRARY_PATH=$PWD/libmpv-prefix/lib:$PWD/libmpv-prefix/lib/x86_64-linux-gnu" >> "$GITHUB_ENV"
+      - name: Compilar Heisuca Linux Release
+        run: flutter build linux --release -t lib/main_desktop.dart --dart-define=HEISUCA_DESKTOP_REVISION=${{ github.sha }} --dart-define=GIT_COMMIT=${{ github.sha }}
+      - name: Preparar bibliotecas de distribuicao
+        run: |
+          cp -L libmpv-prefix/lib/libmpv.so* build/linux/x64/release/bundle/lib/
+          find libmpv-prefix -xdev -name 'libshaderc_shared.so*' -type f -exec cp -L {} build/linux/x64/release/bundle/lib/ \;
+          APP_BINARY=heisuca bash linux/packaging/bundle-libs.sh build/linux/x64/release/bundle
+      - name: Video Wayland, cofre real, pacotes e instalacao
+        timeout-minutes: 15
+        run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session bash tool/desktop/linux-native-bench.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: heisuca-linux-x64
+          path: |
+            apps/app/dist/linux/heisuca-linux-x64.deb
+            apps/app/dist/linux/heisuca-linux-x64.deb.sha256
+            apps/app/dist/linux/heisuca-linux-x64.tar.gz
+            apps/app/dist/linux/heisuca-linux-x64.tar.gz.sha256
+            apps/app/dist/linux/host-dependencies.txt
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: heisuca-linux-native-evidence
+          path: |
+            apps/app/dist/linux-evidence/
+            /home/runner/work/_temp/weston.log
+          if-no-files-found: warn
+          retention-days: 14

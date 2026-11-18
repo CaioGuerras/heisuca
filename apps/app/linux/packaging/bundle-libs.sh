@@ -13,7 +13,7 @@ set -euo pipefail
 
 BUNDLE_DIR="$(realpath "$1")"
 LIB_DIR="$BUNDLE_DIR/lib"
-BINARY="$BUNDLE_DIR/plezy"
+BINARY="$BUNDLE_DIR/${APP_BINARY:-plezy}"
 
 if [[ ! -f "$BINARY" ]]; then
     echo "Error: binary not found at $BINARY" >&2
@@ -56,7 +56,7 @@ bundle_dlopen_lib() {
 echo "==> Discovering shared library dependencies..."
 
 # Seed: the main binary + all .so files already in lib/
-mapfile -t seed_files < <(find "$LIB_DIR" -name '*.so*' -type f 2>/dev/null; echo "$BINARY")
+mapfile -t seed_files < <(find "$LIB_DIR" -xdev -name '*.so*' -type f 2>/dev/null; echo "$BINARY")
 
 # Iteratively resolve until no new deps appear
 declare -A seen
@@ -164,7 +164,7 @@ fi
 # walk over everything now in lib/ to catch deeper transitive deps (e.g.
 # GIO module → libsystemd → libselinux).
 echo "==> Resolving transitive dependencies of bundled modules..."
-mapfile -t seed_files < <(find "$LIB_DIR" -name '*.so*' -type f 2>/dev/null)
+mapfile -t seed_files < <(find "$LIB_DIR" -xdev -name '*.so*' -type f 2>/dev/null)
 while true; do
     mapfile -t deps < <(collect_deps "${seed_files[@]}")
     new_files=()
@@ -196,7 +196,7 @@ fi
 
 # ── Strip debug symbols ───────────────────────────────────────────────────
 echo "==> Stripping debug symbols..."
-find "$LIB_DIR" -name '*.so*' -type f -exec strip --strip-unneeded {} \; 2>/dev/null || true
+find "$LIB_DIR" -xdev -name '*.so*' -type f -exec strip --strip-unneeded {} \; 2>/dev/null || true
 
 echo "==> Done. Bundled libraries in $LIB_DIR"
 du -sh "$LIB_DIR"

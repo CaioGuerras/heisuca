@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Heisuca
+Comment=Nada entre você e o filme
+Exec=heisuca %U
+Icon=heisuca
+Terminal=false
+Categories=AudioVideo;Video;Player;
+Keywords=plex;jellyfin;media;filmes;series;video;
+MimeType=video/mp4;video/x-matroska;video/webm;video/quicktime;video/x-msvideo;
+StartupWMClass=app.heisuca.player.desktop

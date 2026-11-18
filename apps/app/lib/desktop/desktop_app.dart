@@ -71,6 +71,7 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener, WidgetsBin
 
   bool _closingWindow = false;
   bool _openingLibrary = false;
+  Brightness? _nativeBrightness;
   bool _listeningWindow = false;
   bool _isFullScreen = false;
   bool _controlsVisible = true;
@@ -93,6 +94,7 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener, WidgetsBin
     _desktopFiles.setMethodCallHandler(_receiveDesktopFile);
     _attachController();
     _attachWindowListenerIfDesktop();
+    _syncWindowAppearance();
     WidgetsBinding.instance.addObserver(this);
     final initialSource = widget.initialSource;
     if (initialSource != null) {
@@ -223,6 +225,7 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener, WidgetsBin
 
   void _onControllerChanged() {
     _syncControllerState(notifyUi: true);
+    _syncWindowAppearance();
   }
 
   void _syncControllerState({required bool notifyUi}) {
@@ -598,7 +601,10 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener, WidgetsBin
 
   @override
   void didChangePlatformBrightness() {
-    if (_preferences.theme == 'system' && mounted) setState(() {});
+    if (_preferences.theme == 'system' && mounted) {
+      setState(() {});
+      _syncWindowAppearance();
+    }
   }
 
   Future<void> _receiveDesktopFile(MethodCall call) async {
@@ -631,8 +637,27 @@ class _DesktopAppState extends State<DesktopApp> with WindowListener, WidgetsBin
     await _controller.open(source);
   }
 
+  void _syncWindowAppearance() {
+    if (!_listeningWindow || !Platform.isWindows) return;
+    final brightness = _controller.hasMedia || _controller.opening ? Brightness.dark
+      : desktopPalette(_preferences.theme, WidgetsBinding.instance.platformDispatcher.platformBrightness).brilho;
+    if (_nativeBrightness == brightness) return;
+    _nativeBrightness = brightness;
+    unawaited(_setNativeBrightness(brightness));
+  }
+
+  Future<void> _setNativeBrightness(Brightness brightness) async {
+    try {
+      await windowManager.ensureInitialized();
+      if (mounted && _nativeBrightness == brightness) await windowManager.setBrightness(brightness);
+    } on Object {
+      // Older Windows versions can retain system chrome without affecting playback.
+    }
+  }
+
   void _onPreferencesChanged() {
     if (mounted) setState(() {});
+    _syncWindowAppearance();
   }
 
   Future<void> _openSettings() async {

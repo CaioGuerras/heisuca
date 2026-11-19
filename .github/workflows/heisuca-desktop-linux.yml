@@ -35,11 +35,13 @@ jobs:
           # Some hosted runners point at a very slow regional EC2 mirror.
           sudo python3 - <<'PYMIRROR'
           import pathlib,re
-          for path in [pathlib.Path('/etc/apt/sources.list'),*pathlib.Path('/etc/apt/sources.list.d').glob('*.sources'),*pathlib.Path('/etc/apt/sources.list.d').glob('*.list')]:
+          for path in [pathlib.Path('/etc/apt/sources.list'),pathlib.Path('/etc/apt/apt-mirrors.txt'),pathlib.Path('/etc/apt/apt-security-mirrors.txt'),*pathlib.Path('/etc/apt/mirrors').glob('*.list'),*pathlib.Path('/etc/apt/sources.list.d').glob('*.sources'),*pathlib.Path('/etc/apt/sources.list.d').glob('*.list')]:
             if path.exists():
               text=path.read_text()
               updated=re.sub(r'https?://[^/\s]*\.ec2\.archive\.ubuntu\.com/ubuntu/?','https://archive.ubuntu.com/ubuntu/',text)
-              if updated != text:path.write_text(updated)
+              if updated != text:
+                path.write_text(updated)
+                print("Updated Ubuntu mirror:",path)
           PYMIRROR
           build_tools=()
           command -v clang >/dev/null || build_tools+=(clang)

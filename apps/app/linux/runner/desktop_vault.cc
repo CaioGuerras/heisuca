@@ -14,6 +14,7 @@ struct Request {
   gchar* payload;
   guint timer = 0;
   bool write;
+  const char* application;
   ~Request() {
     if (timer) g_source_remove(timer);
     if (payload) { secret_password_wipe(payload); g_free(payload); }
@@ -45,12 +46,12 @@ void work(GTask* task, gpointer, gpointer data, GCancellable* cancel) {
   if (request->write) {
     const bool ok = secret_password_store_sync(&kSchema, SECRET_COLLECTION_DEFAULT,
         "Heisuca — conexões", request->payload, cancel, &error,
-        "application", "app.heisuca.player.desktop", nullptr);
+        "application", request->application, nullptr);
     if (error) g_task_return_error(task, error);
     else g_task_return_boolean(task, ok);
   } else {
     gchar* value = secret_password_lookup_sync(&kSchema, cancel, &error,
-        "application", "app.heisuca.player.desktop", nullptr);
+        "application", request->application, nullptr);
     if (error) g_task_return_error(task, error);
     else g_task_return_pointer(task, value, reinterpret_cast<GDestroyNotify>(secret_password_free));
   }
@@ -91,7 +92,7 @@ void finished(GObject*, GAsyncResult* result, gpointer) {
   g_autoptr(FlMethodResponse) response = FL_METHOD_RESPONSE(fl_method_success_response_new(value));
   fl_method_call_respond(request->call, response, nullptr);
 }
-void handle(FlMethodChannel*, FlMethodCall* call, gpointer) {
+void handle(FlMethodChannel*, FlMethodCall* call, gpointer application) {
   const char* method = fl_method_call_get_name(call);
   const bool write = std::strcmp(method, "write") == 0;
   if (!write && std::strcmp(method, "read") != 0) {
@@ -106,17 +107,26 @@ void handle(FlMethodChannel*, FlMethodCall* call, gpointer) {
     }
     payload = g_base64_encode(fl_value_get_uint8_list(args), fl_value_get_length(args));
   }
-  auto* request = new Request{FL_METHOD_CALL(g_object_ref(call)), g_cancellable_new(), payload, 0, write};
+  auto* request = new Request{FL_METHOD_CALL(g_object_ref(call)), g_cancellable_new(), payload, 0, write, static_cast<const char*>(application)};
   g_autoptr(GTask) task = g_task_new(nullptr, request->cancel, finished, nullptr);
   g_task_set_task_data(task, request, [](gpointer data) { delete static_cast<Request*>(data); });
   request->timer = g_timeout_add_seconds(10, cancel_request, request);
   g_task_run_in_thread(task, work);
 }
 }  // namespace
-void heisuca_desktop_vault_register(FlView* view) {
+namespace {
+void register_channel(FlView* view, const char* name, const char* application) {
   g_autoptr(FlStandardMethodCodec) codec = fl_standard_method_codec_new();
   FlMethodChannel* channel = fl_method_channel_new(fl_engine_get_binary_messenger(fl_view_get_engine(view)),
-      "heisuca/desktop_vault", FL_METHOD_CODEC(codec));
-  fl_method_channel_set_method_call_handler(channel, handle, nullptr, nullptr);
-  g_object_set_data_full(G_OBJECT(view), "heisuca-desktop-vault", channel, g_object_unref);
+      name, FL_METHOD_CODEC(codec));
+  fl_method_channel_set_method_call_handler(channel, handle, const_cast<char*>(application), nullptr);
+  g_object_set_data_full(G_OBJECT(view), name, channel, g_object_unref);
+}
+}
+void heisuca_desktop_vault_register(FlView* view) {
+  register_channel(view, "heisuca/desktop_vault", "app.heisuca.player.desktop");
+#ifndef NDEBUG
+  // Native tests never read or replace the user's actual saved connections.
+  register_channel(view, "heisuca/desktop_vault_fixture", "app.heisuca.player.desktop.fixture");
+#endif
 }

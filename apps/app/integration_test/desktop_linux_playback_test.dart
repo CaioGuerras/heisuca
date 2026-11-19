@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/services.dart';
 
 
 import 'package:flutter/material.dart';
@@ -18,11 +19,12 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('Secret Service nativo preserva conexões entre instâncias do cofre', (tester) async {
-    final first = PlatformLinuxVault();
+    const fixtureChannel=MethodChannel('heisuca/desktop_vault_fixture');
+    final first = PlatformLinuxVault(channel:fixtureChannel);
     await first.read();
     expect(first.persistent, isTrue, reason: 'CI deve oferecer um keyring real desbloqueado.');
     await first.write([{'canario': 'heisuca-fixture-sem-conta-real'}]);
-    final second = PlatformLinuxVault();
+    final second = PlatformLinuxVault(channel:fixtureChannel);
     expect(await second.read(), [{'canario': 'heisuca-fixture-sem-conta-real'}]);
     await second.write([]);
   });

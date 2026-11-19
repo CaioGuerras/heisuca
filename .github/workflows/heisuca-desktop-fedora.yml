@@ -1,0 +1,86 @@
+name: Heisuca Fedora RPM
+on:
+  push:
+    branches: ["gemini/heisuca-desktop-windows"]
+    paths:
+      - ".github/workflows/heisuca-desktop-fedora.yml"
+      - "apps/app/tool/desktop/fedora/**"
+      - "apps/app/tool/desktop/capture-native-linux.py"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: heisuca-fedora-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  fedora-x64:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Sintaxe e imagem Fedora 45
+        run: |
+          python3 -m py_compile apps/app/tool/desktop/fedora/build-rpm.py
+          bash -n apps/app/tool/desktop/fedora/bench.sh
+          docker pull registry.fedoraproject.org/fedora:45
+          mkdir -p apps/app/dist/fedora
+          docker image inspect registry.fedoraproject.org/fedora:45 --format '{{index .RepoDigests 0}}' > apps/app/dist/fedora/container-image.txt
+      - name: Gerar RPM do mesmo binario Linux validado
+        timeout-minutes: 10
+        run: |
+          docker run --rm -v "$PWD:/src" -w /src/apps/app registry.fedoraproject.org/fedora:45 bash -euc '
+            timeout 480 dnf -y --setopt=timeout=30 --setopt=retries=1 install rpm-build python3 tar gzip
+            python3 tool/desktop/fedora/build-rpm.py
+            rpm -qp --requires dist/fedora/heisuca-linux-x64.rpm > dist/fedora/package-requires.txt
+          '
+      - name: Instalar, reinstalar e reproduzir em ambiente Fedora
+        timeout-minutes: 15
+        run: |
+          docker run --rm -v "$PWD:/src" -w /src/apps/app registry.fedoraproject.org/fedora:45 bash -euc '
+            timeout 480 dnf -y --setopt=timeout=30 --setopt=retries=1 --setopt=install_weak_deps=False install python3 ./dist/fedora/heisuca-linux-x64.rpm
+            APP_BINARY=heisuca-bin python3 - <<"PY"
+          import hashlib,importlib.util,json,os,pathlib
+          proof=json.loads(pathlib.Path("dist/fedora/provenance.json").read_text())
+          for relative,digest in proof["elf_sha256"].items():
+              assert hashlib.sha256((pathlib.Path("/opt/heisuca")/relative).read_bytes()).hexdigest()==digest,relative
+          spec=importlib.util.spec_from_file_location("guard","linux/packaging/check-bundle-host-deps.py")
+          guard=importlib.util.module_from_spec(spec);spec.loader.exec_module(guard)
+          os.environ["LD_LIBRARY_PATH"]="/opt/heisuca/lib"
+          needed,errors=guard.host_libraries(pathlib.Path("/opt/heisuca"))
+          assert needed and not errors,errors
+          PY
+            timeout 480 dnf -y --setopt=timeout=30 --setopt=retries=1 install weston xorg-x11-server-Xvfb dbus-daemon gnome-keyring pulseaudio python3-pillow python3-xlib mesa-dri-drivers shadow-utils util-linux
+            useradd -m -u 1001 heisuca
+            install -d -o1001 -g1001 /tmp/heisuca-fedora dist/fedora-evidence
+            runuser -u heisuca -- env HOME=/home/heisuca dbus-run-session bash tool/desktop/fedora/bench.sh
+            timeout 180 dnf -y reinstall python3 ./dist/fedora/heisuca-linux-x64.rpm
+            test -s /tmp/heisuca-fedora/data/app.heisuca.player.desktop/fedora-user-fixture.txt
+            timeout 180 dnf -y remove heisuca
+            test -s /tmp/heisuca-fedora/data/app.heisuca.player.desktop/fedora-user-fixture.txt
+            python3 - <<"PY"
+          import hashlib,json,pathlib
+          pathlib.Path("dist/fedora-evidence/installation.json").write_text(json.dumps(dict(fedora=45,installed=True,reinstalled=True,uninstalled=True,userDataPreserved=True)))
+          PY
+            cp /etc/os-release dist/fedora-evidence/os-release
+            cp /tmp/heisuca-fedora/{weston,xvfb}.log dist/fedora-evidence/
+          '
+      - uses: actions/upload-artifact@v4
+        with:
+          name: heisuca-fedora-x64
+          path: |
+            apps/app/dist/fedora/heisuca-linux-x64.rpm
+            apps/app/dist/fedora/heisuca-linux-x64.rpm.sha256
+            apps/app/dist/fedora/provenance.json
+            apps/app/dist/fedora/*requires.txt
+            apps/app/dist/fedora/container-image.txt
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: heisuca-fedora-evidence
+          path: apps/app/dist/fedora-evidence/
+          if-no-files-found: warn
+          retention-days: 14

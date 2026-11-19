@@ -88,7 +88,8 @@ class PlatformWindowsVault implements DesktopConnectionVault {
         if (operation == 'unprotect') result.fillRange(0, result.length, 0);
         throw _vaultFailure;
       }
-      return result;
+      // Native platform buffers may be read-only; callers wipe only owned bytes.
+      return Uint8List.fromList(result);
     } on Object { throw _vaultFailure; }
   }
   Future<T> _serialized<T>(Future<T> Function() action) {
@@ -159,7 +160,8 @@ class PlatformLinuxVault implements DesktopConnectionVault {
     final firstAttempt = !_readAttempted;
     _readAttempted = true;
     try {
-      final value = await _channel.invokeMethod<Uint8List>('read').timeout(const Duration(seconds: 15));
+      final incoming = await _channel.invokeMethod<Uint8List>('read').timeout(const Duration(seconds: 15));
+      final value = incoming == null ? null : Uint8List.fromList(incoming);
       try {
         final entries = value == null ? <Map<String,dynamic>>[] : _decode(value);
         _opened = true;

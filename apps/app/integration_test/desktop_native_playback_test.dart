@@ -10,6 +10,7 @@ import 'package:path/path.dart' as p;
 
 import 'package:heisuca/connection/connection.dart';
 import 'package:heisuca/desktop/platform/desktop_metadata_cache.dart';
+import 'package:heisuca/desktop/platform/desktop_connection_vault.dart';
 import 'package:heisuca/services/plex_api_cache.dart';
 import 'package:heisuca/services/jellyfin_api_cache.dart';
 import 'package:heisuca/media/ids.dart';
@@ -76,6 +77,16 @@ void main() {
     final corrupt = Uint8List.fromList(cipher)..[0] ^= 0xff;
     await expectLater(channel.invokeMethod<Uint8List>('unprotect', corrupt),
         throwsA(isA<PlatformException>()));
+  });
+
+  testWidgets('Cofre Windows restaura JSON em nova instância com DPAPI real', (tester) async {
+    final dir=await Directory.systemTemp.createTemp('heisuca-native-vault-fixture_');
+    try {
+      final first=PlatformWindowsVault(getDirectory:()async=>dir);
+      await first.write([{'canario':'heisuca-fixture-sem-conta-real'}]);
+      final second=PlatformWindowsVault(getDirectory:()async=>dir);
+      expect(await second.read(),[{'canario':'heisuca-fixture-sem-conta-real'}]);
+    } finally { await dir.delete(recursive:true); }
   });
 
   testWidgets(

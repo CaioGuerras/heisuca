@@ -47,4 +47,14 @@ void main() {
     expect(vault.persistent,isTrue);
   });
 
+  test('retorno nativo somente leitura é decodificado sem tentar alterar seu buffer',()async{
+    const codec=StandardMethodCodec();
+    messenger.setMockMessageHandler(channel.name,(message)async{
+      final bytes=Uint8List.fromList(utf8.encode('[{"fixture":"readonly"}]'));
+      final envelope=codec.encodeSuccessEnvelope(bytes);
+      return ByteData.sublistView(envelope.buffer.asUint8List().asUnmodifiableView());
+    });
+    expect(await PlatformLinuxVault(channel:channel).read(),[{'fixture':'readonly'}]);
+  });
+
 }

@@ -281,4 +281,13 @@ void main() {
     await expectLater(vault.write([{'invalid': Object()}]), throwsA(isA<DesktopVaultException>()));
   });
 
+  test('DPAPI aceita resposta nativa imutável sem perder a leitura salva',()async{
+    final dir=await Directory.systemTemp.createTemp('vault_readonly_fixture_');
+    addTearDown(()=>dir.delete(recursive:true));
+    final vault=PlatformWindowsVault(getDirectory:()async=>dir,protect:(b)async=>_fakeCipherTransform(b),
+      unprotect:(b)async=>_fakeCipherTransform(b).asUnmodifiableView());
+    await vault.write([{'fixture':'readonly'}]);
+    expect(await vault.read(),[{'fixture':'readonly'}]);
+  });
+
 }

@@ -6,7 +6,7 @@ p=argparse.ArgumentParser();p.add_argument('--binary',required=True);p.add_argum
 exe=pathlib.Path(a.binary).resolve();fixture=pathlib.Path('test/desktop/fixtures/ação teste.mkv').resolve()
 for state,args in [('home',[]),('video',[str(fixture)])]:
  with (a.output/(state+'.log')).open('w') as log:
-  proc=subprocess.Popen([str(exe),*args],stdout=log,stderr=log)
+  proc=subprocess.Popen([str(exe),*args],stdout=log,stderr=log,env={**os.environ,"WAYLAND_DEBUG":"client","HEISUCA_VIDEO_DIAGNOSTIC":"1"})
   try:
    time.sleep(7);assert proc.poll() is None,'App exited before capture'
    first=ImageGrab.grab(xdisplay=os.environ['DISPLAY']);first.save(a.output/(state+'-01.png'))

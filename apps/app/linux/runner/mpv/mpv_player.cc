@@ -677,6 +677,17 @@ bool MpvPlayer::RenderToSurface(EGLSurface surface, int width, int height) {
       {MPV_RENDER_PARAM_INVALID, nullptr},
   };
   mpv_render_context_render(render_context, params);
+  // Opt-in diagnostic for the isolated native bench, never normal playback.
+  static int diagnostic_frames = 0;
+  if (g_getenv("HEISUCA_VIDEO_DIAGNOSTIC") != nullptr && diagnostic_frames++ < 12) {
+    GLint format = 0, type = 0;
+    glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_FORMAT, &format);
+    glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_TYPE, &type);
+    unsigned int pixel[4] = {};
+    glReadPixels(width / 2, height / 2, 1, 1, format, type, pixel);
+    g_message("MPV diagnostic: frame=%d size=%dx%d format=0x%x type=0x%x pixel=%08x/%08x/%08x/%08x gl=0x%x",
+              diagnostic_frames, width, height, format, type, pixel[0], pixel[1], pixel[2], pixel[3], glGetError());
+  }
   return true;
 }
 

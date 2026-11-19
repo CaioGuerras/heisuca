@@ -254,19 +254,10 @@ bool WaylandVideoSurface::InitEgl(std::string* error) {
   const char* extensions = eglQueryString(egl_display_, EGL_EXTENSIONS);
   const bool has_float_configs = extensions != nullptr && strstr(extensions, "EGL_EXT_pixel_format_float") != nullptr;
   auto choose = [this](const EGLint* attributes) {
-    EGLConfig configs[64] = {};
+    EGLConfig config = nullptr;
     EGLint count = 0;
-    const bool exact_eight = g_getenv("HEISUCA_DIAGNOSTIC_8BIT") != nullptr;
-    if (!eglChooseConfig(egl_display_, attributes, configs, exact_eight ? 64 : 1, &count)) return false;
-    for (int i = 0; i < count; ++i) {
-      if (exact_eight) {
-        EGLint red = 0, green = 0, blue = 0;
-        eglGetConfigAttrib(egl_display_, configs[i], EGL_RED_SIZE, &red);
-        eglGetConfigAttrib(egl_display_, configs[i], EGL_GREEN_SIZE, &green);
-        eglGetConfigAttrib(egl_display_, configs[i], EGL_BLUE_SIZE, &blue);
-        if (red != 8 || green != 8 || blue != 8) continue;
-      }
-      egl_config_ = configs[i];
+    if (eglChooseConfig(egl_display_, attributes, &config, 1, &count) && count == 1) {
+      egl_config_ = config;
       return true;
     }
     return false;
@@ -277,13 +268,12 @@ bool WaylandVideoSurface::InitEgl(std::string* error) {
   };
   for (const ConfigTier tier : std::vector<ConfigTier>{{10, false}, {16, true}, {8, false}}) {
     if (tier.floating && !has_float_configs) continue;
-    if (g_getenv("HEISUCA_DIAGNOSTIC_8BIT") != nullptr && tier.bits != 8) continue;
     for (const EGLint renderable : {EGL_OPENGL_ES3_BIT, EGL_OPENGL_ES2_BIT}) {
       const EGLint attributes[] = {
           EGL_SURFACE_TYPE,
           EGL_WINDOW_BIT,
           EGL_RENDERABLE_TYPE,
-          g_getenv("HEISUCA_DIAGNOSTIC_OPENGL") != nullptr ? EGL_OPENGL_BIT : renderable,
+          renderable,
           EGL_RED_SIZE,
           tier.bits,
           EGL_GREEN_SIZE,

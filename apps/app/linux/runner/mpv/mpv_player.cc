@@ -83,7 +83,7 @@ namespace {
 NativeRenderTeardownOperations ProductionTeardownOperations() {
   return {
       [](EGLDisplay display, EGLContext context) {
-        if (!eglBindAPI(g_getenv("HEISUCA_DIAGNOSTIC_OPENGL") != nullptr ? EGL_OPENGL_API : EGL_OPENGL_ES_API) || !eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, context)) {
+        if (!eglBindAPI(EGL_OPENGL_ES_API) || !eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, context)) {
           g_warning("MPV: Failed to activate EGL context for teardown: 0x%x", eglGetError());
           return false;
         }
@@ -355,12 +355,6 @@ bool MpvPlayer::Initialize() {
     // Configure mpv for embedded playback.
     mpv_set_option_string(mpv_, "vo", "libmpv");
     mpv_set_option_string(mpv_, "hwdec", "auto");
-    if (g_getenv("HEISUCA_DIAGNOSTIC_RGBA8") != nullptr) mpv_set_option_string(mpv_, "fbo-format", "rgba8");
-    if (g_getenv("HEISUCA_DIAGNOSTIC_SOFTWARE") != nullptr) {
-      mpv_set_option_string(mpv_, "hwdec", "no");
-      mpv_set_option_string(mpv_, "ao", "null");
-    }
-
 
     // hdr-compute-peak is nested under the same predicate as the tone-map pass -
     // it runs exactly when the source's declared peak exceeds target-peak - so it
@@ -384,7 +378,7 @@ bool MpvPlayer::Initialize() {
   // global level - there is no per-module syntax here), so a hwdec regression
   // is indistinguishable from a working one. Debug logging raises this
   // further via setLogLevel.
-  mpv_request_log_messages(mpv_, g_getenv("HEISUCA_VIDEO_DIAGNOSTIC") != nullptr ? "v" : "info");
+  mpv_request_log_messages(mpv_, "info");
 
   // Initialize mpv.
   int err = mpv_initialize(mpv_);
@@ -437,7 +431,7 @@ bool MpvPlayer::InitRenderContextForSurface(EGLDisplay display, EGLConfig config
     g_warning("MPV: Video plane provided no usable EGL display or surface");
     return false;
   }
-  if (!eglBindAPI(g_getenv("HEISUCA_DIAGNOSTIC_OPENGL") != nullptr ? EGL_OPENGL_API : EGL_OPENGL_ES_API)) {
+  if (!eglBindAPI(EGL_OPENGL_ES_API)) {
     g_warning("MPV: Failed to bind OpenGL ES API: 0x%x", eglGetError());
     return false;
   }
@@ -535,6 +529,20 @@ bool MpvPlayer::InitRenderContextForSurface(EGLDisplay display, EGLConfig config
       gl_version ? reinterpret_cast<const char*>(gl_version) : "(null)",
       gl_renderer ? reinterpret_cast<const char*>(gl_renderer) : "(null)",
       eglGetProcAddress("glDispatchCompute") ? "yes" : "no", eglGetProcAddress("glBindImageTexture") ? "yes" : "no");
+
+  // Mesa's software GL path can accept rgba16f intermediate FBOs yet produce
+  // black frames with this libmpv build. The native bench reproduces that with
+  // color bars; rgba8 renders and advances. Keep GPU rendering's normal
+  // precision and select the compatible intermediate only for software GL.
+  if (software_renderer) {
+    const int format_error = mpv_set_property_string(mpv_, "fbo-format", "rgba8");
+    if (format_error < 0) {
+      g_warning("MPV: could not select software-renderer FBO format: %s", mpv_error_string(format_error));
+      destroy_candidate_context();
+      return false;
+    }
+    g_message("MPV video plane: software GL renderer; using rgba8 intermediate FBOs");
+  }
 
   // Pre-flight the VAAPI dmabuf interop prerequisites. mpv's GL-side probe
   // (dmabuf_interop_gl_init) is lazy — first hardware decode attempt — and its
@@ -652,58 +660,23 @@ bool MpvPlayer::RenderToSurface(EGLSurface surface, int width, int height) {
     depth_bits = surface_depth_bits_;
   }
 
-  if (!eglBindAPI(g_getenv("HEISUCA_DIAGNOSTIC_OPENGL") != nullptr ? EGL_OPENGL_API : EGL_OPENGL_ES_API) || !eglMakeCurrent(display, surface, surface, context)) {
+  if (!eglBindAPI(EGL_OPENGL_ES_API) || !eglMakeCurrent(display, surface, surface, context)) {
     g_warning("MPV: Failed to activate the video-plane EGL context for render: 0x%x", eglGetError());
     return false;
-  }
-
-  if (g_getenv("HEISUCA_DIAGNOSTIC_PRIME") != nullptr) {
-    EGLint actual_width = 0, actual_height = 0;
-    eglQuerySurface(display, surface, EGL_WIDTH, &actual_width);
-    eglQuerySurface(display, surface, EGL_HEIGHT, &actual_height);
-    if (actual_width != width || actual_height != height) {
-      glBindFramebuffer(GL_FRAMEBUFFER, 0);
-      glClearColor(0, 0, 0, 1);
-      glClear(GL_COLOR_BUFFER_BIT);
-      if (!eglSwapBuffers(display, surface)) return false;
-      g_message("MPV diagnostic: primed resize from %dx%d to %dx%d", actual_width, actual_height, width, height);
-    }
   }
 
   // Consume the redraw latch before rendering: OnMpvRenderUpdate drops further
   // notifications until it is cleared.
   needs_redraw_.store(false);
 
-  struct DiagnosticTarget {
-    GLuint texture = 0, fbo = 0;
-    ~DiagnosticTarget() {
-      if (fbo) glDeleteFramebuffers(1, &fbo);
-      if (texture) glDeleteTextures(1, &texture);
-    }
-  } diagnostic_target;
-  if (g_getenv("HEISUCA_DIAGNOSTIC_FBO") != nullptr) {
-    glGenTextures(1, &diagnostic_target.texture);
-    glBindTexture(GL_TEXTURE_2D, diagnostic_target.texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glGenFramebuffers(1, &diagnostic_target.fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, diagnostic_target.fbo);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, diagnostic_target.texture, 0);
-    const GLenum complete = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    if (complete != GL_FRAMEBUFFER_COMPLETE) return false;
-  }
-
   mpv_opengl_fbo mpv_fbo{};
-  mpv_fbo.fbo = diagnostic_target.fbo;  // normally the window surface's default framebuffer
+  mpv_fbo.fbo = 0;  // the window surface's default framebuffer
   mpv_fbo.w = width;
   mpv_fbo.h = height;
   // Ignored by the render API's OpenGL backend, which reads the depth param
   // instead, but it is what mpv#16818's gpu-next backend will read, so state
   // it truthfully rather than leave a lie in place for that day.
   mpv_fbo.internal_format = depth_bits >= 16 ? GL_RGBA16F : depth_bits >= 10 ? GL_RGB10_A2 : GL_RGBA8;
-
-  if (diagnostic_target.fbo) mpv_fbo.internal_format = GL_RGBA8;
 
   // The default framebuffer is bottom-up relative to mpv's image orientation,
   // so this flips.
@@ -721,30 +694,6 @@ bool MpvPlayer::RenderToSurface(EGLSurface surface, int width, int height) {
   if (render_error < 0) {
     g_warning("MPV: video-plane render failed: %s", mpv_error_string(render_error));
     return false;
-  }
-  if (diagnostic_target.fbo) {
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, diagnostic_target.fbo);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  }
-  // Opt-in diagnostic for the isolated native bench, never normal playback.
-  static int diagnostic_frames = 0;
-  if (g_getenv("HEISUCA_VIDEO_DIAGNOSTIC") != nullptr && diagnostic_frames++ < 12) {
-    GLint format = 0, type = 0, read_fbo = 0;
-    glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &read_fbo);
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-    glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_FORMAT, &format);
-    glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_TYPE, &type);
-    EGLint actual_width = 0, actual_height = 0;
-    eglQuerySurface(display, surface, EGL_WIDTH, &actual_width);
-    eglQuerySurface(display, surface, EGL_HEIGHT, &actual_height);
-    g_message("MPV diagnostic: target=%dx%d read_fbo=%d", actual_width, actual_height, read_fbo);
-    unsigned int pixel[4] = {};
-    glReadPixels(width / 2, height / 2, 1, 1, format, type, pixel);
-    g_message("MPV diagnostic: frame=%d size=%dx%d format=0x%x type=0x%x pixel=%08x/%08x/%08x/%08x gl=0x%x",
-              diagnostic_frames, width, height, format, type, pixel[0], pixel[1], pixel[2], pixel[3], glGetError());
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, read_fbo);
   }
   return true;
 }

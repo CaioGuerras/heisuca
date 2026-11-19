@@ -254,10 +254,19 @@ bool WaylandVideoSurface::InitEgl(std::string* error) {
   const char* extensions = eglQueryString(egl_display_, EGL_EXTENSIONS);
   const bool has_float_configs = extensions != nullptr && strstr(extensions, "EGL_EXT_pixel_format_float") != nullptr;
   auto choose = [this](const EGLint* attributes) {
-    EGLConfig config = nullptr;
+    EGLConfig configs[64] = {};
     EGLint count = 0;
-    if (eglChooseConfig(egl_display_, attributes, &config, 1, &count) && count == 1) {
-      egl_config_ = config;
+    const bool exact_eight = g_getenv("HEISUCA_DIAGNOSTIC_8BIT") != nullptr;
+    if (!eglChooseConfig(egl_display_, attributes, configs, exact_eight ? 64 : 1, &count)) return false;
+    for (int i = 0; i < count; ++i) {
+      if (exact_eight) {
+        EGLint red = 0, green = 0, blue = 0;
+        eglGetConfigAttrib(egl_display_, configs[i], EGL_RED_SIZE, &red);
+        eglGetConfigAttrib(egl_display_, configs[i], EGL_GREEN_SIZE, &green);
+        eglGetConfigAttrib(egl_display_, configs[i], EGL_BLUE_SIZE, &blue);
+        if (red != 8 || green != 8 || blue != 8) continue;
+      }
+      egl_config_ = configs[i];
       return true;
     }
     return false;
@@ -274,7 +283,7 @@ bool WaylandVideoSurface::InitEgl(std::string* error) {
           EGL_SURFACE_TYPE,
           EGL_WINDOW_BIT,
           EGL_RENDERABLE_TYPE,
-          renderable,
+          g_getenv("HEISUCA_DIAGNOSTIC_OPENGL") != nullptr ? EGL_OPENGL_BIT : renderable,
           EGL_RED_SIZE,
           tier.bits,
           EGL_GREEN_SIZE,

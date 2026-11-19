@@ -21,7 +21,7 @@ for state,args in [('home',[]),('video',[str(fixture)])]:
    proc.terminate()
    proc.wait(timeout=8)
    if not a.diagnostic_child:
-    variants=[('skia',{'HEISUCA_DIAGNOSTIC_SKIA':'1'}),('eight-bit',{'HEISUCA_DIAGNOSTIC_8BIT':'1'}),('main-thread',{'PLEZY_PLANE_RENDER_MAIN_THREAD':'1'}),('prime',{'HEISUCA_DIAGNOSTIC_PRIME':'1'}),('software',{'HEISUCA_DIAGNOSTIC_SOFTWARE':'1'})]
+    variants=[('opengl',{'HEISUCA_DIAGNOSTIC_OPENGL':'1'}),('rgba8',{'HEISUCA_DIAGNOSTIC_RGBA8':'1'}),('fbo',{'HEISUCA_DIAGNOSTIC_FBO':'1'}),('exact-eight',{'HEISUCA_DIAGNOSTIC_8BIT':'1'})]
     results={}
     for name,extra in variants:
      result=subprocess.run([sys.executable,__file__,'--binary',str(exe),'--output',str(a.output.parent/('diagnostic-'+name)),'--diagnostic-child'],env={**os.environ,**extra})

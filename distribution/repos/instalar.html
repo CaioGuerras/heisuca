@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Instalação do Heisuca - Repositórios Oficiais</title>
+  <style>
+    :root { --bg: #141217; --text: #eee8df; --gold: #d4af37; --box: #1c1921; --border: #352f3f; }
+    body { margin: 0; padding: 24px 16px; background: var(--bg); color: var(--text); font-family: Inter, system-ui, -apple-system, sans-serif; line-height: 1.5; }
+    .container { max-width: 760px; margin: 0 auto; }
+    header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 24px; }
+    a.logo { font-size: 1.5rem; font-weight: 700; color: var(--gold); text-decoration: none; }
+    a.back { color: var(--text); text-decoration: none; font-size: 0.9rem; border: 1px solid var(--border); padding: 6px 12px; border-radius: 4px; }
+    a.back:hover { border-color: var(--gold); }
+    .badge { background: #26212d; color: var(--gold); border: 1px solid var(--gold); font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; }
+    details { background: var(--box); border: 1px solid var(--border); border-radius: 6px; margin: 16px 0; padding: 12px; }
+    summary { cursor: pointer; font-weight: 600; color: var(--gold); }
+    pre { background: #0e0d10; border: 1px solid var(--border); border-radius: 4px; padding: 12px; overflow-x: auto; }
+    code { font-family: ui-monospace, monospace; font-size: 0.88rem; color: #f5f0e8; }
+    .note { font-size: 0.85rem; opacity: 0.85; margin: 8px 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="/" class="logo" aria-label="Heisuca"><img src="/favicon.svg" alt="" width="36" height="36"> Heisuca</a>
+      <a href="/#/apps" class="back">Voltar para Apps</a>
+    </header>
+    <main>
+      <h1>Instalação via Repositório <span class="badge">Beta Desktop</span></h1>
+      <p>Suporte exclusivo para Linux x64 sob Wayland (Ubuntu 24.04+ e Fedora 45). Não há suporte para ambientes X11, macOS ou arquiteturas ARM.</p>
+      <p>A configuração do repositório é realizada <strong>uma única vez</strong>. Após a conclusão deste passo a passo, o sistema receberá todas as atualizações futuras automaticamente pelo próprio gerenciador de pacotes padrão (<code>apt</code> ou <code>dnf</code>).</p>
+
+      <details open>
+        <summary>Ubuntu 24.04+ (APT)</summary>
+        <p class="note">Configuração de keyring seguro sem apt-key obsoleta e formato deb822:</p>
+        <pre><code>sudo apt update &amp;&amp; sudo apt install curl ca-certificates gnupg
+sudo install -d -m0755 /etc/apt/keyrings
+curl -fsSL https://heisuca.docaio.com.br/pacotes/repos/apt/heisuca-archive-keyring.gpg | sudo tee /etc/apt/keyrings/heisuca-archive-keyring.gpg &gt;/dev/null
+sudo chmod 0644 /etc/apt/keyrings/heisuca-archive-keyring.gpg
+curl -fsSL https://heisuca.docaio.com.br/pacotes/repos/apt/heisuca.sources | sudo tee /etc/apt/sources.list.d/heisuca.sources &gt;/dev/null
+sudo apt update
+sudo apt install heisuca</code></pre>
+      </details>
+
+      <details open>
+        <summary>Fedora 45 (DNF / RPM)</summary>
+        <p class="note">Importação de chave GPG e repositório RPM (verificação gpgcheck e repo_gpgcheck integradas):</p>
+        <pre><code>sudo rpm --import https://heisuca.docaio.com.br/pacotes/repos/rpm/RPM-GPG-KEY-heisuca.asc
+sudo curl -fsSL https://heisuca.docaio.com.br/pacotes/repos/rpm/heisuca.repo -o /etc/yum.repos.d/heisuca.repo
+sudo dnf install heisuca</code></pre>
+      </details>
+
+      <details>
+        <summary>Verificação de Chave GPG (Opcional)</summary>
+        <p class="note">Fingerprint pública oficial: <code>8825EE297E38A4521A638568DB6342368211E128</code></p>
+        <pre><code># Verificação no Ubuntu / APT:
+gpg --show-keys --fingerprint /etc/apt/keyrings/heisuca-archive-keyring.gpg
+
+# Verificação no Fedora / RPM:
+curl -fsSL https://heisuca.docaio.com.br/pacotes/repos/rpm/RPM-GPG-KEY-heisuca.asc | gpg --show-keys --fingerprint</code></pre>
+      </details>
+    </main>
+  </div>
+</body>
+</html>

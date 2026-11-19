@@ -7,7 +7,7 @@ export XDG_CONFIG_HOME="$RUNNER_TEMP/heisuca-config"
 mkdir -p "$XDG_RUNTIME_DIR" "$XDG_DATA_HOME" "$XDG_CONFIG_HOME"
 chmod 700 "$XDG_RUNTIME_DIR"
 export LIBGL_ALWAYS_SOFTWARE=1
-weston --backend=x11-backend.so --renderer=pixman --socket=heisuca-wayland --width=1280 --height=800 --idle-time=0 --log="$RUNNER_TEMP/weston.log" &
+weston --backend=x11-backend.so --renderer=pixman --socket=heisuca-wayland --width=1600 --height=1000 --idle-time=0 --log="$RUNNER_TEMP/weston.log" &
 weston_pid=$!
 trap 'kill "$weston_pid" 2>/dev/null || true' EXIT
 for unused in {1..60}; do [[ -S "$XDG_RUNTIME_DIR/heisuca-wayland" ]] && break; sleep .5; done

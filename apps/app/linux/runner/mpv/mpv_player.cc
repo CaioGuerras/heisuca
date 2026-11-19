@@ -355,6 +355,11 @@ bool MpvPlayer::Initialize() {
     // Configure mpv for embedded playback.
     mpv_set_option_string(mpv_, "vo", "libmpv");
     mpv_set_option_string(mpv_, "hwdec", "auto");
+    if (g_getenv("HEISUCA_DIAGNOSTIC_SOFTWARE") != nullptr) {
+      mpv_set_option_string(mpv_, "hwdec", "no");
+      mpv_set_option_string(mpv_, "ao", "null");
+    }
+
 
     // hdr-compute-peak is nested under the same predicate as the tone-map pass -
     // it runs exactly when the source's declared peak exceeds target-peak - so it
@@ -378,7 +383,7 @@ bool MpvPlayer::Initialize() {
   // global level - there is no per-module syntax here), so a hwdec regression
   // is indistinguishable from a working one. Debug logging raises this
   // further via setLogLevel.
-  mpv_request_log_messages(mpv_, "info");
+  mpv_request_log_messages(mpv_, g_getenv("HEISUCA_VIDEO_DIAGNOSTIC") != nullptr ? "v" : "info");
 
   // Initialize mpv.
   int err = mpv_initialize(mpv_);
@@ -651,6 +656,19 @@ bool MpvPlayer::RenderToSurface(EGLSurface surface, int width, int height) {
     return false;
   }
 
+  if (g_getenv("HEISUCA_DIAGNOSTIC_PRIME") != nullptr) {
+    EGLint actual_width = 0, actual_height = 0;
+    eglQuerySurface(display, surface, EGL_WIDTH, &actual_width);
+    eglQuerySurface(display, surface, EGL_HEIGHT, &actual_height);
+    if (actual_width != width || actual_height != height) {
+      glBindFramebuffer(GL_FRAMEBUFFER, 0);
+      glClearColor(0, 0, 0, 1);
+      glClear(GL_COLOR_BUFFER_BIT);
+      if (!eglSwapBuffers(display, surface)) return false;
+      g_message("MPV diagnostic: primed resize from %dx%d to %dx%d", actual_width, actual_height, width, height);
+    }
+  }
+
   // Consume the redraw latch before rendering: OnMpvRenderUpdate drops further
   // notifications until it is cleared.
   needs_redraw_.store(false);
@@ -676,7 +694,11 @@ bool MpvPlayer::RenderToSurface(EGLSurface surface, int width, int height) {
       {MPV_RENDER_PARAM_DEPTH, &depth},
       {MPV_RENDER_PARAM_INVALID, nullptr},
   };
-  mpv_render_context_render(render_context, params);
+  const int render_error = mpv_render_context_render(render_context, params);
+  if (render_error < 0) {
+    g_warning("MPV: video-plane render failed: %s", mpv_error_string(render_error));
+    return false;
+  }
   // Opt-in diagnostic for the isolated native bench, never normal playback.
   static int diagnostic_frames = 0;
   if (g_getenv("HEISUCA_VIDEO_DIAGNOSTIC") != nullptr && diagnostic_frames++ < 12) {

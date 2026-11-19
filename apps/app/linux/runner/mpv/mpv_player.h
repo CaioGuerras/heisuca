@@ -281,6 +281,8 @@ class MpvPlayer {
   static void RetryPendingNativeTeardown();
 
  private:
+  bool InitializeCore();  // Caller holds native_mutex_.
+  bool core_initialized_ = false;
   class CallbackContext {
    public:
     class Lease {

@@ -16,7 +16,13 @@ for state,args in [('home',[]),('video',[str(fixture)])]:
     colorful=sum(max(c)-min(c)>80 for c in area.getdata());changed=sum(max(c)>30 for c in diff.getdata())
     assert colorful>5000,('video not visibly rendered',colorful)
     assert changed>2000,('video did not visibly advance',changed)
-    (a.output/'evidence.json').write_text(json.dumps({'nativeWayland':True,'compositor':'Weston nested in Xvfb','colorful':colorful,'changed':changed,'physicalAudioCertified':False,'physicalGpuCertified':False},indent=2))
+    # This test source has no full-height black stripes in its central bars.
+    # Catch the phase-dependent grid seen in the first software-renderer fix.
+    quality=second.crop((320,280,960,560)).convert('RGB')
+    dark_columns=sum(sum(max(quality.getpixel((x,y)))<24 for y in range(quality.height))>.9*quality.height for x in range(quality.width))
+    assert dark_columns==0,('unexpected dark grid in color bars',dark_columns)
+
+    (a.output/'evidence.json').write_text(json.dumps({'nativeWayland':True,'compositor':'Weston nested in Xvfb','colorful':colorful,'changed':changed,'unexpectedDarkColumns':dark_columns,'physicalAudioCertified':False,'physicalGpuCertified':False},indent=2))
   finally:
    proc.terminate()
    try:proc.wait(timeout=8)

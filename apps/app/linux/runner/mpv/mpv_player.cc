@@ -318,7 +318,7 @@ MpvPlayer::~MpvPlayer() { Dispose(); }
 
 bool MpvPlayer::IsInitialized() const {
   std::lock_guard<std::mutex> lock(native_mutex_);
-  return mpv_ != nullptr && (audio_only_ || mpv_gl_ != nullptr);
+  return mpv_ != nullptr && core_initialized_ && (audio_only_ || mpv_gl_ != nullptr);
 }
 
 bool MpvPlayer::HasMpvHandle() const {
@@ -380,7 +380,16 @@ bool MpvPlayer::Initialize() {
   // further via setLogLevel.
   mpv_request_log_messages(mpv_, "info");
 
-  // Initialize mpv.
+  // The video core is finalized only after the actual GL renderer is known,
+  // so compatibility options reach libmpv before it snapshots startup state.
+  if (!audio_only_) return true;
+  return InitializeCore();
+}
+
+bool MpvPlayer::InitializeCore() {
+  // Caller holds native_mutex_. No file can be opened until the native
+  // initialize method has also created the render context successfully.
+  if (core_initialized_) return true;
   int err = mpv_initialize(mpv_);
   if (err < 0) {
     g_warning("MPV: mpv_initialize() failed: %s", mpv_error_string(err));
@@ -408,7 +417,8 @@ bool MpvPlayer::Initialize() {
     mpv_observe_property(mpv_, kHwdecCurrentUserdata, "hwdec-current", MPV_FORMAT_STRING);
   }
 
-  g_message("MPV: Initialization successful (%s)", audio_only_ ? "audio-only" : "render context deferred");
+  core_initialized_ = true;
+  g_message("MPV: Initialization successful (%s)", audio_only_ ? "audio-only" : "video core");
   return true;
 }
 
@@ -530,18 +540,28 @@ bool MpvPlayer::InitRenderContextForSurface(EGLDisplay display, EGLConfig config
       gl_renderer ? reinterpret_cast<const char*>(gl_renderer) : "(null)",
       eglGetProcAddress("glDispatchCompute") ? "yes" : "no", eglGetProcAddress("glBindImageTexture") ? "yes" : "no");
 
-  // Mesa's software GL path can accept rgba16f intermediate FBOs yet produce
-  // black frames with this libmpv build. The native bench reproduces that with
-  // color bars; rgba8 renders and advances. Keep GPU rendering's normal
-  // precision and select the compatible intermediate only for software GL.
-  if (software_renderer) {
-    const int format_error = mpv_set_property_string(mpv_, "fbo-format", "rgba8");
-    if (format_error < 0) {
-      g_warning("MPV: could not select software-renderer FBO format: %s", mpv_error_string(format_error));
-      destroy_candidate_context();
-      return false;
+  // Software GL on the native bench accepted floating-point FBOs but
+  // produced black frames; RGBA8 restored the picture. Simple scalers avoid
+  // phase-dependent dark seams, and 8-bit intermediates need no dither pass.
+  // Configure before mpv_initialize. Hardware GL keeps its full-quality path.
+  if (software_renderer && !core_initialized_) {
+    const char* const options[][2] = {
+        {"fbo-format", "rgba8"}, {"scale", "bilinear"}, {"dscale", "bilinear"},
+        {"cscale", "bilinear"}, {"dither-depth", "no"},
+    };
+    for (const auto& option : options) {
+      const int error = mpv_set_option_string(mpv_, option[0], option[1]);
+      if (error < 0) {
+        g_warning("MPV: software-renderer option %s failed: %s", option[0], mpv_error_string(error));
+        destroy_candidate_context();
+        return false;
+      }
     }
-    g_message("MPV video plane: software GL renderer; using rgba8 intermediate FBOs");
+    g_message("MPV video plane: software GL renderer; compatible rgba8 pipeline");
+  }
+  if (!InitializeCore()) {
+    destroy_candidate_context();
+    return false;
   }
 
   // Pre-flight the VAAPI dmabuf interop prerequisites. mpv's GL-side probe

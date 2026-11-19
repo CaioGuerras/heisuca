@@ -85,7 +85,7 @@ bundle_module_dir() {
     if [[ -d "$src_dir" ]]; then
         echo "==> Bundling modules from $src_dir"
         mkdir -p "$dest_dir"
-        find "$src_dir" -name '*.so' -exec cp -L {} "$dest_dir/" \;
+        find "$src_dir" -xdev -name '*.so' -exec cp -L {} "$dest_dir/" \;
         # Resolve transitive deps of module .so files
         mapfile -t mod_deps < <(collect_deps "$dest_dir"/*.so 2>/dev/null)
         for dep in "${mod_deps[@]}"; do

@@ -680,13 +680,20 @@ bool MpvPlayer::RenderToSurface(EGLSurface surface, int width, int height) {
   // Opt-in diagnostic for the isolated native bench, never normal playback.
   static int diagnostic_frames = 0;
   if (g_getenv("HEISUCA_VIDEO_DIAGNOSTIC") != nullptr && diagnostic_frames++ < 12) {
-    GLint format = 0, type = 0;
+    GLint format = 0, type = 0, read_fbo = 0;
+    glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &read_fbo);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
     glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_FORMAT, &format);
     glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_TYPE, &type);
+    EGLint actual_width = 0, actual_height = 0;
+    eglQuerySurface(display, surface, EGL_WIDTH, &actual_width);
+    eglQuerySurface(display, surface, EGL_HEIGHT, &actual_height);
+    g_message("MPV diagnostic: target=%dx%d read_fbo=%d", actual_width, actual_height, read_fbo);
     unsigned int pixel[4] = {};
     glReadPixels(width / 2, height / 2, 1, 1, format, type, pixel);
     g_message("MPV diagnostic: frame=%d size=%dx%d format=0x%x type=0x%x pixel=%08x/%08x/%08x/%08x gl=0x%x",
               diagnostic_frames, width, height, format, type, pixel[0], pixel[1], pixel[2], pixel[3], glGetError());
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, read_fbo);
   }
   return true;
 }

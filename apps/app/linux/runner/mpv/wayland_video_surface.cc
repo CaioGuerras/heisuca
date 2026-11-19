@@ -268,6 +268,7 @@ bool WaylandVideoSurface::InitEgl(std::string* error) {
   };
   for (const ConfigTier tier : std::vector<ConfigTier>{{10, false}, {16, true}, {8, false}}) {
     if (tier.floating && !has_float_configs) continue;
+    if (g_getenv("HEISUCA_DIAGNOSTIC_8BIT") != nullptr && tier.bits != 8) continue;
     for (const EGLint renderable : {EGL_OPENGL_ES3_BIT, EGL_OPENGL_ES2_BIT}) {
       const EGLint attributes[] = {
           EGL_SURFACE_TYPE,

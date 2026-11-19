@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Capture the real Wayland output composed by Weston inside the CI's Xvfb."""
-import argparse,json,os,pathlib,subprocess,time
+import argparse,json,os,pathlib,subprocess,time,sys
 from PIL import ImageGrab,ImageChops
-p=argparse.ArgumentParser();p.add_argument('--binary',required=True);p.add_argument('--output',type=pathlib.Path,required=True);a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
+p=argparse.ArgumentParser();p.add_argument('--binary',required=True);p.add_argument('--output',type=pathlib.Path,required=True);p.add_argument('--diagnostic-child',action='store_true');a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
 exe=pathlib.Path(a.binary).resolve();fixture=pathlib.Path('test/desktop/fixtures/ação teste.mkv').resolve()
 for state,args in [('home',[]),('video',[str(fixture)])]:
  with (a.output/(state+'.log')).open('w') as log:
@@ -17,6 +17,17 @@ for state,args in [('home',[]),('video',[str(fixture)])]:
     assert colorful>5000,('video not visibly rendered',colorful)
     assert changed>2000,('video did not visibly advance',changed)
     (a.output/'evidence.json').write_text(json.dumps({'nativeWayland':True,'compositor':'Weston nested in Xvfb','colorful':colorful,'changed':changed,'physicalAudioCertified':False,'physicalGpuCertified':False},indent=2))
+  except AssertionError:
+   proc.terminate()
+   proc.wait(timeout=8)
+   if not a.diagnostic_child:
+    variants=[('skia',{'HEISUCA_DIAGNOSTIC_SKIA':'1'}),('eight-bit',{'HEISUCA_DIAGNOSTIC_8BIT':'1'}),('main-thread',{'PLEZY_PLANE_RENDER_MAIN_THREAD':'1'})]
+    results={}
+    for name,extra in variants:
+     result=subprocess.run([sys.executable,__file__,'--binary',str(exe),'--output',str(a.output.parent/('diagnostic-'+name)),'--diagnostic-child'],env={**os.environ,**extra})
+     results[name]=result.returncode
+    (a.output/'diagnostic-matrix.json').write_text(json.dumps(results,indent=2))
+   raise
   finally:
    proc.terminate()
    try:proc.wait(timeout=8)

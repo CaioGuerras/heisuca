@@ -20,9 +20,15 @@ flutter test --no-pub integration_test/desktop_linux_playback_test.dart -d linux
 unset LD_LIBRARY_PATH
 python3 tool/desktop/capture-native-linux.py --binary "${HEISUCA_LINUX_BUNDLE:?}"/heisuca --output dist/linux-evidence/unpacked
 python3 linux/packaging/build-heisuca.py --bundle "${HEISUCA_LINUX_BUNDLE:?}" --output dist/linux
+portable="$RUNNER_TEMP/Heisuca extraído"
+mkdir -p "$portable"
+tar -xzf dist/linux/heisuca-linux-x64.tar.gz -C "$portable"
+python3 tool/desktop/capture-native-linux.py --binary "$portable/heisuca/heisuca" --output dist/linux-evidence/portable
 sudo dpkg -i dist/linux/heisuca-linux-x64.deb
 sudo dpkg -i dist/linux/heisuca-linux-x64.deb
-sentinel="$XDG_DATA_HOME/heisuca-user-fixture.txt"
+profile="$XDG_DATA_HOME/app.heisuca.player.desktop"
+mkdir -p "$profile"
+sentinel="$profile/heisuca-user-fixture.txt"
 printf 'preservar dados do usuario' > "$sentinel"
 python3 tool/desktop/capture-native-linux.py --binary /usr/bin/heisuca --output dist/linux-evidence/installed
 sudo dpkg --remove heisuca

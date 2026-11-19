@@ -3,7 +3,7 @@ Heisuca para Windows
 
 INSTALADOR
 O instalador cria atalhos e permite atualizar e desinstalar o aplicativo.
-Heisuca e CGFLIX possuem identidades e pastas distintas: um não substitui o outro.
+Os dados do aplicativo ficam no seu perfil do Windows.
 
 ZIP SEM INSTALAÇÃO
 Extraia o ZIP inteiro numa pasta e abra heisuca.exe. Mantenha os arquivos juntos.

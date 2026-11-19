@@ -86,10 +86,10 @@ try {
         Write-Host "WinGet preexistente: $(& $existingWinget.Source --version)"
     }
     
-    Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser | Out-Null
-    Install-Module -Name Microsoft.WinGet.Client -Force -Scope CurrentUser -AllowClobber
+    Install-PSResource -Name Microsoft.WinGet.Client -Scope CurrentUser -TrustRepository -Quiet
     Import-Module Microsoft.WinGet.Client -Force
     Repair-WinGetPackageManager -Force -Latest
+
     
     $winApps = Join-Path $env:LOCALAPPDATA 'Microsoft\WindowsApps'
     if (($env:PATH -split ';') -notcontains $winApps) {

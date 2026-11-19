@@ -3,6 +3,8 @@ PackageIdentifier: Heisuca.Heisuca
 PackageVersion: 2.0.45.2
 InstallerType: inno
 Scope: user
+InstallerSwitches:
+  Custom: /NORUN=1
 InstallModes:
   - interactive
   - silent

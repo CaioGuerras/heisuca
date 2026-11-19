@@ -81,36 +81,27 @@ try {
     }
     Write-Host "    Hash SHA-256 validado com sucesso: $computedHash"
 
-    # Verificação e localização da ferramenta winget
-    Write-Host "==> Verificando ferramenta winget..."
-    $wingetCmd = Get-Command -Name 'winget' -ErrorAction SilentlyContinue
-
-    if (-not $wingetCmd) {
-        Write-Host "    winget não detectado no PATH. Instalando módulo Microsoft.WinGet.Client..."
-        Install-Module -Name Microsoft.WinGet.Client -Scope CurrentUser -Force
-        Repair-WinGetPackageManager -Force -Latest
-
-        # Atualizar PATH na sessão
-        $machinePath = [System.Environment]::GetEnvironmentVariable('Path', 'Machine')
-        $userPath = [System.Environment]::GetEnvironmentVariable('Path', 'User')
-        $env:Path = "$machinePath;$userPath"
-
-        $wingetCmd = Get-Command -Name 'winget' -ErrorAction SilentlyContinue
+    $ErrorActionPreference = 'Stop'
+    if ($existingWinget = Get-Command winget -ErrorAction SilentlyContinue) {
+        Write-Host "WinGet preexistente: $(& $existingWinget.Source --version)"
     }
-
-    $wingetBin = $null
-    if ($wingetCmd) {
-        $wingetBin = $wingetCmd.Source
-    } else {
-        # Busca direta no diretório do WindowsApps
-        $appPath = "$env:LOCALAPPDATA\Microsoft\WindowsApps\winget.exe"
-        if (Test-Path -LiteralPath $appPath) {
-            $wingetBin = $appPath
-        } else {
-            throw "Executável winget não pôde ser localizado após instalação do pacote."
-        }
+    
+    Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser | Out-Null
+    Install-Module -Name Microsoft.WinGet.Client -Force -Scope CurrentUser -AllowClobber
+    Import-Module Microsoft.WinGet.Client -Force
+    Repair-WinGetPackageManager -Force -Latest
+    
+    $winApps = Join-Path $env:LOCALAPPDATA 'Microsoft\WindowsApps'
+    if (($env:PATH -split ';') -notcontains $winApps) {
+        $env:PATH = "$winApps;$env:PATH"
     }
-    Write-Host "    Utilizando winget em: $wingetBin"
+    
+    $wingetBin = (Get-Command winget -ErrorAction Stop).Source
+    $wingetVersion = & $wingetBin --version
+    if ($LASTEXITCODE -ne 0) {
+        throw "Falha ao executar 'winget --version' (exit code: $LASTEXITCODE)."
+    }
+    Write-Host "WinGet atualizado para validacao: $wingetVersion"
 
     # 1. winget validate --manifest ManifestDir
     Write-Host "==> Executando validação de manifesto..."

@@ -30,7 +30,7 @@ jobs:
       - name: Dependencias Linux e bancada isolada
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev libsecret-1-dev libepoxy-dev libwayland-dev libegl1-mesa-dev libva-dev libdrm-dev libgbm-dev libasound2-dev libevdev-dev libvdpau-dev libvulkan-dev libx11-xcb-dev libxcb-dri3-0 zstd patchelf weston xvfb dbus-x11 gnome-keyring pulseaudio python3-pil python3-xlib
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev libsecret-1-dev liblcms2-dev libmujs-dev liblua5.2-dev libpipewire-0.3-dev libpulse-dev libdisplay-info-dev wayland-protocols libxkbcommon-dev libepoxy-dev libwayland-dev libegl1-mesa-dev libva-dev libdrm-dev libgbm-dev libasound2-dev libevdev-dev libvdpau-dev libvulkan-dev libx11-xcb-dev libxcb-dri3-0 zstd patchelf weston xvfb dbus-x11 gnome-keyring pulseaudio python3-pil python3-xlib
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -47,12 +47,13 @@ jobs:
           python3 scripts/fetch_linux_libmpv.py --dest libmpv-prefix
           echo "PKG_CONFIG_PATH=$PWD/libmpv-prefix/lib/pkgconfig:$PWD/libmpv-prefix/lib/x86_64-linux-gnu/pkgconfig" >> "$GITHUB_ENV"
           echo "LD_LIBRARY_PATH=$PWD/libmpv-prefix/lib:$PWD/libmpv-prefix/lib/x86_64-linux-gnu" >> "$GITHUB_ENV"
+      - name: Conferir metadados e dependencias da libmpv
+        run: pkg-config --print-errors --exists mpv && pkg-config --modversion mpv
       - name: Compilar Heisuca Linux Release
         run: flutter build linux --release -t lib/main_desktop.dart --dart-define=HEISUCA_DESKTOP_REVISION=${{ github.sha }} --dart-define=GIT_COMMIT=${{ github.sha }}
       - name: Preparar bibliotecas de distribuicao
         run: |
-          cp -L libmpv-prefix/lib/libmpv.so* build/linux/x64/release/bundle/lib/
-          find libmpv-prefix -xdev -name 'libshaderc_shared.so*' -type f -exec cp -L {} build/linux/x64/release/bundle/lib/ \;
+          find libmpv-prefix -xdev \( -name 'libmpv.so*' -o -name 'libshaderc_shared.so*' \) \( -type f -o -type l \) -exec cp -a {} build/linux/x64/release/bundle/lib/ \;
           APP_BINARY=heisuca bash linux/packaging/bundle-libs.sh build/linux/x64/release/bundle
       - name: Video Wayland, cofre real, pacotes e instalacao
         timeout-minutes: 15

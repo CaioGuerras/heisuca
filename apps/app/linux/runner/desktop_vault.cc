@@ -16,7 +16,7 @@ struct Request {
   bool write;
   ~Request() {
     if (timer) g_source_remove(timer);
-    if (payload) secret_password_free(payload);
+    if (payload) { secret_password_wipe(payload); g_free(payload); }
     g_object_unref(cancel);
     g_object_unref(call);
   }
@@ -58,6 +58,7 @@ void work(GTask* task, gpointer, gpointer data, GCancellable* cancel) {
 void finished(GObject*, GAsyncResult* result, gpointer) {
   GTask* task = G_TASK(result);
   auto* request = static_cast<Request*>(g_task_get_task_data(task));
+  if (request->timer) { g_source_remove(request->timer); request->timer = 0; }
   g_autoptr(GError) error = nullptr;
   g_autoptr(FlValue) value = nullptr;
   if (request->write) {
@@ -78,11 +79,13 @@ void finished(GObject*, GAsyncResult* result, gpointer) {
       guchar* bytes = g_base64_decode(text, &size);
       secret_password_free(text);
       if (size > kMaxPlain) {
-        std::memset(bytes, 0, size); g_free(bytes);
+        if (size) std::memset(bytes, 0, size);
+      g_free(bytes);
         reply_error(request->call, "keyringFailed"); return;
       }
       value = fl_value_new_uint8_list(bytes, size);
-      std::memset(bytes, 0, size); g_free(bytes);
+      if (size) std::memset(bytes, 0, size);
+      g_free(bytes);
     } else value = fl_value_new_null();
   }
   g_autoptr(FlMethodResponse) response = FL_METHOD_RESPONSE(fl_method_success_response_new(value));

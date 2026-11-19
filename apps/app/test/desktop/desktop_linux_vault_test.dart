@@ -38,4 +38,13 @@ void main() {
     messenger.setMockMethodCallHandler(channel,(call)async{if(reads++==0)return null;throw PlatformException(code:'keyringUnavailable');});
     final vault=PlatformLinuxVault(channel:channel);await vault.read();await expectLater(vault.read(),throwsA(isA<DesktopVaultException>()));expect(vault.persistent,isTrue);
   });
+  test('primeira leitura bloqueada seguida de ausência não rebaixa para memória',()async{
+    var calls=0;
+    messenger.setMockMethodCallHandler(channel,(call)async{throw PlatformException(code:calls++==0?'keyringFailed':'keyringUnavailable');});
+    final vault=PlatformLinuxVault(channel:channel);
+    await expectLater(vault.read(),throwsA(isA<DesktopVaultException>()));
+    await expectLater(vault.read(),throwsA(isA<DesktopVaultException>()));
+    expect(vault.persistent,isTrue);
+  });
+
 }

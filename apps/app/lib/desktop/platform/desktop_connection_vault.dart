@@ -146,7 +146,7 @@ class PlatformLinuxVault implements DesktopConnectionVault {
   final MethodChannel _channel;
   final _memory = MemoryDesktopConnectionVault();
   Future<void> _queue = Future<void>.value();
-  bool _persistent = true, _opened = false;
+  bool _persistent = true, _opened = false, _readAttempted = false;
   @override bool get persistent => _persistent;
   Future<T> _serialized<T>(Future<T> Function() action) {
     final result = _queue.then((_) => action());
@@ -156,6 +156,8 @@ class PlatformLinuxVault implements DesktopConnectionVault {
   @override Future<List<Map<String, dynamic>>> read() => _serialized(_read);
   Future<List<Map<String, dynamic>>> _read() async {
     if (!_persistent) return _memory.read();
+    final firstAttempt = !_readAttempted;
+    _readAttempted = true;
     try {
       final value = await _channel.invokeMethod<Uint8List>('read').timeout(const Duration(seconds: 15));
       try {
@@ -164,7 +166,7 @@ class PlatformLinuxVault implements DesktopConnectionVault {
         return entries;
       } finally { value?.fillRange(0, value.length, 0); }
     } on PlatformException catch (error) {
-      if (!_opened && error.code == 'keyringUnavailable') {
+      if (firstAttempt && error.code == 'keyringUnavailable') {
         _persistent = false;
         return _memory.read();
       }

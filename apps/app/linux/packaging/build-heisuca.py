@@ -15,7 +15,7 @@ for soname,path in needed.items():
  owner=guard.deb_owner(path)
  if not owner:raise RuntimeError('Unowned host library: '+soname)
  deps.add(owner)
-libc=subprocess.check_output(['getconf','GNU_LIBC_VERSION'],text=True).split()[-1];deps.add('libc6 (>= '+libc+')')
+libc=subprocess.check_output(['getconf','GNU_LIBC_VERSION'],text=True).split()[-1];deps.discard('libc6');deps.add('libc6 (>= '+libc+')')
 version=re.search(r'^version:\s*([^+\s]+)',(root/'pubspec.yaml').read_text(),re.M).group(1)
 stage=out/'staging';assert not stage.exists(),'Use a fresh output directory'
 app=stage/'opt/heisuca';app.parent.mkdir(parents=True);shutil.copytree(bundle,app,symlinks=True)

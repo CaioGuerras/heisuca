@@ -11,6 +11,8 @@ on:
       - "apps/app/integration_test/desktop_linux_playback_test.dart"
       - "apps/app/tool/desktop/*linux*"
   workflow_dispatch:
+env:
+  HEISUCA_LINUX_BUNDLE: build/linux/x64/direct/release/bundle
 permissions:
   contents: read
 concurrency:
@@ -53,8 +55,9 @@ jobs:
         run: flutter build linux --release -t lib/main_desktop.dart --dart-define=HEISUCA_DESKTOP_REVISION=${{ github.sha }} --dart-define=GIT_COMMIT=${{ github.sha }}
       - name: Preparar bibliotecas de distribuicao
         run: |
-          find libmpv-prefix -xdev \( -name 'libmpv.so*' -o -name 'libshaderc_shared.so*' \) \( -type f -o -type l \) -exec cp -a {} build/linux/x64/release/bundle/lib/ \;
-          APP_BINARY=heisuca bash linux/packaging/bundle-libs.sh build/linux/x64/release/bundle
+          test -x "$HEISUCA_LINUX_BUNDLE/heisuca"
+          find libmpv-prefix -xdev \( -name 'libmpv.so*' -o -name 'libshaderc_shared.so*' \) \( -type f -o -type l \) -exec cp -a {} $HEISUCA_LINUX_BUNDLE/lib/ \;
+          APP_BINARY=heisuca bash linux/packaging/bundle-libs.sh $HEISUCA_LINUX_BUNDLE
       - name: Video Wayland, cofre real, pacotes e instalacao
         timeout-minutes: 15
         run: xvfb-run -a -s '-screen 0 1280x800x24' dbus-run-session bash tool/desktop/linux-native-bench.sh

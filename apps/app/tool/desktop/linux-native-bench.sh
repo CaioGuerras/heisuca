@@ -18,8 +18,8 @@ printf 'heisuca-ci-fixture-only' | gnome-keyring-daemon --unlock --components=se
 pulseaudio --start --exit-idle-time=-1
 flutter test --no-pub integration_test/desktop_linux_playback_test.dart -d linux
 unset LD_LIBRARY_PATH
-python3 tool/desktop/capture-native-linux.py --binary build/linux/x64/release/bundle/heisuca --output dist/linux-evidence/unpacked
-python3 linux/packaging/build-heisuca.py --bundle build/linux/x64/release/bundle --output dist/linux
+python3 tool/desktop/capture-native-linux.py --binary "${HEISUCA_LINUX_BUNDLE:?}"/heisuca --output dist/linux-evidence/unpacked
+python3 linux/packaging/build-heisuca.py --bundle "${HEISUCA_LINUX_BUNDLE:?}" --output dist/linux
 sudo dpkg -i dist/linux/heisuca-linux-x64.deb
 sudo dpkg -i dist/linux/heisuca-linux-x64.deb
 sentinel="$XDG_DATA_HOME/heisuca-user-fixture.txt"

@@ -41,6 +41,7 @@ class DesktopSettingsScreen extends StatelessWidget {
                 ])),
               _section(context, 'Privacidade',
                 Platform.isWindows ? 'Suas conexões ficam protegidas no perfil do Windows. O ZIP permite usar o app sem instalar.'
+                  : Platform.isLinux ? 'Quando o cofre do sistema está disponível e desbloqueado, suas conexões ficam salvas e protegidas. Sem ele, valem só nesta sessão.'
                   : 'Nesta prévia, as conexões são mantidas apenas enquanto o app está aberto.',
                 Align(alignment: Alignment.centerLeft, child: OutlinedButton.icon(
                   onPressed: preferences.recents.isEmpty ? null : preferences.clearRecents,

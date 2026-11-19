@@ -26,66 +26,50 @@ jobs:
       - name: Ensure Inno Setup 6 is available
         shell: pwsh
         run: |
-          Set-StrictMode -Version Latest
           $ErrorActionPreference = 'Stop'
-
-          $candidatePaths = @(
-            "C:\Program Files (x86)\Inno Setup 6\ISCC.exe",
-            "C:\Program Files\Inno Setup 6\ISCC.exe"
-          )
-
-          $isccPath = $null
-          $cmd = Get-Command ISCC.exe -ErrorAction SilentlyContinue
-          if ($null -ne $cmd -and (Test-Path -LiteralPath $cmd.Source -PathType Leaf)) {
-            $ver = (Get-Item -LiteralPath $cmd.Source).VersionInfo.ProductMajorPart
-            if ($ver -eq 6) {
-              $isccPath = $cmd.Source
-            }
-          }
-
-          if ($null -eq $isccPath) {
-            foreach ($candidate in $candidatePaths) {
-              if (Test-Path -LiteralPath $candidate -PathType Leaf) {
-                $ver = (Get-Item -LiteralPath $candidate).VersionInfo.ProductMajorPart
-                if ($ver -eq 6) {
-                  $isccPath = $candidate
-                  break
-                }
+          
+          function Resolve-Iscc6 {
+            $cmd = Get-Command ISCC.exe, ISCC -ErrorAction SilentlyContinue | Select-Object -First 1
+            $candidates = @(
+              if ($cmd -and $cmd.Source) { $cmd.Source }
+              "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+              "$env:ProgramFiles\Inno Setup 6\ISCC.exe"
+              'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
+              'C:\Program Files\Inno Setup 6\ISCC.exe'
+              "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe"
+            ) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -Unique
+          
+            foreach ($candidate in $candidates) {
+              if (-not (Test-Path -LiteralPath $candidate -PathType Leaf)) { continue }
+              $prevEap = $ErrorActionPreference
+              $ErrorActionPreference = 'Continue'
+              $helpOut = (& $candidate '/?' 2>&1 | Out-String)
+              $global:LASTEXITCODE = 0
+              $ErrorActionPreference = $prevEap
+              $banner = ($helpOut -split '\r?\n' | Where-Object { $_ -match '(?i)Inno Setup.*6\.' -or $_ -match '(?i)Inno Setup\s*6\b' } | Select-Object -First 1)
+              if (-not $banner -and $candidate -match '(?i)Inno Setup 6[\\/]ISCC\.exe$' -and $helpOut -match '(?i)Inno Setup') {
+                $banner = ($helpOut -split '\r?\n' | Where-Object { $_ -match '(?i)Inno Setup' } | Select-Object -First 1)
+              }
+              if ($banner) {
+                return @{ Path = (Resolve-Path -LiteralPath $candidate).Path; Banner = $banner.Trim() }
               }
             }
+            return $null
           }
-
-          if ($null -eq $isccPath) {
-            Write-Host "Inno Setup 6 nao encontrado pre-instalado. Instalando via Chocolatey..."
+          
+          $iscc = Resolve-Iscc6
+          if (-not $iscc) {
+            Write-Host 'Inno Setup 6 not found; installing via Chocolatey...'
             & choco install innosetup -y --no-progress
-            if ($LASTEXITCODE -ne 0) {
-              throw "Falha ao instalar Inno Setup 6 via Chocolatey (ExitCode=$LASTEXITCODE)."
-            }
-
-            foreach ($candidate in $candidatePaths) {
-              if (Test-Path -LiteralPath $candidate -PathType Leaf) {
-                $isccPath = $candidate
-                break
-              }
-            }
+            if ($LASTEXITCODE -ne 0) { throw "choco install innosetup failed with exit code $LASTEXITCODE" }
+            $iscc = Resolve-Iscc6
           }
-
-          if ($null -eq $isccPath -or -not (Test-Path -LiteralPath $isccPath -PathType Leaf)) {
-            throw "ISCC.exe do Inno Setup 6 nao foi localizado apos verificacao/instalacao."
-          }
-
-          $isccDir = Split-Path -Parent $isccPath
-          $currentPathEntries = $env:PATH -split ';' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
-          if ($currentPathEntries -notcontains $isccDir) {
-            Add-Content -LiteralPath $env:GITHUB_PATH -Value $isccDir -Encoding UTF8
-            $env:PATH = "$isccDir;$env:PATH"
-          }
-
-          $fileInfo = (Get-Item -LiteralPath $isccPath).VersionInfo
-          if ($fileInfo.ProductMajorPart -ne 6) {
-            throw "Versao do ISCC.exe invalida (esperado Inno Setup 6, encontrado: $($fileInfo.ProductVersion))."
-          }
-          Write-Host "Inno Setup 6 pronto em: $isccPath (versao $($fileInfo.ProductVersion))"
+          if (-not $iscc) { throw 'Inno Setup 6 (ISCC.exe) could not be validated by banner and path.' }
+          $isccDir = Split-Path -Parent $iscc.Path
+          if ($env:GITHUB_PATH) { Add-Content -LiteralPath $env:GITHUB_PATH -Value $isccDir -Encoding utf8 }
+          if (($env:PATH -split ';') -notcontains $isccDir) { $env:PATH = "$isccDir;$env:PATH" }
+          $global:LASTEXITCODE = 0
+          Write-Host "Using ISCC: $($iscc.Path) ($($iscc.Banner))"
 
       - name: Download and verify source artifact and previous installer
         shell: pwsh

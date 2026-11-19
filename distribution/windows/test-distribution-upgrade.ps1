@@ -134,7 +134,7 @@ function Assert-PeHashMapsEqual {
   }
 
   if ($mismatchedHashes.Count -gt 0) {
-    throw "Divergencia de SHA-256 PE entre $ReferenceLabel e $TargetLabel: $($mismatchedHashes -join '; ')"
+    throw "Divergencia de SHA-256 PE entre $ReferenceLabel e ${TargetLabel}: $($mismatchedHashes -join '; ')"
   }
 
   Write-StepLog "Paridade PE confirmada entre $ReferenceLabel e $TargetLabel ($($refKeys.Count) arquivos PE)."

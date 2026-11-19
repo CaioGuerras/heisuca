@@ -32,8 +32,22 @@ jobs:
       - name: Dependencias Linux e bancada isolada
         timeout-minutes: 9
         run: |
+          # Some hosted runners point at a very slow regional EC2 mirror.
+          sudo python3 - <<'PYMIRROR'
+          import pathlib,re
+          for path in [pathlib.Path('/etc/apt/sources.list'),*pathlib.Path('/etc/apt/sources.list.d').glob('*.sources'),*pathlib.Path('/etc/apt/sources.list.d').glob('*.list')]:
+            if path.exists():
+              text=path.read_text()
+              updated=re.sub(r'https?://[^/\s]*\.ec2\.archive\.ubuntu\.com/ubuntu/?','https://archive.ubuntu.com/ubuntu/',text)
+              if updated != text:path.write_text(updated)
+          PYMIRROR
+          build_tools=()
+          command -v clang >/dev/null || build_tools+=(clang)
+          command -v cmake >/dev/null || build_tools+=(cmake)
+          command -v ninja >/dev/null || build_tools+=(ninja-build)
+          command -v pkg-config >/dev/null || build_tools+=(pkg-config)
           sudo env DEBIAN_FRONTEND=noninteractive timeout 180 apt-get update -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20
-          sudo env DEBIAN_FRONTEND=noninteractive timeout 300 apt-get install -y -o Dpkg::Use-Pty=0 clang cmake ninja-build pkg-config libgtk-3-dev libsecret-1-dev liblcms2-dev libmujs-dev liblua5.2-dev libpipewire-0.3-dev libpulse-dev libdisplay-info-dev wayland-protocols libxkbcommon-dev libepoxy-dev libwayland-dev libegl1-mesa-dev libva-dev libdrm-dev libgbm-dev libasound2-dev libevdev-dev libvdpau-dev libvulkan-dev libx11-xcb-dev libxcb-dri3-0 zstd patchelf weston xvfb dbus-x11 gnome-keyring pulseaudio python3-pil python3-xlib
+          sudo env DEBIAN_FRONTEND=noninteractive timeout 300 apt-get install -y -o Dpkg::Use-Pty=0 "${build_tools[@]}" libgtk-3-dev libsecret-1-dev liblcms2-dev libmujs-dev liblua5.2-dev libpipewire-0.3-dev libpulse-dev libdisplay-info-dev wayland-protocols libxkbcommon-dev libepoxy-dev libwayland-dev libegl1-mesa-dev libva-dev libdrm-dev libgbm-dev libasound2-dev libevdev-dev libvdpau-dev libvulkan-dev libx11-xcb-dev libxcb-dri3-0 zstd patchelf weston xvfb dbus-x11 gnome-keyring pulseaudio python3-pil python3-xlib
       - uses: subosito/flutter-action@v2
         with:
           channel: stable

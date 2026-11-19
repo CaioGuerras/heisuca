@@ -30,9 +30,10 @@ jobs:
         with:
           persist-credentials: false
       - name: Dependencias Linux e bancada isolada
+        timeout-minutes: 9
         run: |
-          sudo apt-get update
-          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev libsecret-1-dev liblcms2-dev libmujs-dev liblua5.2-dev libpipewire-0.3-dev libpulse-dev libdisplay-info-dev wayland-protocols libxkbcommon-dev libepoxy-dev libwayland-dev libegl1-mesa-dev libva-dev libdrm-dev libgbm-dev libasound2-dev libevdev-dev libvdpau-dev libvulkan-dev libx11-xcb-dev libxcb-dri3-0 zstd patchelf weston xvfb dbus-x11 gnome-keyring pulseaudio python3-pil python3-xlib
+          sudo env DEBIAN_FRONTEND=noninteractive timeout 180 apt-get update -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20
+          sudo env DEBIAN_FRONTEND=noninteractive timeout 300 apt-get install -y -o Dpkg::Use-Pty=0 clang cmake ninja-build pkg-config libgtk-3-dev libsecret-1-dev liblcms2-dev libmujs-dev liblua5.2-dev libpipewire-0.3-dev libpulse-dev libdisplay-info-dev wayland-protocols libxkbcommon-dev libepoxy-dev libwayland-dev libegl1-mesa-dev libva-dev libdrm-dev libgbm-dev libasound2-dev libevdev-dev libvdpau-dev libvulkan-dev libx11-xcb-dev libxcb-dri3-0 zstd patchelf weston xvfb dbus-x11 gnome-keyring pulseaudio python3-pil python3-xlib
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -56,6 +57,7 @@ jobs:
       - name: Preparar bibliotecas de distribuicao
         run: |
           test -x "$HEISUCA_LINUX_BUNDLE/heisuca"
+          cp -a libmpv-prefix/licenses "$HEISUCA_LINUX_BUNDLE/licenses"
           find libmpv-prefix -xdev \( -name 'libmpv.so*' -o -name 'libshaderc_shared.so*' \) \( -type f -o -type l \) -exec cp -a {} $HEISUCA_LINUX_BUNDLE/lib/ \;
           APP_BINARY=heisuca bash linux/packaging/bundle-libs.sh $HEISUCA_LINUX_BUNDLE
       - name: Video Wayland, cofre real, pacotes e instalacao

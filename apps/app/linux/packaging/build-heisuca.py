@@ -24,6 +24,21 @@ wrapper=(root/'linux/packaging/plezy.sh').read_text().replace('/opt/plezy','/opt
 (app/'heisuca').write_text(wrapper);(app/'heisuca').chmod(0o755)
 (app/'LEIA-ME.txt').write_text('Heisuca Linux x64 — versão de teste\nUbuntu24.04+ com sessão Wayland nativa. X11 não reproduz vídeo nesta versão.\nExtraia todo o arquivo e execute ./heisuca. Os dados ficam no perfil do usuário.\nConexões protegidas pelo cofre do sistema (SecretService); sem serviço disponível, a sessão é temporária e o app avisa.\nDependências do sistema: '+', '.join(sorted(deps))+'\nSem certificação de GPU/áudio físicos. https://heisuca.docaio.com.br/\n')
 license_file=root/'assets/heisuca/LICENCA_GPL_3.txt';shutil.copy2(license_file,app/'LICENSE.txt')
+# Bundled distro libraries retain their copyright/license notices too.
+notices=app/'licenses/system';notices.mkdir(parents=True,exist_ok=True)
+for library in (bundle/'lib').rglob('*.so*'):
+ owner=guard.deb_owner(str(library.resolve()))
+ if not owner:
+  # The copied library is no longer dpkg-owned; locate its original soname.
+  result=subprocess.run(['ldconfig','-p'],capture_output=True,text=True,check=True)
+  candidates=[line.split('=>',1)[1].strip() for line in result.stdout.splitlines() if library.name+' ' in line and '=>' in line]
+  for candidate in candidates:
+   owner=guard.deb_owner(candidate)
+   if owner:break
+ if owner:
+  source=pathlib.Path('/usr/share/doc')/owner/'copyright'
+  if source.is_file():shutil.copy2(source,notices/(owner+'.copyright'))
+
 applications=stage/'usr/share/applications';applications.mkdir(parents=True);shutil.copy2(root/'linux/packaging/app.heisuca.player.desktop.desktop',applications/'app.heisuca.player.desktop.desktop')
 icons=stage/'usr/share/icons/hicolor/scalable/apps';icons.mkdir(parents=True);shutil.copy2(root/'assets/heisuca/icone_shikkoku_cheio.svg',icons/'heisuca.svg')
 bin_dir=stage/'usr/bin';bin_dir.mkdir(parents=True);(bin_dir/'heisuca').symlink_to('/opt/heisuca/heisuca')

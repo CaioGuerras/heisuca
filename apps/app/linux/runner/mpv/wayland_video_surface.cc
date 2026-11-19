@@ -1394,6 +1394,8 @@ bool WaylandVideoSurface::CompletePresent(bool swapped) {
     // stays on the wire, and once a frame has been presented SetRect() must be
     // free to change the scale with no buffer attached.
     first_frame_presented_ = true;
+    g_message("MPV video plane: first frame presented (%dx%d, scale %d)", width_, height_, scale_);
+
     if (scale_ != scale_sent_) {
       wl_surface_set_buffer_scale(surface_, scale_);
       scale_sent_ = scale_;

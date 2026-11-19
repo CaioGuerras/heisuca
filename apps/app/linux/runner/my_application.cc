@@ -34,6 +34,15 @@ static void enable_video_plane_transparency(GtkWindow* window, FlView* view) {
   gtk_widget_set_visual(GTK_WIDGET(window), visual);
   gtk_widget_set_app_paintable(GTK_WIDGET(window), TRUE);
 
+  // GTK still paints the mapped window's themed background even when it is
+  // app-paintable. Clear that backing layer too: transparent Flutter pixels
+  // must reach the Wayland plane below the toplevel, not an opaque GTK fill.
+  g_autoptr(GtkCssProvider) provider = gtk_css_provider_new();
+  gtk_css_provider_load_from_data(
+      provider, "window { background-color: transparent; background-image: none; }", -1, nullptr);
+  gtk_style_context_add_provider(gtk_widget_get_style_context(GTK_WIDGET(window)),
+                                 GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+
   // The RGBA visual only reaches the compositor if Flutter stops filling the frame too: fl_view clears to this
   // colour every frame, so any opaque value would paint over the subsurface whatever the visual says.
   GdkRGBA transparent = {0.0, 0.0, 0.0, 0.0};

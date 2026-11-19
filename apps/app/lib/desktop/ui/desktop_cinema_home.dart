@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'desktop_session_artwork.dart';
+import 'desktop_artwork.dart';
 import 'package:flutter/material.dart';
 import '../../design/tema.dart';
 import '../../design/componentes/toque.dart';
@@ -80,16 +80,23 @@ class _DesktopCinemaHomeState extends State<DesktopCinemaHome> {
     if (server == null) return const SizedBox.shrink();
     final builder = widget.artworkBuilder;
     if (builder != null) return builder(server, item, landscape);
-    final candidates = landscape ? item.heroArtCandidates(containerAspectRatio: 2.6) : const <String>[];
-    final path = candidates.isNotEmpty ? candidates.first : item.thumbPath;
-    if (path == null || path.isEmpty) return ColoredBox(color: p.superficie);
-    try {
-      final url = server.client.thumbnailUrl(path, width: landscape ? (large ? 1600 : 640) : 400);
-      return Image(image: DesktopSessionArtwork(url, server.client.streamHeaders, server.client.authenticationSessionId),
-        fit: BoxFit.cover, errorBuilder: (_, _, _) => ColoredBox(color: p.superficie),
-        excludeFromSemantics: true, gaplessPlayback: false);
-    } on Object { return ColoredBox(color: p.superficie); }
+    final paths = <String?>[
+      if (landscape) ...item.heroArtCandidates(containerAspectRatio: 16 / 9),
+      item.thumbPath,
+    ];
+    final width = landscape ? (large ? 1600 : 640) : 400;
+    final height = landscape ? (large ? 900 : 360) : 600;
+    return DesktopArtwork(
+      urls: desktopArtworkUrls(server.client, paths, width: width, height: height),
+      headers: server.client.streamHeaders, session: server.client.authenticationSessionId,
+      fallback: ColoredBox(color: p.superficie, child: Center(child: Padding(
+        padding: const EdgeInsets.all(16), child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Icon(Icons.movie_outlined, color: p.texto2, size: 30), const SizedBox(height: 10),
+          text(item.displayTitle, size: 13, color: p.texto2, lines: 3),
+        ])))),
+    );
   }
+
   Widget navigation() => Row(mainAxisSize: MainAxisSize.min, children: [
     nav('Início', () {} , selected: true), nav('Filmes', source == null ? null : () => browse(kind: MediaKind.movie)),
     nav('Séries', source == null ? null : () => browse(kind: MediaKind.show)), nav('Bibliotecas', widget.actions.openLibrary),
@@ -128,13 +135,13 @@ class _DesktopCinemaHomeState extends State<DesktopCinemaHome> {
   Widget hero(MediaItem item, double width) {
     final pad = width < 900 ? 24.0 : 48.0;
     final narrow = width < 900 || MediaQuery.textScalerOf(context).scale(14) > 20;
-    return ConstrainedBox(constraints: BoxConstraints(minHeight: narrow ? 440 : 360), child: Stack(children: [
+    return ConstrainedBox(constraints: BoxConstraints(minHeight: narrow ? 440 : (width * .35).clamp(420.0, 540.0)), child: Stack(children: [
       Positioned(right: 0, top: 0, bottom: 0, width: width * .84, child: artwork(item, landscape: true, large: true)),
       Positioned.fill(child: DecoratedBox(decoration: BoxDecoration(gradient: LinearGradient(
         colors: [p.fundo, p.fundo.withValues(alpha: .94), p.fundo.withValues(alpha: .35), p.fundo.withValues(alpha: .06)],
         stops: const [0,.26,.6,1])))),
       Positioned.fill(child: DecoratedBox(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter,
-        colors: [Colors.transparent,p.fundo], stops: const [.4,1])))),
+        colors: [p.fundo.withValues(alpha: 0),p.fundo], stops: const [.4,1])))),
       Padding(padding: EdgeInsets.fromLTRB(pad, 24, pad, 34), child: Align(alignment: Alignment.centerLeft, child: SizedBox(width: narrow ? width - pad * 2 : 490, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         sourcePicker(), const SizedBox(height: 20), text(item.displayTitle, size: narrow ? 34 : 47, bold: true, lines: 2),
         const SizedBox(height: 12), text([if(item.year != null) '${item.year}', if((item.durationMs ?? 0) > 0) duration(item.durationMs!),
@@ -156,26 +163,27 @@ class _DesktopCinemaHomeState extends State<DesktopCinemaHome> {
       text('Ver todos', size: 11, color: p.texto2), Icon(Icons.chevron_right, size: 16, color: p.texto2)])), onAll)]);
   Widget row(String title, List<MediaItem> items, double width, {bool resume = false}) {
     final pad = width < 900 ? 24.0 : 48.0;
-    final itemWidth = resume ? (width < 1000 ? 260.0 : 310.0) : (width < 1000 ? 145.0 : 157.0);
+    final itemWidth = resume ? (width < 1000 ? 260.0 : 310.0) : (width < 1000 ? 145.0 : 164.0);
+    final imageHeight = resume ? itemWidth * 9 / 16 : itemWidth * 3 / 2;
     final scale = MediaQuery.textScalerOf(context).scale(12) / 12;
     return Padding(padding: EdgeInsets.fromLTRB(pad, 5, 0, 24), child: Column(children: [
       Padding(padding: EdgeInsets.only(right: pad), child: heading(title, null)), const SizedBox(height: 8),
-      SizedBox(height: (resume ? 145 : 280) + (scale - 1).clamp(0, 2) * 48, child: ListView.separated(
+      SizedBox(height: imageHeight + 64 + (scale - 1).clamp(0, 2) * 48, child: ListView.separated(
         scrollDirection: Axis.horizontal, itemCount: items.length, padding: EdgeInsets.only(right: pad),
         separatorBuilder: (_, _) => const SizedBox(width: 18), itemBuilder: (_, index) {
           final item = items[index]; final total = item.durationMs ?? 0; final position = item.viewOffsetMs ?? 0;
           return SizedBox(width: itemWidth, child: _CinemaHover(onTap: () => resume ? unawaited(play(item)) : browse(item: item),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              ClipRRect(borderRadius: BorderRadius.circular(9), child: SizedBox(width: itemWidth, height: resume ? 100 : 232,
+              ClipRRect(borderRadius: BorderRadius.circular(9), child: SizedBox(width: itemWidth, height: imageHeight,
                 child: Stack(fit: StackFit.expand, children: [artwork(item, landscape: resume),
                   if (resume) ...[Center(child: Container(width: 32, height: 32, decoration: BoxDecoration(shape: BoxShape.circle,
                     color: p.fundo.withValues(alpha: .55), border: Border.all(color: p.texto.withValues(alpha: .6))),
                     child: Icon(Icons.play_arrow_rounded, size: 20, color: p.texto))),
                     if(total > 0) Positioned(left: 0, right: 0, bottom: 0, child: LinearProgressIndicator(minHeight: 3,
                       value: (position / total).clamp(0,1), color: p.acento, backgroundColor: p.fundo.withValues(alpha: .5)))],
-                ]))), const SizedBox(height: 8), text(item.displayTitle, size: 12, bold: true, lines: 1),
-              if (item.displaySubtitle != null) text(item.displaySubtitle!, size: 10, color: p.texto2, lines: 1)
-              else if(item.year != null) text('${item.year}', size: 10, color: p.texto2),
+                ]))), const SizedBox(height: 8), text(item.displayTitle, size: 14, bold: true, lines: 1),
+              if (item.displaySubtitle != null) text(item.displaySubtitle!, size: 12, color: p.texto2, lines: 1)
+              else if(item.year != null) text('${item.year}', size: 12, color: p.texto2),
             ])));
         })),
     ]));
@@ -230,7 +238,7 @@ class _DesktopCinemaHomeState extends State<DesktopCinemaHome> {
           Padding(padding: const EdgeInsets.fromLTRB(24, 12, 24, 0), child: Align(alignment: Alignment.centerLeft, child: sourcePicker())),
         if(widget.catalog.loading && widget.catalog.rows.isEmpty) skeleton(bounds.maxWidth) else ...[
           if(widget.catalog.featured case final item?) hero(item, bounds.maxWidth) else if(widget.catalog.rows.isEmpty) empty(bounds.maxWidth),
-          for(final hub in widget.catalog.rows.take(7)) row(hub.isContinueWatchingHub ? 'Continue de onde parou' : hub.title,
+          for(final hub in widget.catalog.rows.take(7)) row(hub.isContinueWatchingHub ? 'Continue de onde parou' : desktopHubTitle(hub.title),
             hub.items, bounds.maxWidth, resume: hub.isContinueWatchingHub),
           if(widget.preferences.recents.isNotEmpty) recents(bounds.maxWidth),
         ], const SizedBox(height: 30),
@@ -254,4 +262,14 @@ class _CinemaHoverState extends State<_CinemaHover> {
     child: AnimatedScale(scale: hover && !MediaQuery.disableAnimationsOf(context) ? 1.025 : 1,
       duration: const Duration(milliseconds: 180), curve: Curves.easeOutCubic,
       child: Toque(forma: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), aoTocar: widget.onTap, child: widget.child)));
+}
+
+/// Traduz apenas cabeçalhos conhecidos; nomes de bibliotecas do usuário permanecem intactos.
+String desktopHubTitle(String title) {
+  const fixed = {'On Deck': 'A seguir', 'Trending Now': 'Em alta', 'Recently Added Movies': 'Filmes adicionados recentemente',
+    'Recently Added TV': 'Séries adicionadas recentemente', 'Recently Added Episodes': 'Episódios adicionados recentemente',
+    'Recently Released Movies': 'Lançamentos de filmes', 'Recently Viewed': 'Vistos recentemente'};
+  if (fixed.containsKey(title)) return fixed[title]!;
+  if (title.startsWith('Recently Added in ')) return 'Adicionados em ${title.substring(18)}';
+  return title;
 }

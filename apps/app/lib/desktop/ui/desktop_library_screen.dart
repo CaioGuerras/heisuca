@@ -931,7 +931,7 @@ class _DesktopLibraryScreenState extends State<DesktopLibraryScreen> {
     final artwork = item.artPath ?? item.thumbPath;
     return _MediaDetailPanel(
       artwork: widget.artworkBuilder?.call(item, true),
-      imageUrl: artwork == null || artwork.isEmpty ? null : server.client.thumbnailUrl(artwork, width: 1600),
+      imageUrl: artwork == null || artwork.isEmpty ? null : server.client.thumbnailUrl(artwork),
       headers: server.client.streamHeaders,
       session: server.client.authenticationSessionId,
       palette: palette,

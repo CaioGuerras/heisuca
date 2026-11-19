@@ -44,7 +44,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: heisuca-winget-receipt
-          path: |
-            ${{ runner.temp }}/heisuca-winget/receipt.json
-            ${{ runner.temp }}/heisuca-winget/verify-vm.log
+          path: ${{ runner.temp }}/heisuca-winget/
           if-no-files-found: warn

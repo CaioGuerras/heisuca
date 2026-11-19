@@ -114,11 +114,63 @@ try {
     Write-Host "==> Configurando LocalManifestFiles..."
     & $wingetBin settings --enable LocalManifestFiles
 
-    # 3. winget install
+    # 3. winget install (timeout 180s + diagnostico em OutDir)
     Write-Host "==> Instalando pacote a partir do manifesto local..."
-    & $wingetBin install --manifest $ManifestDir --silent --accept-package-agreements --accept-source-agreements --disable-interactivity
-    if ($LASTEXITCODE -ne 0) {
-        throw "winget install falhou com código de saída $LASTEXITCODE"
+    $absManifestDir = (Resolve-Path -LiteralPath $ManifestDir).Path
+    $absOutDir      = (Resolve-Path -LiteralPath $OutDir).Path
+    $installerLog   = Join-Path -Path $absOutDir -ChildPath 'installer.log'
+    $stdoutLog      = Join-Path -Path $absOutDir -ChildPath 'install-stdout.log'
+    $stderrLog      = Join-Path -Path $absOutDir -ChildPath 'install-stderr.log'
+
+    $installArgs = @(
+        'install', '--manifest', "`"$absManifestDir`"",
+        '--silent', '--scope', 'user',
+        '--accept-package-agreements', '--accept-source-agreements',
+        '--disable-interactivity', '--verbose-logs',
+        '--log', "`"$installerLog`""
+    )
+
+    $installProc = Start-Process -FilePath $wingetBin -ArgumentList $installArgs `
+        -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog `
+        -PassThru -NoNewWindow
+
+    if (-not $installProc.WaitForExit(180000)) {
+        Write-Warning "Timeout de 180s em winget install. Coletando diagnostico..."
+        $procLog = Join-Path -Path $absOutDir -ChildPath 'timeout-processes.txt'
+        Get-CimInstance -ClassName Win32_Process |
+            Where-Object { $_.Name -match 'winget|Heisuca|setup|Inno' -or $_.CommandLine -match 'winget|Heisuca|setup|Inno' } |
+            Select-Object Name, @{N='PID';E={$_.ProcessId}}, @{N='ParentPID';E={$_.ParentProcessId}}, CommandLine |
+            Format-List | Out-File -LiteralPath $procLog -Encoding UTF8
+
+        try {
+            Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+            $b   = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+            $bmp = New-Object System.Drawing.Bitmap($b.Width, $b.Height)
+            $gfx = [System.Drawing.Graphics]::FromImage($bmp)
+            $gfx.CopyFromScreen($b.Location, [System.Drawing.Point]::Empty, $b.Size)
+            $bmp.Save((Join-Path -Path $absOutDir -ChildPath 'timeout-screen.png'), [System.Drawing.Imaging.ImageFormat]::Png)
+            $gfx.Dispose(); $bmp.Dispose()
+        } catch {
+            Write-Warning "Falha ao capturar tela da VM: $_"
+        }
+
+        $diagPaths = Join-Path $env:LOCALAPPDATA 'Packages\Microsoft.DesktopAppInstaller*\LocalState\DiagOutputDir\*'
+        Copy-Item -Path $diagPaths -Destination $absOutDir -Recurse -Force -ErrorAction SilentlyContinue
+        Get-ChildItem -Path $env:TEMP -Filter 'Setup Log*.txt' -ErrorAction SilentlyContinue |
+            Copy-Item -Destination $absOutDir -Force -ErrorAction SilentlyContinue
+
+        throw "Timeout de 180s atingido ao executar winget install. Diagnostico salvo em: $absOutDir"
+    }
+
+    $installProc.WaitForExit()
+    $installProc.Refresh()
+    Get-ChildItem -Path $env:TEMP -Filter 'Setup Log*.txt' -ErrorAction SilentlyContinue |
+        Copy-Item -Destination $absOutDir -Force -ErrorAction SilentlyContinue
+
+    if ($installProc.ExitCode -ne 0) {
+        $diagPaths = Join-Path $env:LOCALAPPDATA 'Packages\Microsoft.DesktopAppInstaller*\LocalState\DiagOutputDir\*'
+        Copy-Item -Path $diagPaths -Destination $absOutDir -Recurse -Force -ErrorAction SilentlyContinue
+        throw "winget install falhou com código de saída $($installProc.ExitCode)"
     }
 
     # 4. Verificar Registro HKCU

@@ -1,0 +1,20 @@
+{
+  "distributionVersion": "2.0.45.2",
+  "nativeVersion": "2.0.45",
+  "versionCode": 86,
+  "appGuid": "ddf45e29-4518-4c70-a963-998f215557d8",
+  "scope": "user",
+  "sourceArtifact": {
+    "runId": "44506403352",
+    "artifactName": "heisuca-desktop-windows-x64",
+    "sha256": "7e59506b9956f8e29dabf2b5aad6d62e3fae1d4e91d5b0070b445825509bddc4"
+  },
+  "previousInstaller": {
+    "url": "https://heisuca.docaio.com.br/pacotes/windows/teste-86e59146/heisuca-windows-installer.exe",
+    "sha256": "24eadc2fa688e5bcbe1f8ebe170f074a0e3f4565f76371b427257de11efa8a66"
+  },
+  "signing": {
+    "signed": false,
+    "status": "unsigned"
+  }
+}

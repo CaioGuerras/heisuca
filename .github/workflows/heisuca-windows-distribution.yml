@@ -1,0 +1,293 @@
+name: Heisuca Windows Distribution
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - gemini/heisuca-desktop-windows
+    paths:
+      - 'distribution/windows/**'
+      - '.github/workflows/heisuca-windows-distribution.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  package-and-verify-windows:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Ensure Inno Setup 6 is available
+        shell: pwsh
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = 'Stop'
+
+          $candidatePaths = @(
+            "C:\Program Files (x86)\Inno Setup 6\ISCC.exe",
+            "C:\Program Files\Inno Setup 6\ISCC.exe"
+          )
+
+          $isccPath = $null
+          $cmd = Get-Command ISCC.exe -ErrorAction SilentlyContinue
+          if ($null -ne $cmd -and (Test-Path -LiteralPath $cmd.Source -PathType Leaf)) {
+            $ver = (Get-Item -LiteralPath $cmd.Source).VersionInfo.ProductMajorPart
+            if ($ver -eq 6) {
+              $isccPath = $cmd.Source
+            }
+          }
+
+          if ($null -eq $isccPath) {
+            foreach ($candidate in $candidatePaths) {
+              if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+                $ver = (Get-Item -LiteralPath $candidate).VersionInfo.ProductMajorPart
+                if ($ver -eq 6) {
+                  $isccPath = $candidate
+                  break
+                }
+              }
+            }
+          }
+
+          if ($null -eq $isccPath) {
+            Write-Host "Inno Setup 6 nao encontrado pre-instalado. Instalando via Chocolatey..."
+            & choco install innosetup -y --no-progress
+            if ($LASTEXITCODE -ne 0) {
+              throw "Falha ao instalar Inno Setup 6 via Chocolatey (ExitCode=$LASTEXITCODE)."
+            }
+
+            foreach ($candidate in $candidatePaths) {
+              if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+                $isccPath = $candidate
+                break
+              }
+            }
+          }
+
+          if ($null -eq $isccPath -or -not (Test-Path -LiteralPath $isccPath -PathType Leaf)) {
+            throw "ISCC.exe do Inno Setup 6 nao foi localizado apos verificacao/instalacao."
+          }
+
+          $isccDir = Split-Path -Parent $isccPath
+          $currentPathEntries = $env:PATH -split ';' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
+          if ($currentPathEntries -notcontains $isccDir) {
+            Add-Content -LiteralPath $env:GITHUB_PATH -Value $isccDir -Encoding UTF8
+            $env:PATH = "$isccDir;$env:PATH"
+          }
+
+          $fileInfo = (Get-Item -LiteralPath $isccPath).VersionInfo
+          if ($fileInfo.ProductMajorPart -ne 6) {
+            throw "Versao do ISCC.exe invalida (esperado Inno Setup 6, encontrado: $($fileInfo.ProductVersion))."
+          }
+          Write-Host "Inno Setup 6 pronto em: $isccPath (versao $($fileInfo.ProductVersion))"
+
+      - name: Download and verify source artifact and previous installer
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = 'Stop'
+
+          $releaseJsonPath = (Resolve-Path -LiteralPath "distribution/windows/release.json").ProviderPath
+          $release = Get-Content -LiteralPath $releaseJsonPath -Raw -Encoding UTF8 | ConvertFrom-Json
+
+          $runId = [string]$release.sourceArtifact.runId
+          $artifactName = [string]$release.sourceArtifact.artifactName
+          $expectedArtifactSha = ([string]$release.sourceArtifact.sha256).ToLowerInvariant()
+
+          $prevUrl = [string]$release.previousInstaller.url
+          $expectedPrevSha = ([string]$release.previousInstaller.sha256).ToLowerInvariant()
+
+          New-Item -ItemType Directory -Path "inputs/artifact" -Force | Out-Null
+          New-Item -ItemType Directory -Path "inputs/unpacked" -Force | Out-Null
+          New-Item -ItemType Directory -Path "inputs/previous" -Force | Out-Null
+
+          $artifactsJson = & gh api "repos/$env:GITHUB_REPOSITORY/actions/runs/$runId/artifacts"
+          if ($LASTEXITCODE -ne 0) {
+            throw "Falha ao consultar artefatos do run $runId via gh api (ExitCode=$LASTEXITCODE)."
+          }
+
+          $artifactsResp = $artifactsJson | ConvertFrom-Json
+          $matchingArtifact = @($artifactsResp.artifacts | Where-Object { $_.name -eq $artifactName })
+          if ($matchingArtifact.Count -ne 1) {
+            throw "Esperado exatamente 1 artefato '$artifactName' no run $runId, encontrados: $($matchingArtifact.Count)."
+          }
+
+          $artifactId = $matchingArtifact[0].id
+          $downloadedZipPath = Join-Path (Resolve-Path -LiteralPath "inputs/artifact").ProviderPath "$artifactName.zip"
+
+          $headers = @{
+            Authorization          = "Bearer $env:GH_TOKEN"
+            Accept                 = "application/vnd.github+json"
+            "X-GitHub-Api-Version" = "2022-11-28"
+          }
+          Invoke-WebRequest `
+            -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts/$artifactId/zip" `
+            -Headers $headers `
+            -OutFile $downloadedZipPath
+
+          if (-not (Test-Path -LiteralPath $downloadedZipPath -PathType Leaf)) {
+            throw "Arquivo ZIP do artefato nao foi salvo em: $downloadedZipPath"
+          }
+
+          $downloadedSha = (Get-FileHash -LiteralPath $downloadedZipPath -Algorithm SHA256).Hash.ToLowerInvariant()
+          $innerZipToExtract = $null
+
+          if ($downloadedSha -eq $expectedArtifactSha) {
+            $innerZipToExtract = $downloadedZipPath
+          } else {
+            $outerExtractDir = Join-Path (Resolve-Path -LiteralPath "inputs/artifact").ProviderPath "outer"
+            New-Item -ItemType Directory -Path $outerExtractDir -Force | Out-Null
+            Expand-Archive -LiteralPath $downloadedZipPath -DestinationPath $outerExtractDir -Force
+            $nestedZips = @(Get-ChildItem -LiteralPath $outerExtractDir -Filter "*.zip" -Recurse -File)
+            if ($nestedZips.Count -eq 1) {
+              $nestedSha = (Get-FileHash -LiteralPath $nestedZips[0].FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+              if ($nestedSha -eq $expectedArtifactSha) {
+                $innerZipToExtract = $nestedZips[0].FullName
+              }
+            }
+          }
+
+          if ($null -eq $innerZipToExtract) {
+            throw "SHA-256 do artefato do run $runId diverge do esperado ($expectedArtifactSha). Hash obtido no download: $downloadedSha."
+          }
+
+          Write-Host "SHA-256 do ZIP fonte confirmado: $expectedArtifactSha"
+          Expand-Archive -LiteralPath $innerZipToExtract -DestinationPath "inputs/unpacked" -Force
+
+          $rootExePath = Join-Path (Resolve-Path -LiteralPath "inputs/unpacked").ProviderPath "heisuca.exe"
+          if (-not (Test-Path -LiteralPath $rootExePath -PathType Leaf)) {
+            throw "ZIP fonte extraido nao contem heisuca.exe na raiz: $rootExePath"
+          }
+
+          $prevInstallerPath = Join-Path (Resolve-Path -LiteralPath "inputs/previous").ProviderPath "heisuca-windows-installer.exe"
+          Invoke-WebRequest -Uri $prevUrl -OutFile $prevInstallerPath
+
+          if (-not (Test-Path -LiteralPath $prevInstallerPath -PathType Leaf)) {
+            throw "Instalador anterior nao foi baixado em: $prevInstallerPath"
+          }
+
+          $actualPrevSha = (Get-FileHash -LiteralPath $prevInstallerPath -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actualPrevSha -ne $expectedPrevSha) {
+            throw "SHA-256 do instalador anterior diverge. Esperado: $expectedPrevSha, Obtido: $actualPrevSha"
+          }
+          Write-Host "SHA-256 do instalador anterior confirmado: $actualPrevSha"
+
+      - name: Build Windows distribution packages
+        shell: pwsh
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = 'Stop'
+
+          if (Test-Path -LiteralPath "dist-output") {
+            Remove-Item -LiteralPath "dist-output" -Recurse -Force
+          }
+          New-Item -ItemType Directory -Path "dist-output" -Force | Out-Null
+
+          & pwsh -NoProfile -ExecutionPolicy Bypass -File "apps/app/windows/build-installer.ps1" `
+            -Product Heisuca `
+            -Version 2.0.45.2 `
+            -X64BuildDir inputs/unpacked `
+            -OutputDir dist-output
+          if ($LASTEXITCODE -ne 0) {
+            throw "apps/app/windows/build-installer.ps1 falhou com ExitCode $LASTEXITCODE"
+          }
+
+          $distDir = (Resolve-Path -LiteralPath "dist-output").ProviderPath
+          $builtExes = @(Get-ChildItem -LiteralPath $distDir -Filter "*.exe" -File)
+          $builtZips = @(Get-ChildItem -LiteralPath $distDir -Filter "*.zip" -File)
+
+          if ($builtExes.Count -ne 1) {
+            throw "Esperado exatamente 1 instalador .exe em dist-output, encontrados: $($builtExes.Count)"
+          }
+          if ($builtZips.Count -ne 1) {
+            throw "Esperado exatamente 1 pacote portatil .zip em dist-output, encontrados: $($builtZips.Count)"
+          }
+
+      - name: Verify upgrade, PE parity and uninstallation
+        shell: pwsh
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = 'Stop'
+
+          $distDir = (Resolve-Path -LiteralPath "dist-output").ProviderPath
+          $newExe = @(Get-ChildItem -LiteralPath $distDir -Filter "*.exe" -File)[0].FullName
+          $newZip = @(Get-ChildItem -LiteralPath $distDir -Filter "*.zip" -File)[0].FullName
+
+          & pwsh -NoProfile -ExecutionPolicy Bypass -File "distribution/windows/test-distribution-upgrade.ps1" `
+            -ReleaseJsonPath "distribution/windows/release.json" `
+            -SourceUnpackedDir "inputs/unpacked" `
+            -PreviousInstallerPath "inputs/previous/heisuca-windows-installer.exe" `
+            -DistOutputDir "dist-output" `
+            -NewInstallerPath $newExe `
+            -NewPortableZipPath $newZip `
+            -ReportOutputPath "dist-output/windows-distribution-verification.json" `
+            -LogOutputPath "dist-output/windows-distribution-verification.log"
+          if ($LASTEXITCODE -ne 0) {
+            throw "distribution/windows/test-distribution-upgrade.ps1 falhou com ExitCode $LASTEXITCODE"
+          }
+
+      - name: Prepare release metadata and LF SHA256SUMS
+        shell: pwsh
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = 'Stop'
+
+          $distDir = (Resolve-Path -LiteralPath "dist-output").ProviderPath
+          $releaseSrc = (Resolve-Path -LiteralPath "distribution/windows/release.json").ProviderPath
+          $releaseDst = Join-Path $distDir "release.json"
+
+          $utf8NoBom = [System.Text.UTF8Encoding]::new($false)
+          $releaseContentLf = ([System.IO.File]::ReadAllText($releaseSrc, [System.Text.Encoding]::UTF8)) -replace "`r`n", "`n"
+          if (-not $releaseContentLf.EndsWith("`n")) {
+            $releaseContentLf += "`n"
+          }
+          [System.IO.File]::WriteAllText($releaseDst, $releaseContentLf, $utf8NoBom)
+
+          $allowedFiles = @(Get-ChildItem -LiteralPath $distDir -File | Where-Object { $_.Name -ne 'SHA256SUMS' } | Sort-Object Name)
+          if ($allowedFiles.Count -eq 0) {
+            throw "Nenhum arquivo encontrado em dist-output para gerar SHA256SUMS."
+          }
+
+          foreach ($file in $allowedFiles) {
+            if ($file.Extension -notin @('.exe', '.zip', '.json', '.log')) {
+              throw "Arquivo inesperado em dist-output fora do escopo de novos pacotes e JSON/log: $($file.Name)"
+            }
+          }
+
+          $sumLines = foreach ($file in $allowedFiles) {
+            $hash = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+            "$hash  $($file.Name)"
+          }
+
+          $sha256SumsPath = Join-Path $distDir "SHA256SUMS"
+          $sha256SumsContent = ($sumLines -join "`n") + "`n"
+          [System.IO.File]::WriteAllText($sha256SumsPath, $sha256SumsContent, $utf8NoBom)
+
+          $rawBytes = [System.IO.File]::ReadAllBytes($sha256SumsPath)
+          if ($rawBytes -contains [byte]13) {
+            throw "SHA256SUMS contem CR (0x0D); exigido formato estritamente LF."
+          }
+
+          Write-Host "SHA256SUMS (LF) gerado com sucesso:"
+          Write-Host $sha256SumsContent
+
+      - name: Upload Windows distribution artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: heisuca-windows-distribution-2.0.45.2
+          path: |
+            dist-output/*.exe
+            dist-output/*.zip
+            dist-output/*.json
+            dist-output/*.log
+            dist-output/SHA256SUMS
+          if-no-files-found: error
+          retention-days: 30

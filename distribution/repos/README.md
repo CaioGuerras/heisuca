@@ -8,7 +8,7 @@ Repositórios oficiais de teste do **Heisuca** para desktop Linux em sessão **W
 
 Chave pública: `8825EE297E38A4521A638568DB6342368211E128`.
 
-[Guia de instalação](https://heisuca.docaio.com.br/pacotes/repos/instalar.html).
+[Guia de instalação](https://heisuca.docaio.com.br/linux/).
 
 ## Instalação no Cliente
 

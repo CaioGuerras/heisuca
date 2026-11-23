@@ -43,7 +43,7 @@ minimalista, capa em primeiro lugar e nenhum menu entre você e o play.
 
 | App | Aparelho e download |
 |---|---|
-| Windows | Computador de 64 bits. Versão 2.1.0 estável; baixe pelo [site](https://heisuca.docaio.com.br/#/apps) ou pelos [Releases](https://github.com/CaioGuerras/heisuca/releases/tag/windows-v2.1.0). |
+| Windows | Computador de 64 bits. Versão 2.1.1 estável; baixe pelo [site](https://heisuca.docaio.com.br/#/apps) ou pelos [Releases](https://github.com/CaioGuerras/heisuca/releases/tag/windows-v2.1.1). |
 | Android | Celular e tablet. APK arm64 nos Releases. |
 | Android TV / Google TV / Fire TV | APK nos Releases. Use o universal para TV box antiga e aparelhos de 32 bits. |
 

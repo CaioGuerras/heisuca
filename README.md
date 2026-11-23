@@ -33,11 +33,21 @@ minimalista, capa em primeiro lugar e nenhum menu entre você e o play.
 ## Baixar
 
 <p align="center">
-  <a href="https://github.com/CaioGuerras/heisuca/releases/latest"><img src="https://img.shields.io/badge/Baixar-Android%20e%20Android%20TV-276C4F?style=for-the-badge&logo=android&logoColor=white" alt="Baixar para Android e Android TV"></a>
+  <a href="https://github.com/CaioGuerras/heisuca/releases/latest"><img src="https://img.shields.io/badge/Baixar-Android-276C4F?style=for-the-badge&logo=android&logoColor=white" alt="Baixar para Android"></a>
+  <a href="https://github.com/CaioGuerras/heisuca/releases/latest"><img src="https://img.shields.io/badge/Baixar-Android%20TV-276C4F?style=for-the-badge&logo=android&logoColor=white" alt="Baixar para Android TV"></a>
+  <a href="https://heisuca.docaio.com.br/#/apps"><img src="https://img.shields.io/badge/Baixar-Windows-276C4F?style=for-the-badge" alt="Baixar para Windows"></a>
   <a href="https://heisuca.docaio.com.br"><img src="https://img.shields.io/badge/Abrir-no%20navegador-0F0D13?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Abrir no navegador"></a>
 </p>
 
-Os downloads ficam nos [**Releases**](https://github.com/CaioGuerras/heisuca/releases/latest). Em cada versão há dois
+**Qual app para qual aparelho**
+
+| App | Aparelho e download |
+|---|---|
+| Windows | Computador de 64 bits. Versão de teste; baixe pelo [site](https://heisuca.docaio.com.br/#/apps). |
+| Android | Celular e tablet. APK arm64 nos Releases. |
+| Android TV / Google TV / Fire TV | APK nos Releases. Use o universal para TV box antiga e aparelhos de 32 bits. |
+
+Os APKs ficam nos [**Releases**](https://github.com/CaioGuerras/heisuca/releases/latest). Em cada versão há dois
 arquivos:
 
 | Arquivo | Para quem |
@@ -53,6 +63,12 @@ Plex, seu ou de alguém que compartilhou com você.
 1. Abra a página de Releases pelo próprio aparelho e toque no arquivo.
 2. Se o Android perguntar, permita que o navegador instale apps e toque em **Instalar**.
 3. Abra o Heisuca e entre no seu servidor (Jellyfin) ou com a sua conta (Plex).
+
+**Como instalar no Windows**
+
+1. Baixe o instalador pelo [site](https://heisuca.docaio.com.br/#/apps).
+2. Se o SmartScreen avisar, clique em **Mais informações › Executar assim mesmo**.
+3. Abra o Heisuca e entre no seu servidor.
 
 **Atualizações.** O app avisa sozinho quando sai versão nova, em **Você › Atualizações**. Ali você escolhe o canal:
 

@@ -206,6 +206,13 @@ class JellyfinConnection extends Connection {
   /// time and refreshed by [JellyfinClient.checkHealth].
   final String? primaryImageTag;
 
+  /// Whether this user may have the server convert video
+  /// (`Policy.EnableVideoPlaybackTranscoding`). `null` = not known yet (a
+  /// connection saved before this field existed); callers treat it as allowed
+  /// until [JellyfinClient.checkHealth] refreshes it. When `false` the server
+  /// refuses every transcode, so the quality picker must not offer bitrates.
+  final bool? canTranscodeVideo;
+
   JellyfinConnection({
     required this.id,
     required String baseUrl,
@@ -219,6 +226,7 @@ class JellyfinConnection extends Connection {
     this.dialect = MediaBrowserDialect.jellyfin,
     this.isAdministrator = false,
     this.primaryImageTag,
+    this.canTranscodeVideo,
     required this.createdAt,
     this.lastAuthenticatedAt,
   }) : baseUrl = canonicalizeBaseUrl(baseUrl),
@@ -280,6 +288,7 @@ class JellyfinConnection extends Connection {
     /// a refresh must be able to null the cached value — a bare
     /// `primaryImageTag: null` is indistinguishable from "unchanged".
     bool clearPrimaryImageTag = false,
+    bool? canTranscodeVideo,
     DateTime? createdAt,
     DateTime? lastAuthenticatedAt,
   }) {
@@ -297,6 +306,7 @@ class JellyfinConnection extends Connection {
       dialect: dialect ?? this.dialect,
       isAdministrator: isAdministrator ?? this.isAdministrator,
       primaryImageTag: clearPrimaryImageTag ? null : (primaryImageTag ?? this.primaryImageTag),
+      canTranscodeVideo: canTranscodeVideo ?? this.canTranscodeVideo,
       createdAt: createdAt ?? this.createdAt,
       lastAuthenticatedAt: lastAuthenticatedAt ?? this.lastAuthenticatedAt,
     );
@@ -318,6 +328,7 @@ class JellyfinConnection extends Connection {
       'deviceId': deviceId,
       'isAdministrator': isAdministrator,
       'primaryImageTag': primaryImageTag,
+      'canTranscodeVideo': canTranscodeVideo,
     };
   }
 
@@ -347,6 +358,7 @@ class JellyfinConnection extends Connection {
       deviceId: json['deviceId'] as String? ?? '',
       isAdministrator: json['isAdministrator'] as bool? ?? false,
       primaryImageTag: normalizePrimaryImageTag(json['primaryImageTag']),
+      canTranscodeVideo: json['canTranscodeVideo'] as bool?,
       createdAt: createdAt,
       lastAuthenticatedAt: lastAuthenticatedAt,
     );

@@ -30,6 +30,7 @@ class _JellyfinAuthenticationResponse {
   final String userName;
   final bool isAdministrator;
   final String? primaryImageTag;
+  final bool? canTranscodeVideo;
 
   const _JellyfinAuthenticationResponse({
     required this.accessToken,
@@ -37,6 +38,7 @@ class _JellyfinAuthenticationResponse {
     required this.userName,
     required this.isAdministrator,
     this.primaryImageTag,
+    this.canTranscodeVideo,
   });
 }
 
@@ -156,6 +158,7 @@ class JellyfinConnectionAuthService {
         deviceId: validDeviceId,
         isAdministrator: auth.isAdministrator,
         primaryImageTag: auth.primaryImageTag,
+        canTranscodeVideo: auth.canTranscodeVideo,
       );
     } finally {
       client.close();
@@ -349,6 +352,7 @@ class JellyfinConnectionAuthService {
         deviceId: validDeviceId,
         isAdministrator: auth.isAdministrator,
         primaryImageTag: auth.primaryImageTag,
+        canTranscodeVideo: auth.canTranscodeVideo,
       );
     } finally {
       exchangeClient.close();
@@ -411,6 +415,7 @@ class JellyfinConnectionAuthService {
         userName: userName,
         isAdministrator: policy?['IsAdministrator'] as bool? ?? false,
         primaryImageTag: JellyfinConnection.readPrimaryImageTag(user),
+        canTranscodeVideo: policy?['EnableVideoPlaybackTranscoding'] as bool?,
       );
     } on TimeoutException {
       // MediaServerHttpClient normally wraps timeouts, but keep raw client
@@ -438,6 +443,7 @@ class JellyfinConnectionAuthService {
     required String deviceId,
     required bool isAdministrator,
     required String? primaryImageTag,
+    bool? canTranscodeVideo,
   }) {
     final now = DateTime.now();
     return JellyfinConnection(
@@ -453,6 +459,7 @@ class JellyfinConnectionAuthService {
       dialect: info.dialect ?? dialect,
       isAdministrator: isAdministrator,
       primaryImageTag: primaryImageTag,
+      canTranscodeVideo: canTranscodeVideo,
       createdAt: now,
       lastAuthenticatedAt: now,
     );

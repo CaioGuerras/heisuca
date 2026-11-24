@@ -490,10 +490,16 @@ class JellyfinClient
   MediaBackend get backend => dialect.backend;
 
   @override
-  ServerCapabilities get capabilities => switch (dialect) {
-    MediaBrowserDialect.jellyfin => ServerCapabilities.jellyfin,
-    MediaBrowserDialect.emby => ServerCapabilities.emby,
-  };
+  ServerCapabilities get capabilities {
+    final base = switch (dialect) {
+      MediaBrowserDialect.jellyfin => ServerCapabilities.jellyfin,
+      MediaBrowserDialect.emby => ServerCapabilities.emby,
+    };
+    // An account without `EnableVideoPlaybackTranscoding` gets every transcode
+    // refused, so it must only see the versions (direct play / remux), never
+    // bitrate presets. Unknown (`null`) keeps the server default.
+    return _connection.canTranscodeVideo == false ? base.copyWith(videoTranscoding: false) : base;
+  }
 
   /// Realtime library-change push on the dialect's session socket. Reads the
   /// base URL live so endpoint failover lands on the channel's next
@@ -574,16 +580,22 @@ class JellyfinClient
         if (data is Map<String, dynamic>) {
           final policy = data['Policy'];
           final freshIsAdministrator = policy is Map<String, dynamic> ? policy['IsAdministrator'] as bool? : null;
+          final freshCanTranscodeVideo = policy is Map<String, dynamic>
+              ? policy['EnableVideoPlaybackTranscoding'] as bool?
+              : null;
           final freshPrimaryImageTag = JellyfinConnection.readPrimaryImageTag(data);
           final isAdministratorChanged =
               freshIsAdministrator != null && freshIsAdministrator != _connection.isAdministrator;
+          final canTranscodeVideoChanged =
+              freshCanTranscodeVideo != null && freshCanTranscodeVideo != _connection.canTranscodeVideo;
           final primaryImageTagChanged = freshPrimaryImageTag != _connection.primaryImageTag;
 
-          if (isAdministratorChanged || primaryImageTagChanged) {
+          if (isAdministratorChanged || canTranscodeVideoChanged || primaryImageTagChanged) {
             _connection = _connection.copyWith(
               isAdministrator: freshIsAdministrator,
               primaryImageTag: freshPrimaryImageTag,
               clearPrimaryImageTag: primaryImageTagChanged && freshPrimaryImageTag == null,
+              canTranscodeVideo: freshCanTranscodeVideo,
             );
             final listener = onConnectionUpdated;
             if (listener != null) {

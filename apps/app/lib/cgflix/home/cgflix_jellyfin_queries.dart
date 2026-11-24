@@ -47,6 +47,21 @@ extension CgflixJellyfinQueries on JellyfinClient {
     return _mergeContinueWatchingAndNextUp(resume: rows.resume, nextUp: rows.nextUp, limit: count);
   }
 
+  /// Retrospectiva do ano (cgf-retrospectiva --publicar no servidor): `CustomPrefs` das
+  /// DisplayPreferences "retrospectiva" (client "heisuca") da própria conta, ano -> JSON.
+  /// O Jellyfin só deixa cada pessoa ler as dela.
+  Future<Map<String, Object?>> cgflixFetchRetrospectiva() async {
+    final response = await _http.get(
+      MediaBrowserPaths.displayPreferences('retrospectiva'),
+      queryParameters: {'userId': connection.userId, 'client': 'heisuca'},
+      timeout: const Duration(seconds: 12),
+    );
+    throwIfHttpError(response);
+    final data = response.data;
+    final prefs = data is Map ? data['CustomPrefs'] : null;
+    return prefs is Map ? {for (final e in prefs.entries) '${e.key}': e.value} : const {};
+  }
+
   /// Endereço em uso do servidor (Etapa 1E: o Seerr é procurado ao lado dele).
   String get cgflixBaseUrl => _http.baseUrl;
 

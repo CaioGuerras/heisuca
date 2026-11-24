@@ -10,6 +10,9 @@ import '../../profiles/profile_avatar.dart';
 import '../heisuca_theme.dart';
 import 'heisuca_tv_canvas.dart';
 import '../../services/updates/update_controller.dart';
+import '../../cgflix/you/cgflix_retrospectiva.dart';
+import '../../cgflix/you/cgflix_retrospectiva_screen.dart';
+import '../kids/heisuca_kids_flow.dart';
 
 /// Menu oficial do Heisuca na TV (cartão sobreposto à tela).
 /// Acionado pelo avatar no topo esquerdo.
@@ -67,6 +70,8 @@ class _HeisucaTvMenuState extends State<HeisucaTvMenu> {
     final activeProfile = profiles?.active;
     final profileName = activeProfile?.displayName ?? 'Família';
     final initial = profileName.isNotEmpty ? profileName[0].toUpperCase() : 'T';
+    // Retrospectiva do ano (24/11): fora do kids e só com Jellyfin conectado (é onde ficam os dados).
+    final retrospectiva = heisucaKidsActive(context) ? null : CgflixRetrospectivaFonte.of(context);
 
     // O cartão só escuta o Voltar que sobe dos itens; não pega o foco para si, senão o autofocus do item
     // (Início) perde a vez e o D-Pad não entra na lista (bancada da TV, 30/10: menu preso em Início).
@@ -152,6 +157,18 @@ class _HeisucaTvMenuState extends State<HeisucaTvMenu> {
                             );
                           },
                         ),
+                        if (retrospectiva != null)
+                          _TvMenuItemPill(
+                            key: const ValueKey('tv-menu-retrospectiva'),
+                            text: 'Minha retrospectiva',
+                            fontSize: 20,
+                            height: 38,
+                            onTap: () {
+                              final navigator = Navigator.of(context);
+                              navigator.pop();
+                              cgflixOpenRetrospectiva(navigator.context, retrospectiva);
+                            },
+                          ),
                       ],
                     ),
                   ),

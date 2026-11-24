@@ -17,6 +17,8 @@ import 'package:provider/provider.dart';
 import '../cgflix/cgflix_navigation.dart';
 import '../cgflix/cgflix_palette.dart';
 import '../cgflix/you/cgflix_favorites_screen.dart';
+import '../cgflix/you/cgflix_retrospectiva.dart';
+import '../cgflix/you/cgflix_retrospectiva_screen.dart';
 import '../i18n/strings.g.dart';
 import '../profiles/active_profile_provider.dart';
 import '../profiles/profile_avatar.dart';
@@ -50,6 +52,7 @@ class HeisucaProfileScreen extends StatelessWidget {
 
     // Heisuca: no modo infantil a tela usa a paleta do perfil (Ichigo/Sorairo) e fica enxuta.
     final kids = heisucaKidsActive(context);
+    final retrospectiva = kids ? null : CgflixRetrospectivaFonte.of(context);
     final kidsRecord = HeisucaKids.instance.forParent(active?.id);
     final bg = palette.background;
     final cardBg = palette.surface;
@@ -237,6 +240,21 @@ class HeisucaProfileScreen extends StatelessWidget {
                           }
                         },
                       ),
+                      if (!kids && retrospectiva != null) ...[
+                        Divider(color: dividerColor, height: 1.0, indent: 56.0),
+                        _buildProfileTile(
+                          icon: Symbols.auto_awesome_rounded,
+                          title: 'Minha retrospectiva',
+                          subtitle: 'O seu ano no Heisuca, em números',
+                          textColor: textTitle,
+                          subColor: textSub,
+                          iconColor: palette.accent,
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            cgflixOpenRetrospectiva(context, retrospectiva);
+                          },
+                        ),
+                      ],
                       Divider(color: dividerColor, height: 1.0, indent: 56.0),
                       _buildProfileTile(
                         icon: Symbols.video_library_rounded,

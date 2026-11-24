@@ -1,3 +1,12 @@
+## 2.0.46 — O que mudou
+
+### Novo
+- Minha retrospectiva: o seu ano no Heisuca em números, com as séries e os filmes que você mais viu. Fica em Você e no menu da TV.
+- Perfis infantis: o Início ganha as fileiras Filmes da turma, Desenhos e Anime kids.
+
+### Melhor
+- Qualidade: o menu mostra só as versões do vídeo que existem no servidor. O app já escolhe a melhor que toca direto.
+
 ## 2.0.45 — O que mudou
 
 ### Corrigido

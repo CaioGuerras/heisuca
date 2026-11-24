@@ -100,6 +100,9 @@ jobs:
           HEISUCA_TESTE_SERVIDOR: ${{ secrets.HEISUCA_TESTE_SERVIDOR }}
           HEISUCA_TESTE_CONTAS: ${{ secrets.HEISUCA_TESTE_CONTAS }}
         with: &emulador_percurso
+          # Emulator fixo no 37.2.13 (build 16740729): com o 37.3.10 (imagem do runner de 24/11) as quatro suítes
+          # ficam sem tela (hierarquia vazia); o mesmo código de 17/11 (b61c7dda) passava no 37.2.13 e falha no 37.3.10.
+          emulator-build: 16740729
           api-level: 35
           # Retoma a imagem da K para comparar foco/Activity sem misturar com a troca para AOSP.
           target: google_apis

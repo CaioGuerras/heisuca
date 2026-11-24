@@ -82,6 +82,9 @@ jobs:
       - name: Emulador TV e percurso real do atualizador
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
         with:
+          # Emulator fixo no 37.2.13 (build 16740729): com o 37.3.10 (imagem do runner de 24/11) as quatro suítes
+          # ficam sem tela (hierarquia vazia); o mesmo código de 17/11 (b61c7dda) passava no 37.2.13 e falha no 37.3.10.
+          emulator-build: 16740729
           api-level: 36
           target: android-tv
           arch: x86_64

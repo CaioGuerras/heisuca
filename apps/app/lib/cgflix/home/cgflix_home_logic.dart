@@ -154,6 +154,13 @@ class CgflixTrendingEntry {
 /// Mínimo de títulos para a linha "Em alta" de uma categoria aparecer.
 const cgflixTrendingMinItems = 3;
 
+/// Prateleiras do modo kids, nesta ordem: coleções do servidor com a etiqueta cgf-infantil
+/// (pedido do Caio, 24/11; PEDIDO_CODEX_PRATELEIRAS_KIDS_2026-11-24.md). Coleção ausente ou vazia some.
+const cgflixKidsCollections = ['Filmes da turma', 'Desenhos', 'Anime kids'];
+
+/// Quantos itens uma prateleira de coleção mostra (a maior tem ~190).
+const cgflixCollectionRowLimit = 40;
+
 class CgflixTrending {
   const CgflixTrending({required this.title, required this.entries, this.byLibrary});
   final String title;

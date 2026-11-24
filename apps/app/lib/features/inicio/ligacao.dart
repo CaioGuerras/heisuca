@@ -386,6 +386,21 @@ class _LigacaoDoInicioState extends State<LigacaoDoInicio>
           carregando: const FileiraCarregando(formato: FormatoDoCartao.paisagem),
           pronto: (dados) => _fileiraContinuar(dados.items.isNotEmpty ? dados.items : _discover.onDeck),
         ),
+      // Modo kids: uma prateleira por coleção infantil do servidor (fileira vazia some).
+      if (heisucaKidsActive(context))
+        for (final nome in cgflixKidsCollections)
+          _Secao<CgflixRowData>(
+            key: ValueKey('kids:$nome:$chave'),
+            fonte: () => repositorio.watchCollection(nome),
+            carregando: const FileiraCarregando(),
+            pronto: (dados) => Fileira(
+              dados: FileiraDoInicio(
+                chave: 'kids-${cgflixNormalize(nome)}',
+                titulo: nome,
+                itens: [for (final item in dados.items) _emPoster(item)],
+              ),
+            ),
+          ),
       _Secao<CgflixRowData>(
         key: ValueKey('em-alta:$chave'),
         fonte: repositorio.watchTrending,

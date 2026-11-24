@@ -35,6 +35,9 @@ abstract interface class HeisucaHomeRepository {
   Stream<CgflixRowData> watchHero();
   Stream<CgflixRowData> watchRow(CgflixRowKind kind);
   Stream<CgflixRowData> watchTrending();
+
+  /// Itens de uma coleção pelo nome (prateleiras do modo kids). Sem a coleção, linha vazia.
+  Stream<CgflixRowData> watchCollection(String name);
   Future<List<MediaLibrary>> videoLibraries();
   Stream<CgflixRowData> watchLibrary(MediaLibrary library);
   Future<List<HeisucaUpcoming>> upcoming();
@@ -279,20 +282,40 @@ class CgflixHomeRepository implements HeisucaHomeRepository {
   }
 
   /// Plano B: coleção do Jellyfin chamada "Em alta no Brasil".
-  Future<({List<Map<String, dynamic>> raw, String? title})> _fetchTrendingCollection() async {
+  Future<({List<Map<String, dynamic>> raw, String? title})> _fetchTrendingCollection() =>
+      _fetchCollection(cgflixTrendingTitle, limit: 10);
+
+  /// Prateleira do modo kids: coleção do Jellyfin com este nome (etiqueta cgf-infantil no servidor),
+  /// buscada com o token de quem está logado (no kids, o usuário-sombra). Novidades primeiro; vale 1 h.
+  @override
+  Stream<CgflixRowData> watchCollection(String name) => _cachedThenNetwork(
+    'colecao:${cgflixNormalize(name)}',
+    () => _fetchCollection(name, limit: cgflixCollectionRowLimit, sortBy: 'DateCreated', sortOrder: 'Descending'),
+    maxAge: const Duration(hours: 1),
+  );
+
+  /// Coleção pelo nome: BoxSet + SearchTerm, depois os filmes e séries dela.
+  Future<({List<Map<String, dynamic>> raw, String? title})> _fetchCollection(
+    String name, {
+    required int limit,
+    String? sortBy,
+    String? sortOrder,
+  }) async {
     final collections = await client.cgflixFetchRawItems({
       'IncludeItemTypes': 'BoxSet',
-      'SearchTerm': cgflixTrendingTitle,
+      'SearchTerm': name,
       'Limit': '5',
     });
-    final match = collections.where((c) => cgflixNormalize('${c['Name']}') == cgflixNormalize(cgflixTrendingTitle));
+    final match = collections.where((c) => cgflixNormalize('${c['Name']}') == cgflixNormalize(name));
     if (match.isEmpty) return _noRow;
     final items = await client.cgflixFetchRawItems({
       'ParentId': '${match.first['Id']}',
       'IncludeItemTypes': 'Movie,Series',
-      'Limit': '10',
+      'Limit': '$limit',
+      if (sortBy != null) 'SortBy': sortBy,
+      if (sortOrder != null) 'SortOrder': sortOrder,
     });
-    return (raw: items.take(10).toList(), title: cgflixTrendingTitle);
+    return (raw: items.take(limit).toList(), title: name);
   }
 
   /// Continuar assistindo de uma categoria, pedido ao servidor com o `ParentId` da biblioteca

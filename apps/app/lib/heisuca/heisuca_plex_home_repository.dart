@@ -72,6 +72,9 @@ class HeisucaPlexHomeRepository implements HeisucaHomeRepository {
   Stream<CgflixRowData> watchRow(CgflixRowKind kind) => _remember('row:${kind.name}', () async =>
       CgflixRowData(items: kind == CgflixRowKind.continueWatching
         ? await client.fetchContinueWatching() : const [])).asStream();
+  /// O modo kids é só do Jellyfin (/__kids/ativar): no Plex não há prateleira de coleção.
+  @override
+  Stream<CgflixRowData> watchCollection(String name) => Stream.value(const CgflixRowData(items: []));
   @override
   Stream<CgflixRowData> watchTrending() => _remember('trending', () async {
     final linked = await _linkedFeed('/cgflix/emalta.json');

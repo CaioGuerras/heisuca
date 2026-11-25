@@ -1,3 +1,10 @@
+## 2.0.47 — O que mudou
+
+### Melhor
+- Perfis infantis: o Início mostra só as fileiras Filmes da turma, Desenhos e Anime kids, sem títulos repetidos embaixo.
+- Ao rolar, o topo ganha um fundo: o perfil e a busca ficam fáceis de ler sobre os pôsteres.
+- Versão da Play: Atualizações explica que a loja atualiza o app e abre a página dele na Play.
+
 ## 2.0.46 — O que mudou
 
 ### Novo

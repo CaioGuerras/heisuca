@@ -44,7 +44,6 @@ import 'tela_inicio.dart';
 /// Quanto falta de um título já começado: "restam 12 min", "restam 2 h", "restam 1 h 5 min".
 ///
 /// Sem duração, sem ponto de parada ou sem resto, devolve `null` e o cartão não mostra nada.
-@visibleForTesting
 String? restam(int? duracaoMs, int? vistoMs) {
   if (duracaoMs == null || duracaoMs <= 0 || vistoMs == null || vistoMs <= 0) return null;
   final falta = duracaoMs - vistoMs;

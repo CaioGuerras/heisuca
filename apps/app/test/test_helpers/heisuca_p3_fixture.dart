@@ -63,6 +63,10 @@ class _Discover extends ChangeNotifier implements DiscoverProvider {
   @override
   bool get hasMoreContinueWatching => false;
   @override
+  bool refreshIfStale() => false;
+  @override
+  Future<void> refreshContinueWatching() async {}
+  @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 

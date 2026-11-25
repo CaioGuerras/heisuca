@@ -3,6 +3,7 @@ import '../../cgflix/cgflix_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../design/movimento.dart';
 import '../../profiles/active_profile_provider.dart';
 import '../../profiles/profile_avatar.dart';
 import '../heisuca_theme.dart';
@@ -10,9 +11,18 @@ import '../heisuca_theme.dart';
 /// Topo oficial do Heisuca na TV: Avatar no canto superior esquerdo com o nome HEISUCA ao lado.
 /// Foco no avatar abre o menu principal da TV.
 class HeisucaTvHeader extends StatefulWidget {
-  const HeisucaTvHeader({super.key, required this.onOpenMenu, this.focusNode, this.showLogo = true});
+  const HeisucaTvHeader({
+    super.key,
+    required this.onOpenMenu,
+    this.focusNode,
+    this.showLogo = true,
+    this.padding = const EdgeInsets.only(left: 48, top: 36),
+  });
 
   final VoidCallback onOpenMenu;
+
+  /// Distância da borda da tela. O Início passa a margem segura da TV (5 % de cada lado).
+  final EdgeInsets padding;
   final FocusNode? focusNode;
   final bool showLogo;
 
@@ -53,7 +63,7 @@ class _HeisucaTvHeaderState extends State<HeisucaTvHeader> {
     final initial = (activeProfile?.displayName.isNotEmpty == true) ? activeProfile!.displayName[0].toUpperCase() : 'T';
 
     return Padding(
-      padding: const EdgeInsets.only(left: 48, top: 36),
+      padding: widget.padding,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -74,8 +84,8 @@ class _HeisucaTvHeaderState extends State<HeisucaTvHeader> {
               onTap: widget.onOpenMenu,
               child: AnimatedScale(
                 scale: _focused ? HeisucaBase.focoEscalaTv : 1.0,
-                duration: const Duration(milliseconds: 150),
-                curve: Curves.easeOutCubic,
+                duration: Movimento.tempo(context, Movimento.toque),
+                curve: Movimento.entra,
                 child: Container(
                   width: 58,
                   height: 58,

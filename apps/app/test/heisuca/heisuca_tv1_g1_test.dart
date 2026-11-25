@@ -196,8 +196,9 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Linha EM ALTA NO BRASIL · Nº 1
-      expect(find.text('EM ALTA NO BRASIL · Nº 1'), findsOneWidget);
+      // Nada inventado na tela: sem posição fictícia no ranking nem "Dublado" sem dado do servidor.
+      expect(find.text('EM ALTA NO BRASIL · Nº 1'), findsNothing);
+      expect(find.textContaining('Dublado'), findsNothing);
       expect(find.text('O Menino e a Garça'), findsOneWidget);
 
       // Botões Assistir e Detalhes

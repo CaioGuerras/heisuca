@@ -1,38 +1,58 @@
-import '../theme/heisuca_base.dart';
-import '../../cgflix/cgflix_palette.dart';
 import 'dart:async';
+import 'dart:math';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../cgflix/home/cgflix_actions.dart';
+import '../../cgflix/home/cgflix_home_logic.dart';
+import '../../cgflix/home/cgflix_home_repository.dart';
+import '../../design/forma.dart';
+import '../../design/movimento.dart';
+import '../../design/tema.dart';
+import '../../design/tipo.dart';
+import '../../features/inicio/ligacao.dart' show juntar, notaDe, progressoDe, restam;
+import '../../features/navegacao_tv/trilho_da_tv.dart';
 import '../../media/media_item.dart';
 import '../../media/media_library.dart';
+import '../../mixins/refreshable.dart';
+import '../../mixins/tab_visibility_aware.dart';
+import '../../providers/discover_provider.dart';
 import '../../providers/multi_server_provider.dart';
 import '../../services/jellyfin_client.dart';
 import '../../services/plex_client.dart';
 import '../../utils/media_image_helper.dart';
 import '../../utils/video_player_navigation.dart';
 import '../../widgets/optimized_media_image.dart';
-import '../../cgflix/home/cgflix_actions.dart';
-import '../../cgflix/home/cgflix_home_logic.dart';
-import '../../cgflix/home/cgflix_home_repository.dart';
 import '../heisuca_plex_home_repository.dart';
-import '../heisuca_theme.dart';
-import '../heisuca_motion.dart';
+import '../heisuca_title_logo.dart';
+import '../kids/heisuca_kids_flow.dart';
+import '../theme/heisuca_base.dart';
+import 'heisuca_tv_area_segura.dart';
+import 'heisuca_tv_canvas.dart';
 import 'heisuca_tv_header.dart';
 import 'heisuca_tv_menu.dart';
-import 'heisuca_tv_title_screen.dart';
-import 'heisuca_tv_canvas.dart';
 import 'heisuca_tv_playback_warmup.dart';
+import 'heisuca_tv_title_screen.dart';
 
-/// Início Flagship Heisuca na TV — Modelo A ("Destaque grande", estilo Apple TV).
-/// - Destaque em tela cheia com arte de fundo e gradientes laterais/inferiores.
-/// - Topo: Avatar e logo Heisuca no canto superior esquerdo (abre menu).
-/// - Linha de destaque: "EM ALTA NO BRASIL · Nº 1", título grande, ano · classificação · duração · Dublado/Legendado.
-/// - Sinopse curta (até 2 linhas).
-/// - Botões de ação em pílula: [▶ Assistir] (foco inicial) e [Detalhes].
-/// - Linha "Continuar assistindo" logo abaixo com cartões 16:9 widescreen e progresso.
-/// - Demais fileiras do acervo ao rolar para baixo.
-/// - Foco: contorno branco (3.5px) + escala ~1.06.
+/// Tempo que o foco precisa ficar parado num cartão antes de a tela trocar a arte e o texto.
+///
+/// É comportamento, não animação: segurar a seta passa por vários cartões e só o último conta, senão a TV
+/// troca a arte de fundo a cada cartão e engasga.
+const Duration _focoParado = Duration(milliseconds: 120);
+
+/// Texto da TV: a escala do celular vista a 3 m. Nada abaixo de 24 na tela de referência de 1920.
+TextStyle _tv(TextStyle estilo) => estilo.copyWith(fontSize: max(24, (estilo.fontSize ?? 16) * 1.5));
+
+/// Início do Heisuca na TV, no desenho do app de Windows: arte do título em tela cheia, logo, dados reais do acervo,
+/// [Assistir] e [Detalhes], "Continuar assistindo" na primeira tela e as fileiras ao descer.
+///
+/// - Os dados vêm do mesmo repositório do Início do celular (cache primeiro, rede depois); nada é inventado na tela.
+/// - A arte de fundo segue o cartão em foco; ao descer para as fileiras, um véu escurece o fundo.
+/// - ← na borda esquerda abre o menu; o avatar também.
+/// - Tudo dentro da margem segura da TV (5 % de cada lado).
 class HeisucaTvHomeScreen extends StatefulWidget {
   const HeisucaTvHomeScreen({
     super.key,
@@ -42,6 +62,7 @@ class HeisucaTvHomeScreen extends StatefulWidget {
     this.onSelectDestination,
   });
 
+  /// Destaque fixo (testes e telas de demonstração). Com ele, a tela não abre o repositório do acervo.
   final MediaItem? heroItem;
   final List<MediaItem>? continueWatchingItems;
   final VoidCallback? onOpenMenu;
@@ -51,473 +72,258 @@ class HeisucaTvHomeScreen extends StatefulWidget {
   State<HeisucaTvHomeScreen> createState() => HeisucaTvHomeScreenState();
 }
 
-class HeisucaTvHomeScreenState extends State<HeisucaTvHomeScreen> {
-  final _scrollController = ScrollController();
-  final FocusNode heroPlayFocusNode = FocusNode();
-  final FocusNode heroDetailsFocusNode = FocusNode();
-  final FocusNode avatarFocusNode = FocusNode();
+class HeisucaTvHomeScreenState extends State<HeisucaTvHomeScreen>
+    with WidgetsBindingObserver, Refreshable, FullRefreshable, FocusableTab, TabVisibilityAware {
+  final FocusNode heroPlayFocusNode = FocusNode(debugLabel: 'heisuca-tv-hero-play');
+  final FocusNode heroDetailsFocusNode = FocusNode(debugLabel: 'heisuca-tv-hero-details');
+  final FocusNode avatarFocusNode = FocusNode(debugLabel: 'heisuca-tv-avatar');
 
-  MediaItem? _activeHero;
-  List<MediaItem> _continueWatching = const [];
-  List<MediaItem> _trending = const [];
-  List<MediaLibrary> _libraries = const [];
-  final Map<String, List<MediaItem>> _libraryItems = {};
+  final _rolagem = ScrollController();
 
-  HeisucaHomeRepository? _repository;
+  /// Item cuja arte está no fundo; `null` = o destaque.
+  final _itemEmFoco = ValueNotifier<MediaItem?>(null);
+
+  /// A tela desceu para as fileiras: o fundo ganha o véu.
+  final _rolado = ValueNotifier<bool>(false);
+
+  DiscoverProvider? _discover;
+  MultiServerProvider? _servidores;
+  HeisucaHomeRepository? _repositorio;
+  Object? _cliente;
+  List<JellyfinClient> _fontes = const [];
+  StreamSubscription<CgflixRowData>? _assinaturaDoDestaque;
+  MediaItem? _destaque;
+  Timer? _esperaDoFoco;
+  int _geracao = 0;
+
+  bool get _fixo => widget.heroItem != null;
+
+  /// O foco está no topo da tela (Assistir, Detalhes ou avatar): o voltar da tela principal sai do app daqui.
+  bool get isAtHeroDestaque => heroPlayFocusNode.hasFocus || heroDetailsFocusNode.hasFocus || avatarFocusNode.hasFocus;
 
   @override
   void initState() {
     super.initState();
-    if (widget.heroItem != null) {
-      _activeHero = widget.heroItem;
-      _continueWatching = widget.continueWatchingItems ?? const [];
-    } else {
-      _initRepository();
-    }
+    WidgetsBinding.instance.addObserver(this);
+    _rolagem.addListener(_rolou);
+    _destaque = widget.heroItem;
+    if (_fixo) return;
+    _discover = context.read<DiscoverProvider?>();
+    _servidores = context.read<MultiServerProvider?>();
+    _discover?.addListener(_mudou);
+    _servidores?.addListener(_servidoresMudaram);
+    _servidoresMudaram();
+    unawaited(_discover?.load());
   }
 
   @override
-  void didUpdateWidget(HeisucaTvHomeScreen oldWidget) {
+  void didUpdateWidget(covariant HeisucaTvHomeScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.heroItem != null) {
-      _activeHero = widget.heroItem;
-      _continueWatching = widget.continueWatchingItems ?? const [];
-    }
+    if (_fixo && widget.heroItem != oldWidget.heroItem) _destaque = widget.heroItem;
   }
 
   @override
   void dispose() {
     HeisucaTvPlaybackWarmup.onFocusLost();
-    _scrollController.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+    _discover?.removeListener(_mudou);
+    _servidores?.removeListener(_servidoresMudaram);
+    _assinaturaDoDestaque?.cancel();
+    _repositorio?.dispose();
+    _esperaDoFoco?.cancel();
+    _rolagem
+      ..removeListener(_rolou)
+      ..dispose();
+    _itemEmFoco.dispose();
+    _rolado.dispose();
     heroPlayFocusNode.dispose();
     heroDetailsFocusNode.dispose();
     avatarFocusNode.dispose();
-    _repository?.dispose();
     super.dispose();
   }
 
-  void scrollToDestaqueAndFocus() {
-    _scrollController.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeOutCubic);
+  void _mudou() {
+    if (mounted) setState(() {});
+  }
+
+  void _rolou() {
+    if (!_rolagem.hasClients) return;
+    // Passou do meio da primeira tela: as fileiras estão à vista.
+    _rolado.value = _rolagem.offset > 200;
+  }
+
+  /// Mesma escolha de fonte do Início do celular (`LigacaoDoInicio`): o servidor de navegação abre o repositório;
+  /// com Plex, os Jellyfin visíveis alimentam as fileiras que o Plex não tem.
+  void _servidoresMudaram() {
+    final servidores = _servidores;
+    if (servidores == null) return;
+    final gerente = servidores.serverManager;
+    final cliente = gerente.navigationOnlineClients.values.firstOrNull;
+    final fontes = gerente.visibleOnlineClients.values.whereType<JellyfinClient>().toList();
+    var mesmasFontes = fontes.length == _fontes.length;
+    for (var i = 0; mesmasFontes && i < fontes.length; i++) {
+      mesmasFontes = identical(fontes[i], _fontes[i]);
+    }
+    if (identical(cliente, _cliente) && mesmasFontes) {
+      _mudou();
+      return;
+    }
+    _repositorio?.dispose();
+    _geracao++;
+    _cliente = cliente;
+    _fontes = fontes;
+    _repositorio = switch (cliente) {
+      final JellyfinClient jellyfin => CgflixHomeRepository(jellyfin),
+      final PlexClient plex => HeisucaPlexHomeRepository(plex, feedClients: fontes),
+      _ => null,
+    };
+    _assinarDestaque();
+    _mudou();
+  }
+
+  void _assinarDestaque() {
+    _assinaturaDoDestaque?.cancel();
+    _assinaturaDoDestaque = _repositorio?.watchHero().listen(
+      (dados) {
+        final primeiro = dados.items.firstOrNull;
+        if (primeiro == null || !mounted) return;
+        setState(() => _destaque = primeiro);
+      },
+      // Sem rede, o destaque que já está na tela fica; as fileiras mostram o que o cache tiver.
+      onError: (Object _) {},
+    );
+  }
+
+  // ── Atualização (chamada pela tela principal) ────────────────────────────────────────────────
+
+  @override
+  void refresh() {
+    final discover = _discover;
+    if (discover == null || discover.refreshIfStale()) return;
+    unawaited(discover.refreshContinueWatching());
+  }
+
+  @override
+  void fullRefresh() {
+    if (_fixo) return;
+    _repositorio?.forgetMemory();
+    unawaited(_discover?.load());
+    _assinarDestaque();
+    if (mounted) setState(() => _geracao++);
+  }
+
+  @override
+  void primeRefresh() {
+    if (_discover?.isLoadInFlight ?? false) return;
+    fullRefresh();
+  }
+
+  @override
+  void onTabShown() {
+    _discover?.refreshIfStale();
+  }
+
+  @override
+  void onTabHidden() {}
+
+  @override
+  void focusActiveTabIfReady() {
+    if (!mounted) return;
+    final dentro = [heroPlayFocusNode, heroDetailsFocusNode, avatarFocusNode];
+    if (dentro.any((no) => no.hasFocus)) return;
+    final primario = FocusManager.instance.primaryFocus?.context;
+    if (primario != null && primario.findAncestorStateOfType<HeisucaTvHomeScreenState>() == this) return;
     heroPlayFocusNode.requestFocus();
   }
 
-  bool get isAtHeroDestaque {
-    return heroPlayFocusNode.hasFocus || heroDetailsFocusNode.hasFocus || avatarFocusNode.hasFocus;
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) unawaited(_discover?.refreshContinueWatching());
   }
 
-  void _initRepository() {
-    final servers = context.read<MultiServerProvider?>();
-    final client = servers?.serverManager.navigationOnlineClients.values.firstOrNull;
-    final feeds = servers?.serverManager.visibleOnlineClients.values.whereType<JellyfinClient>().toList() ?? const [];
+  // ── Navegação ─────────────────────────────────────────────────────────────────────────────
 
-    _repository?.dispose();
-    _repository = switch (client) {
-      final JellyfinClient jf => CgflixHomeRepository(jf),
-      final PlexClient plex => HeisucaPlexHomeRepository(plex, feedClients: feeds),
-      _ => null,
-    };
+  /// Volta ao topo e devolve o foco ao [Assistir] (voltar do controle, item "Início" do menu).
+  void scrollToDestaqueAndFocus() {
+    _subirAoTopo();
+    _itemEmFoco.value = null;
+    heroPlayFocusNode.requestFocus();
+  }
 
-    if (_repository != null) {
-      _loadData(_repository!);
+  void _subirAoTopo() {
+    if (!_rolagem.hasClients || _rolagem.offset == 0) return;
+    unawaited(_rolagem.animateTo(0, duration: Movimento.tempo(context, Movimento.tela), curve: Movimento.entra));
+  }
+
+  void _abrirMenu() {
+    final abrir = widget.onOpenMenu;
+    if (abrir != null) {
+      abrir();
+      return;
     }
+    unawaited(HeisucaTvMenu.show(context, onSelectDestination: (destino) => widget.onSelectDestination?.call(destino)));
   }
 
-  Future<void> _loadData(HeisucaHomeRepository repo) async {
-    try {
-      // 1. Hero
-      final heroRow = await repo.watchHero().first.timeout(const Duration(seconds: 4));
-      if (mounted && heroRow.items.isNotEmpty) {
-        setState(() => _activeHero = heroRow.items.first);
-        if (heroPlayFocusNode.hasFocus) {
-          HeisucaTvPlaybackWarmup.onCardFocused(context, heroRow.items.first);
-        }
-      }
-
-      // 2. Continuar assistindo
-      final cwRow = await repo.watchRow(CgflixRowKind.continueWatching).first.timeout(const Duration(seconds: 4));
-      if (mounted) setState(() => _continueWatching = cwRow.items);
-
-      // 3. Trending
-      final trendingRow = await repo.watchTrending().first.timeout(const Duration(seconds: 4));
-      if (mounted) setState(() => _trending = trendingRow.items);
-
-      // 4. Bibliotecas
-      final libs = await repo.videoLibraries().timeout(const Duration(seconds: 4));
-      if (mounted) {
-        setState(() => _libraries = libs);
-        for (final lib in libs) {
-          final libRow = await repo.watchLibrary(lib).first.timeout(const Duration(seconds: 4));
-          if (mounted) {
-            setState(() => _libraryItems[lib.id] = libRow.items);
-          }
-        }
-      }
-    } catch (_) {
-      // Ignora falhas de rede em testes/offline
-    }
+  /// ← na borda esquerda: se não há nada à esquerda do foco, abre o menu (como no app de Windows).
+  KeyEventResult _teclou(FocusNode _, KeyEvent evento) {
+    if (evento is! KeyDownEvent || evento.logicalKey != LogicalKeyboardKey.arrowLeft) return KeyEventResult.ignored;
+    final foco = FocusManager.instance.primaryFocus;
+    if (foco == null) return KeyEventResult.ignored;
+    if (!foco.focusInDirection(TraversalDirection.left)) _abrirMenu();
+    return KeyEventResult.handled;
   }
 
-  /// Série no destaque toca o próximo episódio (ou o 1º); sem episódio, abre a ficha da TV.
-  /// Antes a série ia direto ao player e dava "O servidor não mandou nenhuma versão…" (17/11).
-  Future<void> _playItem(MediaItem item) async {
+  Future<void> _assistir(MediaItem item) async {
     final playable = await cgflixResolvePlayable(cgflixClientFor(context, item), item);
     if (!mounted) return;
     if (playable == null) {
-      _openDetails(item);
+      _abrirFicha(item);
       return;
     }
     await navigateToVideoPlayer(context, metadata: playable);
   }
 
-  void _openDetails(MediaItem item) {
-    HeisucaTvTitleScreen.show(context, item);
+  void _abrirFicha(MediaItem item) {
+    unawaited(HeisucaTvTitleScreen.show(context, item));
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final hero = _activeHero ?? widget.heroItem;
-
-    return HeisucaTvCanvas(
-      child: Scaffold(
-        backgroundColor: context.cgflix.background, // BG
-        body: Stack(
-          children: [
-            // 1. Fundo do Destaque (Arte de fundo em tela cheia com gradientes)
-            if (hero != null) Positioned.fill(child: _TvHeroBackdrop(item: hero)),
-
-            // 2. Conteúdo rolável: Hero + Continuar + Fileiras
-            CustomScrollView(
-              controller: _scrollController,
-              slivers: [
-                SliverToBoxAdapter(
-                  child: SizedBox(
-                    height: 1080,
-                    child: Stack(
-                      children: [
-                        // Header: Avatar e Logo
-                        Positioned(
-                          top: 0,
-                          left: 0,
-                          child: HeisucaTvHeader(
-                            focusNode: avatarFocusNode,
-                            onOpenMenu:
-                                widget.onOpenMenu ??
-                                () {
-                                  HeisucaTvMenu.show(
-                                    context,
-                                    onSelectDestination: (dest) {
-                                      widget.onSelectDestination?.call(dest);
-                                    },
-                                  );
-                                },
-                          ),
-                        ),
-
-                        // Informações do Destaque, ancoradas acima da fileira Continuar assistindo
-                        // (24 de margem + 225 da fileira + 12 + ~40 do título = ~301, mais folga). Com 270 o título
-                        // da fileira cobria os botões quando o nome do destaque quebrava em 2 linhas (30/10).
-                        if (hero != null)
-                          Positioned(
-                            left: 48,
-                            bottom: 350,
-                            right: 600,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'EM ALTA NO BRASIL · Nº 1',
-                                  style: TextStyle(
-                                    fontFamily: HeisucaTheme.fonteTexto,
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w600,
-                                    letterSpacing: 2.0,
-                                    color: context.cgflix.accent, // AC
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  hero.displayTitle,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontFamily: HeisucaTheme.fonteTitulo,
-                                    fontSize: 64,
-                                    fontWeight: FontWeight.w700,
-                                    height: 1.1,
-                                    color: context.cgflix.text, // TX
-                                  ),
-                                ),
-                                const SizedBox(height: 14),
-                                _buildMetadataLine(hero),
-                                const SizedBox(height: 16),
-                                if (hero.summary?.isNotEmpty == true)
-                                  Text(
-                                    hero.summary!,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontFamily: HeisucaTheme.fonteTexto,
-                                      fontSize: 26,
-                                      fontWeight: FontWeight.w400,
-                                      height: 1.3,
-                                      color: context.cgflix.text,
-                                    ),
-                                  ),
-                                const SizedBox(height: 28),
-                                // Botões [Assistir] e [Detalhes]
-                                Row(
-                                  children: [
-                                    _TvButtonPill(
-                                      key: const Key('heisuca-tv-hero-play'),
-                                      focusNode: heroPlayFocusNode,
-                                      autofocus: true,
-                                      text: '▶  Assistir',
-                                      isPrimary: true,
-                                      onTap: () => _playItem(hero),
-                                      onFocusChange: (focused) {
-                                        if (focused) {
-                                          HeisucaTvPlaybackWarmup.onCardFocused(context, hero);
-                                        } else {
-                                          HeisucaTvPlaybackWarmup.onFocusLost();
-                                        }
-                                      },
-                                    ),
-                                    const SizedBox(width: 24),
-                                    _TvButtonPill(
-                                      key: const Key('heisuca-tv-hero-details'),
-                                      focusNode: heroDetailsFocusNode,
-                                      text: 'Detalhes',
-                                      isPrimary: false,
-                                      onTap: () => _openDetails(hero),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-
-                        // Fileira Continuar Assistindo (logo abaixo do destaque)
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 24,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 48),
-                                child: Text(
-                                  'Continuar assistindo',
-                                  style: TextStyle(
-                                    fontFamily: HeisucaTheme.fonteTitulo,
-                                    fontSize: 30,
-                                    fontWeight: FontWeight.w600,
-                                    color: context.cgflix.text,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              _buildContinueWatchingRow(),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // Demais Fileiras do Acervo ao rolar para baixo
-                if (_trending.isNotEmpty)
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 36, bottom: 20),
-                      child: HeisucaTvMediaRow(title: 'Em alta no Heisuca', items: _trending, onItemTap: _openDetails),
-                    ),
-                  ),
-
-                for (final lib in _libraries)
-                  if ((_libraryItems[lib.id]?.isNotEmpty ?? false))
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 24, bottom: 20),
-                        child: HeisucaTvMediaRow(
-                          title: lib.title,
-                          items: _libraryItems[lib.id]!,
-                          onItemTap: _openDetails,
-                        ),
-                      ),
-                    ),
-
-                const SliverToBoxAdapter(child: SizedBox(height: 60)),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMetadataLine(MediaItem item) {
-    return Text(
-      '${_tvMetadata(item)} · Dublado',
-      style: TextStyle(
-        fontFamily: HeisucaTheme.fonteTexto,
-        fontSize: 26,
-        fontWeight: FontWeight.w500,
-        color: context.cgflix.textMuted, // TX2
-      ),
-    );
-  }
-
-  Widget _buildContinueWatchingRow() {
-    final items = _continueWatching.isNotEmpty ? _continueWatching : (widget.continueWatchingItems ?? const []);
-
-    if (items.isEmpty) {
-      return Container(
-        key: const Key('heisuca-tv-continue-row'),
-        height: 225,
-        alignment: Alignment.centerLeft,
-        padding: const EdgeInsets.symmetric(horizontal: 48),
-        child: Text(
-          'Nenhum item em andamento',
-          style: TextStyle(fontSize: 24, color: context.cgflix.text.withValues(alpha: 0.4)),
-        ),
-      );
+  /// Foco num cartão da primeira tela (Continuar): a arte do fundo segue o cartão.
+  void _focouNoTopo(MediaItem? item) {
+    _subirAoTopo();
+    _esperaDoFoco?.cancel();
+    if (item == null) {
+      _itemEmFoco.value = null;
+      return;
     }
-
-    return SizedBox(
-      key: const Key('heisuca-tv-continue-row'),
-      height: 225,
-      child: ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 48),
-        scrollDirection: Axis.horizontal,
-        itemCount: items.length,
-        separatorBuilder: (context, index) => const SizedBox(width: 24),
-        itemBuilder: (context, index) {
-          final item = items[index];
-          return _TvContinueCard(item: item, onTap: () => _playItem(item));
-        },
-      ),
-    );
+    HeisucaTvPlaybackWarmup.onCardFocused(context, item);
+    _esperaDoFoco = Timer(_focoParado, () => _itemEmFoco.value = item);
   }
-}
 
-/// Cartão 16:9 Widescreen para Continuar Assistindo na TV
-class _TvContinueCard extends StatefulWidget {
-  const _TvContinueCard({required this.item, required this.onTap});
+  // ── Tela ─────────────────────────────────────────────────────────────────────────────────
 
-  final MediaItem item;
-  final VoidCallback onTap;
-
-  @override
-  State<_TvContinueCard> createState() => _TvContinueCardState();
-}
-
-class _TvContinueCardState extends State<_TvContinueCard> {
-  bool _focused = false;
+  List<MediaItem> get _continuar {
+    if (_fixo) return widget.continueWatchingItems ?? const [];
+    return widget.continueWatchingItems ?? _discover?.onDeck ?? const [];
+  }
 
   @override
   Widget build(BuildContext context) {
-    final item = widget.item;
-    final progress = (item.durationMs != null && item.durationMs! > 0 && item.viewOffsetMs != null)
-        ? (item.viewOffsetMs! / item.durationMs!).clamp(0.0, 1.0)
-        : 0.35;
-
-    return FocusableActionDetector(
-      onFocusChange: (v) {
-        if (v) {
-          HeisucaTvPlaybackWarmup.onCardFocused(context, widget.item);
-        } else {
-          HeisucaTvPlaybackWarmup.onFocusLost();
-        }
-      },
-      onShowFocusHighlight: (v) => setState(() => _focused = v),
-      actions: {
-        ActivateIntent: CallbackAction<ActivateIntent>(
-          onInvoke: (_) {
-            widget.onTap();
-            return null;
-          },
-        ),
-      },
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: AnimatedScale(
-          scale: _focused ? HeisucaBase.focoEscalaTv : 1.0,
-          duration: const Duration(milliseconds: 140),
-          curve: Curves.easeOutCubic,
-          child: Container(
-            width: 400,
-            height: 225,
-            decoration: BoxDecoration(
-              color: context.cgflix.surface,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: _focused ? context.cgflix.focusRing : context.cgflix.text.withValues(alpha: 0.1),
-                width: _focused ? HeisucaBase.focoBorda : 1.0,
-              ),
-              boxShadow: _focused
-                  ? [BoxShadow(color: context.cgflix.text.withValues(alpha: 0.25), blurRadius: 18, spreadRadius: 2)]
-                  : null,
-            ),
-            clipBehavior: Clip.antiAlias,
+    final tema = TrilhoDaTv.escuroDaTv(TemaHeisuca.de(context));
+    final kids = heisucaKidsActive(context);
+    return HeisucaTvCanvas(
+      child: Theme(
+        data: Theme.of(context).copyWith(extensions: [...Theme.of(context).extensions.values, tema]),
+        child: Focus(
+          canRequestFocus: false,
+          skipTraversal: true,
+          onKeyEvent: _teclou,
+          child: ColoredBox(
+            color: tema.fundo,
             child: Stack(
               fit: StackFit.expand,
               children: [
-                if (item.thumbPath != null || item.artPath != null)
-                  OptimizedMediaImage(
-                    imagePath: item.thumbPath ?? item.artPath,
-                    imageType: ImageType.thumb,
-                    fit: BoxFit.cover,
-                  )
-                else
-                  Container(color: context.cgflix.surfaceHigh),
-
-                // Gradiente escuro inferior para leitura
-                const DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Colors.transparent, Color(0xCC000000)],
-                      stops: [0.5, 1.0],
-                    ),
-                  ),
-                ),
-
-                // Título e Temporada/Episódio
-                Positioned(
-                  left: 18,
-                  right: 18,
-                  bottom: 18,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        item.displayTitle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600, color: context.cgflix.text),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Barra de Progresso
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    minHeight: 6,
-                    backgroundColor: context.cgflix.text.withValues(alpha: 0.2),
-                    valueColor: AlwaysStoppedAnimation<Color>(context.cgflix.accent),
-                  ),
-                ),
+                _Fundo(itemEmFoco: _itemEmFoco, destaque: _destaque, rolado: _rolado),
+                Builder(builder: (context) => _conteudo(context, tema, kids)),
               ],
             ),
           ),
@@ -525,53 +331,370 @@ class _TvContinueCardState extends State<_TvContinueCard> {
       ),
     );
   }
+
+  Widget _conteudo(BuildContext context, TemaHeisuca tema, bool kids) {
+    final tela = MediaQuery.sizeOf(context);
+    final margem = HeisucaTvAreaSegura.margem(tela);
+    final destaque = _destaque;
+    final repositorio = _fixo ? null : _repositorio;
+    final continuar = _continuar;
+    return CustomScrollView(
+      controller: _rolagem,
+      slivers: [
+        SliverToBoxAdapter(
+          child: SizedBox(
+            height: max(tela.height, 900),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                HeisucaTvHeader(
+                  padding: EdgeInsets.only(left: margem.left, top: margem.top),
+                  focusNode: avatarFocusNode,
+                  onOpenMenu: _abrirMenu,
+                ),
+                const Spacer(),
+                Padding(
+                  padding: EdgeInsets.only(left: margem.left, right: margem.right),
+                  child: destaque == null
+                      ? const SizedBox(height: 360)
+                      : _Destaque(
+                          item: destaque,
+                          tema: tema,
+                          assistir: heroPlayFocusNode,
+                          detalhes: heroDetailsFocusNode,
+                          aoAssistir: () => unawaited(_assistir(destaque)),
+                          aoDetalhes: () => _abrirFicha(destaque),
+                          aoFocar: () {
+                            _focouNoTopo(null);
+                            HeisucaTvPlaybackWarmup.onCardFocused(context, destaque);
+                          },
+                        ),
+                ),
+                const SizedBox(height: HeisucaBase.espaco8),
+                _Continuar(
+                  key: const Key('heisuca-tv-continue-row'),
+                  itens: continuar,
+                  tema: tema,
+                  margem: margem.left,
+                  aoAssistir: (item) => unawaited(_assistir(item)),
+                  aoFocar: _focouNoTopo,
+                ),
+                SizedBox(height: margem.bottom),
+              ],
+            ),
+          ),
+        ),
+        if (repositorio != null)
+          SliverToBoxAdapter(
+            child: _Fileiras(
+              key: ValueKey('fileiras:${repositorio.client.serverId.value}:$_geracao:$kids'),
+              repositorio: repositorio,
+              kids: kids,
+              aoAbrir: _abrirFicha,
+              aoFocar: (item) => _itemEmFoco.value = item,
+            ),
+          ),
+        SliverToBoxAdapter(child: SizedBox(height: margem.bottom)),
+      ],
+    );
+  }
 }
 
-/// Fundo em tela cheia com arte e gradientes escuros
-class _TvHeroBackdrop extends StatelessWidget {
-  const _TvHeroBackdrop({required this.item});
+/// Arte de fundo em tela cheia: a do cartão em foco ou a do destaque, com degradê para o texto ficar legível.
+class _Fundo extends StatelessWidget {
+  const _Fundo({required this.itemEmFoco, required this.destaque, required this.rolado});
 
-  final MediaItem item;
+  final ValueListenable<MediaItem?> itemEmFoco;
+  final MediaItem? destaque;
+  final ValueListenable<bool> rolado;
 
   @override
   Widget build(BuildContext context) {
-    final imagePath = item.artPath ?? item.thumbPath;
-
+    final tema = TemaHeisuca.de(context);
+    final fundo = tema.fundo;
     return Stack(
       fit: StackFit.expand,
       children: [
-        if (imagePath != null)
-          OptimizedMediaImage(imagePath: imagePath, imageType: ImageType.art, fit: BoxFit.cover)
-        else
-          Container(color: context.cgflix.surfaceHigh),
-
-        // Gradiente da esquerda (escurece onde fica o texto e botões)
+        ValueListenableBuilder<MediaItem?>(
+          valueListenable: itemEmFoco,
+          builder: (context, emFoco, _) {
+            final item = emFoco ?? destaque;
+            final caminho = item == null
+                ? null
+                : item.heroArtCandidates(containerAspectRatio: 16 / 9).firstOrNull ?? item.artPath;
+            return AnimatedSwitcher(
+              duration: Movimento.tempo(context, Movimento.troca),
+              switchInCurve: Movimento.entra,
+              switchOutCurve: Movimento.sai,
+              child: item == null || caminho == null
+                  ? const SizedBox.expand(key: ValueKey('sem-arte'))
+                  : OptimizedMediaImage(
+                      key: ValueKey('arte:${item.globalKey}:$caminho'),
+                      client: cgflixClientFor(context, item),
+                      imagePath: caminho,
+                      imageType: ImageType.art,
+                      fit: BoxFit.cover,
+                      alignment: const Alignment(0, -0.64),
+                    ),
+            );
+          },
+        ),
+        // Esquerda: o texto do destaque fica sobre o fundo, não sobre a arte.
         DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
-              colors: [
-                context.cgflix.background.withValues(alpha: 247 / 255), // 97% opacidade
-                context.cgflix.background.withValues(alpha: 191 / 255), // 75%
-                context.cgflix.background.withValues(alpha: 13 / 255), // 5%
-              ],
-              stops: [0.0, 0.45, 0.85],
+              colors: [fundo.withValues(alpha: 0.92), fundo.withValues(alpha: 0.55), fundo.withValues(alpha: 0)],
+              stops: const [0, 0.42, 0.75],
             ),
           ),
         ),
-
-        // Gradiente de baixo (funde com a área de rolagem inferior)
+        // Embaixo: a fileira "Continuar" fica sobre o fundo.
         DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              begin: Alignment.bottomCenter,
-              end: Alignment.topCenter,
-              colors: [
-                context.cgflix.background,
-                context.cgflix.background.withValues(alpha: 0 / 255),
-              ],
-              stops: [0.0, 0.5],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [fundo.withValues(alpha: 0), fundo.withValues(alpha: 0.7), fundo],
+              stops: const [0.35, 0.7, 1],
+            ),
+          ),
+        ),
+        ValueListenableBuilder<bool>(
+          valueListenable: rolado,
+          builder: (context, desceu, _) => AnimatedOpacity(
+            opacity: desceu ? 1 : 0,
+            duration: Movimento.tempo(context, Movimento.troca),
+            curve: Movimento.padrao,
+            child: ColoredBox(color: fundo.withValues(alpha: 0.72)),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Bloco do destaque: logo (ou título), dados reais, sinopse e os botões.
+class _Destaque extends StatelessWidget {
+  const _Destaque({
+    required this.item,
+    required this.tema,
+    required this.assistir,
+    required this.detalhes,
+    required this.aoAssistir,
+    required this.aoDetalhes,
+    required this.aoFocar,
+  });
+
+  final MediaItem item;
+  final TemaHeisuca tema;
+  final FocusNode assistir;
+  final FocusNode detalhes;
+  final VoidCallback aoAssistir;
+  final VoidCallback aoDetalhes;
+  final VoidCallback aoFocar;
+
+  @override
+  Widget build(BuildContext context) {
+    final dados = juntar([_tvMetadata(item), notaDe(item.rating), ...?item.genres?.take(2)]);
+    final sinopse = item.summary?.trim();
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 1000),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          HeisucaTitleLogo(
+            item: item,
+            client: cgflixClientFor(context, item),
+            width: 640,
+            height: 180,
+            fallbackWidth: 900,
+            compactFallback: true,
+            fallbackBuilder: (context) =>
+                Text(item.displayTitle, maxLines: 2, overflow: TextOverflow.ellipsis, style: _tv(Tipo.destaque(tema))),
+          ),
+          if (dados != null) ...[
+            const SizedBox(height: Forma.espaco4),
+            Text(
+              dados,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: _tv(Tipo.pequeno(tema)).copyWith(color: tema.texto),
+            ),
+          ],
+          if (sinopse != null && sinopse.isNotEmpty) ...[
+            const SizedBox(height: Forma.espaco3),
+            Text(sinopse, maxLines: 2, overflow: TextOverflow.ellipsis, style: _tv(Tipo.texto(tema))),
+          ],
+          const SizedBox(height: Forma.espaco6),
+          Row(
+            children: [
+              _BotaoTv(
+                key: const Key('heisuca-tv-hero-play'),
+                focusNode: assistir,
+                autofocus: true,
+                principal: true,
+                icone: Icons.play_arrow_rounded,
+                rotulo: 'Assistir',
+                tema: tema,
+                aoTocar: aoAssistir,
+                aoFocar: aoFocar,
+              ),
+              const SizedBox(width: Forma.espaco4),
+              _BotaoTv(
+                key: const Key('heisuca-tv-hero-details'),
+                focusNode: detalhes,
+                icone: Icons.info_outline_rounded,
+                rotulo: 'Detalhes',
+                tema: tema,
+                aoTocar: aoDetalhes,
+                aoFocar: aoFocar,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Botão em pílula da TV: neutro, o principal em destaque; foco = anel + escala.
+class _BotaoTv extends StatefulWidget {
+  const _BotaoTv({
+    super.key,
+    required this.focusNode,
+    required this.icone,
+    required this.rotulo,
+    required this.tema,
+    required this.aoTocar,
+    required this.aoFocar,
+    this.principal = false,
+    this.autofocus = false,
+  });
+
+  final FocusNode focusNode;
+  final IconData icone;
+  final String rotulo;
+  final TemaHeisuca tema;
+  final VoidCallback aoTocar;
+  final VoidCallback aoFocar;
+  final bool principal;
+  final bool autofocus;
+
+  @override
+  State<_BotaoTv> createState() => _BotaoTvState();
+}
+
+class _BotaoTvState extends State<_BotaoTv> {
+  bool _foco = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final tema = widget.tema;
+    final tinta = widget.principal ? tema.botaoTexto : tema.texto;
+    return Semantics(
+      button: true,
+      label: widget.rotulo,
+      excludeSemantics: true,
+      child: FocusableActionDetector(
+        focusNode: widget.focusNode,
+        autofocus: widget.autofocus,
+        onFocusChange: (focado) {
+          if (focado) widget.aoFocar();
+        },
+        onShowFocusHighlight: (v) => setState(() => _foco = v),
+        actions: {
+          ActivateIntent: CallbackAction<ActivateIntent>(
+            onInvoke: (_) {
+              widget.aoTocar();
+              return null;
+            },
+          ),
+        },
+        child: GestureDetector(
+          onTap: widget.aoTocar,
+          child: AnimatedScale(
+            scale: _foco ? HeisucaBase.focoEscalaTv : 1,
+            duration: Movimento.tempo(context, Movimento.toque),
+            curve: Movimento.entra,
+            child: AnimatedContainer(
+              duration: Movimento.tempo(context, Movimento.toque),
+              curve: Movimento.entra,
+              constraints: const BoxConstraints(minHeight: 72, minWidth: 200),
+              padding: const EdgeInsets.symmetric(horizontal: HeisucaBase.espaco8),
+              decoration: ShapeDecoration(
+                shape: Forma.pilula(
+                  lado: _foco ? BorderSide(color: tema.foco, width: Forma.anelDeFoco) : BorderSide.none,
+                ),
+                color: widget.principal ? tema.botaoFundo : tema.superficie2,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(widget.icone, size: 36, color: tinta),
+                  const SizedBox(width: Forma.espaco3),
+                  Text(
+                    widget.rotulo,
+                    style: _tv(Tipo.subtitulo(tema)).copyWith(color: tinta, fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// "Continuar assistindo": cartões 16:9 com o quanto falta e a barra de progresso. Some sem itens.
+class _Continuar extends StatelessWidget {
+  const _Continuar({
+    super.key,
+    required this.itens,
+    required this.tema,
+    required this.margem,
+    required this.aoAssistir,
+    required this.aoFocar,
+  });
+
+  static const double _largura = 384;
+  static const double _altura = 216;
+
+  final List<MediaItem> itens;
+  final TemaHeisuca tema;
+  final double margem;
+  final ValueChanged<MediaItem> aoAssistir;
+  final ValueChanged<MediaItem?> aoFocar;
+
+  @override
+  Widget build(BuildContext context) {
+    if (itens.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: margem),
+          child: Text('Continuar assistindo', style: _tv(Tipo.subtitulo(tema))),
+        ),
+        SizedBox(
+          height: _altura + 120,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.symmetric(horizontal: margem, vertical: Forma.espaco4),
+            itemCount: itens.length,
+            separatorBuilder: (context, _) => const SizedBox(width: Forma.espaco6),
+            itemBuilder: (context, i) => _CartaoContinuar(
+              item: itens[i],
+              tema: tema,
+              largura: _largura,
+              altura: _altura,
+              aoTocar: () => aoAssistir(itens[i]),
+              aoFocar: (focado) => aoFocar(focado ? itens[i] : null),
             ),
           ),
         ),
@@ -580,110 +703,115 @@ class _TvHeroBackdrop extends StatelessWidget {
   }
 }
 
-/// Botão em pílula com contorno branco e escala no foco
-class _TvButtonPill extends StatefulWidget {
-  const _TvButtonPill({
-    super.key,
-    required this.text,
-    required this.onTap,
-    this.focusNode,
-    this.autofocus = false,
-    this.isPrimary = true,
-    this.onFocusChange,
+class _CartaoContinuar extends StatefulWidget {
+  const _CartaoContinuar({
+    required this.item,
+    required this.tema,
+    required this.largura,
+    required this.altura,
+    required this.aoTocar,
+    required this.aoFocar,
   });
 
-  final String text;
-  final VoidCallback onTap;
-  final FocusNode? focusNode;
-  final bool autofocus;
-  final bool isPrimary;
-  final ValueChanged<bool>? onFocusChange;
+  final MediaItem item;
+  final TemaHeisuca tema;
+  final double largura;
+  final double altura;
+  final VoidCallback aoTocar;
+  final ValueChanged<bool> aoFocar;
 
   @override
-  State<_TvButtonPill> createState() => _TvButtonPillState();
+  State<_CartaoContinuar> createState() => _CartaoContinuarState();
 }
 
-class _TvButtonPillState extends State<_TvButtonPill> {
-  late final FocusNode _focusNode = widget.focusNode ?? FocusNode();
-  bool _focused = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _focusNode.addListener(_onFocusChange);
-  }
-
-  @override
-  void dispose() {
-    if (widget.focusNode == null) {
-      _focusNode.dispose();
-    } else {
-      _focusNode.removeListener(_onFocusChange);
-    }
-    super.dispose();
-  }
-
-  void _onFocusChange() {
-    if (mounted && _focused != _focusNode.hasFocus) {
-      setState(() => _focused = _focusNode.hasFocus);
-      widget.onFocusChange?.call(_focusNode.hasFocus);
-    }
-  }
+class _CartaoContinuarState extends State<_CartaoContinuar> {
+  bool _foco = false;
 
   @override
   Widget build(BuildContext context) {
-    final active = _focused;
-
-    return FocusableActionDetector(
-      focusNode: _focusNode,
-      autofocus: widget.autofocus,
-      onShowFocusHighlight: (v) {
-        if (mounted && _focused != v) {
-          setState(() => _focused = v);
-        }
-      },
-      actions: {
-        ActivateIntent: CallbackAction<ActivateIntent>(
-          onInvoke: (_) {
-            widget.onTap();
-            return null;
-          },
-        ),
-      },
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: AnimatedScale(
-          scale: active ? HeisucaBase.focoEscalaTv : 1.0,
-          duration: const Duration(milliseconds: 140),
-          curve: Curves.easeOutCubic,
-          child: Container(
-            height: 72,
-            padding: const EdgeInsets.symmetric(horizontal: 36),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: active
-                  ? context.cgflix.text
-                  : widget.isPrimary
-                  ? context.cgflix.action
-                  : context.cgflix.text.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(36),
-              border: Border.all(
-                color: active ? context.cgflix.focusRing : Colors.transparent,
-                width: HeisucaBase.focoBorda,
+    final item = widget.item;
+    final tema = widget.tema;
+    final progresso = progressoDe(item.durationMs, item.viewOffsetMs);
+    final legenda = juntar([cgflixEpisodeLabel(item), restam(item.durationMs, item.viewOffsetMs)]);
+    return SizedBox(
+      width: widget.largura,
+      child: FocusableActionDetector(
+        onFocusChange: (focado) {
+          // Só avisa quando ganha o foco; ao sair, o próximo cartão (ou o destaque) assume.
+          if (focado) widget.aoFocar(true);
+        },
+        onShowFocusHighlight: (v) => setState(() => _foco = v),
+        actions: {
+          ActivateIntent: CallbackAction<ActivateIntent>(
+            onInvoke: (_) {
+              widget.aoTocar();
+              return null;
+            },
+          ),
+        },
+        child: GestureDetector(
+          onTap: widget.aoTocar,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AnimatedScale(
+                scale: _foco ? HeisucaBase.focoEscalaTv : 1,
+                duration: Movimento.tempo(context, Movimento.toque),
+                curve: Movimento.entra,
+                child: Container(
+                  width: widget.largura,
+                  height: widget.altura,
+                  clipBehavior: Clip.antiAlias,
+                  decoration: ShapeDecoration(
+                    color: tema.superficie,
+                    shape: Forma.superelipse(
+                      Forma.raioMedio,
+                      lado: _foco ? BorderSide(color: tema.foco, width: Forma.anelDeFoco) : BorderSide.none,
+                    ),
+                  ),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      OptimizedMediaImage(
+                        client: cgflixClientFor(context, item),
+                        imagePath: cgflixWidePath(item),
+                        width: widget.largura,
+                        height: widget.altura,
+                        imageType: ImageType.thumb,
+                        fit: BoxFit.cover,
+                      ),
+                      if (progresso != null)
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: SizedBox(
+                            height: Forma.espaco2,
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                ColoredBox(color: tema.superficie2),
+                                FractionallySizedBox(
+                                  alignment: Alignment.centerLeft,
+                                  widthFactor: progresso,
+                                  child: ColoredBox(color: tema.acento),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
               ),
-              boxShadow: active
-                  ? [BoxShadow(color: context.cgflix.text.withValues(alpha: 0.35), blurRadius: 18, spreadRadius: 2)]
-                  : null,
-            ),
-            child: Text(
-              widget.text,
-              style: TextStyle(
-                fontFamily: HeisucaTheme.fonteTexto,
-                fontSize: 26,
-                fontWeight: active ? FontWeight.w700 : FontWeight.w600,
-                color: active || widget.isPrimary ? context.cgflix.onAction : context.cgflix.text,
+              const SizedBox(height: Forma.espaco3),
+              Text(
+                item.grandparentTitle ?? item.displayTitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: _tv(Tipo.texto(tema)).copyWith(fontWeight: FontWeight.w600),
               ),
-            ),
+              if (legenda != null)
+                Text(legenda, maxLines: 1, overflow: TextOverflow.ellipsis, style: _tv(Tipo.pequeno(tema))),
+            ],
           ),
         ),
       ),
@@ -691,7 +819,96 @@ class _TvButtonPillState extends State<_TvButtonPill> {
   }
 }
 
-// Metadados já carregados; classificação indicativa não é a nota do público.
+/// As fileiras abaixo da primeira tela, na mesma ordem do Início do celular.
+///
+/// No infantil, só as coleções da turma; fora dele, "Em alta no Brasil" e uma fileira por biblioteca de vídeo.
+/// Fileira vazia não aparece.
+class _Fileiras extends StatelessWidget {
+  const _Fileiras({
+    super.key,
+    required this.repositorio,
+    required this.kids,
+    required this.aoAbrir,
+    required this.aoFocar,
+  });
+
+  final HeisucaHomeRepository repositorio;
+  final bool kids;
+  final ValueChanged<MediaItem> aoAbrir;
+  final ValueChanged<MediaItem> aoFocar;
+
+  Widget _fileira(String titulo, CgflixRowData dados) {
+    if (dados.items.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: HeisucaBase.espaco8),
+      child: HeisucaTvMediaRow(title: titulo, items: dados.items, onItemTap: aoAbrir, aoFocarItem: aoFocar),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      if (kids)
+        for (final nome in cgflixKidsCollections)
+          _Trecho<CgflixRowData>(
+            key: ValueKey('kids:$nome'),
+            fonte: () => repositorio.watchCollection(nome),
+            pronto: (dados) => _fileira(nome, dados),
+          ),
+      if (!kids)
+        _Trecho<CgflixRowData>(
+          key: const ValueKey('em-alta'),
+          fonte: repositorio.watchTrending,
+          pronto: (dados) => _fileira('Em alta no Brasil', dados),
+        ),
+      if (!kids)
+        _Trecho<List<MediaLibrary>>(
+          key: const ValueKey('bibliotecas'),
+          fonte: () => repositorio.videoLibraries().asStream(),
+          pronto: (bibliotecas) => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final biblioteca in bibliotecas)
+                _Trecho<CgflixRowData>(
+                  key: ValueKey('biblioteca:${biblioteca.id}'),
+                  fonte: () => repositorio.watchLibrary(biblioteca),
+                  pronto: (dados) => _fileira(biblioteca.title, dados),
+                ),
+            ],
+          ),
+        ),
+    ],
+  );
+}
+
+/// Um trecho da tela alimentado por um fluxo do acervo; o fluxo abre uma vez e vive enquanto a chave não mudar.
+/// Erro ou espera não desenham nada: a fileira só entra quando tem o que mostrar.
+class _Trecho<T> extends StatefulWidget {
+  const _Trecho({super.key, required this.fonte, required this.pronto});
+
+  final Stream<T> Function() fonte;
+  final Widget Function(T dados) pronto;
+
+  @override
+  State<_Trecho<T>> createState() => _TrechoState<T>();
+}
+
+class _TrechoState<T> extends State<_Trecho<T>> {
+  late final Stream<T> _fluxo = widget.fonte();
+
+  @override
+  Widget build(BuildContext context) => StreamBuilder<T>(
+    stream: _fluxo,
+    builder: (context, retrato) {
+      if (retrato.hasError || !retrato.hasData) return const SizedBox.shrink();
+      return widget.pronto(retrato.data as T);
+    },
+  );
+}
+
 String _tvMetadata(MediaItem item) {
   final parts = <String>[
     if (item.year != null) '${item.year}',
@@ -704,12 +921,21 @@ String _tvMetadata(MediaItem item) {
   return parts.join(' · ');
 }
 
-/// Fileira com informação local: o foco só notifica seu painel, sem consulta de rede.
+/// Fileira de pôsteres da TV com o painel de informação acima (título, dados e sinopse do cartão em foco).
 class HeisucaTvMediaRow extends StatefulWidget {
-  const HeisucaTvMediaRow({super.key, required this.title, required this.items, required this.onItemTap});
+  const HeisucaTvMediaRow({
+    super.key,
+    required this.title,
+    required this.items,
+    required this.onItemTap,
+    this.aoFocarItem,
+  });
   final String title;
   final List<MediaItem> items;
   final ValueChanged<MediaItem> onItemTap;
+
+  /// Cartão que ficou em foco (depois da espera de [_focoParado]): a tela usa para trocar a arte do fundo.
+  final ValueChanged<MediaItem>? aoFocarItem;
 
   @override
   State<HeisucaTvMediaRow> createState() => _TvMediaRowState();
@@ -721,12 +947,34 @@ class _TvMediaRowState extends State<HeisucaTvMediaRow> {
   MediaItem? _pendingItem;
 
   void _focus(MediaItem item, bool focused) {
+    if (focused) {
+      _alinhar();
+      HeisucaTvPlaybackWarmup.onCardFocused(context, item);
+    }
     if (!focused && _pendingItem?.id != item.id) return;
     _debounce?.cancel();
     _pendingItem = focused ? item : null;
     if (focused) {
-      _debounce = Timer(const Duration(milliseconds: 120), () => _focusedItem.value = item);
+      _debounce = Timer(_focoParado, () {
+        _focusedItem.value = item;
+        widget.aoFocarItem?.call(item);
+      });
     }
+  }
+
+  /// Leva a fileira inteira (título, painel e pôsteres) para perto do topo, como no app de Windows.
+  void _alinhar() {
+    final caixa = context.findRenderObject();
+    final vertical = Scrollable.maybeOf(context, axis: Axis.vertical);
+    if (caixa == null || vertical == null) return;
+    unawaited(
+      vertical.position.ensureVisible(
+        caixa,
+        alignment: 0.08,
+        duration: Movimento.tempo(context, Movimento.tela),
+        curve: Movimento.entra,
+      ),
+    );
   }
 
   @override
@@ -746,105 +994,115 @@ class _TvMediaRowState extends State<HeisucaTvMediaRow> {
   }
 
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 48),
-        child: Text(
-          widget.title,
-          style: TextStyle(
-            fontFamily: HeisucaTheme.fonteTitulo,
-            fontSize: 30,
-            fontWeight: FontWeight.w600,
-            color: context.cgflix.text,
-          ),
+  Widget build(BuildContext context) {
+    final tema = TrilhoDaTv.escuroDaTv(TemaHeisuca.de(context));
+    final margem = HeisucaTvAreaSegura.margem(MediaQuery.sizeOf(context)).left;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: margem),
+          child: Text(widget.title, style: _tv(Tipo.subtitulo(tema))),
         ),
-      ),
-      SizedBox(
-        key: const ValueKey('tv-row-info'),
-        height: 192,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 8),
-          child: ValueListenableBuilder<MediaItem?>(
-            valueListenable: _focusedItem,
-            builder: (context, item, child) => Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item?.displayTitle ?? '',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontFamily: HeisucaTheme.fonteTitulo,
-                    fontSize: 28,
-                    color: context.cgflix.text,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Text(
-                  item == null ? '' : _tvMetadata(item),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontFamily: HeisucaTheme.fonteTexto, fontSize: 22, color: context.cgflix.accent),
-                ),
-                const SizedBox(height: 6),
-                Expanded(
-                  child: Text(
-                    item?.summary ?? '',
-                    maxLines: 3,
+        SizedBox(
+          key: const ValueKey('tv-row-info'),
+          height: 192,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: margem, vertical: Forma.espaco2),
+            child: ValueListenableBuilder<MediaItem?>(
+              valueListenable: _focusedItem,
+              builder: (context, item, child) => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item?.displayTitle ?? '',
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontFamily: HeisucaTheme.fonteTexto,
-                      fontSize: 22,
-                      height: 1.3,
-                      color: context.cgflix.text,
+                    style: _tv(Tipo.texto(tema)).copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  Text(
+                    item == null ? '' : _tvMetadata(item),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: _tv(Tipo.pequeno(tema)).copyWith(color: tema.acento),
+                  ),
+                  const SizedBox(height: Forma.espaco1),
+                  Expanded(
+                    child: Text(
+                      item?.summary ?? '',
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: _tv(Tipo.pequeno(tema)).copyWith(color: tema.texto),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
-      ),
-      SizedBox(
-        height: 330,
-        child: ListView.separated(
-          padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 10),
-          scrollDirection: Axis.horizontal,
-          itemCount: widget.items.length,
-          separatorBuilder: (context, index) => const SizedBox(width: 20),
-          itemBuilder: (context, index) {
-            final item = widget.items[index];
-            return _TvPosterCard(
-              item: item,
-              onTap: () => widget.onItemTap(item),
-              onFocusChange: (focused) => _focus(item, focused),
-            );
-          },
+        SizedBox(
+          height: _TvPosterCard.altura(context, tema) + 2 * Forma.espaco3,
+          child: ListView.separated(
+            padding: EdgeInsets.symmetric(horizontal: margem, vertical: Forma.espaco3),
+            scrollDirection: Axis.horizontal,
+            itemCount: widget.items.length,
+            separatorBuilder: (context, index) => const SizedBox(width: Forma.espaco6),
+            itemBuilder: (context, index) {
+              final item = widget.items[index];
+              return _TvPosterCard(
+                item: item,
+                tema: tema,
+                onTap: () => widget.onItemTap(item),
+                onFocusChange: (focused) => _focus(item, focused),
+              );
+            },
+          ),
         ),
-      ),
-    ],
-  );
+      ],
+    );
+  }
 }
 
 class _TvPosterCard extends StatefulWidget {
-  const _TvPosterCard({required this.item, required this.onTap, required this.onFocusChange});
+  const _TvPosterCard({required this.item, required this.tema, required this.onTap, required this.onFocusChange});
   final MediaItem item;
+  final TemaHeisuca tema;
   final VoidCallback onTap;
   final ValueChanged<bool> onFocusChange;
+
+  static const double largura = 180;
+  static const double alturaDoPoster = 270;
+
+  static TextStyle estiloDoTitulo(TemaHeisuca tema) => _tv(Tipo.pequeno(tema)).copyWith(color: tema.texto);
+
+  /// Altura do cartão (pôster + respiro + uma linha de título), medida com a letra que a pessoa escolheu:
+  /// a fileira reserva exatamente isso, sem número mágico que estoura quando a letra cresce.
+  static double altura(BuildContext context, TemaHeisuca tema) {
+    final linha = TextPainter(
+      text: TextSpan(text: 'Hg', style: estiloDoTitulo(tema)),
+      textDirection: TextDirection.ltr,
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    final alturaDaLinha = linha.height;
+    linha.dispose();
+    return alturaDoPoster + Forma.espaco2 + alturaDaLinha;
+  }
+
   @override
   State<_TvPosterCard> createState() => _TvPosterCardState();
 }
 
 class _TvPosterCardState extends State<_TvPosterCard> {
   bool _focused = false;
+
   @override
   Widget build(BuildContext context) {
     final item = widget.item;
+    final tema = widget.tema;
     return SizedBox(
-      width: 180,
+      width: _TvPosterCard.largura,
       child: FocusableActionDetector(
         onFocusChange: widget.onFocusChange,
         onShowFocusHighlight: (v) => setState(() => _focused = v),
@@ -862,35 +1120,36 @@ class _TvPosterCardState extends State<_TvPosterCard> {
             children: [
               AnimatedScale(
                 scale: _focused ? HeisucaBase.focoEscalaTv : 1,
-                duration: HeisucaMotion.reduced(context) ? Duration.zero : const Duration(milliseconds: 140),
+                duration: Movimento.tempo(context, Movimento.toque),
+                curve: Movimento.entra,
                 child: Container(
-                  width: 180,
-                  height: 270,
-                  decoration: BoxDecoration(
-                    color: context.cgflix.surface,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: _focused ? context.cgflix.focusRing : Colors.transparent,
-                      width: HeisucaBase.focoBorda,
+                  width: _TvPosterCard.largura,
+                  height: _TvPosterCard.alturaDoPoster,
+                  clipBehavior: Clip.antiAlias,
+                  decoration: ShapeDecoration(
+                    color: tema.superficie,
+                    shape: Forma.superelipse(
+                      Forma.raioMedio,
+                      lado: _focused ? BorderSide(color: tema.foco, width: Forma.anelDeFoco) : BorderSide.none,
                     ),
                   ),
-                  clipBehavior: Clip.antiAlias,
-                  child: (item.thumbPath != null || item.artPath != null)
-                      ? OptimizedMediaImage(
-                          imagePath: item.thumbPath ?? item.artPath,
-                          imageType: ImageType.poster,
-                          fit: BoxFit.cover,
-                        )
-                      : const SizedBox.expand(),
+                  child: OptimizedMediaImage(
+                    client: cgflixClientFor(context, item),
+                    imagePath: cgflixPosterPath(item) ?? item.artPath,
+                    width: _TvPosterCard.largura,
+                    height: _TvPosterCard.alturaDoPoster,
+                    imageType: ImageType.poster,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: Forma.espaco2),
               Text(
                 item.displayTitle,
                 key: ValueKey('tv-poster-title-${item.id}'),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontFamily: HeisucaTheme.fonteTexto, fontSize: 22, color: context.cgflix.text),
+                style: _TvPosterCard.estiloDoTitulo(tema),
               ),
             ],
           ),

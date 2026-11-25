@@ -140,6 +140,22 @@ void main() {
     }
   }
 
+  testWidgets('Ajustes 960×540, letra 100 %: os dez itens cabem sem rolar e fora do degradê', (tester) async {
+    await montar(tester, const HeisucaTvSettingsScreen());
+    final lista = tester.getRect(find.byType(HeisucaTvBordasSuaves));
+    const borda = (HeisucaBase.espaco8 + Forma.anelDeFoco) * 0.5;
+    for (final nome in itens) {
+      final item = find.byKey(ValueKey('tv-ajuste-$nome'));
+      expect(item, findsOneWidget, reason: '$nome já deve estar montado na primeira entrada');
+      final caixa = tester.getRect(item);
+      expect(caixa.top, greaterThanOrEqualTo(lista.top + borda - 0.01), reason: nome);
+      expect(caixa.bottom, lessThanOrEqualTo(lista.bottom - borda + 0.01), reason: nome);
+    }
+    final rolagem = tester.state<ScrollableState>(find.byType(Scrollable).first);
+    expect(rolagem.position.maxScrollExtent, 0);
+    expect(tester.takeException(), isNull);
+  });
+
   for (final letra in [1.0, 2.0]) {
     testWidgets('Ajustes 960×540, letra $letra: Perfil focado conserva a largura das demais linhas', (tester) async {
       await montar(tester, const HeisucaTvSettingsScreen(), letra: letra);

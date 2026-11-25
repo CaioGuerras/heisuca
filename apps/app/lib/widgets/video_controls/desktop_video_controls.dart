@@ -37,7 +37,7 @@ import 'video_control_button.dart';
 import 'helpers/track_filter_helper.dart';
 import '../../design/forma.dart';
 import '../../features/player_tv/barra_do_player_tv.dart';
-import '../../utils/track_label_builder.dart';
+import '../../features/player_tv/rotulos_de_faixa_tv.dart';
 
 /// Desktop-specific video controls layout with top bar and bottom controls
 class DesktopVideoControls extends StatefulWidget {
@@ -1177,19 +1177,25 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
         ItemDaBarraTv(
           foco: _tvAudioFocusNode,
           rotulo: t.videoControls.audioLabel,
-          texto: '${t.videoControls.audioLabel} · ${_tvAudioLabel(selection)}',
+          iconeDaPilula: Symbols.volume_up_rounded,
+          texto: _tvAudioLabel(selection),
+          textoCompacto: faixaMinimaTv(_tvAudioLabel(selection)),
           aoTocar: openTracks,
         ),
         ItemDaBarraTv(
           foco: _tvSubtitleFocusNode,
           rotulo: t.videoControls.subtitlesLabel,
-          texto: '${t.videoControls.subtitlesLabel} · ${_tvSubtitleLabel(selection)}',
+          iconeDaPilula: Symbols.subtitles_rounded,
+          texto: _tvSubtitleLabel(selection),
+          textoCompacto: faixaMinimaTv(_tvSubtitleLabel(selection)),
           aoTocar: openTracks,
         ),
         ItemDaBarraTv(
           foco: _tvEpisodesFocusNode,
           rotulo: _tvStripLabel,
+          iconeDaPilula: Symbols.view_list_rounded,
           texto: _tvStripLabel,
+          textoCompacto: widget.metadata.kind == MediaKind.movie ? 'Cap.' : 'Ep.',
           aoTocar: _showContentStrip,
         ),
       ],
@@ -1211,28 +1217,11 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
     return _audioName(audio, index < 0 ? 0 : index);
   }
 
-  String _audioName(AudioTrack track, int index) => TrackLabelBuilder.audioLabel(
-    title: track.title,
-    language: track.language,
-    codec: track.codec,
-    channels: track.channelsCount,
-    index: index,
-  ).primary;
+  String _audioName(AudioTrack track, int index) => idiomaCurtoTv(idioma: track.language, nome: track.title);
 
   String _tvSubtitleLabel(TrackSelection selection) {
     final sub = selection.subtitle;
     if (sub == null || sub.id == SubtitleTrack.off.id) return t.fileInfo.subtitlesOff;
-    final tracks = TrackFilterHelper.extractAndFilterTracks<SubtitleTrack>(
-      widget.player.state.tracks,
-      (t) => t?.subtitle ?? [],
-    );
-    final index = tracks.indexWhere((t) => t.id == sub.id);
-    return TrackLabelBuilder.subtitleLabel(
-      title: sub.title,
-      language: sub.language,
-      codec: sub.codec,
-      forced: sub.isForced,
-      index: index < 0 ? 0 : index,
-    ).primary;
+    return legendaCurtaTv(idioma: sub.language, nome: sub.title, forcada: sub.isForced);
   }
 }

@@ -236,8 +236,9 @@ class _Cabeca extends StatelessWidget {
     final progresso = pagina.progresso;
     final aoAlternarLista = pagina.aoAlternarLista;
     final aoAlternarVisto = pagina.aoAlternarVisto;
-    return SizedBox(
-      height: altura,
+    return ConstrainedBox(
+      // Com letra ampliada, a cabeça pode crescer dentro da rolagem em vez de estourar a sinopse.
+      constraints: BoxConstraints(minHeight: altura),
       child: Padding(
         padding: EdgeInsets.fromLTRB(margem.left, margem.top, margem.right, Forma.espaco6),
         child: Column(
@@ -256,12 +257,7 @@ class _Cabeca extends StatelessWidget {
               const SizedBox(height: Forma.espaco4),
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 1000),
-                child: Text(
-                  sinopse,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                  style: tvTexto(Tipo.texto(tema)).copyWith(color: tema.texto2),
-                ),
+                child: _Sinopse(texto: sinopse),
               ),
             ],
             const SizedBox(height: HeisucaBase.espaco8),
@@ -308,6 +304,57 @@ class _Cabeca extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// A sinopse termina numa palavra inteira: o corte padrão do Text pode mostrar só a primeira
+/// letra da palavra seguinte. A medição usa a largura e a escala reais, inclusive letra em 200 %.
+class _Sinopse extends StatelessWidget {
+  const _Sinopse({required this.texto});
+
+  final String texto;
+
+  @override
+  Widget build(BuildContext context) {
+    final estilo = tvTexto(Tipo.texto(TemaHeisuca.de(context))).copyWith(color: TemaHeisuca.de(context).texto2);
+    return LayoutBuilder(
+      builder: (context, limites) {
+        final pintor = TextPainter(
+          textDirection: Directionality.of(context),
+          textScaler: MediaQuery.textScalerOf(context),
+          textHeightBehavior: DefaultTextStyle.of(context).textHeightBehavior,
+          maxLines: 4,
+        );
+        bool cabe(String trecho) {
+          pintor.text = TextSpan(text: trecho, style: estilo);
+          pintor.layout(maxWidth: limites.maxWidth);
+          return !pintor.didExceedMaxLines;
+        }
+
+        var visivel = texto;
+        if (!cabe(texto)) {
+          // Guardar os índices conserva espaços e pontuação do texto original.
+          final finais = RegExp(r'\S+').allMatches(texto).map((palavra) => palavra.end).toList();
+          var inicio = 0;
+          var fim = finais.length;
+          while (inicio < fim) {
+            final meio = (inicio + fim + 1) ~/ 2;
+            if (cabe('${texto.substring(0, finais[meio - 1])}…')) {
+              inicio = meio;
+            } else {
+              fim = meio - 1;
+            }
+          }
+          visivel = inicio == 0 ? '…' : '${texto.substring(0, finais[inicio - 1])}…';
+        }
+        pintor.dispose();
+        return Semantics(
+          label: texto,
+          excludeSemantics: true,
+          child: Text(visivel, maxLines: 4, overflow: TextOverflow.clip, style: estilo),
+        );
+      },
     );
   }
 }

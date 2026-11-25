@@ -1,11 +1,12 @@
 import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/material.dart';
 
+import '../../../design/forma.dart';
+import '../../../design/tema.dart';
 import '../../../media/media_source_info.dart';
 import '../../../mpv/models.dart';
 
-/// Custom painter that draws a segmented background track (split at chapter
-/// boundaries) and buffered range bars on the video timeline slider.
+/// Fundo e buffer contínuos. Capítulos nunca recortam a linha em segmentos.
 class BufferRangePainter extends CustomPainter {
   final List<BufferRange> ranges;
   final Duration duration;
@@ -15,84 +16,59 @@ class BufferRangePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    const trackHeight = 8.0;
-    const gapWidth = 4.0;
-    final radius = trackHeight / 2;
+    const trackHeight = Forma.espaco2;
     final y = (size.height - trackHeight) / 2;
-
-    final bgPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.3)
-      ..style = PaintingStyle.fill;
-
+    final track = RRect.fromRectAndRadius(
+      Rect.fromLTWH(0, y, size.width, trackHeight),
+      const Radius.circular(trackHeight / 2),
+    );
+    final tinta = TemaHeisuca.shikkoku.texto;
+    canvas.drawRRect(track, Paint()..color = tinta.withValues(alpha: 0.3));
     final durationMs = duration.inMilliseconds.toDouble();
-
-    // Collect chapter split fractions excluding 0 and 1
-    final splits = <double>[];
-    if (durationMs > 0) {
-      for (final chapter in chapters) {
-        final ms = chapter.startTimeOffset ?? 0;
-        if (ms <= 0) continue;
-        final f = (ms / durationMs).clamp(0.0, 1.0);
-        if (f > 0 && f < 1) splits.add(f);
-      }
-    }
-
-    // Build segment pixel ranges [left, right] with gaps at chapter boundaries
-    final segmentEdges = <double>[0, ...splits, 1];
-    final segments = <(double, double)>[];
-    for (int i = 0; i < segmentEdges.length - 1; i++) {
-      final left = segmentEdges[i] * size.width + (i > 0 ? gapWidth / 2 : 0);
-      final right = segmentEdges[i + 1] * size.width - (i < segmentEdges.length - 2 ? gapWidth / 2 : 0);
-      if (right > left) segments.add((left, right));
-    }
-
-    for (final (left, right) in segments) {
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(Rect.fromLTWH(left, y, right - left, trackHeight), Radius.circular(radius)),
-        bgPaint,
-      );
-    }
-
     if (durationMs <= 0) return;
-
-    final bufPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.5)
-      ..style = PaintingStyle.fill;
-
+    canvas.save();
+    canvas.clipRRect(track);
     for (final range in ranges) {
-      final bufLeft = (range.start.inMilliseconds / durationMs).clamp(0.0, 1.0) * size.width;
-      final bufRight = (range.end.inMilliseconds / durationMs).clamp(0.0, 1.0) * size.width;
-      if (bufRight <= bufLeft) continue;
+      final left = (range.start.inMilliseconds / durationMs).clamp(0.0, 1.0) * size.width;
+      final right = (range.end.inMilliseconds / durationMs).clamp(0.0, 1.0) * size.width;
+      if (right <= left) continue;
+      canvas.drawRect(Rect.fromLTRB(left, y, right, y + trackHeight), Paint()..color = tinta.withValues(alpha: 0.5));
+    }
+    canvas.restore();
+  }
 
-      // Clip buffer to each segment it overlaps
-      for (final (segLeft, segRight) in segments) {
-        final clippedLeft = bufLeft.clamp(segLeft, segRight);
-        final clippedRight = bufRight.clamp(segLeft, segRight);
-        if (clippedRight <= clippedLeft) continue;
-        canvas.drawRRect(
-          RRect.fromRectAndRadius(
-            Rect.fromLTWH(clippedLeft, y, clippedRight - clippedLeft, trackHeight),
-            Radius.circular(radius),
-          ),
-          bufPaint,
-        );
-      }
+  @override
+  bool shouldRepaint(BufferRangePainter oldDelegate) =>
+      oldDelegate.duration != duration || !listEquals(oldDelegate.ranges, ranges);
+}
+
+/// Tiques finos por cima do fundo, buffer e progresso, inclusive nos capítulos já vistos.
+class ChapterTicksPainter extends CustomPainter {
+  const ChapterTicksPainter({required this.duration, required this.chapters});
+
+  final Duration duration;
+  final List<MediaChapter> chapters;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final ms = duration.inMilliseconds;
+    if (ms <= 0) return;
+    final paint = Paint()
+      ..color = TemaHeisuca.shikkoku.fundo
+      ..strokeWidth = Forma.espaco1 / 4;
+    final meio = size.height / 2;
+    // Não criar novos "pontos" onde dois capítulos ficam a menos de um tique.
+    double? ultimo;
+    final inicios = chapters.map((c) => c.startTimeOffset ?? 0).where((t) => t > 0 && t < ms).toSet().toList()..sort();
+    for (final inicio in inicios) {
+      final x = inicio / ms * size.width;
+      if (ultimo != null && x - ultimo < Forma.espaco1) continue;
+      canvas.drawLine(Offset(x, meio - Forma.espaco2 / 2), Offset(x, meio + Forma.espaco2 / 2), paint);
+      ultimo = x;
     }
   }
 
   @override
-  bool shouldRepaint(BufferRangePainter oldDelegate) {
-    return oldDelegate.duration != duration ||
-        !listEquals(oldDelegate.ranges, ranges) ||
-        !_chapterSplitsEqual(oldDelegate.chapters, chapters);
-  }
-
-  static bool _chapterSplitsEqual(List<MediaChapter> previous, List<MediaChapter> current) {
-    if (identical(previous, current)) return true;
-    if (previous.length != current.length) return false;
-    for (var i = 0; i < previous.length; i++) {
-      if (previous[i].startTimeOffset != current[i].startTimeOffset) return false;
-    }
-    return true;
-  }
+  bool shouldRepaint(ChapterTicksPainter oldDelegate) =>
+      oldDelegate.duration != duration || !listEquals(oldDelegate.chapters, chapters);
 }

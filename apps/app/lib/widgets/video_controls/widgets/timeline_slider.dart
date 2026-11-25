@@ -333,7 +333,7 @@ class _TimelineSliderState extends State<TimelineSlider> {
           clipBehavior: Clip.none,
           alignment: .center,
           children: [
-            // Buffer range + segmented background track (with chapter gaps)
+            // Fundo e buffer contínuos; os tiques ficam na camada acima do progresso.
             Positioned.fill(
               child: IgnorePointer(
                 child: Padding(
@@ -388,6 +388,16 @@ class _TimelineSliderState extends State<TimelineSlider> {
                       activeColor: Colors.white,
                       inactiveColor: Colors.transparent,
                     ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned.fill(
+              child: IgnorePointer(
+                child: CustomPaint(
+                  painter: ChapterTicksPainter(
+                    duration: widget.duration,
+                    chapters: widget.chaptersLoaded && widget.showChapterMarkersOnTimeline ? widget.chapters : const [],
                   ),
                 ),
               ),

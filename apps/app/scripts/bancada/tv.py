@@ -120,6 +120,80 @@ def capturar_png(destino):
     return b''
 
 
+
+def _rotulos_exatos_tv(nos):
+    return {r.strip().casefold() for n in nos for campo in ('text', 'desc', 'hint')
+            if (r := n.get(campo, '')).strip()}
+
+
+def controles_do_player_tv_visiveis(nos):
+    """A barra de transporte e as faixas precisam estar na hierarquia, não só o vídeo."""
+    rotulos = _rotulos_exatos_tv(nos)
+    return bool(rotulos & {'assistir', 'reproduzir', 'pausar', 'play', 'pause'}) and bool(
+        rotulos & {'áudio', 'audio', 'legendas', 'subtitles'})
+
+
+def _focar_controle_do_player_tv(nos, rotulos):
+    """Percorre a fileira pelo foco real; nunca depende da quantidade de pílulas/episódios."""
+    for mover in (dpad_right, dpad_left):
+        anterior = None
+        for _ in range(10):
+            foco = inspecionar_foco(nos)
+            atual = (foco.get('texto') or '').strip().casefold()
+            if atual in rotulos:
+                return True
+            if atual == anterior:
+                break
+            anterior = atual
+            mover(espera=0.15)
+            nos = dump_tv()
+    return False
+
+
+def capturar_player_pausado_tv(destino):
+    """Acorda e verifica os controles antes de 06; se estiver tocando, pausa pelo botão real."""
+    nos = []
+    for _ in range(2):
+        dpad_down(espera=0.15)
+        nos = dump_tv()
+        if controles_do_player_tv_visiveis(nos):
+            break
+    rotulos = _rotulos_exatos_tv(nos)
+    if controles_do_player_tv_visiveis(nos) and rotulos & {'pausar', 'pause'}:
+        if _focar_controle_do_player_tv(nos, {'pausar', 'pause'}):
+            dpad_center(espera=0.15)
+            nos = dump_tv()
+    pausado = controles_do_player_tv_visiveis(nos) and bool(
+        _rotulos_exatos_tv(nos) & {'assistir', 'reproduzir', 'play'})
+    # O dump pode demorar mais que o auto-hide do perfil androidtv. Acordar imediatamente antes do screencap.
+    if pausado:
+        dpad_down(espera=0.15)
+    capturar_png(destino)
+    return pausado
+
+
+def menu_de_faixas_tv_aberto(nos):
+    """A pílula Áudio no HUD não é prova do menu: exigir o título/ações da folha."""
+    rotulos = _rotulos_exatos_tv(nos)
+    if rotulos & {'áudio e legendas', 'audio & subtitles', 'buscar legendas', 'search subtitles'}:
+        return True
+    # Fontes sem legendas têm uma folha só de áudio, sem o transporte do player.
+    return bool(rotulos & {'áudio', 'audio', 'legendas', 'subtitles'}) and not (
+        controles_do_player_tv_visiveis(nos)) and len(rotulos) > 1
+
+
+def capturar_menu_de_faixas_tv(destino):
+    """08 só é aprovada após D-pad até a pílula e OK, com confirmação da folha aberta."""
+    dpad_down(espera=0.15)
+    nos = dump_tv()
+    abriu = False
+    if _focar_controle_do_player_tv(nos, {'áudio', 'audio', 'legendas', 'subtitles'}):
+        dpad_center(espera=0.3)
+        abriu = menu_de_faixas_tv_aberto(dump_tv())
+    capturar_png(destino)
+    return abriu
+
+
 def salvar_logcat(destino):
     """Salva dump do logcat em destino sem credenciais."""
     destino.parent.mkdir(parents=True, exist_ok=True)
@@ -1370,7 +1444,12 @@ def percorrer_tv(base, perfil='googletv-36', out_dir=None, registrar=None, conta
     # Pausar
     rec('Player: pausando com DPAD_CENTER...')
     dpad_center(espera=1.5)
-    capturar_png(out / '06_player_pausado.png')
+    if not capturar_player_pausado_tv(out / '06_player_pausado.png'):
+        achados_player.append({
+            'gravidade': VERMELHO,
+            'codigo': 'player-pausa-sem-controles',
+            'detalhe': '06: não foi possível confirmar o player pausado com controles visíveis'
+        })
 
     # Avançar 10 s
     rec('Player: avançando 10 s com DPAD_RIGHT...')
@@ -1379,9 +1458,12 @@ def percorrer_tv(base, perfil='googletv-36', out_dir=None, registrar=None, conta
 
     # Abrir áudio/legenda
     rec('Player: abrindo controles de áudio/legenda...')
-    dpad_up(espera=1.0)
-    menu(espera=1.5)
-    capturar_png(out / '08_player_audio_legenda.png')
+    if not capturar_menu_de_faixas_tv(out / '08_player_audio_legenda.png'):
+        achados_player.append({
+            'gravidade': VERMELHO,
+            'codigo': 'player-menu-faixas-nao-abriu',
+            'detalhe': '08: D-pad + OK não abriram o menu de Áudio/Legendas'
+        })
 
     # Sair do player com BACK
     rec('Player: saindo com BACK...')

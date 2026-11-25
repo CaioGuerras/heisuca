@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import 'package:heisuca/features/busca/ligacao.dart';
 import 'package:heisuca/features/busca/modelo.dart';
 import 'package:heisuca/features/busca/tela_busca_tv.dart';
 import 'package:heisuca/heisuca/tv/heisuca_tv_pecas.dart';
@@ -29,6 +30,7 @@ void main() {
     TvDetectionService.debugSetTvOverride(true);
     fixture = HeisucaP3Fixture();
     await fixture.initialize(settings.ThemeMode.dark);
+    addTearDown(fixture.dispose);
   });
 
   tearDown(() => TvDetectionService.debugSetTvOverride(null));
@@ -62,6 +64,72 @@ void main() {
         aoTocar: () => tocados.add(nome),
       ),
   ];
+
+  for (final letra in [1.0, 2.0]) {
+    testWidgets('Busca vazia carrega sugestões reais e direita leva ao pôster, letra $letra', (tester) async {
+      await montar(tester, const LigacaoDaBusca(naTv: true), letra: letra);
+      await tester.runAsync(() async {
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      });
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.text('Sugestões'), findsOneWidget);
+      expect(find.byType(CartaoTv), findsNWidgets(2));
+      expect(find.text('Uma viagem para lembrar'), findsWidgets);
+      expect(find.text('Histórias da nossa família'), findsWidgets);
+      final campo = tester.widget<TextField>(find.byKey(const ValueKey('busca-tv-campo')));
+      campo.focusNode!.requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pump(const Duration(milliseconds: 400));
+      final cartoes = tester.widgetList<CartaoTv>(find.byType(CartaoTv));
+      expect(cartoes.first.focusNode!.hasFocus, isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pump(const Duration(milliseconds: 400));
+      // D-pad chega também ao segundo pôster; não fica preso no teclado.
+      final segundo = find.byType(CartaoTv).at(1);
+      final contexto = FocusManager.instance.primaryFocus!.context!;
+      expect(
+        find.ancestor(of: find.byElementPredicate((e) => identical(e, contexto)), matching: segundo),
+        findsOneWidget,
+      );
+      expect(campo.focusNode!.hasFocus, isFalse);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox());
+    });
+  }
+
+  testWidgets('Busca vazia combina buscas recentes e sugestões na mesma coluna', (tester) async {
+    final campo = TextEditingController();
+    final foco = FocusNode();
+    addTearDown(campo.dispose);
+    addTearDown(foco.dispose);
+    await montar(
+      tester,
+      TelaBuscaTv(campo: campo, foco: foco, recentes: const ['duna'], sugestoes: titulos([])),
+      letra: 2,
+    );
+    expect(find.text('Buscas recentes'), findsOneWidget);
+    expect(find.text('Sugestões'), findsOneWidget);
+    expect(find.byType(CartaoTv), findsNWidgets(4));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Busca vazia offline conserva apenas a orientação', (tester) async {
+    final offline = HeisucaP3Fixture(scenario: 'offline');
+    await tester.runAsync(() => offline.initialize(settings.ThemeMode.dark));
+    addTearDown(offline.dispose);
+    fixture = offline;
+    await montar(tester, const LigacaoDaBusca(naTv: true));
+    await tester.runAsync(() async {
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    });
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('Sugestões'), findsNothing);
+    expect(find.byType(CartaoTv), findsNothing);
+    expect(find.text('Digite um filme, série ou pessoa. Os resultados aparecem aqui.'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
 
   testWidgets('Resultados: o 1º pôster recebe o foco, o D-pad anda na grade e o OK abre', (tester) async {
     final tocados = <String>[];

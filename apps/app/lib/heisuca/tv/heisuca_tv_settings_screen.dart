@@ -317,7 +317,9 @@ class _LinhaDeAjusteState extends State<_LinhaDeAjuste> {
       child: AnimatedContainer(
         duration: tempo,
         curve: Movimento.padrao,
-        padding: const EdgeInsets.symmetric(horizontal: HeisucaBase.espaco8, vertical: Forma.espaco6),
+        // Com o texto normal, as dez linhas e a folga do degradê cabem em 1080p.
+        // A letra ampliada aumenta a altura naturalmente e a lista passa a rolar.
+        padding: const EdgeInsets.symmetric(horizontal: HeisucaBase.espaco8, vertical: Forma.espaco4),
         decoration: ShapeDecoration(color: fundo, shape: forma),
         child: Row(
           children: [

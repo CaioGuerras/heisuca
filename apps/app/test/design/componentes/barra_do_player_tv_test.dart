@@ -87,9 +87,30 @@ void main() {
       addTearDown(barra.descartar);
       final transporte = barra.transporte.take(3).toList();
       final faixas = [
-        ItemDaBarraTv(foco: barra.audio, rotulo: 'Áudio', texto: 'Áudio', aoTocar: () {}),
-        ItemDaBarraTv(foco: barra.legenda, rotulo: 'Legenda', texto: 'Legendas', aoTocar: () {}),
-        ItemDaBarraTv(foco: barra.episodios, rotulo: 'Episódios', texto: 'Capítulos', aoTocar: () {}),
+        ItemDaBarraTv(
+          foco: barra.audio,
+          rotulo: 'Áudio',
+          iconeDaPilula: Icons.volume_up,
+          texto: 'Português',
+          textoCompacto: 'PT',
+          aoTocar: () {},
+        ),
+        ItemDaBarraTv(
+          foco: barra.legenda,
+          rotulo: 'Legenda',
+          iconeDaPilula: Icons.subtitles,
+          texto: 'Português · forçada',
+          textoCompacto: 'PT · forç.',
+          aoTocar: () {},
+        ),
+        ItemDaBarraTv(
+          foco: barra.episodios,
+          rotulo: 'Episódios',
+          iconeDaPilula: Icons.list,
+          texto: 'Capítulos',
+          textoCompacto: 'Cap.',
+          aoTocar: () {},
+        ),
       ];
       await tester.pumpWidget(
         naTela(
@@ -104,6 +125,9 @@ void main() {
           ),
         ),
       );
+      for (final texto in tester.widgetList<Text>(find.byType(Text))) {
+        expect(texto.overflow, isNot(TextOverflow.ellipsis));
+      }
       final caminho = [...transporte, ...faixas];
       barra.voltar.requestFocus();
       await tester.pumpAndSettle();
@@ -121,6 +145,7 @@ void main() {
         expect(atual.right, lessThanOrEqualTo(960 - Forma.margemSeguraTv.right + 0.01));
         if (i == 0) continue;
         final anterior = envelopes[i - 1];
+        expect(atual.center.dy, closeTo(anterior.center.dy, 0.01), reason: 'uma única linha');
         if ((atual.center.dy - anterior.center.dy).abs() < 1) {
           expect(
             atual.left - anterior.right,
@@ -269,7 +294,7 @@ void main() {
     alca.dispose();
   });
 
-  testWidgets('letra 200 % numa tela estreita: nada estoura, as metades descem', (tester) async {
+  testWidgets('letra 200 % numa tela estreita: barra continua em uma linha', (tester) async {
     final barra = _Barra();
     addTearDown(barra.descartar);
     await tester.pumpWidget(
@@ -281,7 +306,7 @@ void main() {
     expect(tester.takeException(), isNull);
     final topoTransporte = tester.getTopLeft(find.bySemanticsLabel('Pausar')).dy;
     final topoFaixas = tester.getTopLeft(find.bySemanticsLabel('Episódios')).dy;
-    expect(topoFaixas, greaterThan(topoTransporte), reason: 'as faixas descem para baixo do transporte');
+    expect(topoFaixas, closeTo(topoTransporte, 20), reason: 'sem quebra de linha');
   });
 
   testWidgets('o botão com foco cresce; com "remover animações" não cresce, só muda de cor', (tester) async {

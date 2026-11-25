@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:heisuca/features/player_tv/barra_do_player_tv.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 
 import 'package:heisuca/database/app_database.dart';
@@ -435,8 +436,8 @@ void main() {
 
       // Barra da TV: transporte (voltar, tocar, avançar, próximo) e faixas (Áudio, Legendas, Episódios)
       expect(find.byType(BarraDoPlayerTv), findsOneWidget);
-      expect(find.textContaining('Áudio ·'), findsOneWidget);
-      expect(find.textContaining('Legendas ·'), findsOneWidget);
+      expect(find.bySemanticsLabel('Áudio'), findsOneWidget);
+      expect(find.bySemanticsLabel('Legendas'), findsOneWidget);
       expect(find.text('Episódios'), findsOneWidget);
       final barra = tester.widget<BarraDoPlayerTv>(find.byType(BarraDoPlayerTv));
       expect(barra.transporte.length, 3, reason: 'voltar, tocar/pausar e avançar (sem próximo neste teste)');
@@ -491,7 +492,7 @@ void main() {
         await tester.pumpAndSettle();
 
         // Confirma que o foco está no painel da TV (pílula Áudio)
-        final audioPillFinder = find.textContaining('Áudio ·');
+        final audioPillFinder = find.bySemanticsLabel('Áudio');
         expect(audioPillFinder, findsOneWidget);
         expect(chrome.controlsVisible, isTrue);
 
@@ -644,7 +645,7 @@ void main() {
 
       // Simula ExcludeFocus / canRequestFocus = false no nó do painel da TV
       // Quando canRequestFocus é false, requestTvPanelFocus não deve alterar foco nem gerar loop
-      final tvAudioNode = Focus.of(tester.element(find.textContaining('Áudio ·')));
+      final tvAudioNode = Focus.of(tester.element(find.byIcon(Symbols.volume_up_rounded)));
       tvAudioNode.canRequestFocus = false;
 
       // Chama requestTvPanelFocus: deve retornar sem erro e sem focar

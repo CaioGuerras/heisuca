@@ -30,6 +30,7 @@ class TelaBuscaTv extends StatefulWidget {
     this.aoEscolherRecente,
     this.aoLimparRecentes,
     this.titulos = const [],
+    this.sugestoes = const [],
     this.pessoas = const [],
     this.primeiroResultado,
     this.buscando = false,
@@ -54,6 +55,9 @@ class TelaBuscaTv extends StatefulWidget {
   final VoidCallback? aoLimparRecentes;
 
   final List<TituloDaBusca> titulos;
+
+  /// Filmes e séries da fonte ativa antes da primeira busca; vazia quando a fonte não respondeu.
+  final List<TituloDaBusca> sugestoes;
   final List<PessoaDaBusca> pessoas;
 
   /// Foco do 1º cartão da grade: o "Buscar" do teclado leva o foco até ele.
@@ -134,6 +138,9 @@ class _TelaBuscaTvState extends State<TelaBuscaTv> {
                                   foco: widget.foco,
                                   aoEnviar: widget.aoEnviar,
                                   aoVoltar: _voltar,
+                                  aoSairDireita: (widget.buscou ? widget.titulos : widget.sugestoes).isEmpty
+                                      ? null
+                                      : widget.primeiroResultado?.requestFocus,
                                 ),
                               ),
                               const SizedBox(width: HeisucaBase.espaco8),
@@ -170,7 +177,17 @@ class _TelaBuscaTvState extends State<TelaBuscaTv> {
 
   List<Widget> _corpo(BuildContext context, TemaHeisuca tema) {
     final aviso = widget.aviso;
-    if (!widget.buscou && !widget.buscando) return _recentes(tema);
+    if (!widget.buscou && !widget.buscando) {
+      return [
+        if (widget.recentes.isNotEmpty) ..._recentes(tema),
+        if (widget.sugestoes.isNotEmpty) ...[
+          if (widget.recentes.isNotEmpty) const SizedBox(height: HeisucaBase.espaco8),
+          const _Secao(texto: 'Sugestões'),
+          _Grade(titulos: widget.sugestoes, primeiro: widget.primeiroResultado),
+        ] else if (widget.recentes.isEmpty)
+          ..._recentes(tema),
+      ];
+    }
     if (aviso != null) return [aviso];
     final temResultado = widget.titulos.isNotEmpty || widget.pessoas.isNotEmpty;
     if (widget.buscando && !temResultado) {

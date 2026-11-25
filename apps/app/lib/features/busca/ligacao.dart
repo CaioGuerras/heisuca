@@ -69,6 +69,11 @@ final class _BuscaIndisponivel implements Exception {
 class _LigacaoDaBuscaState extends State<LigacaoDaBusca>
     with DebouncedMediaSearch<LigacaoDaBusca, SearchHit>, SearchInputFocusable, FocusableTab {
   List<TituloDaBusca> _titulos = const [];
+  List<TituloDaBusca> _sugestoes = const [];
+  MultiServerProvider? _servidoresDasSugestoes;
+  String? _escopoDasSugestoes;
+  int _cargaDasSugestoes = 0;
+  bool _sugestoesDisponiveis = false;
   List<PessoaDaBusca> _pessoas = const [];
   List<String> _recentes = const [];
   bool _indisponivel = false;
@@ -102,6 +107,7 @@ class _LigacaoDaBuscaState extends State<LigacaoDaBusca>
   @override
   void dispose() {
     _ocultas?.removeListener(_aoMudarOcultas);
+    _servidoresDasSugestoes?.removeListener(_conferirSugestoes);
     _cancelar?.abort();
     super.dispose();
   }
@@ -193,6 +199,10 @@ class _LigacaoDaBuscaState extends State<LigacaoDaBusca>
     if (!mounted) return;
     _ultimasOcultas = Set.of(ocultas.hiddenLibraryKeys);
     _ocultas = ocultas..addListener(_aoMudarOcultas);
+    if (widget.naTv) {
+      _servidoresDasSugestoes = context.read<MultiServerProvider>()..addListener(_conferirSugestoes);
+      _conferirSugestoes();
+    }
   }
 
   void _aoMudarOcultas() {
@@ -201,9 +211,59 @@ class _LigacaoDaBuscaState extends State<LigacaoDaBusca>
     final agora = ocultas.hiddenLibraryKeys;
     if (agora.length == _ultimasOcultas.length && agora.containsAll(_ultimasOcultas)) return;
     _ultimasOcultas = Set.of(agora);
+    if (widget.naTv) {
+      _escopoDasSugestoes = null;
+      _conferirSugestoes();
+    }
     final texto = searchController.text.trim();
     if (texto.isEmpty || !hasSearched) return;
     unawaited(runSearch(texto));
+  }
+
+  // --- sugestões da fonte ativa ---------------------------------------------
+
+  /// A mesma agregação neutra da busca fornece as prateleiras recentes de Plex e Jellyfin.
+  /// Biblioteca oculta e troca de fonte invalidam a carga; uma resposta antiga nunca repõe os pôsteres.
+  void _conferirSugestoes() {
+    final servidores = _servidoresDasSugestoes;
+    if (!mounted || servidores == null) return;
+    final ids = servidores.onlineServerIds.toList()..sort();
+    final escopo = '${servidores.serverManager.navigationServerId}|${ids.join(',')}';
+    if (_escopoDasSugestoes == escopo) return;
+    _escopoDasSugestoes = escopo;
+    final carga = ++_cargaDasSugestoes;
+    // O provider pode avisar durante uma reconstrução de perfil: a mutação fica para depois dela.
+    unawaited(
+      Future<void>(() async {
+        if (!mounted || carga != _cargaDasSugestoes) return;
+        setState(() {
+          _sugestoes = const [];
+          _sugestoesDisponiveis = false;
+        });
+        if (!servidores.hasConnectedServers) return;
+        try {
+          final resposta = await servidores.aggregationService.getHubsFromAllServers(
+            hiddenLibraryKeys: _ultimasOcultas,
+            includePlaybackHubs: false,
+          );
+          if (!mounted || carga != _cargaDasSugestoes) return;
+          final unicos = <String, MediaItem>{};
+          for (final hub in resposta.hubs) {
+            for (final item in hub.items) {
+              if (item.kind == MediaKind.movie || item.kind == MediaKind.show) unicos[item.globalKey] = item;
+            }
+          }
+          final recentes = unicos.values.toList()..sort((a, b) => (b.addedAt ?? 0).compareTo(a.addedAt ?? 0));
+          final visiveis = servidores.expectedServerIds.toSet();
+          setState(() {
+            _sugestoes = [for (final item in recentes.take(12)) _emTitulo(item, visiveis)];
+            _sugestoesDisponiveis = resposta.succeededServerIds.isNotEmpty;
+          });
+        } catch (_) {
+          // Sem rede: conserva a orientação do estado vazio, sem bloquear o teclado nem inventar catálogo.
+        }
+      }),
+    );
   }
 
   // --- busca -----------------------------------------------------------------
@@ -485,7 +545,11 @@ class _LigacaoDaBuscaState extends State<LigacaoDaBusca>
   }
 
   @override
-  Widget build(BuildContext context) => widget.naTv ? _naTv(context) : _noCelular(context);
+  Widget build(BuildContext context) {
+    // A seleção de navegação também pode mudar ao reconstruir a aba, sem alterar os clientes online.
+    if (widget.naTv) _conferirSugestoes();
+    return widget.naTv ? _naTv(context) : _noCelular(context);
+  }
 
   Widget _naTv(BuildContext context) => TelaBuscaTv(
     campo: searchController,
@@ -497,10 +561,11 @@ class _LigacaoDaBuscaState extends State<LigacaoDaBusca>
     aoAbrirMenu: MainScreenFocusScope.of(context, listen: false) == null
         ? null
         : () => MainScreenFocusScope.focusSidebarOf(context),
-    recentes: _recentes,
+    recentes: _sugestoesDisponiveis ? _recentes : const [],
     aoEscolherRecente: _escolherRecente,
     aoLimparRecentes: _recentes.isEmpty ? null : () => unawaited(_gravarRecentes(const [])),
     titulos: _titulos,
+    sugestoes: _sugestoes,
     pessoas: _pessoas,
     primeiroResultado: firstResultFocusNode,
     buscando: isSearching,

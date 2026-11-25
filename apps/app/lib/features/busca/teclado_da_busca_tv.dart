@@ -12,12 +12,20 @@ import '../../heisuca/tv/heisuca_tv_pecas.dart';
 /// Teclado integrado: o campo aceita teclado físico sem abrir outro editor sobre os resultados.
 /// Cada tecla usa o botão da TV, com foco real e ação anunciada ao leitor de tela.
 class TecladoDaBuscaTv extends StatefulWidget {
-  const TecladoDaBuscaTv({super.key, required this.campo, required this.foco, this.aoEnviar, this.aoVoltar});
+  const TecladoDaBuscaTv({
+    super.key,
+    required this.campo,
+    required this.foco,
+    this.aoEnviar,
+    this.aoVoltar,
+    this.aoSairDireita,
+  });
 
   final TextEditingController campo;
   final FocusNode foco;
   final VoidCallback? aoEnviar;
   final VoidCallback? aoVoltar;
+  final VoidCallback? aoSairDireita;
 
   @override
   State<TecladoDaBuscaTv> createState() => _TecladoDaBuscaTvState();
@@ -93,6 +101,10 @@ class _TecladoDaBuscaTvState extends State<TecladoDaBuscaTv> {
             Focus(
               canRequestFocus: false,
               onKeyEvent: (_, evento) {
+                if (evento.logicalKey == LogicalKeyboardKey.arrowRight && widget.aoSairDireita != null) {
+                  if (evento is KeyDownEvent) widget.aoSairDireita!();
+                  return KeyEventResult.handled;
+                }
                 if (!evento.isTvSelectEvent) return KeyEventResult.ignored;
                 return handleOneShotSelect(evento, _primeiraTecla.requestFocus);
               },

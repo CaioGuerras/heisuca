@@ -933,3 +933,60 @@ class TestBibliotecaTv(unittest.TestCase):
             nos, backs = voltar_ao_inicio(espera=0)
         self.assertEqual(backs, 1)
         self.assertEqual(reconhecer_tela_tv(nos), 'inicio')
+
+
+class TestCapturasDoPlayerTv(unittest.TestCase):
+    """Capturas de regressão: controle sumido e tecla MENU não provam o seletor de faixas."""
+
+    def _barra(self, foco='Assistir'):
+        return [
+            {'desc': r, 'focused': r == foco, 'bounds': (100 + i * 180, 700, 260 + i * 180, 800)}
+            for i, r in enumerate(['Voltar 10 segundos', 'Assistir', 'Avançar 10 segundos',
+                                   'Áudio', 'Legendas', 'Capítulos'])
+        ]
+
+    def test_06_acorda_controles_sumidos_antes_da_captura(self):
+        eventos = []
+        with patch('tv.dump_tv', side_effect=[[], self._barra()]), \
+             patch('tv.dpad_down', side_effect=lambda **kw: eventos.append('baixo')), \
+             patch('tv.capturar_png', side_effect=lambda path: eventos.append(path.name)):
+            ok = tv.capturar_player_pausado_tv(Path('/tmp/06_player_pausado.png'))
+        self.assertTrue(ok)
+        self.assertEqual(eventos, ['baixo', 'baixo', 'baixo', '06_player_pausado.png'])
+
+    def test_06_nao_declara_pausado_se_controles_nao_aparecem(self):
+        with patch('tv.dump_tv', return_value=[]), patch('tv.dpad_down'), patch('tv.capturar_png') as captura:
+            self.assertFalse(tv.capturar_player_pausado_tv(Path('/tmp/06_player_pausado.png')))
+        captura.assert_called_once()  # A falha também deixa evidência visual.
+
+    def test_06_pausa_pelo_botao_quando_ok_anterior_so_acordou_hud(self):
+        tocando = self._barra()
+        tocando[1]['desc'] = 'Pausar'
+        tocando[1]['focused'] = True
+        eventos = []
+        with patch('tv.dump_tv', side_effect=[tocando, self._barra()]), \
+             patch('tv.dpad_down', side_effect=lambda **kw: eventos.append('baixo')), \
+             patch('tv.dpad_center', side_effect=lambda **kw: eventos.append('ok')), \
+             patch('tv.capturar_png', side_effect=lambda path: eventos.append(path.name)):
+            self.assertTrue(tv.capturar_player_pausado_tv(Path('/tmp/06_player_pausado.png')))
+        self.assertEqual(eventos, ['baixo', 'ok', 'baixo', '06_player_pausado.png'])
+
+    def test_08_caminha_ate_audio_e_abre_com_ok_antes_de_capturar(self):
+        eventos = []
+        folha = [{'text': 'Áudio e legendas'}, {'text': 'Português (Brasil)'}, {'text': 'Desligada'}]
+        with patch('tv.dump_tv', side_effect=[self._barra(), self._barra('Avançar 10 segundos'),
+                                              self._barra('Áudio'), folha]), \
+             patch('tv.dpad_down', side_effect=lambda **kw: eventos.append('baixo')), \
+             patch('tv.dpad_right', side_effect=lambda **kw: eventos.append('direita')), \
+             patch('tv.dpad_center', side_effect=lambda **kw: eventos.append('ok')), \
+             patch('tv.menu') as menu, \
+             patch('tv.capturar_png', side_effect=lambda path: eventos.append(path.name)):
+            ok = tv.capturar_menu_de_faixas_tv(Path('/tmp/08_player_audio_legenda.png'))
+        self.assertTrue(ok)
+        self.assertEqual(eventos, ['baixo', 'direita', 'direita', 'ok', '08_player_audio_legenda.png'])
+        menu.assert_not_called()
+
+    def test_08_toolbar_com_audio_legendas_nao_prova_menu_aberto(self):
+        with patch('tv.dump_tv', return_value=self._barra('Áudio')), patch('tv.dpad_down'), \
+             patch('tv.dpad_center'), patch('tv.capturar_png'):
+            self.assertFalse(tv.capturar_menu_de_faixas_tv(Path('/tmp/08_player_audio_legenda.png')))

@@ -16,7 +16,15 @@ import '../../heisuca/theme/heisuca_base.dart';
 /// com [texto] (Áudio, Legenda, Episódios). O [foco] é de quem monta a barra: o player precisa mandar o
 /// foco para um botão certo quando o painel abre.
 class ItemDaBarraTv {
-  const ItemDaBarraTv({required this.foco, required this.rotulo, this.icone, this.texto, this.aoTocar});
+  const ItemDaBarraTv({
+    required this.foco,
+    required this.rotulo,
+    this.icone,
+    this.iconeDaPilula,
+    this.texto,
+    this.textoCompacto,
+    this.aoTocar,
+  });
 
   final FocusNode foco;
 
@@ -24,6 +32,8 @@ class ItemDaBarraTv {
   final String rotulo;
   final IconData? icone;
   final String? texto;
+  final String? textoCompacto;
+  final IconData? iconeDaPilula;
 
   /// `null` deixa o botão apagado e fora do caminho do foco.
   final VoidCallback? aoTocar;
@@ -33,7 +43,7 @@ class ItemDaBarraTv {
 ///
 /// Um caminho só de foco: ← e → passam por todos os botões, das duas metades, pulando os apagados;
 /// OK aciona; ↑ chama [aoSubir] (a linha do tempo). Sobre o vídeo vale sempre o tema escuro.
-/// Com letra grande, os controles continuam na linha seguinte em vez de cortar.
+/// Com letra grande, usa valores compactos e a escala pequena dos tokens, mantendo uma linha.
 class BarraDoPlayerTv extends StatelessWidget {
   const BarraDoPlayerTv({super.key, required this.transporte, required this.faixas, this.aoSubir, this.aoMexer});
 
@@ -48,9 +58,6 @@ class BarraDoPlayerTv extends StatelessWidget {
 
   /// Diâmetro do botão redondo de transporte.
   static const double diametro = 64;
-
-  /// Largura máxima de uma pílula: o nome da faixa longo termina em reticências.
-  static const double larguraMaximaDaPilula = 360;
 
   List<ItemDaBarraTv> get _caminho => [...transporte, ...faixas].where((i) => i.aoTocar != null).toList();
 
@@ -107,13 +114,51 @@ class BarraDoPlayerTv extends StatelessWidget {
         canRequestFocus: false,
         skipTraversal: true,
         onKeyEvent: _tecla,
-        child: Wrap(
-          spacing: Forma.espaco3,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          runSpacing: Forma.espaco3,
-          children: [
-            for (final item in [...transporte, ...faixas]) _BotaoDaBarra(item: item),
-          ],
+        child: LayoutBuilder(
+          builder: (context, limites) {
+            final itens = [...transporte, ...faixas];
+            final tema = TemaHeisuca.de(context);
+            var estilo = DefaultTextStyle.of(
+              context,
+            ).style.merge(Tipo.texto(tema)).copyWith(fontWeight: FontWeight.w600);
+            var compacto = false;
+            var soIcone = false;
+            double largura() =>
+                itens.fold<double>(0, (total, item) {
+                  final tamanho = _tamanho(context, item, estilo, compacto, soIcone: soIcone);
+                  return total +
+                      tamanho.width * HeisucaBase.focoEscalaTv +
+                      Forma.anelDeFoco * HeisucaBase.focoEscalaTv * 2;
+                }) +
+                Forma.espaco3 * (itens.length - 1);
+            if (largura() > limites.maxWidth) {
+              compacto = true;
+            }
+            if (largura() > limites.maxWidth) {
+              estilo = DefaultTextStyle.of(
+                context,
+              ).style.merge(Tipo.legenda(tema)).copyWith(fontWeight: FontWeight.w600);
+            }
+            // Último degrau (tela pequena com letra grande): pílula só com ícone; o rótulo segue na semântica.
+            if (largura() > limites.maxWidth) {
+              soIcone = true;
+            }
+            final linha = Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (var i = 0; i < itens.length; i++) ...[
+                  if (i > 0) const SizedBox(width: Forma.espaco3),
+                  _BotaoDaBarra(item: itens[i], estilo: estilo, compacto: compacto, soIcone: soIcone),
+                ],
+              ],
+            );
+            // Telas menores que a TV preservam a área de toque e rolam pelo foco.
+            return Center(
+              child: largura() <= limites.maxWidth
+                  ? linha
+                  : SingleChildScrollView(scrollDirection: Axis.horizontal, child: linha),
+            );
+          },
         ),
       ),
     );
@@ -121,7 +166,11 @@ class BarraDoPlayerTv extends StatelessWidget {
 }
 
 class _BotaoDaBarra extends StatelessWidget {
-  const _BotaoDaBarra({required this.item});
+  const _BotaoDaBarra({required this.item, required this.estilo, required this.compacto, this.soIcone = false});
+
+  final TextStyle estilo;
+  final bool compacto;
+  final bool soIcone;
 
   final ItemDaBarraTv item;
 
@@ -130,9 +179,9 @@ class _BotaoDaBarra extends StatelessWidget {
     final tema = TemaHeisuca.de(context);
     final redondo = item.icone != null;
     final forma = redondo ? const CircleBorder() : Forma.pilula();
-    final estilo = Tipo.texto(tema).copyWith(fontWeight: FontWeight.w600);
-    final texto = item.texto ?? item.rotulo;
-    final tamanho = redondo ? const Size.square(BarraDoPlayerTv.diametro) : _medirPilula(context, texto, estilo);
+    final texto = compacto ? item.textoCompacto ?? item.texto ?? item.rotulo : item.texto ?? item.rotulo;
+    final tamanho = _tamanho(context, item, estilo, compacto, soIcone: soIcone);
+    final mostrarTexto = !(soIcone && item.iconeDaPilula != null);
     // O anel é pintado para fora pelo Toque; reservar também a escala impede que ele invada os vizinhos.
     // O envelope independe do foco atual, portanto ←/→ nunca movem os controles da fileira.
     const escalaMaxima = HeisucaBase.focoEscalaTv;
@@ -156,11 +205,14 @@ class _BotaoDaBarra extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: Forma.espaco4, vertical: Forma.espaco2),
                   child: Center(
-                    child: Text(
-                      texto,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: estilo.copyWith(color: tinta),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (item.iconeDaPilula != null) Icon(item.iconeDaPilula, size: Forma.espaco6, color: tinta),
+                        if (item.iconeDaPilula != null && mostrarTexto) const SizedBox(width: Forma.espaco2),
+                        if (mostrarTexto)
+                          Text(texto, maxLines: 1, softWrap: false, style: estilo.copyWith(color: tinta)),
+                      ],
                     ),
                   ),
                 ),
@@ -194,20 +246,30 @@ class _BotaoDaBarra extends StatelessWidget {
     );
   }
 
-  Size _medirPilula(BuildContext context, String texto, TextStyle estilo) {
-    final pintor = TextPainter(
-      text: TextSpan(text: texto, style: estilo),
-      textDirection: Directionality.of(context),
-      textScaler: MediaQuery.textScalerOf(context),
-      textHeightBehavior: DefaultTextStyle.of(context).textHeightBehavior,
-      maxLines: 1,
-      ellipsis: '…',
-    )..layout(maxWidth: BarraDoPlayerTv.larguraMaximaDaPilula - Forma.espaco4 * 2);
-    final tamanho = Size(pintor.width + Forma.espaco4 * 2, max(Forma.toqueMinimo, pintor.height + Forma.espaco2 * 2));
-    pintor.dispose();
-    return tamanho;
-  }
-
   /// O botão solto deixa o vídeo aparecer por trás.
   static const double _opacidadeSolto = 0.72;
+}
+
+Size _tamanho(BuildContext context, ItemDaBarraTv item, TextStyle estilo, bool compacto, {bool soIcone = false}) {
+  if (item.icone != null) return const Size.square(BarraDoPlayerTv.diametro);
+  if (soIcone && item.iconeDaPilula != null) {
+    return Size(Forma.espaco6 + Forma.espaco4 * 2, max(Forma.toqueMinimo, Forma.espaco6 + Forma.espaco2 * 2));
+  }
+  final texto = compacto ? item.textoCompacto ?? item.texto ?? item.rotulo : item.texto ?? item.rotulo;
+  final pintor = TextPainter(
+    text: TextSpan(text: texto, style: estilo),
+    textDirection: Directionality.of(context),
+    textScaler: MediaQuery.textScalerOf(context),
+    textHeightBehavior: DefaultTextStyle.of(context).textHeightBehavior,
+    maxLines: 1,
+  )..layout();
+  final tamanho = Size(
+    pintor.width.ceilToDouble() + Forma.espaco4 * 2 + (item.iconeDaPilula == null ? 0 : Forma.espaco6 + Forma.espaco2),
+    max(
+      Forma.toqueMinimo,
+      max(item.iconeDaPilula == null ? 0.0 : Forma.espaco6, pintor.height.ceilToDouble()) + Forma.espaco2 * 2,
+    ),
+  );
+  pintor.dispose();
+  return tamanho;
 }

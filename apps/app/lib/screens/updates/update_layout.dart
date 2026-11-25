@@ -9,20 +9,24 @@ import '../../design/forma.dart';
 import '../../design/tema.dart';
 import '../../design/tipo.dart';
 import '../../features/tema_da_v2.dart';
+import '../../heisuca/tv/heisuca_tv_area_segura.dart';
 import '../../services/updates/update_controller.dart';
 import '../../utils/platform_detector.dart';
 
 /// A moldura das telas de atualização: título fixo no topo e o conteúdo numa lista, no desenho da V2.
 ///
 /// No celular quem volta é a seta do topo; na TV, o botão "Voltar" que cada tela põe no fim da lista.
+/// Na TV tudo fica dentro da margem segura de 5 % ([HeisucaTvAreaSegura]), numa coluna central: a lista
+/// termina antes da borda de baixo, que muitas TVs cortam, e a margem interna só abriga o anel de foco.
 class UpdateLayout extends StatelessWidget {
   const UpdateLayout({super.key, required this.titulo, required this.children});
   final String titulo;
   final List<Widget> children;
 
-  /// Largura máxima do conteúdo no celular e no tablet; na TV, [larguraNaTv].
+  /// Largura máxima do conteúdo no celular e no tablet; na TV, [larguraNaTv]: uma coluna central que deixa
+  /// folga dos dois lados numa TV 1080p (960 dp) e cabe com sobra na margem segura.
   static const double largura = 640;
-  static const double larguraNaTv = 1100;
+  static const double larguraNaTv = 720;
 
   /// Quanto a letra cresce na TV, vista de longe.
   static const double letraNaTv = 1.3;
@@ -31,7 +35,8 @@ class UpdateLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     final tv = PlatformDetector.isTV();
     final media = MediaQuery.of(context);
-    final margem = tv ? Forma.espaco6 * 2 : Forma.espaco4;
+    // Na TV a margem segura já afasta da borda: lá, como no celular, a margem da lista só abriga o anel de foco.
+    const margem = Forma.espaco4;
     return SobOTemaDaV2(
       child: MediaQuery(
         data: tv ? media.copyWith(textScaler: TextScaler.linear(media.textScaler.scale(1) * letraNaTv)) : media,
@@ -41,6 +46,7 @@ class UpdateLayout extends StatelessWidget {
             return Scaffold(
               backgroundColor: tema.fundo,
               body: SafeArea(
+                minimum: tv ? HeisucaTvAreaSegura.margem(media.size) : EdgeInsets.zero,
                 child: Center(
                   child: ConstrainedBox(
                     constraints: BoxConstraints(maxWidth: tv ? larguraNaTv : largura),
@@ -63,17 +69,14 @@ class UpdateLayout extends StatelessWidget {
                             Padding(
                               padding: EdgeInsets.fromLTRB(
                                 margem,
-                                tv ? Forma.espaco6 : Forma.espaco2,
+                                tv ? 0 : Forma.espaco2,
                                 margem,
-                                Forma.espaco4,
+                                tv ? 0 : Forma.espaco4,
                               ),
                               child: Semantics(header: true, child: Text(titulo, style: Tipo.titulo(tema))),
                             ),
                             Expanded(
-                              child: ListView(
-                                padding: EdgeInsets.fromLTRB(margem, 0, margem, Forma.espaco6),
-                                children: children,
-                              ),
+                              child: _ListaDaTela(tv: tv, children: children),
                             ),
                           ],
                         ),
@@ -87,6 +90,23 @@ class UpdateLayout extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// A lista da tela. Na TV ganha respiro em cima (o título fica fixo) e some aos poucos nas bordas de cima e de
+/// baixo, em vez de cortar seco o que ainda vai entrar.
+class _ListaDaTela extends StatelessWidget {
+  const _ListaDaTela({required this.tv, required this.children});
+  final bool tv;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final lista = ListView(
+      padding: EdgeInsets.fromLTRB(Forma.espaco4, tv ? Forma.espaco6 : 0, Forma.espaco4, Forma.espaco6),
+      children: children,
+    );
+    return tv ? HeisucaTvBordasSuaves(altura: Forma.espaco6, child: lista) : lista;
   }
 }
 

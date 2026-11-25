@@ -1154,7 +1154,26 @@ class _MainScreenState extends State<MainScreen>
   }
 
   void _openTvMenu() {
-    HeisucaTvMenu.show(context, onSelectDestination: _handleTvDestination);
+    HeisucaTvMenu.show(context, onSelectDestination: _handleTvDestination, initialDestination: _tvDestinoAtual());
+  }
+
+  /// Destino do menu da TV que corresponde à tela aberta (recebe o foco e a marca ao abrir o menu).
+  String _tvDestinoAtual() {
+    switch (_currentTab) {
+      case NavigationTabId.search:
+        return 'Buscar';
+      case NavigationTabId.settings:
+        return 'Ajustes';
+      case NavigationTabId.libraries:
+        final chave = _selectedLibraryGlobalKey;
+        if (chave == null) return 'Início';
+        final chip = cgflixLibraryChips(
+          context.read<LibrariesProvider>().libraries,
+        ).where((c) => c.library.globalKey == chave).firstOrNull;
+        return chip?.label ?? 'Início';
+      default:
+        return 'Início';
+    }
   }
 
   void _handleTvDestination(String destination) {

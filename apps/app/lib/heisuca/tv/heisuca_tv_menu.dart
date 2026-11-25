@@ -1,38 +1,52 @@
-import '../theme/heisuca_base.dart';
-import '../../cgflix/cgflix_palette.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 
-import '../../profiles/active_profile_provider.dart';
-import '../../screens/profile/profile_switch_screen.dart';
-import '../../profiles/profile_avatar.dart';
-import '../heisuca_theme.dart';
-import 'heisuca_tv_canvas.dart';
-import '../../services/updates/update_controller.dart';
 import '../../cgflix/you/cgflix_retrospectiva.dart';
 import '../../cgflix/you/cgflix_retrospectiva_screen.dart';
+import '../../design/forma.dart';
+import '../../design/movimento.dart';
+import '../../design/tema.dart';
+import '../../design/tipo.dart';
+import '../../features/navegacao_tv/trilho_da_tv.dart';
+import '../../profiles/active_profile_provider.dart';
+import '../../profiles/profile_avatar.dart';
+import '../../screens/profile/profile_switch_screen.dart';
+import '../../services/updates/update_controller.dart';
 import '../kids/heisuca_kids_flow.dart';
 
-/// Menu oficial do Heisuca na TV (cartão sobreposto à tela).
-/// Acionado pelo avatar no topo esquerdo.
-/// Itens: Perfil + Trocar perfil, Início, Filmes, Séries, Animes, Buscar, Ajustes.
+/// Menu oficial do Heisuca na TV: o trilho que entra pela esquerda (avatar no topo, ou ← na borda do conteúdo).
+///
+/// Destinos: Início, Filmes, Séries, Animes, Buscar. Abaixo da linha: modo infantil, retrospectiva, Trocar perfil,
+/// Ajustes e, quando há versão nova, Atualizações. A escolha de um destino volta por [onSelectDestination].
 class HeisucaTvMenu extends StatefulWidget {
   const HeisucaTvMenu({super.key, required this.onSelectDestination, this.initialDestination = 'Início', this.onClose});
 
   final ValueChanged<String> onSelectDestination;
+
+  /// Onde a pessoa está: recebe o foco ao abrir e a marca de "você está aqui".
   final String initialDestination;
   final VoidCallback? onClose;
+
+  /// Destinos que a tela principal sabe abrir (o resto são ações do próprio menu).
+  static const destinos = ['Início', 'Filmes', 'Séries', 'Animes', 'Buscar'];
 
   static Future<void> show(
     BuildContext context, {
     required ValueChanged<String> onSelectDestination,
     String initialDestination = 'Início',
   }) {
-    return showDialog(
+    return showGeneralDialog(
       context: context,
-      barrierColor: const Color(0x99000000),
-      builder: (ctx) => HeisucaTvCanvas(
+      barrierDismissible: true,
+      barrierLabel: 'Fechar o menu',
+      // O véu do próprio trilho escurece a beirada; o resto da tela continua à vista.
+      barrierColor: Colors.transparent,
+      transitionDuration: Movimento.tela,
+      pageBuilder: (ctx, _, _) => Align(
+        alignment: Alignment.centerLeft,
         child: HeisucaTvMenu(
           onSelectDestination: (dest) {
             Navigator.of(ctx).pop();
@@ -42,6 +56,18 @@ class HeisucaTvMenu extends StatefulWidget {
           onClose: () => Navigator.of(ctx).pop(),
         ),
       ),
+      transitionBuilder: (ctx, animacao, _, filho) {
+        final curva = CurvedAnimation(parent: animacao, curve: Movimento.entra, reverseCurve: Movimento.sai);
+        // Com "remover animações", o trilho só aparece, sem deslizar.
+        if (Movimento.reduzido(ctx)) return FadeTransition(opacity: curva, child: filho);
+        return FadeTransition(
+          opacity: curva,
+          child: SlideTransition(
+            position: Tween(begin: const Offset(-0.08, 0), end: Offset.zero).animate(curva),
+            child: filho,
+          ),
+        );
+      },
     );
   }
 
@@ -50,254 +76,152 @@ class HeisucaTvMenu extends StatefulWidget {
 }
 
 class _HeisucaTvMenuState extends State<HeisucaTvMenu> {
-  static const _items = ['Início', 'Filmes', 'Séries', 'Animes', 'Buscar', 'Ajustes'];
+  static const _icones = <String, IconData>{
+    'Início': Symbols.home_rounded,
+    'Filmes': Symbols.movie_rounded,
+    'Séries': Symbols.tv_rounded,
+    'Animes': Symbols.animation_rounded,
+    'Buscar': Symbols.search_rounded,
+  };
 
-  late String _selected = widget.initialDestination;
-  int _focusedIndex = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    final idx = _items.indexOf(widget.initialDestination);
-    _focusedIndex = idx >= 0 ? idx : 0;
+  void _fechar() {
+    final fechar = widget.onClose;
+    if (fechar != null) {
+      fechar();
+    } else {
+      Navigator.of(context).maybePop();
+    }
   }
+
+  /// Fecha o menu e roda [acao] no contexto da tela de baixo (o do menu morre com a rota).
+  void _depoisDeFechar(void Function(BuildContext contexto) acao) {
+    final navigator = Navigator.of(context);
+    navigator.pop();
+    acao(navigator.context);
+  }
+
+  ItemDoTrilhoTv _destino(String nome) => ItemDoTrilhoTv(
+    key: ValueKey('tv-menu-$nome'),
+    chave: nome,
+    rotulo: nome,
+    icone: _icones[nome]!,
+    aoTocar: () => widget.onSelectDestination(nome),
+  );
 
   @override
   Widget build(BuildContext context) {
     final atualizacao = context.watch<UpdateController?>();
-    final itens = [..._items, if (atualizacao?.oferta != null) 'Atualizações'];
-    final profiles = context.watch<ActiveProfileProvider?>();
-    final activeProfile = profiles?.active;
-    final profileName = activeProfile?.displayName ?? 'Família';
-    final initial = profileName.isNotEmpty ? profileName[0].toUpperCase() : 'T';
+    final kids = heisucaKidsActive(context);
     // Retrospectiva do ano (24/11): fora do kids e só com Jellyfin conectado (é onde ficam os dados).
-    final retrospectiva = heisucaKidsActive(context) ? null : CgflixRetrospectivaFonte.of(context);
+    final retrospectiva = kids ? null : CgflixRetrospectivaFonte.of(context);
+    final temPerfil = context.watch<ActiveProfileProvider?>()?.active != null;
 
-    // O cartão só escuta o Voltar que sobe dos itens; não pega o foco para si, senão o autofocus do item
-    // (Início) perde a vez e o D-Pad não entra na lista (bancada da TV, 30/10: menu preso em Início).
-    return Focus(
-      canRequestFocus: false,
-      skipTraversal: true,
-      onKeyEvent: (node, event) {
-        if (event is KeyDownEvent) {
-          if (event.logicalKey == LogicalKeyboardKey.escape || event.logicalKey == LogicalKeyboardKey.goBack) {
-            if (widget.onClose != null) {
-              widget.onClose!();
-            } else {
-              Navigator.of(context).maybePop();
-            }
-            return KeyEventResult.handled;
-          }
-        }
-        return KeyEventResult.ignored;
-      },
-      child: Center(
-        child: Container(
-          width: 520,
-          height: 640,
-          decoration: BoxDecoration(
-            color: context.cgflix.surface, // SUP
-            borderRadius: BorderRadius.circular(28),
-            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 32, spreadRadius: 8)],
-            border: Border.all(color: context.cgflix.text.withValues(alpha: 0.08), width: 1),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 1. Cabeçalho do Perfil
-              Row(
-                children: [
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(shape: BoxShape.circle, color: context.cgflix.accent),
-                    clipBehavior: Clip.antiAlias,
-                    child: activeProfile != null
-                        ? ProfileAvatar(
-                            profile: activeProfile,
-                            size: 64,
-                            avatarUrl: profiles?.avatarUrlFor(activeProfile.id),
-                          )
-                        : Center(
-                            child: Text(
-                              initial,
-                              style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: context.cgflix.text),
-                            ),
-                          ),
-                  ),
-                  const SizedBox(width: 18),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          profileName,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontFamily: HeisucaTheme.fonteTitulo,
-                            fontSize: 26,
-                            fontWeight: FontWeight.w700,
-                            color: context.cgflix.text,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        _TvMenuItemPill(
-                          text: 'Trocar perfil',
-                          fontSize: 20,
-                          height: 38,
-                          onTap: () {
-                            // Fecha esta rota antes de empilhar o perfil; maybePop é assíncrono.
-                            final navigator = Navigator.of(context);
-                            navigator.pop();
-                            navigator.push(
-                              MaterialPageRoute(builder: (_) => const ProfileSwitchScreen(requireSelection: false)),
-                            );
-                          },
-                        ),
-                        if (retrospectiva != null)
-                          _TvMenuItemPill(
-                            key: const ValueKey('tv-menu-retrospectiva'),
-                            text: 'Minha retrospectiva',
-                            fontSize: 20,
-                            height: 38,
-                            onTap: () {
-                              final navigator = Navigator.of(context);
-                              navigator.pop();
-                              cgflixOpenRetrospectiva(navigator.context, retrospectiva);
-                            },
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 18),
-              Container(height: 1, color: context.cgflix.text.withValues(alpha: 0.15)),
-              const SizedBox(height: 14),
-
-              // 2. Lista de Itens de Navegação
-              Expanded(
-                child: ListView.separated(
-                  padding: EdgeInsets.zero,
-                  itemCount: itens.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 10),
-                  itemBuilder: (context, index) {
-                    final item = itens[index];
-                    final isSelected = item == _selected;
-                    return _TvMenuItemPill(
-                      key: ValueKey('tv-menu-$item'),
-                      text: item,
-                      fontSize: 26,
-                      height: 58,
-                      autofocus: index == _focusedIndex,
-                      isSelected: isSelected,
-                      onTap: () {
-                        setState(() => _selected = item);
-                        widget.onSelectDestination(item);
-                      },
-                    );
-                  },
-                ),
-              ),
-
-              const SizedBox(height: 10),
-              // 3. Dica inferior
-              Center(
-                child: Text(
-                  'OK abre · Voltar fecha o menu',
-                  style: TextStyle(
-                    fontFamily: HeisucaTheme.fonteTexto,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w400,
-                    color: context.cgflix.textMuted,
-                  ),
-                ),
-              ),
-            ],
+    final extras = <ItemDoTrilhoTv>[
+      if (temPerfil)
+        ItemDoTrilhoTv(
+          key: const ValueKey('tv-menu-infantil'),
+          chave: 'infantil',
+          rotulo: kids ? 'Sair do modo infantil' : 'Modo infantil',
+          icone: kids ? Symbols.logout_rounded : Symbols.child_care_rounded,
+          aoTocar: () => _depoisDeFechar(
+            (contexto) => unawaited(kids ? heisucaExitKids(contexto).then((_) {}) : heisucaEnterKids(contexto)),
           ),
         ),
+      if (retrospectiva != null)
+        ItemDoTrilhoTv(
+          key: const ValueKey('tv-menu-retrospectiva'),
+          chave: 'retrospectiva',
+          rotulo: 'Minha retrospectiva',
+          icone: Symbols.auto_awesome_rounded,
+          aoTocar: () => _depoisDeFechar((contexto) => cgflixOpenRetrospectiva(contexto, retrospectiva)),
+        ),
+      ItemDoTrilhoTv(
+        key: const ValueKey('tv-menu-trocar-perfil'),
+        chave: 'Trocar perfil',
+        rotulo: 'Trocar perfil',
+        icone: Symbols.switch_account_rounded,
+        // Fecha esta rota antes de empilhar o perfil; maybePop é assíncrono.
+        aoTocar: () {
+          final navigator = Navigator.of(context);
+          navigator.pop();
+          navigator.push(MaterialPageRoute(builder: (_) => const ProfileSwitchScreen(requireSelection: false)));
+        },
+      ),
+      ItemDoTrilhoTv(
+        key: const ValueKey('tv-menu-Ajustes'),
+        chave: 'Ajustes',
+        rotulo: 'Ajustes',
+        icone: Symbols.settings_rounded,
+        aoTocar: () => widget.onSelectDestination('Ajustes'),
+      ),
+      if (atualizacao?.oferta != null)
+        ItemDoTrilhoTv(
+          key: const ValueKey('tv-menu-Atualizações'),
+          chave: 'Atualizações',
+          rotulo: 'Atualizações',
+          icone: Symbols.system_update_rounded,
+          aoTocar: () => widget.onSelectDestination('Atualizações'),
+        ),
+    ];
+
+    return SizedBox(
+      height: double.infinity,
+      child: TrilhoDaTv(
+        cabecalho: const _PerfilDoTrilho(),
+        destinos: [for (final nome in HeisucaTvMenu.destinos) _destino(nome)],
+        extras: extras,
+        selecionado: widget.initialDestination,
+        focoInicial: widget.initialDestination,
+        aoFechar: _fechar,
       ),
     );
   }
 }
 
-class _TvMenuItemPill extends StatefulWidget {
-  const _TvMenuItemPill({
-    super.key,
-    required this.text,
-    required this.onTap,
-    this.fontSize = 24,
-    this.height = 56,
-    this.isSelected = false,
-    this.autofocus = false,
-  });
+/// Perfil ativo no topo do trilho: foto (ou inicial) e nome. Só informa; trocar fica na lista.
+class _PerfilDoTrilho extends StatelessWidget {
+  const _PerfilDoTrilho();
 
-  final String text;
-  final VoidCallback onTap;
-  final double fontSize;
-  final double height;
-  final bool isSelected;
-  final bool autofocus;
-
-  @override
-  State<_TvMenuItemPill> createState() => _TvMenuItemPillState();
-}
-
-class _TvMenuItemPillState extends State<_TvMenuItemPill> {
-  bool _focused = false;
+  static const double _tamanho = 48;
 
   @override
   Widget build(BuildContext context) {
-    final active = _focused;
-
-    return FocusableActionDetector(
-      autofocus: widget.autofocus,
-      onShowFocusHighlight: (v) => setState(() => _focused = v),
-      actions: {
-        ActivateIntent: CallbackAction<ActivateIntent>(
-          onInvoke: (_) {
-            widget.onTap();
-            return null;
-          },
-        ),
-      },
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: AnimatedScale(
-          scale: active ? HeisucaBase.focoEscalaTv : 1.0,
-          duration: const Duration(milliseconds: 140),
-          curve: Curves.easeOutCubic,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 140),
-            height: widget.height,
-            alignment: Alignment.centerLeft,
-            padding: const EdgeInsets.symmetric(horizontal: 22),
-            decoration: BoxDecoration(
-              color: active
-                  ? context.cgflix.text
-                  : widget.isSelected
-                  ? context.cgflix.text.withValues(alpha: 0.12)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(16),
-              border: active ? Border.all(color: context.cgflix.focusRing, width: HeisucaBase.focoBorda) : null,
-            ),
-            child: Text(
-              widget.text,
-              style: TextStyle(
-                fontFamily: HeisucaTheme.fonteTexto,
-                fontSize: widget.fontSize,
-                fontWeight: active ? FontWeight.w700 : (widget.isSelected ? FontWeight.w600 : FontWeight.w500),
-                color: active
-                    ? context
-                          .cgflix
-                          .background // Fundo branco -> texto escuro
-                    : context.cgflix.text,
+    final tema = TemaHeisuca.de(context);
+    final perfis = context.watch<ActiveProfileProvider?>();
+    final ativo = perfis?.active;
+    final nome = ativo?.displayName ?? 'Família';
+    final inicial = nome.isNotEmpty ? nome.characters.first.toUpperCase() : 'F';
+    return Semantics(
+      header: true,
+      label: 'Perfil: $nome',
+      excludeSemantics: true,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: Forma.espaco4),
+        child: Row(
+          children: [
+            SizedBox.square(
+              dimension: _tamanho,
+              child: ClipOval(
+                child: ativo != null
+                    ? ProfileAvatar(profile: ativo, size: _tamanho, avatarUrl: perfis?.avatarUrlFor(ativo.id))
+                    : ColoredBox(
+                        color: tema.superficie2,
+                        child: Center(
+                          child: Text(inicial, style: Tipo.subtitulo(tema).copyWith(fontWeight: FontWeight.w700)),
+                        ),
+                      ),
               ),
             ),
-          ),
+            const SizedBox(width: Forma.espaco3),
+            Expanded(
+              child: Text(
+                nome,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Tipo.subtitulo(tema).copyWith(fontWeight: FontWeight.w700),
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -375,6 +375,7 @@ class _LigacaoDoInicioState extends State<LigacaoDoInicio>
   );
 
   List<Widget> _fileiras(HeisucaHomeRepository repositorio, String chave) {
+    final kids = heisucaKidsActive(context);
     return [
       // O Discover mantém o progresso do Plex em dia ao voltar do player.
       if (repositorio.client is PlexClient)
@@ -387,7 +388,7 @@ class _LigacaoDoInicioState extends State<LigacaoDoInicio>
           pronto: (dados) => _fileiraContinuar(dados.items.isNotEmpty ? dados.items : _discover.onDeck),
         ),
       // Modo kids: uma prateleira por coleção infantil do servidor (fileira vazia some).
-      if (heisucaKidsActive(context))
+      if (kids)
         for (final nome in cgflixKidsCollections)
           _Secao<CgflixRowData>(
             key: ValueKey('kids:$nome:$chave'),
@@ -401,48 +402,52 @@ class _LigacaoDoInicioState extends State<LigacaoDoInicio>
               ),
             ),
           ),
-      _Secao<CgflixRowData>(
-        key: ValueKey('em-alta:$chave'),
-        fonte: repositorio.watchTrending,
-        carregando: const FileiraCarregando(),
-        pronto: (dados) => Fileira(
-          dados: FileiraDoInicio(
-            chave: 'em-alta',
-            titulo: 'Em alta no Brasil',
-            numerada: true,
-            itens: [for (final item in dados.items) _emPoster(item)],
+      // No kids, as coleções acima já são as fileiras: o "Em alta" (ranking geral, quase vazio com o
+      // filtro infantil) e as bibliotecas repetiriam os mesmos títulos (pedido do Caio, 25/11).
+      if (!kids)
+        _Secao<CgflixRowData>(
+          key: ValueKey('em-alta:$chave'),
+          fonte: repositorio.watchTrending,
+          carregando: const FileiraCarregando(),
+          pronto: (dados) => Fileira(
+            dados: FileiraDoInicio(
+              chave: 'em-alta',
+              titulo: 'Em alta no Brasil',
+              numerada: true,
+              itens: [for (final item in dados.items) _emPoster(item)],
+            ),
           ),
         ),
-      ),
       // Mesma ordem e mesmos nomes de biblioteca que o site.
-      _Secao<List<MediaLibrary>>(
-        key: ValueKey('bibliotecas:$chave'),
-        fonte: () => repositorio.videoLibraries().asStream(),
-        carregando: const FileiraCarregando(),
-        pronto: (bibliotecas) => Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (final biblioteca in bibliotecas)
-              _Secao<CgflixRowData>(
-                key: ValueKey('biblioteca:${biblioteca.id}:$chave'),
-                fonte: () => repositorio.watchLibrary(biblioteca),
-                carregando: const FileiraCarregando(),
-                pronto: (dados) => Fileira(
-                  dados: FileiraDoInicio(
-                    chave: 'biblioteca-${biblioteca.id}',
-                    titulo: biblioteca.title,
-                    itens: [for (final item in dados.items) _emPoster(item)],
-                    aoVerTudo: widget.aoAbrirBiblioteca == null
-                        ? null
-                        : () => widget.aoAbrirBiblioteca!(biblioteca.globalKey),
+      if (!kids)
+        _Secao<List<MediaLibrary>>(
+          key: ValueKey('bibliotecas:$chave'),
+          fonte: () => repositorio.videoLibraries().asStream(),
+          carregando: const FileiraCarregando(),
+          pronto: (bibliotecas) => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final biblioteca in bibliotecas)
+                _Secao<CgflixRowData>(
+                  key: ValueKey('biblioteca:${biblioteca.id}:$chave'),
+                  fonte: () => repositorio.watchLibrary(biblioteca),
+                  carregando: const FileiraCarregando(),
+                  pronto: (dados) => Fileira(
+                    dados: FileiraDoInicio(
+                      chave: 'biblioteca-${biblioteca.id}',
+                      titulo: biblioteca.title,
+                      itens: [for (final item in dados.items) _emPoster(item)],
+                      aoVerTudo: widget.aoAbrirBiblioteca == null
+                          ? null
+                          : () => widget.aoAbrirBiblioteca!(biblioteca.globalKey),
+                    ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
-      ),
       // O calendário vem do servidor inteiro, sem o filtro do perfil infantil: some no kids.
-      if (!heisucaKidsActive(context))
+      if (!kids)
         _Secao<List<HeisucaUpcoming>>(
           key: ValueKey('em-breve:$chave'),
           fonte: () => repositorio.upcoming().asStream(),

@@ -118,38 +118,45 @@ class TelaMinhaLista extends StatelessWidget {
       hash: hashes.firstOrNull,
       preparar: hashes,
       cores: cores,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          if (aoAtualizar == null)
-            lista
-          else
-            // Dentro do fundo tingido: o indicador usa a superfície já com a cor do pôster.
-            Builder(
-              builder: (context) => RefreshIndicator(
-                color: base.texto,
-                backgroundColor: TemaHeisuca.de(context).superficie2,
-                edgeOffset: media.padding.top + Forma.espaco2,
-                onRefresh: aoAtualizar!,
-                child: lista,
+      child: AreaDoVeu(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (aoAtualizar == null)
+              lista
+            else
+              // Dentro do fundo tingido: o indicador usa a superfície já com a cor do pôster.
+              Builder(
+                builder: (context) => RefreshIndicator(
+                  color: base.texto,
+                  backgroundColor: TemaHeisuca.de(context).superficie2,
+                  edgeOffset: media.padding.top + Forma.espaco2,
+                  onRefresh: aoAtualizar!,
+                  child: lista,
+                ),
               ),
-            ),
-          const VeuDoTopo(),
-          if (perfil != null)
-            PositionedDirectional(
-              top: media.padding.top + Forma.espaco2,
-              start: Forma.espaco4,
-              // A busca fica do outro lado: a pílula não passa por baixo dela.
-              end: Forma.espaco4 + Forma.toqueMinimo + Forma.espaco2,
-              child: Align(alignment: AlignmentDirectional.centerStart, child: perfil),
-            ),
-          if (aoBuscar != null)
-            PositionedDirectional(
-              top: media.padding.top + Forma.espaco2,
-              end: Forma.espaco4,
-              child: BotaoDeIcone(icone: Symbols.search_rounded, rotulo: 'Buscar', sobreArte: true, aoTocar: aoBuscar),
-            ),
-        ],
+            const VeuDoTopo(),
+            if (perfil != null)
+              PositionedDirectional(
+                top: media.padding.top + Forma.espaco2,
+                start: Forma.espaco4,
+                // A busca fica do outro lado: a pílula não passa por baixo dela.
+                end: Forma.espaco4 + Forma.toqueMinimo + Forma.espaco2,
+                child: Align(alignment: AlignmentDirectional.centerStart, child: perfil),
+              ),
+            if (aoBuscar != null)
+              PositionedDirectional(
+                top: media.padding.top + Forma.espaco2,
+                end: Forma.espaco4,
+                child: BotaoDeIcone(
+                  icone: Symbols.search_rounded,
+                  rotulo: 'Buscar',
+                  sobreArte: true,
+                  aoTocar: aoBuscar,
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

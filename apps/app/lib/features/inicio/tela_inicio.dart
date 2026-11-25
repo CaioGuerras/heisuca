@@ -131,43 +131,47 @@ class _TelaInicioState extends State<TelaInicio> {
       hash: hash,
       preparar: _hashes,
       cores: widget.cores,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          if (widget.aoAtualizar == null)
-            lista
-          else
-            // Dentro do fundo tingido: o indicador usa a superfície já com a cor do pôster.
-            Builder(
-              builder: (context) => RefreshIndicator(
-                color: base.texto,
-                backgroundColor: TemaHeisuca.de(context).superficie2,
-                edgeOffset: media.padding.top + Forma.espaco2,
-                onRefresh: widget.aoAtualizar!,
-                child: lista,
+      // Os botões do topo ficam sobre a arte do destaque; depois dela, o véu vira barra.
+      child: AreaDoVeu(
+        limite: temDestaque ? (alturaDoDestaque - VeuDoTopo.alturaDaBarra(context)).clamp(0, double.infinity) : 0,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (widget.aoAtualizar == null)
+              lista
+            else
+              // Dentro do fundo tingido: o indicador usa a superfície já com a cor do pôster.
+              Builder(
+                builder: (context) => RefreshIndicator(
+                  color: base.texto,
+                  backgroundColor: TemaHeisuca.de(context).superficie2,
+                  edgeOffset: media.padding.top + Forma.espaco2,
+                  onRefresh: widget.aoAtualizar!,
+                  child: lista,
+                ),
               ),
-            ),
-          const VeuDoTopo(),
-          if (widget.perfil != null)
-            PositionedDirectional(
-              top: media.padding.top + Forma.espaco2,
-              start: Forma.espaco4,
-              // A busca fica do outro lado: a pílula não passa por baixo dela.
-              end: Forma.espaco4 + Forma.toqueMinimo + Forma.espaco2,
-              child: Align(alignment: AlignmentDirectional.centerStart, child: widget.perfil),
-            ),
-          if (widget.aoBuscar != null)
-            PositionedDirectional(
-              top: media.padding.top + Forma.espaco2,
-              end: Forma.espaco4,
-              child: BotaoDeIcone(
-                icone: Symbols.search_rounded,
-                rotulo: 'Buscar',
-                sobreArte: true,
-                aoTocar: widget.aoBuscar,
+            const VeuDoTopo(),
+            if (widget.perfil != null)
+              PositionedDirectional(
+                top: media.padding.top + Forma.espaco2,
+                start: Forma.espaco4,
+                // A busca fica do outro lado: a pílula não passa por baixo dela.
+                end: Forma.espaco4 + Forma.toqueMinimo + Forma.espaco2,
+                child: Align(alignment: AlignmentDirectional.centerStart, child: widget.perfil),
               ),
-            ),
-        ],
+            if (widget.aoBuscar != null)
+              PositionedDirectional(
+                top: media.padding.top + Forma.espaco2,
+                end: Forma.espaco4,
+                child: BotaoDeIcone(
+                  icone: Symbols.search_rounded,
+                  rotulo: 'Buscar',
+                  sobreArte: true,
+                  aoTocar: widget.aoBuscar,
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

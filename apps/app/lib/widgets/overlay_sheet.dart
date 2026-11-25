@@ -5,6 +5,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../design/forma.dart';
+import '../design/tema.dart';
 import '../focus/dpad_navigator.dart';
 import '../focus/input_mode_tracker.dart';
 import '../focus/key_event_utils.dart';
@@ -280,10 +282,18 @@ class OverlaySheetHost extends StatefulWidget {
   /// handler should start with `if (BackKeyCoordinator.consumeIfHandled()) return;`
   /// so the system path dedups against the key path.
   final VoidCallback? onSystemBack;
+
   /// Efeito após o pop confirmado; cancelamento do gesto não chega aqui.
   final VoidCallback? onPopped;
 
-  const OverlaySheetHost({super.key, required this.child, this.onOpenChanged, this.canPop, this.onSystemBack, this.onPopped});
+  const OverlaySheetHost({
+    super.key,
+    required this.child,
+    this.onOpenChanged,
+    this.canPop,
+    this.onSystemBack,
+    this.onPopped,
+  });
 
   @override
   State<OverlaySheetHost> createState() => _OverlaySheetHostState();
@@ -335,9 +345,11 @@ class _OverlaySheetHostState extends State<OverlaySheetHost> with SingleTickerPr
       reverseCurve: Curves.easeInCubic,
     );
 
+    // Na TV o véu é mais forte: os controles do player ficam atrás da folha e não podem
+    // competir com ela a três metros de distância.
     _barrierAnimation = Tween<double>(
       begin: 0,
-      end: 0.5,
+      end: PlatformDetector.isTV() ? 0.8 : 0.5,
     ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic));
   }
 
@@ -605,7 +617,10 @@ class _OverlaySheetHostState extends State<OverlaySheetHost> with SingleTickerPr
       content = PopScope(
         canPop: canPop && !_isOpen,
         onPopInvokedWithResult: (didPop, result) {
-          if (didPop) { widget.onPopped?.call(); return; }
+          if (didPop) {
+            widget.onPopped?.call();
+            return;
+          }
           if (_isOpen && !_isClosing) {
             // Only TV routes one Back through both the focused key path and
             // the platform pop, so only TV needs to dedup them. Touch
@@ -701,11 +716,16 @@ class _OverlaySheetHostState extends State<OverlaySheetHost> with SingleTickerPr
     // hit testing never depends on the sheet child's just-invalidated layout.
     final slideDirection = isTop ? -1.0 : 1.0;
     final slideDistance = size.height;
-    final borderRadius = isTop
+    // Na TV a folha é um painel flutuante da V2: cantos arredondados nos quatro lados,
+    // superfície elevada do tema e respiro da margem segura embaixo.
+    final borderRadius = isTV
+        ? BorderRadius.circular(Forma.raioGrande)
+        : isTop
         ? const BorderRadius.vertical(bottom: Radius.circular(16))
         : const BorderRadius.vertical(top: Radius.circular(16));
 
     final colorScheme = Theme.of(context).colorScheme;
+    final corDoPainel = _explicitBackgroundColor ?? (isTV ? TemaHeisuca.de(context).superficie : colorScheme.surface);
 
     Widget content = _pageStack.isNotEmpty ? _buildPageStack() : const SizedBox.shrink();
     // Keep sheet scrollables from attaching to the route's primary controller.
@@ -798,9 +818,12 @@ class _OverlaySheetHostState extends State<OverlaySheetHost> with SingleTickerPr
                 right: true,
                 top: false,
                 bottom: false,
+                minimum: isTV
+                    ? EdgeInsets.only(top: Forma.margemSeguraTv.top, bottom: Forma.margemSeguraTv.bottom)
+                    : EdgeInsets.zero,
                 child: Material(
                   key: _sheetKey,
-                  color: _explicitBackgroundColor ?? colorScheme.surface,
+                  color: corDoPainel,
                   borderRadius: borderRadius,
                   clipBehavior: Clip.antiAlias,
                   child: SafeArea(

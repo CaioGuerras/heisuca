@@ -88,7 +88,7 @@ class TelaSobreTv extends StatelessWidget {
               titulo: '🤝 Rosiel Victor',
               descricao: 'Por sempre apoiar a fazer essas coisas rsrs.',
               rotulo: 'all.dev.br',
-              icone: Symbols.handshake,
+              icone: Symbols.person_rounded, // o 🤝 já está no título; o ícone não repete o aperto de mão
               aoTocar: () =>
                   unawaited(launchUrl(Uri.parse('https://all.dev.br/'), mode: LaunchMode.externalApplication)),
             ),

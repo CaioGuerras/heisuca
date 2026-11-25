@@ -635,7 +635,9 @@ class TestTvBancada(unittest.TestCase):
     def test_menu_tv_aberto(self):
         menu = [{'desc': 'Família\nTrocar perfil'}] + [{'desc': d} for d in ITENS_MENU_TV]
         self.assertTrue(menu_tv_aberto(menu))
-        self.assertFalse(menu_tv_aberto(menu[1:]))
+        # Trilho (25/11): os destinos sem "Trocar perfil" já são o menu; as pílulas de biblioteca do Explorar, não.
+        self.assertTrue(menu_tv_aberto(menu[1:]))
+        self.assertFalse(menu_tv_aberto([{'desc': d} for d in ('Animes', 'Filmes', 'Séries', 'Não vistos')]))
 
     def test_achado_menu_preso(self):
         menu = [{'desc': 'Claudia\nTrocar perfil'}] + [{'desc': d} for d in ITENS_MENU_TV]
@@ -872,3 +874,30 @@ class TestAbrirDestinoNoTrilho(unittest.TestCase):
     def test_buscar(self):
         _, abertos = self._rodar('Buscar')
         self.assertEqual(abertos, ['Buscar'])
+
+
+class TestMenuTrilho(unittest.TestCase):
+    def test_trilho_sem_trocar_perfil_na_tela(self):
+        nos = [{'desc': d} for d in ('Claudia', 'Início', 'Filmes', 'Séries', 'Animes', 'Buscar', 'Modo infantil')]
+        self.assertTrue(menu_tv_aberto(nos))
+
+    def test_inicio_nao_e_menu(self):
+        nos = [{'desc': d} for d in ('Abrir o menu, perfil Claudia', 'HEISUCA', 'Assistir', 'Detalhes',
+                                      'Continuar assistindo')]
+        self.assertFalse(menu_tv_aberto(nos))
+
+
+class TestBibliotecaTv(unittest.TestCase):
+    def test_biblioteca_nao_passa_por_inicio(self):
+        nos = [{'desc': d} for d in ('Séries', 'Filmes', 'Animes', 'Não vistos', 'Título A–Z', 'Frieren, 2023')]
+        self.assertEqual(reconhecer_tela_tv(nos), 'biblioteca')
+
+    def test_voltar_da_biblioteca_da_back(self):
+        telas = [[{'desc': d} for d in ('Séries', 'Filmes', 'Título A–Z')],
+                 [{'desc': 'Continuar assistindo'}, {'desc': 'Assistir'}, {'desc': 'Detalhes'}]]
+        with patch('tv.dump_tv', lambda: telas[0] if not voltas else telas[1]), \
+             patch('tv.back', lambda *a, **k: voltas.append(1)):
+            voltas = []
+            nos, backs = voltar_ao_inicio(espera=0)
+        self.assertEqual(backs, 1)
+        self.assertEqual(reconhecer_tela_tv(nos), 'inicio')

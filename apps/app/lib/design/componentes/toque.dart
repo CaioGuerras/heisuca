@@ -50,7 +50,8 @@ class Toque extends StatefulWidget {
   /// Tamanho do componente apertado, em relação ao normal.
   final double escala;
 
-  /// O [rotulo] substitui a semântica do filho.
+  /// O [rotulo] substitui a semântica do filho. Só o conteúdo sai da árvore de acessibilidade: o foco e as ações
+  /// do próprio [Toque] continuam nela (o leitor de tela e a bancada da TV precisam saber onde está o foco).
   final bool excluirSemantica;
 
   bool get ativo => aoTocar != null || aoSegurar != null;
@@ -160,7 +161,6 @@ class _ToqueState extends State<Toque> with SingleTickerProviderStateMixin {
       selected: widget.selecionado,
       enabled: widget.ativo,
       label: widget.rotulo,
-      excludeSemantics: widget.excluirSemantica,
       onTap: widget.aoTocar == null ? null : _tocar,
       onLongPress: widget.aoSegurar == null ? null : _segurar,
       child: FocusableActionDetector(
@@ -181,7 +181,7 @@ class _ToqueState extends State<Toque> with SingleTickerProviderStateMixin {
           onTapCancel: () => _apertar(false),
           onTap: widget.aoTocar == null ? null : _tocar,
           onLongPress: widget.aoSegurar == null ? null : _segurar,
-          child: filho,
+          child: widget.excluirSemantica ? ExcludeSemantics(child: filho) : filho,
         ),
       ),
     );

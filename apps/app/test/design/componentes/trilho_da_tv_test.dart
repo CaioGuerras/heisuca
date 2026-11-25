@@ -201,6 +201,24 @@ void main() {
       semantica.dispose();
     });
 
+    // Bancada da TV (25/11): com o rótulo no lugar do conteúdo (excluirSemantica), o Toque apagava também a marca
+    // "focado"; o leitor de tela e a bancada não achavam o item com foco no trilho.
+    testWidgets('leitor de tela vê qual item tem o foco, e o foco acompanha o ↓', (tester) async {
+      final semantica = tester.ensureSemantics();
+      await _montar(tester, _Trilho().widget());
+      await tester.pump();
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('Filmes')),
+        containsSemantics(label: 'Filmes', isFocusable: true, isFocused: true),
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pump();
+      await tester.pump();
+      expect(tester.getSemantics(find.bySemanticsLabel('Séries')), containsSemantics(isFocused: true));
+      expect(tester.getSemantics(find.bySemanticsLabel('Filmes')), containsSemantics(isFocused: false));
+      semantica.dispose();
+    });
+
     testWidgets('letra a 200 % não estoura e o item com foco fica na tela', (tester) async {
       final t = _Trilho();
       tester.view.physicalSize = const Size(960, 540);

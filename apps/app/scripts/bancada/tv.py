@@ -357,6 +357,10 @@ TERMOS_INICIO_MODELO_A = (
 # esta regra a Busca passava por Início e o voltar_ao_inicio não dava BACK nenhum (30/10).
 TERMOS_BUSCA_TV = ('buscar filmes', 'search movies')
 ITENS_MENU_TV = ('Início', 'Filmes', 'Séries', 'Animes', 'Buscar', 'Ajustes')
+# Biblioteca da TV (25/11, Filmes/Séries/Animes pelo trilho): pílulas que só ela tem. Sem esta regra, as pílulas de
+# biblioteca ("Filmes", "Séries") faziam a tela passar por Início e o voltar_ao_inicio não dava BACK.
+TERMOS_BIBLIOTECA_TV = {'título a–z', 'adicionados recentemente', 'lançamento', 'nota', 'não vistos',
+                        'todos os gêneros'}
 TERMOS_VAZIO = (
     'nenhum item', 'sem conteúdo', 'sem conteudo', 'vazio', 'nada aqui',
     'nenhum conteúdo', 'nenhum conteudo', 'adicione filmes', 'adicione séries',
@@ -386,7 +390,7 @@ def abrir_app_tv(registrar=None):
 
 
 def reconhecer_tela_tv(nos):
-    """Identifica se a tela atual de TV é 'inicio', 'login', 'busca' ou None."""
+    """Identifica se a tela atual de TV é 'inicio', 'login', 'busca', 'biblioteca' ou None."""
     if not nos:
         return None
     rotulos = {r.strip().lower() for n in nos for r in (n.get('text'), n.get('desc'), n.get('hint')) if r}
@@ -405,6 +409,10 @@ def reconhecer_tela_tv(nos):
     # 1b. Busca: o campo com a dica de busca está na tela
     if any(r.startswith(t) for r in rotulos for t in TERMOS_BUSCA_TV):
         return 'busca'
+
+    # 1c. Biblioteca da TV (Filmes, Séries, Animes)
+    if rotulos & TERMOS_BIBLIOTECA_TV:
+        return 'biblioteca'
 
     # 2. Início do modelo A: destaque com [Assistir] + [Detalhes] ou faixa "Em alta no Brasil"
     if any(t in r for r in rotulos for t in TERMOS_INICIO_MODELO_A):
@@ -464,9 +472,12 @@ def voltar_ao_inicio(max_backs=4, espera=2.0):
 
 
 def menu_tv_aberto(nos):
-    """O menu do avatar está na tela (cartão com Trocar perfil e os destinos)."""
+    """O menu da TV está na tela: o cartão antigo (Trocar perfil e os destinos) ou o trilho (25/11), em que Trocar
+    perfil e Ajustes ficam abaixo da dobra e só os destinos aparecem de cara."""
     rotulos = {r.strip().lower() for n in nos for r in (n.get('text'), n.get('desc')) if r}
-    return any('trocar perfil' in r for r in rotulos) and 'ajustes' in rotulos and 'buscar' in rotulos
+    cartao = any('trocar perfil' in r for r in rotulos) and 'ajustes' in rotulos and 'buscar' in rotulos
+    trilho = {'início', 'buscar'} <= rotulos and bool(rotulos & {'filmes', 'séries', 'animes'})
+    return cartao or trilho
 
 
 def achado_menu_preso(nos, destino):
@@ -1231,8 +1242,11 @@ def percorrer_tv(base, perfil='googletv-36', out_dir=None, registrar=None, conta
     # TELA 3: Detalhe de série/temporada
     # ==========================================
     rec('3. Detalhe de série/temporada')
-    dpad_down()
-    dpad_right()
+    # Trilho (25/11): no Início novo o OK no "Continuar assistindo" toca o episódio (como no app de Windows), então a
+    # série abre pelo caminho da TV: trilho → Séries → 1º pôster (nasce com o foco) → OK.
+    serie_dpad, _ = abrir_destino_tv('Séries', rec)
+    time.sleep(3.0)
+    rec(f'Séries: {resumo_foco_tv(dump_tv())}')
     dpad_center(espera=3.0)
 
     nos = dump_tv()
@@ -1273,7 +1287,14 @@ def percorrer_tv(base, perfil='googletv-36', out_dir=None, registrar=None, conta
             'detalhe': f'{len(pequenos)} textos pequenos no detalhe de série'
         })
 
-    # Teste de BACK
+    if not serie_dpad:
+        achados_serie.append({
+            'gravidade': ATENCAO,
+            'codigo': 'menu-avatar',
+            'detalhe': 'Detalhe de série: o menu não abriu por D-Pad (abriu pelo toque no avatar)'
+        })
+
+    # Teste de BACK: sai da ficha (volta à biblioteca de Séries); o Voltar seguinte leva ao Início.
     back(espera=2.0)
     nos_pos_back = dump_tv()
     erro_back = checar_saude(nos_pos_back, 'BACK no detalhe de série')
@@ -1281,12 +1302,14 @@ def percorrer_tv(base, perfil='googletv-36', out_dir=None, registrar=None, conta
         achados_serie.append(erro_back)
         back_retorna_serie = False
     else:
-        back_retorna_serie = (reconhecer_tela_tv(nos_pos_back) == 'inicio')
+        saiu_da_ficha = not tem_rotulo(nos_pos_back, {'temporada', 'episódio', 'episódios'})
+        nos_inicio, _ = voltar_ao_inicio()
+        back_retorna_serie = saiu_da_ficha and reconhecer_tela_tv(nos_inicio) == 'inicio'
         if not back_retorna_serie:
             achados_serie.append({
                 'gravidade': ATENCAO,
                 'codigo': 'toque-obrigatorio',
-                'detalhe': 'BACK não retornou para Início após detalhe de série'
+                'detalhe': 'BACK não saiu da ficha da série ou não chegou ao Início'
             })
 
     telas.append({

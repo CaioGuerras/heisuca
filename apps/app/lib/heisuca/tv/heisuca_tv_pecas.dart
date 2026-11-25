@@ -11,6 +11,7 @@ import '../../design/tipo.dart';
 import '../../features/inicio/modelo.dart' show FazArte;
 import '../../features/tema_da_v2.dart';
 import '../theme/heisuca_base.dart';
+import 'heisuca_tv_segurar.dart';
 
 /// Peças da TV usadas pelo Início e pela ficha do título: o mesmo botão, o mesmo cartão e a mesma escala de texto.
 ///
@@ -185,6 +186,7 @@ class CartaoTv extends StatefulWidget {
     this.destaque = false,
     this.redondo = false,
     this.aoTocar,
+    this.aoSegurar,
     this.aoFocar,
     this.autofocus = false,
     this.focusNode,
@@ -203,6 +205,7 @@ class CartaoTv extends StatefulWidget {
   /// Arte em círculo (foto de pessoa).
   final bool redondo;
   final VoidCallback? aoTocar;
+  final VoidCallback? aoSegurar;
   final ValueChanged<bool>? aoFocar;
   final bool autofocus;
 
@@ -247,93 +250,99 @@ class _CartaoTvState extends State<CartaoTv> {
         label: [widget.titulo, ?legenda].join(', '),
         container: true,
         onTap: widget.aoTocar,
-        child: FocusableActionDetector(
-          focusNode: widget.focusNode,
-          autofocus: widget.autofocus,
-          onFocusChange: (focado) => widget.aoFocar?.call(focado),
-          onShowFocusHighlight: (v) => setState(() => _foco = v),
-          actions: {
-            ActivateIntent: CallbackAction<ActivateIntent>(
-              onInvoke: (_) {
-                widget.aoTocar?.call();
-                return null;
-              },
-            ),
-          },
-          child: ExcludeSemantics(
-            child: GestureDetector(
-              onTap: widget.aoTocar,
-              child: Column(
-                crossAxisAlignment: widget.redondo ? CrossAxisAlignment.center : CrossAxisAlignment.start,
-                children: [
-                  AnimatedScale(
-                    scale: _foco ? HeisucaBase.focoEscalaTv : 1,
-                    duration: Movimento.tempo(context, Movimento.toque),
-                    curve: Movimento.entra,
-                    child: Container(
-                      width: tamanho.width,
-                      height: tamanho.height,
-                      clipBehavior: Clip.antiAlias,
-                      decoration: ShapeDecoration(
-                        color: tema.superficie,
-                        shape: widget.redondo
-                            ? CircleBorder(side: lado)
-                            : Forma.superelipse(Forma.raioMedio, lado: lado),
-                      ),
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          if (widget.arte != null)
-                            widget.arte!(context, tamanho)
-                          else
-                            Center(
-                              child: Text(
-                                widget.titulo,
-                                textAlign: TextAlign.center,
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                                style: tvTexto(Tipo.pequeno(tema)),
-                              ),
-                            ),
-                          if (progresso != null)
-                            Align(
-                              alignment: Alignment.bottomCenter,
-                              child: SizedBox(
-                                height: Forma.espaco2,
-                                child: Stack(
-                                  fit: StackFit.expand,
-                                  children: [
-                                    ColoredBox(color: tema.superficie2),
-                                    FractionallySizedBox(
-                                      alignment: Alignment.centerLeft,
-                                      widthFactor: progresso.clamp(0.0, 1.0),
-                                      child: ColoredBox(color: tema.acento),
-                                    ),
-                                  ],
+        onLongPress: widget.aoSegurar,
+        child: SegurarOkTv(
+          aoTocar: widget.aoTocar,
+          aoSegurar: widget.aoSegurar,
+          child: FocusableActionDetector(
+            focusNode: widget.focusNode,
+            autofocus: widget.autofocus,
+            onFocusChange: (focado) => widget.aoFocar?.call(focado),
+            onShowFocusHighlight: (v) => setState(() => _foco = v),
+            actions: {
+              ActivateIntent: CallbackAction<ActivateIntent>(
+                onInvoke: (_) {
+                  widget.aoTocar?.call();
+                  return null;
+                },
+              ),
+            },
+            child: ExcludeSemantics(
+              child: GestureDetector(
+                onTap: widget.aoTocar,
+                onLongPress: widget.aoSegurar,
+                child: Column(
+                  crossAxisAlignment: widget.redondo ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+                  children: [
+                    AnimatedScale(
+                      scale: _foco ? HeisucaBase.focoEscalaTv : 1,
+                      duration: Movimento.tempo(context, Movimento.toque),
+                      curve: Movimento.entra,
+                      child: Container(
+                        width: tamanho.width,
+                        height: tamanho.height,
+                        clipBehavior: Clip.antiAlias,
+                        decoration: ShapeDecoration(
+                          color: tema.superficie,
+                          shape: widget.redondo
+                              ? CircleBorder(side: lado)
+                              : Forma.superelipse(Forma.raioMedio, lado: lado),
+                        ),
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            if (widget.arte != null)
+                              widget.arte!(context, tamanho)
+                            else
+                              Center(
+                                child: Text(
+                                  widget.titulo,
+                                  textAlign: TextAlign.center,
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: tvTexto(Tipo.pequeno(tema)),
                                 ),
                               ),
-                            ),
-                        ],
+                            if (progresso != null)
+                              Align(
+                                alignment: Alignment.bottomCenter,
+                                child: SizedBox(
+                                  height: Forma.espaco2,
+                                  child: Stack(
+                                    fit: StackFit.expand,
+                                    children: [
+                                      ColoredBox(color: tema.superficie2),
+                                      FractionallySizedBox(
+                                        alignment: Alignment.centerLeft,
+                                        widthFactor: progresso.clamp(0.0, 1.0),
+                                        child: ColoredBox(color: tema.acento),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: Forma.espaco3),
-                  Text(
-                    widget.titulo,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: widget.redondo ? TextAlign.center : TextAlign.start,
-                    style: CartaoTv._estiloDoTitulo(tema),
-                  ),
-                  if (legenda != null)
+                    const SizedBox(height: Forma.espaco3),
                     Text(
-                      legenda,
+                      widget.titulo,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       textAlign: widget.redondo ? TextAlign.center : TextAlign.start,
-                      style: CartaoTv._estiloDaLegenda(tema),
+                      style: CartaoTv._estiloDoTitulo(tema),
                     ),
-                ],
+                    if (legenda != null)
+                      Text(
+                        legenda,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: widget.redondo ? TextAlign.center : TextAlign.start,
+                        style: CartaoTv._estiloDaLegenda(tema),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),

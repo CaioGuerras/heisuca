@@ -5,12 +5,12 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 
 import '../../cgflix/home/cgflix_actions.dart';
+import '../titulo/menu_do_titulo_tv.dart';
 import '../../cgflix/requests/cgflix_requests_ui.dart';
 import '../../cgflix/search/cgflix_search_extras.dart';
 import '../../cgflix/search/cgflix_search_grouping.dart';
 import '../../design/componentes/botao.dart';
 import '../../exceptions/media_server_exceptions.dart';
-import '../../focus/focusable_text_field.dart';
 import '../../heisuca/heisuca_context_menu.dart';
 import '../../heisuca/heisuca_home_style.dart';
 import '../../heisuca/heisuca_search_origin.dart';
@@ -79,9 +79,6 @@ class _LigacaoDaBuscaState extends State<LigacaoDaBusca>
   HiddenLibrariesProvider? _ocultas;
   Set<String> _ultimasOcultas = const {};
 
-  /// Teclado da TV: a busca que chega do celular ou de um recente não deixa o teclado aberto.
-  final TvTextInputController _teclado = TvTextInputController();
-
   /// Na TV, a busca que está para terminar leva o foco ao 1º resultado (Buscar do teclado, recente, celular).
   String? _focarResultadosDe;
 
@@ -93,6 +90,13 @@ class _LigacaoDaBuscaState extends State<LigacaoDaBusca>
     super.initState();
     unawaited(_lerRecentes());
     unawaited(_ligarOcultas());
+    if (widget.naTv && widget.focoInicial) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && TickerMode.of(context) && (ModalRoute.of(context)?.isCurrent ?? true)) {
+          searchFocusNode.requestFocus();
+        }
+      });
+    }
   }
 
   @override
@@ -138,9 +142,8 @@ class _LigacaoDaBuscaState extends State<LigacaoDaBusca>
   /// Roda [termo] agora, com o teclado fechado e o foco no campo até o resultado chegar.
   void _buscarJaNaTv(String termo) {
     final query = termo.trim();
-    _teclado.closeTextInput();
     if (query.isEmpty) return;
-    _teclado.focusInputWithoutOpening();
+    searchFocusNode.requestFocus();
     _focarResultadosDe = query;
     if (query == lastSearchedQuery && !isSearching && !lastSearchFailed && _titulos.isNotEmpty) {
       _focarResultados(query);
@@ -158,7 +161,7 @@ class _LigacaoDaBuscaState extends State<LigacaoDaBusca>
       if (_titulos.isNotEmpty && firstResultFocusNode.context != null) {
         firstResultFocusNode.requestFocus();
       } else {
-        _teclado.focusInputWithoutOpening();
+        searchFocusNode.requestFocus();
       }
     });
   }
@@ -387,6 +390,27 @@ class _LigacaoDaBuscaState extends State<LigacaoDaBusca>
 
   void _menu(MediaItem item) {
     if (!mounted) return;
+    if (widget.naTv) {
+      unawaited(HeisucaStateStore.instance.conferirLista(context, item));
+      unawaited(
+        showDialog<void>(
+          context: context,
+          builder: (_) => ListenableBuilder(
+            listenable: HeisucaStateStore.instance,
+            builder: (_, _) => MenuDoTituloTv(
+              titulo: item.displayTitle,
+              aoAssistir: () => unawaited(_gravar(cgflixPlay, item)),
+              aoAbrir: () => unawaited(_abrir(item)),
+              aoMudarVisto: () => unawaited(_gravar(HeisucaStateStore.instance.toggleWatched, item)),
+              aoMudarLista: () => unawaited(_gravar(HeisucaStateStore.instance.toggleFavorite, item)),
+              visto: HeisucaStateStore.instance.isWatched(item),
+              naLista: HeisucaStateStore.instance.isFavorite(item),
+            ),
+          ),
+        ),
+      );
+      return;
+    }
     unawaited(
       HeisucaContextMenu.show(
         context,
@@ -466,7 +490,6 @@ class _LigacaoDaBuscaState extends State<LigacaoDaBusca>
   Widget _naTv(BuildContext context) => TelaBuscaTv(
     campo: searchController,
     foco: searchFocusNode,
-    teclado: _teclado,
     aoEnviar: () => _enviar(searchController.text),
     aoVoltar: () {
       if (!MainScreenFocusScope.goHomeOf(context)) unawaited(Navigator.of(context).maybePop());
@@ -483,6 +506,7 @@ class _LigacaoDaBuscaState extends State<LigacaoDaBusca>
     buscando: isSearching,
     buscou: hasSearched,
     aviso: _aviso(),
+    pedir: lastSearchedQuery.isEmpty ? null : CgflixRequestSection(query: lastSearchedQuery),
   );
 
   Widget _noCelular(BuildContext context) => SobOTemaDaV2(

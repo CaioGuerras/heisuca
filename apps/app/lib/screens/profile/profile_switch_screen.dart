@@ -1,3 +1,5 @@
+import '../../features/conta_tv/tela_perfis_tv.dart';
+import '../../utils/platform_detector.dart';
 import '../../heisuca/heisuca_dpad_focus.dart';
 import 'dart:async';
 
@@ -84,42 +86,75 @@ class _ProfileSwitchScreenState extends State<ProfileSwitchScreen> with MountedS
       },
       child: Stack(
         children: [
-          FocusedScrollScaffold(
-            title: Text(t.screens.switchProfile),
-            automaticallyImplyLeading: !widget.requireSelection,
-            onBackPressed: widget.requireSelection ? () => unawaited(AppExitService.requestExit()) : null,
-            slivers: [
-              if (profiles.isEmpty)
-                SliverFillRemaining(
-                  child: loading
-                      ? const Center(child: CircularProgressIndicator())
-                      : EmptyStateWidget(
-                          message: t.messages.noProfilesAvailable,
-                          subtitle: t.messages.contactAdminForProfiles,
-                          icon: Symbols.person_off_rounded,
-                        ),
-                )
-              else
-                ..._buildSections(activeProvider, activeId),
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-                sliver: SliverToBoxAdapter(
-                  child: FocusableWrapper(
-                    disableScale: true,
-                    borderRadius: 100,
-                    useBackgroundFocus: true,
-                    descendantsAreFocusable: false,
-                    onSelect: _switching ? null : _addLocalProfile,
-                    child: OutlinedButton.icon(
-                      onPressed: _switching ? null : _addLocalProfile,
-                      icon: const AppIcon(Symbols.person_add_rounded, fill: 1),
-                      label: Text(t.profiles.addHeisucaProfile),
+          if (PlatformDetector.isTV() && !PlatformDetector.isAppleTV())
+            TelaPerfisTv(
+              carregando: loading,
+              perfis: [
+                for (final profile in profiles)
+                  PerfilDaTv(
+                    perfil: profile,
+                    foco: _profileFocusNode(profile),
+                    ativo: profile.id == activeId && !widget.requireSelection,
+                    avatarUrl: activeProvider.avatarUrlFor(profile.id),
+                    fontes: _chipsFor(profile, activeProvider).map((chip) => chip.label).toList(),
+                    aoEscolher: _switching || (profile.id == activeId && !widget.requireSelection)
+                        ? null
+                        : () => _switchTo(profile),
+                    aoGerenciar: widget.requireSelection || _switching ? null : () => _manageProfile(profile),
+                    aoExcluir: widget.requireSelection || _switching || !profile.isLocal
+                        ? null
+                        : () => _deleteProfile(profile),
+                    aoSair:
+                        widget.requireSelection ||
+                            _switching ||
+                            !profile.isPlexHome ||
+                            profile.parentConnectionId == null
+                        ? null
+                        : () => _signOutPlexAccount(profile),
+                  ),
+              ],
+              aoAdicionar: _switching ? null : _addLocalProfile,
+              aoVoltar: widget.requireSelection
+                  ? () => unawaited(AppExitService.requestExit())
+                  : () => Navigator.of(context).maybePop(),
+            )
+          else
+            FocusedScrollScaffold(
+              title: Text(t.screens.switchProfile),
+              automaticallyImplyLeading: !widget.requireSelection,
+              onBackPressed: widget.requireSelection ? () => unawaited(AppExitService.requestExit()) : null,
+              slivers: [
+                if (profiles.isEmpty)
+                  SliverFillRemaining(
+                    child: loading
+                        ? const Center(child: CircularProgressIndicator())
+                        : EmptyStateWidget(
+                            message: t.messages.noProfilesAvailable,
+                            subtitle: t.messages.contactAdminForProfiles,
+                            icon: Symbols.person_off_rounded,
+                          ),
+                  )
+                else
+                  ..._buildSections(activeProvider, activeId),
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                  sliver: SliverToBoxAdapter(
+                    child: FocusableWrapper(
+                      disableScale: true,
+                      borderRadius: 100,
+                      useBackgroundFocus: true,
+                      descendantsAreFocusable: false,
+                      onSelect: _switching ? null : _addLocalProfile,
+                      child: OutlinedButton.icon(
+                        onPressed: _switching ? null : _addLocalProfile,
+                        icon: const AppIcon(Symbols.person_add_rounded, fill: 1),
+                        label: Text(t.profiles.addHeisucaProfile),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
           if (_switching) const ProfileSwitchingOverlay(),
         ],
       ),
@@ -225,35 +260,38 @@ class _ProfileSwitchScreenState extends State<ProfileSwitchScreen> with MountedS
             child: Card(
               shape: RoundedRectangleBorder(borderRadius: tileRadii),
               clipBehavior: Clip.antiAlias,
-              child: HeisucaDpadFocus(radii: tileRadii, child: FocusableWrapper(
-                autofocus: isFirstSelectable,
-                focusNode: profileFocusNode,
-                disableScale: true,
-                useBackgroundFocus: true,
-                borderRadii: tileRadii,
-                enableLongPress: hasMenu,
-                onLongPress: hasMenu ? () => _openProfileMenu(profile) : null,
-                onNavigateRight: hasMenu ? () => menuFocusNode.requestFocus() : null,
-                onSelect: _switching || (isActive && !widget.requireSelection) ? null : () => _switchTo(profile),
-                child: _ProfileTile(
-                  borderRadius: tileRadii,
-                  profile: profile,
-                  avatarUrl: activeProvider.avatarUrlFor(profile.id),
-                  isActive: isActive && !widget.requireSelection,
-                  chips: _chipsFor(profile, activeProvider),
-                  onTap: () => _switchTo(profile),
+              child: HeisucaDpadFocus(
+                radii: tileRadii,
+                child: FocusableWrapper(
+                  autofocus: isFirstSelectable,
+                  focusNode: profileFocusNode,
+                  disableScale: true,
+                  useBackgroundFocus: true,
+                  borderRadii: tileRadii,
+                  enableLongPress: hasMenu,
                   onLongPress: hasMenu ? () => _openProfileMenu(profile) : null,
-                  // Manage available for any profile — adding/removing
-                  // borrowed connections is supported on plex_home too. Delete
-                  // stays local-only (Plex Home users are owned by Plex).
-                  onManage: onManage,
-                  onDelete: onDelete,
-                  onSignOut: onSignOut,
-                  menuFocusNode: menuFocusNode,
-                  menuKey: menuKey,
-                  onMenuNavigateLeft: () => profileFocusNode.requestFocus(),
+                  onNavigateRight: hasMenu ? () => menuFocusNode.requestFocus() : null,
+                  onSelect: _switching || (isActive && !widget.requireSelection) ? null : () => _switchTo(profile),
+                  child: _ProfileTile(
+                    borderRadius: tileRadii,
+                    profile: profile,
+                    avatarUrl: activeProvider.avatarUrlFor(profile.id),
+                    isActive: isActive && !widget.requireSelection,
+                    chips: _chipsFor(profile, activeProvider),
+                    onTap: () => _switchTo(profile),
+                    onLongPress: hasMenu ? () => _openProfileMenu(profile) : null,
+                    // Manage available for any profile — adding/removing
+                    // borrowed connections is supported on plex_home too. Delete
+                    // stays local-only (Plex Home users are owned by Plex).
+                    onManage: onManage,
+                    onDelete: onDelete,
+                    onSignOut: onSignOut,
+                    menuFocusNode: menuFocusNode,
+                    menuKey: menuKey,
+                    onMenuNavigateLeft: () => profileFocusNode.requestFocus(),
+                  ),
                 ),
-              )),
+              ),
             ),
           );
         },

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import '../../design/movimento.dart';
 import '../../focus/dpad_navigator.dart';
 import '../../focus/focus_theme.dart';
 import '../../focus/key_event_utils.dart';
@@ -138,24 +139,26 @@ class _PinEntryDialogState extends State<PinEntryDialog> with SingleTickerProvid
           color: colorScheme.surface.withValues(alpha: 0.96),
           borderRadius: BorderRadius.circular(28),
         ),
-        child: Column(
-          mainAxisSize: .min,
-          crossAxisAlignment: .stretch,
-          children: [
-            _buildTitle(theme),
-            const SizedBox(height: 12),
-            _TvPinInput(
-              key: _pinInputKey,
-              onSubmit: _submit,
-              onCancel: _cancel,
-              hasError: widget.errorMessage != null,
-              isMobile: false,
-            ),
-            if (widget.errorMessage != null) ...[
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: .min,
+            crossAxisAlignment: .stretch,
+            children: [
+              _buildTitle(theme),
               const SizedBox(height: 12),
-              Text(widget.errorMessage!, style: TextStyle(color: colorScheme.error, fontSize: 12), maxLines: 2),
+              if (widget.errorMessage != null) ...[
+                Text(widget.errorMessage!, style: TextStyle(color: colorScheme.error, fontSize: 12), maxLines: 2),
+                const SizedBox(height: 12),
+              ],
+              _TvPinInput(
+                key: _pinInputKey,
+                onSubmit: _submit,
+                onCancel: _cancel,
+                hasError: widget.errorMessage != null,
+                isMobile: false,
+              ),
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -212,6 +215,7 @@ class _TvPinInputState extends State<_TvPinInput> with ControllerDisposerMixin {
   final FocusNode _mobileFocusNode = FocusNode(debugLabel: 'PinInputMobile');
   late final TextEditingController _mobileController = createTextEditingController();
   final FocusNode _keypadFocusNode = FocusNode(debugLabel: 'PinKeypad');
+  final _teclasDoPin = List.generate(_rows.length * _keypadColumns, (_) => GlobalKey());
   bool _keypadRefocusScheduled = false;
 
   @override
@@ -461,11 +465,28 @@ class _TvPinInputState extends State<_TvPinInput> with ControllerDisposerMixin {
     setState(() {
       _column = (_column + delta).clamp(0, _keypadColumns - 1).toInt();
     });
+    _mostrarTeclaDoPin();
   }
 
   void _moveVertical(int delta) {
     setState(() {
       _row = (_row + delta).clamp(0, _rows.length - 1).toInt();
+    });
+    _mostrarTeclaDoPin();
+  }
+
+  /// A letra ampliada pode fazer o formulário rolar. A tecla escolhida pelo D-pad continua inteira.
+  void _mostrarTeclaDoPin() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || widget.isMobile) return;
+      final contexto = _teclasDoPin[_row * _keypadColumns + _column].currentContext;
+      if (contexto == null) return;
+      Scrollable.ensureVisible(
+        contexto,
+        alignment: 0.5,
+        duration: Movimento.tempo(context, Movimento.toque),
+        curve: Movimento.padrao,
+      );
     });
   }
 
@@ -527,6 +548,7 @@ class _TvPinInputState extends State<_TvPinInput> with ControllerDisposerMixin {
           _activate(key);
         },
         child: AnimatedContainer(
+          key: _teclasDoPin[row * _keypadColumns + column],
           duration: const Duration(milliseconds: 120),
           width: _keySize,
           height: _keySize,
@@ -594,10 +616,18 @@ class _TvPinInputState extends State<_TvPinInput> with ControllerDisposerMixin {
                 enableSuggestions: false,
                 enableInteractiveSelection: false,
                 style: const TextStyle(color: Colors.transparent, fontSize: 1, height: 1),
-                decoration: const InputDecoration(counterText: '', filled: false, isCollapsed: true,
-                  border: InputBorder.none, enabledBorder: InputBorder.none, focusedBorder: InputBorder.none,
-                  errorBorder: InputBorder.none, focusedErrorBorder: InputBorder.none, disabledBorder: InputBorder.none,
-                  contentPadding: EdgeInsets.zero),
+                decoration: const InputDecoration(
+                  counterText: '',
+                  filled: false,
+                  isCollapsed: true,
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  errorBorder: InputBorder.none,
+                  focusedErrorBorder: InputBorder.none,
+                  disabledBorder: InputBorder.none,
+                  contentPadding: EdgeInsets.zero,
+                ),
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(4)],
                 onChanged: _onMobilePinChanged,
                 onSubmitted: (_) => _trySubmit(),

@@ -7,6 +7,9 @@ import 'package:provider/provider.dart';
 
 import 'package:heisuca/cgflix/cgflix_theme.dart';
 import 'package:heisuca/cgflix/requests/cgflix_secure_store.dart';
+import 'package:heisuca/design/forma.dart';
+import 'package:heisuca/heisuca/theme/heisuca_base.dart';
+import 'package:heisuca/heisuca/tv/heisuca_tv_area_segura.dart';
 import 'package:heisuca/heisuca/tv/heisuca_tv_settings_screen.dart';
 import 'package:heisuca/i18n/strings.g.dart';
 import 'package:heisuca/screens/updates/update_settings_screen.dart';
@@ -135,6 +138,41 @@ void main() {
       expect(linha.top, greaterThanOrEqualTo(areaSegura.top), reason: '$quando: "$nome" acima da margem $linha');
       expect(linha.bottom, lessThanOrEqualTo(areaSegura.bottom), reason: '$quando: "$nome" abaixo da margem $linha');
     }
+  }
+
+  for (final letra in [1.0, 2.0]) {
+    testWidgets('Ajustes 960×540, letra $letra: Perfil focado conserva a largura das demais linhas', (tester) async {
+      await montar(tester, const HeisucaTvSettingsScreen(), letra: letra);
+      final perfil = tester.getRect(find.byKey(const ValueKey('tv-ajuste-Perfil')));
+      final tema = tester.getRect(find.byKey(const ValueKey('tv-ajuste-Tema')));
+      expect(perfil.width, closeTo(tema.width, 0.01), reason: 'o foco só muda a pintura dentro da coluna');
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pumpAndSettle();
+      expect(
+        tester.getRect(find.byKey(const ValueKey('tv-ajuste-Tema'))).width,
+        closeTo(perfil.width, 0.01),
+        reason: 'o D-pad não muda a largura da linha',
+      );
+    });
+
+    testWidgets('Ajustes 960×540, letra $letra: Sair com foco e anel fica acima de todo o degradê', (tester) async {
+      await montar(tester, const HeisucaTvSettingsScreen(), letra: letra);
+      for (var i = 0; i < itens.length - 1; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+      }
+      expect(nomeComFoco(), 'Sair');
+      final lista = tester.getRect(find.byType(HeisucaTvBordasSuaves));
+      final linha = tester.getRect(find.byKey(const ValueKey('tv-ajuste-Sair')));
+      const escalaDaTelaDeReferencia = 0.5;
+      final fimLegivel = lista.bottom - HeisucaBase.espaco8 * escalaDaTelaDeReferencia;
+      expect(
+        linha.bottom + Forma.anelDeFoco * escalaDaTelaDeReferencia,
+        lessThanOrEqualTo(fimLegivel + 0.01),
+        reason: 'nenhuma parte do último botão, inclusive seu anel, pode entrar no degradê',
+      );
+      expect(tester.takeException(), isNull);
+    });
   }
 
   testWidgets('Ajustes da TV: o foco não muda o espaçamento nem leva linha para fora da margem segura', (tester) async {

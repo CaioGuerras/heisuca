@@ -30,7 +30,7 @@ import 'heisuca_tv_pecas.dart';
 /// uma coluna central de linhas da mesma altura, com o nome à esquerda e o valor atual à direita.
 ///
 /// Montada na tela de referência da TV ([HeisucaTvCanvas], 1920 de largura), dentro da margem segura de 5 %.
-/// O foco só mexe na pintura (escala e fundo), nunca no tamanho da linha; a lista centraliza a linha com
+/// O foco só mexe na pintura (anel e fundo), nunca no tamanho da linha; a lista centraliza a linha com
 /// foco, para nenhuma encostar na borda. Atualizações aparece na distribuição direta (e explica a da Play).
 class HeisucaTvSettingsScreen extends StatefulWidget {
   const HeisucaTvSettingsScreen({super.key});
@@ -38,8 +38,8 @@ class HeisucaTvSettingsScreen extends StatefulWidget {
   /// Largura da coluna na tela de referência: 550 dp numa TV 1080p (960 dp) e 733 dp numa TV box 720p.
   static const double largura = 1100;
 
-  /// Folga lateral da lista para a linha com foco crescer sem passar da coluna (escala e anel de foco).
-  static const double folgaDoFoco = largura * (HeisucaBase.focoEscalaTv - 1) / 2 + Forma.anelDeFoco;
+  /// Folga lateral da lista para o anel de foco ficar inteiro dentro da coluna.
+  static const double folgaDoFoco = Forma.anelDeFoco;
 
   @override
   State<HeisucaTvSettingsScreen> createState() => _HeisucaTvSettingsScreenState();
@@ -214,7 +214,8 @@ class _HeisucaTvSettingsScreenState extends State<HeisucaTvSettingsScreen> {
                               child: ListView.separated(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: HeisucaTvSettingsScreen.folgaDoFoco,
-                                  vertical: HeisucaBase.espaco8,
+                                  // A última linha e seu anel param antes do degradê, inclusive com letra grande.
+                                  vertical: HeisucaBase.espaco8 + Forma.anelDeFoco,
                                 ),
                                 itemCount: linhas.length,
                                 itemBuilder: (_, i) => linhas[i],
@@ -238,8 +239,8 @@ class _HeisucaTvSettingsScreenState extends State<HeisucaTvSettingsScreen> {
 
 /// Uma linha dos ajustes: nome à esquerda, valor atual à direita e a seta quando abre outra tela.
 ///
-/// A altura vem só do texto e do espaçamento fixo; o foco muda a escala e o fundo, que são pintura, e por
-/// isso nunca empurra as outras linhas. Com foco, a lista rola até deixar a linha no meio.
+/// A altura vem só do texto e do espaçamento fixo; o foco muda o anel e o fundo, conservando a largura
+/// das demais linhas. Com foco, a lista rola até deixar a linha no meio.
 class _LinhaDeAjuste extends StatefulWidget {
   const _LinhaDeAjuste({
     required this.titulo,
@@ -306,40 +307,35 @@ class _LinhaDeAjusteState extends State<_LinhaDeAjuste> {
     final nome = Tipo.subtitulo(tema).copyWith(fontSize: HeisucaBase.tamanhoTitulo, color: tinta);
     final valor = Tipo.texto(tema).copyWith(fontSize: HeisucaBase.tamanhoTvTexto, color: tinta2, height: 1.2);
 
-    return AnimatedScale(
-      scale: _comFoco ? HeisucaBase.focoEscalaTv : 1,
-      duration: tempo,
-      curve: Movimento.padrao,
-      child: Toque(
-        key: ValueKey('tv-ajuste-${widget.titulo}'),
-        forma: forma,
-        foco: _foco,
-        focoInicial: widget.focoInicial,
-        escala: 1,
-        aoTocar: widget.aoTocar,
-        child: AnimatedContainer(
-          duration: tempo,
-          curve: Movimento.padrao,
-          padding: const EdgeInsets.symmetric(horizontal: HeisucaBase.espaco8, vertical: Forma.espaco6),
-          decoration: ShapeDecoration(color: fundo, shape: forma),
-          child: Row(
-            children: [
-              Expanded(child: Text(widget.titulo, style: nome)),
-              const SizedBox(width: Forma.espaco6),
-              Expanded(
-                child: Align(
-                  alignment: AlignmentDirectional.centerEnd,
-                  child: Text(widget.valor, style: valor, textAlign: TextAlign.end),
-                ),
+    return Toque(
+      key: ValueKey('tv-ajuste-${widget.titulo}'),
+      forma: forma,
+      foco: _foco,
+      focoInicial: widget.focoInicial,
+      escala: 1,
+      aoTocar: widget.aoTocar,
+      child: AnimatedContainer(
+        duration: tempo,
+        curve: Movimento.padrao,
+        padding: const EdgeInsets.symmetric(horizontal: HeisucaBase.espaco8, vertical: Forma.espaco6),
+        decoration: ShapeDecoration(color: fundo, shape: forma),
+        child: Row(
+          children: [
+            Expanded(child: Text(widget.titulo, style: nome)),
+            const SizedBox(width: Forma.espaco6),
+            Expanded(
+              child: Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: Text(widget.valor, style: valor, textAlign: TextAlign.end),
               ),
-              if (widget.abreTela) ...[
-                const SizedBox(width: Forma.espaco3),
-                ExcludeSemantics(
-                  child: Icon(Symbols.chevron_right_rounded, size: HeisucaBase.tamanhoTitulo, color: tinta2),
-                ),
-              ],
+            ),
+            if (widget.abreTela) ...[
+              const SizedBox(width: Forma.espaco3),
+              ExcludeSemantics(
+                child: Icon(Symbols.chevron_right_rounded, size: HeisucaBase.tamanhoTitulo, color: tinta2),
+              ),
             ],
-          ),
+          ],
         ),
       ),
     );

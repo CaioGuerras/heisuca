@@ -876,6 +876,38 @@ class TestAbrirDestinoNoTrilho(unittest.TestCase):
         self.assertEqual(abertos, ['Buscar'])
 
 
+class TestToqueNoAvatar(unittest.TestCase):
+    def test_toca_no_centro_dos_bounds_reais_sem_reescalar(self):
+        # O dump já usa pixels da tela: independe da densidade, da resolução e da margem segura.
+        for bounds in [(96, 54, 160, 118), (48, 27, 80, 59), (193, 109, 321, 237)]:
+            with self.subTest(bounds=bounds), patch('tv.dump_tv', return_value=[
+                {'desc': 'Abrir o menu, perfil Claudia', 'bounds': bounds},
+            ]), patch('tv.adb') as adb, patch('tv.texto', return_value='Physical size: 3840x2160'), \
+                    patch('tv.time.sleep'):
+                tv.tocar_avatar_tv()
+                x1, y1, x2, y2 = bounds
+                adb.assert_called_once_with('shell', 'input', 'tap', str((x1 + x2) // 2), str((y1 + y2) // 2))
+
+    def test_aceita_rotulo_em_texto_e_ignora_no_sem_area(self):
+        with patch('tv.dump_tv', return_value=[
+            {'desc': 'Abrir o menu', 'bounds': (0, 0, 0, 0)},
+            {'text': 'Abrir o menu, perfil Caio', 'bounds': (110, 70, 190, 150)},
+        ]), patch('tv.adb') as adb, patch('tv.texto', return_value='Physical size: 1920x1080'), \
+                patch('tv.time.sleep'):
+            tv.tocar_avatar_tv()
+            adb.assert_called_once_with('shell', 'input', 'tap', '150', '110')
+
+    def test_sem_no_ou_bounds_validos_falha_sem_tocar_as_cegas(self):
+        for nos in [[], [{'text': 'Início', 'bounds': (96, 54, 160, 118)}],
+                    [{'desc': 'Abrir o menu', 'bounds': None}],
+                    [{'desc': 'Abrir o menu', 'bounds': (10, 20, 0, 0)}]]:
+            with self.subTest(nos=nos), patch('tv.dump_tv', return_value=nos), patch('tv.adb') as adb, \
+                    patch('tv.texto', return_value='Physical size: 1920x1080'), patch('tv.time.sleep'):
+                with self.assertRaisesRegex(RuntimeError, 'Abrir o menu.*bounds'):
+                    tv.tocar_avatar_tv()
+                adb.assert_not_called()
+
+
 class TestMenuTrilho(unittest.TestCase):
     def test_trilho_sem_trocar_perfil_na_tela(self):
         nos = [{'desc': d} for d in ('Claudia', 'Início', 'Filmes', 'Séries', 'Animes', 'Buscar', 'Modo infantil')]

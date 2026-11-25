@@ -493,11 +493,21 @@ def achado_menu_preso(nos, destino):
 
 
 def tocar_avatar_tv():
-    """Plano B: toca o avatar (48+29, 36+29 na tela de referência 1920×1080, escalada para a tela real)."""
-    m = re.search(r'(\d+)x(\d+)', texto('shell', 'wm', 'size') or '')
-    largura = int(m.group(1)) if m else 1920
-    escala = largura / 1920
-    adb('shell', 'input', 'tap', str(round(77 * escala)), str(round(65 * escala)))
+    """Plano B: toca no centro do avatar anunciado pelo app, em pixels do próprio dump."""
+    for no in dump_tv():
+        if not any(str(no.get(campo) or '').strip().lower().startswith('abrir o menu')
+                   for campo in ('text', 'desc')):
+            continue
+        bounds = no.get('bounds')
+        if not bounds or len(bounds) != 4:
+            continue
+        x1, y1, x2, y2 = bounds
+        if x1 < 0 or y1 < 0 or x2 <= x1 or y2 <= y1:
+            continue
+        adb('shell', 'input', 'tap', str((x1 + x2) // 2), str((y1 + y2) // 2))
+        break
+    else:
+        raise RuntimeError('Avatar "Abrir o menu" não encontrado com bounds válidos; nenhum toque foi enviado.')
     time.sleep(1.5)
 
 

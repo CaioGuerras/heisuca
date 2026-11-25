@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -6,6 +8,7 @@ import '../../design/forma.dart';
 import '../../design/movimento.dart';
 import '../../design/tema.dart';
 import '../../design/tipo.dart';
+import '../../heisuca/theme/heisuca_base.dart';
 
 /// Um botão da barra do player da TV.
 ///
@@ -26,11 +29,11 @@ class ItemDaBarraTv {
   final VoidCallback? aoTocar;
 }
 
-/// Barra de baixo do player da TV, no jeito do Apple TV: transporte à esquerda, faixas à direita.
+/// Barra de baixo do player da TV: transporte seguido das faixas, com o mesmo respiro entre todos.
 ///
 /// Um caminho só de foco: ← e → passam por todos os botões, das duas metades, pulando os apagados;
 /// OK aciona; ↑ chama [aoSubir] (a linha do tempo). Sobre o vídeo vale sempre o tema escuro.
-/// Com letra grande, as metades descem uma para baixo da outra em vez de cortar.
+/// Com letra grande, os controles continuam na linha seguinte em vez de cortar.
 class BarraDoPlayerTv extends StatelessWidget {
   const BarraDoPlayerTv({super.key, required this.transporte, required this.faixas, this.aoSubir, this.aoMexer});
 
@@ -105,22 +108,11 @@ class BarraDoPlayerTv extends StatelessWidget {
         skipTraversal: true,
         onKeyEvent: _tecla,
         child: Wrap(
-          alignment: WrapAlignment.spaceBetween,
+          spacing: Forma.espaco3,
           crossAxisAlignment: WrapCrossAlignment.center,
           runSpacing: Forma.espaco3,
           children: [
-            Wrap(
-              spacing: Forma.espaco3,
-              runSpacing: Forma.espaco3,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [for (final item in transporte) _BotaoDaBarra(item: item)],
-            ),
-            Wrap(
-              spacing: Forma.espaco3,
-              runSpacing: Forma.espaco3,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [for (final item in faixas) _BotaoDaBarra(item: item)],
-            ),
+            for (final item in [...transporte, ...faixas]) _BotaoDaBarra(item: item),
           ],
         ),
       ),
@@ -133,14 +125,22 @@ class _BotaoDaBarra extends StatelessWidget {
 
   final ItemDaBarraTv item;
 
-  /// Escala do botão com foco: cresce um pouco, como no Apple TV.
-  static const double escalaComFoco = 1.08;
-
   @override
   Widget build(BuildContext context) {
     final tema = TemaHeisuca.de(context);
     final redondo = item.icone != null;
     final forma = redondo ? const CircleBorder() : Forma.pilula();
+    final estilo = Tipo.texto(tema).copyWith(fontWeight: FontWeight.w600);
+    final texto = item.texto ?? item.rotulo;
+    final tamanho = redondo ? const Size.square(BarraDoPlayerTv.diametro) : _medirPilula(context, texto, estilo);
+    // O anel é pintado para fora pelo Toque; reservar também a escala impede que ele invada os vizinhos.
+    // O envelope independe do foco atual, portanto ←/→ nunca movem os controles da fileira.
+    const escalaMaxima = HeisucaBase.focoEscalaTv;
+    const anel = Forma.anelDeFoco * escalaMaxima;
+    final reserva = EdgeInsets.symmetric(
+      horizontal: tamanho.width * (escalaMaxima - 1) / 2 + anel,
+      vertical: tamanho.height * (escalaMaxima - 1) / 2 + anel,
+    );
     return ListenableBuilder(
       listenable: item.foco,
       builder: (context, _) {
@@ -151,45 +151,61 @@ class _BotaoDaBarra extends StatelessWidget {
                 dimension: BarraDoPlayerTv.diametro,
                 child: Icon(item.icone, size: BarraDoPlayerTv.diametro / 2, color: tinta),
               )
-            : ConstrainedBox(
-                constraints: const BoxConstraints(
-                  minHeight: Forma.toqueMinimo,
-                  maxWidth: BarraDoPlayerTv.larguraMaximaDaPilula,
-                ),
+            : SizedBox.fromSize(
+                size: tamanho,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: Forma.espaco4, vertical: Forma.espaco2),
-                  child: Text(
-                    item.texto ?? item.rotulo,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Tipo.texto(tema).copyWith(color: tinta, fontWeight: FontWeight.w600),
+                  child: Center(
+                    child: Text(
+                      texto,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: estilo.copyWith(color: tinta),
+                    ),
                   ),
                 ),
               );
-        return AnimatedScale(
-          // Com "remover animações", o foco aparece só pela cor.
-          scale: comFoco && !Movimento.reduzido(context) ? escalaComFoco : 1,
-          duration: Movimento.tempo(context, Movimento.toque),
-          curve: Movimento.padrao,
-          child: Toque(
-            foco: item.foco,
-            forma: forma,
-            rotulo: item.rotulo,
-            excluirSemantica: true,
-            aoTocar: item.aoTocar,
-            child: AnimatedContainer(
-              duration: Movimento.tempo(context, Movimento.toque),
-              curve: Movimento.padrao,
-              decoration: ShapeDecoration(
-                color: comFoco ? tema.botaoFundo : tema.superficie2.withValues(alpha: _opacidadeSolto),
-                shape: forma,
+        return Padding(
+          padding: reserva,
+          child: AnimatedScale(
+            // Com "remover animações", o foco aparece só pela cor.
+            scale: comFoco && !Movimento.reduzido(context) ? escalaMaxima : 1,
+            duration: Movimento.tempo(context, Movimento.toque),
+            curve: Movimento.padrao,
+            child: Toque(
+              foco: item.foco,
+              forma: forma,
+              rotulo: item.rotulo,
+              excluirSemantica: true,
+              aoTocar: item.aoTocar,
+              child: AnimatedContainer(
+                duration: Movimento.tempo(context, Movimento.toque),
+                curve: Movimento.padrao,
+                decoration: ShapeDecoration(
+                  color: comFoco ? tema.botaoFundo : tema.superficie2.withValues(alpha: _opacidadeSolto),
+                  shape: forma,
+                ),
+                child: Center(widthFactor: 1, heightFactor: 1, child: miolo),
               ),
-              child: Center(widthFactor: 1, heightFactor: 1, child: miolo),
             ),
           ),
         );
       },
     );
+  }
+
+  Size _medirPilula(BuildContext context, String texto, TextStyle estilo) {
+    final pintor = TextPainter(
+      text: TextSpan(text: texto, style: estilo),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      textHeightBehavior: DefaultTextStyle.of(context).textHeightBehavior,
+      maxLines: 1,
+      ellipsis: '…',
+    )..layout(maxWidth: BarraDoPlayerTv.larguraMaximaDaPilula - Forma.espaco4 * 2);
+    final tamanho = Size(pintor.width + Forma.espaco4 * 2, max(Forma.toqueMinimo, pintor.height + Forma.espaco2 * 2));
+    pintor.dispose();
+    return tamanho;
   }
 
   /// O botão solto deixa o vídeo aparecer por trás.

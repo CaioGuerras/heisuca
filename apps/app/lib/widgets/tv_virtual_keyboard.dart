@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import '../focus/dpad_navigator.dart';
+import '../design/movimento.dart';
 import '../focus/key_event_utils.dart';
 import '../i18n/strings.g.dart';
 import '../utils/platform_detector.dart';
@@ -642,32 +643,35 @@ class _TvVirtualKeyboardDialogState extends State<_TvVirtualKeyboardDialog> {
       backgroundColor: Colors.transparent,
       elevation: 0,
       child: Focus(
-        focusNode: _focusNode,
+        canRequestFocus: false,
         onKeyEvent: _handleKey,
-        child: Container(
-          key: const Key('tv_virtual_keyboard_panel'),
-          constraints: BoxConstraints(maxWidth: metrics.panelWidth),
-          padding: .all(metrics.panelPadding),
-          decoration: BoxDecoration(
-            color: colorScheme.surface.withValues(alpha: 0.96),
-            borderRadius: BorderRadius.circular(metrics.panelRadius),
-          ),
-          child: SizedBox(
-            width: metrics.gridWidth,
-            child: Column(
-              mainAxisSize: .min,
-              crossAxisAlignment: .stretch,
-              children: [
-                ValueListenableBuilder<TextEditingValue>(
-                  valueListenable: widget.controller,
-                  builder: (context, value, _) => _buildPreview(context, value.text, metrics),
-                ),
-                SizedBox(height: metrics.previewGap),
-                for (var row = 0; row < _rows.length; row++) ...[
-                  _buildRow(context, row, metrics),
-                  if (row != _rows.length - 1) SizedBox(height: metrics.rowGap),
+        child: FocusableActionDetector(
+          focusNode: _focusNode,
+          child: Container(
+            key: const Key('tv_virtual_keyboard_panel'),
+            constraints: BoxConstraints(maxWidth: metrics.panelWidth),
+            padding: .all(metrics.panelPadding),
+            decoration: BoxDecoration(
+              color: colorScheme.surface.withValues(alpha: 0.96),
+              borderRadius: BorderRadius.circular(metrics.panelRadius),
+            ),
+            child: SizedBox(
+              width: metrics.gridWidth,
+              child: Column(
+                mainAxisSize: .min,
+                crossAxisAlignment: .stretch,
+                children: [
+                  ValueListenableBuilder<TextEditingValue>(
+                    valueListenable: widget.controller,
+                    builder: (context, value, _) => _buildPreview(context, value.text, metrics),
+                  ),
+                  SizedBox(height: metrics.previewGap),
+                  for (var row = 0; row < _rows.length; row++) ...[
+                    _buildRow(context, row, metrics),
+                    if (row != _rows.length - 1) SizedBox(height: metrics.rowGap),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),
@@ -756,8 +760,8 @@ class _TvVirtualKeyboardDialogState extends State<_TvVirtualKeyboardDialog> {
     }
 
     return ListenableSelector<bool>(
-      listenable: _selection,
-      selector: () => _selection.value == (row: row, column: column),
+      listenable: Listenable.merge([_selection, _focusNode]),
+      selector: () => _focusNode.hasFocus && _selection.value == (row: row, column: column),
       builder: (context, selected, _) {
         final colorScheme = Theme.of(context).colorScheme;
         final active = key.type == _TvKeyType.shift && _shiftEnabled;
@@ -772,21 +776,34 @@ class _TvVirtualKeyboardDialogState extends State<_TvVirtualKeyboardDialog> {
             ? colorScheme.onSecondaryContainer
             : colorScheme.onSurface;
 
-        return ClickableCursor(
-          child: GestureDetector(
-            onTap: () {
-              _selection.value = (row: row, column: column);
-              _activate(key);
-            },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 120),
-              width: metrics.keySize,
-              height: metrics.keySize,
-              alignment: .center,
-              decoration: BoxDecoration(color: background, borderRadius: BorderRadius.circular(metrics.keyRadius)),
-              child: Padding(
-                padding: .symmetric(horizontal: metrics.keySize * 0.04),
-                child: _buildKeyContent(context, key, foreground, metrics),
+        return Semantics(
+          container: true,
+          button: true,
+          focusable: true,
+          focused: selected,
+          label: key.label,
+          onTap: () {
+            _selection.value = (row: row, column: column);
+            _activate(key);
+          },
+          child: ExcludeSemantics(
+            child: ClickableCursor(
+              child: GestureDetector(
+                onTap: () {
+                  _selection.value = (row: row, column: column);
+                  _activate(key);
+                },
+                child: AnimatedContainer(
+                  duration: Movimento.tempo(context, Movimento.toque),
+                  width: metrics.keySize,
+                  height: metrics.keySize,
+                  alignment: .center,
+                  decoration: BoxDecoration(color: background, borderRadius: BorderRadius.circular(metrics.keyRadius)),
+                  child: Padding(
+                    padding: .symmetric(horizontal: metrics.keySize * 0.04),
+                    child: _buildKeyContent(context, key, foreground, metrics),
+                  ),
+                ),
               ),
             ),
           ),

@@ -4,7 +4,6 @@ import 'package:material_symbols_icons/symbols.dart';
 import '../../design/forma.dart';
 import '../../design/tema.dart';
 import '../../design/tipo.dart';
-import '../../focus/focusable_text_field.dart';
 import '../../heisuca/theme/heisuca_base.dart';
 import '../../heisuca/tv/heisuca_tv_area_segura.dart';
 import '../../heisuca/tv/heisuca_tv_canvas.dart';
@@ -12,10 +11,11 @@ import '../../heisuca/tv/heisuca_tv_pecas.dart';
 import '../navegacao_tv/trilho_da_tv.dart';
 import '../tema_da_v2.dart';
 import 'modelo.dart';
+import 'teclado_da_busca_tv.dart';
 
 /// A Busca na TV: os mesmos resultados da busca do celular ([TituloDaBusca], [PessoaDaBusca]) no desenho de 3 m.
 ///
-/// No alto, o campo (o teclado da TV abre com o OK). Sem busca, as buscas recentes em pílulas. Com resultado, as
+/// À esquerda, o único campo e o teclado. À direita, as buscas recentes em pílulas. Com resultado, as
 /// pílulas de tipo, as pessoas em fotos redondas e os pôsteres em grade. Tudo anda pelo D-pad; ← na borda abre o
 /// trilho; o foco rola a tela sozinho.
 class TelaBuscaTv extends StatefulWidget {
@@ -23,7 +23,6 @@ class TelaBuscaTv extends StatefulWidget {
     super.key,
     required this.campo,
     required this.foco,
-    this.teclado,
     this.aoEnviar,
     this.aoVoltar,
     this.aoAbrirMenu,
@@ -36,13 +35,12 @@ class TelaBuscaTv extends StatefulWidget {
     this.buscando = false,
     this.buscou = false,
     this.aviso,
+    this.pedir,
   });
 
   final TextEditingController campo;
   final FocusNode foco;
 
-  /// Abre e fecha o teclado da TV de fora (a busca que chega do celular não deixa o teclado aberto).
-  final TvTextInputController? teclado;
   final VoidCallback? aoEnviar;
 
   /// Voltar com o campo vazio (o campo com texto primeiro se limpa).
@@ -65,6 +63,9 @@ class TelaBuscaTv extends StatefulWidget {
 
   /// Nada achado ou servidor fora do ar ([AvisoTv]); toma o lugar dos resultados.
   final Widget? aviso;
+
+  /// Pedidos do Seerr, inclusive quando a busca local não encontra títulos.
+  final Widget? pedir;
 
   /// Pôster da grade na tela de referência de 1920 (8 por linha dentro da margem segura).
   static const double larguraDoPoster = 192;
@@ -112,9 +113,8 @@ class _TelaBuscaTvState extends State<TelaBuscaTv> {
                 aoAbrirMenu: widget.aoAbrirMenu,
                 child: HeisucaTvBordasSuaves(
                   altura: margem.top,
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.fromLTRB(margem.left, margem.top, margem.right, margem.bottom),
-                    clipBehavior: Clip.none,
+                  child: Padding(
+                    padding: margem,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -123,15 +123,39 @@ class _TelaBuscaTvState extends State<TelaBuscaTv> {
                           child: Text('Buscar', style: tvTexto(Tipo.titulo(tema)).copyWith(color: tema.texto)),
                         ),
                         const SizedBox(height: Forma.espaco6),
-                        _Campo(
-                          campo: widget.campo,
-                          foco: widget.foco,
-                          teclado: widget.teclado,
-                          aoEnviar: widget.aoEnviar,
-                          aoVoltar: _voltar,
+                        Expanded(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: 720,
+                                child: TecladoDaBuscaTv(
+                                  campo: widget.campo,
+                                  foco: widget.foco,
+                                  aoEnviar: widget.aoEnviar,
+                                  aoVoltar: _voltar,
+                                ),
+                              ),
+                              const SizedBox(width: HeisucaBase.espaco8),
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  clipBehavior: Clip.none,
+                                  padding: const EdgeInsets.all(Forma.espaco4),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      ..._corpo(context, tema),
+                                      if (widget.pedir != null) ...[
+                                        const SizedBox(height: HeisucaBase.espaco8),
+                                        widget.pedir!,
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        const SizedBox(height: HeisucaBase.espaco8),
-                        ..._corpo(context, tema),
                       ],
                     ),
                   ),
@@ -191,7 +215,7 @@ class _TelaBuscaTvState extends State<TelaBuscaTv> {
     if (widget.recentes.isEmpty) {
       return [
         Text(
-          'Busque por filme, série ou pessoa. Aperte OK no campo para abrir o teclado.',
+          'Digite um filme, série ou pessoa. Os resultados aparecem aqui.',
           style: tvTexto(Tipo.texto(tema)).copyWith(color: tema.texto2),
         ),
       ];
@@ -222,56 +246,6 @@ class _TelaBuscaTvState extends State<TelaBuscaTv> {
         ),
       ),
     ];
-  }
-}
-
-/// O campo da busca em pílula, com o anel de foco da TV.
-class _Campo extends StatelessWidget {
-  const _Campo({required this.campo, required this.foco, this.teclado, this.aoEnviar, this.aoVoltar});
-
-  final TextEditingController campo;
-  final FocusNode foco;
-  final TvTextInputController? teclado;
-  final VoidCallback? aoEnviar;
-  final VoidCallback? aoVoltar;
-
-  /// Largura do campo na tela de referência.
-  static const double largura = 1100;
-
-  @override
-  Widget build(BuildContext context) {
-    final tema = TemaHeisuca.de(context);
-    final estilo = tvTexto(Tipo.subtitulo(tema)).copyWith(color: tema.texto, fontWeight: FontWeight.w500);
-    OutlineInputBorder borda(BorderSide lado) =>
-        OutlineInputBorder(borderRadius: BorderRadius.circular(Forma.raioGrande), borderSide: lado);
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: largura),
-      child: FocusableTextField(
-        key: const ValueKey('busca-tv-campo'),
-        controller: campo,
-        focusNode: foco,
-        tvTextInputController: teclado,
-        textInputAction: TextInputAction.search,
-        onEditingComplete: aoEnviar,
-        onBack: aoVoltar,
-        style: estilo,
-        decoration: InputDecoration(
-          // Começa por "Buscar filmes": é assim que a bancada da TV (scripts/bancada/tv.py) reconhece a Busca.
-          hintText: 'Buscar filmes, séries e pessoas',
-          hintStyle: estilo.copyWith(color: tema.texto2),
-          filled: true,
-          fillColor: tema.superficie2,
-          contentPadding: const EdgeInsets.symmetric(horizontal: HeisucaBase.espaco8, vertical: Forma.espaco6),
-          prefixIcon: Padding(
-            padding: const EdgeInsets.only(left: Forma.espaco6, right: Forma.espaco3),
-            child: Icon(Symbols.search_rounded, size: 36, color: tema.texto2),
-          ),
-          border: borda(BorderSide.none),
-          enabledBorder: borda(BorderSide.none),
-          focusedBorder: borda(BorderSide(color: tema.foco, width: Forma.anelDeFoco)),
-        ),
-      ),
-    );
   }
 }
 
@@ -361,6 +335,7 @@ class _Grade extends StatelessWidget {
       arte: titulo.arte,
       progresso: titulo.visto ? 1 : null,
       aoTocar: titulo.aoTocar,
+      aoSegurar: titulo.aoSegurar,
     );
   }
 }

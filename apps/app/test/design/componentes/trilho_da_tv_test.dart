@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:heisuca/design/tema.dart';
@@ -64,6 +65,15 @@ Future<void> _montar(WidgetTester tester, Widget filho, {TemaHeisuca tema = Tema
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(() async {
+    final fonte = FontLoader('Inter');
+    for (final peso in ['Regular', 'Medium', 'SemiBold', 'Bold']) {
+      fonte.addFont(rootBundle.load('assets/fonts/Inter-$peso.ttf'));
+    }
+    await fonte.load();
+  });
+
   group('TrilhoDaTv', () {
     test('na TV o claro vira o escuro equivalente; o kids mantém o acento', () {
       expect(TrilhoDaTv.escuroDaTv(TemaHeisuca.hisui), same(TemaHeisuca.shikkoku));
@@ -246,6 +256,68 @@ void main() {
       expect(caixa.top, greaterThanOrEqualTo(0));
       expect(tester.takeException(), isNull);
     });
+
+    for (final escala in [1.0, 2.0]) {
+      testWidgets('retrospectiva completa no trilho de 1080p, letra ${escala * 100} %, com D-pad', (tester) async {
+        tester.view.physicalSize = const Size(960, 540);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        var abriu = false;
+        const rotulo = 'Minha retrospectiva';
+        await tester.pumpWidget(
+          naTela(
+            Builder(
+              builder: (context) => MediaQuery(
+                data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(escala)),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: TrilhoDaTv(
+                    destinos: [
+                      for (final nome in ['Início', 'Filmes', 'Séries', 'Animes', 'Buscar'])
+                        ItemDoTrilhoTv(chave: nome, rotulo: nome, icone: Icons.circle, aoTocar: () {}),
+                    ],
+                    extras: [
+                      ItemDoTrilhoTv(
+                        chave: 'retro',
+                        rotulo: rotulo,
+                        icone: Icons.auto_awesome,
+                        aoTocar: () => abriu = true,
+                      ),
+                    ],
+                    selecionado: 'Início',
+                    aoFechar: () {},
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        for (var i = 0; i < 5; i++) {
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+          await tester.pumpAndSettle();
+        }
+        expect(_focado(), rotulo);
+        final texto = find.text(rotulo);
+        final paragrafo = tester.renderObject<RenderParagraph>(texto);
+        final medida = TextPainter(
+          text: paragrafo.text,
+          textScaler: paragrafo.textScaler,
+          textDirection: TextDirection.ltr,
+        )..layout(maxWidth: tester.getSize(texto).width);
+        // Texto inteiro, sem reticências; o foco pode aumentar a caixa visual, mas não reduzir suas linhas.
+        final caixa = tester.getRect(texto);
+        expect(caixa.height, greaterThanOrEqualTo(medida.height));
+        if (escala == 1) expect(medida.computeLineMetrics(), hasLength(1), reason: 'a frase cabe em 1080p');
+        expect(caixa.top, greaterThanOrEqualTo(0));
+        expect(caixa.bottom, lessThanOrEqualTo(540));
+        medida.dispose();
+        await tester.sendKeyEvent(LogicalKeyboardKey.select);
+        await tester.pumpAndSettle();
+        expect(abriu, isTrue);
+        expect(tester.takeException(), isNull);
+      });
+    }
 
     testWidgets('o item com foco cresce; com "remover animações", só a cor marca o foco', (tester) async {
       double escalaDoFocado() {

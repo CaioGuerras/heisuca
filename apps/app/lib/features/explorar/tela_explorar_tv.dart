@@ -37,6 +37,7 @@ class TelaExplorarTv extends StatefulWidget {
     this.aoTentarMais,
     this.aviso,
     this.aoAbrirMenu,
+    this.aoPedir,
     this.primeiroCartao,
     this.controle,
   });
@@ -68,6 +69,9 @@ class TelaExplorarTv extends StatefulWidget {
 
   /// ← sem nada à esquerda.
   final VoidCallback? aoAbrirMenu;
+
+  /// Abre a busca com os pedidos do Seerr.
+  final VoidCallback? aoPedir;
 
   /// Foco do 1º pôster: a tela principal manda o foco para ele ao abrir a biblioteca.
   final FocusNode? primeiroCartao;
@@ -196,6 +200,14 @@ class _TelaExplorarTvState extends State<TelaExplorarTv> {
             spacing: Forma.espaco4,
             runSpacing: Forma.espaco4,
             children: [
+              if (widget.aoPedir != null)
+                BotaoTv(
+                  key: const ValueKey('explorar-tv-pedir'),
+                  rotulo: 'Pedir',
+                  icone: Symbols.add_rounded,
+                  compacto: true,
+                  aoTocar: widget.aoPedir,
+                ),
               if (widget.bibliotecas.length > 1)
                 for (final biblioteca in widget.bibliotecas)
                   BotaoTv(
@@ -262,6 +274,7 @@ class _TelaExplorarTvState extends State<TelaExplorarTv> {
               arte: item.arte,
               progresso: item.visto ? 1 : null,
               aoTocar: item.aoTocar,
+              aoSegurar: item.aoSegurar,
               // O foco perto do fim também pede a próxima página (o D-pad pode andar sem a rolagem mudar muito).
               aoFocar: (focado) {
                 if (focado && i >= widget.itens.length - colunas * 2) widget.aoChegarPertoDoFim?.call();

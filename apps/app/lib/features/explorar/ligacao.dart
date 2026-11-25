@@ -9,6 +9,9 @@ import '../../cgflix/home/cgflix_actions.dart';
 import '../../cgflix/you/cgflix_favorites_screen.dart';
 import '../../design/componentes/botao.dart';
 import '../../heisuca/heisuca_context_menu.dart';
+import '../../heisuca/heisuca_state_store.dart';
+import '../titulo/menu_do_titulo_tv.dart';
+import '../busca/ligacao.dart';
 import '../../heisuca/heisuca_home_style.dart';
 import '../../heisuca/heisuca_source_scope.dart';
 import '../../heisuca/tv/heisuca_tv_pecas.dart';
@@ -136,15 +139,21 @@ class _LigacaoDoExplorarState extends State<LigacaoDoExplorar> with Refreshable,
     super.initState();
     _pendente = widget.bibliotecaInicial;
     _servidores.addListener(_servidoresMudaram);
+    if (widget.naTv) HeisucaStateStore.instance.addListener(_marcasMudaram);
     unawaited(_carregarFontes());
   }
 
   @override
   void dispose() {
     _servidores.removeListener(_servidoresMudaram);
+    HeisucaStateStore.instance.removeListener(_marcasMudaram);
     _rolagem.dispose();
     _primeiroCartao.dispose();
     super.dispose();
+  }
+
+  void _marcasMudaram() {
+    if (mounted) setState(() => _cartoes = [for (final item in _itens) _emCartao(item)]);
   }
 
   @override
@@ -444,6 +453,27 @@ class _LigacaoDoExplorarState extends State<LigacaoDoExplorar> with Refreshable,
 
   void _menu(MediaItem item) {
     if (!mounted) return;
+    if (widget.naTv) {
+      unawaited(HeisucaStateStore.instance.conferirLista(context, item));
+      unawaited(
+        showDialog<void>(
+          context: context,
+          builder: (_) => ListenableBuilder(
+            listenable: HeisucaStateStore.instance,
+            builder: (_, _) => MenuDoTituloTv(
+              titulo: item.displayTitle,
+              aoAssistir: () => _assistir(item),
+              aoAbrir: () => _abrir(item),
+              aoMudarVisto: () => unawaited(HeisucaStateStore.instance.toggleWatched(context, item)),
+              aoMudarLista: () => unawaited(HeisucaStateStore.instance.toggleFavorite(context, item)),
+              visto: HeisucaStateStore.instance.isWatched(item),
+              naLista: HeisucaStateStore.instance.isFavorite(item),
+            ),
+          ),
+        ),
+      );
+      return;
+    }
     unawaited(
       HeisucaContextMenu.show(
         context,
@@ -467,7 +497,7 @@ class _LigacaoDoExplorarState extends State<LigacaoDoExplorar> with Refreshable,
     ),
     hash: heisucaArtworkHash(item),
     nota: notaDe(item.rating),
-    visto: item.isWatched,
+    visto: widget.naTv ? HeisucaStateStore.instance.isWatched(item) : item.isWatched,
     selo: seloDe(item.kind, item.childCount),
     aoTocar: () => _abrir(item),
     aoSegurar: () => _menu(item),
@@ -588,6 +618,9 @@ class _LigacaoDoExplorarState extends State<LigacaoDoExplorar> with Refreshable,
         aoAbrirMenu: MainScreenFocusScope.of(context, listen: false) == null
             ? null
             : () => MainScreenFocusScope.focusSidebarOf(context),
+        aoPedir: () => unawaited(
+          Navigator.of(context).push<void>(MaterialPageRoute(builder: (_) => const LigacaoDaBusca(naTv: true))),
+        ),
         primeiroCartao: _primeiroCartao,
         controle: _rolagem,
       );

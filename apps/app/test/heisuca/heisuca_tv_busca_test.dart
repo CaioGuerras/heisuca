@@ -121,7 +121,7 @@ void main() {
     expect(find.byKey(const ValueKey('busca-tv-t0')), findsOneWidget);
   });
 
-  testWidgets('← sem nada à esquerda abre o trilho; ← entre pôsteres só anda', (tester) async {
+  testWidgets('← entre pôsteres só anda; passando pelo teclado chega ao trilho', (tester) async {
     var menu = 0;
     final campo = TextEditingController(text: 'a');
     final foco = FocusNode();
@@ -150,6 +150,11 @@ void main() {
     expect(primeiro.hasFocus, isTrue);
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
     await tester.pump(const Duration(milliseconds: 400));
+    // O teclado agora fica à esquerda dos resultados. A borda dele abre o trilho.
+    for (var i = 0; i < 7 && menu == 0; i++) {
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+      await tester.pump(const Duration(milliseconds: 400));
+    }
     expect(menu, 1);
   });
 

@@ -1,3 +1,5 @@
+import '../../features/conta_tv/tela_sobre_tv.dart';
+import '../../utils/platform_detector.dart';
 import '../../heisuca/heisuca_news.dart';
 import 'package:flutter/material.dart';
 import 'package:heisuca/widgets/app_icon.dart';
@@ -35,6 +37,9 @@ class _AboutScreenState extends State<AboutScreen> {
       builder: (context, snapshot) {
         final appVersion = snapshot.data?.version ?? '';
         final appBuild = snapshot.data?.buildNumber ?? '';
+        if (PlatformDetector.isTV() && !PlatformDetector.isAppleTV()) {
+          return TelaSobreTv(versao: appVersion, numeroBuild: appBuild);
+        }
         return FocusedScrollScaffold(
           title: Text(t.about.title),
           slivers: [

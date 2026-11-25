@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:heisuca/design/tema.dart';
+import 'package:heisuca/design/forma.dart';
+import 'package:heisuca/design/componentes/toque.dart';
 import 'package:heisuca/features/player_tv/barra_do_player_tv.dart';
 
 import 'apoio.dart';
@@ -73,6 +76,91 @@ Future<void> _tecla(WidgetTester tester, LogicalKeyboardKey tecla) async {
 }
 
 void main() {
+  for (final letra in [1.0, 2.0]) {
+    testWidgets('960×540, letra $letra: D-pad reserva anel e crescimento com o mesmo vão entre controles', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1920, 1080);
+      tester.view.devicePixelRatio = 2;
+      addTearDown(tester.view.reset);
+      final barra = _Barra();
+      addTearDown(barra.descartar);
+      final transporte = barra.transporte.take(3).toList();
+      final faixas = [
+        ItemDaBarraTv(foco: barra.audio, rotulo: 'Áudio', texto: 'Áudio', aoTocar: () {}),
+        ItemDaBarraTv(foco: barra.legenda, rotulo: 'Legenda', texto: 'Legendas', aoTocar: () {}),
+        ItemDaBarraTv(foco: barra.episodios, rotulo: 'Episódios', texto: 'Capítulos', aoTocar: () {}),
+      ];
+      await tester.pumpWidget(
+        naTela(
+          Builder(
+            builder: (context) => MediaQuery(
+              data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(letra)),
+              child: Padding(
+                padding: Forma.margemSeguraTv,
+                child: BarraDoPlayerTv(transporte: transporte, faixas: faixas),
+              ),
+            ),
+          ),
+        ),
+      );
+      final caminho = [...transporte, ...faixas];
+      barra.voltar.requestFocus();
+      await tester.pumpAndSettle();
+      final envelopes = <Rect>[];
+      for (final item in caminho) {
+        expect(item.foco.hasFocus, isTrue, reason: 'D-pad alcança ${item.rotulo}');
+        final toque = find.ancestor(of: find.bySemanticsLabel(item.rotulo), matching: find.byType(AnimatedScale)).first;
+        final escala = tester.widget<AnimatedScale>(toque).scale;
+        envelopes.add(tester.getRect(find.bySemanticsLabel(item.rotulo)).inflate(Forma.anelDeFoco * escala));
+        await _tecla(tester, LogicalKeyboardKey.arrowRight);
+      }
+      for (var i = 0; i < envelopes.length; i++) {
+        final atual = envelopes[i];
+        expect(atual.left, greaterThanOrEqualTo(Forma.margemSeguraTv.left - 0.01));
+        expect(atual.right, lessThanOrEqualTo(960 - Forma.margemSeguraTv.right + 0.01));
+        if (i == 0) continue;
+        final anterior = envelopes[i - 1];
+        if ((atual.center.dy - anterior.center.dy).abs() < 1) {
+          expect(
+            atual.left - anterior.right,
+            closeTo(Forma.espaco3, 0.01),
+            reason: '${caminho[i - 1].rotulo} → ${caminho[i].rotulo}: anéis com o mesmo respiro',
+          );
+        } else {
+          expect(atual.top - anterior.bottom, greaterThanOrEqualTo(Forma.espaco3 - 0.01));
+        }
+      }
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('960×540, letra $letra: texto da pílula centralizado no botão', (tester) async {
+      tester.view.physicalSize = const Size(1920, 1080);
+      tester.view.devicePixelRatio = 2;
+      addTearDown(tester.view.reset);
+      final barra = _Barra();
+      addTearDown(barra.descartar);
+      await tester.pumpWidget(
+        naTela(
+          Builder(
+            builder: (context) => MediaQuery(
+              data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(letra)),
+              child: barra.widget(largura: 864),
+            ),
+          ),
+        ),
+      );
+      final texto = find.text('Episódios');
+      final paragrafo = tester.renderObject<RenderParagraph>(texto);
+      final caixas = paragrafo.getBoxesForSelection(const TextSelection(baseOffset: 0, extentOffset: 9));
+      final tinta = caixas.map((caixa) => caixa.toRect()).reduce((a, b) => a.expandToInclude(b));
+      final centroDaTinta = paragrafo.localToGlobal(tinta.center).dy;
+      final toque = find.ancestor(of: texto, matching: find.byType(Toque)).first;
+      expect(centroDaTinta, closeTo(tester.getCenter(toque).dy, 1));
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   for (final tema in [...TemaHeisuca.todos, ...TemaHeisuca.doKids]) {
     testWidgets('${tema.nome}: sobre o vídeo vale sempre o tema escuro', (tester) async {
       final barra = _Barra();

@@ -16,6 +16,8 @@ import '../../services/jellyfin_client.dart';
 import '../../utils/app_logger.dart';
 import '../../widgets/app_icon.dart';
 import '../../widgets/optimized_media_image.dart';
+import '../../utils/platform_detector.dart';
+import '../../features/busca/pedidos_da_tv.dart';
 import '../cgflix_palette.dart';
 import '../cgflix_style.dart';
 import '../home/cgflix_cards.dart';
@@ -143,7 +145,9 @@ class _CgflixRequestSectionState extends State<CgflixRequestSection> {
     unawaited(HapticFeedback.lightImpact());
     List<int>? seasons;
     if (!item.isMovie) {
-      final picked = await showCgflixSeasonPicker(context, backend: backend, item: item);
+      final picked = PlatformDetector.isTV() && !PlatformDetector.isAppleTV()
+          ? await TemporadasDoPedidoTv.mostrar(context, backend: backend, item: item)
+          : await showCgflixSeasonPicker(context, backend: backend, item: item);
       if (picked == null || !mounted) return;
       seasons = picked.isEmpty ? null : picked;
     }
@@ -173,6 +177,16 @@ class _CgflixRequestSectionState extends State<CgflixRequestSection> {
     // Heisuca: no modo infantil não há pedidos (o filtro do servidor não alcança o Seerr).
     if (heisucaKidsActive(context)) return const SizedBox.shrink();
     final visibleItems = _items.where((item) => widget.includeItem?.call(item) ?? true).toList();
+    if (PlatformDetector.isTV() && !PlatformDetector.isAppleTV()) {
+      return PedidosDaTv(
+        titulo: widget.title,
+        itens: visibleItems,
+        ocupados: _busy,
+        aoPedir: _ask,
+        carregando: _state == _SectionState.loading,
+        indisponivel: _state == _SectionState.unavailable,
+      );
+    }
     final Widget child = switch (_state) {
       _SectionState.loading => const _SectionSkeleton(key: ValueKey('carregando')),
       _SectionState.unavailable => Padding(

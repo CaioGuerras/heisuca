@@ -64,8 +64,8 @@ class TrilhoDaTv extends StatefulWidget {
   /// → ou Voltar: o trilho fecha e o foco volta ao conteúdo.
   final VoidCallback aoFechar;
 
-  /// Largura do painel numa TV de 960 dp: um terço da tela, o resto continua à vista sob o véu.
-  static const double largura = 320;
+  /// Largura do painel numa TV de 960 dp: mantém os rótulos completos e o conteúdo à vista sob o véu.
+  static const double largura = 360;
 
   /// Quanto o véu avança sobre o conteúdo à direita do painel.
   static const double larguraDoVeu = 160;
@@ -307,8 +307,7 @@ class _ItemDoTrilho extends StatelessWidget {
                     Expanded(
                       child: Text(
                         item.rotulo,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                        // A letra grande pode ocupar mais linhas: o painel rola até o foco, sem esconder rótulos.
                         style: Tipo.subtitulo(tema).copyWith(
                           color: tinta,
                           fontWeight: comFoco || selecionado ? FontWeight.w700 : FontWeight.w500,

@@ -150,14 +150,27 @@ def _focar_controle_do_player_tv(nos, rotulos):
     return False
 
 
-def capturar_player_pausado_tv(destino):
-    """Acorda e verifica os controles antes de 06; se estiver tocando, pausa pelo botão real."""
+def _salvar_rotulos_tv(destino, nos):
+    """Evidência para o próximo diagnóstico: rótulos lidos da hierarquia na hora da captura."""
+    try:
+        destino.with_suffix('.rotulos.json').write_text(
+            json.dumps(sorted(_rotulos_exatos_tv(nos)), ensure_ascii=False, indent=1), encoding='utf-8')
+    except Exception:
+        pass
+
+
+def capturar_player_pausado_tv(destino, tentativas=6):
+    """Acorda e verifica os controles antes de 06; se estiver tocando, pausa pelo botão real.
+
+    Emuladores lentos ainda podem estar carregando o vídeo aqui: insistir algumas vezes antes de reprovar.
+    """
     nos = []
-    for _ in range(2):
+    for _ in range(tentativas):
         dpad_down(espera=0.15)
         nos = dump_tv()
         if controles_do_player_tv_visiveis(nos):
             break
+        time.sleep(1.5)
     rotulos = _rotulos_exatos_tv(nos)
     if controles_do_player_tv_visiveis(nos) and rotulos & {'pausar', 'pause'}:
         if _focar_controle_do_player_tv(nos, {'pausar', 'pause'}):
@@ -165,6 +178,7 @@ def capturar_player_pausado_tv(destino):
             nos = dump_tv()
     pausado = controles_do_player_tv_visiveis(nos) and bool(
         _rotulos_exatos_tv(nos) & {'assistir', 'reproduzir', 'play'})
+    _salvar_rotulos_tv(destino, nos)
     # O dump pode demorar mais que o auto-hide do perfil androidtv. Acordar imediatamente antes do screencap.
     if pausado:
         dpad_down(espera=0.15)
@@ -175,7 +189,9 @@ def capturar_player_pausado_tv(destino):
 def menu_de_faixas_tv_aberto(nos):
     """A pílula Áudio no HUD não é prova do menu: exigir o título/ações da folha."""
     rotulos = _rotulos_exatos_tv(nos)
-    if rotulos & {'áudio e legendas', 'audio & subtitles', 'buscar legendas', 'search subtitles'}:
+    titulos = ('áudio e legendas', 'audio & subtitles', 'buscar legendas', 'search subtitles')
+    # O Flutter pode fundir o título com vizinhos num nó só ("Áudio e legendas\n…"): aceitar como trecho.
+    if any(t in r for r in rotulos for t in titulos):
         return True
     # Fontes sem legendas têm uma folha só de áudio, sem o transporte do player.
     return bool(rotulos & {'áudio', 'audio', 'legendas', 'subtitles'}) and not (
@@ -184,12 +200,19 @@ def menu_de_faixas_tv_aberto(nos):
 
 def capturar_menu_de_faixas_tv(destino):
     """08 só é aprovada após D-pad até a pílula e OK, com confirmação da folha aberta."""
-    dpad_down(espera=0.15)
-    nos = dump_tv()
+    nos = []
+    for _ in range(4):
+        dpad_down(espera=0.15)
+        nos = dump_tv()
+        if controles_do_player_tv_visiveis(nos):
+            break
+        time.sleep(1.0)
     abriu = False
     if _focar_controle_do_player_tv(nos, {'áudio', 'audio', 'legendas', 'subtitles'}):
-        dpad_center(espera=0.3)
-        abriu = menu_de_faixas_tv_aberto(dump_tv())
+        dpad_center(espera=1.0)
+        nos = dump_tv()
+        abriu = menu_de_faixas_tv_aberto(nos)
+    _salvar_rotulos_tv(destino, nos)
     capturar_png(destino)
     return abriu
 

@@ -26,6 +26,7 @@ import '../screens/profile/profile_switch_screen.dart';
 import '../screens/profile/profile_teardown.dart';
 import '../screens/settings/about_screen.dart';
 import '../screens/updates/update_settings_screen.dart';
+import '../services/updates/pagina_na_loja.dart';
 import '../services/updates/update_controller.dart';
 import '../utils/dialogs.dart';
 import 'heisuca_design_system.dart';
@@ -373,6 +374,19 @@ class HeisucaProfileScreen extends StatelessWidget {
                     onTap: () {
                       HapticFeedback.lightImpact();
                       Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const UpdateSettingsScreen()));
+                    },
+                  )
+                else if (atualizacoes?.pelaLoja == true)
+                  _buildProfileTile(
+                    icon: Symbols.system_update_rounded,
+                    title: 'Atualizações',
+                    subtitle: textoAtualizacoesNaLoja,
+                    textColor: textTitle,
+                    subColor: textSub,
+                    iconColor: palette.accent,
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      unawaited(abrirPaginaNaLoja());
                     },
                   ),
                 _buildProfileTile(

@@ -43,6 +43,9 @@ class UpdateController extends ChangeNotifier {
   final Future<Directory> Function()? cache;
   OfertaAtualizacao? oferta;
   bool get permiteAjustes => suporteAndroid && config.distribuicao != 'play';
+
+  /// Versão da Play Store: a loja atualiza o app; o item "Atualizações" só explica isso e abre a loja.
+  bool get pelaLoja => suporteAndroid && config.distribuicao == 'play';
   bool get habilitado => permiteAjustes && config.ligado && _estado.habilitado;
   bool get pronto => _arquivo != null;
   bool baixando = false;

@@ -19,6 +19,7 @@ import 'package:heisuca/profiles/profile.dart';
 import 'package:heisuca/providers/multi_server_provider.dart';
 import 'package:heisuca/services/multi_server_manager.dart';
 import 'package:heisuca/media/media_server_client.dart';
+import 'package:heisuca/services/updates/pagina_na_loja.dart';
 import 'package:heisuca/services/updates/update_controller.dart';
 import 'package:heisuca/services/updates/update_feed_client.dart' show OfertaAtualizacao;
 import 'package:provider/provider.dart';
@@ -84,8 +85,12 @@ class _Kids extends ChangeNotifier implements HeisucaKids {
 }
 
 class _Atualizacoes extends ChangeNotifier implements UpdateController {
+  _Atualizacoes({this.loja = false});
+  final bool loja;
   @override
-  bool get permiteAjustes => true;
+  bool get permiteAjustes => !loja;
+  @override
+  bool get pelaLoja => loja;
   @override
   OfertaAtualizacao? get oferta => null;
   @override
@@ -141,6 +146,7 @@ class _Chamadas {
     sairDoModoInfantil: (_) => registrar('sairDoModoInfantil'),
     configuracoes: (_) => registrar('configuracoes'),
     atualizacoes: (_) => registrar('atualizacoes'),
+    atualizacoesNaLoja: (_) => registrar('atualizacoesNaLoja'),
     sobre: (_) => registrar('sobre'),
     trocarUsuario: (_) => registrar('trocarUsuario'),
     servidores: (_) => registrar('servidores'),
@@ -168,6 +174,7 @@ Future<void> _montar(
   double letra = 1,
   bool semAnimacao = false,
   bool comAtualizacoes = true,
+  bool daLoja = false,
   bool empilhada = false,
   bool comKids = true,
   HeisucaKids? kids,
@@ -178,7 +185,7 @@ Future<void> _montar(
   addTearDown(tester.view.reset);
   final perfis = _Perfis(ativo ?? _pai);
   addTearDown(perfis.dispose);
-  final atualizacoes = _Atualizacoes();
+  final atualizacoes = _Atualizacoes(loja: daLoja);
   addTearDown(atualizacoes.dispose);
   await tester.pumpWidget(
     MultiProvider(
@@ -373,6 +380,16 @@ void main() {
       await _montar(tester, chamadas, comAtualizacoes: false);
       await _mostrar(tester, 'Sobre o Heisuca');
       expect(find.text('Atualizações'), findsNothing);
+    });
+
+    testWidgets('versão da loja: cartão explica que a Play Store atualiza e abre a loja', (tester) async {
+      await _montar(tester, chamadas, daLoja: true);
+      await _mostrar(tester, 'Atualizações');
+      expect(find.text(textoAtualizacoesNaLoja), findsOneWidget);
+      await tester.tap(_cartao('Atualizações'));
+      await tester.pump();
+      expect(chamadas.de('atualizacoesNaLoja'), 1);
+      expect(chamadas.de('atualizacoes'), 0);
     });
 
     testWidgets('mostra o nome de quem usa o app', (tester) async {

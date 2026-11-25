@@ -25,6 +25,7 @@ import '../../screens/profile/profile_switch_screen.dart';
 import '../../screens/profile/profile_teardown.dart';
 import '../../screens/settings/about_screen.dart';
 import '../../screens/updates/update_settings_screen.dart';
+import '../../services/updates/pagina_na_loja.dart';
 import '../../services/updates/update_controller.dart';
 import '../../utils/dialogs.dart';
 import '../tema_da_v2.dart';
@@ -43,6 +44,7 @@ class AcoesDaVoce {
     required this.sairDoModoInfantil,
     required this.configuracoes,
     required this.atualizacoes,
+    this.atualizacoesNaLoja = _atualizacoesNaLoja,
     required this.sobre,
     required this.trocarUsuario,
     required this.servidores,
@@ -61,6 +63,7 @@ class AcoesDaVoce {
       sairDoModoInfantil = _sairDoModoInfantil,
       configuracoes = _configuracoes,
       atualizacoes = _atualizacoes,
+      atualizacoesNaLoja = _atualizacoesNaLoja,
       sobre = _sobre,
       trocarUsuario = _trocarUsuario,
       servidores = _servidores,
@@ -76,6 +79,9 @@ class AcoesDaVoce {
   final void Function(BuildContext context) sairDoModoInfantil;
   final void Function(BuildContext context) configuracoes;
   final void Function(BuildContext context) atualizacoes;
+
+  /// Versão da Play Store: abre a página do app na loja, que é quem atualiza.
+  final void Function(BuildContext context) atualizacoesNaLoja;
   final void Function(BuildContext context) sobre;
   final void Function(BuildContext context) trocarUsuario;
 
@@ -113,6 +119,8 @@ class AcoesDaVoce {
 
   static void _atualizacoes(BuildContext context) =>
       unawaited(Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const UpdateSettingsScreen())));
+
+  static void _atualizacoesNaLoja(BuildContext context) => unawaited(abrirPaginaNaLoja());
 
   static void _sobre(BuildContext context) =>
       unawaited(Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const AboutScreen())));
@@ -258,7 +266,7 @@ class LigacaoDaVoce extends StatelessWidget {
             subtitulo: 'Reprodução, vídeo, áudio e legendas',
             aoTocar: () => acoes.configuracoes(context),
           ),
-          // Só na versão baixada pelo site: na loja quem atualiza é a própria loja.
+          // Versão do site: ajustes e canal. Versão da loja: só o aviso de que a loja atualiza.
           if (atualizacoes?.permiteAjustes == true)
             ItemDaVoce(
               chave: 'atualizacoes',
@@ -266,6 +274,14 @@ class LigacaoDaVoce extends StatelessWidget {
               titulo: 'Atualizações',
               subtitulo: atualizacoes?.oferta != null ? 'Há uma versão nova' : 'Buscar versão nova e escolher o canal',
               aoTocar: () => acoes.atualizacoes(context),
+            )
+          else if (atualizacoes?.pelaLoja == true)
+            ItemDaVoce(
+              chave: 'atualizacoes-loja',
+              icone: Symbols.system_update_rounded,
+              titulo: 'Atualizações',
+              subtitulo: textoAtualizacoesNaLoja,
+              aoTocar: () => acoes.atualizacoesNaLoja(context),
             ),
           ItemDaVoce(
             chave: 'sobre',

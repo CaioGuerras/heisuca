@@ -20,6 +20,7 @@ import 'package:heisuca/screens/updates/update_settings_screen.dart';
 import 'package:heisuca/services/settings_service.dart';
 import 'package:heisuca/services/playback_diagnostics.dart';
 import 'package:heisuca/services/updates/apk_installer.dart';
+import 'package:heisuca/services/updates/pagina_na_loja.dart';
 import 'package:heisuca/services/updates/update_controller.dart';
 import 'package:heisuca/services/updates/update_feed_client.dart';
 import 'package:heisuca/utils/log_redaction_manager.dart';
@@ -434,7 +435,7 @@ void main() {
       expect(find.text('Versão nova disponível'), findsOneWidget);
     });
 
-    testWidgets('na versão da loja a entrada não aparece', (tester) async {
+    testWidgets('na versão da loja a entrada só explica que a Play Store atualiza', (tester) async {
       final loja = UpdateController(
         config: ConfiguracaoAtualizacao(feed: 'https://feed.example/', distribuicao: 'play'),
         feed: c.feed,
@@ -447,7 +448,9 @@ void main() {
       await perfil(tester, loja);
       await rolarAte(tester, find.text('Sair da conta'));
       expect(find.text('Sobre o Heisuca'), findsOneWidget);
-      expect(find.text('Atualizações'), findsNothing);
+      expect(find.text('Atualizações'), findsOneWidget);
+      expect(find.text(textoAtualizacoesNaLoja), findsOneWidget);
+      expect(find.text('Buscar versão nova e escolher o canal'), findsNothing);
     });
 
     testWidgets('tela estreita com letra em 200%: entrada e tela de atualizações não estouram', (tester) async {

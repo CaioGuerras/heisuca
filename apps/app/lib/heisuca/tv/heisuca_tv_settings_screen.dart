@@ -14,6 +14,7 @@ import '../../screens/settings/about_screen.dart';
 import '../../services/settings_service.dart';
 import '../heisuca_theme.dart';
 import 'heisuca_tv_canvas.dart';
+import '../../services/updates/pagina_na_loja.dart';
 import '../../services/updates/update_controller.dart';
 import '../../screens/updates/update_settings_screen.dart';
 
@@ -204,6 +205,14 @@ class _HeisucaTvSettingsScreenState extends State<HeisucaTvSettingsScreen> {
                         actionLabel: 'Ver',
                         onTap: () =>
                             Navigator.of(context).push(MaterialPageRoute(builder: (_) => const UpdateSettingsScreen())),
+                      ),
+                      const SizedBox(height: 16),
+                    ] else if (atualizacoes?.pelaLoja == true) ...[
+                      _TvSettingsRow(
+                        title: 'Atualizações',
+                        value: 'Feitas pela Play Store',
+                        actionLabel: 'Abrir',
+                        onTap: () => unawaited(abrirPaginaNaLoja()),
                       ),
                       const SizedBox(height: 16),
                     ],

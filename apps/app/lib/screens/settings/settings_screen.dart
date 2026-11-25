@@ -54,6 +54,7 @@ import '../../widgets/system_bottom_inset.dart';
 import '../../profiles/active_profile_provider.dart';
 import '../../profiles/profile.dart';
 import 'about_screen.dart';
+import '../../services/updates/pagina_na_loja.dart';
 import '../../services/updates/update_controller.dart';
 import '../updates/update_settings_screen.dart';
 import 'add_connection_screen.dart';
@@ -287,6 +288,13 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
               title: 'Atualizações',
               subtitle: 'Versões do app e canais de atualização',
               destinationBuilder: (_) => const UpdateSettingsScreen(),
+            )
+          else if (context.watch<UpdateController?>()?.pelaLoja == true)
+            SettingNavigationTile(
+              icon: Symbols.system_update_rounded,
+              title: 'Atualizações',
+              subtitle: textoAtualizacoesNaLoja,
+              onTap: () => unawaited(abrirPaginaNaLoja()),
             ),
           SettingNavigationTile(
             key: const ValueKey('cgflix-config-dicas'),

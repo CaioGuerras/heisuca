@@ -18,6 +18,8 @@ import 'package:heisuca/heisuca/tv/heisuca_tv_header.dart';
 import 'package:heisuca/heisuca/tv/heisuca_tv_menu.dart';
 import 'package:heisuca/heisuca/tv/heisuca_tv_home_screen.dart';
 import 'package:heisuca/heisuca/tv/heisuca_tv_title_screen.dart';
+import 'package:heisuca/features/titulo/modelo.dart';
+import 'package:heisuca/features/titulo/tela_titulo_tv.dart';
 import 'package:heisuca/heisuca/tv/heisuca_tv_settings_screen.dart';
 import 'package:heisuca/heisuca/tv/heisuca_tv_back_handler.dart';
 import 'package:heisuca/heisuca/heisuca_opening_splash.dart';
@@ -279,52 +281,98 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('G1.3 Título TV: Continuar em foco, áudio/legenda, versão e temporadas', (tester) async {
+    testWidgets('G1.3 Título TV: dados reais, Assistir em foco, D-pad até os episódios e troca de temporada', (
+      tester,
+    ) async {
       await tester.binding.setSurfaceSize(const Size(1920, 1080));
       addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
 
-      final serie = MediaItem.jellyfin(
-        id: 'serie-tv-1',
-        serverId: 'srv-1',
-        title: 'Sousou no Frieren',
-        summary: 'A maga elfa Frieren e seus companheiros derrotaram o Rei Demônio.',
-        kind: MediaKind.show,
-        year: 2024,
+      var assistiu = 0;
+      var tocouEpisodio = 0;
+      final temporadasAbertas = <int>[];
+      final pagina = PaginaDoTitulo(
+        chave: 'serie-tv-1',
+        titulo: 'Sousou no Frieren',
+        nota: '8.9',
+        anos: '2023–2024',
+        generos: 'Animação, Aventura',
+        classificacao: '12',
+        sinopse: 'A maga elfa Frieren e seus companheiros derrotaram o Rei Demônio.',
+        rotuloDeAssistir: 'Continuar T1 E1',
+        progresso: 0.4,
+        aoAssistir: () => assistiu++,
+        aoAlternarLista: () {},
+        aoAlternarVisto: () {},
       );
-
-      final temporada = MediaItem.jellyfin(
-        id: 'temp-1',
-        serverId: 'srv-1',
-        title: 'Temporada 1',
-        kind: MediaKind.season,
-        index: 1,
-      );
-
-      final ep = MediaItem.jellyfin(
-        id: 'ep-1',
-        serverId: 'srv-1',
-        title: 'O Fim da Jornada',
-        kind: MediaKind.episode,
-        index: 1,
-        durationMs: 1440000,
-      );
+      final temporadas = [
+        TemporadaDoTitulo(
+          chave: 't1',
+          nome: 'Temporada 1',
+          episodios: [
+            EpisodioDoTitulo(
+              chave: 'ep-1',
+              numero: 1,
+              nome: 'O Fim da Jornada',
+              duracao: '24 min',
+              atual: true,
+              aoTocar: () => tocouEpisodio++,
+            ),
+          ],
+        ),
+        const TemporadaDoTitulo(chave: 't2', nome: 'Temporada 2'),
+      ];
 
       await tester.pumpWidget(
         fixture.wrap(
           MaterialApp(
-            home: Scaffold(
-              body: HeisucaTvTitleScreen(item: serie, seasons: [temporada], episodes: [ep], targetEpisode: ep),
-            ),
+            home: TelaTituloTv(pagina: pagina, temporadas: temporadas, aoMudarTemporada: temporadasAbertas.add),
           ),
         ),
       );
       await tester.pumpAndSettle();
 
       expect(find.text('Sousou no Frieren'), findsOneWidget);
-      expect(find.byKey(const Key('heisuca-tv-title-play')), findsOneWidget);
-      expect(find.text('Áudio e legenda'), findsOneWidget);
-      expect(find.text('Versão: 1080p'), findsOneWidget);
       expect(find.text('Temporada 1'), findsOneWidget);
+      expect(find.text('Temporada 2'), findsOneWidget);
+      expect(find.text('Favoritar'), findsOneWidget);
+      expect(find.text('Já vi'), findsOneWidget);
+      // Sem arte, o cartão repete o título no centro: o rótulo aparece na arte e embaixo dela.
+      expect(find.textContaining('O Fim da Jornada'), findsWidgets);
+      // Os textos inventados da ficha antiga não voltam.
+      expect(find.text('Versão: 1080p'), findsNothing);
+      expect(find.text('Áudio e legenda'), findsNothing);
+
+      // O Assistir nasce com o foco e o OK do controle toca.
+      final play = find.byKey(const Key('heisuca-tv-title-play'));
+      expect(play, findsOneWidget);
+      expect(Focus.of(tester.element(find.text('Continuar T1 E1'))).hasFocus, isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pump();
+      expect(assistiu, 1);
+
+      // Para baixo: as temporadas; OK na 2ª troca a temporada (que ainda carrega).
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pumpAndSettle();
+      expect(Focus.of(tester.element(find.text('Temporada 1'))).hasFocus, isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pump();
+      expect(temporadasAbertas, [1]);
+      expect(find.bySemanticsLabel('Carregando os episódios'), findsOneWidget);
+
+      // Volta à 1ª e desce até o episódio: o OK toca o episódio.
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(temporadasAbertas, [1, 0]);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pump();
+      expect(tocouEpisodio, 1);
+      expect(tester.takeException(), isNull);
     });
 
     testWidgets('G1.4 Voltar: no início leva ao destaque; no destaque sai/confirma', (tester) async {

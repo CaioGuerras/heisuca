@@ -1,12 +1,15 @@
-import '../theme/heisuca_base.dart';
-import '../../cgflix/cgflix_palette.dart';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../design/forma.dart';
 import '../../design/movimento.dart';
+import '../../design/tema.dart';
+import '../../design/tipo.dart';
 import '../../profiles/active_profile_provider.dart';
 import '../../profiles/profile_avatar.dart';
-import '../heisuca_theme.dart';
+import '../theme/heisuca_base.dart';
 
 /// Topo oficial do Heisuca na TV: Avatar no canto superior esquerdo com o nome HEISUCA ao lado.
 /// Foco no avatar abre o menu principal da TV.
@@ -56,11 +59,17 @@ class _HeisucaTvHeaderState extends State<HeisucaTvHeader> {
     }
   }
 
+  /// Lado do avatar no canvas de 1920 da TV.
+  static const double _avatar = 64;
+
   @override
   Widget build(BuildContext context) {
+    final tema = TemaHeisuca.de(context);
     final profiles = context.watch<ActiveProfileProvider?>();
     final activeProfile = profiles?.active;
-    final initial = (activeProfile?.displayName.isNotEmpty == true) ? activeProfile!.displayName[0].toUpperCase() : 'T';
+    final nome = activeProfile?.displayName ?? '';
+    final initial = nome.isNotEmpty ? nome.characters.first.toUpperCase() : 'H';
+    final marca = Tipo.subtitulo(tema);
 
     return Padding(
       padding: widget.padding,
@@ -68,57 +77,50 @@ class _HeisucaTvHeaderState extends State<HeisucaTvHeader> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          FocusableActionDetector(
-            focusNode: _focusNode,
-            onShowFocusHighlight: (v) => setState(() => _focused = v),
-            actions: {
-              ActivateIntent: CallbackAction<ActivateIntent>(
-                onInvoke: (_) {
-                  widget.onOpenMenu();
-                  return null;
-                },
-              ),
-            },
-            child: GestureDetector(
-              key: const Key('heisuca-tv-avatar-button'),
-              onTap: widget.onOpenMenu,
-              child: AnimatedScale(
-                scale: _focused ? HeisucaBase.focoEscalaTv : 1.0,
-                duration: Movimento.tempo(context, Movimento.toque),
-                curve: Movimento.entra,
-                child: Container(
-                  width: 58,
-                  height: 58,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: _focused ? context.cgflix.focusRing : context.cgflix.text.withValues(alpha: 0.15),
-                      width: _focused ? HeisucaBase.focoBorda : 1.5,
+          Semantics(
+            button: true,
+            label: nome.isEmpty ? 'Abrir o menu' : 'Abrir o menu, perfil $nome',
+            excludeSemantics: true,
+            child: FocusableActionDetector(
+              focusNode: _focusNode,
+              onShowFocusHighlight: (v) => setState(() => _focused = v),
+              actions: {
+                ActivateIntent: CallbackAction<ActivateIntent>(
+                  onInvoke: (_) {
+                    widget.onOpenMenu();
+                    return null;
+                  },
+                ),
+              },
+              child: GestureDetector(
+                key: const Key('heisuca-tv-avatar-button'),
+                onTap: widget.onOpenMenu,
+                child: AnimatedScale(
+                  scale: _focused ? HeisucaBase.focoEscalaTv : 1.0,
+                  duration: Movimento.tempo(context, Movimento.toque),
+                  curve: Movimento.entra,
+                  child: AnimatedContainer(
+                    duration: Movimento.tempo(context, Movimento.toque),
+                    curve: Movimento.entra,
+                    width: _avatar,
+                    height: _avatar,
+                    clipBehavior: Clip.antiAlias,
+                    decoration: ShapeDecoration(
+                      color: tema.superficie2,
+                      shape: CircleBorder(
+                        side: _focused
+                            ? BorderSide(color: tema.foco, width: Forma.anelDeFoco)
+                            : BorderSide(color: tema.borda),
+                      ),
                     ),
-                    boxShadow: _focused
-                        ? [
-                            BoxShadow(
-                              color: context.cgflix.text.withValues(alpha: 0.35),
-                              blurRadius: 16,
-                              spreadRadius: 2,
-                            ),
-                          ]
-                        : null,
-                  ),
-                  child: ClipOval(
                     child: activeProfile != null
                         ? ProfileAvatar(
                             profile: activeProfile,
-                            size: 58,
+                            size: _avatar,
                             avatarUrl: profiles?.avatarUrlFor(activeProfile.id),
                           )
-                        : Container(
-                            color: context.cgflix.accent,
-                            alignment: Alignment.center,
-                            child: Text(
-                              initial,
-                              style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700, color: context.cgflix.text),
-                            ),
+                        : Center(
+                            child: Text(initial, style: Tipo.titulo(tema).copyWith(fontWeight: FontWeight.w700)),
                           ),
                   ),
                 ),
@@ -126,16 +128,16 @@ class _HeisucaTvHeaderState extends State<HeisucaTvHeader> {
             ),
           ),
           if (widget.showLogo) ...[
-            const SizedBox(width: 20),
+            const SizedBox(width: Forma.espaco4),
             // Só o nome; os kanji carmim antes dele ficavam feios na TV (Caio, 31/10).
-            Text(
-              'HEISUCA',
-              style: TextStyle(
-                fontFamily: HeisucaTheme.fonteTexto,
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 4.0,
-                color: context.cgflix.text,
+            ExcludeSemantics(
+              child: Text(
+                'HEISUCA',
+                style: marca.copyWith(
+                  fontSize: max(24, (marca.fontSize ?? 16) * 1.5),
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 4,
+                ),
               ),
             ),
           ],

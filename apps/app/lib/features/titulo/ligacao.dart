@@ -14,6 +14,7 @@ import '../../heisuca/heisuca_state_store.dart';
 import '../../heisuca/heisuca_title_logo.dart';
 import '../../heisuca/heisuca_title_parts.dart';
 import '../../heisuca/heisuca_title_sheet.dart';
+import '../../heisuca/tv/heisuca_tv_playback_warmup.dart';
 import '../../media/media_backend.dart';
 import '../../media/media_file_info.dart';
 import '../../media/media_hub.dart';
@@ -35,6 +36,7 @@ import 'generos.dart';
 import 'info_da_midia.dart';
 import 'modelo.dart';
 import 'tela_titulo.dart';
+import 'tela_titulo_tv.dart';
 
 /// O texto do botão principal. "Continuar" só quando há posição salva; em série, leva o código do episódio.
 @visibleForTesting
@@ -129,9 +131,13 @@ class LigacaoDoTitulo extends StatefulWidget {
     this.episodio,
     this.clienteDe = cgflixClientFor,
     this.alternarVisto,
+    this.naTv = false,
   });
 
   final MediaItem item;
+
+  /// Monta a página no desenho da TV ([TelaTituloTv]); os dados e as ações são os mesmos do celular.
+  final bool naTv;
 
   /// O episódio que o botão principal deve tocar, quando quem abriu já sabe qual é.
   final MediaItem? episodio;
@@ -142,11 +148,12 @@ class LigacaoDoTitulo extends StatefulWidget {
   final Future<void> Function(BuildContext context, MediaItem item)? alternarVisto;
 
   /// Abre a página do título por cima da tela atual.
-  static Future<void> abrir(BuildContext context, MediaItem item, {MediaItem? episodio}) => Navigator.of(context).push(
-    MaterialPageRoute<void>(
-      builder: (_) => LigacaoDoTitulo(item: item, episodio: episodio),
-    ),
-  );
+  static Future<void> abrir(BuildContext context, MediaItem item, {MediaItem? episodio, bool naTv = false}) =>
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => LigacaoDoTitulo(item: item, episodio: episodio, naTv: naTv),
+        ),
+      );
 
   @override
   State<LigacaoDoTitulo> createState() => _LigacaoDoTituloState();
@@ -347,7 +354,7 @@ class _LigacaoDoTituloState extends State<LigacaoDoTitulo> {
 
   bool get _escondeSpoilers => SettingsService.instanceOrNull?.read(SettingsService.hideSpoilers) ?? true;
 
-  PaginaDoTitulo _pagina() {
+  PaginaDoTitulo _pagina({Alignment alinhamentoDoLogo = Alignment.center}) {
     final item = _item;
     final alvo = _ehSerie ? _alvo : item;
     final estado = HeisucaStateStore.instance;
@@ -377,7 +384,7 @@ class _LigacaoDoTituloState extends State<LigacaoDoTitulo> {
         height: tamanho.height,
         fallbackWidth: tamanho.width,
         fallbackBuilder: (_) => semLogo,
-        alignment: Alignment.center,
+        alignment: alinhamentoDoLogo,
       ),
       hash: heisucaArtworkHash(item),
       nota: notaDe(item.rating),
@@ -482,7 +489,7 @@ class _LigacaoDoTituloState extends State<LigacaoDoTitulo> {
     ),
     hash: heisucaArtworkHash(item),
     nota: notaDe(item.rating),
-    aoTocar: () => unawaited(LigacaoDoTitulo.abrir(context, item)),
+    aoTocar: () => unawaited(LigacaoDoTitulo.abrir(context, item, naTv: widget.naTv)),
     aoSegurar: () => _menu(item),
   );
 
@@ -499,6 +506,25 @@ class _LigacaoDoTituloState extends State<LigacaoDoTitulo> {
     final codigo = _ehSerie && _alvo != null ? cgflixEpisodeCode(_alvo!) : '';
     final temporadas = _temporadas;
     final alvo = _ehSerie ? _alvo : _item;
+    final tituloDaInfo = codigo.isEmpty ? 'Sobre a mídia' : 'Sobre a mídia · $codigo';
+    if (widget.naTv) {
+      // Gêneros ficam na linha de dados do topo; o menu longo do episódio não existe no controle remoto.
+      return SobOTemaDaV2(
+        child: TelaTituloTv(
+          pagina: _pagina(alinhamentoDoLogo: Alignment.bottomLeft),
+          temporadas: _ehSerie && temporadas != null && temporadas.isNotEmpty ? _emTemporadas(temporadas) : null,
+          aberta: _aberta,
+          aoMudarTemporada: _mudarTemporada,
+          elenco: elenco,
+          parecidos: [for (final item in parecidos) _emParecido(item)],
+          info: info,
+          tituloDaInfo: tituloDaInfo,
+          falhou: _falhou,
+          aoTentar: () => unawaited(_carregar()),
+          aoFocarAssistir: alvo == null ? null : () => HeisucaTvPlaybackWarmup.onCardFocused(context, alvo),
+        ),
+      );
+    }
     return SobOTemaDaV2(
       child: Scaffold(
         body: TelaTitulo(
@@ -524,8 +550,7 @@ class _LigacaoDoTituloState extends State<LigacaoDoTitulo> {
                 ),
               ),
             if (generos.isNotEmpty) Generos(generos: generos),
-            if (info.isNotEmpty)
-              InfoDaMidia(grupos: info, titulo: codigo.isEmpty ? 'Sobre a mídia' : 'Sobre a mídia · $codigo'),
+            if (info.isNotEmpty) InfoDaMidia(grupos: info, titulo: tituloDaInfo),
             if (_falhou) _Falha(aoTentar: () => unawaited(_carregar())),
           ],
         ),

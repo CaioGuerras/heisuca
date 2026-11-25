@@ -34,6 +34,7 @@ import 'heisuca_tv_area_segura.dart';
 import 'heisuca_tv_canvas.dart';
 import 'heisuca_tv_header.dart';
 import 'heisuca_tv_menu.dart';
+import 'heisuca_tv_pecas.dart';
 import 'heisuca_tv_playback_warmup.dart';
 import 'heisuca_tv_title_screen.dart';
 
@@ -42,9 +43,6 @@ import 'heisuca_tv_title_screen.dart';
 /// É comportamento, não animação: segurar a seta passa por vários cartões e só o último conta, senão a TV
 /// troca a arte de fundo a cada cartão e engasga.
 const Duration _focoParado = Duration(milliseconds: 120);
-
-/// Texto da TV: a escala do celular vista a 3 m. Nada abaixo de 24 na tela de referência de 1920.
-TextStyle _tv(TextStyle estilo) => estilo.copyWith(fontSize: max(24, (estilo.fontSize ?? 16) * 1.5));
 
 /// Início do Heisuca na TV, no desenho do app de Windows: arte do título em tela cheia, logo, dados reais do acervo,
 /// [Assistir] e [Detalhes], "Continuar assistindo" na primeira tela e as fileiras ao descer.
@@ -512,8 +510,12 @@ class _Destaque extends StatelessWidget {
             height: 180,
             fallbackWidth: 900,
             compactFallback: true,
-            fallbackBuilder: (context) =>
-                Text(item.displayTitle, maxLines: 2, overflow: TextOverflow.ellipsis, style: _tv(Tipo.destaque(tema))),
+            fallbackBuilder: (context) => Text(
+              item.displayTitle,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: tvTexto(Tipo.destaque(tema)),
+            ),
           ),
           if (dados != null) ...[
             const SizedBox(height: Forma.espaco4),
@@ -521,130 +523,38 @@ class _Destaque extends StatelessWidget {
               dados,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: _tv(Tipo.pequeno(tema)).copyWith(color: tema.texto),
+              style: tvTexto(Tipo.pequeno(tema)).copyWith(color: tema.texto),
             ),
           ],
           if (sinopse != null && sinopse.isNotEmpty) ...[
             const SizedBox(height: Forma.espaco3),
-            Text(sinopse, maxLines: 2, overflow: TextOverflow.ellipsis, style: _tv(Tipo.texto(tema))),
+            Text(sinopse, maxLines: 2, overflow: TextOverflow.ellipsis, style: tvTexto(Tipo.texto(tema))),
           ],
           const SizedBox(height: Forma.espaco6),
           Row(
             children: [
-              _BotaoTv(
+              BotaoTv(
                 key: const Key('heisuca-tv-hero-play'),
                 focusNode: assistir,
                 autofocus: true,
                 principal: true,
                 icone: Icons.play_arrow_rounded,
                 rotulo: 'Assistir',
-                tema: tema,
                 aoTocar: aoAssistir,
                 aoFocar: aoFocar,
               ),
               const SizedBox(width: Forma.espaco4),
-              _BotaoTv(
+              BotaoTv(
                 key: const Key('heisuca-tv-hero-details'),
                 focusNode: detalhes,
                 icone: Icons.info_outline_rounded,
                 rotulo: 'Detalhes',
-                tema: tema,
                 aoTocar: aoDetalhes,
                 aoFocar: aoFocar,
               ),
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// Botão em pílula da TV: neutro, o principal em destaque; foco = anel + escala.
-class _BotaoTv extends StatefulWidget {
-  const _BotaoTv({
-    super.key,
-    required this.focusNode,
-    required this.icone,
-    required this.rotulo,
-    required this.tema,
-    required this.aoTocar,
-    required this.aoFocar,
-    this.principal = false,
-    this.autofocus = false,
-  });
-
-  final FocusNode focusNode;
-  final IconData icone;
-  final String rotulo;
-  final TemaHeisuca tema;
-  final VoidCallback aoTocar;
-  final VoidCallback aoFocar;
-  final bool principal;
-  final bool autofocus;
-
-  @override
-  State<_BotaoTv> createState() => _BotaoTvState();
-}
-
-class _BotaoTvState extends State<_BotaoTv> {
-  bool _foco = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final tema = widget.tema;
-    final tinta = widget.principal ? tema.botaoTexto : tema.texto;
-    return Semantics(
-      button: true,
-      label: widget.rotulo,
-      excludeSemantics: true,
-      child: FocusableActionDetector(
-        focusNode: widget.focusNode,
-        autofocus: widget.autofocus,
-        onFocusChange: (focado) {
-          if (focado) widget.aoFocar();
-        },
-        onShowFocusHighlight: (v) => setState(() => _foco = v),
-        actions: {
-          ActivateIntent: CallbackAction<ActivateIntent>(
-            onInvoke: (_) {
-              widget.aoTocar();
-              return null;
-            },
-          ),
-        },
-        child: GestureDetector(
-          onTap: widget.aoTocar,
-          child: AnimatedScale(
-            scale: _foco ? HeisucaBase.focoEscalaTv : 1,
-            duration: Movimento.tempo(context, Movimento.toque),
-            curve: Movimento.entra,
-            child: AnimatedContainer(
-              duration: Movimento.tempo(context, Movimento.toque),
-              curve: Movimento.entra,
-              constraints: const BoxConstraints(minHeight: 72, minWidth: 200),
-              padding: const EdgeInsets.symmetric(horizontal: HeisucaBase.espaco8),
-              decoration: ShapeDecoration(
-                shape: Forma.pilula(
-                  lado: _foco ? BorderSide(color: tema.foco, width: Forma.anelDeFoco) : BorderSide.none,
-                ),
-                color: widget.principal ? tema.botaoFundo : tema.superficie2,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(widget.icone, size: 36, color: tinta),
-                  const SizedBox(width: Forma.espaco3),
-                  Text(
-                    widget.rotulo,
-                    style: _tv(Tipo.subtitulo(tema)).copyWith(color: tinta, fontWeight: FontWeight.w600),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -679,7 +589,7 @@ class _Continuar extends StatelessWidget {
       children: [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: margem),
-          child: Text('Continuar assistindo', style: _tv(Tipo.subtitulo(tema))),
+          child: Text('Continuar assistindo', style: tvTexto(Tipo.subtitulo(tema))),
         ),
         SizedBox(
           height: _altura + 120,
@@ -807,10 +717,10 @@ class _CartaoContinuarState extends State<_CartaoContinuar> {
                 item.grandparentTitle ?? item.displayTitle,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: _tv(Tipo.texto(tema)).copyWith(fontWeight: FontWeight.w600),
+                style: tvTexto(Tipo.texto(tema)).copyWith(fontWeight: FontWeight.w600),
               ),
               if (legenda != null)
-                Text(legenda, maxLines: 1, overflow: TextOverflow.ellipsis, style: _tv(Tipo.pequeno(tema))),
+                Text(legenda, maxLines: 1, overflow: TextOverflow.ellipsis, style: tvTexto(Tipo.pequeno(tema))),
             ],
           ),
         ),
@@ -1003,7 +913,7 @@ class _TvMediaRowState extends State<HeisucaTvMediaRow> {
       children: [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: margem),
-          child: Text(widget.title, style: _tv(Tipo.subtitulo(tema))),
+          child: Text(widget.title, style: tvTexto(Tipo.subtitulo(tema))),
         ),
         SizedBox(
           key: const ValueKey('tv-row-info'),
@@ -1019,13 +929,13 @@ class _TvMediaRowState extends State<HeisucaTvMediaRow> {
                     item?.displayTitle ?? '',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: _tv(Tipo.texto(tema)).copyWith(fontWeight: FontWeight.w600),
+                    style: tvTexto(Tipo.texto(tema)).copyWith(fontWeight: FontWeight.w600),
                   ),
                   Text(
                     item == null ? '' : _tvMetadata(item),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: _tv(Tipo.pequeno(tema)).copyWith(color: tema.acento),
+                    style: tvTexto(Tipo.pequeno(tema)).copyWith(color: tema.acento),
                   ),
                   const SizedBox(height: Forma.espaco1),
                   Expanded(
@@ -1033,7 +943,7 @@ class _TvMediaRowState extends State<HeisucaTvMediaRow> {
                       item?.summary ?? '',
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
-                      style: _tv(Tipo.pequeno(tema)).copyWith(color: tema.texto),
+                      style: tvTexto(Tipo.pequeno(tema)).copyWith(color: tema.texto),
                     ),
                   ),
                 ],
@@ -1074,7 +984,7 @@ class _TvPosterCard extends StatefulWidget {
   static const double largura = 180;
   static const double alturaDoPoster = 270;
 
-  static TextStyle estiloDoTitulo(TemaHeisuca tema) => _tv(Tipo.pequeno(tema)).copyWith(color: tema.texto);
+  static TextStyle estiloDoTitulo(TemaHeisuca tema) => tvTexto(Tipo.pequeno(tema)).copyWith(color: tema.texto);
 
   /// Altura do cartão (pôster + respiro + uma linha de título), medida com a letra que a pessoa escolheu:
   /// a fileira reserva exatamente isso, sem número mágico que estoura quando a letra cresce.

@@ -592,139 +592,40 @@ class _Continuar extends StatelessWidget {
           child: Text('Continuar assistindo', style: tvTexto(Tipo.subtitulo(tema))),
         ),
         SizedBox(
-          height: _altura + 120,
+          // A arte, as duas linhas de texto medidas com a letra do aparelho e o respiro do foco em cima e embaixo.
+          height: _altura + CartaoTv.alturaDoTexto(context, tema) + 2 * Forma.espaco4,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
+            clipBehavior: Clip.none,
             padding: EdgeInsets.symmetric(horizontal: margem, vertical: Forma.espaco4),
             itemCount: itens.length,
             separatorBuilder: (context, _) => const SizedBox(width: Forma.espaco6),
-            itemBuilder: (context, i) => _CartaoContinuar(
-              item: itens[i],
-              tema: tema,
-              largura: _largura,
-              altura: _altura,
-              aoTocar: () => aoAssistir(itens[i]),
-              aoFocar: (focado) => aoFocar(focado ? itens[i] : null),
-            ),
+            itemBuilder: (context, i) {
+              final item = itens[i];
+              return CartaoTv(
+                largura: _largura,
+                alturaDaArte: _altura,
+                titulo: item.grandparentTitle ?? item.displayTitle,
+                legenda: juntar([cgflixEpisodeLabel(item), restam(item.durationMs, item.viewOffsetMs)]),
+                progresso: progressoDe(item.durationMs, item.viewOffsetMs),
+                arte: (context, tamanho) => OptimizedMediaImage(
+                  client: cgflixClientFor(context, item),
+                  imagePath: cgflixWidePath(item),
+                  width: tamanho.width,
+                  height: tamanho.height,
+                  imageType: ImageType.thumb,
+                  fit: BoxFit.cover,
+                ),
+                aoTocar: () => aoAssistir(item),
+                // Só avisa quando ganha o foco; ao sair, o próximo cartão (ou o destaque) assume.
+                aoFocar: (focado) {
+                  if (focado) aoFocar(item);
+                },
+              );
+            },
           ),
         ),
       ],
-    );
-  }
-}
-
-class _CartaoContinuar extends StatefulWidget {
-  const _CartaoContinuar({
-    required this.item,
-    required this.tema,
-    required this.largura,
-    required this.altura,
-    required this.aoTocar,
-    required this.aoFocar,
-  });
-
-  final MediaItem item;
-  final TemaHeisuca tema;
-  final double largura;
-  final double altura;
-  final VoidCallback aoTocar;
-  final ValueChanged<bool> aoFocar;
-
-  @override
-  State<_CartaoContinuar> createState() => _CartaoContinuarState();
-}
-
-class _CartaoContinuarState extends State<_CartaoContinuar> {
-  bool _foco = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final item = widget.item;
-    final tema = widget.tema;
-    final progresso = progressoDe(item.durationMs, item.viewOffsetMs);
-    final legenda = juntar([cgflixEpisodeLabel(item), restam(item.durationMs, item.viewOffsetMs)]);
-    return SizedBox(
-      width: widget.largura,
-      child: FocusableActionDetector(
-        onFocusChange: (focado) {
-          // Só avisa quando ganha o foco; ao sair, o próximo cartão (ou o destaque) assume.
-          if (focado) widget.aoFocar(true);
-        },
-        onShowFocusHighlight: (v) => setState(() => _foco = v),
-        actions: {
-          ActivateIntent: CallbackAction<ActivateIntent>(
-            onInvoke: (_) {
-              widget.aoTocar();
-              return null;
-            },
-          ),
-        },
-        child: GestureDetector(
-          onTap: widget.aoTocar,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AnimatedScale(
-                scale: _foco ? HeisucaBase.focoEscalaTv : 1,
-                duration: Movimento.tempo(context, Movimento.toque),
-                curve: Movimento.entra,
-                child: Container(
-                  width: widget.largura,
-                  height: widget.altura,
-                  clipBehavior: Clip.antiAlias,
-                  decoration: ShapeDecoration(
-                    color: tema.superficie,
-                    shape: Forma.superelipse(
-                      Forma.raioMedio,
-                      lado: _foco ? BorderSide(color: tema.foco, width: Forma.anelDeFoco) : BorderSide.none,
-                    ),
-                  ),
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      OptimizedMediaImage(
-                        client: cgflixClientFor(context, item),
-                        imagePath: cgflixWidePath(item),
-                        width: widget.largura,
-                        height: widget.altura,
-                        imageType: ImageType.thumb,
-                        fit: BoxFit.cover,
-                      ),
-                      if (progresso != null)
-                        Align(
-                          alignment: Alignment.bottomCenter,
-                          child: SizedBox(
-                            height: Forma.espaco2,
-                            child: Stack(
-                              fit: StackFit.expand,
-                              children: [
-                                ColoredBox(color: tema.superficie2),
-                                FractionallySizedBox(
-                                  alignment: Alignment.centerLeft,
-                                  widthFactor: progresso,
-                                  child: ColoredBox(color: tema.acento),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: Forma.espaco3),
-              Text(
-                item.grandparentTitle ?? item.displayTitle,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: tvTexto(Tipo.texto(tema)).copyWith(fontWeight: FontWeight.w600),
-              ),
-              if (legenda != null)
-                Text(legenda, maxLines: 1, overflow: TextOverflow.ellipsis, style: tvTexto(Tipo.pequeno(tema))),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
@@ -974,7 +875,8 @@ class _TvMediaRowState extends State<HeisucaTvMediaRow> {
   }
 }
 
-class _TvPosterCard extends StatefulWidget {
+/// Pôster das fileiras do Início: o [CartaoTv] com a arte do título e uma linha de nome.
+class _TvPosterCard extends StatelessWidget {
   const _TvPosterCard({required this.item, required this.tema, required this.onTap, required this.onFocusChange});
   final MediaItem item;
   final TemaHeisuca tema;
@@ -984,87 +886,25 @@ class _TvPosterCard extends StatefulWidget {
   static const double largura = 180;
   static const double alturaDoPoster = 270;
 
-  static TextStyle estiloDoTitulo(TemaHeisuca tema) => tvTexto(Tipo.pequeno(tema)).copyWith(color: tema.texto);
-
   /// Altura do cartão (pôster + respiro + uma linha de título), medida com a letra que a pessoa escolheu:
   /// a fileira reserva exatamente isso, sem número mágico que estoura quando a letra cresce.
-  static double altura(BuildContext context, TemaHeisuca tema) {
-    final linha = TextPainter(
-      text: TextSpan(text: 'Hg', style: estiloDoTitulo(tema)),
-      textDirection: TextDirection.ltr,
-      textScaler: MediaQuery.textScalerOf(context),
-      maxLines: 1,
-    )..layout();
-    final alturaDaLinha = linha.height;
-    linha.dispose();
-    return alturaDoPoster + Forma.espaco2 + alturaDaLinha;
-  }
+  static double altura(BuildContext context, TemaHeisuca tema) =>
+      alturaDoPoster + CartaoTv.alturaDoTexto(context, tema, comLegenda: false);
 
   @override
-  State<_TvPosterCard> createState() => _TvPosterCardState();
-}
-
-class _TvPosterCardState extends State<_TvPosterCard> {
-  bool _focused = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final item = widget.item;
-    final tema = widget.tema;
-    return SizedBox(
-      width: _TvPosterCard.largura,
-      child: FocusableActionDetector(
-        onFocusChange: widget.onFocusChange,
-        onShowFocusHighlight: (v) => setState(() => _focused = v),
-        actions: {
-          ActivateIntent: CallbackAction<ActivateIntent>(
-            onInvoke: (_) {
-              widget.onTap();
-              return null;
-            },
-          ),
-        },
-        child: GestureDetector(
-          onTap: widget.onTap,
-          child: Column(
-            children: [
-              AnimatedScale(
-                scale: _focused ? HeisucaBase.focoEscalaTv : 1,
-                duration: Movimento.tempo(context, Movimento.toque),
-                curve: Movimento.entra,
-                child: Container(
-                  width: _TvPosterCard.largura,
-                  height: _TvPosterCard.alturaDoPoster,
-                  clipBehavior: Clip.antiAlias,
-                  decoration: ShapeDecoration(
-                    color: tema.superficie,
-                    shape: Forma.superelipse(
-                      Forma.raioMedio,
-                      lado: _focused ? BorderSide(color: tema.foco, width: Forma.anelDeFoco) : BorderSide.none,
-                    ),
-                  ),
-                  child: OptimizedMediaImage(
-                    client: cgflixClientFor(context, item),
-                    imagePath: cgflixPosterPath(item) ?? item.artPath,
-                    width: _TvPosterCard.largura,
-                    height: _TvPosterCard.alturaDoPoster,
-                    imageType: ImageType.poster,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              const SizedBox(height: Forma.espaco2),
-              Text(
-                item.displayTitle,
-                key: ValueKey('tv-poster-title-${item.id}'),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: _TvPosterCard.estiloDoTitulo(tema),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => CartaoTv(
+    largura: largura,
+    alturaDaArte: alturaDoPoster,
+    titulo: item.displayTitle,
+    arte: (context, tamanho) => OptimizedMediaImage(
+      client: cgflixClientFor(context, item),
+      imagePath: cgflixPosterPath(item) ?? item.artPath,
+      width: tamanho.width,
+      height: tamanho.height,
+      imageType: ImageType.poster,
+      fit: BoxFit.cover,
+    ),
+    aoTocar: onTap,
+    aoFocar: onFocusChange,
+  );
 }

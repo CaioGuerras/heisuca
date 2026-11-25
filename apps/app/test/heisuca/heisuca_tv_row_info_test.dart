@@ -75,7 +75,11 @@ void main() {
   });
   testWidgets('título fica sob pôster em uma linha com reticências', (tester) async {
     await mount(tester);
-    final label = find.byKey(const ValueKey('tv-poster-title-a'));
+    // O pôster é o CartaoTv: o nome é o texto embaixo da arte, dentro do 1º cartão da fileira.
+    final label = find.descendant(
+      of: find.byWidgetPredicate((w) => w.runtimeType.toString() == '_TvPosterCard').first,
+      matching: find.text('Um título muito longo que precisa terminar com reticências'),
+    );
     expect(label, findsOneWidget);
     final text = tester.widget<Text>(label);
     expect(text.maxLines, 1);

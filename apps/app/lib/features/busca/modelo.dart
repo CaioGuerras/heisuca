@@ -68,3 +68,33 @@ class PessoaDaBusca {
   final FazArte? foto;
   final VoidCallback? aoTocar;
 }
+
+/// As pílulas que têm o que mostrar, na ordem da tela. Com um tipo só, nenhuma aparece.
+///
+/// Celular e TV usam a mesma regra.
+List<FiltroDaBusca> filtrosDaBusca(List<TituloDaBusca> titulos, List<PessoaDaBusca> pessoas) {
+  final temFilme = titulos.any((t) => t.tipo == TipoDoResultado.filme);
+  final temSerie = titulos.any((t) => t.tipo == TipoDoResultado.serie);
+  final tipos = [
+    if (temFilme) FiltroDaBusca.filmes,
+    if (temSerie) FiltroDaBusca.series,
+    if (pessoas.isNotEmpty) FiltroDaBusca.pessoas,
+  ];
+  final temOutro = titulos.any((t) => t.tipo == TipoDoResultado.outro);
+  if (tipos.length + (temOutro ? 1 : 0) < 2) return const [];
+  return [FiltroDaBusca.todos, ...tipos];
+}
+
+/// Os títulos que a pílula [filtro] mostra.
+List<TituloDaBusca> titulosDoFiltro(List<TituloDaBusca> titulos, FiltroDaBusca filtro) => switch (filtro) {
+  FiltroDaBusca.todos => titulos,
+  FiltroDaBusca.filmes => [
+    for (final t in titulos)
+      if (t.tipo == TipoDoResultado.filme) t,
+  ],
+  FiltroDaBusca.series => [
+    for (final t in titulos)
+      if (t.tipo == TipoDoResultado.serie) t,
+  ],
+  FiltroDaBusca.pessoas => const [],
+};

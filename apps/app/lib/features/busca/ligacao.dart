@@ -10,15 +10,19 @@ import '../../cgflix/search/cgflix_search_extras.dart';
 import '../../cgflix/search/cgflix_search_grouping.dart';
 import '../../design/componentes/botao.dart';
 import '../../exceptions/media_server_exceptions.dart';
+import '../../focus/focusable_text_field.dart';
 import '../../heisuca/heisuca_context_menu.dart';
 import '../../heisuca/heisuca_home_style.dart';
 import '../../heisuca/heisuca_search_origin.dart';
 import '../../heisuca/heisuca_state_store.dart';
+import '../../heisuca/tv/heisuca_tv_pecas.dart';
 import '../../media/media_item.dart';
 import '../../media/media_kind.dart';
 import '../../media/media_person.dart';
 import '../../media/search_hit.dart';
 import '../../mixins/debounced_media_search.dart';
+import '../../mixins/refreshable.dart';
+import '../../navigation/main_screen_scope.dart';
 import '../../providers/download_provider.dart';
 import '../../providers/hidden_libraries_provider.dart';
 import '../../providers/multi_server_provider.dart';
@@ -37,11 +41,15 @@ import '../tema_da_v2.dart';
 import '../titulo/ligacao.dart' show LigacaoDoTitulo;
 import 'modelo.dart';
 import 'tela_busca.dart';
+import 'tela_busca_tv.dart';
 
 /// Liga a tela de Busca da V2 aos servidores: um resultado por título, mesmo com Jellyfin e Plex,
 /// histórico de buscas e o "Pedir" pelo Seerr.
 class LigacaoDaBusca extends StatefulWidget {
-  const LigacaoDaBusca({super.key, this.folgaInferior = 0, this.focoInicial = true});
+  const LigacaoDaBusca({super.key, this.folgaInferior = 0, this.focoInicial = true, this.naTv = false});
+
+  /// Monta a busca no desenho da TV ([TelaBuscaTv]); os dados e as ações são os mesmos do celular.
+  final bool naTv;
 
   /// Espaço no fim da lista (barra flutuante, quando houver).
   final double folgaInferior;
@@ -58,7 +66,8 @@ final class _BuscaIndisponivel implements Exception {
   const _BuscaIndisponivel();
 }
 
-class _LigacaoDaBuscaState extends State<LigacaoDaBusca> with DebouncedMediaSearch<LigacaoDaBusca, SearchHit> {
+class _LigacaoDaBuscaState extends State<LigacaoDaBusca>
+    with DebouncedMediaSearch<LigacaoDaBusca, SearchHit>, SearchInputFocusable, FocusableTab {
   List<TituloDaBusca> _titulos = const [];
   List<PessoaDaBusca> _pessoas = const [];
   List<String> _recentes = const [];
@@ -69,6 +78,12 @@ class _LigacaoDaBuscaState extends State<LigacaoDaBusca> with DebouncedMediaSear
 
   HiddenLibrariesProvider? _ocultas;
   Set<String> _ultimasOcultas = const {};
+
+  /// Teclado da TV: a busca que chega do celular ou de um recente não deixa o teclado aberto.
+  final TvTextInputController _teclado = TvTextInputController();
+
+  /// Na TV, a busca que está para terminar leva o foco ao 1º resultado (Buscar do teclado, recente, celular).
+  String? _focarResultadosDe;
 
   @override
   String get searchDebugLabel => 'BuscaV2';
@@ -114,6 +129,55 @@ class _LigacaoDaBuscaState extends State<LigacaoDaBusca> with DebouncedMediaSear
       text: termo,
       selection: TextSelection.collapsed(offset: termo.length),
     );
+    // Na TV a pílula some quando o resultado chega: o foco espera no campo e depois desce aos resultados.
+    if (widget.naTv) _buscarJaNaTv(termo);
+  }
+
+  // --- TV: foco e teclado ---------------------------------------------------
+
+  /// Roda [termo] agora, com o teclado fechado e o foco no campo até o resultado chegar.
+  void _buscarJaNaTv(String termo) {
+    final query = termo.trim();
+    _teclado.closeTextInput();
+    if (query.isEmpty) return;
+    _teclado.focusInputWithoutOpening();
+    _focarResultadosDe = query;
+    if (query == lastSearchedQuery && !isSearching && !lastSearchFailed && _titulos.isNotEmpty) {
+      _focarResultados(query);
+      return;
+    }
+    cancelPendingSearch();
+    unawaited(runSearch(query));
+  }
+
+  void _focarResultados(String query) {
+    if (_focarResultadosDe != query) return;
+    _focarResultadosDe = null;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (_titulos.isNotEmpty && firstResultFocusNode.context != null) {
+        firstResultFocusNode.requestFocus();
+      } else {
+        _teclado.focusInputWithoutOpening();
+      }
+    });
+  }
+
+  @override
+  void focusSearchInput() {
+    if (widget.naTv) searchFocusNode.requestFocus();
+  }
+
+  @override
+  void submitSearchQuery(String query) {
+    if (!mounted || !widget.naTv) return;
+    searchController.text = query.trim();
+    _buscarJaNaTv(query);
+  }
+
+  @override
+  void focusActiveTabIfReady() {
+    if (widget.naTv) searchFocusNode.requestFocus();
   }
 
   // --- bibliotecas ocultas --------------------------------------------------
@@ -202,6 +266,9 @@ class _LigacaoDaBuscaState extends State<LigacaoDaBusca> with DebouncedMediaSear
       _pessoas = const [];
       _indisponivel = error is _BuscaIndisponivel;
     });
+    // TV: sem resultado para receber o foco, ele fica no campo (o aviso tem o "Tentar novamente" logo abaixo).
+    final query = _focarResultadosDe;
+    if (widget.naTv && query != null) _focarResultados(query);
   }
 
   @override
@@ -232,6 +299,7 @@ class _LigacaoDaBuscaState extends State<LigacaoDaBusca> with DebouncedMediaSear
     });
 
     if (results.isNotEmpty) unawaited(_lembrar(query));
+    if (widget.naTv) _focarResultados(query);
     if (unificado != null && unificado.failedServerIds.isNotEmpty) {
       showAppSnackBar(context, 'Nem todos os servidores responderam. Mostrando o que foi encontrado.');
     }
@@ -289,7 +357,7 @@ class _LigacaoDaBuscaState extends State<LigacaoDaBusca> with DebouncedMediaSear
 
   Future<void> _abrir(MediaItem item) async {
     if (!mounted) return;
-    await LigacaoDoTitulo.abrir(context, item);
+    await LigacaoDoTitulo.abrir(context, item, naTv: widget.naTv);
   }
 
   void _baixar(MediaItem item) {
@@ -337,6 +405,10 @@ class _LigacaoDaBuscaState extends State<LigacaoDaBusca> with DebouncedMediaSear
   void _enviar(String texto) {
     final query = texto.trim();
     if (query.isEmpty) return;
+    if (widget.naTv) {
+      _buscarJaNaTv(query);
+      return;
+    }
     searchFocusNode.unfocus();
     cancelPendingSearch();
     if (query != lastSearchedQuery || lastSearchFailed) unawaited(runSearch(query));
@@ -344,6 +416,7 @@ class _LigacaoDaBuscaState extends State<LigacaoDaBusca> with DebouncedMediaSear
 
   Widget? _aviso() {
     if (isSearching || !hasSearched) return null;
+    if (widget.naTv) return _avisoDaTv();
     if (lastSearchFailed) {
       return Aviso(
         icone: Symbols.cloud_off_rounded,
@@ -362,8 +435,57 @@ class _LigacaoDaBuscaState extends State<LigacaoDaBusca> with DebouncedMediaSear
     return null;
   }
 
+  Widget? _avisoDaTv() {
+    if (lastSearchFailed) {
+      return AvisoTv(
+        icone: Symbols.cloud_off_rounded,
+        titulo: _indisponivel ? 'Nenhum servidor respondeu' : 'Não foi possível buscar',
+        texto: 'Verifique a conexão e tente de novo.',
+        acoes: [
+          BotaoTv(
+            rotulo: 'Tentar novamente',
+            icone: Symbols.refresh_rounded,
+            aoTocar: () => _buscarJaNaTv(lastSearchedQuery),
+          ),
+        ],
+      );
+    }
+    if (_titulos.isEmpty && _pessoas.isEmpty && lastSearchedQuery.isNotEmpty) {
+      return AvisoTv(
+        icone: Symbols.search_off_rounded,
+        titulo: 'Nada encontrado',
+        texto: 'Nenhum título ou pessoa com "$lastSearchedQuery". Confira a grafia.',
+      );
+    }
+    return null;
+  }
+
   @override
-  Widget build(BuildContext context) => SobOTemaDaV2(
+  Widget build(BuildContext context) => widget.naTv ? _naTv(context) : _noCelular(context);
+
+  Widget _naTv(BuildContext context) => TelaBuscaTv(
+    campo: searchController,
+    foco: searchFocusNode,
+    teclado: _teclado,
+    aoEnviar: () => _enviar(searchController.text),
+    aoVoltar: () {
+      if (!MainScreenFocusScope.goHomeOf(context)) unawaited(Navigator.of(context).maybePop());
+    },
+    aoAbrirMenu: MainScreenFocusScope.of(context, listen: false) == null
+        ? null
+        : () => MainScreenFocusScope.focusSidebarOf(context),
+    recentes: _recentes,
+    aoEscolherRecente: _escolherRecente,
+    aoLimparRecentes: _recentes.isEmpty ? null : () => unawaited(_gravarRecentes(const [])),
+    titulos: _titulos,
+    pessoas: _pessoas,
+    primeiroResultado: firstResultFocusNode,
+    buscando: isSearching,
+    buscou: hasSearched,
+    aviso: _aviso(),
+  );
+
+  Widget _noCelular(BuildContext context) => SobOTemaDaV2(
     // Aberta por cima da Início não há Scaffold acima: o campo de texto precisa de um Material.
     child: Material(
       type: MaterialType.transparency,

@@ -1123,7 +1123,14 @@ class _MainScreenState extends State<MainScreen>
             : DiscoverScreen(key: _screenKeys[tab]),
       NavigationTabId.explore => ExploreScreen(key: _screenKeys[tab]),
       NavigationTabId.libraries =>
-        cgflixUseYouTab(context) && !_isOffline
+        PlatformDetector.isTV() && !_isOffline
+            ? LigacaoDoExplorar(
+                key: _screenKeys[tab],
+                naTv: true,
+                bibliotecaInicial: _selectedLibraryGlobalKey,
+                aoEscolherBiblioteca: _handleLibrariesScreenSelected,
+              )
+            : cgflixUseYouTab(context) && !_isOffline
             ? LigacaoDoExplorar(
                 key: _screenKeys[tab],
                 bibliotecaInicial: _selectedLibraryGlobalKey,
@@ -1136,7 +1143,9 @@ class _MainScreenState extends State<MainScreen>
               ),
       NavigationTabId.liveTv => LiveTvScreen(key: _screenKeys[tab]),
       NavigationTabId.search =>
-        cgflixUseYouTab(context)
+        PlatformDetector.isTV()
+            ? LigacaoDaBusca(key: _screenKeys[tab], naTv: true, focoInicial: false)
+            : cgflixUseYouTab(context)
             ? LigacaoDaBusca(key: _screenKeys[tab], folgaInferior: Casca.reserva, focoInicial: false)
             : SearchScreen(key: _screenKeys[tab]),
       NavigationTabId.downloads =>
@@ -2147,7 +2156,8 @@ class _MainScreenState extends State<MainScreen>
                     reservedSideNavigationWidth: reservedContentOffset,
                   );
                   return MainScreenFocusScope(
-                    focusSidebar: _focusSidebar,
+                    // TV não tem barra lateral: o ← na borda abre o trilho (o menu da TV).
+                    focusSidebar: PlatformDetector.isTV() ? _openTvMenu : _focusSidebar,
                     sideNavigationWidth: targetContentOffset,
                     reservedSideNavigationWidth: reservedContentOffset,
                     foregroundLeft: contentLayout.left,

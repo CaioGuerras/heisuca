@@ -417,7 +417,7 @@ class _TituloDaSecao extends StatelessWidget {
 }
 
 /// Fileira horizontal que vai até a borda da tela, começando na margem segura.
-class _FileiraTv extends StatelessWidget {
+class _FileiraTv extends StatefulWidget {
   const _FileiraTv({
     super.key,
     required this.altura,
@@ -438,26 +438,41 @@ class _FileiraTv extends StatelessWidget {
   final int inicial;
 
   @override
+  State<_FileiraTv> createState() => _FileiraTvState();
+}
+
+class _FileiraTvState extends State<_FileiraTv> {
+  // Um controle por fileira, criado uma vez: no build ele nascia de novo a cada reconstrução e nunca era descartado.
+  // Trocar de temporada troca a chave da fileira, e a fileira nova abre no episódio atual dela.
+  late final ScrollController _rolagem = ScrollController(
+    initialScrollOffset: widget.largura == null ? 0 : max(0, widget.inicial) * (widget.largura! + Forma.espaco6),
+  );
+
+  @override
+  void dispose() {
+    _rolagem.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final passo = (largura ?? 0) + Forma.espaco6;
     return SizedBox(
-      height: altura,
+      height: widget.altura,
       child: FocusTraversalGroup(
         child: ListView.separated(
-          controller: ScrollController(initialScrollOffset: largura == null ? 0 : max(0, inicial) * passo),
+          controller: _rolagem,
           scrollDirection: Axis.horizontal,
           clipBehavior: Clip.none,
-          padding: EdgeInsets.symmetric(horizontal: margem.left),
-          itemCount: quantos,
+          padding: EdgeInsets.symmetric(horizontal: widget.margem.left),
+          itemCount: widget.quantos,
           separatorBuilder: (_, _) => const SizedBox(width: Forma.espaco6),
-          itemBuilder: cartao,
+          itemBuilder: widget.cartao,
         ),
       ),
     );
   }
 }
 
-/// Temporadas em pílulas e, abaixo, os episódios da temporada aberta.
 class _Episodios extends StatelessWidget {
   const _Episodios({required this.temporadas, required this.aberta, required this.margem, required this.aoAbrir});
 

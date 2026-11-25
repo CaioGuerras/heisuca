@@ -135,32 +135,9 @@ class _TelaBuscaState extends State<TelaBusca> {
   }
 
   /// As pílulas que têm o que mostrar. Com um tipo só, nenhuma aparece.
-  List<FiltroDaBusca> get _filtros {
-    final temFilme = widget.titulos.any((t) => t.tipo == TipoDoResultado.filme);
-    final temSerie = widget.titulos.any((t) => t.tipo == TipoDoResultado.serie);
-    final temPessoa = widget.pessoas.isNotEmpty;
-    final tipos = [
-      if (temFilme) FiltroDaBusca.filmes,
-      if (temSerie) FiltroDaBusca.series,
-      if (temPessoa) FiltroDaBusca.pessoas,
-    ];
-    final temOutro = widget.titulos.any((t) => t.tipo == TipoDoResultado.outro);
-    if (tipos.length + (temOutro ? 1 : 0) < 2) return const [];
-    return [FiltroDaBusca.todos, ...tipos];
-  }
+  List<FiltroDaBusca> get _filtros => filtrosDaBusca(widget.titulos, widget.pessoas);
 
-  List<TituloDaBusca> get _titulosVisiveis => switch (_filtro) {
-    FiltroDaBusca.todos => widget.titulos,
-    FiltroDaBusca.filmes => [
-      for (final t in widget.titulos)
-        if (t.tipo == TipoDoResultado.filme) t,
-    ],
-    FiltroDaBusca.series => [
-      for (final t in widget.titulos)
-        if (t.tipo == TipoDoResultado.serie) t,
-    ],
-    FiltroDaBusca.pessoas => const [],
-  };
+  List<TituloDaBusca> get _titulosVisiveis => titulosDoFiltro(widget.titulos, _filtro);
 
   bool get _mostraPessoas => _filtro == FiltroDaBusca.todos || _filtro == FiltroDaBusca.pessoas;
 

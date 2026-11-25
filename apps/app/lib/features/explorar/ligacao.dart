@@ -11,6 +11,7 @@ import '../../design/componentes/botao.dart';
 import '../../heisuca/heisuca_context_menu.dart';
 import '../../heisuca/heisuca_home_style.dart';
 import '../../heisuca/heisuca_source_scope.dart';
+import '../../heisuca/tv/heisuca_tv_pecas.dart';
 import '../../media/library_query.dart';
 import '../../media/media_filter.dart';
 import '../../media/media_item.dart';
@@ -18,6 +19,7 @@ import '../../media/media_kind.dart';
 import '../../media/media_library.dart';
 import '../../media/media_server_client.dart';
 import '../../mixins/refreshable.dart';
+import '../../navigation/main_screen_scope.dart';
 import '../../providers/download_provider.dart';
 import '../../providers/hidden_libraries_provider.dart';
 import '../../providers/multi_server_provider.dart';
@@ -31,6 +33,7 @@ import '../tema_da_v2.dart';
 import '../titulo/ligacao.dart' show LigacaoDoTitulo;
 import 'modelo.dart';
 import 'tela_explorar.dart';
+import 'tela_explorar_tv.dart';
 
 /// O nome do campo sem o tipo na frente: o Plex manda `show.genre` quando o campo é de outro tipo.
 @visibleForTesting
@@ -73,7 +76,10 @@ class _Fonte {
 
 /// Liga a [TelaExplorar] ao acervo: bibliotecas da fonte ativa, páginas, gêneros, ordem e "não vistos".
 class LigacaoDoExplorar extends StatefulWidget {
-  const LigacaoDoExplorar({super.key, this.bibliotecaInicial, this.aoEscolherBiblioteca});
+  const LigacaoDoExplorar({super.key, this.bibliotecaInicial, this.aoEscolherBiblioteca, this.naTv = false});
+
+  /// Monta a biblioteca no desenho da TV ([TelaExplorarTv]); os dados e as ações são os mesmos do celular.
+  final bool naTv;
 
   /// Chave global da biblioteca que abre primeiro; sem ela, a primeira da fonte.
   final String? bibliotecaInicial;
@@ -86,8 +92,14 @@ class LigacaoDoExplorar extends StatefulWidget {
   State<LigacaoDoExplorar> createState() => _LigacaoDoExplorarState();
 }
 
-class _LigacaoDoExplorarState extends State<LigacaoDoExplorar> with Refreshable, LibraryLoadable {
+class _LigacaoDoExplorarState extends State<LigacaoDoExplorar> with Refreshable, LibraryLoadable, FocusableTab {
   final _rolagem = ScrollController();
+
+  /// TV: o 1º pôster, que recebe o foco quando a biblioteca abre pelo trilho.
+  final FocusNode _primeiroCartao = FocusNode(debugLabel: 'ExplorarTv.primeiro');
+
+  /// TV: o foco foi pedido antes de os títulos chegarem; vai para o 1º pôster quando a página chegar.
+  bool _focarAoChegar = false;
   late final MultiServerProvider _servidores = context.read<MultiServerProvider>();
 
   List<_Fonte> _fontes = const [];
@@ -131,7 +143,23 @@ class _LigacaoDoExplorarState extends State<LigacaoDoExplorar> with Refreshable,
   void dispose() {
     _servidores.removeListener(_servidoresMudaram);
     _rolagem.dispose();
+    _primeiroCartao.dispose();
     super.dispose();
+  }
+
+  @override
+  void focusActiveTabIfReady() {
+    if (!widget.naTv) return;
+    _focarAoChegar = true;
+    if (!_carregando && _cartoes.isNotEmpty) _focarPrimeiro();
+  }
+
+  void _focarPrimeiro() {
+    if (!_focarAoChegar) return;
+    _focarAoChegar = false;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _primeiroCartao.context != null) _primeiroCartao.requestFocus();
+    });
   }
 
   @override
@@ -378,6 +406,7 @@ class _LigacaoDoExplorarState extends State<LigacaoDoExplorar> with Refreshable,
         _carregando = false;
         _mais = false;
       });
+      if (widget.naTv && _cartoes.isNotEmpty) _focarPrimeiro();
     } catch (_) {
       if (!mounted || geracao != _geracao) return;
       setState(() {
@@ -392,7 +421,7 @@ class _LigacaoDoExplorarState extends State<LigacaoDoExplorar> with Refreshable,
   // As folhas abrem com o contexto desta ligação, acima do tema da V2: seguem com o tema atual do app.
 
   void _abrir(MediaItem item) {
-    if (mounted) unawaited(LigacaoDoTitulo.abrir(context, item));
+    if (mounted) unawaited(LigacaoDoTitulo.abrir(context, item, naTv: widget.naTv));
   }
 
   void _assistir(MediaItem item) {
@@ -446,7 +475,50 @@ class _LigacaoDoExplorarState extends State<LigacaoDoExplorar> with Refreshable,
 
   // --- Tela ----------------------------------------------------------------------
 
+  /// Os avisos da TV: os mesmos casos, com [BotaoTv] (o botão pega o foco se nada mais tiver).
+  Widget? _avisoDaTv(bool foraDoAr) {
+    AvisoTv falha(String titulo, String texto, VoidCallback tentar) => AvisoTv(
+      icone: Symbols.cloud_off_rounded,
+      titulo: titulo,
+      texto: texto,
+      acoes: [BotaoTv(rotulo: 'Tentar novamente', icone: Symbols.refresh_rounded, autofocus: true, aoTocar: tentar)],
+    );
+    if (foraDoAr) {
+      return falha(
+        'Esta fonte está indisponível',
+        'Tente reconectar em instantes.',
+        () => unawaited(_servidores.serverManager.reconnectOfflineServers(forceRediscovery: true)),
+      );
+    }
+    if (_falhouNasBibliotecas) {
+      return falha(
+        'Não foi possível carregar as bibliotecas',
+        'Verifique a conexão e tente de novo.',
+        () => unawaited(_carregarFontes()),
+      );
+    }
+    if (_falhouNosTitulos && _itens.isEmpty) {
+      return falha(
+        'Não foi possível carregar os títulos',
+        'Verifique a conexão e tente de novo.',
+        () => unawaited(_atualizar()),
+      );
+    }
+    if (!_carregando && _fontes.isEmpty) {
+      return const AvisoTv(icone: Symbols.video_library_rounded, titulo: 'Nenhuma biblioteca nesta fonte');
+    }
+    if (!_carregando && !_mais && _itens.isEmpty && _atual != null) {
+      final filtrado = _genero != null || _soNaoVistos;
+      return AvisoTv(
+        icone: filtrado ? Symbols.filter_alt_off_rounded : Symbols.video_library_rounded,
+        titulo: filtrado ? 'Nenhum título com estes filtros' : 'Nenhum título nesta biblioteca',
+      );
+    }
+    return null;
+  }
+
   Widget? _aviso(bool foraDoAr) {
+    if (widget.naTv) return _avisoDaTv(foraDoAr);
     if (foraDoAr) {
       return Aviso(
         icone: Symbols.cloud_off_rounded,
@@ -492,6 +564,34 @@ class _LigacaoDoExplorarState extends State<LigacaoDoExplorar> with Refreshable,
   Widget build(BuildContext context) {
     final gerente = _servidores.serverManager;
     final foraDoAr = gerente.navigationServerId != null && gerente.navigationOnlineClients.isEmpty;
+    if (widget.naTv) {
+      return TelaExplorarTv(
+        bibliotecas: foraDoAr ? const [] : _bibliotecas,
+        bibliotecaAtual: _atual?.chave,
+        aoEscolherBiblioteca: (chave) {
+          final fonte = _fontes.where((fonte) => fonte.chave == chave).firstOrNull;
+          if (fonte != null) _escolher(fonte);
+        },
+        generos: _generos,
+        generoAtual: _genero,
+        aoEscolherGenero: _escolherGenero,
+        soNaoVistos: _filtroDeNaoVistos == null ? null : _soNaoVistos,
+        aoMudarSoNaoVistos: _mudarSoNaoVistos,
+        ordem: _ordem,
+        aoOrdenar: _ordenar,
+        itens: foraDoAr ? const [] : _cartoes,
+        carregando: !foraDoAr && _carregando,
+        carregandoMais: _mais && _itens.isNotEmpty,
+        aoChegarPertoDoFim: _pertoDoFim,
+        aoTentarMais: _falhouNosTitulos && _itens.isNotEmpty ? _tentarMais : null,
+        aviso: _aviso(foraDoAr),
+        aoAbrirMenu: MainScreenFocusScope.of(context, listen: false) == null
+            ? null
+            : () => MainScreenFocusScope.focusSidebarOf(context),
+        primeiroCartao: _primeiroCartao,
+        controle: _rolagem,
+      );
+    }
     final favoritos = CgflixFavoritesSource.of(context);
     return SobOTemaDaV2(
       child: TelaExplorar(

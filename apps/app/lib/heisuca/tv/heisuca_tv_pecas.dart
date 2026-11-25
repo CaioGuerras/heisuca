@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../design/forma.dart';
 import '../../design/movimento.dart';
@@ -16,6 +17,21 @@ import '../theme/heisuca_base.dart';
 
 /// Texto da TV: a escala do celular vista a 3 m. Nada abaixo de 24 na tela de referência de 1920.
 TextStyle tvTexto(TextStyle estilo) => estilo.copyWith(fontSize: max(24, (estilo.fontSize ?? 16) * 1.5));
+
+/// Altura de uma linha de [estilo] como o [Text] a desenha (escala da letra e comportamento de altura do
+/// [DefaultTextStyle]). A conta `fontSize × height` não vê o arredondamento da linha.
+double medirLinhaTv(BuildContext context, TextStyle estilo) {
+  final pintor = TextPainter(
+    text: TextSpan(text: 'Ág', style: estilo),
+    textDirection: TextDirection.ltr,
+    textScaler: MediaQuery.textScalerOf(context),
+    textHeightBehavior: DefaultTextStyle.of(context).textHeightBehavior,
+    maxLines: 1,
+  )..layout();
+  final altura = pintor.height;
+  pintor.dispose();
+  return altura;
+}
 
 /// Botão em pílula da TV: neutro, o principal em destaque; foco = anel + escala.
 ///
@@ -49,6 +65,15 @@ class BotaoTv extends StatefulWidget {
   final bool selecionado;
   final bool compacto;
   final bool autofocus;
+
+  /// Altura do botão [compacto] (sem ícone maior que a letra), para quem monta uma fileira de pílulas que rola:
+  /// o mínimo de toque ou a linha do texto com a letra do aparelho, o que for maior.
+  static double alturaCompacta(BuildContext context, TemaHeisuca tema) => max(
+    _alturaMinimaCompacta,
+    medirLinhaTv(context, tvTexto(Tipo.texto(tema)).copyWith(fontWeight: FontWeight.w600)),
+  );
+
+  static const double _alturaMinimaCompacta = Forma.toqueMinimo + Forma.espaco2;
 
   @override
   State<BotaoTv> createState() => _BotaoTvState();
@@ -95,7 +120,7 @@ class _BotaoTvState extends State<BotaoTv> {
               duration: Movimento.tempo(context, Movimento.toque),
               curve: Movimento.entra,
               constraints: widget.compacto
-                  ? const BoxConstraints(minHeight: Forma.toqueMinimo + Forma.espaco2)
+                  ? const BoxConstraints(minHeight: BotaoTv._alturaMinimaCompacta)
                   : const BoxConstraints(minHeight: 72, minWidth: 200),
               padding: EdgeInsets.symmetric(horizontal: widget.compacto ? Forma.espaco6 : HeisucaBase.espaco8),
               decoration: ShapeDecoration(
@@ -157,6 +182,7 @@ class CartaoTv extends StatefulWidget {
     this.aoTocar,
     this.aoFocar,
     this.autofocus = false,
+    this.focusNode,
   });
 
   final double largura;
@@ -175,29 +201,17 @@ class CartaoTv extends StatefulWidget {
   final ValueChanged<bool>? aoFocar;
   final bool autofocus;
 
+  /// Nó de foco de quem precisa mandar o foco para este cartão (o 1º resultado da busca).
+  final FocusNode? focusNode;
+
   /// Altura das linhas de texto abaixo da arte, para quem monta a fileira reservar o espaço certo.
   ///
   /// Mede cada linha com o mesmo motor de texto que o [Text] usa (estilo, escala da letra e comportamento de altura
   /// do [DefaultTextStyle]): a conta `fontSize × height` não vê o arredondamento da linha e deixava a fileira curta.
-  static double alturaDoTexto(BuildContext context, TemaHeisuca tema, {bool comLegenda = true}) {
-    final escala = MediaQuery.textScalerOf(context);
-    final comportamento = DefaultTextStyle.of(context).textHeightBehavior;
-    double linha(TextStyle estilo) {
-      final pintor = TextPainter(
-        text: TextSpan(text: 'Ág', style: estilo),
-        textDirection: TextDirection.ltr,
-        textScaler: escala,
-        textHeightBehavior: comportamento,
-        maxLines: 1,
-      )..layout();
-      final altura = pintor.height;
-      pintor.dispose();
-      return altura;
-    }
-
-    final titulo = linha(_estiloDoTitulo(tema));
-    return Forma.espaco3 + titulo + (comLegenda ? linha(_estiloDaLegenda(tema)) : 0);
-  }
+  static double alturaDoTexto(BuildContext context, TemaHeisuca tema, {bool comLegenda = true}) =>
+      Forma.espaco3 +
+      medirLinhaTv(context, _estiloDoTitulo(tema)) +
+      (comLegenda ? medirLinhaTv(context, _estiloDaLegenda(tema)) : 0);
 
   static TextStyle _estiloDoTitulo(TemaHeisuca tema) =>
       tvTexto(Tipo.texto(tema)).copyWith(color: tema.texto, fontWeight: FontWeight.w600);
@@ -228,6 +242,7 @@ class _CartaoTvState extends State<CartaoTv> {
         label: [widget.titulo, ?legenda].join(', '),
         excludeSemantics: true,
         child: FocusableActionDetector(
+          focusNode: widget.focusNode,
           autofocus: widget.autofocus,
           onFocusChange: (focado) => widget.aoFocar?.call(focado),
           onShowFocusHighlight: (v) => setState(() => _foco = v),
@@ -316,4 +331,78 @@ class _CartaoTvState extends State<CartaoTv> {
       ),
     );
   }
+}
+
+/// Aviso de tela inteira da TV (nada achado, servidor fora do ar): ícone, título, texto e as ações em [BotaoTv].
+class AvisoTv extends StatelessWidget {
+  const AvisoTv({super.key, required this.icone, required this.titulo, this.texto, this.acoes = const []});
+
+  final IconData icone;
+  final String titulo;
+  final String? texto;
+  final List<Widget> acoes;
+
+  /// Largura máxima do texto na tela de referência de 1920.
+  static const double larguraMaxima = 960;
+
+  @override
+  Widget build(BuildContext context) {
+    final tema = TemaHeisuca.de(context);
+    final texto = this.texto;
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: larguraMaxima),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icone, size: 72, color: tema.texto2),
+            const SizedBox(height: Forma.espaco4),
+            Text(
+              titulo,
+              textAlign: TextAlign.center,
+              style: tvTexto(Tipo.subtitulo(tema)).copyWith(color: tema.texto),
+            ),
+            if (texto != null) ...[
+              const SizedBox(height: Forma.espaco2),
+              Text(
+                texto,
+                textAlign: TextAlign.center,
+                style: tvTexto(Tipo.texto(tema)).copyWith(color: tema.texto2),
+              ),
+            ],
+            if (acoes.isNotEmpty) ...[
+              const SizedBox(height: Forma.espaco6),
+              Wrap(spacing: Forma.espaco4, runSpacing: Forma.espaco4, alignment: WrapAlignment.center, children: acoes),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// ← na borda esquerda abre o trilho: se não há nada à esquerda do foco, chama [aoAbrirMenu] (como no Início e no
+/// app de Windows). O campo de texto só deixa o ← passar com o cursor no começo.
+class BordaDoMenuTv extends StatelessWidget {
+  const BordaDoMenuTv({super.key, required this.aoAbrirMenu, required this.child});
+
+  final VoidCallback? aoAbrirMenu;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Focus(
+    canRequestFocus: false,
+    skipTraversal: true,
+    onKeyEvent: (_, evento) {
+      final abrir = aoAbrirMenu;
+      if (abrir == null || evento is! KeyDownEvent || evento.logicalKey != LogicalKeyboardKey.arrowLeft) {
+        return KeyEventResult.ignored;
+      }
+      final foco = FocusManager.instance.primaryFocus;
+      if (foco == null) return KeyEventResult.ignored;
+      if (!foco.focusInDirection(TraversalDirection.left)) abrir();
+      return KeyEventResult.handled;
+    },
+    child: child,
+  );
 }

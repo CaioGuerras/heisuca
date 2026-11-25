@@ -424,6 +424,10 @@ class _Fundo extends StatelessWidget {
               duration: Movimento.tempo(context, Movimento.troca),
               switchInCurve: Movimento.entra,
               switchOutCurve: Movimento.sai,
+              // O Stack padrão do AnimatedSwitcher é solto: a arte carregada ficava no tamanho da imagem, num
+              // retângulo no meio da tela. Expandido, ela sangra até as bordas, como na ficha do título.
+              layoutBuilder: (atual, anteriores) =>
+                  Stack(fit: StackFit.expand, children: [...anteriores, if (atual != null) atual]),
               child: item == null || caminho == null
                   ? const SizedBox.expand(key: ValueKey('sem-arte'))
                   : OptimizedMediaImage(

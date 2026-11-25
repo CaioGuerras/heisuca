@@ -214,6 +214,36 @@ void main() {
       expect(find.byKey(const Key('heisuca-tv-continue-row')), findsOneWidget);
     });
 
+    testWidgets('G1.2d Arte do destaque sangra até as bordas da tela (sem retângulo no meio)', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1920, 1080));
+      addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
+      final comArte = MediaItem.jellyfin(
+        id: 'destaque-arte',
+        serverId: 'srv-1',
+        title: 'Togo',
+        kind: MediaKind.movie,
+        artPath: '/Items/destaque-arte/Images/Backdrop',
+      );
+      await tester.pumpWidget(
+        fixture.wrap(
+          MaterialApp(
+            home: Scaffold(body: HeisucaTvHomeScreen(heroItem: comArte)),
+          ),
+        ),
+      );
+      await tester.pump(const Duration(seconds: 1));
+
+      final arte = find.byWidgetPredicate(
+        (w) => w.key is ValueKey<String> && '${(w.key! as ValueKey<String>).value}'.startsWith('arte:'),
+      );
+      expect(arte, findsOneWidget);
+      // O AnimatedSwitcher solto deixava a imagem carregada no tamanho dela, centrada (1280×720 numa tela de
+      // 1920×1080). Sem rede no teste a imagem não carrega: conferir as restrições, que têm de ser justas.
+      expect(tester.getRect(arte), const Rect.fromLTWH(0, 0, 1920, 1080));
+      final restricoes = tester.renderObject<RenderBox>(arte).constraints;
+      expect(restricoes, BoxConstraints.tight(const Size(1920, 1080)));
+    });
+
     testWidgets('G1.2b Início Modelo A cabe na TV 1080p real (960×540 dp, densidade 2)', (tester) async {
       // O Google TV trabalha em 960×540 dp: sem a tela de referência (HeisucaTvCanvas) o destaque
       // de 1080 de altura passava da tela e Assistir/Detalhes ficavam fora dela (bancada de 30/10).

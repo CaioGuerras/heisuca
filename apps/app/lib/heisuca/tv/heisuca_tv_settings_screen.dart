@@ -6,7 +6,6 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 
 import '../../cgflix/cgflix_theme_picker.dart';
-import '../../design/componentes/botao.dart';
 import '../../design/componentes/toque.dart';
 import '../../design/forma.dart';
 import '../../design/movimento.dart';
@@ -25,6 +24,7 @@ import '../../services/updates/update_controller.dart';
 import '../theme/heisuca_base.dart';
 import 'heisuca_tv_area_segura.dart';
 import 'heisuca_tv_canvas.dart';
+import 'heisuca_tv_pecas.dart';
 
 /// Ajustes oficiais do Heisuca na TV, no desenho dos ajustes do Apple TV e do app de Windows: título grande e
 /// uma coluna central de linhas da mesma altura, com o nome à esquerda e o valor atual à direita.
@@ -118,12 +118,8 @@ class _HeisucaTvSettingsScreenState extends State<HeisucaTvSettingsScreen> {
   void _abrir(Widget tela) => unawaited(Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => tela)));
 
   Future<void> _sair() async {
-    // O diálogo fica fora da tela de referência: os botões da V2 têm o tamanho certo em dp.
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => const SobOTemaDaV2(child: _ConfirmarSaida()),
-    );
-    if (confirmed == true && mounted) unawaited(SystemNavigator.pop());
+    final confirmed = await ConfirmarSaidaTv.mostrar(context);
+    if (confirmed && mounted) unawaited(SystemNavigator.pop());
   }
 
   @override
@@ -342,52 +338,6 @@ class _LinhaDeAjusteState extends State<_LinhaDeAjuste> {
                   child: Icon(Symbols.chevron_right_rounded, size: HeisucaBase.tamanhoTitulo, color: tinta2),
                 ),
               ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Confirmação do "Sair", nos componentes da V2. O foco começa em Cancelar: o OK sem querer não fecha o app.
-class _ConfirmarSaida extends StatelessWidget {
-  const _ConfirmarSaida();
-
-  @override
-  Widget build(BuildContext context) {
-    final tema = TemaHeisuca.de(context);
-    return Dialog(
-      backgroundColor: tema.superficie,
-      shape: Forma.superelipse(Forma.raioGrande, lado: BorderSide(color: tema.borda)),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: HeisucaTvSettingsScreen.largura / 2),
-        child: Padding(
-          padding: const EdgeInsets.all(Forma.espaco6),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Semantics(header: true, child: Text('Sair do Heisuca?', style: Tipo.subtitulo(tema))),
-              const SizedBox(height: Forma.espaco2),
-              Text('O app fecha. Sua conta continua conectada.', style: Tipo.texto(tema).copyWith(color: tema.texto2)),
-              const SizedBox(height: Forma.espaco6),
-              FocusTraversalGroup(
-                child: Wrap(
-                  alignment: WrapAlignment.end,
-                  spacing: Forma.espaco3,
-                  runSpacing: Forma.espaco3,
-                  children: [
-                    Botao(
-                      rotulo: 'Cancelar',
-                      tipo: TipoDeBotao.secundario,
-                      focoInicial: true,
-                      aoTocar: () => Navigator.of(context).pop(false),
-                    ),
-                    Botao(rotulo: 'Sair', aoTocar: () => Navigator.of(context).pop(true)),
-                  ],
-                ),
-              ),
             ],
           ),
         ),

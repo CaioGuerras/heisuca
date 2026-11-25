@@ -534,8 +534,14 @@ def abrir_destino_tv(destino, rec=None):
         tocar_avatar_tv()
         if not menu_tv_aberto(dump_tv()):
             return False, False
-    for _ in range(ITENS_MENU_TV.index(destino)):
+    # Trilho (25/11): além dos destinos há Modo infantil, Retrospectiva e Trocar perfil antes de Ajustes, e a lista
+    # muda com a conta. Desce até o item com foco ter o rótulo do destino, em vez de contar teclas.
+    for _ in range(14):
+        if (inspecionar_foco(dump_tv()).get('texto') or '').strip().lower() == destino.lower():
+            break
         dpad_down(espera=0.5)
+    else:
+        rec(f'{destino}: o foco não chegou ao item no menu; {resumo_foco_tv(dump_tv())}')
     dpad_center(espera=2.5)
     return por_dpad, True
 

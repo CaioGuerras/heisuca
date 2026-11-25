@@ -1,7 +1,7 @@
-import '../../cgflix/cgflix_palette.dart';
 import 'package:flutter/material.dart';
 
 import '../../utils/platform_detector.dart';
+import 'heisuca_tv_pecas.dart';
 
 /// Gerenciador de navegação de "Voltar" exclusivo para TV.
 /// Regras:
@@ -47,42 +47,6 @@ class HeisucaTvBackHandler {
     }
   }
 
-  /// Exibe diálogo leve de confirmação de saída para Fire TV
-  static Future<bool> showExitConfirmationDialog(BuildContext context) async {
-    final result = await showDialog<bool>(
-      context: context,
-      barrierColor: const Color(0x99000000),
-      builder: (ctx) => AlertDialog(
-        backgroundColor: context.cgflix.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text(
-          'Deseja sair do Heisuca?',
-          style: TextStyle(color: context.cgflix.text, fontSize: 28, fontWeight: FontWeight.w700),
-        ),
-        actionsPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(
-              'Cancelar',
-              style: TextStyle(color: context.cgflix.textMuted, fontSize: 22, fontWeight: FontWeight.w600),
-            ),
-          ),
-          const SizedBox(width: 12),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: context.cgflix.text,
-              foregroundColor: context.cgflix.background,
-              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            ),
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Sair', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
-          ),
-        ],
-      ),
-    );
-
-    return result ?? false;
-  }
+  /// Confirmação curta de saída da Fire TV: o mesmo diálogo do "Sair" dos Ajustes (foco em Cancelar).
+  static Future<bool> showExitConfirmationDialog(BuildContext context) => ConfirmarSaidaTv.mostrar(context);
 }

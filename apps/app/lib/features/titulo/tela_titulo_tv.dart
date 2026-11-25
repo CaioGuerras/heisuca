@@ -690,58 +690,60 @@ class _CartaoDeInfoState extends State<_CartaoDeInfo> {
     final estilo = tvTexto(Tipo.pequeno(tema));
     return Semantics(
       label: [grupo.titulo, for (final (nome, valor) in grupo.linhas) '$nome: $valor'].join(', '),
-      excludeSemantics: true,
+      container: true,
       child: FocusableActionDetector(
         onShowFocusHighlight: (v) => setState(() => _foco = v),
-        child: AnimatedContainer(
-          duration: Movimento.tempo(context, Movimento.toque),
-          curve: Movimento.entra,
-          width: 520,
-          padding: const EdgeInsets.all(Forma.espaco6),
-          decoration: ShapeDecoration(
-            color: tema.superficie,
-            shape: Forma.superelipse(
-              Forma.raioGrande,
-              lado: _foco ? BorderSide(color: tema.foco, width: Forma.anelDeFoco) : BorderSide.none,
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  if (icone != null) ...[
-                    Icon(icone, size: 32, color: tema.texto2),
-                    const SizedBox(width: Forma.espaco3),
-                  ],
-                  Expanded(
-                    child: Text(
-                      grupo.titulo,
-                      style: tvTexto(Tipo.texto(tema)).copyWith(color: tema.texto, fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ],
+        child: ExcludeSemantics(
+          child: AnimatedContainer(
+            duration: Movimento.tempo(context, Movimento.toque),
+            curve: Movimento.entra,
+            width: 520,
+            padding: const EdgeInsets.all(Forma.espaco6),
+            decoration: ShapeDecoration(
+              color: tema.superficie,
+              shape: Forma.superelipse(
+                Forma.raioGrande,
+                lado: _foco ? BorderSide(color: tema.foco, width: Forma.anelDeFoco) : BorderSide.none,
               ),
-              const SizedBox(height: Forma.espaco3),
-              for (final (nome, valor) in grupo.linhas)
-                Padding(
-                  padding: const EdgeInsets.only(top: Forma.espaco1),
-                  child: Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: '$nome  ',
-                          style: estilo.copyWith(color: tema.texto2),
-                        ),
-                        TextSpan(
-                          text: valor,
-                          style: estilo.copyWith(color: tema.texto),
-                        ),
-                      ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    if (icone != null) ...[
+                      Icon(icone, size: 32, color: tema.texto2),
+                      const SizedBox(width: Forma.espaco3),
+                    ],
+                    Expanded(
+                      child: Text(
+                        grupo.titulo,
+                        style: tvTexto(Tipo.texto(tema)).copyWith(color: tema.texto, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: Forma.espaco3),
+                for (final (nome, valor) in grupo.linhas)
+                  Padding(
+                    padding: const EdgeInsets.only(top: Forma.espaco1),
+                    child: Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: '$nome  ',
+                            style: estilo.copyWith(color: tema.texto2),
+                          ),
+                          TextSpan(
+                            text: valor,
+                            style: estilo.copyWith(color: tema.texto),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

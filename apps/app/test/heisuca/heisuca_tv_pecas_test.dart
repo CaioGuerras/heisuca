@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -76,5 +78,69 @@ void main() {
     await tester.sendKeyEvent(LogicalKeyboardKey.select);
     expect(cartao, 1);
     expect(botao, 1);
+  });
+
+  testWidgets('Sair (Ajustes e Voltar da Fire TV): o foco nasce em Cancelar; só "Sair" confirma', (tester) async {
+    late BuildContext contexto;
+    await tester.pumpWidget(
+      montar(
+        Builder(
+          builder: (context) {
+            contexto = context;
+            return const SizedBox.expand();
+          },
+        ),
+      ),
+    );
+    bool? resposta;
+    unawaited(ConfirmarSaidaTv.mostrar(contexto).then((v) => resposta = v));
+    await tester.pumpAndSettle();
+    expect(find.text('Sair do Heisuca?'), findsOneWidget);
+    // OK sem querer: cai no Cancelar e o app não fecha.
+    await tester.sendKeyEvent(LogicalKeyboardKey.select);
+    await tester.pumpAndSettle();
+    expect(resposta, isFalse);
+
+    unawaited(ConfirmarSaidaTv.mostrar(contexto).then((v) => resposta = v));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Sair'));
+    await tester.pumpAndSettle();
+    expect(resposta, isTrue);
+  });
+
+  // Bancada da TV (25/11): "foco invisível" em todas as telas. O Semantics(excludeSemantics) por fora do detector de
+  // foco apagava a marca "focado" e a ação de toque: o TalkBack e a bancada não sabiam onde estava o foco.
+  testWidgets('Acessibilidade vê o foco e o toque do botão e do cartão', (tester) async {
+    final semantica = tester.ensureSemantics();
+    var tocou = 0;
+    final noBotao = FocusNode();
+    final noCartao = FocusNode();
+    addTearDown(noBotao.dispose);
+    addTearDown(noCartao.dispose);
+    await tester.pumpWidget(
+      montar(
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            BotaoTv(rotulo: 'Assistir', focusNode: noBotao, aoTocar: () => tocou++),
+            CartaoTv(largura: 200, alturaDaArte: 300, titulo: 'Frieren', focusNode: noCartao, aoTocar: () => tocou++),
+          ],
+        ),
+      ),
+    );
+    noBotao.requestFocus();
+    await tester.pump();
+    expect(
+      tester.getSemantics(find.byType(BotaoTv)),
+      containsSemantics(label: 'Assistir', isButton: true, isFocusable: true, isFocused: true, hasTapAction: true),
+    );
+    noCartao.requestFocus();
+    await tester.pump();
+    await tester.pump();
+    expect(
+      tester.getSemantics(find.bySemanticsLabel('Frieren')),
+      containsSemantics(label: 'Frieren', isButton: true, isFocusable: true, isFocused: true, hasTapAction: true),
+    );
+    semantica.dispose();
   });
 }

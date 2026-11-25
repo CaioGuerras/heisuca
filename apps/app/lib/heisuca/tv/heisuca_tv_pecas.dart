@@ -3,11 +3,13 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../design/componentes/botao.dart';
 import '../../design/forma.dart';
 import '../../design/movimento.dart';
 import '../../design/tema.dart';
 import '../../design/tipo.dart';
 import '../../features/inicio/modelo.dart' show FazArte;
+import '../../features/tema_da_v2.dart';
 import '../theme/heisuca_base.dart';
 
 /// Peças da TV usadas pelo Início e pela ficha do título: o mesmo botão, o mesmo cartão e a mesma escala de texto.
@@ -94,7 +96,8 @@ class _BotaoTvState extends State<BotaoTv> {
       enabled: ativo,
       selected: widget.selecionado,
       label: widget.rotulo,
-      excludeSemantics: true,
+      container: true,
+      onTap: ativo ? widget.aoTocar : null,
       child: FocusableActionDetector(
         focusNode: widget.focusNode,
         autofocus: widget.autofocus,
@@ -110,49 +113,51 @@ class _BotaoTvState extends State<BotaoTv> {
             },
           ),
         },
-        child: GestureDetector(
-          onTap: widget.aoTocar,
-          child: AnimatedScale(
-            scale: _foco ? HeisucaBase.focoEscalaTv : 1,
-            duration: Movimento.tempo(context, Movimento.toque),
-            curve: Movimento.entra,
-            child: AnimatedContainer(
+        child: ExcludeSemantics(
+          child: GestureDetector(
+            onTap: widget.aoTocar,
+            child: AnimatedScale(
+              scale: _foco ? HeisucaBase.focoEscalaTv : 1,
               duration: Movimento.tempo(context, Movimento.toque),
               curve: Movimento.entra,
-              constraints: widget.compacto
-                  ? const BoxConstraints(minHeight: BotaoTv._alturaMinimaCompacta)
-                  : const BoxConstraints(minHeight: 72, minWidth: 200),
-              padding: EdgeInsets.symmetric(horizontal: widget.compacto ? Forma.espaco6 : HeisucaBase.espaco8),
-              decoration: ShapeDecoration(
-                shape: Forma.pilula(
-                  lado: _foco ? BorderSide(color: tema.foco, width: Forma.anelDeFoco) : BorderSide.none,
+              child: AnimatedContainer(
+                duration: Movimento.tempo(context, Movimento.toque),
+                curve: Movimento.entra,
+                constraints: widget.compacto
+                    ? const BoxConstraints(minHeight: BotaoTv._alturaMinimaCompacta)
+                    : const BoxConstraints(minHeight: 72, minWidth: 200),
+                padding: EdgeInsets.symmetric(horizontal: widget.compacto ? Forma.espaco6 : HeisucaBase.espaco8),
+                decoration: ShapeDecoration(
+                  shape: Forma.pilula(
+                    lado: _foco ? BorderSide(color: tema.foco, width: Forma.anelDeFoco) : BorderSide.none,
+                  ),
+                  color: widget.principal ? tema.botaoFundo : tema.superficie2,
                 ),
-                color: widget.principal ? tema.botaoFundo : tema.superficie2,
-              ),
-              child: AnimatedOpacity(
-                opacity: ativo ? 1 : 0.5,
-                duration: Movimento.tempo(context, Movimento.troca),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (icone != null) ...[
-                      Icon(
-                        icone,
-                        size: widget.compacto ? 28 : 36,
-                        fill: widget.selecionado ? 1 : 0,
-                        color: widget.selecionado && !widget.principal ? tema.acento : tinta,
+                child: AnimatedOpacity(
+                  opacity: ativo ? 1 : 0.5,
+                  duration: Movimento.tempo(context, Movimento.troca),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (icone != null) ...[
+                        Icon(
+                          icone,
+                          size: widget.compacto ? 28 : 36,
+                          fill: widget.selecionado ? 1 : 0,
+                          color: widget.selecionado && !widget.principal ? tema.acento : tinta,
+                        ),
+                        const SizedBox(width: Forma.espaco3),
+                      ],
+                      Text(
+                        widget.rotulo,
+                        style: estilo.copyWith(
+                          color: tinta,
+                          fontWeight: widget.selecionado || !widget.compacto ? FontWeight.w600 : FontWeight.w500,
+                        ),
                       ),
-                      const SizedBox(width: Forma.espaco3),
                     ],
-                    Text(
-                      widget.rotulo,
-                      style: estilo.copyWith(
-                        color: tinta,
-                        fontWeight: widget.selecionado || !widget.compacto ? FontWeight.w600 : FontWeight.w500,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -240,7 +245,8 @@ class _CartaoTvState extends State<CartaoTv> {
       child: Semantics(
         button: widget.aoTocar != null,
         label: [widget.titulo, ?legenda].join(', '),
-        excludeSemantics: true,
+        container: true,
+        onTap: widget.aoTocar,
         child: FocusableActionDetector(
           focusNode: widget.focusNode,
           autofocus: widget.autofocus,
@@ -254,77 +260,81 @@ class _CartaoTvState extends State<CartaoTv> {
               },
             ),
           },
-          child: GestureDetector(
-            onTap: widget.aoTocar,
-            child: Column(
-              crossAxisAlignment: widget.redondo ? CrossAxisAlignment.center : CrossAxisAlignment.start,
-              children: [
-                AnimatedScale(
-                  scale: _foco ? HeisucaBase.focoEscalaTv : 1,
-                  duration: Movimento.tempo(context, Movimento.toque),
-                  curve: Movimento.entra,
-                  child: Container(
-                    width: tamanho.width,
-                    height: tamanho.height,
-                    clipBehavior: Clip.antiAlias,
-                    decoration: ShapeDecoration(
-                      color: tema.superficie,
-                      shape: widget.redondo ? CircleBorder(side: lado) : Forma.superelipse(Forma.raioMedio, lado: lado),
-                    ),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        if (widget.arte != null)
-                          widget.arte!(context, tamanho)
-                        else
-                          Center(
-                            child: Text(
-                              widget.titulo,
-                              textAlign: TextAlign.center,
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                              style: tvTexto(Tipo.pequeno(tema)),
-                            ),
-                          ),
-                        if (progresso != null)
-                          Align(
-                            alignment: Alignment.bottomCenter,
-                            child: SizedBox(
-                              height: Forma.espaco2,
-                              child: Stack(
-                                fit: StackFit.expand,
-                                children: [
-                                  ColoredBox(color: tema.superficie2),
-                                  FractionallySizedBox(
-                                    alignment: Alignment.centerLeft,
-                                    widthFactor: progresso.clamp(0.0, 1.0),
-                                    child: ColoredBox(color: tema.acento),
-                                  ),
-                                ],
+          child: ExcludeSemantics(
+            child: GestureDetector(
+              onTap: widget.aoTocar,
+              child: Column(
+                crossAxisAlignment: widget.redondo ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+                children: [
+                  AnimatedScale(
+                    scale: _foco ? HeisucaBase.focoEscalaTv : 1,
+                    duration: Movimento.tempo(context, Movimento.toque),
+                    curve: Movimento.entra,
+                    child: Container(
+                      width: tamanho.width,
+                      height: tamanho.height,
+                      clipBehavior: Clip.antiAlias,
+                      decoration: ShapeDecoration(
+                        color: tema.superficie,
+                        shape: widget.redondo
+                            ? CircleBorder(side: lado)
+                            : Forma.superelipse(Forma.raioMedio, lado: lado),
+                      ),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          if (widget.arte != null)
+                            widget.arte!(context, tamanho)
+                          else
+                            Center(
+                              child: Text(
+                                widget.titulo,
+                                textAlign: TextAlign.center,
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                                style: tvTexto(Tipo.pequeno(tema)),
                               ),
                             ),
-                          ),
-                      ],
+                          if (progresso != null)
+                            Align(
+                              alignment: Alignment.bottomCenter,
+                              child: SizedBox(
+                                height: Forma.espaco2,
+                                child: Stack(
+                                  fit: StackFit.expand,
+                                  children: [
+                                    ColoredBox(color: tema.superficie2),
+                                    FractionallySizedBox(
+                                      alignment: Alignment.centerLeft,
+                                      widthFactor: progresso.clamp(0.0, 1.0),
+                                      child: ColoredBox(color: tema.acento),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: Forma.espaco3),
-                Text(
-                  widget.titulo,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: widget.redondo ? TextAlign.center : TextAlign.start,
-                  style: CartaoTv._estiloDoTitulo(tema),
-                ),
-                if (legenda != null)
+                  const SizedBox(height: Forma.espaco3),
                   Text(
-                    legenda,
+                    widget.titulo,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     textAlign: widget.redondo ? TextAlign.center : TextAlign.start,
-                    style: CartaoTv._estiloDaLegenda(tema),
+                    style: CartaoTv._estiloDoTitulo(tema),
                   ),
-              ],
+                  if (legenda != null)
+                    Text(
+                      legenda,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: widget.redondo ? TextAlign.center : TextAlign.start,
+                      style: CartaoTv._estiloDaLegenda(tema),
+                    ),
+                ],
+              ),
             ),
           ),
         ),
@@ -405,4 +415,62 @@ class BordaDoMenuTv extends StatelessWidget {
     },
     child: child,
   );
+}
+
+/// Confirmação de sair do app na TV (Ajustes → Sair e o Voltar da Fire TV), nos componentes da V2. O foco começa em Cancelar: o OK sem querer não fecha o app.
+class ConfirmarSaidaTv extends StatelessWidget {
+  const ConfirmarSaidaTv({super.key});
+
+  /// Largura máxima do diálogo em dp (fora da tela de referência: os botões da V2 têm o tamanho certo em dp).
+  static const double largura = 550;
+
+  /// Mostra a confirmação; `true` só quando a pessoa escolhe Sair.
+  static Future<bool> mostrar(BuildContext context) async {
+    final confirmado = await showDialog<bool>(
+      context: context,
+      builder: (_) => const SobOTemaDaV2(child: ConfirmarSaidaTv()),
+    );
+    return confirmado ?? false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tema = TemaHeisuca.de(context);
+    return Dialog(
+      backgroundColor: tema.superficie,
+      shape: Forma.superelipse(Forma.raioGrande, lado: BorderSide(color: tema.borda)),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: largura),
+        child: Padding(
+          padding: const EdgeInsets.all(Forma.espaco6),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Semantics(header: true, child: Text('Sair do Heisuca?', style: Tipo.subtitulo(tema))),
+              const SizedBox(height: Forma.espaco2),
+              Text('O app fecha. Sua conta continua conectada.', style: Tipo.texto(tema).copyWith(color: tema.texto2)),
+              const SizedBox(height: Forma.espaco6),
+              FocusTraversalGroup(
+                child: Wrap(
+                  alignment: WrapAlignment.end,
+                  spacing: Forma.espaco3,
+                  runSpacing: Forma.espaco3,
+                  children: [
+                    Botao(
+                      rotulo: 'Cancelar',
+                      tipo: TipoDeBotao.secundario,
+                      focoInicial: true,
+                      aoTocar: () => Navigator.of(context).pop(false),
+                    ),
+                    Botao(rotulo: 'Sair', aoTocar: () => Navigator.of(context).pop(true)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

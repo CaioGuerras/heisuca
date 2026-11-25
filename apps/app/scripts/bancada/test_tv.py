@@ -829,3 +829,46 @@ class TestTvBancada(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class TestAbrirDestinoNoTrilho(unittest.TestCase):
+    """Trilho da TV (25/11): Ajustes vem depois de Modo infantil, Retrospectiva e Trocar perfil. A bancada desce até o
+    item com foco ter o rótulo do destino; contar teclas pela lista do Modelo A parava no Modo infantil."""
+
+    TRILHO = ['Início', 'Filmes', 'Séries', 'Animes', 'Buscar', 'Modo infantil', 'Minha retrospectiva',
+              'Trocar perfil', 'Ajustes']
+
+    def _rodar(self, destino):
+        estado = {'menu': False, 'indice': 0}
+        abertos = []
+
+        def dump():
+            if not estado['menu']:
+                return [{'text': 'Assistir', 'focused': True, 'bounds': (90, 550, 330, 630)}]
+            return [{'desc': d, 'focused': i == estado['indice'], 'bounds': (90, 200 + 60 * i, 630, 250 + 60 * i)}
+                    for i, d in enumerate(self.TRILHO)]
+
+        def center(*_a, **_k):
+            if estado['menu']:
+                abertos.append(self.TRILHO[estado['indice']])
+                estado['menu'] = False
+            else:
+                estado['menu'] = True
+
+        def down(*_a, **_k):
+            estado['indice'] = min(estado['indice'] + 1, len(self.TRILHO) - 1)
+
+        with patch('tv.dump_tv', dump), patch('tv.dpad_up', lambda *a, **k: None), \
+             patch('tv.dpad_down', down), patch('tv.dpad_center', center), \
+             patch('tv.menu_tv_aberto', lambda nos: estado['menu']):
+            resultado = tv.abrir_destino_tv(destino)
+        return resultado, abertos
+
+    def test_ajustes_depois_dos_extras(self):
+        resultado, abertos = self._rodar('Ajustes')
+        self.assertEqual(resultado, (True, True))
+        self.assertEqual(abertos, ['Ajustes'])
+
+    def test_buscar(self):
+        _, abertos = self._rodar('Buscar')
+        self.assertEqual(abertos, ['Buscar'])

@@ -80,7 +80,8 @@ class _HeisucaTvHeaderState extends State<HeisucaTvHeader> {
           Semantics(
             button: true,
             label: nome.isEmpty ? 'Abrir o menu' : 'Abrir o menu, perfil $nome',
-            excludeSemantics: true,
+            container: true,
+            onTap: widget.onOpenMenu,
             child: FocusableActionDetector(
               focusNode: _focusNode,
               onShowFocusHighlight: (v) => setState(() => _focused = v),
@@ -92,36 +93,38 @@ class _HeisucaTvHeaderState extends State<HeisucaTvHeader> {
                   },
                 ),
               },
-              child: GestureDetector(
-                key: const Key('heisuca-tv-avatar-button'),
-                onTap: widget.onOpenMenu,
-                child: AnimatedScale(
-                  scale: _focused ? HeisucaBase.focoEscalaTv : 1.0,
-                  duration: Movimento.tempo(context, Movimento.toque),
-                  curve: Movimento.entra,
-                  child: AnimatedContainer(
+              child: ExcludeSemantics(
+                child: GestureDetector(
+                  key: const Key('heisuca-tv-avatar-button'),
+                  onTap: widget.onOpenMenu,
+                  child: AnimatedScale(
+                    scale: _focused ? HeisucaBase.focoEscalaTv : 1.0,
                     duration: Movimento.tempo(context, Movimento.toque),
                     curve: Movimento.entra,
-                    width: _avatar,
-                    height: _avatar,
-                    clipBehavior: Clip.antiAlias,
-                    decoration: ShapeDecoration(
-                      color: tema.superficie2,
-                      shape: CircleBorder(
-                        side: _focused
-                            ? BorderSide(color: tema.foco, width: Forma.anelDeFoco)
-                            : BorderSide(color: tema.borda),
+                    child: AnimatedContainer(
+                      duration: Movimento.tempo(context, Movimento.toque),
+                      curve: Movimento.entra,
+                      width: _avatar,
+                      height: _avatar,
+                      clipBehavior: Clip.antiAlias,
+                      decoration: ShapeDecoration(
+                        color: tema.superficie2,
+                        shape: CircleBorder(
+                          side: _focused
+                              ? BorderSide(color: tema.foco, width: Forma.anelDeFoco)
+                              : BorderSide(color: tema.borda),
+                        ),
                       ),
+                      child: activeProfile != null
+                          ? ProfileAvatar(
+                              profile: activeProfile,
+                              size: _avatar,
+                              avatarUrl: profiles?.avatarUrlFor(activeProfile.id),
+                            )
+                          : Center(
+                              child: Text(initial, style: Tipo.titulo(tema).copyWith(fontWeight: FontWeight.w700)),
+                            ),
                     ),
-                    child: activeProfile != null
-                        ? ProfileAvatar(
-                            profile: activeProfile,
-                            size: _avatar,
-                            avatarUrl: profiles?.avatarUrlFor(activeProfile.id),
-                          )
-                        : Center(
-                            child: Text(initial, style: Tipo.titulo(tema).copyWith(fontWeight: FontWeight.w700)),
-                          ),
                   ),
                 ),
               ),

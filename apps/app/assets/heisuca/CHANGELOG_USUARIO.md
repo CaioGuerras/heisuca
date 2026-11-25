@@ -1,3 +1,12 @@
+## 2.0.48 — O que mudou
+
+### Novo
+- TV com cara nova: Início, ficha do título, Busca, bibliotecas e menu lateral seguem o desenho do Heisuca, com a arte do destaque de ponta a ponta.
+
+### Melhor
+- Player da TV: barra mais limpa, com Áudio, Legendas e Episódios fáceis de achar. A escolha de áudio e legenda abre num painel por cima do vídeo.
+- TV: o item escolhido fica bem marcado, nada encosta na borda da tela e Ajustes, Sobre e perfis ficam mais fáceis de ler.
+
 ## 2.0.47 — O que mudou
 
 ### Melhor

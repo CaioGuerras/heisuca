@@ -4,6 +4,7 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:heisuca/features/player_tv/barra_do_player_tv.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 
@@ -404,7 +405,7 @@ void main() {
       await tester.pumpWidget(const SizedBox.shrink());
     });
 
-    testWidgets('G2.5: TV renderiza painel com 3 pílulas (Áudio, Legenda, Episódios) e timestamps em 24 px', (
+    testWidgets('G2.5: TV renderiza a barra (transporte + Áudio, Legendas, Episódios) e timestamps em 24 px', (
       tester,
     ) async {
       await tester.binding.setSurfaceSize(const Size(1920, 1080));
@@ -432,11 +433,15 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Painel inferior da TV contém Áudio, Legenda, Episódios
+      // Barra da TV: transporte (voltar, tocar, avançar, próximo) e faixas (Áudio, Legendas, Episódios)
+      expect(find.byType(BarraDoPlayerTv), findsOneWidget);
       expect(find.textContaining('Áudio ·'), findsOneWidget);
-      expect(find.textContaining('Legenda ·'), findsOneWidget);
+      expect(find.textContaining('Legendas ·'), findsOneWidget);
       expect(find.text('Episódios'), findsOneWidget);
-      expect(find.text('← → 10 s · ↓ painel · Voltar sai'), findsOneWidget);
+      final barra = tester.widget<BarraDoPlayerTv>(find.byType(BarraDoPlayerTv));
+      expect(barra.transporte.length, 3, reason: 'voltar, tocar/pausar e avançar (sem próximo neste teste)');
+      expect(barra.transporte.every((i) => i.icone != null && i.aoTocar != null), isTrue);
+      expect(barra.faixas.map((i) => i.rotulo), ['Áudio', 'Legendas', 'Episódios']);
 
       // Timestamps possuem tamanho de fonte 24 px
       final timestampFinder = find.byWidgetPredicate(

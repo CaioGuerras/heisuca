@@ -17,6 +17,10 @@ abstract final class Forma {
   static const double espaco4 = HeisucaBase.espaco4;
   static const double espaco6 = HeisucaBase.espaco6;
 
+  /// Margem segura da TV: 5 % de uma tela de 960 × 540 dp (o que a TV pode cortar na borda).
+  /// Nada encosta além dela em tela de TV.
+  static const EdgeInsets margemSeguraTv = EdgeInsets.symmetric(horizontal: 48, vertical: 27);
+
   /// Largura do anel de foco (teclado, controle e leitor de tela).
   static const double anelDeFoco = HeisucaBase.focoBorda;
 

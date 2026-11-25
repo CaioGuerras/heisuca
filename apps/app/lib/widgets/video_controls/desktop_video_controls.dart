@@ -34,6 +34,10 @@ import 'widgets/video_timeline_bar.dart';
 import 'widgets/volume_control.dart';
 import 'widgets/track_chapter_controls.dart';
 import 'video_control_button.dart';
+import 'helpers/track_filter_helper.dart';
+import '../../design/forma.dart';
+import '../../features/player_tv/barra_do_player_tv.dart';
+import '../../utils/track_label_builder.dart';
 
 /// Desktop-specific video controls layout with top bar and bottom controls
 class DesktopVideoControls extends StatefulWidget {
@@ -180,6 +184,10 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
   late final FocusNode _nextItemFocusNode;
   late final FocusNode _goToLiveFocusNode;
   late final FocusNode _timelineFocusNode;
+  late final FocusNode _tvRewindFocusNode;
+  late final FocusNode _tvPlayFocusNode;
+  late final FocusNode _tvForwardFocusNode;
+  late final FocusNode _tvNextFocusNode;
   late final FocusNode _tvAudioFocusNode;
   late final FocusNode _tvSubtitleFocusNode;
   late final FocusNode _tvEpisodesFocusNode;
@@ -221,6 +229,10 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
     _nextItemFocusNode = FocusNode(debugLabel: 'NextItem');
     _goToLiveFocusNode = FocusNode(debugLabel: 'GoToLive');
     _timelineFocusNode = FocusNode(debugLabel: 'Timeline');
+    _tvRewindFocusNode = FocusNode(debugLabel: 'TvRewind');
+    _tvPlayFocusNode = FocusNode(debugLabel: 'TvPlay');
+    _tvForwardFocusNode = FocusNode(debugLabel: 'TvForward');
+    _tvNextFocusNode = FocusNode(debugLabel: 'TvNext');
     _tvAudioFocusNode = FocusNode(debugLabel: 'TvAudio');
     _tvSubtitleFocusNode = FocusNode(debugLabel: 'TvSubtitle');
     _tvEpisodesFocusNode = FocusNode(debugLabel: 'TvEpisodes');
@@ -296,6 +308,10 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
     _nextItemFocusNode.dispose();
     _goToLiveFocusNode.dispose();
     _timelineFocusNode.dispose();
+    _tvRewindFocusNode.dispose();
+    _tvPlayFocusNode.dispose();
+    _tvForwardFocusNode.dispose();
+    _tvNextFocusNode.dispose();
     _tvAudioFocusNode.dispose();
     _tvSubtitleFocusNode.dispose();
     _tvEpisodesFocusNode.dispose();
@@ -321,14 +337,25 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
     }
   }
 
-  /// Move focus to the TV bottom panel (Audio pill).
+  List<FocusNode> get _tvBarFocusNodes => [
+    _tvRewindFocusNode,
+    _tvPlayFocusNode,
+    _tvForwardFocusNode,
+    _tvNextFocusNode,
+    _tvAudioFocusNode,
+    _tvSubtitleFocusNode,
+    _tvEpisodesFocusNode,
+  ];
+
+  /// Move focus to the TV bottom bar: the play/pause button, or the Audio pill while playback can't be controlled.
   void requestTvPanelFocus() {
-    if (!mounted || !_tvAudioFocusNode.canRequestFocus) return;
-    _tvAudioFocusNode.requestFocus();
+    if (!mounted) return;
+    final target = _tvPlayFocusNode.context != null && _canControl ? _tvPlayFocusNode : _tvAudioFocusNode;
+    if (!target.canRequestFocus) return;
+    target.requestFocus();
   }
 
-  bool get isTvPanelFocused =>
-      _tvAudioFocusNode.hasFocus || _tvSubtitleFocusNode.hasFocus || _tvEpisodesFocusNode.hasFocus;
+  bool get isTvPanelFocused => _tvBarFocusNodes.any((node) => node.hasFocus);
 
   bool get isTimelineFocused => _timelineFocusNode.hasFocus;
 
@@ -351,9 +378,9 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
   void unfocusTvPanel() {
     _timelineSeek.flush();
     _resetSeekState();
-    _tvAudioFocusNode.unfocus();
-    _tvSubtitleFocusNode.unfocus();
-    _tvEpisodesFocusNode.unfocus();
+    for (final node in _tvBarFocusNodes) {
+      node.unfocus();
+    }
     _timelineFocusNode.unfocus();
     _playPauseFocusNode.unfocus();
     _volumeFocusNode.unfocus();
@@ -1059,236 +1086,153 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
 
   Widget _buildTvBottomControlsContent(BuildContext context, {required bool hasFrame}) {
     final canInteract = _canControl && hasFrame;
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isCompact = constraints.maxWidth < 1000;
-        return Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: isCompact ? 16 : 48,
-            vertical: isCompact ? 12 : 24,
+    return Padding(
+      padding: Forma.margemSeguraTv,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          VideoTimelineBar(
+            player: widget.player,
+            chapters: widget.chapters,
+            chaptersLoaded: widget.chaptersLoaded,
+            showChapterMarkersOnTimeline: widget.showChapterMarkersOnTimeline,
+            onSeek: widget.onSeek,
+            onSeekEnd: widget.onSeekEnd,
+            onScrubStart: widget.onScrubStart,
+            onScrubEnd: widget.onScrubEnd,
+            horizontalLayout: true,
+            focusNode: _timelineFocusNode,
+            onKeyEvent: _handleTimelineKeyEvent,
+            onFocusChange: _onFocusChange,
+            enabled: canInteract,
+            thumbnailDataBuilder: widget.thumbnailDataBuilder,
+            showKeyRepeatThumbnail: _showKeyRepeatThumbnail,
+            previewPosition: _timelineSeek.pendingPosition,
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              VideoTimelineBar(
-                player: widget.player,
-                chapters: widget.chapters,
-                chaptersLoaded: widget.chaptersLoaded,
-                showChapterMarkersOnTimeline: widget.showChapterMarkersOnTimeline,
-                onSeek: widget.onSeek,
-                onSeekEnd: widget.onSeekEnd,
-                onScrubStart: widget.onScrubStart,
-                onScrubEnd: widget.onScrubEnd,
-                horizontalLayout: true,
-                focusNode: _timelineFocusNode,
-                onKeyEvent: _handleTimelineKeyEvent,
-                onFocusChange: _onFocusChange,
-                enabled: canInteract,
-                thumbnailDataBuilder: widget.thumbnailDataBuilder,
-                showKeyRepeatThumbnail: _showKeyRepeatThumbnail,
-                previewPosition: _timelineSeek.pendingPosition,
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _buildTvPillButton(
-                            focusNode: _tvAudioFocusNode,
-                            stream: widget.player.streams.track,
-                            labelBuilder: (track) {
-                              final audio = track.audio;
-                              final title = audio?.title ?? audio?.language ?? 'Português';
-                              return 'Áudio · $title';
-                            },
-                            onPressed: () {
-                              widget.onCancelAutoHide?.call();
-                              OverlaySheetController.of(context)
-                                  .show(
-                                    builder: (_) => TrackSheet(
-                                      player: widget.player,
-                                      trackControlsState: widget.trackControlsState,
-                                    ),
-                                  )
-                                  .whenComplete(() => widget.onStartAutoHide?.call());
-                            },
-                            onKeyEvent: (event) {
-                              if (!event.isActionable) return KeyEventResult.ignored;
-                              final key = event.logicalKey;
-                              if (key == LogicalKeyboardKey.arrowRight) {
-                                _tvSubtitleFocusNode.requestFocus();
-                                widget.onFocusActivity?.call();
-                                return KeyEventResult.handled;
-                              }
-                              if (key == LogicalKeyboardKey.arrowUp) {
-                                _timelineFocusNode.requestFocus();
-                                widget.onFocusActivity?.call();
-                                return KeyEventResult.handled;
-                              }
-                              return KeyEventResult.ignored;
-                            },
-                          ),
-                          const SizedBox(width: 12),
-                          _buildTvPillButton(
-                            focusNode: _tvSubtitleFocusNode,
-                            stream: widget.player.streams.track,
-                            labelBuilder: (track) {
-                              final sub = track.subtitle;
-                              final title = (sub == null || sub.id == SubtitleTrack.off.id)
-                                  ? 'Desligada'
-                                  : (sub.title ?? sub.language ?? 'Ligada');
-                              return 'Legenda · $title';
-                            },
-                            onPressed: () {
-                              widget.onCancelAutoHide?.call();
-                              OverlaySheetController.of(context)
-                                  .show(
-                                    builder: (_) => TrackSheet(
-                                      player: widget.player,
-                                      trackControlsState: widget.trackControlsState,
-                                    ),
-                                  )
-                                  .whenComplete(() => widget.onStartAutoHide?.call());
-                            },
-                            onKeyEvent: (event) {
-                              if (!event.isActionable) return KeyEventResult.ignored;
-                              final key = event.logicalKey;
-                              if (key == LogicalKeyboardKey.arrowLeft) {
-                                _tvAudioFocusNode.requestFocus();
-                                widget.onFocusActivity?.call();
-                                return KeyEventResult.handled;
-                              }
-                              if (key == LogicalKeyboardKey.arrowRight) {
-                                _tvEpisodesFocusNode.requestFocus();
-                                widget.onFocusActivity?.call();
-                                return KeyEventResult.handled;
-                              }
-                              if (key == LogicalKeyboardKey.arrowUp) {
-                                _timelineFocusNode.requestFocus();
-                                widget.onFocusActivity?.call();
-                                return KeyEventResult.handled;
-                              }
-                              return KeyEventResult.ignored;
-                            },
-                          ),
-                          const SizedBox(width: 12),
-                          _buildTvPillButtonStatic(
-                            focusNode: _tvEpisodesFocusNode,
-                            label: widget.metadata.kind == MediaKind.movie ? 'Capítulos' : 'Episódios',
-                            onPressed: () {
-                              _showContentStrip();
-                            },
-                            onKeyEvent: (event) {
-                              if (!event.isActionable) return KeyEventResult.ignored;
-                              final key = event.logicalKey;
-                              if (key == LogicalKeyboardKey.arrowLeft) {
-                                _tvSubtitleFocusNode.requestFocus();
-                                widget.onFocusActivity?.call();
-                                return KeyEventResult.handled;
-                              }
-                              if (key == LogicalKeyboardKey.arrowUp) {
-                                _timelineFocusNode.requestFocus();
-                                widget.onFocusActivity?.call();
-                                return KeyEventResult.handled;
-                              }
-                              return KeyEventResult.ignored;
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  if (!isCompact) ...[
-                    const SizedBox(width: 16),
-                    const Text(
-                      '← → 10 s · ↓ painel · Voltar sai',
-                      style: TextStyle(
-                        color: Colors.white54,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildTvPillButton({
-    required FocusNode focusNode,
-    required Stream<TrackSelection> stream,
-    required String Function(TrackSelection) labelBuilder,
-    required VoidCallback onPressed,
-    required KeyEventResult Function(KeyEvent) onKeyEvent,
-  }) {
-    return StreamBuilder<TrackSelection>(
-      stream: stream,
-      initialData: widget.player.state.track,
-      builder: (context, snapshot) {
-        final label = labelBuilder(snapshot.data ?? widget.player.state.track);
-        return _buildTvPillButtonStatic(
-          focusNode: focusNode,
-          label: label,
-          onPressed: onPressed,
-          onKeyEvent: onKeyEvent,
-        );
-      },
-    );
-  }
-
-  Widget _buildTvPillButtonStatic({
-    required FocusNode focusNode,
-    required String label,
-    required VoidCallback onPressed,
-    required KeyEventResult Function(KeyEvent) onKeyEvent,
-  }) {
-    return ListenableBuilder(
-      listenable: focusNode,
-      builder: (context, _) {
-        final isFocused = focusNode.hasFocus;
-        return Focus(
-          focusNode: focusNode,
-          onKeyEvent: (node, event) {
-            if (!event.isActionable) return KeyEventResult.ignored;
-            if (event.logicalKey.isSelectKey && event is KeyDownEvent) {
-              onPressed();
-              return KeyEventResult.handled;
-            }
-            return onKeyEvent(event);
-          },
-          onFocusChange: (has) {
-            if (has) widget.onFocusActivity?.call();
-          },
-          child: GestureDetector(
-            onTap: onPressed,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-              decoration: BoxDecoration(
-                color: isFocused ? Colors.white : Colors.white.withValues(alpha: 0.14),
-                borderRadius: const BorderRadius.all(Radius.circular(30)),
-                border: isFocused ? Border.all(color: Colors.white, width: 2) : null,
-              ),
-              child: Text(
-                label,
-                style: TextStyle(
-                  color: isFocused ? const Color(0xFF17151C) : const Color(0xFFF2EFF5),
-                  fontSize: 16,
-                  fontWeight: isFocused ? FontWeight.w700 : FontWeight.w600,
-                ),
-              ),
+          const SizedBox(height: Forma.espaco3),
+          PlayPauseStreamBuilder(
+            player: widget.player,
+            builder: (context, isPlaying) => StreamBuilder<TrackSelection>(
+              stream: widget.player.streams.track,
+              initialData: widget.player.state.track,
+              builder: (context, snapshot) =>
+                  _buildTvBar(context, canInteract: canInteract, isPlaying: isPlaying, track: snapshot.data),
             ),
           ),
-        );
-      },
+        ],
+      ),
     );
+  }
+
+  /// Barra de baixo da TV: transporte (−N s, tocar/pausar, +N s, próximo) e faixas (áudio, legenda, episódios).
+  Widget _buildTvBar(
+    BuildContext context, {
+    required bool canInteract,
+    required bool isPlaying,
+    required TrackSelection? track,
+  }) {
+    final selection = track ?? widget.player.state.track;
+    VoidCallback? when(VoidCallback? action) => canInteract ? action : null;
+    void openTracks() {
+      widget.onCancelAutoHide?.call();
+      OverlaySheetController.of(context)
+          .show(
+            builder: (_) => TrackSheet(player: widget.player, trackControlsState: widget.trackControlsState),
+          )
+          .whenComplete(() => widget.onStartAutoHide?.call());
+    }
+
+    final seconds = widget.seekTimeSmall;
+    return BarraDoPlayerTv(
+      aoSubir: _timelineFocusNode.requestFocus,
+      aoMexer: widget.onFocusActivity,
+      transporte: [
+        ItemDaBarraTv(
+          foco: _tvRewindFocusNode,
+          rotulo: t.videoControls.seekBackwardButton(seconds: seconds),
+          icone: widget.getReplayIcon(seconds),
+          aoTocar: when(widget.onSeekBackward),
+        ),
+        ItemDaBarraTv(
+          foco: _tvPlayFocusNode,
+          rotulo: isPlaying ? t.videoControls.pauseButton : t.videoControls.playButton,
+          icone: isPlaying ? Symbols.pause_rounded : Symbols.play_arrow_rounded,
+          aoTocar: when(widget.onPlayPause),
+        ),
+        ItemDaBarraTv(
+          foco: _tvForwardFocusNode,
+          rotulo: t.videoControls.seekForwardButton(seconds: seconds),
+          icone: widget.getForwardIcon(seconds),
+          aoTocar: when(widget.onSeekForward),
+        ),
+        if (widget.onNext != null)
+          ItemDaBarraTv(
+            foco: _tvNextFocusNode,
+            rotulo: t.videoControls.nextButton,
+            icone: Symbols.skip_next_rounded,
+            aoTocar: when(widget.onNext),
+          ),
+      ],
+      faixas: [
+        ItemDaBarraTv(
+          foco: _tvAudioFocusNode,
+          rotulo: t.videoControls.audioLabel,
+          texto: '${t.videoControls.audioLabel} · ${_tvAudioLabel(selection)}',
+          aoTocar: openTracks,
+        ),
+        ItemDaBarraTv(
+          foco: _tvSubtitleFocusNode,
+          rotulo: t.videoControls.subtitlesLabel,
+          texto: '${t.videoControls.subtitlesLabel} · ${_tvSubtitleLabel(selection)}',
+          aoTocar: openTracks,
+        ),
+        ItemDaBarraTv(
+          foco: _tvEpisodesFocusNode,
+          rotulo: _tvStripLabel,
+          texto: _tvStripLabel,
+          aoTocar: _showContentStrip,
+        ),
+      ],
+    );
+  }
+
+  String get _tvStripLabel =>
+      widget.metadata.kind == MediaKind.movie ? t.videoControls.chaptersButton : t.libraries.groupings.episodes;
+
+  /// O mesmo nome da faixa que a folha de faixas mostra ("Português", nunca o título cru do arquivo).
+  String _tvAudioLabel(TrackSelection selection) {
+    final tracks = TrackFilterHelper.extractAndFilterTracks<AudioTrack>(
+      widget.player.state.tracks,
+      (t) => t?.audio ?? [],
+    );
+    final audio = selection.audio;
+    if (audio == null) return tracks.isEmpty ? '—' : _audioName(tracks.first, 0);
+    final index = tracks.indexWhere((t) => t.id == audio.id);
+    return _audioName(audio, index < 0 ? 0 : index);
+  }
+
+  String _audioName(AudioTrack track, int index) => TrackLabelBuilder.audioLabel(
+    title: track.title,
+    language: track.language,
+    codec: track.codec,
+    channels: track.channelsCount,
+    index: index,
+  ).primary;
+
+  String _tvSubtitleLabel(TrackSelection selection) {
+    final sub = selection.subtitle;
+    if (sub == null || sub.id == SubtitleTrack.off.id) return t.fileInfo.subtitlesOff;
+    final tracks = TrackFilterHelper.extractAndFilterTracks<SubtitleTrack>(
+      widget.player.state.tracks,
+      (t) => t?.subtitle ?? [],
+    );
+    final index = tracks.indexWhere((t) => t.id == sub.id);
+    return TrackLabelBuilder.subtitleLabel(
+      title: sub.title,
+      language: sub.language,
+      codec: sub.codec,
+      forced: sub.isForced,
+      index: index < 0 ? 0 : index,
+    ).primary;
   }
 }

@@ -84,7 +84,8 @@ void main() {
 
   Future<void> descer(WidgetTester tester, int vezes) async {
     for (var i = 0; i < vezes; i++) {
-      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      // Tab anda na ordem dos itens; na grade, a seta para baixo pularia uma coluna.
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
       await tester.pumpAndSettle();
     }
   }

@@ -123,13 +123,17 @@ class BarraDoPlayerTv extends StatelessWidget {
             ).style.merge(Tipo.texto(tema)).copyWith(fontWeight: FontWeight.w600);
             var compacto = false;
             var soIcone = false;
+            // Folga lateral única da fileira: a do botão mais largo. Com folga por botão, as pílulas largas
+            // ficavam mais afastadas que os círculos (44 px contra 59 px na bancada de 25/11).
+            double folga() => itens.fold<double>(0, (maior, item) {
+              final tamanho = _tamanho(context, item, estilo, compacto, soIcone: soIcone);
+              return max(maior, _folgaLateral(tamanho.width));
+            });
             double largura() =>
                 itens.fold<double>(0, (total, item) {
-                  final tamanho = _tamanho(context, item, estilo, compacto, soIcone: soIcone);
-                  return total +
-                      tamanho.width * HeisucaBase.focoEscalaTv +
-                      Forma.anelDeFoco * HeisucaBase.focoEscalaTv * 2;
+                  return total + _tamanho(context, item, estilo, compacto, soIcone: soIcone).width;
                 }) +
+                folga() * 2 * itens.length +
                 Forma.espaco3 * (itens.length - 1);
             if (largura() > limites.maxWidth) {
               compacto = true;
@@ -143,12 +147,19 @@ class BarraDoPlayerTv extends StatelessWidget {
             if (largura() > limites.maxWidth) {
               soIcone = true;
             }
+            final folgaLateral = folga();
             final linha = Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 for (var i = 0; i < itens.length; i++) ...[
                   if (i > 0) const SizedBox(width: Forma.espaco3),
-                  _BotaoDaBarra(item: itens[i], estilo: estilo, compacto: compacto, soIcone: soIcone),
+                  _BotaoDaBarra(
+                    item: itens[i],
+                    estilo: estilo,
+                    compacto: compacto,
+                    soIcone: soIcone,
+                    folgaLateral: folgaLateral,
+                  ),
                 ],
               ],
             );
@@ -166,9 +177,16 @@ class BarraDoPlayerTv extends StatelessWidget {
 }
 
 class _BotaoDaBarra extends StatelessWidget {
-  const _BotaoDaBarra({required this.item, required this.estilo, required this.compacto, this.soIcone = false});
+  const _BotaoDaBarra({
+    required this.item,
+    required this.estilo,
+    required this.compacto,
+    required this.folgaLateral,
+    this.soIcone = false,
+  });
 
   final TextStyle estilo;
+  final double folgaLateral;
   final bool compacto;
   final bool soIcone;
 
@@ -187,7 +205,7 @@ class _BotaoDaBarra extends StatelessWidget {
     const escalaMaxima = HeisucaBase.focoEscalaTv;
     const anel = Forma.anelDeFoco * escalaMaxima;
     final reserva = EdgeInsets.symmetric(
-      horizontal: tamanho.width * (escalaMaxima - 1) / 2 + anel,
+      horizontal: max(folgaLateral, _folgaLateral(tamanho.width)),
       vertical: tamanho.height * (escalaMaxima - 1) / 2 + anel,
     );
     return ListenableBuilder(
@@ -249,6 +267,10 @@ class _BotaoDaBarra extends StatelessWidget {
   /// O botão solto deixa o vídeo aparecer por trás.
   static const double _opacidadeSolto = 0.72;
 }
+
+/// Espaço que o botão precisa de cada lado para crescer no foco e pintar o anel sem invadir o vizinho.
+double _folgaLateral(double largura) =>
+    largura * (HeisucaBase.focoEscalaTv - 1) / 2 + Forma.anelDeFoco * HeisucaBase.focoEscalaTv;
 
 Size _tamanho(BuildContext context, ItemDaBarraTv item, TextStyle estilo, bool compacto, {bool soIcone = false}) {
   if (item.icone != null) return const Size.square(BarraDoPlayerTv.diametro);

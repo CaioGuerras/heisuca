@@ -139,22 +139,28 @@ void main() {
         envelopes.add(tester.getRect(find.bySemanticsLabel(item.rotulo)).inflate(Forma.anelDeFoco * escala));
         await _tecla(tester, LogicalKeyboardKey.arrowRight);
       }
+      // Sem foco nenhum: o vão visível entre dois controles vizinhos é o mesmo em toda a fileira (a revisão
+      // de 25/11 viu 44 px entre círculos e 59 px entre pílulas). Com foco, o anel não invade o vizinho.
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pumpAndSettle();
+      final repouso = [for (final item in caminho) tester.getRect(find.bySemanticsLabel(item.rotulo))];
+      double? vao;
       for (var i = 0; i < envelopes.length; i++) {
         final atual = envelopes[i];
         expect(atual.left, greaterThanOrEqualTo(Forma.margemSeguraTv.left - 0.01));
         expect(atual.right, lessThanOrEqualTo(960 - Forma.margemSeguraTv.right + 0.01));
         if (i == 0) continue;
-        final anterior = envelopes[i - 1];
-        expect(atual.center.dy, closeTo(anterior.center.dy, 0.01), reason: 'uma única linha');
-        if ((atual.center.dy - anterior.center.dy).abs() < 1) {
-          expect(
-            atual.left - anterior.right,
-            closeTo(Forma.espaco3, 0.01),
-            reason: '${caminho[i - 1].rotulo} → ${caminho[i].rotulo}: anéis com o mesmo respiro',
-          );
-        } else {
-          expect(atual.top - anterior.bottom, greaterThanOrEqualTo(Forma.espaco3 - 0.01));
-        }
+        final par = '${caminho[i - 1].rotulo} → ${caminho[i].rotulo}';
+        expect(atual.center.dy, closeTo(envelopes[i - 1].center.dy, 0.01), reason: 'uma única linha');
+        final visivel = repouso[i].left - repouso[i - 1].right;
+        vao ??= visivel;
+        expect(visivel, closeTo(vao, 0.01), reason: '$par: o vão visível muda no meio da fileira');
+        expect(atual.left, greaterThanOrEqualTo(repouso[i - 1].right + 0.01), reason: '$par: anel invade o anterior');
+        expect(
+          envelopes[i - 1].right,
+          lessThanOrEqualTo(repouso[i].left - 0.01),
+          reason: '$par: anel invade o próximo',
+        );
       }
       expect(tester.takeException(), isNull);
     });

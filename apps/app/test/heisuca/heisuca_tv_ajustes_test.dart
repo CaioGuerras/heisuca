@@ -140,6 +140,48 @@ void main() {
     }
   }
 
+  /// Próximo item na ordem da lista (Tab). Na grade, a seta para baixo anda só na coluna.
+  Future<void> proximo(WidgetTester tester, [int vezes = 1]) async {
+    for (var i = 0; i < vezes; i++) {
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pumpAndSettle();
+    }
+  }
+
+  testWidgets('Ajustes 960×540, letra 100 %: grade de duas colunas; as setas seguem a geometria', (tester) async {
+    await montar(tester, const HeisucaTvSettingsScreen());
+    Rect caixa(String nome) => tester.getRect(find.byKey(ValueKey('tv-ajuste-$nome')));
+    expect(caixa('Tema').top, closeTo(caixa('Perfil').top, 0.01), reason: 'Perfil e Tema na mesma fileira');
+    expect(caixa('Tema').left, greaterThan(caixa('Perfil').right), reason: 'Tema à direita do Perfil');
+    expect(caixa('Sair').top, closeTo(caixa('Sobre').top, 0.01), reason: 'Sobre e Sair na última fileira');
+    expect(nomeComFoco(), 'Perfil');
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+    await tester.pumpAndSettle();
+    expect(nomeComFoco(), 'Tema');
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    await tester.pumpAndSettle();
+    expect(nomeComFoco(), 'Legenda padrão');
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+    await tester.pumpAndSettle();
+    expect(nomeComFoco(), 'Áudio padrão');
+    for (var i = 0; i < 4; i++) {
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pumpAndSettle();
+    }
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+    await tester.pumpAndSettle();
+    expect(nomeComFoco(), 'Sair', reason: 'Sair alcançável só com as setas');
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Ajustes 960×540, letra 200 %: volta à coluna única', (tester) async {
+    await montar(tester, const HeisucaTvSettingsScreen(), letra: 2);
+    final perfil = tester.getRect(find.byKey(const ValueKey('tv-ajuste-Perfil')));
+    final tema = tester.getRect(find.byKey(const ValueKey('tv-ajuste-Tema')));
+    expect(tema.top, greaterThan(perfil.bottom), reason: 'com letra grande, um item por fileira');
+    expect(tema.left, closeTo(perfil.left, 0.01));
+  });
+
   testWidgets('Ajustes 960×540, letra 100 %: os dez itens cabem sem rolar e fora do degradê', (tester) async {
     await montar(tester, const HeisucaTvSettingsScreen());
     final lista = tester.getRect(find.byType(HeisucaTvBordasSuaves));
@@ -173,10 +215,7 @@ void main() {
 
     testWidgets('Ajustes 960×540, letra $letra: Sair com foco e anel fica acima de todo o degradê', (tester) async {
       await montar(tester, const HeisucaTvSettingsScreen(), letra: letra);
-      for (var i = 0; i < itens.length - 1; i++) {
-        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
-        await tester.pumpAndSettle();
-      }
+      await proximo(tester, itens.length - 1);
       expect(nomeComFoco(), 'Sair');
       final lista = tester.getRect(find.byType(HeisucaTvBordasSuaves));
       final linha = tester.getRect(find.byKey(const ValueKey('tv-ajuste-Sair')));
@@ -202,9 +241,7 @@ void main() {
     // cercam Áudio padrão): antes, a borda de foco mais grossa empurrava as linhas de baixo.
     double vao() => tester.getRect(find.text('Legenda padrão')).top - tester.getRect(find.text('Tema')).top;
     final vaoComFocoNoPerfil = vao();
-    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
-    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
-    await tester.pumpAndSettle();
+    await proximo(tester, 2);
     expect(nomeComFoco(), 'Áudio padrão');
     expect(vao(), vaoComFocoNoPerfil, reason: 'a linha com foco mudou o espaçamento das outras');
     dentroDaAreaSegura(tester, 'foco em Áudio padrão');
@@ -221,8 +258,7 @@ void main() {
       final nome = nomeComFoco();
       if (nome != null) vistos.add(nome);
       dentroDaAreaSegura(tester, 'foco em $nome');
-      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
-      await tester.pumpAndSettle();
+      await proximo(tester);
     }
     expect(vistos, containsAll(['Atualizações', 'Sobre', 'Sair']));
     expect(tester.takeException(), isNull);
@@ -245,8 +281,7 @@ void main() {
           reason: '"${texto.data}" sai da linha "$nome"',
         );
       }
-      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
-      await tester.pumpAndSettle();
+      await proximo(tester);
     }
     expect(tester.takeException(), isNull);
   });

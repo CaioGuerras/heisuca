@@ -35,8 +35,14 @@ import 'heisuca_tv_pecas.dart';
 class HeisucaTvSettingsScreen extends StatefulWidget {
   const HeisucaTvSettingsScreen({super.key});
 
-  /// Largura da coluna na tela de referência: 550 dp numa TV 1080p (960 dp) e 733 dp numa TV box 720p.
+  /// Largura da coluna única (letra ampliada) na tela de referência: 550 dp numa TV 1080p (960 dp).
   static const double largura = 1100;
+
+  /// Largura da grade de duas colunas na tela de referência: 800 dp numa TV 1080p, dentro da margem segura.
+  static const double larguraGrade = 1600;
+
+  /// Acima desta ampliação da letra, a grade vira coluna única para o nome e o valor não quebrarem em pedaços.
+  static const double letraMaximaDaGrade = 1.3;
 
   /// Folga lateral da lista para o anel de foco ficar inteiro dentro da coluna.
   static const double folgaDoFoco = Forma.anelDeFoco;
@@ -186,12 +192,31 @@ class _HeisucaTvSettingsScreenState extends State<HeisucaTvSettingsScreen> {
         child: Builder(
           builder: (context) {
             final tema = TemaHeisuca.de(context);
+            // Grade de duas colunas (revisão de 26/11): a coluna única deixava metade da TV vazia. Com letra
+            // grande, volta a coluna única. As setas seguem a geometria (cima/baixo na coluna, lados na fileira).
+            final grade = MediaQuery.textScalerOf(context).scale(1) <= HeisucaTvSettingsScreen.letraMaximaDaGrade;
+            final fileiras = <Widget>[
+              if (grade)
+                for (var i = 0; i < linhas.length; i += 2)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(child: linhas[i]),
+                      const SizedBox(width: Forma.espaco4),
+                      Expanded(child: i + 1 < linhas.length ? linhas[i + 1] : const SizedBox.shrink()),
+                    ],
+                  )
+              else
+                ...linhas,
+            ];
             return Scaffold(
               backgroundColor: tema.fundo,
               body: HeisucaTvAreaSegura(
                 child: Center(
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: HeisucaTvSettingsScreen.largura),
+                    constraints: BoxConstraints(
+                      maxWidth: grade ? HeisucaTvSettingsScreen.larguraGrade : HeisucaTvSettingsScreen.largura,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -217,8 +242,8 @@ class _HeisucaTvSettingsScreenState extends State<HeisucaTvSettingsScreen> {
                                   // A última linha e seu anel param antes do degradê, inclusive com letra grande.
                                   vertical: HeisucaBase.espaco8 + Forma.anelDeFoco,
                                 ),
-                                itemCount: linhas.length,
-                                itemBuilder: (_, i) => linhas[i],
+                                itemCount: fileiras.length,
+                                itemBuilder: (_, i) => fileiras[i],
                                 separatorBuilder: (_, _) => const SizedBox(height: Forma.espaco3),
                               ),
                             ),
@@ -317,7 +342,7 @@ class _LinhaDeAjusteState extends State<_LinhaDeAjuste> {
       child: AnimatedContainer(
         duration: tempo,
         curve: Movimento.padrao,
-        // Com o texto normal, as dez linhas e a folga do degradê cabem em 1080p.
+        // Com o texto normal, as cinco fileiras da grade e a folga do degradê cabem em 1080p.
         // A letra ampliada aumenta a altura naturalmente e a lista passa a rolar.
         padding: const EdgeInsets.symmetric(horizontal: HeisucaBase.espaco8, vertical: Forma.espaco4),
         decoration: ShapeDecoration(color: fundo, shape: forma),

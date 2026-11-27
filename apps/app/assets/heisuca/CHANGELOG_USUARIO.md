@@ -1,3 +1,12 @@
+## 2.0.49 — O que mudou
+
+### Melhor
+- TV: a logo do Heisuca aparece no topo do Início, das bibliotecas, da Busca e dos Ajustes.
+- TV: letras no tamanho certo e a lista de Legendas não corta mais o primeiro item.
+
+### Corrigido
+- "Baixar" no menu da ficha do título voltou a funcionar, no Plex e no Jellyfin.
+
 ## 2.0.48 — O que mudou
 
 ### Novo

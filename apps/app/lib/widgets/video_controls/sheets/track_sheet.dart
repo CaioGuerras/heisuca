@@ -244,6 +244,7 @@ class _SourceSubtitleColumn extends StatelessWidget {
         final track = tracks[index - 1];
         return TrackSelectionHelper.buildTrackTile(
           context: context,
+          key: scope.keyFor(index),
           label: track.labelForIndex(index - 1),
           isSelected: track.id == selectedId,
           onTap: () => scope.runExclusive(
@@ -416,6 +417,7 @@ class _SubtitleColumn extends StatelessWidget {
           final sourceTrack = unloadedSourceSidecars[sourceIndex];
           return TrackSelectionHelper.buildTrackTile(
             context: context,
+            key: scope.keyFor(index),
             label: sourceTrack.labelForIndex(trackIndex),
             isSelected: false,
             onTap: () => scope.runExclusive(
@@ -446,6 +448,7 @@ class _SubtitleColumn extends StatelessWidget {
 
         return TrackSelectionHelper.buildTrackTile(
           context: context,
+          key: scope.keyFor(index),
           label: label,
           isSelected: isPrimary,
           badge: badge,

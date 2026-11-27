@@ -356,6 +356,36 @@ void main() {
             itemCount: 30,
             itemBuilder: (_, i) => SizedBox(
               key: i == 0 ? firstItemKey : (i == currentIndex ? currentItemKey : null),
+              height: i == 0 ? 30 : 150,
+              child: Text('$i'),
+            ),
+          ),
+        ),
+      );
+
+      scrollToCurrentItem(controller, firstItemKey, currentIndex, currentItemKey: currentItemKey);
+      await tester.pump();
+      await tester.pump();
+
+      // 30 + 4 × 150 = 630 (fora da tela de 600): o item 5 encosta no topo e o 4 sai inteiro.
+      expect(controller.offset, 630.0);
+      controller.dispose();
+    });
+
+    testWidgets('item atual já inteiro na tela: não rola e o 1º item continua visível', (tester) async {
+      // Captura 08 da TV (27/11): legenda no índice 2 rolava e escondia "Desligado", cortando o item 1.
+      final controller = ScrollController();
+      final firstItemKey = GlobalKey();
+      final currentItemKey = GlobalKey();
+      const currentIndex = 2;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ListView.builder(
+            controller: controller,
+            itemCount: 30,
+            itemBuilder: (_, i) => SizedBox(
+              key: i == 0 ? firstItemKey : (i == currentIndex ? currentItemKey : null),
               height: i == 0 ? 30 : 60,
               child: Text('$i'),
             ),
@@ -367,8 +397,7 @@ void main() {
       await tester.pump();
       await tester.pump();
 
-      // 30 + 4 × 60 = 270: o item 5 encosta no topo e o 4 sai inteiro.
-      expect(controller.offset, 270.0);
+      expect(controller.offset, 0.0);
       controller.dispose();
     });
 

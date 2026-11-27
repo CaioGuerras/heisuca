@@ -189,6 +189,8 @@ void scrollToCurrentItem(
 }) {
   WidgetsBinding.instance.addPostFrameCallback((_) {
     if (isCurrent?.call() == false || !controller.hasClients) return;
+    // Item atual já montado: mede pelo item real e só rola se ele não couber inteiro na tela.
+    if (currentItemKey != null && _revelarItemReal(controller, currentItemKey)) return;
     final itemHeight = (firstItemKey.currentContext?.findRenderObject() as RenderBox?)?.size.height;
     if (itemHeight == null) return;
     final maxExtent = controller.position.maxScrollExtent;
@@ -202,16 +204,26 @@ void scrollToCurrentItem(
 void _alinharPeloItemReal(ScrollController controller, GlobalKey currentItemKey, bool Function()? isCurrent) {
   WidgetsBinding.instance.addPostFrameCallback((_) {
     if (isCurrent?.call() == false || !controller.hasClients) return;
-    final item = currentItemKey.currentContext?.findRenderObject();
-    if (item == null || !item.attached) return;
-    final viewport = RenderAbstractViewport.maybeOf(item);
-    if (viewport == null) return;
-    final position = controller.position;
-    final alvo = viewport.getOffsetToReveal(item, 0).offset;
-    if (!alvo.isFinite) return;
-    final limitado = alvo.clamp(position.minScrollExtent, position.maxScrollExtent);
-    if ((limitado - position.pixels).abs() > 0.5) controller.jumpTo(limitado);
+    _revelarItemReal(controller, currentItemKey);
   });
+}
+
+/// Mostra o item de [currentItemKey] sem cortar nada no topo. Se ele já está inteiro na tela, não rola
+/// (a lista curta continua começando do 1º item). Devolve false quando o item ainda não foi montado.
+bool _revelarItemReal(ScrollController controller, GlobalKey currentItemKey) {
+  final item = currentItemKey.currentContext?.findRenderObject();
+  if (item == null || !item.attached) return false;
+  final viewport = RenderAbstractViewport.maybeOf(item);
+  if (viewport == null) return false;
+  final position = controller.position;
+  final topo = viewport.getOffsetToReveal(item, 0).offset;
+  final base = viewport.getOffsetToReveal(item, 1).offset;
+  if (!topo.isFinite || !base.isFinite) return false;
+  // Inteiro na tela: base <= pixels <= topo.
+  if (position.pixels >= base - 0.5 && position.pixels <= topo + 0.5) return true;
+  final limitado = topo.clamp(position.minScrollExtent, position.maxScrollExtent);
+  if ((limitado - position.pixels).abs() > 0.5) controller.jumpTo(limitado);
+  return true;
 }
 
 /// Owns the boilerplate for one-time initial scrolling in selectable lists.

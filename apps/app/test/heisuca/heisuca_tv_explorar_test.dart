@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:heisuca/heisuca/heisuca_logo.dart';
 
 import 'package:heisuca/features/explorar/modelo.dart';
 import 'package:heisuca/features/explorar/tela_explorar_tv.dart';
@@ -74,6 +75,7 @@ void main() {
     );
     expect(tester.takeException(), isNull);
     expect(find.text('Animes'), findsWidgets);
+    expect(find.byType(HeisucaLogo), findsOneWidget);
 
     final a = tester.getRect(find.byKey(const ValueKey('explorar-tv-i0')));
     final h = tester.getRect(find.byKey(const ValueKey('explorar-tv-i7')));

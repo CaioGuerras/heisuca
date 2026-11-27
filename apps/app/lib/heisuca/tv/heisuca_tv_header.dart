@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -10,8 +8,9 @@ import '../../design/tipo.dart';
 import '../../profiles/active_profile_provider.dart';
 import '../../profiles/profile_avatar.dart';
 import '../theme/heisuca_base.dart';
+import '../heisuca_logo.dart';
 
-/// Topo oficial do Heisuca na TV: Avatar no canto superior esquerdo com o nome HEISUCA ao lado.
+/// Topo oficial do Heisuca na TV: avatar no canto superior esquerdo com a marca SVG ao lado.
 /// Foco no avatar abre o menu principal da TV.
 class HeisucaTvHeader extends StatefulWidget {
   const HeisucaTvHeader({
@@ -69,7 +68,6 @@ class _HeisucaTvHeaderState extends State<HeisucaTvHeader> {
     final activeProfile = profiles?.active;
     final nome = activeProfile?.displayName ?? '';
     final initial = nome.isNotEmpty ? nome.characters.first.toUpperCase() : 'H';
-    final marca = Tipo.subtitulo(tema);
 
     return Padding(
       padding: widget.padding,
@@ -132,17 +130,8 @@ class _HeisucaTvHeaderState extends State<HeisucaTvHeader> {
           ),
           if (widget.showLogo) ...[
             const SizedBox(width: Forma.espaco4),
-            // Só o nome; os kanji carmim antes dele ficavam feios na TV (Caio, 31/10).
-            ExcludeSemantics(
-              child: Text(
-                'HEISUCA',
-                style: marca.copyWith(
-                  fontSize: max(24, (marca.fontSize ?? 16) * 1.5),
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 4,
-                ),
-              ),
-            ),
+            // A marca cabe na altura do avatar e não participa do foco do controle.
+            const ExcludeSemantics(child: HeisucaLogo(height: 48, siteHeader: true)),
           ],
         ],
       ),

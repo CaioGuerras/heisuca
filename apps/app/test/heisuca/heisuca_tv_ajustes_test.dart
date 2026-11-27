@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:heisuca/heisuca/heisuca_logo.dart';
 import 'package:provider/provider.dart';
 
 import 'package:heisuca/cgflix/cgflix_theme.dart';
@@ -150,6 +151,7 @@ void main() {
 
   testWidgets('Ajustes 960×540, letra 100 %: grade de duas colunas; as setas seguem a geometria', (tester) async {
     await montar(tester, const HeisucaTvSettingsScreen());
+    expect(find.byType(HeisucaLogo), findsOneWidget);
     Rect caixa(String nome) => tester.getRect(find.byKey(ValueKey('tv-ajuste-$nome')));
     expect(caixa('Tema').top, closeTo(caixa('Perfil').top, 0.01), reason: 'Perfil e Tema na mesma fileira');
     expect(caixa('Tema').left, greaterThan(caixa('Perfil').right), reason: 'Tema à direita do Perfil');

@@ -4,6 +4,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import '../../design/forma.dart';
 import '../../design/tema.dart';
 import '../../design/tipo.dart';
+import '../../heisuca/heisuca_logo.dart';
 import '../../heisuca/theme/heisuca_base.dart';
 import '../../heisuca/tv/heisuca_tv_area_segura.dart';
 import '../../heisuca/tv/heisuca_tv_canvas.dart';
@@ -190,9 +191,17 @@ class _TelaExplorarTvState extends State<TelaExplorarTv> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Semantics(
-          header: true,
-          child: Text(atual?.titulo ?? 'Explorar', style: tvTexto(Tipo.titulo(tema)).copyWith(color: tema.texto)),
+        Row(
+          children: [
+            Expanded(
+              child: Semantics(
+                header: true,
+                child: Text(atual?.titulo ?? 'Explorar', style: tvTexto(Tipo.titulo(tema)).copyWith(color: tema.texto)),
+              ),
+            ),
+            const SizedBox(width: Forma.espaco4),
+            const HeisucaLogo(siteHeader: true),
+          ],
         ),
         const SizedBox(height: Forma.espaco6),
         FocusTraversalGroup(

@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:heisuca/cgflix/cgflix_theme.dart';
+import 'package:heisuca/heisuca/heisuca_brand_colors.dart';
 
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -15,6 +18,7 @@ import 'package:heisuca/utils/media_image_helper.dart';
 import 'package:heisuca/utils/platform_detector.dart';
 
 import 'package:heisuca/heisuca/tv/heisuca_tv_header.dart';
+import 'package:heisuca/heisuca/heisuca_logo.dart';
 import 'package:heisuca/heisuca/tv/heisuca_tv_menu.dart';
 import 'package:heisuca/heisuca/tv/heisuca_tv_home_screen.dart';
 import 'package:heisuca/heisuca/tv/heisuca_tv_title_screen.dart';
@@ -55,6 +59,27 @@ void main() {
   });
 
   group('TV-1 G1: Telas de TV no Modelo A', () {
+    for (final variante in [CgflixThemeVariant.isis, CgflixThemeVariant.sumi]) {
+      testWidgets('Marca oficial acompanha o tema $variante sem ampliar o cabeçalho', (tester) async {
+        final tema = cgflixAppTheme(variante);
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: tema,
+            home: Scaffold(
+              body: HeisucaTvHeader(onOpenMenu: () {}, padding: EdgeInsets.zero),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final svg = tester.widget<SvgPicture>(find.byType(SvgPicture));
+        final loader = svg.bytesLoader as SvgAssetLoader;
+        expect(loader.assetName, 'assets/heisuca/marca_site_shikkoku.svg');
+        expect((loader.colorMapper! as HeisucaBrandColors).palette, tema.extension<CgflixPalette>());
+        expect(tester.getSize(find.byType(HeisucaTvHeader)).height, 64);
+        expect(find.byType(FocusableActionDetector), findsOneWidget, reason: 'só o avatar recebe foco');
+      });
+    }
+
     testWidgets('G1.1 Navegação: avatar no topo esquerdo e menu abre/fecha', (tester) async {
       await tester.binding.setSurfaceSize(const Size(1920, 1080));
       addTearDown(() => unawaited(tester.binding.setSurfaceSize(null)));
@@ -89,7 +114,10 @@ void main() {
 
       // Avatar e Logo HEISUCA visíveis no topo
       expect(find.byType(HeisucaTvHeader), findsOneWidget);
-      expect(find.textContaining('HEISUCA'), findsOneWidget);
+      expect(find.byType(HeisucaLogo), findsOneWidget);
+      expect(find.text('HEISUCA'), findsNothing);
+      expect(tester.getSize(find.byType(HeisucaLogo)).height, lessThanOrEqualTo(64));
+      expect(find.descendant(of: find.byType(HeisucaLogo), matching: find.byType(Focus)), findsNothing);
 
       // Foca o avatar e ativa
       final avatarFinder = find.byKey(const Key('heisuca-tv-avatar-button'));
@@ -212,6 +240,10 @@ void main() {
       // Linha Continuar assistindo
       expect(find.text('Continuar assistindo'), findsOneWidget);
       expect(find.byKey(const Key('heisuca-tv-continue-row')), findsOneWidget);
+      expect(find.byType(HeisucaLogo), findsOneWidget);
+      final primeiraFileira = tester.getRect(find.byKey(const Key('heisuca-tv-continue-row')));
+      expect(primeiraFileira.top, greaterThan(0));
+      expect(primeiraFileira.bottom, lessThanOrEqualTo(1080));
     });
 
     testWidgets('G1.2d Arte do destaque sangra até as bordas da tela (sem retângulo no meio)', (tester) async {
@@ -234,7 +266,7 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
 
       final arte = find.byWidgetPredicate(
-        (w) => w.key is ValueKey<String> && '${(w.key! as ValueKey<String>).value}'.startsWith('arte:'),
+        (w) => w.key is ValueKey<String> && (w.key! as ValueKey<String>).value.startsWith('arte:'),
       );
       expect(arte, findsOneWidget);
       // O AnimatedSwitcher solto deixava a imagem carregada no tamanho dela, centrada (1280×720 numa tela de

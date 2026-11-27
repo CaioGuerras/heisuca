@@ -22,6 +22,7 @@ import '../../services/settings_service.dart' as settings;
 import '../../services/updates/pagina_na_loja.dart';
 import '../../services/updates/update_controller.dart';
 import '../theme/heisuca_base.dart';
+import '../heisuca_logo.dart';
 import 'heisuca_tv_area_segura.dart';
 import 'heisuca_tv_canvas.dart';
 import 'heisuca_tv_pecas.dart';
@@ -222,12 +223,20 @@ class _HeisucaTvSettingsScreenState extends State<HeisucaTvSettingsScreen> {
                       children: [
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: HeisucaTvSettingsScreen.folgaDoFoco),
-                          child: Semantics(
-                            header: true,
-                            child: Text(
-                              'Ajustes',
-                              style: Tipo.destaque(tema).copyWith(fontSize: HeisucaBase.tamanhoTvTitulo),
-                            ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Semantics(
+                                  header: true,
+                                  child: Text(
+                                    'Ajustes',
+                                    style: Tipo.destaque(tema).copyWith(fontSize: HeisucaBase.tamanhoTvTitulo),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: Forma.espaco4),
+                              const HeisucaLogo(siteHeader: true),
+                            ],
                           ),
                         ),
                         const SizedBox(height: Forma.espaco4),

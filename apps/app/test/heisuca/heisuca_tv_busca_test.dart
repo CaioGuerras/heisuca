@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:heisuca/heisuca/heisuca_logo.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import 'package:heisuca/features/busca/ligacao.dart';
@@ -73,6 +74,7 @@ void main() {
       });
       await tester.pump(const Duration(milliseconds: 400));
       expect(find.text('Sugestões'), findsOneWidget);
+      expect(find.byType(HeisucaLogo), findsOneWidget);
       expect(find.byType(CartaoTv), findsNWidgets(2));
       expect(find.text('Uma viagem para lembrar'), findsWidgets);
       expect(find.text('Histórias da nossa família'), findsWidgets);

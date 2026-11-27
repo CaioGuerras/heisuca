@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../cgflix/home/cgflix_actions.dart';
 import '../../design/componentes/botao.dart';
@@ -22,8 +23,10 @@ import '../../media/media_item.dart';
 import '../../media/media_kind.dart';
 import '../../media/media_role.dart';
 import '../../media/media_server_client.dart';
+import '../../providers/download_provider.dart';
 import '../../screens/actor_media_screen.dart';
 import '../../services/settings_service.dart';
+import '../../utils/download_utils.dart';
 import '../../utils/media_image_helper.dart';
 import '../../widgets/optimized_media_image.dart';
 import '../inicio/fileira.dart';
@@ -337,6 +340,20 @@ class _LigacaoDoTituloState extends State<LigacaoDoTitulo> {
     if (mounted) setState(() {});
   }
 
+  void _baixar(MediaItem item) {
+    if (!mounted) return;
+    final cliente = widget.clienteDe(context, item);
+    if (cliente == null) return;
+    unawaited(
+      queueDownloadWithFeedback(
+        context,
+        metadata: item,
+        client: cliente,
+        downloadProvider: Provider.of<DownloadProvider>(context, listen: false),
+      ),
+    );
+  }
+
   void _menu(MediaItem item, {VoidCallback? aoAssistir}) {
     if (!mounted) return;
     unawaited(
@@ -344,6 +361,7 @@ class _LigacaoDoTituloState extends State<LigacaoDoTitulo> {
         context,
         item: item,
         onPlay: aoAssistir,
+        onDownload: () => _baixar(item),
         onToggleWatched: () => unawaited(_alternarVisto(item)),
         onToggleFavorite: identical(item, _item) ? () => unawaited(_alternarLista()) : null,
       ),

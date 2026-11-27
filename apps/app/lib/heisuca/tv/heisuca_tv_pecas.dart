@@ -18,8 +18,25 @@ import 'heisuca_tv_segurar.dart';
 /// Tudo sai dos tokens da V2 (`lib/design/`): foco = anel + escala, sem onda nem cor escrita à mão. O tema é o
 /// escuro da TV, que quem monta a tela aplica (`TrilhoDaTv.escuroDaTv`).
 
-/// Texto da TV: a escala do celular vista a 3 m. Nada abaixo de 24 na tela de referência de 1920.
-TextStyle tvTexto(TextStyle estilo) => estilo.copyWith(fontSize: max(24, (estilo.fontSize ?? 16) * 1.5));
+/// Texto da TV: cada papel do [Tipo] do celular, visto a 3 m, na tela de referência de 1920.
+///
+/// Referência: a TV Tizen 0.4.7, aprovada pelo Caio em 27/11/2026 (corpo 20, sinopse 21–22, nome do cartão 19,
+/// título de seção 30, nome do destaque 64). A regra antiga (×1,5, nada abaixo de 24) deixava a letra maior que a
+/// da Tizen e cortava nomes nos cartões. Papéis: legenda, pequeno, texto, subtítulo, título e destaque;
+/// fora deles, ×1,5.
+TextStyle tvTexto(TextStyle estilo) {
+  final tamanho = estilo.fontSize ?? 16;
+  final naTv = switch (tamanho) {
+    12 => 16.0,
+    14 => 18.0,
+    16 => 21.0,
+    20 => 30.0,
+    28 => 42.0,
+    40 => 60.0,
+    _ => tamanho * 1.5,
+  };
+  return estilo.copyWith(fontSize: naTv);
+}
 
 /// Altura de uma linha de [estilo] como o [Text] a desenha (escala da letra e comportamento de altura do
 /// [DefaultTextStyle]). A conta `fontSize × height` não vê o arredondamento da linha.
@@ -73,7 +90,7 @@ class BotaoTv extends StatefulWidget {
   /// o mínimo de toque ou a linha do texto com a letra do aparelho, o que for maior.
   static double alturaCompacta(BuildContext context, TemaHeisuca tema) => max(
     _alturaMinimaCompacta,
-    medirLinhaTv(context, tvTexto(Tipo.texto(tema)).copyWith(fontWeight: FontWeight.w600)),
+    medirLinhaTv(context, tvTexto(Tipo.pequeno(tema)).copyWith(fontWeight: FontWeight.w600)),
   );
 
   static const double _alturaMinimaCompacta = Forma.toqueMinimo + Forma.espaco2;
@@ -90,7 +107,8 @@ class _BotaoTvState extends State<BotaoTv> {
     final tema = TemaHeisuca.de(context);
     final tinta = widget.principal ? tema.botaoTexto : tema.texto;
     final icone = widget.icone;
-    final estilo = widget.compacto ? tvTexto(Tipo.texto(tema)) : tvTexto(Tipo.subtitulo(tema));
+    // Tizen 0.4.7: pílula 19, botão principal 22.
+    final estilo = widget.compacto ? tvTexto(Tipo.pequeno(tema)) : tvTexto(Tipo.texto(tema));
     final ativo = widget.aoTocar != null;
     return Semantics(
       button: true,
@@ -126,7 +144,7 @@ class _BotaoTvState extends State<BotaoTv> {
                 curve: Movimento.entra,
                 constraints: widget.compacto
                     ? const BoxConstraints(minHeight: BotaoTv._alturaMinimaCompacta)
-                    : const BoxConstraints(minHeight: 72, minWidth: 200),
+                    : const BoxConstraints(minHeight: 64, minWidth: 200),
                 padding: EdgeInsets.symmetric(horizontal: widget.compacto ? Forma.espaco6 : HeisucaBase.espaco8),
                 decoration: ShapeDecoration(
                   shape: Forma.pilula(
@@ -222,8 +240,8 @@ class CartaoTv extends StatefulWidget {
       (comLegenda ? medirLinhaTv(context, _estiloDaLegenda(tema)) : 0);
 
   static TextStyle _estiloDoTitulo(TemaHeisuca tema) =>
-      tvTexto(Tipo.texto(tema)).copyWith(color: tema.texto, fontWeight: FontWeight.w600);
-  static TextStyle _estiloDaLegenda(TemaHeisuca tema) => tvTexto(Tipo.pequeno(tema));
+      tvTexto(Tipo.pequeno(tema)).copyWith(color: tema.texto, fontWeight: FontWeight.w600);
+  static TextStyle _estiloDaLegenda(TemaHeisuca tema) => tvTexto(Tipo.legenda(tema));
 
   @override
   State<CartaoTv> createState() => _CartaoTvState();

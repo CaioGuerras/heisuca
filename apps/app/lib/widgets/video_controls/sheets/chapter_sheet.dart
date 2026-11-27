@@ -128,7 +128,7 @@ class _ChapterSheetState extends State<ChapterSheet> {
                   : null;
 
               return FocusableListTile(
-                key: index == 0 ? _initialScroll.firstItemKey : null,
+                key: _initialScroll.keyFor(index, currentChapterIndex),
                 leading: chapter.thumb != null
                     ? MediaSelectorThumbnail(
                         width: 60,

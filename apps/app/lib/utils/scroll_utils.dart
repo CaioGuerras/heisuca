@@ -174,11 +174,18 @@ bool _isAncestorOf(RenderObject ancestor, RenderObject descendant) {
 /// then scrolls to `currentIndex * itemHeight`, clamped to max extent.
 /// Call once after the first build; the callback is a no-op if the key or
 /// controller aren't ready yet.
+///
+/// A altura do 1º item é só estimativa: quando os itens têm alturas diferentes
+/// (o "Desligado" das legendas é mais baixo que as faixas), o pulo parava no
+/// meio do item anterior, que ficava cortado sob o título. Com [currentItemKey]
+/// no item atual, um segundo quadro corrige o pulo pela posição real dele,
+/// só nesta lista (sem mexer em listas ancestrais).
 void scrollToCurrentItem(
   ScrollController controller,
   GlobalKey firstItemKey,
   int currentIndex, {
   bool Function()? isCurrent,
+  GlobalKey? currentItemKey,
 }) {
   WidgetsBinding.instance.addPostFrameCallback((_) {
     if (isCurrent?.call() == false || !controller.hasClients) return;
@@ -188,19 +195,45 @@ void scrollToCurrentItem(
     if (!maxExtent.isFinite) return;
     final target = (currentIndex * itemHeight).clamp(0.0, maxExtent);
     controller.jumpTo(target);
+    if (currentItemKey != null) _alinharPeloItemReal(controller, currentItemKey, isCurrent);
+  });
+}
+
+void _alinharPeloItemReal(ScrollController controller, GlobalKey currentItemKey, bool Function()? isCurrent) {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (isCurrent?.call() == false || !controller.hasClients) return;
+    final item = currentItemKey.currentContext?.findRenderObject();
+    if (item == null || !item.attached) return;
+    final viewport = RenderAbstractViewport.maybeOf(item);
+    if (viewport == null) return;
+    final position = controller.position;
+    final alvo = viewport.getOffsetToReveal(item, 0).offset;
+    if (!alvo.isFinite) return;
+    final limitado = alvo.clamp(position.minScrollExtent, position.maxScrollExtent);
+    if ((limitado - position.pixels).abs() > 0.5) controller.jumpTo(limitado);
   });
 }
 
 /// Owns the boilerplate for one-time initial scrolling in selectable lists.
 class InitialItemScrollController {
   final GlobalKey firstItemKey = GlobalKey();
+
+  /// Chave do item selecionado: corrige o pulo quando os itens têm alturas diferentes.
+  final GlobalKey currentItemKey = GlobalKey();
   final ScrollController controller = ScrollController();
   bool _didInitialScroll = false;
+
+  /// Chave para o item [index] da lista cujo selecionado é [selectedIndex].
+  Key? keyFor(int index, int? selectedIndex) {
+    if (index == 0) return firstItemKey;
+    if (index == selectedIndex) return currentItemKey;
+    return null;
+  }
 
   void maybeScrollTo(int? selectedIndex) {
     if (_didInitialScroll || selectedIndex == null || selectedIndex <= 0) return;
     _didInitialScroll = true;
-    scrollToCurrentItem(controller, firstItemKey, selectedIndex);
+    scrollToCurrentItem(controller, firstItemKey, selectedIndex, currentItemKey: currentItemKey);
   }
 
   void dispose() => controller.dispose();

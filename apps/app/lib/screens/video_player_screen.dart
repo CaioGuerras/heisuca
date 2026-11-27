@@ -89,6 +89,7 @@ import '../utils/immersive_mode_guard.dart';
 import '../utils/live_tv_player_navigation.dart';
 import '../utils/player_utils.dart';
 import '../utils/orientation_helper.dart';
+import '../heisuca/tv/heisuca_tv_canvas.dart';
 import '../utils/platform_detector.dart';
 import '../utils/provider_extensions.dart';
 import '../utils/snackbar_helper.dart';
@@ -2930,6 +2931,15 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
     });
   }
 
+  /// Na TV o player fica na tela de referência de 1600 de largura (1,2 px por ponto em 1080p): assim a
+  /// barra, os títulos e o painel de Áudio e legendas saem no tamanho da TV Tizen 0.4.7, aprovada pelo
+  /// Caio como referência. Sem isso o player ficava em dp (2 px por ponto), quase o dobro da Tizen.
+  /// O vídeo é pintado pelo sistema atrás do Flutter, então a escala só mexe nos controles.
+  Widget _escalaDoPlayerTv(Widget filho) {
+    if (!PlatformDetector.isTV()) return filho;
+    return HeisucaTvCanvas(larguraReferencia: HeisucaTvCanvas.larguraReferenciaPlayer, child: filho);
+  }
+
   @override
   Widget build(BuildContext context) {
     final isCurrentRoute = ModalRoute.of(context)?.isCurrent ?? true;
@@ -3026,34 +3036,36 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
         },
         child: ListenableBuilder(
           listenable: _chromeController,
-          builder: (context, _) => OverlaySheetHost(
-            // Só estados efêmeros bloqueiam o pop; no celular a rota pode acompanhar
-            // o gesto oficial. O host já impede sair enquanto uma folha está aberta.
-            canPop:
-                PlatformDetector.isMobile(context) &&
-                !_chromeController.contentStripVisible &&
-                !_episode.showPlayNextDialog &&
-                !_showStillWatchingPrompt,
-            onPopped: _handleCommittedPlayerPop,
-            onSystemBack: () {
-              if (BackKeyCoordinator.consumeIfHandled()) return;
-              BackKeyCoordinator.markHandled();
-              _handleScreenPlayerNavigation(PlayerNavigationKey.back);
-            },
-            child: Builder(
-              key: _overlayChildKey,
-              builder: (sheetContext) {
-                final playbackFailure = _playbackFailureMessage;
-                if (playbackFailure != null) {
-                  return _buildPlaybackFailure(playbackFailure, onRetry: _playbackFailureRetry!);
-                }
-                if (_isPlayerInitialized && player != null) return _buildVideoPlayer(sheetContext);
-                final initializationError = _playerInitializationError;
-                if (initializationError != null) {
-                  return _buildPlaybackFailure(initializationError, onRetry: _retryPlayerInitialization);
-                }
-                return _buildLoadingSpinner();
+          builder: (context, _) => _escalaDoPlayerTv(
+            OverlaySheetHost(
+              // Só estados efêmeros bloqueiam o pop; no celular a rota pode acompanhar
+              // o gesto oficial. O host já impede sair enquanto uma folha está aberta.
+              canPop:
+                  PlatformDetector.isMobile(context) &&
+                  !_chromeController.contentStripVisible &&
+                  !_episode.showPlayNextDialog &&
+                  !_showStillWatchingPrompt,
+              onPopped: _handleCommittedPlayerPop,
+              onSystemBack: () {
+                if (BackKeyCoordinator.consumeIfHandled()) return;
+                BackKeyCoordinator.markHandled();
+                _handleScreenPlayerNavigation(PlayerNavigationKey.back);
               },
+              child: Builder(
+                key: _overlayChildKey,
+                builder: (sheetContext) {
+                  final playbackFailure = _playbackFailureMessage;
+                  if (playbackFailure != null) {
+                    return _buildPlaybackFailure(playbackFailure, onRetry: _playbackFailureRetry!);
+                  }
+                  if (_isPlayerInitialized && player != null) return _buildVideoPlayer(sheetContext);
+                  final initializationError = _playerInitializationError;
+                  if (initializationError != null) {
+                    return _buildPlaybackFailure(initializationError, onRetry: _retryPlayerInitialization);
+                  }
+                  return _buildLoadingSpinner();
+                },
+              ),
             ),
           ),
         ),

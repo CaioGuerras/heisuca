@@ -55,7 +55,7 @@ class _SheetSelectionColumnState extends State<SheetSelectionColumn> implements 
   }
 
   @override
-  Key? keyFor(int index) => index == 0 ? _initialScroll.firstItemKey : null;
+  Key? keyFor(int index) => _initialScroll.keyFor(index, widget.initialIndex);
 
   @override
   void runExclusive(Future<void> Function() action) => unawaited(_select(action));

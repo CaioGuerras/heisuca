@@ -330,7 +330,8 @@ class _LinhaDeAjusteState extends State<_LinhaDeAjuste> {
     final tinta2 = _comFoco ? tema.botaoTexto : tema.texto2;
     final tempo = Movimento.tempo(context, Movimento.troca);
     final nome = Tipo.subtitulo(tema).copyWith(fontSize: HeisucaBase.tamanhoTitulo, color: tinta);
-    final valor = Tipo.texto(tema).copyWith(fontSize: HeisucaBase.tamanhoTvTexto, color: tinta2, height: 1.2);
+    // Valor em 18, como a info da Tizen 0.4.7 (o token de 24 ficava maior que o nome lido a 3 m).
+    final valor = tvTexto(Tipo.pequeno(tema)).copyWith(color: tinta2, height: 1.2);
 
     return Toque(
       key: ValueKey('tv-ajuste-${widget.titulo}'),

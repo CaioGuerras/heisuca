@@ -74,7 +74,7 @@ class _QueueSheetState extends State<QueueSheet> {
 
                 final primaryColor = Theme.of(context).colorScheme.primary;
                 return FocusableListTile(
-                  key: index == 0 ? _initialScroll.firstItemKey : null,
+                  key: _initialScroll.keyFor(index, currentIndex),
                   leading: _buildThumbnail(context, item, isCurrent, hideSpoilers: hideSpoilers),
                   title: Text(
                     item.title ?? '',

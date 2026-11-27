@@ -6,10 +6,15 @@ import 'package:flutter/widgets.dart';
 /// O conteúdo é montado na largura de referência e reduzido para a largura real; a altura segue a
 /// proporção do aparelho. O MediaQuery de dentro já descreve a tela de referência.
 class HeisucaTvCanvas extends StatelessWidget {
-  const HeisucaTvCanvas({super.key, required this.child});
+  const HeisucaTvCanvas({super.key, this.larguraReferencia = larguraReferenciaTelas, required this.child});
 
-  static const double larguraReferencia = 1920;
+  /// Telas do modelo A (início, título, busca, Ajustes): 1 ponto = 1 px em 1080p.
+  static const double larguraReferenciaTelas = 1920;
 
+  /// Player: 1 ponto = 1,2 px em 1080p, para a barra e o painel baterem com a Tizen 0.4.7.
+  static const double larguraReferenciaPlayer = 1600;
+
+  final double larguraReferencia;
   final Widget child;
 
   @override

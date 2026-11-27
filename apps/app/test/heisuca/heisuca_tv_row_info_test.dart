@@ -84,6 +84,7 @@ void main() {
     final text = tester.widget<Text>(label);
     expect(text.maxLines, 1);
     expect(text.overflow, TextOverflow.ellipsis);
-    expect(text.style!.fontSize, greaterThanOrEqualTo(22));
+    // Referência: Tizen 0.4.7 (nome do cartão 19), aprovada pelo Caio em 27/11; nem menor que a info da busca.
+    expect(text.style!.fontSize, inInclusiveRange(18, 21));
   });
 }

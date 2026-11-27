@@ -341,6 +341,37 @@ void main() {
       controller.dispose();
     });
 
+    testWidgets('1º item mais baixo: alinha o item atual pelo topo real, sem cortar o anterior', (tester) async {
+      // Folha de legendas: "Desligado" (índice 0) tem uma linha só e é mais baixo que as faixas.
+      // A estimativa índice × altura do 1º item parava no meio do item anterior.
+      final controller = ScrollController();
+      final firstItemKey = GlobalKey();
+      final currentItemKey = GlobalKey();
+      const currentIndex = 5;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ListView.builder(
+            controller: controller,
+            itemCount: 30,
+            itemBuilder: (_, i) => SizedBox(
+              key: i == 0 ? firstItemKey : (i == currentIndex ? currentItemKey : null),
+              height: i == 0 ? 30 : 60,
+              child: Text('$i'),
+            ),
+          ),
+        ),
+      );
+
+      scrollToCurrentItem(controller, firstItemKey, currentIndex, currentItemKey: currentItemKey);
+      await tester.pump();
+      await tester.pump();
+
+      // 30 + 4 × 60 = 270: o item 5 encosta no topo e o 4 sai inteiro.
+      expect(controller.offset, 270.0);
+      controller.dispose();
+    });
+
     testWidgets('clamps target to max scroll extent for huge index', (tester) async {
       final controller = ScrollController();
       final firstItemKey = GlobalKey();

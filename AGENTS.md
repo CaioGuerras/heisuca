@@ -1,3 +1,5 @@
+> Leia ~/base/MANUAL.md antes.
+
 # Heisuca — continuidade entre agentes
 
 ## Origem técnica conferida em 26/10/2026
